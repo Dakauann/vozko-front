@@ -1,0 +1,171 @@
+import type { TourStep } from "@/components/TourGuide";
+import type { ColorGroup } from "@/components/elevated-design/grain-background";
+import {
+  PhoneCall,
+  Brain,
+  TreeStructure,
+  UploadSimple,
+  FileCsv,
+  Warning,
+  CheckCircle,
+  Tag,
+  BracketsAngle,
+  Sparkle,
+  GearSix,
+} from "@phosphor-icons/react";
+
+export const voipCampaignsTourPalette: ColorGroup[] = [
+  { colors: ["#6366f1", "#4f46e5"], weight: 35 },
+  { colors: ["#8b5cf6", "#7c3aed"], weight: 25 },
+  { colors: ["#4338ca", "#3730a3"], weight: 25 },
+  { colors: ["#a78bfa", "#c4b5fd"], weight: 15 },
+];
+export const voipCampaignsTourSeed = 7799;
+
+export const voipCampaignsTourSteps: TourStep[] = [
+  {
+    target: "[data-tour='vc-basic-info']",
+    placement: "bottom",
+    badge: "steps.basicInfo.badge",
+    title: "steps.basicInfo.title",
+    subtitle: "steps.basicInfo.subtitle",
+    palette: voipCampaignsTourPalette,
+    seed: voipCampaignsTourSeed + 1,
+    features: [
+      { icon: PhoneCall, text: "steps.basicInfo.f0" },
+      { icon: CheckCircle, text: "steps.basicInfo.f1" },
+    ],
+  },
+  {
+    target: "[data-tour='vc-call-mode']",
+    placement: "bottom",
+    badge: "steps.callMode.badge",
+    title: "steps.callMode.title",
+    subtitle: "steps.callMode.subtitle",
+    palette: voipCampaignsTourPalette,
+    seed: voipCampaignsTourSeed + 2,
+    features: [
+      { icon: Brain, text: "steps.callMode.f0" },
+      { icon: TreeStructure, text: "steps.callMode.f1" },
+    ],
+  },
+  {
+    target: "[data-tour='vc-agent']",
+    placement: "bottom",
+    badge: "steps.agent.badge",
+    title: "steps.agent.title",
+    subtitle: "steps.agent.subtitle",
+    palette: voipCampaignsTourPalette,
+    seed: voipCampaignsTourSeed + 3,
+    features: [
+      { icon: Brain, text: "steps.agent.f0" },
+      { icon: Sparkle, text: "steps.agent.f1" },
+      { icon: GearSix, text: "steps.agent.f2" },
+    ],
+  },
+  {
+    target: "[data-tour='vc-workflow']",
+    placement: "bottom",
+    badge: "steps.workflow.badge",
+    title: "steps.workflow.title",
+    subtitle: "steps.workflow.subtitle",
+    palette: voipCampaignsTourPalette,
+    seed: voipCampaignsTourSeed + 4,
+    features: [
+      { icon: TreeStructure, text: "steps.workflow.f0" },
+      { icon: BracketsAngle, text: "steps.workflow.f1" },
+    ],
+  },
+  {
+    target: "[data-tour='vc-sip-trunk']",
+    placement: "bottom",
+    badge: "steps.sipTrunk.badge",
+    title: "steps.sipTrunk.title",
+    subtitle: "steps.sipTrunk.subtitle",
+    palette: voipCampaignsTourPalette,
+    seed: voipCampaignsTourSeed + 5,
+    features: [
+      { icon: PhoneCall, text: "steps.sipTrunk.f0" },
+      { icon: Warning, text: "steps.sipTrunk.f1" },
+    ],
+  },
+  {
+    target: "[data-tour='vc-stage-group']",
+    placement: "bottom",
+    badge: "steps.stageGroup.badge",
+    title: "steps.stageGroup.title",
+    subtitle: "steps.stageGroup.subtitle",
+    palette: voipCampaignsTourPalette,
+    seed: voipCampaignsTourSeed + 6,
+    features: [
+      { icon: Tag, text: "steps.stageGroup.f0" },
+    ],
+  },
+  {
+    target: "[data-tour='vc-contacts']",
+    placement: "bottom",
+    badge: "steps.contacts.badge",
+    title: "steps.contacts.title",
+    subtitle: "steps.contacts.subtitle",
+    palette: voipCampaignsTourPalette,
+    seed: voipCampaignsTourSeed + 7,
+    features: [
+      { icon: UploadSimple, text: "steps.contacts.f0" },
+      { icon: PhoneCall, text: "steps.contacts.f1" },
+    ],
+  },
+  {
+    target: "[data-tour='vc-csv-buttons']",
+    placement: "bottom",
+    badge: "steps.csv.badge",
+    title: "steps.csv.title",
+    subtitle: "steps.csv.subtitle",
+    palette: voipCampaignsTourPalette,
+    seed: voipCampaignsTourSeed + 8,
+    features: [
+      { icon: FileCsv, text: "steps.csv.f0" },
+      { icon: FileCsv, text: "steps.csv.f1" },
+      { icon: Tag, text: "steps.csv.f2" },
+    ],
+  },
+  {
+    target: "[data-tour='vc-metadata']",
+    placement: "bottom",
+    badge: "steps.metadata.badge",
+    title: "steps.metadata.title",
+    subtitle: "steps.metadata.subtitle",
+    palette: voipCampaignsTourPalette,
+    seed: voipCampaignsTourSeed + 9,
+    features: [
+      { icon: Tag, text: "steps.metadata.f0" },
+      { icon: Tag, text: "steps.metadata.f1" },
+      { icon: Warning, text: "steps.metadata.f2" },
+    ],
+  },
+  {
+    target: "[data-tour='vc-missing-vars']",
+    placement: "bottom",
+    badge: "steps.missingVars.badge",
+    title: "steps.missingVars.title",
+    subtitle: "steps.missingVars.subtitle",
+    palette: voipCampaignsTourPalette,
+    seed: voipCampaignsTourSeed + 10,
+    features: [
+      { icon: Warning, text: "steps.missingVars.f0" },
+      { icon: CheckCircle, text: "steps.missingVars.f1" },
+    ],
+  },
+  {
+    target: "[data-tour='vc-submit']",
+    placement: "top",
+    badge: "steps.submit.badge",
+    title: "steps.submit.title",
+    subtitle: "steps.submit.subtitle",
+    palette: voipCampaignsTourPalette,
+    seed: voipCampaignsTourSeed + 11,
+    features: [
+      { icon: CheckCircle, text: "steps.submit.f0" },
+      { icon: Warning, text: "steps.submit.f1" },
+    ],
+  },
+];

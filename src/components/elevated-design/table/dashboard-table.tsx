@@ -1,0 +1,505 @@
+"use client";
+
+import { CaretLeft, CaretRight, Check, Minus } from "@phosphor-icons/react";
+import { Fragment, ReactNode, useCallback } from "react";
+
+import { cn } from "@/lib/utils";
+
+
+export interface DashboardTableColumn<T> {
+  header: string;
+  key: string;
+  className?: string;
+  render?: (row: T, rowIndex: number) => ReactNode;
+  accessor?: (row: T) => ReactNode;
+}
+
+export interface DashboardTablePagination {
+  currentPage: number;
+  totalPages: number;
+  pageSize: number;
+  totalItems: number;
+  onPageChange: (page: number) => void;
+}
+
+export interface DashboardTableEmptyState {
+  icon?: ReactNode;
+  title: string;
+  description?: string;
+  action?: ReactNode;
+}
+
+export interface DashboardTableStat {
+  label: string;
+  value: ReactNode;
+  icon?: ReactNode;
+}
+
+export interface DashboardTableSelection<T> {
+  selectedKeys: Set<string>;
+  onSelectionChange: (keys: Set<string>) => void;
+  actions?: (selectedRows: T[]) => ReactNode;
+  // Localizable label for the selection bar count (defaults to English
+  // "N selected"). Lets pt-BR callers render e.g. "3 selecionadas".
+  label?: (count: number) => ReactNode;
+}
+
+export interface DashboardTableProps<T> {
+  data: T[];
+  columns: DashboardTableColumn<T>[];
+  rowKey: (row: T, index: number) => string;
+  className?: string;
+  emptyState?: ReactNode | DashboardTableEmptyState;
+  caption?: ReactNode;
+  renderRowActions?: (row: T) => ReactNode;
+
+  stats?: DashboardTableStat[];
+  headerLeft?: ReactNode;
+  headerRight?: ReactNode;
+
+  toolbar?: ReactNode;
+
+  selection?: DashboardTableSelection<T>;
+
+  pagination?: DashboardTablePagination;
+  paginationText?: {
+    showing?: string;
+    of?: string;
+    items?: string;
+  };
+
+  loading?: boolean;
+  onRowClick?: (row: T, index: number) => void;
+  isRowExpanded?: (row: T, index: number) => boolean;
+  renderExpandedRow?: (row: T, index: number) => ReactNode;
+  rowClassName?: (row: T, index: number) => string;
+}
+
+
+export function DashboardTable<T>({
+  data,
+  columns,
+  rowKey,
+  className,
+  emptyState,
+  caption,
+  renderRowActions,
+  stats,
+  headerLeft,
+  headerRight,
+  toolbar,
+  selection,
+  pagination,
+  paginationText,
+  loading = false,
+  onRowClick,
+  isRowExpanded,
+  renderExpandedRow,
+  rowClassName,
+}: DashboardTableProps<T>) {
+  const hasData = data.length > 0;
+  const hasHeader =
+    !!headerLeft || !!headerRight || (stats && stats.length > 0);
+  const hasToolbar = !!toolbar;
+  const hasPagination = !!pagination;
+  const hasSelection = !!selection;
+
+  const allKeys = data.map((row, i) => rowKey(row, i));
+  const selectedCount = selection?.selectedKeys.size ?? 0;
+  const allSelected = hasData && selectedCount === data.length;
+  const someSelected = selectedCount > 0 && !allSelected;
+
+  const toggleAll = useCallback(() => {
+    if (!selection) return;
+    if (allSelected) {
+      selection.onSelectionChange(new Set());
+    } else {
+      selection.onSelectionChange(new Set(allKeys));
+    }
+  }, [selection, allSelected, allKeys]);
+
+  const toggleRow = useCallback(
+    (key: string) => {
+      if (!selection) return;
+      const next = new Set(selection.selectedKeys);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      selection.onSelectionChange(next);
+    },
+    [selection],
+  );
+
+  const isEmptyStateObject = (
+    state: ReactNode | DashboardTableEmptyState | undefined,
+  ): state is DashboardTableEmptyState => {
+    return (
+      typeof state === "object" &&
+      state !== null &&
+      "title" in state &&
+      !("type" in state)
+    );
+  };
+
+  const getPaginationRange = () => {
+    if (!pagination) return [];
+    const { currentPage, totalPages } = pagination;
+    const maxVisible = 5;
+    if (totalPages <= maxVisible)
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    if (currentPage <= 3) return [1, 2, 3, 4, 5];
+    if (currentPage >= totalPages - 2)
+      return Array.from({ length: 5 }, (_, i) => totalPages - 4 + i);
+    return [
+      currentPage - 2,
+      currentPage - 1,
+      currentPage,
+      currentPage + 1,
+      currentPage + 2,
+    ];
+  };
+
+  const from = pagination
+    ? (pagination.currentPage - 1) * pagination.pageSize + 1
+    : 0;
+  const to = pagination
+    ? Math.min(
+        pagination.currentPage * pagination.pageSize,
+        pagination.totalItems,
+      )
+    : 0;
+
+  const totalCols =
+    columns.length + (renderRowActions ? 1 : 0) + (hasSelection ? 1 : 0);
+
+  const selectedRows = hasSelection
+    ? data.filter((row, i) => selection!.selectedKeys.has(rowKey(row, i)))
+    : [];
+
+  return (
+    <div
+      className={cn(
+        "flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm",
+        className,
+      )}
+    >
+      {/* ── Header: stats + search + actions ── */}
+      {hasHeader && (
+        <div className="flex flex-wrap items-center gap-3 border-b border-border px-5 py-3">
+          {headerLeft}
+
+          {stats && stats.length > 0 && (
+            <div className="flex flex-1 flex-wrap items-center gap-4">
+              {stats.map((stat) => (
+                <div
+                  key={String(stat.label)}
+                  className="flex items-center gap-2"
+                >
+                  {stat.icon && (
+                    <span className="text-muted-foreground">{stat.icon}</span>
+                  )}
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    {stat.label}
+                  </span>
+                  <span className="text-sm font-bold text-foreground tabular-nums whitespace-nowrap">
+                    {stat.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {headerRight && (
+            <div className="flex items-center gap-2 ml-auto shrink-0">
+              {headerRight}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Selection bar ── */}
+      {hasSelection && selectedCount > 0 && (
+        <div className="flex items-center gap-3 border-b border-primary/20 bg-primary/5 px-5 py-2">
+          <span className="text-sm font-medium text-primary">
+            {selection!.label
+              ? selection!.label(selectedCount)
+              : `${selectedCount} selected`}
+          </span>
+          {selection!.actions?.(selectedRows)}
+        </div>
+      )}
+
+      {/* ── Toolbar (filters) ── */}
+      {hasToolbar && (
+        <div className="flex flex-wrap items-center gap-4 border-b border-border px-5 py-3">
+          {toolbar}
+        </div>
+      )}
+
+      {/* ── Table ── */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+          {caption ? (
+            <caption className="px-6 py-4 text-left text-sm text-muted-foreground">
+              {caption}
+            </caption>
+          ) : null}
+
+          <thead>
+            <tr className="bg-muted/50 border-b border-border">
+              {hasSelection && (
+                <th className="w-12 px-4 py-3" scope="col">
+                  <button
+                    type="button"
+                    onClick={toggleAll}
+                    className={cn(
+                      "flex h-4 w-4 items-center justify-center rounded border transition-colors",
+                      allSelected || someSelected
+                        ? "border-primary bg-primary text-white"
+                        : "border-border bg-card hover:border-muted-foreground",
+                    )}
+                  >
+                    {allSelected && <Check className="h-3 w-3" weight="bold" />}
+                    {someSelected && (
+                      <Minus className="h-3 w-3" weight="bold" />
+                    )}
+                  </button>
+                </th>
+              )}
+              {columns.map((column) => (
+                <th
+                  key={column.key}
+                  className={cn(
+                    "px-6 py-3 text-[11px] font-bold text-muted-foreground uppercase tracking-wider",
+                    column.className,
+                  )}
+                  scope="col"
+                >
+                  {column.header}
+                </th>
+              ))}
+              {renderRowActions ? (
+                <th
+                  className="px-6 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider text-right"
+                  scope="col"
+                />
+              ) : null}
+            </tr>
+          </thead>
+
+          <tbody className="divide-y divide-border/50">
+            {loading
+              ? Array.from({ length: 5 }).map((_, rowIndex) => (
+                  <tr key={`skeleton-${rowIndex}`} className="animate-pulse">
+                    {hasSelection && (
+                      <td className="w-12 px-4 py-4">
+                        <div className="h-4 w-4 rounded border border-border bg-muted" />
+                      </td>
+                    )}
+                    {columns.map((column) => (
+                      <td
+                        key={`skeleton-${rowIndex}-${column.key}`}
+                        className={cn("px-6 py-4", column.className)}
+                      >
+                        <div className="h-4 bg-border/60 rounded w-3/4" />
+                      </td>
+                    ))}
+                    {renderRowActions ? (
+                      <td className="px-6 py-4 text-right">
+                        <div className="h-4 bg-border/60 rounded w-8 ml-auto" />
+                      </td>
+                    ) : null}
+                  </tr>
+                ))
+              : hasData
+                ? data.map((row, rowIndex) => {
+                    const key = rowKey(row, rowIndex);
+                    const clickable = !!onRowClick;
+                    const expanded = isRowExpanded?.(row, rowIndex) ?? false;
+                    const extraClass = rowClassName?.(row, rowIndex) ?? "";
+                    const isSelected =
+                      selection?.selectedKeys.has(key) ?? false;
+                    const shouldBeDarker = rowIndex % 2 === 0;
+
+                    return (
+                      <Fragment key={key}>
+                        <tr
+                          onClick={
+                            clickable
+                              ? () => onRowClick(row, rowIndex)
+                              : undefined
+                          }
+                          className={cn(
+                            "group transition-colors hover:bg-muted/50",
+                            shouldBeDarker ? "bg-muted/50" : "bg-muted/200",
+                            clickable && "cursor-pointer",
+                            expanded && "bg-muted/40",
+                            isSelected && "bg-primary/5",
+                            extraClass,
+                          )}
+                        >
+                          {hasSelection && (
+                            <td className="w-12 px-4 py-4">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleRow(key);
+                                }}
+                                className={cn(
+                                  "flex h-4 w-4 items-center justify-center rounded border transition-colors",
+                                  isSelected
+                                    ? "border-primary bg-primary text-white"
+                                    : "border-border bg-card hover:border-muted-foreground",
+                                )}
+                              >
+                                {isSelected && (
+                                  <Check className="h-3 w-3" weight="bold" />
+                                )}
+                              </button>
+                            </td>
+                          )}
+
+                          {columns.map((column) => {
+                            const value =
+                              column.render?.(row, rowIndex) ??
+                              column.accessor?.(row) ??
+                              (row as Record<string, unknown>)[column.key];
+
+                            return (
+                              <td
+                                key={`${key}-${column.key}`}
+                                className={cn("px-6 py-4", column.className)}
+                              >
+                                {(value as ReactNode) || null}
+                              </td>
+                            );
+                          })}
+
+                          {renderRowActions ? (
+                            <td className="px-6 py-4 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                {renderRowActions(row)}
+                              </div>
+                            </td>
+                          ) : null}
+                        </tr>
+
+                        {expanded && renderExpandedRow && (
+                          <tr>
+                            <td colSpan={totalCols} className="p-0">
+                              {renderExpandedRow(row, rowIndex)}
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
+                    );
+                  })
+                : null}
+          </tbody>
+        </table>
+      </div>
+
+      {/* ── Empty state ── */}
+      {!hasData && !loading && (
+        <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
+          {isEmptyStateObject(emptyState) ? (
+            <>
+              {emptyState.icon && (
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted mb-3">
+                  {emptyState.icon}
+                </div>
+              )}
+              <p className="text-base font-semibold text-foreground mb-1">
+                {emptyState.title}
+              </p>
+              {emptyState.description && (
+                <p className="text-sm text-muted-foreground mb-5 max-w-md">
+                  {emptyState.description}
+                </p>
+              )}
+              {emptyState.action}
+            </>
+          ) : (
+            <>
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted mb-3">
+                <svg
+                  className="h-7 w-7 text-muted-foreground"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                  />
+                </svg>
+              </div>
+              <p className="font-semibold text-foreground mb-1">
+                Nenhum registro encontrado
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {emptyState ??
+                  "Tente ajustar os filtros ou adicione novos itens."}
+              </p>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* ── Pagination footer ── */}
+      {hasPagination && (
+        <div className="flex items-center justify-between border-t border-border bg-muted/50 px-5 py-2.5">
+          <p className="text-xs text-muted-foreground">
+            {paginationText?.showing ?? "Mostrando"}{" "}
+            <span className="font-semibold text-foreground">
+              {from}–{to}
+            </span>{" "}
+            {paginationText?.of ?? "de"}{" "}
+            <span className="font-semibold text-foreground">
+              {pagination.totalItems}
+            </span>{" "}
+            {paginationText?.items ?? "itens"}
+          </p>
+          <div className="flex gap-1">
+            <button
+              onClick={() =>
+                pagination.onPageChange(pagination.currentPage - 1)
+              }
+              disabled={pagination.currentPage === 1}
+              className="w-7 h-7 flex items-center justify-center rounded border border-border bg-card text-muted-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              <CaretLeft className="h-3.5 w-3.5" weight="bold" />
+            </button>
+
+            {getPaginationRange().map((pageNum) => (
+              <button
+                key={pageNum}
+                onClick={() => pagination.onPageChange(pageNum)}
+                className={cn(
+                  "w-7 h-7 flex items-center justify-center rounded text-xs font-medium transition-colors",
+                  pagination.currentPage === pageNum
+                    ? "border border-primary bg-primary text-white"
+                    : "border border-border bg-card text-muted-foreground hover:bg-muted",
+                )}
+              >
+                {pageNum}
+              </button>
+            ))}
+
+            <button
+              onClick={() =>
+                pagination.onPageChange(pagination.currentPage + 1)
+              }
+              disabled={pagination.currentPage === pagination.totalPages}
+              className="w-7 h-7 flex items-center justify-center rounded border border-border bg-card text-muted-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              <CaretRight className="h-3.5 w-3.5" weight="bold" />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

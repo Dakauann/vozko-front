@@ -1,0 +1,51 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
+        NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL}
+        # Brand identity is inlined at build time (NEXT_PUBLIC_*). Values come from the
+        # project .env via ${VAR} interpolation. getBrand() fails the build if any is empty.
+        NEXT_PUBLIC_BASE_SITE_URL: ${NEXT_PUBLIC_BASE_SITE_URL}
+        NEXT_PUBLIC_OAUTH_REDIRECT_URI: ${NEXT_PUBLIC_OAUTH_REDIRECT_URI}
+        NEXT_PUBLIC_BRAND_KEY: ${NEXT_PUBLIC_BRAND_KEY}
+        NEXT_PUBLIC_BRAND_NAME: ${NEXT_PUBLIC_BRAND_NAME}
+        NEXT_PUBLIC_BRAND_LEGAL_NAME: ${NEXT_PUBLIC_BRAND_LEGAL_NAME}
+        NEXT_PUBLIC_BRAND_CNPJ: ${NEXT_PUBLIC_BRAND_CNPJ}
+        NEXT_PUBLIC_BRAND_SITE_URL: ${NEXT_PUBLIC_BRAND_SITE_URL}
+        NEXT_PUBLIC_BRAND_DOCS_URL: ${NEXT_PUBLIC_BRAND_DOCS_URL:-}
+        NEXT_PUBLIC_BRAND_SUPPORT_EMAIL: ${NEXT_PUBLIC_BRAND_SUPPORT_EMAIL}
+        NEXT_PUBLIC_BRAND_CONTACT_EMAIL: ${NEXT_PUBLIC_BRAND_CONTACT_EMAIL}
+        NEXT_PUBLIC_BRAND_DPO_EMAIL: ${NEXT_PUBLIC_BRAND_DPO_EMAIL}
+        NEXT_PUBLIC_BRAND_PHONE: ${NEXT_PUBLIC_BRAND_PHONE}
+        NEXT_PUBLIC_BRAND_AI_NAME: ${NEXT_PUBLIC_BRAND_AI_NAME}
+        NEXT_PUBLIC_BRAND_AI_ALIAS_PREFIX: ${NEXT_PUBLIC_BRAND_AI_ALIAS_PREFIX}
+        NEXT_PUBLIC_BRAND_CDN_HOST: ${NEXT_PUBLIC_BRAND_CDN_HOST}
+        NEXT_PUBLIC_BRAND_LOGO_URL: ${NEXT_PUBLIC_BRAND_LOGO_URL}
+        NEXT_PUBLIC_BRAND_LOGO_WHITE_URL: ${NEXT_PUBLIC_BRAND_LOGO_WHITE_URL}
+        NEXT_PUBLIC_BRAND_FAVICON_URL: ${NEXT_PUBLIC_BRAND_FAVICON_URL}
+    ports:
+      # Bind to localhost only for security - use Traefik/Nginx reverse proxy for external access
+      - "127.0.0.1:8000:8000"
+    env_file:
+      - .env.docker
+    environment:
+      - NODE_ENV=production
+      - PORT=8000
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 1G
+    # Security hardening
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /app/.next/cache:uid=1001,gid=1000
