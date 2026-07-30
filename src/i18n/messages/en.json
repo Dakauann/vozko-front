@@ -1379,7 +1379,10 @@
       "attendanceOps": "Service",
       "telephony": "Telephony",
       "manager": "Management",
-      "leads": "Leads"
+      "leads": "Leads",
+      "instagram": "Instagram",
+      "instagramAccounts": "Accounts",
+      "connectInstagram": "Connect account"
     },
     "badges": {
       "new": "New",
@@ -1392,7 +1395,8 @@
       "support": "Support",
       "crm": "CRM",
       "ai": "AI & Automation",
-      "voip": "Telephony"
+      "voip": "Telephony",
+      "instagram": "Instagram"
     }
   },
   "dashboard": {
@@ -10275,6 +10279,143 @@
       },
       "crmTitle": "Conversation path",
       "crmSubtitle": "Where this chat is in its lifecycle"
+    }
+  },
+  "instagram": {
+    "page": {
+      "title": "Instagram",
+      "description": "Connect Instagram accounts to receive and answer direct messages, and to manage posts and comments.",
+      "searchPlaceholder": "Search by @handle or name",
+      "refresh": "Refresh",
+      "connect": "Connect account",
+      "emptyTitle": "No Instagram account connected",
+      "emptyDescription": "Connect an Instagram professional account to start receiving direct messages in the CRM.",
+      "connectDescription": "Connect another Instagram professional account.",
+      "connectCta": "Connect"
+    },
+    "status": {
+      "connected": "Connected",
+      "pending": "Pending",
+      "token_expired": "Reconnect required",
+      "revoked": "Disconnected",
+      "suspended": "Suspended",
+      "messagingOff": "Messages off"
+    },
+    "card": {
+      "posts": "Posts",
+      "followers": "Followers",
+      "following": "Following",
+      "viewProfile": "View profile",
+      "reconnect": "Reconnect",
+      "disconnect": "Disconnect",
+      "messagingDisabled": "Direct messages are not reaching this account. In the Instagram app, open Settings > Messages and story replies > Message controls > Connected tools and turn on \"Allow access to messages\"."
+    },
+    "capability": {
+      "messages": "Messages",
+      "comments": "Comments",
+      "publish": "Publishing"
+    },
+    "profile": {
+      "back": "Back to accounts",
+      "messagingDisabledTitle": "Direct messages are disabled for this account",
+      "messagingDisabledHelp": "OAuth succeeded, but Instagram will not deliver messages until \"Allow access to messages\" is enabled in the Instagram app under Settings > Messages and story replies > Message controls > Connected tools.",
+      "reconnectRequired": "This account's access token is no longer valid. Reconnect to resume receiving messages."
+    },
+    "posts": {
+      "empty": "This account has no posts yet.",
+      "loadMore": "Load more",
+      "loading": "Loading...",
+      "openPost": "Open post",
+      "detailTitle": "Post details",
+      "close": "Close",
+      "openInInstagram": "Open in Instagram",
+      "noAsset": "Instagram did not return an asset for this post.",
+      "commentCount": "{count} comments",
+      "disableComments": "Turn off comments",
+      "enableComments": "Turn on comments",
+      "gridLabel": "Posts",
+      "allLoaded": "All {count} posts loaded"
+    },
+    "comments": {
+      "empty": "No comments on this post.",
+      "loadMore": "Load more comments",
+      "loading": "Loading...",
+      "reply": "Reply",
+      "privateReply": "Reply privately",
+      "replyPlaceholder": "Write a public reply...",
+      "privateReplyPlaceholder": "Write a direct message...",
+      "privateReplyHint": "Instagram allows only one private reply per comment, within 7 days of the comment.",
+      "privateReplyUsed": "A private reply was already sent for this comment. Instagram allows only one.",
+      "privateReplyExpired": "This comment is older than 7 days, so a private reply is no longer possible.",
+      "hide": "Hide comment",
+      "unhide": "Unhide comment",
+      "delete": "Delete comment",
+      "send": "Send",
+      "you": "You",
+      "hidden": "Hidden",
+      "likes": "{count} likes",
+      "unknownUser": "unknown",
+      "countMismatch": "Instagram reports {count} on this post but returns none through the API. Its count includes replies and comments from private or restricted accounts, which the API omits.",
+      "allLoaded": "All {count} loaded"
+    },
+    "notice": {
+      "connected": "@{username} connected.",
+      "reconnected": "@{username} reconnected.",
+      "connectedGeneric": "Instagram account connected.",
+      "disconnected": "@{username} disconnected."
+    },
+    "connectError": {
+      "invalid_state": "The connection link was invalid or already used. Please try again.",
+      "expired_state": "The connection link expired. Please try again.",
+      "missing_messaging_scope": "The messaging permission was not granted, so direct messages cannot be received. Please reconnect and allow it.",
+      "already_linked": "This Instagram account is already connected to another workspace.",
+      "connect_failed": "Could not connect the Instagram account. Please try again."
+    },
+    "connect": {
+      "errorTitle": "Could not connect",
+      "successTitle": "Instagram connected",
+      "title": "Connect an Instagram account",
+      "description": "Sign in with Instagram to receive direct messages in the CRM and manage your posts and comments.",
+      "viewAccounts": "View accounts",
+      "cta": {
+        "button": "Connect with Instagram",
+        "redirecting": "Opening Instagram..."
+      },
+      "prerequisite": {
+        "title": "Before you start",
+        "description": "The account must be a professional (Business or Creator) account, and in the Instagram app you must enable Settings > Messages and story replies > Message controls > Connected tools > Allow access to messages. Without it, messages never arrive even though the connection succeeds."
+      },
+      "features": {
+        "messages": {
+          "title": "Direct messages",
+          "description": "Instagram DMs land in the same CRM inbox as your other channels, ready to answer."
+        },
+        "posts": {
+          "title": "Posts and comments",
+          "description": "Browse your posts, read comments and reply, hide or answer privately."
+        },
+        "secure": {
+          "title": "Secure by design",
+          "description": "Standard OAuth 2.0. We never see your Instagram password, and the token is encrypted at rest."
+        }
+      },
+      "steps": {
+        "title": "How it works",
+        "step1": "Click connect. A secure Instagram window opens.",
+        "step2": "Sign in with Instagram and approve the permissions.",
+        "step3": "You return here and the account is ready to receive messages."
+      }
+    },
+    "table": {
+      "account": "Account",
+      "status": "Status",
+      "type": "Type"
+    },
+    "pagination": {
+      "total": "{total} accounts",
+      "pageOf": "Page {page} of {totalPages}",
+      "previous": "Previous page",
+      "next": "Next page"
     }
   }
 }

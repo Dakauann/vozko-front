@@ -152,7 +152,7 @@ const RESPONSIBLE_UNASSIGNED = "__unassigned__";
 interface FilterState {
   stageId: string;
   stageName: string;
-  channel: "" | "voice" | "whatsapp";
+  channel: "" | "voice" | "whatsapp" | "instagram";
   dateFrom: string;
   dateTo: string;
   windowOpen: "" | "true" | "false";
@@ -326,7 +326,7 @@ export default function CrmInbox({
       if (filters.stageId) payload.stage_id = filters.stageId;
       else if (filters.stageName) payload.stage_name = filters.stageName;
       if (filters.channel)
-        payload.channel = filters.channel as "voice" | "whatsapp";
+        payload.channel = filters.channel as "voice" | "whatsapp" | "instagram";
       if (filters.dateFrom)
         payload.date_from = new Date(filters.dateFrom).toISOString();
       if (filters.dateTo) {
@@ -810,6 +810,7 @@ export default function CrmInbox({
                   >
                     <option value="">Todos</option>
                     <option value="whatsapp">WhatsApp</option>
+                    <option value="instagram">Instagram</option>
                     {campaignType !== "whatsapp" && (
                       <option value="voice">Voz</option>
                     )}

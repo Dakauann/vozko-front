@@ -30,6 +30,7 @@ import {
   MagnifyingGlass,
   Pause,
   Phone,
+  InstagramLogo,
   PhoneCall,
   Play,
   SpeakerHigh,
@@ -2162,6 +2163,75 @@ export default function CrmConversationView({
                                   className="h-3.5 w-3.5"
                                 />
                                 <span>{msg.text}</span>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        /*
+                         * Instagram-specific inbound shapes.
+                         *
+                         * A story reply/mention needs the story context rendered
+                         * above the text, otherwise the operator sees a bare
+                         * sentence with no idea what it is replying to. An
+                         * unsupported message needs a visible placeholder because
+                         * Instagram sends the event with no renderable content —
+                         * silence would look like a bug.
+                         */
+                        if (
+                          messageType === "story_reply" ||
+                          messageType === "story_mention"
+                        ) {
+                          const meta = (msg.metadata ?? {}) as Record<
+                            string,
+                            unknown
+                          >;
+                          const storyUrl =
+                            (meta.instagram_story_url as string | undefined) ??
+                            (meta.instagram_story_mention_url as
+                              | string
+                              | undefined);
+                          const isMention = messageType === "story_mention";
+                          return (
+                            <div
+                              key={msg.id ?? `${runIdx}-${msgIdx}`}
+                              className="flex justify-start my-1"
+                            >
+                              <div className="max-w-[75%] rounded-lg border border-fuchsia-500/30 bg-fuchsia-500/5 p-2">
+                                <div className="mb-1 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-fuchsia-400">
+                                  <InstagramLogo className="h-3 w-3" />
+                                  <span>
+                                    {isMention
+                                      ? "Menção em story"
+                                      : "Resposta a story"}
+                                  </span>
+                                </div>
+                                {storyUrl && (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={storyUrl}
+                                    alt=""
+                                    className="mb-1.5 max-h-40 rounded object-cover"
+                                  />
+                                )}
+                                {msg.text && (
+                                  <p className="whitespace-pre-wrap break-words text-sm text-foreground">
+                                    {msg.text}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        if (messageType === "unsupported") {
+                          return (
+                            <div
+                              key={msg.id ?? `${runIdx}-${msgIdx}`}
+                              className="flex justify-center my-2"
+                            >
+                              <div className="rounded-full bg-muted px-3 py-1.5 text-[11px] text-muted-foreground">
+                                {msg.text || "Mensagem não suportada"}
                               </div>
                             </div>
                           );

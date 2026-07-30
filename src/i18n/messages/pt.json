@@ -1775,7 +1775,10 @@
       "affiliateReferrals": "Indicações",
       "affiliateEarnings": "Comissões",
       "affiliatePlans": "Planos Exclusivos",
-      "sales": "Vendas"
+      "sales": "Vendas",
+      "instagram": "Instagram",
+      "instagramAccounts": "Contas",
+      "connectInstagram": "Conectar conta"
     },
     "badges": {
       "new": "Novo",
@@ -1788,7 +1791,8 @@
       "support": "Suporte",
       "crm": "CRM",
       "ai": "IA & Automação",
-      "voip": "Telefonia"
+      "voip": "Telefonia",
+      "instagram": "Instagram"
     }
   },
   "dashboard": {
@@ -10325,6 +10329,143 @@
       },
       "crmTitle": "Percurso da conversa",
       "crmSubtitle": "Onde este chat está no ciclo de vida"
+    }
+  },
+  "instagram": {
+    "page": {
+      "title": "Instagram",
+      "description": "Conecte contas do Instagram para receber e responder mensagens diretas, e gerenciar publicações e comentários.",
+      "searchPlaceholder": "Buscar por @usuário ou nome",
+      "refresh": "Atualizar",
+      "connect": "Conectar conta",
+      "emptyTitle": "Nenhuma conta do Instagram conectada",
+      "emptyDescription": "Conecte uma conta profissional do Instagram para começar a receber mensagens diretas no CRM.",
+      "connectDescription": "Conecte outra conta profissional do Instagram.",
+      "connectCta": "Conectar"
+    },
+    "status": {
+      "connected": "Conectada",
+      "pending": "Pendente",
+      "token_expired": "Reconexão necessária",
+      "revoked": "Desconectada",
+      "suspended": "Suspensa",
+      "messagingOff": "Mensagens off"
+    },
+    "card": {
+      "posts": "Publicações",
+      "followers": "Seguidores",
+      "following": "Seguindo",
+      "viewProfile": "Ver perfil",
+      "reconnect": "Reconectar",
+      "disconnect": "Desconectar",
+      "messagingDisabled": "As mensagens diretas não estão chegando nesta conta. No app do Instagram, acesse Configurações > Mensagens e respostas de stories > Controles de mensagens > Ferramentas conectadas e ative \"Permitir acesso às mensagens\"."
+    },
+    "capability": {
+      "messages": "Mensagens",
+      "comments": "Comentários",
+      "publish": "Publicação"
+    },
+    "profile": {
+      "back": "Voltar para contas",
+      "messagingDisabledTitle": "Mensagens diretas desativadas para esta conta",
+      "messagingDisabledHelp": "A autorização foi concluída, mas o Instagram não entregará mensagens até que \"Permitir acesso às mensagens\" seja ativado no app do Instagram.",
+      "reconnectRequired": "O token desta conta não é mais válido. Reconecte para voltar a receber mensagens."
+    },
+    "posts": {
+      "empty": "Esta conta ainda não tem publicações.",
+      "loadMore": "Carregar mais",
+      "loading": "Carregando...",
+      "openPost": "Abrir publicação",
+      "detailTitle": "Detalhes da publicação",
+      "close": "Fechar",
+      "openInInstagram": "Abrir no Instagram",
+      "noAsset": "O Instagram não retornou a mídia desta publicação.",
+      "commentCount": "{count} comentários",
+      "disableComments": "Desativar comentários",
+      "enableComments": "Ativar comentários",
+      "gridLabel": "Publicações",
+      "allLoaded": "{count} publicações carregadas"
+    },
+    "comments": {
+      "empty": "Nenhum comentário nesta publicação.",
+      "loadMore": "Carregar mais comentários",
+      "loading": "Carregando...",
+      "reply": "Responder",
+      "privateReply": "Responder no privado",
+      "replyPlaceholder": "Escreva uma resposta pública...",
+      "privateReplyPlaceholder": "Escreva uma mensagem direta...",
+      "privateReplyHint": "O Instagram permite apenas uma resposta privada por comentário, em até 7 dias.",
+      "privateReplyUsed": "Já foi enviada uma resposta privada para este comentário. O Instagram permite apenas uma.",
+      "privateReplyExpired": "Este comentário tem mais de 7 dias, então não é mais possível responder no privado.",
+      "hide": "Ocultar comentário",
+      "unhide": "Exibir comentário",
+      "delete": "Excluir comentário",
+      "send": "Enviar",
+      "you": "Você",
+      "hidden": "Oculto",
+      "likes": "{count} curtidas",
+      "unknownUser": "desconhecido",
+      "countMismatch": "O Instagram informa {count} nesta publicação, mas não retorna nenhum pela API. A contagem inclui respostas e comentários de contas privadas ou restritas, que a API não retorna.",
+      "allLoaded": "{count} carregados"
+    },
+    "notice": {
+      "connected": "@{username} conectada.",
+      "reconnected": "@{username} reconectada.",
+      "connectedGeneric": "Conta do Instagram conectada.",
+      "disconnected": "@{username} desconectada."
+    },
+    "connectError": {
+      "invalid_state": "O link de conexão era inválido ou já foi usado. Tente novamente.",
+      "expired_state": "O link de conexão expirou. Tente novamente.",
+      "missing_messaging_scope": "A permissão de mensagens não foi concedida, então não é possível receber mensagens diretas. Reconecte e permita o acesso.",
+      "already_linked": "Esta conta do Instagram já está conectada a outro workspace.",
+      "connect_failed": "Não foi possível conectar a conta do Instagram. Tente novamente."
+    },
+    "connect": {
+      "errorTitle": "Não foi possível conectar",
+      "successTitle": "Instagram conectado",
+      "title": "Conectar uma conta do Instagram",
+      "description": "Entre com o Instagram para receber mensagens diretas no CRM e gerenciar suas publicações e comentários.",
+      "viewAccounts": "Ver contas",
+      "cta": {
+        "button": "Conectar com o Instagram",
+        "redirecting": "Abrindo o Instagram..."
+      },
+      "prerequisite": {
+        "title": "Antes de começar",
+        "description": "A conta precisa ser profissional (Empresa ou Criador de conteúdo) e, no app do Instagram, você deve ativar Configurações > Mensagens e respostas de stories > Controles de mensagens > Ferramentas conectadas > Permitir acesso às mensagens. Sem isso, as mensagens não chegam mesmo com a conexão bem-sucedida."
+      },
+      "features": {
+        "messages": {
+          "title": "Mensagens diretas",
+          "description": "As mensagens do Instagram chegam na mesma caixa de entrada do CRM, prontas para responder."
+        },
+        "posts": {
+          "title": "Publicações e comentários",
+          "description": "Veja suas publicações, leia comentários e responda, oculte ou responda no privado."
+        },
+        "secure": {
+          "title": "Seguro por padrão",
+          "description": "OAuth 2.0 padrão. Nunca vemos sua senha do Instagram, e o token é criptografado em repouso."
+        }
+      },
+      "steps": {
+        "title": "Como funciona",
+        "step1": "Clique em conectar. Uma janela segura do Instagram é aberta.",
+        "step2": "Entre com o Instagram e aprove as permissões.",
+        "step3": "Você volta para cá e a conta já pode receber mensagens."
+      }
+    },
+    "table": {
+      "account": "Conta",
+      "status": "Status",
+      "type": "Tipo"
+    },
+    "pagination": {
+      "total": "{total} contas",
+      "pageOf": "Página {page} de {totalPages}",
+      "previous": "Página anterior",
+      "next": "Próxima página"
     }
   }
 }

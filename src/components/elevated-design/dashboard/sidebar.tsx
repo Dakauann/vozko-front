@@ -17,6 +17,7 @@ import {
   List as ListIcon,
   Sparkle,
   Package,
+  InstagramLogo,
   Phone,
   PhoneCall,
   PhoneIncoming,
@@ -385,6 +386,27 @@ export const campanhasNavItems: NavItem[] = [
     href: "/dashboard/message-shortcuts",
     family: "whatsapp",
     requiredPermission: { resource: "message_shortcuts", action: "read" },
+  },
+  {
+    icon: InstagramLogo,
+    labelKey: "nav.instagram",
+    href: "/dashboard/instagram-accounts",
+    family: "instagram",
+    requiredPermission: { resource: "instagram_accounts" },
+    children: [
+      {
+        icon: ClipboardText,
+        labelKey: "nav.instagramAccounts",
+        href: "/dashboard/instagram-accounts",
+        requiredPermission: { resource: "instagram_accounts", action: "read" },
+      },
+      {
+        icon: LinkSimple,
+        labelKey: "nav.connectInstagram",
+        href: "/dashboard/instagram-accounts/connect",
+        requiredPermission: { resource: "instagram_accounts", action: "create" },
+      },
+    ],
   },
   {
     icon: Phone,
