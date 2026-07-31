@@ -124,6 +124,9 @@ const colorMap = {
 
 type AccentColor = keyof typeof colorMap;
 
+export type { AccentColor };
+export { colorMap as accentColorMap };
+
 interface IconBoxProps {
   children: ReactNode;
   color?: AccentColor;
@@ -274,7 +277,7 @@ interface StatusBadgeProps {
   icon?: ReactNode;
 }
 
-function StatusBadge({
+export function StatusBadge({
   label,
   color = "slate",
   pulse = false,

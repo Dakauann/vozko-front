@@ -31,6 +31,7 @@ export type ResourceType =
     | "affiliate"
     | "plans"
     | "short_links"
+    | "instagram_accounts"
     | "mcp";
 
 export type ResourceAction =

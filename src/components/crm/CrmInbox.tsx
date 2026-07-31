@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { InstagramLogoColor } from "@/components/icons/channel-logos";
 import {
   CalendarBlank,
   ChatCircleDots,
@@ -152,7 +153,7 @@ const RESPONSIBLE_UNASSIGNED = "__unassigned__";
 interface FilterState {
   stageId: string;
   stageName: string;
-  channel: "" | "voice" | "whatsapp";
+  channel: "" | "voice" | "whatsapp" | "instagram";
   dateFrom: string;
   dateTo: string;
   windowOpen: "" | "true" | "false";
@@ -326,7 +327,7 @@ export default function CrmInbox({
       if (filters.stageId) payload.stage_id = filters.stageId;
       else if (filters.stageName) payload.stage_name = filters.stageName;
       if (filters.channel)
-        payload.channel = filters.channel as "voice" | "whatsapp";
+        payload.channel = filters.channel as "voice" | "whatsapp" | "instagram";
       if (filters.dateFrom)
         payload.date_from = new Date(filters.dateFrom).toISOString();
       if (filters.dateTo) {
@@ -810,6 +811,7 @@ export default function CrmInbox({
                   >
                     <option value="">Todos</option>
                     <option value="whatsapp">WhatsApp</option>
+                    <option value="instagram">Instagram</option>
                     {campaignType !== "whatsapp" && (
                       <option value="voice">Voz</option>
                     )}
@@ -1058,6 +1060,8 @@ export default function CrmInbox({
                             weight="fill"
                             className="h-2.5 w-2.5 text-emerald-400/60 flex-shrink-0"
                           />
+                        ) : match.channel === "instagram" ? (
+                          <InstagramLogoColor className="h-2.5 w-2.5 flex-shrink-0" />
                         ) : (
                           <Phone
                             weight="fill"
@@ -1128,6 +1132,7 @@ export default function CrmInbox({
               );
               const hasUnread = entry.unread_count > 0;
               const isWhatsApp = entry.entry_type === "whatsapp";
+              const isInstagram = entry.entry_type === "instagram";
 
               return (
                 <motion.div
@@ -1186,14 +1191,23 @@ export default function CrmInbox({
                   >
                     {/* Avatar */}
                     <div className="relative flex-shrink-0">
+                      {/* The channel is the first thing an operator needs from a
+                          mixed inbox — which account will this reply leave from —
+                          so it carries the avatar rather than a corner badge. */}
                       <div
                         className={cn(
                           "flex h-10 w-10 items-center justify-center rounded-full text-white text-sm font-bold",
-                          isWhatsApp ? "bg-emerald-500" : "bg-blue-500",
+                          isWhatsApp
+                            ? "bg-emerald-500"
+                            : isInstagram
+                              ? "bg-fuchsia-500/10"
+                              : "bg-blue-500",
                         )}
                       >
                         {isWhatsApp ? (
                           <WhatsappLogo weight="fill" className="h-5 w-5" />
+                        ) : isInstagram ? (
+                          <InstagramLogoColor className="h-5 w-5" />
                         ) : (
                           <span>
                             {entry.lead_name?.[0]?.toUpperCase() || "?"}

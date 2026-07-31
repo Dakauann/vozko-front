@@ -508,7 +508,7 @@
       },
       "conversational": {
         "title": "Konversationserlebnisse",
-        "description": "Sprachassistenten, Chat und soziale Kanäle bieten menschlichen und skalierbaren Service in 14 Sprachen gleichzeitig."
+        "description": "Chat-Assistenten und soziale Kanäle bieten menschlichen und skalierbaren Service in mehreren Sprachen."
       },
       "governance": {
         "title": "End-to-End-Governance",
@@ -545,11 +545,6 @@
     "title": "Ergebnisse, die Ihr Vertriebsteam in der Praxis spürt",
     "description": "Echte Metriken von Kunden, die {brandName} nutzen, um vollständige Zyklen von Akquisition, Bindung und Umsatzexpansion zu steuern.",
     "items": {
-      "agility": {
-        "value": "4x",
-        "label": "Launch-Agilität",
-        "description": "Durchschnittliche Implementierungszeit für neue Journeys im Vergleich zu traditionellen CRM- oder Contact-Center-Projekten."
-      },
       "retention": {
         "value": "92%",
         "label": "Verbesserte Bindung",
@@ -606,14 +601,6 @@
       "default_markup": "KI-Modelle"
     },
     "footer": "Preise in BRL. Werte können je nach Wechselkurs variieren. Pläne können jederzeit geändert werden."
-  },
-  "closing": {
-    "title": "{brandName} hält Ihren Betrieb immer einen Schritt voraus",
-    "description": "{brandName} verbindet Strategie, Technologie und Betrieb in einer einzigartigen Matrix, die es Unternehmen ermöglicht, Produkte zu lancieren, Verkäufe zu skalieren und globale Governance mit Marktgeschwindigkeit aufrechtzuerhalten.",
-    "cta": {
-      "primary": "Mit {brandName}-Experten sprechen",
-      "secondary": "Gesamtes Portfolio erkunden"
-    }
   },
   "common": {
     "learnMore": "Mehr erfahren",
@@ -1083,21 +1070,49 @@
       "affiliatePlans": "Exklusive Tarife",
       "metrics": "Metriken",
       "manager": "Verwaltung",
-      "leads": "Leads"
+      "leads": "Leads",
+      "instagram": "Konten",
+      "instagramAccounts": "Konten",
+      "connectInstagram": "Konto verbinden",
+      "support": "Support",
+      "createSupport": "Neue Anfrage",
+      "manageSupport": "Verwalten",
+      "sales": "Vertrieb",
+      "adminOverview": "Admin-Übersicht",
+      "whatsapp": "WhatsApp",
+      "instagramChannel": "Instagram",
+      "campaigns": "Kampagnen"
     },
     "badges": {
       "new": "Neu",
       "premium": "Premium"
     },
     "families": {
+      "crm": "Postfach",
       "whatsapp": "WhatsApp",
-      "management": "Verwaltung",
-      "platform": "Plattform",
-      "support": "Support",
-      "crm": "CRM",
+      "instagram": "Instagram",
       "ai": "KI & Automatisierung",
-      "voip": "Telefonie"
-    }
+      "voip": "Telefonie",
+      "billing": "Abrechnung",
+      "settings": "Einstellungen",
+      "platform": "Plattform",
+      "campaigns": "Kampagnen",
+      "channels": "Kanäle",
+      "management": "Verwaltung"
+    },
+    "pin": {
+      "pin": "Anheften",
+      "unpin": "Lösen",
+      "pinSidebar": "Seitenleiste anheften",
+      "unpinSidebar": "Seitenleiste lösen"
+    },
+    "navigationMenu": "Navigationsmenü",
+    "sections": {
+      "work": "Arbeit",
+      "management": "Management",
+      "administration": "Verwaltung"
+    },
+    "toggleSubmenu": "Unterpunkte umschalten"
   },
   "dashboard": {
     "pageSubtitle": "Verfolgen Sie die Leistung Ihrer Agenten und Kampagnen in Echtzeit",
@@ -1148,7 +1163,7 @@
       "sectionTitle": "Schnellaktionen",
       "createAgent": {
         "title": "Agent erstellen",
-        "description": "Konfigurieren Sie einen neuen Sprachassistenten"
+        "description": "Konfigurieren Sie einen neuen KI-Assistenten"
       },
       "newCampaign": {
         "title": "Neue Kampagne",
@@ -1373,7 +1388,7 @@
         "configure": {
           "number": "01",
           "title": "Konfigurieren Sie Ihren Agenten",
-          "description": "Erstellen Sie Sprach- und Text-KI-Agenten. Definieren Sie Persönlichkeit, Wissensbasis und Anweisungen, damit der Agent natürlich und präzise antwortet."
+          "description": "Erstellen Sie KI-Agenten für Text- und Sprachnachrichten. Definieren Sie Persönlichkeit, Wissensbasis und Anweisungen, damit der Agent natürlich und präzise antwortet."
         },
         "train": {
           "number": "02",
@@ -1401,10 +1416,6 @@
           "title": "Omnichannel-Kommunikation",
           "description": "WhatsApp, SMS, VoIP-Telefonie und E-Mail in einer einzigen Plattform integriert."
         },
-        "voiceAI": {
-          "title": "KI-Sprachagenten",
-          "description": "Sprachservice mit Echtzeit-Spracherkennung und -synthese."
-        },
         "crm": {
           "title": "Integriertes CRM",
           "description": "Kontaktverwaltung, Verkaufsstufen und vollständige Interaktionshistorie."
@@ -1418,7 +1429,7 @@
     "capabilities": {
       "title": "Was die Plattform bietet",
       "items": [
-        "KI-Agenten für Sprache und Text mit minimaler Latenz",
+        "KI-Agenten für Text- und Sprachnachrichten",
         "Native Integration mit WhatsApp Business API",
         "WhatsApp- und SMS-Kampagnen im großen Maßstab",
         "Visuelle Workflows mit Entscheidungsknoten und Aktionen",
@@ -4912,6 +4923,10 @@
       "marketing": "Marketing",
       "utility": "Utility",
       "authentication": "Authentifizierung"
+    },
+    "unifiedTabs": {
+      "campaigns": "Broadcasts",
+      "organic": "Rezeptiv"
     }
   },
   "crmLabels": {
@@ -5266,7 +5281,7 @@
   },
   "footerMain": {
     "title": "{brandName}",
-    "description": "Technologieplattform für intelligente Automatisierung, KI-gestützte Sprachagenten und Omnichannel-Kommunikation für Unternehmen weltweit.",
+    "description": "Technologieplattform für intelligente Automatisierung, KI-Agenten und Omnichannel-Kommunikation für Unternehmen weltweit.",
     "quickLinksTitle": "Schnelllinks",
     "quickLinks": {
       "home": "Startseite",
@@ -5291,23 +5306,6 @@
       "metaBusinessPartner": "Meta Business Partner",
       "metaBusinessPartnerDescription": "Offizielles Partner-Badge für WhatsApp-Business-Lösungen und Integrationen.",
       "metaBusinessPartnerAlt": "Meta Business Partner-Badge"
-    }
-  },
-  "howItWorksHome": {
-    "badge": "Wie es funktioniert",
-    "title": "Das Portal zu Ihren Kunden",
-    "description": "{brandName} ist das Portal, das Sie mit Ihren Kunden verbindet. Wir erreichen Menschen über mehrere Kommunikationskanäle und verkaufen Produkte mit künstlicher Intelligenz.",
-    "step1": {
-      "title": "1. Wir Erreichen",
-      "description": "Wir verbinden uns mit Kunden über Anrufe, WhatsApp und SMS - unsere Multikanal-Kommunikationspipeline."
-    },
-    "step2": {
-      "title": "2. Wir Engagieren",
-      "description": "{brandAiName} führt natürliche Gespräche mit unserer proprietären Sprach-Engine, versteht Bedürfnisse und bietet Lösungen."
-    },
-    "step3": {
-      "title": "3. Wir Verkaufen",
-      "description": "Wir bieten personalisierte Lösungen an und schließen Geschäfte effizient und transparent ab."
     }
   },
   "businessMetrics": {
@@ -6062,7 +6060,7 @@
       "roulette": "Zuweisungs-Roulette"
     },
     "resourceDescriptions": {
-      "agents": "Verwalten Sie KI-Agenten, die Anrufe und Gespräche bearbeiten",
+      "agents": "Verwalten Sie KI-Agenten, die Ihre Gespräche bearbeiten",
       "campaigns": "Steuern Sie Telefonkampagnen zur Kundenansprache",
       "whatsapp_campaigns": "Verwalten Sie Massen-WhatsApp-Nachrichtenkampagnen",
       "whatsapp_templates": "Erstellen und bearbeiten Sie von WhatsApp genehmigte Nachrichtenvorlagen",
@@ -8062,11 +8060,11 @@
     "agents": {
       "badge": "{brandName}-AGENTEN",
       "title": "Lernen Sie die {brandName}-Agenten kennen",
-      "subtitle": "Intelligente Sprach- und Nachrichtenassistenten, die im Namen Ihres Teams handeln",
+      "subtitle": "Intelligente Nachrichtenassistenten, die im Namen Ihres Teams handeln",
       "dismissButton": "Loslegen",
       "features": [
         "Führen Aufgaben autonom mit RAG und Wissensdatenbanken aus",
-        "Nehmen Anrufe an, qualifizieren Leads und antworten auf WhatsApp",
+        "Qualifizieren Leads und antworten auf WhatsApp und weiteren Kanälen",
         "Verknüpfen Sie Tools, MCP-Server und dynamische Variablen mit jedem Agenten",
         "Rund um die Uhr verfügbar, ohne Volumenbeschränkung",
         "Können bestimmten Abteilungen innerhalb des Arbeitsbereichs zugeordnet werden"
@@ -8083,19 +8081,6 @@
         "Echtzeit-Metriken: zugestellt, gelesen, beantwortet und fehlgeschlagen",
         "Automatische KI-Antworten und Lead-Qualifizierungsanalyse pro Konversation",
         "Organisieren Sie nach Abteilungen und weisen Sie bestimmte Agenten und Workflows zu"
-      ]
-    },
-    "campaigns": {
-      "badge": "SPRACHE",
-      "title": "Sprachkampagnen",
-      "subtitle": "KI-gestützte automatische Anrufe mit Trichter-Phasen zur Lead-Qualifizierung",
-      "dismissButton": "Loslegen",
-      "features": [
-        "Automatisierte Sprachanrufe im großen Maßstab für Tausende Nummern",
-        "KI-Agent bearbeitet, qualifiziert und führt das Gespräch mit natürlicher Sprache",
-        "Anrufroutinen mit IVR-Menüs, Transkription und Text-to-Speech",
-        "Trichter-Phasen mit Lead-Qualifizierungsanalyse und Disposition",
-        "Weisen Sie Kampagnen Abteilungen zu und steuern Sie Team-Berechtigungen"
       ]
     },
     "workflows": {
@@ -8266,18 +8251,6 @@
         "Round-Robin: Konversationen automatisch unter Mitgliedern verteilen",
         "Bestimmte Ressourcen jedem Mitglied zuweisen und Zugriffslevel steuern"
       ]
-    },
-    "campaignsReceptive": {
-      "badge": "EINGEHEND",
-      "title": "Eingehende Sprachkampagnen",
-      "subtitle": "Nehmen Sie eingehende Anrufe auf Ihrem Telefoniekanal mit KI oder Workflow an, ohne Kontaktliste",
-      "dismissButton": "Weiter",
-      "features": [
-        "Eingehende Anrufe auf dem Telefoniekanal werden automatisch angenommen",
-        "Ein KI-Agent oder Sprach-Workflow führt die Betreuung durch, ohne ausgehende Wählversuche",
-        "Keine Kontaktliste: jeder eingehende Anruf erstellt einen Eintrag in der Kampagne",
-        "Weisen Sie Abteilungen zu und steuern Sie Teamberechtigungen"
-      ]
     }
   },
   "tour": {
@@ -8296,7 +8269,7 @@
         "badge": "Navigation",
         "title": "Organisierte Tabs",
         "subtitle": "Die Agent-Einstellungen sind zur einfacheren Navigation in Tabs unterteilt.",
-        "f0": "Allgemein: Name, Stimme, Sprache und KI-Modelle",
+        "f0": "Allgemein: Name und KI-Modell",
         "f1": "Gesprach: Prompts, Startnachricht und Variablen",
         "f2": "Fahigkeiten: Tools, die der Agent nutzen kann",
         "f3": "Wissen: Wissensdatenbanken und MCP-Sammlungen"
@@ -8304,16 +8277,9 @@
       "general": {
         "badge": "Allgemein",
         "title": "Agent-Identitat",
-        "subtitle": "Legen Sie Name, Stimme, Sprache und KI-Modelle des Agenten fest.",
-        "f0": "Wahlen Sie eine Stimme und horen Sie eine Vorschau vor der Bestatigung",
-        "f1": "Wahlen Sie separate KI-Modelle fur Anrufe und Nachrichten"
-      },
-      "voiceConfig": {
-        "badge": "Stimme",
-        "title": "Stimmkonfiguration",
-        "subtitle": "Passen Sie TTS-Ausgabe, Latenz, Stabilitat und Sprachparameter an.",
-        "f0": "Passen Sie Stabilitat, Ahnlichkeit und Sprechgeschwindigkeit an",
-        "f1": "Wahlen Sie das Ausgabeformat und den Streaming-Optimierungsgrad"
+        "subtitle": "Legen Sie Name und KI-Modell des Agenten fest.",
+        "f0": "Wählen Sie einen klaren Namen für den Agenten",
+        "f1": "Wählen Sie das KI-Modell für Nachrichten"
       },
       "experience": {
         "badge": "Gesprach",
@@ -9158,6 +9124,157 @@
       },
       "crmTitle": "Gesprächspfad",
       "crmSubtitle": "Wo dieser Chat im Lebenszyklus steht"
+    }
+  },
+  "instagram": {
+    "page": {
+      "title": "Instagram",
+      "description": "Connect Instagram accounts to receive and answer direct messages, and to manage posts and comments.",
+      "searchPlaceholder": "Search by @handle or name",
+      "refresh": "Refresh",
+      "connect": "Connect account",
+      "emptyTitle": "No Instagram account connected",
+      "emptyDescription": "Connect an Instagram professional account to start receiving direct messages in the CRM.",
+      "connectDescription": "Verbinde ein weiteres Instagram-Profikonto.",
+      "connectCta": "Verbinden"
+    },
+    "status": {
+      "connected": "Connected",
+      "pending": "Pending",
+      "token_expired": "Reconnect required",
+      "revoked": "Disconnected",
+      "suspended": "Suspended",
+      "messagingOff": "Nachrichten aus"
+    },
+    "card": {
+      "posts": "Posts",
+      "followers": "Followers",
+      "following": "Following",
+      "viewProfile": "View profile",
+      "reconnect": "Reconnect",
+      "disconnect": "Disconnect",
+      "messagingDisabled": "Direct messages are not reaching this account. In the Instagram app, open Settings > Messages and story replies > Message controls > Connected tools and turn on \"Allow access to messages\"."
+    },
+    "capability": {
+      "messages": "Messages",
+      "comments": "Comments",
+      "publish": "Publishing"
+    },
+    "profile": {
+      "back": "Back to accounts",
+      "messagingDisabledTitle": "Direct messages are disabled for this account",
+      "messagingDisabledHelp": "OAuth succeeded, but Instagram will not deliver messages until \"Allow access to messages\" is enabled in the Instagram app under Settings > Messages and story replies > Message controls > Connected tools.",
+      "reconnectRequired": "This account's access token is no longer valid. Reconnect to resume receiving messages."
+    },
+    "posts": {
+      "empty": "This account has no posts yet.",
+      "loadMore": "Load more",
+      "loading": "Loading...",
+      "openPost": "Open post",
+      "detailTitle": "Post details",
+      "close": "Close",
+      "openInInstagram": "Open in Instagram",
+      "noAsset": "Instagram did not return an asset for this post.",
+      "commentCount": "{count} comments",
+      "disableComments": "Turn off comments",
+      "enableComments": "Turn on comments",
+      "gridLabel": "Beiträge",
+      "allLoaded": "{count} Beiträge geladen",
+      "sectionTitle": "Beiträge",
+      "sectionCount": "{count} Beiträge"
+    },
+    "comments": {
+      "empty": "No comments on this post.",
+      "loadMore": "Load more comments",
+      "loading": "Loading...",
+      "reply": "Reply",
+      "privateReply": "Reply privately",
+      "replyPlaceholder": "Write a public reply...",
+      "privateReplyPlaceholder": "Write a direct message...",
+      "privateReplyHint": "Instagram allows only one private reply per comment, within 7 days of the comment.",
+      "privateReplyUsed": "A private reply was already sent for this comment. Instagram allows only one.",
+      "privateReplyExpired": "This comment is older than 7 days, so a private reply is no longer possible.",
+      "hide": "Hide comment",
+      "unhide": "Unhide comment",
+      "delete": "Delete comment",
+      "send": "Send",
+      "you": "You",
+      "hidden": "Hidden",
+      "likes": "{count} likes",
+      "unknownUser": "unknown",
+      "countMismatch": "Instagram zählt {count} für diesen Beitrag, aber keiner der Kommentare kann hier angezeigt werden. Die Zählung umfasst Antworten sowie Kommentare privater oder eingeschränkter Konten, die Instagram nicht bereitstellt.",
+      "allLoaded": "{count} geladen"
+    },
+    "notice": {
+      "connected": "@{username} connected.",
+      "reconnected": "@{username} reconnected.",
+      "connectedGeneric": "Instagram account connected.",
+      "disconnected": "@{username} disconnected."
+    },
+    "connectError": {
+      "invalid_state": "The connection link was invalid or already used. Please try again.",
+      "expired_state": "The connection link expired. Please try again.",
+      "missing_messaging_scope": "The messaging permission was not granted, so direct messages cannot be received. Please reconnect and allow it.",
+      "already_linked": "This Instagram account is already connected to another workspace.",
+      "connect_failed": "Could not connect the Instagram account. Please try again."
+    },
+    "connect": {
+      "errorTitle": "Verbindung fehlgeschlagen",
+      "successTitle": "Instagram verbunden",
+      "title": "Connect an Instagram account",
+      "description": "Sign in with Instagram to receive direct messages in the CRM and manage your posts and comments.",
+      "viewAccounts": "View accounts",
+      "cta": {
+        "button": "Connect with Instagram",
+        "redirecting": "Opening Instagram..."
+      },
+      "prerequisite": {
+        "title": "Before you start",
+        "description": "The account must be a professional (Business or Creator) account, and in the Instagram app you must enable Settings > Messages and story replies > Message controls > Connected tools > Allow access to messages. Without it, messages never arrive even though the connection succeeds."
+      },
+      "features": {
+        "messages": {
+          "title": "Direct messages",
+          "description": "Instagram DMs land in the same CRM inbox as your other channels, ready to answer."
+        },
+        "posts": {
+          "title": "Posts and comments",
+          "description": "Browse your posts, read comments and reply, hide or answer privately."
+        },
+        "secure": {
+          "title": "Secure by design",
+          "description": "Standard OAuth 2.0. We never see your Instagram password, and the token is encrypted at rest."
+        }
+      },
+      "steps": {
+        "title": "How it works",
+        "step1": "Click connect. A secure Instagram window opens.",
+        "step2": "Sign in with Instagram and approve the permissions.",
+        "step3": "You return here and the account is ready to receive messages."
+      }
+    },
+    "table": {
+      "account": "Account",
+      "status": "Status",
+      "type": "Type"
+    },
+    "pagination": {
+      "total": "{total} accounts",
+      "pageOf": "Page {page} of {totalPages}",
+      "previous": "Previous page",
+      "next": "Next page"
+    },
+    "stats": {
+      "total": "Gesamt",
+      "connected": "Verbunden",
+      "attention": "Erfordert Aufmerksamkeit"
+    },
+    "accountType": {
+      "BUSINESS": "Unternehmen",
+      "MEDIA_CREATOR": "Content-Creator",
+      "CREATOR": "Creator",
+      "PERSONAL": "Privat",
+      "unknown": "Nicht angegeben"
     }
   }
 }

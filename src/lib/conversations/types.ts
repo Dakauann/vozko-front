@@ -60,15 +60,25 @@ export interface InboxEntryLabel {
 }
 
 
-export type EntryType = 'voice' | 'whatsapp' | 'sip' | 'support';
+export type EntryType = 'voice' | 'whatsapp' | 'sip' | 'support' | 'instagram';
 
+/**
+ * Instagram is deliberately absent here.
+ *
+ * A campaign is an outbound blast, and Instagram forbids cold outbound entirely —
+ * a business can only reply inside a 24h window opened by the customer. So there is
+ * no Instagram campaign to model, and adding one would invent a capability the
+ * platform does not grant.
+ */
 export type CampaignType = 'voice' | 'whatsapp' | 'support';
 
 export type WhatsAppCampaignTypeFilter = 'standard' | 'organic';
 
-export function normalizeEntryType(entryType: EntryType): 'voice' | 'whatsapp' | 'support' {
+export function normalizeEntryType(
+    entryType: EntryType,
+): 'voice' | 'whatsapp' | 'support' | 'instagram' {
     if (entryType === 'sip') return 'voice';
-    return entryType as 'voice' | 'whatsapp' | 'support';
+    return entryType as 'voice' | 'whatsapp' | 'support' | 'instagram';
 }
 
 export type MessageType =
@@ -83,6 +93,14 @@ export type MessageType =
     | 'call_permission_request'
     | 'call_permission_granted'
     | 'call_permission_rejected'
+    // Instagram-specific inbound shapes. A story reply/mention is a real
+    // conversational turn that carries the story context in metadata; a reaction
+    // and an unsupported message are markers.
+    | 'story_reply'
+    | 'story_mention'
+    | 'reaction'
+    | 'unsupported'
+    | 'post_share'
     | 'call_received'
     | 'call_answered'
     | 'call_missed'
@@ -96,7 +114,7 @@ export interface MatchedMessage {
     text: string;
     from: string;
     message_type: MessageType;
-    channel: 'voice' | 'whatsapp';
+    channel: 'voice' | 'whatsapp' | 'instagram';
     created_at: string;
     position: number;
     page: number;
@@ -198,7 +216,7 @@ export interface ConversationMessage {
     id: string;
     entry_id: string;
     entry_type: EntryType;
-    channel: 'voice' | 'whatsapp';
+    channel: 'voice' | 'whatsapp' | 'instagram';
     message_type: MessageType;
     from: string;
     to: string;
@@ -277,7 +295,7 @@ export interface WsSearchInboxPayload {
     min_message_count?: number;
     max_message_count?: number;
     message_search?: string;
-    channel?: 'voice' | 'whatsapp';
+    channel?: 'voice' | 'whatsapp' | 'instagram';
     date_from?: string;
     date_to?: string;
     window_open?: boolean;

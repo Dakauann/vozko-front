@@ -17,6 +17,7 @@ import {
   List as ListIcon,
   Sparkle,
   Package,
+  InstagramLogo,
   Phone,
   PhoneCall,
   PhoneIncoming,
@@ -27,6 +28,7 @@ import {
   Gear,
   GitBranch,
   Handshake,
+  UserCircle,
   UsersFour,
   UserPlus,
   Wallet,
@@ -46,7 +48,20 @@ import {
   ChartBar,
   X,
 } from "@phosphor-icons/react";
-import type { Icon } from "@phosphor-icons/react";
+import type { Icon, IconProps } from "@phosphor-icons/react";
+import type { ComponentType } from "react";
+
+import { InstagramLogoColor, WhatsAppLogoColor } from "@/components/icons/channel-logos";
+
+/**
+ * Nav icons are Phosphor glyphs, except for the channel entries.
+ *
+ * WhatsApp and Instagram use their real brand marks: a channel in the nav is an
+ * identity, and the green phone and the Instagram gradient are recognised before
+ * the label is read. The brand components accept IconProps and ignore `weight`,
+ * so they slot into the same call site.
+ */
+type NavIcon = Icon | ComponentType<IconProps>;
 
 import { Link, usePathname } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
@@ -107,7 +122,7 @@ export type NavPermission = {
 };
 
 export interface NavItem {
-  icon: Icon;
+  icon: NavIcon;
   labelKey: string;
   href: string;
   admin?: boolean;
@@ -145,7 +160,7 @@ function navPermissionAllowed(
 export interface Product {
   id: string;
   nameKey: string;
-  icon: Icon;
+  icon: NavIcon;
   descriptionKey: string;
   navItems: NavItem[];
   requiredPermission?: {
@@ -282,21 +297,7 @@ export const campanhasNavItems: NavItem[] = [
     ],
   },
   {
-    icon: Waveform,
-    labelKey: "nav.recordings",
-    href: "/dashboard/recordings",
-    family: "voip",
-    requiredPermission: { resource: "call_recordings", action: "read" },
-  },
-  {
-    icon: PhoneCall,
-    labelKey: "nav.calls",
-    href: "/dashboard/calls",
-    family: "voip",
-    requiredPermission: { resource: "call_recordings", action: "read" },
-  },
-  {
-    icon: WhatsappLogo,
+    icon: Megaphone,
     labelKey: "nav.whatsappCampaigns",
     href: "/dashboard/whatsapp-campaigns",
     family: "whatsapp",
@@ -387,6 +388,27 @@ export const campanhasNavItems: NavItem[] = [
     requiredPermission: { resource: "message_shortcuts", action: "read" },
   },
   {
+    icon: UserCircle,
+    labelKey: "nav.instagram",
+    href: "/dashboard/instagram-accounts",
+    family: "instagram",
+    requiredPermission: { resource: "instagram_accounts" },
+    children: [
+      {
+        icon: ClipboardText,
+        labelKey: "nav.instagramAccounts",
+        href: "/dashboard/instagram-accounts",
+        requiredPermission: { resource: "instagram_accounts", action: "read" },
+      },
+      {
+        icon: LinkSimple,
+        labelKey: "nav.connectInstagram",
+        href: "/dashboard/instagram-accounts/connect",
+        requiredPermission: { resource: "instagram_accounts", action: "create" },
+      },
+    ],
+  },
+  {
     icon: Phone,
     labelKey: "nav.whatsappBusinessPhones",
     href: "/dashboard/whatsapp-business-phones",
@@ -412,6 +434,20 @@ export const campanhasNavItems: NavItem[] = [
         admin: true,
       },
     ],
+  },
+  {
+    icon: Waveform,
+    labelKey: "nav.recordings",
+    href: "/dashboard/recordings",
+    family: "voip",
+    requiredPermission: { resource: "call_recordings", action: "read" },
+  },
+  {
+    icon: PhoneCall,
+    labelKey: "nav.calls",
+    href: "/dashboard/calls",
+    family: "voip",
+    requiredPermission: { resource: "call_recordings", action: "read" },
   },
   // TODO: finish developing this section and add to layout
   {
@@ -1206,7 +1242,8 @@ function NavItemComponent({
 }
 
 // Icons stay neutral (monochrome) per the design rules; family identity is carried
-// by a small dot beside the group label instead of coloring the glyph.
+// by a small dot beside the group label instead of coloring the glyph — except
+// channel families, whose header carries the small brand mark instead.
 const familyDotColor: Record<string, string> = {
   whatsapp: "bg-emerald-500",
   ai: "bg-violet-500",
@@ -1214,6 +1251,11 @@ const familyDotColor: Record<string, string> = {
   management: "bg-slate-400",
   support: "bg-rose-500",
   crm: "bg-indigo-500",
+};
+
+const familyBrandIcon: Record<string, NavIcon> = {
+  whatsapp: WhatsAppLogoColor,
+  instagram: InstagramLogoColor,
 };
 
 function groupByFamily(
@@ -1276,12 +1318,18 @@ function GroupedNavItems({
                 )}
               >
                 <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                  <span
-                    className={cn(
-                      "h-1.5 w-1.5 flex-shrink-0 rounded-full",
-                      familyDotColor[group.family] ?? "bg-muted-foreground/40",
-                    )}
-                  />
+                  {familyBrandIcon[group.family] ? (
+                    React.createElement(familyBrandIcon[group.family], {
+                      className: "h-3 w-3 flex-shrink-0",
+                    })
+                  ) : (
+                    <span
+                      className={cn(
+                        "h-1.5 w-1.5 flex-shrink-0 rounded-full",
+                        familyDotColor[group.family] ?? "bg-muted-foreground/40",
+                      )}
+                    />
+                  )}
                   {t(`families.${group.family}`)}
                 </span>
               </div>
@@ -1450,14 +1498,6 @@ export function DashboardSidebar({
 
       {/* Scrollable container for both product nav and admin nav */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 scrollbar-sleek">
-        {(isExpanded || mobile) && (
-          <div className="px-4 pt-4 pb-2">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              {t(currentProduct.nameKey)}
-            </span>
-          </div>
-        )}
-
         <GroupedNavItems
           items={currentProduct.navItems}
           isExpanded={isExpanded || mobile}

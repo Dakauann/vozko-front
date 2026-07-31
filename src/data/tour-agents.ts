@@ -8,7 +8,6 @@ import {
   PuzzlePiece,
   Bank,
   GearSix,
-  Microphone,
   WhatsappLogo,
   Files,
 } from "@phosphor-icons/react";
@@ -49,21 +48,7 @@ export const agentsTourSteps: TourStep[] = [
     data: { _tab: "geral" },
     features: [
       { icon: User, text: "steps.general.f0" },
-      { icon: Microphone, text: "steps.general.f1" },
-    ],
-  },
-  {
-    target: "[data-tour='agents-voice-config']",
-    placement: "top",
-    badge: "steps.voiceConfig.badge",
-    title: "steps.voiceConfig.title",
-    subtitle: "steps.voiceConfig.subtitle",
-    palette: agentsTourPalette,
-    seed: agentsTourSeed + 3,
-    data: { _tab: "geral" },
-    features: [
-      { icon: GearSix, text: "steps.voiceConfig.f0" },
-      { icon: Microphone, text: "steps.voiceConfig.f1" },
+      { icon: Brain, text: "steps.general.f1" },
     ],
   },
   {
