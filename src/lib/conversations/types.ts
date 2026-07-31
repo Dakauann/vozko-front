@@ -81,6 +81,37 @@ export function normalizeEntryType(
     return entryType as 'voice' | 'whatsapp' | 'support' | 'instagram';
 }
 
+/**
+ * What a channel can actually do, in one place.
+ *
+ * Conversation UI is shared across channels, so a control that only makes sense
+ * for one of them must ask here rather than testing the entry type inline —
+ * otherwise every new channel means hunting for scattered conditionals, and a
+ * control ends up offered for a channel that cannot honour it.
+ */
+export const channelCapabilities = {
+    /**
+     * Telephony needs a dialable number. An Instagram contact is an IGSID with
+     * no phone number attached, so calling is not merely disabled — it is not a
+     * property of the channel.
+     */
+    supportsCalling(entryType: EntryType): boolean {
+        const t = normalizeEntryType(entryType);
+        return t === 'whatsapp' || t === 'voice';
+    },
+
+    /**
+     * Whether AI agents/workflows can attend this conversation. Instagram DMs are
+     * handled by people today: the inbound webhook records the message and assigns
+     * an operator, with no agent invocation, so showing an AI handler there would
+     * promise automation that never runs.
+     */
+    supportsAiHandling(entryType: EntryType): boolean {
+        const t = normalizeEntryType(entryType);
+        return t === 'whatsapp' || t === 'voice' || t === 'support';
+    },
+} as const;
+
 export type MessageType =
     | 'user_message'
     | 'ai_response'

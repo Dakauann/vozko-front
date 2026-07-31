@@ -99,7 +99,10 @@ import {
   requestDialerCall,
   useDialerCallActive,
 } from "@/lib/dialer/dialer-control";
-import { normalizeEntryType } from "@/lib/conversations/types";
+import {
+  channelCapabilities,
+  normalizeEntryType,
+} from "@/lib/conversations/types";
 import CrmConnectedUsers from "./CrmConnectedUsers";
 import TooltipWrapper from "@/components/ui/tooltip-wrapper";
 import ElevatedButton from "../elevated-design/button";
@@ -1392,15 +1395,23 @@ export default function CrmLayout({
           ) : (
             <AttendanceOwnerBadge kind="unassigned" className="shrink-0" />
           )}
-          <AiHandlerChip
-            handler={currentInboxEntry?.ai_handler}
-            automationEnabled={activeConversation.automation_enabled}
-            conversationStatus={activeConversation.conversation_status}
-            assignedUserId={currentInboxEntry?.assigned_user_id}
-            size="md"
-            onOpenWorkflow={setWorkflowDrawerHandler}
-            className="shrink-0"
-          />
+          {/* Only for channels an agent or workflow can actually attend.
+              Instagram DMs are human-attended today — the inbound webhook records
+              the message and assigns an operator without invoking AI — so the chip
+              would announce automation that never runs. */}
+          {channelCapabilities.supportsAiHandling(
+            activeConversation.entry_type as EntryType,
+          ) && (
+            <AiHandlerChip
+              handler={currentInboxEntry?.ai_handler}
+              automationEnabled={activeConversation.automation_enabled}
+              conversationStatus={activeConversation.conversation_status}
+              assignedUserId={currentInboxEntry?.assigned_user_id}
+              size="md"
+              onOpenWorkflow={setWorkflowDrawerHandler}
+              className="shrink-0"
+            />
+          )}
         </div>
         <p className="truncate text-xs text-muted-foreground">
           {activeConversation.lead_number}
@@ -1583,8 +1594,15 @@ export default function CrmLayout({
         {/* Outbound calling (SIP + WhatsApp) and the consent request all flow
             through the dialer, so the whole control is gated on dialer:use.
             Hiding it avoids a button that silently no-ops for members without
-            the permission. */}
-        {can("dialer", "use") && (
+            the permission.
+
+            It is also gated on the channel: an Instagram contact has no phone
+            number, so offering a call would open a dropdown that can never
+            place one. */}
+        {can("dialer", "use") &&
+          channelCapabilities.supportsCalling(
+            activeConversation.entry_type as EntryType,
+          ) && (
           <TooltipWrapper content={t.conversation.startCall ?? "Ligar"}>
             <button
               onClick={() => setCallDropdownOpen((v) => !v)}
