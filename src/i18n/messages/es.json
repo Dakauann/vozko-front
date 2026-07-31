@@ -487,7 +487,7 @@
       },
       "conversational": {
         "title": "Experiencias conversacionales",
-        "description": "Asistentes de voz, chat y canales sociales brindan atención humana y escalable en 14 idiomas simultáneamente."
+        "description": "Asistentes de chat y canales sociales brindan atención humana y escalable en múltiples idiomas."
       },
       "governance": {
         "title": "Gobernanza end-to-end",
@@ -524,11 +524,6 @@
     "title": "Resultados que el equipo de ventas siente en la práctica",
     "description": "Métricas reales de clientes que utilizan {brandName} para gestionar ciclos completos de adquisición, retención y expansión de ingresos.",
     "items": {
-      "agility": {
-        "value": "4x",
-        "label": "Agilidad de lanzamiento",
-        "description": "Tiempo promedio de implementación de nuevas jornadas en comparación con proyectos tradicionales de CRM o contact center."
-      },
       "retention": {
         "value": "92%",
         "label": "Retención ampliada",
@@ -585,14 +580,6 @@
       "default_markup": "Modelos de IA"
     },
     "footer": "Precios en BRL. Los valores pueden variar según el tipo de cambio. Los planes se pueden cambiar en cualquier momento."
-  },
-  "closing": {
-    "title": "{brandName} mantiene su operación siempre un paso adelante",
-    "description": "{brandName} conecta estrategia, tecnología y operación en una matriz única, permitiendo que las empresas lancen productos, escalen ventas y mantengan gobernanza global a la velocidad del mercado.",
-    "cta": {
-      "primary": "Habla con expertos {brandName}",
-      "secondary": "Explorar portafolio completo"
-    }
   },
   "common": {
     "learnMore": "Saber más",
@@ -1051,24 +1038,46 @@
       "telephony": "Telefonía",
       "manager": "Gestión",
       "leads": "Leads",
-      "instagram": "Instagram",
+      "instagram": "Cuentas",
       "instagramAccounts": "Cuentas",
-      "connectInstagram": "Conectar cuenta"
+      "connectInstagram": "Conectar cuenta",
+      "support": "Soporte",
+      "createSupport": "Nueva solicitud",
+      "manageSupport": "Gestionar",
+      "whatsapp": "WhatsApp",
+      "instagramChannel": "Instagram",
+      "campaigns": "Campañas"
     },
     "badges": {
       "new": "Nuevo",
       "premium": "Premium"
     },
     "families": {
+      "crm": "Atención",
       "whatsapp": "WhatsApp",
-      "management": "Gestión",
-      "platform": "Plataforma",
-      "support": "Soporte",
-      "crm": "CRM",
-      "ai": "IA & Automatización",
+      "instagram": "Instagram",
+      "ai": "IA y Automatización",
       "voip": "Telefonía",
-      "instagram": "Instagram"
-    }
+      "billing": "Facturación",
+      "settings": "Configuración",
+      "platform": "Plataforma",
+      "campaigns": "Campañas",
+      "channels": "Canales",
+      "management": "Gestión"
+    },
+    "pin": {
+      "pin": "Fijar",
+      "unpin": "Soltar",
+      "pinSidebar": "Fijar barra lateral",
+      "unpinSidebar": "Soltar barra lateral"
+    },
+    "navigationMenu": "Menú de navegación",
+    "sections": {
+      "work": "Trabajo",
+      "management": "Gestión",
+      "administration": "Administración"
+    },
+    "toggleSubmenu": "Alternar subelementos"
   },
   "dashboard": {
     "pageSubtitle": "Sigue el rendimiento de tus agentes y campañas en tiempo real",
@@ -1119,7 +1128,7 @@
       "sectionTitle": "Acciones rápidas",
       "createAgent": {
         "title": "Crear agente",
-        "description": "Configura un nuevo asistente de voz"
+        "description": "Configura un nuevo asistente de IA"
       },
       "newCampaign": {
         "title": "Nueva campaña",
@@ -1306,7 +1315,7 @@
         "configure": {
           "number": "01",
           "title": "Configura tu agente",
-          "description": "Crea agentes de voz y texto con IA. Define personalidad, base de conocimiento e instrucciones para que el agente responda de forma natural y precisa."
+          "description": "Crea agentes de IA para texto y mensajes de voz. Define personalidad, base de conocimiento e instrucciones para que el agente responda de forma natural y precisa."
         },
         "train": {
           "number": "02",
@@ -1334,10 +1343,6 @@
           "title": "Comunicación omnicanal",
           "description": "WhatsApp, SMS, telefonía VoIP y correo electrónico integrados en una sola plataforma."
         },
-        "voiceAI": {
-          "title": "Agentes de voz con IA",
-          "description": "Atención por voz con reconocimiento de habla y síntesis en tiempo real."
-        },
         "crm": {
           "title": "CRM integrado",
           "description": "Gestión de contactos, etapas de venta e historial completo de interacciones."
@@ -1351,7 +1356,7 @@
     "capabilities": {
       "title": "Lo que ofrece la plataforma",
       "items": [
-        "Agentes de IA para voz y texto con latencia mínima",
+        "Agentes de IA para texto y mensajes de voz",
         "Integración nativa con WhatsApp Business API",
         "Campañas de WhatsApp y SMS a escala",
         "Workflows visuales con nodos de decisión y acciones",
@@ -4842,6 +4847,10 @@
       "marketing": "Marketing",
       "utility": "Utilidad",
       "authentication": "Autenticación"
+    },
+    "unifiedTabs": {
+      "campaigns": "Difusiones",
+      "organic": "Receptivas"
     }
   },
   "crmLabels": {
@@ -4952,7 +4961,7 @@
   },
   "footerMain": {
     "title": "{brandName}",
-    "description": "Plataforma tecnológica para automatización inteligente, agentes de voz con IA y comunicación omnicanal para empresas en todo el mundo.",
+    "description": "Plataforma tecnológica para automatización inteligente, agentes de IA y comunicación omnicanal para empresas en todo el mundo.",
     "quickLinksTitle": "Enlaces rápidos",
     "quickLinks": {
       "home": "Inicio",
@@ -4977,23 +4986,6 @@
       "metaBusinessPartner": "Meta Business Partner",
       "metaBusinessPartnerDescription": "Insignia oficial de socio para soluciones e integraciones de WhatsApp Business.",
       "metaBusinessPartnerAlt": "Insignia Meta Business Partner"
-    }
-  },
-  "howItWorksHome": {
-    "badge": "Cómo Funciona",
-    "title": "El Portal para sus Clientes",
-    "description": "{brandName} es el portal que lo conecta con sus clientes. Alcanzamos a las personas a través de múltiples canales de comunicación y vendemos productos con inteligencia artificial.",
-    "step1": {
-      "title": "1. Alcanzamos",
-      "description": "Conectamos con clientes a través de llamadas, WhatsApp y SMS - nuestro canal de comunicación multicanal."
-    },
-    "step2": {
-      "title": "2. Conversamos",
-      "description": "{brandAiName} realiza conversaciones naturales utilizando nuestro motor de voz propietario, comprendiendo necesidades y ofreciendo soluciones."
-    },
-    "step3": {
-      "title": "3. Vendemos",
-      "description": "Ofrecemos soluciones de comunicación y automatización personalizadas, cerrando negocios de manera eficiente y transparente."
     }
   },
   "businessMetrics": {
@@ -5545,7 +5537,7 @@
       "roulette": "Ruleta de asignación"
     },
     "resourceDescriptions": {
-      "agents": "Gestione los agentes de IA que atienden llamadas y conversaciones",
+      "agents": "Gestione los agentes de IA que atienden sus conversaciones",
       "campaigns": "Controle campañas de llamadas telefónicas para alcanzar clientes",
       "whatsapp_campaigns": "Gestione campañas de mensajes por WhatsApp",
       "whatsapp_templates": "Cree y edite plantillas de mensajes aprobadas por WhatsApp",
@@ -7544,11 +7536,11 @@
     "agents": {
       "badge": "AGENTES {brandName}",
       "title": "Conoce los Agentes {brandName}",
-      "subtitle": "Asistentes inteligentes de voz y mensajería que actúan en nombre de tu equipo",
+      "subtitle": "Asistentes inteligentes de mensajería que actúan en nombre de tu equipo",
       "dismissButton": "Comenzar",
       "features": [
         "Ejecutan tareas de forma autónoma con RAG y bases de conocimiento",
-        "Atienden llamadas, califican leads y responden en WhatsApp",
+        "Califican leads y responden en WhatsApp y otros canales",
         "Vincula herramientas, servidores MCP y variables dinámicas a cada agente",
         "Disponibles 24/7 sin límites de volumen",
         "Pueden asignarse a departamentos específicos dentro del espacio de trabajo"
@@ -7565,19 +7557,6 @@
         "Métricas en tiempo real: entregados, leídos, respondidos y fallidos",
         "Respuestas automáticas de IA y análisis de calificación de leads por conversación",
         "Organiza por departamentos y asigna agentes y flujos de trabajo específicos"
-      ]
-    },
-    "campaigns": {
-      "badge": "VOZ",
-      "title": "Campañas de Voz",
-      "subtitle": "Llamadas automatizadas con IA y embudos de etapas para calificar leads",
-      "dismissButton": "Comenzar",
-      "features": [
-        "Llamadas de voz automatizadas a escala para miles de números",
-        "Agente de IA atiende, califica y conduce la conversación con lenguaje natural",
-        "Flujos de llamada con menús IVR, transcripción y texto a voz",
-        "Embudos de etapas con análisis de calificación y disposición de leads",
-        "Asigna campañas a departamentos y controla los permisos del equipo"
       ]
     },
     "workflows": {
@@ -7748,18 +7727,6 @@
         "Round-robin: distribuye conversaciones automáticamente entre miembros",
         "Asigna recursos específicos a cada miembro y controla niveles de acceso"
       ]
-    },
-    "campaignsReceptive": {
-      "badge": "RECEPTIVAS",
-      "title": "Campañas de voz receptivas",
-      "subtitle": "Atiende llamadas entrantes en tu canal de telefonía con IA o workflow, sin lista de contactos",
-      "dismissButton": "Continuar",
-      "features": [
-        "Las llamadas entrantes en el canal de telefonía se atienden automáticamente",
-        "Un agente de IA o workflow de voz conduce la atención, sin marcado saliente",
-        "Sin lista de contactos: cada llamada entrante crea un registro en la campaña",
-        "Asigna a departamentos y controla los permisos del equipo"
-      ]
     }
   },
   "tour": {
@@ -7778,7 +7745,7 @@
         "badge": "Navegacion",
         "title": "Pestanas organizadas",
         "subtitle": "La configuracion del agente esta dividida en pestanas para facilitar la navegacion.",
-        "f0": "General: nombre, voz, idioma y modelos de IA",
+        "f0": "General: nombre y modelo de IA",
         "f1": "Conversacion: prompts, mensaje inicial y variables",
         "f2": "Habilidades: herramientas que el agente puede usar",
         "f3": "Conocimiento: bases de conocimiento y colecciones MCP"
@@ -7786,16 +7753,9 @@
       "general": {
         "badge": "General",
         "title": "Identidad del agente",
-        "subtitle": "Define el nombre, voz, idioma y modelos de IA del agente.",
-        "f0": "Elige una voz y previsualizala antes de confirmar",
-        "f1": "Selecciona modelos de IA separados para llamadas y mensajeria"
-      },
-      "voiceConfig": {
-        "badge": "Voz",
-        "title": "Configuracion de voz",
-        "subtitle": "Ajusta la salida TTS, latencia, estabilidad y parametros de voz.",
-        "f0": "Ajusta estabilidad, similitud y velocidad de habla",
-        "f1": "Elige el formato de salida y el nivel de optimizacion de streaming"
+        "subtitle": "Define el nombre y el modelo de IA del agente.",
+        "f0": "Elige un nombre claro para identificar al agente",
+        "f1": "Selecciona el modelo de IA para los mensajes"
       },
       "experience": {
         "badge": "Conversacion",
@@ -8721,7 +8681,9 @@
       "disableComments": "Turn off comments",
       "enableComments": "Turn on comments",
       "gridLabel": "Publicaciones",
-      "allLoaded": "{count} publicaciones cargadas"
+      "allLoaded": "{count} publicaciones cargadas",
+      "sectionTitle": "Publicaciones",
+      "sectionCount": "{count} publicaciones"
     },
     "comments": {
       "empty": "No comments on this post.",
@@ -8742,7 +8704,7 @@
       "hidden": "Hidden",
       "likes": "{count} likes",
       "unknownUser": "unknown",
-      "countMismatch": "Instagram informa {count} en esta publicación pero no devuelve ninguno por la API. Su recuento incluye respuestas y comentarios de cuentas privadas o restringidas, que la API omite.",
+      "countMismatch": "Instagram contabiliza {count} en esta publicación, pero ninguno de los comentarios puede mostrarse aquí. El recuento incluye respuestas y comentarios de cuentas privadas o restringidas, que Instagram no proporciona.",
       "allLoaded": "{count} cargados"
     },
     "notice": {
@@ -8803,6 +8765,18 @@
       "pageOf": "Page {page} of {totalPages}",
       "previous": "Previous page",
       "next": "Next page"
+    },
+    "stats": {
+      "total": "Total",
+      "connected": "Conectadas",
+      "attention": "Requiere atención"
+    },
+    "accountType": {
+      "BUSINESS": "Empresa",
+      "MEDIA_CREATOR": "Creador de contenido",
+      "CREATOR": "Creador",
+      "PERSONAL": "Personal",
+      "unknown": "No informado"
     }
   }
 }

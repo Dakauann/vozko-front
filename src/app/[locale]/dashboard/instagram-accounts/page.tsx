@@ -29,11 +29,14 @@ import {
 } from "@/hooks/use-instagram-connect";
 
 import Button from "@/components/elevated-design/button";
+import { InstagramAvatar } from "@/components/instagram/instagram-avatar";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { translateAccountType } from "@/lib/instagram/account-type";
+import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -163,6 +166,17 @@ export default function InstagramAccountsPage() {
   const statusKeyFor = (row: InstagramAccount): InstagramAccountStatus | "MESSAGING_OFF" =>
     row.status === "CONNECTED" && !row.messagingHealthy ? "MESSAGING_OFF" : row.status;
 
+  // Counted over the current page, the same way the phones list does it — these are
+  // an at-a-glance read of what is on screen, not workspace-wide totals.
+  const connectedCount = accounts.filter(
+    (a) => a.status === "CONNECTED" && a.messagingHealthy,
+  ).length;
+  // Both failure modes land here: an expired token and a healthy token whose
+  // messaging toggle is off. They need different remedies but the same attention.
+  const attentionCount = accounts.filter(
+    (a) => a.needsReconnect || (a.status === "CONNECTED" && !a.messagingHealthy),
+  ).length;
+
   const columns = useMemo<DashboardTableColumn<InstagramAccount>[]>(
     () => [
       {
@@ -170,18 +184,12 @@ export default function InstagramAccountsPage() {
         header: t("table.account"),
         render: (row) => (
           <div className="flex items-center gap-2.5">
-            {row.profilePictureUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={row.profilePictureUrl}
-                alt={row.username}
-                className="h-7 w-7 shrink-0 rounded-lg object-cover"
-              />
-            ) : (
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-fuchsia-500/10">
-                <InstagramLogo weight="fill" className="h-3.5 w-3.5 text-fuchsia-600" />
-              </div>
-            )}
+            <InstagramAvatar
+              accountId={row.id}
+              username={row.username}
+              className="size-7"
+              textClassName="text-[11px]"
+            />
             <div className="flex flex-col">
               <span className="text-sm font-medium text-foreground">@{row.username}</span>
               {row.name && <span className="text-xs text-muted-foreground">{row.name}</span>}
@@ -237,7 +245,9 @@ export default function InstagramAccountsPage() {
         key: "type",
         header: t("table.type"),
         render: (row) => (
-          <span className="text-sm text-muted-foreground">{row.accountType || "—"}</span>
+          <span className="text-sm text-muted-foreground">
+            {translateAccountType(t, row.accountType)}
+          </span>
         ),
       },
       {
@@ -308,47 +318,66 @@ export default function InstagramAccountsPage() {
   );
 
   return (
-    <div className="flex flex-col gap-6 p-4 sm:p-6">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+      className="w-full space-y-6"
+    >
       <DashboardPageHeader
         badge={t("page.title")}
         description={t("page.description")}
-        icon={<InstagramLogo className="h-6 w-6" weight="duotone" />}
+        icon={<InstagramLogo className="h-6 w-6" weight="fill" />}
+        colorClass="text-fuchsia-600"
         actions={
           canCreate ? (
-            <Link href="/dashboard/instagram-accounts/connect">
-              <Button
-                variant="primary"
-                title={t("page.connect")}
-                icon={<Plus weight="bold" className="h-4 w-4" />}
-                iconVisible
-                iconSide="left"
-              />
-            </Link>
+            <div className="flex flex-wrap items-center gap-3">
+              <Link href="/dashboard/instagram-accounts/connect">
+                <Button
+                  variant="primary"
+                  title={t("page.connect")}
+                  icon={<Plus weight="bold" className="h-4 w-4" />}
+                  iconVisible
+                  iconSide="left"
+                />
+              </Link>
+            </div>
           ) : undefined
         }
       />
 
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="min-w-[240px] flex-1">
+      {/* Search + stats bar, same shape as the business phones list. */}
+      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card px-5 py-3 shadow-sm">
+        <div className="relative w-full max-w-xs">
           <ElevatedInput
+            type="text"
+            label={t("page.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") void fetchAccounts(1, search);
             }}
-            placeholder={t("page.searchPlaceholder")}
-            icon={<MagnifyingGlass className="h-4 w-4" />}
+            icon={<MagnifyingGlass className="h-4 w-4" weight="bold" />}
+            controlSize="sm"
+            className="w-full"
           />
         </div>
 
-        <button
-          type="button"
+        <div className="flex flex-1 flex-wrap items-center gap-4">
+          <Stat label={t("stats.total")} value={loading ? "…" : totalItems} />
+          <Stat label={t("stats.connected")} value={loading ? "…" : connectedCount} />
+          <Stat label={t("stats.attention")} value={loading ? "…" : attentionCount} />
+        </div>
+
+        <Button
+          variant="ghost"
+          title=""
+          icon={<ArrowClockwise weight="bold" className={cn("h-4 w-4", loading && "animate-spin")} />}
+          iconVisible
+          iconSide="left"
           onClick={() => void fetchAccounts(page, search)}
-          className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground transition-colors hover:bg-muted"
-        >
-          <ArrowClockwise className={cn("h-4 w-4", loading && "animate-spin")} />
-          {t("page.refresh")}
-        </button>
+          disabled={loading}
+        />
 
         {!loading && (
           <span className="whitespace-nowrap text-xs text-muted-foreground">
@@ -416,27 +445,37 @@ export default function InstagramAccountsPage() {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  disabled={page <= 1}
+                  disabled={page <= 1 || loading}
                   onClick={() => void fetchAccounts(page - 1, search)}
-                  className="inline-flex items-center rounded-lg border border-border bg-card p-1.5 text-foreground transition-colors hover:bg-muted disabled:opacity-40"
-                  aria-label={t("pagination.previous")}
+                  className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  <CaretLeft className="h-4 w-4" />
+                  <CaretLeft className="h-3.5 w-3.5" weight="bold" />
+                  {t("pagination.previous")}
                 </button>
                 <button
                   type="button"
-                  disabled={page >= totalPages}
+                  disabled={page >= totalPages || loading}
                   onClick={() => void fetchAccounts(page + 1, search)}
-                  className="inline-flex items-center rounded-lg border border-border bg-card p-1.5 text-foreground transition-colors hover:bg-muted disabled:opacity-40"
-                  aria-label={t("pagination.next")}
+                  className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  <CaretRight className="h-4 w-4" />
+                  {t("pagination.next")}
+                  <CaretRight className="h-3.5 w-3.5" weight="bold" />
                 </button>
               </div>
             </div>
           )}
         </div>
       )}
+    </motion.div>
+  );
+}
+
+/** One inline stat in the toolbar, matching the business phones list. */
+function Stat({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="whitespace-nowrap text-xs text-muted-foreground">{label}</span>
+      <span className="text-sm font-semibold tabular-nums text-foreground">{value}</span>
     </div>
   );
 }

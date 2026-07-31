@@ -2,6 +2,7 @@
 
 import { ArrowSquareOut, Heart, ImageBroken, X } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 import {
   instagramAssetUrl,
@@ -10,9 +11,8 @@ import {
 } from "@/app/actions/instagram";
 import type { InstagramAccount, InstagramComment, InstagramMedia } from "@/lib/instagram/types";
 
-import { IconBox } from "@/components/elevated-design/listing-card";
+import { InstagramAvatar } from "@/components/instagram/instagram-avatar";
 import { InstagramCommentThread } from "@/components/instagram/instagram-comment-thread";
-import { InstagramLogo } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 
 interface Props {
@@ -89,27 +89,34 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
     setTogglingComments(false);
   };
 
-  return (
+  /* Portaled to <body> and stacked above every chrome layer (navbar z-40,
+     dialer tab and dropdowns z-50): rendered inline, those elements painted
+     over the scrim as bright patches. */
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-label={t("posts.detailTitle")}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/60 p-4 backdrop-blur-sm"
+      /* A neutral dark scrim, NOT bg-foreground: `--foreground` is near-white in
+         dark mode, which turned the backdrop into a white wash — most visibly as a
+         bright band in the padding above the dialog. */
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-neutral-950/70 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl md:h-[min(88vh,760px)] md:flex-row"
+        className="flex h-[min(88vh,760px)] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl md:flex-row"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Asset. object-contain keeps portrait and landscape posts uncropped, and
-            the panel is height-bounded so a tall image cannot grow the dialog. */}
-        <div className="relative flex min-h-[220px] shrink-0 items-center justify-center bg-black/90 md:h-full md:w-[55%] md:min-h-0">
+        {/* Asset. object-contain keeps portrait and landscape posts uncropped; the
+            panel owns a fixed share of the dialog so letterboxing shows as an even
+            surround rather than shifting the layout per image aspect ratio. */}
+        <div className="relative flex h-[38%] w-full shrink-0 items-center justify-center overflow-hidden bg-black md:h-full md:w-[55%]">
           {media.hasAsset ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={instagramAssetUrl(accountId, media.id)}
               alt={media.caption?.trim() || ""}
-              className="max-h-[38vh] w-full object-contain md:max-h-full"
+              className="h-full w-full object-contain"
             />
           ) : (
             <div className="flex flex-col items-center gap-2 p-10 text-white/60">
@@ -123,18 +130,12 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
             than stretching the flex row. */}
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <header className="flex shrink-0 items-start gap-3 border-b border-border p-4">
-            {account.profilePictureUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={account.profilePictureUrl}
-                alt={account.username}
-                className="size-8 rounded-full object-cover"
-              />
-            ) : (
-              <IconBox color="purple" size="sm" animated={false} className="size-8 rounded-lg">
-                <InstagramLogo weight="duotone" />
-              </IconBox>
-            )}
+            <InstagramAvatar
+              accountId={accountId}
+              username={account.username}
+              className="size-8"
+              textClassName="text-xs"
+            />
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-foreground">@{account.username}</p>
               <p className="text-[11px] text-muted-foreground">
@@ -213,6 +214,7 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

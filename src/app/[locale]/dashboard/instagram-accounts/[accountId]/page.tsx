@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Warning } from "@phosphor-icons/react";
+import { InstagramLogo, Warning } from "@phosphor-icons/react";
 import { use, useCallback, useEffect, useState } from "react";
 
 import {
@@ -9,10 +9,11 @@ import {
 } from "@/app/actions/instagram";
 import type { InstagramAccount, InstagramMedia } from "@/lib/instagram/types";
 
-import Button from "@/components/elevated-design/button";
+import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import { accentColorMap } from "@/components/elevated-design/listing-card";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import { InstagramPostDetail } from "@/components/instagram/instagram-post-detail";
 import { InstagramPostGrid } from "@/components/instagram/instagram-post-grid";
 import { InstagramProfileHeader } from "@/components/instagram/instagram-profile-header";
@@ -96,63 +97,101 @@ export default function InstagramAccountProfilePage({
   };
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <div>
-        <Button variant="ghost" onClick={() => router.push("/dashboard/instagram-accounts")}>
-          <ArrowLeft size={16} />
-          {t("profile.back")}
-        </Button>
-      </div>
+    // max-w-5xl matches the business phone detail page, and happens to be close to
+    // Instagram's own ~935px profile column — so the grid reads as a profile rather
+    // than stretching tiles across an ultrawide monitor.
+    <div className="mx-auto w-full max-w-5xl">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4 }}
+        className="space-y-6"
+      >
+        <DashboardPageHeader
+          icon={<InstagramLogo className="h-5 w-5" weight="fill" />}
+          colorClass="text-fuchsia-600"
+          badge={t("page.title")}
+          title={account ? `@${account.username}` : t("page.title")}
+          description={account?.name ?? ""}
+          back={{
+            onClick: () => router.push("/dashboard/instagram-accounts"),
+            label: t("profile.back"),
+          }}
+        />
 
-      {error && (
-        <ElevatedContainer
-          className={cn(
-            "flex items-center gap-2 p-4 text-sm",
-            accentColorMap.rose.light,
-            accentColorMap.rose.border,
-            accentColorMap.rose.text,
-          )}
-        >
-          <Warning className="h-4 w-4" />
-          {error}
-        </ElevatedContainer>
-      )}
-
-      {loading ? (
-        <div className="flex flex-col gap-6">
-          <div className="h-28 animate-pulse rounded-2xl bg-muted" />
-          <div className="grid grid-cols-3 gap-1 sm:gap-2">
-            {Array.from({ length: 9 }).map((_, i) => (
-              <div key={i} className="aspect-square animate-pulse rounded-xl bg-muted" />
-            ))}
-          </div>
-        </div>
-      ) : (
-        account && (
-          <>
-            <InstagramProfileHeader account={account} />
-
-            <InstagramPostGrid
-              accountId={accountId}
-              posts={posts}
-              hasNext={hasNext}
-              loadingMore={loadingMore}
-              onLoadMore={() => void loadMore()}
-              onSelect={setSelected}
-            />
-
-            {selected && (
-              <InstagramPostDetail
-                accountId={accountId}
-                account={account}
-                media={selected}
-                onClose={() => setSelected(null)}
-                onUpdated={handlePostUpdated}
-              />
+        {error && (
+          <ElevatedContainer
+            className={cn(
+              "flex items-center gap-2 p-4 text-sm",
+              accentColorMap.rose.light,
+              accentColorMap.rose.border,
+              accentColorMap.rose.text,
             )}
-          </>
-        )
-      )}
+          >
+            <Warning className="h-4 w-4" />
+            {error}
+          </ElevatedContainer>
+        )}
+
+        {loading ? (
+          <div className="space-y-6">
+            <div className="h-40 animate-pulse rounded-2xl bg-muted" />
+            <ElevatedContainer className="!p-0">
+              <div className="border-b border-border px-5 py-3">
+                <div className="h-4 w-32 animate-pulse rounded bg-muted" />
+              </div>
+              <div
+                className="grid gap-2 p-5 sm:gap-3"
+                style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 180px), 1fr))" }}
+              >
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="aspect-square animate-pulse rounded-xl bg-muted" />
+                ))}
+              </div>
+            </ElevatedContainer>
+          </div>
+        ) : (
+          account && (
+            <>
+              <InstagramProfileHeader account={account} />
+
+              {/* The grid gets its own titled panel so it sits in the dashboard's
+                  vocabulary instead of floating loose under the header. */}
+              <ElevatedContainer className="overflow-hidden !p-0">
+                <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
+                  <h2 className="text-sm font-semibold text-foreground">
+                    {t("posts.sectionTitle")}
+                  </h2>
+                  <span className="text-xs tabular-nums text-muted-foreground">
+                    {t("posts.sectionCount", { count: account.mediaCount })}
+                  </span>
+                </div>
+
+                <div className="p-5">
+                  <InstagramPostGrid
+                    accountId={accountId}
+                    posts={posts}
+                    hasNext={hasNext}
+                    loadingMore={loadingMore}
+                    onLoadMore={() => void loadMore()}
+                    onSelect={setSelected}
+                  />
+                </div>
+              </ElevatedContainer>
+
+              {selected && (
+                <InstagramPostDetail
+                  accountId={accountId}
+                  account={account}
+                  media={selected}
+                  onClose={() => setSelected(null)}
+                  onUpdated={handlePostUpdated}
+                />
+              )}
+            </>
+          )
+        )}
+      </motion.div>
     </div>
   );
 }

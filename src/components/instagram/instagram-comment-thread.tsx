@@ -132,9 +132,15 @@ function CommentRow({
    * Checking the age here keeps the button from offering an action that would be
    * rejected — and, more importantly, from burning the single allowance on a
    * request that cannot succeed.
+   *
+   * The clock is read once per mount rather than during render: reading it on every
+   * render is impure, and it would also let the button vanish mid-interaction if a
+   * re-render happened to land on the far side of the 7-day boundary.
    */
+  const [mountedAt] = useState(() => Date.now());
   const withinPrivateReplyWindow =
-    !!comment.timestamp && Date.now() - new Date(comment.timestamp).getTime() < PRIVATE_REPLY_WINDOW_MS;
+    !!comment.timestamp &&
+    mountedAt - new Date(comment.timestamp).getTime() < PRIVATE_REPLY_WINDOW_MS;
 
   const submit = async () => {
     if (!text.trim()) return;

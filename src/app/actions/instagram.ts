@@ -153,6 +153,18 @@ export function instagramAssetUrl(accountId: string, mediaId: string, thumb = fa
     return `${getApiBaseUrl()}/instagram/accounts/${accountId}/media/${mediaId}/asset${suffix}`;
 }
 
+/**
+ * Proxy URL for an account's profile picture.
+ *
+ * Same reasoning as the asset proxy: profile_picture_url is a signed CDN link that
+ * expires, so the value stored at connect time rots. The endpoint answers 404 when
+ * the account has no photo — Instagram omits the field entirely in that case — so
+ * callers must handle a failed load rather than assume an image exists.
+ */
+export function instagramAvatarUrl(accountId: string): string {
+    return `${getApiBaseUrl()}/instagram/accounts/${accountId}/avatar`;
+}
+
 // ---------------------------------------------------------------- comments
 
 export async function listInstagramCommentsAction(

@@ -508,7 +508,7 @@
       },
       "conversational": {
         "title": "Konversationserlebnisse",
-        "description": "Sprachassistenten, Chat und soziale Kanäle bieten menschlichen und skalierbaren Service in 14 Sprachen gleichzeitig."
+        "description": "Chat-Assistenten und soziale Kanäle bieten menschlichen und skalierbaren Service in mehreren Sprachen."
       },
       "governance": {
         "title": "End-to-End-Governance",
@@ -545,11 +545,6 @@
     "title": "Ergebnisse, die Ihr Vertriebsteam in der Praxis spürt",
     "description": "Echte Metriken von Kunden, die {brandName} nutzen, um vollständige Zyklen von Akquisition, Bindung und Umsatzexpansion zu steuern.",
     "items": {
-      "agility": {
-        "value": "4x",
-        "label": "Launch-Agilität",
-        "description": "Durchschnittliche Implementierungszeit für neue Journeys im Vergleich zu traditionellen CRM- oder Contact-Center-Projekten."
-      },
       "retention": {
         "value": "92%",
         "label": "Verbesserte Bindung",
@@ -606,14 +601,6 @@
       "default_markup": "KI-Modelle"
     },
     "footer": "Preise in BRL. Werte können je nach Wechselkurs variieren. Pläne können jederzeit geändert werden."
-  },
-  "closing": {
-    "title": "{brandName} hält Ihren Betrieb immer einen Schritt voraus",
-    "description": "{brandName} verbindet Strategie, Technologie und Betrieb in einer einzigartigen Matrix, die es Unternehmen ermöglicht, Produkte zu lancieren, Verkäufe zu skalieren und globale Governance mit Marktgeschwindigkeit aufrechtzuerhalten.",
-    "cta": {
-      "primary": "Mit {brandName}-Experten sprechen",
-      "secondary": "Gesamtes Portfolio erkunden"
-    }
   },
   "common": {
     "learnMore": "Mehr erfahren",
@@ -1084,24 +1071,48 @@
       "metrics": "Metriken",
       "manager": "Verwaltung",
       "leads": "Leads",
-      "instagram": "Instagram",
+      "instagram": "Konten",
       "instagramAccounts": "Konten",
-      "connectInstagram": "Konto verbinden"
+      "connectInstagram": "Konto verbinden",
+      "support": "Support",
+      "createSupport": "Neue Anfrage",
+      "manageSupport": "Verwalten",
+      "sales": "Vertrieb",
+      "adminOverview": "Admin-Übersicht",
+      "whatsapp": "WhatsApp",
+      "instagramChannel": "Instagram",
+      "campaigns": "Kampagnen"
     },
     "badges": {
       "new": "Neu",
       "premium": "Premium"
     },
     "families": {
+      "crm": "Postfach",
       "whatsapp": "WhatsApp",
-      "management": "Verwaltung",
-      "platform": "Plattform",
-      "support": "Support",
-      "crm": "CRM",
+      "instagram": "Instagram",
       "ai": "KI & Automatisierung",
       "voip": "Telefonie",
-      "instagram": "Instagram"
-    }
+      "billing": "Abrechnung",
+      "settings": "Einstellungen",
+      "platform": "Plattform",
+      "campaigns": "Kampagnen",
+      "channels": "Kanäle",
+      "management": "Verwaltung"
+    },
+    "pin": {
+      "pin": "Anheften",
+      "unpin": "Lösen",
+      "pinSidebar": "Seitenleiste anheften",
+      "unpinSidebar": "Seitenleiste lösen"
+    },
+    "navigationMenu": "Navigationsmenü",
+    "sections": {
+      "work": "Arbeit",
+      "management": "Management",
+      "administration": "Verwaltung"
+    },
+    "toggleSubmenu": "Unterpunkte umschalten"
   },
   "dashboard": {
     "pageSubtitle": "Verfolgen Sie die Leistung Ihrer Agenten und Kampagnen in Echtzeit",
@@ -1152,7 +1163,7 @@
       "sectionTitle": "Schnellaktionen",
       "createAgent": {
         "title": "Agent erstellen",
-        "description": "Konfigurieren Sie einen neuen Sprachassistenten"
+        "description": "Konfigurieren Sie einen neuen KI-Assistenten"
       },
       "newCampaign": {
         "title": "Neue Kampagne",
@@ -1377,7 +1388,7 @@
         "configure": {
           "number": "01",
           "title": "Konfigurieren Sie Ihren Agenten",
-          "description": "Erstellen Sie Sprach- und Text-KI-Agenten. Definieren Sie Persönlichkeit, Wissensbasis und Anweisungen, damit der Agent natürlich und präzise antwortet."
+          "description": "Erstellen Sie KI-Agenten für Text- und Sprachnachrichten. Definieren Sie Persönlichkeit, Wissensbasis und Anweisungen, damit der Agent natürlich und präzise antwortet."
         },
         "train": {
           "number": "02",
@@ -1405,10 +1416,6 @@
           "title": "Omnichannel-Kommunikation",
           "description": "WhatsApp, SMS, VoIP-Telefonie und E-Mail in einer einzigen Plattform integriert."
         },
-        "voiceAI": {
-          "title": "KI-Sprachagenten",
-          "description": "Sprachservice mit Echtzeit-Spracherkennung und -synthese."
-        },
         "crm": {
           "title": "Integriertes CRM",
           "description": "Kontaktverwaltung, Verkaufsstufen und vollständige Interaktionshistorie."
@@ -1422,7 +1429,7 @@
     "capabilities": {
       "title": "Was die Plattform bietet",
       "items": [
-        "KI-Agenten für Sprache und Text mit minimaler Latenz",
+        "KI-Agenten für Text- und Sprachnachrichten",
         "Native Integration mit WhatsApp Business API",
         "WhatsApp- und SMS-Kampagnen im großen Maßstab",
         "Visuelle Workflows mit Entscheidungsknoten und Aktionen",
@@ -4916,6 +4923,10 @@
       "marketing": "Marketing",
       "utility": "Utility",
       "authentication": "Authentifizierung"
+    },
+    "unifiedTabs": {
+      "campaigns": "Broadcasts",
+      "organic": "Rezeptiv"
     }
   },
   "crmLabels": {
@@ -5270,7 +5281,7 @@
   },
   "footerMain": {
     "title": "{brandName}",
-    "description": "Technologieplattform für intelligente Automatisierung, KI-gestützte Sprachagenten und Omnichannel-Kommunikation für Unternehmen weltweit.",
+    "description": "Technologieplattform für intelligente Automatisierung, KI-Agenten und Omnichannel-Kommunikation für Unternehmen weltweit.",
     "quickLinksTitle": "Schnelllinks",
     "quickLinks": {
       "home": "Startseite",
@@ -5295,23 +5306,6 @@
       "metaBusinessPartner": "Meta Business Partner",
       "metaBusinessPartnerDescription": "Offizielles Partner-Badge für WhatsApp-Business-Lösungen und Integrationen.",
       "metaBusinessPartnerAlt": "Meta Business Partner-Badge"
-    }
-  },
-  "howItWorksHome": {
-    "badge": "Wie es funktioniert",
-    "title": "Das Portal zu Ihren Kunden",
-    "description": "{brandName} ist das Portal, das Sie mit Ihren Kunden verbindet. Wir erreichen Menschen über mehrere Kommunikationskanäle und verkaufen Produkte mit künstlicher Intelligenz.",
-    "step1": {
-      "title": "1. Wir Erreichen",
-      "description": "Wir verbinden uns mit Kunden über Anrufe, WhatsApp und SMS - unsere Multikanal-Kommunikationspipeline."
-    },
-    "step2": {
-      "title": "2. Wir Engagieren",
-      "description": "{brandAiName} führt natürliche Gespräche mit unserer proprietären Sprach-Engine, versteht Bedürfnisse und bietet Lösungen."
-    },
-    "step3": {
-      "title": "3. Wir Verkaufen",
-      "description": "Wir bieten personalisierte Lösungen an und schließen Geschäfte effizient und transparent ab."
     }
   },
   "businessMetrics": {
@@ -6066,7 +6060,7 @@
       "roulette": "Zuweisungs-Roulette"
     },
     "resourceDescriptions": {
-      "agents": "Verwalten Sie KI-Agenten, die Anrufe und Gespräche bearbeiten",
+      "agents": "Verwalten Sie KI-Agenten, die Ihre Gespräche bearbeiten",
       "campaigns": "Steuern Sie Telefonkampagnen zur Kundenansprache",
       "whatsapp_campaigns": "Verwalten Sie Massen-WhatsApp-Nachrichtenkampagnen",
       "whatsapp_templates": "Erstellen und bearbeiten Sie von WhatsApp genehmigte Nachrichtenvorlagen",
@@ -8066,11 +8060,11 @@
     "agents": {
       "badge": "{brandName}-AGENTEN",
       "title": "Lernen Sie die {brandName}-Agenten kennen",
-      "subtitle": "Intelligente Sprach- und Nachrichtenassistenten, die im Namen Ihres Teams handeln",
+      "subtitle": "Intelligente Nachrichtenassistenten, die im Namen Ihres Teams handeln",
       "dismissButton": "Loslegen",
       "features": [
         "Führen Aufgaben autonom mit RAG und Wissensdatenbanken aus",
-        "Nehmen Anrufe an, qualifizieren Leads und antworten auf WhatsApp",
+        "Qualifizieren Leads und antworten auf WhatsApp und weiteren Kanälen",
         "Verknüpfen Sie Tools, MCP-Server und dynamische Variablen mit jedem Agenten",
         "Rund um die Uhr verfügbar, ohne Volumenbeschränkung",
         "Können bestimmten Abteilungen innerhalb des Arbeitsbereichs zugeordnet werden"
@@ -8087,19 +8081,6 @@
         "Echtzeit-Metriken: zugestellt, gelesen, beantwortet und fehlgeschlagen",
         "Automatische KI-Antworten und Lead-Qualifizierungsanalyse pro Konversation",
         "Organisieren Sie nach Abteilungen und weisen Sie bestimmte Agenten und Workflows zu"
-      ]
-    },
-    "campaigns": {
-      "badge": "SPRACHE",
-      "title": "Sprachkampagnen",
-      "subtitle": "KI-gestützte automatische Anrufe mit Trichter-Phasen zur Lead-Qualifizierung",
-      "dismissButton": "Loslegen",
-      "features": [
-        "Automatisierte Sprachanrufe im großen Maßstab für Tausende Nummern",
-        "KI-Agent bearbeitet, qualifiziert und führt das Gespräch mit natürlicher Sprache",
-        "Anrufroutinen mit IVR-Menüs, Transkription und Text-to-Speech",
-        "Trichter-Phasen mit Lead-Qualifizierungsanalyse und Disposition",
-        "Weisen Sie Kampagnen Abteilungen zu und steuern Sie Team-Berechtigungen"
       ]
     },
     "workflows": {
@@ -8270,18 +8251,6 @@
         "Round-Robin: Konversationen automatisch unter Mitgliedern verteilen",
         "Bestimmte Ressourcen jedem Mitglied zuweisen und Zugriffslevel steuern"
       ]
-    },
-    "campaignsReceptive": {
-      "badge": "EINGEHEND",
-      "title": "Eingehende Sprachkampagnen",
-      "subtitle": "Nehmen Sie eingehende Anrufe auf Ihrem Telefoniekanal mit KI oder Workflow an, ohne Kontaktliste",
-      "dismissButton": "Weiter",
-      "features": [
-        "Eingehende Anrufe auf dem Telefoniekanal werden automatisch angenommen",
-        "Ein KI-Agent oder Sprach-Workflow führt die Betreuung durch, ohne ausgehende Wählversuche",
-        "Keine Kontaktliste: jeder eingehende Anruf erstellt einen Eintrag in der Kampagne",
-        "Weisen Sie Abteilungen zu und steuern Sie Teamberechtigungen"
-      ]
     }
   },
   "tour": {
@@ -8300,7 +8269,7 @@
         "badge": "Navigation",
         "title": "Organisierte Tabs",
         "subtitle": "Die Agent-Einstellungen sind zur einfacheren Navigation in Tabs unterteilt.",
-        "f0": "Allgemein: Name, Stimme, Sprache und KI-Modelle",
+        "f0": "Allgemein: Name und KI-Modell",
         "f1": "Gesprach: Prompts, Startnachricht und Variablen",
         "f2": "Fahigkeiten: Tools, die der Agent nutzen kann",
         "f3": "Wissen: Wissensdatenbanken und MCP-Sammlungen"
@@ -8308,16 +8277,9 @@
       "general": {
         "badge": "Allgemein",
         "title": "Agent-Identitat",
-        "subtitle": "Legen Sie Name, Stimme, Sprache und KI-Modelle des Agenten fest.",
-        "f0": "Wahlen Sie eine Stimme und horen Sie eine Vorschau vor der Bestatigung",
-        "f1": "Wahlen Sie separate KI-Modelle fur Anrufe und Nachrichten"
-      },
-      "voiceConfig": {
-        "badge": "Stimme",
-        "title": "Stimmkonfiguration",
-        "subtitle": "Passen Sie TTS-Ausgabe, Latenz, Stabilitat und Sprachparameter an.",
-        "f0": "Passen Sie Stabilitat, Ahnlichkeit und Sprechgeschwindigkeit an",
-        "f1": "Wahlen Sie das Ausgabeformat und den Streaming-Optimierungsgrad"
+        "subtitle": "Legen Sie Name und KI-Modell des Agenten fest.",
+        "f0": "Wählen Sie einen klaren Namen für den Agenten",
+        "f1": "Wählen Sie das KI-Modell für Nachrichten"
       },
       "experience": {
         "badge": "Gesprach",
@@ -9217,7 +9179,9 @@
       "disableComments": "Turn off comments",
       "enableComments": "Turn on comments",
       "gridLabel": "Beiträge",
-      "allLoaded": "{count} Beiträge geladen"
+      "allLoaded": "{count} Beiträge geladen",
+      "sectionTitle": "Beiträge",
+      "sectionCount": "{count} Beiträge"
     },
     "comments": {
       "empty": "No comments on this post.",
@@ -9238,7 +9202,7 @@
       "hidden": "Hidden",
       "likes": "{count} likes",
       "unknownUser": "unknown",
-      "countMismatch": "Instagram meldet {count} für diesen Beitrag, liefert über die API aber keine. Die Zählung umfasst Antworten sowie Kommentare privater oder eingeschränkter Konten, die die API auslässt.",
+      "countMismatch": "Instagram zählt {count} für diesen Beitrag, aber keiner der Kommentare kann hier angezeigt werden. Die Zählung umfasst Antworten sowie Kommentare privater oder eingeschränkter Konten, die Instagram nicht bereitstellt.",
       "allLoaded": "{count} geladen"
     },
     "notice": {
@@ -9299,6 +9263,18 @@
       "pageOf": "Page {page} of {totalPages}",
       "previous": "Previous page",
       "next": "Next page"
+    },
+    "stats": {
+      "total": "Gesamt",
+      "connected": "Verbunden",
+      "attention": "Erfordert Aufmerksamkeit"
+    },
+    "accountType": {
+      "BUSINESS": "Unternehmen",
+      "MEDIA_CREATOR": "Content-Creator",
+      "CREATOR": "Creator",
+      "PERSONAL": "Privat",
+      "unknown": "Nicht angegeben"
     }
   }
 }

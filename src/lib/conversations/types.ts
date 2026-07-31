@@ -60,15 +60,25 @@ export interface InboxEntryLabel {
 }
 
 
-export type EntryType = 'voice' | 'whatsapp' | 'sip' | 'support';
+export type EntryType = 'voice' | 'whatsapp' | 'sip' | 'support' | 'instagram';
 
+/**
+ * Instagram is deliberately absent here.
+ *
+ * A campaign is an outbound blast, and Instagram forbids cold outbound entirely —
+ * a business can only reply inside a 24h window opened by the customer. So there is
+ * no Instagram campaign to model, and adding one would invent a capability the
+ * platform does not grant.
+ */
 export type CampaignType = 'voice' | 'whatsapp' | 'support';
 
 export type WhatsAppCampaignTypeFilter = 'standard' | 'organic';
 
-export function normalizeEntryType(entryType: EntryType): 'voice' | 'whatsapp' | 'support' {
+export function normalizeEntryType(
+    entryType: EntryType,
+): 'voice' | 'whatsapp' | 'support' | 'instagram' {
     if (entryType === 'sip') return 'voice';
-    return entryType as 'voice' | 'whatsapp' | 'support';
+    return entryType as 'voice' | 'whatsapp' | 'support' | 'instagram';
 }
 
 export type MessageType =

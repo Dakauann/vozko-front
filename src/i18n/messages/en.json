@@ -501,7 +501,7 @@
       },
       "conversational": {
         "title": "Conversational experiences",
-        "description": "Voice assistants, chat, and social channels deliver human and scalable service in 14 languages simultaneously."
+        "description": "Chat assistants and social channels deliver human, scalable service in multiple languages."
       },
       "governance": {
         "title": "End-to-end governance",
@@ -512,12 +512,12 @@
   "differentiators": {
     "badge": "Why {brandName}",
     "title": "The complete AI agent platform for business communication",
-    "description": "Automate calls, sales, and support with artificial intelligence that talks like a human.",
+    "description": "Automate sales, collections, and support with artificial intelligence that talks like a human.",
     "cta": "Get started",
     "items": {
       "launch": {
         "title": "Complete automation",
-        "description": "Set up campaigns, scripts, and workflows without coding. Our agents execute calls, collections, and sales automatically."
+        "description": "Set up campaigns, scripts, and workflows without coding. Our agents execute collections, sales, and support automatically."
       },
       "ecosystem": {
         "title": "Total integration",
@@ -529,7 +529,7 @@
       },
       "playbooks": {
         "title": "Unlimited scale",
-        "description": "Thousands of simultaneous calls with the same quality. Scale operations without growing your team."
+        "description": "Thousands of simultaneous conversations with the same quality. Scale operations without growing your team."
       }
     }
   },
@@ -538,15 +538,10 @@
     "title": "Numbers that prove efficiency",
     "description": "Metrics from operations automated with {brandAiName} agents.",
     "items": {
-      "agility": {
-        "value": "10x",
-        "label": "More calls",
-        "description": "Multiply your team's call volume without increasing operational costs."
-      },
       "retention": {
         "value": "24/7",
         "label": "Total availability",
-        "description": "AI agents that work non-stop, answering and making calls at any time."
+        "description": "AI agents that work non-stop, responding at any time."
       },
       "cost": {
         "value": "-60%",
@@ -606,14 +601,6 @@
     },
     "footer": "Prices in BRL. Values may vary based on exchange rates. Plans can be changed at any time."
   },
-  "closing": {
-    "title": "Automate your calls with AI agents",
-    "description": "{brandName} connects cloud telephony, artificial intelligence, and process automation in a single platform so your company can call, answer, and negotiate automatically.",
-    "cta": {
-      "primary": "Create account",
-      "secondary": "Request demo"
-    }
-  },
   "agentCapabilities": {
     "badge": "What our agents do",
     "title": "Agents that work 24/7 for you",
@@ -629,11 +616,7 @@
       },
       "support": {
         "title": "Continuous support",
-        "description": "Automated customer service with natural voice, capable of resolving requests without human intervention."
-      },
-      "outbound": {
-        "title": "Massive outbound campaigns",
-        "description": "Call thousands of customers simultaneously with automatic interest classification."
+        "description": "Automated customer service capable of resolving requests without human intervention."
       }
     }
   },
@@ -642,19 +625,11 @@
     "title": "Everything you need in one platform",
     "items": {
       "telephony": "Integrated cloud telephony",
-      "dialer": "Smart massive dialer",
-      "voice": "AI with humanized voice",
-      "voicemail": "Voicemail detection",
       "leadScoring": "Automatic lead scoring",
       "integration": "CRM and API integration",
       "documents": "Automatic document and invoice sending",
       "whatsapp": "WhatsApp conversation continuation"
     }
-  },
-  "enterpriseScale": {
-    "badge": "Enterprise scale",
-    "title": "Infrastructure for thousands of simultaneous calls",
-    "description": "Our infrastructure enables campaigns with thousands of simultaneous calls, ensuring high availability and performance for large-scale operations."
   },
   "sectors": {
     "badge": "Sectors served",
@@ -681,21 +656,21 @@
       },
       "outbound": {
         "title": "Outbound sales",
-        "description": "Massive dialing with AI that qualifies, presents, and routes hot opportunities in real time."
+        "description": "AI-powered outbound campaigns that qualify, present, and route hot opportunities in real time."
       },
       "service": {
         "title": "Customer service",
-        "description": "Automated customer service with natural voice and smart routing for complex situations."
+        "description": "Automated customer service with smart routing for complex situations."
       },
       "scheduling": {
         "title": "Smart scheduling",
-        "description": "Automatic confirmation and rescheduling of appointments, visits, and commitments by phone."
+        "description": "Automatic confirmation and rescheduling of appointments, visits, and commitments."
       }
     }
   },
   "technology": {
     "badge": "Technology",
-    "title": "Cutting-edge technology behind every call",
+    "title": "Cutting-edge technology behind every conversation",
     "items": {
       "conversationalAI": {
         "title": "Conversational AI",
@@ -725,7 +700,7 @@
       },
       "prospecting": {
         "title": "Active prospecting",
-        "description": "Automatic lead qualification with calls at scale and interest classification."
+        "description": "Automatic lead qualification at scale with interest classification."
       },
       "appointmentConfirmation": {
         "title": "Appointment confirmation",
@@ -733,7 +708,7 @@
       },
       "satisfactionSurvey": {
         "title": "Satisfaction survey",
-        "description": "Automated NPS and surveys by phone with real-time sentiment analysis."
+        "description": "Automated NPS and surveys with real-time sentiment analysis."
       }
     }
   },
@@ -753,7 +728,7 @@
         "configure": {
           "number": "01",
           "title": "Configure your agent",
-          "description": "Create voice and text AI agents. Define personality, knowledge base and instructions so the agent responds naturally and accurately."
+          "description": "Create AI agents for text and voice messages. Define personality, knowledge base and instructions so the agent responds naturally and accurately."
         },
         "train": {
           "number": "02",
@@ -781,10 +756,6 @@
           "title": "Omnichannel communication",
           "description": "WhatsApp, SMS, VoIP telephony and email integrated in a single platform."
         },
-        "voiceAI": {
-          "title": "AI voice agents",
-          "description": "Voice service with real-time speech recognition and synthesis."
-        },
         "crm": {
           "title": "Integrated CRM",
           "description": "Contact management, sales stages and complete interaction history."
@@ -798,7 +769,7 @@
     "capabilities": {
       "title": "What the platform offers",
       "items": [
-        "AI agents for voice and text with minimal latency",
+        "AI agents for text and voice messages",
         "Native integration with WhatsApp Business API",
         "WhatsApp and SMS campaigns at scale",
         "Visual workflows with decision nodes and actions",
@@ -1380,24 +1351,43 @@
       "telephony": "Telephony",
       "manager": "Management",
       "leads": "Leads",
-      "instagram": "Instagram",
+      "instagram": "Accounts",
       "instagramAccounts": "Accounts",
-      "connectInstagram": "Connect account"
+      "connectInstagram": "Connect account",
+      "whatsapp": "WhatsApp",
+      "instagramChannel": "Instagram",
+      "campaigns": "Campaigns"
     },
     "badges": {
       "new": "New",
       "premium": "Premium"
     },
     "families": {
+      "crm": "Inbox",
       "whatsapp": "WhatsApp",
-      "management": "Management",
-      "platform": "Platform",
-      "support": "Support",
-      "crm": "CRM",
+      "instagram": "Instagram",
       "ai": "AI & Automation",
       "voip": "Telephony",
-      "instagram": "Instagram"
-    }
+      "billing": "Billing",
+      "settings": "Settings",
+      "platform": "Platform",
+      "campaigns": "Campaigns",
+      "channels": "Channels",
+      "management": "Management"
+    },
+    "pin": {
+      "pin": "Pin",
+      "unpin": "Unpin",
+      "pinSidebar": "Pin sidebar",
+      "unpinSidebar": "Unpin sidebar"
+    },
+    "navigationMenu": "Navigation menu",
+    "sections": {
+      "work": "Work",
+      "management": "Management",
+      "administration": "Administration"
+    },
+    "toggleSubmenu": "Toggle subitems"
   },
   "dashboard": {
     "pageSubtitle": "Track the performance of your agents and campaigns in real time",
@@ -1460,7 +1450,7 @@
       "sectionTitle": "Quick actions",
       "createAgent": {
         "title": "Create agent",
-        "description": "Configure a new voice assistant"
+        "description": "Configure a new AI assistant"
       },
       "newCampaign": {
         "title": "New campaign",
@@ -1575,7 +1565,7 @@
         "configure": {
           "number": "01",
           "title": "Configure your agent",
-          "description": "Create voice and text AI agents. Define personality, knowledge base and instructions so the agent responds naturally and accurately."
+          "description": "Create AI agents for text and voice messages. Define personality, knowledge base and instructions so the agent responds naturally and accurately."
         },
         "train": {
           "number": "02",
@@ -1603,10 +1593,6 @@
           "title": "Omnichannel communication",
           "description": "WhatsApp, SMS, VoIP telephony and email integrated in a single platform."
         },
-        "voiceAI": {
-          "title": "AI voice agents",
-          "description": "Voice service with real-time speech recognition and synthesis."
-        },
         "crm": {
           "title": "Integrated CRM",
           "description": "Contact management, sales stages and complete interaction history."
@@ -1620,7 +1606,7 @@
     "capabilities": {
       "title": "What the platform offers",
       "items": [
-        "AI agents for voice and text with minimal latency",
+        "AI agents for text and voice messages",
         "Native integration with WhatsApp Business API",
         "WhatsApp and SMS campaigns at scale",
         "Visual workflows with decision nodes and actions",
@@ -5522,6 +5508,10 @@
       "marketing": "Marketing",
       "utility": "Utility",
       "authentication": "Authentication"
+    },
+    "unifiedTabs": {
+      "campaigns": "Broadcasts",
+      "organic": "Receptive"
     }
   },
   "crmLabels": {
@@ -5649,7 +5639,7 @@
   },
   "footerMain": {
     "title": "{brandName}",
-    "description": "Technology platform for intelligent automation, AI-powered voice agents, and omnichannel communication for businesses worldwide.",
+    "description": "Technology platform for intelligent automation, AI agents, and omnichannel communication for businesses worldwide.",
     "quickLinksTitle": "Quick links",
     "quickLinks": {
       "home": "Home",
@@ -5674,27 +5664,6 @@
       "metaBusinessPartner": "Meta Business Partner",
       "metaBusinessPartnerDescription": "Official partner badge for WhatsApp Business solutions and integrations.",
       "metaBusinessPartnerAlt": "Meta Business Partner badge"
-    }
-  },
-  "howItWorksHome": {
-    "badge": "How It Works",
-    "title": "From setup to results in 4 steps",
-    "description": "Set it up once and let our AI agents work for you.",
-    "step1": {
-      "title": "1. Create Your Campaign",
-      "description": "Set the objective, select contacts, and define the AI agent's script."
-    },
-    "step2": {
-      "title": "2. AI Makes the Calls",
-      "description": "Our agents automatically dial your contacts with humanized voice."
-    },
-    "step3": {
-      "title": "3. Negotiate and Resolve",
-      "description": "The AI conducts the conversation, negotiates, qualifies leads, and resolves issues."
-    },
-    "step4": {
-      "title": "4. Integrate with Your System",
-      "description": "Results automatically synchronized with your CRM and internal systems."
     }
   },
   "businessMetrics": {
@@ -6928,7 +6897,7 @@
       "roulette": "Assignment roulette"
     },
     "resourceDescriptions": {
-      "agents": "Manage AI agents that handle calls and conversations",
+      "agents": "Manage AI agents that handle your conversations",
       "campaigns": "Control phone call campaigns to reach customers",
       "whatsapp_campaigns": "Manage bulk WhatsApp messaging campaigns",
       "whatsapp_templates": "Create and edit WhatsApp-approved message templates",
@@ -9152,11 +9121,11 @@
     "agents": {
       "badge": "{brandName} AGENTS",
       "title": "Meet the {brandName} Agents",
-      "subtitle": "Intelligent voice and messaging assistants that act on behalf of your team",
+      "subtitle": "Intelligent messaging assistants that act on behalf of your team",
       "dismissButton": "Get started",
       "features": [
         "Execute tasks autonomously with RAG and knowledge bases",
-        "Handle calls, qualify leads, and respond on WhatsApp",
+        "Qualify leads and respond on WhatsApp and other channels",
         "Link tools, MCP servers, and dynamic variables to each agent",
         "Available 24/7 with no volume limits",
         "Can be assigned to specific departments within the workspace"
@@ -9173,19 +9142,6 @@
         "Real-time metrics: delivered, read, replied, and failed",
         "Automatic AI responses and lead qualification analysis per conversation",
         "Organize by departments and assign specific agents and workflows"
-      ]
-    },
-    "campaigns": {
-      "badge": "VOICE",
-      "title": "Voice Campaigns",
-      "subtitle": "AI-powered automated calls with stage funnels to qualify leads",
-      "dismissButton": "Get started",
-      "features": [
-        "Automated voice calls at scale for thousands of numbers",
-        "AI agent handles, qualifies, and leads the conversation with natural language",
-        "Call flows with IVR menus, transcription, and text-to-speech",
-        "Stage funnels with lead qualification analysis and disposition",
-        "Assign campaigns to departments and control team permissions"
       ]
     },
     "workflows": {
@@ -9356,18 +9312,6 @@
         "Round-robin: automatically distribute conversations among members",
         "Assign specific resources to each member and control access levels"
       ]
-    },
-    "campaignsReceptive": {
-      "badge": "RECEPTIVE",
-      "title": "Receptive voice campaigns",
-      "subtitle": "Answer inbound calls on your telephony channel with AI or a workflow, without a contact list",
-      "dismissButton": "Continue",
-      "features": [
-        "Inbound calls on the telephony channel are answered automatically",
-        "An AI agent or voice workflow handles the attendance, with no outbound dialing",
-        "No contact list: each inbound call creates a record in the campaign",
-        "Assign to departments and control team permissions"
-      ]
     }
   },
   "tour": {
@@ -9386,7 +9330,7 @@
         "badge": "Navigation",
         "title": "Organized tabs",
         "subtitle": "Agent settings are divided into tabs for easier navigation.",
-        "f0": "General: name, voice, language and AI models",
+        "f0": "General: name and AI model",
         "f1": "Conversation: prompts, initial message and variables",
         "f2": "Abilities: tools the agent can use",
         "f3": "Knowledge: knowledge bases and MCP collections"
@@ -9394,16 +9338,9 @@
       "general": {
         "badge": "General",
         "title": "Agent identity",
-        "subtitle": "Set the agent name, voice, language, and AI models.",
-        "f0": "Choose a voice and preview it before committing",
-        "f1": "Select separate AI models for voice calls and messaging"
-      },
-      "voiceConfig": {
-        "badge": "Voice",
-        "title": "Voice configuration",
-        "subtitle": "Fine-tune TTS output, latency, stability and voice parameters.",
-        "f0": "Adjust stability, similarity boost and speaking speed",
-        "f1": "Choose output format and streaming optimization level"
+        "subtitle": "Set the agent name and AI model.",
+        "f0": "Choose a clear name to identify the agent",
+        "f1": "Select the AI model for messaging"
       },
       "experience": {
         "badge": "Conversation",
@@ -9731,8 +9668,7 @@
   },
   "whatIsPlatform": {
     "badge": "What is {brandName}",
-    "title": "The AI agent platform for business communication",
-    "description": "We combine cloud telephony, conversational artificial intelligence, process automation, and integrated CRM to enable companies to call, answer, and negotiate automatically with thousands of customers simultaneously."
+    "title": "The AI agent platform for business communication"
   },
   "crm": {
     "searchMessages": "Search messages",
@@ -10334,7 +10270,9 @@
       "disableComments": "Turn off comments",
       "enableComments": "Turn on comments",
       "gridLabel": "Posts",
-      "allLoaded": "All {count} posts loaded"
+      "allLoaded": "All {count} posts loaded",
+      "sectionTitle": "Posts",
+      "sectionCount": "{count} posts"
     },
     "comments": {
       "empty": "No comments on this post.",
@@ -10355,7 +10293,7 @@
       "hidden": "Hidden",
       "likes": "{count} likes",
       "unknownUser": "unknown",
-      "countMismatch": "Instagram reports {count} on this post but returns none through the API. Its count includes replies and comments from private or restricted accounts, which the API omits.",
+      "countMismatch": "Instagram counts {count} on this post, but none of the comments can be shown here. The count includes replies and comments from private or restricted accounts, which Instagram does not make available.",
       "allLoaded": "All {count} loaded"
     },
     "notice": {
@@ -10416,6 +10354,18 @@
       "pageOf": "Page {page} of {totalPages}",
       "previous": "Previous page",
       "next": "Next page"
+    },
+    "stats": {
+      "total": "Total",
+      "connected": "Connected",
+      "attention": "Needs attention"
+    },
+    "accountType": {
+      "BUSINESS": "Business",
+      "MEDIA_CREATOR": "Content creator",
+      "CREATOR": "Creator",
+      "PERSONAL": "Personal",
+      "unknown": "Not reported"
     }
   }
 }

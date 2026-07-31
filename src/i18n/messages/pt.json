@@ -500,7 +500,7 @@
       },
       "conversational": {
         "title": "Experiências conversacionais",
-        "description": "Assistentes de voz, chat e canais sociais entregam atendimento humano e escalável em 14 idiomas simultaneamente."
+        "description": "Assistentes de chat e canais sociais entregam atendimento humano e escalável em múltiplos idiomas."
       },
       "governance": {
         "title": "Governança end-to-end",
@@ -511,12 +511,12 @@
   "differentiators": {
     "badge": "Por que a {brandName}",
     "title": "A plataforma completa de agentes de IA para comunicação empresarial",
-    "description": "Automatize ligações, vendas e atendimento com inteligência artificial que conversa como humano.",
+    "description": "Automatize vendas, cobranças e atendimento com inteligência artificial que conversa como humano.",
     "cta": "Começar agora",
     "items": {
       "launch": {
         "title": "Automação completa",
-        "description": "Configure campanhas, scripts e fluxos de trabalho sem programação. Nossos agentes executam ligações, cobranças e vendas automaticamente."
+        "description": "Configure campanhas, scripts e fluxos de trabalho sem programação. Nossos agentes executam cobranças, vendas e atendimento automaticamente."
       },
       "ecosystem": {
         "title": "Integração total",
@@ -528,7 +528,7 @@
       },
       "playbooks": {
         "title": "Escala ilimitada",
-        "description": "Milhares de ligações simultâneas com a mesma qualidade. Escale operações sem aumentar equipe."
+        "description": "Milhares de conversas simultâneas com a mesma qualidade. Escale operações sem aumentar equipe."
       }
     }
   },
@@ -537,15 +537,10 @@
     "title": "Números que comprovam a eficiência",
     "description": "Métricas de operações automatizadas com agentes de IA {brandName}.",
     "items": {
-      "agility": {
-        "value": "10x",
-        "label": "Mais ligações",
-        "description": "Multiplique o volume de ligações da sua equipe sem aumentar custos operacionais."
-      },
       "retention": {
         "value": "24/7",
         "label": "Disponibilidade total",
-        "description": "Agentes de IA que trabalham ininterruptamente, atendendo e realizando ligações a qualquer hora."
+        "description": "Agentes de IA que trabalham ininterruptamente, atendendo a qualquer hora."
       },
       "cost": {
         "value": "-60%",
@@ -605,14 +600,6 @@
     },
     "footer": "Preços em BRL. Valores podem variar conforme câmbio. Planos podem ser alterados a qualquer momento."
   },
-  "closing": {
-    "title": "Automatize suas ligações com agentes de IA",
-    "description": "A {brandName} conecta telefonia em nuvem, inteligência artificial e automação de processos numa plataforma única para que sua empresa ligue, atenda e negocie automaticamente.",
-    "cta": {
-      "primary": "Criar conta",
-      "secondary": "Solicitar demonstração"
-    }
-  },
   "agentCapabilities": {
     "badge": "O que nossos agentes fazem",
     "title": "Agentes que trabalham 24/7 por você",
@@ -628,11 +615,7 @@
       },
       "support": {
         "title": "Atendimento contínuo",
-        "description": "SAC automatizado com voz natural, capaz de resolver solicitações sem intervenção humana."
-      },
-      "outbound": {
-        "title": "Campanhas outbound massivas",
-        "description": "Ligue para milhares de clientes simultaneamente com classificação automática de interesse."
+        "description": "SAC automatizado capaz de resolver solicitações sem intervenção humana."
       }
     }
   },
@@ -641,19 +624,11 @@
     "title": "Tudo que você precisa numa plataforma",
     "items": {
       "telephony": "Telefonia cloud integrada",
-      "dialer": "Discador massivo inteligente",
-      "voice": "IA com voz humanizada",
-      "voicemail": "Detecção de caixa postal",
       "leadScoring": "Classificação automática de leads",
       "integration": "Integração com CRM e APIs",
       "documents": "Envio automático de documentos e boletos",
       "whatsapp": "Continuação da conversa via WhatsApp"
     }
-  },
-  "enterpriseScale": {
-    "badge": "Escala empresarial",
-    "title": "Infraestrutura para milhares de chamadas simultâneas",
-    "description": "Nossa infraestrutura permite executar campanhas com milhares de chamadas simultâneas, garantindo alta disponibilidade e desempenho para operações de grande escala."
   },
   "sectors": {
     "badge": "Setores atendidos",
@@ -680,21 +655,21 @@
       },
       "outbound": {
         "title": "Vendas outbound",
-        "description": "Discagem massiva com IA que qualifica, apresenta e encaminha oportunidades quentes em tempo real."
+        "description": "Campanhas outbound com IA que qualifica, apresenta e encaminha oportunidades quentes em tempo real."
       },
       "service": {
         "title": "Atendimento ao cliente",
-        "description": "SAC automatizado com voz natural e encaminhamento inteligente para situações complexas."
+        "description": "SAC automatizado com encaminhamento inteligente para situações complexas."
       },
       "scheduling": {
         "title": "Agendamento inteligente",
-        "description": "Confirmação e reagendamento automático de consultas, visitas e compromissos por telefone."
+        "description": "Confirmação e reagendamento automático de consultas, visitas e compromissos."
       }
     }
   },
   "technology": {
     "badge": "Tecnologia",
-    "title": "Tecnologia de ponta por trás de cada chamada",
+    "title": "Tecnologia de ponta por trás de cada conversa",
     "items": {
       "conversationalAI": {
         "title": "IA conversacional",
@@ -724,7 +699,7 @@
       },
       "prospecting": {
         "title": "Prospecção ativa",
-        "description": "Qualificação automática de leads com ligações em escala e classificação de interesse."
+        "description": "Qualificação automática de leads em escala com classificação de interesse."
       },
       "appointmentConfirmation": {
         "title": "Confirmação de consultas",
@@ -732,7 +707,7 @@
       },
       "satisfactionSurvey": {
         "title": "Pesquisa de satisfação",
-        "description": "NPS e pesquisas automatizadas por telefone com análise de sentimento em tempo real."
+        "description": "NPS e pesquisas automatizadas com análise de sentimento em tempo real."
       }
     }
   },
@@ -752,7 +727,7 @@
         "configure": {
           "number": "01",
           "title": "Configure seu agente",
-          "description": "Crie agentes de voz e texto com IA. Defina personalidade, base de conhecimento e instruções para que o agente atenda de forma natural e assertiva."
+          "description": "Crie agentes de IA para texto e mensagens de voz. Defina personalidade, base de conhecimento e instruções para que o agente atenda de forma natural e assertiva."
         },
         "train": {
           "number": "02",
@@ -780,10 +755,6 @@
           "title": "Comunicação omnichannel",
           "description": "WhatsApp, SMS, telefonia VoIP e e-mail integrados em uma única plataforma."
         },
-        "voiceAI": {
-          "title": "Agentes de voz com IA",
-          "description": "Atendimento por voz com reconhecimento de fala e síntese em tempo real."
-        },
         "crm": {
           "title": "CRM integrado",
           "description": "Gestão de contatos, etapas de venda e histórico completo de interações."
@@ -797,7 +768,7 @@
     "capabilities": {
       "title": "O que a plataforma oferece",
       "items": [
-        "Agentes de IA para voz e texto com latência mínima",
+        "Agentes de IA para texto e mensagens de voz",
         "Integração nativa com WhatsApp Business API",
         "Campanhas de WhatsApp e SMS em escala",
         "Workflows visuais com nós de decisão e ações",
@@ -1064,7 +1035,7 @@
     "sidePanel": {
       "badge": "Segurança corporativa elevada",
       "title": "Plataforma completa para comunicação empresarial com IA.",
-      "description": "Gerencie agentes de voz, campanhas e fluxos de atendimento com transparência, integrando equipes e canais em um só painel.",
+      "description": "Gerencie agentes de IA, campanhas e fluxos de atendimento com transparência, integrando equipes e canais em um só painel.",
       "features": {
         "trust": {
           "title": "Confiança e controle",
@@ -1198,7 +1169,7 @@
         "configure": {
           "number": "01",
           "title": "Configure seu agente",
-          "description": "Crie agentes de voz e texto com IA. Defina personalidade, base de conhecimento e instruções para que o agente atenda de forma natural e assertiva."
+          "description": "Crie agentes de IA para texto e mensagens de voz. Defina personalidade, base de conhecimento e instruções para que o agente atenda de forma natural e assertiva."
         },
         "train": {
           "number": "02",
@@ -1226,10 +1197,6 @@
           "title": "Comunicação omnichannel",
           "description": "WhatsApp, SMS, telefonia VoIP e e-mail integrados em uma única plataforma."
         },
-        "voiceAI": {
-          "title": "Agentes de voz com IA",
-          "description": "Atendimento por voz com reconhecimento de fala e síntese em tempo real."
-        },
         "crm": {
           "title": "CRM integrado",
           "description": "Gestão de contatos, etapas de venda e histórico completo de interações."
@@ -1243,7 +1210,7 @@
     "capabilities": {
       "title": "O que a plataforma oferece",
       "items": [
-        "Agentes de IA para voz e texto com latência mínima",
+        "Agentes de IA para texto e mensagens de voz",
         "Integração nativa com WhatsApp Business API",
         "Campanhas de WhatsApp e SMS em escala",
         "Workflows visuais com nós de decisão e ações",
@@ -1776,24 +1743,43 @@
       "affiliateEarnings": "Comissões",
       "affiliatePlans": "Planos Exclusivos",
       "sales": "Vendas",
-      "instagram": "Instagram",
+      "instagram": "Contas",
       "instagramAccounts": "Contas",
-      "connectInstagram": "Conectar conta"
+      "connectInstagram": "Conectar conta",
+      "whatsapp": "WhatsApp",
+      "instagramChannel": "Instagram",
+      "campaigns": "Campanhas"
     },
     "badges": {
       "new": "Novo",
       "premium": "Premium"
     },
     "families": {
+      "crm": "Atendimento",
       "whatsapp": "WhatsApp",
-      "management": "Gestão",
-      "platform": "Plataforma",
-      "support": "Suporte",
-      "crm": "CRM",
+      "instagram": "Instagram",
       "ai": "IA & Automação",
       "voip": "Telefonia",
-      "instagram": "Instagram"
-    }
+      "billing": "Faturamento",
+      "settings": "Configurações",
+      "platform": "Plataforma",
+      "campaigns": "Campanhas",
+      "channels": "Canais",
+      "management": "Gestão"
+    },
+    "pin": {
+      "pin": "Fixar",
+      "unpin": "Desafixar",
+      "pinSidebar": "Fixar barra lateral",
+      "unpinSidebar": "Desafixar barra lateral"
+    },
+    "navigationMenu": "Menu de navegação",
+    "sections": {
+      "work": "Trabalho",
+      "management": "Gestão",
+      "administration": "Administração"
+    },
+    "toggleSubmenu": "Alternar subitens"
   },
   "dashboard": {
     "pageSubtitle": "Acompanhe o desempenho dos seus agentes e campanhas em tempo real",
@@ -1839,7 +1825,7 @@
       "sectionTitle": "Ações rápidas",
       "createAgent": {
         "title": "Criar agente",
-        "description": "Configure um novo assistente de voz"
+        "description": "Configure um novo assistente de IA"
       },
       "newCampaign": {
         "title": "Nova campanha",
@@ -5474,6 +5460,10 @@
       "marketing": "Marketing",
       "utility": "Utilidade",
       "authentication": "Autenticação"
+    },
+    "unifiedTabs": {
+      "campaigns": "Disparos",
+      "organic": "Receptivas"
     }
   },
   "crmLabels": {
@@ -5651,7 +5641,7 @@
   },
   "footerMain": {
     "title": "{brandName}",
-    "description": "Plataforma de tecnologia para automação inteligente, agentes de voz com IA e comunicação omnichannel para empresas em todo o mundo.",
+    "description": "Plataforma de tecnologia para automação inteligente, agentes de IA e comunicação omnichannel para empresas em todo o mundo.",
     "quickLinksTitle": "Links rápidos",
     "quickLinks": {
       "home": "Início",
@@ -5714,27 +5704,6 @@
     "date": "Data inválida",
     "number": "Número inválido",
     "url": "URL inválida"
-  },
-  "howItWorksHome": {
-    "badge": "Como Funciona",
-    "title": "Da configuração ao resultado em 4 passos",
-    "description": "Configure uma vez e deixe nossos agentes de IA trabalharem por você.",
-    "step1": {
-      "title": "1. Crie sua Campanha",
-      "description": "Configure o objetivo, selecione os contatos e defina o script do agente de IA."
-    },
-    "step2": {
-      "title": "2. IA Realiza as Ligações",
-      "description": "Nossos agentes discam automaticamente para seus contatos com voz humanizada."
-    },
-    "step3": {
-      "title": "3. Negocia e Resolve",
-      "description": "A IA conduz a conversa, negocia, qualifica leads e resolve pendências."
-    },
-    "step4": {
-      "title": "4. Integra ao seu Sistema",
-      "description": "Resultados sincronizados automaticamente com seu CRM e sistemas internos."
-    }
   },
   "businessMetrics": {
     "pageTitle": "Métricas de Negócio",
@@ -6966,7 +6935,7 @@
       "roulette": "Roleta de atribuição"
     },
     "resourceDescriptions": {
-      "agents": "Gerencie os agentes de IA que atendem chamadas e conversas",
+      "agents": "Gerencie os agentes de IA que atendem suas conversas",
       "campaigns": "Controle campanhas de chamadas telefônicas para alcançar clientes",
       "whatsapp_campaigns": "Gerencie disparos de mensagens pelo WhatsApp",
       "whatsapp_templates": "Crie e edite modelos de mensagens aprovados pelo WhatsApp",
@@ -9190,11 +9159,11 @@
     "agents": {
       "badge": "AGENTES {brandName}",
       "title": "Conheça os Agentes {brandName}",
-      "subtitle": "Assistentes inteligentes de voz e mensagem que atuam em nome da sua equipe",
+      "subtitle": "Assistentes inteligentes de mensagens que atuam em nome da sua equipe",
       "dismissButton": "Prosseguir",
       "features": [
         "Executam tarefas de forma autônoma com RAG e bases de conhecimento",
-        "Atendem ligações, qualificam leads e respondem no WhatsApp",
+        "Qualificam leads e respondem no WhatsApp e demais canais",
         "Vincule ferramentas, servidores MCP e variáveis dinâmicas a cada agente",
         "Disponíveis 24 horas por dia, sem limite de volume",
         "Podem ser atribuídos a departamentos específicos dentro do workspace"
@@ -9223,31 +9192,6 @@
         "Agente de IA ou workflow conduz a conversa, sem disparo de templates",
         "Métricas e histórico das conversas recebidas em tempo real",
         "Organize por departamentos e atribua agentes específicos"
-      ]
-    },
-    "campaignsReceptive": {
-      "badge": "RECEPTIVAS",
-      "title": "Campanhas de Voz Receptivas",
-      "subtitle": "Atenda chamadas recebidas no seu canal de telefonia com IA ou workflow, sem lista de contatos",
-      "dismissButton": "Prosseguir",
-      "features": [
-        "Chamadas recebidas no canal de telefonia são atendidas automaticamente",
-        "Agente de IA ou workflow de voz conduz o atendimento, sem discagem ativa",
-        "Sem lista de contatos: cada chamada recebida cria um registro na campanha",
-        "Atribua a departamentos e controle as permissões da equipe"
-      ]
-    },
-    "campaigns": {
-      "badge": "VOZ",
-      "title": "Campanhas de Voz",
-      "subtitle": "Ligações automatizadas com IA e funis de estágios para qualificar leads",
-      "dismissButton": "Prosseguir",
-      "features": [
-        "Ligações de voz automatizadas em escala para milhares de números",
-        "Agente de IA atende, qualifica e conduz a conversa com linguagem natural",
-        "Fluxos de chamadas com menus URA, transcrição e texto-para-fala",
-        "Funis de estágios com análise de qualificação e disposição de leads",
-        "Atribua campanhas a departamentos e controle permissões da equipe"
       ]
     },
     "workflows": {
@@ -9436,7 +9380,7 @@
         "badge": "Navegacao",
         "title": "Abas organizadas",
         "subtitle": "As configuracoes do agente estao divididas em abas para facilitar a navegacao.",
-        "f0": "Geral: nome, voz, idioma e modelos de IA",
+        "f0": "Geral: nome e modelo de IA",
         "f1": "Conversa: prompts, mensagem inicial e variaveis",
         "f2": "Habilidades: ferramentas que o agente pode usar",
         "f3": "Conhecimento: bases de conhecimento e colecoes MCP"
@@ -9444,16 +9388,9 @@
       "general": {
         "badge": "Geral",
         "title": "Identidade do agente",
-        "subtitle": "Defina o nome, voz, idioma e modelos de IA do agente.",
-        "f0": "Escolha uma voz e visualize-a antes de confirmar",
-        "f1": "Selecione modelos de IA separados para chamadas e mensagens"
-      },
-      "voiceConfig": {
-        "badge": "Voz",
-        "title": "Configuracao de voz",
-        "subtitle": "Ajuste a saida TTS, latencia, estabilidade e parametros de voz.",
-        "f0": "Ajuste estabilidade, similaridade e velocidade de fala",
-        "f1": "Escolha o formato de saida e o nivel de otimizacao de streaming"
+        "subtitle": "Defina o nome e o modelo de IA do agente.",
+        "f0": "Escolha um nome claro para identificar o agente",
+        "f1": "Selecione o modelo de IA para as mensagens"
       },
       "experience": {
         "badge": "Conversa",
@@ -9781,8 +9718,7 @@
   },
   "whatIsPlatform": {
     "badge": "O que é a {brandName}",
-    "title": "A plataforma de agentes de IA para comunicação empresarial",
-    "description": "Combinamos telefonia em nuvem, inteligência artificial conversacional, automação de processos e CRM integrado para permitir que empresas liguem, atendam e negociem automaticamente com milhares de clientes ao mesmo tempo."
+    "title": "A plataforma de agentes de IA para comunicação empresarial"
   },
   "crm": {
     "searchMessages": "Buscar mensagens",
@@ -10384,7 +10320,9 @@
       "disableComments": "Desativar comentários",
       "enableComments": "Ativar comentários",
       "gridLabel": "Publicações",
-      "allLoaded": "{count} publicações carregadas"
+      "allLoaded": "{count} publicações carregadas",
+      "sectionTitle": "Publicações",
+      "sectionCount": "{count} publicações"
     },
     "comments": {
       "empty": "Nenhum comentário nesta publicação.",
@@ -10405,7 +10343,7 @@
       "hidden": "Oculto",
       "likes": "{count} curtidas",
       "unknownUser": "desconhecido",
-      "countMismatch": "O Instagram informa {count} nesta publicação, mas não retorna nenhum pela API. A contagem inclui respostas e comentários de contas privadas ou restritas, que a API não retorna.",
+      "countMismatch": "O Instagram contabiliza {count} nesta publicação, mas nenhum comentário pode ser exibido aqui. A contagem inclui respostas e comentários de contas privadas ou restritas, que o Instagram não disponibiliza.",
       "allLoaded": "{count} carregados"
     },
     "notice": {
@@ -10466,6 +10404,18 @@
       "pageOf": "Página {page} de {totalPages}",
       "previous": "Página anterior",
       "next": "Próxima página"
+    },
+    "stats": {
+      "total": "Total",
+      "connected": "Conectadas",
+      "attention": "Requer atenção"
+    },
+    "accountType": {
+      "BUSINESS": "Empresa",
+      "MEDIA_CREATOR": "Criador de conteúdo",
+      "CREATOR": "Criador",
+      "PERSONAL": "Pessoal",
+      "unknown": "Não informado"
     }
   }
 }

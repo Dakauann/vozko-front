@@ -1,12 +1,15 @@
 "use client";
 
-import { ArrowClockwise, CheckCircle, InstagramLogo, Warning } from "@phosphor-icons/react";
+import { ArrowClockwise, CheckCircle, Warning } from "@phosphor-icons/react";
 
 import type { InstagramAccount } from "@/lib/instagram/types";
-import { IconBox, StatusBadge, accentColorMap } from "@/components/elevated-design/listing-card";
+import { StatusBadge, accentColorMap } from "@/components/elevated-design/listing-card";
+
+import { InstagramAvatar } from "@/components/instagram/instagram-avatar";
 
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import { cn } from "@/lib/utils";
+import { translateAccountType } from "@/lib/instagram/account-type";
 import { useInstagramConnect } from "@/hooks/use-instagram-connect";
 import { useTranslations } from "next-intl";
 
@@ -31,23 +34,19 @@ export function InstagramProfileHeader({ account }: { account: InstagramAccount 
 
   return (
     <ElevatedContainer className="flex flex-col gap-5 p-6">
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
-        {account.profilePictureUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={account.profilePictureUrl}
-            alt={account.username}
-            className="size-20 shrink-0 rounded-2xl object-cover ring-2 ring-border sm:size-24"
-          />
-        ) : (
-          <IconBox color="purple" size="lg">
-            <InstagramLogo weight="duotone" />
-          </IconBox>
-        )}
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+        {/* Circular, as Instagram renders it — a square avatar here immediately
+            reads as "not the same account you see in the app". */}
+        <InstagramAvatar
+          accountId={account.id}
+          username={account.username}
+          className="size-20 ring-2 ring-border sm:size-24"
+          textClassName="text-3xl sm:text-4xl"
+        />
 
-        <div className="flex min-w-0 flex-1 flex-col gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="truncate text-xl font-semibold text-foreground">@{account.username}</h1>
+        <div className="flex min-w-0 flex-1 flex-col gap-4">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1.5">
+            <h2 className="truncate text-lg font-semibold text-foreground">@{account.username}</h2>
 
             {account.needsReconnect ? (
               <StatusBadge
@@ -65,21 +64,26 @@ export function InstagramProfileHeader({ account }: { account: InstagramAccount 
               />
             )}
 
-            {account.accountType && <StatusBadge label={account.accountType} color="slate" />}
+            {account.accountType && (
+              <StatusBadge label={translateAccountType(t, account.accountType)} color="slate" />
+            )}
           </div>
 
+          {account.name && (
+            <p className="-mt-2 truncate text-sm text-muted-foreground">{account.name}</p>
+          )}
+
           {/* Instagram's own stat order: posts, followers, following. */}
-          <dl className="flex flex-wrap gap-6">
+          <dl className="flex flex-wrap items-baseline gap-x-8 gap-y-2">
             <Stat value={account.mediaCount} label={t("card.posts")} />
             <Stat value={account.followersCount} label={t("card.followers")} />
             <Stat value={account.followsCount} label={t("card.following")} />
           </dl>
 
-          {account.name && <p className="text-sm text-muted-foreground">{account.name}</p>}
-
           {/* Capability chips reflect the scopes the user ACTUALLY granted —
-              individual permissions can be declined at consent time. */}
-          <div className="flex flex-wrap gap-1.5">
+              individual permissions can be declined at consent time, so this is
+              the honest answer to "why can't I reply from here". */}
+          <div className="flex flex-wrap gap-1.5 pt-0.5">
             <CapabilityChip enabled={account.canSendMessages} label={t("capability.messages")} />
             <CapabilityChip enabled={account.canManageComments} label={t("capability.comments")} />
             <CapabilityChip enabled={account.canPublish} label={t("capability.publish")} />
@@ -117,22 +121,38 @@ export function InstagramProfileHeader({ account }: { account: InstagramAccount 
 function Stat({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex items-baseline gap-1.5">
-      <dd className="text-base font-semibold text-foreground">{value}</dd>
+      <dd className="text-base font-semibold tabular-nums text-foreground">
+        {value.toLocaleString()}
+      </dd>
       <dt className="text-sm text-muted-foreground">{label}</dt>
     </div>
   );
 }
 
+/**
+ * A granted/declined capability.
+ *
+ * A leading dot carries the state rather than a strikethrough: struck-through text
+ * reads as "removed" when the accurate meaning is "never granted", and it stays
+ * legible at this size where a line through 11px text does not.
+ */
 function CapabilityChip({ enabled, label }: { enabled: boolean; label: string }) {
   return (
     <span
       className={cn(
-        "rounded-full px-2 py-0.5 text-[11px]",
+        "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px]",
         enabled
-          ? "bg-muted text-muted-foreground"
-          : "bg-muted/50 text-muted-foreground/50 line-through",
+          ? "border-border bg-muted text-muted-foreground"
+          : "border-dashed border-border/60 bg-transparent text-muted-foreground/60",
       )}
     >
+      <span
+        aria-hidden
+        className={cn(
+          "size-1.5 rounded-full",
+          enabled ? "bg-emerald-500" : "bg-muted-foreground/40",
+        )}
+      />
       {label}
     </span>
   );
