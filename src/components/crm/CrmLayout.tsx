@@ -25,6 +25,7 @@ import {
   Phone,
   PhoneCall,
   Robot,
+  InstagramLogo,
   WhatsappLogo,
 } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -1347,17 +1348,22 @@ export default function CrmLayout({
         <CaretLeft weight="bold" className="h-4 w-4 text-muted-foreground" />
       </button>
 
-      {/* Avatar */}
+      {/* Avatar — the channel the conversation arrived on, so an operator working
+          several inboxes can tell at a glance where a reply will be sent. */}
       <div
         className={cn(
           "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white",
           activeConversation.entry_type === "whatsapp"
             ? "bg-emerald-500"
-            : "bg-blue-500",
+            : activeConversation.entry_type === "instagram"
+              ? "bg-gradient-to-br from-fuchsia-500 to-amber-500"
+              : "bg-blue-500",
         )}
       >
         {activeConversation.entry_type === "whatsapp" ? (
           <WhatsappLogo weight="fill" className="h-5 w-5" />
+        ) : activeConversation.entry_type === "instagram" ? (
+          <InstagramLogo weight="fill" className="h-5 w-5" />
         ) : (
           <Phone weight="fill" className="h-5 w-5" />
         )}
