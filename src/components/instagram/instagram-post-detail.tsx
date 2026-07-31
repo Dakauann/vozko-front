@@ -13,6 +13,13 @@ import type { InstagramAccount, InstagramComment, InstagramMedia } from "@/lib/i
 
 import { InstagramAvatar } from "@/components/instagram/instagram-avatar";
 import { InstagramCommentThread } from "@/components/instagram/instagram-comment-thread";
+import { InstagramCommentRulesPanel } from "@/components/instagram/instagram-comment-rules-panel";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/elevated-design/elevated-tabs";
 import { useTranslations } from "next-intl";
 
 interface Props {
@@ -41,22 +48,39 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
   const [error, setError] = useState<string | null>(null);
   const [togglingComments, setTogglingComments] = useState(false);
 
-  const loadFirstPage = useCallback(async () => {
-    setLoading(true);
-    const result = await listInstagramCommentsAction(accountId, media.id);
-    if (result.error) setError(result.error);
-    else {
-      setError(null);
-      setComments(result.page.items);
-      setCursor(result.page.nextCursor);
-      setHasNext(result.page.hasNext);
-    }
-    setLoading(false);
-  }, [accountId, media.id]);
+  const applyFirstPage = useCallback(
+    (result: Awaited<ReturnType<typeof listInstagramCommentsAction>>) => {
+      if (result.error) setError(result.error);
+      else {
+        setError(null);
+        setComments(result.page.items);
+        setCursor(result.page.nextCursor);
+        setHasNext(result.page.hasNext);
+      }
+      setLoading(false);
+    },
+    [],
+  );
 
+  // Refresh after a moderation action, where the spinner is wanted because the
+  // operator just did something and expects the list to react.
+  const reload = useCallback(async () => {
+    setLoading(true);
+    applyFirstPage(await listInstagramCommentsAction(accountId, media.id));
+  }, [accountId, media.id, applyFirstPage]);
+
+  /* First load. `loading` already starts true, so this effect sets no state
+     synchronously — it only lands the result once the request settles, and drops
+     it if the dialog moved to another post meanwhile. */
   useEffect(() => {
-    void loadFirstPage();
-  }, [loadFirstPage]);
+    let cancelled = false;
+    void listInstagramCommentsAction(accountId, media.id).then((result) => {
+      if (!cancelled) applyFirstPage(result);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [accountId, media.id, applyFirstPage]);
 
   // Escape closes, matching the rest of the dashboard's overlay behaviour.
   useEffect(() => {
@@ -200,17 +224,42 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
               </p>
             )}
 
-            <InstagramCommentThread
-              accountId={accountId}
-              comments={comments}
-              loading={loading}
-              hasNext={hasNext}
-              loadingMore={loadingMore}
-              canModerate={account.canManageComments}
-              totalCount={media.commentsCount}
-              onLoadMore={() => void loadMore()}
-              onChanged={() => void loadFirstPage()}
-            />
+            {/* The comments on this post and the automation that answers them
+                are two views of the same job, so they share the panel through
+                tabs — the same split the account page uses. Without this the
+                rule that replies here was configured somewhere the operator
+                could not see from the post. */}
+            <Tabs defaultValue="comments" className="px-4 pb-4">
+              <TabsList>
+                <TabsTrigger value="comments">{t("posts.tabComments")}</TabsTrigger>
+                <TabsTrigger value="automation">{t("posts.tabAutomation")}</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="comments" className="mt-3 -mx-4">
+                <InstagramCommentThread
+                  accountId={accountId}
+                  comments={comments}
+                  loading={loading}
+                  hasNext={hasNext}
+                  loadingMore={loadingMore}
+                  canModerate={account.canManageComments}
+                  totalCount={media.commentsCount}
+                  onLoadMore={() => void loadMore()}
+                  onChanged={() => void reload()}
+                />
+              </TabsContent>
+
+              <TabsContent value="automation" className="mt-3">
+                {/* Scoped to this post: the panel shows rules attached to it plus
+                    the account-wide defaults that also run here — which is
+                    exactly what will fire on the next comment. */}
+                <InstagramCommentRulesPanel
+                  accountId={accountId}
+                  mediaId={media.id}
+                  className="border-0 !shadow-none"
+                />
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>

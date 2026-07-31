@@ -140,3 +140,44 @@ export interface CreateInstagramMediaPayload {
     /** REELS or STORIES; omit for a feed image. */
     mediaType?: string;
 }
+
+/**
+ * Comment automation.
+ *
+ * A rule reacts to a public comment. Its most valuable action, the private
+ * reply, opens a DM conversation — from there the account's agent or workflow
+ * attends it, which is why a rule needs no branching of its own.
+ */
+export type CommentRuleMatch = 'any' | 'contains' | 'exact';
+
+export type CommentRuleAction = 'public_reply' | 'private_reply' | 'hide';
+
+export interface InstagramCommentRule {
+    id: string;
+    workspaceId: string;
+    igAccountId: string;
+    name: string;
+    enabled: boolean;
+    /** Empty means the rule applies to every post on the account. */
+    igMediaId?: string;
+    match: CommentRuleMatch;
+    keywords: string[];
+    actions: CommentRuleAction[];
+    publicReplyText?: string;
+    privateReplyText?: string;
+    priority: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface CommentRulePayload {
+    name: string;
+    enabled: boolean;
+    igMediaId?: string;
+    match: CommentRuleMatch;
+    keywords: string[];
+    actions: CommentRuleAction[];
+    publicReplyText?: string;
+    privateReplyText?: string;
+    priority?: number;
+}

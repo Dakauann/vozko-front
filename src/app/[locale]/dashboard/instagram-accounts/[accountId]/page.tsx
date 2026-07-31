@@ -1,6 +1,6 @@
 "use client";
 
-import { InstagramLogo, Warning } from "@phosphor-icons/react";
+import { InstagramLogo, Plus, Warning } from "@phosphor-icons/react";
 import { use, useCallback, useEffect, useState } from "react";
 
 import {
@@ -10,10 +10,21 @@ import {
 import type { InstagramAccount, InstagramMedia } from "@/lib/instagram/types";
 
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
+import Button from "@/components/elevated-design/button";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import { accentColorMap } from "@/components/elevated-design/listing-card";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { InstagramAutomationPanel } from "@/components/instagram/instagram-automation-panel";
+import { InstagramCommentRulesPanel } from "@/components/instagram/instagram-comment-rules-panel";
+import { InstagramPostComposer } from "@/components/instagram/instagram-post-composer";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/elevated-design/elevated-tabs";
+import { GridFour, Robot } from "@phosphor-icons/react";
 import { InstagramPostDetail } from "@/components/instagram/instagram-post-detail";
 import { InstagramPostGrid } from "@/components/instagram/instagram-post-grid";
 import { InstagramProfileHeader } from "@/components/instagram/instagram-profile-header";
@@ -44,6 +55,7 @@ export default function InstagramAccountProfilePage({
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<InstagramMedia | null>(null);
+  const [composing, setComposing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -155,29 +167,76 @@ export default function InstagramAccountProfilePage({
             <>
               <InstagramProfileHeader account={account} />
 
-              {/* The grid gets its own titled panel so it sits in the dashboard's
-                  vocabulary instead of floating loose under the header. */}
-              <ElevatedContainer className="overflow-hidden !p-0">
-                <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
-                  <h2 className="text-sm font-semibold text-foreground">
-                    {t("posts.sectionTitle")}
-                  </h2>
-                  <span className="text-xs tabular-nums text-muted-foreground">
-                    {t("posts.sectionCount", { count: account.mediaCount })}
-                  </span>
-                </div>
+              {/* Instagram's own profile splits content into tabs, and the two
+                  jobs here are genuinely different: browsing what was published
+                  versus configuring who answers. Stacking four equal panels made
+                  every section compete; tabs give each its own full width and put
+                  the posts — the reason people open this page — first. */}
+              <Tabs defaultValue="posts">
+                <TabsList>
+                  <TabsTrigger value="posts" className="gap-1.5">
+                    <GridFour className="h-4 w-4" weight="fill" />
+                    {t("tabs.posts")}
+                  </TabsTrigger>
+                  <TabsTrigger value="automation" className="gap-1.5">
+                    <Robot className="h-4 w-4" weight="fill" />
+                    {t("tabs.automation")}
+                  </TabsTrigger>
+                </TabsList>
 
-                <div className="p-5">
-                  <InstagramPostGrid
-                    accountId={accountId}
-                    posts={posts}
-                    hasNext={hasNext}
-                    loadingMore={loadingMore}
-                    onLoadMore={() => void loadMore()}
-                    onSelect={setSelected}
-                  />
-                </div>
-              </ElevatedContainer>
+                <TabsContent value="posts" className="mt-4">
+                  <ElevatedContainer className="overflow-hidden !p-0">
+                    <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
+                      <h2 className="text-sm font-semibold text-foreground">
+                        {t("posts.sectionTitle")}
+                      </h2>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs tabular-nums text-muted-foreground">
+                          {t("posts.sectionCount", { count: account.mediaCount })}
+                        </span>
+                        <Button
+                          title={t("composer.newPost")}
+                          variant="primary"
+                          size="sm"
+                          icon={<Plus className="h-3.5 w-3.5" weight="bold" />}
+                          onClick={() => setComposing(true)}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="p-5">
+                      <InstagramPostGrid
+                        accountId={accountId}
+                        posts={posts}
+                        hasNext={hasNext}
+                        loadingMore={loadingMore}
+                        onLoadMore={() => void loadMore()}
+                        onSelect={setSelected}
+                      />
+                    </div>
+                  </ElevatedContainer>
+                </TabsContent>
+
+                {/* Who answers, then what the rules are — the same order the
+                    backend resolves them in. */}
+                <TabsContent value="automation" className="mt-4 space-y-6">
+                  <InstagramAutomationPanel account={account} onUpdated={setAccount} />
+                  <InstagramCommentRulesPanel accountId={accountId} />
+                </TabsContent>
+              </Tabs>
+
+              {composing && (
+                <InstagramPostComposer
+                  accountId={accountId}
+                  onClose={() => setComposing(false)}
+                  onPublished={() => {
+                    setComposing(false);
+                    // The new post is not in the loaded page; refetching is the
+                    // only way to show it in the right chronological slot.
+                    router.refresh();
+                  }}
+                />
+              )}
 
               {selected && (
                 <InstagramPostDetail

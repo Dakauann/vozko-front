@@ -6,6 +6,8 @@ import type {
     InstagramMedia,
     InstagramPage,
     UpdateInstagramAccountPayload,
+    InstagramCommentRule,
+    CommentRulePayload,
 } from '@/lib/instagram/types';
 
 import { apiClient, getApiBaseUrl } from '@/lib/api/browser-client';
@@ -250,5 +252,47 @@ export async function privateReplyInstagramCommentAction(
     if (response.error) {
         return { error: response.error.message, code: response.error.code };
     }
+    return { ok: true };
+}
+
+// ---------------------------------------------------------------- comment rules
+
+export async function listCommentRulesAction(accountId: string) {
+    const response = await apiClient<InstagramCommentRule[]>(
+        `/instagram/accounts/${accountId}/comment-rules`,
+        { method: 'GET' },
+    );
+    if (response.error) return { rules: [] as InstagramCommentRule[], error: response.error.message };
+    return { rules: response.data ?? [] };
+}
+
+export async function createCommentRuleAction(accountId: string, payload: CommentRulePayload) {
+    const response = await apiClient<InstagramCommentRule>(
+        `/instagram/accounts/${accountId}/comment-rules`,
+        { method: 'POST', body: JSON.stringify(payload) },
+    );
+    if (response.error) return { error: response.error.message };
+    return { rule: response.data };
+}
+
+export async function updateCommentRuleAction(
+    accountId: string,
+    ruleId: string,
+    payload: CommentRulePayload,
+) {
+    const response = await apiClient<InstagramCommentRule>(
+        `/instagram/accounts/${accountId}/comment-rules/${ruleId}`,
+        { method: 'PUT', body: JSON.stringify(payload) },
+    );
+    if (response.error) return { error: response.error.message };
+    return { rule: response.data };
+}
+
+export async function deleteCommentRuleAction(accountId: string, ruleId: string) {
+    const response = await apiClient<{ status: string }>(
+        `/instagram/accounts/${accountId}/comment-rules/${ruleId}`,
+        { method: 'DELETE' },
+    );
+    if (response.error) return { error: response.error.message };
     return { ok: true };
 }

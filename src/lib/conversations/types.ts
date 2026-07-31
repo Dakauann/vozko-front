@@ -101,14 +101,16 @@ export const channelCapabilities = {
     },
 
     /**
-     * Whether AI agents/workflows can attend this conversation. Instagram DMs are
-     * handled by people today: the inbound webhook records the message and assigns
-     * an operator, with no agent invocation, so showing an AI handler there would
-     * promise automation that never runs.
+     * Whether AI agents can attend this conversation.
+     *
+     * Instagram gained agent attendance through the channel-agnostic AI reply
+     * service, which honours the same automation gating as WhatsApp: the
+     * account's "enable agent responses" switch, overridden per conversation by
+     * the automation toggle an operator flips when taking over.
      */
     supportsAiHandling(entryType: EntryType): boolean {
         const t = normalizeEntryType(entryType);
-        return t === 'whatsapp' || t === 'voice' || t === 'support';
+        return t === 'whatsapp' || t === 'voice' || t === 'support' || t === 'instagram';
     },
 } as const;
 
