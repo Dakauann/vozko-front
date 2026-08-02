@@ -7,7 +7,7 @@ import {
   motion,
   useDragControls,
 } from "framer-motion";
-import { Check, Circle, User, WhatsappLogo } from "@phosphor-icons/react";
+import { Check, Circle, User } from "@phosphor-icons/react";
 import type {
   EntryType,
   InboxEntry,
@@ -20,8 +20,8 @@ import { cn } from "@/lib/utils";
 import { reorderStagesAction } from "@/app/actions/stages";
 import AnalysisHoverCard from "@/components/crm/AnalysisHoverCard";
 import KanbanColumnShell from "@/components/crm/KanbanColumnShell";
+import { ChannelAvatar } from "@/components/channels/channel-avatar";
 import {
-  CardTile,
   CardPill,
   CardLabelChip,
   KanbanCard,
@@ -98,7 +98,6 @@ let _skipCardClick = false;
 
 
 function FunnelCardBody({ entry }: { entry: InboxEntry }) {
-  const isWhatsApp = entry.entry_type === "whatsapp";
   const hasUnread = entry.unread_count > 0;
 
   const labels = entry.labels ?? [];
@@ -106,14 +105,17 @@ function FunnelCardBody({ entry }: { entry: InboxEntry }) {
   return (
     <KanbanCard
       strongTitle={hasUnread}
+      // The same avatar the inbox uses: the person owns the circle and the
+      // channel is a badge on it. The board previously showed a WhatsApp glyph
+      // or a bare initial, so an Instagram or Telegram card was indistinguishable
+      // from one with no channel at all.
       tile={
-        <CardTile color={isWhatsApp ? "#25d366" : undefined}>
-          {isWhatsApp ? (
-            <WhatsappLogo weight="fill" className="h-4 w-4" />
-          ) : (
-            <span>{entry.lead_name?.[0]?.toUpperCase() || "?"}</span>
-          )}
-        </CardTile>
+        <ChannelAvatar
+          name={entry.lead_name || entry.lead_number}
+          pictureUrl={entry.lead_picture}
+          entryType={entry.entry_type}
+          size="sm"
+        />
       }
       title={entry.lead_name || entry.lead_number}
       subtitle={entry.campaign_name || undefined}

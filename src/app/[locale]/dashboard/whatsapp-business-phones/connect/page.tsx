@@ -16,13 +16,18 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import Button from "@/components/elevated-design/button";
+import { WhatsAppLogoColor } from "@/components/icons/channel-logos";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
+import {
+  ConnectAsideCard,
+  ConnectBenefit,
+  ConnectWorkArea,
+} from "@/components/channels/connect-layout";
 import { IconBox } from "@/components/elevated-design/listing-card";
 import WhatsAppCapacityCard from "@/components/dashboard/addons/WhatsAppCapacityCard";
 import { useWhatsAppCapacity } from "@/hooks/use-whatsapp-capacity";
 import Image from "next/image";
 import { getBrand } from "@/config/brand";
-import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/auth-context";
 import { useTheme } from "next-themes";
@@ -222,7 +227,7 @@ export default function ConnectWhatsAppPage() {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="w-full max-w-5xl mx-auto space-y-6 pb-16"
+      className="w-full max-w-6xl mx-auto space-y-6 pb-16"
     >
       {/* Back Button */}
       <motion.div variants={itemVariants}>
@@ -349,16 +354,8 @@ export default function ConnectWhatsAppPage() {
                   }}
                   className="relative"
                 >
-                  <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 blur-md" />
-                  <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-card shadow-md border border-border/70">
-                    <Image
-                      src="https://static.xx.fbcdn.net/rsrc.php/v4/yu/r/KjW_H8CjQn_.png"
-                      alt="Meta"
-                      width={30}
-                      height={30}
-                      className="object-contain"
-                      unoptimized
-                    />
+                  <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-border/70 bg-card shadow-[0_2px_8px_-2px_rgba(0,0,0,0.12)]">
+                    <WhatsAppLogoColor className="h-8 w-8" />
                   </div>
                 </motion.div>
 
@@ -382,14 +379,13 @@ export default function ConnectWhatsAppPage() {
                   }}
                   className="relative"
                 >
-                  <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 blur-md" />
-                  <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-card shadow-md border border-border/70">
+                  <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-border/70 bg-card shadow-[0_2px_8px_-2px_rgba(0,0,0,0.12)]">
                     <Image
                       src={brandLogoSrc}
                       alt={getBrand().name}
-                      width={30}
-                      height={30}
-                      className="object-contain"
+                      width={32}
+                      height={32}
+                      className="h-8 w-8 object-contain"
                       unoptimized
                     />
                   </div>
@@ -485,128 +481,75 @@ export default function ConnectWhatsAppPage() {
         </ElevatedContainer>
       </motion.header>
 
-      {/* Features Grid */}
-      <motion.div variants={itemVariants} className="grid gap-4 sm:grid-cols-3">
-        {features.map((feature, index) => (
-          <motion.div
-            key={feature.titleKey}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.12 * index + 0.4 }}
-          >
-            <ElevatedContainer className="group relative overflow-hidden border border-border/50 bg-card p-6 transition-all duration-300 hover:border-border hover:shadow-md hover:-translate-y-0.5 h-full">
-              <div
-                className={cn(
-                  "absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-[0.03] blur-2xl transition-opacity duration-500 group-hover:opacity-[0.08]",
-                  feature.color === "emerald"
-                    ? "bg-emerald-500"
-                    : feature.color === "blue"
-                      ? "bg-blue-500"
-                      : "bg-purple-500",
-                )}
-              />
-              <div className="relative space-y-4">
-                <IconBox color={feature.color} size="md">
-                  {feature.icon}
-                </IconBox>
-                <div className="space-y-1.5">
-                  <h3 className="font-semibold text-foreground text-sm">
-                    {t(feature.titleKey)}
-                  </h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {t(feature.descriptionKey)}
-                  </p>
-                </div>
-              </div>
-            </ElevatedContainer>
-          </motion.div>
-        ))}
-      </motion.div>
-
-      {/* How It Works */}
-      <motion.div variants={itemVariants}>
-        <ElevatedContainer className="relative overflow-hidden border border-border/50 bg-card p-8 sm:p-10">
-          <div className="absolute -top-12 -right-12 h-40 w-40 rounded-full bg-blue-500/[0.03] blur-[60px]" />
-
-          <div className="relative">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-              <h2 className="text-xs font-semibold uppercase text-muted-foreground">
-                {t("connect.stepsTitle")}
-              </h2>
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-            </div>
-
-            <div className="grid sm:grid-cols-3 gap-8">
-              {steps.map((step, index) => (
-                <motion.div
-                  key={step.number}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 * index + 0.5 }}
-                  className="relative"
-                >
-                  {index < steps.length - 1 && (
-                    <div className="hidden sm:block absolute top-5 left-[calc(50%+24px)] w-[calc(100%-24px)] h-px bg-gradient-to-r from-border via-border/50 to-transparent" />
-                  )}
-                  <div className="flex flex-col items-center text-center space-y-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/80 text-sm font-bold text-primary-foreground shadow-md shadow-primary/15">
-                      {step.number}
-                    </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed max-w-[220px]">
-                      {t(step.key)}
-                    </p>
-                  </div>
-                </motion.div>
+      <ConnectWorkArea
+        aside={
+          <>
+            <ConnectAsideCard title={t("connect.featuresTitle")}>
+              {features.map((feature) => (
+                <ConnectBenefit
+                  key={feature.titleKey}
+                  icon={feature.icon}
+                  title={t(feature.titleKey)}
+                  description={t(feature.descriptionKey)}
+                />
               ))}
-            </div>
-          </div>
-        </ElevatedContainer>
-      </motion.div>
+            </ConnectAsideCard>
 
-      {/* Info Card */}
-      <motion.div variants={itemVariants}>
-        <ElevatedContainer className="relative overflow-hidden border border-border/50 bg-card p-6">
-          <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-blue-500/[0.04] blur-2xl" />
-          <div className="relative flex gap-4">
-            <IconBox color="blue" size="md" animated={false}>
-              <Info className="h-5 w-5" weight="fill" />
-            </IconBox>
-            <div className="space-y-1.5 flex-1">
-              <h3 className="font-semibold text-foreground text-sm">
-                {t("connect.infoBox.title")}
-              </h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {t("connect.infoBox.description")}
+            <ConnectAsideCard title={t("connect.infoBox.title")} icon={<Info className="h-3.5 w-3.5" />}>
+              <p>{t("connect.infoBox.description")}</p>
+            </ConnectAsideCard>
+
+            {/* Trust marks close the aside rather than the page. At the very
+                bottom of a long scroll nobody reached them; beside the steps
+                they are visible while the operator decides to start. */}
+            <div className="space-y-3 pt-1">
+              <Image
+                src={badgeSrc}
+                alt="Meta Business Partner"
+                width={180}
+                height={102}
+                className="h-auto w-full max-w-[132px] object-contain opacity-80 transition-opacity hover:opacity-100"
+              />
+              <p className="flex items-start gap-1.5 text-[11px] leading-relaxed tracking-wide text-muted-foreground/70">
+                <ShieldCheck
+                  weight="fill"
+                  className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-muted-foreground/50"
+                />
+                {t("connect.footer")}
               </p>
             </div>
-          </div>
-        </ElevatedContainer>
-      </motion.div>
+          </>
+        }
+        work={
+          <ElevatedContainer className="space-y-5 p-6 sm:p-8">
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              {t("connect.stepsTitle")}
+            </h2>
 
-      {/* Certifications & Security Footer */}
-      <motion.div variants={itemVariants}>
-        <div className="border-t border-border/40 pt-8 pb-4 space-y-5">
-          <div className="flex items-center justify-center gap-6">
-            <Image
-              src={badgeSrc}
-              alt="Meta Business Partner"
-              width={180}
-              height={102}
-              className="h-auto w-full max-w-[140px] object-contain opacity-80 hover:opacity-100 transition-opacity"
-            />
-          </div>
-          <div className="flex items-center justify-center gap-2">
-            <ShieldCheck
-              weight="fill"
-              className="h-3.5 w-3.5 text-muted-foreground/40 flex-shrink-0"
-            />
-            <p className="text-[11px] text-muted-foreground/50 text-center tracking-wide">
-              {t("connect.footer")}
-            </p>
-          </div>
-        </div>
-      </motion.div>
+            {/* A vertical rail, not three centred columns. The steps are a
+                sequence performed in order; laying them side by side made them
+                read as three independent options and forced every caption into
+                a 220px measure. */}
+            <ol className="space-y-5">
+              {steps.map((step, index) => (
+                <li key={step.number} className="relative flex gap-4">
+                  <div className="relative flex flex-col items-center">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold tabular-nums text-primary-foreground shadow-sm shadow-primary/20">
+                      {step.number}
+                    </span>
+                    {index < steps.length - 1 && (
+                      <span aria-hidden className="mt-2 w-px flex-1 bg-border" />
+                    )}
+                  </div>
+                  <p className="min-w-0 flex-1 pb-1 text-sm leading-relaxed text-muted-foreground">
+                    {t(step.key)}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </ElevatedContainer>
+        }
+      />
     </motion.main>
   );
 }

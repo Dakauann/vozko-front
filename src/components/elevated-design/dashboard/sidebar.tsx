@@ -51,7 +51,11 @@ import {
 import type { Icon, IconProps } from "@phosphor-icons/react";
 import type { ComponentType } from "react";
 
-import { InstagramLogoColor, WhatsAppLogoColor } from "@/components/icons/channel-logos";
+import {
+  InstagramLogoColor,
+  TelegramLogoColor,
+  WhatsAppLogoColor,
+} from "@/components/icons/channel-logos";
 
 /**
  * Nav icons are Phosphor glyphs, except for the channel entries.
@@ -405,6 +409,27 @@ export const campanhasNavItems: NavItem[] = [
         labelKey: "nav.connectInstagram",
         href: "/dashboard/instagram-accounts/connect",
         requiredPermission: { resource: "instagram_accounts", action: "create" },
+      },
+    ],
+  },
+  {
+    icon: TelegramLogoColor,
+    labelKey: "nav.telegram",
+    href: "/dashboard/telegram-accounts",
+    family: "telegram",
+    requiredPermission: { resource: "telegram_accounts" },
+    children: [
+      {
+        icon: ClipboardText,
+        labelKey: "nav.telegramAccounts",
+        href: "/dashboard/telegram-accounts",
+        requiredPermission: { resource: "telegram_accounts", action: "read" },
+      },
+      {
+        icon: LinkSimple,
+        labelKey: "nav.connectTelegram",
+        href: "/dashboard/telegram-accounts/connect",
+        requiredPermission: { resource: "telegram_accounts", action: "create" },
       },
     ],
   },
@@ -1253,9 +1278,27 @@ const familyDotColor: Record<string, string> = {
   crm: "bg-indigo-500",
 };
 
+/**
+ * A qualifier shown beside a family name.
+ *
+ * WhatsApp is the only family where WHICH integration you are looking at
+ * matters: the current one is Meta's official Cloud API, and unofficial
+ * providers are planned alongside it. Marking the official one now means the
+ * distinction is already visible when the second appears — rather than an
+ * unlabelled "WhatsApp" suddenly becoming ambiguous.
+ *
+ * A chip rather than a longer label: the family header is a 10px uppercase
+ * line, and "WhatsApp Oficial" would push it toward wrapping in the narrower
+ * locales.
+ */
+const familyBadgeKey: Record<string, string> = {
+  whatsapp: "families.badges.official",
+};
+
 const familyBrandIcon: Record<string, NavIcon> = {
   whatsapp: WhatsAppLogoColor,
   instagram: InstagramLogoColor,
+  telegram: TelegramLogoColor,
 };
 
 function groupByFamily(
@@ -1331,6 +1374,14 @@ function GroupedNavItems({
                     />
                   )}
                   {t(`families.${group.family}`)}
+                  {familyBadgeKey[group.family] && (
+                    <span
+                      title={t("families.badges.officialHint")}
+                      className="rounded border border-border/70 px-1 py-px text-[9px] font-medium normal-case tracking-normal text-muted-foreground/80"
+                    >
+                      {t(familyBadgeKey[group.family])}
+                    </span>
+                  )}
                 </span>
               </div>
             )}

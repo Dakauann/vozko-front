@@ -32,6 +32,7 @@ export type ResourceType =
     | "plans"
     | "short_links"
     | "instagram_accounts"
+    | "telegram_accounts"
     | "mcp";
 
 export type ResourceAction =

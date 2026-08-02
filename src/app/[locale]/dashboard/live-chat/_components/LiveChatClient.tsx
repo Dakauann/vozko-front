@@ -2,6 +2,7 @@
 
 import type {
   CampaignType,
+  EntryType,
   WhatsAppCampaignTypeFilter,
 } from "@/lib/conversations/types";
 import {
@@ -12,6 +13,8 @@ import {
   Leaf,
   Megaphone,
   Phone,
+  InstagramLogo,
+  TelegramLogo,
   WhatsappLogo,
   X,
 } from "@phosphor-icons/react";
@@ -42,13 +45,21 @@ import { listWhatsAppCampaignsAction } from "@/app/actions/whatsapp-campaigns";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
-type ChannelFilter = "all" | "whatsapp" | "voice";
+/**
+ * Instagram and Telegram have no campaigns — they have accounts — so selecting
+ * them narrows the inbox by CHANNEL rather than by campaign type. WhatsApp and
+ * voice keep their campaign sub-filters; the other two hide them, because there
+ * is nothing to sub-filter.
+ */
+type ChannelFilter = "all" | "whatsapp" | "voice" | "instagram" | "telegram";
 
 interface LiveChatTranslations extends CrmTranslations {
   title: string;
   description: string;
   badge: string;
   filterAll: string;
+  filterInstagram: string;
+  filterTelegram: string;
   filterWhatsapp: string;
   filterVoice: string;
   filterAllCampaigns: string;
@@ -70,7 +81,7 @@ const filterOptions: {
   icon: Icon;
   labelKey: keyof Pick<
     LiveChatTranslations,
-    "filterAll" | "filterWhatsapp" | "filterVoice"
+    "filterAll" | "filterWhatsapp" | "filterVoice" | "filterInstagram" | "filterTelegram"
   >;
   permission?: { resource: ResourceType; action: ResourceAction };
 }[] = [
@@ -80,6 +91,18 @@ const filterOptions: {
     icon: WhatsappLogo,
     labelKey: "filterWhatsapp",
     permission: { resource: "whatsapp_campaigns", action: "read" },
+  },
+  {
+    value: "instagram",
+    icon: InstagramLogo,
+    labelKey: "filterInstagram",
+    permission: { resource: "instagram_accounts", action: "read" },
+  },
+  {
+    value: "telegram",
+    icon: TelegramLogo,
+    labelKey: "filterTelegram",
+    permission: { resource: "telegram_accounts", action: "read" },
   },
 ];
 
@@ -399,12 +422,20 @@ function LiveChatContent({
     if (!canUseOpsMetrics && opsOpen) setOpsOpen(false);
   }, [canUseOpsMetrics, opsOpen]);
 
+  // Only whatsapp and voice are campaign types; instagram and telegram select
+  // by channel instead, so they contribute no campaignType at all.
+  const isCampaignChannel = activeFilter === "whatsapp" || activeFilter === "voice";
   const campaignType: CampaignType | undefined =
     selectedCampaignId && selectedCampaignType
       ? selectedCampaignType
-      : activeFilter === "all"
-        ? undefined
-        : activeFilter;
+      : isCampaignChannel
+        ? activeFilter
+        : undefined;
+
+  const channelFilter: EntryType | undefined =
+    activeFilter === "instagram" || activeFilter === "telegram"
+      ? activeFilter
+      : undefined;
 
   const whatsappCampaignType: WhatsAppCampaignTypeFilter | undefined =
     waCampaignFilter === "all" ? undefined : waCampaignFilter;
@@ -432,12 +463,17 @@ function LiveChatContent({
     [],
   );
 
-  const showWaCampaignFilter = activeFilter !== "voice";
+  // Campaign controls only mean something for channels that HAVE campaigns.
+  // Instagram and Telegram are organised by account, so both the type toggle
+  // and the campaign picker are hidden for them rather than shown empty.
+  const showWaCampaignFilter = activeFilter === "whatsapp" || activeFilter === "all";
+  const showCampaignPicker = isCampaignChannel || activeFilter === "all";
 
   return (
     <div className="relative -m-6 h-[calc(100dvh-5rem)] min-h-[480px] w-[calc(100%+3rem)] overflow-hidden">
       <CrmLayout
         campaignType={campaignType}
+        channelFilter={channelFilter}
         whatsappCampaignType={
           showWaCampaignFilter ? whatsappCampaignType : undefined
         }
@@ -461,13 +497,15 @@ function LiveChatContent({
                 translations={t}
               />
             )}
-            <CampaignSelector
-              channelFilter={activeFilter}
-              waTypeFilter={waCampaignFilter}
-              selectedId={selectedCampaignId}
-              onSelect={handleCampaignSelect}
-              translations={t}
-            />
+            {showCampaignPicker && (
+              <CampaignSelector
+                channelFilter={activeFilter}
+                waTypeFilter={waCampaignFilter}
+                selectedId={selectedCampaignId}
+                onSelect={handleCampaignSelect}
+                translations={t}
+              />
+            )}
           </div>
         }
         toolbarBeforeUsers={

@@ -1356,7 +1356,11 @@
       "connectInstagram": "Connect account",
       "whatsapp": "WhatsApp",
       "instagramChannel": "Instagram",
-      "campaigns": "Campaigns"
+      "campaigns": "Campaigns",
+      "telegram": "Accounts",
+      "telegramAccounts": "Accounts",
+      "connectTelegram": "Connect account",
+      "telegramChannel": "Telegram"
     },
     "badges": {
       "new": "New",
@@ -1373,7 +1377,12 @@
       "platform": "Platform",
       "campaigns": "Campaigns",
       "channels": "Channels",
-      "management": "Management"
+      "management": "Management",
+      "telegram": "Telegram",
+      "badges": {
+        "official": "Official",
+        "officialHint": "Meta’s official integration (WhatsApp Cloud API). Stable, supports templates, no ban risk."
+      }
     },
     "pin": {
       "pin": "Pin",
@@ -5054,7 +5063,7 @@
           "noConversationDescription": "Choose a contact from the list to view messages.",
           "loadingMore": "Loading more messages...",
           "windowClosed": "Message window closed",
-          "windowClosedDescription": "The WhatsApp 24-hour window has expired. Wait for the contact to send a message to reopen.",
+          "windowClosedDescription": "The 24h window has expired. Wait for the contact to send a message to reopen it.",
           "aiEnabled": "Automation",
           "aiDisabled": "Automation Off",
           "aiToggleTooltip": "Toggle automation",
@@ -5076,13 +5085,14 @@
         "input": {
           "placeholder": "Type a message...",
           "windowClosed": "Window closed",
-          "windowClosedDescription": "The 24-hour window has expired. Messages cannot be sent.",
+          "windowClosedDescription": "The 24h window is closed. Messages cannot be sent.",
           "sendButton": "Send",
           "attachFile": "Attach file",
           "recording": "Recording audio...",
           "uploading": "Uploading...",
           "windowExpires": "Window expires in",
-          "noPermissionSend": "You don't have permission to send messages"
+          "noPermissionSend": "You don't have permission to send messages",
+          "windowClosedNoClock": "Cannot send in this conversation. The contact may have blocked you, or the reply permission was revoked."
         }
       },
       "entryFilters": {
@@ -7073,7 +7083,7 @@
       "noConversationDescription": "Choose a contact from the list to view messages.",
       "loadingMore": "Loading more messages...",
       "windowClosed": "Message window closed",
-      "windowClosedDescription": "The WhatsApp 24-hour window has expired. Wait for the contact to send a message to reopen.",
+      "windowClosedDescription": "The 24h window has expired. Wait for the contact to send a message to reopen it.",
       "aiEnabled": "Automation",
       "aiDisabled": "Automation Off",
       "aiToggleTooltip": "Toggle automation",
@@ -7095,14 +7105,17 @@
     "input": {
       "placeholder": "Type a message...",
       "windowClosed": "Window closed",
-      "windowClosedDescription": "The 24-hour window expired. You can't send messages.",
+      "windowClosedDescription": "The 24h window is closed. Messages cannot be sent.",
       "sendButton": "Send",
       "attachFile": "Attach file",
       "recording": "Recording audio...",
       "uploading": "Uploading...",
       "windowExpires": "Window expires in",
-      "noPermissionSend": "You don't have permission to send messages"
-    }
+      "noPermissionSend": "You don't have permission to send messages",
+      "windowClosedNoClock": "Cannot send in this conversation. The contact may have blocked you, or the reply permission was revoked."
+    },
+    "filterInstagram": "Instagram",
+    "filterTelegram": "Telegram"
   },
   "tagGroupsPage": {
     "header": {
@@ -10337,7 +10350,8 @@
         "secure": {
           "title": "Secure by design",
           "description": "Standard OAuth 2.0. We never see your Instagram password, and the token is encrypted at rest."
-        }
+        },
+        "title": "What you get"
       },
       "steps": {
         "title": "How it works",
@@ -10484,6 +10498,149 @@
     "tabs": {
       "posts": "Posts",
       "automation": "Automation"
+    }
+  },
+  "telegram": {
+    "page": {
+      "title": "Telegram",
+      "description": "Connect Telegram accounts to receive and answer messages in the CRM.",
+      "searchPlaceholder": "Search by @username or name",
+      "connect": "Connect account",
+      "emptyTitle": "No Telegram account connected",
+      "emptyDescription": "Connect a Telegram account to start receiving messages in the CRM."
+    },
+    "status": {
+      "pending": "Pending",
+      "active": "Active",
+      "token_invalid": "Invalid token",
+      "webhook_failing": "Webhook failing",
+      "revoked": "Disconnected"
+    },
+    "mode": {
+      "bot": "Bot",
+      "business": "Business account"
+    },
+    "table": {
+      "account": "Account",
+      "status": "Status",
+      "mode": "Mode",
+      "webhook": "Webhook",
+      "automation": "Attendance"
+    },
+    "webhook": {
+      "healthy": "Receiving",
+      "failing": "Failing",
+      "pending": "{count} pending updates"
+    },
+    "stats": {
+      "total": "Total",
+      "active": "Active",
+      "attention": "Needs attention"
+    },
+    "card": {
+      "viewProfile": "View details",
+      "disconnect": "Disconnect",
+      "reregister": "Re-register webhook",
+      "webhookFailing": "Telegram cannot deliver messages to this account.",
+      "webhookBacklog": "{count} updates backed up — Telegram discards them after 24 hours.",
+      "tokenInvalid": "The token was revoked in BotFather. Connect again with a new token."
+    },
+    "notice": {
+      "connected": "{username} connected.",
+      "disconnected": "{username} disconnected.",
+      "webhookFixed": "Webhook re-registered."
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {page} of {totalPages}"
+    },
+    "connect": {
+      "title": "Connect bot",
+      "description": "Paste the token BotFather gave you. There is no authorization flow, app review or registration: the bot is live immediately.",
+      "back": "Back",
+      "tokenTitle": "Paste the token and connect",
+      "tokenHelp": "The token looks like 123456789:AA… . It is stored encrypted and never shown again.",
+      "tokenLabel": "Token",
+      "tokenMalformed": "That does not look like a BotFather token. The format is <id>:<secret>.",
+      "submit": "Connect",
+      "connecting": "Connecting...",
+      "successTitle": "Bot connected",
+      "errorTitle": "Could not connect",
+      "step1": "In Telegram, open a chat with @BotFather and send:",
+      "step2": "Choose a name and a username for the bot (the username must end in \"bot\").",
+      "step3": "BotFather replies with the access token — copy the whole line.",
+      "heroNote": "No app review, no business verification, no waiting: the bot starts receiving messages the moment you connect it.",
+      "asideTitle": "How it works"
+    },
+    "profile": {
+      "description": "Webhook health and attribution links for this account.",
+      "back": "Back to accounts",
+      "loading": "Loading...",
+      "notFound": "Account not found.",
+      "webhookTitle": "Webhook",
+      "webhookLosingMessages": "Telegram is not delivering messages to this bot. Undelivered updates are discarded after 24 hours and cannot be recovered.",
+      "tokenInvalidHelp": "The token was revoked in BotFather. Generate a new one and connect the account again.",
+      "mode": "Mode",
+      "pending": "Pending updates",
+      "registeredAt": "Registered at",
+      "never": "Never"
+    },
+    "links": {
+      "title": "Attribution links",
+      "help": "A bot cannot start conversations. A t.me link opens an already-attributed conversation on the customer's first tap — use it in e-mails, invoices or QR codes.",
+      "labelField": "Link label",
+      "create": "Create link",
+      "createFailed": "Could not create the link",
+      "delete": "Delete",
+      "deleteFailed": "Could not delete the link",
+      "copy": "Copy link",
+      "empty": "No links created yet.",
+      "untitled": "Untitled",
+      "uses": "{count} uses"
+    },
+    "automation": {
+      "title": "AI attendance",
+      "agentLabel": "Attending agent",
+      "agentHint": "The agent answers messages from this account.",
+      "enableLabel": "Reply automatically",
+      "enableHint": "When on, the agent answers new messages. You can pause automation on a single conversation without changing this setting.",
+      "enableRequiresAgent": "Select an agent to enable automatic replies.",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "saving": "Saving...",
+      "saved": "Saved",
+      "saveFailed": "Could not save. Try again.",
+      "activeNote": "New messages will be answered by this agent. In Bot mode there is no 24-hour window — the agent can reply at any time, as long as the contact has not blocked it. In Business account mode, Telegram only allows replies within 24 hours of the contact’s last message.",
+      "agentSearch": "Search agents...",
+      "agentEmpty": "No agent found.",
+      "agentInactive": "Inactive",
+      "modeLabel": "Who attends",
+      "modeAgent": "Agent",
+      "modeWorkflow": "Workflow",
+      "workflowLabel": "Attending workflow",
+      "workflowHint": "The workflow runs on every new message from this account.",
+      "workflowSearch": "Search workflows...",
+      "workflowEmpty": "No workflow found.",
+      "enableRequiresWorkflow": "Select a workflow to enable automation.",
+      "activeNoteWorkflow": "New messages will trigger this workflow. WhatsApp template and button nodes are ignored on this channel.",
+      "agent": "Agent",
+      "workflow": "Workflow",
+      "none": "Manual"
+    },
+    "business": {
+      "title": "Business account (optional)",
+      "description": "Connect this bot to your personal Telegram account to reply under your own name and photo. The contact does not see a bot — they see you.",
+      "step1": "The account needs Telegram Premium.",
+      "step2": "In the app, open Settings → Telegram Business → Chatbots.",
+      "step3": "Enter this bot’s username:",
+      "step4": "Grant the \"Reply to messages\" permission. Without it, nothing is sent.",
+      "tradeoff": "In Bot mode there is no time limit on replying. In Business account mode, Telegram only allows replies within 24 hours of the contact’s last message — after that automation goes silent until they write again.",
+      "paired": "Connected to a personal account. Replies go out under its name and photo.",
+      "pairedTo": "Connected to {username}. Replies go out under that account’s name and photo.",
+      "noReplyRight": "The \"Reply to messages\" permission was not granted. The connection looks active, but no reply is ever sent. Grant it in the app under Settings → Telegram Business → Chatbots.",
+      "disabled": "The connection was disabled in the Telegram app. Re-enable it under Settings → Telegram Business → Chatbots.",
+      "windowNote": "In this mode Telegram only allows replies within 24 hours of the contact’s last message."
     }
   }
 }

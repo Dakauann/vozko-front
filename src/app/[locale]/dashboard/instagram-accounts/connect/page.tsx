@@ -16,6 +16,11 @@ import { useEffect, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
+import {
+  ConnectAsideCard,
+  ConnectBenefit,
+  ConnectWorkArea,
+} from "@/components/channels/connect-layout";
 import Image from "next/image";
 import { IconBox } from "@/components/elevated-design/listing-card";
 import { getBrand } from "@/config/brand";
@@ -131,7 +136,7 @@ export default function ConnectInstagramPage() {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="mx-auto w-full max-w-5xl space-y-6 pb-16"
+      className="mx-auto w-full max-w-6xl space-y-6 pb-16"
     >
       <motion.div variants={itemVariants}>
         <Button
@@ -211,8 +216,7 @@ export default function ConnectInstagramPage() {
                 transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.2 }}
                 className="relative"
               >
-                <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-fuchsia-500/20 to-purple-600/10 blur-md" />
-                <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-border/70 bg-card shadow-md">
+                <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-border/70 bg-card shadow-[0_2px_8px_-2px_rgba(0,0,0,0.12)]">
                   <InstagramLogo className="h-7 w-7 text-fuchsia-600" weight="fill" />
                 </div>
               </motion.div>
@@ -227,14 +231,13 @@ export default function ConnectInstagramPage() {
                 transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.25 }}
                 className="relative"
               >
-                <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 blur-md" />
-                <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-border/70 bg-card shadow-md">
+                <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-border/70 bg-card shadow-[0_2px_8px_-2px_rgba(0,0,0,0.12)]">
                   <Image
                     src={brandLogoSrc}
                     alt={getBrand().name}
-                    width={30}
-                    height={30}
-                    className="object-contain"
+                    width={32}
+                    height={32}
+                    className="h-8 w-8 object-contain"
                     unoptimized
                   />
                 </div>
@@ -284,9 +287,9 @@ export default function ConnectInstagramPage() {
               after the fact. */}
           <motion.div
             variants={itemVariants}
-            className="mt-6 flex gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs leading-relaxed text-amber-700 dark:text-amber-300"
+            className="mt-6 flex gap-2 rounded-lg border border-amber-500/30 bg-muted/30 p-3 text-xs leading-relaxed text-foreground"
           >
-            <WarningCircle weight="fill" className="mt-0.5 h-4 w-4 shrink-0" />
+            <WarningCircle weight="fill" className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-500" />
             <div>
               <p className="font-medium">{t("connect.prerequisite.title")}</p>
               <p className="mt-1 opacity-80">{t("connect.prerequisite.description")}</p>
@@ -295,38 +298,47 @@ export default function ConnectInstagramPage() {
         </ElevatedContainer>
       </motion.div>
 
-      {/* Features */}
-      <motion.div variants={itemVariants} className="grid gap-4 sm:grid-cols-3">
-        {features.map((feature) => (
-          <ElevatedContainer key={feature.title} className="space-y-3 p-5">
-            <IconBox color={feature.color} size="md" animated={false}>
-              {feature.icon}
-            </IconBox>
-            <h3 className="font-semibold text-foreground">{feature.title}</h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
-          </ElevatedContainer>
-        ))}
-      </motion.div>
-
-      {/* Steps */}
-      <motion.div variants={itemVariants}>
-        <ElevatedContainer className="space-y-5 p-6">
-          <div className="flex items-center gap-2">
-            <CursorClick className="h-5 w-5 text-muted-foreground" weight="bold" />
-            <h2 className="font-semibold text-foreground">{t("connect.steps.title")}</h2>
-          </div>
-          <ol className="space-y-4">
-            {steps.map((step) => (
-              <li key={step.number} className="flex gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-fuchsia-500/10 text-xs font-semibold text-fuchsia-600">
-                  {step.number}
-                </span>
-                <p className="text-sm leading-relaxed text-muted-foreground">{step.text}</p>
-              </li>
+      <ConnectWorkArea
+        aside={
+          <ConnectAsideCard title={t("connect.features.title")}>
+            {features.map((feature) => (
+              <ConnectBenefit
+                key={feature.title}
+                icon={feature.icon}
+                title={feature.title}
+                description={feature.description}
+              />
             ))}
-          </ol>
-        </ElevatedContainer>
-      </motion.div>
+          </ConnectAsideCard>
+        }
+        work={
+          <ElevatedContainer className="space-y-5 p-6 sm:p-8">
+            <div className="flex items-center gap-2">
+              <CursorClick className="h-5 w-5 text-muted-foreground" weight="bold" />
+              <h2 className="font-semibold text-foreground">{t("connect.steps.title")}</h2>
+            </div>
+            {/* One rail, drawn from each marker, so a step whose body grows does
+                not break the sequence. Matches the Telegram flow exactly. */}
+            <ol className="space-y-5">
+              {steps.map((step, i) => (
+                <li key={step.number} className="relative flex gap-4">
+                  <div className="relative flex flex-col items-center">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-fuchsia-600 text-xs font-semibold tabular-nums text-white">
+                      {step.number}
+                    </span>
+                    {i < steps.length - 1 && (
+                      <span aria-hidden className="mt-2 w-px flex-1 bg-border" />
+                    )}
+                  </div>
+                  <p className="min-w-0 flex-1 pb-1 text-sm leading-relaxed text-muted-foreground">
+                    {step.text}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </ElevatedContainer>
+        }
+      />
     </motion.main>
   );
 }

@@ -1046,7 +1046,11 @@
       "manageSupport": "Gestionar",
       "whatsapp": "WhatsApp",
       "instagramChannel": "Instagram",
-      "campaigns": "Campañas"
+      "campaigns": "Campañas",
+      "telegram": "Cuentas",
+      "telegramAccounts": "Cuentas",
+      "connectTelegram": "Conectar cuenta",
+      "telegramChannel": "Telegram"
     },
     "badges": {
       "new": "Nuevo",
@@ -1063,7 +1067,12 @@
       "platform": "Plataforma",
       "campaigns": "Campañas",
       "channels": "Canales",
-      "management": "Gestión"
+      "management": "Gestión",
+      "telegram": "Telegram",
+      "badges": {
+        "official": "Oficial",
+        "officialHint": "Integración oficial de Meta (WhatsApp Cloud API). Estable, admite plantillas y sin riesgo de bloqueo."
+      }
     },
     "pin": {
       "pin": "Fijar",
@@ -5713,7 +5722,7 @@
       "noConversationDescription": "Elija un contacto de la lista para ver los mensajes.",
       "loadingMore": "Cargando más mensajes...",
       "windowClosed": "Ventana de mensaje cerrada",
-      "windowClosedDescription": "La ventana de 24h de WhatsApp ha expirado. Espere a que el contacto envíe un mensaje para reabrir.",
+      "windowClosedDescription": "La ventana de 24h expiró. Espera a que el contacto envíe un mensaje para reabrirla.",
       "aiEnabled": "Automatización",
       "aiDisabled": "Automatización Off",
       "aiToggleTooltip": "Activar/desactivar automatización",
@@ -5741,8 +5750,11 @@
       "recording": "Grabando audio...",
       "uploading": "Enviando...",
       "windowExpires": "Ventana expira en",
-      "noPermissionSend": "No tienes permiso para enviar mensajes"
-    }
+      "noPermissionSend": "No tienes permiso para enviar mensajes",
+      "windowClosedNoClock": "No se puede enviar en esta conversación. El contacto puede haber bloqueado, o se revocó el permiso de respuesta."
+    },
+    "filterInstagram": "Instagram",
+    "filterTelegram": "Telegram"
   },
   "adminWorkspaces": {
     "search": {
@@ -8749,7 +8761,8 @@
         "secure": {
           "title": "Secure by design",
           "description": "Standard OAuth 2.0. We never see your Instagram password, and the token is encrypted at rest."
-        }
+        },
+        "title": "Qué obtienes"
       },
       "steps": {
         "title": "How it works",
@@ -8896,6 +8909,149 @@
     "tabs": {
       "posts": "Publicaciones",
       "automation": "Automatización"
+    }
+  },
+  "telegram": {
+    "page": {
+      "title": "Telegram",
+      "description": "Conecta cuentas de Telegram para recibir y responder mensajes en el CRM.",
+      "searchPlaceholder": "Buscar por @usuario o nombre",
+      "connect": "Conectar cuenta",
+      "emptyTitle": "Ninguna cuenta de Telegram conectada",
+      "emptyDescription": "Conecta una cuenta de Telegram para empezar a recibir mensajes en el CRM."
+    },
+    "status": {
+      "pending": "Pendiente",
+      "active": "Activo",
+      "token_invalid": "Token inválido",
+      "webhook_failing": "Webhook con fallo",
+      "revoked": "Desconectado"
+    },
+    "mode": {
+      "bot": "Bot",
+      "business": "Cuenta Business"
+    },
+    "table": {
+      "account": "Cuenta",
+      "status": "Estado",
+      "mode": "Modo",
+      "webhook": "Webhook",
+      "automation": "Atención"
+    },
+    "webhook": {
+      "healthy": "Recibiendo",
+      "failing": "Con fallo",
+      "pending": "{count} actualizaciones pendientes"
+    },
+    "stats": {
+      "total": "Total",
+      "active": "Activos",
+      "attention": "Requiere atención"
+    },
+    "card": {
+      "viewProfile": "Ver detalles",
+      "disconnect": "Desconectar",
+      "reregister": "Volver a registrar webhook",
+      "webhookFailing": "Telegram no logra entregar mensajes a esta cuenta.",
+      "webhookBacklog": "{count} actualizaciones acumuladas — Telegram las descarta tras 24 horas.",
+      "tokenInvalid": "El token fue revocado en BotFather. Conecta de nuevo con un token nuevo."
+    },
+    "notice": {
+      "connected": "{username} conectado.",
+      "disconnected": "{username} desconectado.",
+      "webhookFixed": "Webhook registrado de nuevo."
+    },
+    "pagination": {
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "pageOf": "Página {page} de {totalPages}"
+    },
+    "connect": {
+      "title": "Conectar bot",
+      "description": "Pega el token que te dio BotFather. No hay autorización, revisión de app ni registro: el bot queda activo de inmediato.",
+      "back": "Volver",
+      "tokenTitle": "Pega el token y conecta",
+      "tokenHelp": "El token tiene el formato 123456789:AA… . Se guarda cifrado y no se vuelve a mostrar.",
+      "tokenLabel": "Token",
+      "tokenMalformed": "Esto no parece un token de BotFather. El formato es <id>:<secreto>.",
+      "submit": "Conectar",
+      "connecting": "Conectando...",
+      "successTitle": "Bot conectado",
+      "errorTitle": "No se pudo conectar",
+      "step1": "En Telegram, abre un chat con @BotFather y envía:",
+      "step2": "Elige un nombre y un usuario para el bot (el usuario debe terminar en \"bot\").",
+      "step3": "BotFather responde con el token de acceso — copia la línea completa.",
+      "heroNote": "Sin revisión de aplicación, sin verificación de empresa, sin esperas: el bot recibe mensajes en cuanto lo conectes.",
+      "asideTitle": "Cómo funciona"
+    },
+    "profile": {
+      "description": "Estado del webhook y enlaces de atribución de esta cuenta.",
+      "back": "Volver a cuentas",
+      "loading": "Cargando...",
+      "notFound": "Cuenta no encontrada.",
+      "webhookTitle": "Webhook",
+      "webhookLosingMessages": "Telegram no está entregando mensajes a este bot. Las actualizaciones no entregadas se descartan tras 24 horas y no se pueden recuperar.",
+      "tokenInvalidHelp": "El token fue revocado en BotFather. Genera uno nuevo y conecta la cuenta otra vez.",
+      "mode": "Modo",
+      "pending": "Actualizaciones pendientes",
+      "registeredAt": "Registrado el",
+      "never": "Nunca"
+    },
+    "links": {
+      "title": "Enlaces de atribución",
+      "help": "Un bot no puede iniciar conversaciones. Un enlace t.me abre una conversación ya atribuida en el primer toque del cliente — úsalo en correos, facturas o códigos QR.",
+      "labelField": "Etiqueta del enlace",
+      "create": "Crear enlace",
+      "createFailed": "No se pudo crear el enlace",
+      "delete": "Eliminar",
+      "deleteFailed": "No se pudo eliminar el enlace",
+      "copy": "Copiar enlace",
+      "empty": "Aún no hay enlaces creados.",
+      "untitled": "Sin etiqueta",
+      "uses": "{count} usos"
+    },
+    "automation": {
+      "title": "Atención con IA",
+      "agentLabel": "Agente responsable",
+      "agentHint": "El agente responde a los mensajes de esta cuenta.",
+      "enableLabel": "Responder automáticamente",
+      "enableHint": "Cuando está activo, el agente responde los mensajes nuevos. Puedes pausar la automatización en una conversación concreta sin cambiar esta configuración.",
+      "enableRequiresAgent": "Selecciona un agente para activar las respuestas automáticas.",
+      "statusActive": "Activo",
+      "statusInactive": "Inactivo",
+      "saving": "Guardando...",
+      "saved": "Guardado",
+      "saveFailed": "No se pudo guardar. Inténtalo de nuevo.",
+      "activeNote": "Los mensajes nuevos serán respondidos por este agente. En modo Bot no hay ventana de 24 horas: el agente puede responder en cualquier momento, siempre que el contacto no lo haya bloqueado. En modo Cuenta Business, Telegram solo permite responder hasta 24 horas después del último mensaje del contacto.",
+      "agentSearch": "Buscar agente...",
+      "agentEmpty": "Ningún agente encontrado.",
+      "agentInactive": "Inactivo",
+      "modeLabel": "Quién atiende",
+      "modeAgent": "Agente",
+      "modeWorkflow": "Workflow",
+      "workflowLabel": "Workflow responsable",
+      "workflowHint": "El workflow se dispara con cada mensaje nuevo de esta cuenta.",
+      "workflowSearch": "Buscar workflow...",
+      "workflowEmpty": "Ningún workflow encontrado.",
+      "enableRequiresWorkflow": "Selecciona un workflow para activar la automatización.",
+      "activeNoteWorkflow": "Los mensajes nuevos dispararán este workflow. Los nodos de plantilla y botones de WhatsApp se ignoran en este canal.",
+      "agent": "Agente",
+      "workflow": "Workflow",
+      "none": "Manual"
+    },
+    "business": {
+      "title": "Cuenta Business (opcional)",
+      "description": "Conecta este bot a tu cuenta personal de Telegram para atender con tu propio nombre y foto. El contacto no ve un bot: te ve a ti.",
+      "step1": "La cuenta necesita Telegram Premium.",
+      "step2": "En la app, abre Ajustes → Telegram Business → Chatbots.",
+      "step3": "Indica el usuario de este bot:",
+      "step4": "Concede el permiso \"Responder mensajes\". Sin él, no se envía nada.",
+      "tradeoff": "En modo Bot no hay límite de tiempo para responder. En modo Cuenta Business, Telegram solo permite responder hasta 24 horas después del último mensaje del contacto; después la automatización queda en silencio hasta que vuelva a escribir.",
+      "paired": "Conectado a una cuenta personal. Las respuestas salen con su nombre y su foto.",
+      "pairedTo": "Conectado a {username}. Las respuestas salen con el nombre y la foto de esa cuenta.",
+      "noReplyRight": "No se concedió el permiso \"Responder mensajes\". La conexión aparece activa, pero no se envía ninguna respuesta. Concédelo en la app, en Ajustes → Telegram Business → Chatbots.",
+      "disabled": "La conexión fue desactivada en la app de Telegram. Reactívala en Ajustes → Telegram Business → Chatbots.",
+      "windowNote": "En este modo Telegram solo permite responder hasta 24 horas después del último mensaje del contacto."
     }
   }
 }

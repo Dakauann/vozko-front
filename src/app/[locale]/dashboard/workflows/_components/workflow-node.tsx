@@ -58,6 +58,7 @@ import type {
   NodeCategory,
   HandleDefinition,
 } from "@/lib/workflows/types";
+import { isInteractivePromptType } from "@/lib/workflows/types";
 import { cn } from "@/lib/utils";
 import {
   parseInteractiveConfig,
@@ -169,6 +170,7 @@ function getCategory(type: WorkflowNodeType): NodeCategory {
     "action_send_text",
     "action_send_template",
     "action_send_email",
+    "action_send_interactive",
     "action_send_whatsapp_button",
     "action_send_media",
   ];
@@ -314,7 +316,7 @@ function MessageNode({ id, data, selected }: NodeProps) {
 // unconditionally. A node's type never changes for a given instance.
 function WorkflowNodeComponent(props: NodeProps) {
   const nodeType = (props.data as unknown as WorkflowNodeData)?.nodeType;
-  if (nodeType === "action_send_whatsapp_button") {
+  if (isInteractivePromptType(nodeType)) {
     return <WhatsAppInteractiveNode {...props} />;
   }
   if (nodeType && MESSAGE_NODE_TYPES.has(nodeType)) {

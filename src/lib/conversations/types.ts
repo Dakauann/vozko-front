@@ -60,7 +60,7 @@ export interface InboxEntryLabel {
 }
 
 
-export type EntryType = 'voice' | 'whatsapp' | 'sip' | 'support' | 'instagram';
+export type EntryType = 'voice' | 'whatsapp' | 'sip' | 'support' | 'instagram' | 'telegram';
 
 /**
  * Instagram is deliberately absent here.
@@ -72,13 +72,32 @@ export type EntryType = 'voice' | 'whatsapp' | 'sip' | 'support' | 'instagram';
  */
 export type CampaignType = 'voice' | 'whatsapp' | 'support';
 
+/**
+ * The channel a MESSAGE was carried on, which is what the inbox filters by.
+ *
+ * Distinct from EntryType: 'sip' and 'support' are entry kinds, not message
+ * channels. Declared once because it had been spelled out inline in three
+ * places, and each new channel was added to some of them — Telegram reached the
+ * inbox with no filter option, and a Telegram message rendered a telephone icon
+ * because it fell through the whatsapp/instagram checks to the voice branch.
+ */
+export type MessageChannel = 'voice' | 'whatsapp' | 'instagram' | 'telegram';
+
+/** The channels an operator can filter the inbox by, in display order. */
+export const FILTERABLE_MESSAGE_CHANNELS: readonly MessageChannel[] = [
+    'whatsapp',
+    'instagram',
+    'telegram',
+    'voice',
+] as const;
+
 export type WhatsAppCampaignTypeFilter = 'standard' | 'organic';
 
 export function normalizeEntryType(
     entryType: EntryType,
-): 'voice' | 'whatsapp' | 'support' | 'instagram' {
+): 'voice' | 'whatsapp' | 'support' | 'instagram' | 'telegram' {
     if (entryType === 'sip') return 'voice';
-    return entryType as 'voice' | 'whatsapp' | 'support' | 'instagram';
+    return entryType as 'voice' | 'whatsapp' | 'support' | 'instagram' | 'telegram';
 }
 
 /**
@@ -101,6 +120,32 @@ export const channelCapabilities = {
     },
 
     /**
+     * Whether an already-sent message can be corrected or unsent.
+     *
+     * Telegram alone permits it: editMessageText works on our own messages, and
+     * deleteMessage works for 48 hours. Offering the action on a channel that
+     * cannot honour it and then failing is worse than not offering it, which is
+     * why this is asked rather than assumed.
+     */
+    supportsMessageEditing(entryType: EntryType): boolean {
+        return normalizeEntryType(entryType) === 'telegram';
+    },
+
+    /**
+     * Whether the composer's disabled state is a CLOCK.
+     *
+     * WhatsApp and Instagram close on a 24h timer that reopens by itself when
+     * the customer writes again. Telegram in bot mode has no timer at all — the
+     * only thing that closes it is the customer blocking the bot, which never
+     * reopens on its own. The copy has to differ, so the question is asked here
+     * instead of inferred from a missing expiry.
+     */
+    hasTimedOutboundWindow(entryType: EntryType): boolean {
+        const t = normalizeEntryType(entryType);
+        return t === 'whatsapp' || t === 'instagram';
+    },
+
+    /**
      * Whether AI agents can attend this conversation.
      *
      * Instagram gained agent attendance through the channel-agnostic AI reply
@@ -110,7 +155,10 @@ export const channelCapabilities = {
      */
     supportsAiHandling(entryType: EntryType): boolean {
         const t = normalizeEntryType(entryType);
-        return t === 'whatsapp' || t === 'voice' || t === 'support' || t === 'instagram';
+        return (
+            t === 'whatsapp' || t === 'voice' || t === 'support' ||
+            t === 'instagram' || t === 'telegram'
+        );
     },
 } as const;
 
@@ -147,7 +195,7 @@ export interface MatchedMessage {
     text: string;
     from: string;
     message_type: MessageType;
-    channel: 'voice' | 'whatsapp' | 'instagram';
+    channel: MessageChannel;
     created_at: string;
     position: number;
     page: number;
@@ -178,6 +226,13 @@ export interface InboxEntry {
     entry_type: EntryType;
     lead_id?: string;
     lead_name: string;
+    /**
+     * The CONTACT's picture — distinct from last_message_sender_avatar, which
+     * is whoever spoke last and becomes the operator's face the moment they
+     * reply. The backend has always sent lead_picture; the type never declared
+     * it, so every conversation list rendered initials.
+     */
+    lead_picture?: string;
     lead_number: string;
     blocked?: boolean;
     entry_variables?: string[];
@@ -249,7 +304,7 @@ export interface ConversationMessage {
     id: string;
     entry_id: string;
     entry_type: EntryType;
-    channel: 'voice' | 'whatsapp' | 'instagram';
+    channel: MessageChannel;
     message_type: MessageType;
     from: string;
     to: string;
@@ -328,7 +383,7 @@ export interface WsSearchInboxPayload {
     min_message_count?: number;
     max_message_count?: number;
     message_search?: string;
-    channel?: 'voice' | 'whatsapp' | 'instagram';
+    channel?: MessageChannel;
     date_from?: string;
     date_to?: string;
     window_open?: boolean;

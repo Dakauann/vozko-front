@@ -8,6 +8,10 @@ export type WorkflowNodeType =
   | "action_send_template"
   | "action_send_email"
   | "action_send_media"
+  | "action_send_interactive"
+  // Retired wire value for the interactive prompt. The backend normalizes it on
+  // read, so it only reaches the client from a graph held in memory from before
+  // a save; the editor still recognises it so such a graph renders correctly.
   | "action_send_whatsapp_button"
   | "action_ai_agent"
   | "action_ai_extract"
@@ -253,6 +257,24 @@ export interface NodeDefinition {
   defaultConfig: Record<string, unknown>;
   configSchema: ConfigField[] | null;
   resizable?: boolean;
+  // Per-channel rendering limits, keyed by entry type. Only the interactive
+  // prompt node sets this: one option list is rendered by several channels with
+  // different caps, so the editor needs the numbers to tell the author which
+  // options a given channel will actually show.
+  channelLimits?: Record<string, ChannelInteractiveLimits>;
+}
+
+// What one channel will render for a single-choice prompt. Mirrors the
+// backend's channel.InteractiveLimits.
+export interface ChannelInteractiveLimits {
+  maxOptionsButtons: number;
+  maxOptionsList: number;
+  // 0 means the provider documents no label limit.
+  maxLabelRunes: number;
+  // Bounds the option id. Bytes, not characters.
+  maxPayloadBytes: number;
+  // Only WhatsApp list rows have a description slot.
+  supportsDescriptions: boolean;
 }
 
 
@@ -324,4 +346,14 @@ export interface TestNodeResult {
   execution_output?: Record<string, unknown>;
   execution_duration_ms: number;
   state_after?: Record<string, unknown>;
+}
+
+
+/** The interactive prompt node, under either its current or its retired wire
+ *  value. Used wherever the editor branches on "is this the options node". */
+export function isInteractivePromptType(nodeType: string): boolean {
+  return (
+    nodeType === "action_send_interactive" ||
+    nodeType === "action_send_whatsapp_button"
+  );
 }

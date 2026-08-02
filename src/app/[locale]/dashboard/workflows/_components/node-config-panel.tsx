@@ -1,7 +1,9 @@
 "use client";
 
 import {
+  createContext,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -31,6 +33,19 @@ import {
   Pause,
 } from "@phosphor-icons/react";
 import ElevatedButton from "@/components/elevated-design/button";
+import {
+  ChannelReachLegend,
+  DescriptionReachNote,
+  OptionChannelReach,
+} from "./option-channel-reach";
+import {
+  authorableOptionCount,
+  type PromptStyle,
+} from "@/lib/workflows/interactive-reach";
+import {
+  isInteractivePromptType,
+  type ChannelInteractiveLimits,
+} from "@/lib/workflows/types";
 import {
   ElevatedCommandSelect,
   type ElevatedCommandOption,
@@ -222,7 +237,22 @@ export function NodeConfigPanel({
   const isWebhookTriggerNode = nodeType === "trigger_webhook";
   const isHTTPRequestNode = nodeType === "action_http_request";
   const isSendTemplateNode = nodeType === "action_send_template";
-  const isInteractivePromptNode = nodeType === "action_send_whatsapp_button";
+  const isInteractivePromptNode = isInteractivePromptType(nodeType);
+
+  // The option limits of every connected channel, published to the option
+  // editors below. Empty for every other node type, which makes the reach
+  // annotations disappear rather than needing a per-field guard.
+  const interactiveReach = useMemo(
+    () => ({
+      style: ((config.interactive_type as string) === "list"
+        ? "list"
+        : "buttons") as PromptStyle,
+      channelLimits: isInteractivePromptNode
+        ? (def?.channelLimits ?? {})
+        : {},
+    }),
+    [config.interactive_type, def?.channelLimits, isInteractivePromptNode],
+  );
 
   const MIN_PANEL_WIDTH = 380;
   const DEFAULT_PANEL_WIDTH = 440;
@@ -589,18 +619,25 @@ export function NodeConfigPanel({
                   return true;
                 })
                 .map((field: ConfigField) => (
-                  <SchemaField
+                  <InteractiveReachContext.Provider
                     key={field.key}
-                    field={field}
-                    value={config[field.key] ?? def?.defaultConfig?.[field.key]}
-                    displayValue={
-                      (config[`_display_${field.key}`] as string | undefined) ??
-                      undefined
-                    }
-                    onChange={(val, meta) => updateField(field.key, val, meta)}
-                    availableVars={availableVars}
-                    workspaceId={workspaceId}
-                  />
+                    value={interactiveReach}
+                  >
+                    <SchemaField
+                      field={field}
+                      value={
+                        config[field.key] ?? def?.defaultConfig?.[field.key]
+                      }
+                      displayValue={
+                        (config[`_display_${field.key}`] as
+                          | string
+                          | undefined) ?? undefined
+                      }
+                      onChange={(val, meta) => updateField(field.key, val, meta)}
+                      availableVars={availableVars}
+                      workspaceId={workspaceId}
+                    />
+                  </InteractiveReachContext.Provider>
                 ))
             )}
 
@@ -3212,6 +3249,24 @@ interface ButtonItem {
   CopyCode: string;
 }
 
+/**
+ * InteractiveReachContext carries the interactive prompt's per-channel limits
+ * down to the option editors.
+ *
+ * Context rather than props because the option editors are reached through
+ * SchemaField's generic `field.type` dispatch, which every other field type
+ * shares. Threading two interactive-only props through that dispatch would put
+ * this node's concern in the path of a dozen unrelated fields.
+ */
+const InteractiveReachContext = createContext<{
+  style: PromptStyle;
+  channelLimits: Record<string, ChannelInteractiveLimits>;
+}>({ style: "buttons", channelLimits: {} });
+
+function useInteractiveReach() {
+  return useContext(InteractiveReachContext);
+}
+
 function ButtonsField({
   value,
   onChange,
@@ -3241,9 +3296,16 @@ function ButtonsField({
     [onChange],
   );
 
+  const { style, channelLimits } = useInteractiveReach();
+
   const hasCopyCode = buttons.some((b) => b.Type === "copy_code");
   const hasReply = buttons.some((b) => b.Type === "reply");
-  const isFull = buttons.length >= 3;
+  // The ceiling is the most permissive connected channel, not WhatsApp's three.
+  // Stopping at three would make it impossible to author the fourth option that
+  // Telegram renders perfectly well; the per-option notes below say which
+  // channels drop the overflow.
+  const maxOptions = authorableOptionCount(style, channelLimits, 3);
+  const isFull = buttons.length >= maxOptions;
 
   const addReply = useCallback(() => {
     if (isFull || hasCopyCode) return;
@@ -3278,9 +3340,12 @@ function ButtonsField({
 
   return (
     <div className="space-y-2.5">
-      <span className="text-xs font-medium text-foreground block">
-        Botões interativos
-      </span>
+      <div className="space-y-1.5">
+        <span className="text-xs font-medium text-foreground block">
+          Botões interativos
+        </span>
+        <ChannelReachLegend style={style} channelLimits={channelLimits} />
+      </div>
 
       {/* Quick-add strip */}
       {(canAddReply || canAddCopyCode) && (
@@ -3311,9 +3376,12 @@ function ButtonsField({
       {/* Empty hint */}
       {buttons.length === 0 && (
         <p className="text-[10px] text-muted-foreground leading-relaxed">
-          Adicione até <strong>3 botões de resposta</strong> ou{" "}
-          <strong>1 botão de copiar código</strong>. Não é possível misturar os
-          dois tipos.
+          Adicione até{" "}
+          <strong>
+            {maxOptions} {maxOptions === 1 ? "opção" : "opções"}
+          </strong>{" "}
+          ou <strong>1 botão de copiar código</strong>. Não é possível misturar
+          os dois tipos.
         </p>
       )}
 
@@ -3385,18 +3453,26 @@ function ButtonsField({
               </p>
             </>
           )}
+
+          <OptionChannelReach
+            option={{ id: btn.ID, title: btn.Title }}
+            index={i}
+            style={style}
+            channelLimits={channelLimits}
+          />
         </div>
       ))}
 
       {/* Limit / constraint hints */}
       {isFull && (
         <p className="text-[10px] text-muted-foreground italic">
-          Limite de 3 botões atingido
+          Limite de {maxOptions} opções atingido
         </p>
       )}
       {hasReply && !isFull && (
         <p className="text-[10px] text-muted-foreground">
-          {buttons.length}/3 botões · Clique acima para adicionar mais
+          {buttons.length}/{maxOptions} opções · Clique acima para adicionar
+          mais
         </p>
       )}
     </div>
@@ -3451,7 +3527,12 @@ function ListSectionsField({
     [onChange],
   );
 
-  const isFull = rows.length >= 10;
+  const { style, channelLimits } = useInteractiveReach();
+  // Telegram renders far more than WhatsApp's ten list rows, so the ceiling is
+  // the most permissive connected channel and the overflow is annotated instead
+  // of being unauthorable.
+  const maxOptions = authorableOptionCount(style, channelLimits, 10);
+  const isFull = rows.length >= maxOptions;
 
   const addRow = useCallback(() => {
     if (isFull) return;
@@ -3472,9 +3553,12 @@ function ListSectionsField({
 
   return (
     <div className="space-y-2.5">
-      <span className="text-xs font-medium text-foreground block">
-        Opções da lista
-      </span>
+      <div className="space-y-1.5">
+        <span className="text-xs font-medium text-foreground block">
+          Opções da lista
+        </span>
+        <ChannelReachLegend style={style} channelLimits={channelLimits} />
+      </div>
 
       {!isFull && (
         <button
@@ -3489,8 +3573,8 @@ function ListSectionsField({
 
       {rows.length === 0 && (
         <p className="text-[10px] text-muted-foreground leading-relaxed">
-          Adicione até <strong>10 opções</strong>. Cada opção vira uma saída do
-          nó, permitindo um caminho diferente por escolha.
+          Adicione até <strong>{maxOptions} opções</strong>. Cada opção vira uma
+          saída do nó, permitindo um caminho diferente por escolha.
         </p>
       )}
 
@@ -3532,17 +3616,25 @@ function ListSectionsField({
             placeholder="Texto secundário abaixo do título"
             controlSize="sm"
           />
+          <DescriptionReachNote channelLimits={channelLimits} />
+
+          <OptionChannelReach
+            option={{ id: row.id, title: row.title }}
+            index={i}
+            style={style}
+            channelLimits={channelLimits}
+          />
         </div>
       ))}
 
       {isFull && (
         <p className="text-[10px] text-muted-foreground italic">
-          Limite de 10 opções atingido
+          Limite de {maxOptions} opções atingido
         </p>
       )}
       {rows.length > 0 && !isFull && (
         <p className="text-[10px] text-muted-foreground">
-          {rows.length}/10 opções
+          {rows.length}/{maxOptions} opções
         </p>
       )}
     </div>

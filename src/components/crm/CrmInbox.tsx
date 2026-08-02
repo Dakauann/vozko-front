@@ -1,7 +1,12 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { InstagramLogoColor } from "@/components/icons/channel-logos";
+import { ChannelAvatar } from "@/components/channels/channel-avatar";
+import { ChannelLogo } from "@/components/icons/channel-logos";
+import {
+  FILTERABLE_MESSAGE_CHANNELS,
+  type MessageChannel,
+} from "@/lib/conversations/types";
 import {
   CalendarBlank,
   ChatCircleDots,
@@ -11,7 +16,6 @@ import {
   Phone,
   Tag as TagIcon,
   User,
-  WhatsappLogo,
   X,
 } from "@phosphor-icons/react";
 import type {
@@ -153,7 +157,7 @@ const RESPONSIBLE_UNASSIGNED = "__unassigned__";
 interface FilterState {
   stageId: string;
   stageName: string;
-  channel: "" | "voice" | "whatsapp" | "instagram";
+  channel: "" | MessageChannel;
   dateFrom: string;
   dateTo: string;
   windowOpen: "" | "true" | "false";
@@ -164,6 +168,14 @@ interface FilterState {
   // "" = Todos, RESPONSIBLE_UNASSIGNED = Sem responsável, else a member id.
   responsibleUserId: string;
 }
+
+/** Display label per filterable channel. Brand names are not translated. */
+const CHANNEL_FILTER_LABELS: Record<MessageChannel, string> = {
+  whatsapp: "WhatsApp",
+  instagram: "Instagram",
+  telegram: "Telegram",
+  voice: "Voz",
+};
 
 const EMPTY_FILTERS: FilterState = {
   stageId: "",
@@ -327,7 +339,7 @@ export default function CrmInbox({
       if (filters.stageId) payload.stage_id = filters.stageId;
       else if (filters.stageName) payload.stage_name = filters.stageName;
       if (filters.channel)
-        payload.channel = filters.channel as "voice" | "whatsapp" | "instagram";
+        payload.channel = filters.channel;
       if (filters.dateFrom)
         payload.date_from = new Date(filters.dateFrom).toISOString();
       if (filters.dateTo) {
@@ -810,11 +822,14 @@ export default function CrmInbox({
                     className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-[11px] text-foreground outline-none focus:border-emerald-300 focus:ring-1 focus:ring-emerald-100"
                   >
                     <option value="">Todos</option>
-                    <option value="whatsapp">WhatsApp</option>
-                    <option value="instagram">Instagram</option>
-                    {campaignType !== "whatsapp" && (
-                      <option value="voice">Voz</option>
-                    )}
+                    {FILTERABLE_MESSAGE_CHANNELS.filter(
+                      // Voice is meaningless inside a WhatsApp campaign.
+                      (c) => c !== "voice" || campaignType !== "whatsapp",
+                    ).map((c) => (
+                      <option key={c} value={c}>
+                        {CHANNEL_FILTER_LABELS[c]}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -1055,17 +1070,15 @@ export default function CrmInbox({
                         <span className="text-[9px] text-muted-foreground tabular-nums flex-shrink-0">
                           {formatMatchTime(match.created_at)}
                         </span>
-                        {match.channel === "whatsapp" ? (
-                          <WhatsappLogo
-                            weight="fill"
-                            className="h-2.5 w-2.5 text-emerald-400/60 flex-shrink-0"
-                          />
-                        ) : match.channel === "instagram" ? (
-                          <InstagramLogoColor className="h-2.5 w-2.5 flex-shrink-0" />
-                        ) : (
+                        {match.channel === "voice" ? (
                           <Phone
                             weight="fill"
-                            className="h-2.5 w-2.5 text-blue-400/60 flex-shrink-0"
+                            className="h-2.5 w-2.5 flex-shrink-0 text-blue-400/60"
+                          />
+                        ) : (
+                          <ChannelLogo
+                            channel={match.channel}
+                            className="h-2.5 w-2.5 flex-shrink-0"
                           />
                         )}
                       </div>
@@ -1131,8 +1144,6 @@ export default function CrmInbox({
                 entry.close_reason,
               );
               const hasUnread = entry.unread_count > 0;
-              const isWhatsApp = entry.entry_type === "whatsapp";
-              const isInstagram = entry.entry_type === "instagram";
 
               return (
                 <motion.div
@@ -1189,33 +1200,25 @@ export default function CrmInbox({
                     }}
                     className="group flex w-full items-start gap-3 px-4 py-3 text-left relative cursor-pointer"
                   >
-                    {/* Avatar */}
+                    {/* Avatar. The person owns the circle and the channel is a
+                        badge on it — previously the channel glyph REPLACED the
+                        person, so a mixed inbox showed which network every row
+                        came from and who none of them were.
+
+                        The reply-window dot moves to the top: bottom-right is
+                        where a channel mark is conventionally read, and the two
+                        would otherwise sit on top of each other. */}
                     <div className="relative flex-shrink-0">
-                      {/* The channel is the first thing an operator needs from a
-                          mixed inbox — which account will this reply leave from —
-                          so it carries the avatar rather than a corner badge. */}
-                      <div
-                        className={cn(
-                          "flex h-10 w-10 items-center justify-center rounded-full text-white text-sm font-bold",
-                          isWhatsApp
-                            ? "bg-emerald-500"
-                            : isInstagram
-                              ? "bg-fuchsia-500/10"
-                              : "bg-blue-500",
-                        )}
-                      >
-                        {isWhatsApp ? (
-                          <WhatsappLogo weight="fill" className="h-5 w-5" />
-                        ) : isInstagram ? (
-                          <InstagramLogoColor className="h-5 w-5" />
-                        ) : (
-                          <span>
-                            {entry.lead_name?.[0]?.toUpperCase() || "?"}
-                          </span>
-                        )}
-                      </div>
+                      <ChannelAvatar
+                        name={entry.lead_name || entry.lead_number}
+                        pictureUrl={entry.lead_picture}
+                        entryType={entry.entry_type}
+                        size="md"
+                      />
                       {entry.window_open && (
-                        <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card bg-emerald-500" />
+                        <span
+                          className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-card bg-emerald-500"
+                        />
                       )}
                     </div>
 

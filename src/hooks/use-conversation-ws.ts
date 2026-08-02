@@ -9,6 +9,7 @@ import type {
   EntryType,
   InboxEntry,
   MediaType,
+  MessageChannel,
   ViewMode,
   WhatsAppCampaignTypeFilter,
   WsAnalysisUpdatePayload,
@@ -437,7 +438,7 @@ export function useConversationWs({
         entry_id: (msg.entry_id as string) ?? (msg.entryId as string) ?? "",
         entry_type:
           (msg.entry_type as EntryType) ?? (msg.entryType as EntryType),
-        channel: (msg.channel as "voice" | "whatsapp" | "instagram") ?? "whatsapp",
+        channel: (msg.channel as MessageChannel) ?? "whatsapp",
         message_type:
           (msg.message_type as string) ??
           (msg.messageType as string) ??

@@ -69,6 +69,11 @@ interface CrmMessageInputProps {
     placeholder: string;
     windowClosed: string;
     windowClosedDescription: string;
+    // Shown when the send is blocked WITHOUT a clock — the contact blocked the
+    // bot, or a business connection lost its reply right. Nothing reopens on
+    // its own, so telling the operator to "wait for the contact to write" would
+    // be advice that never works.
+    windowClosedNoClock?: string;
     sendButton: string;
     attachFile: string;
     recording: string;
@@ -593,7 +598,14 @@ export default function CrmMessageInput({
                 {t.windowClosed}
               </p>
               <p className="truncate text-[10px] text-muted-foreground">
-                {t.windowClosedDescription}
+                {/* An expiry means a clock that reopens on its own; its absence
+                    means a structural block. The backend distinguishes them
+                    deliberately (nil expiry == "not a clock") and showing the
+                    24h copy for a blocked contact sends the operator waiting
+                    for something that will never happen. */}
+                {windowExpiresAt || !t.windowClosedNoClock
+                  ? t.windowClosedDescription
+                  : t.windowClosedNoClock}
               </p>
             </div>
           </div>

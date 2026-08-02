@@ -26,6 +26,7 @@ import {
   PhoneCall,
   Robot,
   InstagramLogo,
+  TelegramLogo,
   WhatsappLogo,
 } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -91,6 +92,7 @@ import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types
 import AssignMemberPicker from "@/components/crm/AssignMemberPicker";
 import { updateWhatsAppCampaignEntryAction } from "@/app/actions/whatsapp-campaigns";
 import { toast } from "sonner";
+import { ChannelAvatar } from "@/components/channels/channel-avatar";
 import { cn } from "@/lib/utils";
 import { useCrmNotifications } from "@/hooks/use-crm-notifications";
 import { useCrm } from "@/contexts/crm-context";
@@ -151,6 +153,7 @@ export interface CrmTranslations {
     placeholder: string;
     windowClosed: string;
     windowClosedDescription: string;
+    windowClosedNoClock?: string;
     sendButton: string;
     attachFile: string;
     recording: string;
@@ -175,6 +178,11 @@ export interface CrmTranslations {
 interface CrmLayoutProps {
   campaignId?: string;
   campaignType?: CampaignType;
+  /**
+   * Narrows the inbox to one channel, for channels that have no campaigns of
+   * their own. Undefined means "every channel".
+   */
+  channelFilter?: EntryType;
   whatsappCampaignType?: WhatsAppCampaignTypeFilter;
   enabled?: boolean;
   embedded?: boolean;
@@ -198,6 +206,27 @@ function coerceGroupBy(value: string): CrmGroupBy {
 // Cards fetched per column page. Matches CrmFunnelView's hard-coded onLoadMore
 // page size so the board's first page and its "load more" pages stay aligned.
 const BOARD_PAGE_SIZE = 20;
+
+/**
+ * Channel badge for the conversation header.
+ *
+ * An operator working several inboxes has to be able to tell at a glance where a
+ * reply will be sent. This is a registry rather than a chain of ternaries so a
+ * new channel is one entry and never silently falls through to the phone icon,
+ * which is what "unknown" looks like here.
+ */
+const CHANNEL_BADGES: Record<
+  string,
+  { className: string; Icon: typeof WhatsappLogo }
+> = {
+  whatsapp: { className: "bg-emerald-500", Icon: WhatsappLogo },
+  instagram: {
+    className: "bg-gradient-to-br from-fuchsia-500 to-amber-500",
+    Icon: InstagramLogo,
+  },
+  // Telegram blue, the brand's own #229ED9 rather than the nearest Tailwind sky.
+  telegram: { className: "bg-[#229ED9]", Icon: TelegramLogo },
+};
 
 // The predicate that isolates one board column, mirroring the backend
 // crmboard.withPredicate: stage/label/owner columns append an `in` predicate, the
@@ -226,6 +255,7 @@ function withColumnPredicate(base: CrmFilter, p: CrmFilterPredicate | null): Crm
 export default function CrmLayout({
   campaignId = "",
   campaignType,
+  channelFilter,
   whatsappCampaignType,
   enabled = true,
   embedded = false,
@@ -862,11 +892,19 @@ export default function CrmLayout({
 
 
   const filteredInbox = useMemo(() => {
-    if (filterStageIds.length === 0) return inbox;
-    return inbox.filter((entry) => {
+    let list = inbox;
+    // Channels without campaigns (Instagram, Telegram) are selected by CHANNEL
+    // rather than by campaign type, so the toolbar's choice narrows the list
+    // here. WhatsApp and voice keep flowing through campaignType, which also
+    // drives the campaign sub-filters.
+    if (channelFilter) {
+      list = list.filter((entry) => entry.entry_type === channelFilter);
+    }
+    if (filterStageIds.length === 0) return list;
+    return list.filter((entry) => {
       return entry.stage && filterStageIds.includes(entry.stage.stage_id);
     });
-  }, [inbox, filterStageIds]);
+  }, [inbox, filterStageIds, channelFilter]);
 
 
   const handleSelect = useCallback(
@@ -1351,26 +1389,17 @@ export default function CrmLayout({
         <CaretLeft weight="bold" className="h-4 w-4 text-muted-foreground" />
       </button>
 
-      {/* Avatar — the channel the conversation arrived on, so an operator working
-          several inboxes can tell at a glance where a reply will be sent. */}
-      <div
-        className={cn(
-          "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white",
-          activeConversation.entry_type === "whatsapp"
-            ? "bg-emerald-500"
-            : activeConversation.entry_type === "instagram"
-              ? "bg-gradient-to-br from-fuchsia-500 to-amber-500"
-              : "bg-blue-500",
-        )}
-      >
-        {activeConversation.entry_type === "whatsapp" ? (
-          <WhatsappLogo weight="fill" className="h-5 w-5" />
-        ) : activeConversation.entry_type === "instagram" ? (
-          <InstagramLogo weight="fill" className="h-5 w-5" />
-        ) : (
-          <Phone weight="fill" className="h-5 w-5" />
-        )}
-      </div>
+      {/* Avatar. The same rule the inbox and the board follow: the PERSON owns
+          the circle — their photo, or their initial — and the channel rides as a
+          badge. This header used to show the channel glyph alone, so the one
+          place an operator is actually talking to someone was the one place
+          that never showed who. */}
+      <ChannelAvatar
+        name={activeConversation.lead_name || activeConversation.lead_number}
+        pictureUrl={currentInboxEntry?.lead_picture}
+        entryType={activeConversation.entry_type}
+        size="md"
+      />
 
       {/* Info — grows to use free space */}
       <div className="min-w-0 flex-1 basis-[10rem]">

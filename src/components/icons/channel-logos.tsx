@@ -74,11 +74,45 @@ export function WhatsAppLogoColor({ className }: IconProps) {
 }
 
 /**
+ * Telegram's official mark.
+ *
+ * The brand is a circle in Telegram blue (#26A5E4) with a white paper plane, so
+ * unlike WhatsApp's single-colour glyph the circle is drawn explicitly — a
+ * currentColor-tinted Phosphor glyph reads as a generic send arrow rather than
+ * as Telegram.
+ */
+export function TelegramLogoColor({ className }: IconProps) {
+  const gradientId = useId();
+
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      role="img"
+      aria-hidden="true"
+      focusable="false"
+      className={cn("h-4 w-4", className)}
+    >
+      <defs>
+        <linearGradient id={gradientId} x1="50%" y1="0%" x2="50%" y2="100%">
+          <stop offset="0%" stopColor="#2AABEE" />
+          <stop offset="100%" stopColor="#229ED9" />
+        </linearGradient>
+      </defs>
+      <circle cx="12" cy="12" r="12" fill={`url(#${gradientId})`} />
+      <path
+        fill="#FFFFFF"
+        d="M5.491 11.874c3.5-1.525 5.834-2.53 7.001-3.017 3.334-1.386 4.027-1.627 4.479-1.635.099-.002.321.023.465.14.121.099.155.232.171.325.016.093.036.306.02.472-.181 1.9-.964 6.512-1.362 8.641-.169.901-.501 1.203-.822 1.233-.698.064-1.228-.462-1.904-.905-1.058-.693-1.655-1.125-2.682-1.801-1.187-.782-.418-1.211.259-1.913.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.139-5.062 3.345-.479.329-.913.489-1.302.481-.428-.009-1.253-.242-1.865-.441-.751-.244-1.349-.374-1.297-.789.027-.216.325-.437.894-.663z"
+      />
+    </svg>
+  );
+}
+
+/**
  * The mark for a conversation's channel.
  *
  * Kept as one lookup so every surface that shows a channel — the CRM inbox, the
- * conversation header, search results — stays consistent, and so adding Telegram
- * later is a single edit rather than a hunt through switch statements.
+ * conversation header, search results — stays consistent. Adding a channel is one
+ * case here rather than a hunt through switch statements.
  */
 export function ChannelLogo({
   channel,
@@ -92,6 +126,8 @@ export function ChannelLogo({
       return <InstagramLogoColor className={className} />;
     case "whatsapp":
       return <WhatsAppLogoColor className={className} />;
+    case "telegram":
+      return <TelegramLogoColor className={className} />;
     default:
       return null;
   }
