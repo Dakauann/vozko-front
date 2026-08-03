@@ -29,7 +29,7 @@ interface ReleasePhoneDialogProps {
   phoneId: string;
   /** Display number used for the typed confirmation guard. */
   phoneNumber: string;
-  /** WABA id — the confirmation fallback when a failed/unsynced number has no
+  /** WABA id, the confirmation fallback when a failed/unsynced number has no
    *  display number, so the phone can still be removed. */
   wabaId?: string;
   /** Friendly label shown in the warning copy. */
@@ -66,7 +66,7 @@ export function ReleasePhoneDialog({
   const [result, setResult] = useState<ReleaseResult | null>(null);
 
   // Confirm against the display number, or the WABA id when a failed/unsynced number
-  // has none — otherwise the button could never enable and the phone never removed.
+  // has none, otherwise the button could never enable and the phone never removed.
   const confirmTarget = (phoneNumber?.trim() || wabaId?.trim()) ?? "";
   const targetDigits = onlyDigits(confirmTarget);
   const confirmed =

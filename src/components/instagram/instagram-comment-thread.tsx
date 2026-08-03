@@ -27,7 +27,7 @@ interface Props {
    * Instagram's comments_count counts EVERY comment, while the comments edge
    * returns only top-level ones and additionally omits commenters whose accounts
    * are private or restricted. So "2 comments" with nothing listed is a real,
-   * expected state — but a bare "no comments" message makes it look broken, so the
+   * expected state, but a bare "no comments" message makes it look broken, so the
    * mismatch is named explicitly instead.
    */
   totalCount?: number;
@@ -63,7 +63,7 @@ export function InstagramCommentThread({
 
   if (comments.length === 0) {
     // A non-zero count with nothing to show is expected often enough that it needs
-    // its own explanation — otherwise it reads as a broken page.
+    // its own explanation, otherwise it reads as a broken page.
     const hidden = (totalCount ?? 0) > 0;
     return (
       <div className="flex flex-col items-center gap-2 p-6 text-center">
@@ -130,7 +130,7 @@ function CommentRow({
   /**
    * A private reply is only possible within 7 days of the comment, and only once.
    * Checking the age here keeps the button from offering an action that would be
-   * rejected — and, more importantly, from burning the single allowance on a
+   * rejected, and, more importantly, from burning the single allowance on a
    * request that cannot succeed.
    *
    * The clock is read once per mount rather than during render: reading it on every

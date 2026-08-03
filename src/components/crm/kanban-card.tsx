@@ -33,7 +33,7 @@ export const kanbanCardHover = {
 // of the column, scales up, wobble-settles, and casts a deep shadow while the
 // source position holds a dashed ghost. Lifted from the original conversation
 // funnel and single-sourced HERE so the deal board's drag is pixel-for-pixel the
-// same gesture — never the browser's native HTML5 drag. Both the funnel overlay
+// same gesture, never the browser's native HTML5 drag. Both the funnel overlay
 // and the deal-board overlay render these exact values.
 
 export const kanbanDragOverlayInitial: TargetAndTransition = {
@@ -65,7 +65,7 @@ export const kanbanCardGhostClass =
 // two genuinely different objects (a chat has unread/last-message; a deal has
 // value/close-date), so they keep their own card BODIES. But they must read as
 // ONE system, so the building blocks live here and both cards are assembled from
-// the same lego: the accent tile (DESIGN.md §5 — solid opaque fill + white
+// the same lego: the accent tile (DESIGN.md §5, solid opaque fill + white
 // glyph, never a faded same-colour wash), the white-on-colour meta pill, and the
 // label chip. Change the grammar here and both surfaces move together.
 
@@ -138,7 +138,7 @@ export function KanbanCardHeader({
 }
 
 // --- KanbanCard --------------------------------------------------------------
-// THE card. Both boards render this exact component — the conversation funnel and
+// THE card. Both boards render this exact component, the conversation funnel and
 // the deal board are no longer two card implementations, only two data sources
 // filling the same slots. A chat puts its message preview in `body` and its
 // labels in `chips`; a deal puts its value in `body` and its custom fields in

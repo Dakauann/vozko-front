@@ -134,7 +134,7 @@ export default function TelegramAccountsPage() {
     [toast, t, fetchAccounts, page, search],
   );
 
-  // Counted over the current page — an at-a-glance read of what is on screen,
+  // Counted over the current page, an at-a-glance read of what is on screen,
   // not a workspace-wide total.
   const activeCount = accounts.filter(
     (a) => a.status === "ACTIVE" && a.webhookHealthy,
@@ -177,7 +177,7 @@ export default function TelegramAccountsPage() {
               {/* The two failure modes need different remedies, so they get
                   different copy rather than one generic "unhealthy" line. A dead
                   token needs a new token from BotFather; a failing webhook needs
-                  one button — and is losing messages until it is pressed. */}
+                  one button, and is losing messages until it is pressed. */}
               {issue === "webhook" && (
                 <span
                   className="flex max-w-[320px] items-start gap-1 text-xs text-orange-700 dark:text-orange-400"
@@ -472,7 +472,7 @@ function Stat({ label, value }: { label: string; value: string | number }) {
 
 function Chip({ label, tone }: { label: string; tone: "emerald" | "sky" }) {
   const tones = {
-    // Solid tone, white ink — the CardPill rule. A tinted fill under same-hue
+    // Solid tone, white ink, the CardPill rule. A tinted fill under same-hue
     // ink washes out, and these chips sit on both card and muted surfaces.
     emerald: "bg-emerald-600 text-white",
     sky: "bg-sky-600 text-white",

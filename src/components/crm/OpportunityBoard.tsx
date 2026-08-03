@@ -78,7 +78,7 @@ export default function OpportunityBoard({
 }: OpportunityBoardProps) {
   const t = useTranslations("crmBoard");
   const [columns, setColumns] = useState<OpportunityColumn[]>([]);
-  // Deals whose stage move is in flight — the card shows an in-place spinner (in
+  // Deals whose stage move is in flight, the card shows an in-place spinner (in
   // the slot the overflow icon already reserves, so no layout shift) instead of a
   // toast, and we clear it once the server confirms/reverts.
   const [movingIds, setMovingIds] = useState<Set<string>>(new Set());
@@ -399,7 +399,7 @@ export default function OpportunityBoard({
 }
 
 // Status tints the tile + value so won/lost read instantly, WITHOUT a heavy
-// glyph — the tile carries the deal's initial, exactly like the funnel card
+// glyph, the tile carries the deal's initial, exactly like the funnel card
 // carries the lead's initial, so the two boards use one card language.
 const STATUS_TILE: Record<string, string | undefined> = {
   open: undefined, // Signal Blue accent (CardTile default)
@@ -446,7 +446,7 @@ function DealCard({
       aria-busy={isMoving}
       className={kanbanCardClass({ won, lost }, isMoving ? "opacity-70" : undefined)}
     >
-      {/* THE shared card — same component the conversation funnel renders. The deal
+      {/* THE shared card, same component the conversation funnel renders. The deal
           fills the slots with its own data: value in `body`, custom fields in `chips`. */}
       <KanbanCard
         tile={

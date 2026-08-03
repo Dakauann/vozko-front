@@ -454,7 +454,7 @@
   "hero": {
     "badge": "{brandName} · Agentes de IA",
     "title": "Agentes de IA que atendem, vendem e resolvem em todos os canais.",
-    "description": "Automatize vendas, cobranças e atendimento com agentes de IA em todos os canais — WhatsApp, chat, SMS e e-mail — com IA conversacional e automação numa única plataforma.",
+    "description": "Automatize vendas, cobranças e atendimento com agentes de IA em todos os canais: WhatsApp, chat, SMS e e-mail, com IA conversacional e automação numa única plataforma.",
     "cta": {
       "primary": "Começar agora",
       "secondary": "Ver demonstração"
@@ -4273,7 +4273,7 @@
       "title": "Desvincular do workspace",
       "description": "Devolver {name} ao pool de números não atribuídos.",
       "note": "O número volta ao pool e pode ser atribuído a outro workspace. A conexão e os dados no Meta são preservados, nada é excluído.",
-      "noteDialog360": "Este é um número 360dialog: devolvê-lo ao pool CANCELA o canal no 360dialog (a cobrança mensal para) e limpa o vínculo com o workspace. O número é descomissionado — não fica disponível para outro workspace.",
+      "noteDialog360": "Este é um número 360dialog: devolvê-lo ao pool CANCELA o canal no 360dialog (a cobrança mensal para) e limpa o vínculo com o workspace. O número é descomissionado: não fica disponível para outro workspace.",
       "menuHint": "Devolve ao pool · reversível",
       "menuHintDialog360": "Cancela o canal · para a cobrança",
       "loading": "Desvinculando...",
@@ -4389,7 +4389,11 @@
         "toastTitle": "Falha na conexão",
         "toastDescription": "Não foi possível conectar seu número do WhatsApp Business. Tente novamente."
       },
-      "footer": "Seus dados estão protegidos. A autorização é realizada inteiramente pela Meta através de um fluxo OAuth seguro."
+      "footer": "Seus dados estão protegidos. A autorização é realizada inteiramente pela Meta através de um fluxo OAuth seguro.",
+      "actionTitle": "Conecte com a Meta",
+      "noWorkspace": "Selecione um workspace antes de conectar o WhatsApp Business.",
+      "detailPhoneId": "Phone ID",
+      "detailWabaId": "WABA ID"
     }
   },
   "branchesPage": {
@@ -9852,7 +9856,7 @@
         "ongoingHint": "Conversas engajadas com o time agora",
         "pending": "Conversas aguardando",
         "pendingShort": "Sem resposta ainda",
-        "pendingHint": "Conversas engajadas ainda aguardando (status nova/vazia) — não são shells de campanha",
+        "pendingHint": "Conversas engajadas ainda aguardando (status nova/vazia), não são shells de campanha",
         "unassigned": "Conversas sem atendente",
         "unassignedShort": "Precisam de alguém",
         "unassignedHint": "Conversas engajadas abertas sem responsável (só com mensagens)",
@@ -9870,7 +9874,7 @@
         "frtHint": "Do momento em que alguém assume até a primeira resposta",
         "shellLabel": "Shells de campanha",
         "shellShort": "entradas sem nenhuma mensagem",
-        "shellHint": "Criadas em massa por campanha/API sem mensagens. Não são chats reais — fora dos KPIs principais.",
+        "shellHint": "Criadas em massa por campanha/API sem mensagens. Não são chats reais, fora dos KPIs principais.",
         "shellOfScoped": "{shells} de {total} entradas do período",
         "entriesCreated": "{count} entradas criadas no período"
       },
@@ -9939,7 +9943,7 @@
         "resolution": "% resolvidas (equipe)",
         "resolutionDesc": "Conversas resolvidas ÷ (abertas + pendentes + resolvidas) por pessoa",
         "engaged": "Engajada",
-        "engagedDesc": "Entradas com pelo menos uma mensagem — conversas reais dos KPIs",
+        "engagedDesc": "Entradas com pelo menos uma mensagem, conversas reais dos KPIs",
         "shell": "Shell",
         "shellDesc": "Entradas de campanha sem mensagens; exibidas à parte, não como chat sem resposta"
       },
@@ -10022,7 +10026,7 @@
         "channelTotalConversations": "Conversas engajadas no recorte",
         "ofPeriodConversations": "das conversas engajadas",
         "shellChip": "{count} shells (sem mensagens)",
-        "shellChipHint": "Entradas de campanha sem mensagens — não contam como atendimento",
+        "shellChipHint": "Entradas de campanha sem mensagens, não contam como atendimento",
         "avgIncludingShells": "Incluindo shells: {avg} msgs/entrada",
         "finishedEventsTelemetry": "{count} eventos de conclusão (telemetria; pode incluir shells antigos)"
       }
@@ -10408,7 +10412,10 @@
         "step1": "Clique em conectar. Uma janela segura do Instagram é aberta.",
         "step2": "Entre com o Instagram e aprove as permissões.",
         "step3": "Você volta para cá e a conta já pode receber mensagens."
-      }
+      },
+      "resultBody": "As mensagens diretas dessa conta já chegam no seu inbox.",
+      "actionTitle": "Conecte a conta",
+      "detailAccount": "Conta"
     },
     "table": {
       "account": "Conta",
@@ -10465,7 +10472,7 @@
       "subtitlePost": "Regras que valem para esta publicação.",
       "new": "Nova regra",
       "emptyTitle": "Nenhuma regra ainda",
-      "emptyBody": "Responda comentários automaticamente e chame a pessoa no direct — a conversa abre no inbox e seu agente assume a partir daí.",
+      "emptyBody": "Responda comentários automaticamente e chame a pessoa no direct: a conversa abre no inbox e seu agente assume a partir daí.",
       "emptyCta": "Criar primeira regra",
       "scopePost": "Esta publicação",
       "scopeAccount": "Todas as publicações",
@@ -10527,13 +10534,13 @@
       "videoHint": "URL pública do vídeo (MP4/MOV).",
       "caption": "Legenda",
       "captionPlaceholder": "Escreva a legenda...",
-      "captionImmutable": "A legenda não pode ser editada depois de publicar — o Instagram não oferece esse recurso.",
+      "captionImmutable": "A legenda não pode ser editada depois de publicar: o Instagram não oferece esse recurso.",
       "ruleTitle": "Automação de comentários",
       "ruleHint": "Responda quem comentar e chame no direct automaticamente.",
       "ruleName": "Automação da publicação",
       "publish": "Publicar",
       "publishing": "Publicando...",
-      "publishingHint": "O Instagram processa a mídia — pode levar alguns segundos.",
+      "publishingHint": "O Instagram processa a mídia: pode levar alguns segundos.",
       "quotaHint": "Limite: 100 publicações por 24h.",
       "publishFailed": "Não foi possível publicar. Verifique a URL e tente novamente.",
       "publishedButRuleFailed": "A publicação foi criada, mas a automação não pôde ser salva: {error}. Crie a regra pelo painel de automação.",
@@ -10592,7 +10599,7 @@
       "disconnect": "Desconectar",
       "reregister": "Reconectar webhook",
       "webhookFailing": "O Telegram não está conseguindo entregar mensagens para esta conta.",
-      "webhookBacklog": "{count} atualizações represadas — o Telegram as descarta após 24 horas.",
+      "webhookBacklog": "{count} atualizações represadas: o Telegram as descarta após 24 horas.",
       "tokenInvalid": "O token foi revogado no BotFather. Conecte novamente com um token novo."
     },
     "notice": {
@@ -10610,18 +10617,33 @@
       "description": "Cole o token que o BotFather gerou. Não há autorização, análise de app nem cadastro: o bot fica ativo imediatamente.",
       "back": "Voltar",
       "tokenTitle": "Cole o token e conecte",
-      "tokenHelp": "O token tem o formato 123456789:AA… . Ele é guardado criptografado e nunca é exibido novamente.",
+      "tokenHelp": "O token tem o formato 123456789:AA…. Ele é guardado criptografado e nunca é exibido novamente.",
       "tokenLabel": "Token",
       "tokenMalformed": "Isso não parece um token do BotFather. O formato é <id>:<segredo>.",
       "submit": "Conectar",
       "connecting": "Conectando...",
       "successTitle": "Bot conectado",
       "errorTitle": "Não foi possível conectar",
+      "stepsTitle": "Como funciona?",
       "step1": "No Telegram, abra uma conversa com @BotFather e envie:",
       "step2": "Escolha um nome e um usuário para o bot (o usuário precisa terminar em \"bot\").",
-      "step3": "O BotFather responde com o token de acesso — copie a linha inteira.",
+      "step3": "O BotFather responde com o token de acesso: copie a linha inteira.",
       "heroNote": "Sem análise de aplicativo, sem verificação de empresa, sem espera: o bot começa a receber mensagens assim que você conectar.",
-      "asideTitle": "Como funciona"
+      "asideTitle": "Como funciona",
+      "resultBody": "As mensagens enviadas ao bot já chegam no seu inbox.",
+      "viewBots": "Ver bots",
+      "actionTitle": "Cole o token e conecte",
+      "facts": {
+        "secure": {
+          "title": "Token criptografado",
+          "description": "Guardado criptografado e nunca exibido de novo. Você pode revogá-lo no BotFather quando quiser."
+        },
+        "inbox": {
+          "title": "No mesmo inbox",
+          "description": "As conversas do Telegram chegam junto com as de WhatsApp e Instagram, com os mesmos agentes."
+        }
+      },
+      "detailBot": "Bot"
     },
     "profile": {
       "description": "Situação do webhook e links de atribuição desta conta.",
@@ -10638,7 +10660,7 @@
     },
     "links": {
       "title": "Links de atribuição",
-      "help": "Um bot não pode iniciar conversas. Um link t.me abre uma conversa já atribuída no primeiro toque do cliente — use em e-mails, boletos ou QR codes.",
+      "help": "Um bot não pode iniciar conversas. Um link t.me abre uma conversa já atribuída no primeiro toque do cliente: use em e-mails, boletos ou QR codes.",
       "labelField": "Identificação do link",
       "create": "Gerar link",
       "createFailed": "Não foi possível gerar o link",
@@ -10661,7 +10683,7 @@
       "saving": "Salvando...",
       "saved": "Salvo",
       "saveFailed": "Não foi possível salvar. Tente novamente.",
-      "activeNote": "Novas mensagens serão respondidas por este agente. No modo Bot não há janela de 24 horas — o agente pode responder a qualquer momento, desde que o contato não tenha bloqueado. No modo Conta Business, o Telegram só permite responder até 24 horas após a última mensagem do contato.",
+      "activeNote": "Novas mensagens serão respondidas por este agente. No modo Bot não há janela de 24 horas: o agente pode responder a qualquer momento, desde que o contato não tenha bloqueado. No modo Conta Business, o Telegram só permite responder até 24 horas após a última mensagem do contato.",
       "agentSearch": "Buscar agente...",
       "agentEmpty": "Nenhum agente encontrado.",
       "agentInactive": "Inativo",
@@ -10680,17 +10702,26 @@
     },
     "business": {
       "title": "Conta Business (opcional)",
-      "description": "Conecte este bot à sua conta pessoal do Telegram para atender com o seu próprio nome e foto. O contato não vê um bot — vê você.",
+      "description": "Conecte este bot à sua conta pessoal do Telegram para atender com o seu próprio nome e foto. O contato não vê um bot, vê você.",
       "step1": "A conta precisa ter Telegram Premium.",
       "step2": "No app, abra Ajustes → Telegram Business → Chatbots.",
       "step3": "Informe o usuário deste bot:",
       "step4": "Conceda a permissão \"Responder mensagens\". Sem ela, nada é enviado.",
-      "tradeoff": "No modo Bot não há limite de tempo para responder. No modo Conta Business, o Telegram só permite responder até 24 horas após a última mensagem do contato — depois disso a automação fica em silêncio até ele escrever de novo.",
+      "tradeoff": "No modo Bot não há limite de tempo para responder. No modo Conta Business, o Telegram só permite responder até 24 horas após a última mensagem do contato: depois disso a automação fica em silêncio até ele escrever de novo.",
       "paired": "Conectado a uma conta pessoal. As respostas saem com o nome e a foto dela.",
       "pairedTo": "Conectado a {username}. As respostas saem com o nome e a foto dessa conta.",
       "noReplyRight": "A permissão \"Responder mensagens\" não foi concedida. A conexão aparece ativa, mas nenhuma resposta é enviada. Conceda a permissão no app, em Ajustes → Telegram Business → Chatbots.",
       "disabled": "A conexão foi desativada no app do Telegram. Reative em Ajustes → Telegram Business → Chatbots.",
       "windowNote": "Neste modo o Telegram só permite responder até 24 horas após a última mensagem do contato."
+    }
+  },
+  "channels": {
+    "connect": {
+      "opensWindow": "Uma janela segura vai abrir. Volte para esta página quando terminar.",
+      "goToInbox": "Ir para o inbox",
+      "tryAgain": "Tentar de novo",
+      "whatYouGet": "O que você ganha",
+      "beforeYouStart": "Antes de começar"
     }
   }
 }

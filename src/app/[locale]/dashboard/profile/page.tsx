@@ -645,7 +645,7 @@ export default function ProfilePage() {
         </ElevatedContainer>
       </motion.div>
 
-      {/* Document (CPF/CNPJ) — required for billing */}
+      {/* Document (CPF/CNPJ), required for billing */}
       <motion.div variants={itemVariants}>
         <ElevatedContainer className="border border-border/70 bg-card p-6">
           <div className="flex items-center gap-3 mb-5">

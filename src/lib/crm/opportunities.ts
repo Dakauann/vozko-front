@@ -29,7 +29,7 @@ export interface Opportunity {
     updatedAt: string;
 }
 
-// One board column. `entries` is null (Go nil slice) for an empty column — always
+// One board column. `entries` is null (Go nil slice) for an empty column, always
 // coalesce before iterating.
 export interface OpportunityColumn {
     id: string;

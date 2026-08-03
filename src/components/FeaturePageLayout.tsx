@@ -16,8 +16,8 @@ import { featureConfigs, type FeaturePageKey } from "@/data/feature-overview";
 
 // A variant swaps the feature overview for a specific sub-route. `match` is
 // tested as a substring of the current pathname (locale-prefix agnostic); the
-// longest match wins. This lets one shared layout show route-appropriate content
-//, e.g. receptive/organic sub-routes get their own overview instead of the
+// longest match wins. This lets one shared layout show route-appropriate content,
+// e.g. receptive/organic sub-routes get their own overview instead of the
 // outbound parent's.
 interface FeaturePageVariant {
   match: string;

@@ -59,8 +59,12 @@ const variantClasses: Record<BaseVariant, string> = {
     "bg-primary text-primary-foreground hover:bg-[hsl(var(--primary-hover))] active:bg-[hsl(var(--primary-active))]",
   secondary:
     "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/90",
+  // Hover inverts to the solid tone rather than washing the same hue behind the
+  // same-hue label. `hover:bg-primary/10` put #D63D00 ink on a #FBEBE6 tint of
+  // itself at 4.02:1, under the 4.5:1 floor for this size, and it is the one
+  // colour move this product bans. `group` so the icon can flip with it.
   outline:
-    "border border-primary/40 bg-transparent text-primary shadow-sm hover:bg-primary/10",
+    "group border border-primary/40 bg-transparent text-primary shadow-sm hover:border-primary hover:bg-primary hover:text-primary-foreground",
   "outline-subtle":
     "border-2 border-border bg-transparent text-foreground hover:border-foreground/20 hover:bg-muted",
   ghost: "bg-transparent text-[var(--text-primary)] hover:bg-black/5",
@@ -87,6 +91,8 @@ function resolveIconColorClass(variant: BaseVariant) {
     case "outline-subtle":
       return "text-foreground";
     case "outline":
+      // Flips with the fill, or it would sit primary-on-primary on hover.
+      return "text-primary group-hover:text-primary-foreground";
     case "ghost":
     default:
       return "text-primary";

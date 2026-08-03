@@ -28,7 +28,7 @@ export type TelegramAccountStatus =
  * These are not variants of one flow. In BOT mode customers message
  * `@yourcompany_bot` and there is no messaging window at all. In BUSINESS mode a
  * bot answers inside the owner's real Telegram account, and a 24h reply window
- * comes back — along with rights the owner can revoke at any moment.
+ * comes back, along with rights the owner can revoke at any moment.
  */
 export type TelegramMode = 'BOT' | 'BUSINESS';
 
@@ -50,7 +50,7 @@ export interface TelegramAccount {
     departmentId?: string | null;
     mode: TelegramMode;
 
-    /** String, not number — see the file header. */
+    /** String, not number, see the file header. */
     botUserId: string;
     botUsername: string;
     botName?: string;
@@ -145,7 +145,7 @@ export interface CreateDeepLinkPayload {
     campaignId?: string | null;
     agentId?: string | null;
     departmentId?: string | null;
-    /** Zero or omitted means the link never expires — right for a printed QR. */
+    /** Zero or omitted means the link never expires, right for a printed QR. */
     ttlHours?: number;
 }
 
@@ -153,7 +153,7 @@ export interface CreateDeepLinkPayload {
  * Whether a bot token is even plausible before spending a round trip.
  *
  * BotFather issues `<bot_id>:<secret>`, so a paste that does not look like that
- * is a typo — usually the bot's @username, or the token with the surrounding
+ * is a typo, usually the bot's @username, or the token with the surrounding
  * text still attached.
  */
 export function looksLikeBotToken(token: string): boolean {

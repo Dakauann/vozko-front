@@ -144,7 +144,7 @@ export default function OpportunityDrawer({
   }, [open, workspaceId]);
 
   // Deal timeline: the WhatsApp/voice conversations linked to this deal (the Vozko
-  // moat — the chat history lives on the deal card). Only in edit mode.
+  // moat, the chat history lives on the deal card). Only in edit mode.
   const reloadLinks = useCallback(async () => {
     if (!opportunity) {
       setLinks([]);
@@ -309,7 +309,7 @@ export default function OpportunityDrawer({
             controlSize="sm"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Ex.: Contrato Acme — 10 licenças"
+            placeholder="Ex.: Contrato Acme, 10 licenças"
           />
 
           <div>

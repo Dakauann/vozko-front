@@ -67,7 +67,7 @@ import { cn } from "@/lib/utils";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useTranslations } from "next-intl";
 
-/* ── Design tokens (Quiet Infrastructure — same as Desempenho) ───── */
+/* ── Design tokens (Quiet Infrastructure, same as Desempenho) ───── */
 
 const COLORS = {
   signal: "#2463eb",
@@ -1608,7 +1608,7 @@ export default function TelephonyPage() {
             </div>
           </motion.div>
 
-          {/* Equipe — same pattern as Desempenho team section */}
+          {/* Equipe, same pattern as Desempenho team section */}
           <motion.div variants={itemVariants}>
             <SectionLabel
               title={ts("team")}
@@ -1644,7 +1644,7 @@ export default function TelephonyPage() {
             </div>
           </motion.div>
 
-          {/* Motivos de fim — secondary detail */}
+          {/* Motivos de fim, secondary detail */}
           <motion.div variants={itemVariants}>
             <SectionLabel
               title={ts("dispositions")}

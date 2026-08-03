@@ -413,7 +413,11 @@ export const campanhasNavItems: NavItem[] = [
     ],
   },
   {
-    icon: TelegramLogoColor,
+    // The brand mark belongs to the FAMILY header (familyBrandIcon), which
+    // already renders it beside "Telegram". Repeating it on the item showed the
+    // logo twice in one group, Instagram uses a neutral glyph here for the
+    // same reason.
+    icon: UserCircle,
     labelKey: "nav.telegram",
     href: "/dashboard/telegram-accounts",
     family: "telegram",
@@ -825,7 +829,11 @@ function ProductSwitcher({
                     }}
                     className={cn(
                       "flex w-full items-center gap-3 rounded-lg p-2.5 transition-all",
-                      isSelected ? "bg-primary/10" : "hover:bg-muted",
+                      // Neutral selected surface. The colour on this row is
+                      // carried by the solid icon tile below, so tinting the
+                      // row too put primary text and a primary tick on a
+                      // primary wash.
+                      isSelected ? "bg-muted" : "hover:bg-muted",
                     )}
                   >
                     <div
@@ -841,8 +849,7 @@ function ProductSwitcher({
                     <div className="flex-1 text-left">
                       <p
                         className={cn(
-                          "text-sm font-medium",
-                          isSelected ? "text-primary" : "text-foreground",
+                          "text-sm font-medium text-foreground",
                         )}
                       >
                         {t(product.nameKey)}
@@ -887,13 +894,15 @@ function ProductSwitcher({
         <div
           className={cn(
             "flex h-7 w-7 items-center justify-center rounded-lg transition-colors",
-            isOpen ? "bg-primary/10" : "bg-muted",
+            isOpen ? "bg-primary" : "bg-muted",
           )}
         >
           <CaretDown
             className={cn(
               "h-4 w-4 transition-transform duration-200",
-              isOpen ? "rotate-180 text-primary" : "text-muted-foreground",
+              isOpen
+                ? "rotate-180 text-primary-foreground"
+                : "text-muted-foreground",
             )}
           />
         </div>
@@ -949,9 +958,9 @@ function ProductSwitcher({
                     </p>
                   </div>
                   {isSelected && (
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary">
                       <Check
-                        className="h-3.5 w-3.5 text-primary"
+                        className="h-3.5 w-3.5 text-primary-foreground"
                         weight="bold"
                       />
                     </div>
@@ -1112,7 +1121,7 @@ function NavItemComponent({
             ? "h-9 w-full rounded-lg px-2.5"
             : "h-9 w-full justify-center rounded-lg px-2",
           isActive || hasActiveChild
-            ? "border-primary/20 bg-primary/10 text-primary"
+            ? "border-transparent bg-primary text-primary-foreground"
             : "text-foreground hover:bg-muted/60",
           isAiItem && isExpanded && "pr-7",
         )}
@@ -1184,7 +1193,7 @@ function NavItemComponent({
               className={cn(
                 "relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg transition-colors",
                 isActive || hasActiveChild
-                  ? "bg-primary/10 text-primary"
+                  ? "bg-primary text-primary-foreground"
                   : "text-foreground hover:bg-muted/60",
                 isAiItem && "animate-[float_3s_ease-in-out_infinite]",
               )}
@@ -1267,7 +1276,7 @@ function NavItemComponent({
 }
 
 // Icons stay neutral (monochrome) per the design rules; family identity is carried
-// by a small dot beside the group label instead of coloring the glyph — except
+// by a small dot beside the group label instead of coloring the glyph, except
 // channel families, whose header carries the small brand mark instead.
 const familyDotColor: Record<string, string> = {
   whatsapp: "bg-emerald-500",
@@ -1284,7 +1293,7 @@ const familyDotColor: Record<string, string> = {
  * WhatsApp is the only family where WHICH integration you are looking at
  * matters: the current one is Meta's official Cloud API, and unofficial
  * providers are planned alongside it. Marking the official one now means the
- * distinction is already visible when the second appears — rather than an
+ * distinction is already visible when the second appears, rather than an
  * unlabelled "WhatsApp" suddenly becoming ambiguous.
  *
  * A chip rather than a longer label: the family header is a 10px uppercase
@@ -1702,7 +1711,7 @@ export function DashboardSidebar({
               className={cn(
                 "flex w-full items-center gap-2.5 rounded-md px-2 h-9 transition-colors",
                 hasMounted && isPinned
-                  ? "bg-primary/10 text-primary hover:bg-primary/15"
+                  ? "bg-primary text-primary-foreground hover:bg-[hsl(var(--primary-hover))]"
                   : "text-foreground hover:bg-muted/60",
                 !isExpanded && "justify-center",
               )}

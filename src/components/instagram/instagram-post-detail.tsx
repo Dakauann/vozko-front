@@ -33,7 +33,7 @@ interface Props {
 /**
  * Post detail: the asset, its metadata, and its paginated comment thread.
  *
- * Note what is deliberately absent — a caption editor. Instagram exposes no
+ * Note what is deliberately absent, a caption editor. Instagram exposes no
  * endpoint to edit a published caption, so offering one would be a dead control.
  * The only supported post update is toggling comments.
  */
@@ -70,7 +70,7 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
   }, [accountId, media.id, applyFirstPage]);
 
   /* First load. `loading` already starts true, so this effect sets no state
-     synchronously — it only lands the result once the request settles, and drops
+     synchronously, it only lands the result once the request settles, and drops
      it if the dialog moved to another post meanwhile. */
   useEffect(() => {
     let cancelled = false;
@@ -122,7 +122,7 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
       aria-modal="true"
       aria-label={t("posts.detailTitle")}
       /* A neutral dark scrim, NOT bg-foreground: `--foreground` is near-white in
-         dark mode, which turned the backdrop into a white wash — most visibly as a
+         dark mode, which turned the backdrop into a white wash, most visibly as a
          bright band in the padding above the dialog. */
       className="fixed inset-0 z-[100] flex items-center justify-center bg-neutral-950/70 p-4 backdrop-blur-sm"
       onClick={onClose}
@@ -226,7 +226,7 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
 
             {/* The comments on this post and the automation that answers them
                 are two views of the same job, so they share the panel through
-                tabs — the same split the account page uses. Without this the
+                tabs, the same split the account page uses. Without this the
                 rule that replies here was configured somewhere the operator
                 could not see from the post. */}
             <Tabs defaultValue="comments" className="px-4 pb-4">
@@ -251,7 +251,7 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
 
               <TabsContent value="automation" className="mt-3">
                 {/* Scoped to this post: the panel shows rules attached to it plus
-                    the account-wide defaults that also run here — which is
+                    the account-wide defaults that also run here, which is
                     exactly what will fire on the next comment. */}
                 <InstagramCommentRulesPanel
                   accountId={accountId}

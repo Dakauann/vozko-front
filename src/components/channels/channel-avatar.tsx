@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
  * Every surface that lists conversations had solved this differently: the inbox
  * rendered a channel glyph INSTEAD of the person (so you saw which network but
  * never who), the board rendered initials only (so you saw who but never which
- * network), and neither handled a channel it had not been updated for —
+ * network), and neither handled a channel it had not been updated for,
  * Telegram showed a telephone icon in one place and a bare initial in another.
  *
  * Both facts matter and they are not alternatives, so the photo owns the circle
@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
  */
 
 /**
- * Solid tone, white ink — the same rule CardTile and CardPill follow. A tinted
+ * Solid tone, white ink, the same rule CardTile and CardPill follow. A tinted
  * fill under same-hue text washes out at small sizes and against the tinted
  * surfaces these sit on; a solid tone holds its contrast anywhere.
  */
@@ -39,7 +39,7 @@ const TINTS = [
  * A deterministic tint per contact.
  *
  * Derived from the name rather than list position, so the same person keeps the
- * same colour between the inbox, the board and the conversation header — which
+ * same colour between the inbox, the board and the conversation header, which
  * is what makes it a recognition cue rather than decoration.
  */
 function tintFor(seed: string): string {

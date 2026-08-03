@@ -47,7 +47,7 @@ export function usePanelWidth(
         if (Number.isFinite(parsed)) setWidth(parsed);
       }
     } catch {
-      /* localStorage unavailable (private mode / SSR) — keep the default */
+      /* localStorage unavailable (private mode / SSR), keep the default */
     }
   }, [storageKey, setWidth]);
 

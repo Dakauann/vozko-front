@@ -32,7 +32,7 @@ export interface WhatsAppCampaignMetrics {
     failed: number;
     notEligiblePossibleSpam: number;
     // "Disparos": billed sends, total minus the buckets never charged for
-    // (pending, failed, spam-protection skips). CURRENT entry status — a
+    // (pending, failed, spam-protection skips). CURRENT entry status, a
     // campaign reset zeroes this. See StatusCounts.Dispatches on the backend.
     dispatches: number;
     completionRate: number;

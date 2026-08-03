@@ -24,7 +24,7 @@ import {
 
 // A reusable kanban board for objects that move between columns (the deal board).
 // It renders each column through the shared KanbanColumnShell AND drives the SAME
-// drag gesture the conversation funnel uses — a pointer-drag that lifts the card
+// drag gesture the conversation funnel uses, a pointer-drag that lifts the card
 // into a floating overlay (scale + wobble + deep shadow), leaves a dashed ghost in
 // place, highlights the hovered column, and pulses the target column green on drop
 // (kanban-card.tsx / KanbanColumnShell). It deliberately does NOT use the browser's
@@ -337,7 +337,7 @@ export default function KanbanBoard<T>({
         })}
       </div>
 
-      {/* Floating drag overlay — the card lifted out of the column, following the
+      {/* Floating drag overlay, the card lifted out of the column, following the
           pointer with the shared scale + wobble + deep-shadow spec. Rendered once,
           fixed to the viewport, above everything, and non-interactive. */}
       {overlay ? (

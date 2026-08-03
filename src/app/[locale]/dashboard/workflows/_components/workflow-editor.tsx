@@ -689,7 +689,7 @@ export function WorkflowEditor({
         return;
       }
       // Once the freshly-added nodes have rendered and MEASURED, re-flow ONLY that
-      // touched cluster with their real heights — the first pass used estimated
+      // touched cluster with their real heights, the first pass used estimated
       // heights (unmeasured nodes), so spacing can be a touch off. This never moves
       // existing/user-arranged nodes: layoutCopilotSubgraph only repositions the
       // touched set and re-anchors it to the (untouched) flow it grew from.

@@ -101,10 +101,10 @@ export function useWhatsAppCapacity(opts?: {
     void listBusinessPhonesAction({ page: 1, pageSize: 200 }).then((r) => {
       if (cancelled) return;
       const rows = r.phones ?? [];
-      // Count only numbers that actually occupy THIS workspace's slot — same rule as
+      // Count only numbers that actually occupy THIS workspace's slot, same rule as
       // the backend gate (CountActiveDialog360ByOwner): active AND owned by this
       // workspace. The scoped list also returns numbers merely shared with the
-      // workspace (workspace_phone_access), which are owned — and billed — elsewhere;
+      // workspace (workspace_phone_access), which are owned, and billed, elsewhere;
       // counting those inflated the meter to e.g. "6/10" when only one is truly owned.
       const activeOwned = rows.filter(
         (p) =>

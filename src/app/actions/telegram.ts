@@ -53,7 +53,7 @@ export async function getTelegramAccountAction(accountId: string) {
  * Connects a bot.
  *
  * The whole flow is this one call: no OAuth, no popup, no callback. The token is
- * write-only — it is never returned by any endpoint afterwards — so a caller
+ * write-only, it is never returned by any endpoint afterwards, so a caller
  * that loses it must mint a new one in BotFather.
  */
 export async function connectTelegramAccountAction(payload: ConnectTelegramPayload) {

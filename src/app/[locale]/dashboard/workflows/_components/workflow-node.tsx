@@ -205,7 +205,7 @@ const INTERACTIVE_CATCH_ALLS: { id: string; label: string }[] = [
 // for the message preview.
 const INTERACTIVE_NODE_WIDTH = 232;
 
-// Logic / action / condition / trigger nodes are compact operation gates — they
+// Logic / action / condition / trigger nodes are compact operation gates, they
 // carry a tight summary, not a message, so they read lighter and more vertical.
 const GENERIC_NODE_WIDTH = 200;
 
@@ -274,7 +274,7 @@ function WhatsAppInteractiveNode({ id, data, selected }: NodeProps) {
 
 // Message-sending nodes reuse the SAME shell as the buttons/list node: WhatsApp
 // (or channel) render on top, a single output handle, and the id bar on the
-// bottom — the whole point of InteractiveNodeShell. Their per-node top content
+// bottom, the whole point of InteractiveNodeShell. Their per-node top content
 // lives in node-previews/.
 const MESSAGE_NODE_TYPES = new Set<WorkflowNodeType>([
   "action_send_text",
@@ -350,7 +350,7 @@ function GenericWorkflowNode({ id, data, selected }: NodeProps) {
   const flashAt =
     typeof nodeData._flashAt === "number" ? nodeData._flashAt : null;
 
-  // Only wrap real content — a node with no preview (e.g. transfer_department)
+  // Only wrap real content, a node with no preview (e.g. transfer_department)
   // must not render an empty padded div, which would leave a phantom top gap.
   const content = renderNodeContent(nodeType, nodeData.config);
 
@@ -416,7 +416,7 @@ function PreviewIcon({
 
 // renderNodeContent returns the content preview for a node, or null when the
 // node has none (so the caller can skip the padded wrapper and avoid an empty
-// gap). It is a plain function, not a component — it uses no hooks.
+// gap). It is a plain function, not a component, it uses no hooks.
 function renderNodeContent(
   nodeType: WorkflowNodeType,
   config: Record<string, unknown>,

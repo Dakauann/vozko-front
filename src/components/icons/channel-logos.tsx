@@ -15,12 +15,12 @@ import { cn } from "@/lib/utils";
  * are the actual marks, so they read as the product they represent.
  *
  * Instagram's brand is a gradient, not a colour, which is why it cannot simply be a
- * className. The gradient needs a document-unique id — two of these on one page
- * sharing an id would make the second silently inherit the first's stops — so the
+ * className. The gradient needs a document-unique id, two of these on one page
+ * sharing an id would make the second silently inherit the first's stops, so the
  * id comes from useId().
  *
  * They take Phosphor's IconProps so they can be dropped in anywhere a Phosphor
- * icon is expected — notably the sidebar's nav table — but only `className` is
+ * icon is expected, notably the sidebar's nav table, but only `className` is
  * honoured. `weight` and `color` are accepted and ignored on purpose: these are
  * fixed brand artwork, and a brand mark that changes stroke weight or colour with
  * the surrounding UI is no longer the brand mark.
@@ -77,7 +77,7 @@ export function WhatsAppLogoColor({ className }: IconProps) {
  * Telegram's official mark.
  *
  * The brand is a circle in Telegram blue (#26A5E4) with a white paper plane, so
- * unlike WhatsApp's single-colour glyph the circle is drawn explicitly — a
+ * unlike WhatsApp's single-colour glyph the circle is drawn explicitly, a
  * currentColor-tinted Phosphor glyph reads as a generic send arrow rather than
  * as Telegram.
  */
@@ -110,8 +110,8 @@ export function TelegramLogoColor({ className }: IconProps) {
 /**
  * The mark for a conversation's channel.
  *
- * Kept as one lookup so every surface that shows a channel — the CRM inbox, the
- * conversation header, search results — stays consistent. Adding a channel is one
+ * Kept as one lookup so every surface that shows a channel, the CRM inbox, the
+ * conversation header, search results, stays consistent. Adding a channel is one
  * case here rather than a hunt through switch statements.
  */
 export function ChannelLogo({

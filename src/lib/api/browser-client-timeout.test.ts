@@ -3,13 +3,13 @@
  *
  * Validates the fix for the production "stuck loading / login never appears" bug
  * (introduced 2026-07-16 when auth moved to browser-direct with no request
- * timeout). A stalled auth fetch used to pin AuthProvider.isLoading=true forever
- * — the navbar pill and dashboard full-screen loader never resolved, and the
+ * timeout). A stalled auth fetch used to pin AuthProvider.isLoading=true forever,
+ * the navbar pill and dashboard full-screen loader never resolved, and the
  * cross-tab Web Lock wedged sibling tabs.
  *
  * The fix bounds every auth fetch with an AbortSignal timeout (AUTH_TIMEOUT_MS).
  * These tests prove a stalled request now settles quickly (as an error) instead
- * of hanging, and that the refresh — which holds the Web Lock — is also bounded.
+ * of hanging, and that the refresh, which holds the Web Lock, is also bounded.
  *
  * The mock fetch RESPECTS the abort signal, i.e. it rejects when aborted, exactly
  * like a real fetch. Fake timers drive the timeout deterministically.
@@ -110,7 +110,7 @@ describe("auth fetch timeout (fix for the stuck-loading hang)", () => {
   });
 
   it("a wedged Web Lock (frozen sibling holds it) is bounded and falls back to a direct refresh, not a hang", async () => {
-    // A locks.request that NEVER grants — simulates a sibling tab holding the lock
+    // A locks.request that NEVER grants, simulates a sibling tab holding the lock
     // while frozen. It must honour the acquisition AbortSignal we now pass.
     const neverGrant = vi.fn(
       (_name: string, opts: { signal?: AbortSignal }) =>

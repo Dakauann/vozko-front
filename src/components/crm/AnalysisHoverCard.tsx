@@ -15,7 +15,7 @@ import type { Analysis } from "@/lib/analysis/types";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 
-/** Solid tile + white glyph — never colored glyph on same-hue wash. */
+/** Solid tile + white glyph, never colored glyph on same-hue wash. */
 const SENTIMENT_MAP = {
   positive: { label: "Positivo", icon: ThumbsUp, tile: "bg-emerald-500" },
   neutral: { label: "Neutro", icon: SmileyMeh, tile: "bg-amber-500" },

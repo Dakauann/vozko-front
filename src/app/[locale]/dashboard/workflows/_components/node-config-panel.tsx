@@ -3487,8 +3487,8 @@ interface ListRowItem {
 }
 
 // ListSectionsField edits the interactive list's rows. It presents a flat list of
-// up to 10 options (WhatsApp's max) and persists them wrapped in a single section
-// — the shape the backend/executor expect ([{title, rows:[...]}]). Each row's id
+// up to 10 options (WhatsApp's max) and persists them wrapped in a single section,
+// the shape the backend/executor expect ([{title, rows:[...]}]). Each row's id
 // is the STABLE routing key (auto-generated, never shown) that becomes the node's
 // output handle; the title/description are what the contact sees.
 function ListSectionsField({

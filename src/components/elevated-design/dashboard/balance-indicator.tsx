@@ -751,7 +751,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                         result.errorCode,
                       ),
                     );
-                    // Missing CPF/CNPJ is not a subscription problem — don't open the plan catalog;
+                    // Missing CPF/CNPJ is not a subscription problem, don't open the plan catalog;
                     // the normalized message already tells the user to add their document.
                     if (
                       !isCustomerDocumentRequiredError(

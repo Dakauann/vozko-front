@@ -156,7 +156,7 @@ function dayKey(iso: string, localeTag: string): string {
   });
 }
 
-/** Keys that are technical identifiers — never show raw to the operator. */
+/** Keys that are technical identifiers, never show raw to the operator. */
 const DETAIL_SKIP_KEYS = new Set([
   "message_id",
   "messageId",

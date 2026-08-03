@@ -32,8 +32,8 @@ import { InstagramCommentRuleDialog } from "./instagram-comment-rule-dialog";
 /**
  * Comment automation for one account.
  *
- * Rules are listed in the order they are evaluated, because the first match wins
- * — an operator who cannot see the order cannot predict which rule answers a
+ * Rules are listed in the order they are evaluated, because the first match wins,
+ * an operator who cannot see the order cannot predict which rule answers a
  * comment. A rule scoped to a post is labelled as such, so the two tiers
  * (this post / all posts) are never confused.
  *
@@ -71,7 +71,7 @@ export function InstagramCommentRulesPanel({
       } else {
         setError(null);
         // When scoped to a post, show that post's rules plus the account-wide
-        // defaults that also apply to it — that is exactly what will run.
+        // defaults that also apply to it, that is exactly what will run.
         setRules(
           mediaId
             ? result.rules.filter((r) => !r.igMediaId || r.igMediaId === mediaId)

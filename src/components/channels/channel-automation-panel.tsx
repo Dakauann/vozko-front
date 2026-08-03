@@ -20,7 +20,7 @@ import { useTranslations } from "next-intl";
 /**
  * Who answers this account's conversations.
  *
- * An account is attended by an agent OR a workflow, never both — the same
+ * An account is attended by an agent OR a workflow, never both, the same
  * exclusive choice the WhatsApp campaign form makes, so an operator configuring
  * several channels meets one mental model. Switching modes disables the other
  * side in the same write, which is what keeps "both enabled" unrepresentable.
@@ -69,7 +69,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
     accountId: string,
     payload: ChannelAutomationPayload,
   ) => Promise<{ account?: T; error?: string }>;
-  /** e.g. "instagram.automation" — every channel ships the same key set. */
+  /** e.g. "instagram.automation", every channel ships the same key set. */
   translationNamespace: string;
   /** Distinct per channel so two panels on one page keep valid label targets. */
   controlId?: string;
@@ -124,7 +124,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
   });
 
   // The saved selection may live on a page the picker has not loaded, so its
-  // name is resolved directly and merged into the options — otherwise the field
+  // name is resolved directly and merged into the options, otherwise the field
   // renders blank until the user happens to scroll to it. Both are keyed by id
   // so a slow lookup can never label a different selection.
   const [resolvedAgent, setResolvedAgent] = useState<{ id: string; name: string } | null>(null);
@@ -284,7 +284,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
       </div>
 
       <div className="space-y-5 p-5">
-        {/* Agent or workflow — never both. */}
+        {/* Agent or workflow, never both. */}
         <div
           role="radiogroup"
           aria-label={t("modeLabel")}

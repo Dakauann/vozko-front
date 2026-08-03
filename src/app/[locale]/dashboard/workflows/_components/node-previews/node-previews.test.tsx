@@ -50,7 +50,7 @@ describe("renderMessageContentPreview registry", () => {
   });
 
   it("template: falls back to template_id when the display cache was stripped", () => {
-    // Regression: only template_id survives a save/reload — must NOT read as empty.
+    // Regression: only template_id survives a save/reload, must NOT read as empty.
     renderPreview("action_send_template", { template_id: "hello_world" });
     expect(screen.getByText("hello_world")).toBeInTheDocument();
     expect(screen.queryByText("Nenhum template")).toBeNull();

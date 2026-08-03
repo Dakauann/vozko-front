@@ -18,7 +18,7 @@ interface Props {
  * A deterministic tint per account.
  *
  * Derived from the handle rather than assigned by list position, so an account
- * keeps the same colour across the table, the profile header and the post dialog —
+ * keeps the same colour across the table, the profile header and the post dialog,
  * which is what makes it useful as a recognition cue instead of decoration.
  */
 const TINTS = [
@@ -43,8 +43,8 @@ function tintFor(seed: string): string {
  *
  * The image is always attempted rather than gated on a stored profilePictureUrl,
  * because that stored value answers the wrong question. Instagram OMITS
- * profile_picture_url for an account that has never set a photo — so a blank field
- * can mean either "no photo" or "we simply have not refreshed" — and the URL it
+ * profile_picture_url for an account that has never set a photo, so a blank field
+ * can mean either "no photo" or "we simply have not refreshed", and the URL it
  * does return is a signed CDN link that expires, making any stored copy unreliable
  * over time. Asking the proxy and reacting to the outcome is the only version that
  * is right in both cases.
@@ -57,7 +57,7 @@ export function InstagramAvatar({ accountId, username, className, textClassName 
   // The failure is remembered against the account it belongs to, rather than as a
   // bare boolean reset by an effect. A table row gets recycled for a different
   // account on pagination, and a plain boolean would carry one account's missing
-  // photo over to the next — showing a placeholder for an account that has one.
+  // photo over to the next, showing a placeholder for an account that has one.
   const [failedFor, setFailedFor] = useState<string | null>(null);
 
   if (failedFor === accountId) {

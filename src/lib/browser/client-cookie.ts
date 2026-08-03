@@ -3,7 +3,7 @@
  * workspace / department, referral code). These replace the server-side
  * `next/headers` cookie writes so the code can run in client components.
  *
- * Auth cookies (accessToken/refreshToken) are httpOnly and set by the API — they
+ * Auth cookies (accessToken/refreshToken) are httpOnly and set by the API, they
  * are NOT managed here.
  */
 

@@ -37,8 +37,8 @@ export interface ApiResult<T> {
  * Every auth request MUST be time-bounded. `fetch` has no default timeout, so a
  * stalled/half-open connection (CDN edge recycling, mobile radio sleep, laptop
  * resume) hangs forever. Unbounded, that pins AuthProvider.isLoading=true (the
- * navbar pill + the dashboard full-screen loader never resolve) and — because
- * `performRefresh` runs inside a cross-tab Web Lock — wedges every other tab too.
+ * navbar pill + the dashboard full-screen loader never resolve) and, because
+ * `performRefresh` runs inside a cross-tab Web Lock, wedges every other tab too.
  * Bounding the fetch converts an infinite hang into a fast failure that drops to
  * guest/retry, and releases the Web Lock within the timeout. See
  * `browser-client-timeout.test.ts`.
@@ -140,7 +140,7 @@ async function performRefresh(): Promise<boolean> {
   // the pair and sets the new cookies (cookie mode). No server action involved.
   //
   // Time-bounded: this call holds the cross-tab Web Lock, so a stalled refresh
-  // must not hang forever — that would freeze every tab. On timeout we abort and
+  // must not hang forever, that would freeze every tab. On timeout we abort and
   // return false (session treated as unrefreshable), releasing the lock.
   const t = timeoutSignal(AUTH_TIMEOUT_MS);
   try {
@@ -174,7 +174,7 @@ export function refreshSession(): Promise<boolean> {
         // Bound the lock ACQUISITION, not just performRefresh. A sibling tab that
         // holds "vozko-auth-refresh" while frozen (its performRefresh abort timer
         // suspended on background/bfcache/sleep) would otherwise wedge this
-        // acquisition forever — and fetchWithRefresh awaits us with no timeout, so
+        // acquisition forever, and fetchWithRefresh awaits us with no timeout, so
         // every 401-retry in this tab hangs until that tab resumes or closes.
         // `signal` only cancels the wait-to-acquire; once the lock is granted it is
         // a no-op, so performRefresh keeps its own AUTH_TIMEOUT_MS bound.
@@ -187,7 +187,7 @@ export function refreshSession(): Promise<boolean> {
           );
         } catch (err) {
           // Acquisition timed out: the holder is stuck. Don't hang, and don't
-          // assume the session is dead — refresh directly. The origin tolerates
+          // assume the session is dead, refresh directly. The origin tolerates
           // this honest concurrent rotation inside its 30s reuse-grace window.
           if (
             err instanceof DOMException &&
@@ -211,7 +211,7 @@ export function refreshSession(): Promise<boolean> {
 
 /**
  * Run a request; on a 401, refresh once and retry. A 401 is the only status that
- * triggers a refresh (403 = authorization, not authentication — surfaced as-is).
+ * triggers a refresh (403 = authorization, not authentication, surfaced as-is).
  * If the refresh fails, the session is gone: broadcast session-expired and return
  * the 401 response so the caller can handle it. This is the single source of the
  * refresh-on-401 behavior for every browser transport.

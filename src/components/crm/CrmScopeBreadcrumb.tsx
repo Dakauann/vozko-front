@@ -11,14 +11,14 @@ interface CrmScopeBreadcrumbProps {
   // Resolved funnel scope: a concrete funnel name, or the "Todos os funis" label.
   funnelLabel: string;
   isAllFunnels: boolean;
-  // The swimlane axis label (Etapa / Etiqueta / Responsável) — Kanban only.
+  // The swimlane axis label (Etapa / Etiqueta / Responsável), Kanban only.
   groupByLabel?: string;
   className?: string;
 }
 
 // A quiet, always-visible scope line so the user knows exactly what they are looking
 // at on every surface: which view, which funnel scope, and (on the board) how it is
-// grouped. Pure legibility — it changes no behavior. Follows the product register's
+// grouped. Pure legibility, it changes no behavior. Follows the product register's
 // "Quiet Infrastructure" voice: muted neutrals, one emphasis, no decorative color.
 export default function CrmScopeBreadcrumb({
   viewMode,

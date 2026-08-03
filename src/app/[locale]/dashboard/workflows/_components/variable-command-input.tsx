@@ -285,7 +285,7 @@ export function VariableCommandInput({
         return;
       }
       // Esc typed while focus is still in the field (the popup auto-opened but
-      // did not steal focus) must close it — and stick.
+      // did not steal focus) must close it, and stick.
       if (e.key === "Escape" && open) {
         e.preventDefault();
         e.stopPropagation();
@@ -310,7 +310,7 @@ export function VariableCommandInput({
       return;
     }
 
-    // Only auto-open when the user hasn't just dismissed this same trigger —
+    // Only auto-open when the user hasn't just dismissed this same trigger,
     // otherwise Esc/click-away is undone on the very next render.
     if (!open && !dismissedRef.current) {
       setOpen(true);
@@ -403,7 +403,7 @@ export function VariableCommandInput({
               try {
                 input.setSelectionRange(pos, pos);
               } catch {
-                /* number/email inputs disallow setSelectionRange — safe to ignore */
+                /* number/email inputs disallow setSelectionRange, safe to ignore */
               }
             });
           }}

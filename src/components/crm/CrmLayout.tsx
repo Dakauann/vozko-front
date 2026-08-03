@@ -90,7 +90,7 @@ import {
 } from "@/app/actions/conversations";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import AssignMemberPicker from "@/components/crm/AssignMemberPicker";
-import { updateWhatsAppCampaignEntryAction } from "@/app/actions/whatsapp-campaigns";
+import { setConversationAutomationAction } from "@/app/actions/conversations";
 import { toast } from "sonner";
 import { ChannelAvatar } from "@/components/channels/channel-avatar";
 import { cn } from "@/lib/utils";
@@ -373,7 +373,7 @@ export default function CrmLayout({
   // which stays exactly as-is in both campaign and global modes.
   const isGlobalTable = !hasCampaign && viewMode === "table";
   // The unified board shows the DEAL board whenever an opportunity pipeline is
-  // selected (global surface only), INDEPENDENT of viewMode — deals have their own
+  // selected (global surface only), INDEPENDENT of viewMode, deals have their own
   // board and no Lista/Tabela variants. Keeping it independent means the user's
   // conversation viewMode (Lista/Kanban/Tabela) is preserved when they switch back.
   const showOpportunityBoard =
@@ -714,7 +714,7 @@ export default function CrmLayout({
     const map = new Map<string, FunnelColumnState>();
     for (const col of boardColumns) {
       // Go serializes an empty column's `entries` (a nil slice) as null, so guard
-      // before mapping — an empty stage/label/owner column must not crash the board.
+      // before mapping, an empty stage/label/owner column must not crash the board.
       const colEntries = col.entries ?? [];
       const total = col.total ?? 0;
       map.set(col.id, {
@@ -1119,26 +1119,23 @@ export default function CrmLayout({
 
   const handleToggleAi = useCallback(async () => {
     if (!activeConversation || togglingAi) return;
-    const inboxCampaignId = inbox.find(
-      (e) => e.entry_id === activeConversation.entry_id,
-    )?.campaign_id;
-    const resolvedCampaignId =
-      campaignId || activeConversation.campaign_id || inboxCampaignId;
-    if (!resolvedCampaignId) return;
+    // Addressed by conversation, not by campaign. The previous version resolved
+    // a campaign id and returned early when it found none, which is every
+    // Instagram and Telegram conversation, so the button silently did nothing.
     const currentVal = activeConversation.automation_enabled;
     const newVal = currentVal === false ? true : false;
     setTogglingAi(true);
     try {
-      await updateWhatsAppCampaignEntryAction(
-        resolvedCampaignId,
+      await setConversationAutomationAction(
+        activeConversation.entry_type,
         activeConversation.entry_id,
-        { automationEnabled: newVal },
+        newVal,
       );
       // The WS entry_update event will sync the state
     } finally {
       setTogglingAi(false);
     }
-  }, [activeConversation, campaignId, inbox, togglingAi]);
+  }, [activeConversation, togglingAi]);
 
 
   useEffect(() => {
@@ -1372,10 +1369,13 @@ export default function CrmLayout({
   // Toggle state for the robot button (backend: null defaults to true).
   // Header owner badge uses assignee first; see AttendanceOwnerBadge below.
   const aiIsActive = activeConversation?.automation_enabled !== false;
+  // Enabled for any conversation that supports AI attendance. It used to
+  // require a campaign id, which is the same assumption that made the handler
+  // return early, so on Instagram and Telegram the button was BOTH disabled
+  // and wired to a call that could never fire.
   const canToggleAi =
-    !!campaignId ||
-    !!inbox.find((e) => e.entry_id === activeConversation?.entry_id)
-      ?.campaign_id;
+    !!activeConversation &&
+    channelCapabilities.supportsAiHandling(activeConversation.entry_type);
 
   const conversationHeader = activeConversation ? (
     <div className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1.5 border-b border-border/80 bg-card px-3 py-2.5 sm:px-4">
@@ -1390,7 +1390,7 @@ export default function CrmLayout({
       </button>
 
       {/* Avatar. The same rule the inbox and the board follow: the PERSON owns
-          the circle — their photo, or their initial — and the channel rides as a
+          the circle, their photo, or their initial, and the channel rides as a
           badge. This header used to show the channel glyph alone, so the one
           place an operator is actually talking to someone was the one place
           that never showed who. */}
@@ -1401,7 +1401,7 @@ export default function CrmLayout({
         size="md"
       />
 
-      {/* Info — grows to use free space */}
+      {/* Info, grows to use free space */}
       <div className="min-w-0 flex-1 basis-[10rem]">
         <div className="flex min-w-0 items-center gap-1.5">
           <p className="truncate text-sm font-semibold text-foreground">
@@ -1425,8 +1425,8 @@ export default function CrmLayout({
             <AttendanceOwnerBadge kind="unassigned" className="shrink-0" />
           )}
           {/* Only for channels an agent or workflow can actually attend.
-              Instagram DMs are human-attended today — the inbound webhook records
-              the message and assigns an operator without invoking AI — so the chip
+              Instagram DMs are human-attended today, the inbound webhook records
+              the message and assigns an operator without invoking AI, so the chip
               would announce automation that never runs. */}
           {channelCapabilities.supportsAiHandling(
             activeConversation.entry_type as EntryType,
@@ -1863,13 +1863,13 @@ export default function CrmLayout({
       )}
     >
       {/* Toolbar: filters left, actions right.
-          flex-wrap moves whole groups to the next line when width is tight —
+          flex-wrap moves whole groups to the next line when width is tight,
           never paint one group over the other (previous flex-1 + overflow bug). */}
       <div className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-2 border-b border-border/80 bg-card px-3 py-2 sm:px-4">
         <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
           {/* Unified Funil selector: switch between atendimento (conversation) and
               vendas (deal) funnels. A funnel only scopes a BOARD, so the selector is
-              shown on the Kanban (and the deal board) — never on the flat Chat/Tabela
+              shown on the Kanban (and the deal board), never on the flat Chat/Tabela
               views, where picking a funnel does nothing (industry-standard: the funnel
               switch lives on the board, not the inbox). */}
           {!hasCampaign && (viewMode === "funnel" || showOpportunityBoard) && (

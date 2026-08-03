@@ -109,8 +109,8 @@ export function InstagramPostComposer({
     setUploading(true);
     setError(null);
 
-    /* POST /medias requires all three fields — `media`, a non-empty `mediaType`,
-       and a non-empty `description` — and rejects the request outright otherwise.
+    /* POST /medias requires all three fields, `media`, a non-empty `mediaType`,
+       and a non-empty `description`, and rejects the request outright otherwise.
        Same shape every other uploader in the app sends. */
     const form = new FormData();
     form.append("media", file);
@@ -260,8 +260,8 @@ export function InstagramPostComposer({
                     placeholder={t("captionPlaceholder")}
                     className="resize-y"
                   />
-                  {/* Captions cannot be edited after publishing — Instagram has no
-                      such endpoint — so the operator is warned while it still
+                  {/* Captions cannot be edited after publishing, Instagram has no
+                      such endpoint, so the operator is warned while it still
                       matters. */}
                   <p className="flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-500">
                     <Warning className="mt-0.5 h-3 w-3 shrink-0" />

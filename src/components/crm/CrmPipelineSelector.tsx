@@ -27,7 +27,7 @@ interface CrmPipelineSelectorProps {
   value: SelectedPipeline | null;
   onChange: (pipeline: SelectedPipeline) => void;
   className?: string;
-  // Stage columns are pipeline-specific, so "Todos os funis" can't render them — the
+  // Stage columns are pipeline-specific, so "Todos os funis" can't render them, the
   // board axis being "etapa" disables the option (mirrors HubSpot greying it in board
   // mode). Owner/label axes leave it enabled.
   disableAllFunnels?: boolean;
@@ -35,7 +35,7 @@ interface CrmPipelineSelectorProps {
 
 // The unified Funil selector: one control listing BOTH atendimento (conversation)
 // funnels and vendas (opportunity) funnels. Selecting one drives which object the
-// board renders — the single most important piece of the "one Funil surface" UX.
+// board renders, the single most important piece of the "one Funil surface" UX.
 export default function CrmPipelineSelector({
   value,
   onChange,

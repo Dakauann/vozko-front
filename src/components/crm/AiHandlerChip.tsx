@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * AiHandlerChip — shows which AI attends a conversation: a direct agent ("IA · <nome>")
+ * AiHandlerChip, shows which AI attends a conversation: a direct agent ("IA · <nome>")
  * or a workflow ("Fluxo · <nome>"), with a distinct muted "pausada" state when the AI is
  * turned off for the conversation. Follows the house Solid-Symbol rule (a solid opaque
  * accent tile with a white glyph), one Signal-Blue voice, no tint-behind-glyph.
@@ -88,7 +88,7 @@ export function AiHandlerChip({
   const clickable = isWorkflow && !!onOpenWorkflow && !!resolved.workflow_id;
 
   const title = paused
-    ? `${prefix} pausada — ${name}`
+    ? `${prefix} pausada, ${name}`
     : isWorkflow
       ? `Fluxo: ${name}${resolved.current_node_type ? ` · ${resolved.current_node_type}` : ""}`
       : `Atendimento por IA: ${name}`;

@@ -10,7 +10,7 @@ import { usePathname } from "next/navigation";
  * - pointer-events:none on body with no active modal
  *
  * Users reported pure black or pure white "blackouts" that sometimes survive
- * reload until the lock/portal state clears — this runs on route change and
+ * reload until the lock/portal state clears, this runs on route change and
  * on window focus to force a clean viewport when no legitimate overlay is open.
  */
 function hasLegitimateBlockingOverlay(): boolean {

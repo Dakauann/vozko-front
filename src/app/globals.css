@@ -218,7 +218,13 @@ input:-webkit-autofill:active {
     --accent-hover: 154 34% 92%;
 
     --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    /* 45%, not 47%. At 47% this failed WCAG AA on the two surfaces it is used
+       on most: 4.33:1 over --background and 4.30:1 over --muted, and it carries
+       most of the secondary prose in the product. 45% clears 4.5:1 on
+       background (4.65), card (5.07) and muted (4.62). Hue and saturation are
+       unchanged, so nothing shifts but the depth. The dark theme already
+       passes at 6.5:1 to 7.8:1 and is left alone. */
+    --muted-foreground: 215 16% 45%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;

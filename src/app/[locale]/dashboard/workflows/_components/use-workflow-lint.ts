@@ -74,14 +74,14 @@ export function useWorkflowLint(params: {
   useEffect(() => {
     if (!enabled) return;
 
-    // Nothing on the canvas is trivially valid — skip the round trip entirely.
+    // Nothing on the canvas is trivially valid, skip the round trip entirely.
     if ((graphRef.current.nodes?.length ?? 0) === 0) {
       seqRef.current += 1;
       setState({ valid: true, issues: [], linting: false });
       return;
     }
 
-    // Already know the verdict for this exact graph — serve it instantly, no
+    // Already know the verdict for this exact graph, serve it instantly, no
     // debounce and no network call.
     const cached = lintCache.get(signature);
     if (cached) {
@@ -98,7 +98,7 @@ export function useWorkflowLint(params: {
       const result = await validateGraphAction(workflowType, graphRef.current);
       if (seq !== seqRef.current) return; // superseded by a newer edit
       const next = { valid: result.valid, issues: result.issues ?? [] };
-      // Only memoize authoritative verdicts — never a transport error (which
+      // Only memoize authoritative verdicts, never a transport error (which
       // reports invalid with no issues and should be retried, not cached).
       const hadError = "error" in result && Boolean(result.error);
       if (!hadError) cacheLintResult(signature, next);

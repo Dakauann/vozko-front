@@ -201,7 +201,7 @@ function FunnelCard({
   onLabelMenuToggle,
 }: {
   entry: InboxEntry;
-  /** The column this card instance lives in — scopes the layoutId so the SAME
+  /** The column this card instance lives in, scopes the layoutId so the SAME
    *  entry appearing in multiple columns (label/owner axes) doesn't collide and
    *  fling horizontally under framer's shared-layout animation. */
   columnId: string;

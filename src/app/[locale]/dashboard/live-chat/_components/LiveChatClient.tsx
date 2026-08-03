@@ -46,7 +46,7 @@ import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
 /**
- * Instagram and Telegram have no campaigns — they have accounts — so selecting
+ * Instagram and Telegram have no campaigns, they have accounts, so selecting
  * them narrows the inbox by CHANNEL rather than by campaign type. WhatsApp and
  * voice keep their campaign sub-filters; the other two hide them, because there
  * is nothing to sub-filter.

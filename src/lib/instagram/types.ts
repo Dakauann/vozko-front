@@ -111,8 +111,8 @@ export interface InstagramComment {
 /**
  * Cursor-paginated page.
  *
- * `hasNext` is authoritative. A short page does NOT mean the end — Instagram
- * filters items out of a page after applying the limit — so never infer the end
+ * `hasNext` is authoritative. A short page does NOT mean the end, Instagram
+ * filters items out of a page after applying the limit, so never infer the end
  * from `items.length`. Cursors are opaque and must not be persisted.
  */
 export interface InstagramPage<T> {
@@ -133,7 +133,7 @@ export interface UpdateInstagramAccountPayload {
 }
 
 export interface CreateInstagramMediaPayload {
-    /** JPEG only — the sole image format Instagram accepts for publishing. */
+    /** JPEG only, the sole image format Instagram accepts for publishing. */
     imageUrl?: string;
     videoUrl?: string;
     caption?: string;
@@ -145,7 +145,7 @@ export interface CreateInstagramMediaPayload {
  * Comment automation.
  *
  * A rule reacts to a public comment. Its most valuable action, the private
- * reply, opens a DM conversation — from there the account's agent or workflow
+ * reply, opens a DM conversation, from there the account's agent or workflow
  * attends it, which is why a rule needs no branching of its own.
  */
 export type CommentRuleMatch = 'any' | 'contains' | 'exact';

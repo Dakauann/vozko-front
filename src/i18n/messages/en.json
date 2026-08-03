@@ -130,7 +130,7 @@
     "noConversations": "No conversations yet",
     "deleteConversation": "Delete conversation",
     "emptyTitle": "How can I help?",
-    "emptyDescription": "Ask me to list, count or create agents — or just chat to draft prompts and clear up questions. Actions that change data ask for your approval.",
+    "emptyDescription": "Ask me to list, count or create agents, or just chat to draft prompts and clear up questions. Actions that change data ask for your approval.",
     "loading": "Loading…",
     "scrollToBottom": "Go to bottom",
     "modelLabel": "Model",
@@ -455,7 +455,7 @@
   "hero": {
     "badge": "{brandName} · AI Agents",
     "title": "AI agents that engage, sell, and resolve across every channel.",
-    "description": "Automate sales, collections, and support with AI agents across every channel — WhatsApp, chat, SMS, and email — with conversational AI and automation in a single platform.",
+    "description": "Automate sales, collections, and support with AI agents across every channel: WhatsApp, chat, SMS, and email, with conversational AI and automation in a single platform.",
     "cta": {
       "primary": "Get started",
       "secondary": "Watch demo"
@@ -4321,7 +4321,7 @@
       "title": "Unassign from workspace",
       "description": "Return {name} to the pool of unassigned numbers.",
       "note": "The number goes back to the pool and can be assigned to another workspace. Its Meta connection and data are preserved, nothing is deleted.",
-      "noteDialog360": "This is a 360dialog number: returning it to the pool CANCELS the 360dialog channel (its monthly billing stops) and clears the workspace link. The number is decommissioned — it does not become available for another workspace.",
+      "noteDialog360": "This is a 360dialog number: returning it to the pool CANCELS the 360dialog channel (its monthly billing stops) and clears the workspace link. The number is decommissioned: it does not become available for another workspace.",
       "menuHint": "Returns to pool · reversible",
       "menuHintDialog360": "Cancels the channel · stops billing",
       "loading": "Unassigning...",
@@ -4437,7 +4437,11 @@
         "toastTitle": "Connection failed",
         "toastDescription": "Could not connect your WhatsApp Business number. Please try again."
       },
-      "footer": "Your data is protected. The authorization is handled entirely by Meta through a secure OAuth flow."
+      "footer": "Your data is protected. The authorization is handled entirely by Meta through a secure OAuth flow.",
+      "actionTitle": "Connect with Meta",
+      "noWorkspace": "Select a workspace before connecting WhatsApp Business.",
+      "detailPhoneId": "Phone ID",
+      "detailWabaId": "WABA ID"
     }
   },
   "branchesPage": {
@@ -9802,7 +9806,7 @@
         "ongoingHint": "Engaged conversations currently with the team",
         "pending": "Conversations pending",
         "pendingShort": "No reply yet",
-        "pendingHint": "Engaged conversations still waiting (status new/empty) — not campaign shells",
+        "pendingHint": "Engaged conversations still waiting (status new/empty), not campaign shells",
         "unassigned": "Conversations unassigned",
         "unassignedShort": "Need an owner",
         "unassignedHint": "Engaged open conversations without an assignee (only threads with messages)",
@@ -9820,7 +9824,7 @@
         "frtHint": "From assignment to first reply",
         "shellLabel": "Campaign shells",
         "shellShort": "entries without any message",
-        "shellHint": "Bulk campaign/API creates with zero messages. Not live chats — excluded from primary KPIs.",
+        "shellHint": "Bulk campaign/API creates with zero messages. Not live chats, excluded from primary KPIs.",
         "shellOfScoped": "{shells} of {total} period entries",
         "entriesCreated": "{count} entries created in period"
       },
@@ -9889,7 +9893,7 @@
         "resolution": "Resolution % (team)",
         "resolutionDesc": "Conversations resolved ÷ (open + pending + resolved) per person",
         "engaged": "Engaged",
-        "engagedDesc": "Entries with at least one message — real conversations used in KPIs",
+        "engagedDesc": "Entries with at least one message, real conversations used in KPIs",
         "shell": "Shell",
         "shellDesc": "Campaign entries with zero messages; shown separately, not as unanswered chats"
       },
@@ -9972,7 +9976,7 @@
         "channelTotalConversations": "Engaged conversations in range",
         "ofPeriodConversations": "of engaged conversations",
         "shellChip": "{count} shells (no messages)",
-        "shellChipHint": "Campaign entries with no messages — not counted as attendance conversations",
+        "shellChipHint": "Campaign entries with no messages, not counted as attendance conversations",
         "avgIncludingShells": "Including shells: {avg} msgs/entry",
         "finishedEventsTelemetry": "{count} finish events logged (telemetry, may include old shells)"
       }
@@ -10358,7 +10362,10 @@
         "step1": "Click connect. A secure Instagram window opens.",
         "step2": "Sign in with Instagram and approve the permissions.",
         "step3": "You return here and the account is ready to receive messages."
-      }
+      },
+      "resultBody": "Direct messages from this account now arrive in your inbox.",
+      "actionTitle": "Connect the account",
+      "detailAccount": "Account"
     },
     "table": {
       "account": "Account",
@@ -10415,7 +10422,7 @@
       "subtitlePost": "Rules that apply to this post.",
       "new": "New rule",
       "emptyTitle": "No rules yet",
-      "emptyBody": "Reply to comments automatically and DM the person — the conversation opens in the inbox and your agent takes it from there.",
+      "emptyBody": "Reply to comments automatically and DM the person: the conversation opens in the inbox and your agent takes it from there.",
       "emptyCta": "Create your first rule",
       "scopePost": "This post",
       "scopeAccount": "All posts",
@@ -10477,13 +10484,13 @@
       "videoHint": "Public video URL (MP4/MOV).",
       "caption": "Caption",
       "captionPlaceholder": "Write your caption...",
-      "captionImmutable": "Captions cannot be edited after publishing — Instagram offers no such endpoint.",
+      "captionImmutable": "Captions cannot be edited after publishing: Instagram offers no such endpoint.",
       "ruleTitle": "Comment automation",
       "ruleHint": "Reply to commenters and DM them automatically.",
       "ruleName": "Post automation",
       "publish": "Publish",
       "publishing": "Publishing...",
-      "publishingHint": "Instagram is processing the media — this can take a few seconds.",
+      "publishingHint": "Instagram is processing the media: this can take a few seconds.",
       "quotaHint": "Limit: 100 posts per 24h.",
       "publishFailed": "Could not publish. Check the URL and try again.",
       "publishedButRuleFailed": "The post was published, but its automation could not be saved: {error}. Create the rule from the automation panel.",
@@ -10542,7 +10549,7 @@
       "disconnect": "Disconnect",
       "reregister": "Re-register webhook",
       "webhookFailing": "Telegram cannot deliver messages to this account.",
-      "webhookBacklog": "{count} updates backed up — Telegram discards them after 24 hours.",
+      "webhookBacklog": "{count} updates backed up: Telegram discards them after 24 hours.",
       "tokenInvalid": "The token was revoked in BotFather. Connect again with a new token."
     },
     "notice": {
@@ -10560,18 +10567,33 @@
       "description": "Paste the token BotFather gave you. There is no authorization flow, app review or registration: the bot is live immediately.",
       "back": "Back",
       "tokenTitle": "Paste the token and connect",
-      "tokenHelp": "The token looks like 123456789:AA… . It is stored encrypted and never shown again.",
+      "tokenHelp": "The token looks like 123456789:AA…. It is stored encrypted and never shown again.",
       "tokenLabel": "Token",
       "tokenMalformed": "That does not look like a BotFather token. The format is <id>:<secret>.",
       "submit": "Connect",
       "connecting": "Connecting...",
       "successTitle": "Bot connected",
       "errorTitle": "Could not connect",
+      "stepsTitle": "How it works",
       "step1": "In Telegram, open a chat with @BotFather and send:",
       "step2": "Choose a name and a username for the bot (the username must end in \"bot\").",
-      "step3": "BotFather replies with the access token — copy the whole line.",
+      "step3": "BotFather replies with the access token: copy the whole line.",
       "heroNote": "No app review, no business verification, no waiting: the bot starts receiving messages the moment you connect it.",
-      "asideTitle": "How it works"
+      "asideTitle": "How it works",
+      "resultBody": "Messages sent to the bot now arrive in your inbox.",
+      "viewBots": "View bots",
+      "actionTitle": "Paste the token and connect",
+      "facts": {
+        "secure": {
+          "title": "Token encrypted",
+          "description": "Stored encrypted and never shown again. You can revoke it in BotFather at any time."
+        },
+        "inbox": {
+          "title": "Same inbox",
+          "description": "Telegram conversations land beside WhatsApp and Instagram, worked by the same agents."
+        }
+      },
+      "detailBot": "Bot"
     },
     "profile": {
       "description": "Webhook health and attribution links for this account.",
@@ -10588,7 +10610,7 @@
     },
     "links": {
       "title": "Attribution links",
-      "help": "A bot cannot start conversations. A t.me link opens an already-attributed conversation on the customer's first tap — use it in e-mails, invoices or QR codes.",
+      "help": "A bot cannot start conversations. A t.me link opens an already-attributed conversation on the customer's first tap: use it in e-mails, invoices or QR codes.",
       "labelField": "Link label",
       "create": "Create link",
       "createFailed": "Could not create the link",
@@ -10611,7 +10633,7 @@
       "saving": "Saving...",
       "saved": "Saved",
       "saveFailed": "Could not save. Try again.",
-      "activeNote": "New messages will be answered by this agent. In Bot mode there is no 24-hour window — the agent can reply at any time, as long as the contact has not blocked it. In Business account mode, Telegram only allows replies within 24 hours of the contact’s last message.",
+      "activeNote": "New messages will be answered by this agent. In Bot mode there is no 24-hour window: the agent can reply at any time, as long as the contact has not blocked it. In Business account mode, Telegram only allows replies within 24 hours of the contact’s last message.",
       "agentSearch": "Search agents...",
       "agentEmpty": "No agent found.",
       "agentInactive": "Inactive",
@@ -10630,17 +10652,26 @@
     },
     "business": {
       "title": "Business account (optional)",
-      "description": "Connect this bot to your personal Telegram account to reply under your own name and photo. The contact does not see a bot — they see you.",
+      "description": "Connect this bot to your personal Telegram account to reply under your own name and photo. The contact does not see a bot, they see you.",
       "step1": "The account needs Telegram Premium.",
       "step2": "In the app, open Settings → Telegram Business → Chatbots.",
       "step3": "Enter this bot’s username:",
       "step4": "Grant the \"Reply to messages\" permission. Without it, nothing is sent.",
-      "tradeoff": "In Bot mode there is no time limit on replying. In Business account mode, Telegram only allows replies within 24 hours of the contact’s last message — after that automation goes silent until they write again.",
+      "tradeoff": "In Bot mode there is no time limit on replying. In Business account mode, Telegram only allows replies within 24 hours of the contact’s last message: after that automation goes silent until they write again.",
       "paired": "Connected to a personal account. Replies go out under its name and photo.",
       "pairedTo": "Connected to {username}. Replies go out under that account’s name and photo.",
       "noReplyRight": "The \"Reply to messages\" permission was not granted. The connection looks active, but no reply is ever sent. Grant it in the app under Settings → Telegram Business → Chatbots.",
       "disabled": "The connection was disabled in the Telegram app. Re-enable it under Settings → Telegram Business → Chatbots.",
       "windowNote": "In this mode Telegram only allows replies within 24 hours of the contact’s last message."
+    }
+  },
+  "channels": {
+    "connect": {
+      "opensWindow": "A secure window will open. Come back to this page when you are done.",
+      "goToInbox": "Go to inbox",
+      "tryAgain": "Try again",
+      "whatYouGet": "What you get",
+      "beforeYouStart": "Before you start"
     }
   }
 }

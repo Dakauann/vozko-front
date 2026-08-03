@@ -25,8 +25,8 @@ import { cn } from "@/lib/utils";
 /* Metrics-aligned status colors (attendance department chart language) */
 const STAGE_HUE = {
   new: "#2463eb", // Signal Blue
-  ongoing: "#f59e0b", // Amber — in progress
-  finished: "#22c55e", // Emerald — done
+  ongoing: "#f59e0b", // Amber, in progress
+  finished: "#22c55e", // Emerald, done
 } as const;
 
 const STAGE_MUTED = {
@@ -308,7 +308,7 @@ export default function ConversationPathChart({
         </div>
       </div>
 
-      {/* Path — horizontal stacked chart */}
+      {/* Path, horizontal stacked chart */}
       <div>
         <div className="mb-2">
           <p className="text-[11px] font-semibold text-foreground">

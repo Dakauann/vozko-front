@@ -4,7 +4,7 @@ import type { useTranslations } from 'next-intl';
  * Translates Instagram's account_type.
  *
  * The value is an upstream enum, not free text, so it is translated rather than
- * shown raw — "MEDIA_CREATOR" in a Portuguese dashboard is an untranslated string
+ * shown raw, "MEDIA_CREATOR" in a Portuguese dashboard is an untranslated string
  * leaking through. Unknown values fall back to a neutral label instead of the raw
  * enum, because Meta has added values before without notice: this account reports
  * MEDIA_CREATOR, which their own docs do not list.

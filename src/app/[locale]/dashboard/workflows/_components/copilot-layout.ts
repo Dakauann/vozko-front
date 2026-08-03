@@ -39,7 +39,7 @@ function sizeOf(n: Node): { w: number; h: number } {
 }
 
 // Height estimate for a node the canvas hasn't measured yet (a brand-new copilot
-// node). A branching node is much taller than a plain one — one row per output —
+// node). A branching node is much taller than a plain one, one row per output,
 // so estimating from the output count keeps tall nodes from being laid out as if
 // short and overlapping their neighbours.
 function estimateHeight(n: Node): number {
@@ -67,7 +67,7 @@ function outputIndex(node: Node | undefined, handle: string | null | undefined):
 // flowOrderIndex ranks nodes by the FLOW (edge) sequence: a depth-first walk from
 // the roots (nodes with no incoming edge) that follows each node's output handles
 // top-to-bottom. This is the fix for the "should be on top but ends up on the
-// bottom" bug — feeding ELK the CURRENT Y order just preserved whatever mess the
+// bottom" bug, feeding ELK the CURRENT Y order just preserved whatever mess the
 // graph already had; feeding it the edge-order lets the drawn layout follow the
 // handles (a node's top output → above its lower output).
 function flowOrderIndex(
@@ -168,7 +168,7 @@ async function runElkLayered(
         // stay top-to-bottom, so a branch NEVER reorders against its handles (e.g.
         // FINANCEIRO must stay above OUTRO even when OUTRO's downstream pulls up).
         // Forcing it is now safe because we feed the CORRECT flow order (the DFS
-        // walk) — the old tangle came from forcing a messy current-Y order.
+        // walk), the old tangle came from forcing a messy current-Y order.
         "elk.layered.considerModelOrder.strategy": "NODES_AND_EDGES",
         "elk.layered.crossingMinimization.strategy": "LAYER_SWEEP",
         "elk.layered.crossingMinimization.forceNodeModelOrder": "true",

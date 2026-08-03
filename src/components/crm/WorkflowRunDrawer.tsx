@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * WorkflowRunDrawer — a read-only view of the workflow attending a conversation, with
+ * WorkflowRunDrawer, a read-only view of the workflow attending a conversation, with
  * the current node highlighted. It reuses the real workflow node renderers
  * (WorkflowNode/GroupNode) and their built-in current-node ring (isSimulating), so it
  * looks exactly like the editor, but with all editing/interaction disabled.

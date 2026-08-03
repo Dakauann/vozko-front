@@ -48,7 +48,7 @@ const statusColor: Record<string, string> = {
   COMPLETED: "bg-blue-500 text-white",
 };
 
-// Solid opaque tiles + white label — matches status chips and DESIGN.md
+// Solid opaque tiles + white label, matches status chips and DESIGN.md
 // (never bg-x/10 + text-x wash).
 const CATEGORY_TONE: Record<string, string> = {
   MARKETING: "bg-violet-500 text-white",

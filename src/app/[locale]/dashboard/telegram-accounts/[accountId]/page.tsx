@@ -44,7 +44,7 @@ import { useWorkspace } from "@/contexts/workspace-context";
  * One Telegram bot.
  *
  * Telegram is an inbox channel: there are no posts and no comment moderation, so
- * this page carries the three things that actually matter here — webhook health,
+ * this page carries the three things that actually matter here, webhook health,
  * who attends the inbox, and the deep links that are this channel's only way to
  * start an attributed conversation.
  */
@@ -191,7 +191,7 @@ export default function TelegramAccountPage() {
             <Warning weight="fill" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-orange-600 dark:text-orange-500" />
             <span>
               {t("profile.webhookLosingMessages")}
-              {account.webhookLastError ? ` — ${account.webhookLastError}` : ""}
+              {account.webhookLastError ? `, ${account.webhookLastError}` : ""}
             </span>
           </p>
         )}
@@ -241,7 +241,7 @@ export default function TelegramAccountPage() {
       <TelegramAutomationPanel account={account} onUpdated={setAccount} />
 
       {/* Business pairing. Placed after automation because it changes HOW the
-          agent appears, not whether it runs — and because its most important
+          agent appears, not whether it runs, and because its most important
           job is the can_reply warning, which only matters once an agent is
           actually attending. */}
       <TelegramBusinessPanel account={account} />

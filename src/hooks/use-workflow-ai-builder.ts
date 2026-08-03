@@ -119,7 +119,7 @@ export function useWorkflowAIBuilder({
   const reconnectRef = useRef<ReconnectController | null>(null);
   // True only while a user-initiated build turn is running. Outside that window
   // the local canvas is the source of truth, so the server's re-sync snapshot
-  // (sent on every connect, empty for a fresh session) must NOT be applied — that
+  // (sent on every connect, empty for a fresh session) must NOT be applied, that
   // is what used to erase the workflow when the socket reconnected.
   const buildActiveRef = useRef(false);
   // Keep the latest onGraph/workflowType without forcing reconnects when their

@@ -46,7 +46,7 @@ const ITEMS_PER_PAGE = 15;
 /**
  * Solid status pills, matching the WhatsApp business phones table.
  *
- * MESSAGING_OFF is not an Instagram account status — it is a derived state for an
+ * MESSAGING_OFF is not an Instagram account status, it is a derived state for an
  * account whose OAuth is healthy but whose "Allow access to messages" toggle is
  * off inside the Instagram app. It gets its own pill because the remedy differs
  * from a reconnect.
@@ -166,7 +166,7 @@ export default function InstagramAccountsPage() {
   const statusKeyFor = (row: InstagramAccount): InstagramAccountStatus | "MESSAGING_OFF" =>
     row.status === "CONNECTED" && !row.messagingHealthy ? "MESSAGING_OFF" : row.status;
 
-  // Counted over the current page, the same way the phones list does it — these are
+  // Counted over the current page, the same way the phones list does it, these are
   // an at-a-glance read of what is on screen, not workspace-wide totals.
   const connectedCount = accounts.filter(
     (a) => a.status === "CONNECTED" && a.messagingHealthy,

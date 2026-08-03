@@ -4,7 +4,7 @@ import type { ChannelInteractiveLimits } from "./types";
  * One option list is authored once and rendered by every channel the workflow
  * can run on, and the channels disagree: WhatsApp shows three buttons,
  * Instagram thirteen quick replies, Telegram an inline keyboard with no
- * practical bound. An option past a channel's cap is not an error anywhere —
+ * practical bound. An option past a channel's cap is not an error anywhere,
  * it simply never appears there, and the first person to notice is a customer
  * who was never offered the choice.
  *
@@ -15,12 +15,12 @@ import type { ChannelInteractiveLimits } from "./types";
 export type ReachStatus =
   /** Rendered in full. */
   | "ok"
-  /** Past the channel's option cap — never shown there. */
+  /** Past the channel's option cap, never shown there. */
   | "dropped"
   /** Shown, but the label is cut to the channel's limit. */
   | "truncated"
   /** The option id does not fit the channel's payload bound, so the option
-   *  cannot be sent at all — a truncated id would come back matching no
+   *  cannot be sent at all, a truncated id would come back matching no
    *  branch. */
   | "payload_too_long";
 
@@ -127,7 +127,7 @@ export function channelsWithoutDescriptions(
  * channel.
  *
  * The editor used to stop at three because that is WhatsApp's button cap. With
- * Telegram connected that ceiling is simply wrong — it prevents writing the
+ * Telegram connected that ceiling is simply wrong, it prevents writing the
  * fourth option that Telegram would happily render. Capping at the maximum and
  * annotating the overflow lets one workflow serve every channel well.
  */

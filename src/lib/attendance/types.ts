@@ -211,7 +211,7 @@ export interface OverviewMessaging {
 
 export interface OverviewReopen {
     reopened_count: number;
-    /** Engaged finished (same as kpis.finished) — rate denominator. */
+    /** Engaged finished (same as kpis.finished), rate denominator. */
     finished_count?: number;
     /** Telemetry: conversation_events finished in range (may include out-of-scope shells). */
     finished_event_count: number;

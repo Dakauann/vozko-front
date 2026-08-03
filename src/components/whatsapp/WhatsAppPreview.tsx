@@ -148,7 +148,7 @@ function HeaderPreview({ component }: { component: DraggableComponent }) {
       <div className="aspect-video bg-muted flex items-center justify-center border-b border-border relative">
         {example ? (
           // unoptimized: the header media is a user-supplied URL of any host, so it
-          // is not in next.config images.remotePatterns — routing it through the
+          // is not in next.config images.remotePatterns, routing it through the
           // /_next/image optimizer 400s. Serve it directly instead.
           <Image src={example} alt="Header" fill className="object-cover" unoptimized />
         ) : (
@@ -224,7 +224,7 @@ function HeaderPreview({ component }: { component: DraggableComponent }) {
     return (
       <div className="aspect-video bg-muted flex items-center justify-center border-b border-border relative">
         {example ? (
-          // unoptimized: user-supplied URL of any host — see the IMAGE header note.
+          // unoptimized: user-supplied URL of any host, see the IMAGE header note.
           <Image src={example} alt="GIF" fill className="object-cover" unoptimized />
         ) : (
           <div className="text-center">

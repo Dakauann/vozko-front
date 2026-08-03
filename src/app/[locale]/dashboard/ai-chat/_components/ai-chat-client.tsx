@@ -68,8 +68,8 @@ const TOOL_ICON: Record<string, Icon> = {
 
 const KNOWN_TOOLS = new Set(Object.keys(TOOL_ICON));
 
-// A Segment is one ordered piece of an assistant turn — the model's thinking, a
-// tool step, or a chunk of the answer — appended in the order events arrive, so
+// A Segment is one ordered piece of an assistant turn, the model's thinking, a
+// tool step, or a chunk of the answer, appended in the order events arrive, so
 // the timeline reads think → act → think → answer (matching the workflow builder).
 type Segment =
   | { kind: "thinking"; text: string; streaming?: boolean }
@@ -325,7 +325,7 @@ export function AIChatClient() {
       if (kind === "approve") {
         // The backend executes the action then RE-ENTERS the loop: stream the
         // continuation into a fresh assistant turn (it confirms on success, or
-        // recovers — possibly proposing a corrected action — on failure).
+        // recovers, possibly proposing a corrected action, on failure).
         const now = new Date().toISOString();
         setMessages((prev) => [
           ...prev,
@@ -616,7 +616,7 @@ function ThinkingBlock({
   streaming?: boolean;
   labels: BubbleLabels;
 }) {
-  // Follow the stream: open while thinking, auto-collapse when done — unless the
+  // Follow the stream: open while thinking, auto-collapse when done, unless the
   // user explicitly toggles it (then their choice sticks).
   const [userToggled, setUserToggled] = useState<boolean | null>(null);
   const open = userToggled ?? !!streaming;

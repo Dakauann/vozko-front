@@ -240,3 +240,32 @@ export async function getConversationMediaAction(
 
     return response.data ?? null;
 }
+
+/**
+ * Toggles the per-conversation automation override on any channel.
+ *
+ * Replaces the WhatsApp campaign-entry PATCH, which required a campaign id.
+ * Instagram and Telegram conversations have none, so the caller resolved no id
+ * and returned before issuing a request, the button did nothing, silently.
+ *
+ * `null` clears the override so the conversation inherits its account or
+ * campaign setting again, which is distinct from an explicit `false`.
+ */
+export async function setConversationAutomationAction(
+    entryType: string,
+    entryId: string,
+    automationEnabled: boolean | null,
+) {
+    const response = await apiClient<{ success: boolean }>(
+        `/conversations/${entryType}/${entryId}/automation`,
+        {
+            method: 'PATCH',
+            body: JSON.stringify({ automationEnabled }),
+        },
+    );
+
+    if (response.error) {
+        return { error: response.error.message };
+    }
+    return { error: null };
+}

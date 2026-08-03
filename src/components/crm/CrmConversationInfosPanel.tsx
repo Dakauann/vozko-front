@@ -217,7 +217,7 @@ export default function CrmConversationInfosPanel({
         open
           ? cn(
               "translate-x-0",
-              // Default 26rem (416px); expanded 30rem (480px) on xl — matches HubSpot/Zendesk rails.
+              // Default 26rem (416px); expanded 30rem (480px) on xl, matches HubSpot/Zendesk rails.
               expanded
                 ? "lg:w-[26rem] xl:w-[30rem]"
                 : "lg:w-[24rem] xl:w-[26rem]",
@@ -265,7 +265,7 @@ export default function CrmConversationInfosPanel({
         </div>
       ) : (
         <>
-          {/* Sticky identity (compact horizontal — not a tall marketing hero) */}
+          {/* Sticky identity (compact horizontal, not a tall marketing hero) */}
           <div className="shrink-0 border-b border-border/60 px-3 py-3">
             {isBlocked && (
               <div className="mb-2.5 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-2.5 py-2 text-red-700">

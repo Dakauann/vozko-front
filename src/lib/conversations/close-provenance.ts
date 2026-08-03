@@ -39,7 +39,7 @@ export function resolveCloseProvenance(
 
   if (!source && !reason) return null;
 
-  // max_age first (also system source) — absolute inactivity, not customer silence.
+  // max_age first (also system source), absolute inactivity, not customer silence.
   if (reason === "max_age") {
     return {
       short: "inatividade",

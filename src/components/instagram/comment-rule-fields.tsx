@@ -13,7 +13,7 @@ import { useTranslations } from "next-intl";
  * The comment-rule form, shared by the rule dialog and the post composer.
  *
  * Both surfaces configure the same object, so they must ask the same questions
- * in the same order — a rule created while publishing and one created later are
+ * in the same order, a rule created while publishing and one created later are
  * the same thing, and two different-looking forms would suggest otherwise.
  *
  * The order is the sentence a marketer says out loud: "when a comment CONTAINS

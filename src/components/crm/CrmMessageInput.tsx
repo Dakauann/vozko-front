@@ -69,7 +69,7 @@ interface CrmMessageInputProps {
     placeholder: string;
     windowClosed: string;
     windowClosedDescription: string;
-    // Shown when the send is blocked WITHOUT a clock — the contact blocked the
+    // Shown when the send is blocked WITHOUT a clock, the contact blocked the
     // bot, or a business connection lost its reply right. Nothing reopens on
     // its own, so telling the operator to "wait for the contact to write" would
     // be advice that never works.
@@ -562,7 +562,7 @@ export default function CrmMessageInput({
     // bar behind it); the input pill + any alerts float on top of it.
     <div className="relative flex-shrink-0 bg-[#efeae2] dark:bg-[#0b141a]">
       {/* The identical dot pattern the message list uses, so the wallpaper reads as
-          ONE continuous surface flowing behind the floating pill — not a flat band. */}
+          ONE continuous surface flowing behind the floating pill, not a flat band. */}
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.04]"
         style={{
@@ -571,7 +571,7 @@ export default function CrmMessageInput({
       />
       <div className="relative">
       {/* Alerts float as centered pills over the wallpaper (never full-width bars,
-          never a same-colour wash — the meaning colour rides the icon/dot only). */}
+          never a same-colour wash, the meaning colour rides the icon/dot only). */}
       {disabled && disabledReason && (
         <div className="flex justify-center px-4 pt-2">
           <div className="flex max-w-[92%] items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 shadow-md">

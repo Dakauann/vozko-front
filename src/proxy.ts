@@ -16,7 +16,7 @@ const intlMiddleware = createIntlMiddleware(routing);
  * Edge redirects based on httpOnly access cookies caused historical infinite
  * bounce loops: proxy saw a leftover access cookie and sent users to /dashboard,
  * while the client (missing `userData` or a dead refresh) sent them back to
- * /login. Auth.js documents the same failure mode — do not redirect to a page
+ * /login. Auth.js documents the same failure mode, do not redirect to a page
  * that will immediately redirect the other way on a partial session signal.
  */
 export function proxy(request: NextRequest) {

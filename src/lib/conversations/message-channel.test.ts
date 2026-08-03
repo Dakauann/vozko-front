@@ -14,7 +14,7 @@ import {
  * fell through to the voice branch.
  *
  * These pin the list itself, so a channel that exists in the type but is absent
- * from the filter — or vice versa — fails here rather than in the UI.
+ * from the filter, or vice versa, fails here rather than in the UI.
  */
 
 describe("FILTERABLE_MESSAGE_CHANNELS", () => {

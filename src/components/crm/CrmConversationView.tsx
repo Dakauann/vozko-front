@@ -486,7 +486,7 @@ function DownloadButton({
   );
 }
 
-// A stable pseudo-waveform (deterministic bar heights) — the WhatsApp voice-note
+// A stable pseudo-waveform (deterministic bar heights), the WhatsApp voice-note
 // look without decoding the audio. Fills with the accent up to the play progress.
 const WAVEFORM_BARS = Array.from({ length: 32 }, (_, i) =>
   0.35 + 0.65 * Math.abs(Math.sin(i * 1.7) * Math.cos(i * 0.6)),
@@ -2175,7 +2175,7 @@ export default function CrmConversationView({
                          * above the text, otherwise the operator sees a bare
                          * sentence with no idea what it is replying to. An
                          * unsupported message needs a visible placeholder because
-                         * Instagram sends the event with no renderable content —
+                         * Instagram sends the event with no renderable content,
                          * silence would look like a bug.
                          */
                         if (

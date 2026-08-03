@@ -99,7 +99,7 @@ function PostTile({
   onSelect: () => void;
   openLabel: string;
 }) {
-  // A reel is a VIDEO with mediaProductType REELS — there is no media_type=REELS —
+  // A reel is a VIDEO with mediaProductType REELS, there is no media_type=REELS,
   // which is why isReel is precomputed server-side rather than derived here.
   const isVideo = media.mediaType === "VIDEO" || media.isReel;
 

@@ -35,7 +35,7 @@ import { useTranslations } from "next-intl";
  * The Instagram-style profile page for one connected account.
  *
  * Everything is scoped to a single accountId so a workspace with several
- * connected accounts never mixes their posts or comments — and so a reply always
+ * connected accounts never mixes their posts or comments, and so a reply always
  * leaves from the account the post belongs to.
  */
 export default function InstagramAccountProfilePage({
@@ -110,7 +110,7 @@ export default function InstagramAccountProfilePage({
 
   return (
     // max-w-5xl matches the business phone detail page, and happens to be close to
-    // Instagram's own ~935px profile column — so the grid reads as a profile rather
+    // Instagram's own ~935px profile column, so the grid reads as a profile rather
     // than stretching tiles across an ultrawide monitor.
     <div className="mx-auto w-full max-w-5xl">
       <motion.div
@@ -171,7 +171,7 @@ export default function InstagramAccountProfilePage({
                   jobs here are genuinely different: browsing what was published
                   versus configuring who answers. Stacking four equal panels made
                   every section compete; tabs give each its own full width and put
-                  the posts — the reason people open this page — first. */}
+                  the posts, the reason people open this page, first. */}
               <Tabs defaultValue="posts">
                 <TabsList>
                   <TabsTrigger value="posts" className="gap-1.5">
@@ -217,7 +217,7 @@ export default function InstagramAccountProfilePage({
                   </ElevatedContainer>
                 </TabsContent>
 
-                {/* Who answers, then what the rules are — the same order the
+                {/* Who answers, then what the rules are, the same order the
                     backend resolves them in. */}
                 <TabsContent value="automation" className="mt-4 space-y-6">
                   <InstagramAutomationPanel account={account} onUpdated={setAccount} />

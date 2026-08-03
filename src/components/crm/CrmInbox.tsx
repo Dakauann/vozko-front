@@ -1201,7 +1201,7 @@ export default function CrmInbox({
                     className="group flex w-full items-start gap-3 px-4 py-3 text-left relative cursor-pointer"
                   >
                     {/* Avatar. The person owns the circle and the channel is a
-                        badge on it — previously the channel glyph REPLACED the
+                        badge on it, previously the channel glyph REPLACED the
                         person, so a mixed inbox showed which network every row
                         came from and who none of them were.
 
@@ -1263,7 +1263,7 @@ export default function CrmInbox({
                         )}
                       </div>
 
-                      {/* Row 3: meta — three DISTINCT visual types so status ≠ stage ≠ label.
+                      {/* Row 3: meta, three DISTINCT visual types so status ≠ stage ≠ label.
                           status = colored dot + muted text (lifecycle state);
                           stage  = outlined chip with a color dot (pipeline position);
                           label  = solid colored pill (tag). */}
@@ -1299,7 +1299,7 @@ export default function CrmInbox({
                             assignedUserId={entry.assigned_user_id}
                             size="sm"
                           />
-                          {/* stage: pipeline position — refined outlined bubble + color dot */}
+                          {/* stage: pipeline position, refined outlined bubble + color dot */}
                           {entry.stage && (
                             <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2 py-0.5 text-[9px] font-medium text-foreground shadow-sm">
                               <span
@@ -1467,7 +1467,7 @@ export default function CrmInbox({
                         )}
                       </div>
 
-                      {/* Row 4: who's responsible (+ campaign) — explicit and legible, one muted line */}
+                      {/* Row 4: who's responsible (+ campaign), explicit and legible, one muted line */}
                       {(entry.assigned_username || entry.campaign_name) && (
                         <div className="mt-1 flex items-center gap-1.5 text-[10px] text-muted-foreground">
                           {entry.assigned_username ? (

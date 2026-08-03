@@ -65,7 +65,7 @@ export type EntryType = 'voice' | 'whatsapp' | 'sip' | 'support' | 'instagram' |
 /**
  * Instagram is deliberately absent here.
  *
- * A campaign is an outbound blast, and Instagram forbids cold outbound entirely —
+ * A campaign is an outbound blast, and Instagram forbids cold outbound entirely,
  * a business can only reply inside a 24h window opened by the customer. So there is
  * no Instagram campaign to model, and adding one would invent a capability the
  * platform does not grant.
@@ -77,7 +77,7 @@ export type CampaignType = 'voice' | 'whatsapp' | 'support';
  *
  * Distinct from EntryType: 'sip' and 'support' are entry kinds, not message
  * channels. Declared once because it had been spelled out inline in three
- * places, and each new channel was added to some of them — Telegram reached the
+ * places, and each new channel was added to some of them, Telegram reached the
  * inbox with no filter option, and a Telegram message rendered a telephone icon
  * because it fell through the whatsapp/instagram checks to the voice branch.
  */
@@ -104,14 +104,14 @@ export function normalizeEntryType(
  * What a channel can actually do, in one place.
  *
  * Conversation UI is shared across channels, so a control that only makes sense
- * for one of them must ask here rather than testing the entry type inline —
+ * for one of them must ask here rather than testing the entry type inline,
  * otherwise every new channel means hunting for scattered conditionals, and a
  * control ends up offered for a channel that cannot honour it.
  */
 export const channelCapabilities = {
     /**
      * Telephony needs a dialable number. An Instagram contact is an IGSID with
-     * no phone number attached, so calling is not merely disabled — it is not a
+     * no phone number attached, so calling is not merely disabled, it is not a
      * property of the channel.
      */
     supportsCalling(entryType: EntryType): boolean {
@@ -135,7 +135,7 @@ export const channelCapabilities = {
      * Whether the composer's disabled state is a CLOCK.
      *
      * WhatsApp and Instagram close on a 24h timer that reopens by itself when
-     * the customer writes again. Telegram in bot mode has no timer at all — the
+     * the customer writes again. Telegram in bot mode has no timer at all, the
      * only thing that closes it is the customer blocking the bot, which never
      * reopens on its own. The copy has to differ, so the question is asked here
      * instead of inferred from a missing expiry.
@@ -227,7 +227,7 @@ export interface InboxEntry {
     lead_id?: string;
     lead_name: string;
     /**
-     * The CONTACT's picture — distinct from last_message_sender_avatar, which
+     * The CONTACT's picture, distinct from last_message_sender_avatar, which
      * is whoever spoke last and becomes the operator's face the moment they
      * reply. The backend has always sent lead_picture; the type never declared
      * it, so every conversation list rendered initials.
@@ -476,6 +476,16 @@ export interface WsSubscribedPayload {
     unread_count: number;
     window_open?: boolean;
     window_expires_at?: string | null;
+    /**
+     * The per-conversation automation override, straight from the server.
+     *
+     * The server has always sent this; the type omitted it, so the subscribe
+     * handler read the cached inbox entry instead. That cache is campaign
+     * scoped, so a Telegram or Instagram conversation is usually absent from it,
+     * the value resolved to null, null is "inherit", and a paused
+     * conversation rendered as running.
+     */
+    automation_enabled?: boolean | null;
 }
 
 export interface WsHistoryPayload {

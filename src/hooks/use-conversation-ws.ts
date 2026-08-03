@@ -19,6 +19,7 @@ import type {
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { hasUserDataCookie } from "@/lib/auth/client-cookies";
+import { resolveAutomationEnabled } from "@/lib/conversations/automation";
 import {
   createReconnectController,
   type ReconnectController,
@@ -884,6 +885,7 @@ export function useConversationWs({
             unread_count,
             window_open,
             window_expires_at,
+            automation_enabled,
           } = event.payload;
 
           if (
@@ -922,8 +924,11 @@ export function useConversationWs({
                   window_expires_at ??
                   inboxEntry?.window_expires_at ??
                   prev.window_expires_at,
-                automation_enabled:
-                  inboxEntry?.automation_enabled ?? prev.automation_enabled,
+                automation_enabled: resolveAutomationEnabled(
+                  automation_enabled,
+                  inboxEntry?.automation_enabled,
+                  prev.automation_enabled,
+                ),
                 conversation_status:
                   inboxEntry?.conversation_status ?? prev.conversation_status,
               };
@@ -943,7 +948,10 @@ export function useConversationWs({
               window_open: window_open ?? inboxEntry?.window_open ?? false,
               window_expires_at:
                 window_expires_at ?? inboxEntry?.window_expires_at ?? null,
-              automation_enabled: inboxEntry?.automation_enabled ?? null,
+              automation_enabled: resolveAutomationEnabled(
+                automation_enabled,
+                inboxEntry?.automation_enabled,
+              ),
               conversation_status: inboxEntry?.conversation_status,
             };
           });

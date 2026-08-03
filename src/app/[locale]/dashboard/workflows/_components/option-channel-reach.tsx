@@ -83,7 +83,7 @@ export function ChannelReachLegend({
  *
  * Deliberately silent on a healthy option. Showing three confirmations on every
  * row would give every row identical weight and bury the one row that actually
- * needs attention — the whole point is that the exceptions are what stand out.
+ * needs attention, the whole point is that the exceptions are what stand out.
  */
 export function OptionChannelReach({
   option,
@@ -131,7 +131,7 @@ export function DescriptionReachNote({
 
   return (
     <p className="text-[10px] leading-relaxed text-muted-foreground">
-      A descrição aparece só no WhatsApp — {without.map(channelName).join(" e ")}{" "}
+      A descrição aparece só no WhatsApp, {without.map(channelName).join(" e ")}{" "}
       {without.length > 1 ? "mostram" : "mostra"} apenas o título.
     </p>
   );

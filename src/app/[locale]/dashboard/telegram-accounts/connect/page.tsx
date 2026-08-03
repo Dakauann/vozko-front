@@ -1,65 +1,51 @@
 "use client";
 
-import { ArrowLeft, Check, Copy, Info, Warning } from "@phosphor-icons/react";
+import { ArrowLeft, Check, Copy, Warning } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { connectTelegramAccountAction } from "@/app/actions/telegram";
 import { looksLikeBotToken } from "@/lib/telegram/types";
 
 import Button from "@/components/elevated-design/button";
-import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import {
-  ConnectAsideCard,
-  ConnectWorkArea,
+  ConnectBlock,
+  ConnectFacts,
+  ConnectIdentity,
+  ConnectNotice,
+  ConnectPanel,
+  ConnectResult,
+  ConnectShell,
+  ConnectTrack,
+  ConnectTrackStep,
 } from "@/components/channels/connect-layout";
-import Image from "next/image";
 import { TelegramLogoColor } from "@/components/icons/channel-logos";
 import { cn } from "@/lib/utils";
-import { getBrand } from "@/config/brand";
-import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
-  },
-};
-
 /**
- * Connecting a Telegram bot.
+ * Connecting a Telegram bot: the direct flow.
  *
- * Structurally this page is a SEQUENCE, not a form beside some help. The operator
- * has to leave for BotFather, obtain a token, and come back — so the token field
- * cannot be filled until the instructions have been followed. A two-column layout
- * presented those as peers and let the eye land on a field the visitor had no way
- * to complete yet.
- *
- * So the whole page is one ordered path, and the field is the last step on the
- * same numbered rail. Reading order, DOM order and task order are the same order.
- * The numbering is earned here: it is a strict prerequisite chain, not decoration.
+ * Unlike WhatsApp and Instagram, nothing here hands off to a provider popup.
+ * The operator does real work in another application (BotFather), comes back
+ * with a token, and finishes on this page. That makes the token field a stop on
+ * the same rail as the instructions rather than a form sitting beside them: it
+ * cannot be completed until the three stops above it are done, and putting it
+ * anywhere else invites a paste the operator has nothing to paste yet.
  */
 export default function ConnectTelegramPage() {
   const t = useTranslations("telegram");
+  const tc = useTranslations("channels.connect");
   const router = useRouter();
-  const { resolvedTheme } = useTheme();
   const { toast } = useToast();
   const { can } = useWorkspace();
 
   const [token, setToken] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [connected, setConnected] = useState<{ name: string } | null>(null);
 
   // Permission is enforced server-side too; this only avoids showing a flow the
   // operator cannot finish.
@@ -94,24 +80,36 @@ export default function ConnectTelegramPage() {
       return;
     }
 
+    // Held on the page rather than redirected away. The operator has just
+    // finished a multi-application task and deserves to see it land, plus the
+    // bot's resolved name is the only confirmation that the right token was
+    // pasted.
+    const name = result.account?.displayName ?? "";
+    setToken("");
+    setConnected({ name });
     toast({
       title: t("connect.successTitle"),
-      description: t("notice.connected", { username: result.account?.displayName ?? "" }),
+      description: t("notice.connected", { username: name }),
     });
-    router.push("/dashboard/telegram-accounts");
-  }, [tokenLooksValid, submitting, trimmed, toast, t, router]);
+  }, [tokenLooksValid, submitting, trimmed, toast, t]);
 
-  const brandLogoSrc =
-    resolvedTheme === "dark" ? getBrand().logo.markWhite : getBrand().logo.mark;
+  // "Ativo na hora" used to lead this list and restated `heroNote`, the notice
+  // directly above it, almost word for word. The notice is the pre-existing
+  // string and the more prominent placement, so the duplicate fact went.
+  const facts = [
+    {
+      term: t("connect.facts.secure.title"),
+      detail: t("connect.facts.secure.description"),
+    },
+    {
+      term: t("connect.facts.inbox.title"),
+      detail: t("connect.facts.inbox.description"),
+    },
+  ];
 
   return (
-    <motion.main
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="mx-auto w-full max-w-6xl space-y-6 pb-16"
-    >
-      <motion.div variants={itemVariants}>
+    <ConnectShell>
+      <ConnectBlock>
         <Button
           variant="ghost"
           title={t("connect.back")}
@@ -120,89 +118,56 @@ export default function ConnectTelegramPage() {
           iconSide="left"
           onClick={() => router.push("/dashboard/telegram-accounts")}
         />
-      </motion.div>
+      </ConnectBlock>
 
-      <motion.div variants={itemVariants}>
-        <ElevatedContainer className="relative overflow-hidden p-8 sm:p-10">
-          <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-[#229ED9]/10 blur-3xl" />
+      <ConnectIdentity
+        logo={<TelegramLogoColor className="h-7 w-7" />}
+        title={t("connect.title")}
+        lead={t("connect.description")}
+      />
 
-          <div className="relative flex items-center gap-3">
-            <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.2 }}
-              className="relative"
+      {connected ? (
+        <ConnectResult
+          status="success"
+          title={t("connect.successTitle")}
+          body={t("connect.resultBody")}
+          details={
+            connected.name
+              ? [{ label: t("connect.detailBot"), value: connected.name }]
+              : undefined
+          }
+          actions={
+            <>
+              <Button
+                variant="primary"
+                title={tc("goToInbox")}
+                onClick={() => router.push("/dashboard/live-chat")}
+              />
+              <Button
+                variant="outline-subtle"
+                title={t("connect.viewBots")}
+                onClick={() => router.push("/dashboard/telegram-accounts")}
+              />
+            </>
+          }
+        />
+      ) : (
+        <ConnectPanel>
+          <ConnectTrack>
+            <ConnectTrackStep index={1} text={t("connect.step1")}>
+              <CommandChip value="/newbot" />
+            </ConnectTrackStep>
+            <ConnectTrackStep index={2} text={t("connect.step2")} />
+            <ConnectTrackStep index={3} text={t("connect.step3")} />
+
+            <ConnectTrackStep
+              index={4}
+              isAction
+              isLast
+              title={t("connect.actionTitle")}
+              text={t("connect.tokenHelp")}
             >
-              <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-border/70 bg-card shadow-[0_2px_8px_-2px_rgba(0,0,0,0.12)]">
-                <TelegramLogoColor className="h-8 w-8" />
-              </div>
-            </motion.div>
-
-            <div className="h-px w-6 bg-border" />
-
-            <motion.div
-              initial={{ scale: 0, rotate: 180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.25 }}
-              className="relative"
-            >
-              <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-border/70 bg-card shadow-[0_2px_8px_-2px_rgba(0,0,0,0.12)]">
-                <Image
-                  src={brandLogoSrc}
-                  alt={getBrand().name}
-                  width={32}
-                  height={32}
-                  className="h-8 w-8 object-contain"
-                  unoptimized
-                />
-              </div>
-            </motion.div>
-          </div>
-
-          {/* More space above the heading than below it, so the title binds to its
-              own description rather than floating between two blocks. */}
-          <div className="mt-8 max-w-xl">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              {t("connect.title")}
-            </h1>
-            <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-              {t("connect.description")}
-            </p>
-          </div>
-
-        </ElevatedContainer>
-      </motion.div>
-
-      <ConnectWorkArea
-        aside={
-          <ConnectAsideCard title={t("connect.asideTitle")} icon={<Info className="h-3.5 w-3.5" />}>
-            {/* The single fact that makes this flow different from the Meta
-                channels: there is no approval step to go looking for. It lives
-                here rather than in the hero because an operator re-reads it
-                while working through the steps, not before starting them. */}
-            <p>{t("connect.heroNote")}</p>
-          </ConnectAsideCard>
-        }
-        work={
-        <ElevatedContainer className="p-6 sm:p-8">
-          {/* One ordered list, one rail. The numbers are load-bearing: each step
-              is a hard prerequisite for the next. */}
-          <ol className="space-y-8">
-            <Step index={1} text={t("connect.step1")} command="/newbot" />
-            <Step index={2} text={t("connect.step2")} />
-            <Step index={3} text={t("connect.step3")} />
-
-            <Step index={4} isLast>
-              <div className="space-y-1">
-                <h2 className="text-sm font-semibold text-foreground">
-                  {t("connect.tokenTitle")}
-                </h2>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {t("connect.tokenHelp")}
-                </p>
-              </div>
-
-              <div className="mt-5 space-y-3">
+              <div className="space-y-3">
                 <label htmlFor="telegram-token" className="sr-only">
                   {t("connect.tokenLabel")}
                 </label>
@@ -220,14 +185,18 @@ export default function ConnectTelegramPage() {
                   }}
                   aria-invalid={showMalformed || Boolean(error)}
                   aria-describedby={
-                    showMalformed ? "telegram-token-hint" : error ? "telegram-token-error" : undefined
+                    showMalformed
+                      ? "telegram-token-hint"
+                      : error
+                        ? "telegram-token-error"
+                        : undefined
                   }
                   className={cn(
                     "w-full rounded-xl border bg-background px-4 py-3 font-mono text-sm text-foreground",
-                    "placeholder:font-sans placeholder:text-muted-foreground",
-                    "transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                    "placeholder:font-sans placeholder:text-foreground/55",
+                    "transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                     showMalformed || error
-                      ? "border-amber-500/60 focus-visible:ring-amber-500/30"
+                      ? "border-destructive/60 focus-visible:ring-destructive/30"
                       : "border-border focus:border-primary/60",
                   )}
                 />
@@ -238,18 +207,25 @@ export default function ConnectTelegramPage() {
                   {showMalformed && (
                     <p
                       id="telegram-token-hint"
-                      className="flex items-start gap-1.5 text-xs leading-relaxed text-amber-700 dark:text-amber-400"
+                      className="flex items-start gap-1.5 text-xs leading-relaxed text-foreground"
                     >
-                      <Warning weight="fill" className="mt-px h-3.5 w-3.5 shrink-0" />
+                      <Warning
+                        weight="fill"
+                        className="mt-px size-3.5 shrink-0 text-amber-600 dark:text-amber-500"
+                      />
                       {t("connect.tokenMalformed")}
                     </p>
                   )}
                   {!showMalformed && error && (
                     <p
                       id="telegram-token-error"
-                      className="flex items-start gap-1.5 text-xs leading-relaxed text-destructive"
+                      role="alert"
+                      className="flex items-start gap-1.5 text-xs leading-relaxed text-foreground"
                     >
-                      <Warning weight="fill" className="mt-px h-3.5 w-3.5 shrink-0" />
+                      <Warning
+                        weight="fill"
+                        className="mt-px size-3.5 shrink-0 text-destructive"
+                      />
                       {error}
                     </p>
                   )}
@@ -260,61 +236,25 @@ export default function ConnectTelegramPage() {
                   size="lg"
                   title={submitting ? t("connect.connecting") : t("connect.submit")}
                   onClick={() => void handleSubmit()}
-                  disabled={!tokenLooksValid || submitting}
+                  disabled={!tokenLooksValid}
+                  aria-busy={submitting}
                   className="w-full sm:w-auto sm:px-10"
                 />
               </div>
-            </Step>
-          </ol>
-        </ElevatedContainer>
-        }
-      />
-    </motion.main>
-  );
-}
+            </ConnectTrackStep>
+          </ConnectTrack>
+        </ConnectPanel>
+      )}
 
-/**
- * One step on the shared numbered rail.
- *
- * The connecting line is drawn from the marker rather than between siblings, so a
- * step whose body is a whole form still reads as part of the same sequence — the
- * rail grows with the content instead of assuming equal-height rows.
- */
-function Step({
-  index,
-  text,
-  command,
-  isLast,
-  children,
-}: {
-  index: number;
-  text?: string;
-  command?: string;
-  isLast?: boolean;
-  children?: React.ReactNode;
-}) {
-  return (
-    <li className="relative flex gap-4">
-      <div className="relative flex flex-col items-center">
-        <span
-          className={cn(
-            "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold tabular-nums",
-            isLast
-              ? "bg-[#229ED9] text-white"
-              : "bg-[#1B7FAD] text-white",
-          )}
-        >
-          {index}
-        </span>
-        {!isLast && <span aria-hidden className="mt-2 w-px flex-1 bg-border" />}
-      </div>
-
-      <div className="min-w-0 flex-1 pb-1">
-        {text && <p className="text-sm leading-relaxed text-muted-foreground">{text}</p>}
-        {command && <CommandChip value={command} />}
-        {children}
-      </div>
-    </li>
+      {!connected && (
+        <>
+          <ConnectBlock>
+            <ConnectNotice tone="info">{t("connect.heroNote")}</ConnectNotice>
+          </ConnectBlock>
+          <ConnectFacts title={tc("whatYouGet")} items={facts} />
+        </>
+      )}
+    </ConnectShell>
   );
 }
 
@@ -330,12 +270,12 @@ function CommandChip({ value }: { value: string }) {
         setCopied(true);
         window.setTimeout(() => setCopied(false), 1500);
       }}
-      className="mt-2 inline-flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 font-mono text-xs text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+      className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2 font-mono text-xs text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
     >
       {copied ? (
-        <Check weight="bold" className="h-3.5 w-3.5 text-emerald-500" />
+        <Check weight="bold" className="size-3.5 text-emerald-600 dark:text-emerald-500" />
       ) : (
-        <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+        <Copy className="size-3.5 text-muted-foreground" />
       )}
       {value}
     </button>

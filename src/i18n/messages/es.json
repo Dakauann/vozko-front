@@ -2867,7 +2867,11 @@
         "toastTitle": "Error en la conexión",
         "toastDescription": "No se pudo conectar tu número de WhatsApp Business. Inténtalo de nuevo."
       },
-      "footer": "Tus datos están protegidos. La autorización se realiza enteramente por Meta a través de un flujo OAuth seguro."
+      "footer": "Tus datos están protegidos. La autorización se realiza enteramente por Meta a través de un flujo OAuth seguro.",
+      "actionTitle": "Conecta con Meta",
+      "noWorkspace": "Selecciona un workspace antes de conectar WhatsApp Business.",
+      "detailPhoneId": "Phone ID",
+      "detailWabaId": "WABA ID"
     }
   },
   "branchesPage": {
@@ -8213,7 +8217,7 @@
         "ongoingHint": "Conversaciones engajadas con el equipo ahora",
         "pending": "Conversaciones pendientes",
         "pendingShort": "Sin respuesta aún",
-        "pendingHint": "Conversaciones engajadas aún en espera (estado nueva/vacía) — no shells de campaña",
+        "pendingHint": "Conversaciones engajadas aún en espera (estado nueva/vacía), no shells de campaña",
         "unassigned": "Conversaciones sin asignar",
         "unassignedShort": "Necesitan responsable",
         "unassignedHint": "Conversaciones engajadas abiertas sin asignado (solo con mensajes)",
@@ -8231,7 +8235,7 @@
         "frtHint": "Desde la asignación hasta la primera respuesta",
         "shellLabel": "Shells de campaña",
         "shellShort": "entradas sin ningún mensaje",
-        "shellHint": "Creadas en masa por campaña/API sin mensajes. No son chats reales — fuera de los KPIs principales.",
+        "shellHint": "Creadas en masa por campaña/API sin mensajes. No son chats reales, fuera de los KPIs principales.",
         "shellOfScoped": "{shells} de {total} entradas del período",
         "entriesCreated": "{count} entradas creadas en el período"
       },
@@ -8300,7 +8304,7 @@
         "resolution": "% resueltas (equipo)",
         "resolutionDesc": "Conversaciones resueltas ÷ (abiertas + pendientes + resueltas) por persona",
         "engaged": "Engajada",
-        "engagedDesc": "Entradas con al menos un mensaje — conversaciones reales de los KPIs",
+        "engagedDesc": "Entradas con al menos un mensaje, conversaciones reales de los KPIs",
         "shell": "Shell",
         "shellDesc": "Entradas de campaña sin mensajes; se muestran aparte, no como chat sin respuesta"
       },
@@ -8383,7 +8387,7 @@
         "channelTotalConversations": "Conversaciones engajadas en el recorte",
         "ofPeriodConversations": "de las conversaciones engajadas",
         "shellChip": "{count} shells (sin mensajes)",
-        "shellChipHint": "Entradas de campaña sin mensajes — no cuentan como atención",
+        "shellChipHint": "Entradas de campaña sin mensajes, no cuentan como atención",
         "avgIncludingShells": "Incluyendo shells: {avg} msgs/entrada",
         "finishedEventsTelemetry": "{count} eventos de cierre (telemetría; puede incluir shells antiguos)"
       }
@@ -8746,8 +8750,8 @@
         "redirecting": "Opening Instagram..."
       },
       "prerequisite": {
-        "title": "Before you start",
-        "description": "The account must be a professional (Business or Creator) account, and in the Instagram app you must enable Settings > Messages and story replies > Message controls > Connected tools > Allow access to messages. Without it, messages never arrive even though the connection succeeds."
+        "title": "Antes de empezar",
+        "description": "La cuenta debe ser profesional (Empresa o Creador de contenido) y, en la app de Instagram, debes activar Configuración > Mensajes y respuestas de historias > Controles de mensajes > Herramientas conectadas > Permitir acceso a los mensajes. Sin eso, los mensajes no llegan aunque la conexión sea correcta."
       },
       "features": {
         "messages": {
@@ -8769,7 +8773,10 @@
         "step1": "Click connect. A secure Instagram window opens.",
         "step2": "Sign in with Instagram and approve the permissions.",
         "step3": "You return here and the account is ready to receive messages."
-      }
+      },
+      "resultBody": "Los mensajes directos de esa cuenta ya llegan a tu inbox.",
+      "actionTitle": "Conecta la cuenta",
+      "detailAccount": "Cuenta"
     },
     "table": {
       "account": "Account",
@@ -8826,7 +8833,7 @@
       "subtitlePost": "Reglas que aplican a esta publicación.",
       "new": "Nueva regla",
       "emptyTitle": "Aún no hay reglas",
-      "emptyBody": "Responde comentarios automáticamente y escribe por privado — la conversación se abre en el inbox y tu agente continúa desde ahí.",
+      "emptyBody": "Responde comentarios automáticamente y escribe por privado: la conversación se abre en el inbox y tu agente continúa desde ahí.",
       "emptyCta": "Crear la primera regla",
       "scopePost": "Esta publicación",
       "scopeAccount": "Todas las publicaciones",
@@ -8888,13 +8895,13 @@
       "videoHint": "URL pública del video (MP4/MOV).",
       "caption": "Descripción",
       "captionPlaceholder": "Escribe la descripción...",
-      "captionImmutable": "La descripción no se puede editar después de publicar — Instagram no ofrece ese endpoint.",
+      "captionImmutable": "La descripción no se puede editar después de publicar: Instagram no ofrece ese endpoint.",
       "ruleTitle": "Automatización de comentarios",
       "ruleHint": "Responde a quien comente y escríbele por privado automáticamente.",
       "ruleName": "Automatización de la publicación",
       "publish": "Publicar",
       "publishing": "Publicando...",
-      "publishingHint": "Instagram está procesando el contenido — puede tardar unos segundos.",
+      "publishingHint": "Instagram está procesando el contenido: puede tardar unos segundos.",
       "quotaHint": "Límite: 100 publicaciones por 24 h.",
       "publishFailed": "No se pudo publicar. Revisa la URL e inténtalo de nuevo.",
       "publishedButRuleFailed": "La publicación se creó, pero la automatización no se pudo guardar: {error}. Crea la regla desde el panel de automatización.",
@@ -8953,7 +8960,7 @@
       "disconnect": "Desconectar",
       "reregister": "Volver a registrar webhook",
       "webhookFailing": "Telegram no logra entregar mensajes a esta cuenta.",
-      "webhookBacklog": "{count} actualizaciones acumuladas — Telegram las descarta tras 24 horas.",
+      "webhookBacklog": "{count} actualizaciones acumuladas: Telegram las descarta tras 24 horas.",
       "tokenInvalid": "El token fue revocado en BotFather. Conecta de nuevo con un token nuevo."
     },
     "notice": {
@@ -8971,18 +8978,33 @@
       "description": "Pega el token que te dio BotFather. No hay autorización, revisión de app ni registro: el bot queda activo de inmediato.",
       "back": "Volver",
       "tokenTitle": "Pega el token y conecta",
-      "tokenHelp": "El token tiene el formato 123456789:AA… . Se guarda cifrado y no se vuelve a mostrar.",
+      "tokenHelp": "El token tiene el formato 123456789:AA…. Se guarda cifrado y no se vuelve a mostrar.",
       "tokenLabel": "Token",
       "tokenMalformed": "Esto no parece un token de BotFather. El formato es <id>:<secreto>.",
       "submit": "Conectar",
       "connecting": "Conectando...",
       "successTitle": "Bot conectado",
       "errorTitle": "No se pudo conectar",
+      "stepsTitle": "¿Cómo funciona?",
       "step1": "En Telegram, abre un chat con @BotFather y envía:",
       "step2": "Elige un nombre y un usuario para el bot (el usuario debe terminar en \"bot\").",
-      "step3": "BotFather responde con el token de acceso — copia la línea completa.",
+      "step3": "BotFather responde con el token de acceso: copia la línea completa.",
       "heroNote": "Sin revisión de aplicación, sin verificación de empresa, sin esperas: el bot recibe mensajes en cuanto lo conectes.",
-      "asideTitle": "Cómo funciona"
+      "asideTitle": "Cómo funciona",
+      "resultBody": "Los mensajes enviados al bot ya llegan a tu inbox.",
+      "viewBots": "Ver bots",
+      "actionTitle": "Pega el token y conecta",
+      "facts": {
+        "secure": {
+          "title": "Token cifrado",
+          "description": "Se guarda cifrado y nunca se vuelve a mostrar. Puedes revocarlo en BotFather cuando quieras."
+        },
+        "inbox": {
+          "title": "El mismo inbox",
+          "description": "Las conversaciones de Telegram llegan junto a WhatsApp e Instagram, con los mismos agentes."
+        }
+      },
+      "detailBot": "Bot"
     },
     "profile": {
       "description": "Estado del webhook y enlaces de atribución de esta cuenta.",
@@ -8999,7 +9021,7 @@
     },
     "links": {
       "title": "Enlaces de atribución",
-      "help": "Un bot no puede iniciar conversaciones. Un enlace t.me abre una conversación ya atribuida en el primer toque del cliente — úsalo en correos, facturas o códigos QR.",
+      "help": "Un bot no puede iniciar conversaciones. Un enlace t.me abre una conversación ya atribuida en el primer toque del cliente: úsalo en correos, facturas o códigos QR.",
       "labelField": "Etiqueta del enlace",
       "create": "Crear enlace",
       "createFailed": "No se pudo crear el enlace",
@@ -9052,6 +9074,15 @@
       "noReplyRight": "No se concedió el permiso \"Responder mensajes\". La conexión aparece activa, pero no se envía ninguna respuesta. Concédelo en la app, en Ajustes → Telegram Business → Chatbots.",
       "disabled": "La conexión fue desactivada en la app de Telegram. Reactívala en Ajustes → Telegram Business → Chatbots.",
       "windowNote": "En este modo Telegram solo permite responder hasta 24 horas después del último mensaje del contacto."
+    }
+  },
+  "channels": {
+    "connect": {
+      "opensWindow": "Se abrirá una ventana segura. Vuelve a esta página cuando termines.",
+      "goToInbox": "Ir al inbox",
+      "tryAgain": "Intentar de nuevo",
+      "whatYouGet": "Qué obtienes",
+      "beforeYouStart": "Antes de empezar"
     }
   }
 }

@@ -17,7 +17,7 @@ import { useTranslations } from "next-intl";
  * The Instagram-style profile header: avatar, handle, stat row, capability chips.
  *
  * Mirrors Instagram's own layout (avatar left, posts/followers/following row) so an
- * operator immediately recognises which account they are working in — the thing
+ * operator immediately recognises which account they are working in, the thing
  * that matters most when a workspace has several connected.
  *
  * All colour comes from the shared accent palette (tinted background + matching
@@ -35,7 +35,7 @@ export function InstagramProfileHeader({ account }: { account: InstagramAccount 
   return (
     <ElevatedContainer className="flex flex-col gap-5 p-6">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-        {/* Circular, as Instagram renders it — a square avatar here immediately
+        {/* Circular, as Instagram renders it, a square avatar here immediately
             reads as "not the same account you see in the app". */}
         <InstagramAvatar
           accountId={account.id}
@@ -80,7 +80,7 @@ export function InstagramProfileHeader({ account }: { account: InstagramAccount 
             <Stat value={account.followsCount} label={t("card.following")} />
           </dl>
 
-          {/* Capability chips reflect the scopes the user ACTUALLY granted —
+          {/* Capability chips reflect the scopes the user ACTUALLY granted,
               individual permissions can be declined at consent time, so this is
               the honest answer to "why can't I reply from here". */}
           <div className="flex flex-wrap gap-1.5 pt-0.5">

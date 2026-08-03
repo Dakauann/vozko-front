@@ -2950,7 +2950,11 @@
         "toastTitle": "Verbindung fehlgeschlagen",
         "toastDescription": "Ihre WhatsApp Business-Nummer konnte nicht verbunden werden. Versuchen Sie es erneut."
       },
-      "footer": "Ihre Daten sind geschützt. Die Autorisierung erfolgt vollständig durch Meta über einen sicheren OAuth-Ablauf."
+      "footer": "Ihre Daten sind geschützt. Die Autorisierung erfolgt vollständig durch Meta über einen sicheren OAuth-Ablauf.",
+      "actionTitle": "Mit Meta verbinden",
+      "noWorkspace": "Wählen Sie einen Workspace, bevor Sie WhatsApp Business verbinden.",
+      "detailPhoneId": "Phone ID",
+      "detailWabaId": "WABA ID"
     }
   },
   "branchesPage": {
@@ -8711,7 +8715,7 @@
         "ongoingHint": "Aktive Gespräche beim Team",
         "pending": "Gespräche in Warteschleife",
         "pendingShort": "Noch keine Antwort",
-        "pendingHint": "Aktive Gespräche noch wartend (Status neu/leer) — keine Kampagnen-Shells",
+        "pendingHint": "Aktive Gespräche noch wartend (Status neu/leer), keine Kampagnen-Shells",
         "unassigned": "Gespräche ohne Bearbeiter",
         "unassignedShort": "Brauchen einen Owner",
         "unassignedHint": "Aktive offene Gespräche ohne Zuständigen (nur mit Nachrichten)",
@@ -8729,7 +8733,7 @@
         "frtHint": "Von Zuweisung bis erster Antwort",
         "shellLabel": "Kampagnen-Shells",
         "shellShort": "Einträge ohne Nachrichten",
-        "shellHint": "Massen-Kampagnen/API-Einträge ohne Nachrichten. Keine echten Chats — nicht in den Haupt-KPIs.",
+        "shellHint": "Massen-Kampagnen/API-Einträge ohne Nachrichten. Keine echten Chats, nicht in den Haupt-KPIs.",
         "shellOfScoped": "{shells} von {total} Einträgen im Zeitraum",
         "entriesCreated": "{count} Einträge im Zeitraum erstellt"
       },
@@ -8798,7 +8802,7 @@
         "resolution": "Lösungs-% (Team)",
         "resolutionDesc": "Gelöste Gespräche ÷ (offene + wartende + gelöste) pro Person",
         "engaged": "Aktiv (mit Nachrichten)",
-        "engagedDesc": "Einträge mit mind. einer Nachricht — echte Gespräche der KPIs",
+        "engagedDesc": "Einträge mit mind. einer Nachricht, echte Gespräche der KPIs",
         "shell": "Shell",
         "shellDesc": "Kampagnen-Einträge ohne Nachrichten; separat angezeigt, nicht als unbeantworteter Chat"
       },
@@ -8881,7 +8885,7 @@
         "channelTotalConversations": "Aktive Gespräche im Zeitraum",
         "ofPeriodConversations": "der aktiven Gespräche",
         "shellChip": "{count} Shells (ohne Nachrichten)",
-        "shellChipHint": "Kampagnen-Einträge ohne Nachrichten — zählen nicht als Service",
+        "shellChipHint": "Kampagnen-Einträge ohne Nachrichten, zählen nicht als Service",
         "avgIncludingShells": "Inkl. Shells: {avg} Msgs/Eintrag",
         "finishedEventsTelemetry": "{count} Abschluss-Events (Telemetrie; kann alte Shells enthalten)"
       }
@@ -9244,8 +9248,8 @@
         "redirecting": "Opening Instagram..."
       },
       "prerequisite": {
-        "title": "Before you start",
-        "description": "The account must be a professional (Business or Creator) account, and in the Instagram app you must enable Settings > Messages and story replies > Message controls > Connected tools > Allow access to messages. Without it, messages never arrive even though the connection succeeds."
+        "title": "Bevor Sie starten",
+        "description": "Das Konto muss ein Profikonto sein (Unternehmen oder Creator), und in der Instagram-App müssen Sie Einstellungen > Nachrichten und Story-Antworten > Nachrichtensteuerung > Verbundene Tools > Zugriff auf Nachrichten erlauben aktivieren. Ohne das kommen keine Nachrichten an, auch wenn die Verbindung erfolgreich ist."
       },
       "features": {
         "messages": {
@@ -9267,7 +9271,10 @@
         "step1": "Click connect. A secure Instagram window opens.",
         "step2": "Sign in with Instagram and approve the permissions.",
         "step3": "You return here and the account is ready to receive messages."
-      }
+      },
+      "resultBody": "Direktnachrichten dieses Kontos landen jetzt in Ihrem Posteingang.",
+      "actionTitle": "Konto verbinden",
+      "detailAccount": "Konto"
     },
     "table": {
       "account": "Account",
@@ -9324,7 +9331,7 @@
       "subtitlePost": "Regeln für diesen Beitrag.",
       "new": "Neue Regel",
       "emptyTitle": "Noch keine Regeln",
-      "emptyBody": "Beantworten Sie Kommentare automatisch und schreiben Sie der Person direkt — die Konversation erscheint im Posteingang und Ihr Agent übernimmt.",
+      "emptyBody": "Beantworten Sie Kommentare automatisch und schreiben Sie der Person direkt: die Konversation erscheint im Posteingang und Ihr Agent übernimmt.",
       "emptyCta": "Erste Regel erstellen",
       "scopePost": "Dieser Beitrag",
       "scopeAccount": "Alle Beiträge",
@@ -9386,13 +9393,13 @@
       "videoHint": "Öffentliche Video-URL (MP4/MOV).",
       "caption": "Bildunterschrift",
       "captionPlaceholder": "Bildunterschrift schreiben...",
-      "captionImmutable": "Bildunterschriften können nach dem Veröffentlichen nicht bearbeitet werden — Instagram bietet dafür keinen Endpunkt.",
+      "captionImmutable": "Bildunterschriften können nach dem Veröffentlichen nicht bearbeitet werden: Instagram bietet dafür keinen Endpunkt.",
       "ruleTitle": "Kommentar-Automatisierung",
       "ruleHint": "Antworten Sie Kommentierenden und schreiben Sie ihnen automatisch direkt.",
       "ruleName": "Beitrags-Automatisierung",
       "publish": "Veröffentlichen",
       "publishing": "Wird veröffentlicht...",
-      "publishingHint": "Instagram verarbeitet die Medien — das kann einige Sekunden dauern.",
+      "publishingHint": "Instagram verarbeitet die Medien: das kann einige Sekunden dauern.",
       "quotaHint": "Limit: 100 Beiträge pro 24 Std.",
       "publishFailed": "Veröffentlichen fehlgeschlagen. Prüfen Sie die URL und versuchen Sie es erneut.",
       "publishedButRuleFailed": "Der Beitrag wurde veröffentlicht, aber die Automatisierung konnte nicht gespeichert werden: {error}. Erstellen Sie die Regel im Automatisierungsbereich.",
@@ -9451,7 +9458,7 @@
       "disconnect": "Trennen",
       "reregister": "Webhook neu registrieren",
       "webhookFailing": "Telegram kann keine Nachrichten an dieses Konto zustellen.",
-      "webhookBacklog": "{count} Updates gestaut — Telegram verwirft sie nach 24 Stunden.",
+      "webhookBacklog": "{count} Updates gestaut: Telegram verwirft sie nach 24 Stunden.",
       "tokenInvalid": "Das Token wurde im BotFather widerrufen. Verbinde erneut mit einem neuen Token."
     },
     "notice": {
@@ -9469,18 +9476,33 @@
       "description": "Füge das Token ein, das BotFather ausgegeben hat. Es gibt keine Autorisierung, keine App-Prüfung und keine Registrierung: Der Bot ist sofort aktiv.",
       "back": "Zurück",
       "tokenTitle": "Token einfügen und verbinden",
-      "tokenHelp": "Das Token sieht aus wie 123456789:AA… . Es wird verschlüsselt gespeichert und nie wieder angezeigt.",
+      "tokenHelp": "Das Token sieht aus wie 123456789:AA…. Es wird verschlüsselt gespeichert und nie wieder angezeigt.",
       "tokenLabel": "Token",
       "tokenMalformed": "Das sieht nicht nach einem BotFather-Token aus. Das Format ist <ID>:<Geheimnis>.",
       "submit": "Verbinden",
       "connecting": "Verbinde...",
       "successTitle": "Bot verbunden",
       "errorTitle": "Verbindung fehlgeschlagen",
+      "stepsTitle": "So funktioniert es",
       "step1": "Öffne in Telegram einen Chat mit @BotFather und sende:",
       "step2": "Wähle einen Namen und einen Benutzernamen für den Bot (der Benutzername muss auf \"bot\" enden).",
-      "step3": "BotFather antwortet mit dem Zugriffstoken — kopiere die ganze Zeile.",
+      "step3": "BotFather antwortet mit dem Zugriffstoken: kopiere die ganze Zeile.",
       "heroNote": "Keine App-Prüfung, keine Unternehmensverifizierung, kein Warten: Der Bot empfängt Nachrichten, sobald du ihn verbindest.",
-      "asideTitle": "So funktioniert es"
+      "asideTitle": "So funktioniert es",
+      "resultBody": "Nachrichten an den Bot landen jetzt in Ihrem Posteingang.",
+      "viewBots": "Bots anzeigen",
+      "actionTitle": "Token einfügen und verbinden",
+      "facts": {
+        "secure": {
+          "title": "Token verschlüsselt",
+          "description": "Verschlüsselt gespeichert und nie wieder angezeigt. Sie können ihn jederzeit im BotFather widerrufen."
+        },
+        "inbox": {
+          "title": "Derselbe Posteingang",
+          "description": "Telegram-Unterhaltungen landen neben WhatsApp und Instagram, betreut von denselben Agenten."
+        }
+      },
+      "detailBot": "Bot"
     },
     "profile": {
       "description": "Webhook-Status und Zuordnungslinks dieses Kontos.",
@@ -9497,7 +9519,7 @@
     },
     "links": {
       "title": "Attributionslinks",
-      "help": "Ein Bot kann keine Unterhaltung beginnen. Ein t.me-Link öffnet beim ersten Tippen des Kunden eine bereits zugeordnete Unterhaltung — nutze ihn in E-Mails, Rechnungen oder QR-Codes.",
+      "help": "Ein Bot kann keine Unterhaltung beginnen. Ein t.me-Link öffnet beim ersten Tippen des Kunden eine bereits zugeordnete Unterhaltung: nutze ihn in E-Mails, Rechnungen oder QR-Codes.",
       "labelField": "Bezeichnung",
       "create": "Link erstellen",
       "createFailed": "Link konnte nicht erstellt werden",
@@ -9550,6 +9572,15 @@
       "noReplyRight": "Die Berechtigung „Nachrichten beantworten“ wurde nicht erteilt. Die Verbindung wirkt aktiv, aber es wird nie eine Antwort gesendet. Erteile sie in der App unter Einstellungen → Telegram Business → Chatbots.",
       "disabled": "Die Verbindung wurde in der Telegram-App deaktiviert. Aktiviere sie unter Einstellungen → Telegram Business → Chatbots erneut.",
       "windowNote": "In diesem Modus erlaubt Telegram Antworten nur innerhalb von 24 Stunden nach der letzten Nachricht des Kontakts."
+    }
+  },
+  "channels": {
+    "connect": {
+      "opensWindow": "Ein sicheres Fenster wird geöffnet. Kehren Sie danach zu dieser Seite zurück.",
+      "goToInbox": "Zum Posteingang",
+      "tryAgain": "Erneut versuchen",
+      "whatYouGet": "Das bekommen Sie",
+      "beforeYouStart": "Bevor Sie starten"
     }
   }
 }

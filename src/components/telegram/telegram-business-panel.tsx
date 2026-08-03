@@ -15,7 +15,7 @@ import type { TelegramAccount } from "@/lib/telegram/types";
  * The second is the one that costs money. An account can be paired and look
  * entirely healthy while every send is withheld, because the owner granted the
  * connection but not the reply permission. Nothing in Telegram surfaces that,
- * and the backend correctly refuses to send — so this is the only place an
+ * and the backend correctly refuses to send, so this is the only place an
  * operator can find out.
  */
 export function TelegramBusinessPanel({ account }: { account: TelegramAccount }) {
@@ -66,7 +66,7 @@ export function TelegramBusinessPanel({ account }: { account: TelegramAccount })
       ) : (
         <div className="space-y-3">
           {/* Numbered because it is a sequence performed on a phone, away from
-              this screen — the operator needs to hold their place in it. */}
+              this screen, the operator needs to hold their place in it. */}
           <ol className="space-y-2.5">
             {[t("step1"), t("step2"), t("step3"), t("step4")].map((step, i) => (
               <li key={i} className="flex gap-2.5 text-xs leading-relaxed text-muted-foreground">

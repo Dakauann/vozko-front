@@ -285,7 +285,7 @@ export function branchDotClass(id: string): string {
 // BranchRow is the ONE row style for a node's outgoing branch, used by every
 // multi-output node (send-button catch-alls, condition, http, ai_agent, wait…).
 // It carries data-option-id and a measured ref so the shell aligns a handle to
-// it. Quiet, uppercase, right-aligned — the state lives on the handle dot, not
+// it. Quiet, uppercase, right-aligned, the state lives on the handle dot, not
 // in colored text, so the canvas reads as one system.
 export function BranchRow({
   id,

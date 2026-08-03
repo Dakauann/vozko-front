@@ -1818,7 +1818,7 @@ export default function MonitoringMode({
         Full analytics live under Métricas (not duplicated here).
       */}
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        {/* Left rail — live feed only */}
+        {/* Left rail, live feed only */}
         <aside className="flex max-h-[28vh] w-full flex-col border-b border-border bg-card lg:max-h-none lg:w-[240px] lg:border-b-0 lg:border-r">
           <div className="flex items-center gap-2 border-b border-border px-3 py-2.5">
             <PanelIcon icon={ChatCircle} />
@@ -1837,7 +1837,7 @@ export default function MonitoringMode({
           </div>
         </aside>
 
-        {/* Center — kanban hero + slim campaign health */}
+        {/* Center, kanban hero + slim campaign health */}
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
           <div className="flex items-center justify-between border-b border-border bg-card/80 px-4 py-2">
             <div className="flex items-center gap-2">
@@ -1870,7 +1870,7 @@ export default function MonitoringMode({
           </div>
         </main>
 
-        {/* Right rail — campaign delivery + viewers (not global analytics) */}
+        {/* Right rail, campaign delivery + viewers (not global analytics) */}
         <aside className="flex max-h-[36vh] w-full flex-col border-t border-border bg-card lg:max-h-none lg:w-[280px] lg:border-l lg:border-t-0">
           <div className="min-h-0 flex-[1.15] overflow-hidden border-b border-border">
             <div className="flex items-center gap-2 border-b border-border px-3 py-2.5">

@@ -80,7 +80,7 @@ export async function disconnectInstagramAccountAction(accountId: string) {
  * perform the 302 to instagram.com itself, so this works as a plain link href.
  *
  * Business Login for Instagram needs no JS SDK and no config_id, unlike WhatsApp
- * Embedded Signup — it is just this URL.
+ * Embedded Signup, it is just this URL.
  */
 export function instagramConnectUrl(returnPath?: string): string {
     const params = new URLSearchParams({ redirect: '1' });
@@ -128,8 +128,8 @@ export async function createInstagramMediaAction(
 /**
  * Toggles comments on a post.
  *
- * This is the only update Instagram supports on a published post — there is no
- * endpoint to edit a caption — so there is deliberately no updateCaption action.
+ * This is the only update Instagram supports on a published post, there is no
+ * endpoint to edit a caption, so there is deliberately no updateCaption action.
  */
 export async function setInstagramCommentEnabledAction(
     accountId: string,
@@ -160,7 +160,7 @@ export function instagramAssetUrl(accountId: string, mediaId: string, thumb = fa
  *
  * Same reasoning as the asset proxy: profile_picture_url is a signed CDN link that
  * expires, so the value stored at connect time rots. The endpoint answers 404 when
- * the account has no photo — Instagram omits the field entirely in that case — so
+ * the account has no photo, Instagram omits the field entirely in that case, so
  * callers must handle a failed load rather than assume an image exists.
  */
 export function instagramAvatarUrl(accountId: string): string {

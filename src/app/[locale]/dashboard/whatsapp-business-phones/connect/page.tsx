@@ -1,64 +1,44 @@
 "use client";
 
-import {
-  ArrowLeft,
-  ArrowSquareOut,
-  CheckCircle,
-  CursorClick,
-  Info,
-  Lightning,
-  Lock,
-  PuzzlePiece,
-  ShieldCheck,
-  WarningCircle,
-} from "@phosphor-icons/react";
+import { ArrowLeft, ArrowSquareOut, Lock } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import Button from "@/components/elevated-design/button";
-import { WhatsAppLogoColor } from "@/components/icons/channel-logos";
-import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import {
-  ConnectAsideCard,
-  ConnectBenefit,
-  ConnectWorkArea,
+  ConnectBlock,
+  ConnectFacts,
+  ConnectIdentity,
+  ConnectNotice,
+  ConnectPanel,
+  ConnectResult,
+  ConnectShell,
+  ConnectSupporting,
 } from "@/components/channels/connect-layout";
-import { IconBox } from "@/components/elevated-design/listing-card";
+import { WhatsAppLogoColor } from "@/components/icons/channel-logos";
 import WhatsAppCapacityCard from "@/components/dashboard/addons/WhatsAppCapacityCard";
 import { useWhatsAppCapacity } from "@/hooks/use-whatsapp-capacity";
 import Image from "next/image";
-import { getBrand } from "@/config/brand";
-import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/auth-context";
 import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5,
-      ease: [0.22, 1, 0.36, 1] as const,
-    },
-  },
-};
-
+/**
+ * Connecting a WhatsApp business phone: a handoff flow with a quota in front of
+ * it.
+ *
+ * Capacity is the reason this page has a numbered rail at all. An operator with
+ * no free slot cannot finish no matter how well the rest is explained, so
+ * remaining capacity is stop one, ahead of the control it governs. The previous
+ * version showed the same card but placed it above a hero that itself sat above
+ * the steps, so the gate, the explanation and the action were three unrelated
+ * blocks scrolling past each other.
+ */
 export default function ConnectWhatsAppPage() {
   const t = useTranslations("whatsappBusinessPhones");
+  const tc = useTranslations("channels.connect");
   const router = useRouter();
   const searchParams = useSearchParams();
   const { resolvedTheme } = useTheme();
@@ -70,14 +50,11 @@ export default function ConnectWhatsAppPage() {
   // (the button is disabled meanwhile) so we never flash a false gate.
   const capacityBlocked = capacity.ready && !capacity.canAdd;
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [popupConnected, setPopupConnected] = useState(false);
   const badgeSrc =
     resolvedTheme === "dark"
       ? "/images/partners/meta-business-partner-two-line-dark.svg"
       : "/images/partners/meta-business-partner-two-line-light.svg";
-  const brandLogoSrc =
-    resolvedTheme === "dark"
-      ? getBrand().logo.markWhite
-      : getBrand().logo.mark;
 
   useEffect(() => {
     if (user && !can("business_phones", "create")) {
@@ -89,7 +66,7 @@ export default function ConnectWhatsAppPage() {
   const phoneId = searchParams.get("phone_id");
   const wabaId = searchParams.get("waba_id");
 
-  const isSuccess = status === "success" && phoneId && wabaId;
+  const isSuccess = popupConnected || Boolean(status === "success" && phoneId && wabaId);
   const isError = status === "error";
 
   useEffect(() => {
@@ -120,8 +97,7 @@ export default function ConnectWhatsAppPage() {
     if (!currentWorkspace?.id) {
       toast({
         title: t("connect.error.toastTitle"),
-        description:
-          "Selecione um workspace antes de conectar o WhatsApp Business.",
+        description: t("connect.noWorkspace"),
         variant: "destructive",
       });
       return;
@@ -179,7 +155,10 @@ export default function ConnectWhatsAppPage() {
           title: t("connect.success.toastTitle"),
           description: t("connect.success.toastDescription"),
         });
-        router.push("/dashboard/whatsapp-business-phones");
+        // Land on the completion screen rather than the list. The popup posts
+        // only a status, so the identifiers are omitted here; the ?status=
+        // fallback path still carries them.
+        setPopupConnected(true);
       }
     };
 
@@ -195,42 +174,24 @@ export default function ConnectWhatsAppPage() {
     return null;
   }
 
-  const features = [
+  const facts = [
     {
-      icon: <CursorClick className="h-6 w-6" weight="fill" />,
-      color: "emerald" as const,
-      titleKey: "connect.features.quick.title",
-      descriptionKey: "connect.features.quick.description",
+      term: t("connect.features.quick.title"),
+      detail: t("connect.features.quick.description"),
     },
     {
-      icon: <Lock className="h-6 w-6" weight="fill" />,
-      color: "blue" as const,
-      titleKey: "connect.features.secure.title",
-      descriptionKey: "connect.features.secure.description",
+      term: t("connect.features.secure.title"),
+      detail: t("connect.features.secure.description"),
     },
     {
-      icon: <Lightning className="h-6 w-6" weight="fill" />,
-      color: "purple" as const,
-      titleKey: "connect.features.automatic.title",
-      descriptionKey: "connect.features.automatic.description",
+      term: t("connect.features.automatic.title"),
+      detail: t("connect.features.automatic.description"),
     },
-  ];
-
-  const steps = [
-    { number: "1", key: "connect.steps.step1" },
-    { number: "2", key: "connect.steps.step2" },
-    { number: "3", key: "connect.steps.step3" },
   ];
 
   return (
-    <motion.main
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="w-full max-w-6xl mx-auto space-y-6 pb-16"
-    >
-      {/* Back Button */}
-      <motion.div variants={itemVariants}>
+    <ConnectShell>
+      <ConnectBlock>
         <Button
           variant="ghost"
           title={t("button.back")}
@@ -239,222 +200,82 @@ export default function ConnectWhatsAppPage() {
           iconSide="left"
           onClick={() => router.push("/dashboard/whatsapp-business-phones")}
         />
-      </motion.div>
+      </ConnectBlock>
 
-      {/* Capacity: shown at the flow entry so the operator sees remaining slots
-          before starting, and is routed to buy more when there are none. */}
-      <motion.div variants={itemVariants}>
-        <WhatsAppCapacityCard capacity={capacity} />
-      </motion.div>
+      <ConnectIdentity
+        logo={<WhatsAppLogoColor className="h-7 w-7" />}
+        title={t("connect.title")}
+        lead={t("connect.description")}
+        meta={
+          <Image
+            src={badgeSrc}
+            alt={t("connect.partnerBadge")}
+            width={132}
+            height={40}
+            className="h-auto w-[112px] object-contain"
+            unoptimized
+          />
+        }
+      />
 
-      {/* Success Banner */}
-      {isSuccess && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4 }}
-        >
-          <ElevatedContainer className="relative overflow-hidden border-emerald-200 bg-gradient-to-br from-emerald-50/80 to-card p-6">
-            <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-emerald-500/10 blur-2xl" />
-            <div className="relative flex gap-4">
-              <IconBox color="emerald" size="lg" animated={false}>
-                <CheckCircle className="h-7 w-7" weight="fill" />
-              </IconBox>
-              <div className="space-y-2 flex-1">
-                <h3 className="text-lg font-semibold text-emerald-900">
-                  {t("connect.success.title")}
-                </h3>
-                <p className="text-sm text-emerald-700/80">
-                  {t("connect.success.description")}
-                </p>
-                <div className="flex flex-wrap gap-2 pt-1">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500 px-3 py-1 text-xs font-medium text-white">
-                    Phone ID: {phoneId}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500 px-3 py-1 text-xs font-medium text-white">
-                    WABA ID: {wabaId}
-                  </span>
-                </div>
-                <div className="pt-3">
-                  <Button
-                    variant="primary"
-                    title={t("connect.success.viewPhones")}
-                    icon={<ArrowSquareOut weight="bold" className="h-4 w-4" />}
-                    iconVisible
-                    iconSide="right"
-                    onClick={() =>
-                      router.push("/dashboard/whatsapp-business-phones")
-                    }
-                  />
-                </div>
-              </div>
-            </div>
-          </ElevatedContainer>
-        </motion.div>
-      )}
-
-      {/* Error Banner */}
-      {isError && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4 }}
-        >
-          <ElevatedContainer className="relative overflow-hidden border-rose-200 bg-gradient-to-br from-rose-50/80 to-card p-6">
-            <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-rose-500/10 blur-2xl" />
-            <div className="relative flex gap-4">
-              <IconBox color="rose" size="md" animated={false}>
-                <Info className="h-5 w-5" weight="fill" />
-              </IconBox>
-              <div className="space-y-1">
-                <h3 className="font-semibold text-rose-900">
-                  {t("connect.error.title")}
-                </h3>
-                <p className="text-sm text-rose-700/80">
-                  {t("connect.error.description")}
-                </p>
-              </div>
-            </div>
-          </ElevatedContainer>
-        </motion.div>
-      )}
-
-      {/* Hero Section */}
-      <motion.header variants={itemVariants}>
-        <ElevatedContainer className="relative overflow-hidden border border-border/50 bg-card p-0">
-          {/* Ambient background glows */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-blue-500/[0.04] blur-[80px]" />
-            <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-emerald-500/[0.04] blur-[60px]" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-primary/[0.02] blur-[100px]" />
+      {isSuccess ? (
+        <ConnectResult
+          status="success"
+          title={t("connect.success.title")}
+          body={t("connect.success.description")}
+          details={
+            phoneId && wabaId
+              ? [
+                  { label: t("connect.detailPhoneId"), value: phoneId },
+                  { label: t("connect.detailWabaId"), value: wabaId },
+                ]
+              : undefined
+          }
+          actions={
+            <>
+              <Button
+                variant="primary"
+                title={tc("goToInbox")}
+                onClick={() => router.push("/dashboard/live-chat")}
+              />
+              <Button
+                variant="outline-subtle"
+                title={t("connect.success.viewPhones")}
+                onClick={() => router.push("/dashboard/whatsapp-business-phones")}
+              />
+            </>
+          }
+        />
+      ) : isError ? (
+        <ConnectResult
+          status="error"
+          title={t("connect.error.title")}
+          body={t("connect.error.description")}
+          actions={
+            <Button
+              variant="primary"
+              title={tc("tryAgain")}
+              onClick={() => router.replace(window.location.pathname)}
+            />
+          }
+        />
+      ) : (
+        <ConnectPanel className="space-y-6">
+          {/* A readout, ahead of the control it governs, but not a step: there
+              is nothing here for the operator to do. `bare` because a card
+              inside a panel is two frames saying the same thing. */}
+          <div className="rounded-xl border border-border/70 bg-muted/40 p-4">
+            <WhatsAppCapacityCard capacity={capacity} variant="bare" />
           </div>
 
-          {/* Subtle grid */}
-          <div
-            className="absolute inset-0 opacity-[0.015]"
-            style={{
-              backgroundImage:
-                "linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)",
-              backgroundSize: "40px 40px",
-            }}
-          />
+          <div className="space-y-3">
+            <h2 className="text-sm font-semibold leading-6 text-foreground">
+              {t("connect.actionTitle")}
+            </h2>
+              <div className="space-y-4">
+                <ConnectNotice tone="info">{tc("opensWindow")}</ConnectNotice>
 
-          <div className="relative px-8 pt-10 pb-8 sm:px-12 sm:pt-12 sm:pb-10">
-            {/* Partner logos + badges row */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-8">
-              <div className="flex items-center gap-5">
-                <motion.div
-                  initial={{ scale: 0, rotate: -180 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 260,
-                    damping: 20,
-                    delay: 0.15,
-                  }}
-                  className="relative"
-                >
-                  <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-border/70 bg-card shadow-[0_2px_8px_-2px_rgba(0,0,0,0.12)]">
-                    <WhatsAppLogoColor className="h-8 w-8" />
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="flex items-center justify-center h-6 w-6"
-                >
-                  <div className="h-px w-6 bg-border" />
-                </motion.div>
-
-                <motion.div
-                  initial={{ scale: 0, rotate: 180 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 260,
-                    damping: 20,
-                    delay: 0.25,
-                  }}
-                  className="relative"
-                >
-                  <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-border/70 bg-card shadow-[0_2px_8px_-2px_rgba(0,0,0,0.12)]">
-                    <Image
-                      src={brandLogoSrc}
-                      alt={getBrand().name}
-                      width={32}
-                      height={32}
-                      className="h-8 w-8 object-contain"
-                      unoptimized
-                    />
-                  </div>
-                </motion.div>
-              </div>
-
-              {/* Meta Business Partner Badge */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-                className="flex-shrink-0"
-              >
-                <Image
-                  src={badgeSrc}
-                  alt="Meta Business Partner"
-                  width={176}
-                  height={100}
-                  className="h-auto w-full max-w-[152px] object-contain"
-                />
-              </motion.div>
-            </div>
-
-            {/* Title block */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35, duration: 0.5 }}
-              className="max-w-2xl space-y-3"
-            >
-              <h1 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
-                {t("connect.title")}
-              </h1>
-              <p className="text-base text-muted-foreground leading-relaxed max-w-xl">
-                {t("connect.description")}
-              </p>
-            </motion.div>
-
-            {/* Primary CTA inline */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.4 }}
-              className="mt-8 flex flex-wrap items-center gap-4"
-            >
-              {capacityBlocked ? (
-                <>
-                  <Button
-                    link="/dashboard/addons"
-                    newTab={false}
-                    variant="primary"
-                    size="lg"
-                    title={t("capacity.buyMore")}
-                    icon={<PuzzlePiece weight="bold" className="h-4 w-4" />}
-                    iconVisible
-                    iconSide="left"
-                    className="px-10 shadow-lg shadow-primary/20"
-                  />
-                  <span className="flex items-center gap-1.5 text-xs font-medium text-amber-700 dark:text-amber-400">
-                    <WarningCircle
-                      weight="fill"
-                      className="h-3.5 w-3.5 text-amber-500"
-                      aria-hidden
-                    />
-                    {t("capacity.full")}
-                  </span>
-                </>
-              ) : (
-                <>
+                <div className="flex flex-wrap items-center gap-3">
                   <Button
                     variant="primary"
                     size="lg"
@@ -466,90 +287,42 @@ export default function ConnectWhatsAppPage() {
                     icon={<ArrowSquareOut weight="bold" className="h-4 w-4" />}
                     iconVisible
                     iconSide="right"
+                    disabled={isRedirecting || capacityBlocked || !capacity.ready}
                     onClick={handleConnect}
-                    disabled={isRedirecting || capacity.loading}
-                    className="px-10 shadow-lg shadow-primary/20"
+                    className="w-full sm:w-auto sm:px-10"
                   />
-                  <span className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Lock weight="bold" className="h-3 w-3" />
+                  <span className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
+                    <Lock weight="bold" className="size-3" />
                     OAuth 2.0
                   </span>
-                </>
-              )}
-            </motion.div>
+                </div>
+
+                {/* What the Meta window will ask for, so the operator recognises
+                    the screens rather than guessing. */}
+                <ul className="space-y-1.5 text-sm leading-relaxed text-muted-foreground">
+                  <li>{t("connect.steps.step1")}</li>
+                  <li>{t("connect.steps.step2")}</li>
+                  <li>{t("connect.steps.step3")}</li>
+                </ul>
+              </div>
           </div>
-        </ElevatedContainer>
-      </motion.header>
+        </ConnectPanel>
+      )}
 
-      <ConnectWorkArea
-        aside={
-          <>
-            <ConnectAsideCard title={t("connect.featuresTitle")}>
-              {features.map((feature) => (
-                <ConnectBenefit
-                  key={feature.titleKey}
-                  icon={feature.icon}
-                  title={t(feature.titleKey)}
-                  description={t(feature.descriptionKey)}
-                />
-              ))}
-            </ConnectAsideCard>
-
-            <ConnectAsideCard title={t("connect.infoBox.title")} icon={<Info className="h-3.5 w-3.5" />}>
-              <p>{t("connect.infoBox.description")}</p>
-            </ConnectAsideCard>
-
-            {/* Trust marks close the aside rather than the page. At the very
-                bottom of a long scroll nobody reached them; beside the steps
-                they are visible while the operator decides to start. */}
-            <div className="space-y-3 pt-1">
-              <Image
-                src={badgeSrc}
-                alt="Meta Business Partner"
-                width={180}
-                height={102}
-                className="h-auto w-full max-w-[132px] object-contain opacity-80 transition-opacity hover:opacity-100"
-              />
-              <p className="flex items-start gap-1.5 text-[11px] leading-relaxed tracking-wide text-muted-foreground/70">
-                <ShieldCheck
-                  weight="fill"
-                  className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-muted-foreground/50"
-                />
-                {t("connect.footer")}
+      {!isSuccess && !isError && (
+        <ConnectSupporting>
+          <ConnectBlock>
+            <ConnectNotice tone="info">
+              <p className="font-medium">{t("connect.infoBox.title")}</p>
+              <p className="text-foreground/80">
+                {t("connect.infoBox.description")}
               </p>
-            </div>
-          </>
-        }
-        work={
-          <ElevatedContainer className="space-y-5 p-6 sm:p-8">
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              {t("connect.stepsTitle")}
-            </h2>
+            </ConnectNotice>
+          </ConnectBlock>
 
-            {/* A vertical rail, not three centred columns. The steps are a
-                sequence performed in order; laying them side by side made them
-                read as three independent options and forced every caption into
-                a 220px measure. */}
-            <ol className="space-y-5">
-              {steps.map((step, index) => (
-                <li key={step.number} className="relative flex gap-4">
-                  <div className="relative flex flex-col items-center">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold tabular-nums text-primary-foreground shadow-sm shadow-primary/20">
-                      {step.number}
-                    </span>
-                    {index < steps.length - 1 && (
-                      <span aria-hidden className="mt-2 w-px flex-1 bg-border" />
-                    )}
-                  </div>
-                  <p className="min-w-0 flex-1 pb-1 text-sm leading-relaxed text-muted-foreground">
-                    {t(step.key)}
-                  </p>
-                </li>
-              ))}
-            </ol>
-          </ElevatedContainer>
-        }
-      />
-    </motion.main>
+          <ConnectFacts title={t("connect.featuresTitle")} items={facts} />
+        </ConnectSupporting>
+      )}
+    </ConnectShell>
   );
 }
