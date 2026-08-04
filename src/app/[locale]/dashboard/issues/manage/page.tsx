@@ -8,8 +8,8 @@ import {
   MagnifyingGlass,
   SpinnerGap,
   Warning,
-} from "@phosphor-icons/react";
-import type { Icon } from "@phosphor-icons/react";
+} from "@/components/icons";
+import type { Icon } from "@/components/icons";
 import {
   ElevatedSelect,
   ElevatedSelectItem,
@@ -37,15 +37,15 @@ const ITEMS_PER_PAGE = 20;
 
 const statusConfig: Record<string, { color: string; icon: Icon }> = {
   open: {
-    color: "bg-blue-500 text-white",
+    color: "bg-muted text-white",
     icon: Circle,
   },
   in_progress: {
-    color: "bg-amber-500 text-white",
+    color: "bg-warning text-white",
     icon: ArrowClockwise,
   },
   closed: {
-    color: "bg-emerald-500 text-white",
+    color: "bg-healthy text-white",
     icon: CheckCircle,
   },
 };
@@ -196,7 +196,7 @@ export default function AdminIssuesPage() {
             <div className="flex items-center gap-2">
               <span
                 className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium",
+                  "inline-flex items-center gap-1.5 rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
                   config.color,
                 )}
               >
@@ -355,7 +355,7 @@ export default function AdminIssuesPage() {
       />
 
       {error && (
-        <div className="rounded-xl border border-red-600 bg-red-500 px-4 py-3 text-sm text-white">
+        <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-white">
           {error}
         </div>
       )}

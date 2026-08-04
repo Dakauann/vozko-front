@@ -19,7 +19,7 @@ import {
   UserCircle,
   UserMinus,
   UserPlus,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
@@ -94,7 +94,7 @@ function iconForEvent(type: string): { Icon: IconComp; tile: string } {
     case "auto_assigned":
       return { Icon: UserPlus, tile: "bg-primary" };
     case "unassigned":
-      return { Icon: UserMinus, tile: "bg-slate-500" };
+      return { Icon: UserMinus, tile: "bg-muted" };
     case "replied":
       return { Icon: UserCircle, tile: "bg-primary" };
     case "ai_replied":
@@ -102,21 +102,21 @@ function iconForEvent(type: string): { Icon: IconComp; tile: string } {
     case "ai_disabled":
     case "ai_session_started":
     case "ai_session_ended":
-      return { Icon: Robot, tile: "bg-amber-500" };
+      return { Icon: Robot, tile: "bg-warning" };
     case "stage_changed":
     case "status_changed":
     case "finished":
     case "reopened":
-      return { Icon: CheckCircle, tile: "bg-emerald-500" };
+      return { Icon: CheckCircle, tile: "bg-healthy" };
     case "label_added":
     case "label_removed":
     case "tag_added":
     case "tag_removed":
-      return { Icon: Tag, tile: "bg-violet-500" };
+      return { Icon: Tag, tile: "bg-muted" };
     case "analysis_created":
-      return { Icon: ChartBar, tile: "bg-teal-600" };
+      return { Icon: ChartBar, tile: "bg-muted" };
     case "call_linked":
-      return { Icon: Phone, tile: "bg-violet-500" };
+      return { Icon: Phone, tile: "bg-muted" };
     case "queue_enqueued":
     case "queue_connected":
     case "queue_abandoned":
@@ -130,7 +130,7 @@ function iconForEvent(type: string): { Icon: IconComp; tile: string } {
     case "transfer_queued":
       return { Icon: ArrowsLeftRight, tile: "bg-orange-500" };
     default:
-      return { Icon: ClockCounterClockwise, tile: "bg-slate-500" };
+      return { Icon: ClockCounterClockwise, tile: "bg-muted" };
   }
 }
 
@@ -291,8 +291,8 @@ function ownerTile(kind: AttendanceOwnerKind): {
   tile: string;
   Icon: typeof UserCircle;
 } {
-  if (kind === "ai") return { tile: "bg-amber-500", Icon: Robot };
-  if (kind === "unassigned") return { tile: "bg-slate-400", Icon: UserMinus };
+  if (kind === "ai") return { tile: "bg-warning", Icon: Robot };
+  if (kind === "unassigned") return { tile: "bg-muted", Icon: UserMinus };
   return { tile: "bg-primary", Icon: UserCircle };
 }
 
@@ -588,7 +588,7 @@ export default function ConversationAttendanceSection({
             <div
               key={row.label}
               className={cn(
-                "rounded-xl border border-border/60 bg-background/70 px-2.5 py-2",
+                "rounded-[--radius] border border-border bg-background px-2.5 py-2",
                 row.muted && "opacity-70",
               )}
             >
@@ -604,9 +604,9 @@ export default function ConversationAttendanceSection({
 
         <Link
           href={metricsHref}
-          className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-border/70 bg-card px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+          className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted"
         >
-          <ChartBar className="h-3.5 w-3.5 text-primary" weight="bold" />
+          <ChartBar className="h-3.5 w-3.5 text-lamp-ink" weight="bold" />
           {campaignId
             ? tSummary("viewCampaignMetrics")
             : tSummary("viewMetrics")}
@@ -653,10 +653,10 @@ export default function ConversationAttendanceSection({
               type="button"
               onClick={() => setFilter(f.id)}
               className={cn(
-                "rounded-full px-2 py-0.5 text-[11px] font-medium transition-colors",
+                "rounded-[--radius] px-2 py-0.5 text-[11px] font-medium transition-colors",
                 filter === f.id
                   ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80",
+                  : "bg-muted text-muted-foreground hover:bg-muted",
               )}
             >
               {f.label}
@@ -669,23 +669,23 @@ export default function ConversationAttendanceSection({
             {[0, 1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="h-12 animate-pulse rounded-xl bg-muted/60"
+                className="h-12 animate-pulse rounded-[--radius] bg-muted"
               />
             ))}
           </div>
         ) : error ? (
-          <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-3 py-3 text-center">
+          <div className="rounded-[--radius] border border-destructive/30 bg-destructive/5 px-3 py-3 text-center">
             <p className="text-xs text-destructive">{error}</p>
             <button
               type="button"
               onClick={() => setReloadToken((n) => n + 1)}
-              className="mt-2 text-xs font-semibold text-primary hover:underline"
+              className="mt-2 text-xs font-semibold text-lamp-ink hover:underline"
             >
               {t("retry")}
             </button>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-xl border border-border/70 bg-background/70 px-3 py-6 text-center">
+          <div className="rounded-[--radius] border border-border bg-background px-3 py-6 text-center">
             <ClockCounterClockwise
               className="mx-auto mb-2 h-7 w-7 text-muted-foreground/40"
               weight="duotone"
@@ -724,7 +724,7 @@ export default function ConversationAttendanceSection({
                     return (
                       <li
                         key={ev.id || `${ev.event_type}-${ev.created_at}`}
-                        className="flex gap-2.5 rounded-xl border border-border/60 bg-background/70 px-2.5 py-2"
+                        className="flex gap-2.5 rounded-[--radius] border border-border bg-background px-2.5 py-2"
                       >
                         <span
                           className={cn(
@@ -751,9 +751,9 @@ export default function ConversationAttendanceSection({
                               className={cn(
                                 "inline-flex rounded-full px-1.5 py-px font-semibold text-white",
                                 kind === "ai"
-                                  ? "bg-amber-500"
+                                  ? "bg-warning"
                                   : kind === "system"
-                                    ? "bg-slate-500"
+                                    ? "bg-muted"
                                     : "bg-primary",
                               )}
                             >
@@ -794,7 +794,7 @@ export default function ConversationAttendanceSection({
                 type="button"
                 onClick={() => void loadMore()}
                 disabled={loadingMore}
-                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-border/70 bg-card px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
               >
                 {loadingMore ? (
                   <ArrowClockwise
@@ -834,11 +834,11 @@ export function AttendanceOwnerBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold text-white",
+        "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold text-white",
         isAi
-          ? "bg-amber-500"
+          ? "bg-warning"
           : kind === "unassigned"
-            ? "bg-slate-400"
+            ? "bg-muted"
             : "bg-primary",
         className,
       )}

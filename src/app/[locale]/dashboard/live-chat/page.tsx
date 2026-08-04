@@ -46,7 +46,6 @@ export default async function LiveChatPage() {
           aiDisabled: t("conversation.aiDisabled"),
           aiToggleTooltip: t("conversation.aiToggleTooltip"),
           call: t("conversation.call"),
-          callViaSip: t("conversation.callViaSip"),
           callViaWhatsapp: t("conversation.callViaWhatsapp"),
           comingSoon: t("conversation.comingSoon"),
           ringing: t("conversation.ringing"),

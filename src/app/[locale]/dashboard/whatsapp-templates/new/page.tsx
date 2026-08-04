@@ -14,7 +14,7 @@ import {
   Info,
   Warning,
   WhatsappLogo,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type {
   CreateTemplatePayload,
   TemplateCategory,
@@ -689,7 +689,7 @@ export default function NewWhatsAppTemplatePage() {
     },
     mixed: {
       label: t("new.guidelines.formatMixed"),
-      cls: "bg-amber-500/10 text-amber-700 border-amber-500/20",
+      cls: "bg-warning/10 text-warning border-warning/20",
     },
   }[detectedFormat];
   const guidelineKeys = [
@@ -728,7 +728,7 @@ export default function NewWhatsAppTemplatePage() {
           badge={t("new.title")}
           title={t("new.title")}
           description={t("new.description")}
-          colorClass="text-cyan-600"
+          colorClass="text-muted-foreground"
           actions={
             <div className="flex items-center gap-2" data-tour="wt-submit">
               <Button
@@ -765,9 +765,9 @@ export default function NewWhatsAppTemplatePage() {
         <div className="flex-1 min-w-0 space-y-5">
           {/* Template Basic Info */}
           <motion.div variants={itemVariants} data-tour="wt-template-info">
-            <ElevatedContainer className="border border-border/70 bg-card p-5">
+            <ElevatedContainer className="border border-border bg-card p-5">
               <h2 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
-                <div className="flex h-6 w-6 items-center justify-center rounded-md bg-emerald-500">
+                <div className="flex h-6 w-6 items-center justify-center rounded-md bg-healthy">
                   <WhatsappLogo
                     className="h-3.5 w-3.5 text-white"
                     weight="fill"
@@ -793,7 +793,7 @@ export default function NewWhatsAppTemplatePage() {
                     className={errors.name ? "border-red-300" : ""}
                   />
                   {errors.name ? (
-                    <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                    <p className="mt-1 text-xs text-destructive flex items-center gap-1">
                       <Warning className="h-3 w-3" /> {errors.name}
                     </p>
                   ) : (
@@ -820,7 +820,7 @@ export default function NewWhatsAppTemplatePage() {
                     isLoading={businessPhoneSelect.isLoading}
                   />
                   {errors.businessPhone ? (
-                    <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                    <p className="mt-1 text-xs text-destructive flex items-center gap-1">
                       <Warning className="h-3 w-3" /> {errors.businessPhone}
                     </p>
                   ) : (
@@ -859,10 +859,10 @@ export default function NewWhatsAppTemplatePage() {
 
           {/* Template Builder */}
           <motion.div variants={itemVariants}>
-            <ElevatedContainer className="border border-border/70 bg-card p-5">
+            <ElevatedContainer className="border border-border bg-card p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-md bg-muted">
                     <FlowArrow
                       className="h-3.5 w-3.5 text-white"
                       weight="bold"
@@ -885,7 +885,7 @@ export default function NewWhatsAppTemplatePage() {
                   />
                 </div>
 
-                <div className="border border-border rounded-xl bg-muted/30 min-h-[400px] overflow-hidden" data-tour="wt-component-editor">
+                <div className="border border-border rounded-[--radius] bg-muted min-h-[400px] overflow-hidden" data-tour="wt-component-editor">
                   <ComponentEditor
                     component={selectedComponent}
                     onChange={handleComponentChange}
@@ -914,10 +914,10 @@ export default function NewWhatsAppTemplatePage() {
                         className="flex items-center gap-2 p-2.5 rounded-lg bg-destructive/10 border border-destructive/20"
                       >
                         <Warning
-                          className="h-3.5 w-3.5 text-red-600 flex-shrink-0"
+                          className="h-3.5 w-3.5 text-destructive flex-shrink-0"
                           weight="fill"
                         />
-                        <p className="text-xs text-red-700">{error}</p>
+                        <p className="text-xs text-destructive">{error}</p>
                       </div>
                     ))}
                 </div>
@@ -927,7 +927,7 @@ export default function NewWhatsAppTemplatePage() {
 
           {/* Guidelines */}
           <motion.div variants={itemVariants}>
-            <ElevatedContainer className="border border-border/70 bg-card p-5">
+            <ElevatedContainer className="border border-border bg-card p-5">
               <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
                 <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[#2463eb]">
@@ -940,7 +940,7 @@ export default function NewWhatsAppTemplatePage() {
                     {t("new.guidelines.formatLabel")}
                   </span>
                   <span
-                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${formatBadge.cls}`}
+                    className={`inline-flex items-center rounded-[--radius] border px-2 py-0.5 text-[11px] font-medium ${formatBadge.cls}`}
                   >
                     {formatBadge.label}
                   </span>
@@ -973,9 +973,9 @@ export default function NewWhatsAppTemplatePage() {
           className="hidden xl:block w-[340px] flex-shrink-0 sticky top-6"
           data-tour="wt-preview"
         >
-          <ElevatedContainer className="border border-border/70 bg-card p-5">
+          <ElevatedContainer className="border border-border bg-card p-5">
             <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-teal-500">
+              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-muted">
                 <DeviceMobile
                   className="h-3.5 w-3.5 text-white"
                   weight="fill"
@@ -984,7 +984,7 @@ export default function NewWhatsAppTemplatePage() {
               {t("new.preview")}
             </h2>
 
-            <div className="rounded-2xl overflow-hidden border border-border">
+            <div className="rounded-[--radius] overflow-hidden border border-border">
               <div className="h-[520px]">
                 <WhatsAppPreview
                   components={components}
@@ -994,17 +994,17 @@ export default function NewWhatsAppTemplatePage() {
               </div>
             </div>
 
-            <div className="mt-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+            <div className="mt-4 p-3 rounded-lg bg-warning/10 border border-warning/20">
               <div className="flex items-start gap-2.5">
                 <Warning
-                  className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5"
+                  className="h-4 w-4 text-warning flex-shrink-0 mt-0.5"
                   weight="fill"
                 />
                 <div>
                   <h4 className="text-xs font-semibold text-amber-800 mb-0.5">
                     {t("new.approvalRequired.title")}
                   </h4>
-                  <p className="text-[11px] text-amber-700 leading-relaxed">
+                  <p className="text-[11px] text-warning leading-relaxed">
                     {t("new.approvalRequired.description")}
                   </p>
                 </div>

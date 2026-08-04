@@ -13,7 +13,7 @@ import {
   Plus,
   Wallet,
   XCircle,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type {
   BalanceSummary,
   ListTransactionsParams,
@@ -308,15 +308,15 @@ export default function AdminUserBalancePage() {
         transition={{ duration: 0.4, delay: 0.1 }}
       >
         <div
-          className="rounded-[26px] border border-border/70 bg-card/90 p-6"
+          className="rounded-[--radius] border border-border bg-card p-6"
           style={{ boxShadow: softSurfaceShadow }}
         >
           <div className="flex items-center gap-3 mb-5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500">
+            <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted">
               <Wallet className="h-5 w-5 text-white" weight="fill" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-foreground">
+              <h2 className="text-lg font-semibold text-foreground">
                 {t("header.title")}
               </h2>
               {summary?.last_updated && (
@@ -328,9 +328,9 @@ export default function AdminUserBalancePage() {
           </div>
 
           <div className="grid gap-3 grid-cols-1">
-            <div className="group relative flex flex-col gap-4 p-5 rounded-2xl border border-border/70 bg-card overflow-hidden">
+            <div className="group relative flex flex-col gap-4 p-5 rounded-[--radius] border border-border bg-card overflow-hidden">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl from-amber-500 to-amber-600 bg-gradient-to-br">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] from-amber-500 to-amber-600 bg-gradient-to-br">
                   <CurrencyDollar
                     className="h-5 w-5 text-white"
                     weight="fill"
@@ -340,7 +340,7 @@ export default function AdminUserBalancePage() {
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">
                     {t("resource.money")}
                   </p>
-                  <p className="text-2xl font-bold text-foreground">
+                  <p className="text-2xl font-semibold text-foreground">
                     {loadingSummary
                       ? "..."
                       : formatMoneyValue(
@@ -353,22 +353,22 @@ export default function AdminUserBalancePage() {
 
               {!loadingSummary && moneyBalance && (
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="rounded-xl bg-muted px-3 py-2 text-center backdrop-blur-sm">
+                  <div className="rounded-[--radius] bg-muted px-3 py-2 text-center">
                     <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">
                       {t("card.credited")}
                     </p>
-                    <p className="text-sm font-bold text-foreground">
+                    <p className="text-sm font-semibold text-foreground">
                       {formatMoneyValue(
                         moneyBalance.total_credited,
                         exchangeRate!,
                       )}
                     </p>
                   </div>
-                  <div className="rounded-xl bg-muted px-3 py-2 text-center backdrop-blur-sm">
+                  <div className="rounded-[--radius] bg-muted px-3 py-2 text-center">
                     <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">
                       {t("card.debited")}
                     </p>
-                    <p className="text-sm font-bold text-foreground">
+                    <p className="text-sm font-semibold text-foreground">
                       {formatMoneyValue(
                         moneyBalance.total_debited,
                         exchangeRate!,
@@ -392,7 +392,7 @@ export default function AdminUserBalancePage() {
             transition={{ duration: 0.3 }}
           >
             <div
-              className="rounded-[26px] border border-blue-500/20/70 bg-primary/10/30 p-6"
+              className="rounded-[--radius] border border-blue-500/20/70 bg-muted p-6"
               style={{ boxShadow: softSurfaceShadow }}
             >
               <h3 className="text-lg font-semibold text-foreground mb-4">
@@ -415,7 +415,7 @@ export default function AdminUserBalancePage() {
                       <ElevatedSelectItem value="credit">
                         <span className="flex items-center gap-2">
                           <ArrowUp
-                            className="h-3.5 w-3.5 text-emerald-500"
+                            className="h-3.5 w-3.5 text-healthy"
                             weight="bold"
                           />
                           {t("form.credit")}
@@ -488,7 +488,7 @@ export default function AdminUserBalancePage() {
                   <button
                     type="button"
                     onClick={() => setShowForm(false)}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
+                    className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
                   >
                     <XCircle className="h-4 w-4" weight="bold" />
                     {t("form.cancel")}
@@ -497,10 +497,10 @@ export default function AdminUserBalancePage() {
                     type="submit"
                     disabled={submitting || !formAmount}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-medium text-white transition-colors disabled:opacity-50",
+                      "inline-flex items-center gap-1.5 rounded-[--radius] px-4 py-2 text-sm font-medium text-white transition-colors disabled:opacity-50",
                       operationType === "credit"
-                        ? "bg-emerald-600 hover:bg-emerald-700"
-                        : "bg-red-600 hover:bg-red-700",
+                        ? "bg-healthy hover:bg-healthy"
+                        : "bg-destructive hover:bg-red-700",
                     )}
                   >
                     {submitting ? (
@@ -529,7 +529,7 @@ export default function AdminUserBalancePage() {
         transition={{ duration: 0.4, delay: 0.15 }}
       >
         <div
-          className="rounded-[26px] border border-border/70 bg-card/90 p-4"
+          className="rounded-[--radius] border border-border bg-card p-4"
           style={{ boxShadow: softSurfaceShadow }}
         >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -573,13 +573,13 @@ export default function AdminUserBalancePage() {
         transition={{ duration: 0.4, delay: 0.2 }}
       >
         <div
-          className="rounded-[26px] border border-border/70 bg-card/90 overflow-hidden"
+          className="rounded-[--radius] border border-border bg-card overflow-hidden"
           style={{ boxShadow: softSurfaceShadow }}
         >
           <div className="flex items-center justify-between p-6 border-b border-border">
             <div className="flex items-center gap-3">
               <div
-                className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted"
+                className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted"
                 style={{ boxShadow: softSurfaceShadow }}
               >
                 <Wallet
@@ -600,15 +600,15 @@ export default function AdminUserBalancePage() {
 
           {loadingTx ? (
             <div className="flex flex-col items-center justify-center py-20">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-foreground/20 border-t-blue-500" />
+              <div className="h-6 w-6 animate-spin rounded-full border border-foreground/20 border-t-blue-500" />
               <p className="text-sm text-muted-foreground mt-3">
                 {t("loading")}
               </p>
             </div>
           ) : error && transactions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-100 mb-4">
-                <Wallet className="h-7 w-7 text-red-600" weight="fill" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-destructive/10 mb-4">
+                <Wallet className="h-7 w-7 text-destructive" weight="fill" />
               </div>
               <p className="font-semibold text-foreground">
                 {t("error.title")}
@@ -617,7 +617,7 @@ export default function AdminUserBalancePage() {
             </div>
           ) : transactions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20">
-              <Wallet className="h-12 w-12 text-slate-300 mb-3" weight="fill" />
+              <Wallet className="h-12 w-12 text-muted-foreground mb-3" weight="fill" />
               <p className="text-sm text-muted-foreground">
                 {t("transactions.empty")}
               </p>
@@ -630,11 +630,11 @@ export default function AdminUserBalancePage() {
                 return (
                   <div
                     key={tx.id}
-                    className="flex items-center gap-4 px-6 py-4 transition-colors hover:bg-muted/80"
+                    className="flex items-center gap-4 px-6 py-4 transition-colors hover:bg-muted"
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-[--radius]">
                       <CurrencyDollar
-                        className="h-5 w-5 text-amber-500"
+                        className="h-5 w-5 text-warning"
                         weight="fill"
                       />
                     </div>
@@ -655,7 +655,7 @@ export default function AdminUserBalancePage() {
                     <div className="flex items-center gap-2">
                       {isCredit ? (
                         <ArrowUp
-                          className="h-4 w-4 text-emerald-500"
+                          className="h-4 w-4 text-healthy"
                           weight="bold"
                         />
                       ) : (
@@ -666,8 +666,8 @@ export default function AdminUserBalancePage() {
                       )}
                       <span
                         className={cn(
-                          "text-sm font-bold tabular-nums",
-                          isCredit ? "text-emerald-600" : "text-red-600",
+                          "text-sm font-semibold tabular-nums",
+                          isCredit ? "text-healthy" : "text-destructive",
                         )}
                       >
                         {isCredit ? "+" : "-"}

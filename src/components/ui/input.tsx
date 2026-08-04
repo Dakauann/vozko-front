@@ -8,12 +8,15 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
       <input
         type={type}
         className={cn(
-          "flex h-10 w-full rounded-full border border-border bg-card px-4 py-2 text-sm text-foreground shadow-sm transition-colors",
-          "file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground",
+          // A sunk field: the value sits in a recess in the panel. Focus is
+          // --ring, a different hue from the lamp, so a focused field is never
+          // read as a field in an accent state.
+          "flex h-8 w-full rounded-[--radius] border border-border border-t-rule-strong bg-muted px-2.5 text-[13px] text-foreground transition-colors",
+          "file:border-0 file:bg-transparent file:text-[13px] file:font-medium file:text-foreground",
           "placeholder:text-muted-foreground",
-          "hover:border-foreground/20",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary",
-          "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-muted",
+          "hover:border-rule-strong",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-rule-strong",
+          "disabled:cursor-not-allowed disabled:opacity-40",
           className,
         )}
         ref={ref}

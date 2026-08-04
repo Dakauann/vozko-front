@@ -6,7 +6,7 @@ import {
   Phone,
   Users,
   WhatsappLogo,
-} from "@phosphor-icons/react"
+} from "@/components/icons"
 import {
   ElevatedSelect,
   ElevatedSelectItem,
@@ -40,8 +40,8 @@ function formatDate(value: string | undefined | null, locale: string): string {
 
 function windowBadgeClass(open: boolean): string {
   return open
-    ? "bg-emerald-500 text-white"
-    : "bg-slate-500 text-white"
+    ? "bg-healthy text-white"
+    : "bg-muted text-white"
 }
 
 export default function LeadsPage() {
@@ -108,7 +108,7 @@ export default function LeadsPage() {
       header: t("table.campaigns"),
       render: (row) => (
         <span className="text-sm text-foreground tabular-nums">
-          <span className="inline-flex items-center gap-1"><WhatsappLogo weight="fill" className="text-emerald-500" size={12} />{row.whatsappCampaigns}</span>
+          <span className="inline-flex items-center gap-1"><WhatsappLogo weight="fill" className="text-healthy" size={12} />{row.whatsappCampaigns}</span>
         </span>
       ),
     },
@@ -117,7 +117,7 @@ export default function LeadsPage() {
       header: t("table.window"),
       render: (row) => (
         <span className={cn(
-          "inline-flex text-[10px] font-bold uppercase px-2 py-0.5 rounded-full",
+          "inline-flex text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full",
           windowBadgeClass(row.whatsappWindowOpen),
         )}>
           {row.whatsappWindowOpen ? t("window.open") : t("window.closed")}
@@ -174,7 +174,7 @@ export default function LeadsPage() {
             {
               label: t("summary.withWhatsApp"),
               value: loading ? "..." : String(summary.withWhatsApp),
-              icon: <WhatsappLogo className="h-4 w-4 text-emerald-500" weight="fill" />,
+              icon: <WhatsappLogo className="h-4 w-4 text-healthy" weight="fill" />,
             },
           ]}
           data={items}
@@ -208,8 +208,8 @@ export default function LeadsPage() {
           paginationText={{ showing: "", of: "", items: t("records.total") }}
           emptyState={
             error
-              ? { icon: <Users className="h-7 w-7 text-red-600" weight="fill" />, title: t("error.title"), description: error }
-              : { icon: <Users className="h-7 w-7 text-slate-300" weight="fill" />, title: t("records.empty") }
+              ? { icon: <Users className="h-7 w-7 text-destructive" weight="fill" />, title: t("error.title"), description: error }
+              : { icon: <Users className="h-7 w-7 text-muted-foreground" weight="fill" />, title: t("records.empty") }
           }
         />
       </motion.div>

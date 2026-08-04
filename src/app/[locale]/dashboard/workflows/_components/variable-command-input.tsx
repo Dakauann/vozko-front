@@ -16,7 +16,7 @@ import {
   ArrowBendUpLeft,
   TreeStructure,
   Tag,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   Command,
   CommandEmpty,
@@ -371,7 +371,7 @@ export function VariableCommandInput({
                 type="button"
                 className={cn(
                   "absolute right-1.5 flex h-6 w-6 items-center justify-center rounded-md transition-all",
-                  "bg-muted/80 text-muted-foreground hover:bg-primary/10 hover:text-primary",
+                  "bg-muted text-muted-foreground hover:bg-muted hover:text-lamp-ink",
                   multiline ? "top-1.5" : "top-1/2 -translate-y-1/2",
                 )}
                 title="Inserir variável (Ctrl+Espaço ou {{)"
@@ -385,7 +385,7 @@ export function VariableCommandInput({
         <PopoverContent
           align="start"
           side="bottom"
-          className="w-[420px] p-0 shadow-2xl border-border/50"
+          className="w-[420px] p-0 shadow-2xl border-border"
           onOpenAutoFocus={(e) => {
             e.preventDefault();
             setTimeout(() => searchInputRef.current?.focus(), 0);
@@ -410,12 +410,12 @@ export function VariableCommandInput({
         >
           <Command shouldFilter={false} className="rounded-lg">
             {/* Header */}
-            <div className="px-3 py-2.5 border-b bg-muted/30">
+            <div className="px-3 py-2.5 border-b bg-muted">
               <div className="flex items-center gap-2 mb-2">
-                <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10">
+                <div className="flex h-6 w-6 items-center justify-center rounded-md bg-muted">
                   <BracketsCurly
                     size={14}
-                    className="text-primary"
+                    className="text-lamp-ink"
                     weight="bold"
                   />
                 </div>
@@ -470,10 +470,10 @@ export function VariableCommandInput({
                           size={12}
                           weight="bold"
                           className={cn(
-                            category === "last" && "text-emerald-500",
+                            category === "last" && "text-healthy",
                             category === "custom" && "text-violet-500",
                             category === "system" && "text-blue-500",
-                            category === "node" && "text-amber-500",
+                            category === "node" && "text-warning",
                           )}
                         />
                         <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -493,25 +493,25 @@ export function VariableCommandInput({
                           key={v.template}
                           value={`${v.key} ${v.template} ${v.description}`}
                           onSelect={() => handleSelectVariable(v.template)}
-                          className="flex items-start gap-3 px-3 py-2.5 cursor-pointer rounded-lg mx-1 data-[selected=true]:bg-primary/10"
+                          className="flex items-start gap-3 px-3 py-2.5 cursor-pointer rounded-lg mx-1 data-[selected=true]:bg-muted"
                         >
                           <div
                             className={cn(
                               "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
-                              category === "last" && "bg-emerald-500/10",
-                              category === "custom" && "bg-violet-500/10",
-                              category === "system" && "bg-blue-500/10",
-                              category === "node" && "bg-amber-500/10",
+                              category === "last" && "bg-healthy/10",
+                              category === "custom" && "bg-muted",
+                              category === "system" && "bg-muted",
+                              category === "node" && "bg-warning/10",
                             )}
                           >
                             <VarIcon
                               size={14}
                               weight="duotone"
                               className={cn(
-                                category === "last" && "text-emerald-600",
-                                category === "custom" && "text-violet-600",
-                                category === "system" && "text-blue-600",
-                                category === "node" && "text-amber-600",
+                                category === "last" && "text-healthy",
+                                category === "custom" && "text-muted-foreground",
+                                category === "system" && "text-muted-foreground",
+                                category === "node" && "text-warning",
                               )}
                             />
                           </div>
@@ -521,7 +521,7 @@ export function VariableCommandInput({
                                 {v.description}
                               </span>
                               {category === "last" && (
-                                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500 text-white font-medium shrink-0">
+                                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-healthy text-white font-medium shrink-0">
                                   Recomendado
                                 </span>
                               )}
@@ -539,7 +539,7 @@ export function VariableCommandInput({
             </CommandList>
 
             {/* Footer hint */}
-            <div className="px-3 py-2 border-t bg-muted/20 flex items-center justify-between">
+            <div className="px-3 py-2 border-t bg-muted flex items-center justify-between">
               <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <kbd className="px-1.5 py-0.5 rounded bg-muted border text-[9px] font-mono">

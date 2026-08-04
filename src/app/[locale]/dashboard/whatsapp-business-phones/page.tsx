@@ -16,7 +16,7 @@ import {
   PuzzlePiece,
   Warning,
   WhatsappLogo,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type {
   BusinessPhoneStatus,
   QualityRating,
@@ -64,25 +64,25 @@ import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
 const STATUS_COLORS: Record<BusinessPhoneStatus, string> = {
-  PENDING: "bg-amber-500 text-white",
-  VERIFYING: "bg-blue-500 text-white",
-  CONNECTED: "bg-emerald-500 text-white",
-  DISCONNECTED: "bg-slate-500 text-white",
-  BANNED: "bg-red-500 text-white",
+  PENDING: "bg-warning text-white",
+  VERIFYING: "bg-muted text-white",
+  CONNECTED: "bg-healthy text-white",
+  DISCONNECTED: "bg-muted text-white",
+  BANNED: "bg-destructive text-white",
   FLAGGED: "bg-orange-500 text-white",
   RESTRICTED: "bg-yellow-500 text-white",
-  RATE_LIMITED: "bg-purple-500 text-white",
+  RATE_LIMITED: "bg-muted text-white",
   UNVERIFIED: "bg-orange-500 text-white",
-  ONBOARDING_FAILED: "bg-red-600 text-white",
-  DELETED: "bg-slate-500 text-white",
+  ONBOARDING_FAILED: "bg-destructive text-white",
+  DELETED: "bg-muted text-white",
 };
 
 const QUALITY_COLORS: Record<QualityRating, string> = {
-  GREEN: "bg-emerald-500 text-white",
-  YELLOW: "bg-amber-500 text-white",
-  RED: "bg-red-500 text-white",
-  UNKNOWN: "bg-slate-500 text-white",
-  NA: "bg-slate-500 text-white",
+  GREEN: "bg-healthy text-white",
+  YELLOW: "bg-warning text-white",
+  RED: "bg-destructive text-white",
+  UNKNOWN: "bg-muted text-white",
+  NA: "bg-muted text-white",
 };
 
 
@@ -366,10 +366,10 @@ export default function WhatsAppBusinessPhonesPage({
         header: t("card.phoneNumber"),
         render: (row) => (
           <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-healthy/10">
               <WhatsappLogo
                 weight="fill"
-                className="h-3.5 w-3.5 text-emerald-600"
+                className="h-3.5 w-3.5 text-healthy"
               />
             </div>
             <div className="flex flex-col">
@@ -392,7 +392,7 @@ export default function WhatsAppBusinessPhonesPage({
           row.status === "PENDING" && row.provider === "dialog360" ? (
             // Provisioning is async at 360dialog (~30-60s after redirect): show a clear
             // "connecting" state instead of an empty-looking pending row.
-            <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-amber-500 px-2.5 py-0.5 text-xs font-medium text-white">
+            <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-warning px-2.5 py-0.5 text-xs font-medium text-white">
               <CircleNotch className="h-3 w-3 animate-spin" weight="bold" />
               {t("status.connecting")}
             </span>
@@ -400,15 +400,15 @@ export default function WhatsAppBusinessPhonesPage({
           <div className="flex flex-col gap-1">
             <span
               className={cn(
-                "inline-flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-                STATUS_COLORS[row.status] ?? "bg-slate-500 text-white",
+                "inline-flex w-fit items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
+                STATUS_COLORS[row.status] ?? "bg-muted text-white",
               )}
             >
               {getStatusLabel(row.status)}
             </span>
             {row.status === "ONBOARDING_FAILED" && row.onboardingError && (
               <span
-                className="flex max-w-[240px] items-start gap-1 text-xs text-red-700"
+                className="flex max-w-[240px] items-start gap-1 text-xs text-destructive"
                 title={row.onboardingError}
               >
                 <Warning
@@ -439,8 +439,8 @@ export default function WhatsAppBusinessPhonesPage({
         render: (row) => (
           <span
             className={cn(
-              "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-              QUALITY_COLORS[row.qualityRating] ?? "bg-slate-500 text-white",
+              "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
+              QUALITY_COLORS[row.qualityRating] ?? "bg-muted text-white",
             )}
           >
             {getQualityLabel(row.qualityRating)}
@@ -452,7 +452,7 @@ export default function WhatsAppBusinessPhonesPage({
         header: t("card.official"),
         render: (row) =>
           row.isOfficialBusiness ? (
-            <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600">
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-healthy">
               <CheckCircle weight="fill" className="h-3.5 w-3.5" />
             </span>
           ) : (
@@ -571,7 +571,7 @@ export default function WhatsAppBusinessPhonesPage({
                 void handleRetryOnboarding(row.id, row.ownerWorkspaceId);
               }}
               title={row.onboardingError || t("onboarding.retry")}
-              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-50 transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50"
             >
               <ArrowClockwise
                 className={cn(
@@ -623,7 +623,7 @@ export default function WhatsAppBusinessPhonesPage({
               ? t("header.description")
               : t("header.descriptionUser")
         }
-        colorClass="text-emerald-600"
+        colorClass="text-healthy"
         actions={
           canManagePhones && !adminAllMode ? (
             <div className="flex flex-wrap items-center gap-3">
@@ -656,7 +656,7 @@ export default function WhatsAppBusinessPhonesPage({
           <div className="flex items-center gap-3">
             <Info
               weight="fill"
-              className="h-5 w-5 flex-shrink-0 text-amber-600"
+              className="h-5 w-5 flex-shrink-0 text-warning"
             />
             <p className="text-sm text-amber-900">
               {t.has("header.adminNotice")
@@ -669,11 +669,11 @@ export default function WhatsAppBusinessPhonesPage({
 
       {/* User Info Box - Non-admin only */}
       {!canManagePhones && !adminAllMode && (
-        <ElevatedContainer className="p-4 bg-primary/10/50 border-blue-100">
+        <ElevatedContainer className="p-4 bg-muted border-blue-100">
           <div className="flex items-center gap-3">
             <Info
               weight="fill"
-              className="h-5 w-5 text-primary flex-shrink-0"
+              className="h-5 w-5 text-lamp-ink flex-shrink-0"
             />
             <p className="text-sm text-blue-800">{t("userAccess.info")}</p>
           </div>
@@ -681,7 +681,7 @@ export default function WhatsAppBusinessPhonesPage({
       )}
 
       {/* Search + Stats bar */}
-      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card px-5 py-3 shadow-sm">
+      <div className="flex flex-wrap items-center gap-3 rounded-[--radius] border border-border bg-card px-5 py-3 shadow-sm">
         <div className="relative w-full max-w-xs">
           <ElevatedInput
             type="text"
@@ -834,7 +834,7 @@ export default function WhatsAppBusinessPhonesPage({
         />
       ) : (
         <div className="space-y-4">
-          <ElevatedContainer className="overflow-hidden border border-border/70 !p-0">
+          <ElevatedContainer className="overflow-hidden border border-border !p-0">
             <DashboardTable<WhatsAppBusinessPhone>
               data={phones}
               columns={columns}

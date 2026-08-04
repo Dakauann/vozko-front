@@ -5,7 +5,7 @@ import {
   ElevatedSelect,
   ElevatedSelectItem,
 } from "@/components/elevated-design/elevated-select";
-import { Plus, Trash, X } from "@phosphor-icons/react";
+import { Plus, Trash, X } from "@/components/icons";
 import { useCallback, useState, useTransition } from "react";
 
 import type { AgentListItem } from "@/lib/agents/types";
@@ -72,7 +72,7 @@ type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
 
 const FieldError = ({ message }: { message?: string }) => {
   if (!message) return null;
-  return <p className="mt-1 text-xs font-semibold text-rose-500">{message}</p>;
+  return <p className="mt-1 text-xs font-semibold text-destructive">{message}</p>;
 };
 
 export default function CreateSupportInboxForm() {
@@ -333,7 +333,7 @@ export default function CreateSupportInboxForm() {
               <button
                 type="button"
                 onClick={() => removeOrigin(index)}
-                className="mt-3 rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-rose-500 transition-colors"
+                className="mt-3 rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive transition-colors"
               >
                 <X className="h-4 w-4" weight="bold" />
               </button>
@@ -382,7 +382,7 @@ export default function CreateSupportInboxForm() {
           {preChatFieldEntries.map((entry, index) => (
             <div
               key={entry.id}
-              className="space-y-3 rounded-xl border border-border/70 bg-card/50 p-4"
+              className="space-y-3 rounded-[--radius] border border-border bg-card p-4"
             >
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">
@@ -391,7 +391,7 @@ export default function CreateSupportInboxForm() {
                 <button
                   type="button"
                   onClick={() => removeField(index)}
-                  className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-rose-500 transition-colors"
+                  className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-destructive transition-colors"
                 >
                   <Trash className="h-4 w-4" weight="bold" />
                 </button>

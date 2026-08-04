@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { ArrowSquareOut, Warning } from "@phosphor-icons/react";
+import { ArrowSquareOut, Warning } from "@/components/icons";
 import {
   HoverCard,
   HoverCardContent,
@@ -45,7 +45,7 @@ export function LinkPreview({ url }: { url: string }) {
           href={href}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-0.5 text-primary underline decoration-primary/40 underline-offset-2 hover:decoration-primary transition-colors break-all"
+          className="inline-flex items-center gap-0.5 text-lamp-ink underline decoration-primary/40 underline-offset-2 hover:decoration-primary transition-colors break-all"
           onClick={(e) => {
             if (href === "#") e.preventDefault();
           }}
@@ -61,10 +61,10 @@ export function LinkPreview({ url }: { url: string }) {
         side="top"
         align="center"
         sideOffset={6}
-        className="w-72 rounded-2xl border border-border/60 bg-card/95 backdrop-blur-xl p-4 shadow-2xl shadow-slate-900/10"
+        className="w-72 rounded-[--radius] border border-border bg-card p-4 shadow-2xl shadow-slate-900/10"
       >
         <div className="flex gap-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-white shadow-lg">
             <Warning
               className="h-4 w-4"
               weight="fill"

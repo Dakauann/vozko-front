@@ -14,10 +14,10 @@ import {
   TextT,
   Trash,
   VideoCamera,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { useRef, useState } from "react";
 
-import type { Icon } from "@phosphor-icons/react";
+import type { Icon } from "@/components/icons";
 import { useTranslations } from "next-intl";
 
 export interface DraggableComponent {
@@ -257,7 +257,7 @@ export default function DragDropBuilder({
                   onDragStart={() => canAdd && handleDragStart(item.type)}
                   onDragEnd={handleDragEnd}
                   whileHover={canAdd ? { scale: 1.02 } : {}}
-                  className={`group relative rounded-xl border-2 border-dashed p-4 transition-all cursor-move ${
+                  className={`group relative rounded-[--radius] border border-dashed p-4 transition-all cursor-move ${
                     canAdd
                       ? "border-border hover:border-foreground/20 bg-card hover:shadow-md"
                       : "border-border bg-muted opacity-50 cursor-not-allowed"
@@ -285,7 +285,7 @@ export default function DragDropBuilder({
                   </div>
 
                   {canAdd && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-card/80 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl pointer-events-none">
+                    <div className="absolute inset-0 flex items-center justify-center bg-card opacity-0 group-hover:opacity-100 transition-opacity rounded-[--radius] pointer-events-none">
                       <DotsSixVertical
                         className="h-6 w-6 text-muted-foreground"
                         weight="bold"
@@ -310,10 +310,10 @@ export default function DragDropBuilder({
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`min-h-[400px] rounded-2xl border-2 border-dashed transition-all ${
+          className={`min-h-[400px] rounded-[--radius] border border-dashed transition-all ${
             isDraggingOver
-              ? "border-blue-400 bg-primary/10/50"
-              : "border-border bg-muted/50"
+              ? "border-blue-400 bg-muted"
+              : "border-border bg-muted"
           }`}
         >
           {components.length === 0 ? (
@@ -352,7 +352,7 @@ export default function DragDropBuilder({
                         scale: 1.02,
                         boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
                       }}
-                      className={`group relative rounded-xl border-2 bg-card p-4 transition-all cursor-move ${
+                      className={`group relative rounded-[--radius] border bg-card p-4 transition-all cursor-move ${
                         isSelected
                           ? `border-${color}-400 shadow-lg`
                           : "border-border hover:border-foreground/20 hover:shadow-md"
@@ -386,7 +386,7 @@ export default function DragDropBuilder({
                                 e.stopPropagation();
                                 handleRemoveComponent(component.id);
                               }}
-                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-muted-foreground hover:text-red-600 hover:bg-destructive/10 transition-all"
+                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
                             >
                               <Trash className="h-4 w-4" weight="bold" />
                             </button>

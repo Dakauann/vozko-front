@@ -7,7 +7,7 @@ import {
   Eye,
   PencilSimple,
   Robot,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 import type { Agent } from "@/lib/agents/types";
 import { ListingCard } from "@/components/elevated-design/listing-card";

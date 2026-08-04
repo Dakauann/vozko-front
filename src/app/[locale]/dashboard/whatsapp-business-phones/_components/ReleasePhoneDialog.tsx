@@ -7,7 +7,7 @@ import {
   Trash,
   Warning,
   XCircle,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   ElevatedDialog,
   ElevatedDialogContent,
@@ -124,7 +124,7 @@ export function ReleasePhoneDialog({
 
   const StepIcon = ({ success }: { success: boolean }) =>
     success ? (
-      <CheckCircle className="h-4 w-4 shrink-0 text-emerald-500" weight="fill" />
+      <CheckCircle className="h-4 w-4 shrink-0 text-healthy" weight="fill" />
     ) : (
       <XCircle className="h-4 w-4 shrink-0 text-red-500" weight="fill" />
     );
@@ -142,7 +142,7 @@ export function ReleasePhoneDialog({
         <div className="space-y-5 py-4">
           {!result && (
             <>
-              <div className="flex items-start gap-4 rounded-xl border border-destructive/30 bg-destructive/10 p-4">
+              <div className="flex items-start gap-4 rounded-[--radius] border border-destructive/30 bg-destructive/10 p-4">
                 <Warning
                   className="mt-0.5 h-7 w-7 shrink-0 text-destructive"
                   weight="fill"
@@ -164,7 +164,7 @@ export function ReleasePhoneDialog({
                 <ol className="space-y-2.5 text-sm text-muted-foreground">
                   {["step1", "step2", "step3", "step4"].map((key, idx) => (
                     <li key={key} className="flex items-start gap-2.5">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-foreground">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-foreground">
                         {idx + 1}
                       </span>
                       <span>{t(`release.${key}`)}</span>
@@ -173,7 +173,7 @@ export function ReleasePhoneDialog({
                 </ol>
               </div>
 
-              <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/50 p-3">
+              <div className="flex items-start gap-3 rounded-lg border border-border bg-muted p-3">
                 <ArrowSquareOut className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                 <p className="text-xs leading-relaxed text-muted-foreground">
                   {t("release.metaNote")}
@@ -204,7 +204,7 @@ export function ReleasePhoneDialog({
               <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 {t("release.resultTitle")}
               </p>
-              <div className="space-y-2 rounded-xl border border-border bg-card p-4">
+              <div className="space-y-2 rounded-[--radius] border border-border bg-card p-4">
                 <div className="flex items-center gap-2.5">
                   <StepIcon success={result.deregistered} />
                   <span className="text-sm text-foreground">
@@ -239,12 +239,12 @@ export function ReleasePhoneDialog({
                 {(result.deregisterError || result.webhooksError) && (
                   <div className="mt-3 space-y-1.5 border-t border-border pt-3">
                     {result.deregisterError && (
-                      <p className="text-xs text-amber-600">
+                      <p className="text-xs text-warning">
                         {t("release.partialWarning")}: {result.deregisterError}
                       </p>
                     )}
                     {result.webhooksError && (
-                      <p className="text-xs text-amber-600">
+                      <p className="text-xs text-warning">
                         {t("release.partialWarning")}: {result.webhooksError}
                       </p>
                     )}

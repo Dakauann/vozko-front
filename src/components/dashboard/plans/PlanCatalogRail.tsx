@@ -8,12 +8,10 @@ import {
   Check,
   Microphone,
   Package,
-  Phone,
   SpeakerHigh,
   WhatsappLogo,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
-  estimateCallMinutesFromPlan,
   estimateMessagesByType,
   formatEstimateNumber,
 } from "./plan-estimates";
@@ -35,18 +33,15 @@ interface PlanCatalogRailLabels {
   available: string;
   best: string;
   basePrice: string;
-  channels: string;
   noDescription: string;
   perMonth?: string;
   categoryNames?: Record<string, string>;
   messagesLabel?: string;
-  minutesLabel?: string;
   serviceLabels?: Record<string, Record<string, string>>;
 }
 
 const CATEGORY_ICON_MAP: Record<string, React.ReactNode> = {
   whatsapp: <WhatsappLogo className="h-3 w-3" weight="fill" />,
-  telephony: <Phone className="h-3 w-3" weight="fill" />,
   stt: <Microphone className="h-3 w-3" weight="fill" />,
   tts: <SpeakerHigh className="h-3 w-3" weight="fill" />,
   llm: <Brain className="h-3 w-3" weight="fill" />,
@@ -102,23 +97,24 @@ export function PlanCatalogRail({
         const pricingCategories = [
           ...new Set(
             (item.plan.pricingItems ?? [])
-              .filter((i) => i.category !== "exchange_rate")
+              .filter(
+                (i) =>
+                  i.category !== "exchange_rate" && i.category !== "telephony",
+              )
               .map((i) => i.category),
           ),
         ];
         const cardClassName = cn(
-          "min-w-[262px] max-w-[262px] snap-start rounded-[24px] border border-border/70 bg-card/95 p-4 text-left transition-all",
-          onSelect &&
-            "cursor-pointer hover:border-primary/35 hover:bg-background active:scale-[0.995]",
-          isSelected &&
-            "border-primary bg-primary/5 shadow-[0_0_0_1px_hsl(var(--primary)/0.18)]",
+          "min-w-[262px] max-w-[262px] snap-start rounded-[--radius] border border-border bg-card p-4 text-left transition-all",
+          onSelect && "cursor-pointer hover:bg-muted active:translate-y-px",
+          isSelected && "border-t-[3px] border-t-lamp bg-muted",
         );
         const content = (
           <>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-white">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[--radius] border border-border bg-muted text-foreground">
                     <Package className="h-5 w-5" weight="fill" />
                   </div>
                   <div className="min-w-0">
@@ -131,17 +127,17 @@ export function PlanCatalogRail({
                   </div>
                 </div>
 
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-3 flex min-h-[52px] flex-wrap content-start gap-2">
                   <span
                     className={cn(
-                      "rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase text-white",
-                      isCurrent ? "bg-emerald-500" : "bg-slate-900",
+                      "legend border border-border border-t-rule-strong bg-background px-1.5 py-1",
+                      isCurrent ? "text-lamp-ink" : "text-muted-foreground",
                     )}
                   >
                     {isCurrent ? labels.current : labels.available}
                   </span>
                   {isBest ? (
-                    <span className="rounded-full bg-amber-500 px-2.5 py-1 text-[10px] font-semibold uppercase text-white">
+                    <span className="legend border border-border border-t-rule-strong bg-muted px-1.5 py-1 text-foreground">
                       {labels.best}
                     </span>
                   ) : null}
@@ -154,7 +150,7 @@ export function PlanCatalogRail({
             </p>
 
             <div className="mt-4 flex items-baseline gap-1">
-              <span className="text-2xl font-bold text-foreground">
+              <span className="text-2xl font-semibold text-foreground">
                 {formatBRLFromCents(item.plan.basePriceBRLCents, locale)}
               </span>
               <span className="text-xs text-muted-foreground">
@@ -163,25 +159,13 @@ export function PlanCatalogRail({
             </div>
 
             <div className="mt-4 space-y-2">
-              <div className="flex items-center gap-2 text-sm text-foreground">
-                <Check
-                  className="h-3.5 w-3.5 shrink-0 text-emerald-500"
-                  weight="bold"
-                />
-                <span>
-                  <span className="font-semibold">
-                    {item.plan.maxCallChannels}
-                  </span>{" "}
-                  {labels.channels}
-                </span>
-              </div>
               {pricingCategories.map((cat) => (
                 <div
                   key={cat}
                   className="flex items-center gap-2 text-sm text-foreground"
                 >
                   <Check
-                    className="h-3.5 w-3.5 shrink-0 text-emerald-500"
+                    className="h-3.5 w-3.5 shrink-0 text-healthy"
                     weight="bold"
                   />
                   <span className="flex items-center gap-1.5">
@@ -235,7 +219,7 @@ export function PlanCatalogRail({
 
 const RAIL_ICON_MAP: Record<string, React.ReactNode> = {
   whatsapp: (
-    <WhatsappLogo className="h-3 w-3 shrink-0 text-emerald-500" weight="fill" />
+    <WhatsappLogo className="h-3 w-3 shrink-0 text-healthy" weight="fill" />
   ),
 };
 
@@ -261,15 +245,10 @@ function RailEstimateBadges({
     () => estimateMessagesByType(basePriceBRLCents, items, exchangeRate),
     [basePriceBRLCents, items, exchangeRate],
   );
-  const callEstimate = React.useMemo(
-    () => estimateCallMinutesFromPlan(basePriceBRLCents, items, exchangeRate),
-    [basePriceBRLCents, items, exchangeRate],
-  );
-
-  if (msgEstimates.length === 0 && !callEstimate) return null;
+  if (msgEstimates.length === 0) return null;
 
   return (
-    <div className="mt-3 space-y-1.5 border-t border-border/50 pt-3">
+    <div className="mt-3 space-y-1.5 border-t border-border pt-3">
       {msgEstimates.map((est) => (
         <div
           key={`${est.category}-${est.service}`}
@@ -277,7 +256,7 @@ function RailEstimateBadges({
         >
           {RAIL_ICON_MAP[est.category] ?? (
             <ChatCircle
-              className="h-3 w-3 shrink-0 text-emerald-500"
+              className="h-3 w-3 shrink-0 text-healthy"
               weight="fill"
             />
           )}
@@ -290,15 +269,6 @@ function RailEstimateBadges({
           </span>
         </div>
       ))}
-      {callEstimate ? (
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Phone className="h-3 w-3 shrink-0 text-blue-500" weight="fill" />
-          <span>
-            ~{formatEstimateNumber(callEstimate, locale)}{" "}
-            {labels.minutesLabel ?? "call min."}
-          </span>
-        </div>
-      ) : null}
     </div>
   );
 }

@@ -20,7 +20,7 @@ import {
   PencilSimple,
   UserCircle,
   XCircle,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
@@ -233,19 +233,19 @@ function AdminAffiliatesTable() {
 
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard
-          bg="bg-slate-700"
+          bg="bg-muted"
           icon={<UserCircle className="h-4 w-4 text-white" weight="fill" />}
           label={t("stats.total")}
           value={String(meta.totalItems)}
         />
         <StatCard
-          bg="bg-emerald-500"
+          bg="bg-healthy"
           icon={<CheckCircle className="h-4 w-4 text-white" weight="fill" />}
           label={t("stats.active")}
           value={String(activeCount)}
         />
         <StatCard
-          bg="bg-amber-500"
+          bg="bg-warning"
           icon={<XCircle className="h-4 w-4 text-white" weight="fill" />}
           label={t("stats.inactive")}
           value={String(inactiveCount)}
@@ -253,7 +253,7 @@ function AdminAffiliatesTable() {
       </div>
 
       <section
-        className="space-y-4 rounded-[26px] border border-border/70 bg-card/90 p-5"
+        className="space-y-4 rounded-[--radius] border border-border bg-card p-5"
         style={{ boxShadow: softSurfaceShadow }}
       >
         <div className="flex items-center gap-3">
@@ -263,7 +263,7 @@ function AdminAffiliatesTable() {
               weight="bold"
             />
             <input
-              className="w-full rounded-2xl border border-border/70 bg-background/70 px-10 py-2.5 text-sm text-foreground outline-none transition focus:border-primary/40 focus:ring-2 focus:ring-primary/10"
+              className="w-full rounded-[--radius] border border-border bg-background px-10 py-2.5 text-sm text-foreground outline-none transition focus:border-primary/40 focus:ring-2 focus:ring-ring/10"
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t("filters.searchPlaceholder")}
               type="search"
@@ -275,16 +275,16 @@ function AdminAffiliatesTable() {
         {loading ? (
           <div className="flex justify-center py-16">
             <CircleNotch
-              className="h-8 w-8 animate-spin text-primary"
+              className="h-8 w-8 animate-spin text-lamp-ink"
               weight="bold"
             />
           </div>
         ) : error ? (
-          <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-6 text-center text-sm text-destructive">
+          <div className="rounded-[--radius] border border-destructive/30 bg-destructive/5 px-4 py-6 text-center text-sm text-destructive">
             {error}
           </div>
         ) : filteredItems.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border/70 bg-background/60 px-4 py-16 text-center">
+          <div className="rounded-[--radius] border border-dashed border-border bg-background px-4 py-16 text-center">
             <UserCircle
               className="mx-auto h-10 w-10 text-muted-foreground"
               weight="fill"
@@ -297,10 +297,10 @@ function AdminAffiliatesTable() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-2xl border border-border/70">
+          <div className="overflow-x-auto rounded-[--radius] border border-border">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border/70 bg-muted/30">
+                <tr className="border-b border-border bg-muted">
                   <Th>{t("table.brand")}</Th>
                   <Th>{t("table.code")}</Th>
                   <Th>{t("table.commission")}</Th>
@@ -315,7 +315,7 @@ function AdminAffiliatesTable() {
                   return (
                     <tr
                       key={aff.id}
-                      className="border-b border-border/40 last:border-b-0 hover:bg-muted/20"
+                      className="border-b border-border last:border-b-0 hover:bg-muted"
                     >
                       <td className="px-3 py-3">
                         <div className="flex items-center gap-2">
@@ -327,7 +327,7 @@ function AdminAffiliatesTable() {
                               src={aff.brandLogoUrl}
                             />
                           ) : (
-                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-amber-700 text-white">
+                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-white">
                               <UserCircle
                                 className="h-3.5 w-3.5"
                                 weight="fill"
@@ -368,12 +368,12 @@ function AdminAffiliatesTable() {
                       </td>
                       <td className="px-3 py-3">
                         {aff.tier === "reseller" ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 px-2 py-0.5 text-[10px] font-semibold uppercase text-white shadow-sm">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase text-white shadow-sm">
                             <Crown className="h-3 w-3" weight="fill" />
                             {t("tier.reseller")}
                           </span>
                         ) : (
-                          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase text-muted-foreground">
+                          <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase text-muted-foreground">
                             {t("tier.affiliate")}
                           </span>
                         )}
@@ -381,10 +381,10 @@ function AdminAffiliatesTable() {
                       <td className="px-3 py-3">
                         <span
                           className={cn(
-                            "rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase",
+                            "rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold uppercase",
                             aff.active
-                              ? "bg-emerald-500/10 text-emerald-700"
-                              : "bg-amber-500/10 text-amber-700",
+                              ? "bg-healthy/10 text-healthy"
+                              : "bg-warning/10 text-warning",
                           )}
                         >
                           {aff.active
@@ -476,7 +476,7 @@ function AdminAffiliatesTable() {
         )}
 
         {meta.totalPages > 1 ? (
-          <div className="flex items-center justify-between border-t border-border/40 pt-3 text-sm">
+          <div className="flex items-center justify-between border-t border-border pt-3 text-sm">
             <span className="text-xs text-muted-foreground">
               {t("pagination.summary", {
                 page: meta.page,
@@ -541,12 +541,12 @@ function StatCard({
 }) {
   return (
     <div
-      className="flex items-center gap-3 rounded-2xl border border-border/70 bg-card/90 px-4 py-3"
+      className="flex items-center gap-3 rounded-[--radius] border border-border bg-card px-4 py-3"
       style={{ boxShadow: softSurfaceShadow }}
     >
       <div
         className={cn(
-          "flex h-10 w-10 items-center justify-center rounded-xl shadow-lg",
+          "flex h-10 w-10 items-center justify-center rounded-[--radius] shadow-lg",
           bg,
         )}
       >
@@ -568,7 +568,7 @@ export default function AdminAffiliatesPage() {
     return (
       <div className="flex flex-col items-center justify-center py-32">
         <CircleNotch
-          className="h-8 w-8 animate-spin text-primary"
+          className="h-8 w-8 animate-spin text-lamp-ink"
           weight="bold"
         />
       </div>
@@ -577,7 +577,7 @@ export default function AdminAffiliatesPage() {
 
   if (!isSystemAdmin(user?.role)) {
     return (
-      <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-8 text-center text-sm text-destructive">
+      <div className="rounded-[--radius] border border-destructive/30 bg-destructive/5 px-4 py-8 text-center text-sm text-destructive">
         {t("forbidden")}
       </div>
     );

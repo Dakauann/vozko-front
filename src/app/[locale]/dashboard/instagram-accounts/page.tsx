@@ -10,7 +10,7 @@ import {
   Plus,
   Trash,
   Warning,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   DashboardTable,
@@ -52,12 +52,12 @@ const ITEMS_PER_PAGE = 15;
  * from a reconnect.
  */
 const STATUS_COLORS: Record<InstagramAccountStatus | "MESSAGING_OFF", string> = {
-  PENDING: "bg-amber-500 text-white",
-  CONNECTED: "bg-emerald-500 text-white",
-  TOKEN_EXPIRED: "bg-red-600 text-white",
-  REVOKED: "bg-slate-500 text-white",
+  PENDING: "bg-warning text-white",
+  CONNECTED: "bg-healthy text-white",
+  TOKEN_EXPIRED: "bg-destructive text-white",
+  REVOKED: "bg-muted text-white",
   SUSPENDED: "bg-orange-500 text-white",
-  MESSAGING_OFF: "bg-amber-500 text-white",
+  MESSAGING_OFF: "bg-warning text-white",
 };
 
 export default function InstagramAccountsPage() {
@@ -206,8 +206,8 @@ export default function InstagramAccountsPage() {
             <div className="flex flex-col gap-1">
               <span
                 className={cn(
-                  "inline-flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-                  STATUS_COLORS[key] ?? "bg-slate-500 text-white",
+                  "inline-flex w-fit items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
+                  STATUS_COLORS[key] ?? "bg-muted text-white",
                 )}
               >
                 {key === "MESSAGING_OFF"
@@ -220,7 +220,7 @@ export default function InstagramAccountsPage() {
                   green-looking row. */}
               {key === "MESSAGING_OFF" && (
                 <span
-                  className="flex max-w-[280px] items-start gap-1 text-xs text-amber-700 dark:text-amber-400"
+                  className="flex max-w-[280px] items-start gap-1 text-xs text-warning dark:text-amber-400"
                   title={t("card.messagingDisabled")}
                 >
                   <Warning weight="fill" className="mt-0.5 h-3 w-3 flex-shrink-0" />
@@ -230,7 +230,7 @@ export default function InstagramAccountsPage() {
 
               {row.needsReconnect && row.statusReason && (
                 <span
-                  className="flex max-w-[280px] items-start gap-1 text-xs text-red-700 dark:text-red-400"
+                  className="flex max-w-[280px] items-start gap-1 text-xs text-destructive dark:text-red-400"
                   title={row.statusReason}
                 >
                   <Warning weight="fill" className="mt-0.5 h-3 w-3 flex-shrink-0" />
@@ -276,7 +276,7 @@ export default function InstagramAccountsPage() {
               connect("/dashboard/instagram-accounts");
             }}
             title={t("card.reconnect")}
-            className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-red-700 transition-colors hover:bg-red-50 disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-500/10"
+            className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50 dark:text-red-400 dark:hover:bg-destructive/10"
           >
             <ArrowClockwise
               className={cn("h-3.5 w-3.5", isConnecting && "animate-spin")}
@@ -347,7 +347,7 @@ export default function InstagramAccountsPage() {
       />
 
       {/* Search + stats bar, same shape as the business phones list. */}
-      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card px-5 py-3 shadow-sm">
+      <div className="flex flex-wrap items-center gap-3 rounded-[--radius] border border-border bg-card px-5 py-3 shadow-sm">
         <div className="relative w-full max-w-xs">
           <ElevatedInput
             type="text"
@@ -426,7 +426,7 @@ export default function InstagramAccountsPage() {
         />
       ) : (
         <div className="space-y-4">
-          <ElevatedContainer className="overflow-hidden border border-border/70 !p-0">
+          <ElevatedContainer className="overflow-hidden border border-border !p-0">
             <DashboardTable<InstagramAccount>
               data={accounts}
               columns={columns}

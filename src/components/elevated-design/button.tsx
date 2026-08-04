@@ -54,30 +54,29 @@ const variantAlias: Record<ButtonVariant, BaseVariant> = {
   "vsl-cta": "vsl",
 };
 
+// Only `primary` and `action` carry the lamp. Everything else is neutral: a
+// screen with several accent-tinted buttons has no primary action left, and in
+// this system the accent is reserved for "current" and "commit".
 const variantClasses: Record<BaseVariant, string> = {
   primary:
     "bg-primary text-primary-foreground hover:bg-[hsl(var(--primary-hover))] active:bg-[hsl(var(--primary-active))]",
   secondary:
-    "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/90",
-  // Hover inverts to the solid tone rather than washing the same hue behind the
-  // same-hue label. `hover:bg-primary/10` put #D63D00 ink on a #FBEBE6 tint of
-  // itself at 4.02:1, under the 4.5:1 floor for this size, and it is the one
-  // colour move this product bans. `group` so the icon can flip with it.
+    "border border-border border-t-rule-strong bg-card text-foreground hover:bg-muted",
   outline:
-    "group border border-primary/40 bg-transparent text-primary shadow-sm hover:border-primary hover:bg-primary hover:text-primary-foreground",
+    "group border border-border bg-transparent text-foreground hover:bg-muted",
   "outline-subtle":
-    "border-2 border-border bg-transparent text-foreground hover:border-foreground/20 hover:bg-muted",
-  ghost: "bg-transparent text-[var(--text-primary)] hover:bg-black/5",
-  vsl: "bg-gradient-to-r from-cyan-500 to-emerald-500 text-white shadow hover:from-cyan-500/90 hover:to-emerald-500/90",
+    "border border-border bg-transparent text-foreground hover:bg-muted",
+  ghost: "bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
+  vsl: "bg-primary text-primary-foreground hover:bg-[hsl(var(--primary-hover))]",
   action:
-    "bg-primary text-primary-foreground min-h-[40px] px-4 gap-[6px] rounded-[10px] hover:bg-[hsl(var(--primary-hover))] active:bg-[hsl(var(--primary-active))] disabled:bg-[#898988] disabled:opacity-100 disabled:cursor-not-allowed",
+    "bg-primary text-primary-foreground min-h-[32px] px-3 gap-1.5 hover:bg-[hsl(var(--primary-hover))] active:bg-[hsl(var(--primary-active))] disabled:opacity-40 disabled:cursor-not-allowed",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  default: "min-h-[36px] px-5 py-1.5 text-[13px] leading-[18px]",
-  sm: "min-h-[32px] px-4 py-1 text-xs",
-  lg: "min-h-[42px] px-9 py-2 text-base",
-  icon: "min-h-[32px] w-9 px-3 py-1",
+  default: "min-h-[32px] px-3 py-1 text-[13px] leading-[18px]",
+  sm: "min-h-[28px] px-2.5 py-0.5 text-xs",
+  lg: "min-h-[36px] px-5 py-1.5 text-sm",
+  icon: "min-h-[32px] w-8 px-2 py-1",
 };
 
 function resolveIconColorClass(variant: BaseVariant) {
@@ -87,15 +86,12 @@ function resolveIconColorClass(variant: BaseVariant) {
     case "action":
       return "text-primary-foreground";
     case "secondary":
-      return "text-secondary-foreground";
     case "outline-subtle":
-      return "text-foreground";
     case "outline":
-      // Flips with the fill, or it would sit primary-on-primary on hover.
-      return "text-primary group-hover:text-primary-foreground";
+      return "text-foreground";
     case "ghost":
     default:
-      return "text-primary";
+      return "text-muted-foreground";
   }
 }
 
@@ -123,16 +119,12 @@ const Button = ({
     link && /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(link),
   );
 
+  // One radius for every variant. The pill was the loudest single tell of the
+  // outgoing identity, and four different corner treatments across variants was
+  // never a system.
   const buttonClass = cn(
-    "inline-flex items-center justify-center whitespace-nowrap font-semibold transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 gap-[6px]",
+    "inline-flex items-center justify-center whitespace-nowrap rounded-[--radius] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:border disabled:border-border disabled:bg-muted disabled:text-muted-foreground gap-1.5",
     effectiveSize !== "icon" && "min-w-16",
-    resolvedVariant === "ghost"
-      ? "rounded-lg"
-      : resolvedVariant === "action"
-        ? "rounded-[10px]"
-        : resolvedVariant === "outline-subtle"
-          ? "rounded-xl"
-          : "rounded-full",
     sizeClasses[effectiveSize],
     variantClasses[resolvedVariant],
     className,
@@ -143,7 +135,7 @@ const Button = ({
     iconColor
       ? undefined
       : resolvedVariant === "ghost"
-        ? "text-[var(--text-primary)]"
+        ? "text-foreground"
         : resolveIconColorClass(resolvedVariant),
   );
 

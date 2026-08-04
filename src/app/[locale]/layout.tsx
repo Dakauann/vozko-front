@@ -5,7 +5,6 @@ import { LayoutWrapper } from "@/components/layout-wrapper";
 import type { Locale } from "@/i18n/config";
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
-import PageRevealOverlay from "@/components/elevated-design/page-reveal-overlay";
 import { QueryClientProviderComponent } from "@/components/providers/query-client-provider";
 import { ViewportIntegrityProvider } from "@/components/providers/viewport-integrity";
 import { RefCapture } from "@/components/affiliate/ref-capture";
@@ -62,7 +61,9 @@ export default async function LocaleLayout({ children, params }: Props) {
             <Suspense fallback={null}>
               <RefCapture />
             </Suspense>
-            <PageRevealOverlay />
+            {/* The page-reveal curtain is gone. Product loads into a task; an
+                operator navigating between queues should not watch a transition
+                play before the work appears. */}
             <LayoutWrapper>{children}</LayoutWrapper>
             <SonnerToaster position="bottom-center" />
           </ViewportIntegrityProvider>

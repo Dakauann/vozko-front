@@ -3,7 +3,7 @@
 import { useLocale } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/routing";
 import { locales, localeNames, localeFlags, type Locale } from "@/i18n/config";
-import { GlobeSimple } from "@phosphor-icons/react";
+import { GlobeSimple } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import {
   ElevatedSelect,

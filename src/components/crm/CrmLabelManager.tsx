@@ -9,7 +9,7 @@ import {
 import ElevatedButton from "@/components/elevated-design/button";
 import ElevatedListManager from "@/components/elevated-design/elevated-list-manager";
 import type { Label } from "@/lib/conversations/types";
-import { Tag as TagIcon } from "@phosphor-icons/react";
+import { Tag as TagIcon } from "@/components/icons";
 import { useCallback } from "react";
 import { useTranslations } from "next-intl";
 

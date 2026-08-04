@@ -52,8 +52,8 @@ import {
   Users,
   Vault,
   Wallet,
-} from "@phosphor-icons/react";
-import type { Icon } from "@phosphor-icons/react";
+} from "@/components/icons";
+import type { Icon } from "@/components/icons";
 import { endOfDay, format, startOfDay, subDays } from "date-fns";
 import { motion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -147,8 +147,8 @@ const SUBSCRIPTION_STATUS_LABELS: Record<string, string> = {
 };
 
 const SUBSCRIPTION_STATUS_CLASSES: Record<string, string> = {
-  active: "bg-emerald-500/10 text-emerald-700",
-  cancelled: "bg-rose-500/10 text-rose-700",
+  active: "bg-healthy/10 text-healthy",
+  cancelled: "bg-destructive/10 text-destructive",
   expired: "bg-muted text-muted-foreground",
 };
 
@@ -321,7 +321,7 @@ function MetricCard({
 }) {
   return (
     <ElevatedContainer
-      className="group relative overflow-hidden border border-border/70 bg-card/90 p-5"
+      className="group relative overflow-hidden border border-border bg-card p-5"
       style={{ boxShadow: softSurfaceShadow }}
     >
       <div className={cn("absolute inset-x-0 top-0 h-1", accentClass)} />
@@ -350,7 +350,7 @@ function MetricCard({
             </div>
           ) : (
             <>
-              <p className="text-2xl font-bold text-foreground">{value}</p>
+              <p className="text-2xl font-semibold text-foreground">{value}</p>
               {detail ? (
                 <p className="text-sm text-muted-foreground">{detail}</p>
               ) : null}
@@ -359,7 +359,7 @@ function MetricCard({
         </div>
         <div
           className={cn(
-            "flex h-11 w-11 items-center justify-center rounded-2xl text-white",
+            "flex h-11 w-11 items-center justify-center rounded-[--radius] text-white",
             accentClass,
           )}
         >
@@ -691,10 +691,10 @@ export default function AdminFinancialDashboard() {
         render: (row) => (
           <span
             className={cn(
-              "text-sm font-bold tabular-nums",
+              "text-sm font-semibold tabular-nums",
               row.currentBalanceMicros > 0
                 ? "text-foreground"
-                : "text-rose-600",
+                : "text-destructive",
             )}
           >
             {formatBRL(row.currentBalanceMicros, exchangeRate)}
@@ -705,7 +705,7 @@ export default function AdminFinancialDashboard() {
         header: "Receita (período)",
         key: "revenue",
         render: (row) => (
-          <span className="text-sm font-medium tabular-nums text-emerald-600">
+          <span className="text-sm font-medium tabular-nums text-healthy">
             {formatBRLDirect(row.revenueBRLMicros)}
           </span>
         ),
@@ -726,8 +726,8 @@ export default function AdminFinancialDashboard() {
           <div>
             <p
               className={cn(
-                "text-sm font-bold tabular-nums",
-                row.profitMicros >= 0 ? "text-foreground" : "text-rose-600",
+                "text-sm font-semibold tabular-nums",
+                row.profitMicros >= 0 ? "text-foreground" : "text-destructive",
               )}
             >
               {formatBRLDirect(row.profitBRLMicros)}
@@ -813,7 +813,7 @@ export default function AdminFinancialDashboard() {
       {/* â”€â”€ Header + Period filters â”€â”€ */}
       <motion.div variants={itemVariants}>
         <ElevatedContainer
-          className="border border-border/70 bg-card/90 p-5 md:p-6"
+          className="border border-border bg-card p-5 md:p-6"
           style={{ boxShadow: softSurfaceShadow }}
         >
           <DashboardPageHeader
@@ -832,8 +832,8 @@ export default function AdminFinancialDashboard() {
           />
 
           <div className="mt-5 grid gap-3 md:grid-cols-2 2xl:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))]">
-            <div className="rounded-2xl border border-border/70 bg-background/70 px-4 py-4">
-              <p className="text-[11px] font-semibold uppercase text-primary">
+            <div className="rounded-[--radius] border border-border bg-background px-4 py-4">
+              <p className="text-[11px] font-semibold uppercase text-lamp-ink">
                 Período analisado
               </p>
               <p className="mt-2 text-xl font-semibold text-foreground">
@@ -844,7 +844,7 @@ export default function AdminFinancialDashboard() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-border/70 bg-background/70 px-4 py-4">
+            <div className="rounded-[--radius] border border-border bg-background px-4 py-4">
               <p className="text-[10px] font-semibold uppercase text-muted-foreground">
                 Granularidade
               </p>
@@ -857,7 +857,7 @@ export default function AdminFinancialDashboard() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-border/70 bg-background/70 px-4 py-4">
+            <div className="rounded-[--radius] border border-border bg-background px-4 py-4">
               <p className="text-[10px] font-semibold uppercase text-muted-foreground">
                 Áreas de Trabalho
               </p>
@@ -866,7 +866,7 @@ export default function AdminFinancialDashboard() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-border/70 bg-background/70 px-4 py-4">
+            <div className="rounded-[--radius] border border-border bg-background px-4 py-4">
               <p className="text-[10px] font-semibold uppercase text-muted-foreground">
                 Transações
               </p>
@@ -877,7 +877,7 @@ export default function AdminFinancialDashboard() {
           </div>
 
           {/* Period selector */}
-          <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-border/60 pt-5">
+          <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-border pt-5">
             <ElevatedPillToggle
               size="md"
               value={datePreset}
@@ -939,7 +939,7 @@ export default function AdminFinancialDashboard() {
       {/* Error */}
       {error && (
         <motion.div variants={itemVariants}>
-          <ElevatedContainer className="border border-red-600 bg-red-500 p-4 text-sm text-white">
+          <ElevatedContainer className="border border-destructive bg-destructive p-4 text-sm text-white">
             {error}
           </ElevatedContainer>
         </motion.div>
@@ -986,7 +986,7 @@ export default function AdminFinancialDashboard() {
           detail="assinaturas + recargas no período"
           tooltip="Pagamentos reais confirmados (assinaturas e recargas). Exclui estornos de serviço e estornos de recarga."
           icon={Receipt}
-          accentClass="bg-cyan-600"
+          accentClass="bg-muted"
           loading={loading}
         />
         <MetricCard
@@ -995,7 +995,7 @@ export default function AdminFinancialDashboard() {
           detail="depositado antes do período"
           tooltip="Parte da receita originada de saldos que foram depositados antes do início do período selecionado."
           icon={Vault}
-          accentClass="bg-amber-600"
+          accentClass="bg-warning"
           loading={loading}
         />
         <MetricCard
@@ -1011,13 +1011,13 @@ export default function AdminFinancialDashboard() {
       {!loading && totalPeriodRefundsBRL > 0 && (
         <motion.div variants={itemVariants}>
           <ElevatedContainer
-            className="border border-amber-500/40 border-dashed bg-amber-500/5 p-4"
+            className="border border-warning/40 border-dashed bg-warning/5 p-4"
             style={{ boxShadow: softSurfaceShadow }}
           >
             <div className="flex flex-wrap items-center gap-6">
               <div className="flex items-center gap-2">
                 <ArrowClockwise
-                  className="h-4 w-4 text-amber-600"
+                  className="h-4 w-4 text-warning"
                   weight="bold"
                 />
                 <p className="text-xs font-semibold uppercase text-muted-foreground">
@@ -1028,7 +1028,7 @@ export default function AdminFinancialDashboard() {
                 <p className="text-xs text-muted-foreground">
                   Estornos de serviço no período
                 </p>
-                <p className="text-sm font-bold tabular-nums text-amber-700">
+                <p className="text-sm font-semibold tabular-nums text-warning">
                   −{formatBRLDirect(totalPeriodRefundsBRL)}
                 </p>
               </div>
@@ -1041,7 +1041,7 @@ export default function AdminFinancialDashboard() {
       {!loading && manualAdjustment.txCount > 0 && (
         <motion.div variants={itemVariants}>
           <ElevatedContainer
-            className="border border-border/70 border-dashed bg-muted/30 p-4"
+            className="border border-border border-dashed bg-muted p-4"
             style={{ boxShadow: softSurfaceShadow }}
           >
             <div className="flex flex-wrap items-center gap-6">
@@ -1051,25 +1051,25 @@ export default function AdminFinancialDashboard() {
               <div className="flex flex-wrap items-center gap-6">
                 <div>
                   <p className="text-xs text-muted-foreground">Receita</p>
-                  <p className="text-sm font-bold tabular-nums text-foreground">
+                  <p className="text-sm font-semibold tabular-nums text-foreground">
                     {formatBRLDirect(manualAdjustment.revenueBRLMicros)}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Custo</p>
-                  <p className="text-sm font-bold tabular-nums text-foreground">
+                  <p className="text-sm font-semibold tabular-nums text-foreground">
                     {formatBRLDirect(manualAdjustment.costBRLMicros)}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Lucro</p>
-                  <p className="text-sm font-bold tabular-nums text-foreground">
+                  <p className="text-sm font-semibold tabular-nums text-foreground">
                     {formatBRLDirect(manualAdjustment.profitBRLMicros)}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Transações</p>
-                  <p className="text-sm font-bold tabular-nums text-foreground">
+                  <p className="text-sm font-semibold tabular-nums text-foreground">
                     {manualAdjustment.txCount.toLocaleString()}
                   </p>
                 </div>
@@ -1081,7 +1081,7 @@ export default function AdminFinancialDashboard() {
       {/* â”€â”€ Revenue vs Cost chart â”€â”€ */}
       <motion.div variants={itemVariants}>
         <ElevatedContainer
-          className="border border-border/70 bg-card/90 p-5"
+          className="border border-border bg-card p-5"
           style={{ boxShadow: softSurfaceShadow }}
         >
           <div className="mb-4 flex items-start justify-between gap-4">
@@ -1089,11 +1089,11 @@ export default function AdminFinancialDashboard() {
               <p className="text-xs font-semibold uppercase text-muted-foreground">
                 Evolução financeira
               </p>
-              <h2 className="text-lg font-bold text-foreground">
+              <h2 className="text-lg font-semibold text-foreground">
                 Receita × Custo × Lucro (BRL)
               </h2>
             </div>
-            <p className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+            <p className="rounded-[--radius] bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
               {PRESET_LABELS[datePreset]}
             </p>
           </div>
@@ -1103,14 +1103,14 @@ export default function AdminFinancialDashboard() {
               className="flex items-center justify-center"
               style={{ height: 340 }}
             >
-              <Spinner className="h-8 w-8 animate-spin text-primary" />
+              <Spinner className="h-8 w-8 animate-spin text-lamp-ink" />
             </div>
           ) : profitSeries.length === 0 ? (
             <div
               className="flex flex-col items-center justify-center text-muted-foreground"
               style={{ height: 340 }}
             >
-              <ChartLine className="h-12 w-12 mb-2 text-slate-300" />
+              <ChartLine className="h-12 w-12 mb-2 text-muted-foreground" />
               <p>Sem dados financeiros para o período selecionado</p>
             </div>
           ) : (
@@ -1177,7 +1177,7 @@ export default function AdminFinancialDashboard() {
                           <span className="text-muted-foreground">
                             {profitChartConfig[name as string]?.label ?? name}
                           </span>
-                          <span className="font-bold tabular-nums">
+                          <span className="font-semibold tabular-nums">
                             {new Intl.NumberFormat("pt-BR", {
                               style: "currency",
                               currency: "BRL",
@@ -1220,11 +1220,11 @@ export default function AdminFinancialDashboard() {
       {/*, Revenue by service (Pie) + Profit by service (Bar), */}
       <motion.div variants={itemVariants} className="grid gap-4 lg:grid-cols-2">
         <ElevatedContainer
-          className="border border-border/70 bg-card/90 p-5"
+          className="border border-border bg-card p-5"
           style={{ boxShadow: softSurfaceShadow }}
         >
           <div className="mb-2 flex items-center gap-2">
-            <ChartPie className="h-4 w-4 text-emerald-500" weight="fill" />
+            <ChartPie className="h-4 w-4 text-healthy" weight="fill" />
             <p className="text-xs font-semibold uppercase text-muted-foreground">
               Receita por produto
             </p>
@@ -1234,7 +1234,7 @@ export default function AdminFinancialDashboard() {
               className="flex items-center justify-center"
               style={{ height: 280 }}
             >
-              <Spinner className="h-8 w-8 animate-spin text-primary" />
+              <Spinner className="h-8 w-8 animate-spin text-lamp-ink" />
             </div>
           ) : serviceRevenuePie.length === 0 ? (
             <div
@@ -1242,7 +1242,7 @@ export default function AdminFinancialDashboard() {
               style={{ height: 280 }}
             >
               <ChartPie
-                className="h-12 w-12 mb-2 text-slate-300"
+                className="h-12 w-12 mb-2 text-muted-foreground"
                 weight="fill"
               />
               <p>Sem dados de receita por serviço</p>
@@ -1275,7 +1275,7 @@ export default function AdminFinancialDashboard() {
                     <ChartTooltipContent
                       nameKey="name"
                       formatter={(value) => (
-                        <span className="font-bold tabular-nums">
+                        <span className="font-semibold tabular-nums">
                           {new Intl.NumberFormat("pt-BR", {
                             style: "currency",
                             currency: "BRL",
@@ -1305,7 +1305,7 @@ export default function AdminFinancialDashboard() {
                     <span className="text-xs text-muted-foreground">
                       {item.name}
                     </span>
-                    <span className="text-xs font-bold tabular-nums text-foreground">
+                    <span className="text-xs font-semibold tabular-nums text-foreground">
                       {new Intl.NumberFormat("pt-BR", {
                         style: "currency",
                         currency: "BRL",
@@ -1322,7 +1322,7 @@ export default function AdminFinancialDashboard() {
         </ElevatedContainer>
 
         <ElevatedContainer
-          className="border border-border/70 bg-card/90 p-5"
+          className="border border-border bg-card p-5"
           style={{ boxShadow: softSurfaceShadow }}
         >
           <div className="mb-2 flex items-center gap-2">
@@ -1336,7 +1336,7 @@ export default function AdminFinancialDashboard() {
               className="flex items-center justify-center"
               style={{ height: 280 }}
             >
-              <Spinner className="h-8 w-8 animate-spin text-primary" />
+              <Spinner className="h-8 w-8 animate-spin text-lamp-ink" />
             </div>
           ) : serviceProfitBar.length === 0 ? (
             <div
@@ -1344,7 +1344,7 @@ export default function AdminFinancialDashboard() {
               style={{ height: 280 }}
             >
               <ChartBar
-                className="h-12 w-12 mb-2 text-slate-300"
+                className="h-12 w-12 mb-2 text-muted-foreground"
                 weight="fill"
               />
               <p>Sem dados de lucro por serviço</p>
@@ -1383,7 +1383,7 @@ export default function AdminFinancialDashboard() {
                   content={
                     <ChartTooltipContent
                       formatter={(value) => (
-                        <span className="font-bold tabular-nums">
+                        <span className="font-semibold tabular-nums">
                           {new Intl.NumberFormat("pt-BR", {
                             style: "currency",
                             currency: "BRL",
@@ -1424,7 +1424,7 @@ export default function AdminFinancialDashboard() {
                     <span className="text-xs text-muted-foreground">
                       {item.name}
                     </span>
-                    <span className="text-xs font-bold tabular-nums text-foreground">
+                    <span className="text-xs font-semibold tabular-nums text-foreground">
                       {new Intl.NumberFormat("pt-BR", {
                         style: "currency",
                         currency: "BRL",
@@ -1445,7 +1445,7 @@ export default function AdminFinancialDashboard() {
       {!loading && productUsage && productUsage.byService.length > 0 && (
         <motion.div variants={itemVariants}>
           <ElevatedContainer
-            className="border border-border/70 bg-card/90 p-5"
+            className="border border-border bg-card p-5"
             style={{ boxShadow: softSurfaceShadow }}
           >
             <div className="mb-4 flex items-center gap-2">
@@ -1454,7 +1454,7 @@ export default function AdminFinancialDashboard() {
                 <p className="text-xs font-semibold uppercase text-muted-foreground">
                   Uso por produto
                 </p>
-                <p className="text-sm font-bold text-foreground">
+                <p className="text-sm font-semibold text-foreground">
                   Volume de transações no período
                 </p>
               </div>
@@ -1463,10 +1463,10 @@ export default function AdminFinancialDashboard() {
               {productUsage.byService.map((metric) => (
                 <div
                   key={metric.key}
-                  className="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-3"
+                  className="flex items-center gap-3 rounded-[--radius] border border-border bg-muted p-3"
                 >
                   <div
-                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-white"
+                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[--radius] text-white"
                     style={{
                       backgroundColor: serviceColor(metric.key, 0),
                     }}
@@ -1477,12 +1477,12 @@ export default function AdminFinancialDashboard() {
                     <p className="truncate text-xs font-medium text-muted-foreground">
                       {serviceLabel(metric.key)}
                     </p>
-                    <p className="text-lg font-bold text-foreground">
+                    <p className="text-lg font-semibold text-foreground">
                       {metric.count.toLocaleString("pt-BR")}
                     </p>
                     {metric.revenueBRLMicros != null &&
                       metric.revenueBRLMicros > 0 && (
-                        <p className="text-xs text-emerald-600 font-medium">
+                        <p className="text-xs text-healthy font-medium">
                           {formatBRLDirect(metric.revenueBRLMicros)}
                         </p>
                       )}
@@ -1497,24 +1497,24 @@ export default function AdminFinancialDashboard() {
       {/*, Plan contractions, */}
       <motion.div variants={itemVariants} className="grid gap-4 lg:grid-cols-2">
         <ElevatedContainer
-          className="border border-border/70 bg-card/90 p-5"
+          className="border border-border bg-card p-5"
           style={{ boxShadow: softSurfaceShadow }}
         >
           <div className="mb-4 flex items-start justify-between gap-4">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-white">
+              <div className="flex h-8 w-8 items-center justify-center rounded-[--radius] bg-primary text-white">
                 <Certificate className="h-4 w-4" weight="fill" />
               </div>
               <div>
                 <p className="text-xs font-semibold uppercase text-muted-foreground">
                   Contratações de plano
                 </p>
-                <p className="text-sm font-bold text-foreground">
+                <p className="text-sm font-semibold text-foreground">
                   Assinaturas iniciadas no período
                 </p>
               </div>
             </div>
-            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary tabular-nums">
+            <span className="rounded-[--radius] bg-muted px-3 py-1 text-xs font-semibold text-lamp-ink tabular-nums">
               {(planContractions?.totalCount ?? 0).toLocaleString("pt-BR")} no
               total
             </span>
@@ -1525,14 +1525,14 @@ export default function AdminFinancialDashboard() {
               className="flex items-center justify-center"
               style={{ height: 260 }}
             >
-              <Spinner className="h-8 w-8 animate-spin text-primary" />
+              <Spinner className="h-8 w-8 animate-spin text-lamp-ink" />
             </div>
           ) : contractionsSeries.length === 0 ? (
             <div
               className="flex flex-col items-center justify-center text-muted-foreground"
               style={{ height: 260 }}
             >
-              <CalendarCheck className="h-12 w-12 mb-2 text-slate-300" />
+              <CalendarCheck className="h-12 w-12 mb-2 text-muted-foreground" />
               <p>Sem contratações no período selecionado</p>
             </div>
           ) : (
@@ -1561,7 +1561,7 @@ export default function AdminFinancialDashboard() {
                   content={
                     <ChartTooltipContent
                       formatter={(value) => (
-                        <span className="font-bold tabular-nums">
+                        <span className="font-semibold tabular-nums">
                           {(value as number).toLocaleString("pt-BR")}{" "}
                           contratações
                         </span>
@@ -1582,13 +1582,13 @@ export default function AdminFinancialDashboard() {
 
           {!loading &&
             (planContractions?.byBillingCycle.length ?? 0) > 0 && (
-              <div className="mt-3 flex flex-wrap justify-center gap-3 border-t border-border/60 pt-3">
+              <div className="mt-3 flex flex-wrap justify-center gap-3 border-t border-border pt-3">
                 {planContractions?.byBillingCycle.map((item) => (
                   <div key={item.key} className="flex items-center gap-1.5">
                     <span className="text-xs text-muted-foreground">
                       {billingCycleLabel(item.key)}
                     </span>
-                    <span className="text-xs font-bold tabular-nums text-foreground">
+                    <span className="text-xs font-semibold tabular-nums text-foreground">
                       {item.count.toLocaleString("pt-BR")}
                     </span>
                   </div>
@@ -1598,11 +1598,11 @@ export default function AdminFinancialDashboard() {
         </ElevatedContainer>
 
         <ElevatedContainer
-          className="border border-border/70 bg-card/90 p-5"
+          className="border border-border bg-card p-5"
           style={{ boxShadow: softSurfaceShadow }}
         >
           <div className="mb-4 flex items-center gap-2">
-            <CalendarCheck className="h-4 w-4 text-primary" weight="fill" />
+            <CalendarCheck className="h-4 w-4 text-lamp-ink" weight="fill" />
             <p className="text-xs font-semibold uppercase text-muted-foreground">
               Contratações recentes
             </p>
@@ -1613,7 +1613,7 @@ export default function AdminFinancialDashboard() {
               className="flex items-center justify-center"
               style={{ height: 260 }}
             >
-              <Spinner className="h-8 w-8 animate-spin text-primary" />
+              <Spinner className="h-8 w-8 animate-spin text-lamp-ink" />
             </div>
           ) : recentContractions.length === 0 ? (
             <div
@@ -1621,7 +1621,7 @@ export default function AdminFinancialDashboard() {
               style={{ height: 260 }}
             >
               <Certificate
-                className="h-12 w-12 mb-2 text-slate-300"
+                className="h-12 w-12 mb-2 text-muted-foreground"
                 weight="fill"
               />
               <p>Nenhuma contratação recente</p>
@@ -1630,7 +1630,7 @@ export default function AdminFinancialDashboard() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-border/60 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <tr className="border-b border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     <th className="pb-3 pr-4">Área de Trabalho</th>
                     <th className="pb-3 pr-4">Plano</th>
                     <th className="pb-3 pr-4">Ciclo</th>
@@ -1642,7 +1642,7 @@ export default function AdminFinancialDashboard() {
                   {recentContractions.map((row: PlanContraction) => (
                     <tr
                       key={row.subscriptionId}
-                      className="group hover:bg-muted/30"
+                      className="group hover:bg-muted"
                     >
                       <td className="py-3 pr-4">
                         <p className="text-sm font-medium text-foreground truncate max-w-[160px]">
@@ -1658,7 +1658,7 @@ export default function AdminFinancialDashboard() {
                       <td className="py-3 pr-4">
                         <span
                           className={cn(
-                            "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold",
+                            "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-xs font-semibold",
                             SUBSCRIPTION_STATUS_CLASSES[row.status] ??
                               "bg-muted text-muted-foreground",
                           )}
@@ -1682,34 +1682,34 @@ export default function AdminFinancialDashboard() {
       {!loading && recentTransactions.length > 0 && (
         <motion.div variants={itemVariants}>
           <ElevatedContainer
-            className="border border-border/70 bg-card/90 p-5"
+            className="border border-border bg-card p-5"
             style={{ boxShadow: softSurfaceShadow }}
           >
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-500 text-white">
+                <div className="flex h-8 w-8 items-center justify-center rounded-[--radius] bg-orange-500 text-white">
                   <Receipt className="h-4 w-4" weight="fill" />
                 </div>
                 <div>
                   <p className="text-xs font-semibold uppercase text-muted-foreground">
                     Movimentações recentes
                   </p>
-                  <p className="text-sm font-bold text-foreground">
+                  <p className="text-sm font-semibold text-foreground">
                     Últimos débitos e créditos
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                <span className="rounded-[--radius] bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
                   {recentTransactions.length} transações
                 </span>
                 <button
                   type="button"
                   onClick={exportTransactionsCSV}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-muted"
+                  className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-muted"
                 >
                   <DownloadSimple
-                    className="h-3.5 w-3.5 text-primary"
+                    className="h-3.5 w-3.5 text-lamp-ink"
                     weight="bold"
                   />
                   CSV
@@ -1720,7 +1720,7 @@ export default function AdminFinancialDashboard() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-border/60 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <tr className="border-b border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     <th className="pb-3 pr-4">Data</th>
                     <th className="pb-3 pr-4">Área de Trabalho</th>
                     <th className="pb-3 pr-4">Serviço</th>
@@ -1734,7 +1734,7 @@ export default function AdminFinancialDashboard() {
                   {recentTransactions.map((tx: RecentSpending) => (
                     <tr
                       key={tx.transactionId}
-                      className="group hover:bg-muted/30"
+                      className="group hover:bg-muted"
                     >
                       <td className="py-3 pr-4 whitespace-nowrap text-xs text-muted-foreground">
                         {formatShortDate(tx.createdAt)}
@@ -1746,7 +1746,7 @@ export default function AdminFinancialDashboard() {
                       </td>
                       <td className="py-3 pr-4">
                         <span
-                          className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold text-white"
+                          className="inline-flex items-center rounded-[--radius] px-2 py-0.5 text-xs font-semibold text-white"
                           style={{
                             backgroundColor: serviceColor(tx.serviceType, 0),
                           }}
@@ -1760,10 +1760,10 @@ export default function AdminFinancialDashboard() {
                       <td className="py-3 pr-4 text-right whitespace-nowrap">
                         <span
                           className={cn(
-                            "text-sm font-bold tabular-nums",
+                            "text-sm font-semibold tabular-nums",
                             tx.amountMicros < 0
-                              ? "text-rose-600"
-                              : "text-emerald-600",
+                              ? "text-destructive"
+                              : "text-healthy",
                           )}
                         >
                           {tx.amountMicros < 0 ? "-" : "+"}
@@ -1784,10 +1784,10 @@ export default function AdminFinancialDashboard() {
                       <td className="py-3 text-right whitespace-nowrap">
                         <span
                           className={cn(
-                            "text-sm font-bold tabular-nums",
+                            "text-sm font-semibold tabular-nums",
                             tx.profitMicros >= 0
                               ? "text-foreground"
-                              : "text-rose-600",
+                              : "text-destructive",
                           )}
                         >
                           {formatTxBRL(
@@ -1859,16 +1859,16 @@ export default function AdminFinancialDashboard() {
                     );
                     setWorkspacePage(1);
                   }}
-                  className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-muted"
+                  className="inline-flex items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-muted"
                 >
                   {workspaceSortOrder === "desc" ? (
                     <ArrowDown
-                      className="h-3.5 w-3.5 text-primary"
+                      className="h-3.5 w-3.5 text-lamp-ink"
                       weight="bold"
                     />
                   ) : (
                     <ArrowUp
-                      className="h-3.5 w-3.5 text-primary"
+                      className="h-3.5 w-3.5 text-lamp-ink"
                       weight="bold"
                     />
                   )}
@@ -1877,10 +1877,10 @@ export default function AdminFinancialDashboard() {
                 <button
                   type="button"
                   onClick={exportWorkspacesCSV}
-                  className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-muted"
+                  className="inline-flex items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-muted"
                 >
                   <DownloadSimple
-                    className="h-3.5 w-3.5 text-primary"
+                    className="h-3.5 w-3.5 text-lamp-ink"
                     weight="bold"
                   />
                   CSV
@@ -1889,7 +1889,7 @@ export default function AdminFinancialDashboard() {
             </div>
           }
           emptyState={{
-            icon: <Users className="h-8 w-8 text-slate-300" weight="fill" />,
+            icon: <Users className="h-8 w-8 text-muted-foreground" weight="fill" />,
             title: "Nenhuma área de trabalho encontrada",
             description: "Tente outro termo de busca ou ajuste a ordenação.",
           }}

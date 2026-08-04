@@ -28,7 +28,7 @@ import {
   type ReactFlowInstance,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { FlowArrow } from "@phosphor-icons/react";
+import { FlowArrow } from "@/components/icons";
 
 import {
   getNodeTypesAction,
@@ -63,18 +63,18 @@ interface WorkflowRunDrawerProps {
 }
 
 const RUN_STATUS_META: Record<string, { label: string; className: string }> = {
-  running: { label: "Em execução", className: "bg-primary/10 text-primary" },
+  running: { label: "Em execução", className: "bg-muted text-lamp-ink" },
   waiting: {
     label: "Aguardando",
-    className: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+    className: "bg-warning/10 text-warning dark:text-amber-400",
   },
   completed: {
     label: "Concluído",
-    className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+    className: "bg-healthy/10 text-healthy dark:text-healthy",
   },
   error: {
     label: "Erro",
-    className: "bg-red-500/10 text-red-600 dark:text-red-400",
+    className: "bg-destructive/10 text-destructive dark:text-red-400",
   },
   cancelled: { label: "Cancelado", className: "bg-muted text-muted-foreground" },
 };
@@ -273,7 +273,7 @@ export function WorkflowRunDrawer({
                 {statusMeta && (
                   <span
                     className={cn(
-                      "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium",
+                      "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[10px] font-medium",
                       statusMeta.className,
                     )}
                   >
@@ -285,7 +285,7 @@ export function WorkflowRunDrawer({
           </div>
         </ElevatedSheetHeader>
 
-        <div className="relative min-h-0 flex-1 bg-muted/30">
+        <div className="relative min-h-0 flex-1 bg-muted">
           <div className="absolute inset-0">
             {ready && (
               <ReactFlowProvider>
@@ -334,7 +334,7 @@ export function WorkflowRunDrawer({
           {state.loading && (
             <div className="absolute inset-0 flex items-center justify-center">
               <div
-                className="h-8 w-8 animate-spin rounded-full border-2 border-muted border-t-primary"
+                className="h-8 w-8 animate-spin rounded-full border border-muted border-t-primary"
                 role="status"
                 aria-label="Carregando fluxo"
               />

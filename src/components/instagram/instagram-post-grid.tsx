@@ -1,6 +1,6 @@
 "use client";
 
-import { ChatCircle, Copy, FilmStrip, Heart, ImageBroken, PlayCircle } from "@phosphor-icons/react";
+import { ChatCircle, Copy, FilmStrip, Heart, ImageBroken, PlayCircle } from "@/components/icons";
 
 import type { InstagramMedia } from "@/lib/instagram/types";
 
@@ -109,10 +109,10 @@ function PostTile({
       onClick={onSelect}
       aria-label={media.caption?.trim() || openLabel}
       className={cn(
-        "group relative aspect-square overflow-hidden rounded-xl bg-muted",
+        "group relative aspect-square overflow-hidden rounded-[--radius] bg-muted",
         "ring-1 ring-border/60 transition-all duration-200",
-        "hover:ring-2 hover:ring-primary/40 hover:shadow-lg",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+        "hover:ring-2 hover:ring-ring hover:shadow-lg",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
       )}
     >
       {media.hasAsset ? (
@@ -174,6 +174,6 @@ function PostTile({
 
 function TileBadge({ children }: { children: React.ReactNode }) {
   return (
-    <span className="rounded-md bg-black/55 p-1 text-white backdrop-blur-sm">{children}</span>
+    <span className="rounded-md bg-black/55 p-1 text-white">{children}</span>
   );
 }

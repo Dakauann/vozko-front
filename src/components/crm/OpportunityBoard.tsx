@@ -12,7 +12,7 @@ import {
   Sliders,
   TrendUp,
   User,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 import CrmFilterBar from "@/components/crm/CrmFilterBar";
 import OpportunityDrawer from "@/components/crm/OpportunityDrawer";
@@ -266,7 +266,7 @@ export default function OpportunityBoard({
       {/* Header. In embedded (unified board) mode the shared pipeline selector sits
           above, so we drop the standalone title/icon and lead with the selector slot
           + totals, keeping the new-deal button. */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/80 bg-card px-4 py-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-card px-4 py-2.5">
         <div className="flex min-w-0 items-center gap-3">
           {embedded ? (
             headerSlot ?? null
@@ -277,7 +277,7 @@ export default function OpportunityBoard({
           )}
           <div>
             {!embedded ? (
-              <h1 className="text-base font-bold leading-tight text-foreground">{t("deals.title")}</h1>
+              <h1 className="text-base font-semibold leading-tight text-foreground">{t("deals.title")}</h1>
             ) : null}
             <p className="text-xs text-muted-foreground">
               {t("deals.count", { count: boardTotals.count })} ·{" "}
@@ -321,7 +321,7 @@ export default function OpportunityBoard({
       <div className="relative flex-1 min-h-0 overflow-x-auto overflow-y-hidden">
         {error ? (
           <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-            <ArrowsClockwise className="h-8 w-8 text-red-600" weight="bold" />
+            <ArrowsClockwise className="h-8 w-8 text-destructive" weight="bold" />
             <p className="text-sm text-muted-foreground">{error}</p>
             <ElevatedButton variant="outline-subtle" size="sm" title={t("deals.retry")} onClick={() => void load()} />
           </div>
@@ -346,7 +346,7 @@ export default function OpportunityBoard({
                     className={cn(
                       "text-[11px] font-semibold tabular-nums",
                       c.isWon
-                        ? "text-emerald-600 dark:text-emerald-400"
+                        ? "text-healthy dark:text-healthy"
                         : c.isLost
                           ? "text-muted-foreground"
                           : "text-foreground",
@@ -463,7 +463,7 @@ function DealCard({
           isMoving ? (
             <CircleNotch
               weight="bold"
-              className="h-4 w-4 flex-shrink-0 animate-spin text-primary"
+              className="h-4 w-4 flex-shrink-0 animate-spin text-lamp-ink"
             />
           ) : (
             <DotsThreeVertical
@@ -476,9 +476,9 @@ function DealCard({
           deal.valueCents > 0 ? (
             <p
               className={cn(
-                "text-[13px] font-bold tabular-nums tracking-tight",
+                "text-[13px] font-semibold tabular-nums tracking-tight",
                 won
-                  ? "text-emerald-600 dark:text-emerald-400"
+                  ? "text-healthy dark:text-healthy"
                   : lost
                     ? "text-muted-foreground line-through"
                     : "text-foreground",
@@ -545,7 +545,7 @@ function ColumnSkeleton() {
         <span className="h-2.5 w-2.5 rounded-full bg-muted" />
         <span className="h-3 w-20 rounded bg-muted" />
       </div>
-      <div className="flex-1 space-y-2 rounded-xl bg-muted/50 p-1.5">
+      <div className="flex-1 space-y-2 rounded-[--radius] bg-muted p-1.5">
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="h-[76px] animate-pulse rounded-lg bg-card" />
         ))}

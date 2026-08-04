@@ -14,7 +14,7 @@ import {
   Robot,
   Wallet,
   WhatsappLogo,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type {
   BalanceSummary,
   ListTransactionsParams,
@@ -118,17 +118,17 @@ function getServiceMeta(serviceType: string) {
   switch (serviceType) {
     case "voice_call":
     case "voice_campaign":
-      return { icon: Phone, color: "bg-blue-500 text-white" };
+      return { icon: Phone, color: "bg-muted text-white" };
     case "ai":
-      return { icon: Robot, color: "bg-purple-500 text-white" };
+      return { icon: Robot, color: "bg-muted text-white" };
     case "whatsapp_campaign":
-      return { icon: WhatsappLogo, color: "bg-emerald-500 text-white" };
+      return { icon: WhatsappLogo, color: "bg-healthy text-white" };
     case "top_up":
-      return { icon: ArrowUp, color: "bg-green-500 text-white" };
+      return { icon: ArrowUp, color: "bg-healthy text-white" };
     case "manual_adjustment":
     case "admin_credit":
     case "admin_debit":
-      return { icon: ArrowsLeftRight, color: "bg-amber-500 text-white" };
+      return { icon: ArrowsLeftRight, color: "bg-warning text-white" };
     default:
       return { icon: Lightning, color: "bg-gray-500 text-white" };
   }
@@ -313,7 +313,7 @@ export default function BalancePage() {
           return (
             <span
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium",
+                "inline-flex items-center gap-1.5 rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
                 meta.color,
               )}
             >
@@ -342,10 +342,10 @@ export default function BalancePage() {
           return (
             <span
               className={cn(
-                "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium",
+                "inline-flex items-center gap-1 rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
                 isCredit
-                  ? "bg-emerald-500 text-white"
-                  : "bg-red-500 text-white",
+                  ? "bg-healthy text-white"
+                  : "bg-destructive text-white",
               )}
             >
               {isCredit ? (
@@ -380,8 +380,8 @@ export default function BalancePage() {
           return (
             <span
               className={cn(
-                "text-sm font-bold tabular-nums",
-                isCredit ? "text-emerald-600" : "text-red-600",
+                "text-sm font-semibold tabular-nums",
+                isCredit ? "text-healthy" : "text-destructive",
               )}
             >
               {isCredit ? "+" : "-"}
@@ -434,7 +434,7 @@ export default function BalancePage() {
                     ),
               icon: (
                 <CurrencyDollar
-                  className="h-4 w-4 text-amber-500"
+                  className="h-4 w-4 text-warning"
                   weight="fill"
                 />
               ),
@@ -450,7 +450,7 @@ export default function BalancePage() {
                       locale,
                     ),
               icon: (
-                <ArrowUp className="h-4 w-4 text-emerald-500" weight="bold" />
+                <ArrowUp className="h-4 w-4 text-healthy" weight="bold" />
               ),
             },
             {
@@ -507,7 +507,7 @@ export default function BalancePage() {
                           "rounded-lg px-2.5 py-1 text-xs font-medium transition-colors",
                           datePreset === preset
                             ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-muted-foreground hover:bg-muted/80",
+                            : "bg-muted text-muted-foreground hover:bg-muted",
                         )}
                       >
                         {t(`filter.${preset}`)}
@@ -519,7 +519,7 @@ export default function BalancePage() {
                         "rounded-lg px-2.5 py-1 text-xs font-medium transition-colors",
                         datePreset === "custom"
                           ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground hover:bg-muted/80",
+                          : "bg-muted text-muted-foreground hover:bg-muted",
                       )}
                     >
                       {t("filter.custom")}
@@ -612,7 +612,7 @@ export default function BalancePage() {
                       type="datetime-local"
                       value={customStart}
                       onChange={(e) => handleCustomStart(e.target.value)}
-                      className="h-8 rounded-lg border border-border bg-card px-2.5 text-xs text-foreground outline-none focus:ring-2 focus:ring-primary/30 transition-colors"
+                      className="h-8 rounded-lg border border-border bg-card px-2.5 text-xs text-foreground outline-none focus:ring-2 focus:ring-ring transition-colors"
                     />
                   </div>
                   <div className="flex items-center gap-2">
@@ -628,7 +628,7 @@ export default function BalancePage() {
                       value={customEnd}
                       max={toDateTimeLocal(new Date())}
                       onChange={(e) => handleCustomEnd(e.target.value)}
-                      className="h-8 rounded-lg border border-border bg-card px-2.5 text-xs text-foreground outline-none focus:ring-2 focus:ring-primary/30 transition-colors"
+                      className="h-8 rounded-lg border border-border bg-card px-2.5 text-xs text-foreground outline-none focus:ring-2 focus:ring-ring transition-colors"
                     />
                   </div>
                 </div>
@@ -651,7 +651,7 @@ export default function BalancePage() {
             error
               ? {
                   icon: (
-                    <Wallet className="h-7 w-7 text-red-600" weight="fill" />
+                    <Wallet className="h-7 w-7 text-destructive" weight="fill" />
                   ),
                   title: t("error.title"),
                   description: error,

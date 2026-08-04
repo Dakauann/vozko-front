@@ -20,7 +20,7 @@ import {
   Plus,
   Sparkle,
   Spinner,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   ElevatedDialog,
   ElevatedDialogContent,
@@ -96,7 +96,7 @@ function getSubscriptionStatusKey(
 
 const MONEY_CONFIG = {
   badge: "R$",
-  bgColor: "bg-amber-500",
+  bgColor: "border border-border bg-muted",
 };
 
 function BalanceRow({
@@ -111,10 +111,10 @@ function BalanceRow({
   exchangeRate: number;
 }) {
   return (
-    <div className="flex items-center gap-3 px-4 py-3.5 hover:bg-muted/80 transition-colors">
+    <div className="flex items-center gap-3 px-4 py-3.5 hover:bg-muted transition-colors">
       <div
         className={cn(
-          "flex h-9 w-9 items-center justify-center rounded-lg text-white text-[11px] font-bold tracking-tight",
+          "flex h-9 w-9 items-center justify-center rounded-[--radius] text-foreground text-[11px] font-semibold tracking-tight",
           MONEY_CONFIG.bgColor,
         )}
       >
@@ -312,65 +312,82 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
 
   return (
     <div className={cn("relative", className)} ref={containerRef}>
+      {/*
+        A panel readout, not a boxed widget. This sits in a 48px bar beside the
+        scope route, so it is a legend over a tabular figure — the amount is the
+        only thing that should draw the eye, and it holds its width as it ticks.
+        The old form (bordered card, amber R$ tile, coloured plan pill, solid
+        accent button) outweighed every other element in the bar.
+      */}
       <div
         className={cn(
-          "flex items-center gap-2 rounded-xl px-3 py-2.5 transition-all",
-          "border border-border/80 bg-card/60 backdrop-blur-sm",
-          "hover:bg-card hover:border-foreground/20 hover:shadow-sm",
-          isOpen && "bg-card border-foreground/20 shadow-sm",
+          "flex items-center gap-1.5 rounded-[--radius] px-1.5 py-1 transition-colors",
+          isOpen ? "bg-muted" : "hover:bg-muted",
         )}
       >
         {isLoading ? (
-          <Spinner className="h-4 w-4 text-muted-foreground animate-spin" />
+          <Spinner className="h-4 w-4 animate-spin text-muted-foreground" />
         ) : (
           <>
             <button
               type="button"
               onClick={() => setIsOpen((open) => !open)}
-              className="flex min-w-0 flex-1 items-center gap-2 text-left"
+              aria-haspopup="dialog"
+              aria-expanded={isOpen}
+              className="flex min-w-0 items-center gap-1.5 text-left"
             >
               {hasBalancePermission ? (
-                <>
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-amber-500 text-[9px] font-bold text-white">
-                    R$
-                  </span>
-                  <span className="truncate text-xs font-semibold text-foreground tabular-nums">
-                    {balanceVisible
-                      ? moneyBalance
-                        ? formatBalance(
-                            moneyBalance.current_balance * (exchangeRate ?? 1),
-                          )
-                        : "R$ 0,00"
-                      : "*****"}
-                  </span>
-                </>
-              ) : (
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-slate-900 text-white">
-                  <Package className="h-3 w-3" weight="fill" />
+                // One line, value-first. A stacked legend over the figure put a
+                // wide-tracked label above a short number in a 48px bar, which
+                // made the label outweigh the thing it names; the accessible
+                // name carries the label instead.
+                <span
+                  className="readout truncate text-[13px] font-semibold leading-none text-foreground"
+                  title={t("moneyLabel")}
+                >
+                  {balanceVisible
+                    ? moneyBalance
+                      ? formatBalance(
+                          moneyBalance.current_balance * (exchangeRate ?? 1),
+                        )
+                      : "R$ 0,00"
+                    : "•••••"}
                 </span>
+              ) : (
+                <Package
+                  className="h-4 w-4 shrink-0 text-muted-foreground"
+                  weight="regular"
+                />
               )}
+
+              {/* Plan state is a lamp dot plus a word, never colour alone. */}
               {hasPlansPermission && hasVisiblePlan ? (
                 <span
-                  className={cn(
-                    "hidden max-w-[9rem] truncate rounded-full px-2.5 py-1 text-[10px] font-semibold text-white md:inline-flex",
-                    hasRechargeEligiblePlan ? "bg-emerald-500" : "bg-amber-500",
-                  )}
+                  className="hidden max-w-[8rem] items-center gap-1 truncate border border-border px-1 py-px text-[10px] font-medium text-muted-foreground md:inline-flex"
                   title={currentPlanName ?? undefined}
                 >
-                  {currentPlanName}
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      "h-1.5 w-1.5 shrink-0 rounded-full",
+                      hasRechargeEligiblePlan ? "bg-healthy" : "bg-primary",
+                    )}
+                  />
+                  <span className="truncate">{currentPlanName}</span>
                 </span>
               ) : hasPlansPermission && !hasVisiblePlan ? (
-                <span className="hidden items-center gap-1.5 rounded-full bg-slate-900 px-2.5 py-1 text-[10px] font-semibold text-white md:inline-flex">
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
-                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-amber-400" />
-                  </span>
+                <span className="hidden items-center gap-1 border border-border px-1 py-px text-[10px] font-medium text-muted-foreground md:inline-flex">
+                  <span
+                    aria-hidden="true"
+                    className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
+                  />
                   {t("noPlan")}
                 </span>
               ) : null}
+
               <CaretDown
                 className={cn(
-                  "ml-auto h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform",
+                  "h-3 w-3 shrink-0 text-muted-foreground transition-transform",
                   isOpen && "rotate-180",
                 )}
                 weight="bold"
@@ -381,15 +398,15 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
               <button
                 type="button"
                 onClick={() => setBalanceVisible((v) => !v)}
-                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground transition-colors hover:bg-muted/80 hover:text-foreground"
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[--radius] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 aria-label={
                   balanceVisible ? t("hideBalance") : t("showBalance")
                 }
               >
                 {balanceVisible ? (
-                  <EyeClosedIcon className="h-3.5 w-3.5" weight="bold" />
+                  <EyeClosedIcon className="h-3.5 w-3.5" weight="regular" />
                 ) : (
-                  <Eye className="h-3.5 w-3.5" weight="bold" />
+                  <Eye className="h-3.5 w-3.5" weight="regular" />
                 )}
               </button>
             ) : null}
@@ -403,7 +420,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                     ? openRechargeDialog
                     : openPlanCatalogDialog
                 }
-                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-[hsl(var(--primary-hover))]"
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[--radius] border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 aria-label={
                   hasBalancePermission && hasRechargeEligiblePlan
                     ? t("actions.addFunds")
@@ -413,7 +430,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                 {hasBalancePermission && hasRechargeEligiblePlan ? (
                   <Plus className="h-3.5 w-3.5" weight="bold" />
                 ) : (
-                  <Package className="h-3.5 w-3.5" weight="fill" />
+                  <Package className="h-3.5 w-3.5" weight="regular" />
                 )}
               </button>
             ) : null}
@@ -428,10 +445,10 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.96 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-2xl border border-border bg-card shadow-xl"
+            className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-[--radius] border border-border bg-card shadow-xl"
           >
             {/* Header */}
-            <div className="border-b border-border bg-gradient-to-br from-muted to-card px-4 py-4">
+            <div className="border-b border-border bg-muted px-4 py-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-semibold text-foreground">
@@ -441,16 +458,16 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                     {t("description")}
                   </p>
                 </div>
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-[10px] font-bold text-white">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-muted text-[10px] font-semibold text-foreground">
                   VX
                 </div>
               </div>
 
-              <div className="mt-3 rounded-2xl border border-border/70 bg-background/80 p-3">
+              <div className="mt-3 rounded-[--radius] border border-border bg-background p-3">
                 {!hasPlansPermission ? null : hasVisiblePlan ? (
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex min-w-0 items-start gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-white">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[--radius] border border-border bg-muted text-foreground">
                         <Package className="h-5 w-5" weight="fill" />
                       </div>
                       <div className="min-w-0">
@@ -470,10 +487,10 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                     {subscriptionStatusLabel ? (
                       <span
                         className={cn(
-                          "rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase text-white",
+                          "rounded-[--radius] px-2.5 py-1 text-[10px] font-semibold uppercase text-white",
                           hasRechargeEligiblePlan
-                            ? "bg-emerald-500"
-                            : "bg-amber-500",
+                            ? "bg-healthy"
+                            : "bg-warning",
                         )}
                       >
                         {subscriptionStatusLabel}
@@ -483,7 +500,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                 ) : (
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-white">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[--radius] border border-border bg-muted text-foreground">
                         <Sparkle className="h-5 w-5" weight="fill" />
                       </div>
                       <div>
@@ -498,7 +515,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
 
                     {canContractPlan ? (
                       <Button
-                        className="w-full rounded-xl"
+                        className="w-full rounded-[--radius]"
                         onClick={() => {
                           setIsOpen(false);
                           openPlanCatalogDialog();
@@ -527,7 +544,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
             ) : null}
 
             {hasBalancePermission ? (
-              <div className="border-t border-border bg-muted/50 px-4 py-3">
+              <div className="border-t border-border bg-muted px-4 py-3">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">
                     {t("updatedAt")}:
@@ -544,7 +561,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                       : "—"}
                   </span>
                   <Button
-                    className="!min-h-0 min-w-0 !px-0 !py-0 text-xs font-medium text-primary shadow-none hover:bg-transparent"
+                    className="!min-h-0 min-w-0 !px-0 !py-0 text-xs font-medium text-lamp-ink shadow-none hover:bg-transparent"
                     link="/dashboard/balance"
                     newTab={false}
                     title={t("actions.viewHistory")}
@@ -594,14 +611,14 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
               ) : null}
 
               {loadingPlans ? (
-                <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-border bg-muted/30 text-center">
-                  <Spinner className="h-6 w-6 animate-spin text-primary" />
+                <div className="flex min-h-[220px] flex-col items-center justify-center rounded-[--radius] border border-border bg-muted text-center">
+                  <Spinner className="h-6 w-6 animate-spin text-lamp-ink" />
                   <p className="mt-3 text-sm text-muted-foreground">
                     {gateT("loading")}
                   </p>
                 </div>
               ) : plansError ? (
-                <div className="rounded-2xl border border-border bg-muted/30 p-5 text-center">
+                <div className="rounded-[--radius] border border-border bg-muted p-5 text-center">
                   <p className="text-sm font-semibold text-foreground">
                     {gateT("errorTitle")}
                   </p>
@@ -628,7 +645,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                   }}
                 />
               ) : (
-                <div className="rounded-2xl border border-dashed border-border bg-muted/30 px-4 py-10 text-center">
+                <div className="rounded-[--radius] border border-dashed border-border bg-muted px-4 py-10 text-center">
                   <Package
                     className="mx-auto h-8 w-8 text-muted-foreground"
                     weight="fill"
@@ -644,7 +661,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
 
               <div className="flex flex-col gap-2 sm:flex-row-reverse">
                 <Button
-                  className="w-full rounded-xl sm:w-auto"
+                  className="w-full rounded-[--radius] sm:w-auto"
                   onClick={() => {
                     setRechargeOpen(false);
                     router.push("/dashboard/plans");
@@ -653,7 +670,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                   variant="primary"
                 />
                 <Button
-                  className="w-full rounded-xl sm:w-auto"
+                  className="w-full rounded-[--radius] sm:w-auto"
                   onClick={() => setRechargeOpen(false)}
                   title={plansT("actions.close")}
                   variant="outline-subtle"
@@ -674,8 +691,8 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                   value={rechargeAmount}
                   onChange={(e) => setRechargeAmount(e.target.value)}
                   className={cn(
-                    "h-12 rounded-xl border border-border bg-background px-4 text-sm text-foreground",
-                    "placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary",
+                    "h-12 rounded-[--radius] border border-border bg-background px-4 text-sm text-foreground",
+                    "placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary",
                     "transition-all",
                   )}
                 />
@@ -690,9 +707,9 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                     type="button"
                     onClick={() => setPaymentMethod("pix")}
                     className={cn(
-                      "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all",
+                      "flex flex-col items-center gap-2 rounded-[--radius] border p-4 transition-colors",
                       paymentMethod === "pix"
-                        ? "border-primary bg-primary/5 text-primary"
+                        ? "border-rule-strong bg-muted text-foreground"
                         : "border-border bg-card text-muted-foreground hover:border-foreground/20",
                     )}
                   >
@@ -705,9 +722,9 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                     type="button"
                     onClick={() => setPaymentMethod("boleto")}
                     className={cn(
-                      "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all",
+                      "flex flex-col items-center gap-2 rounded-[--radius] border p-4 transition-colors",
                       paymentMethod === "boleto"
-                        ? "border-primary bg-primary/5 text-primary"
+                        ? "border-rule-strong bg-muted text-foreground"
                         : "border-border bg-card text-muted-foreground hover:border-foreground/20",
                     )}
                   >
@@ -727,7 +744,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
               <Button
                 variant="primary"
                 size="lg"
-                className="w-full rounded-xl"
+                className="w-full rounded-[--radius]"
                 disabled={
                   !rechargeAmount || Number(rechargeAmount) < 5 || generating
                 }
@@ -795,10 +812,10 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                         width={192}
                         height={192}
                         unoptimized
-                        className="h-48 w-48 rounded-2xl border border-border"
+                        className="h-48 w-48 rounded-[--radius] border border-border"
                       />
                     ) : (
-                      <div className="flex h-48 w-48 items-center justify-center rounded-2xl border-2 border-dashed border-border bg-muted/50">
+                      <div className="flex h-48 w-48 items-center justify-center rounded-[--radius] border border-dashed border-border bg-muted">
                         <div className="flex flex-col items-center gap-2 text-muted-foreground">
                           <PixLogo className="h-12 w-12" weight="duotone" />
                           <span className="text-xs">
@@ -813,7 +830,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                   </div>
 
                   {generatedInvoice.pixCopy && (
-                    <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/50 p-3">
+                    <div className="flex items-center gap-2 rounded-[--radius] border border-border bg-muted p-3">
                       <code className="flex-1 truncate text-xs text-muted-foreground">
                         {generatedInvoice.pixCopy}
                       </code>
@@ -834,7 +851,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                       >
                         {copied ? (
                           <Check
-                            className="h-4 w-4 text-emerald-500"
+                            className="h-4 w-4 text-healthy"
                             weight="bold"
                           />
                         ) : (
@@ -848,7 +865,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                 <>
                   <div className="flex min-h-0 flex-1 flex-col items-center gap-4">
                     {generatedInvoice.bankSlipUrl ? (
-                      <div className="min-h-0 w-full flex-1 overflow-hidden rounded-2xl border border-border">
+                      <div className="min-h-0 w-full flex-1 overflow-hidden rounded-[--radius] border border-border">
                         <iframe
                           src={generatedInvoice.bankSlipUrl}
                           className="h-full min-h-[300px] w-full"
@@ -856,7 +873,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                         />
                       </div>
                     ) : (
-                      <div className="flex h-32 w-full items-center justify-center rounded-2xl border-2 border-dashed border-border bg-muted/50">
+                      <div className="flex h-32 w-full items-center justify-center rounded-[--radius] border border-dashed border-border bg-muted">
                         <div className="flex flex-col items-center gap-2 text-muted-foreground">
                           <Barcode className="h-12 w-12" weight="duotone" />
                           <span className="text-xs">
@@ -874,7 +891,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                 </>
               )}
 
-              <div className="flex items-center justify-between rounded-xl bg-muted/50 px-4 py-3">
+              <div className="flex items-center justify-between rounded-[--radius] bg-muted px-4 py-3">
                 <span className="text-sm text-muted-foreground">
                   {t("dialog.amountSummary")}
                 </span>
@@ -889,7 +906,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
               <Button
                 variant="outline"
                 size="lg"
-                className="w-full rounded-xl"
+                className="w-full rounded-[--radius]"
                 onClick={() => {
                   setGeneratedInvoice(null);
                   setCopied(false);

@@ -13,7 +13,7 @@ import {
   Tag,
   WhatsappLogo,
   XCircle,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type {
   WhatsAppCampaign,
   WhatsAppCampaignMetrics,
@@ -115,7 +115,7 @@ export function WhatsAppCampaignListingCard({
             icon: <WhatsappLogo weight="fill" />,
             label: t("card.template"),
             value: campaign.templateName,
-            color: "text-emerald-500",
+            color: "text-healthy",
           },
         ]
       : []),
@@ -162,7 +162,7 @@ export function WhatsAppCampaignListingCard({
       label: t("card.conversations"),
       value: metrics.sent.toLocaleString(),
       icon: <ChatsCircle weight="fill" />,
-      color: "text-emerald-600",
+      color: "text-healthy",
     },
   ];
 
@@ -177,25 +177,25 @@ export function WhatsAppCampaignListingCard({
       label: t("card.asr"),
       value: `${Math.round(metrics.successRate)}%`,
       icon: <ChartLineUp weight="fill" />,
-      color: metrics.successRate >= 70 ? "text-emerald-600" : metrics.successRate >= 40 ? "text-amber-600" : "text-rose-600",
+      color: metrics.successRate >= 70 ? "text-healthy" : metrics.successRate >= 40 ? "text-warning" : "text-destructive",
     },
     {
       label: t("card.delivered"),
       value: metrics.delivered.toLocaleString(),
       icon: <CheckCircle weight="fill" />,
-      color: "text-emerald-600",
+      color: "text-healthy",
     },
     {
       label: t("card.read"),
       value: metrics.read.toLocaleString(),
       icon: <Eye weight="fill" />,
-      color: "text-blue-600",
+      color: "text-muted-foreground",
     },
     {
       label: t("card.failed"),
       value: metrics.failed.toLocaleString(),
       icon: <XCircle weight="fill" />,
-      color: metrics.failed > 0 ? "text-rose-600" : "text-muted-foreground",
+      color: metrics.failed > 0 ? "text-destructive" : "text-muted-foreground",
     },
   ];
 

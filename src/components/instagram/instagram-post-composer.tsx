@@ -8,7 +8,7 @@ import {
   Sparkle,
   UploadSimple,
   Warning,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { useRef, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
@@ -188,7 +188,7 @@ export function InstagramPostComposer({
           // The post published; only the rule failed. Say exactly that, and do
           // not offer "publish" again.
           <div className="space-y-4 p-5">
-            <p className="flex items-start gap-2 rounded-lg bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-400">
+            <p className="flex items-start gap-2 rounded-lg bg-warning/10 p-3 text-xs text-warning dark:text-amber-400">
               <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" weight="fill" />
               {t("publishedButRuleFailed", { error: ruleWarning })}
             </p>
@@ -263,18 +263,18 @@ export function InstagramPostComposer({
                   {/* Captions cannot be edited after publishing, Instagram has no
                       such endpoint, so the operator is warned while it still
                       matters. */}
-                  <p className="flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-500">
+                  <p className="flex items-start gap-1.5 text-xs text-warning dark:text-warning">
                     <Warning className="mt-0.5 h-3 w-3 shrink-0" />
                     {t("captionImmutable")}
                   </p>
                 </div>
               )}
 
-              <div className="rounded-xl border border-border p-4">
+              <div className="rounded-[--radius] border border-border p-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0 space-y-0.5">
                     <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-                      <Sparkle className="h-3.5 w-3.5 text-primary" weight="fill" />
+                      <Sparkle className="h-3.5 w-3.5 text-lamp-ink" weight="fill" />
                       {t("ruleTitle")}
                     </span>
                     <p className="text-xs text-muted-foreground">{t("ruleHint")}</p>

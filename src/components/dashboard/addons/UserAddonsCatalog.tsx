@@ -15,7 +15,7 @@ import {
   PuzzlePiece,
   ShieldCheck,
   WhatsappLogo,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   ElevatedDialog,
   ElevatedDialogContent,
@@ -50,8 +50,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useWorkspace } from "@/contexts/workspace-context";
 
 const KIND_TILE: Record<AddonEntitlementKind, string> = {
-  call_channels: "bg-slate-700",
-  whatsapp_business_phones: "bg-emerald-500",
+  call_channels: "bg-muted",
+  whatsapp_business_phones: "bg-healthy",
 };
 
 function KindGlyph({
@@ -79,9 +79,9 @@ function formatBRL(micros: number, rate: number): string {
   }).format((micros / 1_000_000) * rate);
 }
 
-const PANEL = "rounded-2xl border border-border/70 bg-card/90";
+const PANEL = "rounded-[--radius] border border-border bg-card";
 const EMPTY_STATE =
-  "mx-auto mt-8 max-w-2xl rounded-[26px] border border-border/70 bg-card/90 p-12 text-center";
+  "mx-auto mt-8 max-w-2xl rounded-[--radius] border border-border bg-card p-12 text-center";
 
 export default function UserAddonsCatalog() {
   const t = useTranslations("addonsPage");
@@ -223,7 +223,7 @@ export default function UserAddonsCatalog() {
   if (loading || permissionsLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-32">
-        <CircleNotch className="h-8 w-8 animate-spin text-primary" weight="bold" />
+        <CircleNotch className="h-8 w-8 animate-spin text-lamp-ink" weight="bold" />
         <p className="mt-3 text-sm text-muted-foreground">{t("loading")}</p>
       </div>
     );
@@ -242,7 +242,7 @@ export default function UserAddonsCatalog() {
   if (!canRead) {
     return (
       <div className={EMPTY_STATE} style={{ boxShadow: softSurfaceShadow }}>
-        <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-amber-500" weight="fill" />
+        <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-warning" weight="fill" />
         <p className="font-semibold text-foreground">{t("noAccess.title")}</p>
         <p className="mt-1 text-sm text-muted-foreground">{t("noAccess.description")}</p>
       </div>
@@ -269,7 +269,7 @@ export default function UserAddonsCatalog() {
       label: t("stats.activeAddons"),
       value: String(activeCount),
       helper: t("stats.subscriptionCount", { count: activeCount }),
-      tile: "bg-amber-500",
+      tile: "bg-warning",
       glyph: <PuzzlePiece className="h-4 w-4 text-white" weight="fill" />,
     },
   ];
@@ -316,7 +316,7 @@ export default function UserAddonsCatalog() {
                 </div>
                 <div
                   className={cn(
-                    "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl",
+                    "flex h-11 w-11 shrink-0 items-center justify-center rounded-[--radius]",
                     stat.tile,
                   )}
                 >
@@ -333,14 +333,14 @@ export default function UserAddonsCatalog() {
               <p className="text-sm font-semibold text-foreground">{t("catalog.title")}</p>
               <p className="text-xs text-muted-foreground">{t("catalog.subtitle")}</p>
             </div>
-            <div className="inline-flex rounded-full border border-border/70 bg-background/80 p-1">
+            <div className="inline-flex rounded-full border border-border bg-background p-1">
               {(["monthly", "annual"] as AddonBillingCycle[]).map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setCycle(c)}
                   className={cn(
-                    "rounded-full px-4 py-1.5 text-xs font-semibold transition-colors",
+                    "rounded-[--radius] px-4 py-1.5 text-xs font-semibold transition-colors",
                     cycle === c
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground",
@@ -353,7 +353,7 @@ export default function UserAddonsCatalog() {
           </div>
 
           {available.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border/70 bg-background/60 px-4 py-12 text-center">
+            <div className="rounded-[--radius] border border-dashed border-border bg-background px-4 py-12 text-center">
               <PuzzlePiece className="mx-auto h-8 w-8 text-muted-foreground" weight="fill" />
               <p className="mt-3 text-sm font-medium text-foreground">{t("catalog.emptyTitle")}</p>
               <p className="mt-1 text-xs text-muted-foreground">{t("catalog.emptyDescription")}</p>
@@ -363,10 +363,10 @@ export default function UserAddonsCatalog() {
               {available.map((addon) => (
                 <div
                   key={addon.id}
-                  className="flex flex-col rounded-2xl border border-border/70 bg-background/70 p-5 transition-colors hover:border-primary/30"
+                  className="flex flex-col rounded-[--radius] border border-border bg-background p-5 transition-colors hover:border-primary/30"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground">
                       <KindGlyph kind={addon.entitlementKind} className="h-5 w-5" />
                     </span>
                     <div className="min-w-0">
@@ -388,7 +388,7 @@ export default function UserAddonsCatalog() {
                   )}
                   <div className="mt-4 flex items-end justify-between gap-2">
                     <div>
-                      <span className="text-xl font-bold text-foreground">
+                      <span className="text-xl font-semibold text-foreground">
                         {formatBRL(priceMicros(addon, cycle), rate)}
                       </span>
                       <span className="ml-1 text-[11px] text-muted-foreground">
@@ -416,7 +416,7 @@ export default function UserAddonsCatalog() {
               {active.map((sub) => (
                 <div
                   key={sub.id}
-                  className="flex items-center justify-between gap-3 rounded-2xl border border-border/70 bg-background/70 p-4"
+                  className="flex items-center justify-between gap-3 rounded-[--radius] border border-border bg-background p-4"
                 >
                   <div className="flex items-center gap-3">
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
@@ -434,7 +434,7 @@ export default function UserAddonsCatalog() {
                     </div>
                   </div>
                   {sub.cancelledAt ? (
-                    <span className="rounded-full bg-amber-500 px-2.5 py-1 text-[10px] font-semibold uppercase text-white">
+                    <span className="rounded-full bg-warning px-2.5 py-1 text-[10px] font-semibold uppercase text-white">
                       {t("active.cancelled")}
                     </span>
                   ) : (
@@ -464,8 +464,8 @@ export default function UserAddonsCatalog() {
 
           {selected && (
             <div className="space-y-4">
-              <div className="flex items-center gap-3 rounded-2xl border border-border/70 bg-background/70 p-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+              <div className="flex items-center gap-3 rounded-[--radius] border border-border bg-background p-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground">
                   <KindGlyph kind={selected.entitlementKind} className="h-5 w-5" />
                 </span>
                 <div className="min-w-0">
@@ -483,7 +483,7 @@ export default function UserAddonsCatalog() {
                   <button
                     type="button"
                     aria-label={t("purchase.decrease")}
-                    className="flex size-8 items-center justify-center rounded-lg border border-border/70 text-foreground transition-colors hover:bg-muted disabled:opacity-40"
+                    className="flex size-8 items-center justify-center rounded-lg border border-border text-foreground transition-colors hover:bg-muted disabled:opacity-40"
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                     disabled={quantity <= 1}
                   >
@@ -495,7 +495,7 @@ export default function UserAddonsCatalog() {
                   <button
                     type="button"
                     aria-label={t("purchase.increase")}
-                    className="flex size-8 items-center justify-center rounded-lg border border-border/70 text-foreground transition-colors hover:bg-muted"
+                    className="flex size-8 items-center justify-center rounded-lg border border-border text-foreground transition-colors hover:bg-muted"
                     onClick={() => setQuantity((q) => q + 1)}
                   >
                     <Plus className="h-4 w-4" />
@@ -506,10 +506,10 @@ export default function UserAddonsCatalog() {
               {/* Exact charge from the backend preview: what is debited from saldo now (prorated for a
                   new monthly channel) vs the recurring amount on the day-23 invoice. Same math as the
                   charge, so it is authoritative. Falls back to the full price while the quote loads. */}
-              <div className="space-y-2 rounded-2xl border border-border/70 bg-background/70 p-3">
+              <div className="space-y-2 rounded-[--radius] border border-border bg-background p-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-foreground">{t("purchase.payNow")}</span>
-                  <span className="text-lg font-semibold text-primary tabular-nums">
+                  <span className="text-lg font-semibold text-lamp-ink tabular-nums">
                     {previewLoading || !preview
                       ? formatBRL(selectedUnit * quantity, rate)
                       : formatBRL(preview.chargeNowMicros, rate)}
@@ -520,7 +520,7 @@ export default function UserAddonsCatalog() {
                     {t("purchase.proratedNote", { days: preview.proratedDays })}
                   </p>
                 )}
-                <div className="flex items-center justify-between border-t border-border/50 pt-2">
+                <div className="flex items-center justify-between border-t border-border pt-2">
                   <span className="text-xs text-muted-foreground">
                     {cycle === "annual" ? t("purchase.thenAnnual") : t("purchase.thenMonthly")}
                   </span>

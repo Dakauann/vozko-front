@@ -17,7 +17,7 @@ import {
   UserCircle,
   Wallet,
   XCircle,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
@@ -84,12 +84,12 @@ function InfoCard({
 }) {
   return (
     <div
-      className="flex items-start gap-4 rounded-2xl border border-border/60 bg-card/80 p-4 transition-colors hover:border-border"
+      className="flex items-start gap-4 rounded-[--radius] border border-border bg-card p-4 transition-colors hover:border-border"
       style={{ boxShadow: softSurfaceShadow }}
     >
       <div
         className={cn(
-          "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white",
+          "flex h-10 w-10 shrink-0 items-center justify-center rounded-[--radius] text-white",
           iconBg,
         )}
       >
@@ -147,7 +147,7 @@ export default function AdminUserDetailPage() {
     return (
       <div className="flex h-[60vh] items-center justify-center">
         <CircleNotch
-          className="h-8 w-8 animate-spin text-primary"
+          className="h-8 w-8 animate-spin text-lamp-ink"
           weight="bold"
         />
       </div>
@@ -191,8 +191,8 @@ export default function AdminUserDetailPage() {
     admin: {
       icon: Crown,
       label: t("role.admin"),
-      bg: "bg-amber-500/15",
-      text: "text-amber-700",
+      bg: "bg-warning/15",
+      text: "text-warning",
     },
     user: {
       icon: User,
@@ -254,7 +254,7 @@ export default function AdminUserDetailPage() {
         transition={{ duration: 0.4, delay: 0.1 }}
       >
         <div
-          className="rounded-2xl border border-border/60 bg-card/90 p-6"
+          className="rounded-[--radius] border border-border bg-card p-6"
           style={{ boxShadow: softSurfaceShadow }}
         >
           <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
@@ -266,12 +266,12 @@ export default function AdminUserDetailPage() {
                   alt={user.username}
                   width={80}
                   height={80}
-                  className="h-20 w-20 rounded-2xl object-cover ring-2 ring-border/50"
+                  className="h-20 w-20 rounded-[--radius] object-cover ring-2 ring-border/50"
                 />
               ) : (
-                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10">
+                <div className="flex h-20 w-20 items-center justify-center rounded-[--radius] bg-muted">
                   <UserCircle
-                    className="h-12 w-12 text-primary"
+                    className="h-12 w-12 text-lamp-ink"
                     weight="fill"
                   />
                 </div>
@@ -279,9 +279,9 @@ export default function AdminUserDetailPage() {
               {/* Verified indicator */}
               <div
                 className={cn(
-                  "absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-card",
+                  "absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border border-card",
                   user.emailVerified
-                    ? "bg-emerald-500"
+                    ? "bg-healthy"
                     : "bg-muted-foreground/40",
                 )}
               >
@@ -295,7 +295,7 @@ export default function AdminUserDetailPage() {
 
             {/* Name + meta */}
             <div className="flex-1 text-center sm:text-left">
-              <h2 className="text-xl font-bold text-foreground">
+              <h2 className="text-xl font-semibold text-foreground">
                 {user.username}
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">{user.email}</p>
@@ -303,7 +303,7 @@ export default function AdminUserDetailPage() {
                 {/* Role badge */}
                 <span
                   className={cn(
-                    "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider",
+                    "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider",
                     role.bg,
                     role.text,
                   )}
@@ -313,7 +313,7 @@ export default function AdminUserDetailPage() {
                 </span>
 
                 {/* Customer type badge */}
-                <span className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                <span className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-white">
                   <Buildings className="h-3.5 w-3.5" weight="fill" />
                   {user.customerType === "company"
                     ? t("customerType.company")
@@ -323,10 +323,10 @@ export default function AdminUserDetailPage() {
                 {/* Email verified badge */}
                 <span
                   className={cn(
-                    "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider",
+                    "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider",
                     user.emailVerified
-                      ? "bg-emerald-500 text-white"
-                      : "bg-red-500 text-white",
+                      ? "bg-healthy text-white"
+                      : "bg-destructive text-white",
                   )}
                 >
                   {user.emailVerified ? (
@@ -354,7 +354,7 @@ export default function AdminUserDetailPage() {
           {/* Email */}
           <InfoCard
             icon={<EnvelopeSimple className="h-5 w-5" weight="bold" />}
-            iconBg="bg-blue-500"
+            iconBg="bg-muted"
             label={t("fields.email")}
             value={user.email}
           />
@@ -362,7 +362,7 @@ export default function AdminUserDetailPage() {
           {/* Username */}
           <InfoCard
             icon={<User className="h-5 w-5" weight="bold" />}
-            iconBg="bg-violet-500"
+            iconBg="bg-muted"
             label={t("fields.username")}
             value={user.username}
           />
@@ -370,7 +370,7 @@ export default function AdminUserDetailPage() {
           {/* Customer Type */}
           <InfoCard
             icon={<Buildings className="h-5 w-5" weight="bold" />}
-            iconBg="bg-cyan-500"
+            iconBg="bg-muted"
             label={t("fields.customerType")}
             value={
               user.customerType === "company"
@@ -383,7 +383,7 @@ export default function AdminUserDetailPage() {
           {formattedDocument ? (
             <InfoCard
               icon={<IdentificationCard className="h-5 w-5" weight="bold" />}
-              iconBg="bg-emerald-500"
+              iconBg="bg-healthy"
               label={documentLabel}
               value={formattedDocument}
               mono
@@ -391,7 +391,7 @@ export default function AdminUserDetailPage() {
           ) : (
             <InfoCard
               icon={<IdentificationCard className="h-5 w-5" weight="bold" />}
-              iconBg="bg-slate-400"
+              iconBg="bg-muted"
               label={documentLabel}
               value={
                 <span className="text-muted-foreground italic">
@@ -404,7 +404,7 @@ export default function AdminUserDetailPage() {
           {/* User ID */}
           <InfoCard
             icon={<IdentificationBadge className="h-5 w-5" weight="bold" />}
-            iconBg="bg-slate-500"
+            iconBg="bg-muted"
             label={t("fields.userId")}
             value={user.id}
             mono
@@ -413,7 +413,7 @@ export default function AdminUserDetailPage() {
           {/* Role */}
           <InfoCard
             icon={<Crown className="h-5 w-5" weight="bold" />}
-            iconBg="bg-amber-500"
+            iconBg="bg-warning"
             label={t("fields.role")}
             value={
               <span
@@ -438,7 +438,7 @@ export default function AdminUserDetailPage() {
                 <XCircle className="h-5 w-5" weight="bold" />
               )
             }
-            iconBg={user.emailVerified ? "bg-emerald-500" : "bg-red-400"}
+            iconBg={user.emailVerified ? "bg-healthy" : "bg-red-400"}
             label={t("fields.emailVerified")}
             value={
               user.emailVerified ? t("status.verified") : t("status.unverified")

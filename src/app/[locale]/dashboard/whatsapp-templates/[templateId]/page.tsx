@@ -20,7 +20,7 @@ import {
   WhatsappLogo,
   X,
   XCircle,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type {
   TemplateAccess,
   TemplateCategory,
@@ -93,17 +93,17 @@ function statusTone(status: TemplateStatus): {
   switch (status) {
     case "APPROVED":
       return {
-        cls: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900",
+        cls: "bg-healthy/10 text-healthy border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900",
         icon: CheckCircle,
       };
     case "PENDING":
       return {
-        cls: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900",
+        cls: "bg-amber-50 text-warning border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900",
         icon: Clock,
       };
     case "REJECTED":
       return {
-        cls: "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900",
+        cls: "bg-destructive/10 text-destructive border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900",
         icon: XCircle,
       };
     case "PAUSED":
@@ -120,11 +120,11 @@ function statusTone(status: TemplateStatus): {
 function categoryTone(category: TemplateCategory): string {
   switch (category) {
     case "MARKETING":
-      return "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/40 dark:text-violet-300 dark:border-violet-900";
+      return "bg-muted text-muted-foreground border-violet-200 dark:bg-violet-950/40 dark:text-violet-300 dark:border-violet-900";
     case "UTILITY":
-      return "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-900";
+      return "bg-muted text-muted-foreground border-teal-200 dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-900";
     case "AUTHENTICATION":
-      return "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900";
+      return "bg-amber-50 text-warning border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900";
     default:
       return "bg-muted text-muted-foreground border-border";
   }
@@ -132,10 +132,10 @@ function categoryTone(category: TemplateCategory): string {
 
 function usabilityTone(status: string): string {
   if (status === "ready")
-    return "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900";
+    return "bg-healthy/10 text-healthy border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900";
   if (status === "missing_header_media")
-    return "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900";
-  return "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900";
+    return "bg-amber-50 text-warning border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900";
+  return "bg-destructive/10 text-destructive border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900";
 }
 
 function convertToDraggableComponents(
@@ -373,7 +373,7 @@ export default function WhatsAppTemplateDetailPage() {
           icon: <Buildings className="h-4 w-4" weight="fill" />,
           disabled: alreadyGranted,
           meta: alreadyGranted ? (
-            <CheckCircle className="h-4 w-4 text-emerald-500" weight="fill" />
+            <CheckCircle className="h-4 w-4 text-healthy" weight="fill" />
           ) : undefined,
         };
       },
@@ -570,8 +570,8 @@ export default function WhatsAppTemplateDetailPage() {
       <div className="mx-auto max-w-5xl p-6">
         <div className="animate-pulse space-y-6">
           <div className="h-8 w-1/3 rounded-lg bg-muted" />
-          <div className="h-40 rounded-2xl bg-muted" />
-          <div className="h-64 rounded-2xl bg-muted" />
+          <div className="h-40 rounded-[--radius] bg-muted" />
+          <div className="h-64 rounded-[--radius] bg-muted" />
         </div>
       </div>
     );
@@ -581,7 +581,7 @@ export default function WhatsAppTemplateDetailPage() {
     return (
       <div className="mx-auto flex max-w-5xl items-center justify-center p-6">
         <ElevatedContainer className="flex min-h-[320px] w-full max-w-md flex-col items-center justify-center gap-4 p-8 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-red-600 dark:bg-red-950/40">
+          <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-destructive/10 text-destructive dark:bg-red-950/40">
             <WhatsappLogo className="h-7 w-7" weight="fill" />
           </div>
           <div>
@@ -632,7 +632,7 @@ export default function WhatsAppTemplateDetailPage() {
           <ElevatedContainer className="p-6">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[--radius] bg-healthy/10 text-healthy">
                   <WhatsappLogo className="h-6 w-6" weight="fill" />
                 </div>
                 <div className="min-w-0">
@@ -648,7 +648,7 @@ export default function WhatsAppTemplateDetailPage() {
                   <div className="mt-2.5 flex flex-wrap items-center gap-2">
                     <span
                       className={cn(
-                        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium",
+                        "inline-flex items-center gap-1.5 rounded-[--radius] border px-2.5 py-0.5 text-xs font-medium",
                         tone.cls,
                       )}
                     >
@@ -659,7 +659,7 @@ export default function WhatsAppTemplateDetailPage() {
                     </span>
                     <span
                       className={cn(
-                        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium",
+                        "inline-flex items-center rounded-[--radius] border px-2.5 py-0.5 text-xs font-medium",
                         categoryTone(template.category),
                       )}
                     >
@@ -736,7 +736,7 @@ export default function WhatsAppTemplateDetailPage() {
             <h2 className="mb-5 text-base font-semibold text-foreground">
               {t("detail.templatePreview")}
             </h2>
-            <div className="mx-auto max-w-sm overflow-hidden rounded-3xl border border-border shadow-md">
+            <div className="mx-auto max-w-sm overflow-hidden rounded-[--radius] border border-border shadow-md">
               <WhatsAppPreview
                 components={convertToDraggableComponents(
                   template.components,
@@ -759,7 +759,7 @@ export default function WhatsAppTemplateDetailPage() {
               <Row label={t("detail.category")}>
                 <span
                   className={cn(
-                    "inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium",
+                    "inline-flex items-center rounded-[--radius] border px-2 py-0.5 text-xs font-medium",
                     categoryTone(template.category),
                   )}
                 >
@@ -780,7 +780,7 @@ export default function WhatsAppTemplateDetailPage() {
                 <Row label={t("detail.usability")}>
                   <span
                     className={cn(
-                      "inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium",
+                      "inline-flex items-center rounded-[--radius] border px-2 py-0.5 text-xs font-medium",
                       usabilityTone(template.usabilityStatus),
                     )}
                   >
@@ -824,7 +824,7 @@ export default function WhatsAppTemplateDetailPage() {
             <ElevatedContainer className="p-6">
               <div className="mb-4 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-lamp-ink">
                     <ImageIcon className="h-5 w-5" weight="fill" />
                   </div>
                   <div>
@@ -848,7 +848,7 @@ export default function WhatsAppTemplateDetailPage() {
               </div>
 
               {template.headerMediaUrl ? (
-                <div className="rounded-xl border border-border bg-muted/50 p-4">
+                <div className="rounded-[--radius] border border-border bg-muted p-4">
                   <p className="mb-1.5 text-xs font-medium text-muted-foreground">
                     {t("detail.headerMedia.currentUrl")}
                   </p>
@@ -857,8 +857,8 @@ export default function WhatsAppTemplateDetailPage() {
                   </p>
                 </div>
               ) : (
-                <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/40">
-                  <p className="text-sm text-amber-700 dark:text-amber-300">
+                <div className="flex items-start gap-3 rounded-[--radius] border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/40">
+                  <p className="text-sm text-warning dark:text-amber-300">
                     {t("detail.headerMedia.notConfigured")}
                   </p>
                 </div>
@@ -872,7 +872,7 @@ export default function WhatsAppTemplateDetailPage() {
           <motion.div variants={itemVariants}>
             <ElevatedContainer className="p-6">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-lamp-ink">
                   <UserCircle className="h-5 w-5" weight="fill" />
                 </div>
                 <div>
@@ -899,7 +899,7 @@ export default function WhatsAppTemplateDetailPage() {
             <ElevatedContainer className="p-6">
               <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-lamp-ink">
                     <Buildings className="h-5 w-5" weight="fill" />
                   </div>
                   <div>
@@ -911,7 +911,7 @@ export default function WhatsAppTemplateDetailPage() {
                     </p>
                   </div>
                 </div>
-                <span className="inline-flex items-center rounded-full bg-muted px-3 py-1 text-xs font-semibold text-foreground">
+                <span className="inline-flex items-center rounded-[--radius] bg-muted px-3 py-1 text-xs font-semibold text-foreground">
                   {t("access.count", { count: accessMeta.totalItems })}
                 </span>
               </div>
@@ -966,16 +966,16 @@ export default function WhatsAppTemplateDetailPage() {
                 </div>
 
                 {accessLoading ? (
-                  <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-muted/40 p-6 text-sm text-muted-foreground">
+                  <div className="flex items-center justify-center gap-2 rounded-[--radius] border border-border bg-muted p-6 text-sm text-muted-foreground">
                     <CircleNotch className="h-4 w-4 animate-spin" weight="bold" />
                     {t("access.loading")}
                   </div>
                 ) : accessError ? (
-                  <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-red-600">
+                  <div className="rounded-[--radius] border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
                     {accessError}
                   </div>
                 ) : accessItems.length === 0 ? (
-                  <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-border bg-muted/30 p-8 text-center">
+                  <div className="flex flex-col items-center gap-2 rounded-[--radius] border border-dashed border-border bg-muted p-8 text-center">
                     <Buildings
                       className="h-8 w-8 text-muted-foreground/40"
                       weight="fill"
@@ -988,16 +988,16 @@ export default function WhatsAppTemplateDetailPage() {
                     </p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
+                  <div className="divide-y divide-border overflow-hidden rounded-[--radius] border border-border bg-card">
                     {accessItems.map((item) => {
                       const workspace = accessWorkspaces[item.workspaceId];
                       return (
                         <div
                           key={item.id}
-                          className="flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-muted/50"
+                          className="flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-muted"
                         >
                           <div className="flex min-w-0 items-center gap-3">
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius] bg-muted text-lamp-ink">
                               <Buildings className="h-4 w-4" weight="fill" />
                             </div>
                             <div className="min-w-0">
@@ -1008,7 +1008,7 @@ export default function WhatsAppTemplateDetailPage() {
                                     commonT("loading")}
                                 </p>
                                 {workspace?.isDefault && (
-                                  <span className="shrink-0 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                                  <span className="shrink-0 rounded-[--radius] bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
                                     default
                                   </span>
                                 )}
@@ -1036,7 +1036,7 @@ export default function WhatsAppTemplateDetailPage() {
                             iconVisible
                             disabled={revokingWorkspaceId === item.workspaceId}
                             onClick={() => handleRevokeAccess(item.workspaceId)}
-                            className="shrink-0 text-red-600 hover:bg-destructive/10 hover:text-red-700"
+                            className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
                           />
                         </div>
                       );
@@ -1058,7 +1058,7 @@ export default function WhatsAppTemplateDetailPage() {
                   {t("detail.jsonPreview")}
                 </h2>
               </div>
-              <div className="overflow-x-auto rounded-xl border border-border bg-slate-900 p-4">
+              <div className="overflow-x-auto rounded-[--radius] border border-border bg-muted p-4">
                 <pre className="font-mono text-xs leading-relaxed text-slate-100">
                   {JSON.stringify(template, null, 2)}
                 </pre>
@@ -1081,18 +1081,18 @@ export default function WhatsAppTemplateDetailPage() {
       {replicateOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/50"
             onClick={() => !replicating && setReplicateOpen(false)}
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.97, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="relative z-10 mx-4 w-full max-w-lg rounded-2xl border border-border bg-card shadow-2xl"
+            className="relative z-10 mx-4 w-full max-w-lg rounded-[--radius] border border-border bg-card shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-healthy/10 text-healthy">
                   <Copy className="h-5 w-5" weight="fill" />
                 </div>
                 <div>
@@ -1114,9 +1114,9 @@ export default function WhatsAppTemplateDetailPage() {
             </div>
 
             <div className="space-y-4 px-6 py-5">
-              <div className="rounded-xl border border-border bg-muted/50 p-4">
+              <div className="rounded-[--radius] border border-border bg-muted p-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-healthy/10 text-healthy">
                     <WhatsappLogo className="h-5 w-5" weight="fill" />
                   </div>
                   <div className="min-w-0">
@@ -1145,8 +1145,8 @@ export default function WhatsAppTemplateDetailPage() {
                     {t("replicate.loadingPhones")}
                   </div>
                 ) : replicatePhones.length === 0 ? (
-                  <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/40">
-                    <p className="text-sm text-amber-700 dark:text-amber-300">
+                  <div className="rounded-[--radius] border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/40">
+                    <p className="text-sm text-warning dark:text-amber-300">
                       {t("replicate.noPhones")}
                     </p>
                   </div>
@@ -1160,17 +1160,17 @@ export default function WhatsAppTemplateDetailPage() {
                           type="button"
                           onClick={() => setReplicateTarget(phone.id)}
                           className={cn(
-                            "flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all",
+                            "flex w-full items-center gap-3 rounded-[--radius] border p-3 text-left transition-all",
                             selected
-                              ? "border-primary bg-primary/5 ring-1 ring-primary"
-                              : "border-border bg-card hover:border-foreground/20 hover:bg-muted/50",
+                              ? "border-primary bg-muted ring-1 ring-primary"
+                              : "border-border bg-card hover:border-foreground/20 hover:bg-muted",
                           )}
                         >
                           <div
                             className={cn(
                               "flex h-9 w-9 items-center justify-center rounded-lg",
                               selected
-                                ? "bg-primary/10 text-primary"
+                                ? "bg-muted text-lamp-ink"
                                 : "bg-muted text-muted-foreground",
                             )}
                           >
@@ -1186,7 +1186,7 @@ export default function WhatsAppTemplateDetailPage() {
                           </div>
                           {selected && (
                             <CheckCircle
-                              className="h-5 w-5 shrink-0 text-primary"
+                              className="h-5 w-5 shrink-0 text-lamp-ink"
                               weight="fill"
                             />
                           )}

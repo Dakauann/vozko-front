@@ -17,7 +17,7 @@ import {
   TelegramLogo,
   WhatsappLogo,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   Command,
   CommandEmpty,
@@ -36,7 +36,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import CrmLayout from "@/components/crm/CrmLayout";
 import type { CrmTranslations } from "@/components/crm/CrmLayout";
-import type { Icon } from "@phosphor-icons/react";
+import type { Icon } from "@/components/icons";
 import LiveOpsPanel from "./LiveOpsPanel";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 import ElevatedButton from "@/components/elevated-design/button";
@@ -306,7 +306,7 @@ function CampaignSelector({
       <PopoverTrigger asChild>
         <button
           className={cn(
-            "flex h-8 w-auto max-w-[16rem] shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-2.5 text-xs font-medium transition-colors",
+            "flex h-8 w-auto max-w-[16rem] shrink-0 items-center gap-1.5 rounded-[--radius] border border-border bg-card px-2.5 text-xs font-medium transition-colors",
             selectedId
               ? "text-foreground"
               : "text-muted-foreground hover:text-foreground",
@@ -470,7 +470,7 @@ function LiveChatContent({
   const showCampaignPicker = isCampaignChannel || activeFilter === "all";
 
   return (
-    <div className="relative -m-6 h-[calc(100dvh-5rem)] min-h-[480px] w-[calc(100%+3rem)] overflow-hidden">
+    <div className="relative -m-6 h-[calc(100dvh-3rem)] min-h-[480px] w-[calc(100%+3rem)] overflow-hidden">
       <CrmLayout
         campaignType={campaignType}
         channelFilter={channelFilter}

@@ -3,7 +3,7 @@
 import * as React from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
 
-import { CaretDown, CaretUp, Check } from "@phosphor-icons/react";
+import { CaretDown, CaretUp, Check } from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 
@@ -20,10 +20,10 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-10 w-full items-center justify-between whitespace-nowrap rounded-full border border-border bg-card px-4 py-2 text-sm text-foreground shadow-sm transition-colors",
+      "flex h-10 w-full items-center justify-between whitespace-nowrap rounded-[--radius] border border-border bg-card px-4 py-2 text-sm text-foreground shadow-sm transition-colors",
       "hover:border-foreground/20",
       "placeholder:text-muted-foreground",
-      "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary",
+      "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary",
       "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-muted",
       "[&>span]:line-clamp-1",
       className,
@@ -81,7 +81,7 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground shadow-lg",
+        "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-[--radius] border border-border bg-popover text-popover-foreground shadow-lg",
         "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
         "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
         position === "popper" &&
@@ -126,9 +126,9 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-pointer select-none items-center rounded-xl py-2.5 pl-3 pr-8 text-sm outline-none transition-colors",
-      "hover:bg-primary/10 hover:text-primary",
-      "focus:bg-primary/10 focus:text-primary",
+      "relative flex w-full cursor-pointer select-none items-center rounded-[--radius] py-2.5 pl-3 pr-8 text-sm outline-none transition-colors",
+      "hover:bg-muted hover:text-lamp-ink",
+      "focus:bg-muted focus:text-lamp-ink",
       "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className,
     )}
@@ -136,7 +136,7 @@ const SelectItem = React.forwardRef<
   >
     <span className="absolute right-2.5 flex h-4 w-4 items-center justify-center">
       <SelectPrimitive.ItemIndicator>
-        <Check className="h-4 w-4 text-primary" weight="bold" />
+        <Check className="h-4 w-4 text-lamp-ink" weight="bold" />
       </SelectPrimitive.ItemIndicator>
     </span>
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>

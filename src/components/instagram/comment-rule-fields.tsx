@@ -1,6 +1,6 @@
 "use client";
 
-import { ChatCircleDots, EyeSlash, PaperPlaneTilt } from "@phosphor-icons/react";
+import { ChatCircleDots, EyeSlash, PaperPlaneTilt } from "@/components/icons";
 
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSegmentedControl } from "@/components/elevated-design/elevated-segmented-control";
@@ -140,15 +140,15 @@ export function CommentRuleFields({
                   disabled={disabled}
                   className={cn(
                     "flex w-full items-start gap-2.5 rounded-lg border p-3 text-left transition-colors",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     "disabled:cursor-not-allowed disabled:opacity-60",
-                    selected ? "border-primary/40 bg-primary/5" : "border-border hover:bg-muted/50",
+                    selected ? "border-primary/40 bg-muted" : "border-border hover:bg-muted",
                   )}
                 >
                   <Icon
                     className={cn(
                       "mt-0.5 h-4 w-4 shrink-0",
-                      selected ? "text-primary" : "text-muted-foreground",
+                      selected ? "text-lamp-ink" : "text-muted-foreground",
                     )}
                     weight={selected ? "fill" : "regular"}
                   />

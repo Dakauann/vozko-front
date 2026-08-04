@@ -6,7 +6,7 @@ import {
   Image,
   SpeakerHigh,
   VideoCamera,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { getMediaAction } from "@/app/actions/medias";
 
 // useResolvedMedia resolves a media reference (direct URL or saved media id) to a
@@ -63,7 +63,7 @@ export function MediaNodePreview({
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 rounded-md bg-muted/40 px-2.5 py-2 animate-pulse">
+      <div className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-2 animate-pulse">
         <div className="h-4 w-4 rounded bg-muted" />
         <div className="h-3 w-20 rounded bg-muted" />
       </div>
@@ -84,7 +84,7 @@ export function MediaNodePreview({
         />
       )}
       {isImage && !url && (
-        <div className="flex items-center gap-2 rounded-md bg-muted/40 px-2.5 py-2">
+        <div className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-2">
           {/* eslint-disable-next-line jsx-a11y/alt-text */}
           <Image size={16} weight="duotone" className="shrink-0 text-blue-500" />
           <span className="truncate text-[11px] text-foreground/70">
@@ -103,21 +103,21 @@ export function MediaNodePreview({
               (e.target as HTMLVideoElement).style.display = "none";
             }}
           />
-          <span className="absolute bottom-1 right-1.5 rounded bg-background/80 px-1 text-[9px] text-muted-foreground">
+          <span className="absolute bottom-1 right-1.5 rounded bg-background px-1 text-[9px] text-muted-foreground">
             Vídeo
           </span>
         </div>
       )}
       {isVideo && !url && (
-        <div className="relative flex h-16 items-center justify-center overflow-hidden rounded-md bg-muted/40">
+        <div className="relative flex h-16 items-center justify-center overflow-hidden rounded-md bg-muted">
           <VideoCamera size={24} weight="duotone" className="text-blue-500" />
-          <span className="absolute bottom-1 right-1.5 rounded bg-background/80 px-1 text-[9px] text-muted-foreground">
+          <span className="absolute bottom-1 right-1.5 rounded bg-background px-1 text-[9px] text-muted-foreground">
             Vídeo
           </span>
         </div>
       )}
       {isAudio && url && (
-        <div className="rounded-md bg-muted/40 px-2 py-1.5">
+        <div className="rounded-md bg-muted px-2 py-1.5">
           <audio
             src={url}
             controls
@@ -127,7 +127,7 @@ export function MediaNodePreview({
         </div>
       )}
       {isAudio && !url && (
-        <div className="flex items-center gap-2 rounded-md bg-muted/40 px-2.5 py-2">
+        <div className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-2">
           <SpeakerHigh size={16} weight="duotone" className="shrink-0 text-blue-500" />
           <span className="truncate text-[11px] text-foreground/70">
             {name || "Áudio"}
@@ -136,7 +136,7 @@ export function MediaNodePreview({
       )}
       {isPdf && url && (
         <div className="overflow-hidden rounded-md border border-border">
-          <span className="flex items-center gap-2 bg-muted/40 px-2 py-1.5">
+          <span className="flex items-center gap-2 bg-muted px-2 py-1.5">
             <FileText size={16} weight="duotone" className="text-blue-500" />
             <span className="truncate text-[11px] text-foreground/70">
               {name || "Documento"}
@@ -145,7 +145,7 @@ export function MediaNodePreview({
         </div>
       )}
       {!isImage && !isVideo && !isAudio && !isPdf && (
-        <div className="flex items-center gap-2 rounded-md bg-muted/40 px-2.5 py-2">
+        <div className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-2">
           <FileText size={16} weight="duotone" className="shrink-0 text-blue-500" />
           <span className="truncate text-[11px] text-foreground/70">
             {name || "Documento"}

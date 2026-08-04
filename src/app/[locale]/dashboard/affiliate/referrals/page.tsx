@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleNotch, UsersFour } from "@phosphor-icons/react";
+import { CircleNotch, UsersFour } from "@/components/icons";
 import { motion } from "framer-motion";
 import { useRouter } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
@@ -106,7 +106,7 @@ export default function AffiliateReferralsPage() {
       />
 
       {error ? (
-        <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+        <div className="rounded-[--radius] border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
           {error}
         </div>
       ) : null}
@@ -114,7 +114,7 @@ export default function AffiliateReferralsPage() {
       {loading && rows.length === 0 ? (
         <div className="flex min-h-[30vh] items-center justify-center">
           <CircleNotch
-            className="h-8 w-8 animate-spin text-primary"
+            className="h-8 w-8 animate-spin text-lamp-ink"
             weight="bold"
           />
         </div>

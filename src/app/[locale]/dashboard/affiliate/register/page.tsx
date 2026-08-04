@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { BecomeAffiliateForm } from "@/components/affiliate/become-affiliate-form";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
-import { Handshake } from "@phosphor-icons/react";
+import { Handshake } from "@/components/icons";
 import { getMyAffiliateAction } from "@/app/actions/affiliate";
 import { motion } from "framer-motion";
 import { useRouter } from "@/i18n/routing";
@@ -34,7 +34,7 @@ export default function AffiliateRegisterPage() {
   if (checking) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
+        <div className="h-8 w-8 animate-spin rounded-full border border-rule-strong/30 border-t-primary" />
       </div>
     );
   }

@@ -16,7 +16,7 @@ import {
   Sparkle,
   Tag,
   BracketsAngle,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 export const whatsappCampaignsTourPalette: ColorGroup[] = [
   { colors: ["#25d366", "#128c7e"], weight: 35 },

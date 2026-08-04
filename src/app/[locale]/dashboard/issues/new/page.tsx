@@ -7,7 +7,7 @@ import {
   SpinnerGap,
   Warning,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
@@ -177,7 +177,7 @@ export default function NewIssuePage() {
       </button>
 
       {/* Form card */}
-      <div className="rounded-xl border border-border bg-card p-6 space-y-6">
+      <div className="rounded-[--radius] border border-border bg-card p-6 space-y-6">
         <div>
           <h1 className="text-lg font-semibold text-foreground">
             {t("form.title")}
@@ -294,7 +294,7 @@ export default function NewIssuePage() {
                     />
                     {img.uploading && (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <SpinnerGap className="h-5 w-5 animate-spin text-primary" />
+                        <SpinnerGap className="h-5 w-5 animate-spin text-lamp-ink" />
                       </div>
                     )}
                     <button
@@ -336,9 +336,9 @@ export default function NewIssuePage() {
 
           {/* Error */}
           {error && (
-            <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/30 px-3 py-2">
-              <Warning className="h-4 w-4 text-red-600 dark:text-red-400 shrink-0" />
-              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-destructive/10 dark:border-red-800 dark:bg-red-950/30 px-3 py-2">
+              <Warning className="h-4 w-4 text-destructive dark:text-red-400 shrink-0" />
+              <p className="text-sm text-destructive dark:text-red-400">{error}</p>
             </div>
           )}
 

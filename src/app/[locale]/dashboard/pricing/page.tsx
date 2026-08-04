@@ -21,7 +21,7 @@ import {
   SpeakerHigh,
   WhatsappLogo,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type {
 } from "@/app/actions/pricing";
 import type {
@@ -60,7 +60,7 @@ import {
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
-import type { Icon } from "@phosphor-icons/react";
+import type { Icon } from "@/components/icons";
 import { IconBox } from "@/components/elevated-design/listing-card";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
@@ -74,11 +74,11 @@ const CATEGORY_ICONS: Record<string, Icon> = {
 
 // Solid opaque tiles with white glyphs (DESIGN.md symbols rule).
 const CATEGORY_TILE: Record<string, string> = {
-  tts: "bg-violet-600 text-white",
-  stt: "bg-emerald-600 text-white",
-  whatsapp: "bg-green-600 text-white",
-  telephony: "bg-blue-600 text-white",
-  exchange_rate: "bg-amber-500 text-white",
+  tts: "bg-muted text-white",
+  stt: "bg-healthy text-white",
+  whatsapp: "bg-healthy text-white",
+  telephony: "bg-muted text-white",
+  exchange_rate: "bg-warning text-white",
 };
 
 function formatDate(value?: string | null) {
@@ -251,7 +251,7 @@ export default function AdminPricingPage() {
     return (
       <div className="flex flex-col items-center justify-center py-32">
         <CircleNotch
-          className="h-8 w-8 animate-spin text-primary"
+          className="h-8 w-8 animate-spin text-lamp-ink"
           weight="bold"
         />
         <p className="text-sm text-muted-foreground mt-3">{t("loading")}</p>
@@ -261,7 +261,7 @@ export default function AdminPricingPage() {
 
   if (error) {
     return (
-      <div className="mx-auto max-w-2xl rounded-2xl border border-border bg-card p-12 text-center mt-8 shadow-sm">
+      <div className="mx-auto max-w-2xl rounded-[--radius] border border-border bg-card p-12 text-center mt-8 shadow-sm">
         <CurrencyDollar
           className="h-12 w-12 text-red-400 mx-auto mb-4"
           weight="fill"
@@ -324,9 +324,9 @@ export default function AdminPricingPage() {
           <TabsContent value="defaults">
             <div className="space-y-6">
               {rateNumber != null ? (
-                <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between shadow-sm">
+                <div className="flex flex-col gap-3 rounded-[--radius] border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between shadow-sm">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500 text-white">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-warning text-white">
                       <Scales className="h-5 w-5" weight="fill" />
                     </div>
                     <div>
@@ -344,7 +344,7 @@ export default function AdminPricingPage() {
                     </div>
                   </div>
                   <button
-                    className="text-sm font-medium text-primary hover:underline"
+                    className="text-sm font-medium text-lamp-ink hover:underline"
                     onClick={() => setActiveTab("exchangeRate")}
                     type="button"
                   >
@@ -352,7 +352,7 @@ export default function AdminPricingPage() {
                   </button>
                 </div>
               ) : (
-                <div className="rounded-2xl border border-amber-500/30 bg-card p-4 text-sm text-amber-800">
+                <div className="rounded-[--radius] border border-warning/30 bg-card p-4 text-sm text-amber-800">
                   {t("defaults.rateMissing")}
                 </div>
               )}
@@ -360,15 +360,15 @@ export default function AdminPricingPage() {
               {Array.from(grouped.entries()).map(([category, items]) => {
                 const Icon = CATEGORY_ICONS[category] ?? Lightning;
                 const tile =
-                  CATEGORY_TILE[category] ?? "bg-slate-700 text-white";
+                  CATEGORY_TILE[category] ?? "bg-muted text-white";
                 return (
                   <div
                     key={category}
-                    className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm"
+                    className="rounded-[--radius] border border-border bg-card overflow-hidden shadow-sm"
                   >
-                    <div className="flex items-center gap-3 px-6 py-4 border-b border-border/70">
+                    <div className="flex items-center gap-3 px-6 py-4 border-b border-border">
                       <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-2xl ${tile}`}
+                        className={`flex h-10 w-10 items-center justify-center rounded-[--radius] ${tile}`}
                       >
                         <Icon className="h-5 w-5" weight="fill" />
                       </div>
@@ -380,7 +380,7 @@ export default function AdminPricingPage() {
                     <div className="overflow-x-auto">
                       <table className="w-full text-left">
                         <thead>
-                          <tr className="border-b border-border/40">
+                          <tr className="border-b border-border">
                             <th className="px-6 py-3 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                               {t("table.service")}
                             </th>
@@ -408,7 +408,7 @@ export default function AdminPricingPage() {
                             return (
                               <tr
                                 key={`${item.category}-${item.service}-${item.metric}`}
-                                className="transition-colors hover:bg-muted/50"
+                                className="transition-colors hover:bg-muted"
                               >
                                 <td className="px-6 py-3.5 text-sm font-medium text-foreground">
                                   {(() => {
@@ -545,9 +545,9 @@ export default function AdminPricingPage() {
 
           {/* ── Exchange Rate Tab ── */}
           <TabsContent value="exchangeRate">
-            <div className="rounded-2xl border border-border bg-card p-6 space-y-6 max-w-lg shadow-sm">
+            <div className="rounded-[--radius] border border-border bg-card p-6 space-y-6 max-w-lg shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500 text-white">
+                <div className="flex h-12 w-12 items-center justify-center rounded-[--radius] bg-warning text-white">
                   <Scales className="h-6 w-6" weight="fill" />
                 </div>
                 <div>
@@ -566,7 +566,7 @@ export default function AdminPricingPage() {
                     <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
                       {t("exchangeRate.currentRate")}
                     </p>
-                    <p className="text-2xl font-bold text-foreground tabular-nums">
+                    <p className="text-2xl font-semibold text-foreground tabular-nums">
                       1 USD = R$ {microsToUsdDisplay(exchangeRate.priceMicros)}
                     </p>
                   </div>
@@ -649,7 +649,7 @@ export default function AdminPricingPage() {
                     )}
                   </AnimatePresence>
 
-                  <div className="rounded-xl border border-border bg-muted/40 p-3">
+                  <div className="rounded-[--radius] border border-border bg-muted p-3">
                     <p className="text-xs font-medium text-foreground">
                       {t("exchangeRate.warning")}
                     </p>
@@ -665,11 +665,11 @@ export default function AdminPricingPage() {
 
           {/* ── Audit Log Tab ── */}
           <TabsContent value="audit">
-            <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm">
+            <div className="rounded-[--radius] border border-border bg-card overflow-hidden shadow-sm">
               {auditLog.length === 0 ? (
                 <div className="p-12 text-center">
                   <Eye
-                    className="h-10 w-10 text-slate-300 mx-auto mb-3"
+                    className="h-10 w-10 text-muted-foreground mx-auto mb-3"
                     weight="fill"
                   />
                   <p className="text-sm text-muted-foreground">
@@ -713,7 +713,7 @@ export default function AdminPricingPage() {
                                 duration: 0.2,
                                 delay: i * 0.02,
                               }}
-                              className="transition-colors hover:bg-muted/80"
+                              className="transition-colors hover:bg-muted"
                             >
                               <td className="px-6 py-4">
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -863,8 +863,8 @@ function CalculatorSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm">
-      <div className="px-5 py-3 border-b border-border/70">
+    <div className="rounded-[--radius] border border-border bg-card overflow-hidden shadow-sm">
+      <div className="px-5 py-3 border-b border-border">
         <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
           {title}
         </h4>
@@ -899,8 +899,8 @@ function ResultCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm">
-      <div className="px-5 py-3 border-b border-border/70">
+    <div className="rounded-[--radius] border border-border bg-card overflow-hidden shadow-sm">
+      <div className="px-5 py-3 border-b border-border">
         <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
           {title}
         </h4>
@@ -925,7 +925,7 @@ function ResultRow({
     <div className="flex items-center justify-between px-5 py-2.5">
       <span className="text-sm text-muted-foreground">{label}</span>
       <span
-        className={`text-sm tabular-nums ${bold ? "font-bold" : "font-medium"} ${color ?? "text-foreground"}`}
+        className={`text-sm tabular-nums ${bold ? "font-semibold" : "font-medium"} ${color ?? "text-foreground"}`}
       >
         {value}
       </span>

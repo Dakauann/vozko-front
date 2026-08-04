@@ -1,12 +1,12 @@
 "use client";
 
 import { motion, type Variant } from "framer-motion";
-import { DotsSixVertical } from "@phosphor-icons/react";
+import { DotsSixVertical } from "@/components/icons";
 import type { PointerEvent as ReactPointerEvent, DragEvent, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 // KanbanColumnShell is the SINGLE source of truth for a kanban column's chrome:
-// the rounded-2xl bordered container, the header (optional drag handle + colour
+// the rounded-[--radius] bordered container, the header (optional drag handle + colour
 // dot + name + animated count badge), the optional sub-header line, the pulse
 // animation on new arrivals, and the scrollable body. Both surfaces render
 // through it so the conversation funnel and the deal board are visibly ONE
@@ -17,21 +17,22 @@ import { cn } from "@/lib/utils";
 // The card content itself stays with each caller (conversations vs. deals are
 // genuinely two objects), which is exactly the intended separation.
 
+/**
+ * Arrival pulse.
+ *
+ * This motion stays — something genuinely landed in this bay and the operator
+ * needs to know without watching. What changed is what it does: the bay's own
+ * edge lights briefly, in the lamp colour, instead of blooming a green glow.
+ * State, reported once, in the system's own signal.
+ */
 export const columnPulseVariants = {
   idle: {
-    boxShadow:
-      "0 0 0 0px rgba(16, 185, 129, 0), inset 0 0 0 0px rgba(16, 185, 129, 0)",
     borderColor: "hsl(var(--border))",
   },
   pulse: {
-    boxShadow: [
-      "0 0 0 0px rgba(16, 185, 129, 0), inset 0 0 0 0px rgba(16, 185, 129, 0)",
-      "0 0 0 6px rgba(16, 185, 129, 0.15), inset 0 0 20px 0px rgba(16, 185, 129, 0.04)",
-      "0 0 0 0px rgba(16, 185, 129, 0), inset 0 0 0 0px rgba(16, 185, 129, 0)",
-    ],
     borderColor: [
       "hsl(var(--border))",
-      "rgba(16, 185, 129, 0.5)",
+      "hsl(var(--lamp))",
       "hsl(var(--border))",
     ],
     transition: { duration: 0.7, ease: "easeInOut" as const },
@@ -70,7 +71,9 @@ export default function KanbanColumnShell({
   name,
   color,
   count,
-  countKey,
+  // countKey stays in the prop contract (callers pass it) but has no consumer:
+  // it drove a scale-pop on the count badge, and a number that jumps every time
+  // it changes is decoration in a queue that changes constantly.
   dashed = false,
   isDragOver = false,
   pulsing = false,
@@ -97,58 +100,60 @@ export default function KanbanColumnShell({
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
+      // A bay in the rack: a fixed-width strip recessed into the panel, headed
+      // by its scribble strip. The stage colour survives as a short lamp on
+      // that head rather than as a dot, so a board of twelve stages reads as
+      // one instrument instead of twelve competing bullets.
       className={cn(
-        "relative flex h-full w-72 min-w-[288px] flex-shrink-0 flex-col rounded-2xl transition-colors duration-200",
+        "relative flex h-full w-72 min-w-[288px] flex-shrink-0 flex-col rounded-[--radius] transition-colors",
         dashed
-          ? "border border-dashed border-foreground/20 bg-muted/30"
+          ? "border border-dashed border-border bg-muted"
           : isDragOver
-            ? "border-2 border-dashed bg-muted/60"
-            : "border border-solid border-border bg-muted/50",
+            ? "border border-dashed border-rule-strong bg-muted"
+            : "border border-solid border-border border-t-rule-strong bg-muted",
       )}
       style={{
         willChange: "box-shadow, border-color",
         borderColor: isDragOver && !dashed ? color : undefined,
       }}
     >
-      {/* Column header */}
-      <div className="flex items-center gap-2 border-b border-border/60 px-3 py-3">
+      {/* Column header — the scribble strip */}
+      <div className="flex items-center gap-2 border-b border-border px-2 py-2">
         {onStartColumnDrag ? (
           <div
             onPointerDown={onStartColumnDrag}
-            className="flex h-6 w-6 flex-shrink-0 cursor-grab touch-none items-center justify-center rounded-md transition-colors hover:bg-border/80 active:cursor-grabbing active:bg-muted-foreground/40"
+            className="flex h-5 w-4 flex-shrink-0 cursor-grab touch-none items-center justify-center rounded-[--radius] transition-colors hover:bg-muted active:cursor-grabbing"
             title="Arrastar coluna"
           >
-            <DotsSixVertical weight="bold" className="h-4 w-4 text-muted-foreground" />
+            <DotsSixVertical
+              weight="bold"
+              className="h-3.5 w-3.5 text-muted-foreground"
+            />
           </div>
         ) : null}
         <span
+          aria-hidden="true"
           className={cn(
-            "h-3 w-3 flex-shrink-0 rounded-full ring-1 ring-black/5",
+            "h-3 w-[3px] flex-shrink-0 rounded-[1px]",
             dashed && !color && "bg-muted-foreground/40",
           )}
           style={color ? { backgroundColor: color } : undefined}
         />
         <span
           className={cn(
-            "truncate text-xs font-bold",
-            dashed ? "text-muted-foreground" : "text-foreground",
+            "legend min-w-0 flex-1 truncate",
+            !dashed && "!text-foreground",
           )}
         >
           {name}
         </span>
-        <motion.span
-          key={countKey ?? count}
-          initial={{ scale: 1 }}
-          animate={{ scale: [1, 1.15, 1] }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full border border-border bg-card px-1.5 text-[10px] font-bold text-muted-foreground"
-        >
+        <span className="readout ml-auto text-[11px] font-semibold text-muted-foreground">
           {count}
-        </motion.span>
+        </span>
       </div>
 
       {headerExtra ? (
-        <div className="border-b border-border/40 px-3 py-1.5">{headerExtra}</div>
+        <div className="border-b border-border px-3 py-1.5">{headerExtra}</div>
       ) : null}
 
       {/* Column body */}
@@ -159,7 +164,7 @@ export default function KanbanColumnShell({
       {/* Pinned footer (e.g. the add-card button): sits below the scrollable body
           so it stays at the column's bottom edge instead of scrolling with cards. */}
       {footer ? (
-        <div className="flex-shrink-0 border-t border-border/60 p-2.5">{footer}</div>
+        <div className="flex-shrink-0 border-t border-border p-2.5">{footer}</div>
       ) : null}
     </motion.div>
   );

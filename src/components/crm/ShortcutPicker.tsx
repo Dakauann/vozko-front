@@ -7,7 +7,7 @@ import {
   Image,
   Lightning,
   Plus,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
@@ -136,7 +136,7 @@ export default function ShortcutPicker({
           <CursorClick weight="fill" className="h-3.5 w-3.5 text-blue-500" />
         );
       case "media":
-        return <Image weight="fill" className="h-3.5 w-3.5 text-emerald-500" />;
+        return <Image weight="fill" className="h-3.5 w-3.5 text-healthy" />;
       default:
         return (
           <ChatText
@@ -186,8 +186,8 @@ export default function ShortcutPicker({
           </div>
         ) : (
           <div ref={listRef} className="py-1">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 border-b border-border/50">
-              <Lightning weight="fill" className="h-3 w-3 text-amber-500" />
+            <div className="flex items-center gap-1.5 px-3 py-1.5 border-b border-border">
+              <Lightning weight="fill" className="h-3 w-3 text-warning" />
               <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                 {t("header")}
               </span>
@@ -204,7 +204,7 @@ export default function ShortcutPicker({
                 className={`flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors ${
                   i === selectedIndex
                     ? "bg-accent text-accent-foreground"
-                    : "hover:bg-accent/50"
+                    : "hover:bg-muted"
                 }`}
               >
                 {typeIcon(shortcut.messageType)}

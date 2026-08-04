@@ -14,9 +14,9 @@ interface PageState {
 
 function PageLoader() {
   return (
-    <div className="-m-6 flex min-h-[calc(100vh-5rem)] items-center justify-center p-6">
+    <div className="-m-6 flex min-h-[calc(100vh-3rem)] items-center justify-center p-6">
       <div
-        className="h-8 w-8 animate-spin rounded-full border-2 border-muted border-t-primary"
+        className="h-8 w-8 animate-spin rounded-full border border-muted border-t-primary"
         role="status"
         aria-label="Loading"
       />
@@ -49,8 +49,8 @@ export default function NewWorkflowPage() {
 
   if (state.error) {
     return (
-      <div className="-m-6 flex min-h-[calc(100vh-5rem)] items-center justify-center p-6">
-        <div className="rounded-2xl border border-rose-600 bg-rose-500 px-4 py-3 text-sm text-white">
+      <div className="-m-6 flex min-h-[calc(100vh-3rem)] items-center justify-center p-6">
+        <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-white">
           {state.error}
         </div>
       </div>

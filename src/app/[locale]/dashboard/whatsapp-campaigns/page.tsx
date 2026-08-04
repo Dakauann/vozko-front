@@ -5,7 +5,7 @@ import {
   MagnifyingGlass,
   Plus,
   WhatsappLogo,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   ElevatedSelect,
   ElevatedSelectItem,
@@ -42,18 +42,18 @@ import { useDepartment } from "@/contexts/department-context";
 const ITEMS_PER_PAGE = 15;
 
 const statusColor: Record<string, string> = {
-  RUNNING: "bg-emerald-500 text-white",
-  PAUSED: "bg-amber-500 text-white",
-  STOPPED: "bg-slate-500 text-white",
-  COMPLETED: "bg-blue-500 text-white",
+  RUNNING: "bg-healthy text-white",
+  PAUSED: "bg-warning text-white",
+  STOPPED: "bg-muted text-white",
+  COMPLETED: "bg-muted text-white",
 };
 
 // Solid opaque tiles + white label, matches status chips and DESIGN.md
 // (never bg-x/10 + text-x wash).
 const CATEGORY_TONE: Record<string, string> = {
-  MARKETING: "bg-violet-500 text-white",
-  UTILITY: "bg-sky-500 text-white",
-  AUTHENTICATION: "bg-amber-500 text-white",
+  MARKETING: "bg-muted text-white",
+  UTILITY: "bg-muted text-white",
+  AUTHENTICATION: "bg-warning text-white",
 };
 
 export default function WhatsAppCampaignsPage() {
@@ -209,7 +209,7 @@ export default function WhatsAppCampaignsPage() {
         render: (row) => (
           <span
             className={cn(
-              "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+              "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
               statusColor[row.status] ?? "bg-gray-500 text-white",
             )}
           >
@@ -230,7 +230,7 @@ export default function WhatsAppCampaignsPage() {
           return (
             <span
               className={cn(
-                "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold tracking-wide",
+                "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold tracking-wide",
                 CATEGORY_TONE[cat] ?? "bg-muted text-muted-foreground",
               )}
             >
@@ -243,7 +243,7 @@ export default function WhatsAppCampaignsPage() {
         key: "total",
         header: t("card.total"),
         render: (row) => (
-          <span className="text-sm font-bold tabular-nums text-foreground">
+          <span className="text-sm font-semibold tabular-nums text-foreground">
             {row.metrics?.totalNumbers ?? 0}
           </span>
         ),
@@ -252,7 +252,7 @@ export default function WhatsAppCampaignsPage() {
         key: "dispatches",
         header: t("table.dispatches"),
         render: (row) => (
-          <span className="text-sm font-bold tabular-nums text-foreground">
+          <span className="text-sm font-semibold tabular-nums text-foreground">
             {row.metrics?.dispatches ?? 0}
           </span>
         ),
@@ -261,7 +261,7 @@ export default function WhatsAppCampaignsPage() {
         key: "delivered",
         header: t("status.delivered"),
         render: (row) => (
-          <span className="text-sm font-bold tabular-nums text-emerald-600">
+          <span className="text-sm font-semibold tabular-nums text-healthy">
             {row.metrics?.delivered ?? 0}
           </span>
         ),
@@ -270,7 +270,7 @@ export default function WhatsAppCampaignsPage() {
         key: "read",
         header: t("status.read"),
         render: (row) => (
-          <span className="text-sm font-bold tabular-nums text-blue-600">
+          <span className="text-sm font-semibold tabular-nums text-muted-foreground">
             {row.metrics?.read ?? 0}
           </span>
         ),
@@ -279,7 +279,7 @@ export default function WhatsAppCampaignsPage() {
         key: "failed",
         header: t("status.failed"),
         render: (row) => (
-          <span className="text-sm font-bold tabular-nums text-red-600">
+          <span className="text-sm font-semibold tabular-nums text-destructive">
             {row.metrics?.failed ?? 0}
           </span>
         ),
@@ -288,7 +288,7 @@ export default function WhatsAppCampaignsPage() {
         key: "successRate",
         header: t("card.successRateLabel"),
         render: (row) => (
-          <span className="text-sm font-bold tabular-nums text-foreground">
+          <span className="text-sm font-semibold tabular-nums text-foreground">
             {row.metrics?.successRate != null
               ? `${row.metrics.successRate.toFixed(1)}%`
               : "—"}
@@ -319,7 +319,7 @@ export default function WhatsAppCampaignsPage() {
         icon={<WhatsappLogo className="h-6 w-6" weight="fill" />}
         badge={t("header.badge")}
         description={t("header.description")}
-        colorClass="text-emerald-600"
+        colorClass="text-healthy"
         actions={
           can("whatsapp_campaigns", "create") ? (
             <Button
@@ -453,7 +453,7 @@ export default function WhatsAppCampaignsPage() {
             ? {
                 icon: (
                   <WhatsappLogo
-                    className="h-7 w-7 text-red-600"
+                    className="h-7 w-7 text-destructive"
                     weight="fill"
                   />
                 ),

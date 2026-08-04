@@ -10,7 +10,7 @@ import {
   LockKey,
   User,
   UserPlus,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   adminRegisterUserAction,
   adminSendEmailVerificationAction,
@@ -240,10 +240,10 @@ export default function AdminRegisterUserPage() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <ElevatedContainer className="border border-emerald-500/20 bg-emerald-50 p-4">
+          <ElevatedContainer className="border border-healthy/20 bg-healthy/10 p-4">
             <div className="flex items-center gap-3">
               <CheckCircle
-                className="h-5 w-5 text-emerald-600 flex-shrink-0"
+                className="h-5 w-5 text-healthy flex-shrink-0"
                 weight="fill"
               />
               <p className="text-sm text-emerald-800 font-medium">{success}</p>
@@ -257,14 +257,14 @@ export default function AdminRegisterUserPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl"
+          className="p-4 bg-destructive/10 border border-destructive/20 rounded-[--radius]"
         >
-          <p className="text-sm text-red-600 font-medium">{error}</p>
+          <p className="text-sm text-destructive font-medium">{error}</p>
         </motion.div>
       )}
 
       {/* Form */}
-      <ElevatedContainer className="border border-border/70 bg-card p-6">
+      <ElevatedContainer className="border border-border bg-card p-6">
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Account Type */}
           <div>
@@ -279,9 +279,9 @@ export default function AdminRegisterUserPage() {
                   setCnpj("");
                   setError("");
                 }}
-                className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                className={`flex flex-col items-center justify-center gap-2 p-4 rounded-[--radius] border transition-all ${
                   accountType === "individual"
-                    ? "border-slate-900 bg-slate-900 text-white shadow-lg"
+                    ? "border-slate-900 border border-border bg-muted text-foreground shadow-lg"
                     : "border-border text-muted-foreground hover:border-foreground/20 hover:bg-muted"
                 }`}
               >
@@ -298,9 +298,9 @@ export default function AdminRegisterUserPage() {
                   setCpf("");
                   setError("");
                 }}
-                className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                className={`flex flex-col items-center justify-center gap-2 p-4 rounded-[--radius] border transition-all ${
                   accountType === "company"
-                    ? "border-slate-900 bg-slate-900 text-white shadow-lg"
+                    ? "border-slate-900 border border-border bg-muted text-foreground shadow-lg"
                     : "border-border text-muted-foreground hover:border-foreground/20 hover:bg-muted"
                 }`}
               >

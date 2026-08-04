@@ -8,7 +8,7 @@ import {
   ThermometerSimple,
   UserCheck,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   ElevatedSelect,
   ElevatedSelectItem,
@@ -163,7 +163,7 @@ export default function AnalysisFilters({
     >
       <div className="flex items-center gap-3">
         <div
-          className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white"
+          className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-white"
           style={{ boxShadow: softSurfaceShadow }}
         >
           <Funnel className="h-5 w-5" weight="fill" />
@@ -171,7 +171,7 @@ export default function AnalysisFilters({
         <div>
           <h3 className="text-sm font-semibold text-foreground">{t.title}</h3>
           {hasActiveFilters && (
-            <p className="text-xs text-primary font-medium">
+            <p className="text-xs text-lamp-ink font-medium">
               {activeFilterCount} filter{activeFilterCount !== 1 ? "s" : ""}{" "}
               active
             </p>
@@ -215,7 +215,7 @@ export default function AnalysisFilters({
               <button
                 type="button"
                 onClick={() => handleChange("hasAnalysis", undefined)}
-                className="text-xs text-muted-foreground hover:text-rose-500 transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -257,7 +257,7 @@ export default function AnalysisFilters({
               <button
                 type="button"
                 onClick={() => handleChange("interest", undefined)}
-                className="text-xs text-muted-foreground hover:text-rose-500 transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -296,7 +296,7 @@ export default function AnalysisFilters({
               <button
                 type="button"
                 onClick={() => handleChange("disposition", undefined)}
-                className="text-xs text-muted-foreground hover:text-rose-500 transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -344,7 +344,7 @@ export default function AnalysisFilters({
               <button
                 type="button"
                 onClick={() => handleChange("sentiment", undefined)}
-                className="text-xs text-muted-foreground hover:text-rose-500 transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -383,7 +383,7 @@ export default function AnalysisFilters({
               <button
                 type="button"
                 onClick={() => handleChange("qualification", undefined)}
-                className="text-xs text-muted-foreground hover:text-rose-500 transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -422,7 +422,7 @@ export default function AnalysisFilters({
               <button
                 type="button"
                 onClick={() => handleChange("attendanceQualityMin", undefined)}
-                className="text-xs text-muted-foreground hover:text-rose-500 transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -458,7 +458,7 @@ export default function AnalysisFilters({
               <button
                 type="button"
                 onClick={() => handleChange("attendanceQualityMax", undefined)}
-                className="text-xs text-muted-foreground hover:text-rose-500 transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -519,7 +519,7 @@ export default function AnalysisFilters({
   return (
     <div
       className={cn(
-        "rounded-[20px] border border-border/70 bg-card/90 p-5",
+        "rounded-[--radius] border border-border bg-card p-5",
         className,
       )}
       style={isTransparent ? undefined : { boxShadow: softSurfaceShadow }}

@@ -5,35 +5,59 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
+/**
+ * Spine width, in pixels.
+ *
+ * DashboardMainContent's marginLeft MUST equal the spine's rendered width. Any
+ * larger value leaves a strip of panel between the spine's right rule and the
+ * content — invisible on padded pages, obvious on full-bleed views like the CRM
+ * and live-chat. Both sides read these constants so they cannot drift apart.
+ */
+export const SPINE_WIDTH_OPEN = 208;
+export const SPINE_WIDTH_RAIL = 52;
+
+// No HEADER_HEIGHT constant here on purpose. The bar is sized in rem (h-12),
+// and globals.css scales the root font to 87.5% between 1024-1440px, so it
+// renders ~42px there and 48px above 1600px. A px constant asserting one value
+// would be a lie in the range most of these users are on — and this file's
+// whole point is that a constant and the thing it describes cannot drift.
+
+const STORAGE_KEY = "sidebar-collapsed";
+
 interface SidebarContextType {
-  isPinned: boolean;
-  togglePin: () => void;
+  /** True when the spine is reduced to its icon rail. */
+  isCollapsed: boolean;
+  toggleCollapsed: () => void;
+  /** False until the stored preference has been read, to keep SSR stable. */
+  hasMounted: boolean;
 }
 
 const SidebarContext = React.createContext<SidebarContextType>({
-  isPinned: false,
-  togglePin: () => {},
+  isCollapsed: false,
+  toggleCollapsed: () => {},
+  hasMounted: false,
 });
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
-  const [isPinned, setIsPinned] = React.useState(false);
+  // Open is the default. The spine is labelled furniture an operator reads all
+  // day; it starts legible and collapses only if they ask for the width back.
+  const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [hasMounted, setHasMounted] = React.useState(false);
 
   React.useEffect(() => {
     try {
-      const saved = localStorage.getItem("sidebar-pinned");
-      if (saved === "true") {
-        setIsPinned(true);
-      }
+      setIsCollapsed(localStorage.getItem(STORAGE_KEY) === "true");
     } catch {
       // Ignore localStorage errors
     }
+    setHasMounted(true);
   }, []);
 
-  const togglePin = React.useCallback(() => {
-    setIsPinned((prev) => {
+  const toggleCollapsed = React.useCallback(() => {
+    setIsCollapsed((prev) => {
       const next = !prev;
       try {
-        localStorage.setItem("sidebar-pinned", String(next));
+        localStorage.setItem(STORAGE_KEY, String(next));
       } catch {
         // Ignore localStorage errors
       }
@@ -42,7 +66,9 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <SidebarContext.Provider value={{ isPinned, togglePin }}>
+    <SidebarContext.Provider
+      value={{ isCollapsed, toggleCollapsed, hasMounted }}
+    >
       {children}
     </SidebarContext.Provider>
   );
@@ -59,7 +85,7 @@ export function DashboardMainContent({
   children: React.ReactNode;
   className?: string;
 }) {
-  const { isPinned } = useSidebar();
+  const { isCollapsed } = useSidebar();
   const [isMd, setIsMd] = React.useState(false);
 
   React.useEffect(() => {
@@ -73,18 +99,13 @@ export function DashboardMainContent({
   return (
     <motion.main
       animate={{
-        // Must match the fixed sidebar's rendered width (DashboardSidebar:
-        // `width: isExpanded ? 264 : 60`). Any larger value leaves a strip of
-        // background between the sidebar's right border and the content, invisible
-        // on padded pages but visible on full-bleed views like the CRM/live-chat.
-        marginLeft: isMd ? (isPinned ? 264 : 60) : 0,
+        marginLeft: isMd
+          ? isCollapsed
+            ? SPINE_WIDTH_RAIL
+            : SPINE_WIDTH_OPEN
+          : 0,
       }}
-      transition={{
-        type: "spring",
-        stiffness: 300,
-        damping: 30,
-        duration: 0.3,
-      }}
+      transition={{ duration: 0.16, ease: [0.2, 0, 0, 1] }}
       className={cn("min-h-screen", className)}
     >
       {children}

@@ -11,7 +11,7 @@ import {
   CommandItem,
   CommandShortcut,
 } from "@/components/ui/command";
-import { Command as CommandIcon } from "@phosphor-icons/react";
+import { Command as CommandIcon } from "@/components/icons";
 
 interface CommandPaletteProps {
   items: {
@@ -86,7 +86,7 @@ export default function CommandPalette({
           className="flex justify-between w-full p-[14px] border border-border bg-transparent rounded-full text-foreground placeholder:text-transparent focus:outline-none focus:shadow-sm focus:border-foreground/20 transition-all duration-200"
           style={{
             boxShadow:
-              "0px 0.7066px 0.7066px -0.6667px rgba(0,0,0,0.08), 0px 1.8066px 1.8066px -1.3333px rgba(0,0,0,0.08), 0px 3.6218px 3.6218px -2px rgba(0,0,0,0.07), 0px 6.8656px 6.8656px -2.6667px rgba(0,0,0,0.07), 0px 13.6468px 13.6468px -3.3333px rgba(0,0,0,0.05), 0px 30px 30px -4px rgba(0,0,0,0.02), inset 0px 3px 1px 0px var(--shadow-highlight-strong)",
+              "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)",
           }}
           type="button"
         >

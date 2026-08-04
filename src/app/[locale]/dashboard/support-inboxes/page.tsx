@@ -1,6 +1,6 @@
 "use client";
 
-import { Archive, Headset, MagnifyingGlass, Plus } from "@phosphor-icons/react";
+import { Archive, Headset, MagnifyingGlass, Plus } from "@/components/icons";
 import type {
   SupportInbox,
   SupportInboxListMeta,
@@ -105,10 +105,10 @@ export default function SupportInboxesPage() {
         header: t("columns.aiAgent"),
         render: (row) => (
           <span
-            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+            className={`inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium ${
               row.enableAgentResponses
-                ? "bg-emerald-500 text-white"
-                : "bg-slate-500 text-white"
+                ? "bg-healthy text-white"
+                : "bg-muted text-white"
             }`}
           >
             {row.enableAgentResponses ? t("enabled") : t("disabled")}
@@ -152,7 +152,7 @@ export default function SupportInboxesPage() {
         icon={<Headset className="h-6 w-6" weight="fill" />}
         badge={t("header.badge")}
         description={t("header.description")}
-        colorClass="text-violet-600"
+        colorClass="text-muted-foreground"
         actions={
           can("support_inboxes", "create") ? (
             <Button
@@ -229,7 +229,7 @@ export default function SupportInboxesPage() {
           error
             ? {
                 icon: (
-                  <Headset className="h-7 w-7 text-red-600" weight="fill" />
+                  <Headset className="h-7 w-7 text-destructive" weight="fill" />
                 ),
                 title: t("error.title"),
                 description: error,

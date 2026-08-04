@@ -10,7 +10,7 @@
  * header. The workflow variant is a button that opens the read-only run viewer.
  */
 
-import { Robot, FlowArrow } from "@phosphor-icons/react";
+import { Robot, FlowArrow } from "@/components/icons";
 
 import type { AIHandler } from "@/lib/conversations/types";
 import {
@@ -112,10 +112,10 @@ export function AiHandlerChip({
         "inline-flex max-w-full items-center border font-medium transition-colors",
         s.chip,
         paused
-          ? "border-border bg-muted/60 text-muted-foreground"
+          ? "border-border bg-muted text-muted-foreground"
           : "border-border bg-card text-foreground shadow-sm",
         clickable &&
-          "cursor-pointer hover:border-primary/40 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+          "cursor-pointer hover:border-primary/40 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         className,
       )}
     >
@@ -123,7 +123,7 @@ export function AiHandlerChip({
         className={cn(
           "flex flex-shrink-0 items-center justify-center",
           s.tile,
-          paused ? "bg-slate-400 dark:bg-slate-600" : "bg-primary",
+          paused ? "bg-muted dark:bg-muted" : "bg-primary",
         )}
       >
         <Glyph className={cn(s.glyph, "text-white")} weight="fill" />

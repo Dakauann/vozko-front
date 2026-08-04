@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowClockwise, CheckCircle, Warning } from "@phosphor-icons/react";
+import { ArrowClockwise, CheckCircle, Warning } from "@/components/icons";
 
 import type { InstagramAccount } from "@/lib/instagram/types";
 import { StatusBadge, accentColorMap } from "@/components/elevated-design/listing-card";
@@ -140,17 +140,17 @@ function CapabilityChip({ enabled, label }: { enabled: boolean; label: string })
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px]",
+        "inline-flex items-center gap-1.5 rounded-[--radius] border px-2 py-0.5 text-[11px]",
         enabled
           ? "border-border bg-muted text-muted-foreground"
-          : "border-dashed border-border/60 bg-transparent text-muted-foreground/60",
+          : "border-dashed border-border bg-transparent text-muted-foreground/60",
       )}
     >
       <span
         aria-hidden
         className={cn(
           "size-1.5 rounded-full",
-          enabled ? "bg-emerald-500" : "bg-muted-foreground/40",
+          enabled ? "bg-healthy" : "bg-muted-foreground/40",
         )}
       />
       {label}

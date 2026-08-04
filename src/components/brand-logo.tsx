@@ -11,7 +11,10 @@ interface BrandLogoProps {
   hideTextOnMobile?: boolean;
 }
 
-const heightBySize = { sm: 22, md: 36, lg: 44 } as const;
+// `sm` sits in the 48px spine head and the login sheet's title bar. At 22 it
+// read as a favicon dropped into the corner rather than the mark of the
+// product; 28 fills the bar the way a wordmark is supposed to.
+const heightBySize = { sm: 28, md: 36, lg: 44 } as const;
 
 /**
  * Renders the active brand's single logo (a CDN-hosted SVG). There is no more

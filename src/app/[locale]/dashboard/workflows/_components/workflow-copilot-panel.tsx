@@ -21,7 +21,7 @@ import {
   CaretDown,
   CaretUp,
   NotePencil,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { cn } from "@/lib/utils";
 import ElevatedButton from "@/components/elevated-design/button";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
@@ -215,7 +215,7 @@ export function WorkflowCopilotPanel({
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-border">
         <div className="flex items-center gap-2 text-sm font-medium">
-          <Sparkle size={16} weight="fill" className="text-primary" />
+          <Sparkle size={16} weight="fill" className="text-lamp-ink" />
           {showHistory ? "Conversas" : "Copiloto de Fluxos"}
           {!showHistory && (
             <button
@@ -235,18 +235,18 @@ export function WorkflowCopilotPanel({
                 connection === "online"
                   ? "cursor-default text-muted-foreground"
                   : connection === "offline"
-                    ? "text-rose-600 dark:text-rose-400"
-                    : "text-amber-600 dark:text-amber-400",
+                    ? "text-destructive dark:text-destructive"
+                    : "text-warning dark:text-amber-400",
               )}
             >
               <span
                 className={cn(
                   "h-1.5 w-1.5 rounded-full",
                   connection === "online"
-                    ? "bg-emerald-500"
+                    ? "bg-healthy"
                     : connection === "offline"
-                      ? "bg-rose-500"
-                      : "animate-pulse bg-amber-500",
+                      ? "bg-destructive"
+                      : "animate-pulse bg-warning",
                 )}
               />
               {connection !== "online" &&
@@ -277,7 +277,7 @@ export function WorkflowCopilotPanel({
               onClick={() => setShowHistory((v) => !v)}
               className={cn(
                 "hover:text-foreground",
-                showHistory ? "text-primary" : "text-muted-foreground",
+                showHistory ? "text-lamp-ink" : "text-muted-foreground",
               )}
               aria-label={showHistory ? "Voltar ao copiloto" : "Histórico de conversas"}
               title={showHistory ? "Voltar ao copiloto" : "Histórico de conversas"}
@@ -322,9 +322,9 @@ export function WorkflowCopilotPanel({
         )}
         {status === "done" &&
           (valid ? (
-            <CheckCircle size={13} weight="fill" className="text-emerald-500" />
+            <CheckCircle size={13} weight="fill" className="text-healthy" />
           ) : (
-            <Warning size={13} weight="fill" className="text-amber-500" />
+            <Warning size={13} weight="fill" className="text-warning" />
           ))}
         <span>
           {status === "connecting" && "Conectando…"}
@@ -373,8 +373,8 @@ export function WorkflowCopilotPanel({
         )}
 
         {blocking.length > 0 && (
-          <div className="rounded-md border border-red-500/30 bg-red-500/5 p-2 space-y-1">
-            <div className="flex items-center gap-1 text-xs font-medium text-red-600 dark:text-red-400">
+          <div className="rounded-md border border-destructive/30 bg-destructive/5 p-2 space-y-1">
+            <div className="flex items-center gap-1 text-xs font-medium text-destructive dark:text-red-400">
               <Warning size={13} weight="fill" /> {blocking.length} problema(s)
               bloqueante(s)
             </div>
@@ -387,10 +387,10 @@ export function WorkflowCopilotPanel({
           </div>
         )}
         {advisory.length > 0 && (
-          <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-2">
+          <div className="rounded-md border border-warning/30 bg-warning/5 p-2">
             <button
               onClick={() => setAdvisoryOpen((o) => !o)}
-              className="flex w-full items-center gap-1 text-xs font-medium text-amber-600 dark:text-amber-400"
+              className="flex w-full items-center gap-1 text-xs font-medium text-warning dark:text-amber-400"
             >
               <Lightbulb size={13} weight="fill" /> {advisory.length} dica(s)
               {advisoryOpen ? (

@@ -7,7 +7,7 @@ import {
   Sparkle,
   WarningCircle,
   XCircle,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type {
   TextRefinerDiffSegment,
   TextRefinerKind,
@@ -137,13 +137,13 @@ export function PromptRefinerPanel({
   return (
     <div
       className={cn(
-        "flex h-full flex-col rounded-3xl border border-border bg-card/70 p-5 shadow-sm",
+        "flex h-full flex-col rounded-[--radius] border border-border bg-card p-5 shadow-sm",
         className,
       )}
     >
       {/* Header */}
       <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-white shadow-lg">
+        <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-white shadow-lg">
           <Sparkle className="h-5 w-5" weight="fill" />
         </div>
         <div className="flex-1">
@@ -196,7 +196,7 @@ export function PromptRefinerPanel({
         onClick={handleRefine}
         disabled={!canRefine || isRefining}
         className={cn(
-          "mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-primary to-[hsl(var(--primary-hover))] px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-md transition-all",
+          "mt-4 inline-flex items-center justify-center gap-2 rounded-[--radius] bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-md transition-all",
           "hover:brightness-110 active:scale-[0.98]",
           "disabled:cursor-not-allowed disabled:opacity-50",
         )}
@@ -218,15 +218,15 @@ export function PromptRefinerPanel({
             </p>
             {stats ? (
               <p className="text-[11px] font-medium text-muted-foreground">
-                <span className="text-emerald-600">+{stats.added}</span>
+                <span className="text-healthy">+{stats.added}</span>
                 {" / "}
-                <span className="text-rose-600">−{stats.removed}</span>{" "}
+                <span className="text-destructive">−{stats.removed}</span>{" "}
                 {t("characters")}
               </p>
             ) : null}
           </div>
 
-          <div className="mt-2 flex-1 overflow-auto rounded-xl border border-border bg-background/60 p-3 text-sm leading-relaxed">
+          <div className="mt-2 flex-1 overflow-auto rounded-[--radius] border border-border bg-background p-3 text-sm leading-relaxed">
             {segments.map((seg, i) => {
               if (seg.op === "equal") {
                 return (
@@ -242,7 +242,7 @@ export function PromptRefinerPanel({
                 return (
                   <span
                     key={i}
-                    className="rounded bg-emerald-500/15 px-0.5 text-emerald-700 whitespace-pre-wrap"
+                    className="rounded bg-healthy/15 px-0.5 text-healthy whitespace-pre-wrap"
                   >
                     {seg.text}
                   </span>
@@ -251,7 +251,7 @@ export function PromptRefinerPanel({
               return (
                 <span
                   key={i}
-                  className="rounded bg-rose-500/15 px-0.5 text-rose-700 line-through whitespace-pre-wrap"
+                  className="rounded bg-destructive/15 px-0.5 text-destructive line-through whitespace-pre-wrap"
                 >
                   {seg.text}
                 </span>
@@ -263,7 +263,7 @@ export function PromptRefinerPanel({
             <button
               type="button"
               onClick={handleApply}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:brightness-110 active:scale-[0.98]"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-[--radius] bg-muted px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:brightness-110 active:scale-[0.98]"
             >
               <CheckCircle className="h-4 w-4" weight="fill" />
               {t("apply")}
@@ -271,7 +271,7 @@ export function PromptRefinerPanel({
             <button
               type="button"
               onClick={handleDiscard}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+              className="inline-flex items-center justify-center gap-2 rounded-[--radius] border border-border bg-card px-4 py-2 text-sm font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
             >
               <XCircle className="h-4 w-4" weight="bold" />
               {t("discard")}
@@ -279,7 +279,7 @@ export function PromptRefinerPanel({
           </div>
         </div>
       ) : (
-        <div className="mt-5 flex flex-1 items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 p-6 text-center">
+        <div className="mt-5 flex flex-1 items-center justify-center rounded-[--radius] border border-dashed border-border bg-muted p-6 text-center">
           <div>
             <WarningCircle
               className="mx-auto h-8 w-8 text-muted-foreground/60"
@@ -333,8 +333,8 @@ function ExampleChips({
             disabled={disabled}
             onClick={() => onPick(ex)}
             className={cn(
-              "inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[11px] font-medium text-amber-700 transition-all",
-              "hover:bg-amber-500/20 hover:text-amber-800",
+              "inline-flex items-center gap-1 rounded-[--radius] border border-warning/30 bg-warning/10 px-2.5 py-1 text-[11px] font-medium text-warning transition-all",
+              "hover:bg-warning/20 hover:text-amber-800",
               "disabled:cursor-not-allowed disabled:opacity-50",
             )}
           >

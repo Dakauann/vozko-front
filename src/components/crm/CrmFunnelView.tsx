@@ -7,7 +7,7 @@ import {
   motion,
   useDragControls,
 } from "framer-motion";
-import { Check, Circle, User } from "@phosphor-icons/react";
+import { Check, Circle, User } from "@/components/icons";
 import type {
   EntryType,
   InboxEntry,
@@ -126,7 +126,7 @@ function FunnelCardBody({ entry }: { entry: InboxEntry }) {
       }
       rightSlot={
         hasUnread ? (
-          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-bold text-white">
+          <span className="flex h-5 min-w-5 items-center justify-center rounded-[--radius] bg-healthy px-1 text-[9px] font-semibold text-white">
             {entry.unread_count > 99 ? "99+" : entry.unread_count}
           </span>
         ) : undefined
@@ -174,7 +174,7 @@ function FunnelCardBody({ entry }: { entry: InboxEntry }) {
               <CardLabelChip key={label.label_id} name={label.name} color={label.color} />
             ))}
             {labels.length > 3 ? (
-              <span className="inline-flex items-center rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-bold text-muted-foreground shadow-sm">
+              <span className="inline-flex items-center rounded-[--radius] bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground shadow-sm">
                 +{labels.length - 3}
               </span>
             ) : null}
@@ -291,7 +291,7 @@ function FunnelCard({
               onLabelMenuToggle?.();
             }}
           />
-          <div className="absolute right-2 top-10 z-50 w-48 rounded-xl border border-border bg-card shadow-xl py-1 animate-in fade-in slide-in-from-top-1 duration-150">
+          <div className="absolute right-2 top-10 z-50 w-48 rounded-[--radius] border border-border bg-card shadow-xl py-1 animate-in fade-in slide-in-from-top-1 duration-150">
             <div className="px-3 py-1.5 text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">
               Labels
             </div>
@@ -495,7 +495,7 @@ function FunnelColumn({
       {/* Load More / Loading indicator */}
       {isLoading && (
         <div className="flex items-center justify-center py-2">
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-foreground/20 border-t-emerald-500" />
+          <div className="h-4 w-4 animate-spin rounded-full border border-foreground/20 border-t-emerald-500" />
         </div>
       )}
       {/* Sentinel for infinite scroll */}
@@ -1161,7 +1161,7 @@ export default function CrmFunnelView({
                       {/* Loading indicator for unstaged column */}
                       {loadingFunnelColumn === "__unstaged__" && (
                         <div className="flex items-center justify-center py-2">
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-foreground/20 border-t-emerald-500" />
+                          <div className="h-4 w-4 animate-spin rounded-full border border-foreground/20 border-t-emerald-500" />
                         </div>
                       )}
 
@@ -1183,7 +1183,7 @@ export default function CrmFunnelView({
                                   funnelColumns?.get("__unstaged__")?.page ?? 1;
                                 onRequestColumn("__unstaged__", page + 1, 20);
                               }}
-                              className="w-full py-2 text-[11px] font-medium text-muted-foreground hover:text-emerald-600 hover:bg-muted/80 rounded-lg transition-colors"
+                              className="w-full py-2 text-[11px] font-medium text-muted-foreground hover:text-healthy hover:bg-muted rounded-lg transition-colors"
                             >
                               Carregar mais ({unstagedEntries.length} de{" "}
                               {unstagedTotal})
@@ -1215,7 +1215,7 @@ export default function CrmFunnelView({
             initial={kanbanDragOverlayInitial}
             animate={kanbanDragOverlayAnimate}
             transition={kanbanDragOverlayTransition}
-            className="rounded-xl border border-border bg-card p-3 cursor-grabbing"
+            className="rounded-[--radius] border border-border bg-card p-3 cursor-grabbing"
           >
             <FunnelCardBody entry={dragOverlayData.entry} />
           </motion.div>

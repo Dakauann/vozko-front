@@ -33,9 +33,9 @@ interface PageState {
 
 function PageLoader() {
   return (
-    <div className="-m-6 flex min-h-[calc(100vh-5rem)] items-center justify-center p-6">
+    <div className="-m-6 flex min-h-[calc(100vh-3rem)] items-center justify-center p-6">
       <div
-        className="h-8 w-8 animate-spin rounded-full border-2 border-muted border-t-primary"
+        className="h-8 w-8 animate-spin rounded-full border border-muted border-t-primary"
         role="status"
         aria-label="Loading"
       />
@@ -106,7 +106,7 @@ export default function EditWorkflowPage({ params }: EditWorkflowPageProps) {
 
   if (state.error) {
     return (
-      <div className="-m-6 flex min-h-[calc(100vh-5rem)] items-center justify-center p-6">
+      <div className="-m-6 flex min-h-[calc(100vh-3rem)] items-center justify-center p-6">
         <p className="text-muted-foreground">{state.error}</p>
       </div>
     );

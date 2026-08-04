@@ -10,7 +10,7 @@ import {
   PlusCircle,
   PuzzlePiece,
   WhatsappLogo,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   adminArchiveAddonAction,
   adminCreateAddonAction,
@@ -111,12 +111,12 @@ function usd(micros: number): string {
 }
 
 function statusChip(addon: AddonDefinition) {
-  if (addon.archivedAt) return { label: "arquivado", cls: "bg-slate-500 text-white" };
-  if (!addon.isActive) return { label: "inativo", cls: "bg-amber-500 text-white" };
-  return { label: "ativo", cls: "bg-emerald-500 text-white" };
+  if (addon.archivedAt) return { label: "arquivado", cls: "bg-muted text-white" };
+  if (!addon.isActive) return { label: "inativo", cls: "bg-warning text-white" };
+  return { label: "ativo", cls: "bg-healthy text-white" };
 }
 
-const PANEL = "rounded-2xl border border-border/70 bg-card/90";
+const PANEL = "rounded-[--radius] border border-border bg-card";
 
 export function AdminAddonsManager() {
   const { toast } = useToast();
@@ -219,7 +219,7 @@ export function AdminAddonsManager() {
         <section className="space-y-3">
           {loading ? (
             <div className="flex items-center justify-center py-24">
-              <CircleNotch className="h-7 w-7 animate-spin text-primary" weight="bold" />
+              <CircleNotch className="h-7 w-7 animate-spin text-lamp-ink" weight="bold" />
             </div>
           ) : addons.length === 0 ? (
             <div
@@ -242,16 +242,16 @@ export function AdminAddonsManager() {
                   type="button"
                   onClick={() => startEdit(addon)}
                   className={cn(
-                    "w-full rounded-2xl border p-4 text-left transition-all",
+                    "w-full rounded-[--radius] border p-4 text-left transition-all",
                     isSelected
-                      ? "border-primary bg-primary/5 shadow-[0_0_0_1px_hsl(var(--primary)/0.2)]"
-                      : "border-border/70 bg-card/90 hover:border-primary/30",
+                      ? "border-primary bg-muted"
+                      : "border-border bg-card hover:border-primary/30",
                   )}
                   style={isSelected ? undefined : { boxShadow: softSurfaceShadow }}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-3">
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground">
                         <KindGlyph kind={addon.entitlementKind} />
                       </span>
                       <div className="min-w-0">
@@ -266,7 +266,7 @@ export function AdminAddonsManager() {
                     </div>
                     <span
                       className={cn(
-                        "shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase",
+                        "shrink-0 rounded-[--radius] px-2.5 py-1 text-[10px] font-semibold uppercase",
                         chip.cls,
                       )}
                     >
@@ -288,7 +288,7 @@ export function AdminAddonsManager() {
                     </div>
                     <div>
                       <p className="text-muted-foreground">Margem/mês</p>
-                      <p className="mt-1 font-semibold text-emerald-600">{usd(margin(addon))}</p>
+                      <p className="mt-1 font-semibold text-healthy">{usd(margin(addon))}</p>
                     </div>
                   </div>
                 </button>
@@ -298,10 +298,10 @@ export function AdminAddonsManager() {
         </section>
 
         <section
-          className={cn(PANEL, "h-fit space-y-3 rounded-[26px] p-5")}
+          className={cn(PANEL, "h-fit space-y-3 rounded-[--radius] p-5")}
           style={{ boxShadow: softSurfaceShadow }}
         >
-          <p className="text-xs font-semibold uppercase text-primary">
+          <p className="text-xs font-semibold uppercase text-lamp-ink">
             {editingId ? "Editar addon" : "Novo addon"}
           </p>
 

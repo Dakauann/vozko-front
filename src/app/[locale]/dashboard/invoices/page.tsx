@@ -13,8 +13,8 @@ import {
   Spinner,
   Warning,
   XCircle,
-} from "@phosphor-icons/react";
-import type { Icon } from "@phosphor-icons/react";
+} from "@/components/icons";
+import type { Icon } from "@/components/icons";
 import type { Invoice, InvoiceStatus } from "@/lib/invoices/types";
 import type { PublicPlanDetails } from "@/lib/workspace-plan/types";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -73,17 +73,17 @@ const STATUS_CONFIG: Record<
   PENDING: {
     icon: Hourglass,
     label: "pending",
-    className: "text-white bg-amber-500 border-amber-600",
+    className: "text-white bg-warning border-warning",
   },
   PAID: {
     icon: Check,
     label: "paid",
-    className: "text-white bg-emerald-500 border-emerald-600",
+    className: "text-white bg-healthy border-healthy",
   },
   OVERDUE: {
     icon: Warning,
     label: "overdue",
-    className: "text-white bg-red-500 border-red-600",
+    className: "text-white bg-destructive border-destructive",
   },
   CANCELLED: {
     icon: XCircle,
@@ -93,7 +93,7 @@ const STATUS_CONFIG: Record<
   REFUNDED: {
     icon: Clock,
     label: "refunded",
-    className: "text-white bg-blue-500 border-blue-600",
+    className: "text-white bg-muted border-blue-600",
   },
   EXPIRED: {
     icon: Clock,
@@ -232,9 +232,9 @@ export default function InvoicesPage() {
               {row.purpose && (
                 <span
                   className={cn(
-                    "rounded-full px-1.5 py-0.5 text-[10px] font-medium",
+                    "rounded-[--radius] px-1.5 py-0.5 text-[10px] font-medium",
                     row.purpose === "MONTHLY_BILLING"
-                      ? "bg-primary/10 text-primary"
+                      ? "bg-muted text-lamp-ink"
                       : "bg-muted text-muted-foreground",
                   )}
                 >
@@ -286,7 +286,7 @@ export default function InvoicesPage() {
         className: "text-center",
         render: (row) =>
           row.billingType === "PIX" ? (
-            <div className="flex items-center justify-center gap-1.5 text-xs font-medium text-emerald-600">
+            <div className="flex items-center justify-center gap-1.5 text-xs font-medium text-healthy">
               <PixLogo className="h-3.5 w-3.5" weight="bold" />
               PIX
             </div>
@@ -307,7 +307,7 @@ export default function InvoicesPage() {
             <div className="flex justify-center">
               <span
                 className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium",
+                  "inline-flex items-center gap-1.5 rounded-[--radius] border px-2.5 py-0.5 text-xs font-medium",
                   cfg.className,
                 )}
               >
@@ -364,7 +364,7 @@ export default function InvoicesPage() {
                 >
                   {copiedId === row.id ? (
                     <Check
-                      className="h-3.5 w-3.5 text-emerald-500"
+                      className="h-3.5 w-3.5 text-healthy"
                       weight="bold"
                     />
                   ) : (
@@ -548,7 +548,7 @@ export default function InvoicesPage() {
           error
             ? {
                 icon: (
-                  <Receipt className="h-7 w-7 text-red-600" weight="fill" />
+                  <Receipt className="h-7 w-7 text-destructive" weight="fill" />
                 ),
                 title: t("error.title"),
                 description: error,
@@ -586,8 +586,8 @@ export default function InvoicesPage() {
 
           {paymentConfirmed ? (
             <div className="flex flex-col items-center gap-5 py-8">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
-                <Check className="h-8 w-8 text-emerald-600" weight="bold" />
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-healthy/10">
+                <Check className="h-8 w-8 text-healthy" weight="bold" />
               </div>
               <div className="flex flex-col items-center gap-1">
                 <p className="text-lg font-semibold text-foreground">
@@ -606,7 +606,7 @@ export default function InvoicesPage() {
           ) : showPlanCatalog ? (
             <div className="flex flex-col gap-5 pt-2">
               {hasVisiblePlan ? (
-                <div className="rounded-2xl border border-border/70 bg-background/70 p-4">
+                <div className="rounded-[--radius] border border-border bg-background p-4">
                   <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                     <div>
                       <p className="text-[11px] font-semibold uppercase text-muted-foreground">
@@ -622,10 +622,10 @@ export default function InvoicesPage() {
                     {subscriptionStatusLabel ? (
                       <span
                         className={cn(
-                          "inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-semibold uppercase text-white",
+                          "inline-flex w-fit items-center rounded-[--radius] px-3 py-1 text-xs font-semibold uppercase text-white",
                           hasRechargeEligiblePlan
-                            ? "bg-emerald-500"
-                            : "bg-amber-500",
+                            ? "bg-healthy"
+                            : "bg-warning",
                         )}
                       >
                         {subscriptionStatusLabel}
@@ -640,14 +640,14 @@ export default function InvoicesPage() {
               ) : null}
 
               {loadingPlans ? (
-                <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-center">
-                  <Spinner className="h-6 w-6 animate-spin text-primary" />
+                <div className="flex min-h-[220px] flex-col items-center justify-center rounded-[--radius] border border-border bg-background text-center">
+                  <Spinner className="h-6 w-6 animate-spin text-lamp-ink" />
                   <p className="mt-3 text-sm text-muted-foreground">
                     {gateT("loading")}
                   </p>
                 </div>
               ) : plansError ? (
-                <div className="rounded-2xl border border-border/70 bg-background/70 p-5 text-center">
+                <div className="rounded-[--radius] border border-border bg-background p-5 text-center">
                   <p className="text-sm font-semibold text-foreground">
                     {gateT("errorTitle")}
                   </p>
@@ -669,7 +669,26 @@ export default function InvoicesPage() {
                     available: plansT("list.available"),
                     basePrice: plansT("list.basePrice"),
                     best: gateT("bestBadge"),
-                    channels: plansT("list.channels"),
+                    categoryNames: {
+                      whatsapp: plansT("pricing.categories.whatsapp"),
+                      sms: plansT("pricing.categories.sms"),
+                      stt: plansT("pricing.categories.stt"),
+                      tts: plansT("pricing.categories.tts"),
+                      llm: plansT("pricing.categories.llm"),
+                    },
+                    messagesLabel: plansT("estimates.messagesLabel"),
+                    serviceLabels: {
+                      whatsapp: {
+                        utility: plansT("estimates.serviceLabel.whatsapp.utility"),
+                        marketing: plansT(
+                          "estimates.serviceLabel.whatsapp.marketing",
+                        ),
+                        authentication: plansT(
+                          "estimates.serviceLabel.whatsapp.authentication",
+                        ),
+                      },
+                      sms: { standard: plansT("estimates.serviceLabel.sms.standard") },
+                    },
                     current: plansT("list.current"),
                     noDescription: plansT("list.noDescription"),
                   }}
@@ -677,7 +696,7 @@ export default function InvoicesPage() {
                   plans={availablePlans}
                 />
               ) : (
-                <div className="rounded-2xl border border-dashed border-border/70 bg-background/60 px-4 py-10 text-center">
+                <div className="rounded-[--radius] border border-dashed border-border bg-background px-4 py-10 text-center">
                   <Receipt
                     className="mx-auto h-8 w-8 text-muted-foreground"
                     weight="fill"
@@ -693,14 +712,14 @@ export default function InvoicesPage() {
 
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Button
-                  className="w-full rounded-xl sm:w-auto"
+                  className="w-full rounded-[--radius] sm:w-auto"
                   link="/dashboard/plans"
                   newTab={false}
                   title={gateT("openCatalog")}
                   variant="primary"
                 />
                 <Button
-                  className="w-full rounded-xl sm:w-auto"
+                  className="w-full rounded-[--radius] sm:w-auto"
                   onClick={() => setCreateOpen(false)}
                   title={plansT("actions.close")}
                   variant="outline-subtle"
@@ -721,8 +740,8 @@ export default function InvoicesPage() {
                   value={rechargeAmount}
                   onChange={(event) => setRechargeAmount(event.target.value)}
                   className={cn(
-                    "h-12 rounded-xl border border-border bg-background px-4 text-sm text-foreground",
-                    "placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary",
+                    "h-12 rounded-[--radius] border border-border bg-background px-4 text-sm text-foreground",
+                    "placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary",
                     "transition-all",
                   )}
                 />
@@ -737,9 +756,9 @@ export default function InvoicesPage() {
                     type="button"
                     onClick={() => setPaymentMethod("pix")}
                     className={cn(
-                      "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all",
+                      "flex flex-col items-center gap-2 rounded-[--radius] border p-4 transition-all",
                       paymentMethod === "pix"
-                        ? "border-primary bg-primary/5 text-primary"
+                        ? "border-rule-strong bg-muted text-foreground"
                         : "border-border bg-card text-muted-foreground hover:border-foreground/20",
                     )}
                   >
@@ -750,9 +769,9 @@ export default function InvoicesPage() {
                     type="button"
                     onClick={() => setPaymentMethod("boleto")}
                     className={cn(
-                      "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all",
+                      "flex flex-col items-center gap-2 rounded-[--radius] border p-4 transition-all",
                       paymentMethod === "boleto"
-                        ? "border-primary bg-primary/5 text-primary"
+                        ? "border-rule-strong bg-muted text-foreground"
                         : "border-border bg-card text-muted-foreground hover:border-foreground/20",
                     )}
                   >
@@ -771,7 +790,7 @@ export default function InvoicesPage() {
               <Button
                 variant="primary"
                 size="lg"
-                className="w-full rounded-xl"
+                className="w-full rounded-[--radius]"
                 disabled={
                   !rechargeAmount || Number(rechargeAmount) < 5 || generating
                 }
@@ -797,10 +816,10 @@ export default function InvoicesPage() {
                       <img
                         src={`data:image/png;base64,${generatedInvoice.pixQrCode}`}
                         alt="PIX QR Code"
-                        className="h-48 w-48 rounded-2xl border border-border"
+                        className="h-48 w-48 rounded-[--radius] border border-border"
                       />
                     ) : (
-                      <div className="flex h-48 w-48 items-center justify-center rounded-2xl border-2 border-dashed border-border bg-muted/50">
+                      <div className="flex h-48 w-48 items-center justify-center rounded-[--radius] border border-dashed border-border bg-muted">
                         <div className="flex flex-col items-center gap-2 text-muted-foreground">
                           <PixLogo className="h-12 w-12" weight="duotone" />
                           <span className="text-xs">QR Code PIX</span>
@@ -813,7 +832,7 @@ export default function InvoicesPage() {
                   </div>
 
                   {generatedInvoice.pixCopy ? (
-                    <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/50 p-3">
+                    <div className="flex items-center gap-2 rounded-[--radius] border border-border bg-muted p-3">
                       <code className="flex-1 truncate text-xs text-muted-foreground">
                         {generatedInvoice.pixCopy}
                       </code>
@@ -834,7 +853,7 @@ export default function InvoicesPage() {
                       >
                         {pixCopied ? (
                           <Check
-                            className="h-4 w-4 text-emerald-500"
+                            className="h-4 w-4 text-healthy"
                             weight="bold"
                           />
                         ) : (
@@ -847,7 +866,7 @@ export default function InvoicesPage() {
               ) : (
                 <div className="flex min-h-0 flex-1 flex-col items-center gap-4">
                   {generatedInvoice.bankSlipUrl ? (
-                    <div className="min-h-0 w-full flex-1 overflow-hidden rounded-2xl border border-border">
+                    <div className="min-h-0 w-full flex-1 overflow-hidden rounded-[--radius] border border-border">
                       <iframe
                         src={generatedInvoice.bankSlipUrl}
                         className="h-full min-h-[300px] w-full"
@@ -855,7 +874,7 @@ export default function InvoicesPage() {
                       />
                     </div>
                   ) : (
-                    <div className="flex h-32 w-full items-center justify-center rounded-2xl border-2 border-dashed border-border bg-muted/50">
+                    <div className="flex h-32 w-full items-center justify-center rounded-[--radius] border border-dashed border-border bg-muted">
                       <div className="flex flex-col items-center gap-2 text-muted-foreground">
                         <Barcode className="h-12 w-12" weight="duotone" />
                         <span className="text-xs">
@@ -870,7 +889,7 @@ export default function InvoicesPage() {
                 </div>
               )}
 
-              <div className="flex items-center justify-between rounded-xl bg-muted/50 px-4 py-3">
+              <div className="flex items-center justify-between rounded-[--radius] bg-muted px-4 py-3">
                 <span className="text-sm text-muted-foreground">
                   {t("create.amountSummary")}
                 </span>
@@ -882,7 +901,7 @@ export default function InvoicesPage() {
               <Button
                 variant="outline"
                 size="lg"
-                className="w-full rounded-xl"
+                className="w-full rounded-[--radius]"
                 onClick={() => {
                   setGeneratedInvoice(null);
                   setPixCopied(false);
@@ -906,7 +925,7 @@ export default function InvoicesPage() {
             </ElevatedDialogDescription>
           </ElevatedDialogHeader>
           {previewBoletoUrl ? (
-            <div className="w-full overflow-hidden rounded-2xl border border-border">
+            <div className="w-full overflow-hidden rounded-[--radius] border border-border">
               <iframe
                 src={previewBoletoUrl}
                 className="h-[calc(90vh-10rem)] w-full"

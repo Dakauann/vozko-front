@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 
-import { CaretDown } from "@phosphor-icons/react";
+import { CaretDown } from "@/components/icons";
 import type React from "react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -38,9 +38,9 @@ const FAQItem: React.FC<FAQItemProps> = ({
     <motion.div
       className={cn(
         "w-full cursor-pointer overflow-hidden",
-        "rounded-[10px]",
+        "rounded-[--radius]",
         "shadow-[0px_0.7065919983928324px_0.7065919983928324px_-0.6666666666666666px_rgba(0,0,0,0.08),0px_1.8065619053231785px_1.8065619053231785px_-1.3333333333333333px_rgba(0,0,0,0.08),0px_3.6217592146567767px_3.6217592146567767px_-2px_rgba(0,0,0,0.07),0px_6.8655999097303715px_6.8655999097303715px_-2.6666666666666665px_rgba(0,0,0,0.07),0px_13.646761411524492px_13.646761411524492px_-3.3333333333333335px_rgba(0,0,0,0.05),0px_30px_30px_-4px_rgba(0,0,0,0.02)]",
-        "[box-shadow:inset_0px_3px_1px_0px_var(--shadow-highlight-strong)]",
+        "[box-shadow:inset_0_1px_0_hsl(var(--rule-strong))]",
       )}
       style={{
         backgroundColor: "hsl(var(--muted))",

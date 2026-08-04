@@ -12,7 +12,7 @@ import {
   Brain,
   Lightning,
   Tag,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 export const whatsappDetailTourPalette: ColorGroup[] = [
   { colors: ["#25d366", "#128c7e"], weight: 35 },

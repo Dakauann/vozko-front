@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleNotch, Package } from "@phosphor-icons/react";
+import { CircleNotch, Package } from "@/components/icons";
 import {
   PlanEstimatesPanel,
   PlanPricingTable,
@@ -134,7 +134,7 @@ export default function AffiliatePlansPage() {
 
       {error ? (
         <div
-          className="rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive"
+          className="rounded-[--radius] border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive"
           role="alert"
         >
           {error}
@@ -144,12 +144,12 @@ export default function AffiliatePlansPage() {
       {loading ? (
         <div className="flex min-h-[30vh] items-center justify-center">
           <CircleNotch
-            className="h-8 w-8 animate-spin text-primary"
+            className="h-8 w-8 animate-spin text-lamp-ink"
             weight="bold"
           />
         </div>
       ) : forbidden ? (
-        <div className="rounded-2xl border border-dashed border-border/70 bg-background/60 px-4 py-10 text-center">
+        <div className="rounded-[--radius] border border-dashed border-border bg-background px-4 py-10 text-center">
           <Package
             className="mx-auto h-8 w-8 text-muted-foreground"
             weight="fill"
@@ -162,7 +162,7 @@ export default function AffiliatePlansPage() {
           </p>
         </div>
       ) : orderedPlans.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border/70 bg-background/60 px-4 py-10 text-center">
+        <div className="rounded-[--radius] border border-dashed border-border bg-background px-4 py-10 text-center">
           <Package
             className="mx-auto h-8 w-8 text-muted-foreground"
             weight="fill"
@@ -181,7 +181,26 @@ export default function AffiliatePlansPage() {
               available: plansT("list.available"),
               basePrice: plansT("list.basePrice"),
               best: t("bestBadge"),
-              channels: plansT("list.channels"),
+              categoryNames: {
+                whatsapp: plansT("pricing.categories.whatsapp"),
+                sms: plansT("pricing.categories.sms"),
+                stt: plansT("pricing.categories.stt"),
+                tts: plansT("pricing.categories.tts"),
+                llm: plansT("pricing.categories.llm"),
+              },
+              messagesLabel: plansT("estimates.messagesLabel"),
+              serviceLabels: {
+                whatsapp: {
+                  utility: plansT("estimates.serviceLabel.whatsapp.utility"),
+                  marketing: plansT(
+                    "estimates.serviceLabel.whatsapp.marketing",
+                  ),
+                  authentication: plansT(
+                    "estimates.serviceLabel.whatsapp.authentication",
+                  ),
+                },
+                sms: { standard: plansT("estimates.serviceLabel.sms.standard") },
+              },
               current: plansT("list.current"),
               noDescription: plansT("list.noDescription"),
             }}
@@ -193,10 +212,10 @@ export default function AffiliatePlansPage() {
           />
 
           {selectedPlan ? (
-            <section className="space-y-6 rounded-[24px] border border-border/70 bg-card/95 p-5 sm:p-6">
+            <section className="space-y-6 rounded-[--radius] border border-border bg-card p-5 sm:p-6">
               <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-lamp-ink">
                     {plansT("subscription.availableBadge")}
                   </p>
                   <h2 className="mt-1 text-xl font-semibold text-foreground">
@@ -212,15 +231,11 @@ export default function AffiliatePlansPage() {
                   <p className="text-xs uppercase text-muted-foreground">
                     {plansT("list.basePrice")}
                   </p>
-                  <p className="text-2xl font-bold tabular-nums text-foreground">
+                  <p className="text-2xl font-semibold tabular-nums text-foreground">
                     {formatBRLFromCents(
                       selectedPlan.plan.basePriceBRLCents,
                       locale,
                     )}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {selectedPlan.plan.maxCallChannels}{" "}
-                    {plansT("list.channels")}
                   </p>
                 </div>
               </header>

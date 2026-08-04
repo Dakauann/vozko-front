@@ -17,7 +17,7 @@ import {
   Warning,
   WhatsappLogo,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type {
   TemplateComponent,
   WhatsAppTemplate,
@@ -154,7 +154,7 @@ export default function TemplateEditModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
         onClick={handleClose}
       >
         <motion.div
@@ -165,9 +165,9 @@ export default function TemplateEditModal({
           className="w-full max-w-4xl max-h-[90vh] overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
-          <ElevatedContainer className="bg-card rounded-2xl shadow-2xl overflow-hidden">
+          <ElevatedContainer className="bg-card rounded-[--radius] shadow-2xl overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-gradient-to-r from-green-50 to-emerald-50">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-muted">
               <div className="flex items-center gap-3">
                 <IconBox color="green" size="sm">
                   <WhatsappLogo weight="fill" />
@@ -194,14 +194,14 @@ export default function TemplateEditModal({
               {/* Left: Preview */}
               <div className="space-y-4">
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-muted text-white shadow-lg">
                     <WhatsappLogo className="h-3.5 w-3.5" weight="fill" />
                   </span>
                   {t("preview")}
                 </h3>
 
-                <div className="bg-slate-900 rounded-2xl p-3 shadow-xl">
-                  <div className="rounded-xl overflow-hidden">
+                <div className="bg-muted rounded-[--radius] p-3 shadow-xl">
+                  <div className="rounded-[--radius] overflow-hidden">
                     <TemplatePreview
                       template={template}
                       headerMediaUrl={headerMediaUrl}
@@ -221,17 +221,17 @@ export default function TemplateEditModal({
 
                 {isMediaHeader ? (
                   <div className="space-y-4">
-                    <div className="p-4 rounded-xl bg-primary/10 border border-blue-500/20">
+                    <div className="p-4 rounded-[--radius] bg-muted border border-blue-500/20">
                       <div className="flex items-start gap-3">
                         <Info
-                          className="h-5 w-5 text-primary flex-shrink-0 mt-0.5"
+                          className="h-5 w-5 text-lamp-ink flex-shrink-0 mt-0.5"
                           weight="fill"
                         />
                         <div className="flex-1">
-                          <h4 className="text-sm font-semibold text-primary mb-1">
+                          <h4 className="text-sm font-semibold text-lamp-ink mb-1">
                             {t("mediaInfo.title")}
                           </h4>
-                          <p className="text-xs text-primary leading-relaxed">
+                          <p className="text-xs text-lamp-ink leading-relaxed">
                             {t("mediaInfo.description")}
                           </p>
                         </div>
@@ -279,13 +279,13 @@ export default function TemplateEditModal({
                       }}
                       onDrop={handleDrop}
                       className={cn(
-                        "flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-6 text-center transition-colors",
+                        "flex flex-col items-center justify-center gap-2 rounded-[--radius] border border-dashed px-4 py-6 text-center transition-colors",
                         isUploading
                           ? "cursor-default opacity-70"
                           : "cursor-pointer",
                         isDragging
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/50 hover:bg-muted/50",
+                          ? "border-primary bg-muted"
+                          : "border-border hover:border-primary/50 hover:bg-muted",
                       )}
                     >
                       <input
@@ -298,16 +298,16 @@ export default function TemplateEditModal({
                       />
                       {isUploading ? (
                         <>
-                          <CircleNotch className="h-6 w-6 animate-spin text-primary" />
+                          <CircleNotch className="h-6 w-6 animate-spin text-lamp-ink" />
                           <p className="text-sm font-medium text-foreground">
                             {t("upload.uploading")}
                           </p>
                         </>
                       ) : (
                         <>
-                          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
                             <UploadSimple
-                              className="h-5 w-5 text-primary"
+                              className="h-5 w-5 text-lamp-ink"
                               weight="bold"
                             />
                           </span>
@@ -349,13 +349,13 @@ export default function TemplateEditModal({
                     )}
 
                     {hasChanges && (
-                      <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                      <div className="p-3 rounded-lg bg-warning/10 border border-warning/20">
                         <div className="flex items-center gap-2">
                           <Warning
-                            className="h-4 w-4 text-amber-600"
+                            className="h-4 w-4 text-warning"
                             weight="fill"
                           />
-                          <p className="text-xs text-amber-700 font-medium">
+                          <p className="text-xs text-warning font-medium">
                             {t("unsavedChanges")}
                           </p>
                         </div>
@@ -363,7 +363,7 @@ export default function TemplateEditModal({
                     )}
                   </div>
                 ) : (
-                  <div className="p-4 rounded-xl bg-muted border border-border">
+                  <div className="p-4 rounded-[--radius] bg-muted border border-border">
                     <div className="flex items-start gap-3">
                       <Info
                         className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5"
@@ -382,7 +382,7 @@ export default function TemplateEditModal({
                 )}
 
                 {/* Template Info */}
-                <div className="p-4 rounded-xl bg-muted border border-border">
+                <div className="p-4 rounded-[--radius] bg-muted border border-border">
                   <h4 className="text-sm font-semibold text-foreground mb-3">
                     {t("templateInfo")}
                   </h4>
@@ -395,9 +395,9 @@ export default function TemplateEditModal({
                         className={cn(
                           "px-2 py-0.5 rounded-full font-medium",
                           template.status === "APPROVED"
-                            ? "bg-emerald-500 text-white"
+                            ? "bg-healthy text-white"
                             : template.status === "PENDING"
-                              ? "bg-amber-500 text-white"
+                              ? "bg-warning text-white"
                               : template.status === "REJECTED"
                                 ? "bg-red-500 text-white"
                                 : "bg-muted text-foreground",
@@ -486,7 +486,7 @@ function TemplatePreview({ template, headerMediaUrl }: TemplatePreviewProps) {
   return (
     <div className="flex flex-col h-full">
       {/* WhatsApp Header */}
-      <div className="flex-shrink-0 bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3">
+      <div className="flex-shrink-0 bg-muted px-4 py-3">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
             <span className="text-white font-semibold text-sm">V</span>
@@ -508,7 +508,7 @@ function TemplatePreview({ template, headerMediaUrl }: TemplatePreviewProps) {
         }}
       >
         <div className="mb-3 text-center">
-          <div className="inline-block bg-card/70 backdrop-blur-sm px-3 py-1.5 rounded-full">
+          <div className="inline-block bg-card px-3 py-1.5 rounded-full">
             <p className="text-[10px] text-muted-foreground font-medium">
               Template: {template.name} ({template.language.toUpperCase()})
             </p>
@@ -516,7 +516,7 @@ function TemplatePreview({ template, headerMediaUrl }: TemplatePreviewProps) {
         </div>
 
         <div className="max-w-sm">
-          <div className="bg-card rounded-xl shadow-sm overflow-hidden">
+          <div className="bg-card rounded-[--radius] shadow-sm overflow-hidden">
             {headerComponent && (
               <HeaderPreview
                 component={headerComponent}
@@ -573,7 +573,7 @@ function HeaderPreview({
   if (format === "TEXT") {
     return (
       <div className="px-4 pt-4 pb-2">
-        <p className="text-sm font-bold text-foreground">
+        <p className="text-sm font-semibold text-foreground">
           {text || (
             <span className="text-muted-foreground italic">Header text</span>
           )}
@@ -623,7 +623,7 @@ function HeaderPreview({
       <div className="px-4 pt-4 pb-2 border-b border-border">
         <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
           <div className="h-10 w-10 rounded-lg bg-primary/15 flex items-center justify-center flex-shrink-0">
-            <FileIcon className="h-5 w-5 text-primary" weight="duotone" />
+            <FileIcon className="h-5 w-5 text-lamp-ink" weight="duotone" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-foreground truncate">
@@ -639,10 +639,10 @@ function HeaderPreview({
   if (format === "LOCATION") {
     return (
       <div className="aspect-video bg-muted flex items-center justify-center border-b border-border relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-100 to-teal-100" />
+        <div className="absolute inset-0 bg-muted" />
         <div className="relative text-center">
           <MapPin
-            className="h-12 w-12 text-emerald-600 mx-auto mb-2"
+            className="h-12 w-12 text-healthy mx-auto mb-2"
             weight="duotone"
           />
           <p className="text-xs font-medium text-foreground">Location</p>
@@ -704,7 +704,7 @@ function ButtonsPreview({ component }: { component: TemplateComponent }) {
       {buttons.map((button, index: number) => (
         <button
           key={index}
-          className={`w-full px-4 py-3 text-center text-sm font-medium text-primary hover:bg-muted transition-colors ${
+          className={`w-full px-4 py-3 text-center text-sm font-medium text-lamp-ink hover:bg-muted transition-colors ${
             index !== buttons.length - 1 ? "border-b border-border" : ""
           }`}
         >

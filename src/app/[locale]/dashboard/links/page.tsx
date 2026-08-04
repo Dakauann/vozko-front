@@ -8,7 +8,7 @@ import {
   PencilSimple,
   Trash,
   Users,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -141,7 +141,7 @@ export default function LinksPage() {
         <span className="inline-flex items-center gap-1.5 text-sm text-foreground">
           <span
             className={`h-1.5 w-1.5 rounded-full ${
-              row.status === "active" ? "bg-emerald-500" : "bg-slate-300"
+              row.status === "active" ? "bg-healthy" : "bg-muted"
             }`}
           />
           {t(`status.${row.status}`)}
@@ -195,7 +195,7 @@ export default function LinksPage() {
           {
             label: t("stats.totalClicks"),
             value: loading ? "..." : String(stats?.totalClicks ?? 0),
-            icon: <CursorClick className="h-4 w-4 text-emerald-500" weight="fill" />,
+            icon: <CursorClick className="h-4 w-4 text-healthy" weight="fill" />,
           },
         ]}
         data={links}
@@ -226,7 +226,7 @@ export default function LinksPage() {
                   e.stopPropagation();
                   void handleDelete(row);
                 }}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <Trash className="h-4 w-4" weight="bold" />
               </button>
@@ -252,7 +252,7 @@ export default function LinksPage() {
                 description: error,
               }
             : {
-                icon: <Users className="h-7 w-7 text-slate-300" weight="fill" />,
+                icon: <Users className="h-7 w-7 text-muted-foreground" weight="fill" />,
                 title: t("empty.title"),
                 description: t("empty.description"),
                 action: canCreate ? (

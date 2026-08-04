@@ -23,7 +23,7 @@ import {
   Warning,
   WhatsappLogo,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   Bar,
   BarChart,
@@ -66,15 +66,10 @@ import type {
   MemberRow,
   StatusDistribution,
 } from "@/lib/attendance/types";
-import type {
-  TelephonyMemberRow,
-  TelephonyOverview,
-} from "@/lib/telephony/types";
 import type { CampaignType } from "@/lib/conversations/types";
 import type { Department } from "@/lib/department/types";
 import type { WorkspaceMember } from "@/lib/workspace/types";
 import { getAttendanceOverviewAction } from "@/app/actions/attendance";
-import { getTelephonyOverviewAction } from "@/app/actions/telephony";
 import { listMembersAction } from "@/app/actions/workspace";
 import { fetchDepartments } from "@/lib/department/client";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -105,7 +100,6 @@ const LOCALE_TAG: Record<string, string> = {
 };
 
 type DatePreset = "7d" | "30d" | "90d";
-type OpsMode = "attendance" | "telephony";
 
 type OpsFilterOption = {
   value: string;
@@ -141,9 +135,9 @@ function OpsFilterSelect({
           title={`${label}: ${selected?.label ?? ""}`}
           aria-label={label}
           className={cn(
-            "inline-flex h-8 max-w-[180px] items-center gap-1.5 rounded-full border border-border bg-card px-2.5 text-xs font-medium text-foreground transition-colors",
+            "inline-flex h-8 max-w-[180px] items-center gap-1.5 rounded-[--radius] border border-border bg-card px-2.5 text-xs font-medium text-foreground transition-colors",
             "hover:border-foreground/20",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-1 focus-visible:ring-offset-background",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background",
             className,
           )}
           style={{ boxShadow: softSurfaceWithInset }}
@@ -268,7 +262,7 @@ function Card({
   return (
     <section
       className={cn(
-        "flex min-h-0 min-w-0 flex-col rounded-xl border border-border/70 bg-card p-2.5 sm:p-3",
+        "flex min-h-0 min-w-0 flex-col rounded-[--radius] border border-border bg-card p-2.5 sm:p-3",
         className,
       )}
       style={{ boxShadow: softSurfaceShadow }}
@@ -316,7 +310,7 @@ function CardHead({
 function Skeleton({ h = 120 }: { h?: number }) {
   return (
     <div
-      className="animate-pulse rounded-xl bg-muted/50"
+      className="animate-pulse rounded-[--radius] bg-muted"
       style={{ height: h }}
       aria-hidden
     />
@@ -334,7 +328,7 @@ function Stat({
 }) {
   return (
     <div
-      className="min-w-0 rounded-lg border border-border/60 bg-muted/40 px-2 py-1.5"
+      className="min-w-0 rounded-lg border border-border bg-muted px-2 py-1.5"
       title={hint}
     >
       <p className="truncate text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
@@ -523,7 +517,7 @@ function StatusChart({
         </PieChart>
       </ChartContainer>
       <div className="min-w-0 space-y-1.5">
-        <div className="rounded-lg border border-border/60 bg-muted/40 px-2 py-1.5">
+        <div className="rounded-lg border border-border bg-muted px-2 py-1.5">
           <p className="text-[9px] font-semibold uppercase text-muted-foreground">
             {tl("pctFinished")}
           </p>
@@ -739,19 +733,16 @@ function TeamRank({
   rows,
   loading,
   maxRows = 8,
-  variant = "attendance",
 }: {
   rows: MemberRow[] | undefined;
   loading: boolean;
   maxRows?: number;
-  variant?: "attendance" | "telephony";
 }) {
   const st = useTranslations("metricsOps.attendance.status");
-  const telL = useTranslations("metricsOps.telephony.labels");
   const tl = useTranslations("metricsOps.attendance.labels");
   const fmt = useFmt();
   const finishedLabel =
-    variant === "telephony" ? telL("answered") : st("finished");
+    st("finished");
   const data = useMemo(() => {
     if (!rows?.length) return [];
     return [...rows]
@@ -773,7 +764,7 @@ function TeamRank({
   if (!data.length) {
     return (
       <p className="py-8 text-center text-xs text-muted-foreground">
-        {variant === "telephony" ? telL("noRanking") : tl("noAgentsHint")}
+        {tl("noAgentsHint")}
       </p>
     );
   }
@@ -792,15 +783,15 @@ function TeamRank({
           </div>
           <div className="flex h-2 overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full bg-emerald-500"
+              className="h-full bg-healthy"
               style={{ width: `${(d.resolved / max) * 100}%` }}
             />
             <div
-              className="h-full bg-blue-500"
+              className="h-full bg-muted"
               style={{ width: `${(d.open / max) * 100}%` }}
             />
             <div
-              className="h-full bg-amber-500"
+              className="h-full bg-warning"
               style={{ width: `${(d.pending / max) * 100}%` }}
             />
           </div>
@@ -813,23 +804,19 @@ function TeamRank({
 function TeamTable({
   rows,
   loading,
-  variant = "attendance",
 }: {
   rows: MemberRow[] | undefined;
   loading: boolean;
-  variant?: "attendance" | "telephony";
 }) {
   const st = useTranslations("metricsOps.attendance.status");
-  const telL = useTranslations("metricsOps.telephony.labels");
   const tc = useTranslations("metricsOps.common");
   const tl = useTranslations("metricsOps.attendance.labels");
   const fmt = useFmt();
-  const isTel = variant === "telephony";
-  const colFinished = isTel ? telL("answered") : st("finished");
-  const colOpen = isTel ? telL("failed") : st("ongoing");
-  const colPending = isTel ? telL("abandoned") : st("pending");
-  const colPct = isTel ? telL("connectCol") : "%";
-  const colTime = isTel ? telL("talkCol") : tc("response");
+    const colFinished = st("finished");
+  const colOpen = st("ongoing");
+  const colPending = st("pending");
+  const colPct = "%";
+  const colTime = tc("response");
   const presence = useCallback(
     (p: string) => {
       if (p === "online") return tc("online");
@@ -843,7 +830,7 @@ function TeamTable({
   if (!rows?.length) {
     return (
       <p className="py-8 text-center text-xs text-muted-foreground">
-        {isTel ? telL("noHumanAgentCalls") : tl("noAgentsHint")}
+        {tl("noAgentsHint")}
       </p>
     );
   }
@@ -856,13 +843,11 @@ function TeamTable({
     <div className="overflow-x-auto">
       <table className="w-full text-left text-[10px]">
         <thead>
-          <tr className="border-b border-border/60 text-muted-foreground">
+          <tr className="border-b border-border text-muted-foreground">
             <th className="px-1.5 py-1 font-semibold">
-              {isTel ? telL("agentCol") : tl("agentCol")}
+              {tl("agentCol")}
             </th>
-            {!isTel ? (
-              <th className="px-1.5 py-1 font-semibold">{tc("status")}</th>
-            ) : null}
+                          <th className="px-1.5 py-1 font-semibold">{tc("status")}</th>
             <th className="px-1.5 py-1 text-right font-semibold">
               {colFinished}
             </th>
@@ -878,16 +863,14 @@ function TeamTable({
           {sorted.map((r) => (
             <tr
               key={r.actor_id}
-              className="border-b border-border/40 last:border-0"
+              className="border-b border-border last:border-0"
             >
               <td className="max-w-[120px] truncate px-1.5 py-1 font-medium text-foreground">
                 {r.display_name || r.email || r.actor_id}
               </td>
-              {!isTel ? (
-                <td className="px-1.5 py-1 text-muted-foreground">
+                              <td className="px-1.5 py-1 text-muted-foreground">
                   {presence(r.presence)}
                 </td>
-              ) : null}
               <td className="px-1.5 py-1 text-right tabular-nums text-foreground">
                 {fmt.num(r.resolved)}
               </td>
@@ -936,7 +919,7 @@ function DeptTable({
     <div className="overflow-x-auto">
       <table className="w-full text-left text-[10px]">
         <thead>
-          <tr className="border-b border-border/60 text-muted-foreground">
+          <tr className="border-b border-border text-muted-foreground">
             <th className="px-1.5 py-1 font-semibold">{tc("department")}</th>
             <th className="px-1.5 py-1 text-right font-semibold">
               {tc("wait")}
@@ -955,7 +938,7 @@ function DeptTable({
             .map((r) => (
               <tr
                 key={r.department_id || r.department_name}
-                className="border-b border-border/40 last:border-0"
+                className="border-b border-border last:border-0"
               >
                 <td className="max-w-[140px] truncate px-1.5 py-1 font-medium text-foreground">
                   {(r.department_name || "").trim() || noDept}
@@ -987,19 +970,8 @@ export default function LiveOpsPanel({
   const tk = useTranslations("metricsOps.attendance.kpi");
   const ts = useTranslations("metricsOps.attendance.sections");
   const tl = useTranslations("metricsOps.attendance.labels");
-  const telKpi = useTranslations("metricsOps.telephony.kpi");
-  const telS = useTranslations("metricsOps.telephony.sections");
   const fmt = useFmt();
   const { currentWorkspace, can, permissionsLoading } = useWorkspace();
-
-  /**
-   * Telephony mode: workspace owner/admin (and platform admin) always can via
-   * `can()`, or any member with attendance:read (same RBAC as /telephony/*).
-   */
-  const canUseTelephonyMode =
-    !permissionsLoading && can("attendance", "read");
-
-  const [opsMode, setOpsMode] = useState<OpsMode>("attendance");
   const [preset, setPreset] = useState<DatePreset>("7d");
   const [departmentId, setDepartmentId] = useState("all");
   const [memberId, setMemberId] = useState("all");
@@ -1009,9 +981,6 @@ export default function LiveOpsPanel({
   const [departments, setDepartments] = useState<Department[]>([]);
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
   const [overview, setOverview] = useState<AttendanceOverview | null>(null);
-  const [telOverview, setTelOverview] = useState<TelephonyOverview | null>(
-    null,
-  );
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -1028,9 +997,6 @@ export default function LiveOpsPanel({
   const heights = chartHeights(heightBand);
   const teamRows = heightBand === "cramped" ? 5 : heightBand === "tight" ? 6 : 8;
   const dense = heightBand !== "roomy";
-
-  const effectiveMode: OpsMode =
-    canUseTelephonyMode && opsMode === "telephony" ? "telephony" : "attendance";
 
   const range = useMemo(() => {
     const days = preset === "7d" ? 6 : preset === "30d" ? 29 : 89;
@@ -1105,12 +1071,6 @@ export default function LiveOpsPanel({
   );
 
   useEffect(() => {
-    if (!canUseTelephonyMode && opsMode === "telephony") {
-      setOpsMode("attendance");
-    }
-  }, [canUseTelephonyMode, opsMode]);
-
-  useEffect(() => {
     if (!open) return;
     let cancelled = false;
     fetchDepartments().then((r) => {
@@ -1138,46 +1098,27 @@ export default function LiveOpsPanel({
       else setRefreshing(true);
       setError(null);
 
-      if (effectiveMode === "telephony") {
-        const r = await getTelephonyOverviewAction({
-          dateFrom: range.dateFrom,
-          dateTo: range.dateTo,
-          direction: direction === "all" ? undefined : direction,
-          callType: callType === "all" ? undefined : callType,
-          memberId: memberId === "all" ? undefined : memberId,
-          serviceLevelSeconds: 20,
-        });
-        if (r.error) {
-          setError(r.error);
-          if (!opts?.silent) setTelOverview(null);
-        } else {
-          setTelOverview(r.overview);
-          setLastUpdated(new Date());
-        }
+            const r = await getAttendanceOverviewAction({
+        dateFrom: range.dateFrom,
+        dateTo: range.dateTo,
+        departmentId: departmentId === "all" ? undefined : departmentId,
+        memberId: memberId === "all" ? undefined : memberId,
+        channel: channel === "all" ? undefined : channel,
+        campaignType,
+        includeAi: true,
+      });
+      if (r.error) {
+        setError(r.error);
+        if (!opts?.silent) setOverview(null);
       } else {
-        const r = await getAttendanceOverviewAction({
-          dateFrom: range.dateFrom,
-          dateTo: range.dateTo,
-          departmentId: departmentId === "all" ? undefined : departmentId,
-          memberId: memberId === "all" ? undefined : memberId,
-          channel: channel === "all" ? undefined : channel,
-          campaignType,
-          includeAi: true,
-        });
-        if (r.error) {
-          setError(r.error);
-          if (!opts?.silent) setOverview(null);
-        } else {
-          setOverview(r.overview);
-          setLastUpdated(new Date());
-        }
+        setOverview(r.overview);
+        setLastUpdated(new Date());
       }
 
       setLoading(false);
       setRefreshing(false);
     },
     [
-      effectiveMode,
       range.dateFrom,
       range.dateTo,
       departmentId,
@@ -1265,15 +1206,12 @@ export default function LiveOpsPanel({
   };
 
   const kpis = overview?.kpis;
-  const telKpis = telOverview?.kpis;
   const engaged =
-    effectiveMode === "telephony"
-      ? (telKpis?.total_calls ?? 0)
-      : (kpis?.engaged ??
+    (kpis?.engaged ??
         (kpis?.finished ?? 0) + (kpis?.ongoing ?? 0) + (kpis?.pending ?? 0));
 
   const empty =
-    loading && !(effectiveMode === "telephony" ? telOverview : overview);
+    loading && !overview;
 
   const attendanceKpiCards = [
     {
@@ -1281,42 +1219,42 @@ export default function LiveOpsPanel({
       label: tk("finished"),
       value: empty ? "…" : fmt.num(kpis?.finished),
       icon: CheckCircle,
-      bg: "bg-emerald-500",
+      bg: "bg-healthy",
     },
     {
       key: "ongoing",
       label: tk("ongoing"),
       value: empty ? "…" : fmt.num(kpis?.ongoing),
       icon: Pulse,
-      bg: "bg-blue-500",
+      bg: "bg-muted",
     },
     {
       key: "pending",
       label: tk("pending"),
       value: empty ? "…" : fmt.num(kpis?.pending),
       icon: Hourglass,
-      bg: "bg-amber-500",
+      bg: "bg-warning",
     },
     {
       key: "unassigned",
       label: tk("unassigned"),
       value: empty ? "…" : fmt.num(kpis?.unassigned_backlog),
       icon: UserMinus,
-      bg: "bg-rose-500",
+      bg: "bg-destructive",
     },
     {
       key: "new",
       label: tk("newContacts"),
       value: empty ? "…" : fmt.num(kpis?.new_contacts),
       icon: Users,
-      bg: "bg-violet-500",
+      bg: "bg-muted",
     },
     {
       key: "wait",
       label: tk("avgWait"),
       value: empty ? "…" : fmt.mins(kpis?.avg_wait_mins ?? null),
       icon: Clock,
-      bg: "bg-teal-500",
+      bg: "bg-muted",
     },
     {
       key: "handle",
@@ -1330,107 +1268,24 @@ export default function LiveOpsPanel({
       label: tk("frt"),
       value: empty ? "…" : fmt.mins(kpis?.avg_frt_mins ?? null),
       icon: Lightning,
-      bg: "bg-indigo-500",
+      bg: "bg-muted",
     },
   ] as const;
 
-  const telephonyKpiCards = [
-    {
-      key: "total",
-      label: telKpi("total"),
-      value: empty ? "…" : fmt.num(telKpis?.total_calls),
-      icon: PhoneCall,
-      bg: "bg-primary",
-    },
-    {
-      key: "answered",
-      label: telKpi("answered"),
-      value: empty ? "…" : fmt.num(telKpis?.answered),
-      icon: CheckCircle,
-      bg: "bg-emerald-500",
-    },
-    {
-      key: "connect",
-      label: telKpi("connect"),
-      value: empty ? "…" : fmt.pct(telKpis?.connect_rate ?? null),
-      icon: Pulse,
-      bg: "bg-teal-500",
-    },
-    {
-      key: "sl",
-      label: telKpi("sl"),
-      value: empty ? "…" : fmt.pct(telKpis?.service_level_pct ?? null),
-      icon: Lightning,
-      bg: "bg-indigo-500",
-    },
-    {
-      key: "fail",
-      label: telKpi("failed"),
-      value: empty
-        ? "…"
-        : fmt.num((telKpis?.failed ?? 0) + (telKpis?.abandoned ?? 0)),
-      icon: Warning,
-      bg: "bg-amber-500",
-    },
-    {
-      key: "ring",
-      label: telKpi("ring"),
-      value: empty ? "…" : fmt.mins(telKpis?.avg_ring_mins ?? null),
-      icon: Clock,
-      bg: "bg-cyan-600",
-    },
-    {
-      key: "talk",
-      label: telKpi("talk"),
-      value: empty ? "…" : fmt.mins(telKpis?.avg_talk_mins ?? null),
-      icon: Timer,
-      bg: "bg-violet-500",
-    },
-    {
-      key: "aht",
-      label: telKpi("aht"),
-      value: empty ? "…" : fmt.mins(telKpis?.avg_aht_mins ?? null),
-      icon: Headset,
-      bg: "bg-slate-700",
-    },
-  ] as const;
-
-  const kpiCards =
-    effectiveMode === "telephony" ? telephonyKpiCards : attendanceKpiCards;
+  const kpiCards = attendanceKpiCards;
 
   const channelMix = overview?.channel_mix ?? [];
   const frt = overview?.frt;
   const msg = overview?.messaging;
   const reopen = overview?.reopen;
   const ai = overview?.ai;
-  const live =
-    effectiveMode === "telephony" ? telOverview?.live : overview?.live;
-  const telQueue = telOverview?.queue;
-  const telOcc = telOverview?.occupancy;
-  const telMembers = telOverview?.by_member ?? [];
-
-  const telMemberAsRank: MemberRow[] = useMemo(
-    () =>
-      telMembers.map((m: TelephonyMemberRow) => ({
-        actor_id: m.user_id,
-        actor_kind: "human",
-        display_name: memberNames[m.user_id] || m.user_id,
-        presence: "online",
-        avg_response_mins: m.avg_talk_mins,
-        rating: null,
-        resolution_pct: m.connect_rate,
-        open: m.failed,
-        pending: m.abandoned,
-        resolved: m.answered,
-      })),
-    [telMembers, memberNames],
-  );
+  const live = overview?.live;
 
   if (!open) return null;
 
   const shellClass = fullscreen
     ? "fixed inset-0 z-[100] flex flex-col overflow-hidden bg-background"
-    : "absolute inset-x-0 top-0 z-40 flex flex-col overflow-hidden border-b border-border/80 bg-background shadow-lg";
+    : "absolute inset-x-0 top-0 z-40 flex flex-col overflow-hidden border-b border-border bg-background shadow-lg";
 
   const shellStyle = fullscreen
     ? undefined
@@ -1446,9 +1301,9 @@ export default function LiveOpsPanel({
       aria-label={t("title")}
     >
       {/* Toolbar: identity · mode · period · actions / filters · live */}
-      <header className="shrink-0 border-b border-border/70 bg-card px-3 py-2 sm:px-4">
+      <header className="shrink-0 border-b border-border bg-card px-3 py-2 sm:px-4">
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary text-white">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[--radius] bg-primary text-white">
             <ChartBar className="h-4 w-4" weight="fill" />
           </div>
           <div className="min-w-0 max-w-[180px]">
@@ -1457,9 +1312,7 @@ export default function LiveOpsPanel({
             </p>
             <p className="truncate text-[10px] text-muted-foreground">
               {t(
-                effectiveMode === "telephony"
-                  ? "subtitleTelephony"
-                  : "subtitle",
+                "subtitle",
                 {
                   count: fmt.num(engaged),
                   poll: String(POLL_MS / 1000),
@@ -1467,41 +1320,6 @@ export default function LiveOpsPanel({
               )}
             </p>
           </div>
-
-          {canUseTelephonyMode ? (
-            <ElevatedPillToggle
-              aria-label={t("modeLabel")}
-              size="md"
-              value={effectiveMode}
-              onChange={(v) => setOpsMode(v as OpsMode)}
-              options={[
-                {
-                  value: "attendance",
-                  label: t("modeAttendance"),
-                  icon: (
-                    <Headset
-                      className="h-3.5 w-3.5"
-                      weight={
-                        effectiveMode === "attendance" ? "fill" : "regular"
-                      }
-                    />
-                  ),
-                },
-                {
-                  value: "telephony",
-                  label: t("modeTelephony"),
-                  icon: (
-                    <PhoneCall
-                      className="h-3.5 w-3.5"
-                      weight={
-                        effectiveMode === "telephony" ? "fill" : "regular"
-                      }
-                    />
-                  ),
-                },
-              ]}
-            />
-          ) : null}
 
           <ElevatedPillToggle
             aria-label={tc("period")}
@@ -1530,14 +1348,13 @@ export default function LiveOpsPanel({
 
             {(refreshing || loading) && (
               <CircleNotch
-                className="h-4 w-4 animate-spin text-primary"
+                className="h-4 w-4 animate-spin text-lamp-ink"
                 weight="bold"
               />
             )}
 
             <ElevatedButton
               type="button"
-              variant={fullscreen ? "primary" : "outline-subtle"}
               size="icon"
               className="min-w-0"
               aria-label={fullscreen ? t("restore") : t("maximize")}
@@ -1567,21 +1384,12 @@ export default function LiveOpsPanel({
         </div>
 
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          {effectiveMode === "attendance" ? (
-            <OpsFilterSelect
+          <OpsFilterSelect
               label={tc("department")}
               value={departmentId}
               onValueChange={setDepartmentId}
               options={departmentOptions}
             />
-          ) : (
-            <OpsFilterSelect
-              label={t("direction")}
-              value={direction}
-              onValueChange={setDirection}
-              options={directionOptions}
-            />
-          )}
 
           <OpsFilterSelect
             label={tc("member")}
@@ -1590,32 +1398,22 @@ export default function LiveOpsPanel({
             options={memberOptions}
           />
 
-          {effectiveMode === "attendance" ? (
-            <OpsFilterSelect
+          <OpsFilterSelect
               label={tc("channel")}
               value={channel}
               onValueChange={setChannel}
               options={channelOptions}
             />
-          ) : (
-            <OpsFilterSelect
-              label={t("callType")}
-              value={callType}
-              onValueChange={setCallType}
-              options={callTypeOptions}
-              className="max-w-[200px]"
-            />
-          )}
 
           {live?.has_data ? (
             <div className="flex flex-wrap items-center gap-1.5 sm:ml-auto">
-              <span className="rounded-full bg-emerald-500 px-2.5 py-0.5 text-[10px] font-semibold text-white">
+              <span className="rounded-[--radius] bg-healthy px-2.5 py-0.5 text-[10px] font-semibold text-white">
                 {tc("online")} {fmt.num(live.online)}
               </span>
-              <span className="rounded-full bg-blue-500 px-2.5 py-0.5 text-[10px] font-semibold text-white">
+              <span className="rounded-[--radius] bg-muted px-2.5 py-0.5 text-[10px] font-semibold text-white">
                 {tc("onCall")} {fmt.num(live.in_call)}
               </span>
-              <span className="rounded-full bg-slate-600 px-2.5 py-0.5 text-[10px] font-semibold text-white">
+              <span className="rounded-[--radius] bg-muted px-2.5 py-0.5 text-[10px] font-semibold text-white">
                 {t("freeAgents")} {fmt.num(live.free)}
               </span>
             </div>
@@ -1626,7 +1424,7 @@ export default function LiveOpsPanel({
       {/* Height/width-aware body: keep preferred columns until extreme sizes. */}
       <div
         ref={bodyRef}
-        className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto bg-muted/25"
+        className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto bg-muted"
       >
         <div
           className={cn(
@@ -1640,7 +1438,7 @@ export default function LiveOpsPanel({
           )}
         >
           {error ? (
-            <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+            <div className="rounded-[--radius] border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
               {error}
             </div>
           ) : null}
@@ -1660,7 +1458,7 @@ export default function LiveOpsPanel({
                 <div
                   key={c.key}
                   className={cn(
-                    "min-w-0 rounded-xl border border-border/70 bg-card",
+                    "min-w-0 rounded-[--radius] border border-border bg-card",
                     dense ? "px-1.5 py-1.5" : "px-2 py-2 sm:px-2.5",
                   )}
                   style={{ boxShadow: softSurfaceShadow }}
@@ -1697,7 +1495,7 @@ export default function LiveOpsPanel({
             })}
           </div>
 
-          {effectiveMode === "attendance" && (kpis?.shell_backlog ?? 0) > 0 ? (
+          {(kpis?.shell_backlog ?? 0) > 0 ? (
             <p className="shrink-0 text-[10px] text-muted-foreground">
               {tk("shellLabel")}: {fmt.num(kpis?.shell_backlog)} ·{" "}
               {tk("entriesCreated", {
@@ -1721,21 +1519,17 @@ export default function LiveOpsPanel({
                 icon={<ChartBar className="h-3.5 w-3.5" weight="fill" />}
                 iconBg="bg-primary"
                 title={
-                  effectiveMode === "telephony" ? telS("hourly") : ts("hourly")
+                  ts("hourly")
                 }
                 subtitle={
                   dense
                     ? undefined
-                    : effectiveMode === "telephony"
-                      ? telS("hourlySub")
-                      : ts("hourlySub")
+                    : ts("hourlySub")
                 }
               />
               <HourlyChart
                 hourly={
-                  effectiveMode === "telephony"
-                    ? telOverview?.hourly
-                    : overview?.hourly
+                  overview?.hourly
                 }
                 loading={empty}
                 height={heights.hourly}
@@ -1746,25 +1540,17 @@ export default function LiveOpsPanel({
             >
               <CardHead
                 icon={<ChartPie className="h-3.5 w-3.5" weight="fill" />}
-                iconBg="bg-emerald-500"
+                iconBg="bg-healthy"
                 title={
-                  effectiveMode === "telephony" ? telS("dirType") : ts("status")
+                  ts("status")
                 }
                 subtitle={
                   dense
                     ? undefined
-                    : effectiveMode === "telephony"
-                      ? telS("dirTypeSub")
-                      : ts("statusSub")
+                    : ts("statusSub")
                 }
               />
-              {effectiveMode === "telephony" ? (
-                <DirectionMix
-                  slices={telOverview?.by_direction}
-                  loading={empty}
-                  height={heights.status}
-                />
-              ) : (
+              {(
                 <StatusChart
                   dist={overview?.status_distribution}
                   loading={empty}
@@ -1774,8 +1560,7 @@ export default function LiveOpsPanel({
             </Card>
           </div>
 
-          {effectiveMode === "attendance" ? (
-            <>
+          <>
               {/* Secondary metrics */}
               <div
                 className={cn(
@@ -1789,7 +1574,7 @@ export default function LiveOpsPanel({
                 <Card>
                   <CardHead
                     icon={<Lightning className="h-3.5 w-3.5" weight="fill" />}
-                    iconBg="bg-indigo-500"
+                    iconBg="bg-muted"
                     title={ts("frtTitle")}
                   />
                   <div className="grid grid-cols-2 gap-1.5">
@@ -1814,7 +1599,7 @@ export default function LiveOpsPanel({
                 <Card>
                   <CardHead
                     icon={<ChartBar className="h-3.5 w-3.5" weight="fill" />}
-                    iconBg="bg-teal-600"
+                    iconBg="bg-muted"
                     title={ts("messages")}
                   />
                   <div className="grid grid-cols-1 gap-1.5">
@@ -1895,7 +1680,7 @@ export default function LiveOpsPanel({
                 <Card>
                   <CardHead
                     icon={<Phone className="h-3.5 w-3.5" weight="fill" />}
-                    iconBg="bg-emerald-600"
+                    iconBg="bg-healthy"
                     title={ts("channelsUsed")}
                   />
                   <div className="space-y-2">
@@ -1949,7 +1734,7 @@ export default function LiveOpsPanel({
                 >
                   <CardHead
                     icon={<Robot className="h-3.5 w-3.5" weight="fill" />}
-                    iconBg="bg-amber-500"
+                    iconBg="bg-warning"
                     title={ts("aiTitle")}
                   />
                   <div className="grid grid-cols-2 gap-1.5">
@@ -1978,7 +1763,7 @@ export default function LiveOpsPanel({
                 >
                   <CardHead
                     icon={<Buildings className="h-3.5 w-3.5" weight="fill" />}
-                    iconBg="bg-violet-500"
+                    iconBg="bg-muted"
                     title={ts("deptChart")}
                   />
                   <DeptChart
@@ -1992,7 +1777,7 @@ export default function LiveOpsPanel({
                 >
                   <CardHead
                     icon={<Buildings className="h-3.5 w-3.5" weight="fill" />}
-                    iconBg="bg-violet-500"
+                    iconBg="bg-muted"
                     title={ts("deptTable")}
                   />
                   <DeptTable
@@ -2014,7 +1799,7 @@ export default function LiveOpsPanel({
                 >
                   <CardHead
                     icon={<Users className="h-3.5 w-3.5" weight="fill" />}
-                    iconBg="bg-blue-500"
+                    iconBg="bg-muted"
                     title={ts("teamRank")}
                     subtitle={dense ? undefined : ts("teamRankSub")}
                   />
@@ -2029,7 +1814,7 @@ export default function LiveOpsPanel({
                 >
                   <CardHead
                     icon={<Users className="h-3.5 w-3.5" weight="fill" />}
-                    iconBg="bg-blue-500"
+                    iconBg="bg-muted"
                     title={ts("teamDetail")}
                     subtitle={dense ? undefined : ts("teamDetailSub")}
                   />
@@ -2037,167 +1822,13 @@ export default function LiveOpsPanel({
                 </Card>
               </div>
             </>
-          ) : (
-            <>
-              {/* Telephony secondary strip */}
-              <div
-                className={cn(
-                  "grid gap-2",
-                  dense ? "gap-1.5" : "sm:gap-2.5",
-                  widthBand === "wide" && "grid-cols-4",
-                  widthBand === "mid" && "grid-cols-2",
-                  widthBand === "stack" && "grid-cols-1 sm:grid-cols-2",
-                )}
-              >
-                <Card>
-                  <CardHead
-                    icon={<Timer className="h-3.5 w-3.5" weight="fill" />}
-                    iconBg="bg-violet-500"
-                    title={telS("avgTimes")}
-                  />
-                  <div className="grid grid-cols-2 gap-1.5">
-                    <Stat
-                      label={telKpi("ring")}
-                      value={fmt.mins(telKpis?.avg_ring_mins ?? null)}
-                    />
-                    <Stat
-                      label={telKpi("talk")}
-                      value={fmt.mins(telKpis?.avg_talk_mins ?? null)}
-                    />
-                    <Stat
-                      label={telKpi("aht")}
-                      value={fmt.mins(telKpis?.avg_aht_mins ?? null)}
-                    />
-                    <Stat
-                      label={telKpi("hold")}
-                      value={fmt.mins(telKpis?.avg_hold_mins ?? null)}
-                    />
-                  </div>
-                </Card>
-                <Card>
-                  <CardHead
-                    icon={<Lightning className="h-3.5 w-3.5" weight="fill" />}
-                    iconBg="bg-indigo-500"
-                    title={telS("speed")}
-                  />
-                  <div className="grid grid-cols-2 gap-1.5">
-                    <Stat
-                      label={telKpi("sl")}
-                      value={fmt.pct(telKpis?.service_level_pct ?? null)}
-                    />
-                    <Stat
-                      label={telKpi("withinSl")}
-                      value={fmt.num(telKpis?.answered_within_sl)}
-                    />
-                    <Stat
-                      label={telKpi("inbound")}
-                      value={fmt.num(telKpis?.inbound)}
-                    />
-                    <Stat
-                      label={telKpi("outbound")}
-                      value={fmt.num(telKpis?.outbound)}
-                    />
-                  </div>
-                </Card>
-                <Card>
-                  <CardHead
-                    icon={<Hourglass className="h-3.5 w-3.5" weight="fill" />}
-                    iconBg="bg-amber-500"
-                    title={telS("queueTitle")}
-                  />
-                  <div className="grid grid-cols-2 gap-1.5">
-                    <Stat
-                      label={t("queueEnqueued")}
-                      value={fmt.num(telQueue?.enqueued)}
-                    />
-                    <Stat
-                      label={t("queueConnected")}
-                      value={fmt.num(telQueue?.connected)}
-                    />
-                    <Stat
-                      label={t("queueAbandoned")}
-                      value={fmt.num(telQueue?.abandoned)}
-                    />
-                    <Stat
-                      label={t("queueAsa")}
-                      value={fmt.mins(telQueue?.avg_asa_mins ?? null)}
-                    />
-                  </div>
-                </Card>
-                <Card>
-                  <CardHead
-                    icon={<Headset className="h-3.5 w-3.5" weight="fill" />}
-                    iconBg="bg-slate-700"
-                    title={telS("occupancy")}
-                  />
-                  <div className="grid grid-cols-2 gap-1.5">
-                    <Stat
-                      label={t("occTeam")}
-                      value={fmt.pct(telOcc?.team_occupancy_pct ?? null)}
-                    />
-                    <Stat
-                      label={t("occIdle")}
-                      value={fmt.pct(telOcc?.team_idle_pct ?? null)}
-                    />
-                    <Stat
-                      label={tc("online")}
-                      value={fmt.num(live?.online)}
-                    />
-                    <Stat
-                      label={t("freeAgents")}
-                      value={fmt.num(live?.free)}
-                    />
-                  </div>
-                </Card>
-              </div>
-
-              <div
-                className={cn(
-                  "grid gap-2",
-                  dense ? "gap-1.5" : "sm:gap-2.5",
-                  widthBand === "stack" ? "grid-cols-1" : "grid-cols-12",
-                )}
-              >
-                <Card
-                  className={widthBand === "stack" ? undefined : "col-span-12"}
-                >
-                  <CardHead
-                    icon={<Users className="h-3.5 w-3.5" weight="fill" />}
-                    iconBg="bg-blue-500"
-                    title={telS("teamRank")}
-                    subtitle={dense ? undefined : telS("teamRankSub")}
-                  />
-                  <TeamRank
-                    rows={telMemberAsRank}
-                    loading={empty}
-                    maxRows={teamRows}
-                    variant="telephony"
-                  />
-                </Card>
-              </div>
-
-              <Card>
-                <CardHead
-                  icon={<Users className="h-3.5 w-3.5" weight="fill" />}
-                  iconBg="bg-blue-500"
-                  title={telS("teamDetail")}
-                  subtitle={dense ? undefined : telS("teamDetailSub")}
-                />
-                <TeamTable
-                  rows={telMemberAsRank}
-                  loading={empty}
-                  variant="telephony"
-                />
-              </Card>
-            </>
-          )}
         </div>
       </div>
 
       {/* Resize only in docked mode */}
       {!fullscreen ? (
         <div
-          className="group flex h-3 shrink-0 cursor-ns-resize items-center justify-center border-t border-border/70 bg-card touch-none"
+          className="group flex h-3 shrink-0 cursor-ns-resize items-center justify-center border-t border-border bg-card touch-none"
           onPointerDown={onResizePointerDown}
           onPointerMove={onResizePointerMove}
           onPointerUp={onResizePointerUp}

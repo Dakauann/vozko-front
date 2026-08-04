@@ -12,7 +12,7 @@ import {
   Plus,
   Shield,
   WhatsappLogo,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type {
   TemplateCategory,
   TemplateStatus,
@@ -49,16 +49,16 @@ import {
 } from "@/app/actions/whatsapp-templates";
 
 const STATUS_COLORS: Record<TemplateStatus, string> = {
-  APPROVED: "bg-emerald-500 text-white",
-  PENDING: "bg-amber-500 text-white",
-  REJECTED: "bg-rose-500 text-white",
-  PAUSED: "bg-slate-500 text-white",
-  DISABLED: "bg-slate-500 text-white",
+  APPROVED: "bg-healthy text-white",
+  PENDING: "bg-warning text-white",
+  REJECTED: "bg-destructive text-white",
+  PAUSED: "bg-muted text-white",
+  DISABLED: "bg-muted text-white",
 };
 
 const CATEGORY_COLORS: Record<TemplateCategory, string> = {
-  MARKETING: "bg-purple-500 text-white",
-  UTILITY: "bg-blue-500 text-white",
+  MARKETING: "bg-muted text-white",
+  UTILITY: "bg-muted text-white",
   AUTHENTICATION: "bg-orange-500 text-white",
 };
 
@@ -302,8 +302,8 @@ export default function WhatsAppTemplatesPage({
         render: (row) => (
           <span
             className={cn(
-              "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-              STATUS_COLORS[row.status] ?? "bg-slate-500 text-white",
+              "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
+              STATUS_COLORS[row.status] ?? "bg-muted text-white",
             )}
           >
             {t(`status.${row.status.toLowerCase()}`)}
@@ -316,8 +316,8 @@ export default function WhatsAppTemplatesPage({
         render: (row) => (
           <span
             className={cn(
-              "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-              CATEGORY_COLORS[row.category] ?? "bg-slate-500 text-white",
+              "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
+              CATEGORY_COLORS[row.category] ?? "bg-muted text-white",
             )}
           >
             {t(`category.${row.category.toLowerCase()}`)}
@@ -337,7 +337,7 @@ export default function WhatsAppTemplatesPage({
         key: "components",
         header: t("card.components"),
         render: (row) => (
-          <span className="text-sm font-bold tabular-nums text-foreground">
+          <span className="text-sm font-semibold tabular-nums text-foreground">
             {row.components.length}
           </span>
         ),
@@ -384,7 +384,7 @@ export default function WhatsAppTemplatesPage({
                 e.stopPropagation();
                 router.push(`/dashboard/whatsapp-templates/${row.id}/send`);
               }}
-              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-emerald-600 hover:bg-emerald-50 transition-colors"
+              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-healthy hover:bg-healthy/10 transition-colors"
             >
               <PaperPlaneTilt className="h-3.5 w-3.5" weight="fill" />
               {t("card.send")}
@@ -428,7 +428,7 @@ export default function WhatsAppTemplatesPage({
               : t("header.description")
             : t("header.description")
         }
-        colorClass="text-green-600"
+        colorClass="text-healthy"
         actions={
           can("whatsapp_templates", "create") && !adminAllMode ? (
             <Button
@@ -449,7 +449,7 @@ export default function WhatsAppTemplatesPage({
           <div className="flex items-center gap-3">
             <Buildings
               weight="fill"
-              className="h-5 w-5 flex-shrink-0 text-amber-600"
+              className="h-5 w-5 flex-shrink-0 text-warning"
             />
             <p className="text-sm text-amber-900">
               {t.has("header.adminNotice")
@@ -461,7 +461,7 @@ export default function WhatsAppTemplatesPage({
       )}
 
       {/* Search + Stats bar */}
-      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card px-5 py-3 shadow-sm">
+      <div className="flex flex-wrap items-center gap-3 rounded-[--radius] border border-border bg-card px-5 py-3 shadow-sm">
         <div className="relative w-full max-w-xs">
           <ElevatedInput
             type="text"
@@ -588,7 +588,7 @@ export default function WhatsAppTemplatesPage({
         />
       ) : (
         <div className="space-y-4">
-          <ElevatedContainer className="overflow-hidden border border-border/70 !p-0">
+          <ElevatedContainer className="overflow-hidden border border-border !p-0">
             <DashboardTable<WhatsAppTemplate>
               data={templates}
               columns={columns}

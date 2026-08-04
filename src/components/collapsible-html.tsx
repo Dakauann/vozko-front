@@ -55,7 +55,7 @@ export default function CollapsibleHtml({
       />
 
       {!isExpanded && isCollapsible && (
-        <div className="absolute left-0 right-0 bottom-0 h-16 bg-gradient-to-t from-card to-transparent pointer-events-none" />
+        <div className="absolute left-0 right-0 bottom-0 h-16 bg-muted pointer-events-none" />
       )}
 
       {isCollapsible && (

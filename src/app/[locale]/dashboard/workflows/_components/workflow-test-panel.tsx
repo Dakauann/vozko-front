@@ -14,7 +14,7 @@ import {
   Warning,
   ArrowsClockwise,
   CaretDown,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { cn } from "@/lib/utils";
 import ElevatedButton from "@/components/elevated-design/button";
 import {
@@ -81,7 +81,7 @@ export function WorkflowTestPanel({
       {/* ─── Header ──────────────────────────────────────── */}
       <div className="flex items-center justify-between px-3 py-2.5 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2">
-          <Robot size={16} weight="duotone" className="text-primary" />
+          <Robot size={16} weight="duotone" className="text-lamp-ink" />
           <span className="text-sm font-medium">Simulação</span>
           <StatusBadge status={status} />
         </div>
@@ -146,7 +146,7 @@ export function WorkflowTestPanel({
         <div className="border-t border-border">
           <button
             onClick={() => setShowState(!showState)}
-            className="flex items-center gap-1.5 w-full px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted/50 transition-colors"
+            className="flex items-center gap-1.5 w-full px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted transition-colors"
           >
             <CaretDown
               size={12}
@@ -179,7 +179,7 @@ export function WorkflowTestPanel({
                   ? "Envie a mensagem inicial..."
                   : "Escreva uma resposta..."
               }
-              className="flex-1 text-sm bg-muted/50 border border-border rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary"
+              className="flex-1 text-sm bg-muted border border-border rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-ring"
             />
             <button
               onClick={handleSendReply}
@@ -218,7 +218,7 @@ export function WorkflowTestPanel({
             icon={<Stop size={14} weight="fill" />}
             iconVisible
             onClick={cancel}
-            className="flex-1 text-rose-600 border-rose-300 hover:bg-rose-50"
+            className="flex-1 text-destructive border-rose-300 hover:bg-destructive/10"
           />
         )}
       </div>
@@ -236,23 +236,23 @@ function StatusBadge({ status }: { status: SimStatus }) {
     },
     waiting_trigger: {
       label: "Aguardando mensagem",
-      className: "bg-indigo-500 text-white",
+      className: "bg-muted text-white",
     },
     running: {
       label: "Executando",
-      className: "bg-blue-500 text-white",
+      className: "bg-muted text-white",
     },
     waiting_reply: {
       label: "Aguardando",
-      className: "bg-amber-500 text-white",
+      className: "bg-warning text-white",
     },
     completed: {
       label: "Concluído",
-      className: "bg-green-500 text-white",
+      className: "bg-healthy text-white",
     },
     error: {
       label: "Erro",
-      className: "bg-red-500 text-white",
+      className: "bg-destructive text-white",
     },
     cancelled: {
       label: "Cancelado",
@@ -284,7 +284,7 @@ function EventItem({ event }: { event: SimEvent }) {
       return <NodeEventItem event={event} />;
     case "waiting_reply":
       return (
-        <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 py-1">
+        <div className="flex items-center gap-1.5 text-xs text-warning dark:text-amber-400 py-1">
           <Warning size={12} weight="fill" />
           Aguardando resposta... ({event.timeoutSeconds}s)
         </div>
@@ -293,7 +293,7 @@ function EventItem({ event }: { event: SimEvent }) {
       return null; 
     case "error":
       return (
-        <div className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 py-1">
+        <div className="flex items-center gap-1.5 text-xs text-destructive dark:text-red-400 py-1">
           <XCircle size={12} weight="fill" />
           {event.message}
         </div>
@@ -313,13 +313,13 @@ function MessageBubble({
       className={cn("flex gap-2", isOutbound ? "justify-start" : "justify-end")}
     >
       {isOutbound && (
-        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-          <Robot size={12} className="text-primary" />
+        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center mt-0.5">
+          <Robot size={12} className="text-lamp-ink" />
         </div>
       )}
       <div
         className={cn(
-          "max-w-[85%] rounded-xl px-3 py-1.5 text-xs leading-relaxed",
+          "max-w-[85%] rounded-[--radius] px-3 py-1.5 text-xs leading-relaxed",
           isOutbound
             ? "bg-muted text-foreground rounded-tl-sm"
             : "bg-primary text-primary-foreground rounded-tr-sm",

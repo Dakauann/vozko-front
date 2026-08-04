@@ -11,7 +11,7 @@ import {
   Plus,
   Star,
   Trash,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 import type { SavedView, SavedViewVisibility } from "@/lib/crm/saved-views";
 
@@ -80,15 +80,15 @@ export default function CrmSavedViews({
   };
 
   return (
-    <div className="flex items-center gap-2 border-b border-border/80 bg-card px-4 py-2">
-      <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto rounded-xl bg-muted p-1 scrollbar-hide">
+    <div className="flex items-center gap-2 border-b border-border bg-card px-4 py-2">
+      <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto rounded-[--radius] bg-muted p-1 scrollbar-hide">
         <button
           type="button"
           onClick={() => onSelect(null)}
           className={cn(
             "inline-flex flex-shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors",
             activeViewId === null
-              ? "bg-card text-primary shadow-sm ring-1 ring-border"
+              ? "bg-card text-lamp-ink shadow-sm ring-1 ring-border"
               : "text-muted-foreground hover:bg-muted hover:text-foreground",
           )}
         >
@@ -105,7 +105,7 @@ export default function CrmSavedViews({
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors",
                   isActive
-                    ? "bg-card text-primary shadow-sm ring-1 ring-border"
+                    ? "bg-card text-lamp-ink shadow-sm ring-1 ring-border"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground",
                 )}
               >
@@ -146,7 +146,7 @@ export default function CrmSavedViews({
           <PopoverTrigger asChild>
             <button
               type="button"
-              className="inline-flex h-9 flex-shrink-0 items-center gap-1.5 rounded-xl border-2 border-border bg-transparent px-3 text-[13px] font-medium text-foreground transition-colors hover:border-foreground/20 hover:bg-muted"
+              className="inline-flex h-9 flex-shrink-0 items-center gap-1.5 rounded-[--radius] border border-border bg-transparent px-3 text-[13px] font-medium text-foreground transition-colors hover:border-foreground/20 hover:bg-muted"
             >
               <Plus weight="bold" className="h-3.5 w-3.5" />
               <span>Salvar visão</span>
@@ -155,7 +155,7 @@ export default function CrmSavedViews({
           <PopoverContent
             align="end"
             sideOffset={6}
-            className="w-72 rounded-xl border border-border bg-card p-3 shadow-2xl"
+            className="w-72 rounded-[--radius] border border-border bg-card p-3 shadow-2xl"
           >
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               Salvar visão atual
@@ -213,7 +213,7 @@ function VisibilityToggle({
         className={cn(
           "inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
           !shared
-            ? "bg-card text-primary shadow-sm ring-1 ring-border"
+            ? "bg-card text-lamp-ink shadow-sm ring-1 ring-border"
             : "text-muted-foreground hover:text-foreground",
         )}
       >
@@ -226,7 +226,7 @@ function VisibilityToggle({
         className={cn(
           "inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
           shared
-            ? "bg-card text-primary shadow-sm ring-1 ring-border"
+            ? "bg-card text-lamp-ink shadow-sm ring-1 ring-border"
             : "text-muted-foreground hover:text-foreground",
         )}
       >
@@ -291,7 +291,7 @@ function ViewManageMenu({
       <PopoverContent
         align="end"
         sideOffset={6}
-        className="w-56 rounded-xl border border-border bg-card p-1 shadow-2xl"
+        className="w-56 rounded-[--radius] border border-border bg-card p-1 shadow-2xl"
       >
         {renaming ? (
           <div className="p-1.5">
@@ -332,7 +332,7 @@ function ViewManageMenu({
           <>
             {onUpdateToCurrent ? (
               <MenuItem
-                icon={<ArrowsClockwise weight="bold" className="h-3.5 w-3.5 text-primary" />}
+                icon={<ArrowsClockwise weight="bold" className="h-3.5 w-3.5 text-lamp-ink" />}
                 label="Atualizar com filtros atuais"
                 onClick={() => {
                   onUpdateToCurrent(view.id);
@@ -409,7 +409,7 @@ function MenuItem({
       className={cn(
         "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-medium transition-colors",
         destructive
-          ? "text-rose-600 hover:bg-rose-500 hover:text-white"
+          ? "text-destructive hover:bg-destructive hover:text-white"
           : "text-foreground hover:bg-muted",
       )}
     >

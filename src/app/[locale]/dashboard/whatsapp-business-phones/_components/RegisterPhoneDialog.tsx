@@ -7,7 +7,7 @@ import {
   ElevatedDialogHeader,
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
-import { Lightning, Spinner, Warning } from "@phosphor-icons/react";
+import { Lightning, Spinner, Warning } from "@/components/icons";
 import { registerBusinessPhoneAction } from "@/app/actions/whatsapp-business-phones";
 
 import Button from "@/components/elevated-design/button";
@@ -93,9 +93,9 @@ export function RegisterPhoneDialog({
         </ElevatedDialogHeader>
 
         <div className="space-y-6 py-4">
-          <div className="flex items-center gap-3 p-4 bg-emerald-50 rounded-lg">
+          <div className="flex items-center gap-3 p-4 bg-healthy/10 rounded-lg">
             <Lightning
-              className="w-8 h-8 text-emerald-500"
+              className="w-8 h-8 text-healthy"
               weight="fill"
             />
             <div>
@@ -108,9 +108,9 @@ export function RegisterPhoneDialog({
             </div>
           </div>
 
-          <div className="flex items-start gap-3 p-4 bg-amber-500/10 dark:bg-amber-900/20 rounded-lg">
+          <div className="flex items-start gap-3 p-4 bg-warning/10 dark:bg-amber-900/20 rounded-lg">
             <Warning
-              className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5"
+              className="w-5 h-5 text-warning flex-shrink-0 mt-0.5"
               weight="fill"
             />
             <div>

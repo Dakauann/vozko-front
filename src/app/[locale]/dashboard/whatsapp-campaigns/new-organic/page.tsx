@@ -1,6 +1,6 @@
 "use client";
 
-import { WhatsappLogo } from "@phosphor-icons/react";
+import { WhatsappLogo } from "@/components/icons";
 import { useEffect, useRef, useState } from "react";
 
 import CreateWhatsAppCampaignForm from "../new/CreateWhatsAppCampaignForm";
@@ -90,24 +90,24 @@ export default function NewOrganicCampaignPage() {
           badge={t("newBadge")}
           title={t("title")}
           description={t("description")}
-          colorClass="text-emerald-600"
+          colorClass="text-healthy"
         />
       </motion.div>
 
       {error && (
         <motion.div variants={itemVariants}>
-          <ElevatedContainer className="border-rose-200 bg-rose-50">
-            <p className="text-sm text-rose-600">{error}</p>
+          <ElevatedContainer className="border-rose-200 bg-destructive/10">
+            <p className="text-sm text-destructive">{error}</p>
           </ElevatedContainer>
         </motion.div>
       )}
 
       {loading && (
         <motion.div variants={itemVariants}>
-          <ElevatedContainer className="border-border/70 bg-card/95">
+          <ElevatedContainer className="border-border bg-card">
             <div className="flex items-center justify-center py-12">
               <div className="flex items-center gap-3">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
+                <div className="h-5 w-5 animate-spin rounded-full border border-healthy border-t-transparent" />
                 <span className="text-sm text-muted-foreground">
                   {t("loading")}
                 </span>

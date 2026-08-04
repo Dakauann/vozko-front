@@ -8,7 +8,7 @@ import {
   CircleNotch,
   FloppyDisk,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -80,15 +80,15 @@ function RedirectOption({
       onClick={onSelect}
       aria-pressed={selected}
       className={cn(
-        "flex items-start gap-3 rounded-xl border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "flex items-start gap-3 rounded-[--radius] border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         selected
           ? "border-primary ring-1 ring-primary"
-          : "border-border/70 hover:border-slate-300",
+          : "border-border hover:border-slate-300",
       )}
     >
       <span
         className={cn(
-          "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+          "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors",
           selected ? "border-primary" : "border-slate-300",
         )}
       >
@@ -228,7 +228,7 @@ export default function ShortLinkForm({ mode, initialData }: ShortLinkFormProps)
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <ElevatedContainer className="border border-border/70" contentClassName="space-y-7">
+      <ElevatedContainer className="border border-border" contentClassName="space-y-7">
         <SectionHeader
           title={t("form.sections.destination")}
           hint={t("form.sections.destinationHint")}
@@ -295,7 +295,7 @@ export default function ShortLinkForm({ mode, initialData }: ShortLinkFormProps)
         </div>
       </ElevatedContainer>
 
-      <ElevatedContainer className="border border-border/70" contentClassName="space-y-7">
+      <ElevatedContainer className="border border-border" contentClassName="space-y-7">
         <SectionHeader
           title={t("form.sections.rules")}
           hint={t("form.sections.rulesHint")}
@@ -337,7 +337,7 @@ export default function ShortLinkForm({ mode, initialData }: ShortLinkFormProps)
                 type="checkbox"
                 checked={clearPassword}
                 onChange={(e) => setClearPassword(e.target.checked)}
-                className="h-4 w-4 rounded border-border text-primary focus-visible:ring-2 focus-visible:ring-ring"
+                className="h-4 w-4 rounded border-border text-lamp-ink focus-visible:ring-2 focus-visible:ring-ring"
               />
               {t("form.labels.removePassword")}
             </label>
@@ -345,7 +345,7 @@ export default function ShortLinkForm({ mode, initialData }: ShortLinkFormProps)
         </div>
       </ElevatedContainer>
 
-      <ElevatedContainer className="border border-border/70 p-6">
+      <ElevatedContainer className="border border-border p-6">
         <button
           type="button"
           onClick={() => setUtmOpen((v) => !v)}

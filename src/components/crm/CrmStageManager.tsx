@@ -1,6 +1,6 @@
 "use client";
 
-import { Funnel, Star } from "@phosphor-icons/react";
+import { Funnel, Star } from "@/components/icons";
 import {
   createStageAction,
   deleteStageAction,
@@ -136,7 +136,7 @@ export default function CrmStageManager({
           <button
             onClick={() => handleSetInitial(stage.id)}
             title="Definir como etapa inicial"
-            className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-amber-500 hover:text-white transition-colors"
+            className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-warning hover:text-white transition-colors"
           >
             <Star weight="regular" className="h-3 w-3" />
           </button>

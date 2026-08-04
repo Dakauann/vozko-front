@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { CircleNotch, TrendUp } from "@phosphor-icons/react";
+import { CircleNotch, TrendUp } from "@/components/icons";
 
 import OpportunityDrawer from "@/components/crm/OpportunityDrawer";
 import { listPipelinesAction } from "@/app/actions/crm-board";
@@ -67,7 +67,7 @@ export default function CreateOpportunityButton({
         disabled={loading}
         title="Criar oportunidade a partir desta conversa"
         className={cn(
-          "inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-xs font-medium text-foreground transition-colors hover:border-border hover:bg-muted disabled:opacity-60",
+          "inline-flex h-8 items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 text-xs font-medium text-foreground transition-colors hover:border-border hover:bg-muted disabled:opacity-60",
           className,
         )}
       >

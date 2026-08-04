@@ -6,7 +6,7 @@ import {
   GoogleLogo,
   Plugs,
   XCircle,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   disconnectGoogleCalendar,
   fetchGoogleAuthURL,
@@ -102,7 +102,7 @@ export default function IntegrationsPage() {
       <ElevatedContainer>
         <div className="p-6">
           <div className="flex items-center gap-4">
-            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-muted">
+            <div className="flex items-center justify-center w-12 h-12 rounded-[--radius] bg-muted">
               <GoogleLogo size={24} weight="bold" />
             </div>
             <div className="flex-1 min-w-0">
@@ -110,9 +110,9 @@ export default function IntegrationsPage() {
                 <h3 className="text-sm font-semibold">{t("google.title")}</h3>
                 {!loading && (
                   <span
-                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                    className={`inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[10px] font-medium ${
                       connected
-                        ? "bg-emerald-500 text-white"
+                        ? "bg-healthy text-white"
                         : "bg-zinc-500 text-white"
                     }`}
                   >

@@ -1,4 +1,4 @@
-import type { Icon } from "@phosphor-icons/react";
+import type { Icon } from "@/components/icons";
 import {
   Brain,
   Phone,
@@ -22,7 +22,7 @@ import {
   Buildings,
   GitBranch,
   ArrowsClockwise,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type { ColorGroup } from "@/components/elevated-design/grain-background";
 
 export interface FeatureOverviewConfig {
@@ -183,39 +183,7 @@ export const featureConfigs: Record<string, FeatureOverviewConfig> = {
     seed: 44,
   },
 
-  calls: {
-    features: [
-      { icon: PhoneCall, textKey: "calls.features.0" },
-      { icon: ArrowsClockwise, textKey: "calls.features.1" },
-      { icon: ChartBar, textKey: "calls.features.2" },
-      { icon: Monitor, textKey: "calls.features.3" },
-      { icon: Shield, textKey: "calls.features.4" },
-    ],
-    palette: [
-      { colors: ["#3b82f6", "#2563eb"], weight: 35 },
-      { colors: ["#1d4ed8", "#1e40af"], weight: 25 },
-      { colors: ["#60a5fa", "#93c5fd"], weight: 25 },
-      { colors: ["#1e3a8a", "#172554"], weight: 15 },
-    ],
-    seed: 111,
-  },
 
-  recordings: {
-    features: [
-      { icon: Waveform, textKey: "recordings.features.0" },
-      { icon: Monitor, textKey: "recordings.features.1" },
-      { icon: PhoneCall, textKey: "recordings.features.2" },
-      { icon: FileText, textKey: "recordings.features.3" },
-      { icon: Users, textKey: "recordings.features.4" },
-    ],
-    palette: [
-      { colors: ["#6366f1", "#4f46e5"], weight: 35 },
-      { colors: ["#818cf8", "#a5b4fc"], weight: 25 },
-      { colors: ["#4338ca", "#3730a3"], weight: 25 },
-      { colors: ["#c7d2fe", "#e0e7ff"], weight: 15 },
-    ],
-    seed: 122,
-  },
 
   whatsappTemplates: {
     features: [
@@ -234,39 +202,7 @@ export const featureConfigs: Record<string, FeatureOverviewConfig> = {
     seed: 88,
   },
 
-  sipTrunks: {
-    features: [
-      { icon: Plugs, textKey: "sipTrunks.features.0" },
-      { icon: Monitor, textKey: "sipTrunks.features.1" },
-      { icon: Lightning, textKey: "sipTrunks.features.2" },
-      { icon: Users, textKey: "sipTrunks.features.3" },
-      { icon: Shield, textKey: "sipTrunks.features.4" },
-    ],
-    palette: [
-      { colors: ["#0ea5e9", "#0284c7"], weight: 35 },
-      { colors: ["#0284c7", "#0369a1"], weight: 25 },
-      { colors: ["#38bdf8", "#7dd3fc"], weight: 25 },
-      { colors: ["#075985", "#0c4a6e"], weight: 15 },
-    ],
-    seed: 200,
-  },
 
-  branches: {
-    features: [
-      { icon: Headset, textKey: "branches.features.0" },
-      { icon: PhoneCall, textKey: "branches.features.1" },
-      { icon: Users, textKey: "branches.features.2" },
-      { icon: ArrowsClockwise, textKey: "branches.features.3" },
-      { icon: Shield, textKey: "branches.features.4" },
-    ],
-    palette: [
-      { colors: ["#2563eb", "#1d4fd7"], weight: 40 },
-      { colors: ["#0ea5e9", "#0284c7"], weight: 30 },
-      { colors: ["#6366f1", "#4f46e5"], weight: 20 },
-      { colors: ["#93c5fd", "#bfdbfe"], weight: 10 },
-    ],
-    seed: 606,
-  },
 
   integrations: {
     features: [

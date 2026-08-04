@@ -1,6 +1,6 @@
 "use client";
 
-import type { IconProps } from "@phosphor-icons/react";
+import type { IconProps } from "@/components/icons";
 import { useId } from "react";
 
 import { cn } from "@/lib/utils";

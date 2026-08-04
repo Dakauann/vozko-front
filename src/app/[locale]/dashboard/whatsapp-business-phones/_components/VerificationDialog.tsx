@@ -7,7 +7,7 @@ import {
   ElevatedDialogHeader,
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
-import { PaperPlaneRight, ShieldCheck, Spinner } from "@phosphor-icons/react";
+import { PaperPlaneRight, ShieldCheck, Spinner } from "@/components/icons";
 import {
   requestVerificationCodeAction,
   verifyPhoneCodeAction,
@@ -136,8 +136,8 @@ export function VerificationDialog({
         </ElevatedDialogHeader>
 
         <div className="space-y-6 py-4">
-          <div className="flex items-center gap-3 p-4 bg-primary/10/20 rounded-lg">
-            <ShieldCheck className="w-8 h-8 text-primary" weight="fill" />
+          <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+            <ShieldCheck className="w-8 h-8 text-lamp-ink" weight="fill" />
             <div>
               <p className="text-sm font-medium text-foreground">
                 {t("verification.verifyingNumber")}
@@ -158,9 +158,9 @@ export function VerificationDialog({
                 <button
                   type="button"
                   onClick={() => setCodeMethod("SMS")}
-                  className={`p-4 rounded-lg border-2 transition-all ${
+                  className={`p-4 rounded-lg border transition-all ${
                     codeMethod === "SMS"
-                      ? "border-primary bg-primary/10/20"
+                      ? "border-primary bg-muted"
                       : "border-border hover:border-foreground/20 dark:hover:border-slate-600"
                   }`}
                 >
@@ -174,9 +174,9 @@ export function VerificationDialog({
                 <button
                   type="button"
                   onClick={() => setCodeMethod("VOICE")}
-                  className={`p-4 rounded-lg border-2 transition-all ${
+                  className={`p-4 rounded-lg border transition-all ${
                     codeMethod === "VOICE"
-                      ? "border-primary bg-primary/10/20"
+                      ? "border-primary bg-muted"
                       : "border-border hover:border-foreground/20 dark:hover:border-slate-600"
                   }`}
                 >

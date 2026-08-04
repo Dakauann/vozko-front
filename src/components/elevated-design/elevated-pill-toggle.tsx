@@ -45,9 +45,15 @@ export function ElevatedPillToggle<T extends string = string>({
       role="group"
       aria-label={ariaLabel}
       className={cn(
+        // A bank of keys in a sunk track. The track is recessed into the panel;
+        // the pressed key rises out of it. Selection is carried by that raised
+        // surface plus a brightened label — not by an accent fill, which put a
+        // saturated orange block in the middle of every CRM toolbar and was one
+        // of the clearest survivors of the previous identity.
+        //
         // nowrap: keep the control as one toolbar unit so siblings wrap around it
         // instead of the group fracturing and overlapping neighbors.
-        "inline-flex shrink-0 flex-nowrap items-center gap-0.5 rounded-lg border border-border/70 bg-muted/50 p-0.5",
+        "inline-flex shrink-0 flex-nowrap items-center gap-0.5 rounded-[--radius] border border-border border-t-rule-strong bg-muted p-0.5",
         className,
       )}
     >
@@ -69,8 +75,8 @@ export function ElevatedPillToggle<T extends string = string>({
               if (!disabled) onChange(opt.value);
             }}
             className={cn(
-              "inline-flex items-center justify-center rounded-md font-medium transition-colors",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-1 focus-visible:ring-offset-background",
+              "relative inline-flex items-center justify-center rounded-[--radius] font-medium transition-colors",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               size === "sm" && "gap-1 px-2 py-1 text-[11px]",
               size === "md" && "gap-1.5 px-2.5 py-1.5 text-xs",
               collapseLabels === "sm" && "max-sm:px-2",
@@ -78,12 +84,20 @@ export function ElevatedPillToggle<T extends string = string>({
               disabled && "cursor-not-allowed opacity-40",
               !disabled &&
                 active &&
-                "bg-primary text-primary-foreground shadow-sm",
+                "border border-border bg-card font-semibold text-foreground",
               !disabled &&
                 !active &&
-                "text-muted-foreground hover:text-foreground",
+                "border border-transparent text-muted-foreground hover:text-foreground",
             )}
           >
+            {/* The lamp marks the pressed key, so selection never rests on the
+                raised surface alone. */}
+            {active && !disabled && (
+              <span
+                aria-hidden="true"
+                className="mr-0.5 h-2.5 w-[3px] shrink-0 rounded-[1px] bg-[hsl(var(--lamp))]"
+              />
+            )}
             {opt.icon}
             {opt.label != null && opt.label !== "" ? (
               <span

@@ -14,7 +14,7 @@ import {
   UserCircle,
   WhatsappLogo,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -34,8 +34,8 @@ import { cn } from "@/lib/utils";
 // Status → meaning dot (color rides the dot only, never a same-colour tint behind it).
 const DEAL_STATUS_DOT: Record<string, string> = {
   open: "bg-primary",
-  won: "bg-emerald-500",
-  lost: "bg-slate-400",
+  won: "bg-healthy",
+  lost: "bg-muted",
 };
 
 type PanelTab = "contact" | "attendance" | "insights";
@@ -211,7 +211,7 @@ export default function CrmConversationInfosPanel({
       className={cn(
         // Mobile: slide-over. Desktop: inline context rail (industry ~360–480px).
         "absolute inset-y-0 right-0 z-30 flex h-full flex-col bg-card",
-        "border-l border-border/80 shadow-xl transition-[transform,width] duration-200 ease-out",
+        "border-l border-border shadow-xl transition-[transform,width] duration-200 ease-out",
         "w-full max-w-md sm:max-w-lg",
         "lg:static lg:z-auto lg:max-w-none lg:shadow-none",
         open
@@ -226,7 +226,7 @@ export default function CrmConversationInfosPanel({
       )}
     >
       {/* Sticky chrome: title + expand + close */}
-      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border/80 px-3 py-2.5">
+      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border px-3 py-2.5">
         <h2 className="min-w-0 truncate text-sm font-semibold tracking-tight text-foreground">
           {t("title")}
         </h2>
@@ -266,13 +266,13 @@ export default function CrmConversationInfosPanel({
       ) : (
         <>
           {/* Sticky identity (compact horizontal, not a tall marketing hero) */}
-          <div className="shrink-0 border-b border-border/60 px-3 py-3">
+          <div className="shrink-0 border-b border-border px-3 py-3">
             {isBlocked && (
-              <div className="mb-2.5 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-2.5 py-2 text-red-700">
+              <div className="mb-2.5 flex items-start gap-2 rounded-lg border border-red-200 bg-destructive/10 px-2.5 py-2 text-destructive">
                 <Prohibit weight="fill" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 <div className="min-w-0">
                   <p className="text-[11px] font-semibold">{t("blockedTitle")}</p>
-                  <p className="mt-0.5 text-[10px] leading-snug text-red-600/90">
+                  <p className="mt-0.5 text-[10px] leading-snug text-destructive/90">
                     {t("blockedDescription")}
                   </p>
                 </div>
@@ -282,8 +282,8 @@ export default function CrmConversationInfosPanel({
             <div className="flex items-center gap-3">
               <div
                 className={cn(
-                  "flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm",
-                  isWhatsApp ? "bg-emerald-500" : "bg-blue-500",
+                  "flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white shadow-sm",
+                  isWhatsApp ? "bg-healthy" : "bg-muted",
                   isBlocked && "grayscale",
                 )}
               >
@@ -308,7 +308,7 @@ export default function CrmConversationInfosPanel({
                   {copied ? (
                     <Check
                       weight="bold"
-                      className="h-3 w-3 shrink-0 text-emerald-500"
+                      className="h-3 w-3 shrink-0 text-healthy"
                     />
                   ) : (
                     <Copy
@@ -318,11 +318,11 @@ export default function CrmConversationInfosPanel({
                   )}
                 </button>
                 <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                  <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5 text-[10px] font-semibold text-foreground">
+                  <span className="inline-flex items-center gap-1 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-[10px] font-semibold text-foreground">
                     {isWhatsApp ? (
                       <WhatsappLogo
                         weight="fill"
-                        className="h-3 w-3 text-emerald-500"
+                        className="h-3 w-3 text-healthy"
                       />
                     ) : (
                       <Phone weight="fill" className="h-3 w-3 text-blue-500" />
@@ -330,7 +330,7 @@ export default function CrmConversationInfosPanel({
                     {isWhatsApp ? t("channelWhatsapp") : t("channelVoice")}
                   </span>
                   {assignedUsername ? (
-                    <span className="inline-flex max-w-[10rem] truncate rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                    <span className="inline-flex max-w-[10rem] truncate rounded-[--radius] bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
                       {assignedUsername}
                     </span>
                   ) : null}
@@ -355,13 +355,13 @@ export default function CrmConversationInfosPanel({
                 {isWhatsApp && (
                   <InfoRow label={t("windowStatus")}>
                     {windowOpen ? (
-                      <span className="inline-flex items-center gap-1.5 text-emerald-600">
-                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+                      <span className="inline-flex items-center gap-1.5 text-healthy">
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-healthy" />
                         {t("windowOpen")}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 text-amber-600">
-                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                      <span className="inline-flex items-center gap-1.5 text-warning">
+                        <span className="h-1.5 w-1.5 rounded-full bg-warning" />
                         {t("windowClosed")}
                       </span>
                     )}
@@ -379,13 +379,13 @@ export default function CrmConversationInfosPanel({
                 <InfoRow label={t("aiResponses")}>
                   {(conversation.automation_enabled ??
                     inboxEntry?.automation_enabled) !== false ? (
-                    <span className="inline-flex items-center gap-1.5 text-emerald-600">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    <span className="inline-flex items-center gap-1.5 text-healthy">
+                      <span className="h-1.5 w-1.5 rounded-full bg-healthy" />
                       {t("aiOn")}
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-                      <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-muted" />
                       {t("aiOff")}
                     </span>
                   )}
@@ -413,7 +413,7 @@ export default function CrmConversationInfosPanel({
                 {stage && (
                   <InfoRow label={t("stage")}>
                     <span
-                      className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium"
+                      className="inline-flex items-center gap-1.5 rounded-[--radius] px-2 py-0.5 text-[11px] font-medium"
                       style={{
                         backgroundColor: `${stage.color}1a`,
                         color: stage.color,
@@ -434,7 +434,7 @@ export default function CrmConversationInfosPanel({
                       {labels.map((label) => (
                         <span
                           key={label.label_id}
-                          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                          className="inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[10px] font-medium"
                           style={{
                             backgroundColor: `${label.color}1a`,
                             color: label.color,
@@ -507,7 +507,7 @@ export default function CrmConversationInfosPanel({
                     </h4>
                   </div>
                   {opportunities.length === 0 ? (
-                    <p className="rounded-xl border border-border/70 bg-background/70 px-3 py-6 text-center text-xs text-muted-foreground">
+                    <p className="rounded-[--radius] border border-border bg-background px-3 py-6 text-center text-xs text-muted-foreground">
                       {t("noOpportunities")}
                     </p>
                   ) : (
@@ -548,7 +548,7 @@ export default function CrmConversationInfosPanel({
 
       {/* Danger zone pinned */}
       {conversation && canBlock && (
-        <div className="shrink-0 border-t border-border/80 bg-card px-3 py-3">
+        <div className="shrink-0 border-t border-border bg-card px-3 py-3">
           {isBlocked ? (
             <button
               type="button"
@@ -588,7 +588,7 @@ export default function CrmConversationInfosPanel({
                   onClick={handleToggleBlock}
                   disabled={blocking}
                   className={cn(
-                    "flex flex-1 items-center justify-center gap-2 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700",
+                    "flex flex-1 items-center justify-center gap-2 rounded-md bg-destructive px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700",
                     blocking && "pointer-events-none opacity-70",
                   )}
                 >
@@ -608,7 +608,7 @@ export default function CrmConversationInfosPanel({
               onClick={() => setConfirmingBlock(true)}
               disabled={!leadId}
               className={cn(
-                "flex w-full items-center justify-center gap-2 rounded-md border border-red-200 bg-card px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50",
+                "flex w-full items-center justify-center gap-2 rounded-md border border-red-200 bg-card px-3 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10",
                 !leadId && "pointer-events-none opacity-50",
               )}
             >

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CaretDown, Check, FunnelSimple, Tag, X } from "@phosphor-icons/react";
+import { CaretDown, Check, FunnelSimple, Tag, X } from "@/components/icons";
 
 import type { Label } from "@/lib/conversations/types";
 import type { CrmFilter, CrmFilterPredicate } from "@/lib/crm/board";
@@ -124,7 +124,7 @@ function FilterMultiSelect({
         <button
           type="button"
           className={cn(
-            "inline-flex h-11 items-center gap-2 rounded-xl border bg-card px-3.5 text-sm font-medium transition-colors",
+            "inline-flex h-11 items-center gap-2 rounded-[--radius] border bg-card px-3.5 text-sm font-medium transition-colors",
             active
               ? "border-primary/40 text-foreground"
               : "border-border text-muted-foreground hover:border-foreground/20 hover:bg-muted",
@@ -133,7 +133,7 @@ function FilterMultiSelect({
           <span className="text-muted-foreground">{icon}</span>
           <span>{triggerLabel}</span>
           {active ? (
-            <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-semibold text-white">
+            <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-[--radius] bg-primary px-1.5 text-[11px] font-semibold text-white">
               {count}
             </span>
           ) : null}
@@ -149,7 +149,7 @@ function FilterMultiSelect({
       <PopoverContent
         align="start"
         sideOffset={6}
-        className="w-64 rounded-xl border border-border bg-card p-0 shadow-2xl"
+        className="w-64 rounded-[--radius] border border-border bg-card p-0 shadow-2xl"
       >
         <div className="flex items-center justify-between border-b border-border px-3 py-2">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -159,7 +159,7 @@ function FilterMultiSelect({
             <button
               type="button"
               onClick={onClear}
-              className="text-[11px] font-medium text-primary transition-colors hover:text-[hsl(var(--primary-hover))]"
+              className="text-[11px] font-medium text-lamp-ink transition-colors hover:text-[hsl(var(--primary-hover))]"
             >
               Limpar
             </button>
@@ -345,7 +345,7 @@ export default function CrmFilterBar({
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center gap-2 border-b border-border/80 bg-card px-4 py-2.5",
+        "flex flex-wrap items-center gap-2 border-b border-border bg-card px-4 py-2.5",
         className,
       )}
     >

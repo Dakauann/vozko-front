@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowSquareOut, Heart, ImageBroken, X } from "@phosphor-icons/react";
+import { ArrowSquareOut, Heart, ImageBroken, X } from "@/components/icons";
 import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -124,11 +124,11 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
       /* A neutral dark scrim, NOT bg-foreground: `--foreground` is near-white in
          dark mode, which turned the backdrop into a white wash, most visibly as a
          bright band in the padding above the dialog. */
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-neutral-950/70 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-neutral-950/70 p-4"
       onClick={onClose}
     >
       <div
-        className="flex h-[min(88vh,760px)] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl md:flex-row"
+        className="flex h-[min(88vh,760px)] w-full max-w-6xl flex-col overflow-hidden rounded-[--radius] border border-border bg-card shadow-2xl md:flex-row"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Asset. object-contain keeps portrait and landscape posts uncropped; the

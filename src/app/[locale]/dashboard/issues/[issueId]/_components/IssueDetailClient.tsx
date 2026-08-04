@@ -12,7 +12,7 @@ import {
   SpinnerGap,
   Warning,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type { Issue, IssueResponse } from "@/lib/issues/types";
 import {
   closeIssueAction,
@@ -23,7 +23,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
-import type { Icon } from "@phosphor-icons/react";
+import type { Icon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { uploadMediaAction } from "@/app/actions/medias";
 import { useAuth } from "@/contexts/auth-context";
@@ -43,20 +43,20 @@ const statusConfig: Record<
   { color: string; bgColor: string; icon: Icon; label: string }
 > = {
   open: {
-    color: "text-blue-700 dark:text-blue-400",
-    bgColor: "bg-blue-100 dark:bg-blue-900/30",
+    color: "text-muted-foreground dark:text-blue-400",
+    bgColor: "bg-muted dark:bg-blue-900/30",
     icon: Circle,
     label: "open",
   },
   in_progress: {
-    color: "text-amber-700 dark:text-amber-400",
+    color: "text-warning dark:text-amber-400",
     bgColor: "bg-amber-100 dark:bg-amber-900/30",
     icon: ArrowClockwise,
     label: "in_progress",
   },
   closed: {
-    color: "text-emerald-700 dark:text-emerald-400",
-    bgColor: "bg-emerald-100 dark:bg-emerald-900/30",
+    color: "text-healthy dark:text-healthy",
+    bgColor: "bg-healthy/10 dark:bg-emerald-900/30",
     icon: CheckCircle,
     label: "closed",
   },
@@ -235,7 +235,7 @@ export default function IssueDetailClient({ issueId }: IssueDetailClientProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <SpinnerGap className="h-8 w-8 animate-spin text-primary" />
+        <SpinnerGap className="h-8 w-8 animate-spin text-lamp-ink" />
       </div>
     );
   }
@@ -251,7 +251,7 @@ export default function IssueDetailClient({ issueId }: IssueDetailClientProps) {
           <ArrowLeft className="h-4 w-4" />
           {t("detail.back")}
         </button>
-        <div className="rounded-xl border border-red-600 bg-red-500 px-4 py-3 text-sm text-white">
+        <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-white">
           {error}
         </div>
       </div>
@@ -281,7 +281,7 @@ export default function IssueDetailClient({ issueId }: IssueDetailClientProps) {
       </button>
 
       {/* Issue header */}
-      <div className="rounded-xl border border-border bg-card p-6 space-y-4">
+      <div className="rounded-[--radius] border border-border bg-card p-6 space-y-4">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <h1 className="text-xl font-semibold text-foreground break-words">
@@ -294,7 +294,7 @@ export default function IssueDetailClient({ issueId }: IssueDetailClientProps) {
               </span>
               <span
                 className={cn(
-                  "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium",
+                  "inline-flex items-center gap-1 rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
                   config.bgColor,
                   config.color,
                 )}
@@ -345,7 +345,7 @@ export default function IssueDetailClient({ issueId }: IssueDetailClientProps) {
       </div>
 
       {/* Responses timeline */}
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <div className="rounded-[--radius] border border-border bg-card overflow-hidden">
         <div className="px-6 py-4 border-b border-border">
           <h2 className="text-sm font-medium text-foreground">
             {t("detail.responses")} ({responses.length})
@@ -487,7 +487,7 @@ export default function IssueDetailClient({ issueId }: IssueDetailClientProps) {
 
         {/* Closed notice */}
         {isClosed && (
-          <div className="border-t border-border px-6 py-3 bg-muted/50 text-center">
+          <div className="border-t border-border px-6 py-3 bg-muted text-center">
             <p className="text-xs text-muted-foreground">
               {t("detail.closedNotice")}
             </p>

@@ -8,23 +8,16 @@ import {
   ArrowCounterClockwise,
   ArrowsClockwise,
   Buildings,
-  ChatCircle,
   CheckCircle,
   CircleNotch,
   Eye,
   EyeSlash,
   FloppyDisk,
-  Microphone,
   Package,
-  Phone,
   PlusCircle,
-  Scales,
-  Sparkle,
-  SpeakerHigh,
   UserCircle,
-  WhatsappLogo,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type {
   PlanDefinition,
   PlanMutationInput,
@@ -49,6 +42,7 @@ import {
 
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
+import { PanelSection } from "@/components/dashboard/PanelSection";
 import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-command-select";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import UserPlansCatalog from "@/components/dashboard/plans/UserPlansCatalog";
@@ -144,7 +138,7 @@ function buildDraft(
       plan?.includedWhatsAppBusinessPhones ?? 0,
     ),
     maxBranches: String(plan?.maxBranches ?? 1),
-    maxHoldMusicTracks: String(plan?.maxHoldMusicTracks ?? 3),
+    maxHoldMusicTracks: String(plan?.maxHoldMusicTracks ?? 0),
     pricingItems: sortDraftsByCatalog(
       mergePlanPricingDrafts(plan?.pricingItems, defaults, rate),
     ),
@@ -156,19 +150,20 @@ function toMutationInput(draft: PlanDraft, rate: number): PlanMutationInput {
     name: draft.name.trim(),
     description: draft.description.trim(),
     basePriceBRLCents: displayToCents(draft.basePriceBRL),
-    maxCallChannels: Number.parseInt(draft.maxCallChannels, 10) || 0,
+    // VoIP was removed from the product, so this is no longer configurable.
+    // The key stays in the payload because the API still requires it.
+    maxCallChannels: 1,
     maxTtsConcurrency: Number.parseInt(draft.maxTtsConcurrency, 10) || 0,
     includedWhatsAppBusinessPhones:
       Number.parseInt(draft.includedWhatsAppBusinessPhones, 10) || 0,
-    maxBranches: Number.parseInt(draft.maxBranches, 10) || 0,
-    maxHoldMusicTracks: Number.parseInt(draft.maxHoldMusicTracks, 10) || 0,
+    // Ramais were a SIP concept; no longer configurable, key kept for the API.
+    maxBranches: 1,
+    // Hold music was a SIP concept; no longer configurable, key kept for the API.
+    maxHoldMusicTracks: 0,
     pricingItems: draftsToMutationInputs(draft.pricingItems, rate),
   };
 }
 
-function statusClasses(archivedAt?: string | null) {
-  return archivedAt ? "bg-slate-500 text-white" : "bg-emerald-500 text-white";
-}
 
 interface AdminPlansResponse {
   plans: PlanDefinition[];
@@ -467,10 +462,6 @@ export function AdminPlansManager() {
       toast({ title: t("toast.validation.name"), variant: "destructive" });
       return;
     }
-    if (payload.maxCallChannels <= 0) {
-      toast({ title: t("toast.validation.channels"), variant: "destructive" });
-      return;
-    }
     if (!payload.pricingItems || payload.pricingItems.length === 0) {
       toast({
         title: t("toast.validation.pricingItems"),
@@ -598,7 +589,7 @@ export function AdminPlansManager() {
           icon: <Buildings className="h-4 w-4" weight="fill" />,
           disabled: alreadyGranted,
           meta: alreadyGranted ? (
-            <CheckCircle className="h-4 w-4 text-emerald-500" weight="fill" />
+            <CheckCircle className="h-4 w-4 text-healthy" weight="fill" />
           ) : undefined,
         };
       },
@@ -688,7 +679,7 @@ export function AdminPlansManager() {
     return (
       <div className="flex flex-col items-center justify-center py-32">
         <CircleNotch
-          className="h-8 w-8 animate-spin text-primary"
+          className="h-8 w-8 animate-spin text-lamp-ink"
           weight="bold"
         />
         <p className="mt-3 text-sm text-muted-foreground">{t("loading")}</p>
@@ -699,7 +690,7 @@ export function AdminPlansManager() {
   if (error) {
     return (
       <div
-        className="mx-auto mt-8 max-w-2xl rounded-[26px] border border-border/70 bg-card/90 p-12 text-center"
+        className="mx-auto mt-8 max-w-2xl rounded-[--radius] border border-border bg-card p-12 text-center"
         style={{ boxShadow: softSurfaceShadow }}
       >
         <Package
@@ -756,221 +747,188 @@ export function AdminPlansManager() {
         />
       </motion.div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        {[
-          {
-            label: t("stats.total"),
-            value: String(plans.length),
-            icon: <Package className="h-4 w-4 text-white" weight="fill" />,
-            bg: "bg-slate-700",
-          },
-          {
-            label: t("stats.active"),
-            value: String(activePlans),
-            icon: <Sparkle className="h-4 w-4 text-white" weight="fill" />,
-            bg: "bg-emerald-500",
-          },
-          {
-            label: t("stats.archived"),
-            value: String(archivedPlans),
-            icon: <Archive className="h-4 w-4 text-white" weight="fill" />,
-            bg: "bg-amber-500",
-          },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            className="rounded-2xl border border-border/70 bg-card/90 p-5"
-            style={{ boxShadow: softSurfaceShadow }}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[11px] font-semibold uppercase text-muted-foreground">
-                  {stat.label}
-                </p>
-                <p className="mt-2 text-3xl font-semibold text-foreground">
-                  {stat.value}
-                </p>
-              </div>
-              <div
-                className={cn(
-                  "flex h-11 w-11 items-center justify-center rounded-2xl",
-                  stat.bg,
-                )}
-              >
-                {stat.icon}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      {/*
+        CONSOLE BAR.
 
-      <div className="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
-        <section
-          className="space-y-4 rounded-[26px] border border-border/70 bg-card/90 p-5"
-          style={{ boxShadow: softSurfaceShadow }}
-        >
-          <div className="space-y-3">
-            <ElevatedInput
-              label={t("filters.search")}
+        Three stat cards for three integers, above a card holding two filters,
+        was four boxes of chrome carrying one line of information. The counts
+        are readouts, the filters are controls, and both belong on the same
+        strip — which is also the only place the operator looks before picking a
+        plan out of the register.
+      */}
+      <section className="well">
+        <div className="flex flex-col gap-x-8 gap-y-4 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
+          <dl className="flex flex-wrap items-end gap-x-8 gap-y-3">
+            {[
+              { key: "total", label: t("stats.total"), value: plans.length },
+              { key: "active", label: t("stats.active"), value: activePlans },
+              {
+                key: "archived",
+                label: t("stats.archived"),
+                value: archivedPlans,
+              },
+            ].map((stat) => (
+              <div key={stat.key}>
+                <dt className="legend">{stat.label}</dt>
+                <dd className="readout mt-1.5 text-[22px] font-semibold leading-none tracking-[-0.02em] text-foreground">
+                  {String(stat.value).padStart(2, "0")}
+                </dd>
+              </div>
+            ))}
+          </dl>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              aria-label={t("filters.search")}
+              className="h-8 w-full rounded-[--radius] border border-border border-t-rule-strong bg-background px-2.5 text-[13px] text-foreground outline-none transition placeholder:text-muted-foreground/60 focus:border-primary/50 sm:w-60"
               onChange={(event) => setSearch(event.target.value)}
-              placeholder={t("filters.searchPlaceholder")}
+              placeholder={t("filters.search")}
+              type="search"
               value={search}
             />
+            <button
+              aria-pressed={includeArchived}
+              className={cn(
+                "legend inline-flex h-8 items-center gap-2 border border-border border-t-rule-strong px-2.5 transition-colors",
+                includeArchived
+                  ? "bg-muted text-foreground"
+                  : "bg-background text-muted-foreground hover:text-foreground",
+              )}
+              onClick={() => setIncludeArchived((current) => !current)}
+              title={t("filters.includeArchivedDescription")}
+              type="button"
+            >
+              <span
+                aria-hidden
+                className={cn("lamp", !includeArchived && "opacity-20")}
+              />
+              {t("filters.includeArchived")}
+            </button>
+          </div>
+        </div>
+      </section>
 
-            <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-background/80 px-3 py-2.5">
-              <div>
-                <p className="text-sm font-medium text-foreground">
-                  {t("filters.includeArchived")}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {t("filters.includeArchivedDescription")}
-                </p>
-              </div>
-              <button
-                className={cn(
-                  "inline-flex rounded-full px-3 py-1 text-xs font-semibold transition-colors",
-                  includeArchived
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground",
-                )}
-                onClick={() => setIncludeArchived((current) => !current)}
-                type="button"
-              >
-                {includeArchived ? t("filters.on") : t("filters.off")}
-              </button>
+      <div className="grid gap-4 xl:grid-cols-[288px_minmax(0,1fr)]">
+        {/*
+          THE REGISTER.
+
+          Not a stack of cards: a list of rows on one surface, each carrying the
+          three facts that identify a plan — what it is called, what it costs,
+          whether it still sells. Scanning twenty of those is a column of prices,
+          not twenty bordered boxes.
+        */}
+        <section className="well h-fit overflow-hidden">
+          <header className="rule-engraved flex items-center justify-between gap-3 px-4 py-2.5">
+            <p className="legend">{t("register")}</p>
+            <span className="readout text-[11px] text-muted-foreground/60">
+              {String(filteredPlans.length).padStart(2, "0")}
+            </span>
+          </header>
+
+          {filteredPlans.length === 0 ? (
+            <div className="px-4 py-12 text-center">
+              <p className="text-sm font-semibold text-foreground">
+                {t("empty.title")}
+              </p>
+              <p className="mt-1 text-[13px] text-muted-foreground">
+                {t("empty.description")}
+              </p>
             </div>
-          </div>
-
-          <div className="space-y-3">
-            {filteredPlans.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-border/70 bg-background/60 px-4 py-10 text-center">
-                <Package
-                  className="mx-auto h-8 w-8 text-muted-foreground"
-                  weight="fill"
-                />
-                <p className="mt-3 text-sm font-medium text-foreground">
-                  {t("empty.title")}
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {t("empty.description")}
-                </p>
-              </div>
-            ) : (
-              filteredPlans.map((item) => {
+          ) : (
+            <ul>
+              {filteredPlans.map((item, index) => {
                 const isSelected = item.id === selectedPlanId;
-                return (
-                  <button
-                    key={item.id}
-                    className={cn(
-                      "w-full rounded-2xl border px-4 py-4 text-left transition-all",
-                      isSelected
-                        ? "border-primary bg-primary/5 shadow-[0_0_0_1px_hsl(var(--primary)/0.2)]"
-                        : "border-border/70 bg-background/70 hover:border-primary/30 hover:bg-background",
-                    )}
-                    onClick={() =>
-                      hydrateDraft(
-                        item.id,
-                        plans,
-                        pricingDefaults,
-                        exchangeRate,
-                      )
-                    }
-                    type="button"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-foreground">
-                          {item.name}
-                        </p>
-                        <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                          {item.description || t("card.noDescription")}
-                        </p>
-                      </div>
-                      <span
-                        className={cn(
-                          "rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase",
-                          statusClasses(item.archivedAt),
-                        )}
-                      >
-                        {item.archivedAt
-                          ? t("status.archived")
-                          : t("status.active")}
-                      </span>
-                    </div>
+                const isArchived = item.archivedAt != null;
 
-                    <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
-                      <div>
-                        <p className="text-muted-foreground">
-                          {t("card.basePrice")}
-                        </p>
-                        <p className="mt-1 font-semibold text-foreground">
-                          {formatBRLFromCents(item.basePriceBRLCents)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">
-                          {t("card.channels")}
-                        </p>
-                        <p className="mt-1 font-semibold text-foreground">
-                          {item.maxCallChannels}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">
-                          {t("card.branches")}
-                        </p>
-                        <p className="mt-1 font-semibold text-foreground">
-                          {item.maxBranches ?? 1}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">
-                          {t("card.holdMusic")}
-                        </p>
-                        <p className="mt-1 font-semibold text-foreground">
-                          {item.maxHoldMusicTracks ?? 3}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">
-                          {t("card.updatedAt")}
-                        </p>
-                        <p className="mt-1 font-semibold text-foreground">
-                          {formatDate(item.updatedAt)}
-                        </p>
-                      </div>
-                    </div>
-                  </button>
+                return (
+                  <li key={item.id}>
+                    <button
+                      aria-current={isSelected ? "true" : undefined}
+                      className={cn(
+                        "flex w-full items-center gap-3 border-t border-border/50 px-4 py-3 text-left transition-colors first:border-t-0",
+                        isSelected
+                          ? "bg-muted"
+                          : "hover:bg-muted/50",
+                      )}
+                      onClick={() =>
+                        hydrateDraft(
+                          item.id,
+                          plans,
+                          pricingDefaults,
+                          exchangeRate,
+                        )
+                      }
+                      type="button"
+                    >
+                      <span
+                        aria-hidden
+                        className={cn("lamp", !isSelected && "opacity-0")}
+                      />
+                      <span className="readout w-5 shrink-0 text-[11px] text-muted-foreground/60">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-baseline justify-between gap-2">
+                          <span className="truncate text-[13px] font-semibold text-foreground">
+                            {item.name}
+                          </span>
+                          <span className="readout shrink-0 text-[13px] font-semibold text-foreground">
+                            {formatBRLFromCents(item.basePriceBRLCents)}
+                          </span>
+                        </span>
+                        <span className="mt-1 flex items-baseline justify-between gap-2">
+                          <span
+                            className={cn(
+                              "legend",
+                              isArchived
+                                ? "text-muted-foreground"
+                                : "text-lamp-ink",
+                            )}
+                          >
+                            {isArchived
+                              ? t("status.archived")
+                              : t("status.active")}
+                          </span>
+                          <span className="readout truncate text-[11px] text-muted-foreground">
+                            {formatDate(item.updatedAt)}
+                          </span>
+                        </span>
+                      </span>
+                    </button>
+                  </li>
                 );
-              })
-            )}
-          </div>
+              })}
+            </ul>
+          )}
         </section>
 
-        <section
-          className="space-y-4 rounded-[26px] border border-border/70 bg-card/90 p-5"
-          style={{ boxShadow: softSurfaceShadow }}
-        >
+        {/*
+          THE EDITOR.
+
+          One panel, divided by engraved rules and legended section by section,
+          instead of a stack of bordered sub-cards. The action bar sticks to the
+          top of the pane so save stays reachable from the pricing table at the
+          bottom, which is where the long edits happen.
+        */}
+        <section className="well overflow-hidden">
           {!draft ? null : (
             <>
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                  <p className="text-xs font-semibold uppercase text-primary">
+              <header className="rule-engraved sticky top-0 z-20 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-card px-4 py-2.5">
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <p className="legend">
                     {selectedPlanId === "new"
                       ? t("editor.newBadge")
                       : t("editor.editBadge")}
                   </p>
-                  <h2 className="mt-2 text-2xl font-semibold text-foreground">
+                  <span aria-hidden className="h-3 w-px bg-border" />
+                  <p className="truncate text-[13px] font-semibold text-foreground">
                     {selectedPlanId === "new"
                       ? t("editor.newTitle")
                       : (selectedPlan?.name ?? t("editor.editTitle"))}
-                  </h2>
-                  <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-                    {t("editor.description")}
                   </p>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap items-center gap-1.5">
                   <Button
                     icon={<ArrowsClockwise className="h-4 w-4" weight="bold" />}
                     iconVisible
@@ -1018,350 +976,340 @@ export function AdminPlansManager() {
                     }
                   />
                 </div>
-              </div>
+              </header>
 
-              {selectedPlan?.archivedAt ? (
-                <div className="rounded-2xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-900">
-                  <p className="font-medium">{t("editor.archivedTitle")}</p>
-                  <p className="mt-1 text-xs text-amber-800">
-                    {t("editor.archivedDescription", {
-                      archivedAt: formatDate(selectedPlan.archivedAt),
-                    })}
-                  </p>
-                </div>
-              ) : null}
+              <div className="space-y-7 px-4 py-5">
+                {selectedPlan?.archivedAt ? (
+                  <div className="border-l-2 border-warning bg-warning/5 px-3 py-2.5">
+                    <p className="text-[13px] font-semibold text-foreground">
+                      {t("editor.archivedTitle")}
+                    </p>
+                    <p className="mt-1 text-[12px] text-muted-foreground">
+                      {t("editor.archivedDescription", {
+                        archivedAt: formatDate(selectedPlan.archivedAt),
+                      })}
+                    </p>
+                  </div>
+                ) : null}
 
-              <div className="grid gap-4 lg:grid-cols-2">
-                <ElevatedInput
-                  disabled={selectedPlan?.archivedAt != null}
-                  label={t("form.name")}
-                  onChange={(event) =>
-                    handleDraftChange("name", event.target.value)
-                  }
-                  placeholder={t("form.namePlaceholder")}
-                  value={draft.name}
-                />
-                <ElevatedInput
-                  disabled={selectedPlan?.archivedAt != null}
-                  label={t("form.maxCallChannels")}
-                  min="1"
-                  onChange={(event) =>
-                    handleDraftChange("maxCallChannels", event.target.value)
-                  }
-                  type="number"
-                  value={draft.maxCallChannels}
-                />
-                <ElevatedInput
-                  disabled={selectedPlan?.archivedAt != null}
-                  label={t("form.maxTtsConcurrency")}
-                  min="1"
-                  onChange={(event) =>
-                    handleDraftChange("maxTtsConcurrency", event.target.value)
-                  }
-                  type="number"
-                  value={draft.maxTtsConcurrency}
-                />
-                <ElevatedInput
-                  disabled={selectedPlan?.archivedAt != null}
-                  label="Números WhatsApp inclusos"
-                  min="0"
-                  onChange={(event) =>
-                    handleDraftChange(
-                      "includedWhatsAppBusinessPhones",
-                      event.target.value,
-                    )
-                  }
-                  type="number"
-                  value={draft.includedWhatsAppBusinessPhones}
-                />
-                <ElevatedInput
-                  disabled={selectedPlan?.archivedAt != null}
-                  label={t("form.maxBranches")}
-                  min="0"
-                  onChange={(event) =>
-                    handleDraftChange("maxBranches", event.target.value)
-                  }
-                  type="number"
-                  value={draft.maxBranches}
-                />
-                <ElevatedInput
-                  disabled={selectedPlan?.archivedAt != null}
-                  label={t("form.maxHoldMusicTracks")}
-                  min="0"
-                  max="10"
-                  onChange={(event) =>
-                    handleDraftChange("maxHoldMusicTracks", event.target.value)
-                  }
-                  type="number"
-                  value={draft.maxHoldMusicTracks}
-                />
-                <ElevatedInput
-                  disabled={selectedPlan?.archivedAt != null}
-                  label={t("form.basePrice")}
-                  min="0"
-                  onChange={(event) =>
-                    handleDraftChange("basePriceBRL", event.target.value)
-                  }
-                  placeholder="0.00"
-                  step="0.01"
-                  type="number"
-                  value={draft.basePriceBRL}
-                />
-                <div className="rounded-2xl border border-border/70 bg-background/70 px-4 py-3 text-sm">
-                  <p className="text-xs font-semibold uppercase text-muted-foreground">
-                    {t("form.catalogMode")}
-                  </p>
-                  <p className="mt-2 font-medium text-foreground">
-                    {t("form.catalogModeTitle")}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
+                <PanelSection
+                  description={t("sections.identityDescription")}
+                  legend="01"
+                  title={t("sections.identity")}
+                >
+                  <div className="space-y-4">
+                    <ElevatedInput
+                      disabled={selectedPlan?.archivedAt != null}
+                      label={t("form.name")}
+                      onChange={(event) =>
+                        handleDraftChange("name", event.target.value)
+                      }
+                      placeholder={t("form.namePlaceholder")}
+                      value={draft.name}
+                    />
+                    <div>
+                      <label
+                        className="legend mb-1.5 block"
+                        htmlFor="plan-description"
+                      >
+                        {t("form.description")}
+                      </label>
+                      <textarea
+                        className="min-h-[104px] w-full rounded-[--radius] border border-border border-t-rule-strong bg-background px-3 py-2.5 text-[13px] leading-snug text-foreground outline-none transition focus:border-primary/50"
+                        disabled={selectedPlan?.archivedAt != null}
+                        id="plan-description"
+                        onChange={(event) =>
+                          handleDraftChange("description", event.target.value)
+                        }
+                        placeholder={t("form.descriptionPlaceholder")}
+                        value={draft.description}
+                      />
+                    </div>
+                  </div>
+                </PanelSection>
+
+                <PanelSection
+                  description={t("sections.capacityDescription")}
+                  legend="02"
+                  title={t("sections.capacity")}
+                >
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    <ElevatedInput
+                      disabled={selectedPlan?.archivedAt != null}
+                      label={t("form.basePrice")}
+                      min="0"
+                      onChange={(event) =>
+                        handleDraftChange("basePriceBRL", event.target.value)
+                      }
+                      placeholder="0.00"
+                      step="0.01"
+                      type="number"
+                      value={draft.basePriceBRL}
+                    />
+                    <ElevatedInput
+                      disabled={selectedPlan?.archivedAt != null}
+                      label={t("form.includedWhatsAppBusinessPhones")}
+                      min="0"
+                      onChange={(event) =>
+                        handleDraftChange(
+                          "includedWhatsAppBusinessPhones",
+                          event.target.value,
+                        )
+                      }
+                      type="number"
+                      value={draft.includedWhatsAppBusinessPhones}
+                    />
+                    <ElevatedInput
+                      disabled={selectedPlan?.archivedAt != null}
+                      label={t("form.maxTtsConcurrency")}
+                      min="1"
+                      onChange={(event) =>
+                        handleDraftChange(
+                          "maxTtsConcurrency",
+                          event.target.value,
+                        )
+                      }
+                      type="number"
+                      value={draft.maxTtsConcurrency}
+                    />
+                  </div>
+
+                  <p className="mt-4 border-l-2 border-border pl-3 text-[12px] leading-snug text-muted-foreground">
+                    <span className="font-semibold text-foreground">
+                      {t("form.catalogModeTitle")}
+                    </span>{" "}
                     {t("form.catalogModeDescription")}
                   </p>
-                </div>
-                <div className="lg:col-span-2">
-                  <label className="mb-2 block text-sm font-medium text-foreground">
-                    {t("form.description")}
-                  </label>
-                  <textarea
-                    className="min-h-[120px] w-full rounded-2xl border border-border/70 bg-background/70 px-4 py-3 text-sm text-foreground outline-none transition focus:border-primary/40 focus:ring-2 focus:ring-primary/10"
-                    disabled={selectedPlan?.archivedAt != null}
-                    onChange={(event) =>
-                      handleDraftChange("description", event.target.value)
-                    }
-                    placeholder={t("form.descriptionPlaceholder")}
-                    value={draft.description}
-                  />
-                </div>
-              </div>
+                </PanelSection>
 
-              {/* Plan Visibility */}
-              {selectedPlan && !selectedPlan.archivedAt ? (
-                <div className="space-y-3 rounded-2xl border border-border/70 bg-background/70 p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-semibold uppercase text-primary">
-                        {t("visibility.title")}
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {t("visibility.description")}
-                      </p>
-                    </div>
-                    <button
-                      className={cn(
-                        "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors",
-                        visibilityGlobal
-                          ? "bg-emerald-500 text-white"
-                          : "bg-amber-500 text-white",
-                      )}
-                      onClick={() => setVisibilityGlobal((v) => !v)}
-                      type="button"
-                    >
-                      {visibilityGlobal ? (
-                        <Eye className="h-3.5 w-3.5" weight="bold" />
-                      ) : (
-                        <EyeSlash className="h-3.5 w-3.5" weight="bold" />
-                      )}
-                      {visibilityGlobal
-                        ? t("visibility.global")
-                        : t("visibility.restricted")}
-                    </button>
-                  </div>
-
-                  {!visibilityGlobal ? (
-                    <div className="space-y-3">
-                      <ElevatedCommandSelect
-                        disabled={savingVisibility}
-                        emptyMessage={t("visibility.noWorkspaces")}
-                        fullWidth
-                        isLoading={workspaceSelect.isLoading}
-                        label={t("visibility.searchWorkspaces")}
-                        onOpenChange={workspaceSelect.onOpenChange}
-                        onScrollEnd={workspaceSelect.onScrollEnd}
-                        onSearch={workspaceSelect.onSearch}
-                        onValueChange={(val) => handleGrantWorkspace(val)}
-                        options={workspaceSelect.options}
-                        searchPlaceholder={t("visibility.searchWorkspaces")}
-                        value={null}
-                      />
-
-                      {allowedWorkspaces.length > 0 ? (
-                        <div className="space-y-1.5">
-                          <p className="text-xs font-medium text-muted-foreground">
-                            {t("visibility.grantedWorkspaces", {
-                              count: allowedWorkspaces.length,
-                            })}
-                          </p>
-                          <div className="space-y-1">
-                            {allowedWorkspaces.map((ws) => (
-                              <div
-                                key={ws.id}
-                                className="flex items-center justify-between rounded-xl border border-border/70 bg-background/80 px-3 py-2"
-                              >
-                                <div className="flex items-center gap-2 overflow-hidden">
-                                  <Buildings
-                                    className="h-4 w-4 shrink-0 text-muted-foreground"
-                                    weight="fill"
-                                  />
-                                  <span className="truncate text-sm font-medium text-foreground">
-                                    {ws.name}
-                                  </span>
-                                  <span className="truncate text-xs text-muted-foreground">
-                                    {ws.id}
-                                  </span>
-                                </div>
-                                <button
-                                  className="ml-2 shrink-0 rounded-lg p-1 text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-500"
-                                  onClick={() => handleRevokeWorkspace(ws.id)}
-                                  type="button"
-                                >
-                                  <X className="h-3.5 w-3.5" weight="bold" />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ) : null}
-                    </div>
-                  ) : null}
-
-                  <div className="flex justify-end">
-                    <Button
-                      disabled={savingVisibility}
-                      icon={
-                        savingVisibility ? (
-                          <CircleNotch
-                            className="h-4 w-4 animate-spin"
-                            weight="bold"
-                          />
-                        ) : (
-                          <FloppyDisk className="h-4 w-4" weight="fill" />
-                        )
-                      }
-                      iconVisible
-                      onClick={handleSaveVisibility}
-                      title={t("visibility.save")}
-                      variant="outline"
-                    />
-                  </div>
-                </div>
-              ) : null}
-
-              {/* Exclusive affiliate */}
-              {selectedPlan && !selectedPlan.archivedAt ? (
-                <div className="space-y-3 rounded-2xl border border-border/70 bg-background/70 p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase text-primary">
-                        {t("exclusive.title")}
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {t("exclusive.description")}
-                      </p>
-                    </div>
-                    {exclusiveAffiliate ? (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold text-white">
-                        <UserCircle className="h-3.5 w-3.5" weight="fill" />
-                        {t("exclusive.badge")}
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-500 px-3 py-1 text-xs font-semibold text-white">
-                        <EyeSlash className="h-3.5 w-3.5" weight="bold" />
-                        {t("exclusive.none")}
-                      </span>
-                    )}
-                  </div>
-
-                  {!visibilityGlobal && !exclusiveAffiliate ? (
-                    <div
-                      className="rounded-xl border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-800"
-                      role="note"
-                    >
-                      {t("exclusive.conflictWithRestricted")}
-                    </div>
-                  ) : null}
-
-                  {exclusiveAffiliate ? (
-                    <div className="flex items-center justify-between rounded-xl border border-border/70 bg-background/80 px-3 py-2">
-                      <div className="flex min-w-0 items-center gap-2">
-                        <UserCircle
-                          className="h-4 w-4 shrink-0 text-amber-600"
-                          weight="fill"
-                        />
-                        <span className="truncate text-sm font-medium text-foreground">
-                          {exclusiveAffiliate.brandName ||
-                            t("exclusive.resolving")}
-                        </span>
-                        {exclusiveAffiliate.code ? (
-                          <span className="truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
-                            {exclusiveAffiliate.code}
-                          </span>
-                        ) : null}
-                      </div>
+                {selectedPlan && !selectedPlan.archivedAt ? (
+                  <PanelSection
+                    actions={
                       <button
-                        aria-label={t("exclusive.clear")}
-                        className="ml-2 shrink-0 rounded-lg p-1 text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-500"
-                        onClick={handleClearExclusiveAffiliate}
+                        aria-pressed={visibilityGlobal}
+                        className={cn(
+                          "legend inline-flex h-7 items-center gap-1.5 border border-border border-t-rule-strong px-2 transition-colors",
+                          visibilityGlobal
+                            ? "bg-muted text-foreground"
+                            : "bg-background text-muted-foreground",
+                        )}
+                        onClick={() => setVisibilityGlobal((v) => !v)}
                         type="button"
                       >
-                        <X className="h-3.5 w-3.5" weight="bold" />
-                      </button>
-                    </div>
-                  ) : (
-                    <ElevatedCommandSelect
-                      disabled={savingExclusive}
-                      emptyMessage={t("exclusive.empty")}
-                      fullWidth
-                      isLoading={affiliateSelect.isLoading}
-                      label={t("exclusive.searchLabel")}
-                      onOpenChange={affiliateSelect.onOpenChange}
-                      onScrollEnd={affiliateSelect.onScrollEnd}
-                      onSearch={affiliateSelect.onSearch}
-                      onValueChange={(val) =>
-                        handleSelectExclusiveAffiliate(val)
-                      }
-                      options={affiliateSelect.options}
-                      searchPlaceholder={t("exclusive.searchPlaceholder")}
-                      value={null}
-                    />
-                  )}
-
-                  <div className="flex justify-end">
-                    <Button
-                      disabled={
-                        savingExclusive ||
-                        (exclusiveAffiliate?.id ?? null) ===
-                          (selectedPlan.exclusiveAffiliateId ?? null)
-                      }
-                      icon={
-                        savingExclusive ? (
-                          <CircleNotch
-                            className="h-4 w-4 animate-spin"
-                            weight="bold"
-                          />
+                        {visibilityGlobal ? (
+                          <Eye className="h-3.5 w-3.5" weight="bold" />
                         ) : (
-                          <FloppyDisk className="h-4 w-4" weight="fill" />
-                        )
-                      }
-                      iconVisible
-                      onClick={handleSaveExclusiveAffiliate}
-                      title={t("exclusive.save")}
-                      variant="outline"
-                    />
-                  </div>
-                </div>
-              ) : null}
+                          <EyeSlash className="h-3.5 w-3.5" weight="bold" />
+                        )}
+                        {visibilityGlobal
+                          ? t("visibility.global")
+                          : t("visibility.restricted")}
+                      </button>
+                    }
+                    description={t("visibility.description")}
+                    legend="03"
+                    title={t("visibility.title")}
+                  >
+                    {visibilityGlobal ? (
+                      <p className="text-[13px] text-muted-foreground">
+                        {t("visibility.globalHint")}
+                      </p>
+                    ) : (
+                      <div className="space-y-3">
+                        <ElevatedCommandSelect
+                          disabled={savingVisibility}
+                          emptyMessage={t("visibility.noWorkspaces")}
+                          fullWidth
+                          isLoading={workspaceSelect.isLoading}
+                          label={t("visibility.searchWorkspaces")}
+                          onOpenChange={workspaceSelect.onOpenChange}
+                          onScrollEnd={workspaceSelect.onScrollEnd}
+                          onSearch={workspaceSelect.onSearch}
+                          onValueChange={(val) => handleGrantWorkspace(val)}
+                          options={workspaceSelect.options}
+                          searchPlaceholder={t("visibility.searchWorkspaces")}
+                          value={null}
+                        />
 
-              {/* Pricing Items Editor */}
-              <PricingItemsEditor
-                disabled={selectedPlan?.archivedAt != null}
-                exchangeRate={exchangeRate}
-                items={draft.pricingItems}
-                onChange={(items) =>
-                  setDraft((current) =>
-                    current ? { ...current, pricingItems: items } : current,
-                  )
-                }
-              />
+                        {allowedWorkspaces.length > 0 ? (
+                          <div>
+                            <p className="legend">
+                              {t("visibility.grantedWorkspaces", {
+                                count: allowedWorkspaces.length,
+                              })}
+                            </p>
+                            <ul className="mt-1.5">
+                              {allowedWorkspaces.map((ws) => (
+                                <li
+                                  key={ws.id}
+                                  className="flex items-center justify-between gap-2 border-b border-border/50 py-2 last:border-b-0"
+                                >
+                                  <span className="flex min-w-0 items-center gap-2">
+                                    <Buildings
+                                      className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
+                                      weight="fill"
+                                    />
+                                    <span className="truncate text-[13px] font-medium text-foreground">
+                                      {ws.name}
+                                    </span>
+                                    <span className="readout truncate text-[11px] text-muted-foreground">
+                                      {ws.id}
+                                    </span>
+                                  </span>
+                                  <button
+                                    className="shrink-0 p-1 text-muted-foreground transition-colors hover:text-destructive"
+                                    onClick={() => handleRevokeWorkspace(ws.id)}
+                                    type="button"
+                                  >
+                                    <X className="h-3.5 w-3.5" weight="bold" />
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ) : null}
+                      </div>
+                    )}
+
+                    <div className="mt-4 flex justify-end">
+                      <Button
+                        disabled={savingVisibility}
+                        icon={
+                          savingVisibility ? (
+                            <CircleNotch
+                              className="h-4 w-4 animate-spin"
+                              weight="bold"
+                            />
+                          ) : (
+                            <FloppyDisk className="h-4 w-4" weight="fill" />
+                          )
+                        }
+                        iconVisible
+                        onClick={handleSaveVisibility}
+                        title={t("visibility.save")}
+                        variant="outline"
+                      />
+                    </div>
+                  </PanelSection>
+                ) : null}
+
+                {selectedPlan && !selectedPlan.archivedAt ? (
+                  <PanelSection
+                    actions={
+                      <span
+                        className={cn(
+                          "legend inline-flex items-center gap-1.5 border border-border border-t-rule-strong px-2 py-1",
+                          exclusiveAffiliate
+                            ? "bg-muted text-foreground"
+                            : "bg-background text-muted-foreground",
+                        )}
+                      >
+                        {exclusiveAffiliate ? (
+                          <UserCircle className="h-3.5 w-3.5" weight="fill" />
+                        ) : (
+                          <EyeSlash className="h-3.5 w-3.5" weight="bold" />
+                        )}
+                        {exclusiveAffiliate
+                          ? t("exclusive.badge")
+                          : t("exclusive.none")}
+                      </span>
+                    }
+                    description={t("exclusive.description")}
+                    legend="04"
+                    title={t("exclusive.title")}
+                  >
+                    {!visibilityGlobal && !exclusiveAffiliate ? (
+                      <p
+                        className="mb-3 border-l-2 border-warning bg-warning/5 px-3 py-2 text-[12px] text-foreground"
+                        role="note"
+                      >
+                        {t("exclusive.conflictWithRestricted")}
+                      </p>
+                    ) : null}
+
+                    {exclusiveAffiliate ? (
+                      <div className="flex items-center justify-between gap-2 border-b border-border/50 py-2">
+                        <span className="flex min-w-0 items-center gap-2">
+                          <UserCircle
+                            className="h-3.5 w-3.5 shrink-0 text-warning"
+                            weight="fill"
+                          />
+                          <span className="truncate text-[13px] font-medium text-foreground">
+                            {exclusiveAffiliate.brandName ||
+                              t("exclusive.resolving")}
+                          </span>
+                          {exclusiveAffiliate.code ? (
+                            <span className="readout truncate text-[11px] text-muted-foreground">
+                              {exclusiveAffiliate.code}
+                            </span>
+                          ) : null}
+                        </span>
+                        <button
+                          aria-label={t("exclusive.clear")}
+                          className="shrink-0 p-1 text-muted-foreground transition-colors hover:text-destructive"
+                          onClick={handleClearExclusiveAffiliate}
+                          type="button"
+                        >
+                          <X className="h-3.5 w-3.5" weight="bold" />
+                        </button>
+                      </div>
+                    ) : (
+                      <ElevatedCommandSelect
+                        disabled={savingExclusive}
+                        emptyMessage={t("exclusive.empty")}
+                        fullWidth
+                        isLoading={affiliateSelect.isLoading}
+                        label={t("exclusive.searchLabel")}
+                        onOpenChange={affiliateSelect.onOpenChange}
+                        onScrollEnd={affiliateSelect.onScrollEnd}
+                        onSearch={affiliateSelect.onSearch}
+                        onValueChange={(val) =>
+                          handleSelectExclusiveAffiliate(val)
+                        }
+                        options={affiliateSelect.options}
+                        searchPlaceholder={t("exclusive.searchPlaceholder")}
+                        value={null}
+                      />
+                    )}
+
+                    <div className="mt-4 flex justify-end">
+                      <Button
+                        disabled={
+                          savingExclusive ||
+                          (exclusiveAffiliate?.id ?? null) ===
+                            (selectedPlan.exclusiveAffiliateId ?? null)
+                        }
+                        icon={
+                          savingExclusive ? (
+                            <CircleNotch
+                              className="h-4 w-4 animate-spin"
+                              weight="bold"
+                            />
+                          ) : (
+                            <FloppyDisk className="h-4 w-4" weight="fill" />
+                          )
+                        }
+                        iconVisible
+                        onClick={handleSaveExclusiveAffiliate}
+                        title={t("exclusive.save")}
+                        variant="outline"
+                      />
+                    </div>
+                  </PanelSection>
+                ) : null}
+
+                <PricingItemsEditor
+                  disabled={selectedPlan?.archivedAt != null}
+                  exchangeRate={exchangeRate}
+                  items={draft.pricingItems}
+                  legend={selectedPlan && !selectedPlan.archivedAt ? "05" : "03"}
+                  onChange={(items) =>
+                    setDraft((current) =>
+                      current ? { ...current, pricingItems: items } : current,
+                    )
+                  }
+                />
+              </div>
             </>
           )}
         </section>
@@ -1370,16 +1318,6 @@ export function AdminPlansManager() {
   );
 }
 
-const CATEGORY_ICONS: Record<
-  string,
-  React.ComponentType<{ className?: string; weight?: "fill" | "bold" }>
-> = {
-  tts: SpeakerHigh,
-  stt: Microphone,
-  llm: ChatCircle,
-  whatsapp: WhatsappLogo,
-  telephony: Phone,
-};
 
 function serviceLabel(
   t: { has: (key: string) => boolean; (key: string): string },
@@ -1402,11 +1340,13 @@ function PricingItemsEditor({
   onChange,
   disabled,
   exchangeRate,
+  legend,
 }: {
   items: PricingItemDraft[];
   onChange: (items: PricingItemDraft[]) => void;
   disabled?: boolean | null;
   exchangeRate: number | null;
+  legend?: string;
 }) {
   const t = useTranslations("adminPlans");
   const rate = resolveExchangeRate(exchangeRate);
@@ -1440,266 +1380,254 @@ function PricingItemsEditor({
 
   if (rate == null) {
     return (
-      <div className="rounded-2xl border border-border/70 bg-card/90 px-4 py-6 text-sm text-muted-foreground">
-        {t("pricingItems.rateRequired")}
-      </div>
+      <PanelSection legend={legend} title={t("pricingItems.title")}>
+        <p className="text-[13px] text-muted-foreground">
+          {t("pricingItems.rateRequired")}
+        </p>
+      </PanelSection>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase text-primary">
-            {t("pricingItems.title")}
-          </p>
-          <p className="mt-1 max-w-2xl text-xs text-muted-foreground">
-            {t("pricingItems.description")}
-          </p>
-        </div>
-        <div className="flex items-center gap-2 rounded-2xl border border-border/70 bg-background/80 px-3 py-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500 text-white">
-            <Scales className="h-4 w-4" weight="fill" />
-          </div>
-          <div>
-            <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-              {t("pricingItems.rateBannerLabel")}
-            </p>
-            <p className="text-sm font-semibold tabular-nums text-foreground">
-              {t("pricingItems.rateBannerValue", {
-                rate: rate.toFixed(4).replace(/0+$/, "").replace(/\.$/, ""),
-              })}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <p className="text-xs text-muted-foreground">
+    <PanelSection
+      actions={
+        <span className="text-right">
+          <span className="legend block">
+            {t("pricingItems.rateBannerLabel")}
+          </span>
+          <span className="readout mt-1 block text-[13px] font-semibold text-foreground">
+            {t("pricingItems.rateBannerValue", {
+              rate: rate.toFixed(4).replace(/0+$/, "").replace(/\.$/, ""),
+            })}
+          </span>
+        </span>
+      }
+      description={t("pricingItems.description")}
+      legend={legend}
+      title={t("pricingItems.title")}
+    >
+      <p className="text-[12px] text-muted-foreground">
         {t("pricingItems.conversionNote")}
       </p>
 
       {items.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border/70 bg-background/60 px-4 py-8 text-center">
-          <p className="text-sm text-muted-foreground">
-            {t("pricingItems.empty")}
-          </p>
-        </div>
+        <p className="py-8 text-center text-[13px] text-muted-foreground">
+          {t("pricingItems.empty")}
+        </p>
       ) : (
-        <div className="space-y-4">
-          {Array.from(grouped.entries()).map(([category, rows]) => {
-            const Icon = CATEGORY_ICONS[category] ?? Package;
-            const categoryKey = `pricing.categories.${category}` as const;
-            const categoryTitle = t.has(categoryKey)
-              ? t(categoryKey)
-              : category;
-            return (
-              <div
-                key={category}
-                className="overflow-hidden rounded-2xl border border-border/70 bg-background/60"
-              >
-                <div className="flex items-center gap-2 border-b border-border/70 px-4 py-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-700 text-white">
-                    <Icon className="h-4 w-4" weight="fill" />
-                  </div>
-                  <p className="text-sm font-semibold text-foreground">
-                    {categoryTitle}
-                  </p>
-                  <span className="text-xs text-muted-foreground">
-                    {rows.length}
-                  </span>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-border/50 bg-muted/20">
-                        <th className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          {t("pricingItems.service")}
-                        </th>
-                        <th className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          {t("pricingItems.metric")}
-                        </th>
-                        <th className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          {t("pricingItems.costBrl")}
-                        </th>
-                        <th className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          {t("pricingItems.priceBrl")}
-                        </th>
-                        <th className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          {t("pricingItems.markupPct")}
-                        </th>
-                        <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          {t("pricingItems.actions")}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {rows.map(({ item, index }) => {
-                        const percentage = isPercentageMetric(item.metric);
-                        const customized = isDraftCustomized(item, rate);
-                        const costUsd = percentage
-                          ? null
-                          : microsToUsdNumber(
-                              parseBrlToUsdMicros(item.costBrl, rate),
-                            );
-                        const priceUsd = percentage
-                          ? null
-                          : microsToUsdNumber(
-                              parseBrlToUsdMicros(item.priceBrl, rate),
-                            );
-                        const priceBelowCost =
-                          !percentage &&
-                          costUsd != null &&
-                          priceUsd != null &&
-                          priceUsd > 0 &&
-                          costUsd > 0 &&
-                          priceUsd < costUsd;
-                        const invalidBrl =
-                          !percentage &&
-                          (parseAmount(item.costBrl) === null ||
-                            parseAmount(item.priceBrl) === null);
+        <div className="-mx-1 mt-4 overflow-x-auto px-1">
+          <table className="w-full min-w-[720px] border-collapse text-left">
+            <thead>
+              <tr className="rule-engraved">
+                <th className="legend py-2 pr-3 font-semibold" scope="col">
+                  {t("pricingItems.service")}
+                </th>
+                <th className="legend px-3 py-2 font-semibold" scope="col">
+                  {t("pricingItems.metric")}
+                </th>
+                <th className="legend px-3 py-2 font-semibold" scope="col">
+                  {t("pricingItems.costBrl")}
+                </th>
+                <th className="legend px-3 py-2 font-semibold" scope="col">
+                  {t("pricingItems.priceBrl")}
+                </th>
+                <th className="legend px-3 py-2 font-semibold" scope="col">
+                  {t("pricingItems.markupPct")}
+                </th>
+                <th
+                  className="legend py-2 pl-3 text-right font-semibold"
+                  scope="col"
+                >
+                  {t("pricingItems.actions")}
+                </th>
+              </tr>
+            </thead>
 
-                        return (
-                          <tr
-                            key={`${item.category}-${item.service}-${item.metric}`}
-                            className="border-b border-border/40 last:border-b-0"
-                          >
-                            <td className="px-3 py-2.5 align-top">
-                              <div className="flex flex-wrap items-center gap-1.5">
-                                <span className="text-xs font-medium text-foreground">
-                                  {serviceLabel(t, item.service)}
-                                </span>
-                                {customized ? (
-                                  <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">
-                                    {t("pricingItems.customized")}
-                                  </span>
-                                ) : null}
-                              </div>
-                              {priceBelowCost ? (
-                                <p className="mt-1 text-[10px] text-amber-700">
-                                  {t("pricingItems.priceBelowCost")}
-                                </p>
-                              ) : null}
-                              {invalidBrl ? (
-                                <p className="mt-1 text-[10px] text-red-600">
-                                  {t("pricingItems.invalidAmount")}
-                                </p>
-                              ) : null}
-                            </td>
-                            <td className="px-3 py-2.5 align-top text-xs text-muted-foreground">
-                              {metricLabel(t, item.metric)}
-                            </td>
-                            <td className="px-3 py-2.5 align-top">
-                              {percentage ? (
-                                <span className="text-xs text-muted-foreground">
-                                  {t("pricingItems.notApplicable")}
-                                </span>
-                              ) : (
-                                <div className="space-y-0.5">
-                                  <input
-                                    aria-label={t("pricingItems.costBrl")}
-                                    className="w-28 rounded-lg border border-border/70 bg-background px-2 py-1 text-xs tabular-nums outline-none transition focus:border-primary/40"
-                                    disabled={!!disabled}
-                                    inputMode="decimal"
-                                    min="0"
-                                    onChange={(e) =>
-                                      handleItemChange(
-                                        index,
-                                        "costBrl",
-                                        e.target.value,
-                                      )
-                                    }
-                                    placeholder="0,00"
-                                    step="any"
-                                    type="text"
-                                    value={item.costBrl}
-                                  />
-                                  <p className="text-[10px] tabular-nums text-muted-foreground">
-                                    ≈{" "}
-                                    {formatUsdCurrency(costUsd ?? 0)}
-                                  </p>
-                                </div>
-                              )}
-                            </td>
-                            <td className="px-3 py-2.5 align-top">
-                              {percentage ? (
-                                <span className="text-xs text-muted-foreground">
-                                  {t("pricingItems.notApplicable")}
-                                </span>
-                              ) : (
-                                <div className="space-y-0.5">
-                                  <input
-                                    aria-label={t("pricingItems.priceBrl")}
-                                    className="w-28 rounded-lg border border-border/70 bg-background px-2 py-1 text-xs tabular-nums outline-none transition focus:border-primary/40"
-                                    disabled={!!disabled}
-                                    inputMode="decimal"
-                                    min="0"
-                                    onChange={(e) =>
-                                      handleItemChange(
-                                        index,
-                                        "priceBrl",
-                                        e.target.value,
-                                      )
-                                    }
-                                    placeholder="0,00"
-                                    step="any"
-                                    type="text"
-                                    value={item.priceBrl}
-                                  />
-                                  <p className="text-[10px] tabular-nums text-muted-foreground">
-                                    ≈{" "}
-                                    {formatUsdCurrency(priceUsd ?? 0)}
-                                  </p>
-                                </div>
-                              )}
-                            </td>
-                            <td className="px-3 py-2.5 align-top">
+            {Array.from(grouped.entries()).map(([category, rows]) => {
+              const categoryKey = `pricing.categories.${category}` as const;
+              const categoryTitle = t.has(categoryKey)
+                ? t(categoryKey)
+                : category;
+
+              return (
+                <tbody key={category}>
+                  <tr>
+                    <th className="pb-1.5 pt-5" colSpan={6} scope="colgroup">
+                      <span className="flex items-center gap-2">
+                        <span className="legend text-foreground">
+                          {categoryTitle}
+                        </span>
+                        <span className="readout text-[11px] text-muted-foreground/60">
+                          {String(rows.length).padStart(2, "0")}
+                        </span>
+                        <span
+                          aria-hidden
+                          className="h-px min-w-4 flex-1 bg-border"
+                        />
+                      </span>
+                    </th>
+                  </tr>
+
+                  {rows.map(({ item, index }) => {
+                    const percentage = isPercentageMetric(item.metric);
+                    const customized = isDraftCustomized(item, rate);
+                    const costUsd = percentage
+                      ? null
+                      : microsToUsdNumber(
+                          parseBrlToUsdMicros(item.costBrl, rate),
+                        );
+                    const priceUsd = percentage
+                      ? null
+                      : microsToUsdNumber(
+                          parseBrlToUsdMicros(item.priceBrl, rate),
+                        );
+                    const priceBelowCost =
+                      !percentage &&
+                      costUsd != null &&
+                      priceUsd != null &&
+                      priceUsd > 0 &&
+                      costUsd > 0 &&
+                      priceUsd < costUsd;
+                    const invalidBrl =
+                      !percentage &&
+                      (parseAmount(item.costBrl) === null ||
+                        parseAmount(item.priceBrl) === null);
+
+                    return (
+                      <tr
+                        key={`${item.category}-${item.service}-${item.metric}`}
+                        className="border-b border-border/50 last:border-b-0"
+                      >
+                        <th
+                          className="py-2 pr-3 align-top text-[13px] font-medium text-foreground"
+                          scope="row"
+                        >
+                          <span className="flex flex-wrap items-center gap-1.5">
+                            {serviceLabel(t, item.service)}
+                            {customized ? (
+                              <span className="legend border border-border border-t-rule-strong bg-muted px-1.5 py-0.5 text-lamp-ink">
+                                {t("pricingItems.customized")}
+                              </span>
+                            ) : null}
+                          </span>
+                          {priceBelowCost ? (
+                            <span className="mt-1 block text-[11px] font-normal text-warning">
+                              {t("pricingItems.priceBelowCost")}
+                            </span>
+                          ) : null}
+                          {invalidBrl ? (
+                            <span className="mt-1 block text-[11px] font-normal text-destructive">
+                              {t("pricingItems.invalidAmount")}
+                            </span>
+                          ) : null}
+                        </th>
+                        <td className="px-3 py-2 align-top text-[12px] text-muted-foreground">
+                          {metricLabel(t, item.metric)}
+                        </td>
+                        <td className="px-3 py-2 align-top">
+                          {percentage ? (
+                            <span className="text-[12px] text-muted-foreground">
+                              {t("pricingItems.notApplicable")}
+                            </span>
+                          ) : (
+                            <>
                               <input
-                                aria-label={t("pricingItems.markupPct")}
-                                className="w-20 rounded-lg border border-border/70 bg-background px-2 py-1 text-xs tabular-nums outline-none transition focus:border-primary/40"
+                                aria-label={t("pricingItems.costBrl")}
+                                className="readout w-28 rounded-[--radius] border border-border border-t-rule-strong bg-background px-2 py-1 text-[12px] outline-none transition focus:border-primary/50"
                                 disabled={!!disabled}
+                                inputMode="decimal"
                                 min="0"
                                 onChange={(e) =>
                                   handleItemChange(
                                     index,
-                                    "markupPct",
+                                    "costBrl",
                                     e.target.value,
                                   )
                                 }
-                                step="0.01"
-                                type="number"
-                                value={item.markupPct}
+                                placeholder="0,00"
+                                step="any"
+                                type="text"
+                                value={item.costBrl}
                               />
-                            </td>
-                            <td className="px-3 py-2.5 align-top text-right">
-                              <button
-                                className={cn(
-                                  "inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium transition-colors",
-                                  customized && !disabled
-                                    ? "text-primary hover:bg-primary/5"
-                                    : "cursor-default text-muted-foreground/50",
-                                )}
-                                disabled={!!disabled || !customized}
-                                onClick={() => handleResetRow(index)}
-                                type="button"
-                              >
-                                <ArrowCounterClockwise
-                                  className="h-3.5 w-3.5"
-                                  weight="bold"
-                                />
-                                {t("pricingItems.resetRow")}
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            );
-          })}
+                              <span className="readout mt-1 block text-[11px] text-muted-foreground">
+                                ≈ {formatUsdCurrency(costUsd ?? 0)}
+                              </span>
+                            </>
+                          )}
+                        </td>
+                        <td className="px-3 py-2 align-top">
+                          {percentage ? (
+                            <span className="text-[12px] text-muted-foreground">
+                              {t("pricingItems.notApplicable")}
+                            </span>
+                          ) : (
+                            <>
+                              <input
+                                aria-label={t("pricingItems.priceBrl")}
+                                className="readout w-28 rounded-[--radius] border border-border border-t-rule-strong bg-background px-2 py-1 text-[12px] outline-none transition focus:border-primary/50"
+                                disabled={!!disabled}
+                                inputMode="decimal"
+                                min="0"
+                                onChange={(e) =>
+                                  handleItemChange(
+                                    index,
+                                    "priceBrl",
+                                    e.target.value,
+                                  )
+                                }
+                                placeholder="0,00"
+                                step="any"
+                                type="text"
+                                value={item.priceBrl}
+                              />
+                              <span className="readout mt-1 block text-[11px] text-muted-foreground">
+                                ≈ {formatUsdCurrency(priceUsd ?? 0)}
+                              </span>
+                            </>
+                          )}
+                        </td>
+                        <td className="px-3 py-2 align-top">
+                          <input
+                            aria-label={t("pricingItems.markupPct")}
+                            className="readout w-20 rounded-[--radius] border border-border border-t-rule-strong bg-background px-2 py-1 text-[12px] outline-none transition focus:border-primary/50"
+                            disabled={!!disabled}
+                            min="0"
+                            onChange={(e) =>
+                              handleItemChange(index, "markupPct", e.target.value)
+                            }
+                            step="0.01"
+                            type="number"
+                            value={item.markupPct}
+                          />
+                        </td>
+                        <td className="py-2 pl-3 align-top text-right">
+                          <button
+                            className={cn(
+                              "legend inline-flex items-center gap-1 py-1 transition-colors",
+                              customized && !disabled
+                                ? "text-lamp-ink hover:text-foreground"
+                                : "cursor-default text-muted-foreground/40",
+                            )}
+                            disabled={!!disabled || !customized}
+                            onClick={() => handleResetRow(index)}
+                            type="button"
+                          >
+                            <ArrowCounterClockwise
+                              className="h-3.5 w-3.5"
+                              weight="bold"
+                            />
+                            {t("pricingItems.resetRow")}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              );
+            })}
+          </table>
         </div>
       )}
-    </div>
+    </PanelSection>
   );
 }

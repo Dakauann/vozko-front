@@ -8,7 +8,7 @@ import {
   Storefront,
   Tag,
   Wallet,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { motion } from "framer-motion";
 import { useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
@@ -275,7 +275,7 @@ export function BecomeAffiliateForm() {
           role="alert"
           initial={{ opacity: 0, y: -6 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-start gap-3 rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive"
+          className="flex items-start gap-3 rounded-[--radius] border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive"
         >
           <Info className="mt-0.5 h-4 w-4 shrink-0" weight="bold" />
           <div className="min-w-0 flex-1">
@@ -388,7 +388,7 @@ export function BecomeAffiliateForm() {
             </FieldWithError>
             <Hint>{t("steps.code.hint")}</Hint>
             {finalCode ? (
-              <div className="rounded-xl border border-border bg-background p-4">
+              <div className="rounded-[--radius] border border-border bg-background p-4">
                 <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   {t("steps.code.previewLabel")}
                 </p>
@@ -453,9 +453,9 @@ function WelcomeStep({ t }: { t: ReturnType<typeof useTranslations> }) {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="rounded-2xl border border-border bg-background p-4"
+              className="rounded-[--radius] border border-border bg-background p-4"
             >
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-[hsl(var(--primary-hover))] text-primary-foreground shadow-md">
+              <span className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground shadow-md">
                 <Icon className="h-5 w-5" weight="fill" />
               </span>
               <p className="mt-3 text-sm font-semibold text-foreground">
@@ -516,7 +516,7 @@ function ReviewStep({
       </div>
 
       {brandLogoUrl ? (
-        <div className="flex items-center gap-4 rounded-2xl border border-border bg-background p-4">
+        <div className="flex items-center gap-4 rounded-[--radius] border border-border bg-background p-4">
           <LogoPreview url={brandLogoUrl} compact />
           <div className="min-w-0">
             <p className="truncate text-base font-semibold text-foreground">
@@ -529,7 +529,7 @@ function ReviewStep({
         </div>
       ) : null}
 
-      <dl className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-background">
+      <dl className="divide-y divide-border overflow-hidden rounded-[--radius] border border-border bg-background">
         {rows.map((row) => (
           <div
             key={row.label}
@@ -564,7 +564,7 @@ function LogoPreview({
   return (
     <div
       className={cn(
-        "flex shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-background",
+        "flex shrink-0 items-center justify-center overflow-hidden rounded-[--radius] border border-border bg-background",
         compact ? "h-14 w-14" : "h-20 w-20",
       )}
     >
@@ -583,7 +583,7 @@ function LogoPreview({
 
 function Hint({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex items-start gap-2 rounded-xl bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
+    <div className="flex items-start gap-2 rounded-[--radius] bg-muted px-3 py-2 text-xs text-muted-foreground">
       <Info
         className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"
         weight="bold"

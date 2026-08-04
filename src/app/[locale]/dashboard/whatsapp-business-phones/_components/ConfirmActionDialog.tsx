@@ -9,7 +9,7 @@ import {
 } from "@/components/elevated-design/elevated-dialog";
 
 import Button from "@/components/elevated-design/button";
-import { CircleNotch } from "@phosphor-icons/react";
+import { CircleNotch } from "@/components/icons";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
@@ -87,7 +87,7 @@ export function ConfirmActionDialog({
             disabled={loading}
             className={cn(
               tone === "warning" &&
-                "border-amber-300 text-amber-700 hover:border-amber-400 hover:bg-amber-50 dark:border-amber-700 dark:hover:bg-amber-950/30",
+                "border-amber-300 text-warning hover:border-warning hover:bg-amber-50 dark:border-amber-700 dark:hover:bg-amber-950/30",
             )}
           />
         </div>

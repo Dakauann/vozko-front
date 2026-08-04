@@ -1,6 +1,6 @@
 "use client";
 
-import { ChartBar, ChatCircle, Funnel, X } from "@phosphor-icons/react";
+import { ChartBar, ChatCircle, Funnel, X } from "@/components/icons";
 import { useCallback, useMemo, useState } from "react";
 
 import AnalysisFilters, {
@@ -302,7 +302,7 @@ export default function CampaignFilters({
   return (
     <div
       className={cn(
-        "rounded-xl border border-border/70 bg-card overflow-hidden",
+        "rounded-[--radius] border border-border bg-card overflow-hidden",
         className,
       )}
     >
@@ -321,14 +321,14 @@ export default function CampaignFilters({
                 {modeTranslations.title}
               </h3>
               {hasActiveFilters && (
-                <span className="inline-flex items-center justify-center rounded-full bg-blue-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                <span className="inline-flex items-center justify-center rounded-[--radius] bg-muted px-2 py-0.5 text-[10px] font-semibold text-white">
                   {activeFilterCount}
                 </span>
               )}
             </div>
             {hasActiveFilters && !isExpanded ? (
               <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                <span className="text-[10px] font-medium text-primary uppercase tracking-wide">
+                <span className="text-[10px] font-medium text-lamp-ink uppercase tracking-wide">
                   {values.mode === "analysis"
                     ? modeTranslations.analysisMode
                     : modeTranslations.conversationMode}
@@ -351,7 +351,7 @@ export default function CampaignFilters({
             ) : (
               <p className="text-xs text-muted-foreground">
                 {hasActiveFilters ? (
-                  <span className="text-primary font-medium">
+                  <span className="text-lamp-ink font-medium">
                     {activeFilterCount} filtro
                     {activeFilterCount !== 1 ? "s" : ""} ativo
                     {activeFilterCount !== 1 ? "s" : ""} •{" "}
@@ -399,7 +399,7 @@ export default function CampaignFilters({
           >
             <div className="px-4 pb-4 space-y-4">
               {/* Mode Selector Tabs */}
-              <div className="flex items-center rounded-xl border border-border bg-card p-1">
+              <div className="flex items-center rounded-[--radius] border border-border bg-card p-1">
                 <button
                   type="button"
                   onClick={() => handleModeChange("analysis")}
@@ -499,7 +499,7 @@ export default function CampaignFilters({
                     icon={<X className="h-4 w-4" weight="bold" />}
                     iconVisible
                     iconSide="left"
-                    className="text-muted-foreground hover:text-rose-600"
+                    className="text-muted-foreground hover:text-destructive"
                   />
                 </motion.div>
               )}

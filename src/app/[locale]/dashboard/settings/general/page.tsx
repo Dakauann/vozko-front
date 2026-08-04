@@ -10,7 +10,7 @@ import {
   Lightning,
   Phone,
   Robot,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   getSystemConfigAction,
   updateSystemConfigAction,
@@ -224,7 +224,7 @@ export default function GeneralSettingsPage() {
 
       {isLoading ? (
         <motion.div variants={itemVariants}>
-          <ElevatedContainer className="border border-border/70 bg-card p-5">
+          <ElevatedContainer className="border border-border bg-card p-5">
             <p className="text-sm text-muted-foreground">
               {t("messages.loading")}
             </p>
@@ -233,9 +233,9 @@ export default function GeneralSettingsPage() {
       ) : null}
 
       <motion.section variants={itemVariants}>
-        <ElevatedContainer className="border border-border/70 bg-card p-6 space-y-6">
+        <ElevatedContainer className="border border-border bg-card p-6 space-y-6">
           <div className="flex items-center gap-2">
-            <Robot className="h-5 w-5 text-primary" weight="fill" />
+            <Robot className="h-5 w-5 text-lamp-ink" weight="fill" />
             <h2 className="text-lg font-semibold text-foreground">
               {t("sections.ai")}
             </h2>
@@ -257,9 +257,9 @@ export default function GeneralSettingsPage() {
       </motion.section>
 
       <motion.section variants={itemVariants}>
-        <ElevatedContainer className="border border-border/70 bg-card p-6 space-y-6">
+        <ElevatedContainer className="border border-border bg-card p-6 space-y-6">
           <div className="flex items-center gap-2">
-            <Phone className="h-5 w-5 text-primary" weight="fill" />
+            <Phone className="h-5 w-5 text-lamp-ink" weight="fill" />
             <h2 className="text-lg font-semibold text-foreground">
               {t("sections.calls")}
             </h2>
@@ -290,9 +290,9 @@ export default function GeneralSettingsPage() {
       </motion.section>
 
       <motion.section variants={itemVariants}>
-        <ElevatedContainer className="border border-border/70 bg-card p-6 space-y-6">
+        <ElevatedContainer className="border border-border bg-card p-6 space-y-6">
           <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-primary" weight="bold" />
+            <Clock className="h-5 w-5 text-lamp-ink" weight="bold" />
             <h2 className="text-lg font-semibold text-foreground">
               {t("sections.workTime")}
             </h2>

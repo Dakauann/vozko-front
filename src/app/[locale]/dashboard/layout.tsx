@@ -12,28 +12,22 @@ import DashboardCrmWrapper from "@/components/dashboard/DashboardCrmWrapper";
 import DashboardGate from "@/components/dashboard/DashboardGate";
 import { DashboardNavbar } from "@/components/elevated-design/dashboard/dashboard-navbar";
 import { DepartmentProvider } from "@/contexts/department-context";
-import PersistentDialer from "@/components/dashboard/PersistentDialer";
+import WhatsAppCallHost from "@/components/dashboard/WhatsAppCallHost";
 import type { ReactNode } from "react";
 import { Suspense } from "react";
 import { WorkspaceProvider } from "@/contexts/workspace-context";
 
+// Both fallbacks must match the real chrome's geometry exactly, or the content
+// jumps when the real one resolves.
 function SidebarFallback() {
   return (
-    <aside className="fixed left-0 top-0 z-30 hidden h-screen w-[272px] bg-card shadow-sm md:block">
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
-      </div>
-    </aside>
+    <aside className="fixed inset-y-0 left-0 z-40 hidden h-screen w-[208px] border-r border-border bg-card md:block" />
   );
 }
 
 function NavbarFallback() {
   return (
-    <nav className="fixed left-0 right-0 top-0 z-40 h-16 bg-card shadow-sm">
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
-      </div>
-    </nav>
+    <div className="fixed right-0 top-0 z-30 h-12 border-b border-border bg-card left-0 md:left-[208px]" />
   );
 }
 
@@ -69,10 +63,12 @@ export default function DashboardLayout({
                 />
               </Suspense>
 
-              <DashboardMainContent className="pt-20">
+              <DashboardMainContent className="pt-12">
                 <DashboardCrmWrapper>
+                  {/* Full-bleed views (CRM, workflows) escape this with -m-6.
+                      The 6 must stay 6 or those views misalign. */}
                   <div className="p-3 sm:p-6">{children}</div>
-                  <PersistentDialer />
+                  <WhatsAppCallHost />
                 </DashboardCrmWrapper>
               </DashboardMainContent>
             </div>

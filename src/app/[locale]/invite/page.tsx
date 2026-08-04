@@ -6,7 +6,7 @@ import {
   SignIn,
   WarningCircle,
   XCircle,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   Suspense,
   useCallback,
@@ -99,20 +99,20 @@ function InviteContent() {
   }, [authLoading, isAuthenticated, token, handleAccept]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-muted/30 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-muted px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
         className="w-full max-w-md"
       >
-        <div className="rounded-2xl border border-border/80 bg-card p-8 shadow-lg">
+        <div className="rounded-[--radius] border border-border bg-card p-8 shadow-lg">
           {/* Logo/Brand */}
           <div className="mb-8 text-center">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/80 text-white shadow-lg shadow-primary/20">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[--radius] bg-primary text-white shadow-lg">
               <Buildings className="h-8 w-8" weight="fill" />
             </div>
-            <h1 className="mt-4 text-2xl font-bold text-foreground">
+            <h1 className="mt-4 text-2xl font-semibold text-foreground">
               {t("title")}
             </h1>
           </div>
@@ -120,7 +120,7 @@ function InviteContent() {
           {/* Checking / Loading */}
           {(state === "checking" || authLoading) && (
             <div className="flex flex-col items-center gap-3 py-8">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              <div className="h-8 w-8 animate-spin rounded-full border border-rule-strong border-t-transparent" />
               <p className="text-sm text-muted-foreground">{t("checking")}</p>
             </div>
           )}
@@ -128,7 +128,7 @@ function InviteContent() {
           {/* No token provided */}
           {state === "no-token" && (
             <div className="flex flex-col items-center gap-4 py-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-500 text-white">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-warning text-white">
                 <WarningCircle className="h-6 w-6" weight="fill" />
               </div>
               <div className="text-center">
@@ -149,7 +149,7 @@ function InviteContent() {
           {/* Not authenticated */}
           {state === "not-authenticated" && (
             <div className="flex flex-col items-center gap-4 py-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-500 text-white">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-white">
                 <SignIn className="h-6 w-6" weight="fill" />
               </div>
               <div className="text-center">
@@ -181,7 +181,7 @@ function InviteContent() {
           {/* Accepting */}
           {state === "accepting" && (
             <div className="flex flex-col items-center gap-3 py-8">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              <div className="h-8 w-8 animate-spin rounded-full border border-rule-strong border-t-transparent" />
               <p className="text-sm text-muted-foreground">{t("accepting")}</p>
             </div>
           )}
@@ -189,7 +189,7 @@ function InviteContent() {
           {/* Accepted */}
           {state === "accepted" && (
             <div className="flex flex-col items-center gap-4 py-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500 text-white">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-healthy text-white">
                 <CheckCircle className="h-6 w-6" weight="fill" />
               </div>
               <div className="text-center">
@@ -204,7 +204,7 @@ function InviteContent() {
           {/* Error */}
           {state === "error" && (
             <div className="flex flex-col items-center gap-4 py-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-500 text-white">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive text-white">
                 <XCircle className="h-6 w-6" weight="fill" />
               </div>
               <div className="text-center">

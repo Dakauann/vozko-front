@@ -59,7 +59,7 @@ export default function PermissionsEditor({
               <span
                 className={cn(
                   "text-xs font-semibold",
-                  someEnabled ? "text-primary" : "text-foreground",
+                  someEnabled ? "text-lamp-ink" : "text-foreground",
                 )}
               >
                 {t(`resources.${perm.resource}`)}

@@ -8,7 +8,7 @@ import {
   Plus,
   Robot,
   Sparkle,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   archiveAgentAction,
   assignAgentDepartmentAction,
@@ -179,10 +179,10 @@ export default function AgentsPage() {
         render: (row) => (
           <span
             className={cn(
-              "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+              "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
               row.isActive
-                ? "bg-emerald-500 text-white"
-                : "bg-slate-500 text-white",
+                ? "bg-healthy text-white"
+                : "bg-muted text-white",
             )}
           >
             {row.isActive ? t("card.status.active") : t("card.status.inactive")}
@@ -205,7 +205,7 @@ export default function AgentsPage() {
                   title={t("detail.messagingModel")}
                 >
                   <ChatCircle
-                    className="h-3 w-3 shrink-0 text-emerald-500"
+                    className="h-3 w-3 shrink-0 text-healthy"
                     weight="fill"
                   />
                   <ModelBrandIcon modelId={messaging} size={12} />
@@ -229,7 +229,7 @@ export default function AgentsPage() {
               {tags.slice(0, 3).map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground"
+                  className="inline-flex items-center rounded-[--radius] bg-muted px-2 py-0.5 text-xs text-muted-foreground"
                 >
                   {tag}
                 </span>
@@ -362,7 +362,7 @@ export default function AgentsPage() {
         emptyState={
           error
             ? {
-                icon: <Robot className="h-7 w-7 text-red-600" weight="fill" />,
+                icon: <Robot className="h-7 w-7 text-destructive" weight="fill" />,
                 title: t("error.title"),
                 description: error,
               }

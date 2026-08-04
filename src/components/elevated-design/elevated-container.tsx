@@ -158,10 +158,10 @@ export default function ElevatedContainer({
   return (
     <Wrapper
       ref={containerRef}
-      className={`rounded-[20px] p-6 relative overflow-hidden border border-border bg-card backdrop-blur-sm transition-all duration-300 ${className}`}
+      className={`rounded-[--radius] p-6 relative overflow-hidden border border-border bg-card transition-all duration-300 ${className}`}
       style={{
         boxShadow:
-          "0px 0.7066px 0.7066px -0.6667px rgba(0,0,0,0.08), 0px 1.8066px 1.8066px -1.3333px rgba(0,0,0,0.08), 0px 3.6218px 3.6218px -2px rgba(0,0,0,0.07), 0px 6.8656px 6.8656px -2.6667px rgba(0,0,0,0.07), 0px 13.6468px 13.6468px -3.3333px rgba(0,0,0,0.05), 0px 30px 30px -4px rgba(0,0,0,0.02), inset 0px 3px 1px 0px var(--shadow-highlight-strong)",
+          "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)",
         ...(rest.style || {}),
       }}
       {...rest}

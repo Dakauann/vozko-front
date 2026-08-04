@@ -37,7 +37,7 @@ import {
   User,
   Users,
   WhatsappLogo,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   ElevatedDialog,
   ElevatedDialogContent,
@@ -69,7 +69,7 @@ import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import { ElevatedDatePicker } from "@/components/elevated-design/elevated-date-picker";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import GradientText from "@/components/elevated-design/gradient-text";
-import type { Icon } from "@phosphor-icons/react";
+import type { Icon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
@@ -168,11 +168,11 @@ function StatCard({
   loading?: boolean;
 }) {
   return (
-    <ElevatedContainer className="border border-border/70 bg-card p-5">
+    <ElevatedContainer className="border border-border bg-card p-5">
       <div className="flex items-center gap-3 mb-3">
         <div
           className={cn(
-            "flex h-11 w-11 items-center justify-center rounded-xl",
+            "flex h-11 w-11 items-center justify-center rounded-[--radius]",
             color,
           )}
         >
@@ -186,7 +186,7 @@ function StatCard({
             </div>
           ) : (
             <>
-              <p className="text-2xl font-bold text-foreground">
+              <p className="text-2xl font-semibold text-foreground">
                 {value.toLocaleString()}
               </p>
               <p className="text-sm text-muted-foreground">{title}</p>
@@ -198,7 +198,7 @@ function StatCard({
         <div
           className={cn(
             "flex items-center gap-1 text-xs",
-            change >= 0 ? "text-emerald-600" : "text-red-600",
+            change >= 0 ? "text-healthy" : "text-destructive",
           )}
         >
           <ArrowUp
@@ -231,7 +231,7 @@ function CategoryStatsGrid({
         category: "users",
         title: t("categories.users"),
         icon: Users,
-        color: "bg-blue-500",
+        color: "bg-muted",
         total:
           (eventCounts[EVENT_TYPES.USER_ACCOUNT_CREATED] || 0) +
           (eventCounts[EVENT_TYPES.USER_LOGIN] || 0),
@@ -250,7 +250,7 @@ function CategoryStatsGrid({
         category: "calls",
         title: t("categories.calls"),
         icon: PhoneCall,
-        color: "bg-cyan-500",
+        color: "bg-muted",
         total:
           (eventCounts[EVENT_TYPES.CALL_STARTED] || 0) +
           (eventCounts[EVENT_TYPES.CALL_ENDED] || 0),
@@ -269,7 +269,7 @@ function CategoryStatsGrid({
         category: "whatsapp",
         title: t("categories.whatsapp"),
         icon: WhatsappLogo,
-        color: "bg-green-500",
+        color: "bg-healthy",
         total:
           (eventCounts[EVENT_TYPES.WHATSAPP_MESSAGE_SENT] || 0) +
           (eventCounts[EVENT_TYPES.WHATSAPP_TEMPLATE_MESSAGE_SENT] || 0),
@@ -386,7 +386,7 @@ function TimeSeriesChart({
         className="flex flex-col items-center justify-center text-muted-foreground"
         style={{ height: 400 }}
       >
-        <ChartLine className="h-12 w-12 mb-2 text-slate-300" weight="fill" />
+        <ChartLine className="h-12 w-12 mb-2 text-muted-foreground" weight="fill" />
         <p>{t("noDataAvailable")}</p>
       </div>
     );
@@ -437,7 +437,7 @@ function TimeSeriesChart({
                   <span className="text-muted-foreground">
                     {chartConfig[name as string]?.label ?? name}
                   </span>
-                  <span className="font-bold tabular-nums">
+                  <span className="font-semibold tabular-nums">
                     {(value as number).toLocaleString()}
                   </span>
                 </div>
@@ -525,7 +525,7 @@ function DistributionPieChart({
         className="flex flex-col items-center justify-center text-muted-foreground"
         style={{ height: 300 }}
       >
-        <ChartPie className="h-12 w-12 mb-2 text-slate-300" weight="fill" />
+        <ChartPie className="h-12 w-12 mb-2 text-muted-foreground" weight="fill" />
         <p>{t("noDataAvailable")}</p>
       </div>
     );
@@ -560,7 +560,7 @@ function DistributionPieChart({
                   <span className="text-muted-foreground">
                     {pieConfig[name as string]?.label ?? name}
                   </span>
-                  <span className="font-bold tabular-nums">
+                  <span className="font-semibold tabular-nums">
                     {(value as number).toLocaleString()}
                   </span>
                 </div>
@@ -644,7 +644,7 @@ function CategoryBarChart({
         className="flex flex-col items-center justify-center text-muted-foreground"
         style={{ height: 300 }}
       >
-        <ChartBar className="h-12 w-12 mb-2 text-slate-300" weight="fill" />
+        <ChartBar className="h-12 w-12 mb-2 text-muted-foreground" weight="fill" />
         <p>{t("noDataAvailable")}</p>
       </div>
     );
@@ -671,7 +671,7 @@ function CategoryBarChart({
           content={
             <ChartTooltipContent
               formatter={(value) => (
-                <span className="font-bold tabular-nums">
+                <span className="font-semibold tabular-nums">
                   {(value as number).toLocaleString()}
                 </span>
               )}
@@ -729,7 +729,7 @@ function RecentActivityList({
         {[1, 2, 3, 4, 5].map((i) => (
           <div
             key={i}
-            className="animate-pulse flex items-center gap-3 p-3 rounded-xl bg-muted"
+            className="animate-pulse flex items-center gap-3 p-3 rounded-[--radius] bg-muted"
           >
             <div className="h-10 w-10 bg-border rounded-lg" />
             <div className="flex-1">
@@ -745,7 +745,7 @@ function RecentActivityList({
   if (!data?.metrics?.length) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-        <Clock className="h-12 w-12 mb-2 text-slate-300" />
+        <Clock className="h-12 w-12 mb-2 text-muted-foreground" />
         <p>{t("noRecentActivity")}</p>
       </div>
     );
@@ -760,7 +760,7 @@ function RecentActivityList({
         return (
           <div
             key={metric.id}
-            className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted/50 transition-colors"
+            className="flex items-center gap-3 p-3 rounded-[--radius] bg-muted hover:bg-muted transition-colors"
           >
             <div
               className="flex h-10 w-10 items-center justify-center rounded-lg"
@@ -1078,7 +1078,7 @@ export default function AdminMetricsDashboard() {
               alignment="left"
               startColor="#6366f1"
               endColor="#8b5cf6"
-              className="text-2xl font-bold md:text-3xl"
+              className="text-2xl font-semibold md:text-3xl"
             >
               {t("pageTitle")}
             </GradientText>
@@ -1104,9 +1104,9 @@ export default function AdminMetricsDashboard() {
           <button
             onClick={() => setMainSection("business-metrics")}
             className={cn(
-              "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all",
+              "flex items-center gap-2 px-4 py-2.5 rounded-[--radius] text-sm font-medium transition-all",
               mainSection === "business-metrics"
-                ? "bg-blue-600 text-white shadow-md"
+                ? "bg-muted text-white shadow-md"
                 : "bg-muted text-muted-foreground hover:bg-border",
             )}
           >
@@ -1119,7 +1119,7 @@ export default function AdminMetricsDashboard() {
       {mainSection === "business-metrics" && (
         <>
           <motion.div variants={itemVariants}>
-            <ElevatedContainer className="border border-border/70 bg-card p-4">
+            <ElevatedContainer className="border border-border bg-card p-4">
               <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                 <div className="flex items-center gap-2 flex-wrap">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -1222,7 +1222,7 @@ export default function AdminMetricsDashboard() {
                       size="sm"
                       onClick={handleClearFilters}
                       title={t("filters.clearAll")}
-                      className="text-primary hover:text-blue-800 hover:bg-primary/10"
+                      className="text-lamp-ink hover:text-blue-800 hover:bg-muted"
                     />
                   )}
                 </div>
@@ -1240,10 +1240,10 @@ export default function AdminMetricsDashboard() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <ElevatedContainer className="border border-border/70 bg-card p-6">
+            <ElevatedContainer className="border border-border bg-card p-6">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList
-                  className="mb-6 bg-muted/80 border border-border/50 shadow-none"
+                  className="mb-6 bg-muted border border-border shadow-none"
                   style={{ boxShadow: "none" }}
                 >
                   <TabsTrigger
@@ -1377,7 +1377,7 @@ export default function AdminMetricsDashboard() {
                       chart.width === 2 && "lg:col-span-2",
                     )}
                   >
-                    <ElevatedContainer className="border border-border/70 bg-card p-6 cursor-move hover:border-foreground/20 transition-colors">
+                    <ElevatedContainer className="border border-border bg-card p-6 cursor-move hover:border-foreground/20 transition-colors">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
                           <DotsSixVertical
@@ -1406,7 +1406,7 @@ export default function AdminMetricsDashboard() {
                             icon={<Trash className="h-4 w-4" />}
                             iconVisible
                             onClick={() => handleDeleteChart(chart.id)}
-                            className="text-red-600 hover:text-red-800 hover:bg-destructive/10"
+                            className="text-destructive hover:text-red-800 hover:bg-destructive/10"
                           />
                         </div>
                       </div>
@@ -1592,10 +1592,10 @@ export default function AdminMetricsDashboard() {
           </ElevatedDialog>
 
           <motion.div variants={itemVariants}>
-            <ElevatedContainer className="border border-border/70 bg-card p-6">
+            <ElevatedContainer className="border border-border bg-card p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-primary" weight="fill" />
+                  <Clock className="h-5 w-5 text-lamp-ink" weight="fill" />
                   <h2 className="text-lg font-semibold text-foreground">
                     {t("recentActivity.title")}
                   </h2>

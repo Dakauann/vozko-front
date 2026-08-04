@@ -45,7 +45,7 @@ import {
   TreeStructure,
   DotsThreeVertical,
   MagnifyingGlass,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
 import { BrandLogo } from "@/components/brand-logo";
@@ -1672,7 +1672,7 @@ export function WorkflowEditor({
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-5rem)] overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-3rem)] overflow-hidden">
       {/* ─── Top Bar ──────────────────────────────────────────────────── */}
       <div className="flex items-center gap-3 px-4 py-2.5 border-b border-border bg-card flex-shrink-0">
         <ElevatedButton
@@ -1824,7 +1824,7 @@ export function WorkflowEditor({
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem
-                  className="rounded-lg border-l-0 text-rose-600 hover:bg-rose-500/10 hover:text-rose-600 focus:bg-rose-500/10 focus:text-rose-600 dark:text-rose-400"
+                  className="rounded-lg border-l-0 text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive dark:text-destructive"
                   onSelect={() => setConfirmDeleteOpen(true)}
                 >
                   <Trash />
@@ -1908,7 +1908,7 @@ export function WorkflowEditor({
               </ControlButton>
             </Controls>
             <MiniMap
-              className="!bg-background !border-border border-black border-2 rounded"
+              className="!bg-background !border-border border-black border rounded"
               nodeColor="hsl(var(--primary))"
               maskColor="hsl(var(--muted) / 0.7)"
             />
@@ -1931,7 +1931,7 @@ export function WorkflowEditor({
                   icon={<Trash size={14} />}
                   iconVisible
                   onClick={deleteSelected}
-                  className="text-rose-600 border-rose-300 hover:bg-rose-50"
+                  className="text-destructive border-rose-300 hover:bg-destructive/10"
                 />
               </Panel>
             )}
@@ -1957,7 +1957,7 @@ export function WorkflowEditor({
 
             {/* Undo / Redo */}
             <Panel position="top-left">
-              <div className="flex items-center gap-1 bg-background/90 backdrop-blur border border-border rounded-lg p-0.5 shadow-sm">
+              <div className="flex items-center gap-1 bg-background border border-border rounded-lg p-0.5 shadow-sm">
                 <button
                   onClick={undo}
                   title="Desfazer (Ctrl+Z)"

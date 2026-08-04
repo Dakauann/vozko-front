@@ -11,7 +11,7 @@ import {
   Phone,
   PhoneCall,
   VideoCamera,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 import { DraggableComponent } from "./DragDropBuilder";
 import Image from "next/image";
@@ -60,7 +60,7 @@ export default function WhatsAppPreview({
         }}
       >
         <div className="mb-3 text-center">
-          <div className="inline-block bg-card/70 backdrop-blur-sm px-3 py-1.5 rounded-full">
+          <div className="inline-block bg-card px-3 py-1.5 rounded-full">
             <p className="text-[10px] text-muted-foreground font-medium">
               Template: {templateName} ({language.toUpperCase()})
             </p>
@@ -69,7 +69,7 @@ export default function WhatsAppPreview({
 
         {components.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <div className="bg-card/80 backdrop-blur-sm rounded-2xl p-6 max-w-xs">
+            <div className="bg-card rounded-2xl p-6 max-w-xs">
               <div className="h-12 w-12 mx-auto mb-3 rounded-full bg-muted flex items-center justify-center">
                 <CheckCircle
                   className="h-6 w-6 text-muted-foreground"
@@ -136,7 +136,7 @@ function HeaderPreview({ component }: { component: DraggableComponent }) {
   if (format === "TEXT") {
     return (
       <div className="px-4 pt-4 pb-2">
-        <p className="text-sm font-bold text-foreground">
+        <p className="text-sm font-semibold text-foreground">
           {text || <span className="text-muted-foreground italic">Header text</span>}
         </p>
       </div>
@@ -187,7 +187,7 @@ function HeaderPreview({ component }: { component: DraggableComponent }) {
       <div className="px-4 pt-4 pb-2 border-b border-border">
         <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
           <div className="h-10 w-10 rounded-lg bg-primary/15 flex items-center justify-center flex-shrink-0">
-            <FileIcon className="h-5 w-5 text-primary" weight="duotone" />
+            <FileIcon className="h-5 w-5 text-lamp-ink" weight="duotone" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-foreground truncate">
@@ -285,7 +285,7 @@ function ButtonsPreview({ component }: { component: DraggableComponent }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: index * 0.05 }}
-          className={`w-full px-4 py-3 text-center text-sm font-medium text-primary hover:bg-muted transition-colors ${
+          className={`w-full px-4 py-3 text-center text-sm font-medium text-lamp-ink hover:bg-muted transition-colors ${
             index !== buttons.length - 1 ? "border-b border-border" : ""
           }`}
         >
@@ -328,7 +328,7 @@ function CallPermissionPreview() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: index * 0.05 }}
-          className={`w-full px-4 py-3 text-center text-sm font-medium text-primary hover:bg-muted transition-colors ${
+          className={`w-full px-4 py-3 text-center text-sm font-medium text-lamp-ink hover:bg-muted transition-colors ${
             index !== buttons.length - 1 ? "border-b border-border" : ""
           }`}
         >

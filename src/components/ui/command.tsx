@@ -3,7 +3,7 @@
 import * as React from "react";
 import { type DialogProps } from "@radix-ui/react-dialog";
 import { Command as CommandPrimitive } from "cmdk";
-import { MagnifyingGlass } from "@phosphor-icons/react";
+import { MagnifyingGlass } from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -15,7 +15,7 @@ const Command = React.forwardRef<
   <CommandPrimitive
     ref={ref}
     className={cn(
-      "flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground shadow-lg",
+      "flex h-full w-full flex-col overflow-hidden rounded-[--radius] border border-border bg-popover text-popover-foreground shadow-lg",
       className,
     )}
     {...props}
@@ -121,8 +121,8 @@ const CommandItem = React.forwardRef<
   <CommandPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-pointer gap-2 select-none items-center rounded-xl px-3 py-2.5 text-sm outline-none transition-colors",
-      "data-[selected=true]:bg-primary/10 data-[selected=true]:text-primary",
+      "relative flex cursor-pointer gap-2 select-none items-center rounded-[--radius] px-3 py-2.5 text-sm outline-none transition-colors",
+      "data-[selected=true]:bg-muted data-[selected=true]:text-lamp-ink",
       "data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50",
       "[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
       className,

@@ -41,7 +41,7 @@ import {
   WhatsappLogo,
   Wrench,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   useCallback,
   useEffect,
@@ -424,7 +424,7 @@ function CollapsibleMessageText({ text }: { text: string }) {
           e.stopPropagation();
           setIsExpanded(!isExpanded);
         }}
-        className="mt-1 text-[12px] font-medium text-primary hover:text-primary hover:underline transition-colors"
+        className="mt-1 text-[12px] font-medium text-lamp-ink hover:text-lamp-ink hover:underline transition-colors"
       >
         {isExpanded ? "Ler menos" : "Ler mais"}
       </button>
@@ -475,7 +475,7 @@ function DownloadButton({
       rel="noopener noreferrer"
       download
       className={cn(
-        "flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm transition-colors hover:bg-black/60",
+        "flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white transition-colors hover:bg-black/60",
         className,
       )}
       onClick={(e) => e.stopPropagation()}
@@ -578,7 +578,7 @@ function AudioPlayer({ url }: { url: string }) {
   const played = Math.round(progress * WAVEFORM_BARS.length);
 
   return (
-    <div className="flex items-center gap-2.5 rounded-xl bg-muted/80 px-3 py-2 mb-1 min-w-[220px] max-w-[300px]">
+    <div className="flex items-center gap-2.5 rounded-[--radius] bg-muted px-3 py-2 mb-1 min-w-[220px] max-w-[300px]">
       {/* Hidden native audio element */}
       <audio ref={audioRef} src={url} preload="metadata">
         <track kind="captions" />
@@ -622,7 +622,7 @@ function AudioPlayer({ url }: { url: string }) {
           <button
             type="button"
             onClick={cycleSpeed}
-            className="rounded-full bg-card px-1.5 py-0.5 text-[9px] font-bold tabular-nums text-muted-foreground shadow-sm transition-colors hover:text-foreground"
+            className="rounded-[--radius] bg-card px-1.5 py-0.5 text-[9px] font-semibold tabular-nums text-muted-foreground shadow-sm transition-colors hover:text-foreground"
             aria-label="Velocidade de reprodução"
           >
             {speed}×
@@ -636,7 +636,7 @@ function AudioPlayer({ url }: { url: string }) {
         target="_blank"
         rel="noopener noreferrer"
         download
-        className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-primary"
+        className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-lamp-ink"
         onClick={(e) => e.stopPropagation()}
         aria-label="Download audio"
       >
@@ -668,7 +668,7 @@ function ImageLightbox({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
       onClick={onClose}
     >
       {/* Top-right controls */}
@@ -679,7 +679,7 @@ function ImageLightbox({
           rel="noopener noreferrer"
           download
           onClick={(e) => e.stopPropagation()}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
           aria-label="Download"
         >
           <DownloadSimple weight="bold" className="h-5 w-5" />
@@ -687,7 +687,7 @@ function ImageLightbox({
         <button
           type="button"
           onClick={onClose}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
           aria-label="Fechar"
         >
           <X weight="bold" className="h-5 w-5" />
@@ -736,7 +736,7 @@ function MediaBubble({
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 rounded-xl bg-muted/80 px-3 py-2.5 mb-1 min-w-[160px]">
+      <div className="flex items-center gap-2 rounded-[--radius] bg-muted px-3 py-2.5 mb-1 min-w-[160px]">
         <Spinner className="h-4 w-4 animate-spin text-muted-foreground" />
         <span className="text-xs text-muted-foreground">
           Carregando mídia...
@@ -747,7 +747,7 @@ function MediaBubble({
 
   if (error || (!mediaUrl && !loading)) {
     return (
-      <div className="flex items-center gap-2 rounded-xl bg-muted/80 px-3 py-2.5 mb-1 min-w-[160px]">
+      <div className="flex items-center gap-2 rounded-[--radius] bg-muted px-3 py-2.5 mb-1 min-w-[160px]">
         {type === "image" && (
           <ImageIcon className="h-4 w-4 text-muted-foreground" />
         )}
@@ -771,7 +771,7 @@ function MediaBubble({
     case "image":
       return (
         <>
-          <div className="group relative mb-1 w-fit cursor-pointer overflow-hidden rounded-2xl">
+          <div className="group relative mb-1 w-fit cursor-pointer overflow-hidden rounded-[--radius]">
             {/* Download button overlay */}
             <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
               <DownloadButton url={resolvedUrl} />
@@ -780,7 +780,7 @@ function MediaBubble({
             <img
               src={resolvedUrl}
               alt={text || "Imagem"}
-              className="block h-auto max-h-[360px] w-auto max-w-[280px] rounded-2xl object-contain"
+              className="block h-auto max-h-[360px] w-auto max-w-[280px] rounded-[--radius] object-contain"
               loading="lazy"
               onClick={() => setLightboxOpen(true)}
             />
@@ -801,7 +801,7 @@ function MediaBubble({
 
     case "video":
       return (
-        <div className="group relative mb-1 w-fit overflow-hidden rounded-2xl">
+        <div className="group relative mb-1 w-fit overflow-hidden rounded-[--radius]">
           {/* Download button overlay */}
           <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
             <DownloadButton url={resolvedUrl} />
@@ -809,7 +809,7 @@ function MediaBubble({
           <video
             src={resolvedUrl}
             controls
-            className="block h-auto max-h-[300px] w-auto max-w-[280px] rounded-2xl"
+            className="block h-auto max-h-[300px] w-auto max-w-[280px] rounded-[--radius]"
             preload="metadata"
           />
         </div>
@@ -826,7 +826,7 @@ function MediaBubble({
       return (
         <div
           onClick={() => setDocumentPreviewOpened((prev) => !prev)}
-          className="mb-1 flex min-w-[220px] max-w-[300px] cursor-pointer items-center gap-3 rounded-xl bg-muted/80 px-3 py-2.5 transition-colors hover:bg-border/70"
+          className="mb-1 flex min-w-[220px] max-w-[300px] cursor-pointer items-center gap-3 rounded-[--radius] bg-muted px-3 py-2.5 transition-colors hover:bg-border/70"
         >
           <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-white">
             <FileIcon weight="fill" className="h-5 w-5" />
@@ -970,7 +970,7 @@ function ConversationThreadSkeleton() {
           >
             <div
               className={cn(
-                "rounded-2xl animate-pulse motion-reduce:animate-none",
+                "rounded-[--radius] animate-pulse motion-reduce:animate-none",
                 isOut
                   ? "rounded-tr-md bg-black/[0.05] dark:bg-white/[0.10]"
                   : "rounded-tl-md bg-white/70 dark:bg-white/[0.06]",
@@ -995,7 +995,7 @@ function TypingIndicator() {
         {[0, 1, 2].map((i) => (
           <motion.span
             key={i}
-            className="h-2 w-2 rounded-full bg-slate-400"
+            className="h-2 w-2 rounded-full bg-muted"
             animate={{ y: [0, -4, 0] }}
             transition={{
               duration: 0.6,
@@ -1046,7 +1046,7 @@ function ToolEventRow({
           "group inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-card py-0.5 pl-0.5 pr-2",
           "ring-1 ring-inset transition-colors",
           ringTone,
-          hasDetail ? "cursor-pointer hover:bg-muted/40" : "cursor-default",
+          hasDetail ? "cursor-pointer hover:bg-muted" : "cursor-default",
           isMatched && "ring-2 ring-amber-400 ring-offset-1",
           isCurrentMatch && "ring-2 ring-emerald-500 ring-offset-2",
         )}
@@ -1089,7 +1089,7 @@ function ToolEventRow({
             transition={{ duration: 0.18, ease: "easeOut" }}
             className="mt-1 w-full max-w-[80%] overflow-hidden"
           >
-            <div className="rounded-md border border-border bg-muted/30 px-2.5 py-1.5">
+            <div className="rounded-md border border-border bg-muted px-2.5 py-1.5">
               <p className="whitespace-pre-wrap break-words text-[11px] leading-snug text-muted-foreground">
                 {info.detail}
               </p>
@@ -1142,10 +1142,10 @@ function EntryMetadataPanel({
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          className="flex w-full items-center justify-between rounded-xl bg-card/90 px-4 py-2.5 shadow-sm backdrop-blur-sm transition-colors hover:bg-card"
+          className="flex w-full items-center justify-between rounded-[--radius] bg-card px-4 py-2.5 shadow-sm transition-colors hover:bg-card"
         >
           <div className="flex items-center gap-2">
-            <Info weight="fill" className="h-4 w-4 text-primary" />
+            <Info weight="fill" className="h-4 w-4 text-lamp-ink" />
             <span className="text-[12px] font-semibold text-foreground">
               Detalhes do contato
             </span>
@@ -1170,7 +1170,7 @@ function EntryMetadataPanel({
               transition={{ duration: 0.2, ease: "easeInOut" }}
               className="overflow-hidden"
             >
-              <div className="mt-1 rounded-xl bg-card/90 px-4 py-3 shadow-sm backdrop-blur-sm space-y-2.5">
+              <div className="mt-1 rounded-[--radius] bg-card px-4 py-3 shadow-sm space-y-2.5">
                 {/* Lead info */}
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted">
@@ -1237,14 +1237,14 @@ function EntryMetadataPanel({
                     <button
                       type="button"
                       onClick={() => setShowTemplate(!showTemplate)}
-                      className="flex w-full items-center justify-between rounded-lg bg-green-500/10 px-3 py-2 transition-colors hover:bg-green-500/15"
+                      className="flex w-full items-center justify-between rounded-lg bg-healthy/10 px-3 py-2 transition-colors hover:bg-healthy/15"
                     >
                       <div className="flex items-center gap-2">
                         <ChatText
                           weight="fill"
-                          className="h-4 w-4 text-green-600"
+                          className="h-4 w-4 text-healthy"
                         />
-                        <span className="text-[11px] font-semibold text-green-700">
+                        <span className="text-[11px] font-semibold text-healthy">
                           Template enviado: {templateInfo.template_name}
                         </span>
                       </div>
@@ -1649,8 +1649,8 @@ export default function CrmConversationView({
 
   if (!conversation) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-4 bg-muted/50 px-8 text-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-muted">
+      <div className="flex h-full flex-col items-center justify-center gap-4 bg-muted px-8 text-center">
+        <div className="flex h-20 w-20 items-center justify-center rounded-[--radius] bg-muted">
           <ImageIcon
             weight="duotone"
             className="h-10 w-10 text-muted-foreground"
@@ -1698,7 +1698,7 @@ export default function CrmConversationView({
                 className={cn(
                   "flex h-10 w-10 items-center justify-center rounded-full shadow-lg transition-colors",
                   stageSelectorOpen
-                    ? "bg-emerald-500/100 text-white"
+                    ? "bg-healthy/100 text-white"
                     : "bg-card text-muted-foreground hover:bg-muted",
                 )}
                 whileHover={{ scale: 1.05 }}
@@ -1742,7 +1742,7 @@ export default function CrmConversationView({
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -8, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute left-0 top-full z-40 mt-2 w-48 rounded-xl border border-border bg-card shadow-xl py-1.5 overflow-hidden"
+                    className="absolute left-0 top-full z-40 mt-2 w-48 rounded-[--radius] border border-border bg-card shadow-xl py-1.5 overflow-hidden"
                   >
                     <div className="px-3 py-1.5 text-[9px] font-semibold text-muted-foreground uppercase tracking-wide">
                       {tags.length > 0 ? "Mover para" : "Etapas"}
@@ -1820,7 +1820,7 @@ export default function CrmConversationView({
                                   {tag.name}
                                 </span>
                                 {isAssigned && (
-                                  <span className="text-[9px] text-emerald-500 flex-shrink-0">
+                                  <span className="text-[9px] text-healthy flex-shrink-0">
                                     ✓
                                   </span>
                                 )}
@@ -1846,7 +1846,7 @@ export default function CrmConversationView({
                 className={cn(
                   "flex h-10 w-10 items-center justify-center rounded-full shadow-lg transition-colors",
                   labelSelectorOpen
-                    ? "bg-violet-500 text-white"
+                    ? "bg-muted text-white"
                     : "bg-card text-muted-foreground hover:bg-muted",
                 )}
                 whileHover={{ scale: 1.05 }}
@@ -1885,7 +1885,7 @@ export default function CrmConversationView({
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -8, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute left-0 top-full z-40 mt-2 w-48 rounded-xl border border-border bg-card shadow-xl py-1.5 overflow-hidden"
+                    className="absolute left-0 top-full z-40 mt-2 w-48 rounded-[--radius] border border-border bg-card shadow-xl py-1.5 overflow-hidden"
                   >
                     <div className="px-3 py-1.5 text-[9px] font-semibold text-muted-foreground uppercase tracking-wide">
                       Etiquetas
@@ -1949,7 +1949,7 @@ export default function CrmConversationView({
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="relative z-[30] overflow-hidden border-b border-border/80 bg-card shadow-sm"
+            className="relative z-[30] overflow-hidden border-b border-border bg-card shadow-sm"
           >
             <div className="flex items-center gap-2 px-3 ">
               <MagnifyingGlass
@@ -1978,7 +1978,7 @@ export default function CrmConversationView({
               {/* Search status */}
               {searchingMessages && (
                 <motion.div
-                  className="h-4 w-4 rounded-full border-2 border-emerald-500 border-t-transparent flex-shrink-0"
+                  className="h-4 w-4 rounded-full border border-healthy border-t-transparent flex-shrink-0"
                   animate={{ rotate: 360 }}
                   transition={{
                     duration: 0.8,
@@ -2070,9 +2070,9 @@ export default function CrmConversationView({
           {/* Loading indicator when fetching older messages */}
           {loadingHistory && (
             <div className="flex items-center justify-center py-3">
-              <div className="flex items-center gap-2 rounded-lg bg-card/90 px-4 py-2 shadow-sm">
+              <div className="flex items-center gap-2 rounded-lg bg-card px-4 py-2 shadow-sm">
                 <motion.div
-                  className="h-4 w-4 rounded-full border-2 border-emerald-500 border-t-transparent"
+                  className="h-4 w-4 rounded-full border border-healthy border-t-transparent"
                   animate={{ rotate: 360 }}
                   transition={{
                     duration: 0.8,
@@ -2090,7 +2090,7 @@ export default function CrmConversationView({
             <div key={`${group.date}-${groupIndex}`}>
               {/* Date separator */}
               <div className="flex items-center justify-center py-3">
-                <span className="rounded-lg bg-card/90 px-3 py-1 text-[11px] font-medium text-muted-foreground shadow-sm">
+                <span className="rounded-lg bg-card px-3 py-1 text-[11px] font-medium text-muted-foreground shadow-sm">
                   {formatDateGroup(group.date)}
                 </span>
               </div>
@@ -2103,7 +2103,7 @@ export default function CrmConversationView({
                   if (run.channel === "__system__") {
                     return run.messages.map((msg) => (
                       <div key={msg.id} className="flex justify-center py-1">
-                        <span className="rounded-lg bg-amber-500 px-3 py-1.5 text-[11px] text-white shadow-sm max-w-[80%] text-center">
+                        <span className="rounded-lg bg-warning px-3 py-1.5 text-[11px] text-white shadow-sm max-w-[80%] text-center">
                           {msg.text}
                         </span>
                       </div>
@@ -2115,7 +2115,7 @@ export default function CrmConversationView({
                   const channelColor = isVoiceRun
                     ? "border-blue-400"
                     : isWhatsAppRun
-                      ? "border-emerald-400"
+                      ? "border-healthy"
                       : "border-foreground/20";
 
                   return (
@@ -2152,9 +2152,9 @@ export default function CrmConversationView({
                             >
                               <div
                                 className={cn(
-                                  "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium",
+                                  "flex items-center gap-1.5 rounded-[--radius] px-3 py-1.5 text-[11px] font-medium",
                                   missed
-                                    ? "bg-red-500/10 text-red-600 dark:text-red-400"
+                                    ? "bg-destructive/10 text-destructive dark:text-red-400"
                                     : "bg-muted text-muted-foreground",
                                 )}
                               >
@@ -2230,7 +2230,7 @@ export default function CrmConversationView({
                               key={msg.id ?? `${runIdx}-${msgIdx}`}
                               className="flex justify-center my-2"
                             >
-                              <div className="rounded-full bg-muted px-3 py-1.5 text-[11px] text-muted-foreground">
+                              <div className="rounded-[--radius] bg-muted px-3 py-1.5 text-[11px] text-muted-foreground">
                                 {msg.text || "Mensagem não suportada"}
                               </div>
                             </div>
@@ -2253,12 +2253,12 @@ export default function CrmConversationView({
                             >
                               <div
                                 className={cn(
-                                  "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium text-white",
+                                  "flex items-center gap-1.5 rounded-[--radius] px-3 py-1.5 text-[11px] font-medium text-white",
                                   granted
-                                    ? "bg-emerald-500"
+                                    ? "bg-healthy"
                                     : rejected
-                                      ? "bg-rose-500"
-                                      : "bg-amber-500",
+                                      ? "bg-destructive"
+                                      : "bg-warning",
                                 )}
                               >
                                 <PhoneCall
@@ -2424,9 +2424,9 @@ export default function CrmConversationView({
                             )}
                             <div
                               className={cn(
-                                "relative max-w-[75%] rounded-2xl px-3 py-2 shadow-sm transition-all duration-300",
+                                "relative max-w-[75%] rounded-[--radius] px-3 py-2 shadow-sm transition-all duration-300",
                                 matchedIds.has(msg.id) &&
-                                  "ring-2 ring-amber-400 ring-offset-1 bg-amber-500/10/40",
+                                  "ring-2 ring-amber-400 ring-offset-1 bg-warning/10/40",
                                 messageSearchResults?.[currentMatchIdx]?.id ===
                                   msg.id &&
                                   "ring-2 ring-emerald-500 ring-offset-2",
@@ -2435,7 +2435,7 @@ export default function CrmConversationView({
                                     ? "bg-primary/15/70 text-foreground rounded-tr-sm"
                                     : "bg-[#d9fdd3] dark:bg-[#005c4b] text-foreground dark:text-slate-100 rounded-tr-sm"
                                   : isVoiceRun
-                                    ? "bg-primary/10/80 text-foreground rounded-tl-sm"
+                                    ? "bg-muted text-foreground rounded-tl-sm"
                                     : "bg-card dark:bg-[#202c33] text-foreground dark:text-slate-100 rounded-tl-sm",
                                 isOutgoing
                                   ? cn("border-r-[3px]", channelColor)
@@ -2460,9 +2460,9 @@ export default function CrmConversationView({
                                     <>
                                       <WhatsappLogo
                                         weight="fill"
-                                        className="h-2.5 w-2.5 text-emerald-500/60"
+                                        className="h-2.5 w-2.5 text-healthy/60"
                                       />
-                                      <span className="text-[9px] font-semibold uppercase tracking-wider text-emerald-600/50">
+                                      <span className="text-[9px] font-semibold uppercase tracking-wider text-healthy/50">
                                         WhatsApp
                                       </span>
                                     </>
@@ -2473,7 +2473,7 @@ export default function CrmConversationView({
                                         weight="fill"
                                         className="h-2.5 w-2.5 text-blue-400/60"
                                       />
-                                      <span className="text-[9px] font-semibold uppercase tracking-wider text-primary/50">
+                                      <span className="text-[9px] font-semibold uppercase tracking-wider text-lamp-ink/50">
                                         Voz
                                       </span>
                                     </>
@@ -2487,8 +2487,8 @@ export default function CrmConversationView({
                                   className={cn(
                                     "text-[11px] font-semibold mb-0.5",
                                     isVoiceRun
-                                      ? "text-primary"
-                                      : "text-emerald-600",
+                                      ? "text-lamp-ink"
+                                      : "text-healthy",
                                   )}
                                 >
                                   {senderName || msg.from}
@@ -2530,7 +2530,7 @@ export default function CrmConversationView({
                                       }}
                                       className="mb-1 w-full rounded-lg bg-black/5 px-2.5 py-1.5 text-left border-l-[3px] border-blue-400 hover:bg-black/[0.08] transition-colors"
                                     >
-                                      <p className="text-[10px] font-semibold text-primary truncate">
+                                      <p className="text-[10px] font-semibold text-lamp-ink truncate">
                                         {repliedMsg.sender_name ||
                                           repliedMsg.from}
                                       </p>
@@ -2586,17 +2586,17 @@ export default function CrmConversationView({
                                 )}
                               >
                                 {isAgentMessage && (
-                                  <span className="rounded-md bg-violet-500 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">
+                                  <span className="rounded-md bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white">
                                     AI
                                   </span>
                                 )}
                                 {isOperatorMessage && (
-                                  <span className="rounded-md bg-primary px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">
+                                  <span className="rounded-md bg-primary px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white">
                                     Operador
                                   </span>
                                 )}
                                 {isTemplateMessage && (
-                                  <span className="rounded-md bg-emerald-500 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">
+                                  <span className="rounded-md bg-healthy px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white">
                                     Template
                                   </span>
                                 )}
@@ -2644,7 +2644,7 @@ export default function CrmConversationView({
                 exit={{ opacity: 0, y: 8 }}
                 className="flex justify-start"
               >
-                <div className="rounded-2xl rounded-tl-sm bg-card shadow-sm">
+                <div className="rounded-[--radius] rounded-tl-sm bg-card shadow-sm">
                   <TypingIndicator />
                 </div>
               </motion.div>

@@ -10,7 +10,7 @@ import {
   LockIcon,
   User,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   register as registerRequest,
   sendEmailVerification,
@@ -376,8 +376,8 @@ export default function RegisterClient() {
   };
 
   return (
-    <div className="min-h-screen pt-16 sm:pt-20 bg-gradient-to-br from-muted via-card to-background overflow-y-auto">
-      <div className="flex items-center justify-center px-4 py-8 sm:py-12 relative min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-5rem)]">
+    <div className="min-h-screen pt-0 bg-muted overflow-y-auto">
+      <div className="flex items-center justify-center px-4 py-8 sm:py-12 relative min-h-[calc(100vh-3rem)] sm:min-h-[calc(100vh-3rem)]">
         <div
           className="fixed inset-0 opacity-[0.015] pointer-events-none"
           style={{
@@ -392,7 +392,7 @@ export default function RegisterClient() {
           className="w-full max-w-[520px] relative"
         >
           <div
-            className="rounded-2xl sm:rounded-[28px] bg-card p-6 sm:p-8 border border-border"
+            className="rounded-[--radius] sm:rounded-[--radius] bg-card p-6 sm:p-8 border border-border"
             style={{
               boxShadow:
                 "0 4px 40px -12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.02)",
@@ -403,11 +403,11 @@ export default function RegisterClient() {
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.1 }}
-                className="inline-flex items-center rounded-full bg-muted border border-border px-4 py-1.5 text-xs font-semibold uppercase text-muted-foreground mb-4"
+                className="inline-flex items-center rounded-[--radius] bg-muted border border-border px-4 py-1.5 text-xs font-semibold uppercase text-muted-foreground mb-4"
               >
                 {t("header.badge")}
               </motion.div>
-              <h1 className="text-3xl font-bold text-foreground tracking-tight">
+              <h1 className="text-3xl font-semibold text-foreground tracking-tight">
                 {t("header.title")}
               </h1>
               <p className="mt-3 text-muted-foreground text-[15px]">
@@ -427,9 +427,9 @@ export default function RegisterClient() {
                   <button
                     type="button"
                     onClick={() => handleAccountTypeChange("individual")}
-                    className={`relative flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 ${
+                    className={`relative flex flex-col items-center justify-center gap-2 p-4 rounded-[--radius] border transition-all duration-200 ${
                       accountType === "individual"
-                        ? "border-slate-900 bg-slate-900 text-white shadow-lg"
+                        ? "border-slate-900 border border-border bg-muted text-foreground shadow-lg"
                         : "border-border bg-transparent text-muted-foreground hover:border-foreground/20 hover:bg-muted"
                     }`}
                   >
@@ -448,9 +448,9 @@ export default function RegisterClient() {
                   <button
                     type="button"
                     onClick={() => handleAccountTypeChange("company")}
-                    className={`relative flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 ${
+                    className={`relative flex flex-col items-center justify-center gap-2 p-4 rounded-[--radius] border transition-all duration-200 ${
                       accountType === "company"
-                        ? "border-slate-900 bg-slate-900 text-white shadow-lg"
+                        ? "border-slate-900 border border-border bg-muted text-foreground shadow-lg"
                         : "border-border bg-transparent text-muted-foreground hover:border-foreground/20 hover:bg-muted"
                     }`}
                   >
@@ -611,15 +611,15 @@ export default function RegisterClient() {
                         key={rule}
                         className={`flex items-center gap-2 ${
                           ok
-                            ? "text-emerald-700 dark:text-emerald-400"
+                            ? "text-healthy dark:text-healthy"
                             : "text-muted-foreground"
                         }`}
                       >
                         <span
                           className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full text-white ${
                             ok
-                              ? "bg-gradient-to-br from-emerald-500 to-emerald-700"
-                              : "bg-gradient-to-br from-muted-foreground/60 to-muted-foreground"
+                              ? "bg-muted"
+                              : "bg-muted"
                           }`}
                         >
                           {ok ? (
@@ -635,7 +635,7 @@ export default function RegisterClient() {
                 </ul>
               )}
 
-              <div className="flex items-start gap-3 p-3 bg-muted rounded-xl border border-border">
+              <div className="flex items-start gap-3 p-3 bg-muted rounded-[--radius] border border-border">
                 <Checkbox
                   id="terms"
                   checked={acceptTerms}
@@ -651,14 +651,14 @@ export default function RegisterClient() {
                   {t("form.terms.prefix")}{" "}
                   <Link
                     href="/terms-of-service"
-                    className="text-foreground font-semibold hover:text-amber-600 transition-colors"
+                    className="text-foreground font-semibold hover:text-warning transition-colors"
                   >
                     {t("form.terms.termsLink")}
                   </Link>{" "}
                   {t("form.terms.middle")}{" "}
                   <Link
                     href="/privacy-policy"
-                    className="text-foreground font-semibold hover:text-amber-600 transition-colors"
+                    className="text-foreground font-semibold hover:text-warning transition-colors"
                   >
                     {t("form.terms.privacyLink")}
                   </Link>

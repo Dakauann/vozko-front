@@ -96,11 +96,11 @@ const ElevatedSlider = forwardRef<
 
         <div
           className={cn(
-            "relative rounded-2xl border border-border/60 bg-card/70 p-4 transition-all duration-200",
-            "supports-[backdrop-filter]:bg-card/40 supports-[backdrop-filter]:backdrop-blur-xl",
+            "relative rounded-[--radius] border border-border bg-card p-4 transition-all duration-200",
+            "bg-card",
             focused && "border-foreground/20",
             props.disabled &&
-              "opacity-60 bg-muted/70 supports-[backdrop-filter]:bg-muted/60"
+              "opacity-60 bg-muted/70bg-muted"
           )}
           style={{ boxShadow: containerShadow }}
         >
@@ -130,7 +130,7 @@ const ElevatedSlider = forwardRef<
             </SliderPrimitive.Track>
             <SliderPrimitive.Thumb
               className={cn(
-                "block h-5 w-5 rounded-full border-2 bg-card ring-offset-background transition-colors",
+                "block h-5 w-5 rounded-full border bg-card ring-offset-background transition-colors",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                 "disabled:pointer-events-none disabled:opacity-50",
                 "hover:bg-muted",

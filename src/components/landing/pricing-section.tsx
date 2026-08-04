@@ -47,7 +47,7 @@ export function PricingSection({
       <div className="relative mx-auto w-full max-w-7xl px-6 md:px-10">
         {/* Header */}
         <div className="relative text-center max-w-3xl mx-auto mb-12">
-          <span className="text-xs font-semibold uppercase text-blue-600 dark:text-blue-400 tracking-wider">
+          <span className="text-xs font-semibold uppercase text-muted-foreground dark:text-blue-400 tracking-wider">
             {t("badge")}
           </span>
           <h2 className="mt-4 text-3xl font-semibold md:text-5xl text-foreground">

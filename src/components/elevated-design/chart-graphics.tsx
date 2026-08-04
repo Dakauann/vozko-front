@@ -71,9 +71,9 @@ const ChartGraphicCard: React.FC<ChartGraphicCardProps> = ({
   return (
     <motion.div
       className={cn(
-        "relative flex flex-col items-center justify-end overflow-hidden rounded-[20px] bg-[rgb(245,245,245)]",
+        "relative flex flex-col items-center justify-end overflow-hidden rounded-[--radius] bg-[rgb(245,245,245)]",
         "shadow-[0px_0.71px_0.71px_-0.67px_rgba(0,0,0,0.08),0px_1.81px_1.81px_-1.33px_rgba(0,0,0,0.08),0px_3.62px_3.62px_-2px_rgba(0,0,0,0.07),0px_6.87px_6.87px_-2.67px_rgba(0,0,0,0.07),0px_13.65px_13.65px_-3.33px_rgba(0,0,0,0.05),0px_30px_30px_-4px_rgba(0,0,0,0.02)]",
-        "shadow-[inset_0px_3px_1px_0px_var(--shadow-highlight-strong)]",
+        "shadow-[inset_0_1px_0_hsl(var(--rule-strong))]",
         isMobile ? "aspect-square" : "",
         className,
       )}
@@ -90,7 +90,7 @@ const ChartGraphicCard: React.FC<ChartGraphicCardProps> = ({
             style={{
               left: index * 59,
               boxShadow:
-                "0px 0.71px 0.71px -0.67px rgba(0,0,0,0.08), 0px 1.81px 1.81px -1.33px rgba(0,0,0,0.08), 0px 3.62px 3.62px -2px rgba(0,0,0,0.07), 0px 6.87px 6.87px -2.67px rgba(0,0,0,0.07), 0px 13.65px 13.65px -3.33px rgba(0,0,0,0.05), 0px 30px 30px -4px rgba(0,0,0,0.02), inset 0px 3px 1px 0px var(--shadow-highlight-strong)",
+                "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)",
             }}
             animate={{ height: barHeight }}
             transition={transition}
@@ -116,7 +116,7 @@ const ChartGraphicCard: React.FC<ChartGraphicCardProps> = ({
         className="absolute flex items-center justify-center gap-6 px-4 py-1 bg-[rgb(245,245,245)] rounded-full"
         style={{
           boxShadow:
-            "0px 0.71px 0.71px -0.67px rgba(0,0,0,0.08), 0px 1.81px 1.81px -1.33px rgba(0,0,0,0.08), 0px 3.62px 3.62px -2px rgba(0,0,0,0.07), 0px 6.87px 6.87px -2.67px rgba(0,0,0,0.07), 0px 13.65px 13.65px -3.33px rgba(0,0,0,0.05), 0px 30px 30px -4px rgba(0,0,0,0.02), inset 0px 3px 1px 0px var(--shadow-highlight-strong)",
+            "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)",
         }}
         animate={{
           left: isAfterPhase ? 79 : 79,
@@ -133,7 +133,7 @@ const ChartGraphicCard: React.FC<ChartGraphicCardProps> = ({
         className="absolute flex items-center justify-center gap-6 px-4 py-1 bg-[rgb(245,245,245)] rounded-full"
         style={{
           boxShadow:
-            "0px 0.71px 0.71px -0.67px rgba(0,0,0,0.08), 0px 1.81px 1.81px -1.33px rgba(0,0,0,0.08), 0px 3.62px 3.62px -2px rgba(0,0,0,0.07), 0px 6.87px 6.87px -2.67px rgba(0,0,0,0.07), 0px 13.65px 13.65px -3.33px rgba(0,0,0,0.05), 0px 30px 30px -4px rgba(0,0,0,0.02), inset 0px 3px 1px 0px var(--shadow-highlight-strong)",
+            "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)",
         }}
         animate={{
           right: 31,
@@ -154,7 +154,7 @@ const ChartGraphicCard: React.FC<ChartGraphicCardProps> = ({
             top: "49%",
             transform: "translateY(-50%) rotate(-90deg)",
             boxShadow:
-              "0px 0.71px 0.71px -0.67px rgba(0,0,0,0.08), 0px 1.81px 1.81px -1.33px rgba(0,0,0,0.08), 0px 3.62px 3.62px -2px rgba(0,0,0,0.07), 0px 6.87px 6.87px -2.67px rgba(0,0,0,0.07), 0px 13.65px 13.65px -3.33px rgba(0,0,0,0.05), 0px 30px 30px -4px rgba(0,0,0,0.02), inset 0px 3px 1px 0px var(--shadow-highlight-strong)",
+              "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)",
           }}
         >
           <motion.span

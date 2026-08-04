@@ -59,7 +59,7 @@ export const kanbanDragOverlayTransition: Transition = {
 // (the "ghost"). Border + fill match the column's drag-over highlight so the
 // whole gesture reads as one system.
 export const kanbanCardGhostClass =
-  "rounded-xl border-2 border-dashed border-foreground/20 bg-muted/40";
+  "rounded-[--radius] border border-dashed border-foreground/20 bg-muted";
 
 // Shared kanban-card primitives. The conversation funnel and the deal board are
 // two genuinely different objects (a chat has unread/last-message; a deal has
@@ -81,14 +81,14 @@ export function kanbanCardClass(
   extra?: string,
 ) {
   return cn(
-    "group relative rounded-xl border bg-card p-3 transition-all",
+    "group relative rounded-[--radius] border bg-card p-3 transition-all",
     state?.won
-      ? "border-emerald-300 bg-emerald-50/40 hover:border-emerald-400 hover:shadow-sm dark:bg-emerald-500/5"
+      ? "border-emerald-300 bg-healthy/10/40 hover:border-healthy hover:shadow-sm dark:bg-healthy/5"
       : state?.lost
-        ? "border-border/70 opacity-75 hover:opacity-100 hover:border-foreground/20 hover:shadow-sm"
+        ? "border-border opacity-75 hover:opacity-100 hover:border-foreground/20 hover:shadow-sm"
         : state?.selected
           ? "border-emerald-300 shadow-md ring-1 ring-emerald-500/30"
-          : "border-border/80 hover:border-foreground/20 hover:shadow-sm",
+          : "border-border hover:border-foreground/20 hover:shadow-sm",
     extra,
   );
 }
@@ -122,7 +122,7 @@ export function KanbanCardHeader({
         <p
           className={cn(
             "truncate text-xs text-foreground",
-            strongTitle ? "font-bold" : "font-medium",
+            strongTitle ? "font-semibold" : "font-medium",
           )}
         >
           {title}
@@ -213,7 +213,7 @@ export function CardTile({
   return (
     <span
       className={cn(
-        "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold text-white",
+        "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white",
         !color && "bg-primary",
         className,
       )}
@@ -240,10 +240,10 @@ export type PillTone =
   | "neutral";
 
 const PILL_TONE: Record<PillTone, string> = {
-  success: "bg-emerald-500 text-white",
-  warning: "bg-amber-500 text-white",
-  danger: "bg-rose-500 text-white",
-  info: "bg-indigo-500 text-white",
+  success: "bg-healthy text-white",
+  warning: "bg-warning text-white",
+  danger: "bg-destructive text-white",
+  info: "bg-muted text-white",
   accent: "bg-primary text-white",
   // Neutral is the only non-white pill: muted fill, muted ink (still ≥4.5:1).
   neutral: "bg-muted text-muted-foreground",
@@ -269,7 +269,7 @@ export function CardPill({
     <span
       title={title}
       className={cn(
-        "inline-flex max-w-full items-center gap-1 truncate rounded-full px-1.5 py-0.5 text-[9px] font-semibold",
+        "inline-flex max-w-full items-center gap-1 truncate rounded-[--radius] px-1.5 py-0.5 text-[9px] font-semibold",
         color ? "text-white" : PILL_TONE[tone],
         className,
       )}
@@ -288,7 +288,7 @@ export function CardPill({
 export function CardLabelChip({ name, color }: { name: string; color: string }) {
   return (
     <span
-      className="inline-flex items-center gap-1 truncate rounded-full px-2 py-0.5 text-[9px] font-bold text-white shadow-sm"
+      className="inline-flex items-center gap-1 truncate rounded-[--radius] px-2 py-0.5 text-[9px] font-semibold text-white shadow-sm"
       style={{ backgroundColor: color }}
     >
       <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-white/40" />

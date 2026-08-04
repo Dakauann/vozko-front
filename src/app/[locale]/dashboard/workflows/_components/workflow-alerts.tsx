@@ -7,7 +7,7 @@ import {
   CheckCircle,
   CircleNotch,
   ArrowRight,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 import {
   Popover,
@@ -85,11 +85,11 @@ export function WorkflowAlerts({
           title={triggerLabel}
           aria-label={triggerLabel}
           className={cn(
-            "inline-flex items-center gap-1.5 min-h-[32px] rounded-xl border-2 px-2.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+            "inline-flex items-center gap-1.5 min-h-[32px] rounded-[--radius] border px-2.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
             tone === "blocking" &&
-              "border-rose-300 text-rose-700 hover:bg-rose-50 dark:border-rose-500/40 dark:text-rose-300 dark:hover:bg-rose-500/10",
+              "border-rose-300 text-destructive hover:bg-destructive/10 dark:border-destructive/40 dark:text-rose-300 dark:hover:bg-destructive/10",
             tone === "advisory" &&
-              "border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-500/40 dark:text-amber-300 dark:hover:bg-amber-500/10",
+              "border-amber-300 text-warning hover:bg-amber-50 dark:border-warning/40 dark:text-amber-300 dark:hover:bg-warning/10",
             tone === "clean" &&
               "border-border text-muted-foreground hover:border-foreground/20 hover:bg-muted",
           )}
@@ -99,15 +99,15 @@ export function WorkflowAlerts({
             weight={tone === "clean" ? "regular" : "fill"}
             className={cn(
               linting && "animate-spin",
-              tone === "clean" && !linting && "text-emerald-600 dark:text-emerald-400",
+              tone === "clean" && !linting && "text-healthy dark:text-healthy",
             )}
           />
           <span>Alertas</span>
           {total > 0 && (
             <span
               className={cn(
-                "grid h-[18px] min-w-[18px] place-items-center rounded-full px-1 text-[11px] font-bold text-white",
-                tone === "blocking" ? "bg-rose-500" : "bg-amber-500",
+                "grid h-[18px] min-w-[18px] place-items-center rounded-full px-1 text-[11px] font-semibold text-white",
+                tone === "blocking" ? "bg-destructive" : "bg-warning",
               )}
             >
               {total}
@@ -122,8 +122,8 @@ export function WorkflowAlerts({
           <div
             className={cn(
               "text-xs font-medium",
-              tone === "blocking" && "text-rose-600 dark:text-rose-400",
-              tone === "advisory" && "text-amber-600 dark:text-amber-400",
+              tone === "blocking" && "text-destructive dark:text-destructive",
+              tone === "advisory" && "text-warning dark:text-amber-400",
               tone === "clean" && "text-muted-foreground",
             )}
           >
@@ -134,7 +134,7 @@ export function WorkflowAlerts({
         <div className="border-t border-border">
           {total === 0 ? (
             <div className="flex flex-col items-center gap-2 px-6 py-10 text-center">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-500">
+              <div className="grid h-10 w-10 place-items-center rounded-[--radius] bg-healthy">
                 <CheckCircle size={22} weight="fill" className="text-white" />
               </div>
               <div className="text-sm font-medium text-foreground">
@@ -163,7 +163,7 @@ export function WorkflowAlerts({
                     <div
                       className={cn(
                         "mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-lg",
-                        blockingIssue ? "bg-rose-500" : "bg-amber-500",
+                        blockingIssue ? "bg-destructive" : "bg-warning",
                       )}
                     >
                       <SeverityIcon
@@ -187,7 +187,7 @@ export function WorkflowAlerts({
                             {chip}
                           </span>
                           {clickable && (
-                            <span className="inline-flex items-center gap-0.5 text-[11px] font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                            <span className="inline-flex items-center gap-0.5 text-[11px] font-medium text-lamp-ink opacity-0 transition-opacity group-hover:opacity-100">
                               Ver no fluxo
                               <ArrowRight size={11} weight="bold" />
                             </span>
@@ -207,7 +207,7 @@ export function WorkflowAlerts({
                         onFocusNode?.(issue.nodeId!);
                         setOpen(false);
                       }}
-                      className="group flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/60"
+                      className="group flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-muted"
                     >
                       {body}
                     </button>

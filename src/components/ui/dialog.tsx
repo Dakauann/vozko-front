@@ -3,7 +3,7 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import * as React from "react";
 
-import { X } from "@phosphor-icons/react";
+import { X } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 const Dialog = DialogPrimitive.Root;
@@ -24,7 +24,7 @@ const DialogOverlay = React.forwardRef<
       // Always paint a real dim layer. Blur-only overlays look like a pure
       // white/black freeze when stuck open after soft navigation. Closed shells
       // must never capture pointer events if unmount lags behind animation.
-      "fixed inset-0 z-50 bg-black/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:pointer-events-none",
+      "fixed inset-0 z-50 bg-black/40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:pointer-events-none",
       className
     )}
     {...props}

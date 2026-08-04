@@ -31,7 +31,7 @@ function PageLoader() {
   return (
     <main className="flex w-full items-center justify-center py-24">
       <div
-        className="h-8 w-8 animate-spin rounded-full border-2 border-muted border-t-primary"
+        className="h-8 w-8 animate-spin rounded-full border border-muted border-t-primary"
         role="status"
         aria-label="Loading"
       />
@@ -100,7 +100,7 @@ export default function WhatsAppCampaignDetailPage({
 
     return (
       <main className="w-full space-y-6">
-        <div className="rounded-2xl border border-rose-600 bg-rose-500 px-4 py-3 text-sm text-white">
+        <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-white">
           {state.error}
         </div>
       </main>

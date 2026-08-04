@@ -131,34 +131,88 @@ input:-webkit-autofill:active {
     scrollbar-color: hsl(var(--foreground) / 0.15) transparent;
   }
 
-  /* Sliding text animation for long names */
-  @keyframes slide-text {
-
-    0%,
-    20% {
-      transform: translateX(0);
-    }
-
-    45%,
-    55% {
-      transform: translateX(var(--slide-distance, -50px));
-    }
-
-    80%,
-    100% {
-      transform: translateX(0);
-    }
+  /*
+    The silkscreen register. A console legends its panel in small, wide-tracked
+    caps set beside the control they name — this is that, and it is the only
+    place caps are used. It is a LABEL, never a kicker stacked above a heading.
+  */
+  .legend {
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-stretch: 112%;
+    color: hsl(var(--muted-foreground));
   }
 
-  .animate-slide-text {
-    animation: slide-text 6s ease-in-out infinite;
-    animation-delay: 0.5s;
-    will-change: transform;
+  /*
+    Anywhere a number lives. Tabular figures keep columns of counts, currency
+    and durations from shifting width as they tick, which is the whole reason a
+    console uses a fixed readout.
+  */
+  .readout {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+    letter-spacing: 0;
   }
 
-  /* Pause on hover */
-  .sidebar-item:hover .animate-slide-text {
-    animation-play-state: paused;
+  /*
+    The lamp. An indicator pip, not a border: short, centred on the row, and
+    always accompanied by a brightened label and a sunk ground so the state
+    never rests on colour alone.
+  */
+  .lamp {
+    width: 3px;
+    height: 12px;
+    border-radius: 1px;
+    background: hsl(var(--lamp));
+    flex-shrink: 0;
+  }
+
+  /*
+    Category inks.
+
+    A console is not monochrome — a patch bay is colour-coded, and so is a bank
+    of channel strips. What it never has is a grid of saturated candy tiles.
+
+    So category identity lives in the GLYPH, not in a filled tile: the tile stays
+    a recessed neutral well and the icon takes one of five inks. The inks are the
+    chart series (--chart-1..5), reused deliberately so the product has one
+    colour vocabulary rather than two — a category reads the same in a tile as it
+    does in a graph.
+
+    These are identity, never state. State is still the lamp.
+  */
+  .ink-1 { color: hsl(var(--chart-1)); }
+  .ink-2 { color: hsl(var(--chart-2)); }
+  .ink-3 { color: hsl(var(--chart-3)); }
+  .ink-4 { color: hsl(var(--chart-4)); }
+  .ink-5 { color: hsl(var(--chart-5)); }
+
+  /* The matching recessed plate an ink glyph sits on. */
+  .ink-plate {
+    background: hsl(var(--muted));
+    border: 1px solid hsl(var(--border));
+    border-top-color: hsl(var(--rule-strong));
+    border-radius: var(--radius);
+  }
+
+  /* An engraved divider: a cut line, not a drawn box. */
+  .rule-engraved {
+    border-bottom: 1px solid hsl(var(--border));
+    box-shadow: 0 1px 0 hsl(var(--card) / 0.6);
+  }
+
+  /*
+    A well is content recessed INTO the panel. The darker top edge is what
+    sells the recess; a shadow would put it back on top of the panel.
+  */
+  .well {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-top-color: hsl(var(--rule-strong));
+    border-radius: var(--radius);
   }
 }
 
@@ -185,125 +239,193 @@ input:-webkit-autofill:active {
 }
 
 
+/*
+  CONSOLE — the panel palette.
+
+  The ground is an enamel/graphite PANEL and content sits RECESSED into it as
+  paper wells. That is the inverse of the previous model (white cards floating
+  above a light ground on soft shadows), and it is what carries the identity:
+  depth here comes from an engraved hairline and a darker top edge, never from
+  a shadow.
+
+  The accent hue is unchanged and deliberately so. What changed is its role:
+  it was a painted surface (filled nav rows, gradient tiles, pill buttons,
+  roughly a third of the chrome) and it is now a LAMP — a lit indicator at a
+  fraction of the area, flat, with no gradient and no glow. `--primary` is a
+  signal, not a text colour; where accent text is genuinely needed use
+  `--lamp-ink`, which is darkened to clear AA on a paper well.
+*/
 @layer base {
   :root {
-    --background: 0 0% 96.08%;
-    --foreground: 215 25% 27%;
-    --card: 0 0% 100%;
-    --card-foreground: 215 25% 27%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 27%;
+    /* Panel stack: chassis → well → sunk track */
+    --background: 40 7% 87%;
+    --foreground: 220 14% 15%;
+    --card: 42 14% 97%;
+    --card-foreground: 220 14% 15%;
+    --popover: 42 14% 97%;
+    --popover-foreground: 220 14% 15%;
 
+    /* The lamp. Hue unchanged from the previous identity by decision. */
     --primary: 17 100% 42%;
     --primary-foreground: 0 0% 100%;
     --primary-hover: 17 100% 37%;
     --primary-active: 17 100% 33%;
 
-    --primary-50: 17 100% 97%;
-    --primary-100: 17 100% 94%;
-    --primary-200: 17 100% 87%;
-    --primary-300: 17 100% 76%;
-    --primary-400: 17 100% 58%;
-    --primary-500: 17 100% 50%;
+    /* Accent TEXT only. --primary at L42 measures 4.36:1 on a paper well,
+       which is under AA; this is the same hue darkened until it clears. */
+    --lamp-ink: 17 90% 33%;
+
+    /* The indicator value. Identical to --primary in light, where a lit pip
+       and a filled button can share one colour; they cannot in dark. */
+    --lamp: 17 100% 42%;
+
+    --primary-50: 17 60% 95%;
+    --primary-100: 17 65% 90%;
+    --primary-200: 17 70% 82%;
+    --primary-300: 17 80% 70%;
+    --primary-400: 17 95% 55%;
+    --primary-500: 17 100% 47%;
     --primary-600: 17 100% 42%;
-    --primary-700: 17 100% 37%;
-    --primary-800: 17 95% 31%;
-    --primary-900: 17 85% 25%;
+    --primary-700: 17 95% 36%;
+    --primary-800: 17 90% 29%;
+    --primary-900: 17 85% 23%;
 
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 215 25% 27%;
+    --secondary: 40 8% 92%;
+    --secondary-foreground: 220 14% 15%;
 
-    --accent: 154 34% 95%;
-    --accent-foreground: 154 34% 28%;
-    --accent-hover: 154 34% 92%;
+    --accent: 40 8% 92%;
+    --accent-foreground: 220 14% 15%;
+    --accent-hover: 40 8% 88%;
 
-    --muted: 210 40% 96%;
-    /* 45%, not 47%. At 47% this failed WCAG AA on the two surfaces it is used
-       on most: 4.33:1 over --background and 4.30:1 over --muted, and it carries
-       most of the secondary prose in the product. 45% clears 4.5:1 on
-       background (4.65), card (5.07) and muted (4.62). Hue and saturation are
-       unchanged, so nothing shifts but the depth. The dark theme already
-       passes at 6.5:1 to 7.8:1 and is left alone. */
-    --muted-foreground: 215 16% 45%;
+    --muted: 40 8% 92%;
+    /* Measured, not estimated: at L40 this was 5.65:1 on --card and exactly
+       4.50:1 on --background — sitting on the AA line with no headroom, and
+       page descriptions do sit on the panel ground. L37 restores real margin
+       (6.4:1 on card, 5.1:1 on background). */
+    --muted-foreground: 220 8% 37%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    /* Healthy / fault. Fault sits at 352 rather than the lamp's 17 so the two
+       are separable, and it is never the sole signal — every fault carries a
+       glyph and a label. */
+    --healthy: 152 48% 32%;
+    --healthy-foreground: 0 0% 100%;
+    --warning: 42 84% 38%;
+    --warning-foreground: 0 0% 100%;
+    --destructive: 352 68% 44%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 17 100% 42%;
+    /* Engraved rules. --rule-strong is the top edge of a well: darker, so the
+       well reads as cut into the panel rather than laid on top of it. */
+    --border: 40 7% 73%;
+    --input: 40 7% 73%;
+    --rule-strong: 40 8% 62%;
 
-    --chart-1: 17 100% 42%;
-    --chart-2: 173 80% 40%;
-    --chart-3: 43 96% 56%;
-    --chart-4: 27 87% 67%;
-    --chart-5: 12 76% 61%;
+    /* Focus is its own hue. It must never be confused with the lamp, or a
+       keyboard user cannot tell "focused" from "current". */
+    --ring: 192 82% 32%;
 
-    --radius: 0.5rem;
+    /* Charts do not use the lamp hue: a series colour that matches the state
+       signal makes a chart look like it is reporting state. */
+    --chart-1: 192 70% 34%;
+    --chart-2: 152 45% 34%;
+    --chart-3: 38 75% 45%;
+    --chart-4: 262 40% 52%;
+    --chart-5: 352 55% 48%;
 
-    --shadow-highlight: rgba(255, 255, 255, 0.7);
-    --shadow-highlight-strong: rgba(255, 255, 255, 1);
+    --radius: 2px;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 215 20% 35%;
+    /*
+      Kept defined, deliberately transparent. Roughly thirty hand-written
+      box-shadow strings across elevated-design still interpolate these for an
+      inset top highlight — the raised-card cue this world does not use. An
+      undefined var would invalidate the whole declaration and drop shadows
+      unpredictably; transparent neutralises the highlight at every call site
+      at once and leaves the declarations valid.
+    */
+    --shadow-highlight: transparent;
+    --shadow-highlight-strong: transparent;
+
+    --sidebar-background: 42 14% 97%;
+    --sidebar-foreground: 220 14% 15%;
     --sidebar-primary: 17 100% 42%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 154 34% 95%;
-    --sidebar-accent-foreground: 154 34% 28%;
-    --sidebar-border: 214 32% 91%;
-    --sidebar-ring: 17 100% 42%;
+    --sidebar-accent: 40 8% 92%;
+    --sidebar-accent-foreground: 220 14% 15%;
+    --sidebar-border: 40 7% 73%;
+    --sidebar-ring: 192 82% 32%;
   }
 
   .dark {
-    --background: 220 6% 5%;
-    --foreground: 0 0% 98%;
-    --card: 220 6% 8%;
-    --card-foreground: 0 0% 98%;
-    --popover: 220 6% 8%;
-    --popover-foreground: 0 0% 98%;
+    --background: 220 9% 10%;
+    --foreground: 40 10% 91%;
+    --card: 220 9% 13%;
+    --card-foreground: 40 10% 91%;
+    --popover: 220 9% 13%;
+    --popover-foreground: 40 10% 91%;
+
+    /*
+      The lamp and a filled button want opposite things on graphite, and one
+      value cannot serve both: L52 is what makes a 3px indicator read as lit,
+      but white on L52 measures 3.29:1 — under AA for a 13px button label.
+      So the roles are split. --lamp is the indicator value; --primary is the
+      fill value, dropped to L42 for 4.6:1 against white.
+    */
     --primary: 17 100% 42%;
     --primary-foreground: 0 0% 100%;
     --primary-hover: 17 100% 48%;
-    --primary-active: 17 100% 37%;
-    --primary-50: 17 45% 11%;
-    --primary-100: 17 50% 14%;
-    --primary-200: 17 60% 19%;
-    --primary-300: 17 75% 28%;
-    --primary-400: 17 95% 36%;
-    --primary-500: 17 100% 42%;
-    --primary-600: 17 100% 48%;
-    --primary-700: 17 100% 58%;
-    --primary-800: 17 100% 70%;
-    --primary-900: 17 100% 84%;
-    --secondary: 220 5% 13%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 220 5% 13%;
-    --muted-foreground: 220 5% 65%;
-    --accent: 220 5% 13%;
-    --accent-foreground: 0 0% 98%;
-    --accent-hover: 220 5% 17%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 220 5% 15%;
-    --input: 220 5% 15%;
-    --ring: 17 100% 42%;
+    --primary-active: 17 100% 36%;
+    --lamp: 17 100% 52%;
+    --lamp-ink: 17 100% 62%;
 
-    --shadow-highlight: rgba(255, 255, 255, 0.03);
-    --shadow-highlight-strong: rgba(255, 255, 255, 0.06);
+    --primary-50: 17 40% 12%;
+    --primary-100: 17 45% 16%;
+    --primary-200: 17 55% 22%;
+    --primary-300: 17 70% 31%;
+    --primary-400: 17 90% 42%;
+    --primary-500: 17 100% 47%;
+    --primary-600: 17 100% 52%;
+    --primary-700: 17 100% 60%;
+    --primary-800: 17 100% 72%;
+    --primary-900: 17 100% 85%;
 
-    --chart-1: 17 100% 42%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 220 6% 6%;
-    --sidebar-foreground: 0 0% 92%;
-    --sidebar-primary: 17 100% 42%;
+    --secondary: 220 8% 16%;
+    --secondary-foreground: 40 10% 91%;
+    --muted: 220 8% 16%;
+    --muted-foreground: 220 7% 60%;
+    --accent: 220 8% 16%;
+    --accent-foreground: 40 10% 91%;
+    --accent-hover: 220 8% 20%;
+
+    --healthy: 152 52% 46%;
+    --healthy-foreground: 220 9% 10%;
+    --warning: 42 90% 55%;
+    --warning-foreground: 220 9% 10%;
+    --destructive: 352 72% 56%;
+    --destructive-foreground: 220 9% 10%;
+
+    --border: 220 8% 19%;
+    --input: 220 8% 19%;
+    --rule-strong: 220 8% 28%;
+
+    --ring: 192 78% 46%;
+
+    --shadow-highlight: transparent;
+    --shadow-highlight-strong: transparent;
+
+    --chart-1: 192 65% 52%;
+    --chart-2: 152 50% 48%;
+    --chart-3: 38 80% 58%;
+    --chart-4: 262 50% 66%;
+    --chart-5: 352 62% 60%;
+
+    --sidebar-background: 220 9% 13%;
+    --sidebar-foreground: 40 10% 91%;
+    --sidebar-primary: 17 100% 52%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 5% 13%;
-    --sidebar-accent-foreground: 0 0% 92%;
-    --sidebar-border: 220 5% 15%;
-    --sidebar-ring: 17 100% 42%;
+    --sidebar-accent: 220 8% 16%;
+    --sidebar-accent-foreground: 40 10% 91%;
+    --sidebar-border: 220 8% 19%;
+    --sidebar-ring: 192 78% 46%;
   }
 }
 

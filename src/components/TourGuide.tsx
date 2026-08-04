@@ -10,11 +10,10 @@ import {
   EVENTS,
 } from "react-joyride";
 import { useTranslations } from "next-intl";
-import { ArrowRight, ArrowLeft, X } from "@phosphor-icons/react";
+import { ArrowRight, ArrowLeft, X } from "@/components/icons";
 import { cn } from "@/lib/utils";
-import type { Icon } from "@phosphor-icons/react";
+import type { Icon } from "@/components/icons";
 import type { ColorGroup } from "@/components/elevated-design/grain-background";
-import GrainBackground from "@/components/elevated-design/grain-background";
 import Button from "@/components/elevated-design/button";
 
 export interface TourFeature {
@@ -263,39 +262,20 @@ export default function TourGuide({
         <div className="fixed bottom-6 right-6 z-[61] animate-in fade-in slide-in-from-right-4 duration-300">
           <div
             className={cn(
-              "w-[320px] rounded-[18px] overflow-hidden border border-black/8 bg-card shadow-[0_12px_40px_-16px_rgba(15,23,42,0.35)]",
+              "w-[320px] overflow-hidden rounded-[--radius] border border-border border-t-rule-strong bg-card shadow-xl",
               className,
             )}
           >
-            <div className="relative w-full overflow-hidden" style={{ height: 80 }}>
-              <div className="absolute inset-0">
-                <GrainBackground
-                  palette={introPalette ?? [
-                    { colors: ["#3b82f6", "#2563eb"], weight: 40 },
-                    { colors: ["#6366f1", "#4f46e5"], weight: 30 },
-                    { colors: ["#1d4ed8", "#1e40af"], weight: 20 },
-                    { colors: ["#818cf8", "#a5b4fc"], weight: 10 },
-                  ]}
-                  mode="islands"
-                  seed={introSeed}
-                  islandsScale={0.01}
-                  islandsElongation={0.9}
-                  islandsWarp={10}
-                  islandsBlur={2}
-                  opacity={0}
-                  className="h-full !rounded-none"
-                />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-black/5" />
+            <div className="rule-engraved relative flex h-9 w-full items-center bg-muted px-3">
               <button
                 type="button"
                 onClick={handleSkip}
-                className="absolute top-2 right-2 z-10 rounded-full bg-white/20 p-1 text-white/70 hover:bg-white/30 hover:text-white transition-colors"
+                className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-[--radius] p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
                 <X size={12} />
               </button>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-[15px] font-bold text-white tracking-tight drop-shadow-[0_1px_4px_rgba(0,0,0,0.25)]">
+              <div className="flex items-center">
+                <span className="legend">
                   {tt("introTitle")}
                 </span>
               </div>
@@ -357,51 +337,23 @@ function TourTooltip({
     <div
       {...tooltipProps}
       className={cn(
-        "rounded-[22px] overflow-hidden border border-black/8 bg-card shadow-[0_25px_80px_-35px_rgba(15,23,42,0.4)] w-[360px] max-w-[calc(100vw-2rem)]",
+        "w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-[--radius] border border-border border-t-rule-strong bg-card shadow-2xl",
       )}
     >
       <TooltipArrow placement={placement} />
-        <div
-          className="relative w-full overflow-hidden"
-          style={{ height: 120 }}
-        >
-          <div className="absolute inset-0">
-            <GrainBackground
-              palette={tourStep.palette ?? [
-                { colors: ["#3b82f6", "#2563eb"], weight: 40 },
-                { colors: ["#6366f1", "#4f46e5"], weight: 30 },
-                { colors: ["#1d4ed8", "#1e40af"], weight: 20 },
-                { colors: ["#818cf8", "#a5b4fc"], weight: 10 },
-              ]}
-              mode="islands"
-              seed={tourStep.seed ?? (index * 37 + 42)}
-              islandsScale={0.01}
-              islandsElongation={0.9}
-              islandsWarp={10}
-              islandsBlur={2}
-              opacity={0}
-              className="h-full !rounded-none"
-            />
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-black/5" />
+        <div className="rule-engraved relative w-full bg-muted px-4 py-2.5">
           <button
             {...closeProps}
-            className="absolute top-2 right-2 z-10 rounded-full bg-white/20 p-1 text-white/80 hover:bg-white/30 hover:text-white transition-colors"
+            className="absolute right-2 top-2 z-10 rounded-[--radius] p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             aria-label={tt("close")}
           >
             <X size={14} />
           </button>
-          <div className="absolute bottom-0 left-0 right-0 z-10 p-4">
-            <div className="flex items-baseline gap-2">
-              {badge && (
-                <span className="text-[11px] font-medium text-white bg-white/25 border border-white/40 rounded-full px-2 py-[3px] tracking-wide uppercase">
-                  {badge}
-                </span>
-              )}
-              <span className="text-lg font-bold text-white tracking-tight drop-shadow-[0_1px_4px_rgba(0,0,0,0.25)]">
-                {title}
-              </span>
-            </div>
+          <div className="flex flex-col gap-1 pr-8">
+            {badge && <span className="legend">{badge}</span>}
+            <span className="text-[15px] font-semibold leading-tight tracking-tight text-foreground">
+              {title}
+            </span>
           </div>
         </div>
 
@@ -443,7 +395,7 @@ function TourTooltip({
                 iconVisible
                 iconSide="left"
                 onClick={backProps.onClick}
-                className="rounded-[10px]"
+                className="rounded-[--radius]"
               />
             )}
             <Button
@@ -464,7 +416,7 @@ function TourTooltip({
                 }
                 (primaryProps.onClick as React.MouseEventHandler)(e);
               }}
-              className="flex-1 rounded-[10px]"
+              className="flex-1 rounded-[--radius]"
             />
           </div>
 

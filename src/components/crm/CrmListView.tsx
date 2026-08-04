@@ -14,7 +14,7 @@ import {
   UsersThree,
   WhatsappLogo,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 import {
   DashboardTable,
@@ -99,7 +99,7 @@ function OwnerCell({ name }: { name: string | null }) {
   if (!name) return <span className="text-sm text-muted-foreground">—</span>;
   return (
     <span className="inline-flex items-center gap-2">
-      <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold uppercase text-foreground">
+      <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold uppercase text-foreground">
         {name.charAt(0)}
       </span>
       <span className="max-w-[10rem] truncate text-sm text-foreground">{name}</span>
@@ -152,7 +152,7 @@ function BulkMenu({
           type="button"
           disabled={disabled}
           className={cn(
-            "inline-flex h-9 items-center gap-1.5 rounded-xl px-3 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+            "inline-flex h-9 items-center gap-1.5 rounded-[--radius] px-3 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50",
             tone === "ghost"
               ? "text-muted-foreground hover:bg-black/5"
               : "border border-border bg-card text-foreground hover:border-foreground/20 hover:bg-muted",
@@ -165,7 +165,7 @@ function BulkMenu({
       <PopoverContent
         align="start"
         sideOffset={6}
-        className="w-64 rounded-xl border border-border bg-card p-0 shadow-2xl"
+        className="w-64 rounded-[--radius] border border-border bg-card p-0 shadow-2xl"
       >
         <div className="border-b border-border px-3 py-2">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -525,7 +525,7 @@ export default function CrmListView({
                 {preview || "—"}
               </span>
               {unread > 0 ? (
-                <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-semibold text-white">
+                <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-[--radius] bg-primary px-1.5 text-[11px] font-semibold text-white">
                   {unread}
                 </span>
               ) : null}
@@ -615,7 +615,7 @@ export default function CrmListView({
           {
             label: "Conversas",
             value: loading ? "..." : String(total),
-            icon: <UsersThree className="h-4 w-4 text-primary" weight="fill" />,
+            icon: <UsersThree className="h-4 w-4 text-lamp-ink" weight="fill" />,
           },
         ]}
         headerRight={
@@ -649,7 +649,7 @@ export default function CrmListView({
         emptyState={
           error
             ? {
-                icon: <ArrowsClockwise className="h-7 w-7 text-red-600" weight="bold" />,
+                icon: <ArrowsClockwise className="h-7 w-7 text-destructive" weight="bold" />,
                 title: "Não foi possível carregar",
                 description: error,
                 action: (

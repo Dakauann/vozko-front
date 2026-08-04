@@ -10,7 +10,7 @@ import {
   Info,
   Plus,
   Trash,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   Dialog,
   DialogContent,
@@ -93,7 +93,7 @@ function createEmptyParameter(required = false): SchemaParameter {
 
 function DialogIcon({ children }: { children: ReactNode }) {
   return (
-    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-sm [&>svg]:h-5 [&>svg]:w-5">
+    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[--radius] bg-muted text-white shadow-sm [&>svg]:h-5 [&>svg]:w-5">
       {children}
     </span>
   );
@@ -111,7 +111,7 @@ function ConfigSection({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
+    <section className="rounded-[--radius] border border-border bg-card p-5 shadow-sm">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
@@ -141,7 +141,7 @@ function AddConfigButton({
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-background px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+      className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-background px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
     >
       <Plus className="h-4 w-4" />
       {label}
@@ -151,7 +151,7 @@ function AddConfigButton({
 
 function EmptyConfig({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-xl border border-dashed border-border/70 bg-background/70 px-4 py-5 text-sm text-muted-foreground">
+    <div className="rounded-[--radius] border border-dashed border-border bg-background px-4 py-5 text-sm text-muted-foreground">
       {children}
     </div>
   );
@@ -404,17 +404,17 @@ function NestedSchemaParameterRow({
   };
 
   const depthColors = [
-    "border-border/70 bg-background/80",
-    "border-border/70 bg-muted/50",
-    "border-border/70 bg-background/80",
-    "border-border/70 bg-muted/50",
-    "border-border/70 bg-background/80",
+    "border-border bg-background",
+    "border-border bg-muted",
+    "border-border bg-background",
+    "border-border bg-muted",
+    "border-border bg-background",
   ];
 
   return (
     <div
       className={cn(
-        "rounded-xl border p-4 space-y-3",
+        "rounded-[--radius] border p-4 space-y-3",
         depthColors[depth % depthColors.length],
       )}
     >
@@ -488,7 +488,7 @@ function NestedSchemaParameterRow({
               onChange={(e) =>
                 onChange({ ...param, required: e.target.checked })
               }
-              className="h-4 w-4 rounded border-foreground/20 text-primary focus:ring-primary"
+              className="h-4 w-4 rounded border-foreground/20 text-lamp-ink focus:ring-ring"
             />
             <span className="text-sm text-foreground">
               {t("httpConfig.required")}
@@ -498,7 +498,7 @@ function NestedSchemaParameterRow({
         <button
           type="button"
           onClick={onRemove}
-          className="flex items-center gap-1.5 text-sm text-rose-600 hover:text-rose-700 transition-colors"
+          className="flex items-center gap-1.5 text-sm text-destructive hover:text-destructive transition-colors"
         >
           <Trash className="h-4 w-4" />
           {t("httpConfig.remove")}
@@ -665,7 +665,7 @@ function SimpleSchemaParameterRow({
   t: (key: string) => string;
 }) {
   return (
-    <div className="space-y-3 rounded-xl border border-border/70 bg-background/80 p-4">
+    <div className="space-y-3 rounded-[--radius] border border-border bg-background p-4">
       <div className="grid gap-3 md:grid-cols-3">
         <ElevatedInput
           value={param.name}
@@ -703,7 +703,7 @@ function SimpleSchemaParameterRow({
         <button
           type="button"
           onClick={onRemove}
-          className="flex items-center gap-1.5 text-sm text-rose-600 hover:text-rose-700 transition-colors"
+          className="flex items-center gap-1.5 text-sm text-destructive hover:text-destructive transition-colors"
         >
           <Trash className="h-4 w-4" />
           {t("httpConfig.remove")}
@@ -725,7 +725,7 @@ function HeaderRow({
   t: (key: string) => string;
 }) {
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-border/70 bg-background/80 p-4 md:flex-row md:items-end">
+    <div className="flex flex-col gap-3 rounded-[--radius] border border-border bg-background p-4 md:flex-row md:items-end">
       <div className="flex-1">
         <ElevatedInput
           value={header.key}
@@ -745,7 +745,7 @@ function HeaderRow({
       <button
         type="button"
         onClick={onRemove}
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-rose-500 hover:text-white"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive hover:text-white"
       >
         <Trash className="h-4 w-4" />
       </button>
@@ -867,7 +867,7 @@ export default function HttpRequestConfigDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="flex max-h-[90vh] max-w-5xl flex-col overflow-hidden p-0">
-        <DialogHeader className="border-b border-border/70 bg-card px-6 py-5">
+        <DialogHeader className="border-b border-border bg-card px-6 py-5">
           <DialogTitle className="flex items-center gap-3">
             <IconBox color="blue" size="sm">
               <Gear weight="fill" />
@@ -884,13 +884,13 @@ export default function HttpRequestConfigDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 space-y-5 overflow-y-auto bg-muted/20 px-6 py-5">
+        <div className="flex-1 space-y-5 overflow-y-auto bg-muted px-6 py-5">
           {/* JSON mode toggle */}
           <div className="flex items-center justify-end">
             <button
               type="button"
               onClick={toggleJsonMode}
-              className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+              className="inline-flex items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
             >
               <Code className="h-4 w-4" />
               {jsonMode ? t("httpConfig.formMode") : t("httpConfig.jsonMode")}
@@ -898,7 +898,7 @@ export default function HttpRequestConfigDialog({
           </div>
 
           {jsonMode ? (
-            <div className="rounded-2xl border border-border/70 bg-card p-5">
+            <div className="rounded-[--radius] border border-border bg-card p-5">
               <ElevatedTextarea
                 value={jsonText}
                 onChange={(e) => setJsonText(e.target.value)}
@@ -907,7 +907,7 @@ export default function HttpRequestConfigDialog({
                 placeholder='{\n  "url": "https://api.example.com",\n  "method": "POST"\n}'
               />
               {errors.json && (
-                <p className="text-xs font-semibold text-rose-500">
+                <p className="text-xs font-semibold text-destructive">
                   {errors.json}
                 </p>
               )}
@@ -915,7 +915,7 @@ export default function HttpRequestConfigDialog({
           ) : (
             <>
               {/* Info banner */}
-              <div className="flex items-start gap-3 rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
+              <div className="flex items-start gap-3 rounded-[--radius] border border-border bg-card p-4 shadow-sm">
                 <DialogIcon>
                   <Info weight="fill" />
                 </DialogIcon>
@@ -942,7 +942,7 @@ export default function HttpRequestConfigDialog({
                       placeholder="https://api.example.com/users/{user_id}"
                     />
                     {errors.url && (
-                      <p className="mt-1 text-xs font-semibold text-rose-500">
+                      <p className="mt-1 text-xs font-semibold text-destructive">
                         {errors.url}
                       </p>
                     )}
@@ -1154,8 +1154,8 @@ export default function HttpRequestConfigDialog({
                   ) : null}
                 </ConfigSection>
               ) : (
-                <div className="flex items-start gap-3 rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
-                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-600 text-white shadow-sm">
+                <div className="flex items-start gap-3 rounded-[--radius] border border-border bg-card p-4 shadow-sm">
+                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius] bg-muted text-white shadow-sm">
                     <Info weight="fill" className="h-4 w-4" />
                   </span>
                   <p className="text-sm text-muted-foreground">
@@ -1167,7 +1167,7 @@ export default function HttpRequestConfigDialog({
           )}
         </div>
 
-        <DialogFooter className="gap-2 border-t border-border/70 bg-card px-6 py-4">
+        <DialogFooter className="gap-2 border-t border-border bg-card px-6 py-4">
           <Button
             type="button"
             variant="ghost"

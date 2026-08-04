@@ -36,7 +36,7 @@ import {
   UploadSimple,
   Warning,
   WhatsappLogo,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { Controller, useForm } from "react-hook-form";
 import {
   Dialog,
@@ -149,7 +149,7 @@ type AgentFormData = z.infer<ReturnType<typeof createAgentSchema>>;
 
 const FieldError = ({ message }: { message?: string }) => {
   if (!message) return null;
-  return <p className="mt-1 text-xs font-semibold text-rose-500">{message}</p>;
+  return <p className="mt-1 text-xs font-semibold text-destructive">{message}</p>;
 };
 
 function upsertEntitiesById<T extends { id: string }>(
@@ -200,14 +200,14 @@ const FormErrorSummary = ({
   };
 
   return (
-    <div className="rounded-2xl border border-rose-300 bg-rose-50 dark:bg-rose-950/30 dark:border-rose-800 px-5 py-4 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
-      <div className="flex items-center gap-2 text-rose-700 dark:text-rose-400">
+    <div className="rounded-[--radius] border border-rose-300 bg-destructive/10 dark:bg-rose-950/30 dark:border-rose-800 px-5 py-4 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+      <div className="flex items-center gap-2 text-destructive dark:text-destructive">
         <Warning weight="fill" className="h-5 w-5 flex-shrink-0" />
         <p className="text-sm font-semibold">
           {t("validation.formErrorTitle")}
         </p>
       </div>
-      <ul className="list-disc list-inside space-y-0.5 text-xs text-rose-600 dark:text-rose-400 pl-1">
+      <ul className="list-disc list-inside space-y-0.5 text-xs text-destructive dark:text-destructive pl-1">
         {errorKeys.map((key) => {
           const err = errors[key] as { message?: string } | undefined;
           const label = fieldLabels[key] || key;
@@ -244,11 +244,11 @@ const AvailableToolRow = ({ tool, disabled, onAdd, t }: AvailableToolRowProps) =
       aria-label={`${t("tools.add")}, ${name}`}
       className={cn(
         "group flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors",
-        "hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:outline-none",
+        "hover:bg-muted focus-visible:bg-muted focus-visible:outline-none",
         disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
       )}
     >
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground transition-colors group-hover:bg-primary/10 group-hover:text-primary">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground transition-colors group-hover:bg-muted group-hover:text-lamp-ink">
         <PlugsConnected weight="fill" className="h-4 w-4" aria-hidden="true" />
       </span>
       <span className="min-w-0 flex-1">
@@ -337,7 +337,7 @@ const SelectedToolItem = ({
   return (
     <li className="px-3 py-3">
       <div className="flex items-start gap-3">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-lamp-ink">
           <PlugsConnected weight="fill" className="h-4 w-4" aria-hidden="true" />
         </span>
         <div className="min-w-0 flex-1 space-y-2.5">
@@ -348,7 +348,7 @@ const SelectedToolItem = ({
                   {name}
                 </span>
                 {requiresConfig && (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-1.5 py-0.5 text-[11px] font-medium text-primary">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-medium text-lamp-ink">
                     <Gear weight="fill" className="h-3 w-3" />
                     {t("tools.configurable")}
                   </span>
@@ -365,7 +365,7 @@ const SelectedToolItem = ({
               onClick={onRemove}
               disabled={disabled}
               aria-label={`${t("tools.remove")}, ${name}`}
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Trash weight="bold" className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -388,8 +388,8 @@ const SelectedToolItem = ({
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium transition-colors",
                   effectiveVisibility.includes("messaging")
-                    ? "border border-green-600 bg-green-500 text-white"
-                    : "border border-border bg-muted text-muted-foreground hover:border-green-500/50 hover:text-foreground",
+                    ? "border border-healthy bg-healthy text-white"
+                    : "border border-border bg-muted text-muted-foreground hover:border-healthy/50 hover:text-foreground",
                 )}
               >
                 <ChatCircle className="h-3 w-3" weight="fill" aria-hidden="true" />
@@ -404,27 +404,27 @@ const SelectedToolItem = ({
               className={cn(
                 "flex items-center justify-between gap-3 rounded-lg border px-3 py-2",
                 isConfigComplete
-                  ? "border-green-500/25 bg-green-500/10"
-                  : "border-amber-500/25 bg-amber-500/10",
+                  ? "border-healthy/25 bg-healthy/10"
+                  : "border-warning/25 bg-warning/10",
               )}
             >
               <span className="flex items-center gap-1.5 text-xs font-medium">
                 {isConfigComplete ? (
                   <>
-                    <CheckCircle weight="fill" className="h-4 w-4 text-green-600" />
-                    <span className="text-green-700">{t("tools.configComplete")}</span>
+                    <CheckCircle weight="fill" className="h-4 w-4 text-healthy" />
+                    <span className="text-healthy">{t("tools.configComplete")}</span>
                   </>
                 ) : (
                   <>
-                    <Warning weight="fill" className="h-4 w-4 text-amber-600" />
-                    <span className="text-amber-700">{t("tools.configRequired")}</span>
+                    <Warning weight="fill" className="h-4 w-4 text-warning" />
+                    <span className="text-warning">{t("tools.configRequired")}</span>
                   </>
                 )}
               </span>
               <button
                 type="button"
                 onClick={onConfigureClick}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1 text-xs font-medium text-foreground shadow-sm transition-colors hover:border-primary hover:text-primary"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1 text-xs font-medium text-foreground shadow-sm transition-colors hover:border-primary hover:text-lamp-ink"
               >
                 <Gear weight="fill" className="h-3.5 w-3.5" />
                 {isConfigComplete ? t("tools.editConfig") : t("tools.configure")}
@@ -450,7 +450,7 @@ const SelectedToolItem = ({
                 )}
               </button>
               {showParameters && (
-                <ul className="mt-2 space-y-2 rounded-lg border border-border bg-muted/50 p-3 text-sm">
+                <ul className="mt-2 space-y-2 rounded-lg border border-border bg-muted p-3 text-sm">
                   {parameterEntries.map(([key, parameter]) => (
                     <li key={key} className="flex flex-col gap-1">
                       <div className="flex flex-wrap items-center gap-2">
@@ -461,7 +461,7 @@ const SelectedToolItem = ({
                           {parameter?.type ?? "string"}
                         </span>
                         {requiredParameters.has(key) && (
-                          <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[11px] font-medium text-amber-700">
+                          <span className="rounded bg-warning/15 px-1.5 py-0.5 text-[11px] font-medium text-warning">
                             {t("tools.required")}
                           </span>
                         )}
@@ -645,7 +645,7 @@ export default function CreateNewAgentForm({
         description: needsMedia
           ? `${template.language}, ${t("templateMedia.missingMediaShort")}`
           : template.language,
-        icon: <WhatsappLogo className="h-4 w-4 text-green-600" weight="fill" />,
+        icon: <WhatsappLogo className="h-4 w-4 text-healthy" weight="fill" />,
       };
     },
     [t],
@@ -1531,7 +1531,7 @@ export default function CreateNewAgentForm({
   const scrollToFirstError = useCallback(() => {
     setTimeout(() => {
       const firstError = formRef.current?.querySelector(
-        "[data-error-summary], .text-rose-500",
+        "[data-error-summary], .text-destructive",
       );
       if (firstError) {
         firstError.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1546,7 +1546,7 @@ export default function CreateNewAgentForm({
     <form
       ref={formRef}
       onSubmit={handleSubmit(onSubmit, () => scrollToFirstError())}
-      className="w-full space-y-10 rounded-3xl border border-border/70 bg-card/80 p-8 shadow-xl shadow-slate-900/5 backdrop-blur"
+      className="w-full space-y-10 rounded-[--radius] border border-border bg-card p-8 shadow-xl shadow-slate-900/5"
     >
       <TourGuide
         steps={agentsTourSteps}
@@ -1560,13 +1560,13 @@ onStep={(_index, step) => {
         }}
       />
       {optionsError ? (
-        <div className="rounded-2xl border border-rose-600 bg-rose-500 px-4 py-3 text-sm text-white">
+        <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-white">
           {optionsError}
         </div>
       ) : null}
 
       {toolsError ? (
-        <div className="rounded-2xl border border-amber-600 bg-amber-500 px-4 py-3 text-sm text-white">
+        <div className="rounded-[--radius] border border-warning bg-warning px-4 py-3 text-sm text-white">
           {toolsError}
         </div>
       ) : null}
@@ -1577,14 +1577,14 @@ onStep={(_index, step) => {
         </div>
       )}
 
-      <div data-tour="agents-tabs" className="flex gap-1 p-1 rounded-xl bg-muted/60 border border-border mb-4">
+      <div data-tour="agents-tabs" className="flex gap-1 p-1 rounded-[--radius] bg-muted border border-border mb-4">
         {(["geral", "conversa", "habilidades", "conhecimento", "whatsapp"] as const).map((tab) => (
           <button
             key={tab}
             type="button"
             onClick={() => setActiveTab(tab)}
             className={cn(
-              "flex-1 px-3 py-2 rounded-[10px] text-sm font-medium transition-colors",
+              "flex-1 px-3 py-2 rounded-[--radius] text-sm font-medium transition-colors",
               activeTab === tab
                 ? "bg-card text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground",
@@ -1672,7 +1672,7 @@ onStep={(_index, step) => {
               control={control}
               name="useInitialMessage"
               render={({ field }) => (
-                <div className="flex items-start justify-between gap-4 rounded-2xl border border-border/70 bg-muted/30 px-4 py-3">
+                <div className="flex items-start justify-between gap-4 rounded-[--radius] border border-border bg-muted px-4 py-3">
                   <div className="space-y-0.5">
                     <p className="text-sm font-medium text-foreground">
                       {t("labels.useInitialMessage")}
@@ -1729,7 +1729,7 @@ onStep={(_index, step) => {
           <button
             type="button"
             onClick={() => setAgentVariables([{ name: "", description: "", defaultValue: "" }])}
-            className="w-full rounded-xl border-2 border-dashed border-border/70 bg-muted/30 px-4 py-3 text-sm text-muted-foreground hover:border-border hover:bg-muted/50 transition-colors"
+            className="w-full rounded-[--radius] border border-dashed border-border bg-muted px-4 py-3 text-sm text-muted-foreground hover:border-border hover:bg-muted transition-colors"
           >
             + {t("sections.variables.addVariable")}
           </button>
@@ -1797,7 +1797,7 @@ onStep={(_index, step) => {
             <button
               type="button"
               onClick={() => setAgentVariables([...agentVariables, { name: "", description: "", defaultValue: "" }])}
-              className="w-full rounded-xl border-2 border-dashed border-border/70 bg-muted/30 px-4 py-2.5 text-sm text-muted-foreground hover:border-border hover:bg-muted/50 transition-colors"
+              className="w-full rounded-[--radius] border border-dashed border-border bg-muted px-4 py-2.5 text-sm text-muted-foreground hover:border-border hover:bg-muted transition-colors"
             >
               + {t("sections.variables.addVariable")}
             </button>
@@ -1819,7 +1819,7 @@ onStep={(_index, step) => {
         </div>
 
         {templatesError ? (
-          <div className="rounded-2xl border border-amber-600 bg-amber-500 px-4 py-3 text-sm text-white">
+          <div className="rounded-[--radius] border border-warning bg-warning px-4 py-3 text-sm text-white">
             {templatesError}
           </div>
         ) : null}
@@ -1874,7 +1874,7 @@ onStep={(_index, step) => {
               type="button"
               onClick={() => setCreateTemplateDialogOpen(true)}
               disabled={!selectedBusinessPhoneId}
-              className="flex items-center gap-2 rounded-full border border-green-600 bg-green-500 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-green-600 hover:border-green-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-green-500 disabled:hover:border-green-600"
+              className="flex items-center gap-2 rounded-[--radius] border border-healthy bg-healthy px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-healthy hover:border-green-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-healthy disabled:hover:border-healthy"
             >
               <Plus className="h-4 w-4" weight="bold" />
               {t("buttons.createTemplate")}
@@ -1886,17 +1886,17 @@ onStep={(_index, step) => {
         {selectedTemplateMissingMedia &&
           isAdmin &&
           selectedWhatsAppTemplate && (
-            <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-4">
+            <div className="rounded-lg border border-warning/20 bg-warning/10 p-4">
               <div className="flex items-start gap-3">
                 <ImageSquare
-                  className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5"
+                  className="h-5 w-5 text-warning flex-shrink-0 mt-0.5"
                   weight="fill"
                 />
                 <div className="flex-1">
                   <h4 className="text-sm font-semibold text-amber-800">
                     {t("templateMedia.missingTitle")}
                   </h4>
-                  <p className="text-xs text-amber-700 mt-1">
+                  <p className="text-xs text-warning mt-1">
                     {t("templateMedia.missingDescription")}
                   </p>
                   <Button
@@ -1933,7 +1933,7 @@ onStep={(_index, step) => {
         ) : null}
 
         {!loadingTools && !tools.length && !toolsError ? (
-          <p className="rounded-xl border border-border bg-muted px-4 py-3 text-sm text-muted-foreground">
+          <p className="rounded-[--radius] border border-border bg-muted px-4 py-3 text-sm text-muted-foreground">
             {t("tools.noTools")}
           </p>
         ) : null}
@@ -1957,12 +1957,12 @@ onStep={(_index, step) => {
             return (
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 {/* Available, left on desktop, below on mobile */}
-                <div className="order-2 flex flex-col overflow-hidden rounded-xl border border-border bg-card lg:order-1">
-                  <div className="flex items-center justify-between gap-3 border-b border-border bg-muted/40 px-4 py-3">
+                <div className="order-2 flex flex-col overflow-hidden rounded-[--radius] border border-border bg-card lg:order-1">
+                  <div className="flex items-center justify-between gap-3 border-b border-border bg-muted px-4 py-3">
                     <h3 className="text-sm font-semibold text-foreground">
                       {t("tools.available")}
                     </h3>
-                    <span className="inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full bg-muted px-2 text-xs font-semibold text-muted-foreground">
+                    <span className="inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-[--radius] bg-muted px-2 text-xs font-semibold text-muted-foreground">
                       {availableTools.length}
                     </span>
                   </div>
@@ -1983,7 +1983,7 @@ onStep={(_index, step) => {
                           className={cn(
                             "rounded-lg px-2.5 py-1 text-xs font-medium transition-colors",
                             toolsCategory === cat.value
-                              ? "bg-primary/10 text-primary"
+                              ? "bg-muted text-lamp-ink"
                               : "text-muted-foreground hover:bg-muted hover:text-foreground",
                           )}
                         >
@@ -2024,8 +2024,8 @@ onStep={(_index, step) => {
                 </div>
 
                 {/* Selected, right on desktop, top on mobile */}
-                <div className="order-1 flex flex-col overflow-hidden rounded-xl border border-border bg-card lg:order-2">
-                  <div className="flex items-center justify-between gap-3 border-b border-border bg-muted/40 px-4 py-3">
+                <div className="order-1 flex flex-col overflow-hidden rounded-[--radius] border border-border bg-card lg:order-2">
+                  <div className="flex items-center justify-between gap-3 border-b border-border bg-muted px-4 py-3">
                     <h3 className="text-sm font-semibold text-foreground">
                       {t("tools.selected")}
                     </h3>
@@ -2033,7 +2033,7 @@ onStep={(_index, step) => {
                       className={cn(
                         "inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full px-2 text-xs font-semibold",
                         selectedToolList.length > 0
-                          ? "bg-primary/10 text-primary"
+                          ? "bg-muted text-lamp-ink"
                           : "bg-muted text-muted-foreground",
                       )}
                     >
@@ -2090,7 +2090,7 @@ onStep={(_index, step) => {
       <section className="space-y-6">
         <div className="space-y-1">
           <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-            <File className="h-5 w-5 text-primary" weight="fill" />
+            <File className="h-5 w-5 text-lamp-ink" weight="fill" />
             {t("sections.media.title")}
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -2113,15 +2113,15 @@ onStep={(_index, step) => {
             onClick={() => mediaInputRef.current?.click()}
             disabled={isUploadingMedia}
             className={cn(
-              "flex w-full items-center justify-center gap-3 rounded-xl border-2 border-dashed p-6 transition-all",
+              "flex w-full items-center justify-center gap-3 rounded-[--radius] border border-dashed p-6 transition-all",
               isUploadingMedia
                 ? "border-border bg-muted cursor-not-allowed"
-                : "border-foreground/20 bg-card hover:border-primary hover:bg-primary/5 cursor-pointer",
+                : "border-foreground/20 bg-card hover:border-primary hover:bg-muted cursor-pointer",
             )}
           >
             {isUploadingMedia ? (
               <>
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <div className="h-5 w-5 animate-spin rounded-full border border-rule-strong border-t-transparent" />
                 <span className="text-sm font-medium text-muted-foreground">
                   {t("media.uploading")}
                 </span>
@@ -2155,7 +2155,7 @@ onStep={(_index, step) => {
               {agentMedias.map((media) => (
                 <div
                   key={media.id}
-                  className="group relative flex items-center gap-3 rounded-xl border border-border bg-card p-3 transition-all hover:border-foreground/20 hover:shadow-md"
+                  className="group relative flex items-center gap-3 rounded-[--radius] border border-border bg-card p-3 transition-all hover:border-foreground/20 hover:shadow-md"
                 >
                   {media.type === "image" ? (
                     <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
@@ -2184,7 +2184,7 @@ onStep={(_index, step) => {
                   <button
                     type="button"
                     onClick={() => handleRemoveMedia(media.id)}
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-rose-500 text-white opacity-0 transition-all hover:bg-rose-600 group-hover:opacity-100"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-destructive text-white opacity-0 transition-all hover:bg-destructive group-hover:opacity-100"
                   >
                     <Trash className="h-4 w-4" weight="bold" />
                   </button>
@@ -2210,7 +2210,7 @@ onStep={(_index, step) => {
           onChange={setSelectedKnowledgeBaseIds}
         />
         {selectedKnowledgeBaseIds.length > 0 && (
-          <div className="flex items-center justify-between rounded-xl border border-border bg-muted/30 px-4 py-3">
+          <div className="flex items-center justify-between rounded-[--radius] border border-border bg-muted px-4 py-3">
             <div>
               <p className="text-sm font-medium text-foreground">{t("sections.knowledgeBases.ragToggleLabel")}</p>
               <p className="text-xs text-muted-foreground">{t("sections.knowledgeBases.ragToggleDescription")}</p>
@@ -2219,7 +2219,7 @@ onStep={(_index, step) => {
           </div>
         )}
         {ragEnabled && selectedKnowledgeBaseIds.length > 0 && (
-          <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-4">
+          <div className="rounded-[--radius] border border-border bg-muted p-4 space-y-4">
             <button
               type="button"
               onClick={() => setRagConfigOpen(!ragConfigOpen)}
@@ -2256,23 +2256,23 @@ onStep={(_index, step) => {
         <section className="space-y-4" data-tour="agents-mcp">
           <div className="space-y-1">
             <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-              <svg className="h-5 w-5 text-amber-500" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z"/></svg>
+              <svg className="h-5 w-5 text-warning" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z"/></svg>
               {t("sections.mcp.title")}
             </h2>
             <p className="text-sm text-muted-foreground">
               {t("sections.mcp.description")}
             </p>
           </div>
-          <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-1">
+          <div className="rounded-[--radius] border border-border bg-muted p-3 space-y-1">
             {mcpCollections.map((col) => {
               const checked = selectedMCPIds.includes(col.id);
               return (
-                <label key={col.id} className="flex items-center gap-3 px-2 py-1.5 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                <label key={col.id} className="flex items-center gap-3 px-2 py-1.5 rounded-lg hover:bg-muted transition-colors cursor-pointer">
                   <input
                     type="checkbox"
                     checked={checked}
                     onChange={() => setSelectedMCPIds(prev => checked ? prev.filter(id => id !== col.id) : [...prev, col.id])}
-                    className="h-4 w-4 rounded border-zinc-300 text-primary focus:ring-primary"
+                    className="h-4 w-4 rounded border-zinc-300 text-lamp-ink focus:ring-ring"
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">{col.name}</p>
@@ -2294,7 +2294,7 @@ onStep={(_index, step) => {
               {t("sections.mcp.title")}
             </h2>
           </div>
-          <p className="rounded-xl border border-border bg-muted px-4 py-3 text-sm text-muted-foreground">
+          <p className="rounded-[--radius] border border-border bg-muted px-4 py-3 text-sm text-muted-foreground">
             {t("sections.mcp.noServers")}
           </p>
         </section>
@@ -2355,7 +2355,7 @@ onStep={(_index, step) => {
             {pendingMediaFiles.map((item, index) => (
               <div
                 key={index}
-                className="flex items-start gap-4 rounded-xl border border-border bg-muted p-4"
+                className="flex items-start gap-4 rounded-[--radius] border border-border bg-muted p-4"
               >
                 {item.file.type.startsWith("image/") ? (
                   <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted">
@@ -2390,7 +2390,7 @@ onStep={(_index, step) => {
                 <button
                   type="button"
                   onClick={() => handleRemovePendingFile(index)}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-rose-500 text-white transition-all hover:bg-rose-600"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-destructive text-white transition-all hover:bg-destructive"
                 >
                   <Trash className="h-4 w-4" weight="bold" />
                 </button>

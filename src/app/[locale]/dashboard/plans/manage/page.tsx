@@ -1,7 +1,7 @@
 "use client";
 
 import { AdminPlansManager } from "../page";
-import { CircleNotch } from "@phosphor-icons/react";
+import { CircleNotch } from "@/components/icons";
 import UserPlansCatalog from "@/components/dashboard/plans/UserPlansCatalog";
 import { useAuth } from "@/contexts/auth-context";
 
@@ -16,7 +16,7 @@ export default function DashboardPlansManagePage() {
     return (
       <div className="flex flex-col items-center justify-center py-32">
         <CircleNotch
-          className="h-8 w-8 animate-spin text-primary"
+          className="h-8 w-8 animate-spin text-lamp-ink"
           weight="bold"
         />
       </div>

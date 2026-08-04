@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowSquareOut, Lock } from "@phosphor-icons/react";
+import { ArrowLeft, ArrowSquareOut, Lock } from "@/components/icons";
 import { useEffect, useState } from "react";
 
 import Button from "@/components/elevated-design/button";

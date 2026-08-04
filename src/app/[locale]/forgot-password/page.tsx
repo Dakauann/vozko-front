@@ -6,7 +6,7 @@ import {
   CheckCircle,
   Envelope,
   Lock,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { Link, useRouter } from "@/i18n/routing";
 import { forgotPassword, resetPassword } from "@/lib/auth/auth-api";
 import { useState, useTransition } from "react";
@@ -70,8 +70,8 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen pt-16 sm:pt-20 bg-gradient-to-br from-muted via-card to-background overflow-y-auto">
-      <div className="flex items-center justify-center px-4 py-8 sm:py-12 relative min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-5rem)]">
+    <div className="min-h-screen pt-0 bg-muted overflow-y-auto">
+      <div className="flex items-center justify-center px-4 py-8 sm:py-12 relative min-h-[calc(100vh-3rem)] sm:min-h-[calc(100vh-3rem)]">
         <div
           className="fixed inset-0 opacity-[0.015] pointer-events-none"
           style={{
@@ -86,7 +86,7 @@ export default function ForgotPasswordPage() {
           className="w-full max-w-[520px] relative"
         >
           <div
-            className="rounded-2xl sm:rounded-[28px] bg-card p-6 sm:p-8 border border-border"
+            className="rounded-[--radius] sm:rounded-[--radius] bg-card p-6 sm:p-8 border border-border"
             style={{
               boxShadow:
                 "0 4px 40px -12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.02)",
@@ -107,11 +107,11 @@ export default function ForgotPasswordPage() {
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.1 }}
-                    className="inline-flex items-center rounded-full bg-muted border border-border px-4 py-1.5 text-xs font-semibold uppercase text-muted-foreground mb-4"
+                    className="inline-flex items-center rounded-[--radius] bg-muted border border-border px-4 py-1.5 text-xs font-semibold uppercase text-muted-foreground mb-4"
                   >
                     {t("badge")}
                   </motion.div>
-                  <h1 className="text-3xl font-bold text-foreground tracking-tight">
+                  <h1 className="text-3xl font-semibold text-foreground tracking-tight">
                     {t("title")}
                   </h1>
                   <p className="mt-3 text-muted-foreground text-[15px]">
@@ -123,9 +123,9 @@ export default function ForgotPasswordPage() {
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-xl"
+                    className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-[--radius]"
                   >
-                    <p className="text-sm text-red-600 font-medium">{error}</p>
+                    <p className="text-sm text-destructive font-medium">{error}</p>
                   </motion.div>
                 )}
 
@@ -161,11 +161,11 @@ export default function ForgotPasswordPage() {
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.1 }}
-                    className="inline-flex items-center rounded-full bg-muted border border-border px-4 py-1.5 text-xs font-semibold uppercase text-muted-foreground mb-4"
+                    className="inline-flex items-center rounded-[--radius] bg-muted border border-border px-4 py-1.5 text-xs font-semibold uppercase text-muted-foreground mb-4"
                   >
                     {t("reset.badge")}
                   </motion.div>
-                  <h1 className="text-3xl font-bold text-foreground tracking-tight">
+                  <h1 className="text-3xl font-semibold text-foreground tracking-tight">
                     {t("reset.title")}
                   </h1>
                   <p className="mt-3 text-muted-foreground text-[15px]">
@@ -177,9 +177,9 @@ export default function ForgotPasswordPage() {
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-xl"
+                    className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-[--radius]"
                   >
-                    <p className="text-sm text-red-600 font-medium">{error}</p>
+                    <p className="text-sm text-destructive font-medium">{error}</p>
                   </motion.div>
                 )}
 
@@ -248,14 +248,14 @@ export default function ForgotPasswordPage() {
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.1 }}
-                  className="w-16 h-16 mx-auto mb-6 rounded-full bg-green-500/15 flex items-center justify-center"
+                  className="w-16 h-16 mx-auto mb-6 rounded-full bg-healthy/15 flex items-center justify-center"
                 >
                   <CheckCircle
                     weight="fill"
-                    className="w-10 h-10 text-green-600"
+                    className="w-10 h-10 text-healthy"
                   />
                 </motion.div>
-                <h2 className="text-2xl font-bold text-foreground mb-2">
+                <h2 className="text-2xl font-semibold text-foreground mb-2">
                   {t("success.title")}
                 </h2>
                 <p className="text-muted-foreground mb-6 text-[15px]">

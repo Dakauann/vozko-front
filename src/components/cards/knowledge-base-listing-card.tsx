@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, Files, PencilSimple, Trash } from "@phosphor-icons/react";
+import { Eye, Files, PencilSimple, Trash } from "@/components/icons";
 
 import type { KnowledgeBase } from "@/lib/knowledge-base/types";
 import { ListingCard } from "@/components/elevated-design/listing-card";

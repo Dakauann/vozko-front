@@ -7,7 +7,7 @@ import {
   ChatCenteredDots,
   PaperPlaneTilt,
   ArrowsClockwise,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 export const liveChatTourPalette: ColorGroup[] = [
   { colors: ["#3b82f6", "#2563eb"], weight: 35 },

@@ -22,7 +22,7 @@ function PageLoader() {
   return (
     <main className="flex w-full items-center justify-center py-24">
       <div
-        className="h-8 w-8 animate-spin rounded-full border-2 border-muted border-t-primary"
+        className="h-8 w-8 animate-spin rounded-full border border-muted border-t-primary"
         role="status"
         aria-label="Loading"
       />

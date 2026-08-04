@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleNotch, Files, Plus, Trash } from "@phosphor-icons/react";
+import { CircleNotch, Files, Plus, Trash } from "@/components/icons";
 import { useCallback, useEffect, useState } from "react";
 
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
@@ -72,7 +72,7 @@ export function KnowledgeBaseSelector({
           </p>
           <Link
             href="/dashboard/knowledge-bases/new"
-            className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+            className="inline-flex items-center gap-2 text-sm font-medium text-lamp-ink hover:underline"
           >
             <Plus className="h-4 w-4" weight="bold" />
             {t("knowledgeBases.createNew")}
@@ -101,10 +101,10 @@ export function KnowledgeBaseSelector({
             {selectedKBs.map((kb) => (
               <div
                 key={kb.id}
-                className="group relative flex items-center gap-3 rounded-xl border border-primary/50 bg-primary/10 p-3 transition-all hover:border-primary/70 hover:shadow-md"
+                className="group relative flex items-center gap-3 rounded-[--radius] border border-primary/50 bg-muted p-3 transition-all hover:border-primary/70 hover:shadow-md"
               >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/20">
-                  <Files className="h-6 w-6 text-primary" weight="fill" />
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-muted">
+                  <Files className="h-6 w-6 text-lamp-ink" weight="fill" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">
@@ -120,7 +120,7 @@ export function KnowledgeBaseSelector({
                 <button
                   type="button"
                   onClick={() => removeKnowledgeBase(kb.id)}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-rose-500 text-white opacity-0 transition-all hover:bg-rose-600 group-hover:opacity-100"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-destructive text-white opacity-0 transition-all hover:bg-destructive group-hover:opacity-100"
                 >
                   <Trash className="h-4 w-4" weight="bold" />
                 </button>
@@ -144,7 +144,7 @@ export function KnowledgeBaseSelector({
                 key={kb.id}
                 type="button"
                 onClick={() => addKnowledgeBase(kb.id)}
-                className="flex items-start gap-3 rounded-xl border border-border bg-card p-4 text-left transition-all hover:border-primary/30 hover:bg-muted/50"
+                className="flex items-start gap-3 rounded-[--radius] border border-border bg-card p-4 text-left transition-all hover:border-primary/30 hover:bg-muted"
               >
                 <div className="shrink-0 rounded-lg p-2 bg-muted">
                   <Files
@@ -174,7 +174,7 @@ export function KnowledgeBaseSelector({
 
       <Link
         href="/dashboard/knowledge-bases/new"
-        className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+        className="inline-flex items-center gap-2 text-sm font-medium text-lamp-ink hover:underline"
       >
         <Plus className="h-4 w-4" weight="bold" />
         {t("knowledgeBases.createNew")}

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Files } from "@phosphor-icons/react";
+import { ArrowLeft, Files } from "@/components/icons";
 
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedButton from "@/components/elevated-design/button";

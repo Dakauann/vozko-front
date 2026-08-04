@@ -1,6 +1,6 @@
 "use client";
 
-import { ChatText, CursorClick, Lightning, Plus } from "@phosphor-icons/react";
+import { ChatText, CursorClick, Lightning, Plus } from "@/components/icons";
 import {
   ElevatedSheet,
   ElevatedSheetContent,
@@ -198,12 +198,12 @@ export default function MessageShortcutSheet({
 
         <div className="flex-1 overflow-y-auto px-6 pb-6">
           <div className="space-y-5">
-            <div className="rounded-2xl border border-border/70 bg-background/70 p-4">
+            <div className="rounded-[--radius] border border-border bg-background p-4">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-primary px-3 py-1 text-[11px] font-semibold uppercase text-primary-foreground">
+                <span className="rounded-[--radius] bg-primary px-3 py-1 text-[11px] font-semibold uppercase text-primary-foreground">
                   /{shortcut || t("modal.shortcutPlaceholder")}
                 </span>
-                <span className="rounded-full border border-border/70 px-3 py-1 text-[11px] font-semibold uppercase text-muted-foreground">
+                <span className="rounded-[--radius] border border-border px-3 py-1 text-[11px] font-semibold uppercase text-muted-foreground">
                   {messageType === "button"
                     ? t("modal.typeButton")
                     : t("modal.typeText")}
@@ -256,10 +256,10 @@ export default function MessageShortcutSheet({
                     type="button"
                     onClick={() => setMessageType(value)}
                     className={cn(
-                      "rounded-2xl border px-4 py-3 text-left transition-all",
+                      "rounded-[--radius] border px-4 py-3 text-left transition-all",
                       messageType === value
-                        ? "border-primary bg-primary/5 shadow-[0_0_0_1px_hsl(var(--primary)/0.2)]"
-                        : "border-border/70 bg-background/60 hover:border-primary/30",
+                        ? "border-primary bg-muted"
+                        : "border-border bg-background hover:border-primary/30",
                     )}
                   >
                     <div className="flex items-start gap-3">
@@ -291,7 +291,7 @@ export default function MessageShortcutSheet({
             />
 
             {messageType === "button" ? (
-              <div className="space-y-4 rounded-2xl border border-border/70 bg-background/60 p-4">
+              <div className="space-y-4 rounded-[--radius] border border-border bg-background p-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <ElevatedInput
                     label={t("modal.headerText")}

@@ -9,7 +9,7 @@ import {
   Tag,
   Trash,
   Warning,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   ElevatedDialog,
   ElevatedDialogContent,
@@ -488,7 +488,7 @@ export default function TagGroupsPage() {
           {stats.map((stat) => (
             <div
               key={stat.label}
-              className="rounded-2xl border border-border/70 bg-card/90 p-5"
+              className="rounded-[--radius] border border-border bg-card p-5"
               style={{ boxShadow: softSurfaceShadow }}
             >
               <div className="flex items-center justify-between gap-4">
@@ -513,11 +513,11 @@ export default function TagGroupsPage() {
 
         {loading ? (
           <div
-            className="rounded-[26px] border border-border/70 bg-card/90 px-6 py-16"
+            className="rounded-[--radius] border border-border bg-card px-6 py-16"
             style={{ boxShadow: softSurfaceShadow }}
           >
             <div className="flex items-center justify-center gap-3">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              <div className="h-5 w-5 animate-spin rounded-full border border-rule-strong border-t-transparent" />
               <span className="text-sm text-muted-foreground">
                 {t("loading")}
               </span>
@@ -525,7 +525,7 @@ export default function TagGroupsPage() {
           </div>
         ) : stageGroups.length === 0 ? (
           <div
-            className="rounded-[26px] border border-border/70 bg-card/90 px-6 py-16 text-center"
+            className="rounded-[--radius] border border-border bg-card px-6 py-16 text-center"
             style={{ boxShadow: softSurfaceShadow }}
           >
             <IconBox
@@ -564,7 +564,7 @@ export default function TagGroupsPage() {
         ) : (
           <div className="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
             <section
-              className="space-y-4 rounded-[26px] border border-border/70 bg-card/90 p-5"
+              className="space-y-4 rounded-[--radius] border border-border bg-card p-5"
               style={{ boxShadow: softSurfaceShadow }}
             >
               <ElevatedInput
@@ -574,7 +574,7 @@ export default function TagGroupsPage() {
                 placeholder={t("filters.searchPlaceholder")}
               />
 
-              <div className="rounded-2xl border border-border/70 bg-background/80 px-4 py-3">
+              <div className="rounded-[--radius] border border-border bg-background px-4 py-3">
                 <p className="text-xs font-semibold uppercase text-muted-foreground">
                   {t("filters.resultsLabel")}
                 </p>
@@ -591,7 +591,7 @@ export default function TagGroupsPage() {
 
               <div className="space-y-3">
                 {filteredGroups.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed border-border/70 bg-background/60 px-4 py-10 text-center">
+                  <div className="rounded-[--radius] border border-dashed border-border bg-background px-4 py-10 text-center">
                     <Tag
                       className="mx-auto h-8 w-8 text-muted-foreground"
                       weight="fill"
@@ -618,10 +618,10 @@ export default function TagGroupsPage() {
                         type="button"
                         onClick={() => setSelectedGroupId(group.id)}
                         className={cn(
-                          "w-full rounded-2xl border px-4 py-4 text-left transition-all",
+                          "w-full rounded-[--radius] border px-4 py-4 text-left transition-all",
                           isSelected
-                            ? "border-primary bg-primary/5 shadow-[0_0_0_1px_hsl(var(--primary)/0.2)]"
-                            : "border-border/70 bg-background/70 hover:border-primary/30 hover:bg-background",
+                            ? "border-primary bg-muted"
+                            : "border-border bg-background hover:border-primary/30 hover:bg-background",
                         )}
                       >
                         <div className="flex items-start gap-3">
@@ -640,7 +640,7 @@ export default function TagGroupsPage() {
                                   })}
                                 </p>
                               </div>
-                              <span className="rounded-full border border-border/70 px-2.5 py-1 text-[10px] font-semibold uppercase text-muted-foreground">
+                              <span className="rounded-[--radius] border border-border px-2.5 py-1 text-[10px] font-semibold uppercase text-muted-foreground">
                                 {group.items.length}
                               </span>
                             </div>
@@ -649,14 +649,14 @@ export default function TagGroupsPage() {
                               {previewItems.map((item) => (
                                 <span
                                   key={item.id}
-                                  className="rounded-full px-2.5 py-1 text-[10px] font-semibold text-white"
+                                  className="rounded-[--radius] px-2.5 py-1 text-[10px] font-semibold text-white"
                                   style={{ backgroundColor: item.color }}
                                 >
                                   {item.name}
                                 </span>
                               ))}
                               {remainingCount > 0 ? (
-                                <span className="rounded-full border border-border/70 px-2.5 py-1 text-[10px] font-semibold text-muted-foreground">
+                                <span className="rounded-[--radius] border border-border px-2.5 py-1 text-[10px] font-semibold text-muted-foreground">
                                   +{remainingCount}
                                 </span>
                               ) : null}
@@ -671,19 +671,19 @@ export default function TagGroupsPage() {
             </section>
 
             <section
-              className="space-y-4 rounded-[26px] border border-border/70 bg-card/90 p-5"
+              className="space-y-4 rounded-[--radius] border border-border bg-card p-5"
               style={{ boxShadow: softSurfaceShadow }}
             >
               {selectedGroup ? (
                 <>
-                  <div className="rounded-2xl border border-border/70 bg-background/60 p-4">
+                  <div className="rounded-[--radius] border border-border bg-background p-4">
                     <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                       <div className="flex items-start gap-3">
                         <IconBox color="primary" size="lg" animated={false}>
                           <Tag weight="fill" />
                         </IconBox>
                         <div>
-                          <p className="text-xs font-semibold uppercase text-primary">
+                          <p className="text-xs font-semibold uppercase text-lamp-ink">
                             {t("detail.badge")}
                           </p>
                           <h2 className="mt-2 text-2xl font-semibold text-foreground">
@@ -723,7 +723,7 @@ export default function TagGroupsPage() {
                   </div>
 
                   <div className="grid gap-4 md:grid-cols-3">
-                    <div className="rounded-2xl border border-border/70 bg-background/60 p-4">
+                    <div className="rounded-[--radius] border border-border bg-background p-4">
                       <p className="text-[10px] font-semibold uppercase text-muted-foreground">
                         {t("detail.countLabel")}
                       </p>
@@ -733,7 +733,7 @@ export default function TagGroupsPage() {
                         })}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-border/70 bg-background/60 p-4">
+                    <div className="rounded-[--radius] border border-border bg-background p-4">
                       <p className="text-[10px] font-semibold uppercase text-muted-foreground">
                         {t("detail.firstStageLabel")}
                       </p>
@@ -741,7 +741,7 @@ export default function TagGroupsPage() {
                         {firstStage}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-border/70 bg-background/60 p-4">
+                    <div className="rounded-[--radius] border border-border bg-background p-4">
                       <p className="text-[10px] font-semibold uppercase text-muted-foreground">
                         {t("detail.lastStageLabel")}
                       </p>
@@ -751,7 +751,7 @@ export default function TagGroupsPage() {
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-border/70 bg-background/60 p-4">
+                  <div className="rounded-[--radius] border border-border bg-background p-4">
                     <p className="text-xs font-semibold uppercase text-muted-foreground">
                       {t("detail.stagesLabel")}
                     </p>
@@ -759,11 +759,11 @@ export default function TagGroupsPage() {
                       {selectedItems.map((item, index) => (
                         <div
                           key={item.id}
-                          className="rounded-2xl border border-border/70 bg-card px-4 py-4"
+                          className="rounded-[--radius] border border-border bg-card px-4 py-4"
                         >
                           <div className="flex items-start gap-4">
                             <div
-                              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold text-white"
+                              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[--radius] text-sm font-semibold text-white"
                               style={{ backgroundColor: item.color }}
                             >
                               {index + 1}
@@ -790,7 +790,7 @@ export default function TagGroupsPage() {
                   </div>
                 </>
               ) : (
-                <div className="flex min-h-[440px] flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 bg-background/60 px-6 py-12 text-center">
+                <div className="flex min-h-[440px] flex-col items-center justify-center rounded-[--radius] border border-dashed border-border bg-background px-6 py-12 text-center">
                   <IconBox color="slate" size="lg" animated={false}>
                     <Tag weight="fill" />
                   </IconBox>
@@ -831,12 +831,12 @@ export default function TagGroupsPage() {
 
           <div className="flex-1 overflow-y-auto px-6 pb-6">
             <div className="space-y-5">
-              <div className="rounded-2xl border border-border/70 bg-background/70 p-4">
+              <div className="rounded-[--radius] border border-border bg-background p-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-primary px-3 py-1 text-[11px] font-semibold uppercase text-primary-foreground">
+                  <span className="rounded-[--radius] bg-primary px-3 py-1 text-[11px] font-semibold uppercase text-primary-foreground">
                     {groupName || t("modal.namePlaceholder")}
                   </span>
-                  <span className="rounded-full border border-border/70 px-3 py-1 text-[11px] font-semibold uppercase text-muted-foreground">
+                  <span className="rounded-[--radius] border border-border px-3 py-1 text-[11px] font-semibold uppercase text-muted-foreground">
                     {t("card.itemCount", { count: draftPreviewItems.length })}
                   </span>
                 </div>
@@ -845,7 +845,7 @@ export default function TagGroupsPage() {
                     draftPreviewItems.slice(0, 4).map((item) => (
                       <span
                         key={item.id}
-                        className="rounded-full px-2.5 py-1 text-[10px] font-semibold text-white"
+                        className="rounded-[--radius] px-2.5 py-1 text-[10px] font-semibold text-white"
                         style={{ backgroundColor: item.color }}
                       >
                         {item.name}
@@ -872,13 +872,13 @@ export default function TagGroupsPage() {
                   placeholder={t("modal.namePlaceholder")}
                 />
                 {nameError ? (
-                  <p className="mt-1 text-xs font-semibold text-rose-500">
+                  <p className="mt-1 text-xs font-semibold text-destructive">
                     {nameError}
                   </p>
                 ) : null}
               </div>
 
-              <div className="space-y-3 rounded-2xl border border-border/70 bg-background/60 p-4">
+              <div className="space-y-3 rounded-[--radius] border border-border bg-background p-4">
                 <div className="flex items-center justify-between gap-3">
                   <label className="text-xs font-semibold uppercase text-muted-foreground">
                     {t("modal.itemsLabel")}
@@ -897,13 +897,13 @@ export default function TagGroupsPage() {
                   {draftItems.map((item, index) => (
                     <div
                       key={item.id}
-                      className="rounded-2xl border border-border/70 bg-card/90 p-3"
+                      className="rounded-[--radius] border border-border bg-card p-3"
                     >
                       <div className="flex items-center gap-2">
                         <div className="relative group">
                           <button
                             type="button"
-                            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 transition-colors hover:border-primary/50"
+                            className="flex h-9 w-9 items-center justify-center rounded-[--radius] border border-border transition-colors hover:border-primary/50"
                             style={{ backgroundColor: item.color }}
                             title={t("modal.pickColor")}
                           >
@@ -912,13 +912,13 @@ export default function TagGroupsPage() {
                               className="h-3.5 w-3.5 text-white drop-shadow-sm"
                             />
                           </button>
-                          <div className="absolute left-0 top-full z-10 mt-1 hidden w-40 grid-cols-4 gap-1 rounded-xl border border-border bg-card p-2 shadow-lg group-focus-within:grid group-hover:grid">
+                          <div className="absolute left-0 top-full z-10 mt-1 hidden w-40 grid-cols-4 gap-1 rounded-[--radius] border border-border bg-card p-2 shadow-lg group-focus-within:grid group-hover:grid">
                             {TAG_COLORS.map((color) => (
                               <button
                                 key={color}
                                 type="button"
                                 className={cn(
-                                  "h-7 w-7 rounded-md border-2 transition-transform hover:scale-110",
+                                  "h-7 w-7 rounded-md border transition-transform hover:scale-110",
                                   item.color === color
                                     ? "border-foreground"
                                     : "border-transparent",
@@ -941,14 +941,14 @@ export default function TagGroupsPage() {
                           placeholder={t("modal.itemNamePlaceholder", {
                             index: index + 1,
                           })}
-                          className="flex-1 rounded-xl border border-border/70 bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+                          className="flex-1 rounded-[--radius] border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
                         />
 
                         {draftItems.length > 1 ? (
                           <button
                             type="button"
                             onClick={() => removeDraftItem(item.id)}
-                            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-red-500 hover:text-white"
+                            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-destructive hover:text-white"
                           >
                             <Trash weight="bold" className="h-3.5 w-3.5" />
                           </button>
@@ -966,7 +966,7 @@ export default function TagGroupsPage() {
                           )
                         }
                         placeholder={t("modal.itemDescriptionPlaceholder")}
-                        className="mt-2 w-full rounded-xl border border-border/70 bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+                        className="mt-2 w-full rounded-[--radius] border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
                   ))}
@@ -1025,7 +1025,7 @@ export default function TagGroupsPage() {
             </div>
           </ElevatedDialogHeader>
 
-          <div className="rounded-2xl border border-red-200 bg-red-50/90 p-4">
+          <div className="rounded-[--radius] border border-red-200 bg-destructive/10/90 p-4">
             <p className="text-sm text-red-800">
               {deletingGroup
                 ? t("delete.warning", { name: deletingGroup.name })
@@ -1046,7 +1046,7 @@ export default function TagGroupsPage() {
               iconVisible
               onClick={handleDelete}
               disabled={isDeleting || !canDeleteStageGroups}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-destructive hover:bg-red-700"
             />
           </ElevatedDialogFooter>
         </ElevatedDialogContent>

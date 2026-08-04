@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowSquareOut, Lock } from "@phosphor-icons/react";
+import { ArrowLeft, ArrowSquareOut, Lock } from "@/components/icons";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -264,7 +264,7 @@ export default function ConnectWhatsAppPage() {
           {/* A readout, ahead of the control it governs, but not a step: there
               is nothing here for the operator to do. `bare` because a card
               inside a panel is two frames saying the same thing. */}
-          <div className="rounded-xl border border-border/70 bg-muted/40 p-4">
+          <div className="rounded-[--radius] border border-border bg-muted p-4">
             <WhatsAppCapacityCard capacity={capacity} variant="bare" />
           </div>
 

@@ -28,11 +28,11 @@ import { cn } from "@/lib/utils";
  */
 const TINTS = [
   "bg-fuchsia-600 text-white",
-  "bg-violet-600 text-white",
-  "bg-sky-600 text-white",
-  "bg-emerald-600 text-white",
-  "bg-amber-600 text-white",
-  "bg-rose-600 text-white",
+  "bg-muted text-white",
+  "bg-muted text-white",
+  "bg-healthy text-white",
+  "bg-warning text-white",
+  "bg-destructive text-white",
 ];
 
 /**

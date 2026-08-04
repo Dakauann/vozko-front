@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { CaretUpDown, Check, CircleNotch } from "@phosphor-icons/react";
+import { CaretUpDown, Check, CircleNotch } from "@/components/icons";
 
 import {
   Command,
@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
 import { softSurfaceWithInset } from "./shadow-presets";
 
 const DISABLED_SHADOW =
-  "0 12px 24px -20px rgba(15,23,42,0.12), inset 0 1px 0 var(--shadow-highlight)";
+  "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)";
 
 type ElevatedCommandOption = {
   value: string;
@@ -173,9 +173,9 @@ const ElevatedCommandSelect = ({
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
             className={cn(
-              "flex w-full items-center justify-between gap-3 rounded-full border border-border bg-card px-5 py-3 text-left text-sm font-medium text-foreground transition-all duration-200 ease-out",
+              "flex w-full items-center justify-between gap-3 rounded-[--radius] border border-border bg-card px-3 py-2 text-left text-sm font-medium text-foreground transition-all duration-200 ease-out",
               "hover:border-foreground/20",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               "disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:opacity-60",
             )}
             style={{
@@ -186,7 +186,7 @@ const ElevatedCommandSelect = ({
               {selectedOption ? (
                 <>
                   {selectedOption.icon ? (
-                    <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center text-primary/60">
+                    <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center text-lamp-ink/60">
                       {selectedOption.icon}
                     </span>
                   ) : null}
@@ -248,8 +248,8 @@ const ElevatedCommandSelect = ({
                       keywords={option.keywords}
                       onSelect={() => handleSelect(option)}
                       className={cn(
-                        "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-foreground",
-                        "data-[selected=true]:bg-primary/10 data-[selected=true]:text-primary",
+                        "flex items-center gap-3 rounded-[--radius] px-3 py-2.5 text-sm text-foreground",
+                        "data-[selected=true]:bg-muted data-[selected=true]:text-lamp-ink",
                         "data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50",
                         `border-l-4 ${
                           currentValue === option.value
@@ -260,7 +260,7 @@ const ElevatedCommandSelect = ({
                     >
                       <div className="flex min-w-0 flex-1 items-center gap-3">
                         {option.icon ? (
-                          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-primary text-white">
+                          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[--radius] bg-primary text-white">
                             {option.icon}
                           </span>
                         ) : null}
@@ -287,7 +287,7 @@ const ElevatedCommandSelect = ({
                       <Check
                         weight="bold"
                         className={cn(
-                          "ml-2 h-4 w-4 flex-shrink-0 text-primary transition-opacity",
+                          "ml-2 h-4 w-4 flex-shrink-0 text-lamp-ink transition-opacity",
                           currentValue === option.value
                             ? "opacity-100"
                             : "opacity-0",
@@ -304,7 +304,7 @@ const ElevatedCommandSelect = ({
       {label ? (
         <label
           className={cn(
-            "absolute pointer-events-none rounded-full px-2 py-[2px] text-sm font-medium transition-all duration-200 ease-out",
+            "absolute pointer-events-none rounded-[--radius] px-2 py-[2px] text-sm font-medium transition-all duration-200 ease-out",
             "left-5",
             floatingState
               ? cn(

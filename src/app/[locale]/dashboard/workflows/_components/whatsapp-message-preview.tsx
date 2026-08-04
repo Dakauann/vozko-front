@@ -5,7 +5,7 @@ import {
   Copy,
   List as ListIcon,
   CaretRight,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { cn } from "@/lib/utils";
 import {
   ActionRowList,

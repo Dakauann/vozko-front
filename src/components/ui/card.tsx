@@ -2,6 +2,13 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * A well: content recessed INTO the panel, not a card floating above it.
+ *
+ * This inversion is the single largest structural change in the identity. The
+ * darker top edge (border-t-rule-strong) is what sells the recess — a drop
+ * shadow would put the surface back on top of the panel and undo it.
+ */
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
@@ -9,7 +16,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-xl border bg-card text-card-foreground shadow",
+      "rounded-[--radius] border border-border border-t-rule-strong bg-card text-card-foreground",
       className
     )}
     {...props}

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, Check, Fire } from "@phosphor-icons/react";
+import { ArrowUpRight, Check, Fire } from "@/components/icons";
 
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -37,7 +37,7 @@ export function PricingCard({
 
   return (
     <motion.div
-      className={`relative w-full max-w-[440px] min-w-[280px] bg-[rgb(245,245,245)] rounded-2xl p-8 shadow-[0px_0.7px_0.7px_-0.67px_rgba(0,0,0,0.08),0px_1.8px_1.8px_-1.33px_rgba(0,0,0,0.08),0px_3.6px_3.6px_-2px_rgba(0,0,0,0.07),0px_6.9px_6.9px_-2.67px_rgba(0,0,0,0.07),0px_13.6px_13.6px_-3.33px_rgba(0,0,0,0.05),0px_30px_30px_-4px_rgba(0,0,0,0.02)] border-[3px] border-white border-inset ${className}`}
+      className={`relative w-full max-w-[440px] min-w-[280px] bg-[rgb(245,245,245)] rounded-[--radius] p-8 shadow-[0px_0.7px_0.7px_-0.67px_rgba(0,0,0,0.08),0px_1.8px_1.8px_-1.33px_rgba(0,0,0,0.08),0px_3.6px_3.6px_-2px_rgba(0,0,0,0.07),0px_6.9px_6.9px_-2.67px_rgba(0,0,0,0.07),0px_13.6px_13.6px_-3.33px_rgba(0,0,0,0.05),0px_30px_30px_-4px_rgba(0,0,0,0.02)] border-[3px] border-white border-inset ${className}`}
       initial={{ opacity: 0, y: 70 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -52,7 +52,7 @@ export function PricingCard({
       <div className="flex items-center justify-start gap-2 mb-6">
         <h3 className="text-xl font-semibold text-black">{planName}</h3>
         {showPopularTag && (
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-b from-black to-card rounded-full border-[rgba(216,231,242,0.07)] shadow-[0px_0.7px_0.7px_-0.67px_rgba(0,0,0,0.16),0px_1.8px_1.8px_-1.33px_rgba(0,0,0,0.15),0px_3.6px_3.6px_-2px_rgba(0,0,0,0.15),0px_6.9px_6.9px_-2.67px_rgba(0,0,0,0.13),0px_13.6px_13.6px_-3.33px_rgba(0,0,0,0.11),0px_30px_30px_-4px_rgba(0,0,0,0.04)]">
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-muted rounded-full border-[rgba(216,231,242,0.07)] shadow-[0px_0.7px_0.7px_-0.67px_rgba(0,0,0,0.16),0px_1.8px_1.8px_-1.33px_rgba(0,0,0,0.15),0px_3.6px_3.6px_-2px_rgba(0,0,0,0.15),0px_6.9px_6.9px_-2.67px_rgba(0,0,0,0.13),0px_13.6px_13.6px_-3.33px_rgba(0,0,0,0.11),0px_30px_30px_-4px_rgba(0,0,0,0.04)]">
             <Fire className="w-5 h-5 text-white" weight="fill" />
             <span className="text-sm font-medium text-white">Popular</span>
           </div>
@@ -60,7 +60,7 @@ export function PricingCard({
       </div>
 
       <div className="flex items-center gap-1.5 mb-6">
-        <span className="text-4xl font-bold text-black">{currentPrice}</span>
+        <span className="text-4xl font-semibold text-black">{currentPrice}</span>
         <span className="text-base text-black opacity-80">{billingLabel}</span>
       </div>
 

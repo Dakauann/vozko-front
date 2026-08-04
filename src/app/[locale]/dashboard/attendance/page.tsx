@@ -20,7 +20,7 @@ import {
   UserMinus,
   Users,
   WhatsappLogo,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   Bar,
   BarChart,
@@ -176,7 +176,7 @@ function Surface({
   return (
     <section
       className={cn(
-        "rounded-[20px] border border-border/70 bg-card/90 p-4 md:p-5",
+        "rounded-[--radius] border border-border bg-card p-4 md:p-5",
         className,
       )}
       style={{ boxShadow: softSurfaceShadow }}
@@ -204,7 +204,7 @@ function SectionTitle({
       <div className="flex min-w-0 items-start gap-2.5">
         <div
           className={cn(
-            "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white",
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius] text-white",
             iconBg,
           )}
         >
@@ -249,7 +249,7 @@ function EmptyChart({
 function ChartSkeleton({ height = 220 }: { height?: number }) {
   return (
     <div
-      className="animate-pulse rounded-xl bg-muted/50"
+      className="animate-pulse rounded-[--radius] bg-muted"
       style={{ height }}
       aria-hidden
     />
@@ -299,7 +299,7 @@ function KpiStrip({
       value: loading ? tc("loading") : fmt.num(kpis?.finished),
       hint: t("finishedHint"),
       icon: CheckCircle,
-      bg: "bg-emerald-500",
+      bg: "bg-healthy",
     },
     {
       key: "ongoing",
@@ -308,7 +308,7 @@ function KpiStrip({
       value: loading ? tc("loading") : fmt.num(kpis?.ongoing),
       hint: t("ongoingHint"),
       icon: Pulse,
-      bg: "bg-blue-500",
+      bg: "bg-muted",
     },
     {
       key: "pending",
@@ -317,7 +317,7 @@ function KpiStrip({
       value: loading ? tc("loading") : fmt.num(kpis?.pending),
       hint: t("pendingHint"),
       icon: Hourglass,
-      bg: "bg-amber-500",
+      bg: "bg-warning",
     },
     {
       key: "unassigned",
@@ -326,7 +326,7 @@ function KpiStrip({
       value: loading ? tc("loading") : fmt.num(kpis?.unassigned_backlog),
       hint: t("unassignedHint"),
       icon: UserMinus,
-      bg: "bg-rose-500",
+      bg: "bg-destructive",
     },
     {
       key: "new",
@@ -335,7 +335,7 @@ function KpiStrip({
       value: loading ? tc("loading") : fmt.num(kpis?.new_contacts),
       hint: t("newContactsHint"),
       icon: Users,
-      bg: "bg-violet-500",
+      bg: "bg-muted",
     },
     {
       key: "tme",
@@ -344,7 +344,7 @@ function KpiStrip({
       value: loading ? tc("loading") : fmt.mins(kpis?.avg_wait_mins ?? null),
       hint: t("avgWaitHint"),
       icon: Clock,
-      bg: "bg-teal-500",
+      bg: "bg-muted",
     },
     {
       key: "tma",
@@ -362,7 +362,7 @@ function KpiStrip({
       value: loading ? tc("loading") : fmt.mins(kpis?.avg_frt_mins ?? null),
       hint: t("frtHint"),
       icon: Lightning,
-      bg: "bg-indigo-500",
+      bg: "bg-muted",
     },
   ];
 
@@ -378,7 +378,7 @@ function KpiStrip({
           return (
             <div
               key={c.key}
-              className="rounded-2xl border border-border/70 bg-background/70 px-3 py-3"
+              className="rounded-[--radius] border border-border bg-background px-3 py-3"
               title={c.hint}
             >
               <div className="flex items-start justify-between gap-2">
@@ -398,7 +398,7 @@ function KpiStrip({
                 </div>
                 <div
                   className={cn(
-                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl",
+                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-[--radius]",
                     c.bg,
                   )}
                 >
@@ -413,7 +413,7 @@ function KpiStrip({
       {/* Campaign shells: not real chats, kept out of primary KPIs */}
       {!loading && shell > 0 ? (
         <div
-          className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl border border-dashed border-border/80 bg-muted/40 px-3 py-2 text-xs text-muted-foreground"
+          className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-[--radius] border border-dashed border-border bg-muted px-3 py-2 text-xs text-muted-foreground"
           title={t("shellHint")}
         >
           <span className="font-semibold uppercase tracking-wide text-muted-foreground/90">
@@ -458,7 +458,7 @@ function StatBlock({
   return (
     <div
       className={cn(
-        "rounded-xl border border-border/60 bg-background/70 px-3 py-2.5",
+        "rounded-[--radius] border border-border bg-background px-3 py-2.5",
         muted && "opacity-70",
       )}
       title={hint}
@@ -501,7 +501,7 @@ function ChannelMixChart({
       value: c.count,
       pct: c.pct,
       // Solid channel colors (product meaning, not wash tiles).
-      solid: c.channel === "whatsapp" ? "bg-[#25d366]" : "bg-violet-500",
+      solid: c.channel === "whatsapp" ? "bg-[#25d366]" : "bg-muted",
       bar: c.channel === "whatsapp" ? "#25d366" : "#8b5cf6",
       Icon: c.channel === "whatsapp" ? WhatsappLogo : Phone,
     }));
@@ -537,13 +537,13 @@ function ChannelMixChart({
           return (
             <div
               key={d.key}
-              className="rounded-2xl border border-border/60 bg-background/70 p-4"
+              className="rounded-[--radius] border border-border bg-background p-4"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-2.5">
                   <div
                     className={cn(
-                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white",
+                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius] text-white",
                       d.solid,
                     )}
                   >
@@ -618,7 +618,7 @@ function ExtendedOpsPanels({
           <Surface className="xl:col-span-6">
             <SectionTitle
               icon={<Lightning className="h-4 w-4" weight="fill" />}
-              iconBg="bg-indigo-500"
+              iconBg="bg-muted"
               title={ts("frtTitle")}
               subtitle={ts("frtSub")}
             />
@@ -666,7 +666,7 @@ function ExtendedOpsPanels({
           <Surface className="xl:col-span-3">
             <SectionTitle
               icon={<ChartBar className="h-4 w-4" weight="fill" />}
-              iconBg="bg-teal-600"
+              iconBg="bg-muted"
               title={ts("messages")}
               subtitle={ts("messagesSub")}
             />
@@ -831,7 +831,7 @@ function ExtendedOpsPanels({
         <Surface>
           <SectionTitle
             icon={<ChartPie className="h-4 w-4" weight="fill" />}
-            iconBg="bg-emerald-600"
+            iconBg="bg-healthy"
             title={ts("channelsUsed")}
             subtitle={ts("channelsUsedSub")}
           />
@@ -844,7 +844,7 @@ function ExtendedOpsPanels({
         <Surface>
           <SectionTitle
             icon={<Robot className="h-4 w-4" weight="fill" />}
-            iconBg="bg-amber-500"
+            iconBg="bg-warning"
             title={ts("aiTitle")}
             subtitle={ts("aiTitleSub")}
           />
@@ -1141,7 +1141,7 @@ function StatusCompositionChart({
       </ChartContainer>
 
       <div className="space-y-2.5">
-        <div className="rounded-xl border border-border/60 bg-background/70 px-3 py-2">
+        <div className="rounded-[--radius] border border-border bg-background px-3 py-2">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
             {tl("pctFinished")}
           </p>
@@ -1211,14 +1211,14 @@ function OverallCloseOriginNote({
         })}%`
       : "0%";
   return (
-    <div className="mt-3 rounded-xl border border-border/60 bg-background/70 px-3 py-2.5">
+    <div className="mt-3 rounded-[--radius] border border-border bg-background px-3 py-2.5">
       <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
         {tl("closeOriginCol")}
       </p>
       <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
         <span className="inline-flex items-center gap-1.5 tabular-nums text-foreground">
           <span
-            className="h-1.5 w-1.5 rounded-full bg-emerald-500"
+            className="h-1.5 w-1.5 rounded-full bg-healthy"
             aria-hidden
           />
           {tl("closedByHuman")}:{" "}
@@ -1227,7 +1227,7 @@ function OverallCloseOriginNote({
         </span>
         <span className="inline-flex items-center gap-1.5 tabular-nums text-foreground">
           <span
-            className="h-1.5 w-1.5 rounded-full bg-amber-500"
+            className="h-1.5 w-1.5 rounded-full bg-warning"
             aria-hidden
           />
           {tl("closedBySilence")}:{" "}
@@ -1237,7 +1237,7 @@ function OverallCloseOriginNote({
         {a > 0 ? (
           <span className="inline-flex items-center gap-1.5 tabular-nums text-foreground">
             <span
-              className="h-1.5 w-1.5 rounded-full bg-violet-500"
+              className="h-1.5 w-1.5 rounded-full bg-muted"
               aria-hidden
             />
             {tl("closedByAI")}:{" "}
@@ -1616,7 +1616,7 @@ function DepartmentDetailTable({
     <div className="overflow-x-auto">
       <table className="w-full min-w-[520px] text-left text-sm">
         <thead>
-          <tr className="border-b border-border/70 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <tr className="border-b border-border text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
             <th className="px-2 py-2">{tc("department")}</th>
             <th className="px-2 py-2 text-right" title={tl("waitColTitle")}>
               {tc("wait")}
@@ -1642,7 +1642,7 @@ function DepartmentDetailTable({
             return (
               <tr
                 key={r.department_id || r.department_name}
-                className="border-b border-border/40 last:border-0"
+                className="border-b border-border last:border-0"
               >
                 <td className="px-2 py-2.5 font-medium text-foreground">
                   {r.department_name || tc("noDepartment")}
@@ -1653,7 +1653,7 @@ function DepartmentDetailTable({
                 <td className="px-2 py-2.5 text-right tabular-nums text-muted-foreground">
                   {fmt.mins(r.avg_handle_mins)}
                 </td>
-                <td className="px-2 py-2.5 text-right tabular-nums text-emerald-600 dark:text-emerald-400">
+                <td className="px-2 py-2.5 text-right tabular-nums text-healthy dark:text-healthy">
                   {fmt.num(r.finished)}
                 </td>
                 <td className="px-2 py-2.5 text-right">
@@ -1666,7 +1666,7 @@ function DepartmentDetailTable({
                 <td className="px-2 py-2.5 text-right tabular-nums text-foreground">
                   {fmt.num(r.ongoing)}
                 </td>
-                <td className="px-2 py-2.5 text-right tabular-nums text-amber-600 dark:text-amber-400">
+                <td className="px-2 py-2.5 text-right tabular-nums text-warning dark:text-amber-400">
                   {fmt.num(r.pending)}
                 </td>
                 <td className="px-2 py-2.5 text-right font-semibold tabular-nums text-foreground">
@@ -1711,7 +1711,7 @@ function TeamDetailTable({
     <div className="overflow-x-auto">
       <table className="w-full min-w-[680px] text-left text-sm">
         <thead>
-          <tr className="border-b border-border/70 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <tr className="border-b border-border text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
             <th className="px-2 py-2">{tl("agentCol")}</th>
             <th className="px-2 py-2">{tc("type")}</th>
             <th className="px-2 py-2">{tc("status")}</th>
@@ -1743,14 +1743,14 @@ function TeamDetailTable({
           {sorted.map((m) => (
             <tr
               key={m.actor_id}
-              className="border-b border-border/40 last:border-0"
+              className="border-b border-border last:border-0"
             >
               <td className="px-2 py-2.5">
                 <div className="flex items-center gap-2">
                   <div
                     className={cn(
                       "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-white",
-                      m.actor_kind === "ai" ? "bg-amber-500" : "bg-primary",
+                      m.actor_kind === "ai" ? "bg-warning" : "bg-primary",
                     )}
                   >
                     {m.actor_kind === "ai" ? (
@@ -1774,8 +1774,8 @@ function TeamDetailTable({
               <td className="px-2 py-2.5">
                 <span
                   className={cn(
-                    "inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold text-white",
-                    m.actor_kind === "ai" ? "bg-amber-500" : "bg-primary",
+                    "inline-flex rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold text-white",
+                    m.actor_kind === "ai" ? "bg-warning" : "bg-primary",
                   )}
                 >
                   {actorKindLabel(m.actor_kind)}
@@ -1787,10 +1787,10 @@ function TeamDetailTable({
                     className={cn(
                       "h-1.5 w-1.5 rounded-full",
                       m.presence === "online"
-                        ? "bg-emerald-500"
+                        ? "bg-healthy"
                         : m.presence === "on_call"
-                          ? "bg-violet-500"
-                          : "bg-slate-400",
+                          ? "bg-muted"
+                          : "bg-muted",
                     )}
                   />
                   {presenceLabel(m.presence)}
@@ -1806,7 +1806,7 @@ function TeamDetailTable({
                     aria-hidden
                   >
                     <span
-                      className="block h-full rounded-full bg-emerald-500"
+                      className="block h-full rounded-full bg-healthy"
                       style={{
                         width: `${Math.min(100, Math.max(0, m.resolution_pct))}%`,
                       }}
@@ -1820,10 +1820,10 @@ function TeamDetailTable({
               <td className="px-2 py-2.5 text-right tabular-nums">
                 {fmt.num(m.open)}
               </td>
-              <td className="px-2 py-2.5 text-right tabular-nums text-amber-600 dark:text-amber-400">
+              <td className="px-2 py-2.5 text-right tabular-nums text-warning dark:text-amber-400">
                 {fmt.num(m.pending)}
               </td>
-              <td className="px-2 py-2.5 text-right font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">
+              <td className="px-2 py-2.5 text-right font-semibold tabular-nums text-healthy dark:text-healthy">
                 {fmt.num(m.resolved)}
               </td>
               <td className="px-2 py-2.5 text-right font-semibold tabular-nums text-foreground">
@@ -2003,7 +2003,7 @@ export default function AttendanceOpsPage() {
           />
 
           {/* Compact filter bar */}
-          <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-border/70 bg-background/60 p-3 lg:flex-row lg:items-end lg:gap-3">
+          <div className="mt-4 flex flex-col gap-3 rounded-[--radius] border border-border bg-background p-3 lg:flex-row lg:items-end lg:gap-3">
             <div className="min-w-0 flex-1">
               <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                 {tc("period")}
@@ -2093,12 +2093,12 @@ export default function AttendanceOpsPage() {
               </ElevatedSelect>
             </div>
 
-            <label className="flex h-[42px] cursor-pointer items-center gap-2 rounded-xl border border-border/70 bg-card px-3 text-sm lg:shrink-0">
+            <label className="flex h-[42px] cursor-pointer items-center gap-2 rounded-[--radius] border border-border bg-card px-3 text-sm lg:shrink-0">
               <input
                 type="checkbox"
                 checked={includeAi}
                 onChange={(e) => setIncludeAi(e.target.checked)}
-                className="h-3.5 w-3.5 rounded border-border text-primary focus:ring-primary"
+                className="h-3.5 w-3.5 rounded border-border text-lamp-ink focus:ring-ring"
               />
               <span className="whitespace-nowrap font-medium text-foreground">
                 {tl("showAi")}
@@ -2108,30 +2108,30 @@ export default function AttendanceOpsPage() {
 
           {/* Context chips */}
           <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            <span className="rounded-full bg-muted px-2.5 py-1 font-medium text-foreground">
+            <span className="rounded-[--radius] bg-muted px-2.5 py-1 font-medium text-foreground">
               {periodLabel}
             </span>
-            <span className="rounded-full bg-muted/70 px-2.5 py-1">
+            <span className="rounded-[--radius] bg-muted px-2.5 py-1">
               {loading
                 ? tc("loading")
                 : tl("conversationsInSlice", { count: fmt.num(total) })}
             </span>
             {!loading && (kpis?.shell_backlog ?? 0) > 0 ? (
               <span
-                className="rounded-full bg-muted/50 px-2.5 py-1"
+                className="rounded-[--radius] bg-muted px-2.5 py-1"
                 title={tl("shellChipHint")}
               >
                 {tl("shellChip", { count: fmt.num(kpis?.shell_backlog) })}
               </span>
             ) : null}
-            <span className="rounded-full bg-muted/70 px-2.5 py-1">
+            <span className="rounded-[--radius] bg-muted px-2.5 py-1">
               {loading
                 ? tc("loading")
                 : tl("agentsCount", {
                     count: fmt.num(overview?.by_member?.length),
                   })}
             </span>
-            <span className="rounded-full bg-muted/70 px-2.5 py-1">
+            <span className="rounded-[--radius] bg-muted px-2.5 py-1">
               {loading
                 ? tc("loading")
                 : tl("departmentsCount", {
@@ -2145,7 +2145,7 @@ export default function AttendanceOpsPage() {
           </div>
 
           {error ? (
-            <div className="mt-3 rounded-xl border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+            <div className="mt-3 rounded-[--radius] border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
               {error}
             </div>
           ) : null}
@@ -2188,7 +2188,7 @@ export default function AttendanceOpsPage() {
               <Surface className="xl:col-span-5">
                 <SectionTitle
                   icon={<ChartPie className="h-4 w-4" weight="fill" />}
-                  iconBg="bg-emerald-500"
+                  iconBg="bg-healthy"
                   title={ts("status")}
                   subtitle={ts("statusSub")}
                 />
@@ -2214,7 +2214,7 @@ export default function AttendanceOpsPage() {
               <Surface className="xl:col-span-5">
                 <SectionTitle
                   icon={<Buildings className="h-4 w-4" weight="fill" />}
-                  iconBg="bg-violet-500"
+                  iconBg="bg-muted"
                   title={ts("deptChart")}
                   subtitle={ts("deptChartSub")}
                 />
@@ -2227,7 +2227,7 @@ export default function AttendanceOpsPage() {
               <Surface className="xl:col-span-7">
                 <SectionTitle
                   icon={<Buildings className="h-4 w-4" weight="fill" />}
-                  iconBg="bg-violet-500"
+                  iconBg="bg-muted"
                   title={ts("deptTable")}
                   subtitle={ts("deptTableSub")}
                 />
@@ -2245,7 +2245,7 @@ export default function AttendanceOpsPage() {
               <Surface className="xl:col-span-5">
                 <SectionTitle
                   icon={<Users className="h-4 w-4" weight="fill" />}
-                  iconBg="bg-blue-500"
+                  iconBg="bg-muted"
                   title={ts("teamRank")}
                   subtitle={ts("teamRankSub")}
                 />
@@ -2258,7 +2258,7 @@ export default function AttendanceOpsPage() {
               <Surface className="xl:col-span-7">
                 <SectionTitle
                   icon={<Users className="h-4 w-4" weight="fill" />}
-                  iconBg="bg-blue-500"
+                  iconBg="bg-muted"
                   title={ts("teamDetail")}
                   subtitle={ts("teamDetailSub")}
                 />

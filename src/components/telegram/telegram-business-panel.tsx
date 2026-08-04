@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle, Info, Warning } from "@phosphor-icons/react";
+import { CheckCircle, Info, Warning } from "@/components/icons";
 import { useTranslations } from "next-intl";
 
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
@@ -32,8 +32,8 @@ export function TelegramBusinessPanel({ account }: { account: TelegramAccount })
 
       {isBusiness ? (
         <div className="space-y-3">
-          <p className="flex items-start gap-2 rounded-lg border border-border/70 bg-muted/30 p-3 text-xs leading-relaxed text-foreground">
-            <CheckCircle weight="fill" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-500" />
+          <p className="flex items-start gap-2 rounded-lg border border-border bg-muted p-3 text-xs leading-relaxed text-foreground">
+            <CheckCircle weight="fill" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-healthy dark:text-healthy" />
             <span>
               {account.businessUsername
                 ? t("pairedTo", { username: `@${account.businessUsername}` })
@@ -45,21 +45,21 @@ export function TelegramBusinessPanel({ account }: { account: TelegramAccount })
               is refused. It outranks the connection notice above in urgency, so
               it is styled as a fault rather than a hint. */}
           {!canReply && (
-            <p className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-muted/30 p-3 text-xs leading-relaxed text-foreground">
+            <p className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-muted p-3 text-xs leading-relaxed text-foreground">
               <Warning weight="fill" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" />
               {t("noReplyRight")}
             </p>
           )}
 
           {account.businessEnabled === false && (
-            <p className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-muted/30 p-3 text-xs leading-relaxed text-foreground">
+            <p className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-muted p-3 text-xs leading-relaxed text-foreground">
               <Warning weight="fill" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" />
               {t("disabled")}
             </p>
           )}
 
-          <p className="flex items-start gap-2 rounded-lg border border-border/70 bg-muted/30 p-3 text-xs leading-relaxed text-foreground">
-            <Info weight="fill" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-sky-600 dark:text-sky-500" />
+          <p className="flex items-start gap-2 rounded-lg border border-border bg-muted p-3 text-xs leading-relaxed text-foreground">
+            <Info weight="fill" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground dark:text-sky-500" />
             {t("windowNote")}
           </p>
         </div>
@@ -89,8 +89,8 @@ export function TelegramBusinessPanel({ account }: { account: TelegramAccount })
             ))}
           </ol>
 
-          <p className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-muted/30 p-3 text-xs leading-relaxed text-foreground">
-            <Warning weight="fill" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-500" />
+          <p className="flex items-start gap-2 rounded-lg border border-warning/30 bg-muted p-3 text-xs leading-relaxed text-foreground">
+            <Warning weight="fill" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-warning dark:text-warning" />
             {t("tradeoff")}
           </p>
         </div>

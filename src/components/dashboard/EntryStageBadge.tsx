@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Plus, Tag as TagIcon, X } from "@phosphor-icons/react";
+import { Check, Plus, Tag as TagIcon, X } from "@/components/icons";
 import type { EntryStage, EntryType, Stage } from "@/lib/conversations/types";
 import {
   Popover,
@@ -88,7 +88,7 @@ export default function EntryStageBadge({
     if (!currentStage) return null;
     return (
       <span
-        className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
+        className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider"
         style={{
           backgroundColor: `${currentStage.stageColor}18`,
           color: currentStage.stageColor,
@@ -139,7 +139,7 @@ export default function EntryStageBadge({
         <button
           type="button"
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider",
+            "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider",
             "transition-all hover:opacity-80 cursor-pointer",
             loading && "opacity-50 pointer-events-none",
           )}
@@ -214,7 +214,7 @@ function StagePickerContent({
                   }
                 }}
                 className={cn(
-                  "flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm transition-colors",
+                  "flex w-full items-center gap-2.5 rounded-[--radius] px-3 py-2 text-left text-sm transition-colors",
                   isActive ? "bg-muted font-medium" : "hover:bg-muted",
                   loading && "opacity-50 pointer-events-none",
                 )}
@@ -233,7 +233,7 @@ function StagePickerContent({
                   <div className="flex items-center gap-1 shrink-0">
                     <Check
                       weight="bold"
-                      className="h-3.5 w-3.5 text-emerald-500"
+                      className="h-3.5 w-3.5 text-healthy"
                     />
                     <X
                       weight="bold"

@@ -9,7 +9,7 @@ import {
   Target,
   ThumbsDown,
   ThumbsUp,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 import type { Analysis } from "@/lib/analysis/types";
 import { createPortal } from "react-dom";
@@ -17,20 +17,20 @@ import { cn } from "@/lib/utils";
 
 /** Solid tile + white glyph, never colored glyph on same-hue wash. */
 const SENTIMENT_MAP = {
-  positive: { label: "Positivo", icon: ThumbsUp, tile: "bg-emerald-500" },
-  neutral: { label: "Neutro", icon: SmileyMeh, tile: "bg-amber-500" },
-  negative: { label: "Negativo", icon: ThumbsDown, tile: "bg-rose-500" },
+  positive: { label: "Positivo", icon: ThumbsUp, tile: "bg-healthy" },
+  neutral: { label: "Neutro", icon: SmileyMeh, tile: "bg-warning" },
+  negative: { label: "Negativo", icon: ThumbsDown, tile: "bg-destructive" },
 } as const;
 
 const INTEREST_MAP = {
-  interested: { label: "Interessado", tile: "bg-emerald-500" },
-  not_interested: { label: "Sem interesse", tile: "bg-rose-500" },
-  undecided: { label: "Indeciso", tile: "bg-amber-500" },
+  interested: { label: "Interessado", tile: "bg-healthy" },
+  not_interested: { label: "Sem interesse", tile: "bg-destructive" },
+  undecided: { label: "Indeciso", tile: "bg-warning" },
 } as const;
 
 const QUALIFICATION_MAP = {
-  hot_lead: { label: "Quente", icon: Fire, tile: "bg-rose-500" },
-  warm_lead: { label: "Morno", icon: Sparkle, tile: "bg-amber-500" },
+  hot_lead: { label: "Quente", icon: Fire, tile: "bg-destructive" },
+  warm_lead: { label: "Morno", icon: Sparkle, tile: "bg-warning" },
   cold_lead: { label: "Frio", icon: Target, tile: "bg-primary" },
 } as const;
 
@@ -53,11 +53,11 @@ const NEXT_ACTION_MAP: Record<string, string> = {
 };
 
 function qualityColor(q: number): string {
-  if (q >= 85) return "bg-emerald-500";
-  if (q >= 70) return "bg-emerald-500";
-  if (q >= 55) return "bg-amber-500";
-  if (q >= 40) return "bg-amber-500";
-  return "bg-rose-500";
+  if (q >= 85) return "bg-healthy";
+  if (q >= 70) return "bg-healthy";
+  if (q >= 55) return "bg-warning";
+  if (q >= 40) return "bg-warning";
+  return "bg-destructive";
 }
 
 interface AnalysisHoverCardProps {
@@ -110,7 +110,7 @@ export default function AnalysisHoverCard({
   const usePortal = isRightFlyout && !!anchorRect;
 
   const cardClassName = isRightFlyout
-    ? "w-[290px] overflow-hidden rounded-r-xl border border-l-0 border-border/90 bg-card/95 px-3 py-2.5 shadow-xl shadow-slate-900/10 backdrop-blur-sm"
+    ? "w-[290px] overflow-hidden rounded-r-xl border border-l-0 border-border bg-card px-3 py-2.5 shadow-xl shadow-slate-900/10"
     : "pointer-events-none w-full overflow-hidden border-t border-border bg-card px-3 py-2.5";
 
   const transformOrigin = isRightFlyout
@@ -155,7 +155,7 @@ export default function AnalysisHoverCard({
                   style={{ width: `${analysis.attendanceQuality}%` }}
                 />
               </div>
-              <span className="w-6 text-right text-[9px] font-bold tabular-nums text-muted-foreground">
+              <span className="w-6 text-right text-[9px] font-semibold tabular-nums text-muted-foreground">
                 {analysis.attendanceQuality}
               </span>
             </div>
@@ -184,18 +184,18 @@ export default function AnalysisHoverCard({
           <div className="mb-1.5 flex flex-wrap items-center gap-1">
             <span
               className={cn(
-                "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[8px] font-bold text-white",
+                "inline-flex items-center gap-0.5 rounded-[--radius] px-1.5 py-0.5 text-[8px] font-semibold text-white",
                 interest.tile,
               )}
             >
               {interest.label}
             </span>
 
-            <span className="inline-flex items-center rounded-full bg-slate-600 px-1.5 py-0.5 text-[8px] font-bold text-white">
+            <span className="inline-flex items-center rounded-[--radius] bg-muted px-1.5 py-0.5 text-[8px] font-semibold text-white">
               {DISPOSITION_MAP[analysis.disposition] || analysis.disposition}
             </span>
 
-            <span className="inline-flex items-center gap-0.5 rounded-full bg-primary px-1.5 py-0.5 text-[8px] font-bold text-white">
+            <span className="inline-flex items-center gap-0.5 rounded-[--radius] bg-primary px-1.5 py-0.5 text-[8px] font-semibold text-white">
               <Sparkle weight="fill" className="h-2 w-2" />
               {NEXT_ACTION_MAP[analysis.nextAction] || analysis.nextAction}
             </span>

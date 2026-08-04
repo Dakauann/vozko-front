@@ -1,6 +1,6 @@
 "use client";
 
-import { WhatsappLogo } from "@phosphor-icons/react";
+import { WhatsappLogo } from "@/components/icons";
 
 import CreateWhatsAppCampaignForm from "../../../new/CreateWhatsAppCampaignForm";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
@@ -63,7 +63,7 @@ export default function EditWhatsAppCampaignPage({
           badge={t("badge")}
           title={t("title")}
           description={t("description")}
-          colorClass="text-emerald-600"
+          colorClass="text-healthy"
         />
       </motion.div>
 

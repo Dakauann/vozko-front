@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { createPortal } from "react-dom";
 
 import { AnimatePresence, type Variants, motion } from "framer-motion";
 import {
@@ -8,21 +9,18 @@ import {
   Buildings,
   Check,
   CaretDown,
+  CaretLineLeft,
   ChatCircle,
   PlusCircle,
-  PushPin,
   ClipboardText,
   Files,
   SquaresFour,
   List as ListIcon,
   Sparkle,
   Package,
-  InstagramLogo,
   Phone,
   PhoneCall,
-  PhoneIncoming,
   Waveform,
-  WhatsappLogo,
   Megaphone,
   Robot,
   Gear,
@@ -47,8 +45,8 @@ import {
   GearSix,
   ChartBar,
   X,
-} from "@phosphor-icons/react";
-import type { Icon, IconProps } from "@phosphor-icons/react";
+} from "@/components/icons";
+import type { Icon, IconProps } from "@/components/icons";
 import type { ComponentType } from "react";
 
 import {
@@ -69,56 +67,19 @@ type NavIcon = Icon | ComponentType<IconProps>;
 
 import { Link, usePathname } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
+import { BrandLogo } from "@/components/brand-logo";
 import { useAuth } from "@/contexts/auth-context";
-import { useSidebar } from "@/contexts/sidebar-context";
+import {
+  SPINE_WIDTH_OPEN,
+  SPINE_WIDTH_RAIL,
+  useSidebar,
+} from "@/contexts/sidebar-context";
 import { useTranslations } from "next-intl";
 import { WorkspaceSwitcher } from "@/components/elevated-design/dashboard/workspace-switcher";
 import { DepartmentSwitcher } from "@/components/elevated-design/dashboard/department-switcher";
 import { useWorkspace } from "@/contexts/workspace-context";
 import type { ResourceAction, ResourceType } from "@/lib/workspace/types";
 import { getBrand } from "@/config/brand";
-
-const specialRouteAnimation = `@keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-3px);
-  }
-}
-
-@keyframes sparkle {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(0.9);
-  }
-}
-`;
 
 export type NavPermission = {
   resource: string;
@@ -193,19 +154,12 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.metrics",
     href: "/dashboard/attendance",
     family: "crm",
-    // Both service and telephony metrics dashboards use attendance:read.
     requiredPermission: { resource: "attendance", action: "read" },
     children: [
       {
         icon: ChartBar,
         labelKey: "nav.attendanceOps",
         href: "/dashboard/attendance",
-        requiredPermission: { resource: "attendance", action: "read" },
-      },
-      {
-        icon: PhoneCall,
-        labelKey: "nav.telephony",
-        href: "/dashboard/telephony",
         requiredPermission: { resource: "attendance", action: "read" },
       },
     ],
@@ -464,20 +418,6 @@ export const campanhasNavItems: NavItem[] = [
       },
     ],
   },
-  {
-    icon: Waveform,
-    labelKey: "nav.recordings",
-    href: "/dashboard/recordings",
-    family: "voip",
-    requiredPermission: { resource: "call_recordings", action: "read" },
-  },
-  {
-    icon: PhoneCall,
-    labelKey: "nav.calls",
-    href: "/dashboard/calls",
-    family: "voip",
-    requiredPermission: { resource: "call_recordings", action: "read" },
-  },
   // TODO: finish developing this section and add to layout
   {
     icon: Headset,
@@ -519,46 +459,6 @@ export const campanhasNavItems: NavItem[] = [
     href: "/dashboard/leads",
     family: "management",
     requiredPermission: { resource: "leads", action: "read" },
-  },
-  {
-    icon: PhoneCall,
-    labelKey: "nav.sipTrunks",
-    href: "/dashboard/sip-trunks",
-    family: "voip",
-    requiredPermission: { resource: "sip_trunks" },
-    children: [
-      {
-        icon: ClipboardText,
-        labelKey: "nav.sipTrunksList",
-        href: "/dashboard/sip-trunks",
-      },
-      {
-        icon: PlusCircle,
-        labelKey: "nav.createSipTrunk",
-        href: "/dashboard/sip-trunks/new",
-        requiredPermission: { resource: "sip_trunks", action: "create" },
-      },
-    ],
-  },
-  {
-    icon: Headset,
-    labelKey: "nav.branches",
-    href: "/dashboard/branches",
-    family: "voip",
-    requiredPermission: { resource: "branches" },
-    children: [
-      {
-        icon: ClipboardText,
-        labelKey: "nav.branchesList",
-        href: "/dashboard/branches",
-      },
-      {
-        icon: PlusCircle,
-        labelKey: "nav.createBranch",
-        href: "/dashboard/branches/new",
-        requiredPermission: { resource: "branches", action: "create" },
-      },
-    ],
   },
   {
     icon: Package,
@@ -700,13 +600,6 @@ export const adminNavItems: NavItem[] = [
     family: "platform",
   },
   {
-    icon: PhoneCall,
-    labelKey: "nav.adminSipTrunks",
-    href: "/dashboard/admin/sip-trunks",
-    admin: true,
-    family: "platform",
-  },
-  {
     icon: Gear,
     labelKey: "nav.systemConfig",
     href: "/dashboard/admin/system-config",
@@ -774,8 +667,7 @@ function ProductSwitcher({
   onProductChange,
   isExpanded,
   t,
-  products,
-}: {
+  products }: {
   currentProduct: Product;
   onProductChange: (product: Product) => void;
   isExpanded: boolean;
@@ -785,6 +677,52 @@ function ProductSwitcher({
   const [isOpen, setIsOpen] = React.useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
   const Icon = currentProduct.icon;
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const [menuPos, setMenuPos] = React.useState<{
+    top: number;
+    left: number;
+    width: number;
+  } | null>(null);
+
+  React.useLayoutEffect(() => {
+    if (!isOpen) return;
+    const place = () => {
+      const r = triggerRef.current?.getBoundingClientRect();
+      if (!r) return;
+      const width = Math.max(r.width, 232);
+      setMenuPos({
+        top: r.bottom + 4,
+        left: Math.min(r.left, window.innerWidth - width - 8),
+        width,
+      });
+    };
+    place();
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [isOpen]);
+
+  /** The spine is overflow-hidden; the menu has to live outside it. */
+  const renderMenu = (body: React.ReactNode) =>
+    typeof document !== "undefined" && isOpen && menuPos
+      ? createPortal(
+          <div
+            style={{
+              position: "fixed",
+              top: menuPos.top,
+              left: menuPos.left,
+              width: menuPos.width,
+            }}
+            className="z-[100] border border-border border-t-rule-strong bg-popover p-1 shadow-2xl"
+          >
+            {body}
+          </div>,
+          document.body,
+        )
+      : null;
 
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -799,124 +737,28 @@ function ProductSwitcher({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // The rail form: a square tile, lit only while its menu is open. No accent
+  // fill at rest — in this system the accent means "current", and the product
+  // switcher is a control, not a destination.
   if (!isExpanded) {
     return (
       <div ref={dropdownRef} className="relative">
         <button
+          ref={triggerRef}
           onClick={() => setIsOpen(!isOpen)}
-          className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white shadow-md shadow-primary/20 transition-all hover:shadow-lg hover:shadow-primary/30 active:scale-95"
-        >
-          <Icon className="h-5 w-5" weight="fill" />
-        </button>
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              initial={{ opacity: 0, x: -8, scale: 0.95 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: -8, scale: 0.95 }}
-              transition={{ duration: 0.15 }}
-              className="absolute left-full top-0 z-50 ml-2 w-56 rounded-xl border border-border/80 bg-card p-1.5 shadow-xl shadow-black/10"
-            >
-              {products.map((product) => {
-                const ProductIcon = product.icon;
-                const isSelected = product.id === currentProduct.id;
-                return (
-                  <button
-                    key={product.id}
-                    onClick={() => {
-                      onProductChange(product);
-                      setIsOpen(false);
-                    }}
-                    className={cn(
-                      "flex w-full items-center gap-3 rounded-lg p-2.5 transition-all",
-                      // Neutral selected surface. The colour on this row is
-                      // carried by the solid icon tile below, so tinting the
-                      // row too put primary text and a primary tick on a
-                      // primary wash.
-                      isSelected ? "bg-muted" : "hover:bg-muted",
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "flex h-8 w-8 items-center justify-center rounded-lg",
-                        isSelected
-                          ? "bg-primary text-white"
-                          : "bg-muted text-muted-foreground",
-                      )}
-                    >
-                      <ProductIcon className="h-4 w-4" weight="fill" />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <p
-                        className={cn(
-                          "text-sm font-medium text-foreground",
-                        )}
-                      >
-                        {t(product.nameKey)}
-                      </p>
-                    </div>
-                    {isSelected && (
-                      <Check className="h-4 w-4 text-primary" weight="bold" />
-                    )}
-                  </button>
-                );
-              })}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    );
-  }
-
-  return (
-    <div ref={dropdownRef} className="relative">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={cn(
-          "flex w-full items-center gap-3 rounded-xl p-3 transition-all",
-          "bg-gradient-to-br from-muted to-card",
-          "border border-border/80 shadow-sm",
-          "hover:border-primary/40 hover:shadow-md hover:shadow-primary/5",
-          isOpen && "border-primary/40 shadow-md shadow-primary/5",
-        )}
-      >
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white shadow-md shadow-primary/20">
-          <Icon className="h-5 w-5" weight="fill" />
-        </div>
-        <div className="flex-1 text-left min-w-0">
-          <p className="text-sm font-semibold text-foreground truncate">
-            {t(currentProduct.nameKey)}
-          </p>
-          <p className="text-xs text-muted-foreground truncate">
-            {t(currentProduct.descriptionKey)}
-          </p>
-        </div>
-        <div
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
           className={cn(
-            "flex h-7 w-7 items-center justify-center rounded-lg transition-colors",
-            isOpen ? "bg-primary" : "bg-muted",
+            "flex h-9 w-9 items-center justify-center rounded-[--radius] border transition-colors",
+            isOpen
+              ? "border-border bg-muted text-foreground"
+              : "border-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
           )}
         >
-          <CaretDown
-            className={cn(
-              "h-4 w-4 transition-transform duration-200",
-              isOpen
-                ? "rotate-180 text-primary-foreground"
-                : "text-muted-foreground",
-            )}
-          />
-        </div>
-      </button>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.96 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute left-0 right-0 top-full z-50 mt-2 rounded-xl border border-border/80 bg-card p-1.5 shadow-xl shadow-black/10"
-          >
+          <Icon className="h-[18px] w-[18px]" weight="regular" />
+        </button>
+        {renderMenu(
+          <>
             {products.map((product) => {
               const ProductIcon = product.icon;
               const isSelected = product.id === currentProduct.id;
@@ -928,133 +770,178 @@ function ProductSwitcher({
                     setIsOpen(false);
                   }}
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-lg p-3 transition-all",
+                    "flex w-full items-center gap-2 px-2 py-1.5 text-left transition-colors",
                     isSelected
-                      ? "bg-gradient-to-br from-primary/10 to-primary/5"
-                      : "hover:bg-muted",
+                      ? "bg-muted text-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
                   )}
                 >
-                  <div
+                  <span
+                    className={cn("lamp", !isSelected && "opacity-0")}
+                    aria-hidden="true"
+                  />
+                  <ProductIcon className="h-4 w-4 shrink-0" weight="regular" />
+                  <span
                     className={cn(
-                      "flex h-9 w-9 items-center justify-center rounded-xl transition-all",
-                      isSelected
-                        ? "bg-gradient-to-br from-primary to-primary/80 text-white shadow-md shadow-primary/20"
-                        : "bg-muted text-muted-foreground",
+                      "flex-1 truncate text-[13px]",
+                      isSelected && "font-semibold",
                     )}
                   >
-                    <ProductIcon className="h-4.5 w-4.5" weight="fill" />
-                  </div>
-                  <div className="flex-1 text-left min-w-0">
-                    <p
-                      className={cn(
-                        "text-sm font-semibold truncate",
-                        isSelected ? "text-primary" : "text-foreground",
-                      )}
-                    >
-                      {t(product.nameKey)}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {t(product.descriptionKey)}
-                    </p>
-                  </div>
+                    {t(product.nameKey)}
+                  </span>
                   {isSelected && (
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary">
-                      <Check
-                        className="h-3.5 w-3.5 text-primary-foreground"
-                        weight="bold"
-                      />
-                    </div>
+                    <Check className="h-3.5 w-3.5 shrink-0" weight="bold" />
                   )}
                 </button>
               );
             })}
-          </motion.div>
+          </>
         )}
-      </AnimatePresence>
+      </div>
+    );
+  }
+
+  return (
+    <div ref={dropdownRef} className="relative">
+      <button
+        ref={triggerRef}
+        onClick={() => setIsOpen(!isOpen)}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        className={cn(
+          "flex h-9 w-full items-center gap-2 rounded-[--radius] border px-2 text-left transition-colors",
+          isOpen
+            ? "border-border bg-muted"
+            : "border-transparent hover:bg-muted",
+        )}
+      >
+        <Icon
+          className="h-[18px] w-[18px] shrink-0 text-muted-foreground"
+          weight="regular"
+        />
+        <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-foreground">
+          {t(currentProduct.nameKey)}
+        </span>
+        <CaretDown
+          className={cn(
+            "h-3 w-3 shrink-0 text-muted-foreground transition-transform",
+            isOpen && "rotate-180",
+          )}
+          weight="bold"
+        />
+      </button>
+
+      {renderMenu(
+        <>
+          {products.map((product) => {
+            const ProductIcon = product.icon;
+            const isSelected = product.id === currentProduct.id;
+            return (
+              <button
+                key={product.id}
+                onClick={() => {
+                  onProductChange(product);
+                  setIsOpen(false);
+                }}
+                className={cn(
+                  "flex w-full items-center gap-2 px-2 py-2 text-left transition-colors",
+                  isSelected
+                    ? "bg-muted"
+                    : "hover:bg-muted",
+                )}
+              >
+                <span
+                  className={cn("lamp", !isSelected && "opacity-0")}
+                  aria-hidden="true"
+                />
+                <ProductIcon
+                  className={cn(
+                    "h-4 w-4 shrink-0",
+                    isSelected ? "text-foreground" : "text-muted-foreground",
+                  )}
+                  weight="regular"
+                />
+                <span className="min-w-0 flex-1">
+                  <span
+                    className={cn(
+                      "block truncate text-[13px] text-foreground",
+                      isSelected && "font-semibold",
+                    )}
+                  >
+                    {t(product.nameKey)}
+                  </span>
+                  <span className="block truncate text-[11px] text-muted-foreground">
+                    {t(product.descriptionKey)}
+                  </span>
+                </span>
+                {isSelected && (
+                  <Check
+                    className="h-3.5 w-3.5 shrink-0 text-foreground"
+                    weight="bold"
+                  />
+                )}
+              </button>
+            );
+          })}
+        </>
+      )}
     </div>
   );
 }
 
+/**
+ * A silkscreened qualifier on a nav row.
+ *
+ * These keep their meaning and lose their motion. The previous versions pulsed,
+ * floated and cycled a gradient forever; an attendant holds this sidebar in
+ * peripheral vision for a whole shift, and perpetual movement out there is a
+ * cost with no message. A legend chip says the same thing once.
+ */
 const SpecialBadge = ({ type }: { type: NavItem["special"] }) => {
   if (!type) return null;
 
+  const chip =
+    "shrink-0 border px-1 py-px text-[9px] font-semibold uppercase tracking-[0.1em] leading-[1.4]";
+
   switch (type) {
+    // A word, not a glyph in a box. A 10px sparkle alone in a bordered chip
+    // reads as a smudge at nav scale and says nothing; the other two qualifiers
+    // are words, and this one should be too.
     case "ai":
       return (
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center">
-          <div className="relative">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 via-cyan-500 to-blue-500 opacity-70 blur-[2px] animate-[pulse_2s_ease-in-out_infinite]"></div>
-            <div className="relative flex items-center justify-center rounded-full bg-gradient-to-r from-blue-400 via-cyan-500 to-blue-500 p-1 text-white animate-[gradient_3s_ease_infinite] bg-[length:200%_200%]">
-              <Sparkle
-                className="h-3 w-3 animate-[sparkle_2s_ease-in-out_infinite]"
-                weight="fill"
-              />
-            </div>
-          </div>
-        </div>
+        <span className={cn(chip, "border-border text-muted-foreground")}>
+          IA
+        </span>
       );
     case "new":
       return (
-        <div className="absolute right-2 bottom-0 translate-y-full px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-green-500 text-white animate-[float_2s_ease-in-out_infinite]">
-          Novo
-        </div>
+        <span className={cn(chip, "border-healthy/60 text-healthy")}>Novo</span>
       );
     case "premium":
       return (
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-amber-500 text-white animate-[pulse_2s_ease-in-out_infinite]">
+        <span className={cn(chip, "border-border text-muted-foreground")}>
           Premium
-        </div>
+        </span>
       );
     default:
       return null;
   }
 };
 
-const containerVariants: Variants = {
-  hidden: {
-    x: -300,
-    opacity: 0,
-  },
+/**
+ * The mobile drawer slides, because a drawer arriving from offscreen is
+ * reporting where it came from. The desktop spine does not: it is furniture and
+ * it is simply there on load. The old staggered spring entrance made every
+ * navigation feel like the app was booting.
+ */
+const mobileContainerVariants: Variants = {
+  hidden: { x: "-100%" },
   visible: {
     x: 0,
-    opacity: 1,
-    transition: {
-      type: "spring",
-      stiffness: 100,
-      damping: 15,
-      duration: 0.6,
-      staggerChildren: 0.1,
-      delayChildren: 0.3,
-    },
-  },
-};
-
-const mobileContainerVariants = {
-  hidden: {
-    x: -300,
-    opacity: 0,
-  },
-  visible: {
-    x: 0,
-    opacity: 1,
-    transition: {
-      stiffness: 120,
-      damping: 20,
-      duration: 0.5,
-      staggerChildren: 0.08,
-      delayChildren: 0.2,
-    },
-  },
+    transition: { duration: 0.16, ease: [0.2, 0, 0, 1] } },
   exit: {
-    x: -300,
-    opacity: 0,
-    transition: {
-      duration: 0.3,
-      staggerChildren: 0.05,
-      staggerDirection: -1,
-    },
-  },
-};
+    x: "-100%",
+    transition: { duration: 0.12, ease: [0.2, 0, 0, 1] } } };
 
 function NavItemComponent({
   item,
@@ -1066,8 +953,7 @@ function NavItemComponent({
   isAdmin = false,
   can,
   canAny,
-  parentFamily,
-}: {
+  parentFamily }: {
   item: NavItem;
   isExpanded: boolean;
   depth?: number;
@@ -1107,145 +993,99 @@ function NavItemComponent({
     }
   };
 
-  const isAiItem = item.special === "ai";
   const effectiveFamily = item.family ?? parentFamily;
+  const isLit = Boolean(isActive || hasActiveChild);
 
   return (
     <div className="w-full">
       <Link
         href={item.href}
         prefetch={false}
+        aria-current={isActive ? "page" : undefined}
         className={cn(
-          "sidebar-item relative flex items-center border border-transparent text-sm transition-all group",
-          isExpanded
-            ? "h-9 w-full rounded-lg px-2.5"
-            : "h-9 w-full justify-center rounded-lg px-2",
-          isActive || hasActiveChild
-            ? "border-transparent bg-primary text-primary-foreground"
-            : "text-foreground hover:bg-muted/60",
-          isAiItem && isExpanded && "pr-7",
+          "sidebar-item group relative flex items-center rounded-[--radius] text-[13px] transition-colors",
+          isExpanded ? "h-8 w-full pr-2" : "h-8 w-full justify-center",
+          // Lit state is carried by three signals at once — a lamp pip, a sunk
+          // ground and a brightened label — so it never rests on colour alone.
+          isLit
+            ? "bg-muted text-foreground"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground",
         )}
         onClick={handleClick}
       >
-        {isAiItem && (
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-400/10 via-pink-500/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        )}
-
         {isExpanded ? (
-          <div
-            className={cn(
-              "flex w-full items-center gap-2.5",
-              depth > 0 && "pl-4",
-            )}
-            style={{
-              paddingLeft: depth > 0 ? `${depth * 0.625}rem` : undefined,
-            }}
-          >
-            <div
-              className={cn(
-                "relative flex-shrink-0",
-                isAiItem && "animate-[float_3s_ease-in-out_infinite]",
-              )}
+          <>
+            <span
+              className={cn("lamp ml-1 mr-1.5", !isLit && "opacity-0")}
+              aria-hidden="true"
+            />
+            <span
+              className="flex min-w-0 flex-1 items-center gap-2"
+              style={{
+                paddingLeft: depth > 0 ? `${depth * 0.625}rem` : undefined }}
             >
-              {isAiItem && (
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 rounded-full opacity-20 blur-[8px]"></div>
-              )}
               {React.createElement(item.icon, {
                 className: cn(
-                  depth === 0 ? "h-[18px] w-[18px]" : "h-4 w-4",
+                  depth === 0 ? "h-[17px] w-[17px]" : "h-4 w-4",
                   "shrink-0",
-                  isAiItem && "relative z-10",
                 ),
-                weight: "fill",
-              })}
-            </div>
+                weight: "regular" })}
 
-            <span
-              className={cn(
-                "flex-1 min-w-0 truncate leading-tight",
-                depth === 0 ? "text-sm" : "text-[13px]",
-                isActive || hasActiveChild ? "font-semibold" : "font-medium",
-              )}
-            >
-              {t(item.labelKey)}
-            </span>
+              <span
+                className={cn(
+                  "min-w-0 flex-1 truncate leading-tight",
+                  depth > 0 && "text-[12.5px]",
+                  isLit && "font-semibold",
+                )}
+              >
+                {t(item.labelKey)}
+              </span>
 
-            {item.special && (
-              <div className="flex-shrink-0">
-                <SpecialBadge type={item.special} />
-              </div>
-            )}
+              {item.special && <SpecialBadge type={item.special} />}
 
-            {item.children && (
-              <div className="flex-shrink-0">
+              {item.children && (
                 <CaretDown
                   className={cn(
-                    "h-3 w-3 transition-transform duration-200 opacity-60",
+                    "h-3 w-3 shrink-0 opacity-60 transition-transform",
                     isOpen && "rotate-180",
                   )}
+                  weight="bold"
                 />
-              </div>
-            )}
-          </div>
+              )}
+            </span>
+          </>
         ) : (
-          <div className="flex w-full items-center justify-center flex-shrink-0">
-            <div
+          <span className="relative flex h-8 w-full items-center justify-center">
+            {/* In the rail the lamp sits on the spine edge, where the row's
+                left border would be, so "current" is still readable with the
+                label hidden. */}
+            <span
               className={cn(
-                "relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg transition-colors",
-                isActive || hasActiveChild
-                  ? "bg-primary text-primary-foreground"
-                  : "text-foreground hover:bg-muted/60",
-                isAiItem && "animate-[float_3s_ease-in-out_infinite]",
+                "absolute left-0 top-1/2 -translate-y-1/2",
+                "lamp",
+                !isLit && "opacity-0",
               )}
-            >
-              {isAiItem && (
-                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 opacity-20 blur-[4px] -z-10 scale-90"></div>
-              )}
-              {React.createElement(item.icon, {
-                className: cn(
-                  "h-[18px] w-[18px] shrink-0",
-                  isAiItem && "relative z-10",
-                ),
-                weight: "fill",
-              })}
-            </div>
-          </div>
-        )}
-
-        {(isActive || hasActiveChild) && (
-          <motion.div
-            initial={{ scaleY: 0 }}
-            animate={{ scaleY: 1 }}
-            className={cn(
-              "absolute left-0 inset-y-0 my-auto w-[3px] h-5 rounded-r-full origin-center",
-              isAiItem
-                ? "bg-gradient-to-b from-purple-400 via-pink-500 to-red-500"
-                : "bg-primary",
-            )}
-          />
+              aria-hidden="true"
+            />
+            {React.createElement(item.icon, {
+              className: "h-[17px] w-[17px] shrink-0",
+              weight: "regular" })}
+          </span>
         )}
       </Link>
 
       <AnimatePresence initial={false}>
         {item.children && isOpen && isExpanded && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{
-              duration: 0.15,
-              ease: "easeOut",
-            }}
-            className="overflow-hidden pl-2"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.16, ease: [0.2, 0, 0, 1] }}
+            className="overflow-hidden"
           >
-            <div
-              className={cn(
-                "ml-[14px] border-l pl-1.5 my-0.5 space-y-px",
-                item.special === "ai"
-                  ? "border-purple-300/40"
-                  : "border-border/50",
-              )}
-            >
+            {/* An engraved runner, not a coloured rail: children hang off the
+                parent's column the way a sub-scale hangs off a panel legend. */}
+            <div className="my-0.5 ml-[18px] space-y-px border-l border-border pl-1.5">
               {item.children
                 .filter((child) => {
                   if (child.admin && !isAdmin) return false;
@@ -1275,17 +1115,13 @@ function NavItemComponent({
   );
 }
 
-// Icons stay neutral (monochrome) per the design rules; family identity is carried
-// by a small dot beside the group label instead of coloring the glyph, except
-// channel families, whose header carries the small brand mark instead.
-const familyDotColor: Record<string, string> = {
-  whatsapp: "bg-emerald-500",
-  ai: "bg-violet-500",
-  voip: "bg-sky-500",
-  management: "bg-slate-400",
-  support: "bg-rose-500",
-  crm: "bg-indigo-500",
-};
+// Family identity is carried by the engraved section rule and its silkscreened
+// legend, not by a coloured dot per family. Six decorative hues competing down
+// the spine cost more than they told you, and colour in this system is reserved
+// for state — a palette of family dots makes "lit" harder to find.
+//
+// Channel families are the exception and keep their real brand mark (see
+// familyBrandIcon): that is product identity, not decoration.
 
 /**
  * A qualifier shown beside a family name.
@@ -1307,8 +1143,7 @@ const familyBadgeKey: Record<string, string> = {
 const familyBrandIcon: Record<string, NavIcon> = {
   whatsapp: WhatsAppLogoColor,
   instagram: InstagramLogoColor,
-  telegram: TelegramLogoColor,
-};
+  telegram: TelegramLogoColor };
 
 function groupByFamily(
   items: NavItem[],
@@ -1337,8 +1172,7 @@ function GroupedNavItems({
   t,
   isAdmin,
   can,
-  canAny,
-}: {
+  canAny }: {
   items: NavItem[];
   isExpanded: boolean;
   onToggle: (href: string) => void;
@@ -1358,46 +1192,43 @@ function GroupedNavItems({
   const groups = groupByFamily(filtered);
 
   return (
-    <div className="px-2 py-1.5">
+    <div className={cn("py-1", isExpanded ? "px-2" : "px-1.5")}>
       {groups.map((group, gi) => {
         return (
           <div key={group.family ?? `ungrouped-${gi}`}>
+            {/*
+              The section legend rides its engraved rule, the way a console
+              legends the bank of strips beneath it. In the rail there is no
+              room for the words, so the rule alone keeps the grouping.
+            */}
             {group.family && isExpanded && (
-              <div
-                className={cn(
-                  "px-1 pt-3 pb-1.5",
-                  gi > 0 && "mt-1 border-t border-border/40",
-                )}
-              >
-                <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                  {familyBrandIcon[group.family] ? (
+              <div className={cn("px-1 pb-1 pt-3", gi > 0 && "mt-1")}>
+                <span className="legend flex items-center gap-1.5">
+                  {familyBrandIcon[group.family] &&
                     React.createElement(familyBrandIcon[group.family], {
-                      className: "h-3 w-3 flex-shrink-0",
-                    })
-                  ) : (
-                    <span
-                      className={cn(
-                        "h-1.5 w-1.5 flex-shrink-0 rounded-full",
-                        familyDotColor[group.family] ?? "bg-muted-foreground/40",
-                      )}
-                    />
-                  )}
-                  {t(`families.${group.family}`)}
+                      className: "h-3 w-3 flex-shrink-0" })}
+                  <span className="truncate">
+                    {t(`families.${group.family}`)}
+                  </span>
                   {familyBadgeKey[group.family] && (
                     <span
                       title={t("families.badges.officialHint")}
-                      className="rounded border border-border/70 px-1 py-px text-[9px] font-medium normal-case tracking-normal text-muted-foreground/80"
+                      className="shrink-0 border border-border px-1 py-px text-[9px] font-medium normal-case tracking-normal text-muted-foreground"
                     >
                       {t(familyBadgeKey[group.family])}
                     </span>
                   )}
+                  <span
+                    aria-hidden="true"
+                    className="ml-0.5 h-px flex-1 bg-border"
+                  />
                 </span>
               </div>
             )}
-            {!group.family && gi > 0 && isExpanded && (
-              <div className="mt-1 border-t border-border/40 pt-1" />
+            {(!group.family || !isExpanded) && gi > 0 && (
+              <div className="my-1.5 h-px bg-border" />
             )}
-            <div className="space-y-0.5">
+            <div className="space-y-px">
               {group.items.map((item, index) => (
                 <NavItemComponent
                   key={index}
@@ -1423,36 +1254,19 @@ export function DashboardSidebar({
   products,
   adminNavItems: adminItems = [],
   translationsNamespace = "sidebar",
-  className,
-}: DashboardSidebarProps) {
+  className }: DashboardSidebarProps) {
   const t = useTranslations(translationsNamespace);
   const pathname = usePathname();
   const { user } = useAuth();
   const { can, canAny } = useWorkspace();
   const isAdmin = user?.role === "admin";
 
-  React.useEffect(() => {
-    const styleElement = document.createElement("style");
-    styleElement.textContent = specialRouteAnimation;
-    document.head.appendChild(styleElement);
+  const { isCollapsed, toggleCollapsed } = useSidebar();
 
-    return () => {
-      document.head.removeChild(styleElement);
-    };
-  }, []);
-
-  const { isPinned, togglePin } = useSidebar();
-  const [isHovered, setIsHovered] = React.useState(false);
-  const [hasMounted, setHasMounted] = React.useState(false);
-  const hoverTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  );
-
-  React.useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  const isExpanded = hasMounted && (isPinned || isHovered);
+  // Open unless the operator collapsed it. Hover no longer expands anything:
+  // navigation that appears on approach cannot be scanned, only hunted, and
+  // this spine is read continuously for a whole shift.
+  const isExpanded = !isCollapsed;
   const [isMobileOpen, setIsMobileOpen] = React.useState(false);
   const [openItems, setOpenItems] = React.useState<Set<string>>(new Set());
 
@@ -1517,36 +1331,50 @@ export function DashboardSidebar({
     });
   }, []);
 
-  const handleMouseEnter = React.useCallback(() => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = null;
-    }
-    setIsHovered(true);
-  }, []);
-
-  const handleMouseLeave = React.useCallback(() => {
-    hoverTimeoutRef.current = setTimeout(() => {
-      setIsHovered(false);
-    }, 300);
-  }, []);
-
-  React.useEffect(() => {
-    return () => {
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current);
-      }
-    };
-  }, []);
-
   const handleProductSwitch = (product: Product) => {
     setCurrentProduct(product);
   };
 
+  /**
+   * The spine head: brand, then the workspace this whole spine is scoped to.
+   *
+   * The workspace selector lives HERE rather than in the header bar because it
+   * scopes everything below it — every nav row, every count, every permission.
+   * Sitting above the nav it governs, it reads as the label on the desk you are
+   * sitting at. The department switcher stays in the header bar, because that
+   * filters the current view rather than scoping the app.
+   */
+  const SpineHead = (
+    <div className="flex-shrink-0 border-b border-border">
+      <div
+        className={cn(
+          "flex h-12 items-center",
+          isExpanded ? "px-3" : "justify-center px-1",
+        )}
+      >
+        <Link
+          href="/dashboard"
+          className="flex min-w-0 items-center rounded-[--radius] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <BrandLogo size="sm" hideTextOnMobile={!isExpanded} />
+        </Link>
+      </div>
+      {isExpanded && (
+        <div className="border-t border-border px-2 py-2">
+          <WorkspaceSwitcher fullWidth />
+        </div>
+      )}
+    </div>
+  );
+
   const renderSidebarContent = (mobile = false) => (
     <>
-      {/* Product Switcher */}
-      <div className={cn("px-2 flex-shrink-0", mobile ? "pt-2" : "pt-3")}>
+      <div
+        className={cn(
+          "flex-shrink-0 border-b border-border",
+          mobile ? "px-2 py-2" : isExpanded ? "px-2 py-2" : "px-1.5 py-2",
+        )}
+      >
         <ProductSwitcher
           currentProduct={currentProduct}
           onProductChange={handleProductSwitch}
@@ -1557,7 +1385,7 @@ export function DashboardSidebar({
       </div>
 
       {/* Scrollable container for both product nav and admin nav */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 scrollbar-sleek">
+      <div className="scrollbar-sleek min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
         <GroupedNavItems
           items={currentProduct.navItems}
           isExpanded={isExpanded || mobile}
@@ -1572,10 +1400,8 @@ export function DashboardSidebar({
         {isAdmin && adminItems.length > 0 && (
           <>
             {(isExpanded || mobile) && (
-              <div className="px-4 pt-4 pb-2 border-t border-border/70 mt-2">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  {t("admin.title")}
-                </span>
+              <div className="mt-2 border-t border-border px-3 pb-1 pt-3">
+                <span className="legend">{t("admin.title")}</span>
               </div>
             )}
             <GroupedNavItems
@@ -1605,9 +1431,9 @@ export function DashboardSidebar({
           className={cn(
             "fixed left-0 top-1/2 z-50 -translate-y-1/2",
             "flex flex-col items-center justify-center gap-2 px-1.5 py-3",
-            "rounded-r-xl border border-l-0 border-border/80 bg-card/95 shadow-lg backdrop-blur-sm",
-            "transition-colors hover:bg-muted",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-1",
+            "border border-l-0 border-border bg-card shadow-lg",
+            "rounded-r-[--radius] transition-colors hover:bg-muted",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           )}
         >
           <ListIcon
@@ -1615,7 +1441,7 @@ export function DashboardSidebar({
             weight="bold"
           />
           <span
-            className="text-[10px] font-semibold tracking-wide text-muted-foreground"
+            className="legend"
             style={{ writingMode: "vertical-rl", textOrientation: "mixed" }}
           >
             {t("panel")}
@@ -1627,10 +1453,11 @@ export function DashboardSidebar({
         {isMobileOpen && (
           <>
             <motion.div
-              className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+              className="fixed inset-0 z-40 bg-black/50"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.12 }}
               onClick={() => setIsMobileOpen(false)}
             />
 
@@ -1639,29 +1466,29 @@ export function DashboardSidebar({
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="fixed inset-y-0 left-0 z-50 flex w-[min(300px,88vw)] flex-col bg-card shadow-2xl shadow-black/20"
+              className="fixed inset-y-0 left-0 z-50 flex w-[min(288px,88vw)] flex-col border-r border-border bg-card shadow-2xl"
               role="dialog"
               aria-modal="true"
               aria-label={t("openMenu")}
             >
-              <div className="flex h-14 flex-shrink-0 items-center justify-between border-b border-border/70 px-3">
-                <span className="truncate text-sm font-semibold text-foreground">
+              <div className="flex h-12 flex-shrink-0 items-center justify-between border-b border-border px-3">
+                <span className="truncate text-[13px] font-semibold text-foreground">
                   {getBrand().name}
                 </span>
                 <button
                   type="button"
                   onClick={() => setIsMobileOpen(false)}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  className="flex h-8 w-8 items-center justify-center rounded-[--radius] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                   aria-label={t("closeMenu")}
                 >
                   <X className="h-4 w-4" weight="bold" />
                 </button>
               </div>
-              <div className="flex flex-shrink-0 flex-col gap-2 border-b border-border/70 px-3 py-3">
+              <div className="flex flex-shrink-0 flex-col gap-2 border-b border-border px-2 py-2">
                 <WorkspaceSwitcher fullWidth />
                 <DepartmentSwitcher fullWidth />
               </div>
-              <div className="flex min-h-0 flex-1 flex-col overflow-y-auto scrollbar-sleek">
+              <div className="scrollbar-sleek flex min-h-0 flex-1 flex-col overflow-y-auto">
                 {renderSidebarContent(true)}
               </div>
             </motion.div>
@@ -1675,61 +1502,47 @@ export function DashboardSidebar({
     <>
       {MobileSidebar}
 
+      {/*
+        The spine runs floor to ceiling and owns the top-left corner; the header
+        bar starts to its right. That inversion — the previous shell had a
+        full-width bar on top of a shorter rail — is most of what makes this
+        shell read as a different product before a single colour is judged.
+      */}
       <motion.aside
-        variants={containerVariants}
-        initial="hidden"
-        animate={{
-          width: isExpanded ? 264 : 60,
-          opacity: 1,
-          x: 0,
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 300,
-          damping: 30,
-          duration: 0.3,
-        }}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        initial={false}
+        animate={{ width: isExpanded ? SPINE_WIDTH_OPEN : SPINE_WIDTH_RAIL }}
+        transition={{ duration: 0.16, ease: [0.2, 0, 0, 1] }}
         suppressHydrationWarning
         className={cn(
-          "fixed top-20 left-0 hidden h-[calc(100vh-5rem)] flex-shrink-0 overflow-hidden border-r border-border/80 bg-card/80 backdrop-blur-xl md:flex transition-shadow duration-300",
-          isPinned ? "z-30" : "z-40",
-          !isPinned &&
-            isExpanded &&
-            "shadow-2xl shadow-black/10 border-r-border/60",
+          "fixed inset-y-0 left-0 z-40 hidden h-screen flex-shrink-0",
+          "overflow-hidden border-r border-border bg-card md:flex",
           className,
         )}
       >
         <div className="flex h-full w-full flex-col">
+          {SpineHead}
           {renderSidebarContent()}
 
-          {/* Pin/anchor button - at bottom of sidebar */}
-          <div className="flex-shrink-0 border-t border-border/70 px-2 py-2">
+          <div className="flex-shrink-0 border-t border-border p-1.5">
             <button
-              onClick={togglePin}
+              onClick={toggleCollapsed}
+              aria-label={isExpanded ? t("collapse") : t("expand")}
+              title={isExpanded ? t("collapse") : t("expand")}
               className={cn(
-                "flex w-full items-center gap-2.5 rounded-md px-2 h-9 transition-colors",
-                hasMounted && isPinned
-                  ? "bg-primary text-primary-foreground hover:bg-[hsl(var(--primary-hover))]"
-                  : "text-foreground hover:bg-muted/60",
-                !isExpanded && "justify-center",
+                "flex h-8 w-full items-center gap-2 rounded-[--radius] px-2 text-[13px]",
+                "text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                !isExpanded && "justify-center px-0",
               )}
-              title={
-                hasMounted && isPinned ? "Desafixar sidebar" : "Fixar sidebar"
-              }
             >
-              <PushPin
+              <CaretLineLeft
                 className={cn(
-                  "h-[18px] w-[18px] flex-shrink-0 transition-transform duration-200",
-                  !(hasMounted && isPinned) && "-rotate-45",
+                  "h-4 w-4 flex-shrink-0 transition-transform",
+                  !isExpanded && "rotate-180",
                 )}
-                weight="fill"
+                weight="bold"
               />
               {isExpanded && (
-                <span className="text-sm font-medium truncate">
-                  {isPinned ? "Desafixar" : "Fixar"}
-                </span>
+                <span className="truncate">{t("collapse")}</span>
               )}
             </button>
           </div>

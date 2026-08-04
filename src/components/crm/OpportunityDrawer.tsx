@@ -12,7 +12,7 @@ import {
   Trash,
   TrendUp,
   WhatsappLogo,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 import {
   ElevatedSheet,
@@ -377,8 +377,8 @@ export default function OpportunityDrawer({
               // No permission to assign others: locked to the current user.
               <div>
                 <label className="pl-1 text-[13px] font-medium text-foreground">Responsável</label>
-                <div className="mt-1.5 flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
-                  <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold uppercase text-foreground">
+                <div className="mt-1.5 flex items-center gap-2 rounded-lg border border-border bg-muted px-3 py-2 text-sm text-muted-foreground">
+                  <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold uppercase text-foreground">
                     {(memberOptions.find((m) => m.value === ownerId)?.label ?? "?").charAt(0)}
                   </span>
                   <span className="truncate">
@@ -431,7 +431,7 @@ export default function OpportunityDrawer({
               type="button"
               onClick={handleDelete}
               disabled={deleting}
-              className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-medium text-rose-600 transition-colors hover:bg-rose-500 hover:text-white disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-medium text-destructive transition-colors hover:bg-destructive hover:text-white disabled:opacity-50"
             >
               <Trash weight="bold" className="h-3.5 w-3.5" />
               {deleting ? "Excluindo..." : "Excluir"}
@@ -518,7 +518,7 @@ function LinkedConversations({
                 type="button"
                 onClick={() => onUnlink(l.entryId, l.entryType)}
                 title="Desvincular"
-                className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-rose-500 hover:text-white"
+                className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive hover:text-white"
               >
                 <LinkSimpleBreak weight="bold" className="h-3.5 w-3.5" />
               </button>

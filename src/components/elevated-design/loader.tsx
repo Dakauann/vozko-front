@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleNotch } from "@phosphor-icons/react";
+import { CircleNotch } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 export interface LoaderProps {
@@ -19,10 +19,10 @@ const sizeConfig = {
 };
 
 const variantConfig = {
-  primary: "text-primary",
-  emerald: "text-emerald-600 dark:text-emerald-500",
-  purple: "text-purple-600 dark:text-purple-500",
-  gradient: "text-primary",
+  primary: "text-lamp-ink",
+  emerald: "text-healthy dark:text-healthy",
+  purple: "text-muted-foreground dark:text-purple-500",
+  gradient: "text-lamp-ink",
 };
 
 export function Loader({
@@ -51,7 +51,7 @@ export function Loader({
 
   if (fullPage) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
         {loader}
       </div>
     );
@@ -89,7 +89,7 @@ export function SkeletonLoader({
         <div
           key={i}
           className={cn(
-            "h-4 animate-pulse rounded-md bg-primary/10",
+            "h-4 animate-pulse rounded-md bg-muted",
             className,
           )}
         />

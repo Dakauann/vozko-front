@@ -21,7 +21,7 @@ import {
   Warning,
   WhatsappLogo,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type {
   WhatsAppCampaign,
   WhatsAppCampaignEntryWithLead,
@@ -120,18 +120,18 @@ export default function WhatsAppCampaignDetail({
 
 const campaignStatusStyles: Record<string, string> = {
   STOPPED: "bg-muted text-muted-foreground",
-  RUNNING: "bg-emerald-500 text-white",
-  PAUSED: "bg-amber-500 text-white",
+  RUNNING: "bg-healthy text-white",
+  PAUSED: "bg-warning text-white",
   COMPLETED: "bg-primary text-white",
 };
 
 const phoneStatusStyles: Record<string, string> = {
   PENDING: "bg-muted text-muted-foreground",
   SENT: "bg-primary text-white",
-  DELIVERED: "bg-emerald-500 text-white",
-  READ: "bg-green-500 text-white",
-  FAILED: "bg-rose-500 text-white",
-  NOT_ELIGIBLE_POSSIBLE_SPAM: "bg-amber-500 text-white",
+  DELIVERED: "bg-healthy text-white",
+  READ: "bg-healthy text-white",
+  FAILED: "bg-destructive text-white",
+  NOT_ELIGIBLE_POSSIBLE_SPAM: "bg-warning text-white",
 };
 
 const statusKeys: Record<string, string> = {
@@ -262,7 +262,7 @@ function ResetModal({
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="fixed inset-0 bg-black/25 backdrop-blur-md"
+            className="fixed inset-0 bg-black/25"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -276,11 +276,11 @@ function ResetModal({
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
           >
-            <ElevatedContainer className="border border-border/50 bg-card overflow-hidden shadow-2xl rounded-[24px]">
+            <ElevatedContainer className="border border-border bg-card overflow-hidden shadow-2xl rounded-[--radius]">
               <div className="relative flex items-center justify-between px-7 pt-6 pb-2">
                 <div className="flex items-center gap-3">
                   <div
-                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted"
+                    className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted"
                     style={{ boxShadow: softSurfaceShadow }}
                   >
                     <ArrowClockwise
@@ -299,7 +299,7 @@ function ResetModal({
                 </div>
                 <button
                   onClick={handleClose}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-card/90 text-muted-foreground transition-colors duration-150 hover:bg-black/5 hover:text-foreground"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-card text-muted-foreground transition-colors duration-150 hover:bg-black/5 hover:text-foreground"
                   style={{ boxShadow: softSurfaceShadow }}
                 >
                   <X className="h-4 w-4" weight="bold" />
@@ -321,13 +321,13 @@ function ResetModal({
                       </p>
 
                       <motion.div
-                        className="rounded-2xl bg-muted border border-border/50 p-5"
+                        className="rounded-[--radius] bg-muted border border-border p-5"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
                       >
                         <div className="flex gap-4">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted flex-shrink-0">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted flex-shrink-0">
                             <Warning
                               className="h-5 w-5 text-muted-foreground"
                               weight="fill"
@@ -379,7 +379,7 @@ function ResetModal({
                       </p>
 
                       <motion.div
-                        className="rounded-2xl bg-muted border border-border/50 p-6 text-center relative overflow-hidden"
+                        className="rounded-[--radius] bg-muted border border-border p-6 text-center relative overflow-hidden"
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.1 }}
@@ -391,7 +391,7 @@ function ResetModal({
                           {generatedCode.split("").map((char, i) => (
                             <motion.span
                               key={i}
-                              className="w-10 h-12 flex items-center justify-center bg-card rounded-lg text-2xl font-mono font-bold text-foreground border border-border"
+                              className="w-10 h-12 flex items-center justify-center bg-card rounded-lg text-2xl font-mono font-semibold text-foreground border border-border"
                               style={{ boxShadow: softSurfaceShadow }}
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
@@ -414,7 +414,7 @@ function ResetModal({
                               e.target.value.toUpperCase().slice(0, 6),
                             )
                           }
-                          className="text-center text-2xl font-mono font-bold"
+                          className="text-center text-2xl font-mono font-semibold"
                           inputClassName="text-center"
                           placeholder={t("enterCodePlaceholder")}
                           maxLength={6}
@@ -560,7 +560,7 @@ function ClearHistoryModal({
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="fixed inset-0 bg-black/25 backdrop-blur-md"
+            className="fixed inset-0 bg-black/25"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -574,14 +574,14 @@ function ClearHistoryModal({
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
           >
-            <ElevatedContainer className="border border-border/50 bg-card overflow-hidden shadow-2xl rounded-[24px]">
+            <ElevatedContainer className="border border-border bg-card overflow-hidden shadow-2xl rounded-[--radius]">
               <div className="relative flex items-center justify-between px-7 pt-6 pb-2">
                 <div className="flex items-center gap-3">
                   <div
-                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-100"
+                    className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-destructive/10"
                     style={{ boxShadow: softSurfaceShadow }}
                   >
-                    <Trash className="h-5 w-5 text-rose-700" weight="bold" />
+                    <Trash className="h-5 w-5 text-destructive" weight="bold" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-foreground">
@@ -594,7 +594,7 @@ function ClearHistoryModal({
                 </div>
                 <button
                   onClick={handleClose}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-card/90 text-muted-foreground transition-colors duration-150 hover:bg-black/5 hover:text-foreground"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-card text-muted-foreground transition-colors duration-150 hover:bg-black/5 hover:text-foreground"
                   style={{ boxShadow: softSurfaceShadow }}
                 >
                   <X className="h-4 w-4" weight="bold" />
@@ -616,15 +616,15 @@ function ClearHistoryModal({
                       </p>
 
                       <motion.div
-                        className="rounded-2xl bg-rose-50 border border-rose-200/50 p-5"
+                        className="rounded-[--radius] bg-destructive/10 border border-rose-200/50 p-5"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
                       >
                         <div className="flex gap-4">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-100 flex-shrink-0">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-destructive/10 flex-shrink-0">
                             <Warning
-                              className="h-5 w-5 text-rose-600"
+                              className="h-5 w-5 text-destructive"
                               weight="fill"
                             />
                           </div>
@@ -632,7 +632,7 @@ function ClearHistoryModal({
                             <p className="font-semibold text-rose-800 mb-1">
                               {t("warningTitle")}
                             </p>
-                            <p className="text-sm text-rose-700">
+                            <p className="text-sm text-destructive">
                               {t("warningDescription")}
                             </p>
                           </div>
@@ -658,7 +658,7 @@ function ClearHistoryModal({
                           icon={<Lightning className="h-4 w-4" weight="fill" />}
                           iconVisible
                           iconSide="left"
-                          className="bg-rose-600 hover:bg-rose-700"
+                          className="bg-destructive hover:bg-destructive"
                         />
                       </div>
                     </motion.div>
@@ -675,7 +675,7 @@ function ClearHistoryModal({
                       </p>
 
                       <motion.div
-                        className="rounded-2xl bg-muted border border-border/50 p-6 text-center relative overflow-hidden"
+                        className="rounded-[--radius] bg-muted border border-border p-6 text-center relative overflow-hidden"
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.1 }}
@@ -687,7 +687,7 @@ function ClearHistoryModal({
                           {generatedCode.split("").map((char, i) => (
                             <motion.span
                               key={i}
-                              className="w-10 h-12 flex items-center justify-center bg-card rounded-lg text-2xl font-mono font-bold text-foreground border border-border"
+                              className="w-10 h-12 flex items-center justify-center bg-card rounded-lg text-2xl font-mono font-semibold text-foreground border border-border"
                               style={{ boxShadow: softSurfaceShadow }}
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
@@ -710,7 +710,7 @@ function ClearHistoryModal({
                               e.target.value.toUpperCase().slice(0, 6),
                             )
                           }
-                          className="text-center text-2xl font-mono font-bold"
+                          className="text-center text-2xl font-mono font-semibold"
                           inputClassName="text-center"
                           placeholder={t("enterCodePlaceholder")}
                           maxLength={6}
@@ -740,7 +740,7 @@ function ClearHistoryModal({
                           }
                           iconVisible
                           iconSide="left"
-                          className="bg-rose-600 hover:bg-rose-700"
+                          className="bg-destructive hover:bg-destructive"
                         />
                       </div>
                     </motion.div>
@@ -1383,7 +1383,7 @@ function WhatsAppCampaignDetailContent({
         {/* Campaign Info - Takes 2 columns */}
         <div
           className={cn(
-            "rounded-[26px] max-h-max border border-border/70 bg-card/90 p-6",
+            "rounded-[--radius] max-h-max border border-border bg-card p-6",
             canReadAnalysis ? "lg:col-span-2" : "lg:col-span-1",
           )}
           style={{ boxShadow: softSurfaceShadow }}
@@ -1391,18 +1391,18 @@ function WhatsAppCampaignDetailContent({
         >
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500">
+              <div className="flex h-12 w-12 items-center justify-center rounded-[--radius] bg-healthy">
                 <WhatsappLogo className="h-6 w-6 text-white" weight="fill" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-foreground">
+                <h2 className="text-lg font-semibold text-foreground">
                   {campaign.name}
                 </h2>
                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                   <span>Template: {templateName || campaign.templateId}</span>
                   {campaign.businessPhone && (
                     <>
-                      <span className="text-slate-300">•</span>
+                      <span className="text-muted-foreground">•</span>
                       <span>
                         Telefone:{" "}
                         {campaign.businessPhone.verifiedName ||
@@ -1412,8 +1412,8 @@ function WhatsAppCampaignDetailContent({
                   )}
                   {campaign.enableAgentResponses && agentName && (
                     <>
-                      <span className="text-slate-300">•</span>
-                      <span className="text-emerald-600">
+                      <span className="text-muted-foreground">•</span>
+                      <span className="text-healthy">
                         Agente: {agentName}
                       </span>
                     </>
@@ -1423,7 +1423,7 @@ function WhatsAppCampaignDetailContent({
             </div>
             <span
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide",
+                "inline-flex items-center gap-1.5 rounded-[--radius] px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide",
                 statusClass,
               )}
             >
@@ -1484,39 +1484,39 @@ function WhatsAppCampaignDetailContent({
 
             <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6" data-tour="wd-metrics">
               {/* Total */}
-              <div className="group relative flex items-center gap-3 p-4 rounded-xl border border-border/70 bg-card overflow-hidden">
-                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-emerald-500 opacity-[0.06] blur-2xl" />
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg">
+              <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
+                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-healthy opacity-[0.06] blur-2xl" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted shadow-lg">
                   <WhatsappLogo weight="fill" className="h-5 w-5 text-white" />
                 </div>
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">
                     {t("detail.metrics.total")}
                   </p>
-                  <p className="text-xl font-bold text-foreground">
+                  <p className="text-xl font-semibold text-foreground">
                     {metrics.totalNumbers.toLocaleString()}
                   </p>
                 </div>
               </div>
               {/* Pending */}
-              <div className="group relative flex items-center gap-3 p-4 rounded-xl border border-border/70 bg-card overflow-hidden">
-                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-slate-500 opacity-[0.06] blur-2xl" />
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-slate-500 to-slate-600 shadow-lg">
+              <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
+                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-muted opacity-[0.06] blur-2xl" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted shadow-lg">
                   <Clock weight="fill" className="h-5 w-5 text-white" />
                 </div>
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">
                     {t("detail.metrics.pending")}
                   </p>
-                  <p className="text-xl font-bold text-foreground">
+                  <p className="text-xl font-semibold text-foreground">
                     {metrics.pending.toLocaleString()}
                   </p>
                 </div>
               </div>
               {/* Sent */}
-              <div className="group relative flex items-center gap-3 p-4 rounded-xl border border-border/70 bg-card overflow-hidden">
-                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-blue-500 opacity-[0.06] blur-2xl" />
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
+              <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
+                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-muted opacity-[0.06] blur-2xl" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted shadow-lg">
                   <PaperPlaneTilt
                     weight="fill"
                     className="h-5 w-5 text-white"
@@ -1526,7 +1526,7 @@ function WhatsAppCampaignDetailContent({
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">
                     {t("detail.metrics.sent")}
                   </p>
-                  <p className="text-xl font-bold text-foreground">
+                  <p className="text-xl font-semibold text-foreground">
                     {metrics.sent.toLocaleString()}
                   </p>
                   <p className="text-[10px] text-muted-foreground font-medium">
@@ -1535,61 +1535,61 @@ function WhatsAppCampaignDetailContent({
                 </div>
               </div>
               {/* Delivered */}
-              <div className="group relative flex items-center gap-3 p-4 rounded-xl border border-border/70 bg-card overflow-hidden">
-                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-teal-500 opacity-[0.06] blur-2xl" />
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 shadow-lg">
+              <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
+                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-muted opacity-[0.06] blur-2xl" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted shadow-lg">
                   <CheckCircle weight="fill" className="h-5 w-5 text-white" />
                 </div>
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">
                     {t("detail.metrics.delivered")}
                   </p>
-                  <p className="text-xl font-bold text-foreground">
+                  <p className="text-xl font-semibold text-foreground">
                     {metrics.delivered.toLocaleString()}
                   </p>
                 </div>
               </div>
               {/* Read */}
-              <div className="group relative flex items-center gap-3 p-4 rounded-xl border border-border/70 bg-card overflow-hidden">
-                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-violet-500 opacity-[0.06] blur-2xl" />
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 shadow-lg">
+              <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
+                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-muted opacity-[0.06] blur-2xl" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted shadow-lg">
                   <Eye weight="fill" className="h-5 w-5 text-white" />
                 </div>
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">
                     {t("detail.metrics.read")}
                   </p>
-                  <p className="text-xl font-bold text-foreground">
+                  <p className="text-xl font-semibold text-foreground">
                     {metrics.read.toLocaleString()}
                   </p>
                 </div>
               </div>
               {/* Failed */}
-              <div className="group relative flex items-center gap-3 p-4 rounded-xl border border-border/70 bg-card overflow-hidden">
-                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-rose-500 opacity-[0.06] blur-2xl" />
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 shadow-lg">
+              <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
+                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-destructive opacity-[0.06] blur-2xl" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted shadow-lg">
                   <Warning weight="fill" className="h-5 w-5 text-white" />
                 </div>
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">
                     {t("detail.metrics.failed")}
                   </p>
-                  <p className="text-xl font-bold text-foreground">
+                  <p className="text-xl font-semibold text-foreground">
                     {metrics.failed.toLocaleString()}
                   </p>
                 </div>
               </div>
               {/* Not Eligible (Possible Spam) */}
-              <div className="group relative flex items-center gap-3 p-4 rounded-xl border border-border/70 bg-card overflow-hidden">
-                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-amber-500 opacity-[0.06] blur-2xl" />
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 shadow-lg">
+              <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
+                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-warning opacity-[0.06] blur-2xl" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted shadow-lg">
                   <ShieldWarning weight="fill" className="h-5 w-5 text-white" />
                 </div>
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">
                     {t("detail.metrics.notEligiblePossibleSpam")}
                   </p>
-                  <p className="text-xl font-bold text-foreground">
+                  <p className="text-xl font-semibold text-foreground">
                     {metrics.notEligiblePossibleSpam.toLocaleString()}
                   </p>
                 </div>
@@ -1793,7 +1793,7 @@ function WhatsAppCampaignDetailContent({
                 campaignId={campaign.id}
                 campaignType="whatsapp"
                 trigger={
-                  <button className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-3 text-sm font-medium text-muted-foreground transition-all duration-200 ease-out hover:bg-muted">
+                  <button className="inline-flex items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 ease-out hover:bg-muted">
                     <GearSix weight="bold" className="h-4 w-4" />
                     Tags
                   </button>
@@ -1811,12 +1811,12 @@ function WhatsAppCampaignDetailContent({
         data-tour="wd-contacts"
       >
         <div
-          className="rounded-[26px] border border-border/70 bg-card/90 p-8"
+          className="rounded-[--radius] border border-border bg-card p-8"
           style={{ boxShadow: softSurfaceShadow }}
         >
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-white">
+              <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-healthy text-white">
                 <UserCircle weight="bold" className="h-5 w-5" />
               </div>
               <div>
@@ -1829,7 +1829,7 @@ function WhatsAppCampaignDetailContent({
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-2 rounded-full bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white">
+              <span className="flex items-center gap-2 rounded-[--radius] bg-healthy px-3 py-1.5 text-xs font-semibold text-white">
                 <CheckCircle weight="fill" className="h-4 w-4" />
                 {entriesTotalItems} {t("detail.records")}
               </span>
@@ -1850,9 +1850,9 @@ function WhatsAppCampaignDetailContent({
           </div>
 
           {entriesLoading ? (
-            <div className="min-h-[400px] flex items-center justify-center rounded-2xl border border-border bg-muted/80 px-6 py-8 text-sm text-muted-foreground">
+            <div className="min-h-[400px] flex items-center justify-center rounded-[--radius] border border-border bg-muted px-6 py-8 text-sm text-muted-foreground">
               <div className="flex flex-col items-center gap-3">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-foreground/20 border-t-emerald-500" />
+                <div className="h-6 w-6 animate-spin rounded-full border border-foreground/20 border-t-emerald-500" />
                 <span>{t("detail.loading")}</span>
               </div>
             </div>
@@ -1885,7 +1885,7 @@ function WhatsAppCampaignDetailContent({
                       transition={{
                         delay: Math.min(0.5 + index * 0.02, 1.5),
                       }}
-                      className="group relative rounded-2xl border border-border/70 bg-card p-5 transition-all duration-200 hover:shadow-md hover:border-foreground/20"
+                      className="group relative rounded-[--radius] border border-border bg-card p-5 transition-all duration-200 hover:shadow-md hover:border-foreground/20"
                     >
                       {/* Header Row */}
                       <div className="flex items-start justify-between gap-4 mb-4">
@@ -1899,7 +1899,7 @@ function WhatsAppCampaignDetailContent({
                               trigger={
                                 <button
                                   type="button"
-                                  className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-white transition-all hover:bg-emerald-600 hover:scale-105"
+                                  className="inline-flex h-10 w-10 items-center justify-center rounded-[--radius] bg-healthy text-white transition-all hover:bg-healthy hover:scale-105"
                                   title="Ver conversa"
                                 >
                                   <ChatCircle
@@ -1911,7 +1911,7 @@ function WhatsAppCampaignDetailContent({
                             />
                           )}
                           <div>
-                            <p className="text-lg font-bold text-foreground tracking-wide">
+                            <p className="text-lg font-semibold text-foreground tracking-wide">
                               {contact.number}
                             </p>
                             <div className="flex items-center gap-2 mt-0.5">
@@ -1929,7 +1929,7 @@ function WhatsAppCampaignDetailContent({
                         </div>
                         <span
                           className={cn(
-                            "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider",
+                            "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider",
                             badgeClass,
                           )}
                         >
@@ -1940,13 +1940,13 @@ function WhatsAppCampaignDetailContent({
 
                       {/* Error info for failed entries */}
                       {errorDisplay?.show ? (
-                        <div className="mb-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 dark:border-rose-500/30 dark:bg-rose-500/10">
+                        <div className="mb-3 rounded-lg border border-rose-200 bg-destructive/10 px-3 py-2 dark:border-destructive/30 dark:bg-destructive/10">
                           {errorDisplay.code !== null ? (
-                            <p className="text-[11px] font-semibold text-rose-700 dark:text-rose-400">
+                            <p className="text-[11px] font-semibold text-destructive dark:text-destructive">
                               {t("detail.errorCode")}: {errorDisplay.code}
                             </p>
                           ) : null}
-                          <p className="mt-0.5 text-[11px] text-rose-600 dark:text-rose-300 line-clamp-2">
+                          <p className="mt-0.5 text-[11px] text-destructive dark:text-rose-300 line-clamp-2">
                             {errorDisplay.description}
                           </p>
                         </div>
@@ -1993,7 +1993,7 @@ function WhatsAppCampaignDetailContent({
                             {contact.variables.map((variable, vi) => (
                               <span
                                 key={vi}
-                                className="inline-flex items-center gap-1 rounded-md bg-emerald-500 border border-emerald-600 px-2 py-1 text-[11px] text-white"
+                                className="inline-flex items-center gap-1 rounded-md bg-healthy border border-healthy px-2 py-1 text-[11px] text-white"
                               >
                                 <span className="font-semibold text-white">
                                   {`{{${vi + 1}}}`}
@@ -2059,7 +2059,7 @@ function WhatsAppCampaignDetailContent({
                   );
                 })}
                 {!displayEntries.length && (
-                  <div className="col-span-2 rounded-2xl border border-border bg-muted/80 px-6 py-8 text-center text-sm text-muted-foreground">
+                  <div className="col-span-2 rounded-[--radius] border border-border bg-muted px-6 py-8 text-center text-sm text-muted-foreground">
                     {t("detail.noContacts")}
                   </div>
                 )}

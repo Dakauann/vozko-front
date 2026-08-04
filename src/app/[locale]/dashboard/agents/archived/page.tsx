@@ -4,7 +4,7 @@ import {
   ArrowCounterClockwise,
   MagnifyingGlass,
   Robot,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   listArchivedAgentsAction,
   unarchiveAgentAction,
@@ -160,7 +160,7 @@ export default function ArchivedAgentsPage() {
         emptyState={
           error
             ? {
-                icon: <Robot className="h-7 w-7 text-red-600" weight="fill" />,
+                icon: <Robot className="h-7 w-7 text-destructive" weight="fill" />,
                 title: t("error.title"),
                 description: error,
               }

@@ -19,7 +19,7 @@ import {
   Stop,
   TrashSimple,
   Wrench,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { useTranslations } from "next-intl";
 import type {
   ChatMessage,
@@ -372,14 +372,14 @@ export function AIChatClient() {
   const isEmpty = messages.length === 0;
 
   return (
-    <div className="-m-3 flex h-[calc(100dvh-5rem)] overflow-hidden border-y border-border bg-card sm:-m-6 sm:h-[calc(100dvh-5rem)]">
+    <div className="-m-3 flex h-[calc(100dvh-3rem)] overflow-hidden border-y border-border bg-card sm:-m-6 sm:h-[calc(100dvh-3rem)]">
       {/* Thread sidebar */}
       <aside className="hidden w-64 flex-shrink-0 flex-col border-r border-border bg-mist/30 md:flex">
         <div className="p-3">
           <button
             type="button"
             onClick={newChat}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
+            className="flex w-full items-center justify-center gap-2 rounded-[--radius] bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
           >
             <Plus weight="bold" className="h-4 w-4" />
             {t("newChat")}
@@ -392,7 +392,7 @@ export function AIChatClient() {
               className={cn(
                 "group flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm transition-colors",
                 activeId === thread.id
-                  ? "bg-primary/10 text-primary"
+                  ? "bg-muted text-lamp-ink"
                   : "text-foreground hover:bg-muted",
               )}
             >
@@ -434,7 +434,7 @@ export function AIChatClient() {
         >
           {isEmpty ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-white">
+              <span className="flex h-12 w-12 items-center justify-center rounded-[--radius] bg-primary text-white">
                 <Brain weight="fill" className="h-6 w-6" />
               </span>
               <h2 className="text-lg font-semibold text-foreground">
@@ -494,7 +494,7 @@ export function AIChatClient() {
                 disabled={streaming}
               />
             </div>
-            <div className="flex items-end gap-2 rounded-2xl border border-border bg-background p-2 focus-within:border-primary/40">
+            <div className="flex items-end gap-2 rounded-[--radius] border border-border bg-background p-2 focus-within:border-primary/40">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -507,7 +507,7 @@ export function AIChatClient() {
                 <button
                   type="button"
                   onClick={stop}
-                  className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-muted text-foreground transition-colors hover:bg-muted/70"
+                  className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[--radius] bg-muted text-foreground transition-colors hover:bg-muted"
                   aria-label={t("stop")}
                 >
                   <Stop weight="fill" className="h-4 w-4" />
@@ -517,7 +517,7 @@ export function AIChatClient() {
                   type="button"
                   onClick={handleSend}
                   disabled={!input.trim() || !model}
-                  className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-primary text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[--radius] bg-primary text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40"
                   aria-label={t("send")}
                 >
                   <PaperPlaneTilt weight="fill" className="h-4 w-4" />
@@ -547,7 +547,7 @@ function MessageBubble({
   if (message.role === "user") {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md bg-primary px-4 py-2.5 text-sm text-white">
+        <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-[--radius] rounded-br-md bg-primary px-4 py-2.5 text-sm text-white">
           {message.content}
         </div>
       </div>
@@ -561,7 +561,7 @@ function MessageBubble({
   return (
     <div className="flex gap-3">
       {message.model ? (
-        <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border border-border/60 bg-muted">
+        <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border border-border bg-muted">
           <ModelBrandIcon modelId={message.model} size={15} />
         </span>
       ) : (
@@ -621,7 +621,7 @@ function ThinkingBlock({
   const [userToggled, setUserToggled] = useState<boolean | null>(null);
   const open = userToggled ?? !!streaming;
   return (
-    <div className="rounded-lg border border-border/60 bg-muted/40">
+    <div className="rounded-lg border border-border bg-muted">
       <button
         type="button"
         onClick={() => setUserToggled(!open)}
@@ -635,7 +635,7 @@ function ThinkingBlock({
         />
       </button>
       {open ? (
-        <div className="ml-2 whitespace-pre-wrap border-l-2 border-border/60 px-2.5 pb-2 pl-3 text-xs italic leading-relaxed text-muted-foreground/80">
+        <div className="ml-2 whitespace-pre-wrap border-l-2 border-border px-2.5 pb-2 pl-3 text-xs italic leading-relaxed text-muted-foreground/80">
           {text}
           {streaming ? <Cursor /> : null}
         </div>
@@ -688,7 +688,7 @@ function ApprovalCard({
   const [busy, setBusy] = useState<null | "approve" | "reject">(null);
   const TileIcon = TOOL_ICON[pending.toolName] ?? Wrench;
   return (
-    <div className="rounded-xl border border-primary/25 bg-primary/[0.04] p-3.5">
+    <div className="rounded-[--radius] border border-primary/25 bg-primary/[0.04] p-3.5">
       <div className="flex items-start gap-3">
         <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-white">
           <TileIcon weight="bold" className="h-[18px] w-[18px]" />
@@ -705,7 +705,7 @@ function ApprovalCard({
         </div>
       </div>
       <div className="mt-3 flex flex-col gap-2.5 border-t border-primary/15 pt-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-        <span className="text-xs font-medium text-primary">{labels.approvalHint}</span>
+        <span className="text-xs font-medium text-lamp-ink">{labels.approvalHint}</span>
         <div className="flex gap-2">
           <button
             type="button"

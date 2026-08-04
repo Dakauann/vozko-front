@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { CalendarBlank, Info } from "@phosphor-icons/react";
+import { CalendarBlank, Info } from "@/components/icons";
 import { format, subDays } from "date-fns";
 
 import Button from "@/components/elevated-design/button";
@@ -38,8 +38,8 @@ type Tone = "default" | "danger" | "warning";
 
 const toneClass: Record<Tone, string> = {
   default: "text-foreground",
-  danger: "text-red-600",
-  warning: "text-amber-600",
+  danger: "text-destructive",
+  warning: "text-warning",
 };
 
 const num = (value: number | undefined) =>
@@ -166,7 +166,7 @@ export function CampaignsSummaryBar({
   const hasFilter = !!from || !!to;
 
   return (
-    <section className="rounded-2xl border border-border bg-card shadow-sm">
+    <section className="rounded-[--radius] border border-border bg-card shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3">
         <div className="flex items-baseline gap-2">
           <h2 className="text-sm font-semibold text-foreground">
@@ -229,7 +229,7 @@ export function CampaignsSummaryBar({
           />
           <span
             className={cn(
-              "text-3xl font-bold tabular-nums text-foreground",
+              "text-3xl font-semibold tabular-nums text-foreground",
               loading && "animate-pulse opacity-40",
             )}
           >
@@ -242,7 +242,7 @@ export function CampaignsSummaryBar({
             <TileLabel label={tile.label} help={tile.help} />
             <span
               className={cn(
-                "text-xl font-bold tabular-nums",
+                "text-xl font-semibold tabular-nums",
                 toneClass[tile.tone ?? "default"],
                 loading && "animate-pulse opacity-40",
               )}
@@ -256,7 +256,7 @@ export function CampaignsSummaryBar({
           <TileLabel label={t("totalEntries")} help={t("totalEntriesHelp")} />
           <span
             className={cn(
-              "text-xl font-bold tabular-nums text-foreground",
+              "text-xl font-semibold tabular-nums text-foreground",
               loading && "animate-pulse opacity-40",
             )}
           >

@@ -14,7 +14,7 @@ import {
   Warning,
   Waveform,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type {
   ConversationMessage,
   EntryType,
@@ -28,7 +28,7 @@ import ElevatedSwitch from "../elevated-design/elevated-switch";
 import type { MessageShortcut } from "@/lib/message-shortcuts/types";
 import MessageShortcutSheet from "@/components/message-shortcuts/MessageShortcutSheet";
 import type { SendButtonWsInput } from "@/hooks/use-conversation-ws";
-import { ShieldWarning } from "@phosphor-icons/react";
+import { ShieldWarning } from "@/components/icons";
 import ShortcutPicker from "./ShortcutPicker";
 import { Toggle } from "../ui/toggle";
 import toWav from "audiobuffer-to-wav";
@@ -574,7 +574,7 @@ export default function CrmMessageInput({
           never a same-colour wash, the meaning colour rides the icon/dot only). */}
       {disabled && disabledReason && (
         <div className="flex justify-center px-4 pt-2">
-          <div className="flex max-w-[92%] items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 shadow-md">
+          <div className="flex max-w-[92%] items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-1.5 shadow-md">
             <ShieldWarning
               weight="fill"
               className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground"
@@ -588,10 +588,10 @@ export default function CrmMessageInput({
 
       {!windowOpen && (
         <div className="flex justify-center px-4 pt-2">
-          <div className="flex max-w-[92%] items-center gap-2 rounded-2xl border border-border bg-card px-3 py-2 shadow-md">
+          <div className="flex max-w-[92%] items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-2 shadow-md">
             <Warning
               weight="fill"
-              className="h-4 w-4 flex-shrink-0 text-amber-500"
+              className="h-4 w-4 flex-shrink-0 text-warning"
             />
             <div className="min-w-0">
               <p className="text-[11px] font-semibold text-foreground">
@@ -614,8 +614,8 @@ export default function CrmMessageInput({
 
       {windowOpen && windowRemaining && (
         <div className="flex justify-center px-4 pt-2">
-          <div className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 shadow-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <div className="flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1 shadow-sm">
+            <span className="h-1.5 w-1.5 rounded-full bg-healthy animate-pulse" />
             <span className="text-[10px] font-medium text-foreground">
               {t.windowExpires}: {windowRemaining}
             </span>
@@ -630,7 +630,7 @@ export default function CrmMessageInput({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="border-b border-border/80"
+            className="border-b border-border"
           >
             <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3">
               {/* Preview */}
@@ -643,10 +643,10 @@ export default function CrmMessageInput({
                     className="h-10 w-10 sm:h-14 sm:w-14 rounded-lg object-cover"
                   />
                 ) : pendingMedia.type === "audio" ? (
-                  <div className="flex h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-lg bg-gradient-to-br from-blue-100 to-sky-100">
+                  <div className="flex h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-lg bg-muted">
                     <Waveform
                       weight="fill"
-                      className="h-5 w-5 sm:h-6 sm:w-6 text-primary"
+                      className="h-5 w-5 sm:h-6 sm:w-6 text-lamp-ink"
                     />
                   </div>
                 ) : (
@@ -711,18 +711,18 @@ export default function CrmMessageInput({
             <button
               type="button"
               onClick={cancelRecording}
-              className="flex h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors hover:bg-rose-500 hover:text-white"
+              className="flex h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors hover:bg-destructive hover:text-white"
               aria-label="Cancel recording"
             >
               <Trash weight="bold" className="h-4 w-4" />
             </button>
 
             {/* Waveform visualizer + timer */}
-            <div className="flex flex-1 min-w-0 items-center gap-2 sm:gap-3 rounded-full bg-gradient-to-r from-primary/5 to-primary/10 px-3 sm:px-4 py-2">
+            <div className="flex flex-1 min-w-0 items-center gap-2 sm:gap-3 rounded-full bg-muted px-3 sm:px-4 py-2">
               {/* Pulsing dot */}
               <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5 flex-shrink-0">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
-                <span className="relative inline-flex h-full w-full rounded-full bg-red-500" />
+                <span className="relative inline-flex h-full w-full rounded-full bg-destructive" />
               </span>
 
               {/* Waveform bars - responsive count */}
@@ -733,7 +733,7 @@ export default function CrmMessageInput({
                   return (
                     <motion.div
                       key={i}
-                      className="w-[2px] sm:w-[3px] rounded-full bg-blue-400/80"
+                      className="w-[2px] sm:w-[3px] rounded-full bg-muted"
                       initial={{ height: 3 }}
                       animate={{ height: barHeight }}
                       transition={{ duration: 0.1, ease: "easeOut" }}
@@ -743,7 +743,7 @@ export default function CrmMessageInput({
               </div>
 
               {/* Timer */}
-              <span className="flex-shrink-0 font-mono text-[10px] sm:text-xs font-semibold text-primary tabular-nums">
+              <span className="flex-shrink-0 font-mono text-[10px] sm:text-xs font-semibold text-lamp-ink tabular-nums">
                 {formatDuration(recordingDuration)}
               </span>
             </div>
@@ -752,7 +752,7 @@ export default function CrmMessageInput({
             <button
               type="button"
               onClick={stopRecording}
-              className="flex h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-sky-600 text-white shadow-md transition-transform hover:scale-105 active:scale-95"
+              className="flex h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 items-center justify-center rounded-full bg-muted text-white shadow-md transition-transform hover:scale-105 active:scale-95"
               aria-label="Stop and send"
             >
               <Stop weight="fill" className="h-4 w-4" />
@@ -772,15 +772,15 @@ export default function CrmMessageInput({
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.15 }}
-                className="border-b border-border/80 overflow-hidden"
+                className="border-b border-border overflow-hidden"
               >
                 <div className="flex items-center gap-2 px-4 py-2 bg-muted">
                   <ArrowBendUpLeft
                     weight="bold"
-                    className="h-4 w-4 text-primary flex-shrink-0"
+                    className="h-4 w-4 text-lamp-ink flex-shrink-0"
                   />
                   <div className="min-w-0 flex-1 rounded-md bg-card border-l-[3px] border-blue-400 px-2.5 py-1.5">
-                    <p className="text-[10px] font-semibold text-primary truncate">
+                    <p className="text-[10px] font-semibold text-lamp-ink truncate">
                       {replyToMessage.sender_name || replyToMessage.from}
                     </p>
                     <p className="text-[11px] text-muted-foreground truncate">
@@ -815,7 +815,7 @@ export default function CrmMessageInput({
           {/* WhatsApp-style composer: a floating rounded pill on the chat bg + a
               single circular morph button (mic when empty, send when there's text). */}
           <div className="flex items-end gap-2 px-2 py-2 sm:px-3">
-            <div className="relative flex min-w-0 flex-1 items-end gap-0.5 rounded-3xl border border-border bg-card px-1.5 py-1 shadow-sm">
+            <div className="relative flex min-w-0 flex-1 items-end gap-0.5 rounded-[--radius] border border-border bg-card px-1.5 py-1 shadow-sm">
               {/* attach */}
               <button
                 type="button"

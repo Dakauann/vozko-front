@@ -15,7 +15,7 @@ import {
   WifiHigh,
   WifiMedium,
   WifiSlash,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type { CampaignType, ConnectionStatus } from "@/lib/conversations/types";
 import {
   Popover,
@@ -80,27 +80,27 @@ const statusStyles: Record<string, { bg: string; text: string; dot: string }> =
     IDLE: {
       bg: "bg-muted",
       text: "text-muted-foreground",
-      dot: "bg-slate-400",
+      dot: "bg-muted",
     },
     STOPPED: {
       bg: "bg-muted",
       text: "text-muted-foreground",
-      dot: "bg-slate-400",
+      dot: "bg-muted",
     },
     RUNNING: {
-      bg: "bg-emerald-500/15",
-      text: "text-emerald-700",
-      dot: "bg-emerald-500",
+      bg: "bg-healthy/15",
+      text: "text-healthy",
+      dot: "bg-healthy",
     },
     PAUSED: {
-      bg: "bg-amber-500/15",
-      text: "text-amber-700",
-      dot: "bg-amber-500",
+      bg: "bg-warning/15",
+      text: "text-warning",
+      dot: "bg-warning",
     },
     COMPLETED: {
       bg: "bg-primary/15",
-      text: "text-primary",
-      dot: "bg-blue-500",
+      text: "text-lamp-ink",
+      dot: "bg-muted",
     },
   };
 
@@ -109,7 +109,7 @@ function StatusBadge({ status }: { status: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider",
+        "inline-flex items-center gap-1.5 rounded-[--radius] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider",
         style.bg,
         style.text,
       )}
@@ -150,29 +150,29 @@ function WsStatusIndicator({
     connected: {
       icon: WifiHigh,
       label: t.wsConnected,
-      className: "text-emerald-600 bg-emerald-50 border-emerald-500/20",
-      dotClass: "bg-emerald-500",
+      className: "text-healthy bg-healthy/10 border-healthy/20",
+      dotClass: "bg-healthy",
       animate: false,
     },
     connecting: {
       icon: WifiMedium,
       label: t.wsConnecting,
-      className: "text-white bg-amber-500 border-amber-600",
-      dotClass: "bg-amber-500",
+      className: "text-white bg-warning border-warning",
+      dotClass: "bg-warning",
       animate: true,
     },
     disconnected: {
       icon: WifiSlash,
       label: t.wsDisconnected,
       className: "text-muted-foreground bg-muted border-border",
-      dotClass: "bg-slate-400",
+      dotClass: "bg-muted",
       animate: false,
     },
     error: {
       icon: WifiSlash,
       label: t.wsDisconnected,
-      className: "text-white bg-rose-500 border-rose-600",
-      dotClass: "bg-rose-500",
+      className: "text-white bg-destructive border-destructive",
+      dotClass: "bg-destructive",
       animate: false,
     },
   };
@@ -182,7 +182,7 @@ function WsStatusIndicator({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-colors",
+        "inline-flex items-center gap-1.5 rounded-[--radius] border px-2 py-0.5 text-[10px] font-semibold transition-colors",
         className,
       )}
       title={label}
@@ -261,7 +261,7 @@ function ActionsDropdown({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full z-50 mt-1 w-48 rounded-xl border border-border bg-card py-1 shadow-lg"
+            className="absolute right-0 top-full z-50 mt-1 w-48 rounded-[--radius] border border-border bg-card py-1 shadow-lg"
           >
             <TooltipWrapper
               content={t.noPermissionUpdate || "Sem permissão"}
@@ -306,7 +306,7 @@ function ActionsDropdown({
                 iconVisible
                 iconSide="left"
                 iconColor="currentColor"
-                className="w-full justify-start rounded-lg text-sm text-amber-600 hover:!bg-amber-500/10"
+                className="w-full justify-start rounded-lg text-sm text-warning hover:!bg-warning/10"
               />
             </TooltipWrapper>
 
@@ -327,7 +327,7 @@ function ActionsDropdown({
                 iconVisible
                 iconSide="left"
                 iconColor="currentColor"
-                className="w-full justify-start rounded-lg text-sm text-rose-600 hover:!bg-rose-50"
+                className="w-full justify-start rounded-lg text-sm text-destructive hover:!bg-destructive/10"
               />
             </TooltipWrapper>
           </motion.div>
@@ -365,7 +365,7 @@ export default function CampaignHeader({
   const wsStatus = crmContext.status;
 
   const badgeColor =
-    campaignType === "whatsapp" ? "text-emerald-600" : "text-primary";
+    campaignType === "whatsapp" ? "text-healthy" : "text-lamp-ink";
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -386,7 +386,7 @@ export default function CampaignHeader({
           <div className="flex items-center gap-2 flex-wrap">
             <p
               className={cn(
-                "text-[11px] font-bold uppercase tracking-wider",
+                "text-[11px] font-semibold uppercase tracking-wider",
                 badgeColor,
               )}
             >
@@ -402,7 +402,7 @@ export default function CampaignHeader({
               }}
             />
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground truncate mt-0.5">
+          <h1 className="text-xl sm:text-2xl font-semibold text-foreground truncate mt-0.5">
             {name}
           </h1>
         </div>

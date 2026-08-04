@@ -25,8 +25,8 @@ import {
   Wallet,
   WhatsappLogo,
   X,
-} from "@phosphor-icons/react";
-import type { Icon } from "@phosphor-icons/react";
+} from "@/components/icons";
+import type { Icon } from "@/components/icons";
 import {
   Tabs,
   TabsContent,
@@ -89,11 +89,11 @@ function microsToDisplay(micros: number): string {
 }
 
 const CATEGORY_META: Record<string, { icon: Icon; bg: string }> = {
-  tts: { icon: SpeakerHigh, bg: "bg-violet-500" },
-  stt: { icon: Microphone, bg: "bg-emerald-500" },
-  whatsapp: { icon: WhatsappLogo, bg: "bg-green-500" },
-  telephony: { icon: Phone, bg: "bg-blue-500" },
-  exchange_rate: { icon: CurrencyDollar, bg: "bg-amber-500" },
+  tts: { icon: SpeakerHigh, bg: "bg-muted" },
+  stt: { icon: Microphone, bg: "bg-healthy" },
+  whatsapp: { icon: WhatsappLogo, bg: "bg-healthy" },
+  telephony: { icon: Phone, bg: "bg-muted" },
+  exchange_rate: { icon: CurrencyDollar, bg: "bg-warning" },
 };
 
 
@@ -130,7 +130,7 @@ function RoleBadge({
   t: ReturnType<typeof useTranslations>;
 }) {
   const config = {
-    owner: { bg: "bg-amber-500 text-white", icon: Crown },
+    owner: { bg: "bg-warning text-white", icon: Crown },
     admin: { bg: "bg-primary text-white", icon: Shield },
     member: { bg: "bg-muted text-muted-foreground", icon: Users },
     employee: { bg: "bg-muted text-muted-foreground", icon: Users },
@@ -139,7 +139,7 @@ function RoleBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium",
+        "inline-flex items-center gap-1 rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
         bg,
       )}
     >
@@ -158,15 +158,15 @@ function StatusBadge({
   t: ReturnType<typeof useTranslations>;
 }) {
   const config: Record<string, string> = {
-    pending: "bg-amber-500 text-white",
-    accepted: "bg-emerald-500 text-white",
-    declined: "bg-red-500 text-white",
+    pending: "bg-warning text-white",
+    accepted: "bg-healthy text-white",
+    declined: "bg-destructive text-white",
     expired: "bg-muted text-muted-foreground",
   };
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase",
+        "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold uppercase",
         config[status] ?? "bg-muted text-muted-foreground",
       )}
     >
@@ -286,7 +286,7 @@ export default function AdminWorkspaceDetailPage() {
         key: "user",
         render: (member) => (
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
+            <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted">
               <UserCircle
                 className="h-6 w-6 text-muted-foreground"
                 weight="fill"
@@ -428,8 +428,8 @@ export default function AdminWorkspaceDetailPage() {
               )}
               <span
                 className={cn(
-                  "text-sm font-bold tabular-nums whitespace-nowrap",
-                  item.isOverride ? "text-amber-600" : "text-foreground",
+                  "text-sm font-semibold tabular-nums whitespace-nowrap",
+                  item.isOverride ? "text-warning" : "text-foreground",
                 )}
               >
                 ${microsToDisplay(item.priceMicros)}
@@ -458,17 +458,17 @@ export default function AdminWorkspaceDetailPage() {
 
   const subscriptionStatusClass = currentSubscription
     ? currentSubscription.status === "active"
-      ? "bg-emerald-500 text-white"
+      ? "bg-healthy text-white"
       : currentSubscription.status === "cancelled"
-        ? "bg-amber-500 text-white"
-        : "bg-slate-300 text-slate-700"
-    : "bg-slate-300 text-slate-700";
+        ? "bg-warning text-white"
+        : "bg-muted text-muted-foreground"
+    : "bg-muted text-muted-foreground";
 
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-32">
         <CircleNotch
-          className="h-8 w-8 animate-spin text-primary"
+          className="h-8 w-8 animate-spin text-lamp-ink"
           weight="bold"
         />
         <p className="text-sm text-muted-foreground mt-3">{t("loading")}</p>
@@ -479,7 +479,7 @@ export default function AdminWorkspaceDetailPage() {
   if (error || !workspace) {
     return (
       <div
-        className="mx-auto max-w-2xl rounded-[26px] border border-border/70 bg-card/90 p-12 text-center mt-8"
+        className="mx-auto max-w-2xl rounded-[--radius] border border-border bg-card p-12 text-center mt-8"
         style={{ boxShadow: softSurfaceShadow }}
       >
         <Buildings
@@ -508,7 +508,7 @@ export default function AdminWorkspaceDetailPage() {
       {/* Back link */}
       <Link
         href="/dashboard/workspaces"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-lamp-ink transition-colors"
       >
         <ArrowLeft className="h-4 w-4" weight="bold" />
         {t("header.backToWorkspaces")}
@@ -528,7 +528,7 @@ export default function AdminWorkspaceDetailPage() {
             <>
               <Link
                 href="/dashboard/plans"
-                className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-4 py-2 text-xs font-semibold text-foreground transition-all hover:bg-primary/10 hover:border-blue-300 hover:text-primary flex-shrink-0"
+                className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-4 py-2 text-xs font-semibold text-foreground transition-all hover:bg-muted hover:border-blue-300 hover:text-lamp-ink flex-shrink-0"
                 style={{ boxShadow: softSurfaceShadow }}
               >
                 <CurrencyDollar className="h-4 w-4" weight="bold" />
@@ -536,7 +536,7 @@ export default function AdminWorkspaceDetailPage() {
               </Link>
               <Link
                 href={`/dashboard/workspaces/${workspace.id}/balance`}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-4 py-2 text-xs font-semibold text-foreground transition-all hover:bg-primary/10 hover:border-blue-300 hover:text-primary flex-shrink-0"
+                className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-4 py-2 text-xs font-semibold text-foreground transition-all hover:bg-muted hover:border-blue-300 hover:text-lamp-ink flex-shrink-0"
                 style={{ boxShadow: softSurfaceShadow }}
               >
                 <Wallet className="h-4 w-4" weight="bold" />
@@ -583,7 +583,7 @@ export default function AdminWorkspaceDetailPage() {
           <TabsContent value="overview">
             {/* ── Spam Protection Config ── */}
             <div
-              className="rounded-2xl border border-border/70 bg-card/90 p-5 space-y-4 mb-4"
+              className="rounded-[--radius] border border-border bg-card p-5 space-y-4 mb-4"
               style={{ boxShadow: softSurfaceShadow }}
             >
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -649,14 +649,14 @@ export default function AdminWorkspaceDetailPage() {
 
             {/* ── Workspace Subscription ── */}
             <div
-              className="rounded-2xl border border-border/70 bg-card/90 p-5 space-y-4 mb-4"
+              className="rounded-[--radius] border border-border bg-card p-5 space-y-4 mb-4"
               style={{ boxShadow: softSurfaceShadow }}
             >
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
                   <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <CurrencyDollar
-                      className="h-4 w-4 text-emerald-500"
+                      className="h-4 w-4 text-healthy"
                       weight="fill"
                     />
                     {t("config.subscription.title")}
@@ -707,7 +707,7 @@ export default function AdminWorkspaceDetailPage() {
               </div>
 
               {subscriptionError ? (
-                <div className="rounded-2xl border border-red-600 bg-red-500 px-4 py-3 text-xs text-white">
+                <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-xs text-white">
                   {subscriptionError}
                 </div>
               ) : currentSubscription ? (
@@ -718,7 +718,7 @@ export default function AdminWorkspaceDetailPage() {
                     </span>
                     <span
                       className={cn(
-                        "rounded-full px-2.5 py-1 font-semibold uppercase",
+                        "rounded-[--radius] px-2.5 py-1 font-semibold uppercase",
                         subscriptionStatusClass,
                       )}
                     >
@@ -759,19 +759,11 @@ export default function AdminWorkspaceDetailPage() {
                         )}
                       </p>
                     </div>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
-                        {t("config.subscription.channels")}
-                      </p>
-                      <p className="mt-1 text-sm font-medium text-foreground">
-                        {workspaceSubscription?.plan?.maxCallChannels ?? "-"}
-                      </p>
-                    </div>
                   </div>
                 </>
               ) : (
                 <div className="space-y-4">
-                  <div className="rounded-2xl border border-dashed border-border/70 bg-background/50 px-4 py-5">
+                  <div className="rounded-[--radius] border border-dashed border-border bg-background px-4 py-5">
                     <p className="text-sm font-medium text-foreground">
                       {t("config.subscription.empty")}
                     </p>
@@ -781,7 +773,7 @@ export default function AdminWorkspaceDetailPage() {
                   </div>
 
                   {availablePlans.length > 0 && (
-                    <div className="rounded-2xl border border-border/70 bg-background/50 p-4 space-y-3">
+                    <div className="rounded-[--radius] border border-border bg-background p-4 space-y-3">
                       <p className="text-xs font-semibold text-foreground">
                         {t("config.subscription.generateInvoice")}
                       </p>
@@ -791,7 +783,7 @@ export default function AdminWorkspaceDetailPage() {
                             {t("config.subscription.plan")}
                           </label>
                           <select
-                            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/30"
+                            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
                             value={selectedPlanId}
                             onChange={(e) => setSelectedPlanId(e.target.value)}
                           >
@@ -814,7 +806,7 @@ export default function AdminWorkspaceDetailPage() {
                             {t("config.subscription.billingType")}
                           </label>
                           <select
-                            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/30"
+                            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
                             value={selectedBillingType}
                             onChange={(e) =>
                               setSelectedBillingType(e.target.value)
@@ -886,11 +878,11 @@ export default function AdminWorkspaceDetailPage() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {/* Info Card */}
               <div
-                className="rounded-2xl border border-border/70 bg-card/90 p-5 space-y-4"
+                className="rounded-[--radius] border border-border bg-card p-5 space-y-4"
                 style={{ boxShadow: softSurfaceShadow }}
               >
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Buildings className="h-4 w-4 text-primary" weight="fill" />
+                  <Buildings className="h-4 w-4 text-lamp-ink" weight="fill" />
                   {t("overview.info")}
                 </h3>
                 <div className="space-y-3">
@@ -916,12 +908,12 @@ export default function AdminWorkspaceDetailPage() {
                     </p>
                     <p className="text-sm text-foreground">
                       {workspace.isDefault ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-semibold text-white uppercase">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-warning px-2 py-0.5 text-[10px] font-semibold text-white uppercase">
                           <Star className="h-3 w-3" weight="fill" />
                           {t("badge.default")}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground uppercase">
+                        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground uppercase">
                           {t("badge.custom")}
                         </span>
                       )}
@@ -950,11 +942,11 @@ export default function AdminWorkspaceDetailPage() {
 
               {/* Owner Card */}
               <div
-                className="rounded-2xl border border-border/70 bg-card/90 p-5 space-y-4"
+                className="rounded-[--radius] border border-border bg-card p-5 space-y-4"
                 style={{ boxShadow: softSurfaceShadow }}
               >
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Crown className="h-4 w-4 text-amber-500" weight="fill" />
+                  <Crown className="h-4 w-4 text-warning" weight="fill" />
                   {t("overview.owner")}
                 </h3>
                 <div className="flex items-center gap-3">
@@ -996,7 +988,7 @@ export default function AdminWorkspaceDetailPage() {
                         className={cn(
                           "font-medium",
                           owner.emailVerified
-                            ? "text-emerald-600"
+                            ? "text-healthy"
                             : "text-red-500",
                         )}
                       >
@@ -1011,33 +1003,33 @@ export default function AdminWorkspaceDetailPage() {
 
               {/* Members Summary Card */}
               <div
-                className="rounded-2xl border border-border/70 bg-card/90 p-5 space-y-4"
+                className="rounded-[--radius] border border-border bg-card p-5 space-y-4"
                 style={{ boxShadow: softSurfaceShadow }}
               >
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Users className="h-4 w-4 text-primary" weight="fill" />
+                  <Users className="h-4 w-4 text-lamp-ink" weight="fill" />
                   {t("overview.membersSummary")}
                 </h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Crown className="h-4 w-4 text-amber-500" weight="fill" />
+                      <Crown className="h-4 w-4 text-warning" weight="fill" />
                       <span className="text-sm text-foreground">
                         {t("roles.owner")}
                       </span>
                     </div>
-                    <span className="text-sm font-bold text-foreground">
+                    <span className="text-sm font-semibold text-foreground">
                       {ownerMember ? 1 : 0}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-primary" weight="fill" />
+                      <Shield className="h-4 w-4 text-lamp-ink" weight="fill" />
                       <span className="text-sm text-foreground">
                         {t("roles.admin")}
                       </span>
                     </div>
-                    <span className="text-sm font-bold text-foreground">
+                    <span className="text-sm font-semibold text-foreground">
                       {adminMembers.length}
                     </span>
                   </div>
@@ -1051,7 +1043,7 @@ export default function AdminWorkspaceDetailPage() {
                         {t("roles.employee")}
                       </span>
                     </div>
-                    <span className="text-sm font-bold text-foreground">
+                    <span className="text-sm font-semibold text-foreground">
                       {employeeMembers.length}
                     </span>
                   </div>
@@ -1059,7 +1051,7 @@ export default function AdminWorkspaceDetailPage() {
                     <span className="text-sm font-medium text-foreground">
                       {t("overview.total")}
                     </span>
-                    <span className="text-sm font-bold text-primary">
+                    <span className="text-sm font-semibold text-lamp-ink">
                       {members.length}
                     </span>
                   </div>
@@ -1067,10 +1059,10 @@ export default function AdminWorkspaceDetailPage() {
                 {pendingInvites.length > 0 && (
                   <div className="flex items-center gap-2 pt-2 border-t border-border">
                     <Envelope
-                      className="h-4 w-4 text-amber-500"
+                      className="h-4 w-4 text-warning"
                       weight="fill"
                     />
-                    <span className="text-xs text-amber-600 font-medium">
+                    <span className="text-xs text-warning font-medium">
                       {pendingInvites.length} {t("overview.pendingInvites")}
                     </span>
                   </div>
@@ -1090,21 +1082,21 @@ export default function AdminWorkspaceDetailPage() {
                   label: t("overview.total"),
                   value: String(members.length),
                   icon: (
-                    <Users className="h-4 w-4 text-primary" weight="fill" />
+                    <Users className="h-4 w-4 text-lamp-ink" weight="fill" />
                   ),
                 },
                 {
                   label: t("roles.owner"),
                   value: String(ownerMember ? 1 : 0),
                   icon: (
-                    <Crown className="h-4 w-4 text-amber-500" weight="fill" />
+                    <Crown className="h-4 w-4 text-warning" weight="fill" />
                   ),
                 },
                 {
                   label: t("roles.admin"),
                   value: String(adminMembers.length),
                   icon: (
-                    <Shield className="h-4 w-4 text-primary" weight="fill" />
+                    <Shield className="h-4 w-4 text-lamp-ink" weight="fill" />
                   ),
                 },
                 {
@@ -1141,7 +1133,7 @@ export default function AdminWorkspaceDetailPage() {
                   label: t("overview.total"),
                   value: String(invites.length),
                   icon: (
-                    <Envelope className="h-4 w-4 text-primary" weight="fill" />
+                    <Envelope className="h-4 w-4 text-lamp-ink" weight="fill" />
                   ),
                 },
                 {
@@ -1149,7 +1141,7 @@ export default function AdminWorkspaceDetailPage() {
                   value: String(pendingInvites.length),
                   icon: (
                     <Envelope
-                      className="h-4 w-4 text-amber-500"
+                      className="h-4 w-4 text-warning"
                       weight="fill"
                     />
                   ),
@@ -1170,9 +1162,9 @@ export default function AdminWorkspaceDetailPage() {
           {/* ── Pricing Tab ── */}
           <TabsContent value="pricing">
             {resolvedPricing.some((p) => p.category === "exchange_rate") && (
-              <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/60 px-4 py-3 mb-4">
+              <div className="flex items-start gap-3 rounded-[--radius] border border-amber-200 bg-amber-50/60 px-4 py-3 mb-4">
                 <Info
-                  className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0"
+                  className="h-4 w-4 text-warning mt-0.5 flex-shrink-0"
                   weight="fill"
                 />
                 <p className="text-xs text-amber-800">
@@ -1190,7 +1182,7 @@ export default function AdminWorkspaceDetailPage() {
                   value: String(resolvedPricing.length),
                   icon: (
                     <CurrencyDollar
-                      className="h-4 w-4 text-primary"
+                      className="h-4 w-4 text-lamp-ink"
                       weight="fill"
                     />
                   ),
@@ -1200,7 +1192,7 @@ export default function AdminWorkspaceDetailPage() {
                   value: String(overrideCount),
                   icon: (
                     <PencilSimple
-                      className="h-4 w-4 text-amber-500"
+                      className="h-4 w-4 text-warning"
                       weight="bold"
                     />
                   ),

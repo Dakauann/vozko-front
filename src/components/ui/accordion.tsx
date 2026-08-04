@@ -3,7 +3,7 @@
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import * as React from "react";
 
-import { CaretDown } from "@phosphor-icons/react";
+import { CaretDown } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 const Accordion = AccordionPrimitive.Root;

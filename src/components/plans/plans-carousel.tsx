@@ -15,7 +15,7 @@ import {
   Sparkle,
   SpeakerHigh,
   WhatsappLogo,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type {
   PlanPricingItem,
   PublicPlanDetails,
@@ -128,7 +128,7 @@ function ServicePricingGroup({
   const [open, setOpen] = React.useState(true);
 
   return (
-    <div className="rounded-lg border border-border/50 bg-muted/20 overflow-hidden">
+    <div className="rounded-lg border border-border bg-muted overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -249,7 +249,7 @@ function PlanCard({
   return (
     <div
       className={cn(
-        "relative flex h-full flex-col rounded-2xl border p-6 md:p-7",
+        "relative flex h-full flex-col rounded-[--radius] border p-6 md:p-7",
         featured
           ? "border-primary bg-primary/[0.03] shadow-[0_0_0_1px_hsl(var(--primary)/0.2),0_20px_60px_-20px_hsl(var(--primary)/0.3)]"
           : "border-border bg-card",
@@ -257,7 +257,7 @@ function PlanCard({
     >
       {featuredLabel && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-[11px] font-semibold text-primary-foreground shadow-md">
+          <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-primary px-4 py-1.5 text-[11px] font-semibold text-primary-foreground shadow-md">
             {featuredLabel === "exclusive" ? (
               <Sparkle className="h-3 w-3" weight="fill" />
             ) : (
@@ -275,7 +275,7 @@ function PlanCard({
             logo on the remaining exclusive plans when an affiliate owns
             more than one. */}
         {!!item.plan.exclusiveAffiliateId && affiliateBrand && (
-          <div className="mb-4 flex items-center gap-3 border-b border-border/60 pb-3">
+          <div className="mb-4 flex items-center gap-3 border-b border-border pb-3">
             <span className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center">
               {affiliateBrand.brandLogoUrl ? (
                 <Image
@@ -301,11 +301,11 @@ function PlanCard({
           </div>
         )}
         <div className="flex items-start justify-between gap-2">
-          <h3 className="text-xl font-bold text-foreground">
+          <h3 className="text-xl font-semibold text-foreground">
             {item.plan.name}
           </h3>
           {isCurrent && (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-[--radius] bg-healthy/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-healthy dark:text-healthy">
               <Check className="h-3 w-3" weight="bold" />
               {t("currentBadge")}
             </span>
@@ -318,7 +318,7 @@ function PlanCard({
 
       <div className="mt-6">
         <div className="flex items-baseline gap-1.5">
-          <span className="text-4xl font-bold tracking-tight text-foreground">
+          <span className="text-4xl font-semibold tracking-tight text-foreground">
             {formatBRL(baseCents)}
           </span>
           <span className="text-sm text-muted-foreground">
@@ -352,13 +352,9 @@ function PlanCard({
       <div className="flex-1 space-y-4">
         <div className="flex items-start gap-3">
           <Check
-            className="h-4 w-4 shrink-0 text-emerald-500 mt-0.5"
+            className="h-4 w-4 shrink-0 text-healthy mt-0.5"
             weight="bold"
           />
-          <span className="text-sm text-foreground">
-            <span className="font-semibold">{item.plan.maxCallChannels}</span>{" "}
-            {t("channels")}
-          </span>
         </div>
 
         {pricingGroups.size > 0 && (
@@ -550,12 +546,12 @@ export function PlansCarousel({
     <div className={cn("w-full", className)}>
       {showBillingToggle && (
         <div className="flex items-center justify-center mb-8">
-          <div className="inline-flex items-center rounded-full border border-border bg-muted/40 p-1">
+          <div className="inline-flex items-center rounded-full border border-border bg-muted p-1">
             <button
               type="button"
               onClick={() => setBilling("monthly")}
               className={cn(
-                "rounded-full px-5 py-2 text-sm font-medium transition-colors duration-200",
+                "rounded-[--radius] px-5 py-2 text-sm font-medium transition-colors duration-200",
                 billing === "monthly"
                   ? "bg-foreground text-background shadow-sm"
                   : "text-muted-foreground",
@@ -567,7 +563,7 @@ export function PlansCarousel({
               type="button"
               onClick={() => setBilling("annual")}
               className={cn(
-                "rounded-full px-5 py-2 text-sm font-medium transition-colors duration-200",
+                "rounded-[--radius] px-5 py-2 text-sm font-medium transition-colors duration-200",
                 billing === "annual"
                   ? "bg-foreground text-background shadow-sm"
                   : "text-muted-foreground",
@@ -653,7 +649,7 @@ export function PlansCarousel({
                 "border border-border bg-background text-foreground shadow-md",
                 "transition-opacity duration-200",
                 "disabled:opacity-30 disabled:cursor-not-allowed",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               )}
             >
               <ArrowLeft className="h-4 w-4" weight="bold" />
@@ -669,7 +665,7 @@ export function PlansCarousel({
                 "border border-border bg-background text-foreground shadow-md",
                 "transition-opacity duration-200",
                 "disabled:opacity-30 disabled:cursor-not-allowed",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               )}
             >
               <ArrowRight className="h-4 w-4" weight="bold" />

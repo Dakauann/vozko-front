@@ -1,6 +1,6 @@
 "use client";
 
-import { Warning } from "@phosphor-icons/react";
+import { Warning } from "@/components/icons";
 import { useState } from "react";
 
 import Button from "@/components/elevated-design/button";

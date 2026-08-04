@@ -10,7 +10,6 @@ import type {
   WhatsAppCampaignTypeFilter,
 } from "@/lib/conversations/types";
 import { getConversationStatusDisplay } from "@/lib/conversations/close-provenance";
-import type { SipTrunk } from "@/lib/sip-trunks/types";
 import type {
   FunnelColumnState,
   SendButtonWsInput,
@@ -28,7 +27,7 @@ import {
   InstagramLogo,
   TelegramLogo,
   WhatsappLogo,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import CrmConversationView from "./CrmConversationView";
@@ -81,7 +80,6 @@ import {
   assignLabelToEntryAction,
   removeLabelFromEntryAction,
 } from "@/app/actions/labels";
-import { listSipTrunksAction } from "@/app/actions/sip-trunks";
 import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones";
 import {
   getCallPermissionStatusAction,
@@ -133,11 +131,8 @@ export interface CrmTranslations {
     aiDisabled?: string;
     aiToggleTooltip?: string;
     call?: string;
-    callViaSip?: string;
     callViaWhatsapp?: string;
     comingSoon?: string;
-    selectSipTrunk?: string;
-    noSipTrunks?: string;
     ringing?: string;
     inCall?: string;
     callEnded?: string;
@@ -219,9 +214,9 @@ const CHANNEL_BADGES: Record<
   string,
   { className: string; Icon: typeof WhatsappLogo }
 > = {
-  whatsapp: { className: "bg-emerald-500", Icon: WhatsappLogo },
+  whatsapp: { className: "bg-healthy", Icon: WhatsappLogo },
   instagram: {
-    className: "bg-gradient-to-br from-fuchsia-500 to-amber-500",
+    className: "bg-muted",
     Icon: InstagramLogo,
   },
   // Telegram blue, the brand's own #229ED9 rather than the nearest Tailwind sky.
@@ -294,7 +289,6 @@ export default function CrmLayout({
     name: string;
   } | null>(null);
   const [filterStageIds, setFilterStageIds] = useState<string[]>([]);
-  const [sipTrunks, setSipTrunks] = useState<SipTrunk[]>([]);
   const [whatsappPhones, setWhatsappPhones] = useState<WhatsAppBusinessPhone[]>(
     [],
   );
@@ -791,20 +785,6 @@ export default function CrmLayout({
   ]);
 
 
-  useEffect(() => {
-    if (!enabled) return;
-    let cancelled = false;
-    (async () => {
-      const result = await listSipTrunksAction({ pageSize: 500 });
-      if (!cancelled && !result.error) {
-        setSipTrunks(result.trunks);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [enabled]);
-
 
   useEffect(() => {
     if (!enabled) return;
@@ -1166,21 +1146,6 @@ export default function CrmLayout({
     return () => document.removeEventListener("mousedown", handler);
   }, [statusMenuOpen]);
 
-  const handleSipCall = useCallback(
-    (sipTrunkId: string) => {
-      setCallDropdownOpen(false);
-      const phoneNumber = activeConversation?.lead_number ?? "";
-      if (!phoneNumber) {
-        toast.error(
-          t.conversation.callFailed ?? "Número do lead indisponível.",
-        );
-        return;
-      }
-      requestDialerCall({ phoneNumber, sipTrunkId });
-    },
-    [activeConversation?.lead_number, t.conversation.callFailed],
-  );
-
   const handleWhatsAppCall = useCallback(
     (whatsAppPhoneId: string, whatsAppPhoneLabel?: string) => {
       setCallDropdownOpen(false);
@@ -1378,7 +1343,7 @@ export default function CrmLayout({
     channelCapabilities.supportsAiHandling(activeConversation.entry_type);
 
   const conversationHeader = activeConversation ? (
-    <div className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1.5 border-b border-border/80 bg-card px-3 py-2.5 sm:px-4">
+    <div className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1.5 border-b border-border bg-card px-3 py-2.5 sm:px-4">
       {/* Back button (mobile) */}
       <button
         type="button"
@@ -1521,7 +1486,7 @@ export default function CrmLayout({
                 setStatusMenuOpen((open) => !open);
               }}
               className={cn(
-                "flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-1.5 text-[11px] font-semibold text-foreground transition-colors",
+                "flex items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-[11px] font-semibold text-foreground transition-colors",
                 can("conversations", "send") && "hover:bg-muted",
                 !can("conversations", "send") && "cursor-default opacity-90",
               )}
@@ -1542,7 +1507,7 @@ export default function CrmLayout({
           </TooltipWrapper>
 
           {statusMenuOpen && can("conversations", "send") && (
-            <div className="absolute right-0 top-full mt-1 z-50 w-64 rounded-xl border border-border bg-card shadow-lg py-1 animate-in fade-in slide-in-from-top-1 duration-150">
+            <div className="absolute right-0 top-full mt-1 z-50 w-64 rounded-[--radius] border border-border bg-card shadow-lg py-1 animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="border-b border-border px-3 py-2">
                 <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
                   Status atual
@@ -1556,7 +1521,7 @@ export default function CrmLayout({
                   {currentConversationStatusMeta.baseLabel}
                 </div>
                 {currentConversationStatusMeta.provenance ? (
-                  <div className="mt-1.5 space-y-0.5 rounded-lg bg-muted/60 px-2.5 py-2">
+                  <div className="mt-1.5 space-y-0.5 rounded-lg bg-muted px-2.5 py-2">
                     <div className="text-[10px] text-muted-foreground">
                       Encerrada por{" "}
                       <span className="font-medium text-foreground">
@@ -1570,7 +1535,7 @@ export default function CrmLayout({
                       </span>
                     </div>
                     {currentConversationStatusMeta.provenance.isSilence ? (
-                      <div className="text-[10px] font-medium text-amber-700 dark:text-amber-400">
+                      <div className="text-[10px] font-medium text-warning dark:text-amber-400">
                         Encerrada automaticamente por silêncio
                       </div>
                     ) : null}
@@ -1639,7 +1604,7 @@ export default function CrmLayout({
               className={cn(
                 "flex items-center justify-center h-8 w-8 rounded-full transition-all duration-200",
                 isDialerBusy
-                  ? "bg-emerald-500 text-white cursor-not-allowed"
+                  ? "bg-healthy text-white cursor-not-allowed"
                   : "bg-muted text-muted-foreground hover:bg-primary hover:text-white",
               )}
             >
@@ -1652,40 +1617,7 @@ export default function CrmLayout({
         )}
 
         {callDropdownOpen && can("dialer", "use") && (
-          <div className="absolute right-0 top-full mt-1 z-50 w-56 rounded-xl border border-border bg-card shadow-lg py-1 animate-in fade-in slide-in-from-top-1 duration-150">
-            {/* SIP trunk options */}
-            {sipTrunks.length > 0 ? (
-              <>
-                <div className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  {t.conversation.selectSipTrunk ?? "Select SIP Trunk"}
-                </div>
-                {sipTrunks.map((trunk) => (
-                  <button
-                    key={trunk.id}
-                    onClick={() => handleSipCall(trunk.id)}
-                    className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
-                  >
-                    <PhoneCall
-                      weight="bold"
-                      className="h-3.5 w-3.5 text-primary"
-                    />
-                    <span className="truncate">{trunk.name}</span>
-                    {trunk.phoneNumber && (
-                      <span className="ml-auto text-[9px] text-muted-foreground truncate">
-                        {trunk.phoneNumber}
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </>
-            ) : (
-              <div className="px-3 py-2 text-xs text-muted-foreground">
-                {t.conversation.noSipTrunks ?? "No SIP trunks available"}
-              </div>
-            )}
-
-            <div className="my-1 border-t border-border" />
-
+          <div className="absolute right-0 top-full mt-1 z-50 w-56 rounded-[--radius] border border-border bg-card shadow-lg py-1 animate-in fade-in slide-in-from-top-1 duration-150">
             {/* WhatsApp call. A WhatsApp call is placed FROM one of the
                 workspace's connected numbers to the lead. We resolve the
                 business phone intelligently, the number this contact
@@ -1755,7 +1687,7 @@ export default function CrmLayout({
                   >
                     <WhatsappLogo
                       weight="bold"
-                      className="h-3.5 w-3.5 text-emerald-500"
+                      className="h-3.5 w-3.5 text-healthy"
                     />
                     <span className="truncate">
                       {t.conversation.callViaWhatsapp ?? "WhatsApp"}
@@ -1802,7 +1734,7 @@ export default function CrmLayout({
                     >
                       <WhatsappLogo
                         weight="bold"
-                        className="h-3.5 w-3.5 text-emerald-500"
+                        className="h-3.5 w-3.5 text-healthy"
                       />
                       <span className="truncate">
                         {phone.verifiedName || phone.displayPhoneNumber}
@@ -1836,7 +1768,7 @@ export default function CrmLayout({
                 >
                   <WhatsappLogo
                     weight="bold"
-                    className="h-3.5 w-3.5 text-amber-500"
+                    className="h-3.5 w-3.5 text-warning"
                   />
                   <span>
                     {requestingPermission
@@ -1858,14 +1790,17 @@ export default function CrmLayout({
       className={cn(
         "flex flex-col overflow-hidden",
         embedded
-          ? "h-full bg-card/95"
-          : "h-[calc(100vh-220px)] min-h-[500px] rounded-2xl border border-border/70 bg-card/95 backdrop-blur-sm shadow-lg",
+          ? "h-full bg-card"
+          // A rack cut into the panel, not a card floating on it: hairline
+          // rule, system radius, no drop shadow. The extra 40px of height comes
+          // back from the header bar shrinking 80px -> 48px.
+          : "h-[calc(100vh-188px)] min-h-[500px] rounded-[--radius] border border-border border-t-rule-strong bg-card",
       )}
     >
       {/* Toolbar: filters left, actions right.
           flex-wrap moves whole groups to the next line when width is tight,
           never paint one group over the other (previous flex-1 + overflow bug). */}
-      <div className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-2 border-b border-border/80 bg-card px-3 py-2 sm:px-4">
+      <div className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-2 border-b border-border bg-card px-3 py-2 sm:px-4">
         <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
           {/* Unified Funil selector: switch between atendimento (conversation) and
               vendas (deal) funnels. A funnel only scopes a BOARD, so the selector is
@@ -2076,7 +2011,7 @@ export default function CrmLayout({
 
             {/* Conversation panel in kanban mode */}
             {activeConversation && (
-              <div className="w-[420px] flex-shrink-0 border-l border-border/80 flex flex-col">
+              <div className="w-[420px] flex-shrink-0 border-l border-border flex flex-col">
                 {conversationHeader}
                 <div className="flex-1 min-h-0">
                   <CrmConversationView
@@ -2159,11 +2094,20 @@ export default function CrmLayout({
           </div>
         ) : (
           <>
-            {/* Inbox Sidebar */}
+            {/*
+              The queue strip.
+
+              Each column in this rack is headed by its own scribble strip, the
+              way a bank of channels is legended on the desk. Previously the
+              three panes were unlabelled and separated only by a hairline, so
+              which region you were in had to be inferred from its contents —
+              the layout read as a generic three-pane chat client. Naming the
+              strips is what makes it a rack.
+            */}
             <div
               data-tour="live-chat-inbox"
               className={cn(
-                "w-full border-r border-border/80 lg:w-[380px] lg:flex-shrink-0",
+                "w-full border-r border-border lg:w-[356px] lg:flex-shrink-0",
                 mobileShowConversation
                   ? "hidden lg:flex lg:flex-col"
                   : "flex flex-col",

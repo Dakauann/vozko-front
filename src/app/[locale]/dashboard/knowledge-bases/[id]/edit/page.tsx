@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleNotch, Files } from "@phosphor-icons/react";
+import { CircleNotch, Files } from "@/components/icons";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
@@ -69,7 +69,7 @@ export default function EditKnowledgeBasePage() {
     return (
       <div className="flex items-center justify-center py-20">
         <CircleNotch
-          className="h-8 w-8 animate-spin text-primary"
+          className="h-8 w-8 animate-spin text-lamp-ink"
           weight="bold"
         />
       </div>

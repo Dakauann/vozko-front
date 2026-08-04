@@ -15,7 +15,7 @@ import {
   Warning,
   WhatsappLogo,
   XCircle,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   getWhatsAppTemplateByIdAction,
   sendWhatsAppTemplateMessageAction,
@@ -309,7 +309,7 @@ export default function SendWhatsAppTemplatePage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-4">
           <CircleNotch
-            className="h-8 w-8 animate-spin text-green-600"
+            className="h-8 w-8 animate-spin text-healthy"
             weight="bold"
           />
           <p className="text-sm text-muted-foreground">{t("loading")}</p>
@@ -321,9 +321,9 @@ export default function SendWhatsAppTemplatePage() {
   if (error || !template) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <ElevatedContainer className="flex flex-col items-center gap-4 p-8 border border-border/70 bg-card">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-100">
-            <WhatsappLogo className="h-7 w-7 text-red-600" weight="fill" />
+        <ElevatedContainer className="flex flex-col items-center gap-4 p-8 border border-border bg-card">
+          <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-destructive/10">
+            <WhatsappLogo className="h-7 w-7 text-destructive" weight="fill" />
           </div>
           <div className="text-center">
             <p className="font-semibold text-foreground">{t("error.title")}</p>
@@ -348,9 +348,9 @@ export default function SendWhatsAppTemplatePage() {
   if (template.status !== "APPROVED") {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <ElevatedContainer className="flex flex-col items-center gap-4 p-8 border border-border/70 bg-card max-w-md">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/15">
-            <Warning className="h-7 w-7 text-amber-600" weight="fill" />
+        <ElevatedContainer className="flex flex-col items-center gap-4 p-8 border border-border bg-card max-w-md">
+          <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-warning/15">
+            <Warning className="h-7 w-7 text-warning" weight="fill" />
           </div>
           <div className="text-center">
             <p className="font-semibold text-foreground">
@@ -392,7 +392,7 @@ export default function SendWhatsAppTemplatePage() {
           badge={t("send.title")}
           title={t("send.title")}
           description={t("send.description", { name: template.name })}
-          colorClass="text-emerald-600"
+          colorClass="text-healthy"
         />
       </motion.div>
 
@@ -401,7 +401,7 @@ export default function SendWhatsAppTemplatePage() {
           <motion.div variants={containerVariants} className="space-y-6">
             {/* Recipient Section */}
             <motion.div variants={itemVariants}>
-              <ElevatedContainer className="border border-border/70 bg-card p-6">
+              <ElevatedContainer className="border border-border bg-card p-6">
                 <h2 className="text-lg font-semibold text-foreground mb-4">
                   {t("send.sections.recipient")}
                 </h2>
@@ -424,7 +424,7 @@ export default function SendWhatsAppTemplatePage() {
                       isLoading={businessPhoneSelect.isLoading}
                     />
                     {errors.businessPhone && (
-                      <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                      <p className="mt-1 text-xs text-destructive flex items-center gap-1">
                         <Warning className="h-3 w-3" /> {errors.businessPhone}
                       </p>
                     )}
@@ -440,7 +440,7 @@ export default function SendWhatsAppTemplatePage() {
                       inputMode="numeric"
                     />
                     {errors.phone && (
-                      <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                      <p className="mt-1 text-xs text-destructive flex items-center gap-1">
                         <Warning className="h-3 w-3" /> {errors.phone}
                       </p>
                     )}
@@ -455,7 +455,7 @@ export default function SendWhatsAppTemplatePage() {
             {/* Header Info Section (media or text params) */}
             {(hasMediaHeader || headerParamNames.length > 0) && (
               <motion.div variants={itemVariants}>
-                <ElevatedContainer className="border border-border/70 bg-card p-6">
+                <ElevatedContainer className="border border-border bg-card p-6">
                   <h2 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
                     {hasMediaHeader ? (
                       headerComponent?.format === "VIDEO" ? (
@@ -488,22 +488,22 @@ export default function SendWhatsAppTemplatePage() {
                         })}
                       </p>
                       {template.headerMediaUrl ? (
-                        <div className="flex items-center gap-2 rounded-lg border border-green-500/20 bg-green-500/5 p-3">
+                        <div className="flex items-center gap-2 rounded-lg border border-healthy/20 bg-healthy/5 p-3">
                           <CheckCircle
-                            className="h-4 w-4 text-green-600"
+                            className="h-4 w-4 text-healthy"
                             weight="fill"
                           />
-                          <span className="text-xs text-green-700">
+                          <span className="text-xs text-healthy">
                             {t("send.headerMedia.configured")}
                           </span>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/5 p-3">
+                        <div className="flex items-center gap-2 rounded-lg border border-warning/20 bg-warning/5 p-3">
                           <Warning
-                            className="h-4 w-4 text-amber-600"
+                            className="h-4 w-4 text-warning"
                             weight="fill"
                           />
-                          <span className="text-xs text-amber-700">
+                          <span className="text-xs text-warning">
                             {t("send.headerMedia.notConfigured")}
                           </span>
                         </div>
@@ -530,7 +530,7 @@ export default function SendWhatsAppTemplatePage() {
                             icon={<TextT className="h-5 w-5" weight="fill" />}
                           />
                           {errors[`header_param_${index}`] && (
-                            <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                            <p className="mt-1 text-xs text-destructive flex items-center gap-1">
                               <Warning className="h-3 w-3" />{" "}
                               {errors[`header_param_${index}`]}
                             </p>
@@ -546,7 +546,7 @@ export default function SendWhatsAppTemplatePage() {
             {/* Body Parameters Section */}
             {bodyParamNames.length > 0 && (
               <motion.div variants={itemVariants}>
-                <ElevatedContainer className="border border-border/70 bg-card p-6">
+                <ElevatedContainer className="border border-border bg-card p-6">
                   <h2 className="text-lg font-semibold text-foreground mb-4">
                     {t("send.sections.parameters")}
                   </h2>
@@ -573,7 +573,7 @@ export default function SendWhatsAppTemplatePage() {
                           icon={<User className="h-5 w-5" weight="fill" />}
                         />
                         {errors[`body_param_${index}`] && (
-                          <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                          <p className="mt-1 text-xs text-destructive flex items-center gap-1">
                             <Warning className="h-3 w-3" />{" "}
                             {errors[`body_param_${index}`]}
                           </p>
@@ -617,7 +617,7 @@ export default function SendWhatsAppTemplatePage() {
             {/* Debug Payload Section (admin only) */}
             {(debugInfo || sendError || sendSuccess) && (
               <motion.div variants={itemVariants}>
-                <ElevatedContainer className="border border-border/70 bg-card p-6">
+                <ElevatedContainer className="border border-border bg-card p-6">
                   <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                     <Code className="h-5 w-5 text-blue-500" weight="fill" />
                     {t("send.debug.title")}
@@ -626,31 +626,31 @@ export default function SendWhatsAppTemplatePage() {
                   {/* Status Badge */}
                   <div className="mb-4">
                     {sendSuccess ? (
-                      <div className="flex items-center gap-2 rounded-lg border border-green-500/20 bg-green-500/5 p-3">
+                      <div className="flex items-center gap-2 rounded-lg border border-healthy/20 bg-healthy/5 p-3">
                         <CheckCircle
-                          className="h-5 w-5 text-green-600"
+                          className="h-5 w-5 text-healthy"
                           weight="fill"
                         />
-                        <span className="text-sm font-medium text-green-700">
+                        <span className="text-sm font-medium text-healthy">
                           {debugInfo?.serverMessage ?? t("toast.sendSuccess")}
                         </span>
                         {debugInfo?.responseStatus && (
-                          <span className="ml-auto rounded-full bg-green-500 px-2 py-0.5 text-xs font-mono text-white">
+                          <span className="ml-auto rounded-[--radius] bg-healthy px-2 py-0.5 text-xs font-mono text-white">
                             {debugInfo.responseStatus}
                           </span>
                         )}
                       </div>
                     ) : sendError ? (
-                      <div className="flex items-center gap-2 rounded-lg border border-red-500/20 bg-red-500/5 p-3">
+                      <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 p-3">
                         <XCircle
-                          className="h-5 w-5 text-red-600"
+                          className="h-5 w-5 text-destructive"
                           weight="fill"
                         />
-                        <span className="text-sm font-medium text-red-700 break-all">
+                        <span className="text-sm font-medium text-destructive break-all">
                           {sendError}
                         </span>
                         {debugInfo?.responseStatus && (
-                          <span className="ml-auto rounded-full bg-red-500 px-2 py-0.5 text-xs font-mono text-white">
+                          <span className="ml-auto rounded-[--radius] bg-destructive px-2 py-0.5 text-xs font-mono text-white">
                             {debugInfo.responseStatus}
                           </span>
                         )}
@@ -686,7 +686,7 @@ export default function SendWhatsAppTemplatePage() {
 
           {/* Preview Panel */}
           <motion.div variants={itemVariants}>
-            <ElevatedContainer className="border border-border/70 bg-card p-6 sticky top-6">
+            <ElevatedContainer className="border border-border bg-card p-6 sticky top-6">
               <h2 className="text-lg font-semibold text-foreground mb-4">
                 {t("send.preview.title")}
               </h2>
@@ -710,7 +710,7 @@ export default function SendWhatsAppTemplatePage() {
                     <span className="font-medium">
                       {t("send.preview.paramFormat")}:
                     </span>
-                    <span className="rounded-full bg-blue-500 px-2 py-0.5 text-xs font-medium text-white">
+                    <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-xs font-medium text-white">
                       {template.parameterFormat}
                     </span>
                   </div>
@@ -718,14 +718,14 @@ export default function SendWhatsAppTemplatePage() {
                 {hasMediaHeader && (
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span className="font-medium">Header:</span>
-                    <span className="rounded-full bg-purple-500 px-2 py-0.5 text-xs font-medium text-white">
+                    <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-xs font-medium text-white">
                       {headerComponent?.format}
                     </span>
                   </div>
                 )}
               </div>
 
-              <div className="bg-[#e5ddd5] dark:bg-[#0b141a] rounded-xl p-4 min-h-[300px]">
+              <div className="bg-[#e5ddd5] dark:bg-[#0b141a] rounded-[--radius] p-4 min-h-[300px]">
                 <div className="max-w-[280px] bg-card rounded-lg shadow-sm overflow-hidden">
                   {/* Header - Media */}
                   {hasMediaHeader && (
@@ -810,8 +810,8 @@ export default function SendWhatsAppTemplatePage() {
               </div>
 
               {phoneNumber && (
-                <div className="mt-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-                  <p className="text-xs text-green-700 dark:text-green-400 flex items-center gap-2">
+                <div className="mt-4 p-3 rounded-lg bg-healthy/10 border border-healthy/20">
+                  <p className="text-xs text-healthy dark:text-green-400 flex items-center gap-2">
                     <Phone className="h-3 w-3" weight="fill" />
                     {t("send.preview.sendingTo")}:{" "}
                     <strong>{phoneNumber}</strong>

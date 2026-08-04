@@ -17,7 +17,7 @@ import {
   Users,
   VideoCamera,
   Warning,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type {
   CalendarEvent,
   CreateEventInput,
@@ -336,18 +336,18 @@ export default function CalendarPage() {
 
       {/* No connection alert */}
       {connected === false && (
-        <ElevatedContainer className="border-amber-500/30 bg-amber-50 dark:bg-amber-950/20">
+        <ElevatedContainer className="border-warning/30 bg-amber-50 dark:bg-amber-950/20">
           <div className="flex items-start gap-3 p-4">
             <Warning
               size={24}
               weight="duotone"
-              className="text-amber-500 mt-0.5 shrink-0"
+              className="text-warning mt-0.5 shrink-0"
             />
             <div className="space-y-1">
-              <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
+              <p className="text-sm font-medium text-warning dark:text-amber-400">
                 {t("noConnection")}
               </p>
-              <p className="text-xs text-amber-600 dark:text-amber-500">
+              <p className="text-xs text-warning dark:text-warning">
                 {t("noConnectionDescription")}
               </p>
               <ElevatedButton
@@ -387,7 +387,7 @@ export default function CalendarPage() {
             </div>
             <button
               onClick={goToday}
-              className="text-xs font-medium text-primary hover:text-primary/80 px-3 py-1.5 rounded-lg hover:bg-primary/5 transition-colors"
+              className="text-xs font-medium text-lamp-ink hover:text-lamp-ink/80 px-3 py-1.5 rounded-lg hover:bg-muted transition-colors"
             >
               {t("today")}
             </button>
@@ -422,10 +422,10 @@ export default function CalendarPage() {
                   <div
                     key={idx}
                     className={cn(
-                      "min-h-[100px] border-b border-r border-border/50 p-1 cursor-pointer transition-all",
-                      !day && "bg-muted/5",
+                      "min-h-[100px] border-b border-r border-border p-1 cursor-pointer transition-all",
+                      !day && "bg-muted",
                       sel && "bg-primary/[0.04]",
-                      idx % 7 === 0 && "border-l border-border/50",
+                      idx % 7 === 0 && "border-l border-border",
                     )}
                     onClick={() => {
                       if (day) setSelectedDate(new Date(year, month, day));
@@ -518,7 +518,7 @@ export default function CalendarPage() {
                       weekday: "long",
                     })}
                   </p>
-                  <p className="text-2xl font-bold tabular-nums">
+                  <p className="text-2xl font-semibold tabular-nums">
                     {selectedDate.getDate()}
                   </p>
                 </div>
@@ -546,7 +546,7 @@ export default function CalendarPage() {
                   {connected !== false && (
                     <button
                       onClick={() => openCreateDialog(selectedDate.getDate())}
-                      className="mt-3 text-xs text-primary hover:underline"
+                      className="mt-3 text-xs text-lamp-ink hover:underline"
                     >
                       {t("createEvent")}
                     </button>
@@ -589,7 +589,7 @@ export default function CalendarPage() {
 
           <div className="px-6 py-3 space-y-0.5 max-h-[60vh] overflow-y-auto">
             {/* Date & Time */}
-            <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-muted/30 px-2 -mx-2 transition-colors">
+            <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
               <Clock
                 size={18}
                 weight="duotone"
@@ -634,7 +634,7 @@ export default function CalendarPage() {
             </div>
 
             {/* Google Meet */}
-            <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-muted/30 px-2 -mx-2 transition-colors">
+            <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
               <VideoCamera
                 size={18}
                 weight="duotone"
@@ -656,7 +656,7 @@ export default function CalendarPage() {
                     href={editingEvent.meetingLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline flex items-center gap-1.5"
+                    className="text-sm text-lamp-ink hover:underline flex items-center gap-1.5"
                   >
                     <VideoCamera size={14} weight="fill" />
                     {t("joinMeeting")}
@@ -670,7 +670,7 @@ export default function CalendarPage() {
             </div>
 
             {/* Location */}
-            <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-muted/30 px-2 -mx-2 transition-colors">
+            <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
               <MapPin
                 size={18}
                 weight="duotone"
@@ -685,7 +685,7 @@ export default function CalendarPage() {
             </div>
 
             {/* Guests */}
-            <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-muted/30 px-2 -mx-2 transition-colors">
+            <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
               <Users
                 size={18}
                 weight="duotone"
@@ -739,7 +739,7 @@ export default function CalendarPage() {
             )}
 
             {/* Description */}
-            <div className="flex items-start gap-3 py-2 rounded-lg hover:bg-muted/30 px-2 -mx-2 transition-colors">
+            <div className="flex items-start gap-3 py-2 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
               <TextAlignLeft
                 size={18}
                 weight="duotone"
@@ -755,7 +755,7 @@ export default function CalendarPage() {
             </div>
 
             {/* Color */}
-            <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-muted/30 px-2 -mx-2 transition-colors">
+            <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
               <Palette
                 size={18}
                 weight="duotone"
@@ -766,7 +766,7 @@ export default function CalendarPage() {
                   <button
                     key={c}
                     className={cn(
-                      "w-5 h-5 rounded-full transition-all border-2",
+                      "w-5 h-5 rounded-full transition-all border",
                       formColor === c
                         ? "border-foreground scale-110"
                         : "border-transparent hover:scale-105",
@@ -780,7 +780,7 @@ export default function CalendarPage() {
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between px-6 py-3 border-t border-border bg-muted/10">
+          <div className="flex items-center justify-between px-6 py-3 border-t border-border bg-muted">
             <div>
               {editingEvent && (
                 <button
@@ -842,7 +842,7 @@ export default function CalendarPage() {
               type="datetime-local"
               value={rescheduleStart}
               onChange={(e) => setRescheduleStart(e.target.value)}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/30"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-ring"
             />
             <p className="text-[11px] text-muted-foreground">
               A duração da reunião é mantida.
@@ -889,7 +889,7 @@ function AgendaEventCard({
 
   return (
     <div
-      className="group flex gap-3 px-4 py-3 hover:bg-muted/30 transition-colors cursor-pointer"
+      className="group flex gap-3 px-4 py-3 hover:bg-muted transition-colors cursor-pointer"
       onClick={onEdit}
     >
       {/* Color bar */}
@@ -919,7 +919,7 @@ function AgendaEventCard({
             href={event.meetingLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 mt-1 text-xs text-primary hover:underline"
+            className="inline-flex items-center gap-1 mt-1 text-xs text-lamp-ink hover:underline"
             onClick={(e) => e.stopPropagation()}
           >
             <VideoCamera size={11} weight="fill" />
@@ -931,7 +931,7 @@ function AgendaEventCard({
             {event.attendees.slice(0, 3).map((a) => (
               <div
                 key={a.email}
-                className="flex items-center gap-1 rounded-full bg-muted/60 pl-1 pr-2 py-0.5"
+                className="flex items-center gap-1 rounded-full bg-muted pl-1 pr-2 py-0.5"
               >
                 <UserCircle
                   size={12}
@@ -971,11 +971,11 @@ function AgendaEventCard({
               e.stopPropagation();
               onReschedule();
             }}
-            className="p-1 rounded hover:bg-primary/10"
+            className="p-1 rounded hover:bg-muted"
             title="Reagendar"
             aria-label="Reagendar evento"
           >
-            <ArrowsClockwise size={13} className="text-primary" />
+            <ArrowsClockwise size={13} className="text-lamp-ink" />
           </button>
         )}
         <button

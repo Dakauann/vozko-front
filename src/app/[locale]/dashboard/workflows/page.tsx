@@ -14,7 +14,7 @@ import {
   DotsThree,
   DownloadSimple,
   UploadSimple,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 import { getApiBaseUrl } from "@/lib/api/browser-client";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
@@ -51,9 +51,9 @@ import { useDepartment } from "@/contexts/department-context";
 
 const STATUS_COLORS: Record<WorkflowStatus, string> = {
   draft: "bg-zinc-500 text-white",
-  active: "bg-emerald-500 text-white",
-  paused: "bg-amber-500 text-white",
-  archived: "bg-rose-500 text-white",
+  active: "bg-healthy text-white",
+  paused: "bg-warning text-white",
+  archived: "bg-destructive text-white",
 };
 
 const PAGE_SIZE = 15;
@@ -423,7 +423,7 @@ export default function WorkflowsPage() {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => handleDelete(row.id)}
-                  className="text-rose-600"
+                  className="text-destructive"
                 >
                   <Trash size={14} className="mr-2" />
                   {t("actions.delete")}

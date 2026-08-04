@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useRef, useState, type ReactNode } from "react";
-import { Check, Copy } from "@phosphor-icons/react";
+import { Check, Copy } from "@/components/icons";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
@@ -28,7 +28,7 @@ function CodeBlock({ language, children }: { language: string; children: ReactNo
   };
 
   return (
-    <div className="my-3 overflow-hidden rounded-xl border border-border bg-[#f6f8fa] dark:border-white/10 dark:bg-[#0d1117]">
+    <div className="my-3 overflow-hidden rounded-[--radius] border border-border bg-[#f6f8fa] dark:border-white/10 dark:bg-[#0d1117]">
       <div className="flex items-center justify-between border-b border-border px-3 py-1.5 dark:border-white/10">
         <span className="font-mono text-xs text-muted-foreground">{language}</span>
         <button
@@ -63,14 +63,14 @@ const components: Components = {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="font-medium text-primary underline underline-offset-2 hover:text-primary/80"
+      className="font-medium text-lamp-ink underline underline-offset-2 hover:text-lamp-ink/80"
     >
       {children}
     </a>
   ),
   strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
   blockquote: ({ children }) => (
-    <blockquote className="my-2 rounded-lg bg-muted/50 px-3 py-1.5 text-muted-foreground">
+    <blockquote className="my-2 rounded-lg bg-muted px-3 py-1.5 text-muted-foreground">
       {children}
     </blockquote>
   ),
@@ -81,7 +81,7 @@ const components: Components = {
     </div>
   ),
   th: ({ children }) => (
-    <th className="border border-border bg-muted/50 px-2 py-1 text-left font-semibold">{children}</th>
+    <th className="border border-border bg-muted px-2 py-1 text-left font-semibold">{children}</th>
   ),
   td: ({ children }) => <td className="border border-border px-2 py-1">{children}</td>,
   // Inline code only, block code is handled by the `pre` override below.

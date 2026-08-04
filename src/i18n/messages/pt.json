@@ -369,85 +369,6 @@
     "expandPanel": "Expandir painel",
     "noOpportunities": "Nenhuma oportunidade ainda"
   },
-  "persistentDialer": {
-    "resize": "Redimensionar",
-    "presence": {
-      "title": "Equipe",
-      "online": "{count} online",
-      "group": {
-        "available": "Disponíveis",
-        "busy": "Em chamada",
-        "offline": "Offline"
-      },
-      "you": "Você",
-      "endpoint": {
-        "browser": "Navegador",
-        "branch": "Ramal"
-      },
-      "reconnecting": "Reconectando",
-      "empty": "Nenhum membro na equipe"
-    },
-    "transfer": {
-      "pickerHeader": "Transferir chamada",
-      "close": "Fechar",
-      "blind": "Cega",
-      "attended": "Atendida",
-      "blindHint": "Você é liberado na hora; o cliente ouve música de espera até o destino atender. Se ninguém atender, a chamada retorna para você.",
-      "blindHintCampOn": "Você é liberado na hora; o cliente ouve música de espera até o destino atender. Você pode transferir para um atendente ocupado: o cliente aguarda na fila até ele ficar livre.",
-      "attendedHint": "O cliente entra em espera com música e você conversa com o destinatário antes de concluir a transferência.",
-      "targetIdLabel": "ID do atendente destino",
-      "transfer": "Transferir",
-      "searchPlaceholder": "Buscar atendente…",
-      "emptyFiltered": "Nenhum atendente encontrado.",
-      "emptyNone": "Nenhum membro disponível agora.",
-      "queueLabel": "Entrar na fila",
-      "busyQueueHeading": "{busy} · fila",
-      "consulting": "Em consulta com {name} · cliente em espera",
-      "cancel": "Cancelar",
-      "complete": "Concluir",
-      "waitingAccept": "Aguardando {name} aceitar",
-      "parenAttended": "(atendida)",
-      "parenBlind": "(cega)",
-      "blindMusicHint": "O cliente ouve música de espera enquanto o destino não atende.",
-      "completeNow": "Concluir já",
-      "completeNowTitle": "Concluir sem consultar: você é liberado agora e a chamada é entregue quando o destino atender.",
-      "wantsToTransfer": "{name} quer transferir uma chamada",
-      "typeLabel": "Tipo:",
-      "typeAttended": "atendida (consulta antes)",
-      "typeBlind": "cega (transferência imediata)",
-      "decline": "Recusar",
-      "accept": "Aceitar",
-      "fallbackName": "Outro agente"
-    },
-    "title": "Discador",
-    "placeholder": "Insira o número de telefone",
-    "ariaLabel": "Número de telefone para discar",
-    "connection": {
-      "online": "Online",
-      "connecting": "Conectando",
-      "offline": "Offline"
-    },
-    "noTrunks": "Nenhum canal disponível para discar. Fale com o administrador.",
-    "selectTrunkLabel": "Selecione um canal para discar",
-    "viaWhatsapp": "Via WhatsApp",
-    "status": {
-      "ready": "Pronto para ligar",
-      "waitingSlot": "Aguardando uma linha disponível",
-      "ringing": "Chamando...",
-      "inCall": "Em chamada {duration}",
-      "ended": "Chamada encerrada",
-      "endedWithReason": "Chamada encerrada ({reason})"
-    },
-    "actions": {
-      "erase": "Apagar",
-      "hangup": "Encerrar",
-      "call": "Ligar"
-    },
-    "toasts": {
-      "invalidPhone": "Informe um número de telefone válido antes de discar.",
-      "offline": "O discador está offline. Aguarde a reconexão."
-    }
-  },
   "metadata": {
     "description": "Plataforma unificada de automação e inteligência artificial que entrega precisão, velocidade e escala para organizações que vendem em múltiplos mercados e canais."
   },
@@ -742,7 +663,7 @@
         "launch": {
           "number": "04",
           "title": "Lance e acompanhe",
-          "description": "Ative seus agentes e acompanhe métricas em tempo real. Ajuste workflows, monitore conversas e otimize o atendimento continuamente."
+          "description": "Ative seus agentes e acompanhe métricas em tempo real. Ajuste automações, monitore conversas e otimize o atendimento continuamente."
         }
       }
     },
@@ -760,7 +681,7 @@
           "description": "Gestão de contatos, etapas de venda e histórico completo de interações."
         },
         "automation": {
-          "title": "Automação de workflows",
+          "title": "Automação de automações",
           "description": "Crie fluxos automatizados para qualificar leads, enviar mensagens e escalar atendimentos."
         }
       }
@@ -771,7 +692,7 @@
         "Agentes de IA para texto e mensagens de voz",
         "Integração nativa com WhatsApp Business API",
         "Campanhas de WhatsApp e SMS em escala",
-        "Workflows visuais com nós de decisão e ações",
+        "Automações visuais com nós de decisão e ações",
         "Base de conhecimento com processamento de documentos",
         "Painel de métricas e relatórios em tempo real"
       ]
@@ -822,7 +743,7 @@
         },
         "automation": {
           "title": "Automação inteligente",
-          "description": "Workflows visuais com nós de decisão, ações automatizadas e integração com sistemas externos via API."
+          "description": "Automações visuais com nós de decisão, ações automatizadas e integração com sistemas externos via API."
         },
         "integrations": {
           "title": "Integrações e API",
@@ -1184,7 +1105,7 @@
         "launch": {
           "number": "04",
           "title": "Lance e acompanhe",
-          "description": "Ative seus agentes e acompanhe métricas em tempo real. Ajuste workflows, monitore conversas e otimize o atendimento continuamente."
+          "description": "Ative seus agentes e acompanhe métricas em tempo real. Ajuste automações, monitore conversas e otimize o atendimento continuamente."
         }
       }
     },
@@ -1202,7 +1123,7 @@
           "description": "Gestão de contatos, etapas de venda e histórico completo de interações."
         },
         "automation": {
-          "title": "Automação de workflows",
+          "title": "Automação de automações",
           "description": "Crie fluxos automatizados para qualificar leads, enviar mensagens e escalar atendimentos."
         }
       }
@@ -1213,7 +1134,7 @@
         "Agentes de IA para texto e mensagens de voz",
         "Integração nativa com WhatsApp Business API",
         "Campanhas de WhatsApp e SMS em escala",
-        "Workflows visuais com nós de decisão e ações",
+        "Automações visuais com nós de decisão e ações",
         "Base de conhecimento com processamento de documentos",
         "Painel de métricas e relatórios em tempo real"
       ]
@@ -1636,7 +1557,7 @@
       },
       "campaigns": {
         "name": "Campanhas",
-        "description": "CRM, telefonia e campanhas de WhatsApp"
+        "description": "CRM e campanhas de WhatsApp"
       }
     },
     "nav": {
@@ -1650,8 +1571,6 @@
       "links": "Links",
       "linksList": "Meus Links",
       "createLink": "Novo Link",
-      "recordings": "Gravações",
-      "calls": "Histórico de Chamadas",
       "callBilling": "Custos",
       "whatsappCampaigns": "Disparos",
       "whatsappCampaignsList": "Lista",
@@ -1671,12 +1590,6 @@
       "sendWhatsappMessage": "Enviar mensagem",
       "manageAllPhones": "Gerenciar Todos",
       "registerWhatsappPhone": "Registrar",
-      "sipTrunks": "Canais SIP",
-      "sipTrunksList": "Lista",
-      "createSipTrunk": "Novo Canal",
-      "branches": "Ramais",
-      "branchesList": "Lista",
-      "createBranch": "Novo Ramal",
       "generalSettings": "Configurações Gerais",
       "users": "Gestão de Usuários",
       "adminOverview": "Visão Admin",
@@ -1695,7 +1608,6 @@
       "liveChat": "Chat",
       "metrics": "Métricas",
       "attendanceOps": "Atendimento",
-      "telephony": "Telefonia",
       "aiChat": "Chat IA",
       "archivedAgents": "Agentes Arquivados",
       "archivedWhatsappCampaigns": "Arquivados",
@@ -1714,13 +1626,11 @@
       "pricing": "Precificação",
       "platformPricing": "Precificação da Plataforma",
       "adminAffiliates": "Afiliados",
-      "adminSipTrunks": "Canais SIP (Admin)",
-      "adminRamais": "Ramais (Admin)",
       "systemConfig": "Configuração do Sistema",
       "mcpServers": "Servidores MCP",
-      "workflows": "Workflows",
-      "workflowsList": "Lista de Workflows",
-      "createWorkflow": "Criar Workflow",
+      "workflows": "Automações",
+      "workflowsList": "Lista de Automações",
+      "createWorkflow": "Criar Automação",
       "issues": "Problemas",
       "issuesList": "Lista de Problemas",
       "createIssue": "Novo Problema",
@@ -1763,7 +1673,6 @@
       "whatsapp": "WhatsApp",
       "instagram": "Instagram",
       "ai": "IA & Automação",
-      "voip": "Telefonia",
       "billing": "Faturamento",
       "settings": "Configurações",
       "platform": "Plataforma",
@@ -1788,7 +1697,9 @@
       "management": "Gestão",
       "administration": "Administração"
     },
-    "toggleSubmenu": "Alternar subitens"
+    "toggleSubmenu": "Alternar subitens",
+    "collapse": "Recolher",
+    "expand": "Expandir"
   },
   "dashboard": {
     "pageSubtitle": "Acompanhe o desempenho dos seus agentes e campanhas em tempo real",
@@ -1843,6 +1754,14 @@
       "viewMetrics": {
         "title": "Ver métricas",
         "description": "Analise o desempenho em detalhes"
+      },
+      "liveChat": {
+        "title": "Chat ao vivo",
+        "description": "Conversas em tempo real"
+      },
+      "newWhatsAppCampaign": {
+        "title": "Nova campanha WhatsApp",
+        "description": "Envie mensagens em massa"
       }
     },
     "activity": {
@@ -1977,7 +1896,37 @@
         "title": "Chamadas",
         "subtitle": "Por agente"
       }
-    }
+    },
+    "openWindows": "Janelas abertas",
+    "ongoingConversations": "Conversas em andamento",
+    "noCampaignsYet": "Nenhuma campanha ainda",
+    "activeCampaigns": "Campanhas ativas",
+    "ofTotalCampaigns": "de {total} no total",
+    "attendantsCount": "{count, plural, one {# atendente} other {# atendentes}}",
+    "avgResponseLabel": "Tempo de resposta",
+    "avgResponsePerAttendant": "Média por atendente",
+    "workspaceLegend": "Área de trabalho",
+    "openAttendance": "Abrir atendimento",
+    "viewAll": "Ver todas",
+    "noQuickActionsHint": "As ações aparecem conforme as permissões da área de trabalho.",
+    "noWorkspaceDescription": "Selecione uma área de trabalho para ver campanhas, conversas e métricas.",
+    "headerDescription": "Campanhas, atendimento e capacidade da área de trabalho {workspace} em um só painel.",
+    "log": {
+      "campaign": "Campanha",
+      "template": "Template",
+      "contacts": "Contatos",
+      "created": "Criada em",
+      "noTemplate": "Sem template vinculado",
+      "emptyHint": "Crie sua primeira campanha para popular este registro.",
+      "emptyCta": "Criar campanha"
+    },
+    "planBlock": {
+      "legend": "Plano",
+      "title": "Gerencie sua assinatura",
+      "description": "Compare os planos disponíveis, faça upgrade e acompanhe o que está incluso.",
+      "action": "Ver planos"
+    },
+    "noWorkspaceSelected": "Nenhuma área de trabalho selecionada"
   },
   "agents": {
     "header": {
@@ -4396,390 +4345,6 @@
       "detailWabaId": "WABA ID"
     }
   },
-  "branchesPage": {
-    "badge": "Ramais",
-    "description": "Extensões SIP internas: cada membro registra um softphone ou telefone IP e recebe transferências de chamadas",
-    "refresh": "Atualizar",
-    "admin": "Gerenciar (Admin)",
-    "new": "Novo Ramal",
-    "search": "Buscar por ramal ou nome...",
-    "count": "{count, plural, one {# ramal} other {# ramais}}",
-    "loading": "Carregando…",
-    "restrictedTitle": "Acesso restrito",
-    "restrictedBody": "Você não tem permissão para visualizar os ramais deste workspace.",
-    "stats": {
-      "total": "Total",
-      "registered": "Online",
-      "enabled": "Ativos",
-      "offline": "Offline"
-    },
-    "columns": {
-      "extension": "Ramal",
-      "member": "Membro",
-      "realm": "Domínio",
-      "devices": "Dispositivos",
-      "status": "Registro",
-      "enabled": "Ativo"
-    },
-    "empty": {
-      "title": "Nenhum ramal",
-      "titleSearch": "Nenhum ramal encontrado",
-      "description": "Crie o primeiro ramal para um membro do workspace.",
-      "descriptionSearch": "Tente ajustar sua busca."
-    },
-    "status": {
-      "never_registered": "Nunca registrado",
-      "registered": "Online",
-      "expired": "Expirado",
-      "unreachable": "Inacessível"
-    },
-    "active": "Ativo",
-    "inactive": "Inativo",
-    "form": {
-      "createTitle": "Novo ramal",
-      "editTitle": "Editar ramal",
-      "member": "Membro",
-      "memberPlaceholder": "Selecione um membro",
-      "sipUser": "Usuário SIP (ramal)",
-      "sipUserHint": "Único no sistema. Ex.: 1001. Apenas letras, números, ponto, hífen e sublinhado.",
-      "displayName": "Nome de exibição",
-      "displayNamePlaceholder": "Ex.: Mesa da recepção",
-      "maxContacts": "Máx. dispositivos",
-      "dnd": "Não perturbe (DND)",
-      "dndHint": "Recusa chamadas sem tocar",
-      "codecs": "Codecs de áudio",
-      "create": "Criar ramal",
-      "save": "Salvar alterações",
-      "cancel": "Cancelar",
-      "errSipUser": "Informe um usuário SIP válido",
-      "errMember": "Selecione um membro",
-      "validationFailed": "Revise os campos destacados",
-      "validationFailedHint": "Alguns campos obrigatórios precisam de atenção antes de salvar.",
-      "noMembers": "Nenhum membro disponível",
-      "noMembersHint": "Convide um membro para a área de trabalho antes de criar um ramal."
-    },
-    "errors": {
-      "generic": "Não foi possível concluir a ação. Tente novamente.",
-      "branch_limit_reached": "Limite de ramais do plano atingido. Aumente o limite no plano da área de trabalho.",
-      "branch_sip_user_taken": "Este usuário SIP já está em uso. Escolha outro.",
-      "branch_sip_user_invalid": "Usuário SIP inválido. Use apenas letras, números, ponto, hífen e sublinhado.",
-      "branch_member_required": "Selecione o membro dono do ramal.",
-      "branch_member_not_found": "Membro não encontrado nesta área de trabalho.",
-      "branch_forbidden": "Você não tem permissão para alterar este ramal.",
-      "branch_max_contacts_invalid": "O número de dispositivos deve ficar entre 1 e 8.",
-      "branch_invalid": "Dados do ramal inválidos. Revise os campos."
-    },
-    "secret": {
-      "title": "Ramal criado",
-      "titleRotated": "Nova senha gerada",
-      "warning": "Guarde esta senha agora. Por segurança, ela não será exibida novamente.",
-      "howto": "Configure o softphone (MicroSIP) ou telefone IP com estes dados:",
-      "server": "Servidor SIP",
-      "port": "Porta",
-      "transport": "Transporte",
-      "serverNotConfigured": "O servidor SIP ainda não foi configurado nesta instalação. Fale com o administrador para obter o endereço de conexão.",
-      "sipUser": "Usuário",
-      "password": "Senha",
-      "realm": "Domínio (realm)",
-      "copy": "Copiar",
-      "copied": "Copiado!",
-      "done": "Concluído"
-    },
-    "detail": {
-      "identity": "Identidade",
-      "identityHint": "Quem é dono do ramal e como ele se comporta",
-      "registration": "Registro",
-      "registrationHint": "Como o telefone mantém a sessão ativa com o servidor",
-      "connection": "Conexão",
-      "connectionHint": "Aponte o softphone (MicroSIP) ou telefone IP para estes dados",
-      "member": "Membro",
-      "displayName": "Nome de exibição",
-      "codecs": "Codecs",
-      "status": "Status",
-      "createdAt": "Criado em",
-      "on": "Ativado",
-      "off": "Desativado",
-      "lastRegistered": "Último registro",
-      "never": "Nunca",
-      "maxContacts": "Máx. dispositivos",
-      "dnd": "Não perturbe",
-      "rotate": "Gerar nova senha",
-      "rotateHint": "A senha é exibida apenas uma vez ao gerar",
-      "edit": "Editar",
-      "enable": "Ativar",
-      "disable": "Desativar",
-      "delete": "Excluir",
-      "back": "Voltar",
-      "notFoundTitle": "Ramal não encontrado",
-      "notFoundBody": "O ramal solicitado não existe ou foi removido."
-    },
-    "delete": {
-      "title": "Excluir ramal",
-      "message": "O ramal {name} será removido e o telefone deixará de receber chamadas.",
-      "confirm": "Excluir ramal",
-      "cancel": "Cancelar"
-    },
-    "mine": {
-      "ringDevices": {
-        "title": "Tocar nos meus dispositivos",
-        "description": "Escolha onde suas chamadas e transferências tocam.",
-        "browser": "Navegador (discador web)",
-        "branch": "Ramal (telefone de mesa)"
-      },
-      "title": "Meu Ramal",
-      "description": "Sua extensão SIP para receber transferências no softphone ou telefone IP",
-      "none": "Você ainda não tem um ramal. Peça a um administrador para criar um.",
-      "howto": "Configure seu telefone com:",
-      "rotate": "Gerar nova senha",
-      "status": "Registro"
-    },
-    "toast": {
-      "created": "Ramal criado",
-      "updated": "Ramal atualizado",
-      "deleted": "Ramal excluído",
-      "enabled": "Ramal ativado",
-      "disabled": "Ramal desativado",
-      "rotated": "Nova senha gerada",
-      "loadError": "Não foi possível carregar os ramais",
-      "limitReached": "Limite de ramais do plano atingido",
-      "genericError": "Erro"
-    }
-  },
-  "sipTrunksPage": {
-    "header": {
-      "badge": "Canais de Telefonia",
-      "title": "Canais de Telefonia",
-      "description": "Canais que conectam seu workspace à rede telefônica para chamadas de voz"
-    },
-    "stats": {
-      "total": "Total",
-      "active": "Ativos",
-      "inactive": "Inativos",
-      "registered": "Registrados"
-    },
-    "search": {
-      "placeholder": "Buscar canais...",
-      "noResults": "Nenhum canal encontrado"
-    },
-    "status": {
-      "pending": "Pendente",
-      "registering": "Registrando",
-      "registered": "Registrado",
-      "failed": "Falhou",
-      "unregistered": "Não Registrado",
-      "active": "Ativo",
-      "inactive": "Inativo"
-    },
-    "trunkType": {
-      "provider": "Provedor",
-      "enterprise": "Corporativo",
-      "custom": "Personalizado"
-    },
-    "transport": {
-      "udp": "UDP",
-      "tcp": "TCP",
-      "tls": "TLS"
-    },
-    "codec": {
-      "g711u": "G.711 μ-law",
-      "g711a": "G.711 A-law",
-      "g729": "G.729",
-      "opus": "Opus",
-      "g722": "G.722"
-    },
-    "actions": {
-      "new": "Novo Canal",
-      "edit": "Editar",
-      "delete": "Excluir",
-      "enable": "Ativar",
-      "disable": "Desativar",
-      "refresh": "Atualizar Status",
-      "back": "Voltar",
-      "save": "Salvar",
-      "cancel": "Cancelar",
-      "viewDetails": "Ver Detalhes"
-    },
-    "form": {
-      "cancel": "Cancelar",
-      "save": "Salvar",
-      "saving": "Salvando...",
-      "create": "Criar Canal",
-      "title": {
-        "create": "Novo Canal de Telefonia",
-        "edit": "Editar Canal de Telefonia"
-      },
-      "sections": {
-        "basic": "Informações Básicas",
-        "connection": "Configurações de Conexão",
-        "authentication": "Autenticação",
-        "advanced": "Configurações Avançadas"
-      },
-      "labels": {
-        "name": "Nome do Canal",
-        "trunkType": "Tipo do Canal",
-        "sipProvider": "Provedor SIP",
-        "host": "Host",
-        "port": "Porta",
-        "transport": "Protocolo de Transporte",
-        "username": "Nome de Usuário",
-        "password": "Senha",
-        "realm": "Realm (Domínio)",
-        "fromDomain": "From Domain",
-        "fromUser": "From User",
-        "registrationTimeoutSecs": "Timeout de Registro (seg)",
-        "maxConcurrentCalls": "Chamadas Simultâneas Máx.",
-        "codecPreference": "Preferência de Codec",
-        "rotational": "Rotacional",
-        "enabled": "Habilitado"
-      },
-      "placeholders": {
-        "name": "Ex: Canal Claro, Canal Vivo...",
-        "sipProvider": "Ex: Claro, Vivo, Twilio...",
-        "host": "sip.provedor.com",
-        "port": "5060",
-        "username": "Nome de usuário SIP",
-        "password": "Senha de autenticação",
-        "realm": "sip.provedor.com (opcional)",
-        "fromDomain": "meudominio.com (opcional)",
-        "fromUser": "usuario (opcional)"
-      },
-      "hints": {
-        "name": "Nome identificador único para o canal",
-        "trunkType": "Tipo de conexão SIP",
-        "transport": "UDP é mais rápido, TLS é mais seguro",
-        "rotational": "Se ativado, distribui chamadas entre múltiplos canais",
-        "codecPreference": "Ordem de preferência para codecs de áudio"
-      },
-      "validation": {
-        "nameRequired": "Nome é obrigatório",
-        "hostRequired": "Host é obrigatório",
-        "portInvalid": "Porta deve ser entre 1 e 65535",
-        "usernameRequired": "Nome de usuário é obrigatório",
-        "passwordRequired": "Senha é obrigatória"
-      }
-    },
-    "detail": {
-      "badge": "Detalhes",
-      "overview": "Visão Geral",
-      "connectionSettings": "Configurações de Conexão",
-      "configuration": "Configuração",
-      "userAccess": "Acesso de Áreas de Trabalho",
-      "lastError": "Último erro",
-      "phoneNumber": "Número de Telefone",
-      "trunkTypeMobile": "Móvel (Celular)",
-      "trunkTypeFixed": "Fixo (Linha Fixa)",
-      "details": "Detalhes",
-      "detailsSubtitle": "IDs e timestamps",
-      "lastRegistration": "Último registro",
-      "quickStats": "Status Rápido",
-      "quickStatsSubtitle": "Estado atual do canal",
-      "labels": {
-        "trunkId": "ID do Canal",
-        "name": "Nome",
-        "type": "Tipo",
-        "provider": "Provedor",
-        "status": "Status",
-        "registrationStatus": "Status de Registro",
-        "host": "Host",
-        "port": "Porta",
-        "transport": "Transporte",
-        "username": "Usuário",
-        "realm": "Realm",
-        "fromDomain": "From Domain",
-        "fromUser": "From User",
-        "registrationTimeout": "Timeout de Registro",
-        "maxConcurrentCalls": "Chamadas Simultâneas",
-        "codecPreference": "Preferência de Codec",
-        "rotational": "Rotacional",
-        "enabled": "Habilitado",
-        "tenantId": "ID do Tenant",
-        "createdAt": "Criado em",
-        "updatedAt": "Atualizado em"
-      },
-      "values": {
-        "yes": "Sim",
-        "no": "Não",
-        "unlimited": "Ilimitado",
-        "notSet": "Não definido"
-      }
-    },
-    "access": {
-      "title": "Acesso de Áreas de Trabalho",
-      "description": "Gerencie quais áreas de trabalho podem utilizar este canal de telefonia em suas campanhas",
-      "count": "{count} com acesso",
-      "searchLabel": "Buscar áreas de trabalho",
-      "searchHint": "Busque por nome da área de trabalho para conceder acesso",
-      "noWorkspaces": "Nenhuma área de trabalho possui acesso a este canal",
-      "noWorkspacesFound": "Nenhuma área de trabalho encontrada",
-      "owner": "Proprietário",
-      "grantedWorkspaces": "Áreas de trabalho com acesso",
-      "previous": "Anterior",
-      "next": "Próximo",
-      "loading": "Carregando acessos...",
-      "grantedAt": "Concedido em",
-      "revoke": "Revogar acesso",
-      "grantSuccess": "Acesso concedido",
-      "grantSuccessDesc": "A área de trabalho agora pode utilizar este canal de telefonia em suas campanhas",
-      "grantError": "Falha ao conceder acesso",
-      "revokeSuccess": "Acesso revogado",
-      "revokeSuccessDesc": "A área de trabalho não pode mais utilizar este canal de telefonia",
-      "revokeError": "Falha ao revogar acesso",
-      "error": "Falha ao carregar acessos"
-    },
-    "delete": {
-      "title": "Excluir Canal de Telefonia",
-      "description": "Tem certeza que deseja excluir o canal \"{name}\"?",
-      "warning": "Esta ação é irreversível. Todas as configurações e acessos serão removidos.",
-      "confirm": "Sim, Excluir Canal",
-      "cancel": "Cancelar"
-    },
-    "empty": {
-      "title": "Nenhum Canal de Telefonia Configurado",
-      "description": "Configure seu primeiro canal de telefonia para habilitar chamadas de voz",
-      "action": "Criar Primeiro Canal"
-    },
-    "toast": {
-      "createSuccess": "Canal de telefonia criado com sucesso",
-      "updateSuccess": "Canal de telefonia atualizado com sucesso",
-      "deleteSuccess": "Canal de telefonia excluído com sucesso",
-      "enableSuccess": "Canal de telefonia ativado",
-      "disableSuccess": "Canal de telefonia desativado",
-      "accessGranted": "Acesso concedido com sucesso",
-      "accessRevoked": "Acesso revogado com sucesso",
-      "error": "Ocorreu um erro. Tente novamente."
-    },
-    "loading": "Carregando...",
-    "refreshing": "Atualizando..."
-  },
-  "recordingsPage": {
-    "title": "Gravações de Chamadas",
-    "subtitle": "Acesse todas as gravações de chamadas das suas campanhas",
-    "filters": "Filtros",
-    "filterDuration": "Duração",
-    "allDurations": "Todas as durações",
-    "shortCalls": "Curtas (< 30s)",
-    "mediumCalls": "Médias (30s - 3min)",
-    "longCalls": "Longas (> 3min)",
-    "sortBy": "Ordenar por",
-    "sortCreatedAt": "Data de criação",
-    "sortCallStart": "Início da chamada",
-    "sortDuration": "Duração",
-    "sortOrder": "Ordem",
-    "descending": "Decrescente",
-    "ascending": "Crescente",
-    "clearFilters": "Limpar filtros",
-    "loading": "Carregando...",
-    "recording": "gravação",
-    "recordings": "gravações",
-    "filtered": "filtrado",
-    "noRecordings": "Nenhuma gravação encontrada",
-    "noRecordingsHint": "Tente ajustar os filtros ou aguarde novas chamadas",
-    "previous": "Anterior",
-    "next": "Próximo",
-    "callId": "ID da Chamada",
-    "callEnd": "Fim da Chamada",
-    "player": "Reprodutor"
-  },
   "campaignsSummary": {
     "titleSends": "Resumo de envios",
     "titleCalls": "Resumo de chamadas",
@@ -4873,11 +4438,11 @@
         "noAgents": "Nenhum agente disponível",
         "responseMode": "Modo de resposta",
         "modeAgent": "Agente IA",
-        "modeWorkflow": "Workflow",
-        "workflow": "Workflow",
-        "searchWorkflow": "Buscar workflow...",
-        "noWorkflows": "Nenhum workflow ativo disponível",
-        "loadingWorkflows": "Carregando workflows...",
+        "modeWorkflow": "Automação",
+        "workflow": "Automação",
+        "searchWorkflow": "Buscar automação...",
+        "noWorkflows": "Nenhum automação ativo disponível",
+        "loadingWorkflows": "Carregando automações...",
         "enableAnalysis": "Habilitar análise de conversas",
         "enableAnalysisDescription": "Análise automática de conversas por IA.",
         "enableAutoStaging": "Gerenciamento automático de tags",
@@ -5024,7 +4589,6 @@
           "aiDisabled": "Automação Off",
           "aiToggleTooltip": "Ativar/desativar automação",
           "call": "Ligar",
-          "callViaSip": "SIP",
           "callViaWhatsapp": "WhatsApp",
           "comingSoon": "Em breve",
           "ringing": "Chamando...",
@@ -5331,11 +4895,11 @@
         "noAgents": "Nenhum agente disponível",
         "responseMode": "Modo de resposta",
         "modeAgent": "Agente IA",
-        "modeWorkflow": "Workflow",
-        "workflow": "Workflow",
-        "searchWorkflow": "Buscar workflow...",
-        "noWorkflows": "Nenhum workflow ativo disponível",
-        "loadingWorkflows": "Carregando workflows...",
+        "modeWorkflow": "Automação",
+        "workflow": "Automação",
+        "searchWorkflow": "Buscar automação...",
+        "noWorkflows": "Nenhum automação ativo disponível",
+        "loadingWorkflows": "Carregando automações...",
         "scheduleToggle": "Agendar para depois",
         "scheduleDescription": "Quando ativado, a campanha será iniciada automaticamente na data e hora agendadas, sem necessidade de início manual.",
         "scheduledStartLabel": "Data e hora agendadas",
@@ -5597,7 +5161,6 @@
     "health": "Saúde da campanha",
     "last7d": "últimos 7 dias",
     "noCampaignData": "Sem dados desta campanha no período",
-    "calls": "Chamadas",
     "whoResolves": "Quem mais resolve aqui",
     "noAgentsYet": "Sem atendentes ainda",
     "openFullMetrics": "Abrir métricas completas",
@@ -5680,7 +5243,8 @@
       "metaBusinessPartner": "Meta Business Partner",
       "metaBusinessPartnerDescription": "Selo oficial de parceria para soluções e integrações do WhatsApp Business.",
       "metaBusinessPartnerAlt": "Selo Meta Business Partner"
-    }
+    },
+    "legalName": "Razão Social"
   },
   "errors": {
     "404": {
@@ -5953,161 +5517,180 @@
   },
   "privacyPolicy": {
     "title": "Política de Privacidade",
-    "lastUpdated": "Última atualização: {date}",
-    "tableOfContents": "Conteúdo",
-    "backHome": "Voltar para inicial",
-    "contactUs": "Entre em contato",
-    "questions": "Se você tem dúvidas sobre esta Política de Privacidade, entre em contato conosco.",
+    "tableOfContents": "Nesta página",
+    "backHome": "Voltar",
+    "questions": "Dúvidas sobre esta política?",
+    "contactUs": "Falar com o Encarregado",
+    "intro": "Esta política explica como a {brandLegalName} trata dados pessoais na plataforma {brandName}. Ela foi escrita para ser lida por inteiro: as seções 2, 3 e 4 são as que definem quem responde pelo quê.",
     "sections": {
-      "introduction": {
-        "title": "1. Introdução",
-        "content": "A {brandLegalName} (\"{brandName}\", \"nós\", \"nosso\") opera as plataformas e serviços {brandName} (coletivamente, os \"Serviços\"). Somos comprometidos em proteger sua privacidade e garantir uma relação transparente com você sobre como coletamos, usamos e processamos suas informações pessoais.\n\nEsta Política de Privacidade explica nossas práticas em relação à coleta e processamento de dados pessoais em todos os serviços {brandName}, incluindo sites, aplicativos e serviços relacionados. Ao acessar ou usar os Serviços {brandName}, você consente com as práticas descritas nesta política."
+      "scope": {
+        "title": "Escopo desta política",
+        "content": "Esta política se aplica à plataforma {brandName}, operada pela {brandLegalName}, inscrita no CNPJ {brandCnpj}, e a todos os sites, aplicações e interfaces disponibilizados em {siteUrl}.\n\nA {brandName} é uma plataforma de comunicação empresarial: empresas contratam o serviço para conversar com seus próprios clientes por WhatsApp, Instagram, Telegram e chat ao vivo, com apoio de agentes de inteligência artificial, CRM e campanhas.\n\nIsso significa que existem dois grupos de pessoas cujos dados aparecem na plataforma, e esta política trata dos dois de forma separada:\n\n• Usuários da plataforma — pessoas que possuem conta e acessam o sistema (administradores, gestores e atendentes das empresas contratantes).\n• Contatos — pessoas que conversam com uma empresa contratante através de um dos canais conectados, sem necessariamente ter qualquer relação com a {brandLegalName}."
       },
-      "informationWeCollect": {
-        "title": "2. Informações que Coletamos",
-        "content": "Coletamos informações de várias formas para fornecer e melhorar nossos Serviços:",
-        "items": "Informações que você fornece diretamente: Nome, endereço de e-mail, número de telefone, detalhes da empresa, informações de faturamento e preferências de comunicação\nInformações de uso: Páginas visitadas, recursos utilizados, interações com nossa plataforma, timestamps e endereços IP\nInformações do dispositivo: Tipo de dispositivo, sistema operacional, tipo de navegador e identificadores exclusivos do dispositivo\nCookies e tecnologias de rastreamento: Informações coletadas através de cookies, pixels e tecnologias similares\nFontes de terceiros: Informações de processadores de pagamento, fornecedores de análise e parceiros comerciais\nInformações automatizadas: Dados comportamentais, análises e métricas de desempenho coletadas automaticamente"
+      "roles": {
+        "title": "Nossos dois papéis: controlador e operador",
+        "content": "Esta é a seção mais importante desta política. A {brandLegalName} atua em dois papéis distintos, conforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018):\n\n1. Como CONTROLADORA, quando decidimos as finalidades e os meios do tratamento. É o caso dos dados de cadastro, autenticação, faturamento, suporte e segurança dos usuários da plataforma. Nesses casos, respondemos diretamente pelo tratamento e é a nós que o titular deve se dirigir.\n\n2. Como OPERADORA, quando tratamos dados pessoais por conta e ordem de uma empresa contratante. É o caso do conteúdo das conversas, dos contatos importados, dos registros de atendimento e de tudo que a empresa contratante decide coletar e armazenar em seu workspace. Nesse cenário, a empresa contratante é a controladora: é ela quem define por que e como aqueles dados são tratados, e é a ela que o titular deve se dirigir em primeiro lugar.\n\nSe você conversou com uma empresa por WhatsApp, Instagram, Telegram ou chat e quer saber por que seus dados estão sendo tratados, quem responde é aquela empresa, não a {brandLegalName}. Ainda assim, se você nos procurar, encaminharemos sua solicitação à controladora responsável e informaremos você a respeito — ver a seção 13."
       },
-      "howWeUseInformation": {
-        "title": "3. Como Usamos Suas Informações",
-        "content": "Usamos as informações coletadas para os seguintes fins:",
-        "items": "Fornecer e manter nossos Serviços\nProcessar transações e enviar informações relacionadas\nEnviar informações administrativas, atualizações e alertas de segurança\nResponder suas dúvidas e fornecer suporte ao cliente\nMelhorar nossos Serviços através de análise e monitoramento de desempenho\nDesenvolver novos recursos e serviços\nConduzir pesquisas e análises\nDetectar, prevenir e lidar com fraude e problemas de segurança\nCumprir obrigações legais e fazer cumprir nossos acordos\nComunicações de marketing e promoção (com seu consentimento onde necessário)\nPersonalizar sua experiência e entregar conteúdo direcionado"
+      "controllerData": {
+        "title": "Dados que tratamos como controladora",
+        "content": "Tratamos, na condição de controladora, os seguintes dados de usuários da plataforma:\n\n• Cadastro e identificação: nome, e-mail corporativo, telefone, cargo ou função, empresa e área de trabalho (workspace) à qual o usuário pertence.\n• Autenticação e segurança: credenciais em formato criptografado, tokens de sessão, endereço IP, identificação do dispositivo e do navegador, data e hora de acesso, e registros de eventos de segurança.\n• Faturamento: dados cadastrais da empresa contratante, plano contratado, complementos, saldo, faturas e histórico de pagamentos.\n• Uso da plataforma: registros técnicos de funcionalidades acessadas, volume de mensagens e chamadas processadas, erros e diagnósticos.\n• Suporte: o conteúdo dos chamados que você abre conosco e o histórico da conversa de suporte.\n\nNão coletamos dados pessoais sensíveis de usuários da plataforma e não solicitamos esse tipo de informação em nenhum formulário de cadastro."
       },
-      "dataSharing": {
-        "title": "4. Compartilhamento e Divulgação de Dados",
-        "content": "Podemos compartilhar suas informações nas seguintes circunstâncias:\n\nFornecedores de Serviços: Compartilhamos informações com provedores de serviços terceirizados que realizam serviços em nosso nome, incluindo processadores de pagamento, provedores de hospedagem em nuvem, empresas de análise e plataformas de suporte ao cliente.\n\nParceiros Comerciais: Podemos compartilhar informações com parceiros para ofertas conjuntas, integrações e oportunidades de negócios.\n\nRequisitos Legais: Podemos divulgar informações quando exigido por lei, ordem judicial ou autoridade governamental, ou para proteger nossos direitos e interesses legais.\n\nTransferências de Negócios: Em caso de fusão, aquisição, falência ou venda de ativos, suas informações podem ser transferidas como parte dessa transação.\n\nCom Seu Consentimento: Podemos compartilhar informações com terceiros quando você consentir explicitamente tal compartilhamento.\n\nDados Agregados: Podemos compartilhar informações agregadas ou anonimizadas que não conseguem identificá-lo com terceiros para fins comerciais."
-      },
-      "dataSecurity": {
-        "title": "5. Segurança de Dados",
-        "content": "A {brandName} implementa medidas de segurança técnicas, administrativas e físicas abrangentes para proteger suas informações pessoais contra acesso não autorizado, alteração, divulgação ou destruição.\n\nNossas práticas de segurança incluem criptografia de dados em trânsito e em repouso, controles de acesso, auditorias de segurança regulares, firewalls, sistemas de detecção de intrusão e treinamento de funcionários sobre proteção de dados. No entanto, nenhum método de transmissão pela Internet ou armazenamento eletrônico é completamente seguro. Embora nos esforcemos para proteger suas informações usando meios comercialmente razoáveis, não podemos garantir segurança absoluta. Você reconhece que fornece informações por sua conta e risco."
-      },
-      "dataRetention": {
-        "title": "6. Retenção de Dados",
-        "content": "Retemos suas informações pessoais pelo tempo necessário para cumprir os fins para os quais foram coletadas, incluindo para satisfazer requisitos legais, contábeis ou de relatório.\n\nO período de retenção depende da natureza das informações e das necessidades do nosso negócio. Por exemplo, mantemos registros de transações para fins contábeis e legais, e registros de suporte ao cliente para fornecer continuidade de serviço. Quando as informações não são mais necessárias, as excluímos ou anonimizamos com segurança de acordo com as leis aplicáveis."
-      },
-      "yourRights": {
-        "title": "7. Seus Direitos e Escolhas",
-        "content": "Dependendo de sua localização, você pode ter certos direitos em relação suas informações pessoais:",
-        "items": "Acesso: Solicitar acesso às informações pessoais que mantemos sobre você\nCorreção: Solicitar correção de informações imprecisas ou incompletas\nExclusão: Solicitar exclusão de suas informações pessoais, sujeito às obrigações legais\nPortabilidade: Solicitar uma cópia de seus dados em formato portátil\nOtimização: Optar por não participar de certas atividades de processamento\nRestrição: Solicitar restrição do processamento para fins específicos\nObjeção: Objetar ao processamento de suas informações para certos fins\nRevogação de Consentimento: Revogar consentimento previamente dado\n\nPara exercer qualquer um desses direitos, entre em contato conosco usando as informações fornecidas na seção \"Entre em Contato\"."
-      },
-      "cookies": {
-        "title": "8. Cookies e Tecnologias de Rastreamento",
-        "content": "Usamos cookies e tecnologias de rastreamento similares para melhorar sua experiência, analisar padrões de uso e apoiar nossos esforços de marketing.\n\nCookies são pequenos arquivos armazenados em seu dispositivo que nos ajudam a lembrar suas preferências e entender como você usa nossos Serviços. Você pode controlar cookies através das configurações do seu navegador e optar por não participar de certas tecnologias de rastreamento. Por favor, observe que desabilitar cookies pode afetar a funcionalidade de nossos Serviços."
-      },
-      "thirdPartyLinks": {
-        "title": "9. Links e Serviços de Terceiros",
-        "content": "Nossos Serviços podem conter links para sites e serviços de terceiros que não são operados pela {brandName}. Esta Política de Privacidade não se aplica a sites de terceiros, e não somos responsáveis por suas práticas de privacidade. Encorajamos você a revisar as políticas de privacidade de qualquer serviço de terceiros antes de fornecer suas informações."
-      },
-      "childrenPrivacy": {
-        "title": "10. Privacidade de Menores",
-        "content": "Os Serviços {brandName} não são destinados a menores de 13 anos de idade. Não coletamos conhecidamente informações pessoais de menores de 13 anos. Se descobrirmos que uma criança forneceu suas informações pessoais, tomaremos medidas para excluir essas informações e encerrar a conta da criança. Pais ou responsáveis que acreditem que sua criança forneceu informações à {brandName} devem nos contactar imediatamente."
+      "operatorData": {
+        "title": "Dados que tratamos como operadora",
+        "content": "Na condição de operadora, armazenamos e processamos, sob instrução da empresa contratante:\n\n• Conteúdo de conversas: mensagens de texto, áudio, imagens, vídeos e documentos trocados entre a empresa contratante e seus contatos nos canais conectados, incluindo transcrições de áudio quando o recurso estiver ativo.\n• Identificadores de contato: número de telefone, nome de exibição, identificador da conta na rede social e foto de perfil, conforme fornecido pelo canal de origem.\n• Registros de atendimento: histórico de atribuição, etapas de funil, etiquetas, anotações, oportunidades e demais campos que a empresa contratante configure.\n• Registros de chamadas de WhatsApp: metadados como data, hora, duração e resultado.\n• Bases de conhecimento: os documentos e textos que a empresa contratante envia para orientar as respostas dos agentes de inteligência artificial.\n\nNão usamos esses dados para finalidades próprias. Não os vendemos, não os cedemos a terceiros para fins comerciais e não os utilizamos para publicidade. Seu uso está limitado a prestar o serviço contratado, garantir a segurança da plataforma e cumprir obrigações legais."
       },
       "lawfulBasis": {
-        "title": "11. Base Legal para Processamento",
-        "content": "Processamos suas informações pessoais com base nos seguintes motivos legais:\n\nDesempenho de Contrato: O processamento é necessário para realizar serviços que você solicitou ou para cumprir obrigações contratuais.\n\nObrigação Legal: O processamento é necessário para cumprir as leis e regulamentações aplicáveis.\n\nInteresses Legítimos: O processamento é necessário para nossos interesses comerciais legítimos, como melhorar serviços, prevenção de fraude e segurança.\n\nConsentimento: Onde exigido por lei, obtemos seu consentimento explícito antes de processar certos tipos de informação.\n\nInteresse Público: O processamento é necessário para cumprir obrigações de interesse público.\n\nInteresses Vitais: O processamento é necessário para proteger interesses vitais de indivíduos."
+        "title": "Bases legais",
+        "content": "Como controladora, tratamos dados pessoais com fundamento nas seguintes bases legais previstas no art. 7º da LGPD:\n\n• Execução de contrato (inciso V): para criar e manter contas, disponibilizar as funcionalidades contratadas, faturar e prestar suporte.\n• Cumprimento de obrigação legal ou regulatória (inciso II): para atender obrigações fiscais, contábeis e determinações de autoridades competentes.\n• Legítimo interesse (inciso IX): para garantir a segurança da plataforma, prevenir fraude e abuso, e melhorar a estabilidade e o desempenho do serviço, sempre com avaliação do impacto sobre seus direitos.\n• Consentimento (inciso I): apenas quando solicitado de forma específica e destacada, como no envio de comunicações de marketing, e sempre revogável.\n\nComo operadora, não definimos a base legal: ela é determinada pela empresa contratante, que declara possuir fundamento adequado para o tratamento que nos instrui a realizar — incluindo, quando aplicável, o consentimento do contato para receber mensagens."
       },
-      "internationalTransfers": {
-        "title": "12. Transferências de Dados Internacionais",
-        "content": "Suas informações podem ser transferidas para, armazenadas em e processadas em países diferentes de seu país de residência, incluindo países que podem não fornecer o mesmo nível de proteção de dados que seu país de origem.\n\nQuando transferimos informações internacionalmente, implementamos salvaguardas apropriadas, incluindo cláusulas contratuais padrão, decisões de adequação ou obtendo seu consentimento explícito. Ao usar os Serviços {brandName}, você consente com a transferência de suas informações para países fora de seu país de residência pelos fins descritos nesta Política de Privacidade."
+      "howWeUse": {
+        "title": "Como usamos os dados",
+        "content": "Utilizamos os dados descritos nas seções 3 e 4 para:\n\n• Disponibilizar, manter e operar a plataforma e as integrações com os canais conectados.\n• Autenticar usuários, controlar permissões e registrar acessos.\n• Processar pagamentos, calcular consumo e emitir faturas.\n• Prestar suporte técnico e responder solicitações.\n• Detectar, investigar e conter fraudes, abusos, envio não autorizado de mensagens e incidentes de segurança.\n• Produzir estatísticas agregadas sobre desempenho e uso da plataforma, em formato que não identifica titulares.\n• Cumprir obrigações legais e responder a requisições de autoridades.\n\nNão realizamos decisões automatizadas com efeitos jurídicos sobre titulares fora daquilo que a empresa contratante configure em seus próprios fluxos de atendimento e automação."
       },
-      "whatsappPlatform": {
-        "title": "13. Plataforma WhatsApp Business",
-        "content": "A {brandName} opera como Business Partner (BP) autorizada pela Meta, habilitando nossos clientes empresariais a utilizar a Plataforma WhatsApp Business para comunicação com seus clientes finais. Nessa capacidade, a {brandName} atua como Operadora de dados pessoais nos termos da Lei Geral de Proteção de Dados (LGPD, Lei 13.709/2018), processando informações pessoais, como números de telefone e conteúdo de mensagens, exclusivamente conforme instruído pelos nossos clientes empresariais, que são os Controladores.\n\nA Meta Platforms, Inc. e a WhatsApp LLC participam dessa cadeia de tratamento como suboperadores. Os dados que fluem pela Plataforma WhatsApp Business estão sujeitos aos Termos de Serviço do WhatsApp Business e aos Termos de Processamento de Dados do WhatsApp Business, disponíveis em whatsapp.com/legal/business-data-processing-terms. Os clientes empresariais da {brandName} celebram um Acordo de Processamento de Dados (DPA) com a {brandName}, que define as responsabilidades de cada parte sob a LGPD.\n\nA {brandName} implementa controles técnicos e contratuais para garantir que o tratamento de dados na Plataforma WhatsApp Business ocorra em conformidade com a LGPD e com as políticas da Meta."
+      "ai": {
+        "title": "Inteligência artificial e conteúdo de mensagens",
+        "content": "A plataforma oferece agentes de inteligência artificial que leem e respondem mensagens nos canais de texto conectados. É importante que isso esteja claro:\n\n• O conteúdo das mensagens é enviado a provedores de modelos de linguagem para gerar respostas, sugestões, resumos, transcrições de áudio e classificações. Esse envio é necessário para o funcionamento do recurso.\n• Esses provedores atuam como suboperadores e estão contratualmente vinculados a tratar o conteúdo apenas para executar a solicitação, sem utilizá-lo para treinar modelos próprios.\n• Os recursos de inteligência artificial atuam exclusivamente em canais de mensagens. A plataforma não realiza chamadas de voz automatizadas por inteligência artificial, e nenhum agente de IA conduz ligações telefônicas.\n• Respostas geradas por inteligência artificial podem conter erros. Elas não constituem aconselhamento jurídico, financeiro, médico ou profissional, e cabe à empresa contratante revisar e supervisionar seu uso.\n• A empresa contratante escolhe se, quando e em quais conversas os agentes atuam, e pode desativá-los."
       },
-      "messagingConsent": {
-        "title": "14. Consentimento e Opt-out de Mensagens",
-        "content": "Em atendimento às políticas da Plataforma WhatsApp Business da Meta e à LGPD, todos os clientes empresariais que utilizam nossa plataforma para envio de mensagens via WhatsApp devem:\n\nObter consentimento prévio e explícito (opt-in) dos destinatários antes do envio de mensagens proativas, salvo respostas dentro da janela de serviço de 24 horas a mensagens iniciadas pelo próprio usuário\nDisponibilizar mecanismo claro e acessível de opt-out em todas as comunicações\nHonrar imediatamente qualquer solicitação de descadastramento, cessando o envio de mensagens ao destinatário no menor prazo possível\nManter registros de consentimento para fins de auditoria e conformidade regulatória\n\nA {brandName} monitora o uso da plataforma e pode suspender ou encerrar o acesso de clientes que violem sistematicamente as políticas de consentimento da Meta ou da LGPD. Usuários finais que recebam mensagens não solicitadas enviadas por clientes da {brandName} podem reportar a violação diretamente ao WhatsApp ou à Autoridade Nacional de Proteção de Dados (ANPD) em www.gov.br/anpd."
+      "channels": {
+        "title": "Canais de terceiros",
+        "content": "A plataforma se conecta a canais operados por terceiros. Ao utilizá-los, os dados também transitam pela infraestrutura desses provedores, sujeitos às políticas deles:\n\n• WhatsApp Business Platform, Instagram e demais serviços da Meta Platforms, Inc.\n• Telegram Messenger.\n\nQuando uma empresa contratante conecta uma conta desses canais, a autorização é concedida diretamente ao provedor, e as regras da plataforma de origem passam a se aplicar ao tráfego de mensagens — inclusive suas exigências de consentimento, janelas de atendimento e políticas de conteúdo.\n\nNão controlamos as práticas de privacidade desses provedores. Recomendamos a leitura das políticas de privacidade de cada um."
       },
-      "contactUs": {
-        "title": "15. Entre em Contato",
-        "content": "Se você tem dúvidas, preocupações ou solicitações sobre esta Política de Privacidade ou nossas práticas de privacidade, entre em contato conosco em:\n\n{brandLegalName}\nE-mail: {brandContactEmail}\nWhatsApp: {brandPhone}\n\nEncarregado pelo Tratamento de Dados Pessoais (DPO):\nE-mail: {brandDpoEmail}\n\nResponderemos suas dúvidas dentro de 30 dias ou conforme exigido pela lei aplicável.\n\nPara residentes no Brasil, você tem o direito de registrar uma reclamação com a Autoridade Nacional de Proteção de Dados (ANPD): www.gov.br/anpd\n\nPara residentes europeus, você também tem o direito de registrar uma reclamação com sua autoridade local de proteção de dados."
+      "subprocessors": {
+        "title": "Suboperadores e transferência internacional",
+        "content": "Para operar a plataforma, contamos com fornecedores que podem tratar dados pessoais em nosso nome, nas seguintes categorias:\n\n• Infraestrutura de nuvem e hospedagem.\n• Provedores de modelos de inteligência artificial e de transcrição de áudio.\n• Provedores dos canais de mensagem descritos na seção 8.\n• Processadores de pagamento e emissores de documentos fiscais.\n• Ferramentas de monitoramento, registro de erros e comunicação com clientes.\n\nParte desses fornecedores está localizada fora do Brasil, o que caracteriza transferência internacional de dados. Realizamos essas transferências com fundamento no art. 33 da LGPD, mediante cláusulas contratuais que exigem padrão de proteção compatível com a legislação brasileira.\n\nA relação atualizada de suboperadores pode ser solicitada pelo e-mail {dpoEmail}."
       },
-      "googleApiServices": {
-        "title": "16. Serviços de API do Google e Dados do Usuário",
-        "content": "A {brandName} acessa dados de usuário do Google exclusivamente por meio do fluxo OAuth 2.0 autorizado pelo Google, em conformidade com a Política de Dados do Usuário dos Serviços de API do Google.\n\nDados Acessados: Quando autorizado pelo usuário, a {brandName} poderá acessar dados do Google Agenda, incluindo eventos de calendário, agendas e metadados relacionados, exclusivamente para habilitar funcionalidades de agendamento com inteligência artificial e automação de compromissos na plataforma {brandName}.\n\nUso dos Dados: Os dados de usuário do Google são utilizados exclusivamente para executar a função específica solicitada pelo usuário (por exemplo, ler ou criar eventos no Agenda em seu nome). Não utilizamos dados de usuário do Google para publicidade, criação de perfis ou qualquer finalidade não relacionada ao recurso explicitamente autorizado pelo usuário.\n\nCompartilhamento de Dados: Não compartilhamos dados de usuário do Google com terceiros, exceto com suboperadores estritamente necessários para o funcionamento do serviço (por exemplo, provedores de infraestrutura em nuvem), os quais estão sujeitos a obrigações de confidencialidade. Não vendemos dados de usuário do Google.\n\nArmazenamento e Proteção de Dados: Os dados de usuário do Google são armazenados com criptografia em repouso e em trânsito. O acesso é restrito a pessoal e sistemas autorizados, com base no princípio da necessidade de acesso. Seguimos práticas de segurança reconhecidas pelo mercado, incluindo controles de acesso, registro de auditoria e revisões de segurança regulares.\n\nRetenção e Exclusão de Dados: Os dados de usuário do Google são retidos apenas pelo tempo necessário para cumprir a função autorizada ou conforme exigido por lei. Os usuários podem revogar o acesso da {brandName} aos seus dados do Google a qualquer momento por meio das permissões de sua Conta Google. Mediante revogação ou solicitação de exclusão de conta, os dados de usuário do Google são excluídos em até 30 dias.\n\nO uso dos Serviços de API do Google pela {brandName} está limitado às práticas descritas nesta seção e não se estende a nenhuma outra finalidade."
+      "sharing": {
+        "title": "Compartilhamento de dados",
+        "content": "Não vendemos dados pessoais. Compartilhamos dados apenas nas seguintes hipóteses:\n\n• Com os suboperadores descritos na seção 9, na medida necessária para prestar o serviço.\n• Com a empresa contratante responsável pelo workspace, quando atuamos como operadora.\n• Com autoridades públicas, quando houver requisição legal válida, ordem judicial ou obrigação regulatória.\n• Para exercer ou defender direitos em processo judicial, administrativo ou arbitral.\n• Em operação societária, como fusão, aquisição ou reorganização, hipótese em que o adquirente permanecerá vinculado a esta política, e os titulares serão informados.\n\nEm qualquer caso, compartilhamos o mínimo necessário para a finalidade."
+      },
+      "security": {
+        "title": "Segurança da informação",
+        "content": "Adotamos medidas técnicas e administrativas para proteger dados pessoais, entre elas:\n\n• Criptografia em trânsito em todas as conexões com a plataforma.\n• Armazenamento de credenciais com funções de derivação de chave, sem guarda de senha em texto puro.\n• Segregação lógica por área de trabalho, de modo que uma empresa contratante não acesse dados de outra.\n• Controle de acesso por papéis e permissões, com registro de eventos relevantes.\n• Sessões autenticadas por cookies de sessão com atributos de segurança, e revogação no encerramento.\n\nNenhum sistema é integralmente imune a incidentes. Caso ocorra incidente de segurança com risco relevante a titulares, comunicaremos a Autoridade Nacional de Proteção de Dados e os titulares afetados, nos prazos e na forma da legislação aplicável, e informaremos as medidas adotadas."
+      },
+      "retention": {
+        "title": "Retenção e eliminação",
+        "content": "Mantemos dados pessoais pelo tempo necessário às finalidades desta política:\n\n• Dados de conta e de uso: enquanto a conta permanecer ativa.\n• Dados de conversa e registros de atendimento: pelo período configurado pela empresa contratante ou enquanto durar o contrato, o que ocorrer primeiro.\n• Dados fiscais e de faturamento: pelo prazo exigido pela legislação tributária brasileira.\n• Registros de acesso a aplicação: pelo prazo previsto no Marco Civil da Internet (Lei nº 12.965/2014).\n\nEncerrado o contrato, a empresa contratante pode solicitar a exportação de seus dados. Após o período de recuperação informado no contrato, os dados são eliminados ou anonimizados, ressalvadas as hipóteses de guarda obrigatória previstas no art. 16 da LGPD."
+      },
+      "rights": {
+        "title": "Direitos do titular",
+        "content": "Nos termos do art. 18 da LGPD, você pode solicitar a qualquer momento:\n\n• Confirmação da existência de tratamento e acesso aos dados.\n• Correção de dados incompletos, inexatos ou desatualizados.\n• Anonimização, bloqueio ou eliminação de dados desnecessários, excessivos ou tratados em desconformidade com a lei.\n• Portabilidade a outro fornecedor, observados os segredos comercial e industrial.\n• Eliminação dos dados tratados com base em consentimento.\n• Informação sobre as entidades com as quais compartilhamos dados.\n• Informação sobre a possibilidade de não fornecer consentimento e as consequências da negativa.\n• Revogação do consentimento.\n• Revisão de decisões automatizadas que afetem seus interesses.\n\nComo exercer: escreva para {dpoEmail}. Responderemos no prazo legal. Poderemos solicitar informações adicionais para confirmar sua identidade, exclusivamente para evitar a divulgação indevida de dados a terceiros.\n\nSe a solicitação disser respeito a dados que tratamos como operadora — por exemplo, uma conversa que você teve com uma empresa que usa a plataforma — encaminharemos o pedido à empresa controladora e informaremos você sobre o encaminhamento."
+      },
+      "cookies": {
+        "title": "Cookies e tecnologias similares",
+        "content": "Utilizamos cookies e armazenamento local do navegador para:\n\n• Manter sua sessão autenticada e aplicar as configurações da sua conta, como idioma, tema e preferências de exibição. Esses são estritamente necessários e não podem ser desativados sem comprometer o funcionamento da plataforma.\n• Medir estabilidade e desempenho, em caráter agregado.\n\nA plataforma autenticada não utiliza cookies de publicidade nem rastreamento entre sites para fins de marketing. Você pode bloquear cookies nas configurações do navegador, ciente de que o bloqueio dos cookies necessários impedirá o login."
+      },
+      "children": {
+        "title": "Crianças e adolescentes",
+        "content": "A plataforma é destinada exclusivamente a uso profissional por pessoas maiores de 18 anos. Não criamos contas para menores de idade e não direcionamos o serviço a esse público.\n\nCaso identifiquemos que um dado de criança ou adolescente foi cadastrado como usuário da plataforma sem o devido fundamento legal, o registro será eliminado. Se você tomar conhecimento de situação assim, comunique {dpoEmail}."
+      },
+      "dpo": {
+        "title": "Encarregado pelo tratamento de dados",
+        "content": "A {brandLegalName} mantém Encarregado (DPO) para receber comunicações de titulares e da Autoridade Nacional de Proteção de Dados.\n\n• E-mail do Encarregado: {dpoEmail}\n• Suporte geral: {supportEmail}\n• Controladora: {brandLegalName}, CNPJ {brandCnpj}\n\nVocê também pode apresentar reclamação diretamente à Autoridade Nacional de Proteção de Dados (ANPD)."
+      },
+      "changes": {
+        "title": "Alterações desta política",
+        "content": "Podemos atualizar esta política para refletir mudanças na plataforma, na legislação ou em nossos fornecedores.\n\nQuando a alteração for relevante — por exemplo, uma nova finalidade de tratamento ou uma nova categoria de suboperador — comunicaremos os usuários da plataforma por e-mail ou por aviso dentro do produto, com antecedência razoável antes de a mudança entrar em vigor.\n\nA data da última atualização está indicada no topo desta página. Versões anteriores podem ser solicitadas pelo e-mail {dpoEmail}."
       }
+    },
+    "meta": {
+      "version": "Versão",
+      "updated": "Atualizado em",
+      "clauses": "Cláusulas",
+      "reading": "Leitura",
+      "minutes": "{minutes} min"
     }
   },
   "termsOfService": {
-    "title": "Termos de Serviço",
-    "lastUpdated": "Última atualização: {date}",
-    "tableOfContents": "Conteúdo",
-    "backHome": "Voltar para inicial",
-    "contactUs": "Entre em contato",
-    "questions": "Se você tem dúvidas sobre estes Termos de Serviço, entre em contato conosco.",
+    "title": "Termos de Uso",
+    "tableOfContents": "Nesta página",
+    "backHome": "Voltar",
+    "questions": "Dúvidas sobre estes termos?",
+    "contactUs": "Falar com o suporte",
+    "intro": "Estes termos regem o uso da plataforma {brandName}. As seções 5, 6 e 7 definem o que você pode enviar, sob quais regras e quem responde pelo consentimento de quem recebe — leia-as com atenção antes de disparar qualquer mensagem.",
     "sections": {
-      "acceptanceOfTerms": {
-        "title": "1. Aceitação dos Termos",
-        "content": "Ao acessar e usar os Serviços {brandName} (sites, aplicativos e serviços relacionados), você concorda em estar vinculado por estes Termos de Serviço. Se você não concordar com qualquer parte destes termos, não deve usar nossos Serviços.\n\nEstes Termos constituem o acordo integral entre você e a {brandLegalName} em relação ao seu uso de nossos Serviços e supersegam todos os acordos anteriores e contemporâneos, sejam escritos ou orais."
+      "agreement": {
+        "title": "Contratação e aceite",
+        "content": "Estes Termos de Uso são celebrados entre a {brandLegalName}, CNPJ {brandCnpj} (\"nós\"), e a pessoa jurídica que contrata a plataforma {brandName} (\"você\" ou \"contratante\").\n\nO aceite ocorre no primeiro dos seguintes eventos: criação de conta, assinatura de proposta comercial ou início de uso da plataforma. Ao aceitar, você declara ter poderes para obrigar a pessoa jurídica que representa.\n\nSe houver contrato comercial assinado entre as partes, ele prevalece sobre estes termos no que for conflitante. Nas demais matérias, os dois documentos se complementam.\n\nA plataforma é destinada a uso profissional por pessoas jurídicas. Não é oferecida a consumidores pessoas físicas para uso pessoal."
       },
-      "useOfService": {
-        "title": "2. Uso do Serviço",
-        "content": "Você concorda em usar os Serviços {brandName} apenas para fins lícitos e de uma forma que não infrinja os direitos de outros ou restrinja seu uso e gozo dos Serviços.\n\nComportamentos proibidos incluem:\n\nAssediar ou causar angústia ou inconveniência para qualquer pessoa\nTransmitir vírus ou código malicioso\nTentar obter acesso não autorizado a nossos sistemas\nDisrupção do fluxo normal de diálogo dentro de nossos Serviços\nEnvolvimento em qualquer forma de atividade ilegal ou fraude\nContornar medidas de segurança ou restrições de acesso\nColetar ou rastrear informações pessoais de outros sem consentimento"
+      "definitions": {
+        "title": "Definições",
+        "content": "• Plataforma: o software {brandName}, suas interfaces, APIs e integrações.\n• Área de trabalho (workspace): o ambiente isolado onde ficam os dados, usuários e canais de um contratante.\n• Usuário: pessoa autorizada pelo contratante a acessar a plataforma.\n• Contato: pessoa com quem o contratante conversa por meio de um canal conectado.\n• Canal: serviço de mensagens integrado à plataforma, como WhatsApp Business, Instagram, Telegram ou chat ao vivo.\n• Agente de IA: recurso de inteligência artificial que lê e responde mensagens em canais de texto.\n• Conteúdo do contratante: mensagens, contatos, documentos, bases de conhecimento e demais dados que o contratante insere ou gera na plataforma."
       },
-      "userResponsibilities": {
-        "title": "3. Responsabilidades do Usuário",
-        "content": "Como usuário dos Serviços {brandName}, você é responsável por:\n\nManter confidencial suas credenciais de conta\nFornecer informações precisas e completas durante o registro\nNotificar-nos imediatamente de qualquer uso não autorizado de sua conta\nCumprir todas as leis e regulamentações aplicáveis\nNão fazer engenharia reversa ou tentar derivar nosso código fonte ou algoritmos\nNão remover ou alterar quaisquer avisos ou rótulos de propriedade\nMonitoramento regular de sua conta para atividade suspeita\nFazer cópias de segurança de dados importantes que você armazena em nossos Serviços\n\nA {brandName} não é responsável por qualquer perda de dados ou acesso não autorizado resultante de sua falha em manter a segurança da conta."
+      "account": {
+        "title": "Conta, usuários e credenciais",
+        "content": "Você é responsável por:\n\n• Manter dados cadastrais corretos e atualizados.\n• Definir os usuários da sua área de trabalho e os respectivos papéis e permissões.\n• Garantir a confidencialidade das credenciais e não compartilhá-las entre pessoas.\n• Revogar acessos de usuários desligados, imediatamente.\n\nTodo ato praticado por um usuário autenticado é atribuído ao contratante. Se você identificar acesso não autorizado, comunique {supportEmail} imediatamente.\n\nPodemos recusar a criação de contas ou exigir verificação adicional quando houver indício de fraude, uso vedado por estes termos ou violação de regras de canal."
+      },
+      "plans": {
+        "title": "Planos, saldo e faturamento",
+        "content": "O uso da plataforma depende de plano contratado e, em determinados recursos, de saldo disponível.\n\n• Recursos cobrados por consumo — como mensagens, disparos, minutos de chamadas de WhatsApp, transcrição de áudio e uso de modelos de inteligência artificial — são debitados do saldo conforme a tabela vigente.\n• Sem saldo suficiente, os recursos dependentes de consumo são interrompidos até a recomposição, sem que isso caracterize falha do serviço.\n• Valores pagos por consumo já realizado não são reembolsáveis.\n• Reajustes e alterações de preço serão comunicados com antecedência mínima de 30 dias, e você poderá encerrar o contrato antes da vigência do novo valor.\n• Tributos aplicáveis são acrescidos na forma da legislação.\n\nO inadimplemento autoriza a suspensão do acesso após comunicação prévia, nos termos da seção 13."
+      },
+      "acceptableUse": {
+        "title": "Uso aceitável",
+        "content": "Você não pode usar a plataforma para:\n\n• Enviar mensagens não solicitadas, em massa ou não, a quem não tenha manifestado interesse em recebê-las.\n• Praticar spam, phishing, engenharia social, fraude ou qualquer forma de obtenção enganosa de dados ou pagamentos.\n• Distribuir malware ou conteúdo que comprometa sistemas de terceiros.\n• Veicular conteúdo ilícito, discriminatório, que incite violência, ou que viole direitos de terceiros, incluindo propriedade intelectual.\n• Simular identidade de terceiros ou sugerir vínculo inexistente com pessoas, marcas ou órgãos públicos.\n• Realizar cobrança abusiva, ameaçadora ou que exponha o devedor a constrangimento, em desacordo com o Código de Defesa do Consumidor.\n• Contornar limites técnicos, cotas, filas ou mecanismos de segurança da plataforma ou dos canais.\n• Realizar engenharia reversa, extrair código-fonte ou revender o acesso sem autorização escrita.\n\nEstas condutas autorizam suspensão imediata, conforme a seção 13."
+      },
+      "channelRules": {
+        "title": "Regras dos canais de terceiros",
+        "content": "A plataforma se conecta a canais operados por terceiros — entre eles WhatsApp Business Platform e Instagram, da Meta Platforms, Inc., e o Telegram.\n\nAo conectar uma conta, você passa a estar vinculado também às políticas do provedor daquele canal, que se aplicam diretamente a você e que podem mudar sem a nossa participação. Isso inclui, conforme o canal:\n\n• Exigências de consentimento prévio do destinatário.\n• Regras de janela de atendimento e de uso de modelos de mensagem aprovados.\n• Políticas de conteúdo e de categorias de negócio vedadas.\n• Limites de volume e qualidade, incluindo classificações de qualidade do número.\n\nO provedor do canal pode, a seu exclusivo critério, limitar, suspender ou banir um número ou conta. Não temos ingerência sobre essa decisão e não respondemos por ela. Recomendamos que você mantenha canais alternativos de contato com seus clientes.\n\nRestrições conhecidas de plataforma são apresentadas na interface quando aplicável, e não constituem defeito do serviço."
+      },
+      "contactConsent": {
+        "title": "Consentimento dos contatos e responsabilidade",
+        "content": "Esta seção define a alocação de responsabilidade mais relevante destes termos.\n\nVocê declara e garante que, para cada contato que inserir, importar ou acionar por meio da plataforma:\n\n• Possui base legal adequada para tratar aqueles dados pessoais e para enviar a comunicação pretendida.\n• Obteve, quando exigido pela legislação ou pelas regras do canal, o consentimento prévio, livre, informado e verificável do destinatário.\n• Mantém registro capaz de comprovar esse consentimento, e é capaz de apresentá-lo se questionado.\n• Honra imediatamente pedidos de descadastramento e não recontata quem tenha se oposto.\n\nA {brandLegalName} não verifica, não valida e não tem como verificar a origem das listas de contatos ou a existência de consentimento. Fornecemos a ferramenta; a decisão sobre quem receberá qual mensagem é exclusivamente sua.\n\nVocê é o controlador desses dados pessoais e responde perante titulares, autoridades e terceiros por qualquer comunicação enviada em desacordo com esta seção."
+      },
+      "ai": {
+        "title": "Inteligência artificial: natureza e limites",
+        "content": "A plataforma disponibiliza agentes de inteligência artificial que atuam em canais de mensagens de texto.\n\nO que você precisa saber ao ativá-los:\n\n• As respostas são geradas por modelos de linguagem e podem conter informações incorretas, desatualizadas ou inadequadas ao contexto. Não há garantia de exatidão.\n• As respostas não constituem aconselhamento jurídico, financeiro, contábil, médico ou profissional de qualquer natureza.\n• Você é responsável por configurar, revisar e supervisionar o comportamento dos agentes, inclusive pelo conteúdo das bases de conhecimento que fornecer.\n• Você é responsável pelo conteúdo efetivamente enviado aos seus contatos, ainda que gerado por um agente.\n• Para operar o recurso, o conteúdo das mensagens é enviado a provedores de modelos, conforme descrito na Política de Privacidade.\n• Os agentes de inteligência artificial atuam somente em canais de mensagens. A plataforma não realiza chamadas de voz automatizadas por inteligência artificial e nenhum agente conduz ligações telefônicas.\n\nSe a legislação aplicável ao seu setor exigir identificação do atendimento automatizado, cabe a você configurá-la."
+      },
+      "customerData": {
+        "title": "Conteúdo do contratante e proteção de dados",
+        "content": "O conteúdo do contratante permanece de sua titularidade. Não reivindicamos propriedade sobre ele.\n\nEm relação aos dados pessoais contidos no conteúdo do contratante, atuamos como operadores, e você atua como controlador, nos termos da Lei nº 13.709/2018. Tratamos esses dados exclusivamente conforme suas instruções e o necessário para prestar o serviço, manter a segurança e cumprir a lei.\n\nConcedemos a nós uma licença limitada, não exclusiva e revogável para hospedar, processar, transmitir e exibir o conteúdo do contratante, unicamente para operar a plataforma em seu favor.\n\nDetalhes sobre categorias de dados, suboperadores, transferência internacional, retenção e direitos dos titulares constam da Política de Privacidade, que integra estes termos.\n\nDurante a vigência do contrato você pode exportar seus dados pelas funcionalidades disponíveis. As condições de recuperação após o encerramento constam da seção 13."
+      },
+      "availability": {
+        "title": "Disponibilidade, suporte e manutenção",
+        "content": "Empenhamo-nos em manter a plataforma disponível de forma contínua, mas não garantimos operação ininterrupta ou livre de erros.\n\nA disponibilidade pode ser afetada por:\n\n• Manutenções programadas, comunicadas com antecedência sempre que possível.\n• Correções emergenciais de segurança, que podem ocorrer sem aviso prévio.\n• Indisponibilidade, alteração ou descontinuação de canais e serviços de terceiros.\n• Eventos de força maior e fatos alheios ao nosso controle razoável.\n\nCompromissos específicos de nível de serviço, quando existirem, constarão de contrato comercial ou anexo próprio. Na ausência deles, a plataforma é fornecida em regime de melhores esforços.\n\nO suporte é prestado pelos canais indicados na plataforma e por {supportEmail}."
       },
       "intellectualProperty": {
-        "title": "4. Direitos de Propriedade Intelectual",
-        "content": "Todo conteúdo, recursos e funcionalidades dos Serviços {brandName}, incluindo, mas não limitado a texto, gráficos, logos, ícones, imagens, clipes de vídeo, downloads digitais, compilações de dados e software (coletivamente, \"Conteúdo\"), são propriedade exclusiva da {brandLegalName} ou seus fornecedores de conteúdo e são protegidos por leis internacionais de direitos autorais, marcas registradas e outras leis de propriedade intelectual.\n\nVocê não pode reproduzir, distribuir, transmitir, exibir, executar, transmitir, publicar, fazer upload, fazer links ou de outra forma disponibilizar qualquer Conteúdo sem nossa permissão escrita prévia. Qualquer uso não autorizado do Conteúdo é proibido e pode violar leis de direitos autorais, marcas registradas e outras."
+        "title": "Propriedade intelectual",
+        "content": "A plataforma, seu código, interfaces, documentação, marcas e demais elementos são de titularidade da {brandLegalName} ou de seus licenciadores, e permanecem protegidos pela legislação aplicável.\n\nConcedemos a você licença de uso limitada, não exclusiva, intransferível e revogável, restrita à vigência do contrato e às finalidades previstas nestes termos.\n\nÉ vedado copiar, modificar, distribuir, sublicenciar, realizar engenharia reversa ou criar obras derivadas da plataforma, salvo autorização escrita ou permissão legal expressa.\n\nSugestões e comentários que você nos enviar sobre o produto podem ser utilizados livremente por nós, sem obrigação de compensação e sem que isso transfira direitos sobre o seu conteúdo."
       },
-      "userContent": {
-        "title": "5. Conteúdo Gerado pelo Usuário",
-        "content": "Se você enviar, fazer upload ou de outra forma fornecer conteúdo aos Serviços {brandName} (\"Conteúdo do Usuário\"), você declara e garante que você é dono ou tem os direitos necessários para o conteúdo e que não viola direitos de terceiros ou leis aplicáveis.\n\nAo enviar Conteúdo do Usuário, você concede à {brandName} uma licença não exclusiva, livre de royalties, mundial, perpétua e irrevogável para usar, reproduzir, modificar, distribuir e exibir tal conteúdo em conexão com nossos Serviços e operações comerciais.\n\nA {brandName} não endossa e não é responsável por qualquer Conteúdo do Usuário. Reservamo-nos o direito de remover, modificar ou recusar publicar qualquer Conteúdo do Usuário que viole estes Termos ou seja de outra forma inapropriado."
+      "confidentiality": {
+        "title": "Confidencialidade",
+        "content": "Cada parte compromete-se a manter sigilo sobre informações confidenciais da outra a que tiver acesso, utilizando-as apenas para cumprir estes termos.\n\nNão se consideram confidenciais as informações que: sejam ou se tornem públicas sem violação destes termos; já fossem conhecidas pela parte receptora sem obrigação de sigilo; sejam desenvolvidas de forma independente; ou cuja divulgação seja exigida por lei ou autoridade competente, hipótese em que a parte notificará a outra quando permitido.\n\nA obrigação de confidencialidade subsiste por 5 (cinco) anos após o término do contrato."
       },
-      "limitationOfLiability": {
-        "title": "6. Limitação de Responsabilidade",
-        "content": "NA MÁXIMA EXTENSÃO PERMITIDA PELA LEI, A {brandName} NÃO SERÁ RESPONSÁVEL POR DANOS INDIRETOS, INCIDENTAIS, ESPECIAIS, CONSEQUENTES, PUNITIVOS OU EXEMPLARES, INCLUINDO MAS NÃO LIMITADO A DANOS POR PERDA DE LUCROS, BOA VONTADE, USO, DADOS OU OUTRAS PERDAS INTANGÍVEIS, MESMO SE ALERTADA SOBRE A POSSIBILIDADE DE TAIS DANOS.\n\nNOSSA RESPONSABILIDADE TOTAL POR QUALQUER RECLAMAÇÃO DECORRENTE OU RELACIONADA A ESTES TERMOS OU SEU USO DOS SERVIÇOS NÃO EXCEDERÁ O VALOR PAGO POR VOCÊ À {brandName} NOS 12 MESES ANTERIORES À RECLAMAÇÃO OU $ 100 USD, O VALOR MAIOR.\n\nAlgunas jurisdições não permitem a exclusão de certas garantias ou limitação de responsabilidade, portanto, as limitações acima podem não se aplicar a você."
+      "suspension": {
+        "title": "Suspensão e encerramento",
+        "content": "Podemos suspender ou limitar o acesso, no todo ou em parte, quando:\n\n• Houver inadimplemento não sanado após comunicação prévia.\n• Houver violação das seções 5, 6 ou 7, hipótese em que a suspensão pode ser imediata.\n• Houver risco concreto à segurança da plataforma, de terceiros ou de contatos.\n• Houver determinação de autoridade competente ou exigência de provedor de canal.\n\nVocê pode encerrar o contrato a qualquer momento pelos meios disponibilizados na plataforma ou por comunicação a {supportEmail}.\n\nEncerrado o contrato: o acesso é cessado; você pode solicitar a exportação do conteúdo do contratante dentro do prazo de recuperação informado no contrato; findo esse prazo, os dados são eliminados ou anonimizados, ressalvadas as hipóteses de guarda obrigatória.\n\nSubsistem ao término as seções 10, 11, 12, 14, 15, 18 e 19."
       },
-      "indemnification": {
-        "title": "7. Indenização",
-        "content": "Você concorda em indenizar, defender e manter indemne a {brandName}, seus oficiais, diretores, funcionários e agentes de e contra qualquer e toda reclamação, dano, custo e despesa (incluindo custos razoáveis de advogados) decorrente de ou relacionado a:\n\nSeu uso dos Serviços {brandName}\nSua violação destes Termos de Serviço\nSua violação de qualquer lei ou regulamento aplicável\nSua infração de qualquer direito de propriedade intelectual de terceiros\nSeu Conteúdo de Usuário\nQualquer outra responsabilidade decorrente de suas ações ou omissões\n\nA {brandName} se reserva o direito de assumir a defesa de qualquer tal reclamação, e você concorda em cooperar plenamente com tal defesa."
+      "warranties": {
+        "title": "Garantias e isenções",
+        "content": "A plataforma é fornecida no estado em que se encontra e conforme disponível.\n\nNa máxima extensão permitida pela lei aplicável, não oferecemos garantias implícitas de adequação a uma finalidade específica, de resultado comercial, de volume de vendas, de taxa de entrega de mensagens, de conversão ou de recuperação de crédito.\n\nEspecificamente, não garantimos:\n\n• Que mensagens serão entregues, lidas ou respondidas, uma vez que a entrega depende do canal, do dispositivo e do destinatário.\n• Que um número ou conta permanecerá ativo em um canal de terceiro.\n• A exatidão de conteúdo gerado por inteligência artificial.\n\nNada nestes termos afasta garantias que a legislação imperativa brasileira não permita afastar."
       },
-      "thirdPartyServices": {
-        "title": "8. Serviços e Integrações de Terceiros",
-        "content": "Os Serviços {brandName} podem incluir links para ou integrações com sites, aplicativos e serviços de terceiros. A {brandName} não controla, endossa ou assume responsabilidade por tais serviços de terceiros.\n\nSeu uso de serviços de terceiros é regido por seus próprios termos de serviço e políticas de privacidade. Encorajamos você a revisar esses termos cuidadosamente. A {brandName} não será responsável por quaisquer danos ou perdas resultantes de seu uso de serviços de terceiros ou confiança em conteúdo de terceiros."
+      "liability": {
+        "title": "Limitação de responsabilidade",
+        "content": "Na máxima extensão permitida pela lei aplicável, a responsabilidade total e acumulada da {brandLegalName} decorrente destes termos, por qualquer causa, fica limitada ao valor efetivamente pago por você nos 12 (doze) meses anteriores ao evento que originou a demanda.\n\nNão respondemos por lucros cessantes, perda de oportunidade, perda de dados que decorra de ato ou omissão do contratante, danos indiretos ou danos decorrentes de:\n\n• Suspensão, banimento ou alteração de regras por provedor de canal de terceiros.\n• Conteúdo enviado por você ou por seus usuários aos seus contatos.\n• Uso de conteúdo gerado por inteligência artificial sem revisão.\n• Falta de consentimento válido dos contatos, nos termos da seção 7.\n\nEstas limitações não se aplicam a dolo ou culpa grave, nem afastam responsabilidades que a legislação imperativa brasileira atribua de forma inafastável."
       },
-      "warrantyDisclaimer": {
-        "title": "9. Isenção de Garantias",
-        "content": "OS SERVIÇOS {brandName} SÃO FORNECIDOS EM BASE \"TAL COMO ESTÁ\" E \"CONFORME DISPONÍVEL\" SEM GARANTIA DE QUALQUER TIPO. NA MÁXIMA EXTENSÃO PERMITIDA PELA LEI, A {brandName} DECLINA TODAS AS GARANTIAS EXPRESSAS, IMPLÍCITAS E ESTATUTÁRIAS, INCLUINDO GARANTIAS IMPLÍCITAS DE COMERCIALIBILIDADE, ADEQUAÇÃO A UM FIM PARTICULAR, TÍTULO E NÃO INFRAÇÃO.\n\nA {brandName} NÃO GARANTE QUE:\n\nNossos Serviços serão ininterruptos, livres de erros ou completamente seguros\nQualquer defeito será corrigido\nNossos Serviços atenderão seus requisitos\nOs resultados obtidos com o uso de nossos Serviços serão precisos ou confiáveis\n\nVocê assume toda responsabilidade e risco pelos resultados e desempenho de nossos Serviços."
+      "indemnity": {
+        "title": "Indenização",
+        "content": "Você concorda em defender, indenizar e manter a {brandLegalName} indene de reclamações, autuações, condenações, custas e honorários advocatícios razoáveis decorrentes de:\n\n• Comunicações enviadas por você em desacordo com a seção 7, inclusive reclamações de titulares, procedimentos da ANPD, de órgãos de defesa do consumidor ou de autoridades setoriais.\n• Violação das seções 5 ou 6.\n• Conteúdo do contratante que viole direitos de terceiros.\n\nNotificaremos você prontamente sobre qualquer reclamação coberta por esta seção e cooperaremos, às suas expensas, na defesa."
       },
-      "terminationOfAccess": {
-        "title": "10. Encerramento de Acesso",
-        "content": "A {brandName} pode encerrar ou suspender sua conta e acesso a nossos Serviços a qualquer momento, com ou sem motivo e sem aviso, a seu exclusivo critério.\n\nMotivos para encerramento podem incluir, mas não se limitam a:\n\nViolação destes Termos de Serviço\nAtividade ilegal ou fraudulenta\nViolação de obrigações de pagamento\nNão conformidade com leis aplicáveis\nProblemas de conformidade e integridade interna\n\nApós o encerramento, todas as disposições que, por sua natureza, devem sobreviver ao encerramento continuarão em vigor, incluindo limitações de responsabilidade, indenização e disposições de propriedade intelectual."
-      },
-      "modifications": {
-        "title": "11. Modificações nos Termos e Serviços",
-        "content": "A {brandName} se reserva o direito de modificar estes Termos de Serviço a qualquer momento. As alterações serão efetivas imediatamente após serem postadas em nosso site ou através de notificação aos usuários.\n\nSeu uso contínuo dos Serviços {brandName} após a postagem de Termos modificados constitui sua aceitação das mudanças. A {brandName} também pode modificar, suspender ou descontinuar qualquer aspecto de nossos Serviços a qualquer momento com ou sem aviso.\n\nEncorajamos você a revisar estes Termos periodicamente para se manter informado sobre qualquer mudança."
+      "changes": {
+        "title": "Alterações dos termos e da plataforma",
+        "content": "Podemos alterar estes termos para refletir mudanças legais, regulatórias, de produto ou de fornecedores.\n\nAlterações relevantes serão comunicadas por e-mail ou por aviso na plataforma com antecedência mínima de 30 dias. Se você não concordar, poderá encerrar o contrato antes da entrada em vigor, sem ônus adicional além dos valores já devidos.\n\nO uso continuado após a vigência caracteriza aceite.\n\nA plataforma evolui: recursos podem ser adicionados, alterados ou descontinuados. Descontinuações relevantes serão comunicadas com antecedência razoável."
       },
       "governingLaw": {
-        "title": "12. Lei Aplicável",
-        "content": "Estes Termos de Serviço serão regidos e interpretados de acordo com as leis do Brasil, sem consideração de seus princípios de conflito de leis.\n\nVocê concorda que qualquer ação ou procedimento decorrente de ou relacionado a estes Termos ou seu uso dos Serviços {brandName} será trazido exclusivamente perante os tribunais do Brasil, e você consente com a jurisdição e foro de tais tribunais."
+        "title": "Lei aplicável e foro",
+        "content": "Estes termos são regidos pelas leis da República Federativa do Brasil.\n\nAs partes elegem o foro da comarca da sede da {brandLegalName} para dirimir controvérsias decorrentes destes termos, com renúncia a qualquer outro, por mais privilegiado que seja.\n\nAntes de medida judicial, as partes buscarão solução consensual por meio de comunicação escrita, com prazo de 30 (trinta) dias para tratativas, ressalvadas as medidas de urgência."
       },
-      "disputeResolution": {
-        "title": "13. Resolução de Disputas",
-        "content": "No caso de uma disputa decorrente de ou relacionada a estes Termos ou Serviços {brandName}, as partes concordam em tentar primeiro resolver o assunto através de negociação e discussão de boa-fé.\n\nSe a negociação falhar, qualquer parte pode submeter a disputa à mediação antes de buscar litígio. Ambas as partes concordam em cooperar de boa-fé em qualquer processo de mediação.\n\nSe a mediação for malsucedida, a disputa será resolvida exclusivamente nos tribunais do Brasil conforme especificado na seção Lei Aplicável."
-      },
-      "severability": {
-        "title": "14. Severabilidade",
-        "content": "Se qualquer disposição destes Termos de Serviço for considerada inválida, ilegal ou inaplicável por um tribunal de jurisdição competente, tal disposição será modificada na extensão mínima necessária para torná-la válida e aplicável, ou se tal modificação não for possível, a disposição será removida.\n\nAs disposições restantes continuarão em pleno vigor e efeito. Esta cláusula de severabilidade não se aplica se a invalidade devaluar substancialmente o acordo."
-      },
-      "entireAgreement": {
-        "title": "15. Acordo Integral",
-        "content": "Estes Termos de Serviço, juntamente com nossa Política de Privacidade e quaisquer outras políticas ou documentos incorporados por referência, constituem o acordo integral entre você e a {brandName} em relação ao seu uso dos Serviços {brandName} e supersegam todas as comunicações anteriores e contemporâneas, sejam escritas ou orais.\n\nSe qualquer disposição for considerada inaplicável, as disposições restantes permanecerão em vigor na máxima extensão possível."
-      },
-      "whatsappPlatformTerms": {
-        "title": "16. Plataforma WhatsApp Business",
-        "content": "A {brandName} é Business Partner (BP) autorizada pela Meta para operar a Plataforma WhatsApp Business. Ao utilizar funcionalidades de mensageria WhatsApp por meio de nossos Serviços, você (\"Cliente\") reconhece e concorda com o seguinte:\n\nVínculo com Termos da Meta: Seu uso da Plataforma WhatsApp Business também está sujeito aos Termos de Serviço do WhatsApp Business (whatsapp.com/legal/business-terms), à Política de Mensagens do WhatsApp Business (business.whatsapp.com/policy) e às Diretrizes de Mensagens do WhatsApp (whatsapp.com/legal/messaging-guidelines). O não cumprimento desses termos pode resultar na suspensão ou encerramento do seu acesso à plataforma pela Meta, independentemente de qualquer ação da {brandName}.\n\nAcordo de Processamento de Dados (DPA): Ao utilizar funcionalidades que envolvam o tratamento de dados pessoais de terceiros (como números de telefone de clientes finais), você concorda em celebrar com a {brandName} um Acordo de Processamento de Dados (DPA) nos termos da LGPD (Lei 13.709/2018). O Cliente atua como Controlador e a {brandName} como Operadora dos dados pessoais tratados na Plataforma WhatsApp Business.\n\nResponsabilidade pelo Consentimento: O Cliente é integralmente responsável por obter, documentar e manter todos os consentimentos exigidos pela LGPD e pelas políticas da Meta antes de enviar quaisquer mensagens via WhatsApp Business por meio da plataforma {brandName}."
-      },
-      "messagingPolicy": {
-        "title": "17. Política de Mensagens e Consentimento",
-        "content": "Ao utilizar funcionalidades de envio de mensagens via WhatsApp Business em nossa plataforma, você concorda expressamente com as seguintes obrigações:\n\nConsentimento (Opt-in): Você deve obter consentimento prévio, explícito e documentado dos destinatários antes de enviar mensagens proativas via WhatsApp Business, conforme exigido pela LGPD e pelas políticas da Meta. Mensagens enviadas dentro da janela de serviço de 24 horas em resposta a mensagens iniciadas pelo usuário ficam dispensadas desse requisito.\n\nConteúdo Proibido: Fica expressamente proibido o envio de: mensagens não solicitadas (spam); conteúdos ilegais, enganosos, difamatórios, discriminatórios ou que infrinjam direitos de terceiros; comunicações em massa a destinatários sem opt-in; qualquer conteúdo que viole a Política de Mensagens do WhatsApp Business.\n\nOpt-out: Você deve disponibilizar e honrar imediatamente mecanismos de opt-out em todas as comunicações, cessando o envio de mensagens a qualquer destinatário que solicite descadastramento.\n\nMonitoramento e Sanções: A {brandName} monitora o uso da plataforma e reserva-se o direito de suspender ou encerrar imediatamente o acesso de clientes que violem esta política, a Política de Mensagens da Meta ou a LGPD, sem prejuízo das demais sanções previstas nestes Termos de Serviço."
-      },
-      "contactUs": {
-        "title": "18. Entre em Contato",
-        "content": "Se você tem qualquer dúvida sobre estes Termos de Serviço ou requer esclarecimento sobre qualquer disposição, entre em contato conosco em:\n\n{brandLegalName}\nE-mail: {brandContactEmail}\nWhatsApp: {brandPhone}\n\nResponderemos suas dúvidas dentro de 30 dias ou conforme exigido pela lei aplicável."
+      "general": {
+        "title": "Disposições gerais",
+        "content": "• Independência das cláusulas: a invalidade de uma disposição não afeta as demais, que permanecem em vigor.\n• Tolerância: a não exigência de qualquer obrigação não implica novação nem renúncia.\n• Cessão: você não pode ceder este contrato sem nossa anuência escrita. Podemos cedê-lo em operação societária, mediante comunicação.\n• Integralidade: estes termos, a Política de Privacidade e o contrato comercial, quando houver, constituem o acordo integral entre as partes.\n• Idiomas: em caso de divergência entre versões traduzidas, prevalece a versão em português.\n• Contato: {supportEmail} para suporte e questões contratuais; {dpoEmail} para proteção de dados."
       }
+    },
+    "meta": {
+      "version": "Versão",
+      "updated": "Atualizado em",
+      "clauses": "Cláusulas",
+      "reading": "Leitura",
+      "minutes": "{minutes} min"
     }
   },
   "users": {
@@ -6772,7 +6355,8 @@
     "createWorkspace": "Criar área de trabalho",
     "searchByName": "Por nome",
     "searchByEmail": "Por e-mail de membro",
-    "searchEmailPlaceholder": "Buscar por e-mail do membro..."
+    "searchEmailPlaceholder": "Buscar por e-mail do membro...",
+    "label": "Workspace"
   },
   "workspaceSettings": {
     "queueCard": {
@@ -6902,7 +6486,7 @@
       "business_phones": "Telefones Comerciais",
       "message_shortcuts": "Atalhos de Mensagem",
       "support_inboxes": "Caixas de Entrada de Suporte",
-      "workflows": "Workflows",
+      "workflows": "Automações",
       "calendar": "Calendário",
       "stages": "Etapas",
       "stage_groups": "Funis de Etapas",
@@ -6956,7 +6540,7 @@
       "business_phones": "Visualize os números de telefone comerciais da área de trabalho",
       "message_shortcuts": "Criar atalhos de mensagem, visualizar atalhos de mensagem, editar atalhos de mensagem e excluir atalhos de mensagem",
       "support_inboxes": "Criar, visualizar, editar e excluir caixas de entrada de suporte",
-      "workflows": "Criar, visualizar workflows e execuções, editar e excluir workflows",
+      "workflows": "Criar, visualizar automações e execuções, editar e excluir automações",
       "calendar": "Criar, visualizar, editar e excluir eventos do calendário",
       "stage_groups": "Crie e leia funis de etapas (agrupamentos) reutilizáveis",
       "tags": "Organize contatos e conversas com etiquetas personalizadas",
@@ -7088,7 +6672,7 @@
       "typeAi": "IA de voz",
       "typeTrunkIn": "Tronco entrada",
       "typeTrunkOut": "Tronco saída",
-      "typeWorkflow": "Workflow",
+      "typeWorkflow": "Automação",
       "queueEnqueued": "Entrou na fila",
       "queueConnected": "Atendidas",
       "queueAbandoned": "Saiu da fila",
@@ -7454,7 +7038,7 @@
   "adminPlans": {
     "header": {
       "badge": "Admin · Planos",
-      "description": "Crie e mantenha planos de assinatura com preço base, limite de canais e precificação por serviço alinhada ao motor de billing."
+      "description": "Crie e mantenha planos de assinatura com preço base em BRL, capacidade inclusa e precificação por serviço alinhada ao motor de billing."
     },
     "stats": {
       "total": "Total",
@@ -7488,9 +7072,6 @@
     },
     "card": {
       "basePrice": "Preço base",
-      "channels": "Canais",
-      "branches": "Ramais",
-      "holdMusic": "Músicas de espera",
       "pricingItems": "Itens",
       "updatedAt": "Atualizado em",
       "noDescription": "Sem descrição cadastrada."
@@ -7500,7 +7081,7 @@
       "editBadge": "Editando plano",
       "newTitle": "Monte um plano comercializável",
       "editTitle": "Editar plano",
-      "description": "Base mensal em BRL, limite de canais simultâneos e catálogo de preços por serviço que será congelado quando a assinatura for contratada.",
+      "description": "Base mensal em BRL, capacidade inclusa e catálogo de preços por serviço que será congelado quando a assinatura for contratada.",
       "archivedTitle": "Plano arquivado",
       "archivedDescription": "Este plano foi arquivado em {archivedAt}. Ele continua auditável, mas não aceita novas contratações."
     },
@@ -7510,13 +7091,11 @@
       "description": "Descrição",
       "descriptionPlaceholder": "Explique para quem este plano existe e como ele se posiciona comercialmente.",
       "basePrice": "Preço base mensal (BRL)",
-      "maxCallChannels": "Máximo de canais simultâneos",
       "maxTtsConcurrency": "Gerações de voz simultâneas",
-      "maxBranches": "Ramais inclusos (SIP)",
-      "maxHoldMusicTracks": "Músicas de espera personalizadas (máx. 10)",
       "catalogMode": "Catálogo conectado",
       "catalogModeTitle": "As linhas seguem o catálogo configurável da plataforma",
-      "catalogModeDescription": "O plano herda os serviços válidos do motor de precificação. Aqui você ajusta o que o cliente final pagará dentro deste plano."
+      "catalogModeDescription": "O plano herda os serviços válidos do motor de precificação. Aqui você ajusta o que o cliente final pagará dentro deste plano.",
+      "includedWhatsAppBusinessPhones": "Números WhatsApp inclusos"
     },
     "pricing": {
       "title": "Precificação do plano",
@@ -7567,7 +7146,6 @@
     "toast": {
       "validation": {
         "name": "Informe um nome para o plano.",
-        "channels": "Informe um limite válido de canais simultâneos.",
         "pricingItems": "O plano precisa de ao menos um item de precificação.",
         "exchangeRate": "É necessária uma taxa de câmbio válida para converter preços em BRL."
       },
@@ -7616,7 +7194,8 @@
       "searchWorkspaces": "Buscar áreas de trabalho",
       "noWorkspaces": "Nenhuma área de trabalho encontrada.",
       "grantedWorkspaces": "{count, plural, one {# área de trabalho com acesso} other {# áreas de trabalho com acesso}}",
-      "save": "Salvar visibilidade"
+      "save": "Salvar visibilidade",
+      "globalHint": "Este plano é público: qualquer área de trabalho pode vê-lo e contratá-lo."
     },
     "exclusive": {
       "title": "Plano exclusivo de afiliado",
@@ -7641,7 +7220,14 @@
       "default": "Ocorreu um erro ao carregar a gestão de planos.",
       "exchangeRateRequired": "Não foi possível carregar a taxa USD para BRL. Configure em Admin Precificação.",
       "catalogEmpty": "O catálogo de precificação da plataforma está vazio. Verifique os preços padrão."
-    }
+    },
+    "sections": {
+      "identity": "Identidade",
+      "identityDescription": "Como o plano aparece no catálogo público, para o cliente que decide.",
+      "capacity": "Capacidade e preço",
+      "capacityDescription": "O que está incluso na mensalidade e quanto ela custa."
+    },
+    "register": "Catálogo"
   },
   "adminAffiliates": {
     "header": {
@@ -7774,7 +7360,7 @@
   "plansPage": {
     "header": {
       "badge": "Planos",
-      "description": "Veja os planos disponíveis para {workspace}, acompanhe a assinatura atual e gere a cobrança da próxima contratação no mesmo padrão visual da gestão administrativa."
+      "description": "Compare os planos disponíveis para {workspace} lado a lado, acompanhe a assinatura vigente e gere a cobrança da próxima contratação."
     },
     "stats": {
       "totalPlans": "Planos disponíveis",
@@ -7808,9 +7394,6 @@
       "current": "Atual",
       "available": "Disponível",
       "basePrice": "Preço base",
-      "channels": "Canais",
-      "branches": "Ramais",
-      "holdMusic": "músicas de espera",
       "pricingItems": "Itens",
       "updatedAt": "Atualizado em"
     },
@@ -7823,11 +7406,10 @@
       "expiredDescription": "Esta assinatura já terminou. Selecione um plano abaixo para reativar a cobrança.",
       "noneDescription": "Nenhuma assinatura ativa. Selecione um plano abaixo para começar.",
       "cancelConfirm": "Cancelar a assinatura de \"{name}\"? A área de trabalho manterá acesso até o fim do período atual.",
-      "billingSummary": "Renova em {date} · o pagamento do plano vira saldo do workspace · plano e canais na mesma fatura.",
+      "billingSummary": "Renova em {date} · o pagamento do plano vira saldo do workspace · plano e consumo na mesma fatura.",
       "plan": "Plano",
       "period": "Período",
       "basePrice": "Preço base mensal",
-      "channels": "Máximo de canais",
       "pricingItems": "Itens de precificação",
       "lockedTitle": "Assinatura ativa",
       "lockedDescription": "Um novo plano poderá ser contratado após o período atual encerrar em {date}."
@@ -7836,14 +7418,10 @@
       "currentBadge": "Plano atual",
       "availableBadge": "Plano disponível",
       "emptyTitle": "Selecione um plano",
-      "emptyDescription": "Escolha um plano da lista para ver preços, canais e serviços incluídos.",
+      "emptyDescription": "Escolha um plano no rack para ver as estimativas de uso e a tabela de preços por serviço.",
       "basePrice": "Preço base",
-      "channels": "Canais simultâneos",
       "pricingItems": "Itens de cobrança",
       "perMonth": "/mês",
-      "channelsIncluded": "canais incluídos",
-      "branchesIncluded": "ramais incluídos",
-      "holdMusicIncluded": "músicas de espera",
       "pricingItemsIncluded": "serviços de cobrança",
       "ctaHint": "A assinatura é ativada imediatamente após o pagamento",
       "scheduleNote": "Cobrança recorrente todo dia 23. O pagamento vira saldo do workspace."
@@ -7856,7 +7434,6 @@
       "categories": {
         "whatsapp": "WhatsApp",
         "sms": "SMS",
-        "telephony": "Telefonia",
         "stt": "Voz para Texto",
         "tts": "Texto para Voz",
         "llm": "Modelos de IA"
@@ -7864,7 +7441,6 @@
       "categoryDescriptions": {
         "whatsapp": "Mensagens pela API do WhatsApp Business",
         "sms": "Envio de SMS padrão",
-        "telephony": "Chamadas de voz via canal de telefonia",
         "stt": "Transcrição de áudio para texto",
         "tts": "Síntese de texto para áudio",
         "llm": "Inferência de modelos de linguagem"
@@ -7977,16 +7553,9 @@
       "messagesTitle": "Mensagens estimadas",
       "messagesValue": "~{count} mensagens",
       "messagesHint": "Equivalente em mensagens WhatsApp (utilitárias) pelo preço do plano",
-      "callMinutesTitle": "Minutos de ligação",
-      "callMinutesValue": "~{count} minutos",
-      "callMinutesHint": "Estimativa combinando TTS, STT e telefonia SIP (com fator de silêncio)",
-      "costPerMinute": "Preço estimado por minuto",
-      "costPerMinuteHint": "TTS + STT (60% atividade de voz) + SIP",
       "costPerMessage": "a partir de {price}/msg",
       "messagesLabel": "mensagens",
-      "minutesLabel": "min. de ligação",
       "equivalentBadge": "Equivalências",
-      "telephonyCapable": "Telefonia habilitada",
       "serviceLabel": {
         "whatsapp": {
           "utility": "WhatsApp Utilitária",
@@ -7998,7 +7567,14 @@
         }
       }
     },
-    "loading": "Carregando planos..."
+    "loading": "Carregando planos...",
+    "compare": {
+      "whatsappPhones": "Números WhatsApp",
+      "ttsConcurrency": "Vozes simultâneas",
+      "pricingItems": "Serviços tarifados",
+      "included": "Incluído",
+      "notIncluded": "Não incluído"
+    }
   },
   "callBillingPage": {
     "header": {
@@ -8299,10 +7875,10 @@
   },
   "workflowsPage": {
     "header": {
-      "badge": "Workflows",
-      "title": "Workflows",
+      "badge": "Automações",
+      "title": "Automações",
       "description": "Crie e gerencie fluxos de automação visuais para suas conversas.",
-      "new": "Novo Workflow"
+      "new": "Novo Automação"
     },
     "table": {
       "name": "Nome",
@@ -8325,8 +7901,8 @@
       "trigger_webhook": "Webhook"
     },
     "empty": {
-      "title": "Nenhum workflow encontrado",
-      "description": "Crie seu primeiro workflow de automação."
+      "title": "Nenhum automação encontrado",
+      "description": "Crie seu primeiro automação de automação."
     },
     "actions": {
       "activate": "Ativar",
@@ -8336,18 +7912,18 @@
     },
     "import": {
       "label": "Importar",
-      "success": "Workflow importado com sucesso.",
+      "success": "Automação importado com sucesso.",
       "tooLarge": "Arquivo muito grande (máx. 2 MB).",
       "invalidJson": "Arquivo JSON inválido."
     },
     "filters": {
-      "search": "Buscar workflows...",
+      "search": "Buscar automações...",
       "allStatus": "Todos os status"
     },
-    "namePlaceholder": "Nome do workflow",
+    "namePlaceholder": "Nome do automação",
     "descriptionPlaceholder": "Descrição (opcional)",
     "triggerType": "Tipo de gatilho",
-    "workflowType": "Tipo de workflow",
+    "workflowType": "Tipo de automação",
     "workflowTypeOption": {
       "messages": "Mensagens"
     },
@@ -8356,10 +7932,10 @@
     "pause": "Pausar",
     "save": "Salvar",
     "saving": "Salvando...",
-    "saved": "Workflow salvo com sucesso.",
-    "activated": "Workflow ativado.",
-    "paused": "Workflow pausado.",
-    "deleted": "Workflow excluído.",
+    "saved": "Automação salvo com sucesso.",
+    "activated": "Automação ativado.",
+    "paused": "Automação pausado.",
+    "deleted": "Automação excluído.",
     "deleteNode": "Excluir nó",
     "tidyUp": "Organizar nós",
     "palette": {
@@ -8396,10 +7972,10 @@
       "notifyMessage": "Mensagem de Notificação"
     },
     "validation": {
-      "nameRequired": "O nome do workflow é obrigatório.",
-      "missingTrigger": "Adicione pelo menos um gatilho compatível com o tipo do workflow.",
-      "incompatibleTrigger": "O gatilho \"{trigger}\" não é compatível com workflows do tipo {type}.",
-      "duplicateTrigger": "O gatilho \"{trigger}\" só pode existir uma vez no workflow."
+      "nameRequired": "O nome do automação é obrigatório.",
+      "missingTrigger": "Adicione pelo menos um gatilho compatível com o tipo do automação.",
+      "incompatibleTrigger": "O gatilho \"{trigger}\" não é compatível com automações do tipo {type}.",
+      "duplicateTrigger": "O gatilho \"{trigger}\" só pode existir uma vez no automação."
     },
     "nodeLabel": {
       "trigger_first_message": "Primeira Mensagem",
@@ -8518,7 +8094,7 @@
     },
     "collections": {
       "title": "Coleções MCP",
-      "description": "Agrupe servidores MCP conectados em coleções que você pode vincular a agentes e nós de workflow.",
+      "description": "Agrupe servidores MCP conectados em coleções que você pode vincular a agentes e nós de automação.",
       "createButton": "Nova coleção",
       "loading": "Carregando coleções...",
       "empty": "Ainda não há coleções MCP. Crie uma para escopar ferramentas por agente.",
@@ -8765,7 +8341,7 @@
     },
     "resourceType": {
       "agent": "Agente",
-      "workflow": "Workflow",
+      "workflow": "Automação",
       "stage_group": "Grupo de Etapas",
       "label_group": "Grupo de Etiquetas",
       "tool": "Ferramenta",
@@ -9024,99 +8600,6 @@
       "forbiddenDescription": "Apenas afiliados registrados podem ver este catálogo."
     }
   },
-  "callsPage": {
-    "header": {
-      "badge": "Chamadas",
-      "description": "Histórico unificado de chamadas com detalhamento de custos e gravações, filtre por tipo, direção, origem e período."
-    },
-    "summary": {
-      "totalCalls": "Total de Chamadas",
-      "totalDuration": "Duração Total",
-      "completed": "Concluídas",
-      "totalCost": "Custo Total"
-    },
-    "filters": {
-      "label": "Filtros",
-      "thisMonth": "Este mês",
-      "last7Days": "7 dias",
-      "last30Days": "30 dias",
-      "last90Days": "90 dias",
-      "allTime": "Todo período",
-      "allTypes": "Todos os tipos",
-      "allDirections": "Todas direções",
-      "allSources": "Todas origens",
-      "allStatuses": "Todos status",
-      "inbound": "Entrada",
-      "outbound": "Saída"
-    },
-    "type": {
-      "crm": "CRM",
-      "workflow": "Workflow",
-      "trunk_inbound": "Tronco (in)",
-      "trunk_outbound": "Tronco (out)"
-    },
-    "source": {
-      "sip": "SIP",
-      "websocket": "WebSocket",
-      "whatsapp": "WhatsApp",
-      "browser_direct": "Browser"
-    },
-    "status": {
-      "initiated": "Iniciada",
-      "ringing": "Tocando",
-      "in_progress": "Em andamento",
-      "completed": "Concluída",
-      "failed": "Falhou",
-      "abandoned": "Abandonada"
-    },
-    "records": {
-      "total": "registros",
-      "empty": "Nenhuma chamada encontrada."
-    },
-    "table": {
-      "date": "Data",
-      "type": "Tipo",
-      "direction": "Direção",
-      "source": "Origem",
-      "status": "Status",
-      "duration": "Duração",
-      "phone": "Telefone",
-      "callId": "ID da Chamada",
-      "cost": "Custo",
-      "recording": "Grav."
-    },
-    "detail": {
-      "callInfo": "Informações da Chamada",
-      "identity": "Identificação",
-      "timing": "Tempos",
-      "callId": "ID Externo",
-      "internalId": "ID Interno",
-      "workspace": "Workspace",
-      "agent": "Agente",
-      "campaign": "Campanha",
-      "lead": "Lead",
-      "conversation": "Conversa",
-      "trunk": "Tronco",
-      "parent": "Chamada Origem",
-      "phoneFrom": "Origem",
-      "phoneTo": "Destino",
-      "endReason": "Motivo do encerramento",
-      "surrenderReason": "Motivo da entrega",
-      "started": "Início",
-      "answered": "Atendida",
-      "ended": "Fim",
-      "duration": "Duração",
-      "billing": "Cobrança",
-      "billingStatus": "Status",
-      "billingTotalCharge": "Total Cobrado",
-      "recording": "Gravação",
-      "noRecording": "Nenhuma gravação disponível para esta chamada.",
-      "noBilling": "Sem registro de cobrança para esta chamada."
-    },
-    "error": {
-      "title": "Erro ao carregar chamadas"
-    }
-  },
   "leadsPage": {
     "header": {
       "badge": "Leads",
@@ -9196,24 +8679,24 @@
         "Campanhas orgânicas: responda dentro da janela de 24h com agente de IA",
         "Métricas em tempo real: entregues, lidas, respondidas e falhas",
         "Respostas automáticas de IA e análise de qualificação de leads por conversa",
-        "Organize por departamentos e atribua agentes e workflows específicos"
+        "Organize por departamentos e atribua agentes e automações específicos"
       ]
     },
     "whatsappCampaignsOrganic": {
       "badge": "RECEPTIVAS",
       "title": "Campanhas Receptivas de WhatsApp",
-      "subtitle": "Atenda conversas recebidas no seu número com agente de IA ou workflow, sem lista de contatos",
+      "subtitle": "Atenda conversas recebidas no seu número com agente de IA ou automação, sem lista de contatos",
       "dismissButton": "Prosseguir",
       "features": [
         "Respondem automaticamente às mensagens recebidas no seu número WhatsApp",
-        "Agente de IA ou workflow conduz a conversa, sem disparo de templates",
+        "Agente de IA ou automação conduz a conversa, sem disparo de templates",
         "Métricas e histórico das conversas recebidas em tempo real",
         "Organize por departamentos e atribua agentes específicos"
       ]
     },
     "workflows": {
       "badge": "AUTOMAÇÃO",
-      "title": "Workflows de Automação",
+      "title": "Automações de Automação",
       "subtitle": "Crie fluxos visuais de automação com gatilhos, condições e integrações",
       "dismissButton": "Prosseguir",
       "features": [
@@ -9221,18 +8704,17 @@
         "Gatilhos a partir de chamadas e mensagens com ações de envio, transferência de departamento e chamada de agente",
         "Ramificações condicionais para jornadas personalizadas de cada contato",
         "Integração com agentes, campanhas e ações de transferência de departamento",
-        "Workflows podem ser atribuídos a departamentos específicos"
+        "Automações podem ser atribuídos a departamentos específicos"
       ]
     },
     "liveChat": {
       "badge": "CRM",
       "title": "Chat ao Vivo e CRM",
-      "subtitle": "Atendimento em tempo real com distribuição automática e transferência de chamadas",
+      "subtitle": "Atendimento em tempo real com distribuição automática",
       "dismissButton": "Prosseguir",
       "features": [
-        "Caixa de entrada unificada para WhatsApp, voz e conversas de suporte",
+        "Caixa de entrada unificada para WhatsApp e conversas de suporte",
         "Distribuição automática por round-robin entre membros do departamento",
-        "Transferência de chamadas entre membros do workspace, cega ou consultiva",
         "Respostas e sugestões assistidas por IA para atendimento mais rápido",
         "Funil visual com estágios, etiquetas e filtros por campanha ou departamento"
       ]
@@ -9263,32 +8745,6 @@
         "Permissões granulares para controlar quem pode gerenciar cada base"
       ]
     },
-    "calls": {
-      "badge": "VOZ",
-      "title": "Chamadas e Discador",
-      "subtitle": "Histórico de chamadas, discador com transferência e análise de IA",
-      "dismissButton": "Prosseguir",
-      "features": [
-        "Histórico completo de chamadas com detalhes, gravações e custos",
-        "Transferência de chamadas entre membros, cega ou consultiva",
-        "Análise de IA com qualificação, disposição e sentimento por lead",
-        "Discador integrado para chamadas outbound diretamente da plataforma",
-        "Permissões granulares para controlar acesso a chamadas e gravações"
-      ]
-    },
-    "recordings": {
-      "badge": "GRAVAÇÕES",
-      "title": "Gravações de Chamadas",
-      "subtitle": "Acesse e gerencie todas as gravações de chamadas do workspace",
-      "dismissButton": "Prosseguir",
-      "features": [
-        "Todas as gravações de chamadas em um só lugar com reprodução integrada",
-        "Filtros por campanha, duração e data de criação",
-        "Reproduza gravações diretamente no navegador sem download",
-        "Download de gravações para conformidade e controle de qualidade",
-        "Permissões por recurso para controlar quem pode acessar gravações"
-      ]
-    },
     "whatsappTemplates": {
       "badge": "WHATSAPP",
       "title": "Modelos de Mensagem",
@@ -9300,32 +8756,6 @@
         "Sincronize templates com o sistema de aprovação da Meta",
         "Envie templates diretamente para contatos ou campanhas",
         "Controle de permissões para gerenciar quem pode criar e enviar templates"
-      ]
-    },
-    "branches": {
-      "badge": "RAMAIS",
-      "title": "Ramais",
-      "subtitle": "Dê a cada membro um ramal SIP para que chamadas e transferências cheguem em qualquer dispositivo",
-      "dismissButton": "Começar",
-      "features": [
-        "Cada membro registra um softphone ou telefone IP de mesa como seu ramal",
-        "Chamadas recebidas e transferências tocam o navegador e o telefone registrado ao mesmo tempo",
-        "Uma pessoa, uma chamada: ocupado em qualquer dispositivo marca o membro como ocupado em todos",
-        "Passe uma chamada ativa para um colega que atende no telefone de mesa ou softphone",
-        "Credenciais SIP por ramal que você pode rotacionar a qualquer momento"
-      ]
-    },
-    "sipTrunks": {
-      "badge": "TELEFONIA",
-      "title": "Troncos SIP",
-      "subtitle": "Conecte sua infraestrutura de telefonia ao {brandName} via troncos SIP",
-      "dismissButton": "Prosseguir",
-      "features": [
-        "Conecte sistemas PBX externos ao {brandName} via troncos SIP",
-        "Monitore o status de registro em tempo real para cada tronco",
-        "Configure roteamento de entrada e saída por tronco",
-        "Gerencie múltiplos troncos com permissões por recurso no workspace",
-        "Configurações avançadas de segurança e autenticação SIP"
       ]
     },
     "integrations": {
@@ -9596,7 +9026,7 @@
         "title": "Modo de resposta",
         "subtitle": "Escolha como as respostas recebidas serao tratadas apos o envio do template.",
         "f0": "Modo agente: um agente de IA responde automaticamente usando seus prompts configurados",
-        "f1": "Modo workflow: um workflow predefinido encaminha as respostas por automacao personalizada"
+        "f1": "Modo automação: um automação predefinido encaminha as respostas por automacao personalizada"
       },
       "analysis": {
         "badge": "IA",
@@ -9637,7 +9067,7 @@
         "subtitle": "Seu CSV deve seguir um formato especifico para uma importacao bem-sucedida.",
         "f0": "Colunas obrigatorias: 'number' (ou 'telefone'/'phone'/'numero') para o numero de telefone",
         "f1": "Colunas opcionais: 'name' (ou 'nome') para o nome do contato, 'var1', 'var2', etc. para variaveis do template",
-        "f2": "Colunas adicionais viram campos de metadados que podem ser referenciados em workflows e analise",
+        "f2": "Colunas adicionais viram campos de metadados que podem ser referenciados em automações e analise",
         "f3": "As colunas de variaveis do template devem corresponder ao numero de variaveis do template selecionado"
       },
       "missingVars": {
@@ -9653,7 +9083,7 @@
         "title": "Campos de metadados",
         "subtitle": "Colunas extras do CSV que nao sao variaveis do template aparecem como campos de metadados aqui.",
         "f0": "Badges amarelos indicam metadados obrigatorios herdados do agente, eles devem ser preenchidos",
-        "f1": "Badges verdes indicam metadados opcionais que voce pode usar para filtragem e condicoes de workflow"
+        "f1": "Badges verdes indicam metadados opcionais que voce pode usar para filtragem e condicoes de automação"
       },
       "submit": {
         "badge": "Criar",
@@ -10030,196 +9460,6 @@
         "avgIncludingShells": "Incluindo shells: {avg} msgs/entrada",
         "finishedEventsTelemetry": "{count} eventos de conclusão (telemetria; pode incluir shells antigos)"
       }
-    },
-    "telephony": {
-      "badge": "Métricas · Telefonia",
-      "badgeCampaign": "Métricas · Telefonia (campanha)",
-      "desc": "Chamadas, fila, equipe e IA de voz · {name}",
-      "descCampaign": "Chamadas da campanha · {name}",
-      "noPermissionDesc": "É necessária a permissão Métricas de atendimento e telefonia (attendance:read) para ver este painel.",
-      "direction": "Direção",
-      "allDirections": "Todas",
-      "inbound": "Entrantes",
-      "outbound": "Saintes",
-      "callType": "Tipo",
-      "typeAll": "Todos",
-      "typeCrm": "Discador humano",
-      "typeAi": "IA de voz",
-      "typeTrunkIn": "Entrante (tronco)",
-      "typeTrunkOut": "Sainte (tronco)",
-      "typeWorkflow": "Workflow",
-      "kpi": {
-        "total": "Chamadas",
-        "totalShort": "No período",
-        "answered": "Chamadas atendidas",
-        "answeredShort": "Com conversa",
-        "connect": "Taxa de conexão",
-        "connectShort": "Atendidas / total",
-        "sl": "No prazo (20s)",
-        "slShort": "Meta 80%",
-        "failed": "Não concluídas",
-        "failedShort": "Falhas + abandonos",
-        "ring": "Até atender",
-        "ringShort": "Toque médio",
-        "talk": "Tempo de conversa",
-        "talkShort": "Duração média",
-        "aht": "Duração total",
-        "ahtShort": "Handle médio",
-        "hold": "Tempo em espera",
-        "withinSl": "No prazo",
-        "inbound": "Entrada",
-        "outbound": "Saída"
-      },
-      "sections": {
-        "live": "Agora no discador",
-        "liveSub": "Quem está conectado, livre ou em chamada · atualiza a cada 5s",
-        "liveTitle": "Painel ao vivo",
-        "liveTitleSub": "Concorrência em tempo real",
-        "channelsInUse": "Canais em uso",
-        "online": "Conectados",
-        "free": "Livres",
-        "inCall": "Em chamada",
-        "ringing": "Tocando",
-        "queueNow": "Fila agora",
-        "humans": "Humanos",
-        "noHumans": "Ninguém no discador agora",
-        "aiSeats": "IA de voz",
-        "noAi": "Nenhuma IA ativa no momento",
-        "volume": "Volume e situação",
-        "volumeSub": "Quando as ligações acontecem e como elas terminam",
-        "hourly": "Chamadas por hora",
-        "hourlySub": "Horários com mais movimento no período",
-        "outcome": "Situação das ligações",
-        "outcomeSub": "Atendidas, falhas e abandonos",
-        "times": "Tempos e qualidade",
-        "timesSub": "Quanto o cliente espera e quanto dura a conversa",
-        "avgTimes": "Tempos médios",
-        "avgTimesSub": "Do toque à conversa e ao fim",
-        "speed": "Rapidez no atendimento",
-        "speedSub": "Meta: 80% das ligações em até 20 segundos",
-        "dirType": "Entrantes e saintes",
-        "dirTypeSub": "E tipos de chamada",
-        "queue": "Fila e ociosidade",
-        "queueSub": "Espera na fila e quanto o time fica livre vs em chamada",
-        "queueTitle": "Fila de espera",
-        "queueTitleSub": "Quem entrou, foi atendido ou desligou esperando",
-        "occupancy": "Ocupação do time",
-        "occupancySub": "Tempo em chamada vs tempo livre (online)",
-        "team": "Equipe",
-        "teamSub": "Quem mais atende, conexão e tempo de conversa",
-        "teamRank": "Ranking de atendentes",
-        "teamRankSub": "Top 10 por ligações atendidas",
-        "teamDetail": "Detalhes da equipe",
-        "teamDetailSub": "Conexão, rapidez (20s), conversa e ociosidade",
-        "ai": "Inteligência artificial",
-        "aiSub": "Quanto a IA resolve sozinha e quando passa para uma pessoa",
-        "aiResult": "Resultado das sessões",
-        "aiResultSub": "Chamadas resolvidas pela IA vs passadas a humano",
-        "aiPerf": "Desempenho da IA em chamadas",
-        "aiPerfSub": "Sessões e ligações registradas no período",
-        "dispositions": "Motivos de encerramento",
-        "dispositionsSub": "Como as ligações terminaram no período",
-        "journey": "Percurso da chamada",
-        "journeySub": "Como as tentativas avançam da oferta à resposta ou queda",
-        "journeyTitle": "Jornada da chamada",
-        "journeyTitleSub": "Volume e conversão entre etapas no período",
-        "queueJourney": "Percurso da fila",
-        "queueJourneySub": "Quem entrou na fila de espera e como saiu"
-      },
-      "labels": {
-        "onTime": "No prazo (20s)",
-        "onTimeCount": "Quantidade no prazo",
-        "connectRate": "Taxa de conexão",
-        "avgWait": "Espera média",
-        "queueOnTime": "No prazo (fila)",
-        "abandonPct": "% que desligou",
-        "maxWait": "Pior espera",
-        "sessionsEnded": "Sessões encerradas",
-        "stillActive": "Ainda ativas",
-        "aiResolved": "Chamadas resolvidas pela IA",
-        "handedOff": "Passadas a humano",
-        "cdrCalls": "Ligações",
-        "avgTalk": "Tempo médio de conversa",
-        "shortHangup": "Desligou rápido",
-        "abandoned": "Abandonadas",
-        "answered": "Chamadas atendidas",
-        "failed": "Falhas",
-        "untilAnswer": "Até atender",
-        "talk": "Tempo de conversa",
-        "totalDuration": "Duração total",
-        "attempts": "Tentativas",
-        "transfers": "Transferências",
-        "transfersHint": "eventos transfer_completed",
-        "shortHangupHint": "Chamada com menos de 6s após atender",
-        "inbound": "Entrantes",
-        "outbound": "Saintes",
-        "aiCdr": "IA (CDR)",
-        "humanCdr": "Humanas (CDR)",
-        "onTimeHint": "Percentual atendido em até 20s",
-        "connectHint": "Atendidas ÷ total de tentativas",
-        "basedOnAgents": "Com base em {count} pessoas no período",
-        "calls": "chamadas",
-        "callsLabel": "Chamadas",
-        "noCallsPeriod": "Sem chamadas no período",
-        "noMixPeriod": "Sem mix no período",
-        "noOutcomesPeriod": "Sem resultados no período",
-        "noDispositionsPeriod": "Sem desfechos no período",
-        "noQueueEvents": "Sem eventos de fila no período",
-        "noPresencePeriod": "Sem presença no período",
-        "noAiSessions": "Sem sessões de IA encerradas no período",
-        "noAvgTimes": "Sem tempos médios no período",
-        "noHumanAgentCalls": "Sem ligações humanas com agente no período",
-        "noRanking": "Sem ranking no período",
-        "enqueued": "Entraram na fila",
-        "queueConnected": "Atendidas da fila",
-        "queueAbandoned": "Desligaram na espera",
-        "overflow": "Overflow",
-        "queueFull": "Fila cheia",
-        "occupancy": "Ocupação",
-        "idle": "Ociosidade",
-        "avgAgent": "Média agente",
-        "minutes": "Minutos",
-        "agentCol": "Atendente",
-        "callsCol": "Chamadas",
-        "answeredCol": "Atendidas",
-        "connectCol": "Conexão",
-        "slCol": "NS",
-        "talkCol": "Conversa",
-        "occupancyCol": "Ocupação",
-        "idleCol": "Ociosidade",
-        "liveBadge": "Ao vivo",
-        "liveTitle": "Painel ao vivo",
-        "liveSub": "Concorrência em tempo real (Redis · sem SQL)",
-        "channelsInUse": "Canais em uso",
-        "activeSeats": "{active} ativas",
-        "activeSeatsMax": "{active} / {max} ativas",
-        "conversion": "{pct}% de conversão",
-        "dropRate": "{pct}% das tentativas",
-        "mainPath": "Caminho principal",
-        "sideOutcomes": "Outros desfechos",
-        "ofTotal": "do total"
-      },
-      "glossary": {
-        "connect": "Taxa de conexão",
-        "connectDesc": "Quantas tentativas viraram conversa",
-        "onTime": "No prazo (20s)",
-        "onTimeDesc": "% atendidas em até 20 segundos (meta 80%)",
-        "avgWait": "Espera média",
-        "avgWaitDesc": "Tempo na fila até alguém atender",
-        "talk": "Conversa",
-        "talkDesc": "Duração média da fala com o cliente",
-        "idle": "Ociosidade",
-        "idleDesc": "Tempo livre enquanto a pessoa está online",
-        "aiResolved": "Chamadas resolvidas pela IA",
-        "aiResolvedDesc": "Chamadas que a IA fechou sem humano"
-      },
-      "seat": {
-        "onCall": "Em chamada",
-        "ringing": "Tocando",
-        "wrapUp": "Pós-atendimento",
-        "free": "Livre",
-        "offline": "Offline"
-      }
     }
   },
   "entryConversation": {
@@ -10458,13 +9698,13 @@
       "agentInactive": "Inativo",
       "modeLabel": "Quem atende",
       "modeAgent": "Agente",
-      "modeWorkflow": "Workflow",
-      "workflowLabel": "Workflow responsável",
-      "workflowHint": "O workflow é disparado a cada nova mensagem desta conta.",
-      "workflowSearch": "Buscar workflow...",
-      "workflowEmpty": "Nenhum workflow encontrado.",
-      "enableRequiresWorkflow": "Selecione um workflow para ativar a automação.",
-      "activeNoteWorkflow": "Novas mensagens diretas dispararão este workflow, respeitando a janela de 24 horas do Instagram. Nós de template e botões do WhatsApp são ignorados neste canal."
+      "modeWorkflow": "Automação",
+      "workflowLabel": "Automação responsável",
+      "workflowHint": "O automação é disparado a cada nova mensagem desta conta.",
+      "workflowSearch": "Buscar automação...",
+      "workflowEmpty": "Nenhum automação encontrado.",
+      "enableRequiresWorkflow": "Selecione um automação para ativar a automação.",
+      "activeNoteWorkflow": "Novas mensagens diretas dispararão este automação, respeitando a janela de 24 horas do Instagram. Nós de template e botões do WhatsApp são ignorados neste canal."
     },
     "commentRules": {
       "title": "Automação de comentários",
@@ -10689,15 +9929,15 @@
       "agentInactive": "Inativo",
       "modeLabel": "Quem atende",
       "modeAgent": "Agente",
-      "modeWorkflow": "Workflow",
-      "workflowLabel": "Workflow responsável",
-      "workflowHint": "O workflow é disparado a cada nova mensagem desta conta.",
-      "workflowSearch": "Buscar workflow...",
-      "workflowEmpty": "Nenhum workflow encontrado.",
-      "enableRequiresWorkflow": "Selecione um workflow para ativar a automação.",
-      "activeNoteWorkflow": "Novas mensagens dispararão este workflow. Nós de template e botões do WhatsApp são ignorados neste canal.",
+      "modeWorkflow": "Automação",
+      "workflowLabel": "Automação responsável",
+      "workflowHint": "O automação é disparado a cada nova mensagem desta conta.",
+      "workflowSearch": "Buscar automação...",
+      "workflowEmpty": "Nenhum automação encontrado.",
+      "enableRequiresWorkflow": "Selecione um automação para ativar a automação.",
+      "activeNoteWorkflow": "Novas mensagens dispararão este automação. Nós de template e botões do WhatsApp são ignorados neste canal.",
       "agent": "Agente",
-      "workflow": "Workflow",
+      "workflow": "Automação",
       "none": "Manual"
     },
     "business": {
@@ -10723,5 +9963,11 @@
       "whatYouGet": "O que você ganha",
       "beforeYouStart": "Antes de começar"
     }
+  },
+  "whatsappCall": {
+    "ringing": "Chamando…",
+    "inCall": "Em chamada",
+    "waitingSlot": "Aguardando linha",
+    "endCall": "Encerrar"
   }
 }

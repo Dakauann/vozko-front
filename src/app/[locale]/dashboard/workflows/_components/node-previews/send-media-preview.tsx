@@ -8,8 +8,8 @@ import {
   Microphone,
   Play,
   VideoCamera,
-} from "@phosphor-icons/react";
-import type { IconProps } from "@phosphor-icons/react";
+} from "@/components/icons";
+import type { IconProps } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import {
   ChatSurface,
@@ -157,7 +157,7 @@ function WhatsAppMedia({
           <MediaPlaceholder icon={VideoCamera} label="Vídeo" />
         )}
         <span className="absolute inset-0 flex items-center justify-center">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-black/45 backdrop-blur-sm">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-black/45">
             <Play size={15} weight="fill" className="ml-0.5 text-white" />
           </span>
         </span>

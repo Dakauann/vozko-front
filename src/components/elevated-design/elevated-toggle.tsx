@@ -42,7 +42,7 @@ const ElevatedToggle = forwardRef<
 
     const variantClasses = {
       default: cn(
-        "bg-transparent border border-border/60 text-foreground",
+        "bg-transparent border border-border text-foreground",
         "hover:bg-muted",
         "data-[state=on]:bg-foreground data-[state=on]:text-white data-[state=on]:border-gray-900"
       ),
@@ -62,7 +62,7 @@ const ElevatedToggle = forwardRef<
       <div className="flex flex-col gap-1">
         <TogglePrimitive.Root
           className={cn(
-            "inline-flex items-center justify-center rounded-2xl text-sm font-medium ring-offset-background transition-colors",
+            "inline-flex items-center justify-center rounded-[--radius] text-sm font-medium ring-offset-background transition-colors",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             "disabled:pointer-events-none disabled:opacity-50",
             sizeClasses[size],

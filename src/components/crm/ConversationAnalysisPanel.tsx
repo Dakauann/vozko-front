@@ -12,7 +12,7 @@ import {
   Target,
   ThumbsDown,
   ThumbsUp,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { useEffect, useRef, useState } from "react";
 
 import type { Analysis } from "@/lib/analysis/types";
@@ -30,32 +30,32 @@ const SENTIMENT_CONFIG = {
   positive: {
     label: "Positivo",
     icon: ThumbsUp,
-    tile: "bg-emerald-500",
+    tile: "bg-healthy",
   },
   neutral: {
     label: "Neutro",
     icon: SmileyMeh,
-    tile: "bg-amber-500",
+    tile: "bg-warning",
   },
   negative: {
     label: "Negativo",
     icon: ThumbsDown,
-    tile: "bg-rose-500",
+    tile: "bg-destructive",
   },
 } as const;
 
 const INTEREST_CONFIG = {
   interested: {
     label: "Interessado",
-    tile: "bg-emerald-500",
+    tile: "bg-healthy",
   },
   not_interested: {
     label: "Não interessado",
-    tile: "bg-rose-500",
+    tile: "bg-destructive",
   },
   undecided: {
     label: "Indeciso",
-    tile: "bg-amber-500",
+    tile: "bg-warning",
   },
 } as const;
 
@@ -63,14 +63,14 @@ const QUALIFICATION_CONFIG = {
   hot_lead: {
     label: "Hot Lead",
     icon: Fire,
-    tile: "bg-rose-500",
-    bar: "bg-rose-500",
+    tile: "bg-destructive",
+    bar: "bg-destructive",
   },
   warm_lead: {
     label: "Warm Lead",
     icon: Sparkle,
-    tile: "bg-amber-500",
-    bar: "bg-amber-500",
+    tile: "bg-warning",
+    bar: "bg-warning",
   },
   cold_lead: {
     label: "Cold Lead",
@@ -153,10 +153,10 @@ export default function ConversationAnalysisPanel({
       <button
         onClick={() => setExpanded((v) => !v)}
         className={cn(
-          "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left shadow-lg border transition-all",
+          "flex w-full items-center gap-2 rounded-[--radius] px-3 py-2 text-left shadow-lg border transition-all",
           expanded
             ? "bg-card border-border rounded-b-none shadow-md"
-            : "bg-card/95 backdrop-blur-sm border-border/80 hover:bg-card hover:shadow-xl",
+            : "bg-card border-border hover:bg-card hover:shadow-xl",
         )}
       >
         <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-white">
@@ -216,7 +216,7 @@ export default function ConversationAnalysisPanel({
                   <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
                     Qualidade do atendimento
                   </span>
-                  <span className="text-xs font-bold text-foreground">
+                  <span className="text-xs font-semibold text-foreground">
                     {analysis.attendanceQuality}%
                   </span>
                 </div>
@@ -228,10 +228,10 @@ export default function ConversationAnalysisPanel({
                     className={cn(
                       "h-full rounded-full",
                       analysis.attendanceQuality >= 70
-                        ? "bg-emerald-500/100"
+                        ? "bg-healthy/100"
                         : analysis.attendanceQuality >= 40
-                          ? "bg-amber-500"
-                          : "bg-red-500",
+                          ? "bg-warning"
+                          : "bg-destructive",
                     )}
                   />
                 </div>
@@ -241,7 +241,7 @@ export default function ConversationAnalysisPanel({
               <div className="flex flex-wrap gap-1.5">
                 <span
                   className={cn(
-                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold text-white",
+                    "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold text-white",
                     sentiment.tile,
                   )}
                 >
@@ -251,7 +251,7 @@ export default function ConversationAnalysisPanel({
 
                 <span
                   className={cn(
-                    "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold text-white",
+                    "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold text-white",
                     interest.tile,
                   )}
                 >
@@ -260,7 +260,7 @@ export default function ConversationAnalysisPanel({
 
                 <span
                   className={cn(
-                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold text-white",
+                    "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold text-white",
                     qualification.tile,
                   )}
                 >
@@ -268,12 +268,12 @@ export default function ConversationAnalysisPanel({
                   {qualification.label}
                 </span>
 
-                <span className="inline-flex items-center rounded-full bg-slate-600 px-2 py-0.5 text-[10px] font-semibold text-white">
+                <span className="inline-flex items-center rounded-[--radius] bg-muted px-2 py-0.5 text-[10px] font-semibold text-white">
                   {DISPOSITION_LABELS[analysis.disposition] ??
                     analysis.disposition}
                 </span>
 
-                <span className="inline-flex items-center rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-white">
+                <span className="inline-flex items-center rounded-[--radius] bg-primary px-2 py-0.5 text-[10px] font-semibold text-white">
                   {NEXT_ACTION_LABELS[analysis.nextAction] ??
                     analysis.nextAction}
                 </span>

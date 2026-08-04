@@ -9,7 +9,7 @@ import {
   List,
   User,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { useEffect, useState } from "react";
 
 import Button from "./button";
@@ -176,11 +176,11 @@ export default function Navbar() {
         className={cn(
           "fixed top-0 right-0 left-0 z-50 border-b transition-colors duration-300",
           showDarkNavigation
-            ? "border-white/10 bg-black text-white shadow-[0_10px_40px_-20px_rgba(15,23,42,0.75)] supports-[backdrop-filter]:bg-black supports-[backdrop-filter]:backdrop-blur-xl"
-            : "border-border bg-card/85 text-foreground shadow-[0_1px_2px_rgba(2,6,23,0.04),0_18px_44px_-32px_rgba(2,6,23,0.55)] supports-[backdrop-filter]:bg-card/70 supports-[backdrop-filter]:backdrop-blur-md",
+            ? "border-white/10 bg-black text-white"
+            : "border-border bg-card text-foreground",
         )}
       >
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:h-20 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-12 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-3">
             <BrandMark useWhite={showDarkNavigation || isDark} />
           </Link>
@@ -199,7 +199,7 @@ export default function Navbar() {
               )}
             />
             {isLoading ? (
-              <div className="h-10 w-28 animate-pulse rounded-full bg-border" />
+              <div className="h-8 w-24 animate-pulse rounded-[--radius] bg-muted" />
             ) : isAuthenticated && user ? (
               <UserDropdown
                 user={user}
@@ -215,7 +215,7 @@ export default function Navbar() {
                 iconSide="left"
                 link="/login"
                 newTab={false}
-                className="rounded-full px-5 shadow-[0_10px_24px_-12px_hsl(var(--primary))]"
+                className="px-4"
               />
             )}
           </div>
@@ -224,7 +224,7 @@ export default function Navbar() {
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className={cn(
-                "rounded-full p-2 transition-colors",
+                "rounded-[--radius] p-2 transition-colors",
                 showDarkNavigation ? "hover:bg-white/10" : "hover:bg-muted",
               )}
               aria-label="Menu"
@@ -264,7 +264,7 @@ export default function Navbar() {
               initial="closed"
               animate="open"
               exit="closed"
-              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
+              className="fixed inset-0 z-40 bg-black/40 md:hidden"
               onClick={closeMobileMenu}
             />
 
@@ -308,9 +308,9 @@ export default function Navbar() {
                     {isAuthenticated && user ? (
                       <>
                         <motion.div variants={menuItemVariants}>
-                          <div className="rounded-2xl bg-muted px-4 py-4">
+                          <div className="rounded-[--radius] bg-muted px-4 py-4">
                             <div className="flex items-center gap-3 mb-3">
-                              <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border-2 border-white shadow-md ring-2 ring-blue-500/20">
+                              <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border border-border shadow-md ring-2 ring-blue-500/20">
                                 <Image
                                   src={
                                     user.picture
@@ -335,7 +335,7 @@ export default function Navbar() {
                               </div>
                             </div>
                             {user.role === "admin" && (
-                              <span className="inline-flex items-center rounded-full bg-black px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
+                              <span className="inline-flex items-center rounded-[--radius] bg-black px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
                                 {t("adminBadge")}
                               </span>
                             )}
@@ -347,7 +347,7 @@ export default function Navbar() {
                             <Link
                               href="/dashboard"
                               onClick={closeMobileMenu}
-                              className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-foreground transition-colors hover:bg-muted"
+                              className="flex items-center gap-3 rounded-[--radius] px-4 py-3 text-sm text-foreground transition-colors hover:bg-muted"
                             >
                               <SquaresFour
                                 className="h-5 w-5 text-muted-foreground"
@@ -362,7 +362,7 @@ export default function Navbar() {
                           <Link
                             href="/perfil"
                             onClick={closeMobileMenu}
-                            className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-foreground transition-colors hover:bg-muted"
+                            className="flex items-center gap-3 rounded-[--radius] px-4 py-3 text-sm text-foreground transition-colors hover:bg-muted"
                           >
                             <User
                               className="h-5 w-5 text-muted-foreground"

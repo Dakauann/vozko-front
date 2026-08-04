@@ -1,6 +1,6 @@
 "use client";
 
-import { InstagramLogo, Plus, Warning } from "@phosphor-icons/react";
+import { InstagramLogo, Plus, Warning } from "@/components/icons";
 import { use, useCallback, useEffect, useState } from "react";
 
 import {
@@ -24,7 +24,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/elevated-design/elevated-tabs";
-import { GridFour, Robot } from "@phosphor-icons/react";
+import { GridFour, Robot } from "@/components/icons";
 import { InstagramPostDetail } from "@/components/instagram/instagram-post-detail";
 import { InstagramPostGrid } from "@/components/instagram/instagram-post-grid";
 import { InstagramProfileHeader } from "@/components/instagram/instagram-profile-header";
@@ -147,7 +147,7 @@ export default function InstagramAccountProfilePage({
 
         {loading ? (
           <div className="space-y-6">
-            <div className="h-40 animate-pulse rounded-2xl bg-muted" />
+            <div className="h-40 animate-pulse rounded-[--radius] bg-muted" />
             <ElevatedContainer className="!p-0">
               <div className="border-b border-border px-5 py-3">
                 <div className="h-4 w-32 animate-pulse rounded bg-muted" />
@@ -157,7 +157,7 @@ export default function InstagramAccountProfilePage({
                 style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 180px), 1fr))" }}
               >
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="aspect-square animate-pulse rounded-xl bg-muted" />
+                  <div key={i} className="aspect-square animate-pulse rounded-[--radius] bg-muted" />
                 ))}
               </div>
             </ElevatedContainer>

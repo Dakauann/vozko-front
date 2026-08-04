@@ -7,7 +7,7 @@ import {
   PuzzlePiece,
   WarningCircle,
   WhatsappLogo,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { motion, useReducedMotion } from "framer-motion";
 
 import Button from "@/components/elevated-design/button";
@@ -48,7 +48,7 @@ export default function WhatsAppCapacityCard({
   const reduceMotion = useReducedMotion();
 
   const shell = cn(
-    variant === "card" && "rounded-2xl border border-border bg-card p-5 shadow-sm",
+    variant === "card" && "rounded-[--radius] border border-border bg-card p-5 shadow-sm",
     className,
   );
 
@@ -56,7 +56,7 @@ export default function WhatsAppCapacityCard({
     return (
       <section className={shell} aria-busy="true" aria-label={t("capacity.label")}>
         <div className="flex items-center gap-3">
-          <div className="h-11 w-11 shrink-0 animate-pulse rounded-xl bg-muted" />
+          <div className="h-11 w-11 shrink-0 animate-pulse rounded-[--radius] bg-muted" />
           <div className="flex-1 space-y-2">
             <div className="h-4 w-40 animate-pulse rounded bg-muted" />
             <div className="h-3 w-28 animate-pulse rounded bg-muted" />
@@ -76,7 +76,7 @@ export default function WhatsAppCapacityCard({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
           {/* Brand mark on a neutral tile, keeping WhatsApp's own green. */}
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[--radius] bg-muted">
             <WhatsappLogo className="h-5 w-5 text-[#25d366]" weight="fill" />
           </span>
           <div className="min-w-0">
@@ -143,7 +143,7 @@ function CapacityMeter({
   reduceMotion: boolean;
   label: string;
 }) {
-  const fillClass = state === "atLimit" ? "bg-amber-500" : "bg-emerald-500";
+  const fillClass = state === "atLimit" ? "bg-warning" : "bg-healthy";
 
   // No allowance: a single muted track communicates "nothing to fill yet".
   if (state === "noPlan") {
@@ -235,9 +235,9 @@ function StateHint({
 }) {
   if (state === "atLimit") {
     return (
-      <p className="mt-3 flex items-start gap-1.5 text-xs text-amber-700 dark:text-amber-400">
+      <p className="mt-3 flex items-start gap-1.5 text-xs text-warning dark:text-amber-400">
         <WarningCircle
-          className="mt-px h-4 w-4 shrink-0 text-amber-500"
+          className="mt-px h-4 w-4 shrink-0 text-warning"
           weight="fill"
           aria-hidden
         />
@@ -261,7 +261,7 @@ function StateHint({
   return (
     <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
       <CheckCircle
-        className="h-4 w-4 shrink-0 text-emerald-500"
+        className="h-4 w-4 shrink-0 text-healthy"
         weight="fill"
         aria-hidden
       />

@@ -1,6 +1,6 @@
 "use client";
 
-import { Question, Envelope } from "@phosphor-icons/react";
+import { Question, Envelope } from "@/components/icons";
 import { motion, useInView, type Variants } from "framer-motion";
 import { useRef, useState } from "react";
 
@@ -156,7 +156,7 @@ const FAQSection: React.FC<FAQSectionProps> = ({
           </div>
 
           <div className="flex-none h-auto w-full relative whitespace-pre-wrap break-words">
-            <h2 className="text-4xl font-bold text-center w-full font-inter">
+            <h2 className="text-4xl font-semibold text-center w-full font-inter">
               <span
                 className="bg-clip-text text-transparent"
                 style={{
@@ -231,7 +231,7 @@ const FAQSection: React.FC<FAQSectionProps> = ({
                   href="mailto:orbai@support.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary hover:text-blue-800 underline transition-colors"
+                  className="text-lamp-ink hover:text-blue-800 underline transition-colors"
                 >
                   orbai@support.com
                 </a>

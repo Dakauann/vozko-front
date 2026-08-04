@@ -13,7 +13,7 @@ import {
   WhatsappLogo,
   Wrench,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   ElevatedDialog,
   ElevatedDialogContent,
@@ -30,10 +30,7 @@ import type {
 import { useCallback, useMemo, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
-import type { CallRecording } from "@/lib/call-recordings/types";
-import CallRecordingPlayer from "@/components/dashboard/CallRecordingPlayer";
 import { cn } from "@/lib/utils";
-import { getCallRecordingsByEntryAction } from "@/app/actions/call-recordings";
 import { getEntryConversationAction } from "@/app/actions/leads";
 import { motion } from "framer-motion";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
@@ -50,7 +47,6 @@ interface EntryConversationDialogProps {
     loading?: string;
     error?: string;
     noMessages?: string;
-    recording?: string;
     analysis?: {
       title?: string;
       interest?: string;
@@ -131,15 +127,15 @@ function formatAnalysisDate(dateString: string, locale: string) {
 }
 
 const sentimentStyles: Record<string, { bg: string; text: string }> = {
-  positive: { bg: "bg-emerald-500", text: "text-white" },
+  positive: { bg: "bg-healthy", text: "text-white" },
   neutral: { bg: "bg-muted", text: "text-foreground" },
-  negative: { bg: "bg-rose-500", text: "text-white" },
+  negative: { bg: "bg-destructive", text: "text-white" },
 };
 
 const qualificationStyles: Record<string, { bg: string; text: string }> = {
-  hot_lead: { bg: "bg-rose-500", text: "text-white" },
-  warm_lead: { bg: "bg-amber-500", text: "text-white" },
-  cold_lead: { bg: "bg-sky-500", text: "text-white" },
+  hot_lead: { bg: "bg-destructive", text: "text-white" },
+  warm_lead: { bg: "bg-warning", text: "text-white" },
+  cold_lead: { bg: "bg-muted", text: "text-white" },
 };
 
 function AnalysisPanel({
@@ -213,7 +209,7 @@ function AnalysisPanel({
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl border border-border/70 bg-gradient-to-br from-muted to-card p-4"
+      className="rounded-[--radius] border border-border bg-muted p-4"
       style={{ boxShadow: softSurfaceShadow }}
     >
       <div className="flex items-center gap-2 mb-3">
@@ -231,7 +227,7 @@ function AnalysisPanel({
       </div>
 
       <div className="grid grid-cols-2 gap-2 mb-3">
-        <div className="rounded-lg bg-card/80 p-2 border border-border">
+        <div className="rounded-lg bg-card p-2 border border-border">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-0.5">
             {t.interest ?? ti("interest")}
           </p>
@@ -239,7 +235,7 @@ function AnalysisPanel({
             {analysis.interest ? translateInterest(analysis.interest) : "-"}
           </p>
         </div>
-        <div className="rounded-lg bg-card/80 p-2 border border-border">
+        <div className="rounded-lg bg-card p-2 border border-border">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-0.5">
             {t.disposition ?? ti("disposition")}
           </p>
@@ -249,13 +245,13 @@ function AnalysisPanel({
               : "-"}
           </p>
         </div>
-        <div className="rounded-lg bg-card/80 p-2 border border-border">
+        <div className="rounded-lg bg-card p-2 border border-border">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-0.5">
             {t.sentiment ?? ti("sentiment")}
           </p>
           <span
             className={cn(
-              "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold",
+              "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold",
               sentimentStyle.bg,
               sentimentStyle.text,
             )}
@@ -263,13 +259,13 @@ function AnalysisPanel({
             {analysis.sentiment ? translateSentiment(analysis.sentiment) : "-"}
           </span>
         </div>
-        <div className="rounded-lg bg-card/80 p-2 border border-border">
+        <div className="rounded-lg bg-card p-2 border border-border">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-0.5">
             {t.qualification ?? ti("qualification")}
           </p>
           <span
             className={cn(
-              "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold",
+              "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold",
               qualificationStyle.bg,
               qualificationStyle.text,
             )}
@@ -279,7 +275,7 @@ function AnalysisPanel({
               : "-"}
           </span>
         </div>
-        <div className="rounded-lg bg-card/80 p-2 border border-border">
+        <div className="rounded-lg bg-card p-2 border border-border">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-0.5">
             {t.nextAction ?? ti("nextAction")}
           </p>
@@ -289,7 +285,7 @@ function AnalysisPanel({
               : "-"}
           </p>
         </div>
-        <div className="rounded-lg bg-card/80 p-2 border border-border">
+        <div className="rounded-lg bg-card p-2 border border-border">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-0.5">
             {t.quality ?? ti("quality")}
           </p>
@@ -299,10 +295,10 @@ function AnalysisPanel({
                 className={cn(
                   "h-full rounded-full transition-all",
                   analysis.attendanceQuality >= 70
-                    ? "bg-emerald-500"
+                    ? "bg-healthy"
                     : analysis.attendanceQuality >= 40
-                      ? "bg-amber-500"
-                      : "bg-rose-500",
+                      ? "bg-warning"
+                      : "bg-destructive",
                 )}
                 style={{ width: `${analysis.attendanceQuality}%` }}
               />
@@ -315,7 +311,7 @@ function AnalysisPanel({
       </div>
 
       {analysis.summary && (
-        <div className="rounded-lg bg-card/80 p-2 border border-border">
+        <div className="rounded-lg bg-card p-2 border border-border">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">
             {t.summary ?? ti("summary")}
           </p>
@@ -351,11 +347,11 @@ function MessageBubble({
 
   const channelBgClass = isVoice
     ? isUser
-      ? "bg-violet-100 border-violet-200"
-      : "bg-violet-50 border-violet-100"
+      ? "bg-muted border-violet-200"
+      : "bg-muted border-violet-100"
     : isUser
-      ? "bg-emerald-500/15 border-emerald-500/20"
-      : "bg-emerald-50 border-emerald-500/15";
+      ? "bg-healthy/15 border-healthy/20"
+      : "bg-healthy/10 border-healthy/15";
 
   const getIcon = () => {
     if (isUser) {
@@ -368,7 +364,7 @@ function MessageBubble({
     if (isVoice) {
       return <Phone weight="fill" className="h-3 w-3 text-violet-500" />;
     }
-    return <WhatsappLogo weight="fill" className="h-3 w-3 text-emerald-500" />;
+    return <WhatsappLogo weight="fill" className="h-3 w-3 text-healthy" />;
   };
 
   const getToolInfo = () => {
@@ -405,7 +401,7 @@ function MessageBubble({
         <button
           type="button"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-2.5 py-1 text-[10px] transition-colors cursor-pointer hover:bg-muted"
+          className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-muted px-2.5 py-1 text-[10px] transition-colors cursor-pointer hover:bg-muted"
         >
           <Wrench weight="fill" className="h-3 w-3 text-muted-foreground" />
           <span className="font-medium text-muted-foreground max-w-[150px] truncate">
@@ -450,7 +446,7 @@ function MessageBubble({
         animate={{ opacity: 1, y: 0 }}
         className="flex justify-center my-2"
       >
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-muted border border-border px-3 py-1.5">
+        <div className="inline-flex items-center gap-1.5 rounded-[--radius] bg-muted border border-border px-3 py-1.5">
           <Info weight="fill" className="h-3.5 w-3.5 text-muted-foreground" />
           <span className="text-xs text-muted-foreground">{message.text}</span>
           <span className="text-[10px] text-muted-foreground ml-1">
@@ -471,7 +467,7 @@ function MessageBubble({
         <div
           className={cn(
             "flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-white",
-            isUser ? "bg-slate-500" : "bg-primary",
+            isUser ? "bg-muted" : "bg-primary",
           )}
         >
           {getIcon()}
@@ -479,7 +475,7 @@ function MessageBubble({
 
         <div
           className={cn(
-            "max-w-[75%] rounded-2xl border px-3 py-2",
+            "max-w-[75%] rounded-[--radius] border px-3 py-2",
             channelBgClass,
             isUser ? "rounded-tr-md" : "rounded-tl-md",
           )}
@@ -493,7 +489,7 @@ function MessageBubble({
             </span>
           </div>
           <div className="flex items-center gap-2 text-muted-foreground">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-600 text-white">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-white">
               <Waveform weight="fill" className="h-4 w-4" />
             </div>
             <span className="text-sm italic">
@@ -517,7 +513,7 @@ function MessageBubble({
       <div
         className={cn(
           "flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-white",
-          isUser ? "bg-slate-500" : "bg-primary",
+          isUser ? "bg-muted" : "bg-primary",
         )}
       >
         {getIcon()}
@@ -525,7 +521,7 @@ function MessageBubble({
 
       <div
         className={cn(
-          "max-w-[75%] rounded-2xl border px-3 py-2",
+          "max-w-[75%] rounded-[--radius] border px-3 py-2",
           channelBgClass,
           isUser ? "rounded-tr-md" : "rounded-tl-md",
         )}
@@ -564,23 +560,8 @@ export default function EntryConversationDialog({
   const [analysis, setAnalysis] = useState<EntryConversationAnalysis | null>(
     null,
   );
-  const [recordings, setRecordings] = useState<CallRecording[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const [showAllRecordings, setShowAllRecordings] = useState(false);
-
-  const visibleRecordings = useMemo(() => {
-    const sorted = [...recordings].sort(
-      (a, b) =>
-        new Date(b.callStart).getTime() - new Date(a.callStart).getTime(),
-    );
-    if (showAllRecordings || sorted.length <= 2) {
-      return sorted;
-    }
-    return sorted.slice(0, 2);
-  }, [recordings, showAllRecordings]);
-
-  const hiddenRecordingsCount = recordings.length - 2;
 
   const loadConversation = useCallback(() => {
     startTransition(async () => {
@@ -590,14 +571,9 @@ export default function EntryConversationDialog({
         entryId,
         entryType,
       );
-      const recordingsPromise =
-        entryType === "voice"
-          ? getCallRecordingsByEntryAction(entryId)
-          : Promise.resolve({ recordings: [], total: 0, error: null });
 
-      const [conversationResult, recordingsResult] = await Promise.all([
+      const [conversationResult] = await Promise.all([
         conversationPromise,
-        recordingsPromise,
       ]);
 
       if (conversationResult.error) {
@@ -609,10 +585,6 @@ export default function EntryConversationDialog({
         setMessages(conversationResult.conversation.messages ?? []);
         setAnalysis(conversationResult.conversation.latestAnalysis ?? null);
         setLoaded(true);
-      }
-
-      if (!recordingsResult.error && recordingsResult.recordings.length > 0) {
-        setRecordings(recordingsResult.recordings);
       }
     });
   }, [entryId, entryType]);
@@ -644,8 +616,8 @@ export default function EntryConversationDialog({
           <div className="flex items-center gap-3">
             <div
               className={cn(
-                "flex h-12 w-12 items-center justify-center rounded-xl",
-                entryType === "voice" ? "bg-violet-500" : "bg-emerald-500",
+                "flex h-12 w-12 items-center justify-center rounded-[--radius]",
+                entryType === "voice" ? "bg-muted" : "bg-healthy",
               )}
             >
               {entryType === "voice" ? (
@@ -678,7 +650,7 @@ export default function EntryConversationDialog({
               <p className="text-sm">{translations?.loading ?? t("loading")}</p>
             </div>
           ) : error ? (
-            <div className="flex flex-col items-center justify-center py-12 text-rose-500">
+            <div className="flex flex-col items-center justify-center py-12 text-destructive">
               <X weight="bold" className="h-8 w-8 mb-3" />
               <p className="text-sm">{error}</p>
             </div>
@@ -706,62 +678,10 @@ export default function EntryConversationDialog({
                 )}
               </div>
 
-              {/* Recording & analysis */}
-              {(recordings.length > 0 || analysis) && (
+              {/* Conversation analysis */}
+              {analysis && (
                 <div className="w-full lg:w-96 lg:min-h-0 flex-shrink-0 overflow-y-auto overflow-x-hidden">
                   <div className="space-y-4 pr-2">
-                    {entryType === "voice" && recordings.length > 0 && (
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                            {translations?.recording ?? t("recording")}
-                          </p>
-                          {recordings.length > 2 && (
-                            <span className="text-[10px] font-medium text-muted-foreground">
-                              {recordings.length}{" "}
-                              {recordings.length === 1
-                                ? t("recordingOne")
-                                : t("recordings")}
-                            </span>
-                          )}
-                        </div>
-                        {visibleRecordings.map((recording) => (
-                          <CallRecordingPlayer
-                            key={recording.callId}
-                            recordingUrl={recording.recordingUrl}
-                            durationSec={recording.durationSec}
-                            callStart={recording.callStart}
-                          />
-                        ))}
-                        {recordings.length > 2 && (
-                          <motion.button
-                            type="button"
-                            onClick={() =>
-                              setShowAllRecordings(!showAllRecordings)
-                            }
-                            className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg border border-border bg-muted text-xs font-medium text-muted-foreground transition-colors hover:bg-muted"
-                            whileHover={{ scale: 1.01 }}
-                            whileTap={{ scale: 0.99 }}
-                          >
-                            {showAllRecordings ? (
-                              <>
-                                <CaretDown weight="bold" className="h-3 w-3" />
-                                <span>{t("showLess")}</span>
-                              </>
-                            ) : (
-                              <>
-                                <CaretRight weight="bold" className="h-3 w-3" />
-                                <span>
-                                  {t("showMore", {
-                                    count: hiddenRecordingsCount,
-                                  })}
-                                </span>
-                              </>
-                            )}
-                          </motion.button>
-                        )}
-                      </div>
-                    )}
 
                     {analysis && (
                       <AnalysisPanel

@@ -81,69 +81,38 @@ const iconPosition: Record<ElevatedTextareaSize, string> = {
   lg: "left-5 top-4",
 };
 
-const labelOffsets: Record<
-  ElevatedTextareaSize,
-  { withIcon: string; withoutIcon: string }
-> = {
-  sm: { withIcon: "left-[2.75rem]", withoutIcon: "left-4" },
-  default: { withIcon: "left-[3.25rem]", withoutIcon: "left-5" },
-  lg: { withIcon: "left-[3.75rem]", withoutIcon: "left-6" },
-};
 
-const restingLabelTop: Record<ElevatedTextareaSize, string> = {
-  sm: "top-2.5",
-  default: "top-3.5",
-  lg: "top-4",
-};
 
 const textareaVariantClasses: Record<BaseVariant, string> = {
   primary:
-    "bg-primary text-primary-foreground border border-transparent focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    "bg-primary text-primary-foreground border border-transparent focus-visible:ring-2 focus-visible:ring-ring",
   secondary:
-    "bg-card text-foreground border border-border hover:border-foreground/20 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    "bg-card text-foreground border border-border border-t-rule-strong bg-muted hover:border-rule-strong focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-rule-strong",
   outline:
-    "bg-card text-foreground border border-border hover:border-foreground/20 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    "bg-card text-foreground border border-border border-t-rule-strong bg-muted hover:border-rule-strong focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-rule-strong",
   ghost:
-    "bg-card/90 backdrop-blur text-foreground border border-transparent hover:border-border focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-  vsl: "bg-gradient-to-r from-cyan-500 to-emerald-500 text-white border border-transparent focus-visible:ring-2 focus-visible:ring-cyan-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[rgba(12,42,36,0.65)]",
+    "bg-card text-foreground border border-transparent hover:border-border focus-visible:ring-2 focus-visible:ring-ring",
+  vsl: "bg-muted text-white border border-transparent focus-visible:ring-2 focus-visible:ring-cyan-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[rgba(12,42,36,0.65)]",
   action:
-    "bg-primary text-primary-foreground border border-primary focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    "bg-primary text-primary-foreground border border-primary focus-visible:ring-2 focus-visible:ring-ring",
   search:
-    "bg-muted text-foreground border border-transparent hover:border-border focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-foreground/20 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    "bg-muted text-foreground border border-transparent hover:border-border focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-foreground/20",
 };
 
 const disabledClasses =
-  "disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-muted/40 disabled:text-muted-foreground disabled:border-muted";
+  "disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-muted disabled:text-muted-foreground disabled:border-muted";
 
 const iconColorByVariant: Record<BaseVariant, string> = {
   primary: "text-primary-foreground",
-  secondary: "text-primary/60",
-  outline: "text-primary/60",
+  secondary: "text-lamp-ink/60",
+  outline: "text-lamp-ink/60",
   ghost: "text-muted-foreground",
   vsl: "text-white",
   action: "text-primary-foreground",
   search: "text-muted-foreground",
 };
 
-const floatingLabelClasses: Record<BaseVariant, string> = {
-  primary: "bg-primary/95 text-primary-foreground shadow-sm",
-  secondary: "bg-card text-foreground shadow-sm",
-  outline: "bg-card text-foreground shadow-sm",
-  ghost: "bg-card/95 text-foreground backdrop-blur shadow-sm",
-  vsl: "bg-gradient-to-r from-cyan-500/90 to-emerald-500/90 text-white shadow-sm",
-  action: "bg-primary text-primary-foreground shadow-sm",
-  search: "bg-muted text-foreground shadow-sm",
-};
 
-const restingLabelClasses: Record<BaseVariant, string> = {
-  primary: "text-primary-foreground/80",
-  secondary: "text-muted-foreground",
-  outline: "text-muted-foreground",
-  ghost: "text-muted-foreground",
-  vsl: "text-white/85",
-  action: "text-primary-foreground/80",
-  search: "text-muted-foreground",
-};
 
 const textareaShadowByVariant: Record<BaseVariant, string> = {
   primary: `${softSurfaceShadow}, inset 0 1px 0 var(--shadow-highlight)`,
@@ -156,7 +125,7 @@ const textareaShadowByVariant: Record<BaseVariant, string> = {
 };
 
 const disabledShadow =
-  "0 12px 24px -20px rgba(15,23,42,0.12), inset 0 1px 0 var(--shadow-highlight)";
+  "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)";
 
 const ElevatedTextarea = forwardRef<HTMLTextAreaElement, ElevatedTextareaProps>(
   (
@@ -259,14 +228,19 @@ const ElevatedTextarea = forwardRef<HTMLTextAreaElement, ElevatedTextareaProps>(
 
     const resolvedVariant = variantAlias[variant] ?? "secondary";
     const resolvedSize: ElevatedTextareaSize = controlSize ?? "default";
-    const isFloating = focused || hasValue || (!!value && value !== "");
 
     const boxShadowValue = disabled
       ? disabledShadow
       : textareaShadowByVariant[resolvedVariant];
 
     return (
-      <div className={cn("relative w-full", className)}>
+      <div className={cn("w-full", className)}>
+        {label ? (
+          <label className="legend mb-1 block max-w-full truncate">
+            {label}
+          </label>
+        ) : null}
+        <div className="relative w-full">
         {icon ? (
           <span
             className={cn(
@@ -292,10 +266,10 @@ const ElevatedTextarea = forwardRef<HTMLTextAreaElement, ElevatedTextareaProps>(
             "peer block w-full font-medium transition-all duration-200 ease-out focus-visible:outline-none placeholder:text-transparent",
             autoResize ? "resize-none" : "resize-y",
             resolvedVariant === "ghost"
-              ? "rounded-2xl"
+              ? "rounded-[--radius]"
               : resolvedVariant === "action" || resolvedVariant === "search"
                 ? "rounded-lg"
-                : "rounded-xl",
+                : "rounded-[--radius]",
             sizeClasses[resolvedSize],
             icon ? iconPadding[resolvedSize] : basePadding[resolvedSize],
             textareaVariantClasses[resolvedVariant],
@@ -310,29 +284,10 @@ const ElevatedTextarea = forwardRef<HTMLTextAreaElement, ElevatedTextareaProps>(
           }}
         />
 
-        {label ? (
-          <label
-            className={cn(
-              "absolute pointer-events-none rounded-full px-2 py-[2px] transition-all duration-200 ease-out",
-              icon
-                ? labelOffsets[resolvedSize].withIcon
-                : labelOffsets[resolvedSize].withoutIcon,
-              isFloating
-                ? cn(
-                    "top-0 -translate-y-1/2 text-[11px] font-semibold",
-                    floatingLabelClasses[resolvedVariant],
-                  )
-                : cn(
-                    restingLabelTop[resolvedSize],
-                    "text-sm",
-                    restingLabelClasses[resolvedVariant],
-                  ),
-            )}
-            style={{ transformOrigin: "left center" }}
-          >
-            {label}
-          </label>
-        ) : null}
+        {/* Static legend above the field — see elevated-input for the reasoning:
+            a label that animates up through its own border belongs to a
+            different system than this one. */}
+        </div>
       </div>
     );
   },

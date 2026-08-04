@@ -1,7 +1,7 @@
 "use client";
 
 import { CATEGORY_STYLES, ICON_MAP } from "./workflow-node";
-import { MagnifyingGlass, X } from "@phosphor-icons/react";
+import { MagnifyingGlass, X } from "@/components/icons";
 import type { NodeCategory, NodeDefinition } from "@/lib/workflows/types";
 import { useEffect, useRef, useState } from "react";
 
@@ -101,7 +101,7 @@ export function CanvasContextMenu({
     <div
       ref={menuRef}
       style={style}
-      className="w-72 bg-background border border-border rounded-xl shadow-2xl overflow-hidden flex flex-col"
+      className="w-72 bg-background border border-border rounded-[--radius] shadow-2xl overflow-hidden flex flex-col"
     >
       {/* Search */}
       <div className="border-b border-border p-2">
@@ -139,7 +139,7 @@ export function CanvasContextMenu({
           const styles = CATEGORY_STYLES[category];
           return (
             <div key={category} className="mb-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 text-muted-foreground">
+              <p className="text-[10px] font-semibold uppercase tracking-wider px-2 py-1 text-muted-foreground">
                 {CATEGORY_LABEL[category]}
               </p>
               {items.map((def) => {
@@ -150,7 +150,7 @@ export function CanvasContextMenu({
                     onClick={() => onSelect(def)}
                     className={cn(
                       "w-full flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-left",
-                      "hover:bg-muted/60 transition-colors cursor-pointer",
+                      "hover:bg-muted transition-colors cursor-pointer",
                     )}
                   >
                     <div

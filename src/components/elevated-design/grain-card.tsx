@@ -4,7 +4,7 @@ import type { ColorGroup, GrainPalette } from "./grain-background";
 import type { ComponentType, ReactNode } from "react";
 
 import GrainBackground from "./grain-background";
-import type { Icon } from "@phosphor-icons/react";
+import type { Icon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 interface GrainProps {
@@ -57,7 +57,7 @@ export default function GrainCard(props: GrainCardProps) {
         seed={seed}
         opacity={opacity}
         className={cn(
-          "group flex h-full flex-col gap-4 rounded-2xl p-6",
+          "group flex h-full flex-col gap-4 rounded-[--radius] p-6",
           className,
         )}
       >
@@ -88,7 +88,7 @@ export default function GrainCard(props: GrainCardProps) {
         seed={seed}
         opacity={opacity}
         className={cn(
-          "flex h-full flex-col items-center gap-3 rounded-2xl p-8",
+          "flex h-full flex-col items-center gap-3 rounded-[--radius] p-8",
           className,
         )}
       >
@@ -109,7 +109,7 @@ export default function GrainCard(props: GrainCardProps) {
       palette={palette}
       seed={seed}
       opacity={opacity}
-      className={cn("rounded-2xl", className)}
+      className={cn("rounded-[--radius]", className)}
     >
       {(props as CustomVariant).children}
     </GrainBackground>

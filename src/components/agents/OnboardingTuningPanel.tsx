@@ -15,7 +15,7 @@ import {
   FloppyDisk,
   GraduationCap,
   Sliders,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { getAgentOptionsAction, updateAgentAction } from "@/app/actions/agents";
 import { useEffect, useMemo, useState, useTransition } from "react";
 
@@ -151,10 +151,10 @@ export function OnboardingTuningPanel({ agent }: OnboardingTuningPanelProps) {
 
   if (collapsed) {
     return (
-      <div className="rounded-3xl border border-border bg-card/70 p-4 shadow-sm">
+      <div className="rounded-[--radius] border border-border bg-card p-4 shadow-sm">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-[hsl(var(--primary-hover))] text-primary-foreground shadow-lg">
+            <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground shadow-lg">
               <GraduationCap className="h-5 w-5" weight="fill" />
             </div>
             <div>
@@ -169,7 +169,7 @@ export function OnboardingTuningPanel({ agent }: OnboardingTuningPanelProps) {
           <button
             type="button"
             onClick={() => setCollapsed(false)}
-            className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs font-medium text-foreground transition-all hover:bg-muted"
+            className="inline-flex items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-2 text-xs font-medium text-foreground transition-all hover:bg-muted"
           >
             <Eye className="h-4 w-4" weight="bold" />
             {t("collapsed.expand")}
@@ -180,11 +180,11 @@ export function OnboardingTuningPanel({ agent }: OnboardingTuningPanelProps) {
   }
 
   return (
-    <div className="flex h-full flex-col rounded-3xl border border-border bg-card/70 p-5 shadow-sm">
+    <div className="flex h-full flex-col rounded-[--radius] border border-border bg-card p-5 shadow-sm">
       {/* Banner */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-[hsl(var(--primary-hover))] text-primary-foreground shadow-lg">
+          <div className="flex h-12 w-12 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground shadow-lg">
             <GraduationCap className="h-6 w-6" weight="fill" />
           </div>
           <div>
@@ -200,7 +200,7 @@ export function OnboardingTuningPanel({ agent }: OnboardingTuningPanelProps) {
           <button
             type="button"
             onClick={() => setCollapsed(true)}
-            className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+            className="inline-flex items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
           >
             <EyeSlash className="h-4 w-4" weight="bold" />
             {t("collapse")}
@@ -208,7 +208,7 @@ export function OnboardingTuningPanel({ agent }: OnboardingTuningPanelProps) {
           <button
             type="button"
             onClick={handleFinish}
-            className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs font-medium text-foreground transition-all hover:bg-muted"
+            className="inline-flex items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-2 text-xs font-medium text-foreground transition-all hover:bg-muted"
           >
             <Check className="h-4 w-4" weight="bold" />
             {t("finish")}
@@ -236,7 +236,7 @@ export function OnboardingTuningPanel({ agent }: OnboardingTuningPanelProps) {
         />
         <div className="ml-auto flex items-center gap-2">
           {dirty ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-1 text-[11px] font-medium text-amber-700">
+            <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2.5 py-1 text-[11px] font-medium text-warning">
               {t("unsaved")}
             </span>
           ) : null}
@@ -245,7 +245,7 @@ export function OnboardingTuningPanel({ agent }: OnboardingTuningPanelProps) {
             onClick={handleSave}
             disabled={!dirty || isSaving}
             className={cn(
-              "inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 px-3.5 py-2 text-xs font-semibold text-white shadow-md transition-all",
+              "inline-flex items-center gap-2 rounded-[--radius] bg-muted px-3.5 py-2 text-xs font-semibold text-white shadow-md transition-all",
               "hover:brightness-110 active:scale-[0.98]",
               "disabled:cursor-not-allowed disabled:opacity-50",
             )}
@@ -315,7 +315,7 @@ function SettingsTab(props: {
       <p className="text-xs text-muted-foreground">{props.intro}</p>
 
       {props.loading ? (
-        <div className="rounded-xl border border-dashed border-border bg-muted/30 p-6 text-center text-xs text-muted-foreground">
+        <div className="rounded-[--radius] border border-dashed border-border bg-muted p-6 text-center text-xs text-muted-foreground">
           {props.loadingLabel}
         </div>
       ) : (
@@ -350,9 +350,9 @@ function TabButton({
       type="button"
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all",
+        "inline-flex items-center gap-1.5 rounded-[--radius] px-3.5 py-2 text-xs font-semibold transition-all",
         active
-          ? "bg-gradient-to-br from-primary to-[hsl(var(--primary-hover))] text-primary-foreground shadow"
+          ? "bg-primary text-primary-foreground shadow"
           : "border border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground",
       )}
     >

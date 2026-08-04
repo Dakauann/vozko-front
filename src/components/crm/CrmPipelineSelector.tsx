@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CaretUpDown, ChatCircle, Check, Stack, TrendUp } from "@phosphor-icons/react";
+import { CaretUpDown, ChatCircle, Check, Stack, TrendUp } from "@/components/icons";
 
 import {
   Popover,
@@ -98,7 +98,7 @@ export default function CrmPipelineSelector({
         <button
           type="button"
           className={cn(
-            "inline-flex h-9 min-w-[190px] items-center gap-2 rounded-xl border border-border bg-card px-2.5 text-[13px] font-medium text-foreground transition-colors hover:border-foreground/20 hover:bg-muted",
+            "inline-flex h-9 min-w-[190px] items-center gap-2 rounded-[--radius] border border-border bg-card px-2.5 text-[13px] font-medium text-foreground transition-colors hover:border-foreground/20 hover:bg-muted",
             className,
           )}
         >
@@ -126,7 +126,7 @@ export default function CrmPipelineSelector({
       <PopoverContent
         align="start"
         sideOffset={6}
-        className="w-64 rounded-xl border border-border bg-card p-1.5 shadow-2xl"
+        className="w-64 rounded-[--radius] border border-border bg-card p-1.5 shadow-2xl"
       >
         {/* Workspace-wide scope: group responsável / etiqueta across every funnel. */}
         <button

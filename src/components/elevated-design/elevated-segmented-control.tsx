@@ -62,38 +62,38 @@ const basePadding: Record<ControlSize, string> = {
 };
 
 const activeVariantClasses: Record<BaseVariant, string> = {
-  primary: "bg-primary/5 text-primary border-2 border-dashed border-primary",
+  primary: "bg-muted text-lamp-ink border border-dashed border-primary",
   secondary:
-    "bg-secondary/10 text-secondary-foreground border-2 border-dashed border-secondary",
+    "bg-muted text-secondary-foreground border border-dashed border-secondary",
   outline:
-    "bg-primary/5 text-[var(--text-primary)] border-2 border-dashed border-primary",
+    "bg-muted text-foreground border border-dashed border-primary",
   ghost:
-    "bg-background/90 text-[var(--text-primary)] border-2 border-dashed border-foreground/30 backdrop-blur",
-  vsl: "bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 text-cyan-700 border-2 border-dashed border-cyan-500",
-  action: "bg-primary/5 text-primary border-2 border-dashed border-primary",
+    "bg-background text-foreground border border-dashed border-foreground/30",
+  vsl: "bg-muted text-muted-foreground border border-dashed border-cyan-500",
+  action: "bg-muted text-lamp-ink border border-dashed border-primary",
 };
 
 const inactiveVariantClasses: Record<BaseVariant, string> = {
   primary:
-    "bg-transparent text-muted-foreground border-2 border-dashed border-foreground/20 hover:border-foreground/30 hover:bg-muted/50",
+    "bg-transparent text-muted-foreground border border-dashed border-foreground/20 hover:border-foreground/30 hover:bg-muted",
   secondary:
-    "bg-transparent text-muted-foreground border-2 border-dashed border-foreground/20 hover:border-foreground/30 hover:bg-muted/50",
+    "bg-transparent text-muted-foreground border border-dashed border-foreground/20 hover:border-foreground/30 hover:bg-muted",
   outline:
-    "bg-transparent text-[var(--text-primary)] border-2 border-dashed border-foreground/20 hover:border-foreground/30 hover:bg-muted/50",
+    "bg-transparent text-foreground border border-dashed border-foreground/20 hover:border-foreground/30 hover:bg-muted",
   ghost:
-    "bg-transparent text-[var(--text-primary)] border-2 border-dashed border-border hover:border-foreground/20 hover:bg-muted/30",
-  vsl: "bg-transparent text-muted-foreground border-2 border-dashed border-foreground/20 hover:border-cyan-300 hover:bg-cyan-50/30",
+    "bg-transparent text-foreground border border-dashed border-border hover:border-foreground/20 hover:bg-muted",
+  vsl: "bg-transparent text-muted-foreground border border-dashed border-foreground/20 hover:border-cyan-300 hover:bg-muted",
   action:
-    "bg-transparent text-muted-foreground border-2 border-dashed border-foreground/20 hover:border-foreground/30 hover:bg-muted/50",
+    "bg-transparent text-muted-foreground border border-dashed border-foreground/20 hover:border-foreground/30 hover:bg-muted",
 };
 
 const iconColorByVariant: Record<BaseVariant, string> = {
-  primary: "text-primary",
+  primary: "text-lamp-ink",
   secondary: "text-secondary-foreground",
-  outline: "text-primary",
-  ghost: "text-[var(--text-primary)]",
-  vsl: "text-cyan-600",
-  action: "text-primary",
+  outline: "text-lamp-ink",
+  ghost: "text-foreground",
+  vsl: "text-muted-foreground",
+  action: "text-lamp-ink",
 };
 
 export function ElevatedSegmentedControl({
@@ -132,7 +132,7 @@ export function ElevatedSegmentedControl({
             }}
             whileTap={{ scale: 0.98 }}
             className={cn(
-              "flex w-full flex-col items-start justify-center rounded-xl text-left font-medium transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+              "flex w-full flex-col items-start justify-center rounded-[--radius] text-left font-medium transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               basePadding[size],
               disabled ? "cursor-not-allowed opacity-60" : "",
               isSelected

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Plus, PencilSimple, Sliders, Trash, X } from "@phosphor-icons/react";
+import { Plus, PencilSimple, Sliders, Trash, X } from "@/components/icons";
 
 import {
   ElevatedSheet,
@@ -189,7 +189,7 @@ export default function CustomFieldManager({
               {loading ? (
                 <p className="py-6 text-center text-xs text-muted-foreground">Carregando...</p>
               ) : fields.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-border py-8 text-center">
+                <div className="rounded-[--radius] border border-dashed border-border py-8 text-center">
                   <p className="text-sm text-muted-foreground">Nenhum campo personalizado ainda.</p>
                 </div>
               ) : (
@@ -219,7 +219,7 @@ export default function CustomFieldManager({
                     <button
                       type="button"
                       onClick={() => handleDelete(f.id)}
-                      className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-rose-500 hover:text-white"
+                      className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive hover:text-white"
                       aria-label="Excluir campo"
                     >
                       <Trash weight="bold" className="h-3.5 w-3.5" />
@@ -265,7 +265,7 @@ function DraftForm({
   const hasOptions = customFieldTypeHasOptions(draft.type);
 
   return (
-    <div className="space-y-4 rounded-xl border border-border bg-card p-4">
+    <div className="space-y-4 rounded-[--radius] border border-border bg-card p-4">
       <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         {draft.id ? "Editar campo" : "Novo campo"}
       </p>
@@ -304,7 +304,7 @@ function DraftForm({
             value={optionsText}
             onChange={(e) => setDraft({ ...draft, options: e.target.value.split("\n") })}
             rows={4}
-            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary/40 focus:ring-2 focus:ring-primary/20"
+            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary/40 focus:ring-2 focus:ring-ring"
             placeholder={"enterprise\nsmb\nstartup"}
           />
         </div>

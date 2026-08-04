@@ -2,8 +2,8 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 
-import { Check } from "@phosphor-icons/react";
-import type { Icon } from "@phosphor-icons/react";
+import { Check } from "@/components/icons";
+import type { Icon } from "@/components/icons";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { softSurfaceShadow } from "./shadow-presets";
@@ -42,7 +42,7 @@ export function ElevatedStepper({
   return (
     <div
       className={cn(
-        "rounded-3xl border border-border bg-card/70 backdrop-blur-sm",
+        "rounded-[--radius] border border-border bg-card",
         className,
       )}
       style={{ boxShadow: softSurfaceShadow }}
@@ -115,7 +115,7 @@ export function ElevatedStepper({
                       </p>
                     ) : null}
                     {step.optional ? (
-                      <span className="mt-1 inline-block rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                      <span className="mt-1 inline-block rounded-[--radius] bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
                         opcional
                       </span>
                     ) : null}
@@ -141,7 +141,7 @@ export function ElevatedStepper({
       {/* ── Mobile compact header ── */}
       {compactOnMobile && activeStep ? (
         <div className="sm:hidden px-5 pt-5 pb-0">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-lamp-ink">
             Etapa {safeIndex + 1} de {total}
           </p>
           <h2 className="mt-1 text-lg font-semibold text-foreground">
@@ -172,7 +172,7 @@ export function ElevatedStepper({
 
       {/* ── Footer (nav) ── */}
       {footer ? (
-        <div className="border-t border-border bg-muted/30 px-5 py-4 sm:px-8">
+        <div className="border-t border-border bg-muted px-5 py-4 sm:px-8">
           {footer}
         </div>
       ) : null}
@@ -212,7 +212,7 @@ export function ElevatedStepperFooter({
         onClick={onBack}
         disabled={!canGoBack || loading}
         className={cn(
-          "rounded-xl px-4 py-2 text-sm font-medium transition-colors",
+          "rounded-[--radius] px-4 py-2 text-sm font-medium transition-colors",
           "text-muted-foreground hover:bg-muted hover:text-foreground",
           "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent",
         )}
@@ -224,13 +224,13 @@ export function ElevatedStepperFooter({
         onClick={isLast ? onSubmit : onNext}
         disabled={(!isLast && !canGoNext) || loading}
         className={cn(
-          "inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all",
+          "inline-flex items-center gap-2 rounded-[--radius] bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all",
           "hover:bg-[hsl(var(--primary-hover))] active:scale-[0.98]",
           "disabled:opacity-50 disabled:cursor-not-allowed",
         )}
       >
         {loading ? (
-          <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
+          <span className="inline-block h-4 w-4 animate-spin rounded-full border border-rule-strong-foreground/40 border-t-primary-foreground" />
         ) : null}
         {isLast ? labels.submit : labels.next}
         {!isLast && !loading ? <span aria-hidden>→</span> : null}

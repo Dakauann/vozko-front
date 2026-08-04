@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Warning, Trash, CircleNotch } from "@phosphor-icons/react";
+import { Warning, Trash, CircleNotch } from "@/components/icons";
 
 import {
   AlertDialog,
@@ -117,7 +117,7 @@ export function ConfirmDialog({
       }}
     >
       {trigger && <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>}
-      <AlertDialogContent className="max-w-md gap-0 overflow-hidden rounded-2xl p-0 sm:rounded-2xl">
+      <AlertDialogContent className="max-w-md gap-0 overflow-hidden rounded-[--radius] p-0 sm:rounded-[--radius]">
         {/* Grainy gradient header with a floating medallion icon. */}
         <div className="relative h-28 w-full overflow-hidden">
           <GrainBackground
@@ -133,7 +133,7 @@ export function ConfirmDialog({
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/5 to-white/10" />
           <div className="absolute inset-0 grid place-items-center">
-            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-white/15 shadow-lg ring-1 ring-white/25 backdrop-blur-sm">
+            <div className="grid h-16 w-16 place-items-center rounded-[--radius] bg-white/15 shadow-lg ring-1 ring-white/25">
               {icon ?? (
                 <TileIcon
                   size={30}
@@ -160,7 +160,7 @@ export function ConfirmDialog({
           <AlertDialogFooter className="flex-row gap-2.5 sm:justify-stretch sm:space-x-0">
             <AlertDialogCancel
               disabled={busy}
-              className="mt-0 flex-1 rounded-xl"
+              className="mt-0 flex-1 rounded-[--radius]"
             >
               {cancelLabel}
             </AlertDialogCancel>
@@ -170,9 +170,9 @@ export function ConfirmDialog({
               onClick={() => void handleConfirm()}
               className={cn(
                 buttonVariants(),
-                "flex-1 gap-2 rounded-xl",
+                "flex-1 gap-2 rounded-[--radius]",
                 danger &&
-                  "bg-rose-600 text-white hover:bg-rose-700 focus-visible:ring-rose-500",
+                  "bg-destructive text-white hover:bg-destructive focus-visible:ring-rose-500",
               )}
             >
               {busy && (

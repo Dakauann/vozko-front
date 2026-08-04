@@ -3,14 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ArrowRight } from "@phosphor-icons/react";
+import { ArrowRight } from "@/components/icons";
 import {
   ElevatedDialog,
   ElevatedDialogContent,
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-import GrainBackground from "@/components/elevated-design/grain-background";
 import Button from "@/components/elevated-design/button";
 import { featureConfigs, type FeaturePageKey } from "@/data/feature-overview";
 
@@ -93,35 +92,24 @@ export default function FeaturePageLayout({
           <VisuallyHidden.Root>
             <ElevatedDialogTitle>{title}</ElevatedDialogTitle>
           </VisuallyHidden.Root>
-          <div className="rounded-[22px] overflow-hidden">
-            <div
-              className="relative w-full overflow-hidden"
-              style={{ height: 176 }}
-            >
-              <div className="absolute inset-0">
-                <GrainBackground
-                  palette={config.palette}
-                  mode="islands"
-                  seed={config.seed}
-                  islandsScale={0.01}
-                  islandsElongation={0.9}
-                  islandsWarp={10}
-                  islandsBlur={2}
-                  opacity={0}
-                  className="h-full !rounded-none"
-                />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-black/5" />
-              <div className="absolute bottom-1/2 top-1/2 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 whitespace-nowrap">
-                <span className="text-2xl sm:text-[26px] font-bold text-white tracking-tight drop-shadow-[0_1px_6px_rgba(0,0,0,0.25)]">
-                  {badge}
-                </span>
-              </div>
+          <div className="overflow-hidden rounded-[--radius]">
+            {/*
+              The generative colour-blob banner is gone. It was 176px of
+              decoration in a saturated palette that belonged to no part of this
+              system, shown on first visit to sixteen different features — the
+              loudest thing on screen, saying nothing.
+
+              What replaces it is the panel's own header: the feature's name as
+              a silkscreen legend on an engraved rule. It states which feature
+              you are being introduced to, and hands the room to the content.
+            */}
+            <div className="rule-engraved bg-muted px-5 py-3">
+              <span className="legend">{badge}</span>
             </div>
 
             <div className="px-5 sm:px-6 pt-4 sm:pt-[18px] pb-5 sm:pb-6 space-y-3 sm:space-y-4">
               <div>
-                <h2 className="text-xl sm:text-[22px] font-bold text-foreground tracking-tight leading-tight">
+                <h2 className="text-xl sm:text-[22px] font-semibold text-foreground tracking-tight leading-tight">
                   {title}
                 </h2>
                 <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">
@@ -156,7 +144,7 @@ export default function FeaturePageLayout({
                   iconVisible
                   iconSide="right"
                   onClick={handleDismiss}
-                  className="w-full rounded-[10px]"
+                  className="w-full rounded-[--radius]"
                 />
               </div>
             </div>

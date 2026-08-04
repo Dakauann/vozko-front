@@ -10,7 +10,7 @@ import {
   GearSix,
   WhatsappLogo,
   Files,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 export const agentsTourPalette: ColorGroup[] = [
   { colors: ["#8b5cf6", "#7c3aed"], weight: 35 },

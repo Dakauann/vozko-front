@@ -31,7 +31,7 @@ import {
   ArrowRight,
   Play,
   Pause,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import ElevatedButton from "@/components/elevated-design/button";
 import {
   ChannelReachLegend,
@@ -478,7 +478,7 @@ export function NodeConfigPanel({
                 className={cn(
                   "rounded-lg border px-3 py-2",
                   googleCalendarStatus.connected
-                    ? "border-emerald-200 bg-emerald-50/70 text-emerald-900"
+                    ? "border-emerald-200 bg-healthy/10/70 text-emerald-900"
                     : "border-amber-200 bg-amber-50/80 text-amber-950",
                 )}
               >
@@ -748,7 +748,7 @@ function NodeIdField({
         placeholder={nodeId}
       />
       {error ? (
-        <p className="mt-1 text-[10px] text-rose-600">{error}</p>
+        <p className="mt-1 text-[10px] text-destructive">{error}</p>
       ) : (
         <p className="mt-1 text-[10px] text-muted-foreground">
           Referenciado como{" "}
@@ -908,14 +908,14 @@ function KeyValueField({
           {entries.map(([entryKey, entryValue]) => (
             <div
               key={entryKey}
-              className="rounded-2xl border border-border bg-mist p-3"
+              className="rounded-[--radius] border border-border bg-mist p-3"
             >
               <div className="space-y-3">
                 <div className="min-w-0 space-y-1">
                   <p className="mb-1 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                     Chave
                   </p>
-                  <div className="rounded-xl border border-border/70 bg-background px-2.5 py-2 font-mono text-[11px] text-foreground break-all max-h-24 overflow-y-auto">
+                  <div className="rounded-[--radius] border border-border bg-background px-2.5 py-2 font-mono text-[11px] text-foreground break-all max-h-24 overflow-y-auto">
                     {entryKey}
                   </div>
                 </div>
@@ -948,7 +948,7 @@ function KeyValueField({
         </div>
       )}
 
-      <div className="rounded-2xl border border-dashed border-border bg-background p-3">
+      <div className="rounded-[--radius] border border-dashed border-border bg-background p-3">
         <div className="space-y-3">
           <div className="min-w-0">
             <ElevatedInput
@@ -1024,9 +1024,9 @@ function HTTPRequestConfigSection({
   const showBody = method !== "GET" && method !== "HEAD";
 
   return (
-    <div className="space-y-4 rounded-2xl border border-border bg-mist p-3.5">
+    <div className="space-y-4 rounded-[--radius] border border-border bg-mist p-3.5">
       <div className="flex items-start gap-2">
-        <div className="rounded-lg bg-sky-600 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white">
+        <div className="rounded-lg bg-muted px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white">
           HTTP
         </div>
         <div className="min-w-0">
@@ -1082,7 +1082,7 @@ function HTTPRequestConfigSection({
         />
       </div>
 
-      <div className="space-y-3 rounded-2xl border border-border bg-mist p-3.5">
+      <div className="space-y-3 rounded-[--radius] border border-border bg-mist p-3.5">
         <div
           className={cn(
             "flex gap-2",
@@ -1100,7 +1100,7 @@ function HTTPRequestConfigSection({
               headers manualmente.
             </p>
           </div>
-          <div className="rounded-full bg-muted px-2 py-1 text-[10px] font-medium text-muted-foreground">
+          <div className="rounded-[--radius] bg-muted px-2 py-1 text-[10px] font-medium text-muted-foreground">
             {authType || "nenhuma"}
           </div>
         </div>
@@ -1167,7 +1167,7 @@ function HTTPRequestConfigSection({
           availableVars={availableVars}
         />
       ) : (
-        <div className="rounded-xl border border-border/70 bg-mist px-3 py-2 text-[11px] text-muted-foreground">
+        <div className="rounded-[--radius] border border-border bg-mist px-3 py-2 text-[11px] text-muted-foreground">
           O corpo da requisição fica oculto para métodos {method}. Altere para
           POST, PUT, PATCH ou DELETE se precisar enviar payload.
         </div>
@@ -1381,7 +1381,7 @@ function SendTemplateConfigSection({
   }, [currentTemplateId, selectedTemplate, templateSelect.options]);
 
   return (
-    <div className="space-y-3 rounded-xl border border-border/70 bg-mist p-3">
+    <div className="space-y-3 rounded-[--radius] border border-border bg-mist p-3">
       <div className="space-y-1">
         <ElevatedCommandSelect
           label="Número do WhatsApp"
@@ -1437,14 +1437,14 @@ function SendTemplateConfigSection({
         {!!currentTemplateId &&
           !currentTemplateIsVisible &&
           !templateSelect.isLoading && (
-            <p className="text-[10px] text-amber-700">
+            <p className="text-[10px] text-warning">
               O template salvo não está pronto para envio neste WABA. Escolha um
               template aprovado e utilizável.
             </p>
           )}
       </div>
 
-      <div className="rounded-lg border border-sky-200 bg-sky-50/70 px-3 py-2 text-sky-950">
+      <div className="rounded-lg border border-sky-200 bg-muted px-3 py-2 text-sky-950">
         <div className="flex items-start gap-2">
           <Info size={15} className="mt-0.5 shrink-0" />
           <div className="space-y-1">
@@ -1461,7 +1461,7 @@ function SendTemplateConfigSection({
       </div>
 
       {selectedTemplate && selectedTemplate.usabilityStatus !== "ready" && (
-        <p className="text-[10px] text-amber-700">
+        <p className="text-[10px] text-warning">
           O template atual não está pronto para envio:{" "}
           {selectedTemplate.usabilityMessage ??
             selectedTemplate.usabilityStatus}
@@ -1872,7 +1872,7 @@ function AIAgentSection({
               "flex-1 text-[11px] font-medium py-1.5 transition-colors",
               source === "agent"
                 ? "bg-primary text-primary-foreground"
-                : "bg-muted/30 text-muted-foreground hover:bg-muted/50",
+                : "bg-muted text-muted-foreground hover:bg-muted",
             )}
             onClick={() =>
               updateField("source", "agent", {
@@ -1890,7 +1890,7 @@ function AIAgentSection({
               "flex-1 text-[11px] font-medium py-1.5 transition-colors",
               source === "prompt"
                 ? "bg-primary text-primary-foreground"
-                : "bg-muted/30 text-muted-foreground hover:bg-muted/50",
+                : "bg-muted text-muted-foreground hover:bg-muted",
             )}
             onClick={() =>
               updateField("source", "prompt", {
@@ -1996,7 +1996,7 @@ function AIAgentSection({
                     <button
                       type="button"
                       onClick={() => removeKB(id)}
-                      className="ml-0.5 rounded-full hover:bg-primary/20 p-0.5"
+                      className="ml-0.5 rounded-full hover:bg-muted p-0.5"
                     >
                       <X size={10} />
                     </button>
@@ -2698,7 +2698,7 @@ function MediaSelectField({
         onClick={() => fileRef.current?.click()}
         className={cn(
           "w-full flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border py-2 px-3",
-          "text-[11px] text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors",
+          "text-[11px] text-muted-foreground hover:border-primary/50 hover:text-lamp-ink transition-colors",
           "disabled:opacity-50 disabled:cursor-not-allowed",
         )}
       >
@@ -2923,7 +2923,7 @@ function ToolsField({
       </div>
 
       {tools.length === 0 && (
-        <div className="rounded-lg border border-dashed border-border/60 bg-mist p-4 text-center">
+        <div className="rounded-lg border border-dashed border-border bg-mist p-4 text-center">
           <Wrench
             size={24}
             weight="duotone"
@@ -2947,26 +2947,26 @@ function ToolsField({
             className={cn(
               "rounded-lg border overflow-hidden transition-colors",
               hasErrors && !isExpanded
-                ? "border-amber-500/50 bg-amber-500/5"
+                ? "border-warning/50 bg-warning/5"
                 : "border-border bg-card",
             )}
           >
             {/* Tool header */}
             <div
-              className="flex items-center gap-2 px-3 py-2.5 cursor-pointer hover:bg-muted/30 transition-colors"
+              className="flex items-center gap-2 px-3 py-2.5 cursor-pointer hover:bg-muted transition-colors"
               onClick={() => setExpandedIndex(isExpanded ? null : ti)}
             >
               <div
                 className={cn(
                   "flex h-7 w-7 items-center justify-center rounded-md shrink-0",
-                  tool.name ? "bg-primary/10" : "bg-muted",
+                  tool.name ? "bg-muted" : "bg-muted",
                 )}
               >
                 <Wrench
                   size={14}
                   weight="duotone"
                   className={
-                    tool.name ? "text-primary" : "text-muted-foreground"
+                    tool.name ? "text-lamp-ink" : "text-muted-foreground"
                   }
                 />
               </div>
@@ -3044,7 +3044,7 @@ function ToolsField({
 
                 {/* Parameters section */}
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between border-t border-border/50 pt-3">
+                  <div className="flex items-center justify-between border-t border-border pt-3">
                     <span className="text-xs font-medium text-foreground">
                       Parâmetros
                     </span>
@@ -3061,7 +3061,7 @@ function ToolsField({
                   </div>
 
                   {tool.parameters.length === 0 && (
-                    <p className="text-[10px] text-muted-foreground italic py-2 px-2 bg-muted/30 rounded-md">
+                    <p className="text-[10px] text-muted-foreground italic py-2 px-2 bg-muted rounded-md">
                       Sem parâmetros, a IA chamará esta função sem argumentos
                     </p>
                   )}
@@ -3187,13 +3187,13 @@ function ToolsField({
                           className={cn(
                             "flex items-center gap-2 text-xs rounded-md px-2.5 py-2 transition-colors cursor-pointer select-none border",
                             param.required
-                              ? "bg-primary/5 border-primary/30 text-foreground"
-                              : "bg-muted/30 border-transparent text-muted-foreground hover:bg-muted/50",
+                              ? "bg-muted border-primary/30 text-foreground"
+                              : "bg-muted border-transparent text-muted-foreground hover:bg-muted",
                           )}
                         >
                           <div
                             className={cn(
-                              "w-4 h-4 rounded border-2 flex items-center justify-center transition-all",
+                              "w-4 h-4 rounded border flex items-center justify-center transition-all",
                               param.required
                                 ? "bg-primary border-primary"
                                 : "border-muted-foreground/50 bg-transparent",
@@ -3227,7 +3227,7 @@ function ToolsField({
       })}
 
       {tools.length > 0 && (
-        <div className="flex items-center gap-2 px-2 py-2 rounded-md bg-muted/30 border border-dashed border-border/50">
+        <div className="flex items-center gap-2 px-2 py-2 rounded-md bg-muted border border-dashed border-border">
           <div className="flex h-5 w-5 items-center justify-center rounded bg-muted">
             <ArrowRight size={10} className="text-muted-foreground" />
           </div>
@@ -3354,7 +3354,7 @@ function ButtonsField({
             <button
               type="button"
               onClick={addReply}
-              className="flex-1 flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-primary/5 py-2 text-[11px] font-medium text-primary hover:bg-primary/10 transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-muted py-2 text-[11px] font-medium text-lamp-ink hover:bg-muted transition-colors"
             >
               <Plus size={13} weight="bold" />
               Resposta rápida
@@ -3364,7 +3364,7 @@ function ButtonsField({
             <button
               type="button"
               onClick={addCopyCode}
-              className="flex-1 flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-primary/5 py-2 text-[11px] font-medium text-primary hover:bg-primary/10 transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-muted py-2 text-[11px] font-medium text-lamp-ink hover:bg-muted transition-colors"
             >
               <Copy size={13} weight="bold" />
               Copiar código
@@ -3398,13 +3398,13 @@ function ButtonsField({
                   <CaretRight
                     size={10}
                     weight="bold"
-                    className="text-primary"
+                    className="text-lamp-ink"
                   />
                   Resposta rápida
                 </>
               ) : (
                 <>
-                  <Copy size={10} weight="bold" className="text-primary" />
+                  <Copy size={10} weight="bold" className="text-lamp-ink" />
                   Copiar código
                 </>
               )}
@@ -3564,7 +3564,7 @@ function ListSectionsField({
         <button
           type="button"
           onClick={addRow}
-          className="w-full flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-primary/5 py-2 text-[11px] font-medium text-primary hover:bg-primary/10 transition-colors"
+          className="w-full flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-muted py-2 text-[11px] font-medium text-lamp-ink hover:bg-muted transition-colors"
         >
           <Plus size={13} weight="bold" />
           Adicionar opção
@@ -3585,7 +3585,7 @@ function ListSectionsField({
         >
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-medium text-muted-foreground flex items-center gap-1.5">
-              <CaretRight size={10} weight="bold" className="text-primary" />
+              <CaretRight size={10} weight="bold" className="text-lamp-ink" />
               Opção {i + 1}
             </span>
             <button
@@ -3750,7 +3750,7 @@ function ExpressionsField({
       <button
         type="button"
         onClick={addExpression}
-        className="w-full flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-primary/5 py-2 text-[11px] font-medium text-primary hover:bg-primary/10 transition-colors"
+        className="w-full flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-muted py-2 text-[11px] font-medium text-lamp-ink hover:bg-muted transition-colors"
       >
         <Plus size={13} weight="bold" />
         Adicionar expressão
@@ -3827,7 +3827,7 @@ function CasesField({
         <button
           type="button"
           onClick={addCase}
-          className="flex items-center gap-1 text-[10px] font-medium text-primary hover:underline"
+          className="flex items-center gap-1 text-[10px] font-medium text-lamp-ink hover:underline"
         >
           <Plus size={12} weight="bold" />
           Adicionar
@@ -4047,7 +4047,7 @@ function MediaPreviewSection({ media }: { media: Media }) {
         <div className="h-px flex-1 bg-border" />
       </div>
 
-      <div className="rounded-lg border border-border overflow-hidden bg-muted/30">
+      <div className="rounded-lg border border-border overflow-hidden bg-muted">
         {isImage && url && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -4070,7 +4070,7 @@ function MediaPreviewSection({ media }: { media: Media }) {
         {!isImage && !isVideo && !isAudio && (
           <div className="p-3 flex items-center gap-2">
             <div className="w-8 h-8 rounded bg-muted flex items-center justify-center">
-              <span className="text-xs font-bold text-muted-foreground">
+              <span className="text-xs font-semibold text-muted-foreground">
                 {mediaType.split("_").pop()?.toUpperCase() || "DOC"}
               </span>
             </div>
@@ -4119,7 +4119,7 @@ function AvailableVariablesPanel({ groups }: { groups: VarGroup[] }) {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+        className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
       >
         {open ? (
           <CaretDown size={12} weight="bold" />
@@ -4195,7 +4195,7 @@ function VariableRow({
       <button
         type="button"
         onClick={handleCopy}
-        className="flex items-center gap-1 w-full font-mono text-[10px] bg-muted/60 hover:bg-muted px-1.5 py-0.5 rounded text-primary transition-colors text-left min-w-0"
+        className="flex items-center gap-1 w-full font-mono text-[10px] bg-muted hover:bg-muted px-1.5 py-0.5 rounded text-lamp-ink transition-colors text-left min-w-0"
         title={template}
       >
         {copied ? (

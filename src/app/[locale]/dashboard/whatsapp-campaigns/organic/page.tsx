@@ -1,6 +1,6 @@
 "use client";
 
-import { Archive, Leaf, MagnifyingGlass, Plus } from "@phosphor-icons/react";
+import { Archive, Leaf, MagnifyingGlass, Plus } from "@/components/icons";
 import {
   ElevatedSelect,
   ElevatedSelectItem,
@@ -32,10 +32,10 @@ import { useDepartment } from "@/contexts/department-context";
 const ITEMS_PER_PAGE = 15;
 
 const statusColor: Record<string, string> = {
-  RUNNING: "bg-emerald-500 text-white",
-  PAUSED: "bg-amber-500 text-white",
-  STOPPED: "bg-slate-500 text-white",
-  COMPLETED: "bg-blue-500 text-white",
+  RUNNING: "bg-healthy text-white",
+  PAUSED: "bg-warning text-white",
+  STOPPED: "bg-muted text-white",
+  COMPLETED: "bg-muted text-white",
 };
 
 export default function OrganicCampaignsPage() {
@@ -129,7 +129,7 @@ export default function OrganicCampaignsPage() {
         render: (row) => (
           <span
             className={cn(
-              "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+              "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
               statusColor[row.status] ?? "bg-gray-500 text-white",
             )}
           >
@@ -141,7 +141,7 @@ export default function OrganicCampaignsPage() {
         key: "total",
         header: t("card.total"),
         render: (row) => (
-          <span className="text-sm font-bold tabular-nums text-foreground">
+          <span className="text-sm font-semibold tabular-nums text-foreground">
             {row.metrics?.totalNumbers ?? 0}
           </span>
         ),
@@ -150,7 +150,7 @@ export default function OrganicCampaignsPage() {
         key: "sent",
         header: t("status.sent"),
         render: (row) => (
-          <span className="text-sm font-bold tabular-nums text-foreground">
+          <span className="text-sm font-semibold tabular-nums text-foreground">
             {row.metrics?.sent ?? 0}
           </span>
         ),
@@ -159,7 +159,7 @@ export default function OrganicCampaignsPage() {
         key: "delivered",
         header: t("status.delivered"),
         render: (row) => (
-          <span className="text-sm font-bold tabular-nums text-emerald-600">
+          <span className="text-sm font-semibold tabular-nums text-healthy">
             {row.metrics?.delivered ?? 0}
           </span>
         ),
@@ -168,7 +168,7 @@ export default function OrganicCampaignsPage() {
         key: "read",
         header: t("status.read"),
         render: (row) => (
-          <span className="text-sm font-bold tabular-nums text-blue-600">
+          <span className="text-sm font-semibold tabular-nums text-muted-foreground">
             {row.metrics?.read ?? 0}
           </span>
         ),
@@ -177,7 +177,7 @@ export default function OrganicCampaignsPage() {
         key: "failed",
         header: t("status.failed"),
         render: (row) => (
-          <span className="text-sm font-bold tabular-nums text-red-600">
+          <span className="text-sm font-semibold tabular-nums text-destructive">
             {row.metrics?.failed ?? 0}
           </span>
         ),
@@ -186,7 +186,7 @@ export default function OrganicCampaignsPage() {
         key: "successRate",
         header: t("card.successRateLabel"),
         render: (row) => (
-          <span className="text-sm font-bold tabular-nums text-foreground">
+          <span className="text-sm font-semibold tabular-nums text-foreground">
             {row.metrics?.successRate != null
               ? `${row.metrics.successRate.toFixed(1)}%`
               : "—"}
@@ -217,7 +217,7 @@ export default function OrganicCampaignsPage() {
         icon={<Leaf className="h-6 w-6" weight="fill" />}
         badge={t("organicListing.badge")}
         description={t("organicListing.description")}
-        colorClass="text-cyan-600"
+        colorClass="text-muted-foreground"
         actions={
           can("whatsapp_campaigns", "create") ? (
             <Button
@@ -324,7 +324,7 @@ export default function OrganicCampaignsPage() {
         emptyState={
           error
             ? {
-                icon: <Leaf className="h-7 w-7 text-red-600" weight="fill" />,
+                icon: <Leaf className="h-7 w-7 text-destructive" weight="fill" />,
                 title: t("error.title"),
                 description: error,
               }

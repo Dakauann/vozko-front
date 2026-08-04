@@ -1,6 +1,6 @@
 "use client";
 
-import { WarningCircle } from "@phosphor-icons/react";
+import { WarningCircle } from "@/components/icons";
 
 import { ChannelLogo } from "@/components/icons/channel-logos";
 import type { ChannelInteractiveLimits } from "@/lib/workflows/types";
@@ -100,7 +100,7 @@ export function OptionChannelReach({
   if (problems.length === 0) return null;
 
   return (
-    <div className="flex items-start gap-1.5 text-[10px] leading-relaxed text-amber-700">
+    <div className="flex items-start gap-1.5 text-[10px] leading-relaxed text-warning">
       <WarningCircle size={12} weight="fill" className="mt-px shrink-0" />
       <ul className="space-y-0.5">
         {problems.map((reach) => (

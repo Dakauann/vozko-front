@@ -7,7 +7,7 @@ import {
   Spinner,
   Trash,
   UploadSimple,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type {
   BusinessProfile,
   BusinessVertical,
@@ -232,7 +232,7 @@ export function EditProfileDialog({
         </ElevatedDialogHeader>
 
         <div className="space-y-6 py-4">
-          <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
+          <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
             <Buildings className="w-6 h-6 text-muted-foreground" />
             <p className="text-sm text-muted-foreground">
               {t("profile.editHint")}
@@ -253,7 +253,7 @@ export function EditProfileDialog({
                       <img
                         src={previewUrl}
                         alt={t("profile.profilePicture")}
-                        className="w-20 h-20 rounded-full object-cover border-2 border-border"
+                        className="w-20 h-20 rounded-full object-cover border border-border"
                       />
                       {uploadingImage && (
                         <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
@@ -262,7 +262,7 @@ export function EditProfileDialog({
                       )}
                     </div>
                   ) : (
-                    <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center border-2 border-dashed border-foreground/20 dark:border-slate-600">
+                    <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center border border-dashed border-foreground/20 dark:border-slate-600">
                       <Camera className="w-8 h-8 text-muted-foreground" />
                     </div>
                   )}
@@ -295,7 +295,7 @@ export function EditProfileDialog({
                       iconSide="left"
                       onClick={handleRemoveImage}
                       disabled={uploadingImage}
-                      className="text-red-600 hover:text-red-700 hover:bg-destructive/10"
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
                     />
                   )}
                 </div>

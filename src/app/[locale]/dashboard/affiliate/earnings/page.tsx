@@ -6,8 +6,8 @@ import {
   Clock,
   CurrencyDollar,
   XCircle,
-} from "@phosphor-icons/react";
-import type { Icon } from "@phosphor-icons/react";
+} from "@/components/icons";
+import type { Icon } from "@/components/icons";
 import { motion } from "framer-motion";
 import { useRouter } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
@@ -54,17 +54,17 @@ const STATUS_CONFIG: Record<
 > = {
   pending: {
     icon: Clock,
-    className: "bg-amber-500/10 text-amber-600 border-amber-500/30",
+    className: "bg-warning/10 text-warning border-warning/30",
     fallbackLabel: "Pending",
   },
   paid: {
     icon: CheckCircle,
-    className: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30",
+    className: "bg-healthy/10 text-healthy border-healthy/30",
     fallbackLabel: "Paid",
   },
   cancelled: {
     icon: XCircle,
-    className: "bg-rose-500/10 text-rose-600 border-rose-500/30",
+    className: "bg-destructive/10 text-destructive border-destructive/30",
     fallbackLabel: "Cancelled",
   },
 };
@@ -151,7 +151,7 @@ export default function AffiliateEarningsPage() {
         key: "purpose",
         header: t("table.purpose"),
         render: (row) => (
-          <span className="inline-flex items-center rounded-full border border-border bg-muted/40 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+          <span className="inline-flex items-center rounded-[--radius] border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
             {row.purpose || "—"}
           </span>
         ),
@@ -167,7 +167,7 @@ export default function AffiliateEarningsPage() {
           const label = known ? t(`status.${key}`) : cfg.fallbackLabel;
           return (
             <span
-              className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${cfg.className}`}
+              className={`inline-flex items-center gap-1 rounded-[--radius] border px-2.5 py-0.5 text-xs font-semibold ${cfg.className}`}
             >
               <StatusIcon className="h-3 w-3" weight="fill" />
               {label}
@@ -218,7 +218,7 @@ export default function AffiliateEarningsPage() {
       />
 
       {error ? (
-        <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+        <div className="rounded-[--radius] border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
           {error}
         </div>
       ) : null}
@@ -226,7 +226,7 @@ export default function AffiliateEarningsPage() {
       {loading && rows.length === 0 ? (
         <div className="flex min-h-[30vh] items-center justify-center">
           <CircleNotch
-            className="h-8 w-8 animate-spin text-primary"
+            className="h-8 w-8 animate-spin text-lamp-ink"
             weight="bold"
           />
         </div>

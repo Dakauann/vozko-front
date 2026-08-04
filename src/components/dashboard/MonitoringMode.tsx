@@ -2,7 +2,6 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { AttendanceOverview } from "@/lib/attendance/types";
-import type { TelephonyOverview } from "@/lib/telephony/types";
 import {
   Bar,
   BarChart,
@@ -31,7 +30,7 @@ import {
   WhatsappLogo,
   X,
   type Icon,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type { ConnectedUser, Stage } from "@/lib/conversations/types";
 import {
   ResizableHandle,
@@ -39,7 +38,6 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { getAttendanceOverviewAction } from "@/app/actions/attendance";
-import { getTelephonyOverviewAction } from "@/app/actions/telephony";
 import { useEffect, useMemo, useState } from "react";
 import { format, subDays } from "date-fns";
 
@@ -143,10 +141,10 @@ function PanelIcon({ icon: IconCmp }: { icon: Icon }) {
 function LabelPill({ name, color }: { name: string; color: string }) {
   return (
     <span
-      className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold shadow-sm"
+      className="inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold shadow-sm"
       style={{ color: "white", backgroundColor: color }}
     >
-      <span className="h-1.5 w-1.5 rounded-full bg-card/40 flex-shrink-0" />
+      <span className="h-1.5 w-1.5 rounded-full bg-card flex-shrink-0" />
       {name}
     </span>
   );
@@ -167,7 +165,7 @@ function MonitorChartTooltip({
   if (!active || !payload?.length) return null;
   const item = payload[0];
   return (
-    <div className="bg-card/95 backdrop-blur-xl border border-border/60 rounded-xl px-3 py-2 shadow-2xl shadow-slate-900/10">
+    <div className="bg-card border border-border rounded-[--radius] px-3 py-2 shadow-2xl shadow-slate-900/10">
       <div className="flex items-center gap-2">
         <div
           className="h-2.5 w-2.5 rounded-full shadow-sm"
@@ -176,7 +174,7 @@ function MonitorChartTooltip({
         <span className="text-xs font-semibold text-muted-foreground">
           {item.name}
         </span>
-        <span className="text-sm font-bold text-foreground">{item.value}</span>
+        <span className="text-sm font-semibold text-foreground">{item.value}</span>
       </div>
     </div>
   );
@@ -267,11 +265,11 @@ function MiniDonutChart({
       </ResponsiveContainer>
       {centerLabel && (
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-lg font-bold text-foreground leading-none">
+          <span className="text-lg font-semibold text-foreground leading-none">
             {centerLabel}
           </span>
           {centerSublabel && (
-            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mt-0.5">
+            <span className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mt-0.5">
               {centerSublabel}
             </span>
           )}
@@ -312,10 +310,10 @@ function LatestInteractionsPanel() {
 
   return (
     <div className="flex flex-col h-full bg-card overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 bg-muted/80 border-b border-border flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 bg-muted border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2">
           <PanelIcon icon={ChatCircle} />
-          <span className="text-sm font-bold text-foreground uppercase tracking-wider">
+          <span className="text-sm font-semibold text-foreground uppercase tracking-wider">
             {t("latestInteractions")}
           </span>
         </div>
@@ -339,18 +337,18 @@ function LatestInteractionsPanel() {
                 damping: 30,
                 delay: index < 5 ? index * 0.02 : 0,
               }}
-              className="relative flex items-start gap-3 px-4 py-3 border-b border-border hover:bg-muted/80 transition-colors group"
+              className="relative flex items-start gap-3 px-4 py-3 border-b border-border hover:bg-muted transition-colors group"
             >
               {/* Avatar / icon */}
               <div className="relative flex-shrink-0">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-background to-slate-200 shadow-sm">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted shadow-sm">
                   <UserCircle
                     weight="fill"
                     className="h-6 w-6 text-muted-foreground"
                   />
                 </div>
                 {entry.unread_count > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-emerald-500 px-1 text-[10px] font-bold text-white shadow-sm">
+                  <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-[--radius] bg-healthy px-1 text-[10px] font-semibold text-white shadow-sm">
                     {entry.unread_count > 99 ? "99+" : entry.unread_count}
                   </span>
                 )}
@@ -382,12 +380,12 @@ function LatestInteractionsPanel() {
 
                 <div className="flex items-center gap-1.5 mt-0.5">
                   {entry.last_message_sender === "agent" && (
-                    <span className="text-[10px] text-emerald-500 font-bold flex-shrink-0">
+                    <span className="text-[10px] text-healthy font-semibold flex-shrink-0">
                       AI
                     </span>
                   )}
                   {entry.last_message_sender === "operator" && (
-                    <span className="text-[10px] text-primary font-bold flex-shrink-0">
+                    <span className="text-[10px] text-lamp-ink font-semibold flex-shrink-0">
                       OP
                     </span>
                   )}
@@ -414,7 +412,7 @@ function LatestInteractionsPanel() {
                       />
                     ))}
                     {entry.labels.length > 3 && (
-                      <span className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-bold text-muted-foreground bg-muted">
+                      <span className="inline-flex items-center rounded-[--radius] px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground bg-muted">
                         +{entry.labels.length - 3}
                       </span>
                     )}
@@ -425,7 +423,7 @@ function LatestInteractionsPanel() {
               {/* New message pulse indicator */}
               {entry.unread_count > 0 && (
                 <motion.div
-                  className="absolute right-3 top-3 h-2 w-2 rounded-full bg-emerald-400"
+                  className="absolute right-3 top-3 h-2 w-2 rounded-full bg-healthy"
                   animate={{ scale: [1, 1.4, 1], opacity: [1, 0.6, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
@@ -504,10 +502,10 @@ function StatusGraphPanel({
 
   return (
     <div className="flex flex-col h-full bg-card overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 bg-muted/80 border-b border-border flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 bg-muted border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2">
           <PanelIcon icon={ChartBar} />
-          <span className="text-sm font-bold text-foreground uppercase tracking-wider">
+          <span className="text-sm font-semibold text-foreground uppercase tracking-wider">
             {campaignType === "whatsapp"
               ? t("messageStatuses")
               : t("callStatuses")}
@@ -519,8 +517,8 @@ function StatusGraphPanel({
             animate={{ opacity: [1, 0.5, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
-            <span className="text-xs font-semibold text-emerald-600">
+            <span className="h-2 w-2 rounded-full bg-healthy" />
+            <span className="text-xs font-semibold text-healthy">
               {t("live")}
             </span>
           </motion.div>
@@ -553,11 +551,11 @@ function StatusGraphPanel({
                 className="h-2.5 w-2.5 rounded-full flex-shrink-0 shadow-sm"
                 style={{ backgroundColor: bar.color }}
               />
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex-1 truncate">
+              <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex-1 truncate">
                 {bar.label}
               </span>
               <motion.span
-                className="text-xs font-bold text-foreground tabular-nums"
+                className="text-xs font-semibold text-foreground tabular-nums"
                 key={bar.value}
                 initial={{ scale: 1.15 }}
                 animate={{ scale: 1 }}
@@ -574,7 +572,7 @@ function StatusGraphPanel({
             <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
               {t("rate")}
             </p>
-            <p className="text-lg font-bold text-emerald-600">
+            <p className="text-lg font-semibold text-healthy">
               {completionRate.toFixed(1)}%
             </p>
           </div>
@@ -612,7 +610,7 @@ function MonitorKanbanCard({
       exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.95 }}
       transition={{ type: "spring", stiffness: 500, damping: 36 }}
       whileHover={reduceMotion ? undefined : { y: -2 }}
-      className="cursor-default select-none rounded-xl border border-border/80 bg-card p-2.5 shadow-sm transition-[border-color,box-shadow] duration-200 hover:border-foreground/20 hover:shadow-md"
+      className="cursor-default select-none rounded-[--radius] border border-border bg-card p-2.5 shadow-sm transition-[border-color,box-shadow] duration-200 hover:border-foreground/20 hover:shadow-md"
     >
       <div className="flex items-center justify-between gap-2">
         <span className="truncate text-xs font-semibold text-foreground">
@@ -641,7 +639,7 @@ function MonitorKanbanCard({
             <LabelPill key={label.label_id} name={label.name} color={label.color} />
           ))}
           {entry.labels.length > 2 && (
-            <span className="inline-flex items-center rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-bold text-muted-foreground">
+            <span className="inline-flex items-center rounded-[--radius] bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">
               +{entry.labels.length - 2}
             </span>
           )}
@@ -676,11 +674,11 @@ function MonitorKanbanColumn({
   return (
     <div
       className={cn(
-        "flex h-full w-56 shrink-0 flex-col rounded-2xl border bg-muted/40",
+        "flex h-full w-56 shrink-0 flex-col rounded-[--radius] border bg-muted",
         isUnstaged ? "border-dashed border-border" : "border-border",
       )}
     >
-      <div className="flex items-center gap-2 border-b border-border/60 px-3 py-2.5">
+      <div className="flex items-center gap-2 border-b border-border px-3 py-2.5">
         <span
           className={cn(
             "h-2.5 w-2.5 flex-shrink-0 rounded-full ring-1 ring-black/5",
@@ -690,7 +688,7 @@ function MonitorKanbanColumn({
         />
         <span
           className={cn(
-            "flex-1 truncate text-xs font-bold",
+            "flex-1 truncate text-xs font-semibold",
             isUnstaged ? "text-muted-foreground" : "text-foreground",
           )}
         >
@@ -705,7 +703,7 @@ function MonitorKanbanColumn({
             <Clock weight="fill" className="h-3.5 w-3.5 text-muted-foreground" />
           </motion.span>
         )}
-        <span className="flex h-5 min-w-5 flex-shrink-0 items-center justify-center rounded-full border border-border bg-card px-1.5 text-[10px] font-bold text-muted-foreground tabular-nums">
+        <span className="flex h-5 min-w-5 flex-shrink-0 items-center justify-center rounded-[--radius] border border-border bg-card px-1.5 text-[10px] font-semibold text-muted-foreground tabular-nums">
           {count}
         </span>
       </div>
@@ -828,10 +826,10 @@ function FunnelMonitorPanel({
   if (tags.length === 0) {
     return (
       <div className="flex flex-col h-full bg-card overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 bg-muted/80 border-b border-border flex-shrink-0">
+        <div className="flex items-center justify-between px-4 py-3 bg-muted border-b border-border flex-shrink-0">
           <div className="flex items-center gap-2">
             <PanelIcon icon={UserCircle} />
-            <span className="text-sm font-bold text-foreground uppercase tracking-wider">
+            <span className="text-sm font-semibold text-foreground uppercase tracking-wider">
               {t("kanbanMonitor")}
             </span>
           </div>
@@ -851,10 +849,10 @@ function FunnelMonitorPanel({
 
   return (
     <div className="flex flex-col h-full bg-card overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 bg-muted/80 border-b border-border flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 bg-muted border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2">
           <PanelIcon icon={UserCircle} />
-          <span className="text-sm font-bold text-foreground uppercase tracking-wider">
+          <span className="text-sm font-semibold text-foreground uppercase tracking-wider">
             {t("kanbanMonitor")}
           </span>
         </div>
@@ -996,15 +994,15 @@ function AnalysisStatsPanelMonitor({
 
   return (
     <div className="flex flex-col h-full bg-card overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 bg-muted/80 border-b border-border flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 bg-muted border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2">
           <PanelIcon icon={Brain} />
-          <span className="text-sm font-bold text-foreground uppercase tracking-wider">
+          <span className="text-sm font-semibold text-foreground uppercase tracking-wider">
             {t("aiAnalysis")}
           </span>
         </div>
         {analysisStats && (
-          <span className="rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-bold text-muted-foreground">
+          <span className="rounded-[--radius] border border-border bg-muted px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
             {analysisStats.totalAnalyses} {t("analyses")}
           </span>
         )}
@@ -1070,28 +1068,28 @@ function AnalysisStatsPanelMonitor({
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-lg font-bold text-foreground leading-none">
+                  <span className="text-lg font-semibold text-foreground leading-none">
                     {qualityValue.toFixed(0)}%
                   </span>
-                  <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-wider">
+                  <span className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wider">
                     {t("quality")}
                   </span>
                 </div>
               </div>
               <div className="flex-1 space-y-2">
-                <div className="p-2.5 rounded-xl bg-card border border-border">
-                  <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-bold">
+                <div className="p-2.5 rounded-[--radius] bg-card border border-border">
+                  <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-semibold">
                     {t("messages")}
                   </p>
-                  <p className="text-xl font-bold text-foreground">
+                  <p className="text-xl font-semibold text-foreground">
                     {analysisStats.totalMessages.toLocaleString()}
                   </p>
                 </div>
-                <div className="p-2.5 rounded-xl bg-card border border-border">
-                  <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-bold">
+                <div className="p-2.5 rounded-[--radius] bg-card border border-border">
+                  <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-semibold">
                     {t("msgsPerAnalysis")}
                   </p>
-                  <p className="text-lg font-bold text-foreground">
+                  <p className="text-lg font-semibold text-foreground">
                     {analysisStats.avgMessagesPerAnalysis.toFixed(1)}
                   </p>
                 </div>
@@ -1100,7 +1098,7 @@ function AnalysisStatsPanelMonitor({
 
             {/* Sentiment Donut */}
             <div className="space-y-1">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                 {t("sentimentLabel")}
               </p>
               <div className="flex items-center gap-3">
@@ -1120,10 +1118,10 @@ function AnalysisStatsPanelMonitor({
                         className="h-2.5 w-2.5 rounded-full flex-shrink-0 shadow-sm"
                         style={{ backgroundColor: d.color }}
                       />
-                      <span className="text-[10px] font-bold text-muted-foreground flex-1">
+                      <span className="text-[10px] font-semibold text-muted-foreground flex-1">
                         {d.name}
                       </span>
-                      <span className="text-xs font-bold text-foreground tabular-nums">
+                      <span className="text-xs font-semibold text-foreground tabular-nums">
                         {d.value}
                       </span>
                     </div>
@@ -1134,7 +1132,7 @@ function AnalysisStatsPanelMonitor({
 
             {/* Qualification Donut */}
             <div className="space-y-1">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                 {t("qualificationLabel")}
               </p>
               <div className="flex items-center gap-3">
@@ -1154,10 +1152,10 @@ function AnalysisStatsPanelMonitor({
                         className="h-2.5 w-2.5 rounded-full flex-shrink-0 shadow-sm"
                         style={{ backgroundColor: d.color }}
                       />
-                      <span className="text-[10px] font-bold text-muted-foreground flex-1">
+                      <span className="text-[10px] font-semibold text-muted-foreground flex-1">
                         {d.name}
                       </span>
-                      <span className="text-xs font-bold text-foreground tabular-nums">
+                      <span className="text-xs font-semibold text-foreground tabular-nums">
                         {d.value}
                       </span>
                     </div>
@@ -1168,23 +1166,23 @@ function AnalysisStatsPanelMonitor({
 
             {/* Interest mini-indicators */}
             <div className="space-y-1 pt-1 border-t border-border">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                 {t("interestLabel")}
               </p>
               <div className="flex gap-2">
                 {interestData.map((d) => (
                   <motion.div
                     key={d.name}
-                    className="flex-1 flex flex-col items-center gap-1 p-2 rounded-xl border border-border bg-card"
+                    className="flex-1 flex flex-col items-center gap-1 p-2 rounded-[--radius] border border-border bg-card"
                     whileHover={{ scale: 1.03 }}
                   >
                     <span
-                      className="text-lg font-bold"
+                      className="text-lg font-semibold"
                       style={{ color: d.color }}
                     >
                       {d.value}
                     </span>
-                    <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider text-center leading-tight">
+                    <span className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider text-center leading-tight">
                       {d.name}
                     </span>
                   </motion.div>
@@ -1232,7 +1230,6 @@ function AttendanceInsightsPanel({
   const t = useTranslations("monitoring");
   const tk = useTranslations("metricsOps.attendance.kpi");
   const [overview, setOverview] = useState<AttendanceOverview | null>(null);
-  const [telephony, setTelephony] = useState<TelephonyOverview | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -1255,15 +1252,10 @@ function AttendanceInsightsPanel({
               : undefined,
         includeAi: true,
       });
-      const telP: Promise<{
-        overview: TelephonyOverview | null;
-        error: string | null;
-      }> = Promise.resolve({ overview: null, error: null });
 
-      const [att, tel] = await Promise.all([attP, telP]);
+      const att = await attP;
       if (cancelled) return;
       setOverview(att.overview);
-      setTelephony(tel.overview);
       setLoading(false);
     }
 
@@ -1278,8 +1270,6 @@ function AttendanceInsightsPanel({
   const kpis = overview?.kpis;
   const ai = overview?.ai;
   const status = overview?.status_distribution;
-  const tel = telephony?.kpis;
-  const queue = telephony?.queue;
   const isVoice = campaignType === "voice";
 
   const statusPie = useMemo(() => {
@@ -1296,10 +1286,10 @@ function AttendanceInsightsPanel({
 
   return (
     <div className="flex flex-col h-full bg-card overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-2 bg-muted/80 border-b border-border flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-2 bg-muted border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2">
           <PanelIcon icon={isVoice ? Phone : WhatsappLogo} />
-          <span className="text-sm font-bold uppercase tracking-wider text-foreground">
+          <span className="text-sm font-semibold uppercase tracking-wider text-foreground">
             {t("health")}
           </span>
           <span className="text-[10px] text-muted-foreground">{t("last7d")}</span>
@@ -1321,7 +1311,7 @@ function AttendanceInsightsPanel({
           <div className="grid h-full min-h-[160px] grid-cols-1 gap-3 lg:grid-cols-12">
             {/* Primary campaign KPIs */}
             <div className="lg:col-span-5 space-y-2">
-              <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                 {t("conversations")}
               </p>
               <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-6 lg:grid-cols-3">
@@ -1341,44 +1331,9 @@ function AttendanceInsightsPanel({
                   value={fmtMonMins(kpis?.avg_wait_mins ?? null)}
                 />
               </div>
-              {isVoice && tel ? (
+              {ai?.available ? (
                 <>
-                  <p className="pt-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
-                    {t("calls")}
-                  </p>
-                  <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-6 lg:grid-cols-3">
-                    <MiniStat label="Total" value={fmtMonNum(tel.total_calls)} accent />
-                    <MiniStat
-                      label="Conexão"
-                      value={fmtMonPct(tel.connect_rate ?? null)}
-                    />
-                    <MiniStat
-                      label="No prazo 20s"
-                      value={fmtMonPct(tel.service_level_pct ?? null)}
-                    />
-                    <MiniStat
-                      label="Conversa"
-                      value={fmtMonMins(tel.avg_talk_mins ?? null)}
-                    />
-                    <MiniStat
-                      label="Espera fila"
-                      value={
-                        queue?.available
-                          ? fmtMonMins(queue.avg_asa_mins ?? null)
-                          : "n/d"
-                      }
-                    />
-                    <MiniStat
-                      label="IA resolve"
-                      value={
-                        ai?.available ? fmtMonPct(ai.containment_rate) : "n/d"
-                      }
-                    />
-                  </div>
-                </>
-              ) : ai?.available ? (
-                <>
-                  <p className="pt-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+                  <p className="pt-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1">
                     <Robot className="h-3 w-3" weight="fill" /> IA nesta campanha
                   </p>
                   <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-4">
@@ -1402,8 +1357,8 @@ function AttendanceInsightsPanel({
             </div>
 
             {/* Status pie */}
-            <div className="lg:col-span-3 flex flex-col rounded-xl border border-border/60 bg-background/50 px-2 py-2">
-              <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground px-1">
+            <div className="lg:col-span-3 flex flex-col rounded-[--radius] border border-border bg-background px-2 py-2">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground px-1">
                 Situação
               </p>
               {statusPie.length === 0 ? (
@@ -1446,7 +1401,7 @@ function AttendanceInsightsPanel({
                           />
                           {d.name}
                         </span>
-                        <span className="font-bold tabular-nums text-foreground">
+                        <span className="font-semibold tabular-nums text-foreground">
                           {fmtMonNum(d.value)}
                         </span>
                       </li>
@@ -1457,8 +1412,8 @@ function AttendanceInsightsPanel({
             </div>
 
             {/* Team on this campaign */}
-            <div className="lg:col-span-4 flex flex-col rounded-xl border border-border/60 bg-background/50 px-3 py-2 min-w-0">
-              <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+            <div className="lg:col-span-4 flex flex-col rounded-[--radius] border border-border bg-background px-3 py-2 min-w-0">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                 {t("whoResolves")}
               </p>
               {teamTop.length === 0 ? (
@@ -1469,17 +1424,17 @@ function AttendanceInsightsPanel({
                 <div className="overflow-auto">
                   <table className="w-full text-left">
                     <thead>
-                      <tr className="border-b border-border/60">
-                        <th className="pb-1 text-[9px] font-bold uppercase text-muted-foreground">
+                      <tr className="border-b border-border">
+                        <th className="pb-1 text-[9px] font-semibold uppercase text-muted-foreground">
                           Nome
                         </th>
-                        <th className="pb-1 text-right text-[9px] font-bold uppercase text-muted-foreground">
+                        <th className="pb-1 text-right text-[9px] font-semibold uppercase text-muted-foreground">
                           OK
                         </th>
-                        <th className="pb-1 text-right text-[9px] font-bold uppercase text-muted-foreground">
+                        <th className="pb-1 text-right text-[9px] font-semibold uppercase text-muted-foreground">
                           %
                         </th>
-                        <th className="pb-1 text-right text-[9px] font-bold uppercase text-muted-foreground">
+                        <th className="pb-1 text-right text-[9px] font-semibold uppercase text-muted-foreground">
                           Resp.
                         </th>
                       </tr>
@@ -1494,7 +1449,7 @@ function AttendanceInsightsPanel({
                             {m.display_name}
                             {m.actor_kind === "ai" ? " · IA" : ""}
                           </td>
-                          <td className="py-1 text-right text-xs font-bold tabular-nums">
+                          <td className="py-1 text-right text-xs font-semibold tabular-nums">
                             {fmtMonNum(m.resolved)}
                           </td>
                           <td className="py-1 text-right text-xs tabular-nums text-muted-foreground">
@@ -1531,8 +1486,8 @@ function MiniStat({
       className={cn(
         "rounded-lg border px-2 py-1.5",
         accent
-          ? "border-primary/25 bg-primary/5"
-          : "border-border/60 bg-background/70",
+          ? "border-primary/25 bg-muted"
+          : "border-border bg-background",
       )}
     >
       <p className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
@@ -1540,8 +1495,8 @@ function MiniStat({
       </p>
       <p
         className={cn(
-          "text-sm font-bold tabular-nums",
-          accent ? "text-primary" : "text-foreground",
+          "text-sm font-semibold tabular-nums",
+          accent ? "text-lamp-ink" : "text-foreground",
         )}
       >
         {value}
@@ -1591,44 +1546,44 @@ function ConnectedUsersMonitorPanel({ campaignId }: { campaignId: string }) {
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-card">
-      <div className="flex items-center justify-between border-b border-border bg-muted/80 px-4 py-3 flex-shrink-0">
+      <div className="flex items-center justify-between border-b border-border bg-muted px-4 py-3 flex-shrink-0">
         <div className="flex items-center gap-2">
           <PanelIcon icon={Users} />
-          <span className="text-sm font-bold uppercase tracking-wider text-foreground">
+          <span className="text-sm font-semibold uppercase tracking-wider text-foreground">
             Usuários Monitorando
           </span>
         </div>
-        <span className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-bold text-white">
+        <span className="rounded-[--radius] bg-primary px-2.5 py-0.5 text-xs font-semibold text-white">
           {scopedUsers.length} {t("records")}
         </span>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 border-b border-border bg-muted/60 px-3 py-2.5 flex-shrink-0">
+      <div className="grid grid-cols-3 gap-2 border-b border-border bg-muted px-3 py-2.5 flex-shrink-0">
         <div className="rounded-lg border border-border bg-card px-2 py-1.5 text-center">
-          <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+          <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
             Total
           </p>
-          <p className="text-sm font-bold text-foreground">
+          <p className="text-sm font-semibold text-foreground">
             {scopedUsers.length}
           </p>
         </div>
         <div className="rounded-lg border border-border bg-card px-2 py-1.5 text-center">
-          <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+          <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
             Campanha
           </p>
-          <p className="text-sm font-bold text-primary">{campaignCount}</p>
+          <p className="text-sm font-semibold text-lamp-ink">{campaignCount}</p>
         </div>
         <div className="rounded-lg border border-border bg-card px-2 py-1.5 text-center">
-          <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+          <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
             Global
           </p>
-          <p className="text-sm font-bold text-foreground">{globalCount}</p>
+          <p className="text-sm font-semibold text-foreground">{globalCount}</p>
         </div>
       </div>
 
       <div className="flex-1 space-y-2 overflow-y-auto overflow-x-hidden px-3 py-2.5 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
         {scopedUsers.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/70 px-4 text-center text-muted-foreground">
+          <div className="flex h-full flex-col items-center justify-center rounded-[--radius] border border-dashed border-border bg-muted px-4 text-center text-muted-foreground">
             <Users className="mb-2 h-8 w-8" />
             <p className="text-sm">Nenhum usuário monitorando neste escopo</p>
           </div>
@@ -1642,7 +1597,7 @@ function ConnectedUsersMonitorPanel({ campaignId }: { campaignId: string }) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -16 }}
                 transition={{ type: "spring", stiffness: 420, damping: 32 }}
-                className="rounded-xl border border-border bg-card p-3 shadow-sm"
+                className="rounded-[--radius] border border-border bg-card p-3 shadow-sm"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
@@ -1655,9 +1610,9 @@ function ConnectedUsersMonitorPanel({ campaignId }: { campaignId: string }) {
                   </div>
                   <span
                     className={cn(
-                      "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
+                      "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider",
                       user.view_mode === "global"
-                        ? "bg-emerald-500 text-white"
+                        ? "bg-healthy text-white"
                         : "bg-primary text-white",
                     )}
                   >
@@ -1665,8 +1620,8 @@ function ConnectedUsersMonitorPanel({ campaignId }: { campaignId: string }) {
                       className={cn(
                         "h-1.5 w-1.5 rounded-full animate-pulse",
                         user.view_mode === "global"
-                          ? "bg-emerald-400"
-                          : "bg-blue-400",
+                          ? "bg-healthy"
+                          : "bg-muted",
                       )}
                     />
                     {user.view_mode === "global" ? "Global" : "Campanha"}
@@ -1697,7 +1652,7 @@ function ConnectedUsersMonitorPanel({ campaignId }: { campaignId: string }) {
                     <span className="font-semibold text-muted-foreground">
                       Conectado por:
                     </span>
-                    <span className="font-bold text-foreground">
+                    <span className="font-semibold text-foreground">
                       {formatConnectedDuration(user.connected_at, now)}
                     </span>
                   </div>
@@ -1769,8 +1724,8 @@ export default function MonitoringMode({
         <div className="flex min-w-0 items-center gap-3">
           <div
             className={cn(
-              "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white shadow-sm",
-              campaignType === "whatsapp" ? "bg-emerald-500" : "bg-primary",
+              "flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius] text-white shadow-sm",
+              campaignType === "whatsapp" ? "bg-healthy" : "bg-primary",
             )}
           >
             {campaignType === "whatsapp" ? (
@@ -1791,10 +1746,10 @@ export default function MonitoringMode({
 
         <div className="flex items-center gap-3">
           {isRunning ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
+            <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-healthy/10 px-2.5 py-1 text-[11px] font-semibold text-healthy">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-healthy opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-healthy" />
               </span>
               {t("live")}
             </span>
@@ -1805,7 +1760,7 @@ export default function MonitoringMode({
           <button
             type="button"
             onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-background text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="flex h-9 w-9 items-center justify-center rounded-[--radius] border border-border bg-background text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             title={t("close")}
           >
             <X weight="bold" className="h-4 w-4" />
@@ -1822,7 +1777,7 @@ export default function MonitoringMode({
         <aside className="flex max-h-[28vh] w-full flex-col border-b border-border bg-card lg:max-h-none lg:w-[240px] lg:border-b-0 lg:border-r">
           <div className="flex items-center gap-2 border-b border-border px-3 py-2.5">
             <PanelIcon icon={ChatCircle} />
-            <span className="text-xs font-bold uppercase tracking-wider text-foreground">
+            <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
               {t("liveFeed")}
             </span>
           </div>
@@ -1839,10 +1794,10 @@ export default function MonitoringMode({
 
         {/* Center, kanban hero + slim campaign health */}
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
-          <div className="flex items-center justify-between border-b border-border bg-card/80 px-4 py-2">
+          <div className="flex items-center justify-between border-b border-border bg-card px-4 py-2">
             <div className="flex items-center gap-2">
               <PanelIcon icon={ChartBar} />
-              <span className="text-xs font-bold uppercase tracking-wider text-foreground">
+              <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
                 {t("kanbanHero")}
               </span>
             </div>
@@ -1850,7 +1805,7 @@ export default function MonitoringMode({
               {entries.length} {t("records")}
             </span>
           </div>
-          <div className="min-h-0 flex-1 overflow-hidden bg-muted/30">
+          <div className="min-h-0 flex-1 overflow-hidden bg-muted">
             {viewScoped ? (
               <FunnelMonitorPanel
                 entries={entries}
@@ -1875,7 +1830,7 @@ export default function MonitoringMode({
           <div className="min-h-0 flex-[1.15] overflow-hidden border-b border-border">
             <div className="flex items-center gap-2 border-b border-border px-3 py-2.5">
               <PanelIcon icon={ChartBar} />
-              <span className="text-xs font-bold uppercase tracking-wider text-foreground">
+              <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
                 {t("campaignStatus")}
               </span>
             </div>
@@ -1890,7 +1845,7 @@ export default function MonitoringMode({
           <div className="min-h-0 flex-1 overflow-hidden">
             <div className="flex items-center gap-2 border-b border-border px-3 py-2.5">
               <PanelIcon icon={Users} />
-              <span className="text-xs font-bold uppercase tracking-wider text-foreground">
+              <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
                 {t("viewers")}
               </span>
             </div>

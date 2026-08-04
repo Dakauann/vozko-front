@@ -16,7 +16,7 @@ import {
   UsersFour,
   Wallet,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type { Workspace, WorkspaceMember } from "@/lib/workspace/types";
 import {
   adminListAllWorkspacesAction,
@@ -102,11 +102,11 @@ function MembersPanel({ workspaceId }: { workspaceId: string }) {
       transition={{ duration: 0.25 }}
       className="overflow-hidden"
     >
-      <div className="bg-muted/80 border-t border-border px-6 py-4">
+      <div className="bg-muted border-t border-border px-6 py-4">
         {loading && members.length === 0 ? (
           <div className="flex items-center justify-center py-6 gap-2">
             <CircleNotch
-              className="h-4 w-4 animate-spin text-primary"
+              className="h-4 w-4 animate-spin text-lamp-ink"
               weight="bold"
             />
             <span className="text-xs text-muted-foreground">
@@ -121,7 +121,7 @@ function MembersPanel({ workspaceId }: { workspaceId: string }) {
           <>
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-border/60">
+                <tr className="border-b border-border">
                   <th className="pb-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                     {t("members.username")}
                   </th>
@@ -154,9 +154,9 @@ function MembersPanel({ workspaceId }: { workspaceId: string }) {
                     <td className="py-2">
                       <span
                         className={cn(
-                          "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase",
+                          "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold uppercase",
                           member.role === "owner"
-                            ? "bg-purple-500 text-white"
+                            ? "bg-muted text-white"
                             : member.role === "admin"
                               ? "bg-primary text-white"
                               : "bg-muted text-muted-foreground",
@@ -178,7 +178,7 @@ function MembersPanel({ workspaceId }: { workspaceId: string }) {
                 <button
                   onClick={handleLoadMore}
                   disabled={loading}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-all hover:bg-primary/10 hover:border-blue-300 hover:text-primary disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-all hover:bg-muted hover:border-blue-300 hover:text-lamp-ink disabled:opacity-50"
                   style={{ boxShadow: softSurfaceShadow }}
                 >
                   {loading ? (
@@ -304,8 +304,8 @@ export default function AdminWorkspacesPage() {
         key: "workspace",
         render: (ws) => (
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
-              <Buildings className="h-5 w-5 text-primary" weight="fill" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted ring-1 ring-ring">
+              <Buildings className="h-5 w-5 text-lamp-ink" weight="fill" />
             </div>
             <div>
               <p className="text-sm font-semibold text-foreground">{ws.name}</p>
@@ -352,10 +352,10 @@ export default function AdminWorkspacesPage() {
                 toggleExpanded(ws.id);
               }}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all",
+                "inline-flex items-center gap-1.5 rounded-[--radius] border px-3 py-1.5 text-xs font-semibold transition-all",
                 isExpanded
-                  ? "bg-primary/10 border-blue-300 text-primary"
-                  : "bg-card border-border text-muted-foreground hover:bg-primary/10 hover:border-blue-300 hover:text-primary",
+                  ? "bg-muted border-blue-300 text-lamp-ink"
+                  : "bg-card border-border text-muted-foreground hover:bg-muted hover:border-blue-300 hover:text-lamp-ink",
               )}
             >
               <UsersFour className="h-3.5 w-3.5" weight="bold" />
@@ -374,12 +374,12 @@ export default function AdminWorkspacesPage() {
         key: "type",
         render: (ws) =>
           ws.isDefault ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-semibold text-white uppercase">
+            <span className="inline-flex items-center gap-1 rounded-full bg-warning px-2 py-0.5 text-[10px] font-semibold text-white uppercase">
               <Star className="h-3 w-3" weight="fill" />
               {t("badge.default")}
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground uppercase">
+            <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground uppercase">
               {t("badge.custom")}
             </span>
           ),
@@ -407,11 +407,11 @@ export default function AdminWorkspacesPage() {
                 </p>
                 <span
                   className={cn(
-                    "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase",
+                    "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold uppercase",
                     isActive
-                      ? "bg-emerald-500 text-white"
+                      ? "bg-healthy text-white"
                       : ws.subscriptionStatus === "cancelled"
-                        ? "bg-red-500 text-white"
+                        ? "bg-destructive text-white"
                         : "bg-muted text-muted-foreground",
                   )}
                 >
@@ -450,7 +450,7 @@ export default function AdminWorkspacesPage() {
                     );
                     toast({ title: t("plan.cancelSuccess") });
                   }}
-                  className="ml-1 inline-flex items-center justify-center rounded-lg border border-red-600 bg-red-500 p-1.5 text-white transition-all hover:bg-red-600 hover:border-red-700 disabled:opacity-50"
+                  className="ml-1 inline-flex items-center justify-center rounded-lg border border-destructive bg-destructive p-1.5 text-white transition-all hover:bg-destructive hover:border-red-700 disabled:opacity-50"
                   title={t("plan.cancel")}
                 >
                   {isCancelling ? (
@@ -485,7 +485,7 @@ export default function AdminWorkspacesPage() {
           <div className="flex items-center justify-end gap-2">
             <Link
               href={`/dashboard/workspaces/${ws.id}`}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-primary/10 hover:border-blue-300 hover:text-primary"
+              className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-muted hover:border-blue-300 hover:text-lamp-ink"
               onClick={(e) => e.stopPropagation()}
             >
               <Eye className="h-4 w-4" weight="bold" />
@@ -493,7 +493,7 @@ export default function AdminWorkspacesPage() {
             </Link>
             <Link
               href={`/dashboard/workspaces/${ws.id}/balance`}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-primary/10 hover:border-blue-300 hover:text-primary"
+              className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-muted hover:border-blue-300 hover:text-lamp-ink"
               onClick={(e) => e.stopPropagation()}
             >
               <Wallet className="h-4 w-4" weight="bold" />
@@ -544,7 +544,7 @@ export default function AdminWorkspacesPage() {
             {
               label: t("stats.default"),
               value: loading ? "..." : String(defaultCount),
-              icon: <Star className="h-4 w-4 text-amber-500" weight="fill" />,
+              icon: <Star className="h-4 w-4 text-warning" weight="fill" />,
             },
             {
               label: t("stats.onPage"),
@@ -560,7 +560,7 @@ export default function AdminWorkspacesPage() {
           headerLeft={
             <div className="flex items-center gap-2">
               {/* Search Mode Toggle */}
-              <div className="flex items-center rounded-xl border border-border bg-card overflow-hidden flex-shrink-0">
+              <div className="flex items-center rounded-[--radius] border border-border bg-card overflow-hidden flex-shrink-0">
                 <button
                   onClick={() => {
                     setSearchMode("workspace");

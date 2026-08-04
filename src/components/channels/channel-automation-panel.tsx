@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle, GitBranch, Robot, Warning } from "@phosphor-icons/react";
+import { CheckCircle, GitBranch, Robot, Warning } from "@/components/icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
@@ -257,7 +257,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
       <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
         <div className="flex items-center gap-2">
           <Robot
-            className={cn("h-4 w-4", active ? "text-primary" : "text-muted-foreground")}
+            className={cn("h-4 w-4", active ? "text-lamp-ink" : "text-muted-foreground")}
             weight="fill"
           />
           <h2 className="text-sm font-semibold text-foreground">{t("title")}</h2>
@@ -268,7 +268,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
           aria-live="polite"
           className={cn(
             "text-xs",
-            error ? "text-destructive" : justSaved ? "text-emerald-600" : "text-muted-foreground",
+            error ? "text-destructive" : justSaved ? "text-healthy" : "text-muted-foreground",
           )}
         >
           {saving
@@ -288,7 +288,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
         <div
           role="radiogroup"
           aria-label={t("modeLabel")}
-          className="flex gap-1 rounded-lg bg-muted/60 p-1"
+          className="flex gap-1 rounded-lg bg-muted p-1"
         >
           {modes.map(({ id, label, icon: Icon }) => {
             const selected = mode === id;
@@ -302,7 +302,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
                 onClick={() => handleModeChange(id)}
                 className={cn(
                   "flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                   "disabled:cursor-not-allowed disabled:opacity-60",
                   selected
                     ? "bg-card text-foreground shadow-sm"
@@ -383,13 +383,13 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
         </div>
 
         {error ? (
-          <p className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-muted/30 p-3 text-xs text-foreground">
+          <p className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-muted p-3 text-xs text-foreground">
             <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             {error}
           </p>
         ) : (
           active && (
-            <p className="flex items-start gap-2 rounded-lg border border-border/70 bg-muted/30 p-3 text-xs text-foreground">
+            <p className="flex items-start gap-2 rounded-lg border border-border bg-muted p-3 text-xs text-foreground">
               <CheckCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" weight="fill" />
               {mode === "agent" ? t("activeNote") : t("activeNoteWorkflow")}
             </p>

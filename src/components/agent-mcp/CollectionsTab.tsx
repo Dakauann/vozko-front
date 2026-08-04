@@ -14,7 +14,7 @@ import {
   ElevatedDialogHeader,
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
-import { Pencil, Plus, Trash } from "@phosphor-icons/react";
+import { Pencil, Plus, Trash } from "@/components/icons";
 import {
   createMCPCollectionAction,
   deleteMCPCollectionAction,
@@ -305,7 +305,7 @@ function CollectionDialog({
                   return (
                     <label
                       key={key}
-                      className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted/50"
+                      className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
                     >
                       <input
                         type="checkbox"
@@ -326,7 +326,7 @@ function CollectionDialog({
                   return (
                     <label
                       key={key}
-                      className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted/50"
+                      className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
                     >
                       <input
                         type="checkbox"

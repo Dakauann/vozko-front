@@ -1,6 +1,6 @@
 "use client";
 
-import { DotsThree, Plus, ArrowRight } from "@phosphor-icons/react";
+import { DotsThree, Plus, ArrowRight } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -10,51 +10,46 @@ import ElevatedContainer from "./elevated-container";
 const colorMap = {
   primary: {
     solid: "bg-primary",
-    light: "bg-primary/10",
-    text: "text-primary",
+    light: "bg-muted",
+    text: "text-lamp-ink",
     border: "border-primary/20",
-    ring: "ring-primary/30",
+    ring: "ring-ring",
     gradient: "from-primary to-primary/80",
   },
   emerald: {
-    solid: "bg-emerald-500",
-    light: "bg-emerald-500/10",
-    text: "text-emerald-600 dark:text-emerald-400",
-    border: "border-emerald-500/20",
+    solid: "bg-healthy",
+    light: "bg-healthy/10",
+    text: "text-healthy dark:text-healthy",
+    border: "border-healthy/20",
     ring: "ring-emerald-500/30",
-    gradient: "from-emerald-500 to-emerald-600",
   },
   blue: {
-    solid: "bg-blue-500",
-    light: "bg-primary/10",
-    text: "text-primary",
+    solid: "bg-muted",
+    light: "bg-muted",
+    text: "text-lamp-ink",
     border: "border-blue-500/20",
     ring: "ring-blue-500/30",
-    gradient: "from-blue-500 to-blue-600",
   },
   amber: {
-    solid: "bg-amber-500",
-    light: "bg-amber-500/10",
-    text: "text-amber-600 dark:text-amber-400",
-    border: "border-amber-500/20",
+    solid: "bg-warning",
+    light: "bg-warning/10",
+    text: "text-warning dark:text-amber-400",
+    border: "border-warning/20",
     ring: "ring-amber-500/30",
-    gradient: "from-amber-500 to-amber-600",
   },
   rose: {
-    solid: "bg-rose-500",
-    light: "bg-rose-500/10",
-    text: "text-rose-600 dark:text-rose-400",
-    border: "border-rose-500/20",
+    solid: "bg-destructive",
+    light: "bg-destructive/10",
+    text: "text-destructive dark:text-destructive",
+    border: "border-destructive/20",
     ring: "ring-rose-500/30",
-    gradient: "from-rose-500 to-rose-600",
   },
   purple: {
-    solid: "bg-purple-500",
-    light: "bg-purple-500/10",
-    text: "text-purple-600 dark:text-purple-400",
+    solid: "bg-muted",
+    light: "bg-muted",
+    text: "text-muted-foreground dark:text-purple-400",
     border: "border-purple-500/20",
     ring: "ring-purple-500/30",
-    gradient: "from-purple-500 to-purple-600",
   },
   orange: {
     solid: "bg-orange-500",
@@ -62,7 +57,6 @@ const colorMap = {
     text: "text-orange-600 dark:text-orange-400",
     border: "border-orange-500/20",
     ring: "ring-orange-500/30",
-    gradient: "from-orange-500 to-orange-600",
   },
   yellow: {
     solid: "bg-yellow-500",
@@ -70,55 +64,48 @@ const colorMap = {
     text: "text-yellow-600 dark:text-yellow-400",
     border: "border-yellow-500/20",
     ring: "ring-yellow-500/30",
-    gradient: "from-yellow-500 to-yellow-600",
   },
   cyan: {
-    solid: "bg-cyan-500",
-    light: "bg-cyan-500/10",
-    text: "text-cyan-600 dark:text-cyan-400",
+    solid: "bg-muted",
+    light: "bg-muted",
+    text: "text-muted-foreground dark:text-cyan-400",
     border: "border-cyan-500/20",
     ring: "ring-cyan-500/30",
-    gradient: "from-cyan-500 to-cyan-600",
   },
   slate: {
-    solid: "bg-slate-500",
+    solid: "bg-muted",
     light: "bg-muted",
     text: "text-muted-foreground",
     border: "border-border",
     ring: "ring-slate-500/30",
-    gradient: "from-slate-500 to-slate-600",
   },
   red: {
-    solid: "bg-red-500",
-    light: "bg-red-500/10",
-    text: "text-red-600 dark:text-red-400",
-    border: "border-red-500/20",
+    solid: "bg-destructive",
+    light: "bg-destructive/10",
+    text: "text-destructive dark:text-red-400",
+    border: "border-destructive/20",
     ring: "ring-red-500/30",
-    gradient: "from-red-500 to-red-600",
   },
   green: {
-    solid: "bg-green-500",
-    light: "bg-green-500/10",
-    text: "text-green-600 dark:text-green-400",
-    border: "border-green-500/20",
+    solid: "bg-healthy",
+    light: "bg-healthy/10",
+    text: "text-healthy dark:text-green-400",
+    border: "border-healthy/20",
     ring: "ring-green-500/30",
-    gradient: "from-green-500 to-green-600",
   },
   indigo: {
-    solid: "bg-indigo-500",
-    light: "bg-indigo-500/10",
-    text: "text-indigo-600 dark:text-indigo-400",
+    solid: "bg-muted",
+    light: "bg-muted",
+    text: "text-muted-foreground dark:text-indigo-400",
     border: "border-indigo-500/20",
     ring: "ring-indigo-500/30",
-    gradient: "from-indigo-500 to-indigo-600",
   },
   violet: {
-    solid: "bg-violet-500",
-    light: "bg-violet-500/10",
-    text: "text-violet-600 dark:text-violet-400",
+    solid: "bg-muted",
+    light: "bg-muted",
+    text: "text-muted-foreground dark:text-violet-400",
     border: "border-violet-500/20",
     ring: "ring-violet-500/30",
-    gradient: "from-violet-500 to-violet-600",
   },
 } as const;
 
@@ -135,54 +122,70 @@ interface IconBoxProps {
   animated?: boolean;
 }
 
+/**
+ * Ink plate.
+ *
+ * Used 141 times across the product, so this component alone set the tone. It
+ * used to render a gradient tile with a white glyph, a drop shadow, a hover
+ * scale-and-rotate, an inner glow AND an infinite shimmer sweep — perpetual
+ * motion in the periphery of a tool people sit in for a full shift, multiplied
+ * by every icon on the page.
+ *
+ * It is now the panel's plate: a recess cut into the surface, with the category
+ * carried by the GLYPH's ink rather than by a coloured fill. Same props, so all
+ * 141 call sites are untouched; `animated` is accepted and ignored, because
+ * there is no longer anything to animate.
+ */
+const inkByColor: Record<string, string> = {
+  // Neutral by default: "primary" is the most common value here, and spraying
+  // the lamp across 141 tiles would spend the one signal the UI has.
+  primary: "text-foreground",
+  slate: "text-muted-foreground",
+  // Semantic colours keep their meaning.
+  emerald: "text-healthy",
+  green: "text-healthy",
+  rose: "text-destructive",
+  red: "text-destructive",
+  // Category identity draws from the shared chart inks.
+  blue: "ink-1",
+  cyan: "ink-1",
+  indigo: "ink-4",
+  violet: "ink-4",
+  purple: "ink-4",
+  amber: "ink-3",
+  orange: "ink-3",
+  yellow: "ink-3",
+};
+
 export function IconBox({
   children,
   color = "primary",
   size = "md",
   className,
-  animated = true,
 }: IconBoxProps) {
   const sizeClasses = {
-    sm: "h-10 w-10 rounded-xl",
-    md: "h-12 w-12 rounded-xl",
-    lg: "h-14 w-14 rounded-2xl",
+    sm: "h-8 w-8",
+    md: "h-9 w-9",
+    lg: "h-10 w-10",
   };
-
   const iconSizeClasses = {
-    sm: "[&>svg]:h-5 [&>svg]:w-5",
-    md: "[&>svg]:h-6 [&>svg]:w-6",
-    lg: "[&>svg]:h-7 [&>svg]:w-7",
+    sm: "[&>svg]:h-4 [&>svg]:w-4",
+    md: "[&>svg]:h-[18px] [&>svg]:w-[18px]",
+    lg: "[&>svg]:h-5 [&>svg]:w-5",
   };
-
-  const colorConfig = colorMap[color] || colorMap.primary;
 
   return (
-    <motion.div
+    <span
       className={cn(
-        "relative flex shrink-0 items-center justify-center overflow-hidden text-white shadow-lg",
-        `bg-gradient-to-br ${colorConfig.gradient}`,
+        "ink-plate inline-flex shrink-0 items-center justify-center",
         sizeClasses[size],
         iconSizeClasses[size],
+        inkByColor[color] ?? inkByColor.primary,
         className,
       )}
-      whileHover={animated ? { scale: 1.05, rotate: 3 } : undefined}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
     >
-      {/* Inner glow */}
-      <div className="absolute inset-0 bg-white/10 opacity-0 transition-opacity group-hover:opacity-100" />
-      {/* Shimmer effect */}
-      <motion.div
-        className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent"
-        animate={{ translateX: ["100%", "-100%"] }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          repeatDelay: 3,
-          ease: "easeInOut",
-        }}
-      />
       {children}
-    </motion.div>
+    </span>
   );
 }
 
@@ -229,12 +232,12 @@ export function StatsCard({
             <div className="h-8 w-16 animate-pulse rounded-lg bg-border" />
           ) : (
             <div className="flex items-baseline gap-2">
-              <p className="text-2xl font-bold text-foreground">{value}</p>
+              <p className="text-2xl font-semibold text-foreground">{value}</p>
               {trend && (
                 <span
                   className={cn(
                     "flex items-center text-xs font-semibold",
-                    trend.positive ? "text-emerald-600" : "text-rose-600",
+                    trend.positive ? "text-healthy" : "text-destructive",
                   )}
                 >
                   {trend.positive ? "↑" : "↓"} {Math.abs(trend.value)}%
@@ -260,7 +263,7 @@ function Badge({ label, color = "slate" }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+        "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
         colorConfig.light,
         colorConfig.text,
       )}
@@ -286,7 +289,7 @@ export function StatusBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
+        "inline-flex items-center gap-1.5 rounded-[--radius] px-2.5 py-1 text-xs font-medium",
         colorMap[color].light,
         colorMap[color].text,
       )}
@@ -343,7 +346,7 @@ function MenuDropdown({ items, isOpen, onClose }: MenuDropdownProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -8 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full z-50 mt-1 min-w-[160px] overflow-hidden rounded-xl border border-border py-1 shadow-lg bg-background"
+            className="absolute right-0 top-full z-50 mt-1 min-w-[160px] overflow-hidden rounded-[--radius] border border-border py-1 shadow-lg bg-background"
           >
             {items.map((item, index) => {
               const content = (
@@ -351,7 +354,7 @@ function MenuDropdown({ items, isOpen, onClose }: MenuDropdownProps) {
                   className={cn(
                     "flex items-center gap-2 px-3 py-2 text-sm transition-colors",
                     item.danger
-                      ? "text-rose-600 dark:text-rose-400 hover:bg-rose-500/10"
+                      ? "text-destructive dark:text-destructive hover:bg-destructive/10"
                       : "text-foreground hover:bg-muted",
                   )}
                 >
@@ -490,7 +493,7 @@ export function ListingCard({
         <div className="flex items-center gap-3">
           {badge ? (
             <IconBox color={badgeColor} size="md">
-              <span className="text-sm font-bold">{badge}</span>
+              <span className="text-sm font-semibold">{badge}</span>
             </IconBox>
           ) : icon ? (
             <IconBox color={accentColor} size="md">
@@ -569,7 +572,7 @@ export function ListingCard({
 
       {/* Description */}
       {description && (
-        <div className="mb-4 p-3 rounded-xl bg-muted border border-border">
+        <div className="mb-4 p-3 rounded-[--radius] bg-muted border border-border">
           <p className="text-sm text-muted-foreground line-clamp-2">
             {description}
           </p>
@@ -595,8 +598,8 @@ export function ListingCard({
               animate={{ width: `${progress.value}%` }}
               transition={{ duration: 1, ease: "easeOut" }}
               className={cn(
-                "h-full rounded-full bg-gradient-to-r",
-                colorMap[progress.color || accentColor].gradient,
+                "h-full rounded-[1px]",
+                colorMap[progress.color || accentColor].solid,
               )}
             />
           </div>
@@ -614,7 +617,7 @@ export function ListingCard({
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="rounded-xl bg-muted/80 p-3 text-center transition-colors hover:bg-muted"
+              className="rounded-[--radius] bg-muted p-3 text-center transition-colors hover:bg-muted"
             >
               {stat.icon && (
                 <div
@@ -674,8 +677,8 @@ export function ListingCard({
               <Link
                 href={primaryAction.href}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white transition-all hover:shadow-lg",
-                  `bg-gradient-to-r ${colorMap[accentColor].gradient}`,
+                  "flex items-center gap-1.5 rounded-[--radius] px-3 py-1.5 text-xs font-medium transition-colors",
+                  "border border-border bg-muted text-foreground hover:bg-card",
                 )}
               >
                 {primaryAction.icon}
@@ -686,8 +689,8 @@ export function ListingCard({
                 type="button"
                 onClick={primaryAction.onClick}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white transition-all hover:shadow-lg",
-                  `bg-gradient-to-r ${colorMap[accentColor].gradient}`,
+                  "flex items-center gap-1.5 rounded-[--radius] px-3 py-1.5 text-xs font-medium transition-colors",
+                  "border border-border bg-muted text-foreground hover:bg-card",
                 )}
               >
                 {primaryAction.icon}
@@ -726,22 +729,15 @@ export function AddNewCard({
   const content = (
     <ElevatedContainer
       className={cn(
-        "group relative flex h-full flex-col items-center justify-center gap-4 border-2 border-dashed p-6 transition-all duration-300 cursor-pointer overflow-hidden",
+        "group relative flex h-full flex-col items-center justify-center gap-4 border border-dashed p-6 transition-all duration-300 cursor-pointer overflow-hidden",
         colorMap[accentColor].border,
-        "bg-muted/50 hover:bg-gradient-to-br hover:from-muted hover:to-card",
+        "bg-muted hover:bg-gradient-to-br hover:from-muted hover:to-card",
         `hover:border-${accentColor === "primary" ? "primary" : accentColor + "-300"}`,
         className,
       )}
       style={{ minHeight }}
     >
-      {/* Background decoration */}
-      {/* <div
-        className={cn(
-          "absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity group-hover:opacity-5",
-          colorMap[accentColor].gradient,
-        )}
-      /> */}
-
+      
       <motion.div
         whileHover={{ scale: 1.1, rotate: icon ? 0 : 90 }}
         transition={{ type: "spring", stiffness: 400, damping: 17 }}

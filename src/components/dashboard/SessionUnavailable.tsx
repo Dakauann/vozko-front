@@ -1,6 +1,6 @@
 "use client";
 
-import { WarningCircle } from "@phosphor-icons/react";
+import { WarningCircle } from "@/components/icons";
 import { logout as logoutRequest } from "@/lib/auth/auth-api";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
@@ -19,8 +19,8 @@ export default function SessionUnavailable() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-background p-6 text-center">
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 ring-1 ring-amber-500/20">
-        <WarningCircle className="h-7 w-7 text-amber-600" weight="fill" />
+      <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-warning/10 ring-1 ring-amber-500/20">
+        <WarningCircle className="h-7 w-7 text-warning" weight="fill" />
       </div>
       <div className="space-y-1.5">
         <h1 className="text-lg font-semibold text-foreground">{t("title")}</h1>
@@ -32,7 +32,7 @@ export default function SessionUnavailable() {
         <button
           type="button"
           onClick={() => window.location.reload()}
-          className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+          className="rounded-[--radius] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:opacity-90"
         >
           {t("retry")}
         </button>
@@ -48,7 +48,7 @@ export default function SessionUnavailable() {
             }
             window.location.href = "/login";
           }}
-          className="rounded-xl border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-60"
+          className="rounded-[--radius] border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-60"
         >
           {t("logout")}
         </button>

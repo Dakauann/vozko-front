@@ -4,11 +4,11 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import * as React from "react";
 
 import type { CSSProperties } from "react";
-import { X } from "@phosphor-icons/react";
+import { X } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 const panelShadow =
-  "0px 0.7066px 0.7066px -0.6667px rgba(0,0,0,0.08), 0px 1.8066px 1.8066px -1.3333px rgba(0,0,0,0.08), 0px 3.6218px 3.6218px -2px rgba(0,0,0,0.07), 0px 6.8656px 6.8656px -2.6667px rgba(0,0,0,0.07), 0px 13.6468px 13.6468px -3.3333px rgba(0,0,0,0.05), 0px 30px 30px -4px rgba(0,0,0,0.02), inset 0px 3px 1px 0px var(--shadow-highlight-strong)";
+  "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)";
 
 const ElevatedDialog = DialogPrimitive.Root;
 const ElevatedDialogTrigger = DialogPrimitive.Trigger;
@@ -74,7 +74,7 @@ const ElevatedDialogContent = React.forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          "fixed z-[101] flex w-full max-w-[520px] flex-col gap-6 rounded-[24px] border border-black/8 bg-card px-7 py-6 shadow-[0_25px_80px_-35px_rgba(15,23,42,0.4)] transition-all duration-200 ease-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
+          "fixed z-[101] flex w-full max-w-[520px] flex-col gap-6 rounded-[--radius] border border-black/8 bg-card px-7 py-6 shadow-[0_25px_80px_-35px_rgba(15,23,42,0.4)] transition-all duration-200 ease-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
           className,
         )}
         style={{
@@ -86,7 +86,7 @@ const ElevatedDialogContent = React.forwardRef<
       >
         {children}
         <DialogPrimitive.Close
-          className="absolute right-5 top-5 inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-card/90 text-muted-foreground transition-colors duration-150 hover:bg-black/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:pointer-events-none"
+          className="absolute right-5 top-5 inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-card text-muted-foreground transition-colors duration-150 hover:bg-black/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:pointer-events-none"
           style={{ boxShadow: panelShadow }}
         >
           <X weight="bold" className="h-4 w-4" />
@@ -124,7 +124,7 @@ const ElevatedDialogTitle = React.forwardRef<
   <DialogPrimitive.Title
     ref={ref}
     className={cn(
-      "text-xl font-semibold text-[var(--text-primary)]",
+      "text-xl font-semibold text-foreground",
       className,
     )}
     {...props}

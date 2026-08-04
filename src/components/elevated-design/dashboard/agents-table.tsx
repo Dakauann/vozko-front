@@ -1,7 +1,7 @@
 "use client";
 
 import type { Agent, AgentListMeta, ToolBinding } from "@/lib/agents/types";
-import { ChatCircle, Pencil, Trash } from "@phosphor-icons/react";
+import { ChatCircle, Pencil, Trash } from "@/components/icons";
 
 import Button from "@/components/elevated-design/button";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
@@ -36,7 +36,7 @@ function formatDate(value: string) {
 
 function InfoItem({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-border/70 bg-muted/80 px-4 py-3">
+    <div className="rounded-[--radius] border border-border bg-muted px-4 py-3">
       <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
         {label}
       </p>
@@ -69,13 +69,13 @@ function ToolsList({
       {visibleTools.map((tool) => (
         <span
           key={`${agentId}-${tool.name}`}
-          className="inline-flex items-center rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground"
+          className="inline-flex items-center rounded-[--radius] bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground"
         >
           {tool.name}
         </span>
       ))}
       {remaining > 0 ? (
-        <span className="inline-flex items-center rounded-full bg-border px-3 py-1 text-xs font-semibold text-muted-foreground">
+        <span className="inline-flex items-center rounded-[--radius] bg-border px-3 py-1 text-xs font-semibold text-muted-foreground">
           +{remaining}
         </span>
       ) : null}
@@ -92,7 +92,7 @@ export function AgentsTable({ agents, meta }: AgentsTableProps) {
 
   if (!agents.length) {
     return (
-      <ElevatedContainer className="border border-border/70 bg-card/95">
+      <ElevatedContainer className="border border-border bg-card">
         <div className="flex min-h-[180px] flex-col items-center justify-center gap-2 text-center">
           <p className="text-base font-semibold text-foreground">
             Nenhum agente cadastrado até o momento.
@@ -118,7 +118,7 @@ export function AgentsTable({ agents, meta }: AgentsTableProps) {
           return (
             <ElevatedContainer
               key={agent.id}
-              className="flex h-full flex-col border border-border/70 bg-card/95 p-6"
+              className="flex h-full flex-col border border-border bg-card p-6"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1">
@@ -131,9 +131,9 @@ export function AgentsTable({ agents, meta }: AgentsTableProps) {
                 </div>
                 <span
                   className={cn(
-                    "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold",
+                    "inline-flex items-center rounded-[--radius] px-3 py-1 text-xs font-semibold",
                     agent.isActive
-                      ? "bg-emerald-500 text-white"
+                      ? "bg-healthy text-white"
                       : "bg-muted text-muted-foreground",
                   )}
                 >
@@ -207,7 +207,7 @@ export function AgentsTable({ agents, meta }: AgentsTableProps) {
                     iconSide="left"
                     link={`/dashboard/agents/${agent.id}/delete`}
                     newTab={false}
-                    className="text-[11px] font-semibold uppercase text-red-600 hover:bg-destructive/10"
+                    className="text-[11px] font-semibold uppercase text-destructive hover:bg-destructive/10"
                   />
                 </div>
               </div>

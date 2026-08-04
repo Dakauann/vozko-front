@@ -39,7 +39,7 @@ import {
   WhatsappLogo,
   Wrench,
   XCircle,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   useCallback,
   useEffect,
@@ -86,38 +86,38 @@ const accentClasses: Record<
   }
 > = {
   blue: {
-    icon: "bg-gradient-to-br from-blue-500 to-blue-700",
-    chip: "bg-blue-500 text-white",
+    icon: "bg-muted",
+    chip: "bg-muted text-white",
     border: "border-blue-500/20",
   },
   emerald: {
-    icon: "bg-gradient-to-br from-emerald-500 to-teal-600",
-    chip: "bg-emerald-500 text-white",
-    border: "border-emerald-500/20",
+    icon: "bg-muted",
+    chip: "bg-healthy text-white",
+    border: "border-healthy/20",
   },
   amber: {
-    icon: "bg-gradient-to-br from-amber-500 to-orange-600",
-    chip: "bg-amber-500 text-white",
-    border: "border-amber-500/25",
+    icon: "bg-muted",
+    chip: "bg-warning text-white",
+    border: "border-warning/25",
   },
   rose: {
-    icon: "bg-gradient-to-br from-rose-500 to-red-600",
-    chip: "bg-rose-500 text-white",
-    border: "border-rose-500/20",
+    icon: "bg-muted",
+    chip: "bg-destructive text-white",
+    border: "border-destructive/20",
   },
   slate: {
-    icon: "bg-gradient-to-br from-slate-600 to-slate-800",
-    chip: "bg-slate-600 text-white",
-    border: "border-border/70",
+    icon: "bg-muted",
+    chip: "bg-muted text-white",
+    border: "border-border",
   },
   violet: {
-    icon: "bg-gradient-to-br from-violet-500 to-indigo-600",
-    chip: "bg-violet-500 text-white",
+    icon: "bg-muted",
+    chip: "bg-muted text-white",
     border: "border-violet-500/20",
   },
   sky: {
-    icon: "bg-gradient-to-br from-sky-500 to-cyan-600",
-    chip: "bg-sky-500 text-white",
+    icon: "bg-muted",
+    chip: "bg-muted text-white",
     border: "border-sky-500/20",
   },
 };
@@ -167,9 +167,9 @@ function IconTile({
     <span
       className={cn(
         "flex shrink-0 items-center justify-center text-white shadow-sm",
-        size === "sm" && "h-9 w-9 rounded-xl [&>svg]:h-4 [&>svg]:w-4",
-        size === "md" && "h-11 w-11 rounded-2xl [&>svg]:h-5 [&>svg]:w-5",
-        size === "lg" && "h-14 w-14 rounded-2xl [&>svg]:h-7 [&>svg]:w-7",
+        size === "sm" && "h-9 w-9 rounded-[--radius] [&>svg]:h-4 [&>svg]:w-4",
+        size === "md" && "h-11 w-11 rounded-[--radius] [&>svg]:h-5 [&>svg]:w-5",
+        size === "lg" && "h-14 w-14 rounded-[--radius] [&>svg]:h-7 [&>svg]:w-7",
         accentClasses[accent].icon,
         className,
       )}
@@ -191,8 +191,8 @@ function StatusBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold text-white",
-        active ? "bg-emerald-500" : "bg-slate-500",
+        "inline-flex items-center gap-1.5 rounded-[--radius] px-2.5 py-1 text-xs font-semibold text-white",
+        active ? "bg-healthy" : "bg-muted",
       )}
     >
       {active ? (
@@ -225,7 +225,7 @@ function Panel({
   return (
     <section
       className={cn(
-        "rounded-2xl border border-border/70 bg-card/90 p-5",
+        "rounded-[--radius] border border-border bg-card p-5",
         className,
       )}
       style={{ boxShadow: softSurfaceShadow }}
@@ -262,7 +262,7 @@ function MetricCard({
 }) {
   return (
     <div
-      className="rounded-2xl border border-border/70 bg-card/90 p-4"
+      className="rounded-[--radius] border border-border bg-card p-4"
       style={{ boxShadow: softSurfaceShadow }}
     >
       <div className="flex items-center justify-between gap-3">
@@ -308,7 +308,7 @@ function InfoRow({
   }, [value]);
 
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-border/70 py-3 last:border-0">
+    <div className="flex items-center justify-between gap-4 border-b border-border py-3 last:border-0">
       <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
         {icon ? (
           <span className="shrink-0 [&>svg]:h-4 [&>svg]:w-4">{icon}</span>
@@ -333,7 +333,7 @@ function InfoRow({
             title="Copiar"
           >
             {copied ? (
-              <CheckCircle weight="fill" className="h-4 w-4 text-emerald-500" />
+              <CheckCircle weight="fill" className="h-4 w-4 text-healthy" />
             ) : (
               <Copy weight="bold" className="h-4 w-4" />
             )}
@@ -372,8 +372,8 @@ function PromptCard({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-2xl border bg-background/70 transition-colors",
-        empty ? "border-border/70" : accentClasses[accent].border,
+        "overflow-hidden rounded-[--radius] border bg-background transition-colors",
+        empty ? "border-border" : accentClasses[accent].border,
       )}
     >
       <button
@@ -382,7 +382,7 @@ function PromptCard({
         onClick={() => setIsOpen((current) => !current)}
         className={cn(
           "flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors",
-          empty ? "cursor-not-allowed opacity-60" : "hover:bg-muted/70",
+          empty ? "cursor-not-allowed opacity-60" : "hover:bg-muted",
         )}
       >
         <span className="flex min-w-0 items-center gap-3">
@@ -420,7 +420,7 @@ function PromptCard({
             initial={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <div className="border-t border-border/70 p-4">
+            <div className="border-t border-border p-4">
               <div className="mb-2 flex justify-end">
                 <button
                   type="button"
@@ -428,7 +428,7 @@ function PromptCard({
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors",
                     copied
-                      ? "bg-emerald-500 text-white"
+                      ? "bg-healthy text-white"
                       : "border border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground",
                   )}
                 >
@@ -440,7 +440,7 @@ function PromptCard({
                   {copied ? "Copiado" : "Copiar"}
                 </button>
               </div>
-              <pre className="max-h-[380px] overflow-y-auto whitespace-pre-wrap rounded-xl border border-border bg-muted p-4 font-mono text-xs leading-relaxed text-foreground">
+              <pre className="max-h-[380px] overflow-y-auto whitespace-pre-wrap rounded-[--radius] border border-border bg-muted p-4 font-mono text-xs leading-relaxed text-foreground">
                 {value}
               </pre>
             </div>
@@ -476,11 +476,11 @@ function ToolCard({
   };
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border/70 bg-background/70">
+    <div className="overflow-hidden rounded-[--radius] border border-border bg-background">
       <button
         type="button"
         onClick={() => setExpanded((current) => !current)}
-        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/70"
+        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-muted"
       >
         <span className="flex min-w-0 items-center gap-3">
           <IconTile accent="amber" size="sm">
@@ -502,7 +502,7 @@ function ToolCard({
         </span>
         <span className="flex shrink-0 items-center gap-2">
           {hasConfig ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500 px-2.5 py-1 text-[10px] font-semibold uppercase text-white">
+            <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-healthy px-2.5 py-1 text-[10px] font-semibold uppercase text-white">
               <Gear weight="fill" className="h-3 w-3" />
               Configurado
             </span>
@@ -526,7 +526,7 @@ function ToolCard({
             initial={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <div className="space-y-3 border-t border-border/70 p-4">
+            <div className="space-y-3 border-t border-border p-4">
               {displayDescription ? (
                 <p className="text-sm leading-relaxed text-muted-foreground">
                   {displayDescription}
@@ -546,7 +546,7 @@ function ToolCard({
                 </div>
               ) : null}
               {hasConfig ? (
-                <pre className="max-h-[260px] overflow-y-auto whitespace-pre-wrap rounded-xl border border-border bg-muted p-3 font-mono text-xs leading-relaxed text-foreground">
+                <pre className="max-h-[260px] overflow-y-auto whitespace-pre-wrap rounded-[--radius] border border-border bg-muted p-3 font-mono text-xs leading-relaxed text-foreground">
                   {JSON.stringify(tool.config, null, 2)}
                 </pre>
               ) : (
@@ -564,7 +564,7 @@ function ToolCard({
 
 function JsonPanel({ value }: { value: unknown }) {
   return (
-    <pre className="max-h-[320px] overflow-y-auto whitespace-pre-wrap rounded-xl border border-border bg-muted p-4 font-mono text-xs leading-relaxed text-foreground">
+    <pre className="max-h-[320px] overflow-y-auto whitespace-pre-wrap rounded-[--radius] border border-border bg-muted p-4 font-mono text-xs leading-relaxed text-foreground">
       {JSON.stringify(value, null, 2)}
     </pre>
   );
@@ -673,7 +673,7 @@ export default function AgentDetail({
       transition={{ duration: 0.4 }}
     >
       <section
-        className="rounded-2xl border border-border/70 bg-card/90 p-5"
+        className="rounded-[--radius] border border-border bg-card p-5"
         style={{ boxShadow: softSurfaceShadow }}
       >
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
@@ -681,7 +681,7 @@ export default function AgentDetail({
             {agent.avatarUrl ? (
               <NextImage
                 alt={agent.name}
-                className="h-14 w-14 shrink-0 rounded-2xl border border-border object-cover shadow-sm"
+                className="h-14 w-14 shrink-0 rounded-[--radius] border border-border object-cover shadow-sm"
                 height={56}
                 src={agent.avatarUrl}
                 width={56}
@@ -704,7 +704,7 @@ export default function AgentDetail({
                   title={t("detail.back")}
                   variant="ghost"
                 />
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500 px-2.5 py-1 text-xs font-semibold text-white">
+                <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-muted px-2.5 py-1 text-xs font-semibold text-white">
                   <Robot weight="fill" className="h-3.5 w-3.5" />
                   {t("header.badge")}
                 </span>
@@ -762,7 +762,7 @@ export default function AgentDetail({
                 />
                 <Button
                   className={cn(
-                    agent.isActive && "text-amber-700 hover:bg-amber-50",
+                    agent.isActive && "text-warning hover:bg-amber-50",
                   )}
                   disabled={isPending}
                   icon={
@@ -821,7 +821,7 @@ export default function AgentDetail({
           <Panel
             accent="blue"
             action={
-              <span className="rounded-full bg-slate-600 px-2.5 py-1 text-xs font-semibold text-white">
+              <span className="rounded-[--radius] bg-muted px-2.5 py-1 text-xs font-semibold text-white">
                 {promptCount} / 4
               </span>
             }
@@ -848,7 +848,7 @@ export default function AgentDetail({
           <Panel
             accent="amber"
             action={
-              <span className="rounded-full bg-amber-500 px-2.5 py-1 text-xs font-semibold text-white">
+              <span className="rounded-full bg-warning px-2.5 py-1 text-xs font-semibold text-white">
                 {toolCount}
               </span>
             }
@@ -867,7 +867,7 @@ export default function AgentDetail({
                 ))}
               </div>
             ) : (
-              <div className="rounded-2xl border border-dashed border-border/70 bg-background/60 px-4 py-8 text-center">
+              <div className="rounded-[--radius] border border-dashed border-border bg-background px-4 py-8 text-center">
                 <Wrench
                   className="mx-auto h-7 w-7 text-muted-foreground"
                   weight="bold"
@@ -984,7 +984,7 @@ export default function AgentDetail({
                 {agent.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-foreground"
+                    className="inline-flex items-center gap-1.5 rounded-[--radius] bg-muted px-3 py-1 text-xs font-medium text-foreground"
                   >
                     <Hash
                       weight="bold"
@@ -1021,7 +1021,7 @@ export default function AgentDetail({
                 {agent.mediaIds?.map((mediaId) => (
                   <div
                     key={mediaId}
-                    className="flex items-center justify-between gap-2 rounded-xl border border-border/70 bg-background/70 px-3 py-2"
+                    className="flex items-center justify-between gap-2 rounded-[--radius] border border-border bg-background px-3 py-2"
                   >
                     <span className="truncate font-mono text-xs text-muted-foreground">
                       {mediaId}

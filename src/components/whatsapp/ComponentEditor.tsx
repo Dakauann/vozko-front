@@ -14,7 +14,7 @@ import {
   TextT,
   Trash,
   VideoCamera,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 import { DraggableComponent } from "./DragDropBuilder";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
@@ -112,8 +112,8 @@ function CallPermissionEditor() {
 
   return (
     <div data-tour="wt-call-permission-editor" className="space-y-3">
-      <div className="flex items-start gap-3 rounded-lg border border-indigo-500/20 bg-indigo-500/10 p-4">
-        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-blue-500">
+      <div className="flex items-start gap-3 rounded-lg border border-indigo-500/20 bg-muted p-4">
+        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-muted">
           <PhoneCall className="h-5 w-5 text-white" weight="duotone" />
         </div>
         <div className="min-w-0">
@@ -125,7 +125,7 @@ function CallPermissionEditor() {
           </p>
         </div>
       </div>
-      <div className="rounded-lg bg-muted/50 p-3">
+      <div className="rounded-lg bg-muted p-3">
         <p className="text-xs text-muted-foreground">{t("noFields")}</p>
       </div>
     </div>
@@ -205,7 +205,7 @@ function HeaderEditor({
                         : undefined,
                   })
                 }
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all text-left ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all text-left ${
                   isSelected
                     ? "border-primary bg-primary text-white"
                     : "border-border hover:border-foreground/20 text-foreground"
@@ -383,7 +383,7 @@ function BodyEditor({
           </label>
           <button
             onClick={insertVariable}
-            className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-primary hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+            className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-lamp-ink hover:text-lamp-ink hover:bg-muted rounded-lg transition-colors"
           >
             <Plus className="h-3 w-3" weight="bold" />
             {t("body.addVariable")}
@@ -402,14 +402,14 @@ function BodyEditor({
       </div>
 
       {variables.length > 0 && (
-        <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3" data-tour="wt-body-variables">
+        <div className="bg-warning/10 border border-warning/20 rounded-lg p-3" data-tour="wt-body-variables">
           <h4 className="text-xs font-semibold text-amber-900 mb-2 flex items-center gap-1">
-            <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-amber-200 text-[10px] font-bold text-amber-800">
+            <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-amber-200 text-[10px] font-semibold text-amber-800">
               !
             </span>
             {t("body.examplesRequired.title")}
           </h4>
-          <p className="text-xs text-amber-700 mb-3">
+          <p className="text-xs text-warning mb-3">
             {t("body.examplesRequired.description")}
           </p>
           <div className="space-y-2">
@@ -417,7 +417,7 @@ function BodyEditor({
               ? 
                 variables.map((varNum) => (
                   <div key={varNum} className="flex items-center gap-2">
-                    <code className="bg-amber-500 px-2 py-1 rounded text-xs font-mono text-white shrink-0">
+                    <code className="bg-warning px-2 py-1 rounded text-xs font-mono text-white shrink-0">
                       {`{{${varNum}}}`}
                     </code>
                     <ElevatedInput
@@ -438,7 +438,7 @@ function BodyEditor({
               : 
                 variables.map((varName) => (
                   <div key={varName} className="flex items-center gap-2">
-                    <code className="bg-amber-500 px-2 py-1 rounded text-xs font-mono text-white shrink-0">
+                    <code className="bg-warning px-2 py-1 rounded text-xs font-mono text-white shrink-0">
                       {`{{${varName}}}`}
                     </code>
                     <ElevatedInput
@@ -457,11 +457,11 @@ function BodyEditor({
         </div>
       )}
 
-      <div className="bg-primary/10 border border-blue-500/20 rounded-lg p-3">
-        <h4 className="text-xs font-semibold text-primary mb-1">
+      <div className="bg-muted border border-blue-500/20 rounded-lg p-3">
+        <h4 className="text-xs font-semibold text-lamp-ink mb-1">
           {t("body.variablesTitle")}
         </h4>
-        <p className="text-xs text-primary">{t("body.variablesHint")}</p>
+        <p className="text-xs text-lamp-ink">{t("body.variablesHint")}</p>
       </div>
     </div>
   );
@@ -553,7 +553,7 @@ function ButtonsEditor({
         </label>
 
         {buttons.length === 0 && (
-          <div className="text-center py-6 px-4 border-2 border-dashed border-border rounded-lg">
+          <div className="text-center py-6 px-4 border border-dashed border-border rounded-lg">
             <p className="text-xs text-muted-foreground mb-3">{t("empty")}</p>
             <div className="flex flex-wrap gap-2 justify-center">
               {buttonTypes.map((type) => {
@@ -562,7 +562,7 @@ function ButtonsEditor({
                   <button
                     key={type.value}
                     onClick={() => addButton(type.value)}
-                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-foreground hover:text-primary bg-card hover:bg-primary/10 border border-border hover:border-blue-300 rounded-lg transition-all"
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-foreground hover:text-lamp-ink bg-card hover:bg-muted border border-border hover:border-blue-300 rounded-lg transition-all"
                   >
                     <Icon className="h-3 w-3" />
                     {type.label}
@@ -588,7 +588,7 @@ function ButtonsEditor({
                 </span>
                 <button
                   onClick={() => removeButton(index)}
-                  className="p-1 text-muted-foreground hover:text-red-600 hover:bg-destructive/10 rounded transition-colors"
+                  className="p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-colors"
                 >
                   <Trash className="h-3 w-3" weight="bold" />
                 </button>
@@ -683,7 +683,7 @@ function ButtonsEditor({
                   <button
                     key={type.value}
                     onClick={() => addButton(type.value)}
-                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-foreground hover:text-primary bg-card hover:bg-primary/10 border border-border hover:border-blue-300 rounded-lg transition-all"
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-foreground hover:text-lamp-ink bg-card hover:bg-muted border border-border hover:border-blue-300 rounded-lg transition-all"
                   >
                     <Icon className="h-3 w-3" />
                     {type.label}
@@ -696,8 +696,8 @@ function ButtonsEditor({
       </div>
 
       {buttons.length >= 3 && (
-        <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
-          <p className="text-xs text-amber-700">{t("maxReached")}</p>
+        <div className="bg-warning/10 border border-warning/20 rounded-lg p-3">
+          <p className="text-xs text-warning">{t("maxReached")}</p>
         </div>
       )}
     </>

@@ -12,7 +12,7 @@ import {
   Play,
   Robot,
   Sparkle,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { Controller, useForm } from "react-hook-form";
 import {
   ElevatedStepper,
@@ -129,7 +129,7 @@ interface BeginnerAgentWizardProps {
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
-  return <p className="mt-1 text-xs font-semibold text-rose-500">{message}</p>;
+  return <p className="mt-1 text-xs font-semibold text-destructive">{message}</p>;
 }
 
 function StepHeader({
@@ -148,7 +148,7 @@ function StepHeader({
   return (
     <div className="mb-6 flex items-start gap-4">
       <div
-        className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${gradientFrom} ${gradientTo} text-white shadow-lg`}
+        className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-[--radius] bg-gradient-to-br ${gradientFrom} ${gradientTo} text-white shadow-lg`}
       >
         <Icon className="h-7 w-7" weight="fill" />
       </div>
@@ -162,9 +162,9 @@ function StepHeader({
 
 function ExampleBlock({ label, body }: { label: string; body: string }) {
   return (
-    <div className="mt-3 rounded-xl border border-border bg-muted/40 p-3">
+    <div className="mt-3 rounded-[--radius] border border-border bg-muted p-3">
       <div className="flex items-center gap-2">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-white shadow">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-white shadow">
           <Lightbulb className="h-4 w-4" weight="fill" />
         </div>
         <p className="text-xs font-semibold uppercase tracking-wider text-foreground">
@@ -860,9 +860,9 @@ export default function BeginnerAgentWizard({
               />
             </div>
 
-            <div className="mt-6 rounded-2xl border border-border bg-muted/40 p-4">
+            <div className="mt-6 rounded-[--radius] border border-border bg-muted p-4">
               <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-[hsl(var(--primary-hover))] text-primary-foreground shadow-lg">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground shadow-lg">
                   <GraduationCap className="h-5 w-5" weight="fill" />
                 </div>
                 <div>
@@ -884,7 +884,7 @@ export default function BeginnerAgentWizard({
 
 function ReviewRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-start justify-between gap-4 rounded-xl border border-border bg-card/60 px-4 py-3">
+    <div className="flex items-start justify-between gap-4 rounded-[--radius] border border-border bg-card px-4 py-3">
       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {label}
       </p>

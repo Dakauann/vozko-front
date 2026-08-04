@@ -3,7 +3,7 @@
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 import * as React from "react";
 
-import { Check } from "@phosphor-icons/react";
+import { Check } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 const Checkbox = React.forwardRef<
@@ -18,7 +18,7 @@ const Checkbox = React.forwardRef<
     )}
     style={{
       boxShadow:
-        "0px 0.7066px 0.7066px -0.6667px rgba(0,0,0,0.08), 0px 1.8066px 1.8066px -1.3333px rgba(0,0,0,0.08), 0px 3.6218px 3.6218px -2px rgba(0,0,0,0.07), 0px 6.8656px 6.8656px -2.6667px rgba(0,0,0,0.07), 0px 13.6468px 13.6468px -3.3333px rgba(0,0,0,0.05), 0px 30px 30px -4px rgba(0,0,0,0.02), inset 0px 3px 1px 0px var(--shadow-highlight-strong)",
+        "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)",
     }}
     {...props}
   >

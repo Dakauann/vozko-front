@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useState } from "react";
-import { Brain, CaretDown, CaretRight, Robot, User, Wrench } from "@phosphor-icons/react";
+import { Brain, CaretDown, CaretRight, Robot, User, Wrench } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 export interface CopilotMessageProps {
@@ -32,7 +32,7 @@ export const CopilotThinking = memo(function CopilotThinking({
         {open ? <CaretDown size={10} /> : <CaretRight size={10} />}
       </button>
       {open && (
-        <div className="mt-0.5 ml-1 border-l-2 border-border/60 pl-2 italic whitespace-pre-wrap text-muted-foreground/70">
+        <div className="mt-0.5 ml-1 border-l-2 border-border pl-2 italic whitespace-pre-wrap text-muted-foreground/70">
           {text}
           {streaming && (
             <span className="ml-0.5 inline-block w-1 h-3 align-middle bg-muted-foreground/50 animate-pulse" />
@@ -72,12 +72,12 @@ export const CopilotMessage = memo(function CopilotMessage({
   return (
     <div className={cn("flex gap-2 text-xs", role === "user" && "justify-end")}>
       {role === "assistant" && (
-        <Robot size={14} className="mt-0.5 shrink-0 text-primary" />
+        <Robot size={14} className="mt-0.5 shrink-0 text-lamp-ink" />
       )}
       <div
         className={cn(
           "rounded-md px-2 py-1 max-w-[85%] whitespace-pre-wrap",
-          role === "user" && "bg-primary/10",
+          role === "user" && "bg-muted",
           role === "assistant" && "bg-muted",
           role === "system" && "italic text-muted-foreground",
         )}

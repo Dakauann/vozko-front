@@ -14,8 +14,8 @@ import {
   useUpdateNodeInternals,
 } from "@xyflow/react";
 import { motion } from "framer-motion";
-import { Image as ImageIcon, VideoCamera, Warning } from "@phosphor-icons/react";
-import type { Icon } from "@phosphor-icons/react";
+import { Image as ImageIcon, VideoCamera, Warning } from "@/components/icons";
+import type { Icon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 // ── Shared building blocks for "renders like the real message" nodes ─────────
@@ -118,7 +118,7 @@ export function MessageBubble({
       {media && <MediaHeader url={media.url} kind={media.kind} />}
       <div className="px-2 py-1.5">
         {headerText?.trim() && (
-          <p className={cn("mb-0.5 text-[11px] font-bold leading-snug", t.text)}>
+          <p className={cn("mb-0.5 text-[11px] font-semibold leading-snug", t.text)}>
             {headerText}
           </p>
         )}
@@ -273,12 +273,12 @@ export interface ShellBranch {
 // positive outcome → emerald, everything else → the Signal Blue accent.
 export function branchDotClass(id: string): string {
   const k = id.trim().toLowerCase();
-  if (/(erro|error|falh|fail|send_failed)/.test(k)) return "!bg-rose-400";
-  if (/(timeout|no_reply|tempo|esgotad|expir)/.test(k)) return "!bg-amber-400";
+  if (/(erro|error|falh|fail|send_failed)/.test(k)) return "!bg-destructive";
+  if (/(timeout|no_reply|tempo|esgotad|expir)/.test(k)) return "!bg-warning";
   if (/(no_match|^default$|padr)/.test(k)) return "!bg-gray-400";
   if (/(sucesso|success|verdadeiro|^true$|passed|replied|respond)/.test(k))
-    return "!bg-emerald-400";
-  if (/(^false$|^falso$)/.test(k)) return "!bg-rose-400";
+    return "!bg-healthy";
+  if (/(^false$|^falso$)/.test(k)) return "!bg-destructive";
   return "!bg-primary";
 }
 
@@ -323,7 +323,7 @@ export function BranchRows({
     <div
       className={cn(
         "divide-y divide-border/30 bg-card",
-        hasContentAbove && "border-t border-border/40",
+        hasContentAbove && "border-t border-border",
       )}
     >
       {children}
@@ -336,7 +336,7 @@ export function BranchRows({
 function RequiredHandleMarker() {
   return (
     <span
-      className="pointer-events-none absolute -left-0.5 -top-0.5 h-1 w-1 rounded-full bg-rose-500 ring-1 ring-background"
+      className="pointer-events-none absolute -left-0.5 -top-0.5 h-1 w-1 rounded-full bg-destructive ring-1 ring-background"
       title="Conexão obrigatória"
     />
   );
@@ -456,7 +456,7 @@ export function InteractiveNodeShell({
         <Handle
           type="target"
           position={Position.Left}
-          className="!w-3 !h-3 !border-2 !border-background !-left-[6px] !bg-muted-foreground/60"
+          className="!w-3 !h-3 !border !border-background !-left-[6px] !bg-muted-foreground/60"
         />
       )}
 
@@ -469,11 +469,11 @@ export function InteractiveNodeShell({
           ease: "easeOut",
         }}
         className={cn(
-          "relative overflow-hidden rounded-2xl border border-border bg-card shadow-md transition-all",
+          "relative overflow-hidden rounded-[--radius] border border-border bg-card shadow-md transition-all",
           selected &&
             "ring-2 ring-foreground/80 ring-offset-2 ring-offset-background shadow-lg",
           Boolean(isSimulating) &&
-            "ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg shadow-primary/20 animate-pulse",
+            "ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg animate-pulse",
           // Search match wins over the selection ring (ordered last) so a found
           // node is unmistakable even when it is also the selected one.
           searchMatch &&
@@ -482,7 +482,7 @@ export function InteractiveNodeShell({
       >
         {flashing && (
           <motion.div
-            className="pointer-events-none absolute inset-0 z-10 rounded-2xl bg-primary/5 ring-2 ring-inset ring-primary"
+            className="pointer-events-none absolute inset-0 z-10 rounded-[--radius] bg-muted ring-2 ring-inset ring-primary"
             initial={{ opacity: 0 }}
             animate={{ opacity: [0, 1, 1, 0] }}
             transition={{ duration: 2.2, times: [0, 0.08, 0.65, 1], ease: "easeOut" }}
@@ -492,7 +492,7 @@ export function InteractiveNodeShell({
         {children({ registerRow })}
 
         {/* Bottom bar: icon + label + node id */}
-        <div className="flex items-center gap-1.5 border-t border-border/60 bg-muted/40 px-2 py-1">
+        <div className="flex items-center gap-1.5 border-t border-border bg-muted px-2 py-1">
           <div
             className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-md shadow-sm"
             style={{ backgroundColor: iconColor }}
@@ -503,7 +503,7 @@ export function InteractiveNodeShell({
             {label}
           </span>
           {Boolean(hasMissingRequired) && (
-            <Warning size={12} weight="fill" className="shrink-0 text-amber-500" />
+            <Warning size={12} weight="fill" className="shrink-0 text-warning" />
           )}
           <span className="pointer-events-none font-mono text-[8px] font-medium text-muted-foreground/50">
             {id}
@@ -523,7 +523,7 @@ export function InteractiveNodeShell({
                 id={b.id}
                 style={{ top }}
                 className={cn(
-                  "!w-3 !h-3 !border-2 !border-background !-right-[6px]",
+                  "!w-3 !h-3 !border !border-background !-right-[6px]",
                   b.dot ?? branchDotClass(b.id),
                 )}
               >
@@ -535,7 +535,7 @@ export function InteractiveNodeShell({
             <Handle
               type="source"
               position={Position.Right}
-              className="!w-3 !h-3 !border-2 !border-background !-right-[6px] !bg-muted-foreground/60"
+              className="!w-3 !h-3 !border !border-background !-right-[6px] !bg-muted-foreground/60"
             >
               {defaultOutputRequired && <RequiredHandleMarker />}
             </Handle>

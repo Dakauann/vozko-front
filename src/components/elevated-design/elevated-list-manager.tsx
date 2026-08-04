@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, PencilSimple, Plus, Trash, X } from "@phosphor-icons/react";
+import { Check, PencilSimple, Plus, Trash, X } from "@/components/icons";
 import {
   useCallback,
   useEffect,
@@ -72,42 +72,42 @@ const accentMap = {
   emerald: {
     focusBorder: "focus:border-emerald-300",
     focusRing: "focus:ring-emerald-100",
-    confirmBg: "bg-emerald-500 hover:bg-emerald-600",
+    confirmBg: "bg-healthy hover:bg-healthy",
     selectedRing: "ring-2 ring-emerald-500 ring-offset-1",
-    createText: "text-emerald-600",
-    createHover: "hover:bg-emerald-50/40",
+    createText: "text-healthy",
+    createHover: "hover:bg-healthy/10/40",
   },
   violet: {
     focusBorder: "focus:border-violet-300",
     focusRing: "focus:ring-violet-100",
-    confirmBg: "bg-violet-500 hover:bg-violet-600",
+    confirmBg: "bg-muted hover:bg-muted",
     selectedRing: "ring-2 ring-violet-500 ring-offset-1",
-    createText: "text-violet-600",
-    createHover: "hover:bg-violet-50/40",
+    createText: "text-muted-foreground",
+    createHover: "hover:bg-muted",
   },
   blue: {
     focusBorder: "focus:border-blue-300",
-    focusRing: "focus:ring-primary/20",
-    confirmBg: "bg-blue-500 hover:bg-blue-600",
+    focusRing: "focus:ring-ring",
+    confirmBg: "bg-muted hover:bg-muted",
     selectedRing: "ring-2 ring-blue-500 ring-offset-1",
-    createText: "text-primary",
-    createHover: "hover:bg-primary/10/40",
+    createText: "text-lamp-ink",
+    createHover: "hover:bg-muted",
   },
   rose: {
     focusBorder: "focus:border-rose-300",
     focusRing: "focus:ring-rose-100",
-    confirmBg: "bg-rose-500 hover:bg-rose-600",
+    confirmBg: "bg-destructive hover:bg-destructive",
     selectedRing: "ring-2 ring-rose-500 ring-offset-1",
-    createText: "text-rose-600",
-    createHover: "hover:bg-rose-50/40",
+    createText: "text-destructive",
+    createHover: "hover:bg-destructive/10/40",
   },
   amber: {
     focusBorder: "focus:border-amber-300",
     focusRing: "focus:ring-amber-100",
-    confirmBg: "bg-amber-500 hover:bg-amber-600",
+    confirmBg: "bg-warning hover:bg-warning",
     selectedRing: "ring-2 ring-amber-500 ring-offset-1",
-    createText: "text-amber-600",
-    createHover: "hover:bg-amber-500/10/40",
+    createText: "text-warning",
+    createHover: "hover:bg-warning/10/40",
   },
 } as const;
 
@@ -277,7 +277,7 @@ export default function ElevatedListManager<T extends ColoredItem>({
               exit={{ opacity: 0, y: -4, scale: 0.97 }}
               transition={{ duration: 0.15 }}
               className={cn(
-                "absolute top-full z-50 mt-1.5 w-72 overflow-hidden rounded-xl border border-border bg-card shadow-xl",
+                "absolute top-full z-50 mt-1.5 w-72 overflow-hidden rounded-[--radius] border border-border bg-card shadow-xl",
                 align === "right" ? "right-0" : "left-0",
                 className,
               )}
@@ -285,7 +285,7 @@ export default function ElevatedListManager<T extends ColoredItem>({
               {/* Header */}
               <div className="flex items-center justify-between border-b border-border px-3 py-2.5">
                 {title && (
-                  <span className="text-xs font-bold text-foreground">
+                  <span className="text-xs font-semibold text-foreground">
                     {title}
                   </span>
                 )}
@@ -308,7 +308,7 @@ export default function ElevatedListManager<T extends ColoredItem>({
                 {sortedItems.map((item) => (
                   <div key={item.id} className="group">
                     {!isReadonly && editingId === item.id ? (
-                      <div className="px-3 py-2 space-y-2 bg-muted/50">
+                      <div className="px-3 py-2 space-y-2 bg-muted">
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() =>
@@ -404,7 +404,7 @@ export default function ElevatedListManager<T extends ColoredItem>({
                         </AnimatePresence>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2.5 px-3 py-2 hover:bg-muted/60 transition-colors">
+                      <div className="flex items-center gap-2.5 px-3 py-2 hover:bg-muted transition-colors">
                         <span
                           className="h-3 w-3 rounded-full flex-shrink-0 ring-1 ring-black/5"
                           style={{ backgroundColor: item.color }}

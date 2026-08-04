@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
-import { Plus } from "@phosphor-icons/react";
+import { Plus } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import KanbanColumnShell from "@/components/crm/KanbanColumnShell";
 import {
@@ -261,7 +261,7 @@ export default function KanbanBoard<T>({
                   <button
                     type="button"
                     onClick={() => onAddCard(col.id)}
-                    className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-border py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                    className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-border py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-lamp-ink"
                   >
                     <Plus weight="bold" className="h-3 w-3" />
                     {addLabel}
@@ -353,7 +353,7 @@ export default function KanbanBoard<T>({
             initial={kanbanDragOverlayInitial}
             animate={kanbanDragOverlayAnimate}
             transition={kanbanDragOverlayTransition}
-            className="cursor-grabbing rounded-xl"
+            className="cursor-grabbing rounded-[--radius]"
           >
             {renderCard(overlay.item)}
           </motion.div>

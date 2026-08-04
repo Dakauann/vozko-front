@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Info, ShieldWarning } from "@phosphor-icons/react";
+import { ArrowLeft, Info, ShieldWarning } from "@/components/icons";
 
 import { Button } from "@/components/ui/button";
 import { IconBox } from "@/components/elevated-design/listing-card";
@@ -38,7 +38,7 @@ export function AccessDenied({ backHref }: AccessDeniedProps) {
         </p>
 
         {/* Hint card */}
-        <div className="mx-auto mt-6 flex max-w-md items-start gap-3 rounded-xl border border-border bg-muted/80 px-4 py-3.5 text-left">
+        <div className="mx-auto mt-6 flex max-w-md items-start gap-3 rounded-[--radius] border border-border bg-muted px-4 py-3.5 text-left">
           <Info
             className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground"
             weight="duotone"

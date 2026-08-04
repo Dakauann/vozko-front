@@ -18,7 +18,7 @@ import {
   Phone,
   Copy,
   CheckCircle,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 export const whatsappTemplatesTourPalette: ColorGroup[] = [
   { colors: ["#10b981", "#059669"], weight: 35 },

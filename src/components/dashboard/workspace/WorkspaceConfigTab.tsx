@@ -7,12 +7,10 @@ import {
   CircleNotch,
   FloppyDisk,
   UsersThree,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { HoldMusicCard } from "@/components/dashboard/workspace/HoldMusicCard";
-import { CallQueueCard } from "@/components/dashboard/workspace/CallQueueCard";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import type { WorkspaceConfig } from "@/lib/workspace/workspace-config/types";
@@ -27,7 +25,7 @@ type WorkspaceConfigTabProps = {
 
 /**
  * Owner-facing workspace policies. Every policy card ships collapsed
- * (same pattern as HoldMusicCard / CallQueueCard): solid icon tile, status
+ * (solid icon tile, status solid icon tile, status
  * chip, caret, body only when expanded.
  */
 export function WorkspaceConfigTab({
@@ -63,27 +61,11 @@ export function WorkspaceConfigTab({
           onConfigChange={onConfigChange}
         />
       </section>
-
-      <section className="space-y-3">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          {t("configTab.sections.voice")}
-        </p>
-        <HoldMusicCard
-          workspaceId={workspaceId}
-          config={config}
-          onConfigChange={onConfigChange}
-        />
-        <CallQueueCard
-          workspaceId={workspaceId}
-          config={config}
-          onConfigChange={onConfigChange}
-        />
-      </section>
     </div>
   );
 }
 
-// ── Shared card chrome (matches CallQueueCard / HoldMusicCard) ──────────────
+// ── Shared card chrome ──────────────────────────────────────────────
 
 function ConfigCardShell({
   open,
@@ -105,7 +87,7 @@ function ConfigCardShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card shadow-sm p-5 space-y-4">
+    <div className="rounded-[--radius] border border-border bg-card shadow-sm p-5 space-y-4">
       <button
         type="button"
         onClick={onToggle}
@@ -113,7 +95,7 @@ function ConfigCardShell({
         className="flex w-full items-start justify-between gap-4 text-left"
       >
         <div className="flex items-start gap-3 min-w-0">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground shadow">
             {icon}
           </div>
           <div className="min-w-0">
@@ -126,9 +108,9 @@ function ConfigCardShell({
         <span className="flex shrink-0 items-center gap-2">
           <span
             className={cn(
-              "rounded-full px-2.5 py-1 text-[11px] font-semibold",
+              "rounded-[--radius] px-2.5 py-1 text-[11px] font-semibold",
               statusActive
-                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                ? "bg-healthy/10 text-healthy dark:text-healthy"
                 : "bg-muted text-muted-foreground",
             )}
           >
@@ -189,7 +171,7 @@ function AssignmentConfigCard({
       statusLabel={adminsReceive ? t("configCard.active") : t("configCard.inactive")}
       statusActive={adminsReceive}
     >
-      <div className="flex items-center justify-between gap-4 rounded-xl border border-border px-4 py-3">
+      <div className="flex items-center justify-between gap-4 rounded-[--radius] border border-border px-4 py-3">
         <div className="pr-4 min-w-0">
           <p className="text-sm font-medium text-foreground">
             {t("skipAdminAssignment.enableLabel")}
@@ -283,7 +265,7 @@ function AutoCloseConfigCard({
       statusActive={anyOn}
     >
       {/* Policy A: waiting on customer */}
-      <div className="flex items-center justify-between gap-4 rounded-xl border border-border px-4 py-3">
+      <div className="flex items-center justify-between gap-4 rounded-[--radius] border border-border px-4 py-3">
         <div className="pr-4 min-w-0">
           <p className="text-sm font-medium text-foreground">
             {t("autoClose.enableLabel")}
@@ -314,7 +296,7 @@ function AutoCloseConfigCard({
               onChange={(e) =>
                 setHours(clampHours(e.target.value, 1, 168, 24))
               }
-              className="w-28 rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground outline-none focus:border-primary disabled:cursor-not-allowed"
+              className="w-28 rounded-[--radius] border border-border bg-card px-3 py-2 text-sm text-foreground outline-none focus:border-primary disabled:cursor-not-allowed"
             />
             <span className="text-xs text-muted-foreground">
               {t("autoClose.hoursUnit")}
@@ -327,7 +309,7 @@ function AutoCloseConfigCard({
       </div>
 
       {/* Policy C: absolute max age */}
-      <div className="flex items-center justify-between gap-4 rounded-xl border border-border px-4 py-3">
+      <div className="flex items-center justify-between gap-4 rounded-[--radius] border border-border px-4 py-3">
         <div className="pr-4 min-w-0">
           <p className="text-sm font-medium text-foreground">
             {t("autoClose.maxAgeEnableLabel")}
@@ -358,7 +340,7 @@ function AutoCloseConfigCard({
               onChange={(e) =>
                 setMaxAgeHours(clampHours(e.target.value, 24, 2160, 168))
               }
-              className="w-28 rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground outline-none focus:border-primary disabled:cursor-not-allowed"
+              className="w-28 rounded-[--radius] border border-border bg-card px-3 py-2 text-sm text-foreground outline-none focus:border-primary disabled:cursor-not-allowed"
             />
             <span className="text-xs text-muted-foreground">
               {t("autoClose.hoursUnit")}

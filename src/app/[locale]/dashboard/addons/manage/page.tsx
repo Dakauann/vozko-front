@@ -1,7 +1,7 @@
 "use client";
 
 import { AdminAddonsManager } from "@/components/dashboard/addons/AdminAddonsManager";
-import { CircleNotch } from "@phosphor-icons/react";
+import { CircleNotch } from "@/components/icons";
 import UserAddonsCatalog from "@/components/dashboard/addons/UserAddonsCatalog";
 import { useAuth } from "@/contexts/auth-context";
 
@@ -15,7 +15,7 @@ export default function DashboardAddonsManagePage() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-32">
-        <CircleNotch className="h-8 w-8 animate-spin text-primary" weight="bold" />
+        <CircleNotch className="h-8 w-8 animate-spin text-lamp-ink" weight="bold" />
       </div>
     );
   }

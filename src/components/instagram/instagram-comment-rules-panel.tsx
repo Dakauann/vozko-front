@@ -8,7 +8,7 @@ import {
   Plus,
   Trash,
   Warning,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { useEffect, useState } from "react";
 
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
@@ -134,7 +134,7 @@ export function InstagramCommentRulesPanel({
         <button
           type="button"
           onClick={() => setCreating(true)}
-          className="flex shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          className="flex shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Plus className="h-3.5 w-3.5" weight="bold" />
           {t("new")}
@@ -152,13 +152,13 @@ export function InstagramCommentRulesPanel({
         {loading ? (
           <div className="space-y-2">
             {Array.from({ length: 2 }).map((_, i) => (
-              <div key={i} className="h-16 animate-pulse rounded-xl bg-muted" />
+              <div key={i} className="h-16 animate-pulse rounded-[--radius] bg-muted" />
             ))}
           </div>
         ) : rules.length === 0 ? (
           // The empty state teaches the feature: someone opening this panel has
           // usually never seen comment automation before.
-          <div className="rounded-xl border border-dashed border-border py-8 text-center">
+          <div className="rounded-[--radius] border border-dashed border-border py-8 text-center">
             <ChatCircleDots className="mx-auto h-7 w-7 text-muted-foreground" />
             <p className="mt-2 text-sm font-medium text-foreground">{t("emptyTitle")}</p>
             <p className="mx-auto mt-1 max-w-sm text-xs text-muted-foreground">
@@ -167,7 +167,7 @@ export function InstagramCommentRulesPanel({
             <button
               type="button"
               onClick={() => setCreating(true)}
-              className="mt-3 text-xs font-semibold text-primary hover:underline"
+              className="mt-3 text-xs font-semibold text-lamp-ink hover:underline"
             >
               {t("emptyCta")}
             </button>
@@ -178,9 +178,9 @@ export function InstagramCommentRulesPanel({
               <li
                 key={rule.id}
                 className={cn(
-                  "flex items-start gap-3 rounded-xl border border-border p-3 transition-opacity",
+                  "flex items-start gap-3 rounded-[--radius] border border-border p-3 transition-opacity",
                   busyId === rule.id && "opacity-60",
-                  !rule.enabled && "bg-muted/30",
+                  !rule.enabled && "bg-muted",
                 )}
               >
                 {/* Evaluation order is visible: the first match wins. */}
@@ -198,7 +198,7 @@ export function InstagramCommentRulesPanel({
                         {t("scopePost")}
                       </span>
                     ) : (
-                      <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                      <span className="rounded-[--radius] bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
                         {t("scopeAccount")}
                       </span>
                     )}
@@ -231,7 +231,7 @@ export function InstagramCommentRulesPanel({
                     type="button"
                     onClick={() => setEditing(rule)}
                     aria-label={t("edit", { name: rule.name })}
-                    className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                    className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
@@ -288,10 +288,10 @@ function ActionChip({ action, label }: { action: CommentRuleAction; label: strin
   return (
     <span
       className={cn(
-        "flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium",
+        "flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[10px] font-medium",
         action === "hide"
-          ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
-          : "bg-primary/10 text-primary",
+          ? "bg-warning/10 text-warning dark:text-amber-400"
+          : "bg-muted text-lamp-ink",
       )}
     >
       {icon}

@@ -8,7 +8,7 @@ import {
   WhatsappLogo,
   Wrench,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   ElevatedSelect,
   ElevatedSelectItem,
@@ -199,7 +199,7 @@ export default function ConversationFilters({
         <div>
           <h3 className="text-sm font-semibold text-foreground">{t.title}</h3>
           {hasActiveFilters && (
-            <p className="text-xs text-primary font-medium">
+            <p className="text-xs text-lamp-ink font-medium">
               {activeFilterCount} filter{activeFilterCount !== 1 ? "s" : ""}{" "}
               active
             </p>
@@ -247,7 +247,7 @@ export default function ConversationFilters({
                 <button
                   type="button"
                   onClick={() => handleChange("hasWhatsAppMessages", undefined)}
-                  className="text-xs text-muted-foreground hover:text-rose-500 transition-colors flex items-center gap-1"
+                  className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
                 >
                   <X className="h-3 w-3" weight="bold" />
                 </button>
@@ -291,7 +291,7 @@ export default function ConversationFilters({
               <button
                 type="button"
                 onClick={() => handleChange("hasToolCalls", undefined)}
-                className="text-xs text-muted-foreground hover:text-rose-500 transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -334,7 +334,7 @@ export default function ConversationFilters({
               <button
                 type="button"
                 onClick={() => handleChange("toolName", undefined)}
-                className="text-xs text-muted-foreground hover:text-rose-500 transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -365,7 +365,7 @@ export default function ConversationFilters({
               <button
                 type="button"
                 onClick={() => handleChange("messageType", undefined)}
-                className="text-xs text-muted-foreground hover:text-rose-500 transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -414,7 +414,7 @@ export default function ConversationFilters({
                 <button
                   type="button"
                   onClick={() => handleChange("channel", undefined)}
-                  className="text-xs text-muted-foreground hover:text-rose-500 transition-colors flex items-center gap-1"
+                  className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
                 >
                   <X className="h-3 w-3" weight="bold" />
                 </button>
@@ -450,7 +450,7 @@ export default function ConversationFilters({
               <button
                 type="button"
                 onClick={() => handleChange("minMessageCount", undefined)}
-                className="text-xs text-muted-foreground hover:text-rose-500 transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -484,7 +484,7 @@ export default function ConversationFilters({
               <button
                 type="button"
                 onClick={() => handleChange("maxMessageCount", undefined)}
-                className="text-xs text-muted-foreground hover:text-rose-500 transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -541,7 +541,7 @@ export default function ConversationFilters({
   return (
     <div
       className={cn(
-        "rounded-xl border border-border/70 bg-card p-4",
+        "rounded-[--radius] border border-border bg-card p-4",
         className,
       )}
     >

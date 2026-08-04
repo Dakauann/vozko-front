@@ -1,6 +1,6 @@
 "use client";
 
-import { FloppyDisk, Sparkle } from "@phosphor-icons/react";
+import { FloppyDisk, Sparkle } from "@/components/icons";
 import {
   CATEGORY_LABELS,
   RESOURCE_TYPE_LABELS,
@@ -182,12 +182,12 @@ export default function TemplateForm({ templateId }: TemplateFormProps) {
         className="space-y-6 max-w-2xl"
       >
         {error && (
-          <div className="rounded-xl border border-red-600 bg-red-500 px-4 py-3 text-sm text-white">
+          <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-white">
             {error}
           </div>
         )}
 
-        <div className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
+        <div className="space-y-4 rounded-[--radius] border border-border bg-card p-6 shadow-sm">
           <ElevatedInput
             type="text"
             label={t("form.name")}
@@ -252,7 +252,7 @@ export default function TemplateForm({ templateId }: TemplateFormProps) {
           </ElevatedSelect>
         </div>
 
-        <div className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
+        <div className="space-y-4 rounded-[--radius] border border-border bg-card p-6 shadow-sm">
           <ElevatedInput
             type="text"
             label={t("form.snapshotId")}

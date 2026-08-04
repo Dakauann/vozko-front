@@ -1,6 +1,6 @@
 "use client";
 
-import { ChatCircleDots, Eye, EyeSlash, PaperPlaneRight, Trash } from "@phosphor-icons/react";
+import { ChatCircleDots, Eye, EyeSlash, PaperPlaneRight, Trash } from "@/components/icons";
 import { useState } from "react";
 
 import {
@@ -210,7 +210,7 @@ function CommentRow({
               </span>
             )}
             {comment.hidden && (
-              <span className="ml-1.5 rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-600 dark:text-amber-400">
+              <span className="ml-1.5 rounded bg-warning/10 px-1.5 py-0.5 text-[10px] text-warning dark:text-amber-400">
                 {t("comments.hidden")}
               </span>
             )}

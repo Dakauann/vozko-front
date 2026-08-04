@@ -67,7 +67,7 @@ function resolveEdgeLabel(
     return {
       text: output?.label ?? rawLabel,
       className:
-        "border-rose-600 bg-rose-500 text-white dark:border-rose-600 dark:bg-rose-500 dark:text-white",
+        "border-destructive bg-destructive text-white dark:border-destructive dark:bg-destructive dark:text-white",
     };
   }
 
@@ -75,7 +75,7 @@ function resolveEdgeLabel(
     return {
       text: output?.label ?? rawLabel,
       className:
-        "border-slate-200/70 bg-background/80 text-muted-foreground dark:border-slate-500/20 dark:bg-background/50 dark:text-muted-foreground",
+        "border-slate-200/70 bg-background text-muted-foreground dark:border-slate-500/20 dark:bg-background dark:text-muted-foreground",
     };
   }
 
@@ -83,7 +83,7 @@ function resolveEdgeLabel(
     return {
       text: output?.label ?? rawLabel,
       className:
-        "border-emerald-600 bg-emerald-500 text-white dark:border-emerald-600 dark:bg-emerald-500 dark:text-white",
+        "border-healthy bg-healthy text-white dark:border-healthy dark:bg-healthy dark:text-white",
     };
   }
 
@@ -91,14 +91,14 @@ function resolveEdgeLabel(
     return {
       text: output?.label ?? rawLabel,
       className:
-        "border-rose-600 bg-rose-500 text-white dark:border-rose-600 dark:bg-rose-500 dark:text-white",
+        "border-destructive bg-destructive text-white dark:border-destructive dark:bg-destructive dark:text-white",
     };
   }
 
   return {
     text: output?.label ?? rawLabel,
     className:
-      "border-cyan-600 bg-cyan-500 text-white dark:border-cyan-600 dark:bg-cyan-500 dark:text-white",
+      "border-cyan-600 bg-muted text-white dark:border-cyan-600 dark:bg-muted dark:text-white",
   };
 }
 
@@ -390,7 +390,7 @@ export function SmartBezierEdge({
             }}
           >
             <span
-              className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold shadow-sm backdrop-blur-sm ${resolvedLabel.className}`}
+              className={`inline-flex rounded-[--radius] border px-2 py-0.5 text-[10px] font-semibold shadow-sm ${resolvedLabel.className}`}
               style={DOT_PATTERN_STYLE}
             >
               {resolvedLabel.text}

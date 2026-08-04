@@ -9,7 +9,7 @@ import {
   Phone,
   Play,
   Video,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 import type { TemplateMessageMetadata } from "@/lib/conversations/types";
 
@@ -24,7 +24,7 @@ export default function TemplateBubble({
   const buttonsComp = metadata.components?.find((c) => c.type === "BUTTONS");
 
   return (
-    <div className="flex flex-col rounded-lg overflow-hidden bg-card/60 border border-border/70 max-w-[320px] shadow-sm">
+    <div className="flex flex-col rounded-lg overflow-hidden bg-card border border-border max-w-[320px] shadow-sm">
       {/* Header */}
       {header && (
         <div className="px-3 pt-2.5">
@@ -96,11 +96,11 @@ export default function TemplateBubble({
 
       {/* Buttons */}
       {buttonsComp?.buttons && buttonsComp.buttons.length > 0 && (
-        <div className="border-t border-border/60 mt-1">
+        <div className="border-t border-border mt-1">
           {buttonsComp.buttons.map((btn, idx) => (
             <div
               key={idx}
-              className="flex items-center justify-center gap-1.5 px-3 py-2 text-[12px] font-medium text-primary border-b border-border last:border-b-0 hover:bg-muted/50 transition-colors"
+              className="flex items-center justify-center gap-1.5 px-3 py-2 text-[12px] font-medium text-lamp-ink border-b border-border last:border-b-0 hover:bg-muted transition-colors"
             >
               {btn.type === "URL" && <ArrowSquareOut className="h-3.5 w-3.5" />}
               {btn.type === "PHONE_NUMBER" && <Phone className="h-3.5 w-3.5" />}
@@ -117,7 +117,7 @@ export default function TemplateBubble({
       )}
 
       {/* Template badge */}
-      <div className="px-3 py-1 bg-muted/80 border-t border-border/40">
+      <div className="px-3 py-1 bg-muted border-t border-border">
         <span className="text-[9px] text-muted-foreground uppercase tracking-wider font-medium">
           Template: {metadata.template_name}
         </span>

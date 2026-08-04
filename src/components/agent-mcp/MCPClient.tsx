@@ -18,7 +18,7 @@ import {
   Trash,
   Warning,
   WarningCircle,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   ElevatedDialog,
   ElevatedDialogContent,
@@ -75,9 +75,9 @@ function statusLabel(t: TranslateText, status: AgentMCPBindingStatus): string {
 function statusChipClasses(status: AgentMCPBindingStatus): string {
   switch (status) {
     case "connected":
-      return "bg-emerald-500/10 border-emerald-500/30 text-emerald-700";
+      return "bg-healthy/10 border-healthy/30 text-healthy";
     case "pending":
-      return "bg-amber-500/10 border-amber-500/30 text-amber-700";
+      return "bg-warning/10 border-warning/30 text-warning";
     case "disconnected":
       return "bg-orange-500/10 border-orange-500/30 text-orange-700";
     case "revoked":
@@ -94,7 +94,7 @@ function StatusChip({ status }: { status: AgentMCPBindingStatus }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium",
+        "inline-flex items-center gap-1 rounded-[--radius] border px-2.5 py-0.5 text-xs font-medium",
         statusChipClasses(status),
       )}
     >
@@ -349,7 +349,7 @@ export default function MCPClient() {
           {stats.map((stat) => (
             <div
               key={stat.label}
-              className="rounded-2xl border border-border/70 bg-card/90 p-5"
+              className="rounded-[--radius] border border-border bg-card p-5"
               style={{ boxShadow: softSurfaceShadow }}
             >
               <div className="flex items-center justify-between gap-4">
@@ -390,11 +390,11 @@ export default function MCPClient() {
         {activeTab === "servers" ? (
           loading ? (
             <div
-              className="rounded-[26px] border border-border/70 bg-card/90 px-6 py-16"
+              className="rounded-[--radius] border border-border bg-card px-6 py-16"
               style={{ boxShadow: softSurfaceShadow }}
             >
               <div className="flex items-center justify-center gap-3">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <div className="h-5 w-5 animate-spin rounded-full border border-rule-strong border-t-transparent" />
                 <span className="text-sm text-muted-foreground">
                   {t("remote.loading")}
                 </span>
@@ -402,7 +402,7 @@ export default function MCPClient() {
             </div>
           ) : remotes.length === 0 ? (
             <div
-              className="rounded-[26px] border border-border/70 bg-card/90 px-6 py-16 text-center"
+              className="rounded-[--radius] border border-border bg-card px-6 py-16 text-center"
               style={{ boxShadow: softSurfaceShadow }}
             >
               <IconBox
@@ -430,7 +430,7 @@ export default function MCPClient() {
           ) : (
             <div className="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
               <section
-                className="space-y-4 rounded-[26px] border border-border/70 bg-card/90 p-5"
+                className="space-y-4 rounded-[--radius] border border-border bg-card p-5"
                 style={{ boxShadow: softSurfaceShadow }}
               >
                 <ElevatedInput
@@ -442,7 +442,7 @@ export default function MCPClient() {
 
                 <div className="space-y-3">
                   {filteredRemotes.length === 0 ? (
-                    <div className="rounded-2xl border border-dashed border-border/70 bg-background/60 px-4 py-10 text-center">
+                    <div className="rounded-[--radius] border border-dashed border-border bg-background px-4 py-10 text-center">
                       <Globe
                         className="mx-auto h-8 w-8 text-muted-foreground"
                         weight="fill"
@@ -463,10 +463,10 @@ export default function MCPClient() {
                           type="button"
                           onClick={() => setSelectedId(server.id)}
                           className={cn(
-                            "w-full rounded-2xl border px-4 py-4 text-left transition-all",
+                            "w-full rounded-[--radius] border px-4 py-4 text-left transition-all",
                             isSelected
-                              ? "border-primary bg-primary/5 shadow-[0_0_0_1px_hsl(var(--primary)/0.2)]"
-                              : "border-border/70 bg-background/70 hover:border-primary/30 hover:bg-background",
+                              ? "border-primary bg-muted"
+                              : "border-border bg-background hover:border-primary/30 hover:bg-background",
                           )}
                         >
                           <div className="flex items-start gap-3">
@@ -484,11 +484,11 @@ export default function MCPClient() {
                                 {server.url}
                               </p>
                               <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                                <span className="rounded-full border border-border/70 px-2 py-0.5 text-[10px] font-semibold uppercase text-muted-foreground">
+                                <span className="rounded-[--radius] border border-border px-2 py-0.5 text-[10px] font-semibold uppercase text-muted-foreground">
                                   {server.transport}
                                 </span>
                                 {server.authMode ? (
-                                  <span className="rounded-full border border-border/70 px-2 py-0.5 text-[10px] font-semibold uppercase text-muted-foreground">
+                                  <span className="rounded-[--radius] border border-border px-2 py-0.5 text-[10px] font-semibold uppercase text-muted-foreground">
                                     {authBadgeLabel(server.authMode, t)}
                                   </span>
                                 ) : null}
@@ -503,7 +503,7 @@ export default function MCPClient() {
               </section>
 
               <section
-                className="space-y-4 rounded-[26px] border border-border/70 bg-card/90 p-5"
+                className="space-y-4 rounded-[--radius] border border-border bg-card p-5"
                 style={{ boxShadow: softSurfaceShadow }}
               >
                 {selectedRemote ? (
@@ -514,7 +514,7 @@ export default function MCPClient() {
                     onDelete={handleDeleteRemote}
                   />
                 ) : (
-                  <div className="flex min-h-[440px] flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 bg-background/60 px-6 py-12 text-center">
+                  <div className="flex min-h-[440px] flex-col items-center justify-center rounded-[--radius] border border-dashed border-border bg-background px-6 py-12 text-center">
                     <IconBox color="slate" size="lg" animated={false}>
                       <Globe weight="fill" />
                     </IconBox>
@@ -531,7 +531,7 @@ export default function MCPClient() {
           )
         ) : (
           <div
-            className="rounded-[26px] border border-border/70 bg-card/90 p-5"
+            className="rounded-[--radius] border border-border bg-card p-5"
             style={{ boxShadow: softSurfaceShadow }}
           >
             <CollectionsTab bindings={[]} remotes={remotes} />
@@ -569,10 +569,10 @@ function TabButton({
       type="button"
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all",
+        "inline-flex items-center gap-2 rounded-[--radius] border px-4 py-2 text-sm font-medium transition-all",
         active
           ? "border-primary bg-primary text-primary-foreground shadow-sm"
-          : "border-border/70 bg-card/80 text-muted-foreground hover:border-primary/40 hover:text-foreground",
+          : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground",
       )}
     >
       {icon}
@@ -599,14 +599,14 @@ function RemoteDetail({
 
   return (
     <>
-      <div className="rounded-2xl border border-border/70 bg-background/60 p-4">
+      <div className="rounded-[--radius] border border-border bg-background p-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="flex items-start gap-3">
             <IconBox color="violet" size="lg" animated={false}>
               <Globe weight="fill" />
             </IconBox>
             <div>
-              <p className="text-xs font-semibold uppercase text-primary">
+              <p className="text-xs font-semibold uppercase text-lamp-ink">
                 {t("detail.badge")}
               </p>
               <h2 className="mt-2 text-2xl font-semibold text-foreground">
@@ -643,7 +643,7 @@ function RemoteDetail({
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-border/70 bg-background/60 p-4">
+        <div className="rounded-[--radius] border border-border bg-background p-4">
           <p className="text-[10px] font-semibold uppercase text-muted-foreground">
             {t("detail.statusLabel")}
           </p>
@@ -651,7 +651,7 @@ function RemoteDetail({
             <StatusChip status={server.status} />
           </div>
         </div>
-        <div className="rounded-2xl border border-border/70 bg-background/60 p-4">
+        <div className="rounded-[--radius] border border-border bg-background p-4">
           <p className="text-[10px] font-semibold uppercase text-muted-foreground">
             {t("detail.transportLabel")}
           </p>
@@ -659,7 +659,7 @@ function RemoteDetail({
             {server.transport}
           </p>
         </div>
-        <div className="rounded-2xl border border-border/70 bg-background/60 p-4">
+        <div className="rounded-[--radius] border border-border bg-background p-4">
           <p className="text-[10px] font-semibold uppercase text-muted-foreground">
             {t("detail.authLabel")}
           </p>
@@ -671,11 +671,11 @@ function RemoteDetail({
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border/70 bg-background/60 p-4">
+      <div className="rounded-[--radius] border border-border bg-background p-4">
         <p className="text-xs font-semibold uppercase text-muted-foreground">
           {t("detail.endpointLabel")}
         </p>
-        <div className="mt-3 flex items-start gap-2 rounded-2xl border border-border/70 bg-card px-4 py-3 font-mono text-xs text-foreground">
+        <div className="mt-3 flex items-start gap-2 rounded-[--radius] border border-border bg-card px-4 py-3 font-mono text-xs text-foreground">
           <LinkSimple
             weight="bold"
             className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"
@@ -687,7 +687,7 @@ function RemoteDetail({
       {server.status === "disconnected" ? (
         <div
           role="alert"
-          className="flex items-start gap-3 rounded-2xl border border-orange-500/30 bg-orange-500/5 p-4 text-sm text-orange-700"
+          className="flex items-start gap-3 rounded-[--radius] border border-orange-500/30 bg-orange-500/5 p-4 text-sm text-orange-700"
         >
           <Warning
             weight="fill"
@@ -703,7 +703,7 @@ function RemoteDetail({
       ) : server.status === "error" ? (
         <div
           role="alert"
-          className="flex items-start gap-3 rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive"
+          className="flex items-start gap-3 rounded-[--radius] border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive"
         >
           <Warning
             weight="fill"
@@ -860,7 +860,7 @@ function RegisterRemoteDialog({
           ) : null}
 
           {authMode === "oauth2" ? (
-            <p className="rounded-2xl border border-blue-500/30 bg-blue-500/5 px-4 py-3 text-xs text-muted-foreground">
+            <p className="rounded-[--radius] border border-blue-500/30 bg-muted px-4 py-3 text-xs text-muted-foreground">
               {t("dialogs.remote.oauth2Hint")}
             </p>
           ) : null}

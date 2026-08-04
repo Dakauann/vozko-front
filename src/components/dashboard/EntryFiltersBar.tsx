@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import ElevatedSelect, {
   ElevatedSelectItem,
 } from "@/components/elevated-design/elevated-select";
-import { Funnel, MagnifyingGlass, Tag, X } from "@phosphor-icons/react";
+import { Funnel, MagnifyingGlass, Tag, X } from "@/components/icons";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import ElevatedInput from "@/components/elevated-design/elevated-input";
@@ -133,13 +133,13 @@ export default function EntryFiltersBar({
   return (
     <div
       className={cn(
-        "rounded-[26px] border border-border/70 bg-card/90 p-5",
+        "rounded-[--radius] border border-border bg-card p-5",
         className,
       )}
       style={{ boxShadow: softSurfaceShadow }}
     >
       <div className="flex items-center gap-3 mb-4">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted">
+        <div className="flex h-9 w-9 items-center justify-center rounded-[--radius] bg-muted">
           <Funnel weight="bold" className="h-4 w-4 text-muted-foreground" />
         </div>
         <div className="flex-1">
@@ -153,7 +153,7 @@ export default function EntryFiltersBar({
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
-                  className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-white"
+                  className="inline-flex h-5 min-w-5 items-center justify-center rounded-[--radius] bg-primary px-1.5 text-[10px] font-semibold text-white"
                 >
                   {activeFilterCount}
                 </motion.span>

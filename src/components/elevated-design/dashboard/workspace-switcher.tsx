@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { createPortal } from "react-dom";
 
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -11,7 +12,7 @@ import {
   Plus,
   SpinnerGap,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 import type { Workspace } from "@/lib/workspace/types";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,35 @@ export function WorkspaceSwitcher({
   const [newName, setNewName] = React.useState("");
   const [createError, setCreateError] = React.useState("");
   const dropdownRef = React.useRef<HTMLDivElement>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const [menuPos, setMenuPos] = React.useState<{
+    top: number;
+    left: number;
+    width: number;
+  } | null>(null);
+
+  // Measure from the trigger, not from a positioned ancestor: the spine clips.
+  React.useLayoutEffect(() => {
+    if (!isOpen) return;
+    const place = () => {
+      const r = triggerRef.current?.getBoundingClientRect();
+      if (!r) return;
+      const width = Math.max(r.width, 288);
+      setMenuPos({
+        top: r.bottom + 6,
+        // Keep the panel on screen when the trigger sits near an edge.
+        left: Math.min(r.left, window.innerWidth - width - 8),
+        width,
+      });
+    };
+    place();
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [isOpen]);
   const searchRef = React.useRef<HTMLInputElement>(null);
   const listRef = React.useRef<HTMLDivElement>(null);
 
@@ -152,36 +182,54 @@ export function WorkspaceSwitcher({
 
   if (isLoading || !currentWorkspace) {
     return (
-      <div className="flex h-9 w-36 animate-pulse items-center rounded-xl bg-muted" />
+      <div
+        className={cn(
+          "h-9 animate-pulse rounded-[--radius] bg-muted",
+          fullWidth ? "w-full" : "w-36",
+        )}
+      />
     );
   }
 
   return (
     <div className={cn("relative", fullWidth && "w-full")} ref={dropdownRef}>
+      {/*
+        The desk label. This sits at the head of the spine because the workspace
+        scopes everything below it — every nav row, count and permission — so it
+        belongs above the nav it governs rather than floating in a global bar.
+        A legend over the name, the way a panel names the bank it heads.
+      */}
       <button
+        ref={triggerRef}
         onClick={() => setIsOpen(!isOpen)}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
         className={cn(
-          "flex items-center gap-2.5 rounded-xl px-3 py-2 transition-all",
-          "border border-border/80 bg-card/80 shadow-sm",
-          "hover:border-primary/40 hover:shadow-md hover:shadow-primary/5",
-          isOpen && "border-primary/40 shadow-md shadow-primary/5",
+          "flex h-9 items-center gap-2 rounded-[--radius] border px-2 text-left transition-colors",
+          isOpen
+            ? "border-border bg-muted"
+            : "border-border hover:bg-muted",
           fullWidth && "w-full",
         )}
       >
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/80 text-white shadow-sm shadow-primary/20">
-          <Buildings className="h-3.5 w-3.5" weight="fill" />
-        </div>
+        <Buildings
+          className="h-4 w-4 shrink-0 text-muted-foreground"
+          weight="regular"
+        />
         <span
           className={cn(
-            "max-w-[120px] truncate text-sm font-medium text-foreground",
-            fullWidth ? "flex-1 text-left max-w-none" : "hidden md:block",
+            "flex min-w-0 flex-col leading-none",
+            fullWidth ? "flex-1" : "hidden md:flex",
           )}
         >
-          {currentWorkspace.name}
+          <span className="legend leading-none">{t("label")}</span>
+          <span className="mt-0.5 max-w-[9rem] truncate text-[13px] font-semibold leading-none text-foreground">
+            {currentWorkspace.name}
+          </span>
         </span>
         <CaretDown
           className={cn(
-            "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200",
+            "h-3 w-3 shrink-0 text-muted-foreground transition-transform",
             isOpen && "rotate-180",
             fullWidth && "ml-auto",
           )}
@@ -189,18 +237,23 @@ export function WorkspaceSwitcher({
         />
       </button>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.96 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            className={cn(
-              "absolute left-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-border/80 bg-card shadow-xl shadow-black/10",
-              fullWidth ? "w-full" : "w-72",
-            )}
-          >
+      {typeof document !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {isOpen && menuPos && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.12, ease: [0.2, 0, 0, 1] }}
+                style={{
+                  position: "fixed",
+                  top: menuPos.top,
+                  left: menuPos.left,
+                  width: menuPos.width,
+                }}
+                className="z-[100] overflow-hidden rounded-[--radius] border border-border border-t-rule-strong bg-popover shadow-2xl"
+              >
             <div className="border-b border-border px-3 py-2.5 space-y-2">
               {/* Search mode toggle */}
               <div className="flex gap-1 rounded-lg bg-muted p-0.5">
@@ -234,7 +287,7 @@ export function WorkspaceSwitcher({
                 </button>
               </div>
               {/* Search input */}
-              <div className="flex items-center gap-2 rounded-xl bg-muted px-3 py-2">
+              <div className="flex items-center gap-2 rounded-[--radius] bg-muted px-3 py-2">
                 <MagnifyingGlass
                   className="h-4 w-4 text-muted-foreground"
                   weight="bold"
@@ -285,16 +338,14 @@ export function WorkspaceSwitcher({
                           setSearch("");
                         }}
                         className={cn(
-                          "flex w-full items-center gap-3 rounded-xl p-2.5 transition-all",
-                          isSelected ? "bg-primary/5" : "hover:bg-muted",
+                          "flex w-full items-center gap-3 rounded-[--radius] p-2.5 transition-all",
+                          isSelected ? "bg-muted" : "hover:bg-muted",
                         )}
                       >
                         <div
                           className={cn(
                             "flex h-8 w-8 items-center justify-center rounded-lg",
-                            isSelected
-                              ? "bg-primary text-white"
-                              : "bg-muted text-muted-foreground",
+                            isSelected ? "bg-muted text-foreground" : "bg-muted text-muted-foreground",
                           )}
                         >
                           <Buildings className="h-4 w-4" weight="fill" />
@@ -303,7 +354,7 @@ export function WorkspaceSwitcher({
                           <p
                             className={cn(
                               "text-sm font-medium truncate",
-                              isSelected ? "text-primary" : "text-foreground",
+                              isSelected ? "font-semibold text-foreground" : "text-foreground",
                             )}
                           >
                             {ws.name}
@@ -316,7 +367,7 @@ export function WorkspaceSwitcher({
                         </div>
                         {isSelected && (
                           <Check
-                            className="h-4 w-4 flex-shrink-0 text-primary"
+                            className="h-4 w-4 flex-shrink-0 text-lamp-ink"
                             weight="bold"
                           />
                         )}
@@ -351,7 +402,7 @@ export function WorkspaceSwitcher({
                       }
                     }}
                     placeholder={t("newWorkspaceName")}
-                    className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
+                    className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm outline-none focus:border-primary/50 focus:ring-2 focus:ring-ring/10"
                     autoFocus
                   />
                   {createError && (
@@ -380,16 +431,18 @@ export function WorkspaceSwitcher({
               ) : (
                 <button
                   onClick={() => setIsCreating(true)}
-                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted"
+                  className="flex w-full items-center gap-3 rounded-[--radius] px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted"
                 >
                   <Plus className="h-4 w-4" weight="bold" />
                   <span>{t("createWorkspace")}</span>
                 </button>
               )}
             </div>
-          </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body,
         )}
-      </AnimatePresence>
     </div>
   );
 }

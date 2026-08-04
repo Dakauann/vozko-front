@@ -9,7 +9,7 @@ import {
   MagnifyingGlass,
   TreeStructure,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 import { useDepartment } from "@/contexts/department-context";
@@ -74,39 +74,45 @@ export function DepartmentSwitcher({
   }
 
   if (isLoading) {
-    return (
-      <div className="flex h-9 w-36 animate-pulse items-center rounded-xl bg-muted" />
-    );
+    return <div className="h-8 w-32 animate-pulse rounded-[--radius] bg-muted" />;
   }
 
   const label = currentDepartment?.name ?? t("allDepartments");
 
   return (
     <div className={cn("relative", fullWidth && "w-full")} ref={dropdownRef}>
+      {/*
+        A scope chip, not a card. Department filters the current view (workspace,
+        which scopes the whole app, lives at the spine head instead), so this
+        reads as one control in the bar's rack rather than a second identity.
+        The solid accent tile is gone: accent means state here, and a filter at
+        rest is not a state.
+      */}
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
         className={cn(
-          "flex items-center gap-2.5 rounded-xl px-3 py-2 transition-all",
-          "border border-border/80 bg-card/80 shadow-sm",
-          "hover:border-primary/40 hover:shadow-md hover:shadow-primary/5",
-          isOpen && "border-primary/40 shadow-md shadow-primary/5",
-          fullWidth && "w-full",
+          "flex h-8 items-center gap-1.5 rounded-[--radius] px-2 transition-colors",
+          isOpen ? "bg-muted" : "hover:bg-muted",
+          fullWidth && "w-full border border-border",
         )}
       >
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/80 text-white shadow-sm shadow-primary/20">
-          <TreeStructure className="h-3.5 w-3.5" weight="fill" />
-        </div>
+        <TreeStructure
+          className="h-4 w-4 shrink-0 text-muted-foreground"
+          weight="regular"
+        />
         <span
           className={cn(
-            "max-w-[120px] truncate text-sm font-medium text-foreground",
-            fullWidth ? "flex-1 text-left max-w-none" : "hidden md:block",
+            "max-w-[120px] truncate text-[13px] text-foreground",
+            fullWidth ? "max-w-none flex-1 text-left" : "hidden lg:block",
           )}
         >
           {label}
         </span>
         <CaretDown
           className={cn(
-            "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200",
+            "h-3 w-3 shrink-0 text-muted-foreground transition-transform",
             isOpen && "rotate-180",
             fullWidth && "ml-auto",
           )}
@@ -122,12 +128,12 @@ export function DepartmentSwitcher({
             exit={{ opacity: 0, y: 8, scale: 0.96 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
             className={cn(
-              "absolute left-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-border/80 bg-card shadow-xl shadow-black/10",
+              "absolute left-0 top-full z-50 mt-2 overflow-hidden rounded-[--radius] border border-border bg-card shadow-xl",
               fullWidth ? "w-full" : "w-72",
             )}
           >
             <div className="space-y-2 border-b border-border px-3 py-2.5">
-              <div className="flex items-center gap-2 rounded-xl bg-muted px-3 py-2">
+              <div className="flex items-center gap-2 rounded-[--radius] bg-muted px-3 py-2">
                 <MagnifyingGlass
                   className="h-4 w-4 text-muted-foreground"
                   weight="bold"
@@ -207,16 +213,14 @@ function DepartmentItem({
     <button
       onClick={onSelect}
       className={cn(
-        "flex w-full items-center gap-3 rounded-xl p-2.5 text-left transition-all",
-        isSelected ? "bg-primary/5" : "hover:bg-muted",
+        "flex w-full items-center gap-3 rounded-[--radius] p-2.5 text-left transition-all",
+        isSelected ? "bg-muted" : "hover:bg-muted",
       )}
     >
       <div
         className={cn(
           "flex h-8 w-8 items-center justify-center rounded-lg",
-          isSelected
-            ? "bg-primary text-white"
-            : "bg-muted text-muted-foreground",
+          isSelected ? "bg-muted text-foreground" : "bg-muted text-muted-foreground",
         )}
       >
         <TreeStructure className="h-4 w-4" weight="fill" />
@@ -226,7 +230,7 @@ function DepartmentItem({
         <p
           className={cn(
             "truncate text-sm font-medium",
-            isSelected ? "text-primary" : "text-foreground",
+            isSelected ? "font-semibold text-foreground" : "text-foreground",
           )}
         >
           {name}
@@ -239,7 +243,7 @@ function DepartmentItem({
       </div>
 
       {isSelected && (
-        <Check className="h-4 w-4 shrink-0 text-primary" weight="bold" />
+        <Check className="h-4 w-4 shrink-0 text-lamp-ink" weight="bold" />
       )}
     </button>
   );

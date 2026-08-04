@@ -79,7 +79,7 @@ const MonthlyYearlyTab: React.FC<MonthlyYearlyTabProps> = ({
       >
         Yearly
         {variant === "yearly" && (
-          <span className="text-xs bg-green-500 text-white px-1.5 py-0.5 rounded">
+          <span className="text-xs bg-healthy text-white px-1.5 py-0.5 rounded">
             {discount}
           </span>
         )}

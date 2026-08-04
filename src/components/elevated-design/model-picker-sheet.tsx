@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
-import { Brain, Check } from "@phosphor-icons/react";
+import { Brain, Check } from "@/components/icons";
 
 import {
   Command,
@@ -157,7 +157,7 @@ export function ModelPickerSheet({
       >
         <ElevatedSheetHeader className="gap-3 pr-16">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-sm">
+            <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[--radius] bg-primary text-white shadow-sm">
               <Brain weight="fill" className="h-5 w-5" />
             </span>
             <div className="min-w-0">
@@ -187,7 +187,7 @@ export function ModelPickerSheet({
                 className={cn(
                   "overflow-visible px-1",
                   "[&_[cmdk-group-heading]]:sticky [&_[cmdk-group-heading]]:top-0 [&_[cmdk-group-heading]]:z-10",
-                  "[&_[cmdk-group-heading]]:bg-background/95 [&_[cmdk-group-heading]]:backdrop-blur-sm",
+                  "[&_[cmdk-group-heading]]:bg-background [&_[cmdk-group-heading]]:",
                   // Normal-case provider names, not an uppercase tracked eyebrow.
                   "[&_[cmdk-group-heading]]:text-[13px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:normal-case [&_[cmdk-group-heading]]:tracking-normal [&_[cmdk-group-heading]]:text-foreground/70",
                 )}
@@ -226,16 +226,16 @@ function ModelRow({
       keywords={[model.name, model.providerLabel, model.providerSlug]}
       onSelect={onSelect}
       className={cn(
-        "my-0.5 flex items-center gap-3 rounded-xl px-3 py-2.5",
+        "my-0.5 flex items-center gap-3 rounded-[--radius] px-3 py-2.5",
         // Keyboard highlight stays a quiet neutral so it's never mistaken for the
         // chosen value (which gets the tinted well + ring below). No left-stripe.
         "data-[selected=true]:bg-muted data-[selected=true]:text-foreground",
         isSelected &&
-          "bg-primary/10 ring-1 ring-inset ring-primary/25 data-[selected=true]:bg-primary/15",
+          "bg-muted ring-1 ring-inset ring-primary/25 data-[selected=true]:bg-primary/15",
       )}
     >
       {/* Brand logo on a neutral tile, keeping the provider's own color (DESIGN §5). */}
-      <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border border-border/60 bg-muted/60">
+      <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[--radius] border border-border bg-muted">
         <ModelBrandIcon modelId={model.id} size={18} />
       </span>
 
@@ -272,7 +272,7 @@ function ModelRow({
       <Check
         weight="bold"
         className={cn(
-          "h-4 w-4 flex-shrink-0 text-primary transition-opacity",
+          "h-4 w-4 flex-shrink-0 text-lamp-ink transition-opacity",
           isSelected ? "opacity-100" : "opacity-0",
         )}
       />
@@ -282,7 +282,7 @@ function ModelRow({
 
 function NewBadge(): ReactNode {
   return (
-    <span className="flex-shrink-0 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-primary">
+    <span className="flex-shrink-0 rounded-[--radius] bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-lamp-ink">
       Novo
     </span>
   );

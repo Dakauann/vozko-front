@@ -8,7 +8,7 @@ import {
   X,
   FunnelSimple,
   Check,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 import {
   DropdownMenu,
@@ -72,7 +72,7 @@ export const WorkflowSearch = forwardRef<HTMLInputElement, WorkflowSearchProps>(
           : `${matchCount} ${matchCount === 1 ? "nó" : "nós"}`;
 
     return (
-      <div className="flex items-center gap-1 rounded-xl border border-border bg-background/95 px-2 py-1.5 shadow-lg backdrop-blur">
+      <div className="flex items-center gap-1 rounded-[--radius] border border-border bg-background px-2 py-1.5 shadow-lg">
         <MagnifyingGlass
           size={15}
           className="ml-0.5 shrink-0 text-muted-foreground"
@@ -100,7 +100,7 @@ export const WorkflowSearch = forwardRef<HTMLInputElement, WorkflowSearchProps>(
           <span
             className={cn(
               "shrink-0 whitespace-nowrap px-1 text-xs tabular-nums",
-              matchCount === 0 ? "text-rose-500" : "text-muted-foreground",
+              matchCount === 0 ? "text-destructive" : "text-muted-foreground",
             )}
           >
             {status}
@@ -118,7 +118,7 @@ export const WorkflowSearch = forwardRef<HTMLInputElement, WorkflowSearchProps>(
               className={cn(
                 "flex h-6 shrink-0 items-center gap-1 rounded-md px-1.5 text-xs font-medium transition-colors",
                 activeType
-                  ? "bg-primary/10 text-primary"
+                  ? "bg-muted text-lamp-ink"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >

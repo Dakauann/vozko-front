@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { ButtonProps, buttonVariants } from "@/components/ui/button";
-import { CaretLeft, CaretRight, DotsThreeOutline } from "@phosphor-icons/react";
+import { CaretLeft, CaretRight, DotsThreeOutline } from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 

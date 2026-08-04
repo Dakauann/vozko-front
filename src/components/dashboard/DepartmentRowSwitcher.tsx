@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleNotch, TreeStructure } from "@phosphor-icons/react";
+import { CircleNotch, TreeStructure } from "@/components/icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -168,7 +168,7 @@ export function DepartmentRowSwitcher({
           className={cn(
             "inline-flex items-center gap-1.5 rounded-lg border px-2 py-1 text-xs transition-colors",
             normalizedDepartmentId
-              ? "border-primary/20 bg-primary/5 text-foreground hover:bg-primary/10"
+              ? "border-primary/20 bg-muted text-foreground hover:bg-muted"
               : "border-border bg-card text-muted-foreground hover:bg-muted",
             className,
           )}

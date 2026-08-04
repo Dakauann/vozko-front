@@ -2,14 +2,14 @@
 
 import * as SelectPrimitive from "@radix-ui/react-select";
 
-import { CaretDown, CaretUp, Check } from "@phosphor-icons/react";
+import { CaretDown, CaretUp, Check } from "@/components/icons";
 import { ReactNode, forwardRef, useCallback, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { softSurfaceWithInset } from "./shadow-presets";
 
 const DISABLED_SHADOW =
-  "0 12px 24px -20px rgba(15,23,42,0.12), inset 0 1px 0 var(--shadow-highlight)";
+  "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)";
 
 type ElevatedSelectProps = React.ComponentPropsWithoutRef<
   typeof SelectPrimitive.Root
@@ -67,8 +67,6 @@ const ElevatedSelect = forwardRef<
         ? value !== null && String(value).length > 0
         : hasValue;
 
-    const floatingState = focused || open || effectiveHasValue;
-
     const boxShadowValue = props.disabled
       ? DISABLED_SHADOW
       : softSurfaceWithInset;
@@ -116,9 +114,15 @@ const ElevatedSelect = forwardRef<
     }
 
     return (
-      <div className={cn("relative flex w-full items-center", className)}>
+      <div className={cn("w-full", className)}>
+        {label ? (
+          <label className="legend mb-1 block max-w-full truncate">
+            {label}
+          </label>
+        ) : null}
+        <div className="relative flex w-full items-center">
         {icon && (
-          <span className="pointer-events-none absolute left-5 z-[1] flex h-full items-center text-primary/60">
+          <span className="pointer-events-none absolute left-5 z-[1] flex h-full items-center text-lamp-ink/60">
             {icon}
           </span>
         )}
@@ -135,9 +139,9 @@ const ElevatedSelect = forwardRef<
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
             className={cn(
-              "flex w-full items-center justify-between gap-3 rounded-full border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition-all duration-200 ease-out",
+              "flex w-full items-center justify-between gap-3 rounded-[--radius] border border-border bg-card px-3 py-2 text-sm font-medium text-foreground transition-all duration-200 ease-out",
               "hover:border-foreground/20",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               "disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:opacity-60",
               icon && "pl-12",
               !icon && "pl-5",
@@ -174,30 +178,8 @@ const ElevatedSelect = forwardRef<
           </SelectPrimitive.Portal>
         </SelectPrimitive.Root>
 
-        {label ? (
-          <label
-            className={cn(
-              "absolute pointer-events-none rounded-full px-2 py-[2px] text-sm font-medium transition-all duration-200 ease-out",
-              icon ? "left-12" : "left-5",
-              floatingState
-                ? cn(
-                    "-ml-1 top-0 -translate-y-1/2 text-[11px] shadow-sm",
-                    props.disabled
-                      ? "bg-muted text-muted-foreground"
-                      : "bg-card text-foreground",
-                  )
-                : cn(
-                    "top-1/2 -translate-y-1/2",
-                    props.disabled
-                      ? "text-muted-foreground"
-                      : "text-muted-foreground",
-                  ),
-            )}
-            style={{ transformOrigin: "left center" }}
-          >
-            {label}
-          </label>
-        ) : null}
+        {/* Static legend above the control — see elevated-input. */}
+        </div>
       </div>
     );
   },
@@ -229,10 +211,10 @@ const ElevatedSelectItem = forwardRef<
     <SelectPrimitive.Item
       ref={ref}
       className={cn(
-        "relative flex w-full cursor-pointer select-none items-center gap-3 rounded-xl px-3 py-2.5 text-sm outline-none transition-colors",
-        "hover:bg-primary/10 hover:text-primary hover:border-l-primary",
-        "focus:bg-primary/10 focus:text-primary",
-        "data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary data-[state=checked]:border-l-primary",
+        "relative flex w-full cursor-pointer select-none items-center gap-3 rounded-[--radius] px-3 py-2.5 text-sm outline-none transition-colors",
+        "hover:bg-muted hover:text-lamp-ink hover:border-l-primary",
+        "focus:bg-muted focus:text-lamp-ink",
+        "data-[state=checked]:bg-muted data-[state=checked]:text-lamp-ink data-[state=checked]:border-l-primary",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         "border-l-4 border-l-transparent rounded-none",
         className,
@@ -242,7 +224,7 @@ const ElevatedSelectItem = forwardRef<
       <div className="flex min-w-0 flex-1 items-center gap-3">
         {icon ? (
           iconStyled ? (
-            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-primary text-white">
+            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[--radius] bg-primary text-white">
               {icon}
             </span>
           ) : (
@@ -264,7 +246,7 @@ const ElevatedSelectItem = forwardRef<
         <span className="text-xs text-muted-foreground">{meta}</span>
       ) : null}
       <SelectPrimitive.ItemIndicator className="ml-2">
-        <Check className="h-4 w-4 flex-shrink-0 text-primary" weight="bold" />
+        <Check className="h-4 w-4 flex-shrink-0 text-lamp-ink" weight="bold" />
       </SelectPrimitive.ItemIndicator>
     </SelectPrimitive.Item>
   ),

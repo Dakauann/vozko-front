@@ -255,10 +255,10 @@ export function ConversationSearchExample({
             <div
               className={`w-2 h-2 rounded-full ${
                 status === "connected"
-                  ? "bg-green-500"
+                  ? "bg-healthy"
                   : status === "connecting"
                     ? "bg-yellow-500"
-                    : "bg-red-500"
+                    : "bg-destructive"
               }`}
             />
             <span className="text-sm font-medium capitalize">{status}</span>
@@ -362,7 +362,7 @@ export function ConversationSearchExample({
 
           {/* Search Error */}
           {inboxSearchError && (
-            <div className="text-sm text-red-600">{inboxSearchError}</div>
+            <div className="text-sm text-destructive">{inboxSearchError}</div>
           )}
 
           {/* Search Status */}
@@ -392,7 +392,7 @@ export function ConversationSearchExample({
                   )}
                 </div>
                 {entry.unread_count > 0 && (
-                  <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                  <span className="bg-muted text-white text-xs px-2 py-1 rounded-full">
                     {entry.unread_count}
                   </span>
                 )}
@@ -453,7 +453,7 @@ export function ConversationSearchExample({
                     activeConversation.lead_number}
                 </h2>
                 {!activeConversation.window_open && (
-                  <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                  <span className="text-xs bg-destructive/10 text-red-800 px-2 py-1 rounded">
                     Window Closed
                   </span>
                 )}
@@ -480,7 +480,7 @@ export function ConversationSearchExample({
 
               {/* Message Search Error */}
               {messageSearchError && (
-                <div className="text-sm text-red-600">{messageSearchError}</div>
+                <div className="text-sm text-destructive">{messageSearchError}</div>
               )}
 
               {/* Message Search Status */}
@@ -531,7 +531,7 @@ export function ConversationSearchExample({
                       key={message.id}
                       className={`p-3 rounded-lg max-w-[70%] ${
                         message.message_type === "user_message"
-                          ? "bg-blue-500 text-white ml-auto"
+                          ? "bg-muted text-white ml-auto"
                           : "bg-border"
                       }`}
                     >

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { Buildings, Check, Envelope, X } from "@phosphor-icons/react";
+import { Buildings, Check, Envelope, X } from "@/components/icons";
 import {
   acceptInviteAction,
   declineInviteAction,
@@ -73,25 +73,25 @@ export default function InvitesPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-amber-500 text-white shadow-lg shadow-amber-200">
+        <div className="flex h-12 w-12 items-center justify-center rounded-[--radius] bg-muted text-white shadow-lg shadow-amber-200">
           <Envelope className="h-6 w-6" weight="fill" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
+          <h1 className="text-2xl font-semibold text-foreground">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
       </div>
 
       {error && (
-        <div className="rounded-xl bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-red-600">
+        <div className="rounded-[--radius] bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       )}
 
       {invites.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-muted/50 p-12 text-center">
+        <div className="rounded-[--radius] border border-dashed border-border bg-muted p-12 text-center">
           <Envelope
-            className="mx-auto h-10 w-10 text-slate-300"
+            className="mx-auto h-10 w-10 text-muted-foreground"
             weight="fill"
           />
           <p className="mt-3 text-sm text-muted-foreground">{t("noInvites")}</p>
@@ -101,10 +101,10 @@ export default function InvitesPage() {
           {invites.map((invite) => (
             <div
               key={invite.id}
-              className="rounded-2xl border border-border/80 bg-card p-5 shadow-sm"
+              className="rounded-[--radius] border border-border bg-card p-5 shadow-sm"
             >
               <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-white">
                   <Buildings className="h-5 w-5" weight="fill" />
                 </div>
                 <div className="flex-1 min-w-0">

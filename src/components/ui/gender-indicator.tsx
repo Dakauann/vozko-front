@@ -1,6 +1,6 @@
 "use client";
 
-import { User, Users } from "@phosphor-icons/react";
+import { User, Users } from "@/components/icons";
 
 import React from "react";
 import { cn } from "@/lib/utils";
@@ -36,7 +36,7 @@ const GenderIndicator: React.FC<GenderIndicatorProps> = ({
           type: "male",
           label: "Masculino",
           bgColor: "bg-primary/15/30",
-          textColor: "text-primary dark:text-blue-300",
+          textColor: "text-lamp-ink dark:text-blue-300",
           borderColor: "border-blue-500/20 dark:border-blue-700",
           icon: <User className="h-3 w-3" weight="fill" />,
         };

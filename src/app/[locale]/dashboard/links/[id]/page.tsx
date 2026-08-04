@@ -11,7 +11,7 @@ import {
   LinkSimple,
   PencilSimple,
   Users,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
@@ -61,7 +61,7 @@ function DistributionCard({
 }) {
   const max = items.reduce((acc, item) => Math.max(acc, item.clicks), 0) || 1;
   return (
-    <ElevatedContainer className="border border-border/70" contentClassName="space-y-3">
+    <ElevatedContainer className="border border-border" contentClassName="space-y-3">
       <h3 className="text-sm font-semibold text-foreground">{title}</h3>
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground">{emptyLabel}</p>
@@ -219,7 +219,7 @@ export default function LinkAnalyticsPage() {
       />
 
       <ElevatedContainer
-        className="border border-border/70"
+        className="border border-border"
         contentClassName="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
       >
         <div className="min-w-0 space-y-2">
@@ -240,7 +240,7 @@ export default function LinkAnalyticsPage() {
               target="_blank"
               rel="noreferrer noopener"
               aria-label={t("actions.open")}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border/70 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <ArrowSquareOut className="h-4 w-4" weight="bold" />
             </a>
@@ -253,7 +253,7 @@ export default function LinkAnalyticsPage() {
             alt={t("detail.qrAlt")}
             width={96}
             height={96}
-            className="h-24 w-24 rounded-xl border border-border/70 bg-white p-1"
+            className="h-24 w-24 rounded-[--radius] border border-border bg-white p-1"
           />
           <Button
             variant="outline"
@@ -276,23 +276,23 @@ export default function LinkAnalyticsPage() {
           value={analytics?.totalClicks ?? link.clickCount}
         />
         <StatTile
-          icon={<Users className="h-4 w-4 text-emerald-500" weight="fill" />}
+          icon={<Users className="h-4 w-4 text-healthy" weight="fill" />}
           label={t("stats.uniqueClicks")}
           value={analytics?.uniqueClicks ?? link.uniqueClickCount}
         />
         <StatTile
-          icon={<GlobeHemisphereWest className="h-4 w-4 text-slate-400" weight="fill" />}
+          icon={<GlobeHemisphereWest className="h-4 w-4 text-muted-foreground" weight="fill" />}
           label={t("stats.topCountry")}
           value={analytics?.byCountry?.[0]?.label || "·"}
         />
         <StatTile
-          icon={<LinkSimple className="h-4 w-4 text-slate-400" weight="fill" />}
+          icon={<LinkSimple className="h-4 w-4 text-muted-foreground" weight="fill" />}
           label={t("stats.topReferrer")}
           value={analytics?.byReferer?.[0]?.label || t("clicks.direct")}
         />
       </div>
 
-      <ElevatedContainer className="border border-border/70" contentClassName="space-y-4">
+      <ElevatedContainer className="border border-border" contentClassName="space-y-4">
         <h2 className="text-sm font-semibold text-foreground">
           {t("detail.overTime")}
         </h2>
@@ -357,7 +357,7 @@ export default function LinkAnalyticsPage() {
           columns={clickColumns}
           rowKey={(row) => row.id}
           emptyState={{
-            icon: <CursorClick className="h-7 w-7 text-slate-300" weight="fill" />,
+            icon: <CursorClick className="h-7 w-7 text-muted-foreground" weight="fill" />,
             title: t("detail.noClicks"),
           }}
         />
@@ -376,7 +376,7 @@ function StatTile({
   value: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
+    <div className="flex items-center gap-3 rounded-[--radius] border border-border bg-card p-4 shadow-sm">
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
         {icon}
       </span>

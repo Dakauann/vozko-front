@@ -182,7 +182,7 @@ export default function PageRevealOverlay({
               }}
             >
               <motion.div
-                className="relative flex h-24 w-24 items-center justify-center rounded-full bg-card p-6 shadow-[0_30px_90px_-35px_rgba(100,116,139,0.5)] backdrop-blur-xl"
+                className="relative flex h-24 w-24 items-center justify-center rounded-full bg-card p-6 shadow-[0_30px_90px_-35px_rgba(100,116,139,0.5)]"
                 initial={{ scale: 1, rotate: 0, opacity: 1 }}
                 animate={{
                   scale: [1, 1, 0.94],

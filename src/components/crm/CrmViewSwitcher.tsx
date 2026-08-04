@@ -1,6 +1,6 @@
 "use client";
 
-import { Kanban, List, Table } from "@phosphor-icons/react";
+import { Kanban, List, Table } from "@/components/icons";
 import { useTranslations } from "next-intl";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 

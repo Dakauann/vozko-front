@@ -9,7 +9,7 @@ import {
   PaperPlaneTilt,
   Robot,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { useCallback, useMemo, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
@@ -98,13 +98,13 @@ export default function SupportInboxDetail({
       <motion.header variants={itemVariants} className="space-y-2">
         <div className="flex items-center gap-4">
           <div
-            className="flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg"
+            className="flex h-14 w-14 items-center justify-center rounded-[--radius] text-white shadow-lg"
             style={{ backgroundColor: widgetColor }}
           >
             <Headset weight="fill" className="h-7 w-7" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">{inbox.name}</h1>
+            <h1 className="text-2xl font-semibold text-foreground">{inbox.name}</h1>
             <p className="text-sm text-muted-foreground">
               {t("createdAt", {
                 date: new Date(inbox.createdAt).toLocaleDateString(),
@@ -142,7 +142,7 @@ export default function SupportInboxDetail({
                   icon={
                     inbox.enableAgentResponses ? (
                       <Robot
-                        className="h-4 w-4 text-emerald-500"
+                        className="h-4 w-4 text-healthy"
                         weight="fill"
                       />
                     ) : undefined
@@ -182,15 +182,15 @@ export default function SupportInboxDetail({
                       {inbox.preChatFields.map((field) => (
                         <div
                           key={field.name}
-                          className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2 text-sm"
+                          className="flex items-center justify-between rounded-lg bg-muted px-3 py-2 text-sm"
                         >
                           <span className="text-foreground">{field.label}</span>
                           <div className="flex items-center gap-2">
-                            <span className="rounded-full bg-background px-2 py-0.5 text-xs text-muted-foreground">
+                            <span className="rounded-[--radius] bg-background px-2 py-0.5 text-xs text-muted-foreground">
                               {field.type}
                             </span>
                             {field.required && (
-                              <span className="text-xs font-medium text-rose-500">
+                              <span className="text-xs font-medium text-destructive">
                                 {t("required")}
                               </span>
                             )}
@@ -218,7 +218,7 @@ export default function SupportInboxDetail({
               </p>
 
               <div className="relative">
-                <pre className="overflow-x-auto rounded-xl border border-border bg-muted/50 p-4 text-xs text-foreground font-mono leading-relaxed">
+                <pre className="overflow-x-auto rounded-[--radius] border border-border bg-muted p-4 text-xs text-foreground font-mono leading-relaxed">
                   {embedSnippet}
                 </pre>
                 <button
@@ -245,16 +245,16 @@ export default function SupportInboxDetail({
             </p>
 
             {/* Mock website background */}
-            <div className="relative min-h-[500px] overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+            <div className="relative min-h-[500px] overflow-hidden rounded-[--radius] border border-border bg-muted dark:from-slate-900 dark:to-slate-800">
               {/* Fake website content */}
               <div className="p-6 space-y-4">
-                <div className="h-4 w-48 rounded-full bg-slate-200 dark:bg-slate-700" />
-                <div className="h-3 w-full rounded-full bg-slate-200/60 dark:bg-slate-700/60" />
-                <div className="h-3 w-3/4 rounded-full bg-slate-200/60 dark:bg-slate-700/60" />
-                <div className="h-3 w-5/6 rounded-full bg-slate-200/60 dark:bg-slate-700/60" />
-                <div className="mt-6 h-32 rounded-xl bg-slate-200/40 dark:bg-slate-700/40" />
-                <div className="h-3 w-2/3 rounded-full bg-slate-200/60 dark:bg-slate-700/60" />
-                <div className="h-3 w-full rounded-full bg-slate-200/60 dark:bg-slate-700/60" />
+                <div className="h-4 w-48 rounded-full bg-muted dark:bg-muted" />
+                <div className="h-3 w-full rounded-full bg-muted dark:bg-muted" />
+                <div className="h-3 w-3/4 rounded-full bg-muted dark:bg-muted" />
+                <div className="h-3 w-5/6 rounded-full bg-muted dark:bg-muted" />
+                <div className="mt-6 h-32 rounded-[--radius] bg-muted dark:bg-muted" />
+                <div className="h-3 w-2/3 rounded-full bg-muted dark:bg-muted" />
+                <div className="h-3 w-full rounded-full bg-muted dark:bg-muted" />
               </div>
 
               {/* Chat widget - Floating Bubble */}
@@ -278,7 +278,7 @@ export default function SupportInboxDetail({
                   initial={{ opacity: 0, y: 20, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                  className="absolute bottom-5 right-5 flex w-80 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+                  className="absolute bottom-5 right-5 flex w-80 flex-col overflow-hidden rounded-[--radius] border border-border bg-card shadow-2xl"
                   style={{ maxHeight: "440px" }}
                 >
                   {/* Chat Header */}
@@ -315,17 +315,17 @@ export default function SupportInboxDetail({
                           <label className="text-xs font-medium text-foreground">
                             {field.label}
                             {field.required && (
-                              <span className="ml-1 text-rose-500">*</span>
+                              <span className="ml-1 text-destructive">*</span>
                             )}
                           </label>
                           {field.type === "textarea" ? (
-                            <div className="h-16 rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground" />
+                            <div className="h-16 rounded-lg border border-border bg-muted px-3 py-2 text-xs text-muted-foreground" />
                           ) : field.type === "select" ? (
-                            <div className="flex h-9 items-center rounded-lg border border-border bg-muted/30 px-3 text-xs text-muted-foreground">
+                            <div className="flex h-9 items-center rounded-lg border border-border bg-muted px-3 text-xs text-muted-foreground">
                               {t("previewSelect")}
                             </div>
                           ) : (
-                            <div className="flex h-9 items-center rounded-lg border border-border bg-muted/30 px-3 text-xs text-muted-foreground">
+                            <div className="flex h-9 items-center rounded-lg border border-border bg-muted px-3 text-xs text-muted-foreground">
                               {field.type === "email"
                                 ? "email@example.com"
                                 : field.label}
@@ -353,7 +353,7 @@ export default function SupportInboxDetail({
                             >
                               <Headset className="h-3.5 w-3.5" weight="fill" />
                             </div>
-                            <div className="max-w-[220px] rounded-2xl rounded-tl-sm bg-muted px-3.5 py-2 text-sm text-foreground">
+                            <div className="max-w-[220px] rounded-[--radius] rounded-tl-sm bg-muted px-3.5 py-2 text-sm text-foreground">
                               {inbox.greetingMessage}
                             </div>
                           </div>
@@ -363,7 +363,7 @@ export default function SupportInboxDetail({
                       {/* Input area */}
                       <div className="border-t border-border p-3">
                         <div className="flex items-center gap-2">
-                          <div className="flex-1 rounded-full border border-border bg-muted/30 px-4 py-2 text-sm text-muted-foreground">
+                          <div className="flex-1 rounded-[--radius] border border-border bg-muted px-4 py-2 text-sm text-muted-foreground">
                             {t("previewPlaceholder")}
                           </div>
                           <button

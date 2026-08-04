@@ -9,7 +9,7 @@ import {
   Gear,
   SignOut,
   User,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { Link, usePathname } from "@/i18n/routing";
 
 import { BalanceIndicator } from "@/components/elevated-design/dashboard/balance-indicator";
@@ -18,11 +18,9 @@ import { DepartmentSwitcher } from "@/components/elevated-design/dashboard/depar
 import Image from "next/image";
 import LanguageSwitcher from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { BrandLogo } from "@/components/brand-logo";
-import { WorkspaceSwitcher } from "@/components/elevated-design/dashboard/workspace-switcher";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
-import { useTheme } from "next-themes";
+import { useSidebar } from "@/contexts/sidebar-context";
 import { useTranslations } from "next-intl";
 
 export interface DashboardNavbarProps {
@@ -36,24 +34,16 @@ export interface DashboardNavbarProps {
 
 export function DashboardNavbar({
   translationsNamespace = "dashboardNavbar",
-  logoLink = "/dashboard",
   settingsLink = "/dashboard/profile",
-  profileLink = "/perfil",
-  homeLink = "/",
   className,
 }: DashboardNavbarProps = {}) {
   const t = useTranslations(translationsNamespace);
   const { user, logout } = useAuth();
   const pathname = usePathname();
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
+  const { isCollapsed } = useSidebar();
   const [showUserMenu, setShowUserMenu] = React.useState(false);
   const [showCalendar, setShowCalendar] = React.useState(false);
   const userMenuRef = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const labelMap: Record<string, string> = {
     dashboard: t("breadcrumbs.dashboard"),
@@ -122,169 +112,181 @@ export function DashboardNavbar({
   };
 
   return (
-    <motion.header
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
+    <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-40 h-20 border-b border-border/80 bg-card/80 backdrop-blur-xl",
+        // Starts to the RIGHT of the spine, which owns the top-left corner.
+        // The offset is animated by the same easing the spine uses so the two
+        // edges stay joined while it collapses.
+        "fixed right-0 top-0 z-30 flex h-12 items-center gap-3",
+        "border-b border-border bg-card px-3 transition-[left] duration-[160ms]",
+        "left-0",
+        isCollapsed ? "md:left-[52px]" : "md:left-[208px]",
         className,
       )}
     >
-      <div className="flex h-full items-center justify-between px-3 sm:px-6">
-        <div className="flex items-center gap-6">
-          <Link href={logoLink} className="flex items-center">
-            <BrandLogo
-              useWhite={mounted && resolvedTheme === "dark"}
-              size="md"
-              hideTextOnMobile
-            />
-          </Link>
+      {/*
+        The scope route. Where the previous bar carried a logo, two selectors
+        and a breadcrumb, this carries only where you are: the spine now owns
+        brand and workspace, so the bar can be a legend line and a readout rack.
+      */}
+      <nav
+        aria-label={t("breadcrumbs.dashboard")}
+        className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden"
+      >
+        {breadcrumbs.map((crumb, index) => (
+          <React.Fragment key={crumb.href}>
+            {/* The separator hides with the crumb it separates. Below sm the
+                intermediate crumbs are hidden, and a bare leading "›" pointing
+                at nothing was rendering on every mobile screen. */}
+            {index > 0 && (
+              <span
+                aria-hidden="true"
+                className="legend hidden shrink-0 opacity-50 sm:inline"
+              >
+                ›
+              </span>
+            )}
+            {index === breadcrumbs.length - 1 ? (
+              <span
+                aria-current="page"
+                className="legend truncate !text-foreground"
+              >
+                {crumb.label}
+              </span>
+            ) : (
+              <Link
+                href={crumb.href}
+                className="legend hidden shrink-0 transition-colors hover:!text-foreground sm:block"
+              >
+                {crumb.label}
+              </Link>
+            )}
+          </React.Fragment>
+        ))}
+      </nav>
 
-          <div className="hidden md:block">
-            <WorkspaceSwitcher />
-          </div>
-
-          <div className="hidden md:block">
-            <DepartmentSwitcher />
-          </div>
-
-          <nav className="hidden items-center gap-2 lg:flex">
-            <span className="text-slate-300">/</span>
-            {breadcrumbs.map((crumb, index) => (
-              <React.Fragment key={crumb.href}>
-                {index > 0 && <span className="text-slate-300">/</span>}
-                {index === breadcrumbs.length - 1 ? (
-                  <span className="text-sm font-medium text-foreground">
-                    {crumb.label}
-                  </span>
-                ) : (
-                  <Link
-                    href={crumb.href}
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    {crumb.label}
-                  </Link>
-                )}
-              </React.Fragment>
-            ))}
-          </nav>
-        </div>
-
-        {/* Balance indicator - centered */}
-        <div className="hidden flex-1 justify-center px-8 md:flex">
+      <div className="flex shrink-0 items-center gap-1">
+        <div className="hidden md:block">
           <BalanceIndicator />
         </div>
 
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <LanguageSwitcher tone="light" size="sm" />
-          <div className="hidden items-center gap-1 md:flex">
-            <button
-              onClick={() => setShowCalendar(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
-              title={t("actions.calendar")}
-            >
-              <CalendarBlank className="h-5 w-5" weight="fill" />
-            </button>
-          </div>
+        <div className="hidden md:block">
+          <DepartmentSwitcher />
+        </div>
 
-          <CalendarSheet open={showCalendar} onOpenChange={setShowCalendar} />
+        <div className="mx-1 hidden h-5 w-px bg-border md:block" />
 
-          <div className="mx-2 hidden h-8 w-px bg-border md:block" />
+        <button
+          onClick={() => setShowCalendar(true)}
+          className="hidden h-8 w-8 items-center justify-center rounded-[--radius] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground md:flex"
+          title={t("actions.calendar")}
+        >
+          <CalendarBlank className="h-4 w-4" weight="regular" />
+        </button>
 
-          <div className="relative" ref={userMenuRef}>
-            <button
-              onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-3 rounded-xl p-2 transition-all hover:bg-muted"
-            >
-              <div className="relative h-9 w-9 overflow-hidden rounded-xl border-2 border-border shadow-sm">
-                {user?.picture ? (
-                  <Image
-                    src={user.picture}
-                    alt={user?.name || user?.email || "User"}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
-                ) : (
-                  <Image
-                    src={`https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${encodeURIComponent(
-                      user?.name || user?.email || "user",
-                    )}&backgroundColor=e0f2fe,bfdbfe,dbeafe&radius=50&scale=80`}
-                    alt={user?.name || user?.email || "User"}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
-                )}
-              </div>
-              <div className="hidden flex-col items-start lg:flex">
-                <span className="text-sm font-semibold text-foreground">
-                  {user?.name || user?.email?.split("@")[0] || "Admin"}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {user?.role === "admin"
-                    ? t("userMenu.admin")
-                    : t("userMenu.user")}
-                </span>
-              </div>
-              <CaretDown
-                className={cn(
-                  "hidden h-4 w-4 text-muted-foreground transition-transform lg:block",
-                  showUserMenu && "rotate-180",
-                )}
-                weight="bold"
-              />
-            </button>
+        <CalendarSheet open={showCalendar} onOpenChange={setShowCalendar} />
 
-            <AnimatePresence>
-              {showUserMenu && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute right-0 top-full mt-2 w-56 overflow-hidden rounded-2xl border border-border bg-card shadow-xl"
-                >
-                  <div className="border-b border-border px-4 py-3">
-                    <p className="text-sm font-semibold text-foreground">
-                      {user?.name || user?.email?.split("@")[0]}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {user?.email}
-                    </p>
-                  </div>
+        <ThemeToggle />
+        <LanguageSwitcher tone="light" size="sm" />
 
-                  <div className="p-2">
-                    <Link
-                      href={settingsLink}
-                      className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-foreground transition-colors hover:bg-muted"
-                      onClick={() => setShowUserMenu(false)}
-                    >
-                      <Gear
-                        className="h-4 w-4 text-muted-foreground"
-                        weight="fill"
-                      />
-                      <span>{t("userMenu.settings")}</span>
-                    </Link>
-                  </div>
+        <div className="mx-1 hidden h-5 w-px bg-border md:block" />
 
-                  <div className="border-t border-border p-2">
-                    <button
-                      onClick={handleLogout}
-                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-red-600 transition-colors hover:bg-destructive/10"
-                    >
-                      <SignOut className="h-4 w-4" weight="bold" />
-                      <span>{t("userMenu.logout")}</span>
-                    </button>
-                  </div>
-                </motion.div>
+        <div className="relative" ref={userMenuRef}>
+          <button
+            onClick={() => setShowUserMenu(!showUserMenu)}
+            aria-haspopup="menu"
+            aria-expanded={showUserMenu}
+            className={cn(
+              "flex items-center gap-2 rounded-[--radius] p-1 transition-colors",
+              showUserMenu ? "bg-muted" : "hover:bg-muted",
+            )}
+          >
+            <span className="relative h-7 w-7 overflow-hidden rounded-[--radius] border border-border">
+              {user?.picture ? (
+                <Image
+                  src={user.picture}
+                  alt={user?.name || user?.email || "User"}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : (
+                <Image
+                  src={`https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${encodeURIComponent(
+                    user?.name || user?.email || "user",
+                  )}&backgroundColor=e0f2fe,bfdbfe,dbeafe&radius=50&scale=80`}
+                  alt={user?.name || user?.email || "User"}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
               )}
-            </AnimatePresence>
-          </div>
+            </span>
+            <span className="hidden min-w-0 flex-col items-start lg:flex">
+              <span className="max-w-[140px] truncate text-[13px] font-semibold leading-tight text-foreground">
+                {user?.name || user?.email?.split("@")[0] || "Admin"}
+              </span>
+              <span className="legend leading-tight">
+                {user?.role === "admin"
+                  ? t("userMenu.admin")
+                  : t("userMenu.user")}
+              </span>
+            </span>
+            <CaretDown
+              className={cn(
+                "hidden h-3 w-3 text-muted-foreground transition-transform lg:block",
+                showUserMenu && "rotate-180",
+              )}
+              weight="bold"
+            />
+          </button>
+
+          <AnimatePresence>
+            {showUserMenu && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.12, ease: [0.2, 0, 0, 1] }}
+                className="absolute right-0 top-full mt-1 w-56 overflow-hidden border border-border border-t-rule-strong bg-popover shadow-xl"
+              >
+                <div className="border-b border-border px-3 py-2.5">
+                  <p className="truncate text-[13px] font-semibold text-foreground">
+                    {user?.name || user?.email?.split("@")[0]}
+                  </p>
+                  <p className="truncate text-[11px] text-muted-foreground">
+                    {user?.email}
+                  </p>
+                </div>
+
+                <div className="p-1">
+                  <Link
+                    href={settingsLink}
+                    className="flex items-center gap-2 rounded-[--radius] px-2 py-1.5 text-[13px] text-foreground transition-colors hover:bg-muted"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    <Gear
+                      className="h-4 w-4 text-muted-foreground"
+                      weight="regular"
+                    />
+                    <span>{t("userMenu.settings")}</span>
+                  </Link>
+                </div>
+
+                <div className="border-t border-border p-1">
+                  <button
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-2 rounded-[--radius] px-2 py-1.5 text-[13px] text-destructive transition-colors hover:bg-destructive/10"
+                  >
+                    <SignOut className="h-4 w-4" weight="bold" />
+                    <span>{t("userMenu.logout")}</span>
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
-    </motion.header>
+    </header>
   );
 }

@@ -99,22 +99,11 @@ interface UseDialerWsReturn {
     endCall: () => void;
     clearError: () => void;
 
-    presence: DialerPresenceEntry[];
-    selfUserId: string;
-
-    outgoingTransfer: OutgoingTransferState | null;
-    incomingOffer: IncomingTransferOffer | null;
+    // Inbound WhatsApp calls still need to be answerable.
     incomingCall: IncomingCallOffer | null;
-    transferTargets: TransferTargetEntry[];
-    refreshTransferTargets: () => void;
-    initiateTransfer: (targetUserId: string, kind: DialerTransferKind, note?: string) => void;
-    acceptTransfer: (transferId: string) => void;
-    declineTransfer: (transferId: string, reason?: string) => void;
     acceptIncomingCall: (offerId: string) => void;
     declineIncomingCall: (offerId: string, reason?: string) => void;
-    completeAttended: (transferId: string) => void;
-    cancelAttended: (transferId: string, reason?: string) => void;
-    clearOutgoingTransfer: () => void;
+    selfUserId: string;
 }
 
 type DialerServerEvent =

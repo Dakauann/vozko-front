@@ -1,6 +1,6 @@
 "use client";
 
-import { Kanban, List, Table, Stack, FunnelSimple, CaretRight } from "@phosphor-icons/react";
+import { Kanban, List, Table, Stack, FunnelSimple, CaretRight } from "@/components/icons";
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
@@ -43,7 +43,7 @@ export default function CrmScopeBreadcrumb({
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center gap-x-1.5 gap-y-1 border-b border-border/60 bg-muted/30 px-4 py-1.5 text-[11px] text-muted-foreground",
+        "flex flex-wrap items-center gap-x-1.5 gap-y-1 border-b border-border bg-muted px-4 py-1.5 text-[11px] text-muted-foreground",
         className,
       )}
     >

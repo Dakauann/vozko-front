@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle, Warning, WarningCircle } from "@phosphor-icons/react";
+import { CheckCircle, Warning, WarningCircle } from "@/components/icons";
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, type ReactNode } from "react";
 
@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
  * instructions that make it completable rather than after them.
  *
  * OWN-WORLD: the incumbent dashboard system, unchanged. ElevatedContainer's
- * layered shadow on bg-card, rounded-[20px], border-token hairlines, Phosphor
+ * layered shadow on bg-card, rounded-[--radius], border-token hairlines, Phosphor
  * icons at one weight, the primary token carrying the action. Colour appears
  * only as a solid fill under contrasting ink, never as a tint behind text of
  * its own hue.
@@ -126,12 +126,12 @@ export function ConnectIdentity({
 }) {
   return (
     <motion.header variants={item} className="flex items-start gap-4">
-      <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-border/70 bg-card shadow-[0_1px_2px_-1px_rgba(0,0,0,0.10),0_3px_8px_-3px_rgba(0,0,0,0.12)]">
+      <span className="flex size-12 shrink-0 items-center justify-center rounded-[--radius] border border-border bg-card shadow-[0_1px_2px_-1px_rgba(0,0,0,0.10),0_3px_8px_-3px_rgba(0,0,0,0.12)]">
         {logo}
       </span>
 
       <div className="min-w-0 flex-1 space-y-1.5 pt-0.5">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
           {title}
         </h1>
         {/* Held to a readable measure rather than the container's full width. */}
@@ -145,7 +145,7 @@ export function ConnectIdentity({
 }
 
 const PANEL_SHADOW =
-  "0px 0.7066px 0.7066px -0.6667px rgba(0,0,0,0.08), 0px 1.8066px 1.8066px -1.3333px rgba(0,0,0,0.08), 0px 3.6218px 3.6218px -2px rgba(0,0,0,0.07), 0px 6.8656px 6.8656px -2.6667px rgba(0,0,0,0.07), 0px 13.6468px 13.6468px -3.3333px rgba(0,0,0,0.05), 0px 30px 30px -4px rgba(0,0,0,0.02), inset 0px 3px 1px 0px var(--shadow-highlight-strong)";
+  "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)";
 
 /**
  * The panel's surface, with no animation of its own.
@@ -169,7 +169,7 @@ function PanelSurface({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-[20px] border border-border bg-card p-6 sm:p-8",
+        "relative overflow-hidden rounded-[--radius] border border-border bg-card p-6 sm:p-8",
         className,
       )}
       style={{ boxShadow: PANEL_SHADOW }}
@@ -253,9 +253,9 @@ export function ConnectTrackStep({
             the one that stands out. */}
         <span
           className={cn(
-            "flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold tabular-nums",
+            "flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold tabular-nums",
             isAction
-              ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
+              ? "bg-primary text-primary-foreground shadow-sm"
               : "bg-muted text-muted-foreground ring-1 ring-inset ring-border",
           )}
         >
@@ -304,12 +304,12 @@ export function ConnectNotice({
   const marks = {
     info: {
       Icon: WarningCircle,
-      chip: "bg-sky-600 text-white",
+      chip: "bg-muted text-white",
       label: "",
     },
     warn: {
       Icon: Warning,
-      chip: "bg-amber-600 text-white",
+      chip: "bg-warning text-white",
       label: "",
     },
     danger: {
@@ -321,7 +321,7 @@ export function ConnectNotice({
   const { Icon, chip } = marks;
 
   return (
-    <div className="flex gap-3 rounded-xl border border-border/70 bg-muted/40 p-4">
+    <div className="flex gap-3 rounded-[--radius] border border-border bg-muted p-4">
       <span
         className={cn(
           "flex size-6 shrink-0 items-center justify-center rounded-full",
@@ -440,7 +440,7 @@ export function ConnectResult({
             className={cn(
               "flex size-11 shrink-0 items-center justify-center rounded-full",
               ok
-                ? "bg-emerald-600 text-white"
+                ? "bg-healthy text-white"
                 : "bg-destructive text-destructive-foreground",
             )}
           >
@@ -468,7 +468,7 @@ export function ConnectResult({
             {details && details.length > 0 && (
               // Monospace here is measurement, not costume: these are opaque
               // identifiers an operator copies into a support ticket.
-              <dl className="flex flex-wrap gap-x-6 gap-y-2 rounded-xl border border-border/70 bg-muted/40 px-4 py-3">
+              <dl className="flex flex-wrap gap-x-6 gap-y-2 rounded-[--radius] border border-border bg-muted px-4 py-3">
                 {details.map((d) => (
                   <div key={d.label} className="min-w-0">
                     {/* Foreground, not muted: at 11px on the notice's own

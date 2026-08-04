@@ -1,6 +1,6 @@
 "use client";
 
-import { LinkSimple } from "@phosphor-icons/react";
+import { LinkSimple } from "@/components/icons";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";

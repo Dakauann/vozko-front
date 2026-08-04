@@ -28,7 +28,7 @@ import {
   DotsThreeVertical,
   WhatsappLogo,
   SealCheck,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import Button from "@/components/elevated-design/button";
 import {
@@ -92,17 +92,17 @@ const itemVariants: Variants = {
 function statusTone(status: BusinessPhoneStatus): string {
   switch (status) {
     case "CONNECTED":
-      return "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900";
+      return "bg-healthy/10 text-healthy border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900";
     case "PENDING":
     case "VERIFYING":
     case "RATE_LIMITED":
-      return "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900";
+      return "bg-amber-50 text-warning border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900";
     case "DISCONNECTED":
     case "BANNED":
     case "FLAGGED":
     case "RESTRICTED":
     case "UNVERIFIED":
-      return "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900";
+      return "bg-destructive/10 text-destructive border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900";
     default:
       return "bg-muted text-muted-foreground border-border";
   }
@@ -111,11 +111,11 @@ function statusTone(status: BusinessPhoneStatus): string {
 function qualityTone(quality: QualityRating): string {
   switch (quality) {
     case "GREEN":
-      return "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900";
+      return "bg-healthy/10 text-healthy border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900";
     case "YELLOW":
-      return "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900";
+      return "bg-amber-50 text-warning border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900";
     case "RED":
-      return "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900";
+      return "bg-destructive/10 text-destructive border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900";
     default:
       return "bg-muted text-muted-foreground border-border";
   }
@@ -417,11 +417,11 @@ export default function BusinessPhoneDetailPage() {
   const getNameStatusColor = (status: NameStatus) => {
     switch (status) {
       case "APPROVED":
-        return "text-emerald-600 dark:text-emerald-400";
+        return "text-healthy dark:text-healthy";
       case "PENDING_REVIEW":
-        return "text-amber-600 dark:text-amber-400";
+        return "text-warning dark:text-amber-400";
       case "DECLINED":
-        return "text-red-600";
+        return "text-destructive";
       default:
         return "text-muted-foreground";
     }
@@ -445,8 +445,8 @@ export default function BusinessPhoneDetailPage() {
       <div className="mx-auto max-w-5xl p-6">
         <div className="animate-pulse space-y-6">
           <div className="h-9 w-1/3 rounded-lg bg-muted" />
-          <div className="h-44 rounded-2xl bg-muted" />
-          <div className="h-32 rounded-2xl bg-muted" />
+          <div className="h-44 rounded-[--radius] bg-muted" />
+          <div className="h-32 rounded-[--radius] bg-muted" />
         </div>
       </div>
     );
@@ -492,7 +492,7 @@ export default function BusinessPhoneDetailPage() {
           <ElevatedContainer className="p-6">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[--radius] bg-healthy/10 text-healthy">
                   <WhatsappLogo className="h-6 w-6" weight="fill" />
                 </div>
                 <div className="min-w-0">
@@ -502,7 +502,7 @@ export default function BusinessPhoneDetailPage() {
                     </h1>
                     {phone.isOfficialBusiness && (
                       <SealCheck
-                        className="h-5 w-5 text-primary"
+                        className="h-5 w-5 text-lamp-ink"
                         weight="fill"
                       />
                     )}
@@ -513,7 +513,7 @@ export default function BusinessPhoneDetailPage() {
                   <div className="mt-2.5 flex flex-wrap items-center gap-2">
                     <span
                       className={cn(
-                        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium",
+                        "inline-flex items-center gap-1.5 rounded-[--radius] border px-2.5 py-0.5 text-xs font-medium",
                         statusTone(phone.status),
                       )}
                     >
@@ -522,7 +522,7 @@ export default function BusinessPhoneDetailPage() {
                     </span>
                     <span
                       className={cn(
-                        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium",
+                        "inline-flex items-center rounded-[--radius] border px-2.5 py-0.5 text-xs font-medium",
                         qualityTone(phone.qualityRating),
                       )}
                     >
@@ -667,12 +667,12 @@ export default function BusinessPhoneDetailPage() {
                     </dt>
                     <dd className="text-sm font-medium">
                       {isVerified ? (
-                        <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                        <span className="inline-flex items-center gap-1 text-healthy dark:text-healthy">
                           <CheckCircle className="h-4 w-4" weight="fill" />
                           {t("detail.verified")}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                        <span className="inline-flex items-center gap-1 text-warning dark:text-amber-400">
                           <Warning className="h-4 w-4" weight="fill" />
                           {t("detail.notVerified")}
                         </span>
@@ -822,7 +822,7 @@ export default function BusinessPhoneDetailPage() {
                             href={url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm text-primary hover:underline"
+                            className="text-sm text-lamp-ink hover:underline"
                           >
                             {url}
                           </a>
@@ -850,7 +850,7 @@ export default function BusinessPhoneDetailPage() {
             <ElevatedContainer className="p-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-healthy/10 text-healthy">
                     <Phone className="h-5 w-5" weight="fill" />
                   </div>
                   <div>
@@ -881,7 +881,7 @@ export default function BusinessPhoneDetailPage() {
           <motion.div variants={itemVariants}>
             <ElevatedContainer className="p-6">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-lamp-ink">
                   <UserCircle className="h-5 w-5" weight="fill" />
                 </div>
                 <div>
@@ -908,7 +908,7 @@ export default function BusinessPhoneDetailPage() {
             <ElevatedContainer className="p-6">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-lamp-ink">
                     <Buildings className="h-5 w-5" weight="fill" />
                   </div>
                   <div>
@@ -916,7 +916,7 @@ export default function BusinessPhoneDetailPage() {
                       <h3 className="text-base font-semibold text-foreground">
                         {t("access.title")}
                       </h3>
-                      <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">
+                      <span className="inline-flex items-center rounded-[--radius] border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-warning dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">
                         {t("access.deprecated")}
                       </span>
                     </div>
@@ -925,7 +925,7 @@ export default function BusinessPhoneDetailPage() {
                     </p>
                   </div>
                 </div>
-                <span className="inline-flex items-center rounded-full bg-muted px-3 py-1 text-xs font-semibold text-foreground">
+                <span className="inline-flex items-center rounded-[--radius] bg-muted px-3 py-1 text-xs font-semibold text-foreground">
                   {t("access.count", { count: accessMeta.totalItems })}
                 </span>
               </div>
@@ -965,19 +965,19 @@ export default function BusinessPhoneDetailPage() {
                 </div>
 
                 {accessLoading ? (
-                  <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-muted/40 p-6 text-sm text-muted-foreground">
+                  <div className="flex items-center justify-center gap-2 rounded-[--radius] border border-border bg-muted p-6 text-sm text-muted-foreground">
                     <CircleNotch className="h-4 w-4 animate-spin" weight="bold" />
                     {t("access.loading")}
                   </div>
                 ) : accessItems.length === 0 ? (
-                  <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-border bg-muted/30 p-8 text-center">
+                  <div className="flex flex-col items-center gap-2 rounded-[--radius] border border-dashed border-border bg-muted p-8 text-center">
                     <Buildings className="h-8 w-8 text-muted-foreground/40" weight="fill" />
                     <p className="text-sm text-muted-foreground">
                       {t("access.noWorkspaces")}
                     </p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
+                  <div className="divide-y divide-border overflow-hidden rounded-[--radius] border border-border bg-card">
                     {accessItems.map((item) => {
                       const workspace = accessWorkspaces[item.workspaceId];
                       return (
@@ -986,7 +986,7 @@ export default function BusinessPhoneDetailPage() {
                           className="flex items-center justify-between gap-3 px-4 py-3"
                         >
                           <div className="flex min-w-0 items-center gap-3">
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius] bg-muted text-lamp-ink">
                               <Buildings className="h-4 w-4" weight="fill" />
                             </div>
                             <div className="min-w-0">
@@ -997,7 +997,7 @@ export default function BusinessPhoneDetailPage() {
                                     commonT("loading")}
                                 </p>
                                 {workspace?.isDefault && (
-                                  <span className="shrink-0 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                                  <span className="shrink-0 rounded-[--radius] bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
                                     default
                                   </span>
                                 )}
@@ -1062,7 +1062,7 @@ export default function BusinessPhoneDetailPage() {
         icon={<SignOut className="h-4 w-4" weight="bold" />}
         onConfirm={handleDisconnect}
       >
-        <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/50 p-3">
+        <div className="flex items-start gap-3 rounded-lg border border-border bg-muted p-3">
           <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
           <p className="text-xs leading-relaxed text-muted-foreground">
             {t("disconnect.note")}
@@ -1083,7 +1083,7 @@ export default function BusinessPhoneDetailPage() {
         icon={<LinkBreak className="h-4 w-4" weight="bold" />}
         onConfirm={handleUnassign}
       >
-        <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/50 p-3">
+        <div className="flex items-start gap-3 rounded-lg border border-border bg-muted p-3">
           <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
           <p className="text-xs leading-relaxed text-muted-foreground">
             {t(isDialog360 ? "unassign.noteDialog360" : "unassign.note")}

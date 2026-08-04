@@ -1,6 +1,6 @@
 "use client";
 
-import { Files, MagnifyingGlass, Plus, Trash } from "@phosphor-icons/react";
+import { Files, MagnifyingGlass, Plus, Trash } from "@/components/icons";
 import { useEffect, useMemo, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
@@ -44,9 +44,9 @@ async function deleteKnowledgeBase(id: string): Promise<{ error?: string }> {
 }
 
 const statusColor: Record<string, string> = {
-  active: "bg-emerald-500 text-white",
-  processing: "bg-amber-500 text-white",
-  error: "bg-red-500 text-white",
+  active: "bg-healthy text-white",
+  processing: "bg-warning text-white",
+  error: "bg-destructive text-white",
 };
 
 export default function KnowledgeBasesPage() {
@@ -121,7 +121,7 @@ export default function KnowledgeBasesPage() {
         render: (row) => (
           <span
             className={cn(
-              "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+              "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
               statusColor[row.status] ?? "bg-gray-500 text-white",
             )}
           >
@@ -133,7 +133,7 @@ export default function KnowledgeBasesPage() {
         key: "documents",
         header: t("stats.documents"),
         render: (row) => (
-          <span className="text-sm font-bold tabular-nums text-foreground">
+          <span className="text-sm font-semibold tabular-nums text-foreground">
             {row.documentCount ?? 0}
           </span>
         ),
@@ -142,7 +142,7 @@ export default function KnowledgeBasesPage() {
         key: "chunks",
         header: t("stats.chunks"),
         render: (row) => (
-          <span className="text-sm font-bold tabular-nums text-foreground">
+          <span className="text-sm font-semibold tabular-nums text-foreground">
             {row.chunkCount ?? 0}
           </span>
         ),
@@ -151,7 +151,7 @@ export default function KnowledgeBasesPage() {
         key: "sizeMB",
         header: t("stats.size"),
         render: (row) => (
-          <span className="text-sm font-bold tabular-nums text-foreground">
+          <span className="text-sm font-semibold tabular-nums text-foreground">
             {row.totalSizeMB?.toFixed(1) ?? "0"} MB
           </span>
         ),
@@ -250,7 +250,7 @@ export default function KnowledgeBasesPage() {
         emptyState={
           error
             ? {
-                icon: <Files className="h-7 w-7 text-red-600" weight="fill" />,
+                icon: <Files className="h-7 w-7 text-destructive" weight="fill" />,
                 title: t("error.title"),
                 description: error,
               }

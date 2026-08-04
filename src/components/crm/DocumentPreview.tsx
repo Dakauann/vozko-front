@@ -3,7 +3,7 @@
 import {
   DownloadIcon,
   SubsetProperOfIcon,
-} from "@phosphor-icons/react/dist/ssr";
+} from "@/components/icons";
 import {
   ElevatedDialog,
   ElevatedDialogContent,

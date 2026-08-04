@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Check, Copy, Warning } from "@phosphor-icons/react";
+import { ArrowLeft, Check, Copy, Warning } from "@/components/icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { connectTelegramAccountAction } from "@/app/actions/telegram";
@@ -192,7 +192,7 @@ export default function ConnectTelegramPage() {
                         : undefined
                   }
                   className={cn(
-                    "w-full rounded-xl border bg-background px-4 py-3 font-mono text-sm text-foreground",
+                    "w-full rounded-[--radius] border bg-background px-4 py-3 font-mono text-sm text-foreground",
                     "placeholder:font-sans placeholder:text-foreground/55",
                     "transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                     showMalformed || error
@@ -211,7 +211,7 @@ export default function ConnectTelegramPage() {
                     >
                       <Warning
                         weight="fill"
-                        className="mt-px size-3.5 shrink-0 text-amber-600 dark:text-amber-500"
+                        className="mt-px size-3.5 shrink-0 text-warning dark:text-warning"
                       />
                       {t("connect.tokenMalformed")}
                     </p>
@@ -270,10 +270,10 @@ function CommandChip({ value }: { value: string }) {
         setCopied(true);
         window.setTimeout(() => setCopied(false), 1500);
       }}
-      className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2 font-mono text-xs text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border bg-muted px-3 py-2 font-mono text-xs text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
     >
       {copied ? (
-        <Check weight="bold" className="size-3.5 text-emerald-600 dark:text-emerald-500" />
+        <Check weight="bold" className="size-3.5 text-healthy dark:text-healthy" />
       ) : (
         <Copy className="size-3.5 text-muted-foreground" />
       )}

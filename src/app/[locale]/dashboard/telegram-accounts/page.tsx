@@ -10,7 +10,7 @@ import {
   Plus,
   Trash,
   Warning,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   DashboardTable,
@@ -43,11 +43,11 @@ import { useWorkspace } from "@/contexts/workspace-context";
 const ITEMS_PER_PAGE = 15;
 
 const STATUS_COLORS: Record<TelegramAccountStatus, string> = {
-  PENDING: "bg-amber-500 text-white",
-  ACTIVE: "bg-emerald-500 text-white",
-  TOKEN_INVALID: "bg-red-600 text-white",
+  PENDING: "bg-warning text-white",
+  ACTIVE: "bg-healthy text-white",
+  TOKEN_INVALID: "bg-destructive text-white",
   WEBHOOK_FAILING: "bg-orange-500 text-white",
-  REVOKED: "bg-slate-500 text-white",
+  REVOKED: "bg-muted text-white",
 };
 
 export default function TelegramAccountsPage() {
@@ -167,8 +167,8 @@ export default function TelegramAccountsPage() {
             <div className="flex flex-col gap-1">
               <span
                 className={cn(
-                  "inline-flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-                  STATUS_COLORS[row.status] ?? "bg-slate-500 text-white",
+                  "inline-flex w-fit items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
+                  STATUS_COLORS[row.status] ?? "bg-muted text-white",
                 )}
               >
                 {t(`status.${row.status.toLowerCase()}`)}
@@ -194,7 +194,7 @@ export default function TelegramAccountsPage() {
 
               {issue === "token" && (
                 <span
-                  className="flex max-w-[320px] items-start gap-1 text-xs text-red-700 dark:text-red-400"
+                  className="flex max-w-[320px] items-start gap-1 text-xs text-destructive dark:text-red-400"
                   title={row.statusReason}
                 >
                   <Warning weight="fill" className="mt-0.5 h-3 w-3 flex-shrink-0" />
@@ -235,7 +235,7 @@ export default function TelegramAccountsPage() {
             <span
               className={cn(
                 "text-sm",
-                row.webhookHealthy ? "text-emerald-600 dark:text-emerald-400" : "text-orange-600",
+                row.webhookHealthy ? "text-healthy dark:text-healthy" : "text-orange-600",
               )}
             >
               {row.webhookHealthy ? t("webhook.healthy") : t("webhook.failing")}
@@ -340,7 +340,7 @@ export default function TelegramAccountsPage() {
         }
       />
 
-      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card px-5 py-3 shadow-sm">
+      <div className="flex flex-wrap items-center gap-3 rounded-[--radius] border border-border bg-card px-5 py-3 shadow-sm">
         <div className="relative w-full max-w-xs">
           <ElevatedInput
             type="text"
@@ -417,7 +417,7 @@ export default function TelegramAccountsPage() {
         />
       ) : (
         <div className="space-y-4">
-          <ElevatedContainer className="overflow-hidden border border-border/70 !p-0">
+          <ElevatedContainer className="overflow-hidden border border-border !p-0">
             <DashboardTable<TelegramAccount>
               data={accounts}
               columns={columns}
@@ -474,11 +474,11 @@ function Chip({ label, tone }: { label: string; tone: "emerald" | "sky" }) {
   const tones = {
     // Solid tone, white ink, the CardPill rule. A tinted fill under same-hue
     // ink washes out, and these chips sit on both card and muted surfaces.
-    emerald: "bg-emerald-600 text-white",
-    sky: "bg-sky-600 text-white",
+    emerald: "bg-healthy text-white",
+    sky: "bg-muted text-white",
   } as const;
   return (
-    <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium", tones[tone])}>
+    <span className={cn("rounded-[--radius] px-2 py-0.5 text-[11px] font-medium", tones[tone])}>
       {label}
     </span>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { CaretDown, Check, Funnel } from "@phosphor-icons/react";
+import { CaretDown, Check, Funnel } from "@/components/icons";
 import { useCallback, useRef, useState } from "react";
 
 import type { Stage } from "@/lib/conversations/types";
@@ -47,7 +47,7 @@ export default function CrmStageFilter({
         className={cn(
           "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-medium transition-all duration-150",
           hasSelection
-            ? "border-emerald-600 bg-emerald-500 text-white"
+            ? "border-healthy bg-healthy text-white"
             : "border-border bg-card text-muted-foreground hover:bg-muted",
         )}
       >
@@ -79,7 +79,7 @@ export default function CrmStageFilter({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -4, scale: 0.97 }}
               transition={{ duration: 0.15 }}
-              className="absolute left-0 top-full z-50 mt-1.5 w-56 overflow-hidden rounded-xl border border-border bg-card shadow-xl"
+              className="absolute left-0 top-full z-50 mt-1.5 w-56 overflow-hidden rounded-[--radius] border border-border bg-card shadow-xl"
             >
               {/* Header */}
               <div className="flex items-center justify-between border-b border-border px-3 py-2">
@@ -89,7 +89,7 @@ export default function CrmStageFilter({
                 {hasSelection && (
                   <button
                     onClick={clearAll}
-                    className="text-[10px] font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
+                    className="text-[10px] font-medium text-healthy hover:text-healthy transition-colors"
                   >
                     Limpar
                   </button>
@@ -113,7 +113,7 @@ export default function CrmStageFilter({
                           onClick={() => toggle(stage.id)}
                           className={cn(
                             "flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors duration-100",
-                            isSelected ? "bg-muted" : "hover:bg-muted/60",
+                            isSelected ? "bg-muted" : "hover:bg-muted",
                           )}
                         >
                           {/* Color dot */}
@@ -129,7 +129,7 @@ export default function CrmStageFilter({
                             className={cn(
                               "flex h-4 w-4 items-center justify-center rounded-md border transition-all duration-150",
                               isSelected
-                                ? "border-emerald-500 bg-emerald-500/100"
+                                ? "border-healthy bg-healthy/100"
                                 : "border-foreground/20 bg-card",
                             )}
                           >

@@ -12,7 +12,7 @@ import {
   Play,
   Spinner,
   XCircle,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type {
   MockFieldSpec,
   TestMode,
@@ -119,7 +119,7 @@ function OutputEntry({
   badgeColor?: string;
 }) {
   return (
-    <div className="flex items-start justify-between gap-2 py-1.5 border-b border-border/50 last:border-0">
+    <div className="flex items-start justify-between gap-2 py-1.5 border-b border-border last:border-0">
       <div className="flex items-center gap-1.5 min-w-0">
         <span className="text-[11px] text-muted-foreground shrink-0">
           {label}
@@ -127,7 +127,7 @@ function OutputEntry({
         {badge && (
           <span
             className={cn(
-              "shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider",
+              "shrink-0 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider",
               badgeColor ?? "bg-muted text-muted-foreground",
             )}
           >
@@ -179,10 +179,10 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
   return (
     <div
       className={cn(
-        "rounded-xl border overflow-hidden",
+        "rounded-[--radius] border overflow-hidden",
         result.success
-          ? "border-emerald-200 bg-emerald-50/50"
-          : "border-red-200 bg-red-50/50",
+          ? "border-emerald-200 bg-healthy/10/50"
+          : "border-red-200 bg-destructive/10/50",
       )}
     >
       {/* Header */}
@@ -190,15 +190,15 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
         className={cn(
           "flex items-center justify-between px-3 py-2",
           result.success
-            ? "bg-emerald-100/60 border-b border-emerald-200"
-            : "bg-red-100/60 border-b border-red-200",
+            ? "bg-healthy/10/60 border-b border-emerald-200"
+            : "bg-destructive/10/60 border-b border-red-200",
         )}
       >
         <div className="flex items-center gap-2">
           {result.success ? (
-            <CheckCircle size={16} weight="fill" className="text-emerald-600" />
+            <CheckCircle size={16} weight="fill" className="text-healthy" />
           ) : (
-            <XCircle size={16} weight="fill" className="text-red-600" />
+            <XCircle size={16} weight="fill" className="text-destructive" />
           )}
           <span
             className={cn(
@@ -218,7 +218,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
       <div className="p-3 space-y-2.5">
         {/* Error message */}
         {result.error && (
-          <div className="rounded-lg bg-red-100/80 border border-red-200 px-2.5 py-2 text-xs text-red-800">
+          <div className="rounded-lg bg-destructive/10/80 border border-red-200 px-2.5 py-2 text-xs text-red-800">
             {result.error}
           </div>
         )}
@@ -231,7 +231,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
             </span>
             <span
               className={cn(
-                "rounded px-1.5 py-0.5 text-[11px] font-bold",
+                "rounded px-1.5 py-0.5 text-[11px] font-semibold",
                 httpSuccess
                   ? "bg-emerald-200/60 text-emerald-800"
                   : "bg-red-200/60 text-red-800",
@@ -252,7 +252,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
 
         {/* Key output entries */}
         {outputEntries.length > 0 && (
-          <div className="rounded-lg border border-border/60 bg-background p-2">
+          <div className="rounded-lg border border-border bg-background p-2">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
               Saída do nó
             </p>
@@ -286,7 +286,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
               <CopyButton text={responseBody} />
             </button>
             {showRawOutput && (
-              <pre className="text-[10px] bg-background rounded-lg border border-border/60 p-2.5 overflow-x-auto max-h-48 overflow-y-auto font-mono text-foreground/80">
+              <pre className="text-[10px] bg-background rounded-lg border border-border p-2.5 overflow-x-auto max-h-48 overflow-y-auto font-mono text-foreground/80">
                 {(() => {
                   try {
                     return JSON.stringify(JSON.parse(responseBody), null, 2);
@@ -315,7 +315,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
               <span>Config interpolado</span>
             </button>
             {showRawConfig && (
-              <pre className="text-[10px] bg-background rounded-lg border border-border/60 p-2.5 overflow-x-auto max-h-48 overflow-y-auto font-mono text-foreground/80">
+              <pre className="text-[10px] bg-background rounded-lg border border-border p-2.5 overflow-x-auto max-h-48 overflow-y-auto font-mono text-foreground/80">
                 {JSON.stringify(result.interpolated_config, null, 2)}
               </pre>
             )}
@@ -336,12 +336,12 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
                 <CaretRight size={10} />
               )}
               <span>Estado após execução</span>
-              <span className="text-[9px] bg-muted rounded-full px-1.5 py-0.5">
+              <span className="text-[9px] bg-muted rounded-[--radius] px-1.5 py-0.5">
                 {stateEntries.length}
               </span>
             </button>
             {showStateAfter && (
-              <div className="rounded-lg border border-border/60 bg-background p-2">
+              <div className="rounded-lg border border-border bg-background p-2">
                 {stateEntries.map(([key, val]) => (
                   <OutputEntry
                     key={key}
@@ -432,8 +432,8 @@ export function TestNodeSection({
         onClick={handleExpand}
         className={cn(
           "w-full flex items-center justify-between px-3 py-2.5 transition-colors",
-          "hover:bg-muted/50",
-          expanded && "border-b border-border bg-muted/30",
+          "hover:bg-muted",
+          expanded && "border-b border-border bg-muted",
         )}
       >
         <div className="flex items-center gap-2">
@@ -442,14 +442,14 @@ export function TestNodeSection({
           ) : (
             <CaretRight size={14} className="text-muted-foreground" />
           )}
-          <Play size={15} weight="duotone" className="text-primary" />
+          <Play size={15} weight="duotone" className="text-lamp-ink" />
           <span className="text-xs font-medium">Testar Nó</span>
         </div>
         {status === "analyzing" && (
           <Spinner size={14} className="animate-spin text-muted-foreground" />
         )}
         {status === "success" && (
-          <CheckCircle size={14} weight="fill" className="text-emerald-500" />
+          <CheckCircle size={14} weight="fill" className="text-healthy" />
         )}
         {status === "error" && (
           <XCircle size={14} weight="fill" className="text-red-500" />
@@ -481,15 +481,15 @@ export function TestNodeSection({
                 className={cn(
                   "flex items-start gap-2 rounded-lg px-3 py-2 text-xs",
                   analysis.test_mode === "direct" &&
-                    "bg-emerald-50 border border-emerald-200 text-emerald-900",
+                    "bg-healthy/10 border border-emerald-200 text-emerald-900",
                   analysis.test_mode === "mock" &&
                     "bg-amber-50 border border-amber-200 text-amber-900",
                   analysis.test_mode === "execute_until" &&
                     analysis.has_ai_deps &&
-                    "bg-blue-50 border border-blue-200 text-blue-900",
+                    "bg-muted border border-blue-200 text-blue-900",
                   analysis.test_mode === "execute_until" &&
                     !analysis.has_ai_deps &&
-                    "bg-emerald-50 border border-emerald-200 text-emerald-900",
+                    "bg-healthy/10 border border-emerald-200 text-emerald-900",
                 )}
               >
                 <Info size={14} className="mt-0.5 shrink-0" />
@@ -516,7 +516,7 @@ export function TestNodeSection({
                   {analysis.mock_fields.map((field: MockFieldSpec) => (
                     <div
                       key={field.key}
-                      className="space-y-2 rounded-xl border border-border bg-muted/20 p-3"
+                      className="space-y-2 rounded-[--radius] border border-border bg-muted p-3"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
@@ -526,11 +526,11 @@ export function TestNodeSection({
                           <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                             Variavel esperada
                           </p>
-                          <div className="mt-1 rounded-lg border border-border/70 bg-background px-2.5 py-2 font-mono text-[11px] text-muted-foreground break-all">
+                          <div className="mt-1 rounded-lg border border-border bg-background px-2.5 py-2 font-mono text-[11px] text-muted-foreground break-all">
                             {getMockTemplate(field)}
                           </div>
                         </div>
-                        <span className="shrink-0 rounded-full bg-muted px-2 py-1 text-[10px] font-medium text-muted-foreground">
+                        <span className="shrink-0 rounded-[--radius] bg-muted px-2 py-1 text-[10px] font-medium text-muted-foreground">
                           {getSourceLabel(field.source)}
                         </span>
                       </div>
@@ -599,7 +599,7 @@ export function TestNodeSection({
               </div>
 
               {missingMocksMessage && (
-                <p className="text-[11px] text-amber-700">
+                <p className="text-[11px] text-warning">
                   {missingMocksMessage}
                 </p>
               )}
@@ -611,12 +611,12 @@ export function TestNodeSection({
 
           {/* Error display */}
           {status === "error" && error && !result && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+            <div className="rounded-lg border border-red-200 bg-destructive/10 p-3">
               <div className="flex items-center gap-2">
-                <XCircle size={16} weight="fill" className="text-red-600" />
+                <XCircle size={16} weight="fill" className="text-destructive" />
                 <span className="text-sm font-medium text-red-900">Erro</span>
               </div>
-              <p className="text-xs text-red-700 mt-1">{error}</p>
+              <p className="text-xs text-destructive mt-1">{error}</p>
             </div>
           )}
         </div>

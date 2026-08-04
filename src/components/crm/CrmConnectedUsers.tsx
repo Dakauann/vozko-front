@@ -8,7 +8,7 @@ import {
   Person,
   Users,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { useEffect, useMemo, useState } from "react";
 
 import Button from "../elevated-design/button";
@@ -119,15 +119,15 @@ export default function CrmConnectedUsers({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -4, scale: 0.97 }}
               transition={{ duration: 0.15 }}
-              className="absolute right-0 top-full z-50 mt-1.5 w-[min(360px,calc(100vw-1.5rem))] overflow-hidden rounded-xl border border-border bg-card shadow-xl"
+              className="absolute right-0 top-full z-50 mt-1.5 w-[min(360px,calc(100vw-1.5rem))] overflow-hidden rounded-[--radius] border border-border bg-card shadow-xl"
             >
               <div className="flex items-center justify-between border-b border-border px-3 py-2.5">
                 <div className="flex items-center gap-1.5">
                   <Users
-                    className="h-4 w-4 text-emerald-600"
+                    className="h-4 w-4 text-healthy"
                     weight="duotone"
                   />
-                  <span className="text-xs font-bold text-foreground">
+                  <span className="text-xs font-semibold text-foreground">
                     Membros Conectados
                   </span>
                 </div>
@@ -139,7 +139,7 @@ export default function CrmConnectedUsers({
                 </button>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 border-b border-border bg-muted/60 px-3 py-2">
+              <div className="grid grid-cols-3 gap-2 border-b border-border bg-muted px-3 py-2">
                 <div className="rounded-lg border border-border bg-card px-2 py-1.5 text-center">
                   <p className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
                     Total
@@ -152,7 +152,7 @@ export default function CrmConnectedUsers({
                   <p className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
                     Global
                   </p>
-                  <p className="text-sm font-semibold text-emerald-700">
+                  <p className="text-sm font-semibold text-healthy">
                     {stats.global}
                   </p>
                 </div>
@@ -160,7 +160,7 @@ export default function CrmConnectedUsers({
                   <p className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
                     Campanha
                   </p>
-                  <p className="text-sm font-semibold text-primary">
+                  <p className="text-sm font-semibold text-lamp-ink">
                     {stats.campaign}
                   </p>
                 </div>
@@ -168,7 +168,7 @@ export default function CrmConnectedUsers({
 
               <div className="max-h-[380px] space-y-2 overflow-y-auto px-3 py-2.5">
                 {connectedUsers.length === 0 ? (
-                  <div className="rounded-lg border border-dashed border-border bg-muted/60 px-3 py-6 text-center text-xs text-muted-foreground">
+                  <div className="rounded-lg border border-dashed border-border bg-muted px-3 py-6 text-center text-xs text-muted-foreground">
                     Nenhum usuário conectado
                   </div>
                 ) : (
@@ -186,7 +186,7 @@ export default function CrmConnectedUsers({
                             ID: {formatUserId(user.user_id)}
                           </p>
                         </div>
-                        <span className="flex items-center gap-1 rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white">
+                        <span className="flex items-center gap-1 rounded-[--radius] bg-healthy px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white">
                           <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
                           Online
                         </span>

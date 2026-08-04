@@ -10,7 +10,7 @@ import {
   TelegramLogo,
   Trash,
   Warning,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { useCallback, useEffect, useState } from "react";
 
 import {
@@ -176,9 +176,9 @@ export default function TelegramAccountPage() {
           <h2 className="text-sm font-semibold text-foreground">{t("profile.webhookTitle")}</h2>
           <span
             className={cn(
-              "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+              "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
               account.webhookHealthy
-                ? "bg-emerald-600 text-white"
+                ? "bg-healthy text-white"
                 : "bg-orange-600 text-white",
             )}
           >
@@ -187,7 +187,7 @@ export default function TelegramAccountPage() {
         </div>
 
         {issue === "webhook" && (
-          <p className="flex items-start gap-2 rounded-lg border border-orange-500/30 bg-muted/30 p-3 text-xs leading-relaxed text-foreground">
+          <p className="flex items-start gap-2 rounded-lg border border-orange-500/30 bg-muted p-3 text-xs leading-relaxed text-foreground">
             <Warning weight="fill" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-orange-600 dark:text-orange-500" />
             <span>
               {t("profile.webhookLosingMessages")}
@@ -359,7 +359,7 @@ function CopyButton({ value, label }: { value: string; label: string }) {
       className="inline-flex shrink-0 items-center rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
     >
       {copied ? (
-        <CheckCircle weight="fill" className="h-4 w-4 text-emerald-500" />
+        <CheckCircle weight="fill" className="h-4 w-4 text-healthy" />
       ) : (
         <Copy className="h-4 w-4" />
       )}

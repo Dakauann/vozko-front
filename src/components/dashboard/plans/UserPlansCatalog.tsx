@@ -11,20 +11,15 @@ import {
   Check,
   CircleNotch,
   CopySimple,
-  Crown,
   CurrencyDollar,
-  Headset,
   Microphone,
-  MusicNotes,
   Package,
-  Phone,
   PixLogo,
   Receipt,
   ShieldCheck,
   SpeakerHigh,
-  Sparkle,
   WhatsappLogo,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   ElevatedDialog,
   ElevatedDialogContent,
@@ -35,13 +30,11 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 
 import Button from "@/components/elevated-design/button";
-import Image from "next/image";
 import {
   AffiliateBrandChip,
   type AffiliateBrand,
 } from "@/components/plans/plans-carousel";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
-import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { formatPricingServiceFallback } from "@/lib/branding/ai-models";
 import type { Invoice } from "@/lib/invoices/types";
 import type {
@@ -50,12 +43,8 @@ import type {
 } from "@/lib/workspace-plan/types";
 import { cn } from "@/lib/utils";
 import {
-  estimateCallMinutesFromPlan,
-  estimateCostPerMinuteUSD,
   estimateMessagesByType,
   formatEstimateNumber,
-  formatMicroCostAsBRL,
-  hasTelephonyCapability,
 } from "./plan-estimates";
 import { motion } from "framer-motion";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
@@ -115,17 +104,6 @@ function formatBRLFromCents(cents: number) {
   }).format(cents / 100);
 }
 
-function getStatusClass(status: "active" | "cancelled" | "expired") {
-  switch (status) {
-    case "active":
-      return "bg-emerald-500 text-white";
-    case "cancelled":
-      return "bg-amber-500 text-white";
-    case "expired":
-    default:
-      return "bg-slate-500 text-white";
-  }
-}
 
 interface PlansCatalogResponse {
   plans: PublicPlanDetails[];
@@ -399,32 +377,113 @@ export default function UserPlansCatalog() {
   const selectedIsCurrentPlan = Boolean(
     selectedPlan && currentPlanId === selectedPlan.plan.id,
   );
-  const isUpgrade = Boolean(
-    hasCurrentSubscription &&
-    selectedPlan &&
-    !selectedIsCurrentPlan &&
-    currentPlan &&
-    selectedPlan.plan.basePriceBRLCents > currentPlan.basePriceBRLCents,
-  );
-  const isDowngrade = Boolean(
-    hasCurrentSubscription &&
-    selectedPlan &&
-    !selectedIsCurrentPlan &&
-    currentPlan &&
-    selectedPlan.plan.basePriceBRLCents <= currentPlan.basePriceBRLCents,
-  );
-  const contractLocked =
-    selectedIsCurrentPlan || (hasCurrentSubscription && !isUpgrade);
+  const selectedPlanBillableCount = billableItems(
+    selectedPlan?.plan.pricingItems,
+  ).length;
 
-  const contractButtonTitle = selectedIsCurrentPlan
-    ? t("actions.currentPlan")
-    : isUpgrade
-      ? t("actions.upgrade")
-      : isDowngrade
-        ? t("actions.downgradeBlocked")
-        : !canCreateBilling
-          ? t("actions.noPermission")
-          : t("actions.contract");
+  /**
+   * Contract rules, resolved per plan.
+   *
+   * Every strip in the rack carries its own CTA now, so the rules that used to
+   * apply to "the selected plan" apply to each column. They are unchanged: the
+   * active plan is locked, and a subscribed workspace can only move up — a
+   * downgrade waits for the current period to close.
+   */
+  const contractStateFor = React.useCallback(
+    (item: PublicPlanDetails) => {
+      const isCurrent = currentPlanId === item.plan.id;
+      const isUpgrade = Boolean(
+        hasCurrentSubscription &&
+          !isCurrent &&
+          currentPlan &&
+          item.plan.basePriceBRLCents > currentPlan.basePriceBRLCents,
+      );
+      const isDowngrade = Boolean(
+        hasCurrentSubscription &&
+          !isCurrent &&
+          currentPlan &&
+          item.plan.basePriceBRLCents <= currentPlan.basePriceBRLCents,
+      );
+      const locked = isCurrent || (hasCurrentSubscription && !isUpgrade);
+
+      return {
+        isCurrent,
+        locked,
+        disabled: locked || !canCreateBilling,
+        title: isCurrent
+          ? t("actions.currentPlan")
+          : isUpgrade
+            ? t("actions.upgrade")
+            : isDowngrade
+              ? t("actions.downgradeBlocked")
+              : !canCreateBilling
+                ? t("actions.noPermission")
+                : t("actions.contract"),
+      };
+    },
+    [canCreateBilling, currentPlan, currentPlanId, hasCurrentSubscription, t],
+  );
+
+  // The rack reads as a price ladder, so it runs cheapest to dearest regardless
+  // of which plan is featured; the featured strip is marked, not reordered.
+  const rackPlans = React.useMemo(
+    () =>
+      [...filteredPlans].sort(
+        (a, b) => a.plan.basePriceBRLCents - b.plan.basePriceBRLCents,
+      ),
+    [filteredPlans],
+  );
+
+  const capacityRows: {
+    key: string;
+    label: string;
+    value: (item: PublicPlanDetails) => string;
+  }[] = React.useMemo(
+    () => [
+      {
+        key: "phones",
+        label: t("compare.whatsappPhones"),
+        value: (item) =>
+          String(item.plan.includedWhatsAppBusinessPhones ?? 0),
+      },
+      {
+        key: "tts",
+        label: t("compare.ttsConcurrency"),
+        value: (item) => String(item.plan.maxTtsConcurrency ?? 0),
+      },
+      {
+        key: "items",
+        label: t("compare.pricingItems"),
+        value: (item) => String(billableItems(item.plan.pricingItems).length),
+      },
+    ],
+    [t],
+  );
+
+  // Every category any plan in the rack prices, so a plan that lacks one shows
+  // the gap on the same row instead of simply omitting the line.
+  const compareCategories = React.useMemo(
+    () =>
+      [
+        ...new Set(
+          rackPlans.flatMap((item) =>
+            billableItems(item.plan.pricingItems).map((entry) => entry.category),
+          ),
+        ),
+      ].sort(
+        (a, b) =>
+          (CATEGORY_SORT_ORDER[a] ?? 99) - (CATEGORY_SORT_ORDER[b] ?? 99),
+      ),
+    [rackPlans],
+  );
+
+  const lampTone = !currentSubscription
+    ? null
+    : currentSubscription.status === "active"
+      ? "var(--healthy)"
+      : currentSubscription.status === "cancelled"
+        ? "var(--warning)"
+        : null;
 
   const handleDialogChange = React.useCallback((open: boolean) => {
     setDialogOpen(open);
@@ -440,6 +499,14 @@ export default function UserPlansCatalog() {
     setPixCopied(false);
     setPaymentConfirmed(false);
   }, []);
+
+  const handleContract = React.useCallback(
+    (planId: string) => {
+      setSelectedPlanId(planId);
+      handleDialogChange(true);
+    },
+    [handleDialogChange],
+  );
 
   const handleCreateInvoice = React.useCallback(async () => {
     if (!currentWorkspace?.id || !selectedPlan) {
@@ -542,7 +609,7 @@ export default function UserPlansCatalog() {
     return (
       <div className="flex flex-col items-center justify-center py-32">
         <CircleNotch
-          className="h-8 w-8 animate-spin text-primary"
+          className="h-8 w-8 animate-spin text-lamp-ink"
           weight="bold"
         />
         <p className="mt-3 text-sm text-muted-foreground">{t("loading")}</p>
@@ -553,7 +620,7 @@ export default function UserPlansCatalog() {
   if (!currentWorkspace) {
     return (
       <div
-        className="mx-auto mt-8 max-w-2xl rounded-[26px] border border-border/70 bg-card/90 p-12 text-center"
+        className="mx-auto mt-8 max-w-2xl rounded-[--radius] border border-border bg-card p-12 text-center"
         style={{ boxShadow: softSurfaceShadow }}
       >
         <Package
@@ -573,11 +640,11 @@ export default function UserPlansCatalog() {
   if (!permissionsLoading && !canReadPlans) {
     return (
       <div
-        className="mx-auto mt-8 max-w-2xl rounded-[26px] border border-border/70 bg-card/90 p-12 text-center"
+        className="mx-auto mt-8 max-w-2xl rounded-[--radius] border border-border bg-card p-12 text-center"
         style={{ boxShadow: softSurfaceShadow }}
       >
         <ShieldCheck
-          className="mx-auto mb-4 h-12 w-12 text-amber-500"
+          className="mx-auto mb-4 h-12 w-12 text-warning"
           weight="fill"
         />
         <p className="font-semibold text-foreground">{t("noAccess.title")}</p>
@@ -591,7 +658,7 @@ export default function UserPlansCatalog() {
   if (error) {
     return (
       <div
-        className="mx-auto mt-8 max-w-2xl rounded-[26px] border border-border/70 bg-card/90 p-12 text-center"
+        className="mx-auto mt-8 max-w-2xl rounded-[--radius] border border-border bg-card p-12 text-center"
         style={{ boxShadow: softSurfaceShadow }}
       >
         <Package
@@ -651,581 +718,396 @@ export default function UserPlansCatalog() {
           />
         </motion.div>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          {[
-            {
-              label: t("stats.totalPlans"),
-              value: String(plans.length),
-              helper: t("stats.totalPlansHelper"),
-              icon: <Package className="h-4 w-4 text-white" weight="fill" />,
-              bg: "bg-slate-700",
-            },
-            {
-              label: t("stats.currentPlan"),
-              value: hasCurrentSubscription
-                ? (currentPlan?.name ?? t("stats.none"))
-                : t("stats.none"),
-              helper: hasCurrentSubscription
-                ? formatBRLFromCents(currentPlan?.basePriceBRLCents ?? 0)
-                : t("stats.noSubscription"),
-              icon: <Sparkle className="h-4 w-4 text-white" weight="fill" />,
-              bg: "bg-emerald-500",
-            },
-            {
-              label: t("stats.currentStatus"),
-              value: currentSubscription
-                ? t(`status.${currentSubscription.status}`)
-                : t("stats.available"),
-              helper: currentSubscription
-                ? formatDate(currentSubscription.currentPeriodEnd, locale)
-                : t("stats.readyToContract"),
-              icon: (
-                <CalendarBlank className="h-4 w-4 text-white" weight="fill" />
-              ),
-              bg: "bg-amber-500",
-            },
-          ].map((stat) => (
-            <div
-              key={stat.label}
-              className="rounded-2xl border border-border/70 bg-card/90 p-5"
-              style={{ boxShadow: softSurfaceShadow }}
-            >
-              <div className="flex items-center justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="text-[11px] font-semibold uppercase text-muted-foreground">
-                    {stat.label}
-                  </p>
-                  <p className="mt-2 truncate text-2xl font-semibold text-foreground">
-                    {stat.value}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {stat.helper}
-                  </p>
-                </div>
-                <div
-                  className={cn(
-                    "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl",
-                    stat.bg,
-                  )}
-                >
-                  {stat.icon}
-                </div>
+        {/*
+          MASTER SECTION.
+
+          What was three stat cards plus a large subscription card said the same
+          thing four times: which plan, what status, when it renews. One status
+          bar says it once, in reading order, with the figures in a single row of
+          readouts so the eye lands on values rather than on card chrome.
+        */}
+        <section className="well">
+          <header className="rule-engraved flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-2.5">
+            <p className="legend">
+              {currentSubscription
+                ? t("subscription.badge")
+                : t("subscription.availableBadge")}
+            </p>
+            <p className="legend">{currentWorkspace.name}</p>
+          </header>
+
+          <div className="flex flex-col gap-x-10 gap-y-5 px-4 py-4 xl:flex-row xl:items-center xl:justify-between">
+            <div className="flex min-w-0 items-start gap-3">
+              <span
+                aria-hidden
+                className={cn("lamp mt-1.5", !lampTone && "opacity-20")}
+                style={lampTone ? { background: `hsl(${lampTone})` } : undefined}
+              />
+              <div className="min-w-0">
+                <h2 className="truncate text-[17px] font-semibold tracking-[-0.01em] text-foreground">
+                  {currentPlan?.name ?? t("subscription.noneTitle")}
+                </h2>
+                <p className="mt-1 max-w-[60ch] text-[13px] leading-snug text-muted-foreground">
+                  {subscriptionDescription}
+                </p>
               </div>
             </div>
-          ))}
-        </div>
 
-        <div className="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
-          <section
-            className="space-y-4 rounded-[26px] border border-border/70 bg-card/90 p-5"
-            style={{ boxShadow: softSurfaceShadow }}
-          >
-            <ElevatedInput
-              label={t("filters.search")}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder={t("filters.searchPlaceholder")}
-              value={search}
-            />
-
-            <div className="rounded-2xl border border-border/70 bg-background/80 px-4 py-3">
-              <p className="text-xs font-semibold uppercase text-muted-foreground">
-                {t("filters.workspaceLabel")}
-              </p>
-              <p className="mt-2 text-sm font-medium text-foreground">
-                {currentWorkspace.name}
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              {filteredPlans.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-border/70 bg-background/60 px-4 py-10 text-center">
-                  <Package
-                    className="mx-auto h-8 w-8 text-muted-foreground"
-                    weight="fill"
-                  />
-                  <p className="mt-3 text-sm font-medium text-foreground">
-                    {t("empty.title")}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {t("empty.description")}
-                  </p>
-                </div>
-              ) : (
-                filteredPlans.map((item) => {
-                  const isSelected = item.plan.id === selectedPlan?.plan.id;
-                  const isCurrent = currentPlanId === item.plan.id;
-                  const isExclusive = Boolean(item.plan.exclusiveAffiliateId);
-                  const isFeatured = featuredPlanId === item.plan.id;
-                  const featureCategories = [
-                    ...new Set(
-                      (item.plan.pricingItems ?? [])
-                        .filter((i) => i.category !== "exchange_rate")
-                        .map((i) => i.category),
-                    ),
-                  ];
-
-                  return (
-                    <button
-                      key={item.plan.id}
-                      className={cn(
-                        "w-full rounded-2xl border px-4 py-4 text-left transition-all",
-                        isSelected
-                          ? "border-primary bg-primary/5 shadow-[0_0_0_1px_hsl(var(--primary)/0.2)]"
-                          : isFeatured
-                            ? "border-primary/40 bg-background hover:border-primary/60"
-                            : "border-border/70 bg-background/70 hover:border-primary/30 hover:bg-background",
-                      )}
-                      onClick={() => setSelectedPlanId(item.plan.id)}
-                      type="button"
-                    >
-                      {isFeatured && featuredLabelKey ? (
-                        <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground">
-                          {featuredLabelKey === "exclusive" ? (
-                            <Sparkle className="h-3 w-3" weight="fill" />
-                          ) : (
-                            <Crown className="h-3 w-3" weight="fill" />
-                          )}
-                          {pricingT(featuredLabelKey)}
-                        </div>
-                      ) : null}
-                      {isExclusive && affiliateBrand ? (
-                        <div className="mb-3 flex items-center gap-2.5 border-b border-border/60 pb-2.5">
-                          <span className="relative inline-flex h-8 w-8 shrink-0 items-center justify-center">
-                            {affiliateBrand.brandLogoUrl ? (
-                              <Image
-                                src={affiliateBrand.brandLogoUrl}
-                                alt={
-                                  affiliateBrand.brandName ||
-                                  affiliateBrand.code
-                                }
-                                fill
-                                sizes="32px"
-                                unoptimized
-                                className="object-contain"
-                              />
-                            ) : (
-                              <Sparkle
-                                className="h-4 w-4 text-foreground/70"
-                                weight="fill"
-                              />
-                            )}
-                          </span>
-                          <div className="flex min-w-0 flex-col leading-tight">
-                            <span className="text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                              {pricingT("exclusivePartner")}
-                            </span>
-                            <span className="truncate text-xs font-semibold tracking-tight text-foreground">
-                              {affiliateBrand.brandName || affiliateBrand.code}
-                            </span>
-                          </div>
-                        </div>
-                      ) : null}
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-foreground">
-                            {item.plan.name}
-                          </p>
-                          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                            {item.plan.description || t("list.noDescription")}
-                          </p>
-                        </div>
-                        <span
-                          className={cn(
-                            "rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase",
-                            isCurrent
-                              ? "bg-emerald-500 text-white"
-                              : "bg-slate-500 text-white",
-                          )}
-                        >
-                          {isCurrent ? t("list.current") : t("list.available")}
-                        </span>
-                      </div>
-
-                      <div className="mt-3 flex items-baseline gap-1">
-                        <span className="text-lg font-bold text-foreground">
-                          {formatBRLFromCents(item.plan.basePriceBRLCents)}
-                        </span>
-                        <span className="text-[11px] text-muted-foreground">
-                          {t("detail.perMonth")}
-                        </span>
-                      </div>
-
-                      <div className="mt-3 space-y-1.5">
-                        <div className="flex items-center gap-1.5 text-xs text-foreground">
-                          <Check
-                            className="h-3 w-3 shrink-0 text-emerald-500"
-                            weight="bold"
-                          />
-                          <span>
-                            <span className="font-semibold">
-                              {item.plan.maxCallChannels}
-                            </span>{" "}
-                            {t("list.channels")}
-                          </span>
-                        </div>
-                        {(item.plan.maxBranches ?? 1) > 0 ? (
-                          <div className="flex items-center gap-1.5 text-xs text-foreground">
-                            <Check
-                              className="h-3 w-3 shrink-0 text-emerald-500"
-                              weight="bold"
-                            />
-                            <span>
-                              <span className="font-semibold">
-                                {item.plan.maxBranches ?? 1}
-                              </span>{" "}
-                              {t("list.branches")}
-                            </span>
-                          </div>
-                        ) : null}
-                        {(item.plan.maxHoldMusicTracks ?? 3) > 0 ? (
-                          <div className="flex items-center gap-1.5 text-xs text-foreground">
-                            <Check
-                              className="h-3 w-3 shrink-0 text-emerald-500"
-                              weight="bold"
-                            />
-                            <span>
-                              <span className="font-semibold">
-                                {item.plan.maxHoldMusicTracks ?? 3}
-                              </span>{" "}
-                              {t("list.holdMusic")}
-                            </span>
-                          </div>
-                        ) : null}
-                        {featureCategories.map((cat) => {
-                          const catKey =
-                            `pricing.categories.${cat}` as Parameters<
-                              typeof t
-                            >[0];
-                          return (
-                            <div
-                              key={cat}
-                              className="flex items-center gap-1.5 text-xs text-muted-foreground"
-                            >
-                              <Check
-                                className="h-3 w-3 shrink-0 text-emerald-500"
-                                weight="bold"
-                              />
-                              <span>{t(catKey)}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      <SidebarEstimateBadges
-                        basePriceBRLCents={item.plan.basePriceBRLCents}
-                        items={item.plan.pricingItems ?? []}
-                        exchangeRate={exchangeRate}
-                        locale={locale}
-                        t={t}
-                      />
-                    </button>
-                  );
-                })
-              )}
-            </div>
-          </section>
-
-          <section
-            className="space-y-4 rounded-[26px] border border-border/70 bg-card/90 p-5"
-            style={{ boxShadow: softSurfaceShadow }}
-          >
-            <div className="rounded-2xl border border-border/70 bg-background/60 p-4">
-              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div>
-                  <p className="text-xs font-semibold uppercase text-primary">
-                    {currentSubscription
-                      ? t("subscription.badge")
-                      : t("subscription.availableBadge")}
-                  </p>
-                  <h2 className="mt-2 text-2xl font-semibold text-foreground">
-                    {currentPlan?.name ?? t("subscription.noneTitle")}
-                  </h2>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {subscriptionDescription}
-                  </p>
-                </div>
-
-                {currentSubscription ? (
-                  <span
-                    className={cn(
-                      "inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-semibold uppercase",
-                      getStatusClass(currentSubscription.status),
-                    )}
-                  >
-                    {t(`status.${currentSubscription.status}`)}
-                  </span>
-                ) : null}
-              </div>
-
+            <div className="flex flex-wrap items-end gap-x-10 gap-y-4">
               {currentSubscription ? (
-                <>
-                <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+                <dl className="grid grid-cols-2 gap-x-10 gap-y-4 sm:grid-cols-4">
                   <div>
-                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
-                      {t("subscription.plan")}
-                    </p>
-                    <p className="mt-1 text-sm font-medium text-foreground">
+                    <dt className="legend">{t("subscription.plan")}</dt>
+                    <dd className="mt-1.5 truncate text-[13px] font-medium text-foreground">
                       {currentPlan?.name ?? "-"}
-                    </p>
+                    </dd>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
-                      {t("subscription.period")}
-                    </p>
-                    <p className="mt-1 text-sm text-foreground">
-                      {formatDate(
+                    <dt className="legend">{t("subscription.basePrice")}</dt>
+                    <dd className="readout mt-1.5 text-[13px] font-semibold text-foreground">
+                      {formatBRLFromCents(currentPlan?.basePriceBRLCents ?? 0)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="legend">{t("subscription.period")}</dt>
+                    <dd className="readout mt-1.5 whitespace-nowrap text-[13px] text-foreground">
+                      {formatDateOnly(
                         currentSubscription.currentPeriodStart,
                         locale,
                       )}
-                      {" - "}
-                      {formatDate(currentSubscription.currentPeriodEnd, locale)}
-                    </p>
+                      {" — "}
+                      {formatDateOnly(
+                        currentSubscription.currentPeriodEnd,
+                        locale,
+                      )}
+                    </dd>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
-                      {t("subscription.basePrice")}
-                    </p>
-                    <p className="mt-1 text-sm font-medium text-foreground">
-                      {formatBRLFromCents(currentPlan?.basePriceBRLCents ?? 0)}
-                    </p>
+                    <dt className="legend">{t("stats.currentStatus")}</dt>
+                    <dd className="mt-1.5 text-[13px] font-medium text-foreground">
+                      {t(`status.${currentSubscription.status}`)}
+                    </dd>
+                  </div>
+                </dl>
+              ) : (
+                <dl className="grid grid-cols-2 gap-x-10 gap-y-4">
+                  <div>
+                    <dt className="legend">{t("stats.totalPlans")}</dt>
+                    <dd className="readout mt-1.5 text-[13px] font-semibold text-foreground">
+                      {plans.length}
+                    </dd>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
-                      {t("subscription.channels")}
-                    </p>
-                    <p className="mt-1 text-sm font-medium text-foreground">
-                      {currentPlan?.maxCallChannels ?? 0}
-                    </p>
+                    <dt className="legend">{t("stats.currentStatus")}</dt>
+                    <dd className="mt-1.5 text-[13px] font-medium text-foreground">
+                      {t("stats.available")}
+                    </dd>
                   </div>
-                </div>
-                <p className="mt-4 rounded-xl bg-muted/40 px-3 py-2 text-[11px] leading-relaxed text-muted-foreground">
-                  {t("subscription.billingSummary", {
-                    date: formatDateOnly(currentSubscription.currentPeriodEnd, locale),
-                  })}
-                </p>
-                </>
-              ) : null}
+                </dl>
+              )}
 
               {canCancelSubscription ? (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Button
-                    disabled={cancellingSubscription}
-                    onClick={() => {
-                      void handleCancelSubscription();
-                    }}
-                    title={
-                      cancellingSubscription
-                        ? t("actions.cancelling")
-                        : t("actions.cancelSubscription")
-                    }
-                    variant="outline"
-                  />
-                </div>
+                <Button
+                  disabled={cancellingSubscription}
+                  onClick={() => {
+                    void handleCancelSubscription();
+                  }}
+                  title={
+                    cancellingSubscription
+                      ? t("actions.cancelling")
+                      : t("actions.cancelSubscription")
+                  }
+                  variant="outline"
+                />
               ) : null}
             </div>
+          </div>
 
-            {selectedPlan ? (
-              <div className="rounded-2xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-card p-6">
-                <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span
-                        className={cn(
-                          "inline-flex rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase",
-                          selectedIsCurrentPlan
-                            ? "bg-emerald-500 text-white"
-                            : "bg-primary text-white",
-                        )}
-                      >
-                        {selectedIsCurrentPlan
-                          ? t("detail.currentBadge")
-                          : t("detail.availableBadge")}
-                      </span>
-                      {selectedPlan.plan.exclusiveAffiliateId &&
-                      affiliateBrand ? (
-                        <AffiliateBrandChip brand={affiliateBrand} />
-                      ) : null}
-                    </div>
+          {currentSubscription ? (
+            <p className="border-t border-border/60 px-4 py-2.5 text-[11px] leading-relaxed text-muted-foreground">
+              {t("subscription.billingSummary", {
+                date: formatDateOnly(
+                  currentSubscription.currentPeriodEnd,
+                  locale,
+                ),
+              })}
+            </p>
+          ) : null}
+        </section>
 
-                    <div>
-                      <h3 className="text-2xl font-bold text-foreground">
-                        {selectedPlan.plan.name}
-                      </h3>
-                      <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-                        {selectedPlan.plan.description ||
-                          t("detail.emptyDescription")}
-                      </p>
-                    </div>
+        {/*
+          THE RACK.
 
-                    <div className="flex flex-wrap items-center gap-4 text-sm">
-                      <div className="flex items-center gap-1.5">
-                        <CurrencyDollar
-                          className="h-4 w-4 text-emerald-500"
-                          weight="bold"
-                        />
-                        <span className="font-semibold">
-                          {formatBRLFromCents(
-                            selectedPlan.plan.basePriceBRLCents,
+          Plans are chosen by comparison, and a rail of cards makes that the
+          hardest thing to do: to check whether Scale includes more numbers than
+          Professional you had to select one, read it, select the other, and
+          remember. So the catalogue is a rack of parallel strips over shared
+          rows — every capability sits on one engraved line, and the answer is
+          read across instead of held in memory.
+        */}
+        <section className="well overflow-hidden">
+          <header className="rule-engraved flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2.5">
+            <div className="flex items-baseline gap-2.5">
+              <p className="legend">{t("stats.totalPlans")}</p>
+              <span className="readout text-[11px] text-muted-foreground/60">
+                {String(rackPlans.length).padStart(2, "0")}
+              </span>
+            </div>
+            <input
+              aria-label={t("filters.search")}
+              className="h-8 w-full rounded-[--radius] border border-border border-t-rule-strong bg-background px-2.5 text-[13px] text-foreground outline-none transition placeholder:text-muted-foreground/60 focus:border-primary/50 sm:w-60"
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder={t("filters.search")}
+              type="search"
+              value={search}
+            />
+          </header>
+
+          {rackPlans.length === 0 ? (
+            <div className="px-4 py-16 text-center">
+              <p className="text-sm font-semibold text-foreground">
+                {t("empty.title")}
+              </p>
+              <p className="mt-1 text-[13px] text-muted-foreground">
+                {t("empty.description")}
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-left">
+                <thead>
+                  <tr>
+                    <th
+                      className="sticky left-0 z-10 w-[168px] min-w-[168px] bg-card px-4 pb-4 align-bottom"
+                      scope="col"
+                    >
+                      <span className="sr-only">{t("subscription.plan")}</span>
+                    </th>
+
+                    {rackPlans.map((item, index) => {
+                      const isSelected = item.plan.id === selectedPlan?.plan.id;
+                      const isFeatured = featuredPlanId === item.plan.id;
+                      const state = contractStateFor(item);
+
+                      return (
+                        <th
+                          key={item.plan.id}
+                          className={cn(
+                            "min-w-[204px] border-l border-border/60 px-4 pb-4 align-top font-normal",
+                            isSelected && "bg-muted",
                           )}
-                        </span>
-                        <span className="text-muted-foreground">
-                          {t("detail.perMonth")}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Phone
-                          className="h-4 w-4 text-blue-500"
-                          weight="fill"
-                        />
-                        <span className="font-semibold">
-                          {selectedPlan.plan.maxCallChannels}
-                        </span>
-                        <span className="text-muted-foreground">
-                          {t("detail.channelsIncluded")}
-                        </span>
-                      </div>
-                      {(selectedPlan.plan.maxBranches ?? 1) > 0 ? (
-                        <div className="flex items-center gap-1.5">
-                          <Headset
-                            className="h-4 w-4 text-blue-500"
-                            weight="fill"
-                          />
-                          <span className="font-semibold">
-                            {selectedPlan.plan.maxBranches ?? 1}
-                          </span>
-                          <span className="text-muted-foreground">
-                            {t("detail.branchesIncluded")}
-                          </span>
-                        </div>
-                      ) : null}
-                      {(selectedPlan.plan.maxHoldMusicTracks ?? 3) > 0 ? (
-                        <div className="flex items-center gap-1.5">
-                          <MusicNotes
-                            className="h-4 w-4 text-blue-500"
-                            weight="fill"
-                          />
-                          <span className="font-semibold">
-                            {selectedPlan.plan.maxHoldMusicTracks ?? 3}
-                          </span>
-                          <span className="text-muted-foreground">
-                            {t("detail.holdMusicIncluded")}
-                          </span>
-                        </div>
-                      ) : null}
-                      {selectedPlan.plan.pricingItems &&
-                      selectedPlan.plan.pricingItems.filter(
-                        (i) => i.category !== "exchange_rate",
-                      ).length > 0 ? (
-                        <div className="flex items-center gap-1.5">
-                          <Receipt
-                            className="h-4 w-4 text-amber-500"
-                            weight="fill"
-                          />
-                          <span className="font-semibold">
-                            {
-                              selectedPlan.plan.pricingItems.filter(
-                                (i) => i.category !== "exchange_rate",
-                              ).length
+                          scope="col"
+                        >
+                          {/* The lit rail: which strip the readouts below belong to. */}
+                          <span
+                            aria-hidden
+                            className="mb-4 block h-[3px] w-full"
+                            style={
+                              isSelected
+                                ? { background: "hsl(var(--lamp))" }
+                                : undefined
                             }
-                          </span>
-                          <span className="text-muted-foreground">
-                            {t("detail.pricingItemsIncluded")}
-                          </span>
-                        </div>
-                      ) : null}
-                    </div>
-
-                    {selectedPlan.plan.pricingItems &&
-                    selectedPlan.plan.pricingItems.length > 0 ? (
-                      <SidebarEstimateBadges
-                        basePriceBRLCents={selectedPlan.plan.basePriceBRLCents}
-                        items={selectedPlan.plan.pricingItems}
-                        exchangeRate={exchangeRate}
-                        locale={locale}
-                        t={t}
-                      />
-                    ) : null}
-                  </div>
-
-                  <div className="flex flex-col items-stretch gap-2 lg:items-end">
-                    <div className="text-right">
-                      <p className="text-3xl font-bold text-foreground">
-                        {formatBRLFromCents(
-                          selectedPlan.plan.basePriceBRLCents,
-                        )}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {t("detail.perMonth")}
-                      </p>
-                    </div>
-                    <Button
-                      size="lg"
-                      disabled={
-                        !selectedPlan || contractLocked || !canCreateBilling
-                      }
-                      icon={
-                        creatingInvoice ? (
-                          <CircleNotch
-                            className="h-5 w-5 animate-spin"
-                            weight="bold"
                           />
-                        ) : (
-                          <CurrencyDollar className="h-5 w-5" weight="bold" />
-                        )
-                      }
-                      iconVisible
-                      onClick={() => handleDialogChange(true)}
-                      title={contractButtonTitle}
-                    />
-                    {!contractLocked && canCreateBilling ? (
-                      <div className="space-y-1 text-center lg:text-right">
-                        <p className="text-[11px] text-muted-foreground">
-                          {t("detail.ctaHint")}
-                        </p>
-                        <p className="text-[11px] text-muted-foreground">
-                          {t("detail.scheduleNote")}
-                        </p>
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-dashed border-border/70 bg-background/60 p-8 text-center">
-                <Package
-                  className="mx-auto h-10 w-10 text-muted-foreground"
-                  weight="fill"
-                />
-                <p className="mt-3 font-semibold text-foreground">
-                  {t("detail.emptyTitle")}
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {t("detail.emptyDescription")}
-                </p>
-              </div>
-            )}
 
-            {selectedPlan?.plan.pricingItems &&
-            selectedPlan.plan.pricingItems.length > 0 ? (
+                          <button
+                            aria-pressed={isSelected}
+                            className="block w-full text-left"
+                            onClick={() => setSelectedPlanId(item.plan.id)}
+                            type="button"
+                          >
+                            <span className="flex items-center gap-2">
+                              <span className="readout text-[11px] text-muted-foreground/60">
+                                {String(index + 1).padStart(2, "0")}
+                              </span>
+                              <span className="truncate text-[15px] font-semibold tracking-[-0.01em] text-foreground">
+                                {item.plan.name}
+                              </span>
+                            </span>
+
+                            <span className="mt-2 flex min-h-[22px] flex-wrap items-center gap-1.5">
+                              {isFeatured && featuredLabelKey ? (
+                                <span className="legend inline-flex border border-border border-t-rule-strong bg-background px-1.5 py-1 text-foreground">
+                                  {pricingT(featuredLabelKey)}
+                                </span>
+                              ) : null}
+                              {state.isCurrent ? (
+                                <span className="legend inline-flex border border-border border-t-rule-strong bg-background px-1.5 py-1 text-lamp-ink">
+                                  {t("list.current")}
+                                </span>
+                              ) : null}
+                            </span>
+
+                            <span className="mt-3 flex items-baseline gap-1">
+                              <span className="readout text-[22px] font-semibold leading-none tracking-[-0.02em] text-foreground">
+                                {formatBRLFromCents(item.plan.basePriceBRLCents)}
+                              </span>
+                              <span className="text-[11px] text-muted-foreground">
+                                {t("detail.perMonth")}
+                              </span>
+                            </span>
+
+                            <span className="mt-2 line-clamp-2 block min-h-[32px] text-[12px] leading-snug text-muted-foreground">
+                              {item.plan.description || t("list.noDescription")}
+                            </span>
+                          </button>
+
+                          {item.plan.exclusiveAffiliateId && affiliateBrand ? (
+                            <div className="mt-3">
+                              <AffiliateBrandChip brand={affiliateBrand} />
+                            </div>
+                          ) : null}
+
+                          <Button
+                            className="mt-3 w-full"
+                            disabled={state.disabled}
+                            icon={
+                              creatingInvoice &&
+                              selectedPlan?.plan.id === item.plan.id ? (
+                                <CircleNotch
+                                  className="h-4 w-4 animate-spin"
+                                  weight="bold"
+                                />
+                              ) : (
+                                <CurrencyDollar className="h-4 w-4" weight="bold" />
+                              )
+                            }
+                            iconVisible
+                            onClick={() => handleContract(item.plan.id)}
+                            title={state.title}
+                            variant={
+                              isSelected && !state.disabled
+                                ? "primary"
+                                : "outline"
+                            }
+                          />
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {capacityRows.map((row) => (
+                    <tr key={row.key} className="border-t border-border/50">
+                      <th
+                        className="sticky left-0 z-10 bg-card px-4 py-2.5 text-[12px] font-normal text-muted-foreground"
+                        scope="row"
+                      >
+                        {row.label}
+                      </th>
+                      {rackPlans.map((item) => (
+                        <td
+                          key={item.plan.id}
+                          className={cn(
+                            "readout border-l border-border/60 px-4 py-2.5 text-[13px] font-semibold text-foreground",
+                            item.plan.id === selectedPlan?.plan.id && "bg-muted",
+                          )}
+                        >
+                          {row.value(item)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+
+                  {compareCategories.map((category) => {
+                    const categoryKey =
+                      `pricing.categories.${category}` as Parameters<
+                        typeof t
+                      >[0];
+
+                    return (
+                      <tr key={category} className="border-t border-border/50">
+                        <th
+                          className="sticky left-0 z-10 bg-card px-4 py-2.5 text-[12px] font-normal text-muted-foreground"
+                          scope="row"
+                        >
+                          <span className="flex items-center gap-2">
+                            <CategoryMark category={category} />
+                            {t.has(categoryKey) ? t(categoryKey) : category}
+                          </span>
+                        </th>
+                        {rackPlans.map((item) => {
+                          const included = billableItems(
+                            item.plan.pricingItems,
+                          ).some((entry) => entry.category === category);
+
+                          return (
+                            <td
+                              key={item.plan.id}
+                              className={cn(
+                                "border-l border-border/60 px-4 py-2.5",
+                                item.plan.id === selectedPlan?.plan.id &&
+                                  "bg-muted",
+                              )}
+                            >
+                              {included ? (
+                                <Check
+                                  aria-label={t("compare.included")}
+                                  className="h-3.5 w-3.5 text-healthy"
+                                  weight="bold"
+                                />
+                              ) : (
+                                <span
+                                  aria-label={t("compare.notIncluded")}
+                                  className="text-muted-foreground/40"
+                                  role="img"
+                                >
+                                  —
+                                </span>
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+
+        {/* The selected strip, expanded: what it costs to run, line by line. */}
+        {selectedPlan && selectedPlanBillableCount > 0 ? (
+          <section className="well">
+            <header className="rule-engraved flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-2.5">
+              <div className="flex min-w-0 items-center gap-2.5">
+                <p className="legend">
+                  {selectedIsCurrentPlan
+                    ? t("detail.currentBadge")
+                    : t("detail.availableBadge")}
+                </p>
+                <span aria-hidden className="h-3 w-px bg-border" />
+                <p className="truncate text-[13px] font-semibold text-foreground">
+                  {selectedPlan.plan.name}
+                </p>
+              </div>
+              <p className="readout text-[11px] text-muted-foreground">
+                {formatBRLFromCents(selectedPlan.plan.basePriceBRLCents)}
+                {t("detail.perMonth")}
+              </p>
+            </header>
+
+            <div className="space-y-7 px-4 py-5">
               <PlanEstimatesPanel
                 basePriceBRLCents={selectedPlan.plan.basePriceBRLCents}
-                items={selectedPlan.plan.pricingItems}
+                items={selectedPlan.plan.pricingItems ?? []}
                 exchangeRate={exchangeRate}
                 locale={locale}
                 t={t}
               />
-            ) : null}
-
-            {selectedPlan?.plan.pricingItems &&
-            selectedPlan.plan.pricingItems.length > 0 ? (
               <PlanPricingTable
-                items={selectedPlan.plan.pricingItems}
+                items={selectedPlan.plan.pricingItems ?? []}
                 exchangeRate={exchangeRate}
                 t={t}
               />
-            ) : null}
+            </div>
+
+            <p className="border-t border-border/60 px-4 py-2.5 text-[11px] leading-relaxed text-muted-foreground">
+              {t("detail.ctaHint")} · {t("detail.scheduleNote")}
+            </p>
           </section>
-        </div>
+        ) : null}
       </motion.main>
 
       <ElevatedDialog open={dialogOpen} onOpenChange={handleDialogChange}>
@@ -1253,7 +1135,7 @@ export default function UserPlansCatalog() {
           {generatedInvoice ? (
             <div className="space-y-4">
               {paymentConfirmed ? (
-                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/90 px-4 py-3 text-sm text-emerald-900">
+                <div className="rounded-[--radius] border border-emerald-200 bg-healthy/10/90 px-4 py-3 text-sm text-emerald-900">
                   <p className="font-medium">
                     {t("dialog.paymentConfirmedTitle")}
                   </p>
@@ -1264,7 +1146,7 @@ export default function UserPlansCatalog() {
               ) : null}
 
               <div className="grid gap-4 md:grid-cols-2">
-                <div className="rounded-2xl border border-border/70 bg-background/60 p-4">
+                <div className="rounded-[--radius] border border-border bg-background p-4">
                   <p className="text-[11px] font-semibold uppercase text-muted-foreground">
                     {t("dialog.amount")}
                   </p>
@@ -1274,7 +1156,7 @@ export default function UserPlansCatalog() {
                     )}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-border/70 bg-background/60 p-4">
+                <div className="rounded-[--radius] border border-border bg-background p-4">
                   <p className="text-[11px] font-semibold uppercase text-muted-foreground">
                     {t("dialog.method")}
                   </p>
@@ -1284,7 +1166,7 @@ export default function UserPlansCatalog() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-border/70 bg-background/60 p-4">
+              <div className="rounded-[--radius] border border-border bg-background p-4">
                 <p className="text-[11px] font-semibold uppercase text-muted-foreground">
                   {t("dialog.status")}
                 </p>
@@ -1297,16 +1179,16 @@ export default function UserPlansCatalog() {
               </div>
 
               {generatedInvoice.billingType === "PIX" ? (
-                <div className="space-y-4 rounded-2xl border border-border/70 bg-background/60 p-4">
+                <div className="space-y-4 rounded-[--radius] border border-border bg-background p-4">
                   <div className="flex flex-col items-center gap-4">
                     {generatedInvoice.pixQrCode ? (
                       <img
                         src={`data:image/png;base64,${generatedInvoice.pixQrCode}`}
                         alt="PIX QR Code"
-                        className="h-48 w-48 rounded-2xl border border-border"
+                        className="h-48 w-48 rounded-[--radius] border border-border"
                       />
                     ) : (
-                      <div className="flex h-48 w-48 items-center justify-center rounded-2xl border-2 border-dashed border-border bg-muted/50">
+                      <div className="flex h-48 w-48 items-center justify-center rounded-[--radius] border border-dashed border-border bg-muted">
                         <div className="flex flex-col items-center gap-2 text-muted-foreground">
                           <PixLogo className="h-12 w-12" weight="duotone" />
                           <span className="text-xs">
@@ -1321,7 +1203,7 @@ export default function UserPlansCatalog() {
                   </div>
 
                   {generatedInvoice.pixCopy ? (
-                    <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/50 p-3">
+                    <div className="flex items-center gap-2 rounded-[--radius] border border-border bg-muted p-3">
                       <code className="flex-1 truncate text-xs text-muted-foreground">
                         {generatedInvoice.pixCopy}
                       </code>
@@ -1332,7 +1214,7 @@ export default function UserPlansCatalog() {
                       >
                         {pixCopied ? (
                           <Check
-                            className="h-4 w-4 text-emerald-500"
+                            className="h-4 w-4 text-healthy"
                             weight="bold"
                           />
                         ) : (
@@ -1345,10 +1227,10 @@ export default function UserPlansCatalog() {
               ) : null}
 
               {generatedInvoice.billingType === "BOLETO" ? (
-                <div className="space-y-4 rounded-2xl border border-border/70 bg-background/60 p-4">
+                <div className="space-y-4 rounded-[--radius] border border-border bg-background p-4">
                   <div className="flex min-h-0 flex-1 flex-col items-center gap-4">
                     {generatedInvoice.bankSlipUrl ? (
-                      <div className="min-h-0 w-full flex-1 overflow-hidden rounded-2xl border border-border">
+                      <div className="min-h-0 w-full flex-1 overflow-hidden rounded-[--radius] border border-border">
                         <iframe
                           src={generatedInvoice.bankSlipUrl}
                           className="h-full min-h-[420px] w-full"
@@ -1356,7 +1238,7 @@ export default function UserPlansCatalog() {
                         />
                       </div>
                     ) : (
-                      <div className="flex h-32 w-full items-center justify-center rounded-2xl border-2 border-dashed border-border bg-muted/50">
+                      <div className="flex h-32 w-full items-center justify-center rounded-[--radius] border border-dashed border-border bg-muted">
                         <div className="flex flex-col items-center gap-2 text-muted-foreground">
                           <Barcode className="h-12 w-12" weight="duotone" />
                           <span className="text-xs">
@@ -1416,10 +1298,10 @@ export default function UserPlansCatalog() {
               return (
                 <div className="space-y-5">
                   {/* ── Plan summary ── */}
-                  <div className="rounded-2xl border border-border/70 bg-background/60 p-5">
+                  <div className="rounded-[--radius] border border-border bg-background p-5">
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
-                        <p className="text-xs font-semibold uppercase text-primary tracking-wide">
+                        <p className="text-xs font-semibold uppercase text-lamp-ink tracking-wide">
                           {selectedPlan?.plan.name ?? t("detail.emptyTitle")}
                         </p>
                         <p className="mt-1.5 text-sm text-muted-foreground line-clamp-2">
@@ -1428,20 +1310,13 @@ export default function UserPlansCatalog() {
                         </p>
                       </div>
                       <div className="shrink-0 text-right">
-                        <p className="text-lg font-bold text-foreground tabular-nums">
+                        <p className="text-lg font-semibold text-foreground tabular-nums">
                           {formatBRLFromCents(baseCents)}
                         </p>
                         <p className="text-[11px] text-muted-foreground">
                           {t("detail.perMonth")}
                         </p>
                       </div>
-                    </div>
-                    <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1.5">
-                        <Phone className="h-3.5 w-3.5" weight="fill" />
-                        {selectedPlan?.plan.maxCallChannels ?? 0}{" "}
-                        {t("detail.channels")}
-                      </span>
                     </div>
                   </div>
 
@@ -1462,7 +1337,7 @@ export default function UserPlansCatalog() {
                               weight="bold"
                             />
                           ),
-                          bg: "bg-blue-500",
+                          bg: "bg-muted",
                         },
                         {
                           value: "annual" as const,
@@ -1484,16 +1359,16 @@ export default function UserPlansCatalog() {
                               weight="fill"
                             />
                           ),
-                          bg: "bg-violet-500",
+                          bg: "bg-muted",
                         },
                       ].map((option) => (
                         <button
                           key={option.value}
                           className={cn(
-                            "rounded-2xl border p-4 text-left transition-all",
+                            "rounded-[--radius] border p-4 text-left transition-all",
                             billingCycle === option.value
-                              ? "border-primary bg-primary/5 shadow-[0_0_0_1px_hsl(var(--primary)/0.2)]"
-                              : "border-border/70 bg-background/60 hover:border-primary/30",
+                              ? "border-primary bg-muted"
+                              : "border-border bg-background hover:border-primary/30",
                           )}
                           onClick={() => setBillingCycle(option.value)}
                           type="button"
@@ -1501,7 +1376,7 @@ export default function UserPlansCatalog() {
                           <div className="flex items-start gap-3">
                             <div
                               className={cn(
-                                "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl",
+                                "flex h-10 w-10 shrink-0 items-center justify-center rounded-[--radius]",
                                 option.bg,
                               )}
                             >
@@ -1538,7 +1413,7 @@ export default function UserPlansCatalog() {
                               weight="fill"
                             />
                           ),
-                          bg: "bg-emerald-500",
+                          bg: "bg-healthy",
                         },
                         {
                           value: "BOLETO" as const,
@@ -1550,16 +1425,16 @@ export default function UserPlansCatalog() {
                               weight="bold"
                             />
                           ),
-                          bg: "bg-amber-500",
+                          bg: "bg-warning",
                         },
                       ].map((method) => (
                         <button
                           key={method.value}
                           className={cn(
-                            "rounded-2xl border p-4 text-left transition-all",
+                            "rounded-[--radius] border p-4 text-left transition-all",
                             paymentMethod === method.value
-                              ? "border-primary bg-primary/5 shadow-[0_0_0_1px_hsl(var(--primary)/0.2)]"
-                              : "border-border/70 bg-background/60 hover:border-primary/30",
+                              ? "border-primary bg-muted"
+                              : "border-border bg-background hover:border-primary/30",
                           )}
                           onClick={() => setPaymentMethod(method.value)}
                           type="button"
@@ -1567,7 +1442,7 @@ export default function UserPlansCatalog() {
                           <div className="flex items-start gap-3">
                             <div
                               className={cn(
-                                "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl",
+                                "flex h-10 w-10 shrink-0 items-center justify-center rounded-[--radius]",
                                 method.bg,
                               )}
                             >
@@ -1588,7 +1463,7 @@ export default function UserPlansCatalog() {
                   </div>
 
                   {/* ── Order summary ── */}
-                  <div className="rounded-2xl border border-border/70 bg-muted/30 p-4 space-y-2">
+                  <div className="rounded-[--radius] border border-border bg-muted p-4 space-y-2">
                     <p className="text-xs font-semibold uppercase text-muted-foreground tracking-wide">
                       {t("dialog.orderSummary")}
                     </p>
@@ -1605,12 +1480,12 @@ export default function UserPlansCatalog() {
                     </div>
                     {hasDiscount && (
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-emerald-600">
+                        <span className="text-healthy">
                           {t("dialog.discountLabel", {
                             discount: String(annualDiscountPct),
                           })}
                         </span>
-                        <span className="font-medium tabular-nums text-emerald-600">
+                        <span className="font-medium tabular-nums text-healthy">
                           -
                           {formatBRLFromCents(
                             totalCentsNoDiscount - totalCents,
@@ -1618,24 +1493,24 @@ export default function UserPlansCatalog() {
                         </span>
                       </div>
                     )}
-                    <div className="border-t border-border/50 pt-2 flex items-center justify-between">
+                    <div className="border-t border-border pt-2 flex items-center justify-between">
                       <span className="text-sm font-semibold text-foreground">
                         {t("dialog.totalLabel")}
                       </span>
-                      <span className="text-lg font-bold tabular-nums text-foreground">
+                      <span className="text-lg font-semibold tabular-nums text-foreground">
                         {formatBRLFromCents(totalCents)}
                       </span>
                     </div>
                   </div>
 
-                  <p className="rounded-2xl bg-muted/30 px-4 py-3 text-[11px] leading-relaxed text-muted-foreground">
+                  <p className="rounded-[--radius] bg-muted px-4 py-3 text-[11px] leading-relaxed text-muted-foreground">
                     {isAnnual
                       ? t("dialog.scheduleNoteAnnual")
                       : t("dialog.scheduleNoteMonthly")}
                   </p>
 
                   {invoiceError ? (
-                    <div className="rounded-2xl border border-red-600 bg-red-500 px-4 py-3 text-sm text-white">
+                    <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-white">
                       {invoiceError}
                     </div>
                   ) : null}
@@ -1677,11 +1552,24 @@ export default function UserPlansCatalog() {
 
 const CATEGORY_SORT_ORDER: Record<string, number> = {
   whatsapp: 0,
-  telephony: 2,
+  sms: 1,
   stt: 3,
   tts: 4,
   llm: 5,
 };
+
+/**
+ * Categories a customer must never be shown.
+ *
+ * `exchange_rate` is a system row, and `telephony` is the SIP catalogue left
+ * over from the VoIP era — the product no longer sells call capacity, so a plan
+ * must not advertise it even when the backend taxonomy still carries the rows.
+ */
+const HIDDEN_CATEGORIES = new Set(["exchange_rate", "telephony"]);
+
+function billableItems(items: { category: string }[] | undefined) {
+  return (items ?? []).filter((item) => !HIDDEN_CATEGORIES.has(item.category));
+}
 
 function formatUSD(micros: number) {
   const dollars = micros / 1_000_000;
@@ -1703,32 +1591,52 @@ function formatBRLPrice(micros: number, exchangeRate: number) {
   }).format(brl);
 }
 
-const CATEGORY_CONFIG: Record<
-  string,
-  { icon: React.ReactNode; colorClass: string }
-> = {
-  whatsapp: {
-    icon: <WhatsappLogo className="h-4 w-4 text-white" weight="fill" />,
-    colorClass: "bg-emerald-500",
-  },
-  telephony: {
-    icon: <Phone className="h-4 w-4 text-white" weight="fill" />,
-    colorClass: "bg-violet-500",
-  },
-  stt: {
-    icon: <Microphone className="h-4 w-4 text-white" weight="fill" />,
-    colorClass: "bg-amber-500",
-  },
-  tts: {
-    icon: <SpeakerHigh className="h-4 w-4 text-white" weight="fill" />,
-    colorClass: "bg-rose-500",
-  },
-  llm: {
-    icon: <Brain className="h-4 w-4 text-white" weight="fill" />,
-    colorClass: "bg-slate-700",
-  },
+/**
+ * Category marks.
+ *
+ * Not filled tiles: a patch bay colour-codes with ink on the same plate, so
+ * each category gets a chart ink and a glyph at label size, and the plate stays
+ * the panel it is engraved on.
+ */
+const CATEGORY_INK: Record<string, { ink: string; glyph: React.ReactNode }> = {
+  whatsapp: { ink: "ink-2", glyph: <WhatsappLogo className="h-3.5 w-3.5" /> },
+  sms: { ink: "ink-1", glyph: <ChatCircle className="h-3.5 w-3.5" /> },
+  stt: { ink: "ink-4", glyph: <Microphone className="h-3.5 w-3.5" /> },
+  tts: { ink: "ink-5", glyph: <SpeakerHigh className="h-3.5 w-3.5" /> },
+  llm: { ink: "ink-3", glyph: <Brain className="h-3.5 w-3.5" /> },
 };
 
+export function CategoryMark({
+  category,
+  className,
+}: {
+  category: string;
+  className?: string;
+}) {
+  const config = CATEGORY_INK[category];
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        "inline-flex shrink-0 items-center justify-center",
+        config?.ink ?? "text-muted-foreground",
+        className,
+      )}
+    >
+      {config?.glyph ?? <Package className="h-3.5 w-3.5" />}
+    </span>
+  );
+}
+
+/**
+ * The plan's price list.
+ *
+ * Prices are read by comparison — this line against the one below it, BRL
+ * against USD — which a grid of bordered mini-cards actively prevents: every
+ * amount starts at a different x. So it is one table, category by category,
+ * with the figures right-aligned in tabular columns and the category names
+ * engraved across the width rather than boxed.
+ */
 export function PlanPricingTable({
   items,
   exchangeRate,
@@ -1749,7 +1657,7 @@ export function PlanPricingTable({
     // never our markup. The backend also strips markupPct/costMicros from customer plan responses.
     const filtered = items.filter(
       (i) =>
-        i.category !== "exchange_rate" &&
+        !HIDDEN_CATEGORIES.has(i.category) &&
         i.category !== "llm" &&
         i.metric !== "percentage",
     );
@@ -1771,59 +1679,72 @@ export function PlanPricingTable({
   }
 
   return (
-    <div className="space-y-4">
-      <div>
-        <p className="text-xs font-semibold uppercase text-primary">
-          {t("pricing.title")}
-        </p>
-        <p className="mt-1 text-sm text-muted-foreground">
+    <div>
+      <div className="rule-engraved pb-2.5">
+        <p className="legend">{t("pricing.title")}</p>
+        <p className="mt-1.5 max-w-[74ch] text-[13px] leading-snug text-muted-foreground">
           {t("pricing.description")}
         </p>
-        <p className="mt-1 text-[11px] text-muted-foreground/70">
+        <p className="readout mt-1 text-[11px] text-muted-foreground/70">
           {t("pricing.exchangeRateHint", {
             rate: `1 USD = ${exchangeRate.toFixed(2)} BRL`,
           })}
         </p>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {grouped.map(([category, categoryItems]) => {
-          const config = CATEGORY_CONFIG[category];
-          const categoryKey = `pricing.categories.${category}` as Parameters<
-            typeof t
-          >[0];
-          const categoryDescKey =
-            `pricing.categoryDescriptions.${category}` as Parameters<
+      <div className="-mx-1 overflow-x-auto px-1">
+        <table className="w-full min-w-[520px] border-collapse text-left">
+          <thead>
+            <tr className="rule-engraved">
+              <th className="legend py-2 pr-3 font-semibold" scope="col">
+                {t("pricing.columns.service")}
+              </th>
+              <th className="legend px-3 py-2 font-semibold" scope="col">
+                {t("pricing.columns.metric")}
+              </th>
+              <th
+                className="legend px-3 py-2 text-right font-semibold"
+                scope="col"
+              >
+                BRL
+              </th>
+              <th className="legend py-2 pl-3 text-right font-semibold" scope="col">
+                USD
+              </th>
+            </tr>
+          </thead>
+
+          {grouped.map(([category, categoryItems]) => {
+            const categoryKey = `pricing.categories.${category}` as Parameters<
               typeof t
             >[0];
+            const categoryDescKey =
+              `pricing.categoryDescriptions.${category}` as Parameters<
+                typeof t
+              >[0];
 
-          return (
-            <div
-              key={category}
-              className="overflow-hidden rounded-2xl border border-border/70 bg-background/60"
-            >
-              <div className="flex items-center gap-3 border-b border-border/50 bg-muted/30 px-4 py-3">
-                <div
-                  className={cn(
-                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl",
-                    config?.colorClass ?? "bg-slate-500",
-                  )}
-                >
-                  {config?.icon ?? (
-                    <Package className="h-4 w-4 text-white" weight="fill" />
-                  )}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-foreground">
-                    {t(categoryKey)}
-                  </p>
-                  <p className="line-clamp-1 text-[11px] text-muted-foreground">
-                    {t(categoryDescKey)}
-                  </p>
-                </div>
-              </div>
+            return (
+              <tbody key={category}>
+                <tr>
+                  <th className="pb-1.5 pt-5" colSpan={4} scope="colgroup">
+                    <span className="flex items-center gap-2">
+                      <CategoryMark category={category} />
+                      <span className="legend text-foreground">
+                        {t.has(categoryKey) ? t(categoryKey) : category}
+                      </span>
+                      {t.has(categoryDescKey) ? (
+                        <span className="hidden whitespace-nowrap text-[11px] font-normal text-muted-foreground sm:inline">
+                          {t(categoryDescKey)}
+                        </span>
+                      ) : null}
+                      <span
+                        aria-hidden
+                        className="h-px min-w-4 flex-1 bg-border"
+                      />
+                    </span>
+                  </th>
+                </tr>
 
-              <div className="divide-y divide-border/40">
                 {categoryItems
                   .sort((a, b) => a.service.localeCompare(b.service))
                   .map((item) => {
@@ -1837,50 +1758,47 @@ export function PlanPricingTable({
                       >[0];
 
                     return (
-                      <div
+                      <tr
                         key={`${item.service}-${item.metric}`}
-                        className="px-4 py-3"
+                        className="border-b border-border/50 last:border-b-0"
                       >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-foreground">
-                              {t.has(serviceKey)
-                                ? t(serviceKey)
-                                : formatPricingServiceFallback(item.service)}
-                            </p>
-                            <p className="text-[11px] text-muted-foreground">
-                              {t(metricKey)}
-                            </p>
-                          </div>
-                          <div className="shrink-0 text-right">
-                            <p className="text-sm font-semibold tabular-nums text-foreground">
-                              {formatBRLPrice(item.priceMicros, exchangeRate)}
-                            </p>
-                            <p className="text-[11px] tabular-nums text-muted-foreground">
-                              {formatUSD(item.priceMicros)}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
+                        <th
+                          className="py-2 pr-3 text-[13px] font-medium text-foreground"
+                          scope="row"
+                        >
+                          {t.has(serviceKey)
+                            ? t(serviceKey)
+                            : formatPricingServiceFallback(item.service)}
+                        </th>
+                        <td className="px-3 py-2 text-[12px] text-muted-foreground">
+                          {/* An unmapped metric would otherwise print its i18n path. */}
+                          {t.has(metricKey) ? t(metricKey) : item.metric}
+                        </td>
+                        <td className="readout px-3 py-2 text-right text-[13px] font-semibold text-foreground">
+                          {formatBRLPrice(item.priceMicros, exchangeRate)}
+                        </td>
+                        <td className="readout py-2 pl-3 text-right text-[12px] text-muted-foreground">
+                          {formatUSD(item.priceMicros)}
+                        </td>
+                      </tr>
                     );
                   })}
-              </div>
-            </div>
-          );
-        })}
+              </tbody>
+            );
+          })}
+        </table>
       </div>
     </div>
   );
 }
 
-
-const MSG_ICON_MAP: Record<string, React.ReactNode> = {
-  whatsapp: <WhatsappLogo className="h-4 w-4 text-white" weight="fill" />,
-};
-const MSG_COLOR_MAP: Record<string, string> = {
-  whatsapp: "bg-emerald-500",
-};
-
+/**
+ * What the base price buys, in message counts.
+ *
+ * The call-minutes estimate that used to sit here was priced off SIP trunking;
+ * it went with the rest of the VoIP surface. What remains is a readout, not a
+ * set of stat cards — same figures, aligned in one column so they compare.
+ */
 export function PlanEstimatesPanel({
   basePriceBRLCents,
   items,
@@ -1903,188 +1821,45 @@ export function PlanEstimatesPanel({
     () => estimateMessagesByType(basePriceBRLCents, items, exchangeRate),
     [basePriceBRLCents, items, exchangeRate],
   );
-  const callEstimate = React.useMemo(
-    () => estimateCallMinutesFromPlan(basePriceBRLCents, items, exchangeRate),
-    [basePriceBRLCents, items, exchangeRate],
-  );
-  const costPerMin = React.useMemo(
-    () => estimateCostPerMinuteUSD(items),
-    [items],
-  );
-  const hasTelephony = React.useMemo(
-    () => hasTelephonyCapability(items),
-    [items],
-  );
 
-  if (msgEstimates.length === 0 && !callEstimate && !hasTelephony) return null;
+  if (msgEstimates.length === 0) return null;
 
   return (
-    <div className="space-y-3">
-      <div>
-        <p className="text-xs font-semibold uppercase text-primary">
-          {t("estimates.title")}
-        </p>
-        <p className="mt-1 text-[11px] text-muted-foreground">
+    <div>
+      <div className="rule-engraved pb-2.5">
+        <p className="legend">{t("estimates.title")}</p>
+        <p className="mt-1.5 max-w-[74ch] text-[13px] leading-snug text-muted-foreground">
           {t("estimates.description")}
         </p>
       </div>
 
-      {/* Per-service message estimates */}
-      {msgEstimates.length > 0 ? (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {msgEstimates.map((est) => {
-            const serviceKey =
-              `estimates.serviceLabel.${est.category}.${est.service}` as Parameters<
-                typeof t
-              >[0];
-            return (
-              <div
-                key={`${est.category}-${est.service}`}
-                className="rounded-2xl border border-border/70 bg-background/60 p-4"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div
-                    className={cn(
-                      "flex h-8 w-8 items-center justify-center rounded-xl",
-                      MSG_COLOR_MAP[est.category] ?? "bg-slate-500",
-                    )}
-                  >
-                    {MSG_ICON_MAP[est.category] ?? (
-                      <ChatCircle
-                        className="h-4 w-4 text-white"
-                        weight="fill"
-                      />
-                    )}
-                  </div>
-                  <p className="text-sm font-semibold text-foreground">
-                    {t(serviceKey)}
-                  </p>
-                </div>
-                <p className="mt-3 text-2xl font-bold tabular-nums text-foreground">
-                  ~{formatEstimateNumber(est.count, locale)}
-                </p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
+      <dl className="mt-1 grid gap-x-10 sm:grid-cols-2 xl:grid-cols-3">
+        {msgEstimates.map((est) => {
+          const serviceKey =
+            `estimates.serviceLabel.${est.category}.${est.service}` as Parameters<
+              typeof t
+            >[0];
+          return (
+            <div
+              key={`${est.category}-${est.service}`}
+              className="flex items-baseline justify-between gap-3 border-b border-border/50 py-2.5"
+            >
+              <dt className="flex min-w-0 items-center gap-2 text-[13px] text-muted-foreground">
+                <CategoryMark category={est.category} />
+                <span className="truncate">
+                  {t.has(serviceKey) ? t(serviceKey) : est.service}
+                </span>
+              </dt>
+              <dd className="readout shrink-0 text-[15px] font-semibold text-foreground">
+                ~{formatEstimateNumber(est.count, locale)}
+                <span className="ml-1 text-[11px] font-normal text-muted-foreground">
                   {t("estimates.messagesLabel")}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-      ) : null}
-
-      {/* Telephony / call minutes */}
-      {callEstimate || hasTelephony ? (
-        <div className="rounded-2xl border border-border/70 bg-background/60 p-4">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-500">
-              <Phone className="h-4 w-4 text-white" weight="fill" />
+                </span>
+              </dd>
             </div>
-            <div>
-              <p className="text-sm font-semibold text-foreground">
-                {t("estimates.callMinutesTitle")}
-              </p>
-              {hasTelephony ? (
-                <p className="text-[11px] text-emerald-600">
-                  {t("estimates.telephonyCapable")}
-                </p>
-              ) : null}
-            </div>
-          </div>
-          {callEstimate ? (
-            <>
-              <p className="mt-3 text-2xl font-bold tabular-nums text-foreground">
-                ~{formatEstimateNumber(callEstimate, locale)}
-              </p>
-              <p className="mt-0.5 text-xs text-muted-foreground">
-                {t("estimates.minutesLabel")}
-              </p>
-            </>
-          ) : null}
-          {costPerMin ? (
-            <div className="mt-2 rounded-xl border border-border/50 bg-muted/30 px-2.5 py-1.5">
-              <p className="text-[11px] font-medium tabular-nums text-foreground">
-                {t("estimates.costPerMinute")}:{" "}
-                {formatMicroCostAsBRL(costPerMin, exchangeRate)}/min
-              </p>
-              <p className="text-[10px] text-muted-foreground">
-                {t("estimates.costPerMinuteHint")}
-              </p>
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-
-const SIDEBAR_ICON_MAP: Record<string, React.ReactNode> = {
-  whatsapp: (
-    <WhatsappLogo className="h-3 w-3 shrink-0 text-emerald-500" weight="fill" />
-  ),
-};
-
-function SidebarEstimateBadges({
-  basePriceBRLCents,
-  items,
-  exchangeRate,
-  locale,
-  t,
-}: {
-  basePriceBRLCents: number;
-  items: {
-    category: string;
-    service: string;
-    metric: string;
-    priceMicros: number;
-  }[];
-  exchangeRate: number;
-  locale: string;
-  t: ReturnType<typeof useTranslations<"plansPage">>;
-}) {
-  const msgEstimates = React.useMemo(
-    () => estimateMessagesByType(basePriceBRLCents, items, exchangeRate),
-    [basePriceBRLCents, items, exchangeRate],
-  );
-  const callEstimate = React.useMemo(
-    () => estimateCallMinutesFromPlan(basePriceBRLCents, items, exchangeRate),
-    [basePriceBRLCents, items, exchangeRate],
-  );
-
-  if (msgEstimates.length === 0 && !callEstimate) return null;
-
-  return (
-    <div className="mt-3 space-y-1.5">
-      {msgEstimates.map((est) => (
-        <div
-          key={`${est.category}-${est.service}`}
-          className="flex items-center gap-1.5 text-xs text-muted-foreground"
-        >
-          {SIDEBAR_ICON_MAP[est.category] ?? (
-            <ChatCircle
-              className="h-3 w-3 shrink-0 text-emerald-500"
-              weight="fill"
-            />
-          )}
-          <span>
-            ~{formatEstimateNumber(est.count, locale)}{" "}
-            {t(
-              `estimates.serviceLabel.${est.category}.${est.service}` as Parameters<
-                typeof t
-              >[0],
-            )}
-          </span>
-        </div>
-      ))}
-      {callEstimate ? (
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Phone className="h-3 w-3 shrink-0 text-blue-500" weight="fill" />
-          <span>
-            ~{formatEstimateNumber(callEstimate, locale)}{" "}
-            {t("estimates.minutesLabel")}
-          </span>
-        </div>
-      ) : null}
+          );
+        })}
+      </dl>
     </div>
   );
 }

@@ -10,7 +10,7 @@ import {
   SignOut,
   Gear,
   ShieldCheck,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -64,11 +64,11 @@ function DropdownLink({
       <Link
         href={href}
         className={cn(
-          "group flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm",
+          "group flex w-full items-center gap-3 rounded-[--radius] px-3 py-2 text-left text-sm",
           "transition-colors focus-visible:outline-none focus-visible:ring-2",
           isDark
             ? "text-gray-200 hover:bg-white/10 focus-visible:ring-white/20"
-            : "text-foreground hover:bg-muted focus-visible:ring-primary/20",
+            : "text-foreground hover:bg-muted focus-visible:ring-ring",
         )}
       >
         <span
@@ -129,17 +129,17 @@ function DropdownButton({
         type="button"
         onClick={onClick}
         className={cn(
-          "group flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-medium",
+          "group flex w-full items-center gap-3 rounded-[--radius] px-3 py-2 text-left text-sm font-medium",
           "transition-colors focus-visible:outline-none focus-visible:ring-2",
           isDark
-            ? "text-red-300 hover:bg-red-500/10 focus-visible:ring-red-500/40"
-            : "text-red-600 hover:bg-destructive/10 focus-visible:ring-red-300/60",
+            ? "text-red-300 hover:bg-destructive/10 focus-visible:ring-red-500/40"
+            : "text-destructive hover:bg-destructive/10 focus-visible:ring-red-300/60",
         )}
       >
         <span
           className={cn(
             "flex h-9 w-9 items-center justify-center rounded-lg",
-            "bg-red-500 text-white",
+            "bg-destructive text-white",
           )}
         >
           <Icon className="h-4 w-4" weight="bold" />
@@ -204,11 +204,11 @@ export function UserDropdown({
         <motion.button
           whileTap={{ scale: 0.98 }}
           className={cn(
-            "group flex items-center gap-3 rounded-full px-3 py-1.5 text-left text-sm font-medium",
+            "group flex items-center gap-3 rounded-[--radius] px-3 py-1.5 text-left text-sm font-medium",
             tone === "dark"
               ? "text-white hover:bg-white/10"
               : "text-foreground hover:bg-muted",
-            "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20",
+            "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           )}
         >
           <span
@@ -277,7 +277,7 @@ export function UserDropdown({
             exit={{ opacity: 0, scale: 0.96, y: -8 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
             className={cn(
-              "overflow-hidden rounded-2xl border p-3 shadow-lg",
+              "overflow-hidden rounded-[--radius] border p-3 shadow-lg",
               tone === "dark"
                 ? "border-white/10 bg-black"
                 : "border-border bg-card",
@@ -286,7 +286,7 @@ export function UserDropdown({
             <div className="space-y-4">
               <div
                 className={cn(
-                  "rounded-xl p-3",
+                  "rounded-[--radius] p-3",
                   tone === "dark" ? "bg-white/5" : "bg-muted",
                 )}
               >
@@ -322,7 +322,7 @@ export function UserDropdown({
                     </p>
                     <span
                       className={cn(
-                        "mt-2 inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-[11px] font-medium",
+                        "mt-2 inline-flex items-center gap-2 rounded-[--radius] px-2.5 py-1 text-[11px] font-medium",
                         tone === "dark"
                           ? "bg-white/10 text-gray-200"
                           : "bg-card text-muted-foreground",
@@ -333,7 +333,7 @@ export function UserDropdown({
                     {user.role === "admin" ? (
                       <span
                         className={cn(
-                          "ml-2 inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-semibold uppercase tracking-wide",
+                          "ml-2 inline-flex items-center gap-1 rounded-[--radius] px-2 py-1 text-[11px] font-semibold uppercase tracking-wide",
                           tone === "dark"
                             ? "bg-card text-foreground"
                             : "bg-foreground text-white",

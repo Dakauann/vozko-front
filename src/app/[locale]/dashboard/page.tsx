@@ -4,15 +4,11 @@ import {
   ArrowRight,
   ChartBar,
   ChatCircle,
-  Clock,
-  Phone,
-  PlusCircle,
-  Pulse,
   Robot,
   Users,
   Wallet,
   WhatsappLogo,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type {
   AttendantStats,
   WindowStats,
@@ -21,18 +17,16 @@ import {
   getAttendanceStatsAction,
   getWindowStatsAction,
 } from "@/app/actions/attendance";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
-import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import Link from "next/link";
 import type { WhatsAppCampaign } from "@/lib/whatsapp-campaigns/types";
 import { listWhatsAppCampaignsAction } from "@/app/actions/whatsapp-campaigns";
 import { motion } from "framer-motion";
-import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { cn } from "@/lib/utils";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
 const containerVariants = {
@@ -58,13 +52,6 @@ const itemVariants = {
 };
 
 
-const STATUS_COLORS: Record<string, string> = {
-  RUNNING: "bg-emerald-500 text-white",
-  PAUSED: "bg-amber-500 text-white",
-  STOPPED: "bg-slate-500 text-white",
-  COMPLETED: "bg-primary text-primary-foreground",
-};
-
 const STATUS_LABELS: Record<string, string> = {
   RUNNING: "Em execução",
   PAUSED: "Pausada",
@@ -72,65 +59,61 @@ const STATUS_LABELS: Record<string, string> = {
   COMPLETED: "Concluída",
 };
 
-function StatusBadge({ status }: { status: string }) {
-  return (
-    <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide ${STATUS_COLORS[status] ?? "bg-muted text-muted-foreground"}`}
-    >
-      {STATUS_LABELS[status] ?? status}
-    </span>
-  );
-}
+/**
+ * A campaign's state, as a lamp.
+ *
+ * Lit for the two states that mean the campaign is doing something, unlit for
+ * the two that mean it stopped — with the word next to it, so the state never
+ * rests on the pip alone.
+ */
+const STATUS_LAMP: Record<string, string | null> = {
+  RUNNING: "var(--healthy)",
+  COMPLETED: "var(--lamp)",
+  PAUSED: null,
+  STOPPED: null,
+};
 
-
-function CardSkeleton({ rows = 3 }: { rows?: number }) {
-  return (
-    <div className="space-y-3">
-      {Array.from({ length: rows }).map((_, i) => (
-        <div
-          key={i}
-          className="animate-pulse rounded-xl border border-border bg-muted/50 p-4"
-        >
-          <div className="h-4 bg-border rounded w-1/2 mb-2" />
-          <div className="h-3 bg-border rounded w-1/3" />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function DashboardSectionHeader({
-  icon,
-  iconBgClass,
-  title,
-  description,
-  action,
+/**
+ * One channel of the meter bridge.
+ *
+ * A console tells you the level before it tells you the number, so each meter
+ * carries a scale track under its readout. The track only fills where a real
+ * denominator exists — a count of open conversations has no ceiling, and
+ * inventing one would be a lie drawn to scale. There it stays a plain rule.
+ */
+function Meter({
+  legend,
+  value,
+  helper,
+  level,
 }: {
-  icon: ReactNode;
-  iconBgClass: string;
-  title: string;
-  description?: string;
-  action?: ReactNode;
+  legend: string;
+  value: string;
+  helper: string;
+  level?: number | null;
 }) {
   return (
-    <div className="mb-4 flex items-start justify-between gap-4">
-      <div className="flex items-start gap-3">
-        <div
-          className={cn(
-            "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-white",
-            iconBgClass,
-          )}
-        >
-          {icon}
-        </div>
-        <div>
-          <p className="text-sm font-semibold text-foreground">{title}</p>
-          {description ? (
-            <p className="mt-1 text-xs text-muted-foreground">{description}</p>
+    <div className="min-w-0">
+      <dt className="legend truncate">{legend}</dt>
+      <dd>
+        <span className="readout mt-2.5 block text-[30px] font-semibold leading-none tracking-[-0.03em] text-foreground">
+          {value}
+        </span>
+        <span aria-hidden className="mt-3.5 block h-[3px] w-full bg-border">
+          {level != null ? (
+            <span
+              className="block h-full"
+              style={{
+                background: "hsl(var(--lamp))",
+                width: `${Math.min(100, Math.max(0, level))}%`,
+              }}
+            />
           ) : null}
-        </div>
-      </div>
-      {action}
+        </span>
+        <span className="mt-2.5 block truncate text-[11px] text-muted-foreground">
+          {helper}
+        </span>
+      </dd>
     </div>
   );
 }
@@ -140,109 +123,30 @@ type QuickActionItem = {
   description: string;
   icon: typeof WhatsappLogo;
   href: string;
-  bgClass: string;
+  /** Category ink for the glyph — colour on the mark, not a filled tile. */
+  ink: string;
 };
 
-function QuickActionCard({ action }: { action: QuickActionItem }) {
-  const Icon = action.icon;
-
+function LogSkeleton() {
   return (
-    <Link
-      href={action.href}
-      className="block rounded-2xl border border-border/70 bg-background/70 px-4 py-4 text-left transition-all hover:border-primary/30 hover:bg-background"
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 items-start gap-3">
-          <div
-            className={cn(
-              "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-white",
-              action.bgClass,
-            )}
-          >
-            <Icon className="h-4 w-4" weight="fill" />
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-foreground">
-              {action.title}
-            </p>
-            <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-              {action.description}
-            </p>
-          </div>
+    <div className="px-4 py-3">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div
+          key={i}
+          className="flex animate-pulse items-center gap-3 border-t border-border/50 py-3 first:border-t-0"
+        >
+          <span className="h-3 w-3 shrink-0 bg-border" />
+          <span className="h-3 flex-1 bg-border" />
+          <span className="h-3 w-16 shrink-0 bg-border" />
         </div>
-        <ArrowRight
-          className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"
-          weight="bold"
-        />
-      </div>
-    </Link>
+      ))}
+    </div>
   );
 }
-
-function RecentActivityCard({
-  href,
-  icon,
-  iconBgClass,
-  title,
-  description,
-  status,
-  metrics,
-}: {
-  href: string;
-  icon: ReactNode;
-  iconBgClass: string;
-  title: string;
-  description: string;
-  status: string;
-  metrics: Array<{ label: string; value: string }>;
-}) {
-  return (
-    <Link
-      href={href}
-      className="block rounded-2xl border border-border/70 bg-background/70 px-4 py-4 text-left transition-all hover:border-primary/30 hover:bg-background"
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 items-start gap-3">
-          <div
-            className={cn(
-              "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-white",
-              iconBgClass,
-            )}
-          >
-            {icon}
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-foreground">
-              {title}
-            </p>
-            <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-              {description}
-            </p>
-          </div>
-        </div>
-        <StatusBadge status={status} />
-      </div>
-
-      <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
-        {metrics.map((metric) => (
-          <div
-            key={`${title}-${metric.label}`}
-            className="rounded-2xl border border-border/70 bg-card/80 px-3 py-3"
-          >
-            <p className="text-[10px] font-semibold uppercase text-muted-foreground">
-              {metric.label}
-            </p>
-            <p className="mt-2 font-semibold text-foreground">{metric.value}</p>
-          </div>
-        ))}
-      </div>
-    </Link>
-  );
-}
-
 
 function UserDashboard() {
   const t = useTranslations("dashboard");
+  const locale = useLocale();
   const { currentWorkspace, can, canAny, permissionsLoading } = useWorkspace();
 
   const [waCampaigns, setWaCampaigns] = useState<WhatsAppCampaign[]>([]);
@@ -301,7 +205,7 @@ function UserDashboard() {
     () => waCampaigns.filter((c) => c.status === "RUNNING"),
     [waCampaigns],
   );
-  const recentWa = useMemo(() => waCampaigns.slice(0, 5), [waCampaigns]);
+  const recentWa = useMemo(() => waCampaigns.slice(0, 6), [waCampaigns]);
 
   const aggregateRate = useMemo(() => {
     if (attendants.length === 0) return 0;
@@ -324,76 +228,98 @@ function UserDashboard() {
   }, [attendants]);
 
   const totalOpenWindows = windowStats?.total_open ?? 0;
-  const enabledModuleCount = [
-    canReadWaCampaigns,
-    canReadMembers,
-    canReadConversations,
-  ].filter(Boolean).length;
 
-  const overviewStats = (() => {
-    const stats: Array<{
-      label: string;
+  const formatNumber = (value: number) =>
+    new Intl.NumberFormat(locale === "pt" ? "pt-BR" : locale).format(value);
+
+  /**
+   * The bridge reads four channels, and every one of them measures the
+   * workspace. The old strip also metered "ações rápidas: 3" and "módulos
+   * visíveis: 3" — the dashboard counting its own buttons and reporting it as
+   * an operational figure.
+   */
+  const meters = useMemo(() => {
+    const list: {
+      legend: string;
       value: string;
       helper: string;
-      icon: typeof WhatsappLogo;
-      bg: string;
-    }> = [];
+      level?: number | null;
+    }[] = [];
 
     if (canReadWaCampaigns) {
-      stats.push({
-        label: t("whatsappCampaigns"),
-        value: String(waCampaigns.length),
+      list.push({
+        legend: t("activeCampaigns"),
+        value: String(runningWa.length).padStart(2, "0"),
         helper:
-          runningWa.length > 0
-            ? runningWa.length === 1 ? t("activeCount", { count: runningWa.length }) : t("activeCountPlural", { count: runningWa.length })
+          waCampaigns.length > 0
+            ? t("ofTotalCampaigns", { total: waCampaigns.length })
             : t("noActiveNow"),
-        icon: WhatsappLogo,
-        bg: "bg-emerald-500",
+        level:
+          waCampaigns.length > 0
+            ? (runningWa.length / waCampaigns.length) * 100
+            : null,
       });
     }
 
     if (canReadMembers) {
-      stats.push({
-        label: t("responseRate"),
+      list.push({
+        legend: t("responseRate"),
         value: `${aggregateRate}%`,
         helper:
-          avgResponseTime > 0
-            ? t("avgResponseTime", { minutes: avgResponseTime })
+          attendants.length > 0
+            ? t("attendantsCount", { count: attendants.length })
             : t("noConsolidatedAvg"),
-        icon: Pulse,
-        bg: "bg-blue-500",
+        level: aggregateRate,
       });
-      stats.push({
-        label: t("openWindows"),
-        value: String(totalOpenWindows),
+      list.push({
+        legend: t("openWindows"),
+        value: String(totalOpenWindows).padStart(2, "0"),
         helper: t("ongoingConversations"),
-        icon: Clock,
-        bg: "bg-amber-500",
+        level: null,
+      });
+      list.push({
+        legend: t("avgResponseLabel"),
+        value: avgResponseTime > 0 ? `${avgResponseTime} min` : "—",
+        helper:
+          avgResponseTime > 0
+            ? t("avgResponsePerAttendant")
+            : t("noConsolidatedAvg"),
+        level: null,
       });
     }
 
-    return stats;
-  })();
+    return list;
+  }, [
+    aggregateRate,
+    attendants.length,
+    avgResponseTime,
+    canReadMembers,
+    canReadWaCampaigns,
+    runningWa.length,
+    t,
+    totalOpenWindows,
+    waCampaigns.length,
+  ]);
 
   const quickActions = useMemo(() => {
     const actions: QuickActionItem[] = [];
 
     if (canReadConversations) {
       actions.push({
-        title: "Chat ao vivo",
-        description: "Conversas em tempo real",
+        title: t("quickActions.liveChat.title"),
+        description: t("quickActions.liveChat.description"),
         icon: ChatCircle,
         href: "/dashboard/live-chat",
-        bgClass: "bg-blue-500",
+        ink: "ink-2",
       });
     }
     if (can("whatsapp_campaigns", "create")) {
       actions.push({
-        title: "Nova campanha WhatsApp",
-        description: "Envie mensagens em massa",
+        title: t("quickActions.newWhatsAppCampaign.title"),
+        description: t("quickActions.newWhatsAppCampaign.description"),
         icon: WhatsappLogo,
         href: "/dashboard/whatsapp-campaigns/new",
-        bgClass: "bg-emerald-500",
+        ink: "ink-1",
       });
     }
     if (can("agents", "create")) {
@@ -402,15 +328,15 @@ function UserDashboard() {
         description: t("createAgentDescription"),
         icon: Robot,
         href: "/dashboard/agents/new",
-        bgClass: "bg-amber-500",
+        ink: "ink-3",
       });
     }
     return actions;
-  }, [canReadConversations, can]);
+  }, [can, canReadConversations, t]);
 
   const formatDate = (s: string) => {
     try {
-      return new Intl.DateTimeFormat("pt-BR", {
+      return new Intl.DateTimeFormat(locale === "pt" ? "pt-BR" : locale, {
         day: "2-digit",
         month: "short",
       }).format(new Date(s));
@@ -419,303 +345,308 @@ function UserDashboard() {
     }
   };
 
+  if (!currentWorkspace && !permissionsLoading) {
+    return (
+      <div className="well mx-auto mt-8 max-w-2xl px-6 py-14 text-center">
+        <Users
+          className="mx-auto mb-4 h-10 w-10 text-muted-foreground"
+          weight="duotone"
+        />
+        <h2 className="text-[17px] font-semibold text-foreground">
+          {t("noWorkspaceSelected")}
+        </h2>
+        <p className="mt-1.5 text-[13px] text-muted-foreground">
+          {t("noWorkspaceDescription")}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="space-y-6"
+      className="space-y-4"
     >
-      <motion.div variants={itemVariants} className="flex flex-col gap-1">
-        <div
-          className="rounded-[26px] border border-border/70 bg-card/90 p-5 md:p-6"
-          style={{ boxShadow: softSurfaceShadow }}
-        >
-          <DashboardPageHeader
-            actions={
-              <>
-                {canReadPlans ? (
-                  <Button
-                    icon={<Wallet className="h-4 w-4" weight="fill" />}
-                    iconVisible
-                    link="/dashboard/plans"
-                    newTab={false}
-                    title="Ver planos"
-                    variant="outline"
-                  />
-                ) : null}
-                {canReadConversations ? (
-                  <Button
-                    icon={<ChatCircle className="h-4 w-4" weight="fill" />}
-                    iconVisible
-                    link="/dashboard/live-chat"
-                    newTab={false}
-                    title="Abrir atendimento"
-                  />
-                ) : null}
-              </>
-            }
-            badge={currentWorkspace ? "Visão da área de trabalho" : "Dashboard"}
-            description={
-              currentWorkspace
-                ? `Acompanhe campanhas, atendimento e saldo da área de trabalho ${currentWorkspace.name} em um único painel.`
-                : t("pageSubtitle")
-            }
-            icon={<ChartBar className="h-6 w-6" weight="fill" />}
-          />
-
-          <div className="mt-5 grid gap-3 md:grid-cols-2 2xl:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))]">
-            <div className="rounded-2xl border border-border/70 bg-background/70 px-4 py-4">
-              <p className="text-[11px] font-semibold uppercase text-primary">
-                Área de Trabalho atual
-              </p>
-              <p className="mt-2 text-xl font-semibold text-foreground">
-                {currentWorkspace?.name ?? t("noWorkspaceSelected")}
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {currentWorkspace
-                  ? `${enabledModuleCount} modulo${enabledModuleCount === 1 ? "" : "s"} com visibilidade nesta area.`
-                  : "Selecione uma área de trabalho para destravar campanhas, atendimento e métricas."}
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-border/70 bg-background/70 px-4 py-4">
-              <p className="text-[10px] font-semibold uppercase text-muted-foreground">
-                Campanhas ativas
-              </p>
-              <p className="mt-2 text-lg font-semibold text-foreground">
-                {runningWa.length}
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-border/70 bg-background/70 px-4 py-4">
-              <p className="text-[10px] font-semibold uppercase text-muted-foreground">
-                Acoes rapidas
-              </p>
-              <p className="mt-2 text-lg font-semibold text-foreground">
-                {quickActions.length}
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-border/70 bg-background/70 px-4 py-4">
-              <p className="text-[10px] font-semibold uppercase text-muted-foreground">
-                Conversas abertas
-              </p>
-              <p className="mt-2 text-lg font-semibold text-foreground">
-                {canReadMembers ? totalOpenWindows : "--"}
-              </p>
-            </div>
-          </div>
-
-          {overviewStats.length > 0 ? (
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {overviewStats.map((stat) => {
-                const Icon = stat.icon;
-
-                return (
-                  <div
-                    key={stat.label}
-                    className="rounded-2xl border border-border/70 bg-background/60 p-5"
-                  >
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="min-w-0">
-                        <p className="text-[11px] font-semibold uppercase text-muted-foreground">
-                          {stat.label}
-                        </p>
-                        <p className="mt-2 truncate text-2xl font-semibold text-foreground">
-                          {stat.value}
-                        </p>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {stat.helper}
-                        </p>
-                      </div>
-                      <div
-                        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${stat.bg}`}
-                      >
-                        <Icon className="h-4 w-4 text-white" weight="fill" />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : null}
-        </div>
+      <motion.div variants={itemVariants}>
+        <DashboardPageHeader
+          actions={
+            <>
+              {canReadPlans ? (
+                <Button
+                  icon={<Wallet className="h-4 w-4" weight="fill" />}
+                  iconVisible
+                  link="/dashboard/plans"
+                  newTab={false}
+                  title={t("planBlock.action")}
+                  variant="outline"
+                />
+              ) : null}
+              {canReadConversations ? (
+                <Button
+                  icon={<ChatCircle className="h-4 w-4" weight="fill" />}
+                  iconVisible
+                  link="/dashboard/live-chat"
+                  newTab={false}
+                  title={t("openAttendance")}
+                />
+              ) : null}
+            </>
+          }
+          badge={t("title")}
+          description={
+            currentWorkspace
+              ? t("headerDescription", { workspace: currentWorkspace.name })
+              : t("pageSubtitle")
+          }
+          icon={<ChartBar className="h-6 w-6" weight="fill" />}
+        />
       </motion.div>
 
-      {(quickActions.length > 0 || canReadWaCampaigns) && (
-        <motion.div variants={itemVariants}>
-          <div className="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
-            <section
-              className="space-y-4 rounded-[26px] border border-border/70 bg-card/90 p-5"
-              style={{ boxShadow: softSurfaceShadow }}
-            >
-              <DashboardSectionHeader
-                icon={<PlusCircle className="h-4 w-4" weight="fill" />}
-                iconBgClass="bg-slate-700"
-                title={t("quickActions.sectionTitle")}
-                description="Acessos diretos para as tarefas mais usadas da área de trabalho."
-              />
+      {/*
+        THE METER BRIDGE.
 
-              {quickActions.length > 0 ? (
-                <div className="space-y-3">
-                  {quickActions.map((action) => (
-                    <QuickActionCard key={action.href} action={action} />
-                  ))}
-                </div>
-              ) : (
-                <div className="rounded-2xl border border-dashed border-border/70 bg-background/60 px-4 py-10 text-center">
-                  <PlusCircle
-                    className="mx-auto h-8 w-8 text-muted-foreground"
-                    weight="fill"
-                  />
-                  <p className="mt-3 text-sm font-medium text-foreground">
-                    {t("noQuickActions")}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    As ações aparecem de acordo com as permissões da área de
-                    trabalho.
-                  </p>
-                </div>
-              )}
+        Everything the operator checks before touching anything, on one strip:
+        legend, level, figure. It replaces two rows of stat cards that between
+        them nested three levels of border inside a fourth.
+      */}
+      {meters.length > 0 ? (
+        <motion.section variants={itemVariants} className="well overflow-hidden">
+          <header className="rule-engraved flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 bg-muted px-4 py-2.5">
+            <div className="flex min-w-0 items-baseline gap-2.5">
+              <span className="legend">{t("workspaceLegend")}</span>
+              <span className="truncate text-[13px] font-semibold text-foreground">
+                {currentWorkspace?.name ?? t("noWorkspaceSelected")}
+              </span>
+            </div>
+            <span className="legend">{t("overview")}</span>
+          </header>
 
-              <div className="rounded-2xl border border-border/70 bg-background/60 p-4">
-                <p className="text-[11px] font-semibold uppercase text-primary">
-                  Planos
+          <dl className="grid grid-cols-2 lg:grid-cols-4">
+            {meters.map((meter, index) => (
+              <div
+                key={meter.legend}
+                className={cn(
+                  "min-w-0 border-border px-4 py-4",
+                  index % 2 === 1 && "border-l",
+                  index >= 2 && "border-t",
+                  index > 0 && "lg:border-l",
+                  "lg:border-t-0",
+                )}
+              >
+                <Meter {...meter} />
+              </div>
+            ))}
+          </dl>
+        </motion.section>
+      ) : null}
+
+      <motion.div
+        variants={itemVariants}
+        className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_296px]"
+      >
+        {/*
+          THE LOG.
+
+          Campaigns were cards holding cards: a bordered card per campaign, each
+          containing two more bordered boxes for its two numbers. A log is rows,
+          and rows let you read six campaigns' contact counts as one column.
+        */}
+        {canReadWaCampaigns ? (
+          <section className="well overflow-hidden">
+            <header className="rule-engraved flex items-center justify-between gap-3 bg-muted px-4 py-2.5">
+              <div className="flex items-baseline gap-2.5">
+                <p className="legend">{t("whatsappCampaigns")}</p>
+                <span className="readout text-[11px] text-muted-foreground/60">
+                  {String(waCampaigns.length).padStart(2, "0")}
+                </span>
+              </div>
+              <Link
+                href="/dashboard/whatsapp-campaigns"
+                className="legend text-lamp-ink transition-colors hover:text-foreground"
+              >
+                {t("viewAll")}
+              </Link>
+            </header>
+
+            {loading ? (
+              <LogSkeleton />
+            ) : recentWa.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[560px] border-collapse text-left">
+                  <thead>
+                    <tr className="rule-engraved">
+                      <th className="legend px-4 py-2 font-semibold" scope="col">
+                        {t("log.campaign")}
+                      </th>
+                      <th className="legend px-3 py-2 font-semibold" scope="col">
+                        {t("log.template")}
+                      </th>
+                      <th
+                        className="legend px-3 py-2 text-right font-semibold"
+                        scope="col"
+                      >
+                        {t("log.contacts")}
+                      </th>
+                      <th
+                        className="legend px-4 py-2 text-right font-semibold"
+                        scope="col"
+                      >
+                        {t("log.created")}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentWa.map((campaign) => {
+                      const tone = STATUS_LAMP[campaign.status];
+
+                      return (
+                        <tr
+                          key={campaign.id}
+                          className="border-t border-border/50 transition-colors hover:bg-muted"
+                        >
+                          <th
+                            className="max-w-[220px] px-4 py-2.5 text-left font-normal"
+                            scope="row"
+                          >
+                            <Link
+                              className="flex items-center gap-2.5"
+                              href={`/dashboard/whatsapp-campaigns/${campaign.id}`}
+                            >
+                              <span
+                                aria-hidden
+                                className={cn("lamp", !tone && "opacity-20")}
+                                style={
+                                  tone ? { background: `hsl(${tone})` } : undefined
+                                }
+                              />
+                              <span className="min-w-0">
+                                <span className="block truncate text-[13px] font-semibold text-foreground">
+                                  {campaign.name}
+                                </span>
+                                <span className="legend mt-1 block">
+                                  {STATUS_LABELS[campaign.status] ??
+                                    campaign.status}
+                                </span>
+                              </span>
+                            </Link>
+                          </th>
+                          <td className="max-w-[200px] truncate px-3 py-2.5 text-[12px] text-muted-foreground">
+                            {campaign.templateName ?? t("log.noTemplate")}
+                          </td>
+                          <td className="readout px-3 py-2.5 text-right text-[13px] font-semibold text-foreground">
+                            {formatNumber(campaign.metrics?.totalNumbers ?? 0)}
+                          </td>
+                          <td className="readout px-4 py-2.5 text-right text-[12px] text-muted-foreground">
+                            {formatDate(campaign.createdAt)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="px-4 py-14 text-center">
+                <p className="text-[13px] font-semibold text-foreground">
+                  {t("noCampaignsYet")}
                 </p>
-                <p className="mt-2 text-lg font-semibold text-foreground">
-                  Gerencie seus planos
+                <p className="mt-1 text-[12px] text-muted-foreground">
+                  {t("log.emptyHint")}
                 </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Faça upgrades, contrate novos recursos e aproveite mais
-                  funcionalidades para o seu negócio.
-                </p>
-                {canReadPlans ? (
-                  <div className="mt-4">
-                    <Button
-                      icon={<Wallet className="h-4 w-4" weight="fill" />}
-                      iconVisible
-                      link="/dashboard/plans"
-                      newTab={false}
-                      title="Ver planos"
-                    />
-                  </div>
+                {can("whatsapp_campaigns", "create") ? (
+                  <Link
+                    href="/dashboard/whatsapp-campaigns/new"
+                    className="legend mt-3 inline-flex items-center gap-1.5 text-lamp-ink transition-colors hover:text-foreground"
+                  >
+                    {t("log.emptyCta")}
+                    <ArrowRight className="h-3 w-3" weight="bold" />
+                  </Link>
                 ) : null}
               </div>
-            </section>
+            )}
+          </section>
+        ) : null}
 
-            <section
-              className="space-y-4 rounded-[26px] border border-border/70 bg-card/90 p-5"
-              style={{ boxShadow: softSurfaceShadow }}
-            >
-              <DashboardSectionHeader
-                icon={<ChartBar className="h-4 w-4" weight="fill" />}
-                iconBgClass="bg-primary"
-                title="Atividade recente"
-                description="Os módulos principais da área de trabalho seguem a mesma lógica de cards do catálogo de planos."
-              />
+        <div className="space-y-4">
+          {/*
+            THE PATCH PANEL. Destinations, as a list of labelled rows — not
+            three same-size cards of icon plus heading plus body copy.
+          */}
+          <section className="well h-fit overflow-hidden">
+            <header className="rule-engraved bg-muted px-4 py-2.5">
+              <p className="legend">{t("quickActions.sectionTitle")}</p>
+            </header>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                {canReadWaCampaigns ? (
-                  <div className="rounded-2xl border border-border/70 bg-background/60 p-4">
-                    <DashboardSectionHeader
-                      action={
-                        <Link
-                          href="/dashboard/whatsapp-campaigns"
-                          className="text-xs font-medium text-primary hover:underline"
-                        >
-                          Ver todas
-                        </Link>
-                      }
-                      description="Templates, volume e status das últimas campanhas."
-                      icon={<WhatsappLogo className="h-4 w-4" weight="fill" />}
-                      iconBgClass="bg-emerald-500"
-                      title="Campanhas WhatsApp"
-                    />
+            {quickActions.length > 0 ? (
+              <ul>
+                {quickActions.map((action) => {
+                  const Icon = action.icon;
 
-                    {loading ? (
-                      <CardSkeleton rows={3} />
-                    ) : recentWa.length > 0 ? (
-                      <div className="space-y-3">
-                        {recentWa.map((c) => (
-                          <RecentActivityCard
-                            key={c.id}
-                            description={
-                              c.templateName ?? "Template sem nome vinculado"
-                            }
-                            href={`/dashboard/whatsapp-campaigns/${c.id}`}
-                            icon={
-                              <WhatsappLogo className="h-4 w-4" weight="fill" />
-                            }
-                            iconBgClass="bg-emerald-500"
-                            metrics={[
-                              {
-                                label: "Contatos",
-                                value: `${c.metrics?.totalNumbers ?? 0}`,
-                              },
-                              {
-                                label: "Criada em",
-                                value: formatDate(c.createdAt),
-                              },
-                            ]}
-                            status={c.status}
-                            title={c.name}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="rounded-2xl border border-dashed border-border/70 bg-card/80 px-4 py-10 text-center">
-                        <WhatsappLogo
-                          className="mx-auto h-8 w-8 text-muted-foreground"
+                  return (
+                    <li
+                      key={action.href}
+                      className="border-t border-border/50 first:border-t-0"
+                    >
+                      <Link
+                        className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted"
+                        href={action.href}
+                      >
+                        <Icon
+                          className={cn("h-4 w-4 shrink-0", action.ink)}
                           weight="fill"
                         />
-                        <p className="mt-3 text-sm font-medium text-foreground">
-                          {t("noCampaignsYet")}
-                        </p>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          Crie sua primeira campanha para popular esta área.
-                        </p>
-                        {can("whatsapp_campaigns", "create") ? (
-                          <Link
-                            href="/dashboard/whatsapp-campaigns/new"
-                            className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
-                          >
-                            Criar campanha
-                            <ArrowRight className="h-3 w-3" weight="bold" />
-                          </Link>
-                        ) : null}
-                      </div>
-                    )}
-                  </div>
-                ) : null}
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-[13px] font-medium text-foreground">
+                            {action.title}
+                          </span>
+                          <span className="block truncate text-[11px] text-muted-foreground">
+                            {action.description}
+                          </span>
+                        </span>
+                        <ArrowRight
+                          className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
+                          weight="bold"
+                        />
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="px-4 py-10 text-center text-[12px] text-muted-foreground">
+                {t("noQuickActionsHint")}
+              </p>
+            )}
+          </section>
 
-              </div>
-            </section>
-          </div>
-        </motion.div>
-      )}
-
-      {/* ── No workspace fallback (original) ──────────────────────────── */}
-      {!currentWorkspace && !permissionsLoading && (
-        <motion.div variants={itemVariants}>
-          <ElevatedContainer
-            className="border border-border/70 bg-gradient-to-br from-primary/5 to-primary/10 p-8 text-center"
-            style={{ boxShadow: softSurfaceShadow }}
-          >
-            <Users
-              className="h-12 w-12 text-blue-300 mx-auto mb-3"
-              weight="duotone"
-            />
-            <h2 className="text-lg font-semibold text-foreground mb-1">
-              {t("noWorkspaceSelected")}
-            </h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              Selecione uma área de trabalho para ver campanhas, conversas e
-              métricas.
-            </p>
-          </ElevatedContainer>
-        </motion.div>
-      )}
+          <section className="well overflow-hidden">
+            <header className="rule-engraved bg-muted px-4 py-2.5">
+              <p className="legend">{t("planBlock.legend")}</p>
+            </header>
+            <div className="px-4 py-4">
+              <p className="text-[15px] font-semibold tracking-[-0.01em] text-foreground">
+                {t("planBlock.title")}
+              </p>
+              <p className="mt-1.5 text-[13px] leading-snug text-muted-foreground">
+                {t("planBlock.description")}
+              </p>
+              {canReadPlans ? (
+                <Button
+                  className="mt-4 w-full"
+                  icon={<Wallet className="h-4 w-4" weight="fill" />}
+                  iconVisible
+                  link="/dashboard/plans"
+                  newTab={false}
+                  title={t("planBlock.action")}
+                  variant="outline"
+                />
+              ) : null}
+            </div>
+          </section>
+        </div>
+      </motion.div>
     </motion.div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { CaretLeft, CaretRight, Check, Minus } from "@phosphor-icons/react";
+import { CaretLeft, CaretRight, Check, Minus } from "@/components/icons";
 import { Fragment, ReactNode, useCallback } from "react";
 
 import { cn } from "@/lib/utils";
@@ -178,7 +178,7 @@ export function DashboardTable<T>({
   return (
     <div
       className={cn(
-        "flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm",
+        "flex flex-col overflow-hidden rounded-[--radius] border border-border bg-card shadow-sm",
         className,
       )}
     >
@@ -200,7 +200,7 @@ export function DashboardTable<T>({
                   <span className="text-xs text-muted-foreground whitespace-nowrap">
                     {stat.label}
                   </span>
-                  <span className="text-sm font-bold text-foreground tabular-nums whitespace-nowrap">
+                  <span className="text-sm font-semibold text-foreground tabular-nums whitespace-nowrap">
                     {stat.value}
                   </span>
                 </div>
@@ -218,8 +218,8 @@ export function DashboardTable<T>({
 
       {/* ── Selection bar ── */}
       {hasSelection && selectedCount > 0 && (
-        <div className="flex items-center gap-3 border-b border-primary/20 bg-primary/5 px-5 py-2">
-          <span className="text-sm font-medium text-primary">
+        <div className="flex items-center gap-3 border-b border-primary/20 bg-muted px-5 py-2">
+          <span className="text-sm font-medium text-lamp-ink">
             {selection!.label
               ? selection!.label(selectedCount)
               : `${selectedCount} selected`}
@@ -245,7 +245,7 @@ export function DashboardTable<T>({
           ) : null}
 
           <thead>
-            <tr className="bg-muted/50 border-b border-border">
+            <tr className="bg-muted border-b border-border">
               {hasSelection && (
                 <th className="w-12 px-4 py-3" scope="col">
                   <button
@@ -269,7 +269,7 @@ export function DashboardTable<T>({
                 <th
                   key={column.key}
                   className={cn(
-                    "px-6 py-3 text-[11px] font-bold text-muted-foreground uppercase tracking-wider",
+                    "px-6 py-3 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider",
                     column.className,
                   )}
                   scope="col"
@@ -279,7 +279,7 @@ export function DashboardTable<T>({
               ))}
               {renderRowActions ? (
                 <th
-                  className="px-6 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider text-right"
+                  className="px-6 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right"
                   scope="col"
                 />
               ) : null}
@@ -329,11 +329,11 @@ export function DashboardTable<T>({
                               : undefined
                           }
                           className={cn(
-                            "group transition-colors hover:bg-muted/50",
-                            shouldBeDarker ? "bg-muted/50" : "bg-muted/200",
+                            "group transition-colors hover:bg-muted",
+                            shouldBeDarker ? "bg-muted" : "bg-muted",
                             clickable && "cursor-pointer",
-                            expanded && "bg-muted/40",
-                            isSelected && "bg-primary/5",
+                            expanded && "bg-muted",
+                            isSelected && "bg-muted",
                             extraClass,
                           )}
                         >
@@ -405,7 +405,7 @@ export function DashboardTable<T>({
           {isEmptyStateObject(emptyState) ? (
             <>
               {emptyState.icon && (
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted mb-3">
+                <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-muted mb-3">
                   {emptyState.icon}
                 </div>
               )}
@@ -421,7 +421,7 @@ export function DashboardTable<T>({
             </>
           ) : (
             <>
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted mb-3">
+              <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-muted mb-3">
                 <svg
                   className="h-7 w-7 text-muted-foreground"
                   fill="none"
@@ -450,7 +450,7 @@ export function DashboardTable<T>({
 
       {/* ── Pagination footer ── */}
       {hasPagination && (
-        <div className="flex items-center justify-between border-t border-border bg-muted/50 px-5 py-2.5">
+        <div className="flex items-center justify-between border-t border-border bg-muted px-5 py-2.5">
           <p className="text-xs text-muted-foreground">
             {paginationText?.showing ?? "Mostrando"}{" "}
             <span className="font-semibold text-foreground">

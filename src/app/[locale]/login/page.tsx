@@ -1,7 +1,7 @@
 "use client";
 
-import { ArrowRight, Envelope, Lock } from "@phosphor-icons/react";
-import { Link, useRouter } from "@/i18n/routing";
+import { Envelope, Lock } from "@/components/icons";
+import { Link } from "@/i18n/routing";
 import {
   Suspense,
   useCallback,
@@ -19,7 +19,6 @@ import { authErrorTranslationKey } from "@/lib/auth/error-codes";
 import { getBrand } from "@/config/brand";
 import { locales } from "@/i18n/config";
 import { login as loginRequest } from "@/lib/auth/auth-api";
-import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/auth-context";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -43,8 +42,6 @@ function LoginContent() {
   const t = useTranslations("login");
   const tRoot = useTranslations();
   const tCommon = useTranslations("common");
-  const tFooter = useTranslations("footerMain");
-  const brand = getBrand();
   const { refreshUser, isAuthenticated, isLoading } = useAuth();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -52,7 +49,6 @@ function LoginContent() {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
-  const router = useRouter();
 
   const isRateLimitError = (message?: string | null) =>
     message?.toLowerCase().includes("rate limit") ?? false;
@@ -202,146 +198,109 @@ function LoginContent() {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden pt-16 sm:pt-20 bg-background">
-      <div className="flex min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-5rem)]">
-        {/* Left: Login form, centered */}
-        <div className="flex flex-1 items-center justify-center px-4 py-8 sm:py-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="w-full max-w-[440px] relative z-10"
-          >
-            <div
-              className="rounded-2xl sm:rounded-[28px] bg-card p-6 sm:p-8 border border-border"
-              style={{
-                boxShadow:
-                  "0 4px 40px -12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.02)",
-              }}
-            >
-              <div className="mb-8 text-center">
-                <motion.div
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.1 }}
-                  className="inline-flex items-center rounded-full bg-muted border border-border px-4 py-1.5 text-xs font-semibold uppercase text-muted-foreground mb-4"
+    /*
+      The access plate.
+      
+      This was a floating rounded card on the left and a near-black marketing
+      slab on the right — two visual worlds on one screen, and the slab sold a
+      product to someone who has already bought it. There is no marketing site
+      behind it either: `/` redirects straight here.
+      
+      So login is one plate cut into the panel. The brand sits at its head, the
+      credentials in a recessed well, one lamp key commits. Nothing enters, moves
+      or fades: an operator opening this at the start of a shift should find the
+      email field already under the cursor, not wait for a card to settle.
+    */
+    <main className="flex min-h-[calc(100vh-3rem)] items-center justify-center bg-background px-4 py-10 sm:py-16">
+      <div className="w-full max-w-[400px]">
+        <div className="well overflow-hidden">
+          <div className="rule-engraved flex items-center gap-2.5 bg-muted px-5 py-3">
+            <BrandLogo size="sm" />
+          </div>
+
+          <div className="px-5 py-6 sm:px-6">
+            <h1 className="text-[19px] font-semibold leading-tight tracking-[-0.01em] text-foreground">
+              {t("header.title")}
+            </h1>
+            <p className="mt-1.5 max-w-[46ch] text-[13px] leading-snug text-muted-foreground">
+              {t("header.description")}
+            </p>
+
+            {error && (
+              <div className="mt-4">
+                <AuthFormAlert message={error} />
+              </div>
+            )}
+
+            <form onSubmit={handleLogin} className="mt-7 space-y-6">
+              <ElevatedInput
+                type="email"
+                label={t("form.email")}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                icon={<Envelope className="h-4 w-4" />}
+                autoComplete="email"
+                autoFocus
+                required
+                disabled={isPending}
+              />
+
+              <ElevatedInput
+                type="password"
+                label={t("form.password")}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                icon={<Lock className="h-4 w-4" />}
+                autoComplete="current-password"
+                required
+                disabled={isPending}
+              />
+
+              <div className="flex items-center justify-between gap-3 pt-0.5">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="remember"
+                    checked={rememberMe}
+                    onCheckedChange={(checked) =>
+                      setRememberMe(checked as boolean)
+                    }
+                  />
+                  <label
+                    htmlFor="remember"
+                    className="cursor-pointer select-none text-[13px] text-muted-foreground"
+                  >
+                    {t("form.rememberMe")}
+                  </label>
+                </div>
+                <Link
+                  href="/forgot-password"
+                  className="rounded-[--radius] text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  {t("header.badge")}
-                </motion.div>
-                <h1 className="text-3xl font-bold text-foreground tracking-tight">
-                  {t("header.title")}
-                </h1>
-                <p className="mt-3 text-muted-foreground text-[15px]">
-                  {t("header.description")}
-                </p>
+                  {t("form.forgotPassword")}
+                </Link>
               </div>
 
-              {error && <AuthFormAlert message={error} />}
-
-              <form onSubmit={handleLogin} className="space-y-5">
-                <ElevatedInput
-                  type="email"
-                  label={t("form.email")}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  icon={<Envelope weight="fill" className="w-5 h-5" />}
-                  required
-                  disabled={isPending}
-                />
-
-                <ElevatedInput
-                  type="password"
-                  label={t("form.password")}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  icon={<Lock weight="fill" className="w-5 h-5" />}
-                  required
-                  disabled={isPending}
-                />
-
-                <div className="flex items-center justify-between text-sm pt-1">
-                  <div className="flex items-center gap-2.5">
-                    <Checkbox
-                      id="remember"
-                      checked={rememberMe}
-                      onCheckedChange={(checked) =>
-                        setRememberMe(checked as boolean)
-                      }
-                    />
-                    <label
-                      htmlFor="remember"
-                      className="text-muted-foreground cursor-pointer select-none font-medium"
-                    >
-                      {t("form.rememberMe")}
-                    </label>
-                  </div>
-                  <Link
-                    href="/forgot-password"
-                    className="text-foreground hover:text-primary font-semibold transition-colors"
-                  >
-                    {t("form.forgotPassword")}
-                  </Link>
-                </div>
-
-                <div className="pt-2">
-                  <Button
-                    variant="main-cta"
-                    size="lg"
-                    type="submit"
-                    className="w-full"
-                    title={isPending ? t("form.submitting") : t("form.submit")}
-                    disabled={isPending}
-                    icon={<ArrowRight weight="bold" className="w-5 h-5" />}
-                    iconVisible
-                    iconSide="right"
-                  />
-                </div>
-              </form>
-            </div>
-
-            <p className="mt-4 text-center text-xs text-muted-foreground">
-              <Link
-                href="/terms-of-service"
-                className="hover:text-muted-foreground transition-colors"
-              >
-                {t("termsLink")}
-              </Link>
-            </p>
-          </motion.div>
+              <Button
+                variant="primary"
+                size="lg"
+                type="submit"
+                className="w-full"
+                title={isPending ? t("form.submitting") : t("form.submit")}
+                disabled={isPending}
+              />
+            </form>
+          </div>
         </div>
 
-        {/* Right: distinctive brand panel (replaces the recognizable CRM showcase) */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
-          className="relative hidden w-[46%] flex-col justify-between overflow-hidden bg-[#0b0d12] px-10 py-14 lg:flex xl:w-[50%] xl:px-16 xl:py-16"
-        >
-          {/* quiet geometric accents (neutral outlines) */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -right-28 -top-24 h-80 w-80 rounded-full border border-white/[0.06]"
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute right-16 bottom-24 h-44 w-44 rounded-full border border-white/[0.06]"
-          />
-
-          <div className="relative">
-            <BrandLogo useWhite size="lg" />
-          </div>
-
-          <div className="relative max-w-md">
-            <p className="text-2xl font-semibold leading-snug text-white xl:text-[28px]">
-              {tFooter("description")}
-            </p>
-          </div>
-
-          <p className="relative text-xs text-white/35">
-            © {new Date().getFullYear()} {brand.legalName}
-          </p>
-        </motion.div>
+        <p className="mt-3 text-center">
+          <Link
+            href="/terms-of-service"
+            className="legend rounded-[--radius] transition-colors hover:!text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {t("termsLink")}
+          </Link>
+        </p>
       </div>
-    </div>
+    </main>
   );
 }

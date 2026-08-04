@@ -32,7 +32,7 @@ const GradientText: React.FC<GradientTextProps> = ({
   );
 
   const textStyles = cn(
-    "bg-clip-text text-transparent font-bold leading-tight",
+    "bg-clip-text text-transparent font-semibold leading-tight",
 
     {
       "text-2xl md:text-3xl": as === "h1",

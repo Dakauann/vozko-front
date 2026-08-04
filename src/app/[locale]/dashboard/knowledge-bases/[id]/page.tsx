@@ -7,7 +7,7 @@ import {
   PencilSimple,
   Trash,
   UploadSimple,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type {
   KnowledgeBase,
   KnowledgeBaseDocument,
@@ -236,7 +236,7 @@ export default function KnowledgeBaseDetailPage() {
     return (
       <div className="flex items-center justify-center py-20">
         <CircleNotch
-          className="h-8 w-8 animate-spin text-primary"
+          className="h-8 w-8 animate-spin text-lamp-ink"
           weight="bold"
         />
       </div>
@@ -296,7 +296,7 @@ export default function KnowledgeBaseDetailPage() {
       >
         <motion.div variants={itemVariants}>
           <ElevatedContainer className="p-4 text-center">
-            <p className="text-2xl font-bold text-foreground">
+            <p className="text-2xl font-semibold text-foreground">
               {documents.length}
             </p>
             <p className="text-sm text-muted-foreground">
@@ -306,7 +306,7 @@ export default function KnowledgeBaseDetailPage() {
         </motion.div>
         <motion.div variants={itemVariants}>
           <ElevatedContainer className="p-4 text-center">
-            <p className="text-2xl font-bold text-foreground">{totalChunks}</p>
+            <p className="text-2xl font-semibold text-foreground">{totalChunks}</p>
             <p className="text-sm text-muted-foreground">
               {t("detail.chunks")}
             </p>
@@ -314,7 +314,7 @@ export default function KnowledgeBaseDetailPage() {
         </motion.div>
         <motion.div variants={itemVariants}>
           <ElevatedContainer className="p-4 text-center">
-            <p className="text-2xl font-bold text-foreground">
+            <p className="text-2xl font-semibold text-foreground">
               {new Date(knowledgeBase.createdAt).toLocaleDateString()}
             </p>
             <p className="text-sm text-muted-foreground">
@@ -343,12 +343,12 @@ export default function KnowledgeBaseDetailPage() {
           <div
             {...getRootProps()}
             className={cn(
-              "border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors mb-6",
+              "border border-dashed rounded-[--radius] p-8 text-center cursor-pointer transition-colors mb-6",
               documents.length >= MAX_DOCUMENTS &&
                 "opacity-50 cursor-not-allowed",
               isDragActive
-                ? "border-cyan-500 bg-cyan-500/10"
-                : "border-border hover:border-cyan-500/50 hover:bg-muted/50",
+                ? "border-cyan-500 bg-muted"
+                : "border-border hover:border-cyan-500/50 hover:bg-muted",
             )}
           >
             <input {...getInputProps()} />
@@ -401,7 +401,7 @@ export default function KnowledgeBaseDetailPage() {
               {documents.map((doc) => (
                 <div
                   key={doc.id}
-                  className="flex items-center justify-between p-4 rounded-xl border border-border bg-card hover:bg-muted/50 transition-colors"
+                  className="flex items-center justify-between p-4 rounded-[--radius] border border-border bg-card hover:bg-muted transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <IconBox color="cyan" size="sm">
@@ -412,13 +412,13 @@ export default function KnowledgeBaseDetailPage() {
                       <div className="flex items-center gap-2 mt-0.5">
                         <span
                           className={cn(
-                            "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                            "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
                             doc.status === "ready" &&
-                              "bg-emerald-500 text-white",
+                              "bg-healthy text-white",
                             doc.status === "processing" &&
-                              "bg-amber-500 text-white",
+                              "bg-warning text-white",
                             doc.status === "pending" &&
-                              "bg-blue-500 text-white",
+                              "bg-muted text-white",
                             doc.status === "failed" &&
                               "bg-destructive text-white",
                           )}

@@ -17,7 +17,7 @@ import {
   Table as TableIcon,
   ArrowCounterClockwise,
   ArrowClockwise,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { useEffect, useState, type ReactNode } from "react";
 
 type ElevatedRichTextEditorProps = {
@@ -153,9 +153,9 @@ export default function ElevatedRichTextEditor({
   };
 
   const shadowDisabled =
-    "0px 0.3533px 0.3533px -0.3333px rgba(0,0,0,0.04), 0px 0.9033px 0.9033px -0.6667px rgba(0,0,0,0.04), 0px 1.8109px 1.8109px -1px rgba(0,0,0,0.035), 0px 3.4328px 3.4328px -1.3333px rgba(0,0,0,0.035), 0px 6.8234px 6.8234px -1.6667px rgba(0,0,0,0.025), 0px 15px 15px -2px rgba(0,0,0,0.01), inset 0px 1.5px 0.5px 0px var(--shadow-highlight-strong)";
+    "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)";
   const shadowEnabled =
-    "0px 0.7066px 0.7066px -0.6667px rgba(0,0,0,0.08), 0px 1.8066px 1.8066px -1.3333px rgba(0,0,0,0.08), 0px 3.6218px 3.6218px -2px rgba(0,0,0,0.07), 0px 6.8656px 6.8656px -2.6667px rgba(0,0,0,0.07), 0px 13.6468px 13.6468px -3.3333px rgba(0,0,0,0.05), 0px 30px 30px -4px rgba(0,0,0,0.02), inset 0px 3px 1px 0px var(--shadow-highlight-strong)";
+    "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)";
 
   return (
     <div className={`${className} relative flex flex-col`}>
@@ -264,14 +264,14 @@ export default function ElevatedRichTextEditor({
       <div
         className={`
           relative w-full
-          border border-border/60
+          border border-border
           bg-transparent
           rounded-b-2xl rounded-tr-2xl
           focus-within:shadow-sm
           focus-within:border-foreground/20
           transition-all duration-200
           min-h-[200px]
-          ${disabled ? "opacity-60 cursor-not-allowed bg-muted/50" : ""}
+          ${disabled ? "opacity-60 cursor-not-allowed bg-muted" : ""}
         `}
         style={{
           boxShadow: disabled ? shadowDisabled : shadowEnabled,

@@ -7,16 +7,17 @@ import {
   Monitor,
   Clock,
   ArrowRight,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   ElevatedDialog,
   ElevatedDialogContent,
 } from "@/components/elevated-design/elevated-dialog";
+import { cn } from "@/lib/utils";
 import GrainBackground, {
   type ColorGroup,
 } from "@/components/elevated-design/grain-background";
 import Button, { type ButtonProps } from "@/components/elevated-design/button";
-import type { Icon } from "@phosphor-icons/react";
+import type { Icon } from "@/components/icons";
 import type { ReactNode } from "react";
 
 export interface FeatureItem {
@@ -103,7 +104,7 @@ export default function FeatureOverviewDialog({
         overlayClassName="bg-black/25 data-[state=closed]:pointer-events-none"
         className="w-[420px] max-w-[calc(100vw-2rem)] !p-1.5 overflow-hidden max-h-max"
       >
-        <div className="rounded-[22px] overflow-hidden">
+        <div className="overflow-hidden rounded-[--radius]">
           <div
             className="relative w-full overflow-hidden"
             style={{ height: resolvedHeaderHeight }}
@@ -126,37 +127,37 @@ export default function FeatureOverviewDialog({
                     className="absolute inset-0 h-full w-full object-cover"
                   />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-black/10" />
+                <div className="absolute inset-0 bg-muted" />
               </>
             ) : (
-              <>
-                <div className="absolute inset-0">
-                  <GrainBackground
-                    palette={[
-                      { colors: ["#3b82f6", "#2563eb"], weight: 40 },
-                      { colors: ["#2563eb", "#1d4ed8"], weight: 30 },
-                      { colors: ["#1d4ed8", "#1e40af"], weight: 20 },
-                      { colors: ["#1e40af", "#1e3a8a"], weight: 10 },
-                    ]}
-                    mode="islands"
-                    seed={50}
-                    islandsScale={0.01}
-                    islandsElongation={0.9}
-                    islandsWarp={10}
-                    islandsBlur={2}
-                    opacity={0}
-                    className="h-full !rounded-none"
-                  />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-black/5" />
-              </>
+              // No generative colour field behind the title. When there is no
+              // real media to show, the panel shows its own surface — the
+              // legend below carries the name.
+              <div className="absolute inset-0 bg-muted" />
             )}
-            <div className="absolute bottom-1/2 top-1/2 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 whitespace-nowrap">
-              <span className="text-2xl sm:text-[26px] font-semibold text-white tracking-tight drop-shadow-[0_1px_6px_rgba(0,0,0,0.25)]">
+            {/* Ink follows the ground: white over media, panel ink over the
+                plain surface. The title was unconditionally white, which went
+                invisible the moment the colour field behind it was removed. */}
+            <div className="absolute bottom-1/2 left-1/2 top-1/2 z-10 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap">
+              <span
+                className={cn(
+                  "text-2xl font-semibold tracking-tight sm:text-[26px]",
+                  mediaSrc
+                    ? "text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.25)]"
+                    : "text-foreground",
+                )}
+              >
                 {resolvedHeaderTitle}
               </span>
               {badge && (
-                <span className="text-[11px] sm:text-xs font-medium text-white bg-white/25 border border-white/40 rounded-full px-2 sm:px-2.5 py-[3px] sm:py-1 tracking-wide">
+                <span
+                  className={cn(
+                    "rounded-[--radius] border px-2 py-[3px] text-[11px] font-medium tracking-wide sm:px-2.5 sm:py-1 sm:text-xs",
+                    mediaSrc
+                      ? "border-white/40 bg-white/25 text-white"
+                      : "border-border text-muted-foreground",
+                  )}
+                >
                   {badge}
                 </span>
               )}
@@ -206,10 +207,10 @@ export default function FeatureOverviewDialog({
                   onClick={btn.onClick}
                   className={
                     resolvedButtons.length === 1
-                      ? "w-full rounded-[10px]"
+                      ? "w-full rounded-[--radius]"
                       : i === resolvedButtons.length - 1
-                        ? "flex-1 rounded-[10px]"
-                        : "rounded-[10px]"
+                        ? "flex-1 rounded-[--radius]"
+                        : "rounded-[--radius]"
                   }
                 />
               ))}

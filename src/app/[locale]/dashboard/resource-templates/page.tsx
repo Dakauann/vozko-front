@@ -7,7 +7,7 @@ import {
   Funnel,
   MagnifyingGlass,
   Sparkle,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import {
   CATEGORY_LABELS,
   RESOURCE_TYPE_LABELS,
@@ -179,7 +179,7 @@ export default function ResourceTemplatesCatalogPage() {
         description={t("catalog.description")}
       />
 
-      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card px-5 py-3 shadow-sm">
+      <div className="flex flex-wrap items-center gap-3 rounded-[--radius] border border-border bg-card px-5 py-3 shadow-sm">
         <div className="relative w-full max-w-xs">
           <ElevatedInput
             type="text"
@@ -246,10 +246,10 @@ export default function ResourceTemplatesCatalogPage() {
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={`skel-${i}`}
-              className="animate-pulse rounded-2xl border border-border bg-card p-6 shadow-sm"
+              className="animate-pulse rounded-[--radius] border border-border bg-card p-6 shadow-sm"
             >
               <div className="mb-4 flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-border/60" />
+                <div className="h-10 w-10 rounded-[--radius] bg-border/60" />
                 <div className="flex-1 space-y-2">
                   <div className="h-4 w-2/3 rounded bg-border/60" />
                   <div className="h-3 w-1/3 rounded bg-border/60" />
@@ -263,9 +263,9 @@ export default function ResourceTemplatesCatalogPage() {
           ))}
         </div>
       ) : error ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-card px-6 py-16 text-center shadow-sm">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-100 mb-3">
-            <Sparkle className="h-7 w-7 text-red-600" weight="fill" />
+        <div className="flex flex-col items-center justify-center rounded-[--radius] border border-border bg-card px-6 py-16 text-center shadow-sm">
+          <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-destructive/10 mb-3">
+            <Sparkle className="h-7 w-7 text-destructive" weight="fill" />
           </div>
           <p className="text-base font-semibold text-foreground mb-1">
             {t("error.title")}
@@ -273,8 +273,8 @@ export default function ResourceTemplatesCatalogPage() {
           <p className="text-sm text-muted-foreground max-w-md">{error}</p>
         </div>
       ) : templates.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-card px-6 py-16 text-center shadow-sm">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted mb-3">
+        <div className="flex flex-col items-center justify-center rounded-[--radius] border border-border bg-card px-6 py-16 text-center shadow-sm">
+          <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-muted mb-3">
             <Sparkle
               className="h-7 w-7 text-muted-foreground/40"
               weight="fill"
@@ -291,7 +291,7 @@ export default function ResourceTemplatesCatalogPage() {
         <>
           {featured.length > 0 && (
             <section className="space-y-3">
-              <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-primary">
+              <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-lamp-ink">
                 <Sparkle className="h-4 w-4" weight="fill" />
                 {t("catalog.featured")}
               </h2>
@@ -390,13 +390,13 @@ function TemplateCard({
     <motion.div
       variants={cardVariants}
       className={cn(
-        "group relative flex flex-col rounded-2xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/30",
+        "group relative flex flex-col rounded-[--radius] border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/30",
         template.isFeatured && "border-primary/20 ring-1 ring-primary/10",
       )}
     >
       {template.isFeatured && (
         <div className="absolute -top-2.5 right-4">
-          <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-semibold text-white shadow-sm">
+          <span className="inline-flex items-center gap-1 rounded-[--radius] bg-primary px-2.5 py-0.5 text-[10px] font-semibold text-white shadow-sm">
             <Sparkle className="h-3 w-3" weight="fill" />
             {t("catalog.featured")}
           </span>
@@ -408,10 +408,10 @@ function TemplateCard({
           <img
             src={template.icon}
             alt=""
-            className="h-10 w-10 rounded-xl object-cover shadow-sm"
+            className="h-10 w-10 rounded-[--radius] object-cover shadow-sm"
           />
         ) : (
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-sm">
+          <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-white shadow-sm">
             <Sparkle className="h-5 w-5" weight="fill" />
           </div>
         )}
@@ -420,11 +420,11 @@ function TemplateCard({
             {template.name}
           </h3>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+            <span className="inline-flex items-center rounded-[--radius] bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
               {RESOURCE_TYPE_LABELS[template.resourceType] ??
                 template.resourceType}
             </span>
-            <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+            <span className="inline-flex items-center rounded-[--radius] bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
               {CATEGORY_LABELS[template.category] ?? template.category}
             </span>
           </div>
@@ -441,7 +441,7 @@ function TemplateCard({
         </span>
 
         {isInstalled ? (
-          <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-100 px-3 py-1.5 text-xs font-medium text-emerald-700">
+          <span className="inline-flex items-center gap-1.5 rounded-lg bg-healthy/10 px-3 py-1.5 text-xs font-medium text-healthy">
             <Check className="h-3.5 w-3.5" weight="bold" />
             {t("catalog.installed")}
           </span>

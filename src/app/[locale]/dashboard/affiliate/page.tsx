@@ -12,7 +12,7 @@ import {
   Sparkle,
   UsersFour,
   Wallet,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { Link, useRouter } from "@/i18n/routing";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -87,7 +87,7 @@ export default function AffiliatePage() {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
         <CircleNotch
-          className="h-8 w-8 animate-spin text-primary"
+          className="h-8 w-8 animate-spin text-lamp-ink"
           weight="bold"
         />
       </div>
@@ -180,7 +180,7 @@ function AffiliateLanding({ onCta }: { onCta: () => void }) {
 
       {/* Hero */}
       <section
-        className="relative overflow-hidden rounded-3xl border border-border bg-card/70 p-6 sm:p-10 backdrop-blur-sm"
+        className="relative overflow-hidden rounded-[--radius] border border-border bg-card p-6 sm:p-10"
         style={{ boxShadow: softSurfaceShadow }}
       >
         <div
@@ -189,16 +189,16 @@ function AffiliateLanding({ onCta }: { onCta: () => void }) {
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute -left-16 bottom-0 h-56 w-56 rounded-full bg-primary/10 blur-3xl"
+          className="pointer-events-none absolute -left-16 bottom-0 h-56 w-56 rounded-full bg-muted blur-3xl"
         />
 
         <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-xl space-y-4">
-            <span className="inline-flex items-center gap-2 rounded-full bg-gradient-to-br from-primary to-[hsl(var(--primary-hover))] px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary-foreground shadow-sm">
+            <span className="inline-flex items-center gap-2 rounded-[--radius] bg-primary px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary-foreground shadow-sm">
               <Sparkle className="h-3.5 w-3.5" weight="fill" />
               {t("landing.tagline")}
             </span>
-            <h1 className="text-3xl font-bold leading-tight text-foreground sm:text-4xl">
+            <h1 className="text-3xl font-semibold leading-tight text-foreground sm:text-4xl">
               {t("landing.title")}
             </h1>
             <p className="text-base text-muted-foreground">
@@ -208,7 +208,7 @@ function AffiliateLanding({ onCta }: { onCta: () => void }) {
               <button
                 type="button"
                 onClick={onCta}
-                className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-all hover:bg-[hsl(var(--primary-hover))] active:scale-[0.98]"
+                className="inline-flex items-center gap-2 rounded-[--radius] bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-all hover:bg-[hsl(var(--primary-hover))] active:scale-[0.98]"
               >
                 {t("landing.cta")}
                 <ArrowRight className="h-4 w-4" weight="bold" />
@@ -226,9 +226,9 @@ function AffiliateLanding({ onCta }: { onCta: () => void }) {
                 initial={{ opacity: 0, x: 12 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3, delay: i * 0.08 }}
-                className="flex items-start gap-3 rounded-2xl border border-border bg-background/70 p-3"
+                className="flex items-start gap-3 rounded-[--radius] border border-border bg-background p-3"
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-[hsl(var(--primary-hover))] text-sm font-bold text-primary-foreground shadow-sm">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground shadow-sm">
                   {i + 1}
                 </span>
                 <p className="pt-1 text-sm text-foreground">{step}</p>
@@ -248,10 +248,10 @@ function AffiliateLanding({ onCta }: { onCta: () => void }) {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: i * 0.05 }}
-              className="rounded-2xl border border-border bg-card/70 p-5 backdrop-blur-sm"
+              className="rounded-[--radius] border border-border bg-card p-5"
               style={{ boxShadow: softSurfaceShadow }}
             >
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-[hsl(var(--primary-hover))] text-primary-foreground shadow-md">
+              <span className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground shadow-md">
                 <Icon className="h-5 w-5" weight="fill" />
               </span>
               <p className="mt-3 text-sm font-semibold text-foreground">
@@ -339,18 +339,18 @@ function AffiliateDashboard({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: i * 0.05 }}
-              className="rounded-2xl border border-border bg-card/70 p-5 backdrop-blur-sm"
+              className="rounded-[--radius] border border-border bg-card p-5"
               style={{ boxShadow: softSurfaceShadow }}
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {card.label}
                 </span>
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-[hsl(var(--primary-hover))] text-primary-foreground shadow-sm">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
                   <Icon className="h-4 w-4" weight="fill" />
                 </span>
               </div>
-              <p className="mt-3 text-2xl font-bold tabular-nums text-foreground">
+              <p className="mt-3 text-2xl font-semibold tabular-nums text-foreground">
                 {card.value}
               </p>
             </motion.div>
@@ -360,7 +360,7 @@ function AffiliateDashboard({
 
       {/* Referral link card */}
       <section
-        className="rounded-3xl border border-border bg-card/70 p-6 backdrop-blur-sm"
+        className="rounded-[--radius] border border-border bg-card p-6"
         style={{ boxShadow: softSurfaceShadow }}
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -378,16 +378,16 @@ function AffiliateDashboard({
           </div>
         </div>
         <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-          <div className="flex-1 overflow-hidden rounded-xl border border-border bg-background px-4 py-3 font-mono text-sm text-foreground">
+          <div className="flex-1 overflow-hidden rounded-[--radius] border border-border bg-background px-4 py-3 font-mono text-sm text-foreground">
             <span className="block truncate">{referralUrl}</span>
           </div>
           <button
             type="button"
             onClick={handleCopy}
             className={cn(
-              "inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-all",
+              "inline-flex items-center justify-center gap-2 rounded-[--radius] px-5 py-3 text-sm font-semibold transition-all",
               copied
-                ? "bg-emerald-500 text-white"
+                ? "bg-healthy text-white"
                 : "bg-primary text-primary-foreground hover:bg-[hsl(var(--primary-hover))] active:scale-[0.98]",
             )}
           >
@@ -452,11 +452,11 @@ function QuickLink({
   return (
     <Link
       href={href}
-      className="group block rounded-2xl border border-border bg-card/70 p-5 backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-primary/30"
+      className="group block rounded-[--radius] border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/30"
       style={{ boxShadow: softSurfaceShadow }}
     >
       <div className="flex items-start gap-4">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-[hsl(var(--primary-hover))] text-primary-foreground shadow-md">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground shadow-md">
           <Icon className="h-5 w-5" weight="fill" />
         </span>
         <div className="min-w-0 flex-1">
@@ -464,7 +464,7 @@ function QuickLink({
           <p className="mt-1 text-xs text-muted-foreground">{description}</p>
         </div>
         <ArrowRight
-          className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary"
+          className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-lamp-ink"
           weight="bold"
         />
       </div>

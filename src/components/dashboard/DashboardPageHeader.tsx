@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { ArrowLeft } from "@phosphor-icons/react";
+import { ArrowLeft } from "@/components/icons";
 
 interface DashboardPageHeaderProps {
   icon: ReactNode;
@@ -18,6 +18,26 @@ interface DashboardPageHeaderProps {
   colorClass?: string;
 }
 
+/**
+ * The page strip.
+ *
+ * One form for every page, closed by an engraved rule: the name of the thing on
+ * the left, the actions rack on the right, content recessed below. It is called
+ * from 77 places, so both prop shapes are preserved exactly — only the render
+ * changed.
+ *
+ * Two deliberate departures from the previous header:
+ *
+ * - The solid accent tile behind the glyph is gone. Accent here means "current"
+ *   or "commit"; an accent block on every page title spends the one signal the
+ *   interface has on decoration, and it appeared on all 77.
+ * - `badge` is no longer set as an uppercase eyebrow above the heading. When
+ *   there is no `title`, the badge IS the heading and is rendered as one; a
+ *   label stacked above a heading is a kicker, and the heading can carry itself.
+ *
+ * `colorClass` is accepted for call-site compatibility and intentionally not
+ * applied to a fill: pages differentiate by name, not by hue.
+ */
 export function DashboardPageHeader({
   icon,
   badge,
@@ -25,73 +45,46 @@ export function DashboardPageHeader({
   title,
   actions,
   back,
-  colorClass = "text-primary",
 }: DashboardPageHeaderProps) {
-  // Compact mode (create / edit / detail pages): the Stripe/Linear pattern, a
-  // small muted back breadcrumb, a restrained ~20px title (no uppercase eyebrow,
-  // no 64px hero, no load choreography), a muted subtitle, actions on the right.
-  if (title) {
-    return (
-      <div className="space-y-2">
-        {back && (
-          <button
-            type="button"
-            onClick={back.onClick}
-            className="-ml-0.5 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" weight="bold" aria-hidden="true" />
-            {back.label}
-          </button>
-        )}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0">
-            <div className="flex items-center gap-3">
-              {/* House "symbol": a solid accent tile with a white glyph (the
-                  bg fills with the accent via currentColor from colorClass;
-                  the inner span flips the glyph to white). Compact 36px. */}
-              <span
-                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-current shadow-sm ${colorClass}`}
-              >
-                <span className="flex text-white">{icon}</span>
-              </span>
-              <h1 className="truncate text-xl font-semibold tracking-tight text-foreground">
-                {title}
-              </h1>
-            </div>
-            {description && (
-              <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
-                {description}
-              </p>
-            )}
-          </div>
+  const heading = title ?? badge;
 
-          {actions && (
-            <div className="flex shrink-0 items-center gap-2">{actions}</div>
+  return (
+    <div className="rule-engraved pb-3">
+      {back && (
+        <button
+          type="button"
+          onClick={back.onClick}
+          className="legend -ml-0.5 mb-1.5 inline-flex items-center gap-1 transition-colors hover:!text-foreground focus-visible:rounded-[--radius] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <ArrowLeft className="h-3 w-3" weight="bold" aria-hidden="true" />
+          {back.label}
+        </button>
+      )}
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span
+              className="flex shrink-0 items-center text-muted-foreground [&_svg]:h-4 [&_svg]:w-4"
+              aria-hidden="true"
+            >
+              {icon}
+            </span>
+            <h1 className="truncate text-[17px] font-semibold leading-tight tracking-[-0.01em] text-foreground">
+              {heading}
+            </h1>
+          </div>
+          {description && (
+            <p className="mt-1 max-w-2xl text-[13px] leading-snug text-muted-foreground">
+              {description}
+            </p>
           )}
         </div>
+
+        {actions && (
+          <div className="flex shrink-0 items-center gap-1.5">{actions}</div>
+        )}
       </div>
-    );
-  }
-
-  // Eyebrow mode (list pages): unchanged, icon + uppercase badge + description.
-  return (
-    <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <span className={colorClass}>{icon}</span>
-          <span
-            className={`text-xs font-semibold uppercase tracking-wider ${colorClass}`}
-          >
-            {badge}
-          </span>
-        </div>
-
-        <p className="text-sm text-muted-foreground max-w-2xl">{description}</p>
-      </div>
-
-      {actions && (
-        <div className="flex shrink-0 items-center gap-2">{actions}</div>
-      )}
     </div>
   );
 }

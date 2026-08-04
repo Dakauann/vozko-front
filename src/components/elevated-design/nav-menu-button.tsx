@@ -7,8 +7,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import { CaretDown } from "@phosphor-icons/react";
-import type { Icon } from "@phosphor-icons/react";
+import { CaretDown } from "@/components/icons";
+import type { Icon } from "@/components/icons";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -92,7 +92,7 @@ export function NavMenuButton({ item, tone = "light" }: NavMenuButtonProps) {
             align="start"
             sideOffset={12}
             className={cn(
-              "w-72 rounded-2xl p-3",
+              "w-72 rounded-[--radius] p-3",
               tone === "dark"
                 ? "border-white/10 bg-black text-white shadow-[0_25px_60px_-25px_rgba(0,0,0,0.6)]"
                 : "border border-black/5 bg-card p-3 shadow-[0_25px_60px_-25px_rgba(15,23,42,0.25)]"
@@ -137,7 +137,7 @@ export function NavMenuButton({ item, tone = "light" }: NavMenuButtonProps) {
                       <Link
                         href={linkItem.href}
                         className={cn(
-                          "flex items-center gap-3 rounded-2xl border border-transparent px-3 py-2 transition-all duration-150 ease-out",
+                          "flex items-center gap-3 rounded-[--radius] border border-transparent px-3 py-2 transition-all duration-150 ease-out",
                           tone === "dark"
                             ? "hover:border-white/10 hover:bg-white/6"
                             : "hover:border-black/5 hover:bg-black/5"
@@ -147,7 +147,7 @@ export function NavMenuButton({ item, tone = "light" }: NavMenuButtonProps) {
                         {Icon ? (
                           <span
                             className={cn(
-                              "flex h-10 w-10 items-center justify-center rounded-[12px]",
+                              "flex h-10 w-10 items-center justify-center rounded-[--radius]",
                               tone === "dark"
                                 ? "bg-white/5 text-white/80"
                                 : "bg-muted text-foreground"

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { Check, Copy } from "@phosphor-icons/react";
+import { Check, Copy } from "@/components/icons";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
@@ -34,12 +34,12 @@ export function CopyButton({ value, label, copiedLabel, className }: CopyButtonP
       onClick={copy}
       aria-label={label}
       className={cn(
-        "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border/70 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         className,
       )}
     >
       {copied ? (
-        <Check className="h-4 w-4 text-emerald-600" weight="bold" aria-hidden="true" />
+        <Check className="h-4 w-4 text-healthy" weight="bold" aria-hidden="true" />
       ) : (
         <Copy className="h-4 w-4" weight="bold" aria-hidden="true" />
       )}

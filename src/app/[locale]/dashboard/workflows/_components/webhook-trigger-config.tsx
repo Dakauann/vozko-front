@@ -12,7 +12,7 @@ import {
   LinkSimple,
   CircleNotch,
   Info,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import ElevatedButton from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedSelect, {
@@ -115,7 +115,7 @@ export function WebhookTriggerConfig({
   if (!workflowId) {
     return (
       <ConfigShell>
-        <p className="rounded-lg border border-border/70 bg-mist px-3 py-2 text-xs text-muted-foreground">
+        <p className="rounded-lg border border-border bg-mist px-3 py-2 text-xs text-muted-foreground">
           Salve o fluxo para gerar a URL do webhook.
         </p>
       </ConfigShell>
@@ -177,7 +177,7 @@ export function WebhookTriggerConfig({
             aria-label="Copiar URL"
             icon={
               copied === "url" ? (
-                <Check className="h-4 w-4 text-emerald-600" weight="bold" />
+                <Check className="h-4 w-4 text-healthy" weight="bold" />
               ) : (
                 <Copy className="h-4 w-4" />
               )
@@ -243,7 +243,7 @@ export function WebhookTriggerConfig({
               aria-label="Copiar segredo"
               icon={
                 copied === "secret" ? (
-                  <Check className="h-4 w-4 text-emerald-600" weight="bold" />
+                  <Check className="h-4 w-4 text-healthy" weight="bold" />
                 ) : (
                   <Copy className="h-4 w-4" />
                 )
@@ -264,7 +264,7 @@ export function WebhookTriggerConfig({
         <ElevatedSelectItem value="PATCH">PATCH</ElevatedSelectItem>
       </ElevatedSelect>
 
-      <div className="flex items-center justify-between rounded-lg border border-border/70 bg-mist px-3 py-2">
+      <div className="flex items-center justify-between rounded-lg border border-border bg-mist px-3 py-2">
         <div>
           <p className="text-xs font-medium text-foreground">Webhook ativo</p>
           <p className="text-[11px] text-muted-foreground">
@@ -360,7 +360,7 @@ function ConfigShell({
           <div className="flex items-center gap-2">
             <p className="text-sm font-semibold text-foreground">Gatilho de Webhook</p>
             {active === false && (
-              <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+              <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
                 inativo
               </span>
             )}
@@ -387,9 +387,9 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function PayloadReference() {
   return (
-    <div className="space-y-2 rounded-lg border border-border/70 bg-mist p-3">
+    <div className="space-y-2 rounded-lg border border-border bg-mist p-3">
       <div className="flex items-center gap-1.5 text-xs font-medium text-foreground">
-        <Info className="h-3.5 w-3.5 text-primary" weight="bold" />
+        <Info className="h-3.5 w-3.5 text-lamp-ink" weight="bold" />
         Variáveis disponíveis no fluxo
       </div>
       <ul className="space-y-1 text-[11px] text-muted-foreground">
@@ -412,7 +412,7 @@ function PayloadReference() {
 
 function ErrorLine({ message }: { message: string }) {
   return (
-    <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">
+    <p className="rounded-lg border border-red-200 bg-destructive/10 px-3 py-2 text-xs text-destructive dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">
       {message}
     </p>
   );

@@ -9,7 +9,7 @@ import {
   Phone,
   Users,
   WhatsappLogo,
-} from "@phosphor-icons/react"
+} from "@/components/icons"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useTranslations, useLocale } from "next-intl"
@@ -80,13 +80,13 @@ function channelBadge(type: string) {
   switch (type) {
     case "voice":
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-healthy/10 px-2 py-0.5 text-[11px] font-medium text-healthy dark:bg-emerald-900/30 dark:text-healthy">
           <Phone weight="fill" size={12} /> Voz
         </span>
       )
     case "whatsapp":
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-healthy/10 px-2 py-0.5 text-[11px] font-medium text-healthy dark:bg-emerald-900/30 dark:text-healthy">
           <WhatsappLogo weight="fill" size={12} /> WhatsApp
         </span>
       )
@@ -97,19 +97,19 @@ function channelBadge(type: string) {
 
 function statusBadgeClass(status: string): string {
   const s = status.toUpperCase()
-  if (["PENDING"].includes(s)) return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
-  if (["ONGOING", "RINGING"].includes(s)) return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-  if (["RECEIVED", "DELIVERED", "SENT"].includes(s)) return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-  if (["FAILED", "NOT_FOUND", "BUSY", "NO_ANSWER", "CANCELLED"].includes(s)) return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-  if (["ENDED", "VOICEMAIL"].includes(s)) return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400"
-  return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400"
+  if (["PENDING"].includes(s)) return "bg-amber-100 text-warning dark:bg-amber-900/30 dark:text-amber-400"
+  if (["ONGOING", "RINGING"].includes(s)) return "bg-muted text-muted-foreground dark:bg-blue-900/30 dark:text-blue-400"
+  if (["RECEIVED", "DELIVERED", "SENT"].includes(s)) return "bg-healthy/10 text-healthy dark:bg-emerald-900/30 dark:text-healthy"
+  if (["FAILED", "NOT_FOUND", "BUSY", "NO_ANSWER", "CANCELLED"].includes(s)) return "bg-destructive/10 text-destructive dark:bg-red-900/30 dark:text-red-400"
+  if (["ENDED", "VOICEMAIL"].includes(s)) return "bg-slate-100 text-muted-foreground dark:bg-muted dark:text-muted-foreground"
+  return "bg-slate-100 text-muted-foreground dark:bg-muted dark:text-muted-foreground"
 }
 
 function CampaignCard({ campaign, locale, t }: { campaign: CampaignHistoryItem; locale: string; t: (key: string) => string }) {
   const [expanded, setExpanded] = useState(false)
 
   return (
-    <div className="rounded-xl border border-border/70 bg-card/90 p-4" style={{ boxShadow: softSurfaceShadow }}>
+    <div className="rounded-[--radius] border border-border bg-card p-4" style={{ boxShadow: softSurfaceShadow }}>
       <button
         onClick={() => setExpanded(!expanded)}
         className="flex w-full items-center gap-3 text-left"
@@ -148,9 +148,9 @@ function CampaignCard({ campaign, locale, t }: { campaign: CampaignHistoryItem; 
                 </thead>
                 <tbody>
                   {campaign.entries.map((entry) => (
-                    <tr key={entry.id} className="border-b last:border-0 hover:bg-muted/30">
+                    <tr key={entry.id} className="border-b last:border-0 hover:bg-muted">
                       <td className="py-1.5 pr-3">
-                        <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${statusBadgeClass(entry.status)}`}>
+                        <span className={`inline-block rounded-[--radius] px-2 py-0.5 text-[10px] font-medium ${statusBadgeClass(entry.status)}`}>
                           {entry.status}
                         </span>
                       </td>
@@ -202,7 +202,7 @@ export default function LeadDetailClient({
   if (loading) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
-        <Clock weight="bold" className="h-8 w-8 animate-spin text-primary" />
+        <Clock weight="bold" className="h-8 w-8 animate-spin text-lamp-ink" />
       </div>
     )
   }
@@ -211,7 +211,7 @@ export default function LeadDetailClient({
     return (
       <div className="flex min-h-[400px] items-center justify-center">
         <ElevatedContainer className="max-w-md p-8 text-center">
-          <Users weight="fill" className="mx-auto mb-4 h-12 w-12 text-amber-500" />
+          <Users weight="fill" className="mx-auto mb-4 h-12 w-12 text-warning" />
           <h2 className="text-xl font-semibold text-foreground">{t("error.title")}</h2>
           <p className="mt-2 text-sm text-muted-foreground">{error || t("records.empty")}</p>
           <Button variant="outline" title="Voltar" link="/dashboard/leads" newTab={false} className="mt-4 text-[11px] font-semibold uppercase" />
@@ -241,14 +241,14 @@ export default function LeadDetailClient({
             className="text-xs font-semibold uppercase"
           />
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-white shadow-lg">
+            <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-primary text-white shadow-lg">
               <Users weight="fill" className="h-7 w-7" />
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+              <p className="text-xs font-semibold uppercase tracking-wide text-lamp-ink">
                 {t("header.badge")}
               </p>
-              <h1 className="text-2xl font-bold text-foreground">
+              <h1 className="text-2xl font-semibold text-foreground">
                 {lead.name || lead.number}
               </h1>
             </div>
@@ -258,13 +258,13 @@ export default function LeadDetailClient({
 
       {/* Lead status banner */}
       <motion.div variants={itemVariants}>
-        <div className="rounded-[26px] border border-border/70 bg-card/90 p-5" style={{ boxShadow: softSurfaceShadow }}>
+        <div className="rounded-[--radius] border border-border bg-card p-5" style={{ boxShadow: softSurfaceShadow }}>
           <div className="flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+            <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-healthy/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-healthy dark:bg-emerald-900/30 dark:text-healthy">
               <WhatsappLogo weight="fill" className="h-3.5 w-3.5" />
               {lead.whatsappWindowOpen ? t("window.open") : t("window.closed")}
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-700 dark:bg-slate-800 dark:text-slate-400">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground dark:bg-muted dark:text-muted-foreground">
               <WhatsappLogo weight="fill" className="h-3.5 w-3.5" />
               {lead.whatsappCampaigns} whatsapp
             </span>
@@ -279,7 +279,7 @@ export default function LeadDetailClient({
 
       {/* Tabbed content */}
       <motion.div variants={itemVariants}>
-        <div className="rounded-[26px] border border-border/70 bg-card/90 p-6" style={{ boxShadow: softSurfaceShadow }}>
+        <div className="rounded-[--radius] border border-border bg-card p-6" style={{ boxShadow: softSurfaceShadow }}>
           <Tabs defaultValue="overview" className="w-full">
             <TabsList className="grid w-full grid-cols-2 h-auto gap-1 p-1">
               <TabsTrigger value="overview" className="flex items-center gap-2 py-2">
@@ -295,7 +295,7 @@ export default function LeadDetailClient({
             {/* Overview tab */}
             <TabsContent value="overview" className="mt-6 space-y-4 focus-visible:outline-none">
               <div className="mb-2 flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white">
+                <span className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-white">
                   <Phone weight="fill" className="h-5 w-5" />
                 </span>
                 <div>
@@ -317,7 +317,7 @@ export default function LeadDetailClient({
             {/* Campaigns tab */}
             <TabsContent value="campaigns" className="mt-6 space-y-4 focus-visible:outline-none">
               <div className="mb-2 flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-white">
+                <span className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-healthy text-white">
                   <Phone weight="fill" className="h-5 w-5" />
                 </span>
                 <div>

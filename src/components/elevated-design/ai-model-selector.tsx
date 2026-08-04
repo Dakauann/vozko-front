@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CaretRight } from "@phosphor-icons/react";
+import { CaretRight } from "@/components/icons";
 
 import { ModelPickerSheet } from "./model-picker-sheet";
 import { ModelBrandIcon } from "./model-brand-icon";
@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { softSurfaceWithInset } from "./shadow-presets";
 
 const DISABLED_SHADOW =
-  "0 12px 24px -20px rgba(15,23,42,0.12), inset 0 1px 0 var(--shadow-highlight)";
+  "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)";
 
 function formatPrice(price: number): string {
   if (!price || price <= 0) return "Grátis";
@@ -55,16 +55,25 @@ export function AIModelSelector({
     if (!value || !modelPricing) return undefined;
     return modelPricing.find((p) => p.id === value);
   }, [modelPricing, value]);
-
-  const hasSelection = Boolean(value);
-  const floatingState = focused || open || hasSelection;
   const priceLabel =
     pricing && (pricing.promptPrice > 0 || pricing.completionPrice > 0)
       ? `${formatPrice(pricing.promptPrice)} · ${formatPrice(pricing.completionPrice)} /M`
       : null;
 
   return (
-    <div className={cn("relative w-full", className)}>
+    /*
+      Legend over a sunk field.
+
+      This was a Material-style floating label that animated up and punched a
+      gap through the control's own border. That device belongs to a different
+      system entirely; here a control is legended on the panel above it, the
+      label holds still, and the field reads as a recess rather than an outline
+      with a hole in it.
+    */
+    <div className={cn("w-full", className)}>
+      {label ? (
+        <span className="legend mb-1 block">{label}</span>
+      ) : null}
       <button
         type="button"
         disabled={disabled}
@@ -74,9 +83,9 @@ export function AIModelSelector({
         aria-haspopup="dialog"
         aria-expanded={open}
         className={cn(
-          "flex w-full items-center justify-between gap-3 rounded-full border border-border bg-card px-5 py-3 text-left text-sm font-medium text-foreground transition-all duration-200 ease-out",
-          "hover:border-foreground/20",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "flex w-full items-center justify-between gap-2 rounded-[--radius] border border-border border-t-rule-strong bg-muted px-2.5 py-1.5 text-left text-[13px] font-medium text-foreground transition-colors",
+          "hover:border-rule-strong",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           "disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:opacity-60",
         )}
         style={{
@@ -105,26 +114,6 @@ export function AIModelSelector({
           weight="bold"
         />
       </button>
-
-      {label ? (
-        <label
-          className={cn(
-            "pointer-events-none absolute rounded-full px-2 py-[2px] text-sm font-medium transition-all duration-200 ease-out",
-            "left-5",
-            floatingState
-              ? cn(
-                  "-ml-1 top-0 -translate-y-1/2 text-[11px] shadow-sm",
-                  disabled
-                    ? "bg-muted text-muted-foreground"
-                    : "bg-card text-foreground",
-                )
-              : "top-1/2 -translate-y-1/2 text-muted-foreground",
-          )}
-          style={{ transformOrigin: "left center" }}
-        >
-          {label}
-        </label>
-      ) : null}
 
       <ModelPickerSheet
         open={open}

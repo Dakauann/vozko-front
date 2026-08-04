@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { CaretRight, DotsThreeOutline } from "@phosphor-icons/react";
+import { CaretRight, DotsThreeOutline } from "@/components/icons";
 
 import { Slot } from "@radix-ui/react-slot";
 import { cn } from "@/lib/utils";

@@ -15,7 +15,7 @@ import {
   UploadSimple,
   Warning,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { cn, normalizeBrazilianPhone } from "@/lib/utils";
 import {
@@ -246,7 +246,7 @@ type WhatsAppCampaignFormProps = {
 
 const FieldError = ({ message }: { message?: string }) => {
   if (!message) return null;
-  return <p className="mt-1 text-xs font-semibold text-rose-500">{message}</p>;
+  return <p className="mt-1 text-xs font-semibold text-destructive">{message}</p>;
 };
 
 interface ParsedCsvRecord {
@@ -312,7 +312,7 @@ const ProgressBar = ({
     </div>
     <div className="h-2 w-full overflow-hidden rounded-full bg-border">
       <div
-        className="h-full rounded-full bg-emerald-500 transition-all duration-300 ease-out"
+        className="h-full rounded-full bg-healthy transition-all duration-300 ease-out"
         style={{ width: `${progress}%` }}
       />
     </div>
@@ -1715,8 +1715,8 @@ export default function CreateWhatsAppCampaignForm({
           !organic && "lg:grid-cols-[minmax(0,1fr)_360px]",
         )}
       >
-        <ElevatedContainer className="border border-border/70 bg-card/95 p-6" data-tour="wc-basic-info">
-          <h2 className="mb-4 text-xl font-bold text-foreground">
+        <ElevatedContainer className="border border-border bg-card p-6" data-tour="wc-basic-info">
+          <h2 className="mb-4 text-xl font-semibold text-foreground">
             {t("basicInfo.title")}
           </h2>
 
@@ -1838,17 +1838,17 @@ export default function CreateWhatsAppCampaignForm({
                 {selectedTemplateMissingMedia &&
                   isAdmin &&
                   selectedTemplate && (
-                    <div className="mt-3 rounded-lg border border-amber-500/20 bg-amber-500/10 p-4">
+                    <div className="mt-3 rounded-lg border border-warning/20 bg-warning/10 p-4">
                       <div className="flex items-start gap-3">
                         <ImageSquare
-                          className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5"
+                          className="h-5 w-5 text-warning flex-shrink-0 mt-0.5"
                           weight="fill"
                         />
                         <div className="flex-1">
                           <h4 className="text-sm font-semibold text-amber-800">
                             {t("media.missingTitle")}
                           </h4>
-                          <p className="text-xs text-amber-700 mt-1">
+                          <p className="text-xs text-warning mt-1">
                             {t("media.missingDescription")}
                           </p>
                           <Button
@@ -1870,25 +1870,25 @@ export default function CreateWhatsAppCampaignForm({
 
                 {/* Show template variables info when a template is selected */}
                 {selectedTemplate && templateVariables.length > 0 && (
-                  <div className="mt-3 rounded-lg border border-emerald-500/20 bg-emerald-50 p-4" data-tour="wc-template-variables">
+                  <div className="mt-3 rounded-lg border border-healthy/20 bg-healthy/10 p-4" data-tour="wc-template-variables">
                     <h4 className="text-sm font-semibold text-emerald-800 mb-2">
                       {t("basicInfo.templateVariables")}
                     </h4>
-                    <p className="text-xs text-emerald-700 mb-3">
+                    <p className="text-xs text-healthy mb-3">
                       {t("basicInfo.templateVariablesDescription")}
                     </p>
                     <div className="flex flex-wrap gap-2 mb-4">
                       {templateVariables.map((varPlaceholder, idx) => (
                         <span
                           key={idx}
-                          className="inline-flex items-center rounded-md bg-emerald-500 px-2 py-1 text-xs font-medium text-white"
+                          className="inline-flex items-center rounded-md bg-healthy px-2 py-1 text-xs font-medium text-white"
                         >
                           {varPlaceholder}
                         </span>
                       ))}
                     </div>
 
-                    <p className="text-xs text-emerald-700 border-t border-emerald-500/20 pt-3">
+                    <p className="text-xs text-healthy border-t border-healthy/20 pt-3">
                       A prévia do template fica no painel da direita com um
                       contato aleatório desta campanha.
                     </p>
@@ -1901,7 +1901,7 @@ export default function CreateWhatsAppCampaignForm({
               <p className="text-sm font-medium text-foreground mb-2">
                 {t("basicInfo.responseMode")}
               </p>
-              <div className="flex items-center gap-2 rounded-lg border border-border/60 p-1 mb-3">
+              <div className="flex items-center gap-2 rounded-lg border border-border p-1 mb-3">
                 <button
                   type="button"
                   onClick={() => {
@@ -2156,7 +2156,7 @@ export default function CreateWhatsAppCampaignForm({
         </ElevatedContainer>
 
         {!organic && (
-          <ElevatedContainer className="border border-border/70 bg-card/95 p-5 lg:sticky lg:top-20" data-tour="wc-preview">
+          <ElevatedContainer className="border border-border bg-card p-5 lg:sticky lg:top-16" data-tour="wc-preview">
             <div className="mb-4 flex items-center justify-between gap-3">
               <h3 className="text-sm font-semibold text-foreground">
                 Prévia do template
@@ -2196,7 +2196,7 @@ export default function CreateWhatsAppCampaignForm({
                   </p>
                 </div>
 
-                <div className="bg-[#e5ddd5] rounded-xl p-3">
+                <div className="bg-[#e5ddd5] rounded-[--radius] p-3">
                   <div className="bg-card rounded-lg shadow-sm overflow-hidden">
                     {selectedTemplate.components.find(
                       (c) => c.type === "HEADER",
@@ -2274,9 +2274,9 @@ export default function CreateWhatsAppCampaignForm({
       </div>
 
       {!organic && (
-        <ElevatedContainer className="border border-border/70 bg-card/95 p-6" data-tour="wc-contacts">
+        <ElevatedContainer className="border border-border bg-card p-6" data-tour="wc-contacts">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-foreground">
+            <h2 className="text-xl font-semibold text-foreground">
               {t("contacts.title")}
             </h2>
             <div className="flex items-center gap-2" data-tour="wc-csv-buttons">
@@ -2330,14 +2330,14 @@ export default function CreateWhatsAppCampaignForm({
           )}
 
           {csvError && (
-            <div className="mb-4 rounded-lg border border-rose-200 bg-rose-50 p-3">
-              <p className="text-sm text-rose-600">{csvError}</p>
+            <div className="mb-4 rounded-lg border border-rose-200 bg-destructive/10 p-3">
+              <p className="text-sm text-destructive">{csvError}</p>
             </div>
           )}
 
           {/* Skipped lines warning */}
           {skippedLines.length > 0 && (
-            <div className="mb-4 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3">
+            <div className="mb-4 rounded-[--radius] border border-warning/20 bg-warning/10 px-4 py-3">
               <button
                 type="button"
                 className="flex w-full items-center gap-2 text-left"
@@ -2347,14 +2347,14 @@ export default function CreateWhatsAppCampaignForm({
                 }}
               >
                 <Warning
-                  className="h-5 w-5 flex-shrink-0 text-amber-600"
+                  className="h-5 w-5 flex-shrink-0 text-warning"
                   weight="bold"
                 />
                 <span className="flex-1 text-sm font-semibold text-amber-800">
                   {t("csv.skippedTitle", { count: skippedLines.length })}
                 </span>
                 <CaretDown
-                  className={`h-4 w-4 text-amber-600 transition-transform duration-200 ${skippedLinesOpen ? "rotate-180" : ""}`}
+                  className={`h-4 w-4 text-warning transition-transform duration-200 ${skippedLinesOpen ? "rotate-180" : ""}`}
                   weight="bold"
                 />
               </button>
@@ -2374,12 +2374,12 @@ export default function CreateWhatsAppCampaignForm({
                         {pageItems.map((sl) => (
                           <div
                             key={sl.line}
-                            className="rounded-lg bg-amber-500 px-3 py-2 text-xs text-white"
+                            className="rounded-lg bg-warning px-3 py-2 text-xs text-white"
                           >
                             <span className="font-semibold">
                               {t("csv.skippedLineLabel", { line: sl.line })}
                             </span>{" "}
-                            <span className="break-all font-mono text-amber-700">
+                            <span className="break-all font-mono text-warning">
                               {sl.rawContent}
                             </span>
                           </div>
@@ -2387,7 +2387,7 @@ export default function CreateWhatsAppCampaignForm({
                       </div>
                       {totalPages > 1 && (
                         <div className="mt-2 flex items-center justify-between">
-                          <span className="text-xs text-amber-700">
+                          <span className="text-xs text-warning">
                             {start + 1}–
                             {Math.min(
                               start + SKIPPED_PAGE_SIZE,
@@ -2400,18 +2400,18 @@ export default function CreateWhatsAppCampaignForm({
                               type="button"
                               disabled={skippedPage === 0}
                               onClick={() => setSkippedPage((p) => p - 1)}
-                              className="rounded p-1 text-amber-700 hover:bg-amber-500/20 disabled:opacity-40"
+                              className="rounded p-1 text-warning hover:bg-warning/20 disabled:opacity-40"
                             >
                               <CaretLeft className="h-4 w-4" weight="bold" />
                             </button>
-                            <span className="text-xs text-amber-700">
+                            <span className="text-xs text-warning">
                               {skippedPage + 1} / {totalPages.toLocaleString()}
                             </span>
                             <button
                               type="button"
                               disabled={skippedPage >= totalPages - 1}
                               onClick={() => setSkippedPage((p) => p + 1)}
-                              className="rounded p-1 text-amber-700 hover:bg-amber-500/20 disabled:opacity-40"
+                              className="rounded p-1 text-warning hover:bg-warning/20 disabled:opacity-40"
                             >
                               <CaretRight className="h-4 w-4" weight="bold" />
                             </button>
@@ -2427,17 +2427,17 @@ export default function CreateWhatsAppCampaignForm({
           {/* Missing variables warning */}
           {(templateVariables.length > 0 || requiredCampaignVars.length > 0) &&
             missingVariablesCount > 0 && (
-              <div className="mb-4 rounded-lg border border-amber-500/20 bg-amber-500/10 p-4" data-tour="wc-missing-vars">
+              <div className="mb-4 rounded-lg border border-warning/20 bg-warning/10 p-4" data-tour="wc-missing-vars">
                 <div className="flex items-start gap-3">
                   <Warning
-                    className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5"
+                    className="h-5 w-5 text-warning flex-shrink-0 mt-0.5"
                     weight="bold"
                   />
                   <div className="flex-1">
                     <h4 className="text-sm font-semibold text-amber-800">
                       {t("validation.missingVariablesTitle")}
                     </h4>
-                    <p className="text-sm text-amber-700 mt-1">
+                    <p className="text-sm text-warning mt-1">
                       {t("validation.missingVariablesDescription", {
                         count: missingVariablesCount,
                       })}
@@ -2495,7 +2495,7 @@ export default function CreateWhatsAppCampaignForm({
                 }}
                 className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
                   showOnlyMissingVars
-                    ? "bg-amber-500 border-amber-600 text-white"
+                    ? "bg-warning border-warning text-white"
                     : "bg-card border-border text-muted-foreground hover:bg-muted"
                 }`}
               >
@@ -2505,7 +2505,7 @@ export default function CreateWhatsAppCampaignForm({
                 />
                 {t("contacts.filterMissingVars")}
                 {missingVariablesCount > 0 && (
-                  <span className="ml-1 px-1.5 py-0.5 text-xs font-bold rounded-full bg-amber-200 text-amber-800">
+                  <span className="ml-1 px-1.5 py-0.5 text-xs font-semibold rounded-full bg-amber-200 text-amber-800">
                     {missingVariablesCount}
                   </span>
                 )}
@@ -2530,7 +2530,7 @@ export default function CreateWhatsAppCampaignForm({
                   setShowOnlyMissingVars(false);
                   setCurrentPage(0);
                 }}
-                className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                className="text-sm text-healthy hover:text-healthy font-medium"
               >
                 {t("contacts.clearFilters")}
               </button>
@@ -2547,11 +2547,11 @@ export default function CreateWhatsAppCampaignForm({
                   <div
                     key={field.key}
                     className={`flex items-center gap-2 rounded-lg px-3 py-1.5 ${
-                      field.required ? "bg-amber-50" : "bg-emerald-50"
+                      field.required ? "bg-amber-50" : "bg-healthy/10"
                     }`}
                   >
                     <span
-                      className={`text-sm ${field.required ? "text-amber-700 font-medium" : "text-emerald-700"}`}
+                      className={`text-sm ${field.required ? "text-warning font-medium" : "text-healthy"}`}
                     >
                       {field.label}
                       {field.required ? " *" : ""}
@@ -2560,7 +2560,7 @@ export default function CreateWhatsAppCampaignForm({
                       <button
                         type="button"
                         onClick={() => removeMetadataField(field.key)}
-                        className="text-emerald-600 hover:text-emerald-800"
+                        className="text-healthy hover:text-emerald-800"
                       >
                         <X className="h-3 w-3" weight="bold" />
                       </button>
@@ -2618,7 +2618,7 @@ export default function CreateWhatsAppCampaignForm({
                   key={field.id}
                   className={`grid grid-cols-12 gap-3 items-start rounded-lg p-2 -mx-2 ${
                     isMissingVars
-                      ? "bg-amber-500/10 border border-amber-500/20"
+                      ? "bg-warning/10 border border-warning/20"
                       : ""
                   }`}
                 >
@@ -2682,7 +2682,7 @@ export default function CreateWhatsAppCampaignForm({
                       <button
                         type="button"
                         onClick={() => remove(originalIndex)}
-                        className="flex h-9 w-9 items-center justify-center rounded-lg text-rose-500 transition-colors hover:bg-rose-50"
+                        className="flex h-9 w-9 items-center justify-center rounded-lg text-destructive transition-colors hover:bg-destructive/10"
                       >
                         <Trash className="h-4 w-4" weight="bold" />
                       </button>

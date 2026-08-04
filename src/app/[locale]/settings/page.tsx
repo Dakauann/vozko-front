@@ -26,7 +26,7 @@ import {
   User,
   UserCircle,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import type { UserPlan, User as UserType } from "@/lib/auth/types";
 import {
   getCurrentUserAction,
@@ -264,15 +264,15 @@ export default function SettingsPage() {
     > = {
       admin: {
         label: "Administrador",
-        color: "text-purple-700",
-        bg: "bg-purple-500/15",
+        color: "text-muted-foreground",
+        bg: "bg-muted",
       },
-      manager: { label: "Gerente", color: "text-primary", bg: "bg-primary/15" },
+      manager: { label: "Gerente", color: "text-lamp-ink", bg: "bg-primary/15" },
       user: { label: "Usuário", color: "text-foreground", bg: "bg-muted" },
       customer: {
         label: "Cliente",
-        color: "text-emerald-700",
-        bg: "bg-emerald-500/15",
+        color: "text-healthy",
+        bg: "bg-healthy/15",
       },
     };
     return (
@@ -306,7 +306,7 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-muted via-card to-background pt-24 pb-16">
+      <div className="min-h-screen bg-muted pt-24 pb-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <motion.main
             variants={containerVariants}
@@ -315,10 +315,10 @@ export default function SettingsPage() {
             className="w-full space-y-6"
           >
             <motion.div variants={itemVariants}>
-              <ElevatedContainer className="flex items-center justify-center py-20 border border-border/70 bg-card">
+              <ElevatedContainer className="flex items-center justify-center py-20 border border-border bg-card">
                 <div className="flex flex-col items-center gap-4">
                   <CircleNotch
-                    className="h-8 w-8 animate-spin text-primary"
+                    className="h-8 w-8 animate-spin text-lamp-ink"
                     weight="bold"
                   />
                   <p className="text-sm text-muted-foreground">
@@ -339,7 +339,7 @@ export default function SettingsPage() {
     : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-muted via-card to-background pt-24 pb-16">
+    <div className="min-h-screen bg-muted pt-24 pb-16">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <motion.main
           variants={containerVariants}
@@ -351,8 +351,8 @@ export default function SettingsPage() {
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <GearSix className="h-6 w-6 text-primary" weight="fill" />
-                  <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+                  <GearSix className="h-6 w-6 text-lamp-ink" weight="fill" />
+                  <span className="text-xs font-semibold uppercase tracking-wider text-lamp-ink">
                     Configurações
                   </span>
                 </div>
@@ -361,7 +361,7 @@ export default function SettingsPage() {
                   alignment="left"
                   startColor="#64748b"
                   endColor="#94a3b8"
-                  className="text-2xl font-bold md:text-3xl"
+                  className="text-2xl font-semibold md:text-3xl"
                 >
                   Configurações da Conta
                 </GradientText>
@@ -378,7 +378,7 @@ export default function SettingsPage() {
             className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
           >
             <motion.div variants={itemVariants}>
-              <ElevatedContainer className="border border-border/70 bg-card p-5">
+              <ElevatedContainer className="border border-border bg-card p-5">
                 <div className="flex items-center gap-4">
                   <IconBox color="blue" size="md">
                     <UserCircle weight="fill" />
@@ -394,7 +394,7 @@ export default function SettingsPage() {
             </motion.div>
 
             <motion.div variants={itemVariants}>
-              <ElevatedContainer className="border border-border/70 bg-card p-5">
+              <ElevatedContainer className="border border-border bg-card p-5">
                 <div className="flex items-center gap-4">
                   <IconBox color="emerald" size="md">
                     <Envelope weight="fill" />
@@ -413,7 +413,7 @@ export default function SettingsPage() {
             </motion.div>
 
             <motion.div variants={itemVariants}>
-              <ElevatedContainer className="border border-border/70 bg-card p-5">
+              <ElevatedContainer className="border border-border bg-card p-5">
                 <div className="flex items-center gap-4">
                   <IconBox color="purple" size="md">
                     <ShieldCheck weight="fill" />
@@ -421,7 +421,7 @@ export default function SettingsPage() {
                   <div>
                     {roleBadge && (
                       <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${roleBadge.bg} ${roleBadge.color}`}
+                        className={`inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium ${roleBadge.bg} ${roleBadge.color}`}
                       >
                         {roleBadge.label}
                       </span>
@@ -433,7 +433,7 @@ export default function SettingsPage() {
             </motion.div>
 
             <motion.div variants={itemVariants}>
-              <ElevatedContainer className="border border-border/70 bg-card p-5">
+              <ElevatedContainer className="border border-border bg-card p-5">
                 <div className="flex items-center gap-4">
                   <IconBox color="amber" size="md">
                     {customerTypeBadge?.icon ? (
@@ -457,7 +457,7 @@ export default function SettingsPage() {
 
           {plan && (
             <motion.div variants={itemVariants}>
-              <ElevatedContainer className="border border-border/70 bg-card p-6">
+              <ElevatedContainer className="border border-border bg-card p-6">
                 <div className="flex items-center gap-3 mb-6">
                   <IconBox color="primary" size="sm">
                     <CrownSimple weight="fill" />
@@ -473,7 +473,7 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="flex items-center gap-4 rounded-xl border border-border bg-muted/80 p-4">
+                  <div className="flex items-center gap-4 rounded-[--radius] border border-border bg-muted p-4">
                     <IconBox color="primary" size="md">
                       <CrownSimple weight="fill" />
                     </IconBox>
@@ -483,21 +483,6 @@ export default function SettingsPage() {
                       </p>
                       <p className="text-xs text-muted-foreground">
                         Plano atual
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4 rounded-xl border border-border bg-muted/80 p-4">
-                    <IconBox color="emerald" size="md">
-                      <Phone weight="fill" />
-                    </IconBox>
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">
-                        {plan.maxCallChannels}{" "}
-                        {plan.maxCallChannels === 1 ? "canal" : "canais"}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Chamadas simultâneas
                       </p>
                     </div>
                   </div>
@@ -511,7 +496,7 @@ export default function SettingsPage() {
             className="grid gap-6 lg:grid-cols-2"
           >
             <motion.div variants={itemVariants}>
-              <ElevatedContainer className="h-full border border-border/70 bg-card p-6">
+              <ElevatedContainer className="h-full border border-border bg-card p-6">
                 <div className="flex items-center gap-3 mb-6">
                   <IconBox color="blue" size="sm">
                     <IdentificationBadge weight="fill" />
@@ -527,7 +512,7 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between rounded-xl border border-border bg-muted/80 p-4">
+                  <div className="flex items-center justify-between rounded-[--radius] border border-border bg-muted p-4">
                     <div className="flex items-center gap-3">
                       <User
                         className="h-5 w-5 text-muted-foreground"
@@ -544,7 +529,7 @@ export default function SettingsPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between rounded-xl border border-border bg-muted/80 p-4">
+                  <div className="flex items-center justify-between rounded-[--radius] border border-border bg-muted p-4">
                     <div className="flex items-center gap-3">
                       <Envelope
                         className="h-5 w-5 text-muted-foreground"
@@ -561,7 +546,7 @@ export default function SettingsPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between rounded-xl border border-border bg-muted/80 p-4">
+                  <div className="flex items-center justify-between rounded-[--radius] border border-border bg-muted p-4">
                     <div className="flex items-center gap-3">
                       <IdentificationBadge
                         className="h-5 w-5 text-muted-foreground"
@@ -578,7 +563,7 @@ export default function SettingsPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between rounded-xl border border-border bg-muted/80 p-4">
+                  <div className="flex items-center justify-between rounded-[--radius] border border-border bg-muted p-4">
                     <div className="flex items-center gap-3">
                       <CalendarBlank
                         className="h-5 w-5 text-muted-foreground"
@@ -599,7 +584,7 @@ export default function SettingsPage() {
             </motion.div>
 
             <motion.div variants={itemVariants}>
-              <ElevatedContainer className="h-full border border-border/70 bg-card p-6">
+              <ElevatedContainer className="h-full border border-border bg-card p-6">
                 <div className="flex items-center gap-3 mb-6">
                   <IconBox color="emerald" size="sm">
                     <Lock weight="fill" />
@@ -615,7 +600,7 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="rounded-xl border border-border bg-muted/80 p-4">
+                  <div className="rounded-[--radius] border border-border bg-muted p-4">
                     <AnimatePresence mode="wait">
                       {passwordResetStep === "idle" && (
                         <motion.div
@@ -627,7 +612,7 @@ export default function SettingsPage() {
                         >
                           <div className="flex items-start gap-3">
                             <ShieldCheck
-                              className="h-5 w-5 text-emerald-500 mt-0.5"
+                              className="h-5 w-5 text-healthy mt-0.5"
                               weight="fill"
                             />
                             <div className="flex-1">
@@ -643,7 +628,7 @@ export default function SettingsPage() {
 
                           {passwordResetError && (
                             <div className="mt-4 flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/30 p-3">
-                              <p className="text-sm text-red-700">
+                              <p className="text-sm text-destructive">
                                 {passwordResetError}
                               </p>
                             </div>
@@ -679,7 +664,7 @@ export default function SettingsPage() {
                         >
                           <div className="flex flex-col items-center gap-3">
                             <CircleNotch
-                              className="h-8 w-8 animate-spin text-primary"
+                              className="h-8 w-8 animate-spin text-lamp-ink"
                               weight="bold"
                             />
                             <p className="text-sm text-muted-foreground">
@@ -700,7 +685,7 @@ export default function SettingsPage() {
                           <div className="flex items-start justify-between gap-3 mb-4">
                             <div className="flex items-start gap-3">
                               <Lock
-                                className="h-5 w-5 text-primary mt-0.5"
+                                className="h-5 w-5 text-lamp-ink mt-0.5"
                                 weight="fill"
                               />
                               <div>
@@ -726,7 +711,7 @@ export default function SettingsPage() {
 
                           {passwordResetError && (
                             <div className="mb-4 flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/30 p-3">
-                              <p className="text-sm text-red-700">
+                              <p className="text-sm text-destructive">
                                 {passwordResetError}
                               </p>
                             </div>
@@ -831,7 +816,7 @@ export default function SettingsPage() {
                             <button
                               type="button"
                               onClick={handleSendPasswordReset}
-                              className="text-xs text-primary hover:text-primary font-medium transition-colors"
+                              className="text-xs text-lamp-ink hover:text-lamp-ink font-medium transition-colors"
                             >
                               Não recebeu o código? Enviar novamente
                             </button>
@@ -850,7 +835,7 @@ export default function SettingsPage() {
                         >
                           <div className="flex flex-col items-center gap-3">
                             <CircleNotch
-                              className="h-8 w-8 animate-spin text-primary"
+                              className="h-8 w-8 animate-spin text-lamp-ink"
                               weight="bold"
                             />
                             <p className="text-sm text-muted-foreground">
@@ -869,10 +854,10 @@ export default function SettingsPage() {
                           transition={{ duration: 0.3 }}
                           className="text-center py-6"
                         >
-                          <div className="mx-auto w-14 h-14 mb-4 rounded-full bg-emerald-500/15 flex items-center justify-center">
+                          <div className="mx-auto w-14 h-14 mb-4 rounded-full bg-healthy/15 flex items-center justify-center">
                             <CheckCircle
                               weight="fill"
-                              className="w-8 h-8 text-emerald-600"
+                              className="w-8 h-8 text-healthy"
                             />
                           </div>
                           <h3 className="text-lg font-semibold text-foreground mb-1">
@@ -895,10 +880,10 @@ export default function SettingsPage() {
                     </AnimatePresence>
                   </div>
 
-                  <div className="rounded-xl border border-border bg-muted/80 p-4">
+                  <div className="rounded-[--radius] border border-border bg-muted p-4">
                     <div className="flex items-start gap-3">
                       <Lock
-                        className="h-5 w-5 text-primary mt-0.5"
+                        className="h-5 w-5 text-lamp-ink mt-0.5"
                         weight="fill"
                       />
                       <div className="flex-1">
@@ -908,7 +893,7 @@ export default function SettingsPage() {
                         <p className="text-xs text-muted-foreground mt-1">
                           Adicione uma camada extra de segurança à sua conta.
                         </p>
-                        <span className="inline-flex items-center mt-2 rounded-full bg-border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                        <span className="inline-flex items-center mt-2 rounded-[--radius] bg-border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
                           Em breve
                         </span>
                       </div>
@@ -921,7 +906,7 @@ export default function SettingsPage() {
 
           {/* Active Sessions Section */}
           <motion.div variants={itemVariants}>
-            <ElevatedContainer className="border border-border/70 bg-card p-6">
+            <ElevatedContainer className="border border-border bg-card p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <IconBox color="primary" size="sm">
@@ -941,7 +926,7 @@ export default function SettingsPage() {
               {sessionsLoading ? (
                 <div className="flex items-center justify-center py-10">
                   <CircleNotch
-                    className="h-6 w-6 animate-spin text-primary"
+                    className="h-6 w-6 animate-spin text-lamp-ink"
                     weight="bold"
                   />
                 </div>
@@ -959,7 +944,7 @@ export default function SettingsPage() {
                     return (
                       <div
                         key={session.id}
-                        className="flex items-center justify-between gap-4 rounded-xl border border-border bg-muted/80 p-4"
+                        className="flex items-center justify-between gap-4 rounded-[--radius] border border-border bg-muted p-4"
                       >
                         <div className="flex items-center gap-4 min-w-0 flex-1">
                           <IconBox color="primary" size="sm">
@@ -975,7 +960,7 @@ export default function SettingsPage() {
                                 {device.browser}, {device.os}
                               </p>
                               {session.isCurrent && (
-                                <span className="inline-flex items-center rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-semibold text-white">
+                                <span className="inline-flex items-center rounded-[--radius] bg-healthy px-2 py-0.5 text-[10px] font-semibold text-white">
                                   Este dispositivo
                                 </span>
                               )}
@@ -1003,7 +988,7 @@ export default function SettingsPage() {
                           <button
                             onClick={() => handleRevokeSession(session.id)}
                             disabled={isRevoking}
-                            className="shrink-0 flex items-center gap-1.5 rounded-lg border border-red-600 bg-red-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-600 disabled:opacity-50"
+                            className="shrink-0 flex items-center gap-1.5 rounded-lg border border-destructive bg-destructive px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-destructive disabled:opacity-50"
                           >
                             {isRevoking ? (
                               <CircleNotch
@@ -1025,7 +1010,7 @@ export default function SettingsPage() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <ElevatedContainer className="border border-border/70 bg-card p-6">
+            <ElevatedContainer className="border border-border bg-card p-6">
               <div className="flex items-center gap-3 mb-6">
                 <IconBox color="amber" size="sm">
                   <Bell weight="fill" />
@@ -1041,11 +1026,11 @@ export default function SettingsPage() {
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
-                <label className="flex items-start gap-4 rounded-xl border border-border bg-muted/80 p-4 cursor-pointer hover:bg-muted/80 transition-colors">
+                <label className="flex items-start gap-4 rounded-[--radius] border border-border bg-muted p-4 cursor-pointer hover:bg-muted transition-colors">
                   <input
                     type="checkbox"
                     defaultChecked
-                    className="mt-1 h-4 w-4 rounded border-foreground/20 text-primary focus:ring-blue-500"
+                    className="mt-1 h-4 w-4 rounded border-foreground/20 text-lamp-ink focus:ring-blue-500"
                   />
                   <div>
                     <p className="text-sm font-medium text-foreground">
@@ -1058,10 +1043,10 @@ export default function SettingsPage() {
                   </div>
                 </label>
 
-                <label className="flex items-start gap-4 rounded-xl border border-border bg-muted/80 p-4 cursor-pointer hover:bg-muted/80 transition-colors">
+                <label className="flex items-start gap-4 rounded-[--radius] border border-border bg-muted p-4 cursor-pointer hover:bg-muted transition-colors">
                   <input
                     type="checkbox"
-                    className="mt-1 h-4 w-4 rounded border-foreground/20 text-primary focus:ring-blue-500"
+                    className="mt-1 h-4 w-4 rounded border-foreground/20 text-lamp-ink focus:ring-blue-500"
                   />
                   <div>
                     <p className="text-sm font-medium text-foreground">
@@ -1074,11 +1059,11 @@ export default function SettingsPage() {
                   </div>
                 </label>
 
-                <label className="flex items-start gap-4 rounded-xl border border-border bg-muted/80 p-4 cursor-pointer hover:bg-muted/80 transition-colors">
+                <label className="flex items-start gap-4 rounded-[--radius] border border-border bg-muted p-4 cursor-pointer hover:bg-muted transition-colors">
                   <input
                     type="checkbox"
                     defaultChecked
-                    className="mt-1 h-4 w-4 rounded border-foreground/20 text-primary focus:ring-blue-500"
+                    className="mt-1 h-4 w-4 rounded border-foreground/20 text-lamp-ink focus:ring-blue-500"
                   />
                   <div>
                     <p className="text-sm font-medium text-foreground">
@@ -1091,10 +1076,10 @@ export default function SettingsPage() {
                   </div>
                 </label>
 
-                <label className="flex items-start gap-4 rounded-xl border border-border bg-muted/80 p-4 cursor-pointer hover:bg-muted/80 transition-colors">
+                <label className="flex items-start gap-4 rounded-[--radius] border border-border bg-muted p-4 cursor-pointer hover:bg-muted transition-colors">
                   <input
                     type="checkbox"
-                    className="mt-1 h-4 w-4 rounded border-foreground/20 text-primary focus:ring-blue-500"
+                    className="mt-1 h-4 w-4 rounded border-foreground/20 text-lamp-ink focus:ring-blue-500"
                   />
                   <div>
                     <p className="text-sm font-medium text-foreground">

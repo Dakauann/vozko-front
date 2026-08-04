@@ -15,7 +15,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { ChartBar, ChartLine, ChartPie, Spinner } from "@phosphor-icons/react";
+import { ChartBar, ChartLine, ChartPie, Spinner } from "@/components/icons";
 
 import React from "react";
 
@@ -72,7 +72,7 @@ export const ElevatedChartTooltip: React.FC<ChartTooltipProps> = ({
   })();
 
   return (
-    <div className="bg-card/95 backdrop-blur-xl border border-border/60 rounded-2xl p-4 shadow-2xl shadow-slate-900/10">
+    <div className="bg-card border border-border rounded-[--radius] p-4 shadow-2xl shadow-slate-900/10">
       <p className="text-sm font-semibold text-foreground mb-3 pb-2 border-b border-border">
         {displayLabel}
       </p>
@@ -95,7 +95,7 @@ export const ElevatedChartTooltip: React.FC<ChartTooltipProps> = ({
                   {formattedName}
                 </span>
               </div>
-              <span className="text-sm font-bold text-foreground">
+              <span className="text-sm font-semibold text-foreground">
                 {formattedValue}
               </span>
             </div>
@@ -117,7 +117,7 @@ export const ChartLoadingState: React.FC<ChartLoadingStateProps> = ({
     className="flex items-center justify-center"
     style={{ height: `${height}px` }}
   >
-    <Spinner className="h-8 w-8 animate-spin text-primary" />
+    <Spinner className="h-8 w-8 animate-spin text-lamp-ink" />
   </div>
 );
 
@@ -140,7 +140,7 @@ export const ChartEmptyState: React.FC<ChartEmptyStateProps> = ({
       className="flex flex-col items-center justify-center text-muted-foreground"
       style={{ height: `${height}px` }}
     >
-      <Icon className="h-12 w-12 mb-2 text-slate-300" />
+      <Icon className="h-12 w-12 mb-2 text-muted-foreground" />
       <p>{message}</p>
     </div>
   );

@@ -11,7 +11,7 @@ import {
   Trash,
   UploadSimple,
   X,
-} from "@phosphor-icons/react";
+} from "@/components/icons";
 import { useCallback, useRef, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
@@ -87,8 +87,8 @@ const StepIndicator = ({
     <div className="flex items-center gap-3">
       <div
         className={cn(
-          "flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-semibold transition-all",
-          isCompleted && "border-emerald-500 bg-emerald-500 text-white",
+          "flex h-8 w-8 items-center justify-center rounded-full border text-sm font-semibold transition-all",
+          isCompleted && "border-healthy bg-healthy text-white",
           isCurrent && "border-primary bg-primary text-white",
           !isCompleted &&
             !isCurrent &&
@@ -352,10 +352,10 @@ export default function KnowledgeBaseForm({
 
       {/* Step 1: Basic Info */}
       {(currentStep === 1 || mode === "edit") && (
-        <ElevatedContainer className="p-6 space-y-6 border border-border/70">
+        <ElevatedContainer className="p-6 space-y-6 border border-border">
           <div className="flex items-center gap-3 mb-4">
-            <div className="rounded-xl bg-gradient-to-br from-primary/20 to-primary/20 p-3">
-              <Files className="h-6 w-6 text-primary" weight="fill" />
+            <div className="rounded-[--radius] bg-muted p-3">
+              <Files className="h-6 w-6 text-lamp-ink" weight="fill" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-foreground">
@@ -391,10 +391,10 @@ export default function KnowledgeBaseForm({
 
       {/* Step 2: Documents */}
       {currentStep === 2 && mode === "create" && (
-        <ElevatedContainer className="p-6 space-y-6 border border-border/70">
+        <ElevatedContainer className="p-6 space-y-6 border border-border">
           <div className="flex items-center gap-3 mb-4">
-            <div className="rounded-xl bg-gradient-to-br from-primary/20 to-primary/20 p-3">
-              <UploadSimple className="h-6 w-6 text-primary" weight="fill" />
+            <div className="rounded-[--radius] bg-muted p-3">
+              <UploadSimple className="h-6 w-6 text-lamp-ink" weight="fill" />
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-foreground">
@@ -425,13 +425,13 @@ export default function KnowledgeBaseForm({
               fileInputRef.current?.click()
             }
             className={cn(
-              "relative flex min-h-[200px] flex-col items-center justify-center rounded-xl border-2 border-dashed transition-all",
+              "relative flex min-h-[200px] flex-col items-center justify-center rounded-[--radius] border border-dashed transition-all",
               pendingFiles.length >= MAX_DOCUMENTS
                 ? "opacity-50 cursor-not-allowed border-border"
                 : "cursor-pointer",
               isDragging
-                ? "border-primary bg-primary/10"
-                : "border-border hover:border-primary/50 hover:bg-muted/50",
+                ? "border-primary bg-muted"
+                : "border-border hover:border-primary/50 hover:bg-muted",
             )}
           >
             <input
@@ -447,8 +447,8 @@ export default function KnowledgeBaseForm({
             />
 
             <div className="flex flex-col items-center gap-3 text-center px-6">
-              <div className="rounded-full bg-primary/10 p-4">
-                <UploadSimple className="h-8 w-8 text-primary" weight="bold" />
+              <div className="rounded-full bg-muted p-4">
+                <UploadSimple className="h-8 w-8 text-lamp-ink" weight="bold" />
               </div>
               <div>
                 <p className="font-medium text-foreground">
@@ -485,8 +485,8 @@ export default function KnowledgeBaseForm({
                     key={pf.name}
                     className="flex items-center gap-3 rounded-lg border border-border bg-card p-3"
                   >
-                    <div className="rounded-lg bg-primary/10 p-2">
-                      <File className="h-4 w-4 text-primary" weight="fill" />
+                    <div className="rounded-lg bg-muted p-2">
+                      <File className="h-4 w-4 text-lamp-ink" weight="fill" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">
@@ -499,7 +499,7 @@ export default function KnowledgeBaseForm({
                     <button
                       type="button"
                       onClick={() => removeFile(pf.name)}
-                      className="rounded-lg p-2 text-muted-foreground hover:bg-red-500 hover:text-white"
+                      className="rounded-lg p-2 text-muted-foreground hover:bg-destructive hover:text-white"
                     >
                       <Trash className="h-4 w-4" weight="bold" />
                     </button>

@@ -51,8 +51,8 @@ import {
   Shuffle,
   CheckCircle,
   WebhooksLogo,
-} from "@phosphor-icons/react";
-import type { Icon } from "@phosphor-icons/react";
+} from "@/components/icons";
+import type { Icon } from "@/components/icons";
 import type {
   WorkflowNodeType,
   NodeCategory,
@@ -465,7 +465,7 @@ function renderNodeContent(
 
       const toolModeBadge =
         hasTools && toolMode === "execute" ? (
-          <div className="flex items-center gap-1.5 rounded-md bg-indigo-500 px-1.5 py-0.5 mt-1">
+          <div className="flex items-center gap-1.5 rounded-md bg-muted px-1.5 py-0.5 mt-1">
             <ArrowsClockwise
               size={10}
               weight="bold"
@@ -505,7 +505,7 @@ function renderNodeContent(
       if (!agentName) return <EmptyPreview label="Nenhum agente" />;
       return (
         <div className="space-y-1">
-          <div className="flex items-center gap-2 rounded-lg bg-muted/40 px-2.5 py-1.5">
+          <div className="flex items-center gap-2 rounded-lg bg-muted px-2.5 py-1.5">
             <PreviewIcon
               icon={Robot}
               gradient="from-violet-500 to-violet-600"
@@ -524,7 +524,7 @@ function renderNodeContent(
       const val = config.value as string;
       if (!variable) return <EmptyPreview label="Nenhuma variável" />;
       return (
-        <div className="rounded-lg bg-muted/50 px-2.5 py-1.5">
+        <div className="rounded-lg bg-muted px-2.5 py-1.5">
           <code className="text-[11px] text-foreground/70">
             {variable} = {val ?? ""}
           </code>
@@ -538,9 +538,9 @@ function renderNodeContent(
       const captureVariable = (config.capture_variable as string) || "";
       if (!url) return <EmptyPreview label="Nenhuma URL" />;
       return (
-        <div className="min-w-0 rounded-lg bg-muted/50 px-2.5 py-2">
+        <div className="min-w-0 rounded-lg bg-muted px-2.5 py-2">
           <div className="flex items-center gap-1.5 min-w-0">
-            <span className="shrink-0 rounded bg-sky-600 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.18em] text-white">
+            <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.18em] text-white">
               {method}
             </span>
             <code className="min-w-0 flex-1 truncate text-[10px] text-foreground/60">
@@ -747,21 +747,21 @@ const BORDER_STYLE_MAP: Record<string, string> = {
 
 const GROUP_BG_COLORS: Record<string, string> = {
   gray: "bg-gray-100/50 dark:bg-gray-800/20",
-  blue: "bg-blue-100/40 dark:bg-blue-900/15",
-  green: "bg-emerald-100/40 dark:bg-emerald-900/15",
+  blue: "bg-muted dark:bg-blue-900/15",
+  green: "bg-healthy/10/40 dark:bg-emerald-900/15",
   yellow: "bg-amber-100/40 dark:bg-amber-900/15",
-  red: "bg-rose-100/40 dark:bg-rose-900/15",
-  purple: "bg-violet-100/40 dark:bg-violet-900/15",
+  red: "bg-destructive/10/40 dark:bg-rose-900/15",
+  purple: "bg-muted dark:bg-violet-900/15",
   transparent: "bg-transparent",
 };
 
 const GROUP_BG_COLORS_SOLID: Record<string, string> = {
   gray: "bg-gray-100 dark:bg-gray-800",
-  blue: "bg-blue-100 dark:bg-blue-900",
-  green: "bg-emerald-100 dark:bg-emerald-900",
+  blue: "bg-muted dark:bg-blue-900",
+  green: "bg-healthy/10 dark:bg-emerald-900",
   yellow: "bg-amber-100 dark:bg-amber-900",
-  red: "bg-rose-100 dark:bg-rose-900",
-  purple: "bg-violet-100 dark:bg-violet-900",
+  red: "bg-destructive/10 dark:bg-rose-900",
+  purple: "bg-muted dark:bg-violet-900",
   transparent: "bg-transparent",
 };
 
@@ -799,7 +799,7 @@ function GroupNodeComponent({ data, selected }: NodeProps) {
   return (
     <div
       className={cn(
-        "rounded-xl transition-all w-full h-full min-w-[200px] min-h-[100px]",
+        "rounded-[--radius] transition-all w-full h-full min-w-[200px] min-h-[100px]",
         bgCls,
         borderColorCls,
         borderCls,
@@ -812,7 +812,7 @@ function GroupNodeComponent({ data, selected }: NodeProps) {
         minWidth={150}
         minHeight={80}
         lineClassName="!border-primary/40"
-        handleClassName="!w-2.5 !h-2.5 !bg-primary !border-2 !border-background !rounded-sm"
+        handleClassName="!w-2.5 !h-2.5 !bg-primary !border !border-background !rounded-sm"
       />
       {label && (
         <div className="px-3 py-1.5">

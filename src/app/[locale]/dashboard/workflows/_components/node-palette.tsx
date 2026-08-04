@@ -1,7 +1,7 @@
 "use client";
 
 import { CATEGORY_STYLES, ICON_MAP } from "./workflow-node";
-import { DotsSixVertical, MagnifyingGlass, X } from "@phosphor-icons/react";
+import { DotsSixVertical, MagnifyingGlass, X } from "@/components/icons";
 import type { NodeCategory, NodeDefinition } from "@/lib/workflows/types";
 import { useMemo, useState } from "react";
 
@@ -127,7 +127,7 @@ export function NodePalette({ definitions }: NodePaletteProps) {
             <div key={category}>
               <p
                 className={cn(
-                  "text-[10px] font-bold uppercase tracking-wider px-1 mb-1.5 text-muted-black",
+                  "text-[10px] font-semibold uppercase tracking-wider px-1 mb-1.5 text-muted-black",
                 )}
               >
                 {CATEGORY_LABEL[category]}
@@ -141,9 +141,9 @@ export function NodePalette({ definitions }: NodePaletteProps) {
                       draggable
                       onDragStart={(e) => onDragStart(e, def)}
                       className={cn(
-                        "group relative flex items-start gap-3 rounded-xl border-2 border-dashed p-3",
+                        "group relative flex items-start gap-3 rounded-[--radius] border border-dashed p-3",
                         "cursor-grab transition-all",
-                        "border-border/60 hover:border-border hover:bg-muted/40 hover:shadow-sm active:cursor-grabbing",
+                        "border-border hover:border-border hover:bg-muted hover:shadow-sm active:cursor-grabbing",
                       )}
                     >
                       <div

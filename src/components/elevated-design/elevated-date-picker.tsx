@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { addDays, format, isValid, parse, startOfDay } from "date-fns";
-import { CalendarBlank, X } from "@phosphor-icons/react";
+import { CalendarBlank, X } from "@/components/icons";
 import { useMemo, useState, type MouseEvent, type ChangeEvent } from "react";
 import ElevatedInput from "./elevated-input";
 
@@ -139,7 +139,7 @@ export function ElevatedDatePicker({
             inputClassName={cn(
               "font-medium text-foreground",
               hasError
-                ? "border-red-400 focus-visible:ring-red-200 focus-visible:ring-offset-2"
+                ? "border-destructive focus-visible:ring-red-200 focus-visible:ring-offset-2"
                 : "border-border focus-visible:ring-border focus-visible:ring-offset-2",
               inputClassName
             )}
@@ -150,7 +150,7 @@ export function ElevatedDatePicker({
         align="start"
         side="bottom"
         sideOffset={8}
-        className="z-50 w-auto rounded-3xl border border-border bg-card p-4 shadow-xl"
+        className="z-50 w-auto rounded-[--radius] border border-border bg-card p-4 shadow-xl"
       >
         <Calendar
           mode="single"
@@ -174,7 +174,7 @@ export function ElevatedDatePicker({
               handleClear(event);
               setOpen(false);
             }}
-            className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-semibold text-muted-foreground transition hover:border-foreground/20 hover:text-foreground"
+            className="inline-flex items-center gap-1 rounded-[--radius] border border-border px-3 py-1 text-xs font-semibold text-muted-foreground transition hover:border-foreground/20 hover:text-foreground"
           >
             <X weight="bold" className="h-3 w-3" /> Limpar
           </button>

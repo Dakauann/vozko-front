@@ -490,8 +490,8 @@ function StatChip({
   return (
     <div
       className={cn(
-        "rounded-lg border border-border/70 bg-background/80 px-2.5 py-2",
-        danger && "border-rose-200 bg-rose-50/80",
+        "rounded-lg border border-border bg-background px-2.5 py-2",
+        danger && "border-rose-200 bg-destructive/10/80",
         className,
       )}
     >
@@ -501,7 +501,7 @@ function StatChip({
       <p
         className={cn(
           "mt-0.5 text-sm font-semibold tabular-nums tracking-tight text-foreground",
-          danger && "text-rose-700",
+          danger && "text-destructive",
         )}
       >
         {value}
@@ -512,7 +512,7 @@ function StatChip({
 
 function TagChip({ label }: { label: string }) {
   return (
-    <span className="inline-flex rounded-full border border-border bg-muted/60 px-2 py-0.5 text-[10px] font-medium text-foreground">
+    <span className="inline-flex rounded-[--radius] border border-border bg-muted px-2 py-0.5 text-[10px] font-medium text-foreground">
       {label}
     </span>
   );

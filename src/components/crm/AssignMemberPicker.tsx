@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { CircleNotch, UserCirclePlus } from "@phosphor-icons/react";
+import { CircleNotch, UserCirclePlus } from "@/components/icons";
 import { useLocale } from "next-intl";
 
 import {
@@ -205,7 +205,7 @@ export default function AssignMemberPicker({
               "flex items-center justify-center h-8 w-8 rounded-full transition-all duration-200",
               assignedUserId
                 ? "bg-primary text-white"
-                : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground",
+                : "bg-muted text-muted-foreground hover:bg-muted hover:text-foreground",
             )}
           >
             <UserCirclePlus
@@ -218,11 +218,11 @@ export default function AssignMemberPicker({
       <PopoverContent
         align="end"
         sideOffset={6}
-        className="w-64 rounded-xl border border-border bg-card p-0 shadow-2xl"
+        className="w-64 rounded-[--radius] border border-border bg-card p-0 shadow-2xl"
       >
         <Command
           shouldFilter={false}
-          className="rounded-xl bg-transparent text-foreground"
+          className="rounded-[--radius] bg-transparent text-foreground"
         >
           <CommandInput
             placeholder={tx.search}
@@ -248,20 +248,20 @@ export default function AssignMemberPicker({
                       className={cn(
                         "flex items-center gap-2.5 rounded-lg px-2 py-2 text-xs",
                         "data-[selected=true]:bg-muted data-[selected=true]:font-medium data-[selected=true]:text-foreground",
-                        isAssigned ? "text-primary" : "text-foreground",
+                        isAssigned ? "text-lamp-ink" : "text-foreground",
                       )}
                     >
                       <div className="relative flex-shrink-0">
-                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-[10px] font-bold uppercase">
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-[10px] font-semibold uppercase">
                           {name.charAt(0)}
                         </div>
                         {isOnline && (
-                          <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-400 ring-1 ring-card" />
+                          <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-healthy ring-1 ring-card" />
                         )}
                       </div>
                       <span className="flex-1 truncate">{name}</span>
                       {isAssigned && (
-                        <span className="ml-auto flex-shrink-0 text-[9px] font-semibold text-primary">
+                        <span className="ml-auto flex-shrink-0 text-[9px] font-semibold text-lamp-ink">
                           {tx.current}
                         </span>
                       )}
