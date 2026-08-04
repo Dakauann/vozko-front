@@ -7616,6 +7616,16 @@
       "moved": "Oportunidad movida.",
       "retry": "Intentar de nuevo",
       "noValue": "Sin valor definido"
+    },
+    "bank": {
+      "channel": "Canal",
+      "campaign": "Campaña",
+      "view": "Vista",
+      "axis": "Agrupar por",
+      "funnel": "Embudo",
+      "tags": "Etiquetas",
+      "manage": "Gestionar",
+      "session": "Sesión"
     }
   },
   "metricsOps": {

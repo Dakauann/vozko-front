@@ -13,12 +13,15 @@ interface CrmViewSwitcherProps {
   // per-campaign attendance UI keeps just Lista (the WhatsApp-like inbox) and
   // Kanban, so the classic inbox is never replaced.
   showTable?: boolean;
+  /** Render without the sunk track, for use inside a ConsoleBank. */
+  bare?: boolean;
 }
 
 export default function CrmViewSwitcher({
   mode,
   onChange,
   showTable = false,
+  bare,
 }: CrmViewSwitcherProps) {
   const t = useTranslations("crmBoard");
 
@@ -61,6 +64,7 @@ export default function CrmViewSwitcher({
 
   return (
     <ElevatedPillToggle
+      bare={bare}
       options={options}
       value={mode}
       onChange={onChange}

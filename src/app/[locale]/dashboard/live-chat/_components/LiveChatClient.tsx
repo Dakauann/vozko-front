@@ -34,6 +34,7 @@ import {
 import type { ResourceAction, ResourceType } from "@/lib/workspace/types";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import ConsoleBank from "@/components/crm/ConsoleBank";
 import CrmLayout from "@/components/crm/CrmLayout";
 import type { CrmTranslations } from "@/components/crm/CrmLayout";
 import type { Icon } from "@/components/icons";
@@ -140,6 +141,7 @@ function ChannelFilterToggle({
 
   return (
     <ElevatedPillToggle
+      bare
       options={options}
       value={activeFilter}
       onChange={onFilterChange}
@@ -191,6 +193,7 @@ function WACampaignFilterToggle({
 
   return (
     <ElevatedPillToggle
+      bare
       options={options}
       value={activeFilter}
       onChange={onFilterChange}
@@ -405,6 +408,7 @@ function LiveChatContent({
 }) {
   const { can, permissionsLoading } = useWorkspace();
   const tOps = useTranslations("liveChat.opsDashboard");
+  const tBoard = useTranslations("crmBoard");
 
   /** Owner/admin always can; members need attendance:read (metrics RBAC). */
   const canUseOpsMetrics = !permissionsLoading && can("attendance", "read");
@@ -480,33 +484,41 @@ function LiveChatContent({
         translations={t}
         embedded
         toolbarExtra={
-          <div
-            className="flex max-w-full flex-wrap items-center gap-2"
-            data-tour="live-chat-filters"
-          >
-            <ChannelFilterToggle
-              activeFilter={activeFilter}
-              onFilterChange={handleFilterChange}
-              translations={t}
-              canRead={can}
-            />
-            {showWaCampaignFilter && (
-              <WACampaignFilterToggle
-                activeFilter={waCampaignFilter}
-                onFilterChange={handleWaCampaignFilterChange}
-                translations={t}
-              />
-            )}
-            {showCampaignPicker && (
-              <CampaignSelector
-                channelFilter={activeFilter}
-                waTypeFilter={waCampaignFilter}
-                selectedId={selectedCampaignId}
-                onSelect={handleCampaignSelect}
-                translations={t}
-              />
-            )}
-          </div>
+          <>
+            <ConsoleBank
+              className="[&>div]:contents"
+              legend={tBoard("bank.channel")}
+            >
+              <span data-tour="live-chat-filters" className="contents">
+                <ChannelFilterToggle
+                  activeFilter={activeFilter}
+                  onFilterChange={handleFilterChange}
+                  translations={t}
+                  canRead={can}
+                />
+              </span>
+            </ConsoleBank>
+            {showWaCampaignFilter || showCampaignPicker ? (
+              <ConsoleBank legend={tBoard("bank.campaign")}>
+                {showWaCampaignFilter && (
+                  <WACampaignFilterToggle
+                    activeFilter={waCampaignFilter}
+                    onFilterChange={handleWaCampaignFilterChange}
+                    translations={t}
+                  />
+                )}
+                {showCampaignPicker && (
+                  <CampaignSelector
+                    channelFilter={activeFilter}
+                    waTypeFilter={waCampaignFilter}
+                    selectedId={selectedCampaignId}
+                    onSelect={handleCampaignSelect}
+                    translations={t}
+                  />
+                )}
+              </ConsoleBank>
+            ) : null}
+          </>
         }
         toolbarBeforeUsers={
           canUseOpsMetrics ? (

@@ -17,6 +17,8 @@ interface CrmSegmentedToggleProps<T extends string> {
   value: T;
   onChange: (value: T) => void;
   className?: string;
+  /** Render without the sunk track, for use inside a ConsoleBank. */
+  bare?: boolean;
 }
 
 /**
@@ -28,6 +30,7 @@ export default function CrmSegmentedToggle<T extends string>({
   value,
   onChange,
   className,
+  bare,
 }: CrmSegmentedToggleProps<T>) {
   const mapped: ElevatedPillOption<T>[] = options.map((opt) => ({
     value: opt.value,
@@ -37,6 +40,7 @@ export default function CrmSegmentedToggle<T extends string>({
 
   return (
     <ElevatedPillToggle
+      bare={bare}
       className={className}
       options={mapped}
       value={value}

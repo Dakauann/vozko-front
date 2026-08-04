@@ -47,7 +47,7 @@ import CrmPipelineSelector, {
 } from "./CrmPipelineSelector";
 import CreateOpportunityButton from "./CreateOpportunityButton";
 import CrmViewSwitcher, { type CrmViewMode } from "./CrmViewSwitcher";
-import CrmScopeBreadcrumb from "./CrmScopeBreadcrumb";
+import ConsoleBank from "./ConsoleBank";
 import CrmSegmentedToggle from "./CrmSegmentedToggle";
 import {
   boardEntryToInboxEntry,
@@ -375,14 +375,6 @@ export default function CrmLayout({
 
   // Scope breadcrumb copy. A funnel only scopes the Kanban / deal board; Chat and
   // Tabela are inherently cross-funnel, so they always read "Todos os funis".
-  const scopeIsAllFunnels = showOpportunityBoard
-    ? false
-    : viewMode === "funnel"
-      ? activePipelineId === ALL_FUNNELS_ID || activePipelineId === ""
-      : true;
-  const scopeFunnelLabel = scopeIsAllFunnels
-    ? tBoard("scope.allFunnels")
-    : (selectedPipeline?.name ?? tBoard("scope.allFunnels"));
 
   useEffect(() => {
     if (!enabled) return;
@@ -1797,83 +1789,76 @@ export default function CrmLayout({
           : "h-[calc(100vh-188px)] min-h-[500px] rounded-[--radius] border border-border border-t-rule-strong bg-card",
       )}
     >
-      {/* Toolbar: filters left, actions right.
-          flex-wrap moves whole groups to the next line when width is tight,
-          never paint one group over the other (previous flex-1 + overflow bug). */}
-      <div className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-2 border-b border-border bg-card px-3 py-2 sm:px-4">
-        <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
+      {/*
+        THE CONSOLE BAR.
+
+        Was three stacked bands: a toolbar of four bordered control groups, a
+        scope breadcrumb repeating what those groups already showed lit, and the
+        column header below it. Now one bar of legended banks — the legend does
+        the grouping a border used to, so the panel stays continuous and the CRM
+        gets a band of height back.
+      */}
+      <div className="flex shrink-0 items-stretch border-b border-border bg-card">
+        <div className="flex min-w-0 flex-1 items-stretch overflow-x-auto">
           {/* Unified Funil selector: switch between atendimento (conversation) and
               vendas (deal) funnels. A funnel only scopes a BOARD, so the selector is
               shown on the Kanban (and the deal board), never on the flat Chat/Tabela
               views, where picking a funnel does nothing (industry-standard: the funnel
               switch lives on the board, not the inbox). */}
           {!hasCampaign && (viewMode === "funnel" || showOpportunityBoard) && (
-            <CrmPipelineSelector
-              value={selectedPipeline}
-              onChange={handleSelectPipeline}
-              disableAllFunnels={groupBy === "stage"}
-            />
-          )}
-          {hasCampaign && (
-            <TooltipWrapper content={tBoard("toolbar.filterByTags")}>
-              <CrmStageFilter
-                stages={tags}
-                selectedStageIds={filterStageIds}
-                onSelectionChange={setFilterStageIds}
+            <ConsoleBank legend={tBoard("bank.funnel")}>
+              <CrmPipelineSelector
+                value={selectedPipeline}
+                onChange={handleSelectPipeline}
+                disableAllFunnels={groupBy === "stage"}
               />
-            </TooltipWrapper>
+            </ConsoleBank>
           )}
+
+          {hasCampaign && (
+            <ConsoleBank legend={tBoard("bank.tags")}>
+              <TooltipWrapper content={tBoard("toolbar.filterByTags")}>
+                <CrmStageFilter
+                  stages={tags}
+                  selectedStageIds={filterStageIds}
+                  onSelectionChange={setFilterStageIds}
+                />
+              </TooltipWrapper>
+            </ConsoleBank>
+          )}
+
           {toolbarExtra}
-        </div>
-
-        <div className="ml-auto flex max-w-full flex-wrap items-center justify-end gap-1.5 sm:gap-2">
-          {toolbarBeforeUsers}
-          <CrmConnectedUsers connectedUsers={connectedUsers} />
-
-          <TooltipWrapper
-            content={
-              isMuted ? tBoard("toolbar.muteOff") : tBoard("toolbar.muteOn")
-            }
-          >
-            <ElevatedButton
-              variant="outline-subtle"
-              size="sm"
-              aria-label={
-                isMuted ? tBoard("toolbar.muteOff") : tBoard("toolbar.muteOn")
-              }
-              onClick={toggleNotificationMute}
-              icon={
-                isMuted ? (
-                  <BellSlash size={16} weight="bold" />
-                ) : (
-                  <Bell size={16} weight="fill" />
-                )
-              }
-              iconVisible
-            />
-          </TooltipWrapper>
 
           {isGlobalBoard && !showOpportunityBoard && (
-            <CrmSegmentedToggle
-              options={[
-                { value: "stage", label: tBoard("axis.stage") },
-                { value: "label", label: tBoard("axis.label") },
-                { value: "owner", label: tBoard("axis.owner") },
-              ]}
-              value={groupBy}
-              onChange={(v) => handleGroupByChange(v as CrmGroupBy)}
-            />
+            <ConsoleBank legend={tBoard("bank.axis")}>
+              <CrmSegmentedToggle
+                bare
+                options={[
+                  { value: "stage", label: tBoard("axis.stage") },
+                  { value: "label", label: tBoard("axis.label") },
+                  { value: "owner", label: tBoard("axis.owner") },
+                ]}
+                value={groupBy}
+                onChange={(v) => handleGroupByChange(v as CrmGroupBy)}
+              />
+            </ConsoleBank>
           )}
 
           {!showOpportunityBoard && (
-            <>
-              <TooltipWrapper content={tBoard("toolbar.switchView")}>
-                <CrmViewSwitcher
-                  mode={viewMode}
-                  onChange={setViewMode}
-                  showTable={!hasCampaign}
-                />
-              </TooltipWrapper>
+            <ConsoleBank legend={tBoard("bank.view")}>
+              <CrmViewSwitcher
+                bare
+                mode={viewMode}
+                onChange={setViewMode}
+                showTable={!hasCampaign}
+              />
+            </ConsoleBank>
+          )}
+        </div>
+
+        <div className="flex shrink-0 items-stretch border-l border-border">
+          {!showOpportunityBoard && (
+            <ConsoleBank legend={tBoard("bank.manage")}>
               <TooltipWrapper content={tBoard("toolbar.manageTags")}>
                 <CrmStageManager
                   stages={tags}
@@ -1893,28 +1878,37 @@ export default function CrmLayout({
                   />
                 </TooltipWrapper>
               )}
-            </>
+            </ConsoleBank>
           )}
+
+          <ConsoleBank legend={tBoard("bank.session")}>
+            {toolbarBeforeUsers}
+            <CrmConnectedUsers connectedUsers={connectedUsers} />
+            <TooltipWrapper
+              content={
+                isMuted ? tBoard("toolbar.muteOff") : tBoard("toolbar.muteOn")
+              }
+            >
+              <ElevatedButton
+                variant="outline-subtle"
+                size="sm"
+                aria-label={
+                  isMuted ? tBoard("toolbar.muteOff") : tBoard("toolbar.muteOn")
+                }
+                onClick={toggleNotificationMute}
+                icon={
+                  isMuted ? (
+                    <BellSlash size={16} weight="bold" />
+                  ) : (
+                    <Bell size={16} weight="fill" />
+                  )
+                }
+                iconVisible
+              />
+            </TooltipWrapper>
+          </ConsoleBank>
         </div>
       </div>
-
-      {/* Always-visible scope line so the user knows exactly what they're looking at
-          on every surface (view · funnel scope · grouping). Global CRM only; the
-          per-campaign UI is already scoped by its campaign. */}
-      {!hasCampaign && (
-        <CrmScopeBreadcrumb
-          viewMode={viewMode}
-          funnelLabel={scopeFunnelLabel}
-          isAllFunnels={scopeIsAllFunnels}
-          groupByLabel={
-            isGlobalBoard &&
-            !showOpportunityBoard &&
-            (groupBy === "stage" || groupBy === "label" || groupBy === "owner")
-              ? tBoard(`axis.${groupBy}`)
-              : undefined
-          }
-        />
-      )}
 
       {/* Saved views + filter bar for the workspace-global board AND table (both
           read the same filter). Not shown for the classic inbox, which keeps its

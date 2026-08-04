@@ -8115,6 +8115,16 @@
       "moved": "Verkaufschance verschoben.",
       "retry": "Erneut versuchen",
       "noValue": "Kein Wert festgelegt"
+    },
+    "bank": {
+      "channel": "Kanal",
+      "campaign": "Kampagne",
+      "view": "Ansicht",
+      "axis": "Gruppieren nach",
+      "funnel": "Funnel",
+      "tags": "Tags",
+      "manage": "Verwalten",
+      "session": "Sitzung"
     }
   },
   "metricsOps": {

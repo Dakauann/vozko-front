@@ -24,6 +24,12 @@ export type ElevatedPillToggleProps<T extends string = string> = {
   collapseLabels?: "sm" | "md";
   /** Accessible name for the control group. */
   "aria-label"?: string;
+  /**
+   * Drop the sunk track. Inside a ConsoleBank the legend and the hairline
+   * already group the keys, so a second border around them would put a box
+   * back on a panel that exists to have none.
+   */
+  bare?: boolean;
 };
 
 /**
@@ -39,6 +45,7 @@ export function ElevatedPillToggle<T extends string = string>({
   size = "sm",
   collapseLabels,
   "aria-label": ariaLabel,
+  bare = false,
 }: ElevatedPillToggleProps<T>) {
   return (
     <div
@@ -53,7 +60,10 @@ export function ElevatedPillToggle<T extends string = string>({
         //
         // nowrap: keep the control as one toolbar unit so siblings wrap around it
         // instead of the group fracturing and overlapping neighbors.
-        "inline-flex shrink-0 flex-nowrap items-center gap-0.5 rounded-[--radius] border border-border border-t-rule-strong bg-muted p-0.5",
+        "inline-flex shrink-0 flex-nowrap items-center gap-0.5",
+        bare
+          ? "gap-0"
+          : "rounded-[--radius] border border-border border-t-rule-strong bg-muted p-0.5",
         className,
       )}
     >
@@ -84,10 +94,15 @@ export function ElevatedPillToggle<T extends string = string>({
               disabled && "cursor-not-allowed opacity-40",
               !disabled &&
                 active &&
-                "border border-border bg-card font-semibold text-foreground",
+                (bare
+                  ? "bg-muted font-semibold text-foreground"
+                  : "border border-border bg-card font-semibold text-foreground"),
               !disabled &&
                 !active &&
-                "border border-transparent text-muted-foreground hover:text-foreground",
+                cn(
+                  "text-muted-foreground hover:text-foreground",
+                  bare ? "hover:bg-muted/60" : "border border-transparent",
+                ),
             )}
           >
             {/* The lamp marks the pressed key, so selection never rests on the
