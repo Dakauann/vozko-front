@@ -392,7 +392,7 @@ export function ConversationSearchExample({
                   )}
                 </div>
                 {entry.unread_count > 0 && (
-                  <span className="bg-muted text-white text-xs px-2 py-1 rounded-full">
+                  <span className="bg-muted text-muted-foreground text-xs px-2 py-1 rounded-full">
                     {entry.unread_count}
                   </span>
                 )}
@@ -531,7 +531,7 @@ export function ConversationSearchExample({
                       key={message.id}
                       className={`p-3 rounded-lg max-w-[70%] ${
                         message.message_type === "user_message"
-                          ? "bg-muted text-white ml-auto"
+                          ? "bg-muted text-muted-foreground ml-auto"
                           : "bg-border"
                       }`}
                     >

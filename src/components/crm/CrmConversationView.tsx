@@ -828,7 +828,7 @@ function MediaBubble({
           onClick={() => setDocumentPreviewOpened((prev) => !prev)}
           className="mb-1 flex min-w-[220px] max-w-[300px] cursor-pointer items-center gap-3 rounded-[--radius] bg-muted px-3 py-2.5 transition-colors hover:bg-border/70"
         >
-          <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-white">
+          <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <FileIcon weight="fill" className="h-5 w-5" />
           </span>
           <div className="min-w-0 flex-1">
@@ -1846,7 +1846,7 @@ export default function CrmConversationView({
                 className={cn(
                   "flex h-10 w-10 items-center justify-center rounded-full shadow-lg transition-colors",
                   labelSelectorOpen
-                    ? "bg-muted text-white"
+                    ? "bg-muted text-muted-foreground"
                     : "bg-card text-muted-foreground hover:bg-muted",
                 )}
                 whileHover={{ scale: 1.05 }}
@@ -2586,7 +2586,7 @@ export default function CrmConversationView({
                                 )}
                               >
                                 {isAgentMessage && (
-                                  <span className="rounded-md bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white">
+                                  <span className="rounded-md bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
                                     AI
                                   </span>
                                 )}

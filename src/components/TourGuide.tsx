@@ -270,7 +270,7 @@ export default function TourGuide({
               <button
                 type="button"
                 onClick={handleSkip}
-                className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-[--radius] p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                className="absolute right-2 top-1/2 z-10 flex min-w-[34px] -translate-y-1/2 items-center justify-center rounded-[--radius] p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:min-w-0"
               >
                 <X size={12} />
               </button>

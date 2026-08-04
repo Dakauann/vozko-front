@@ -171,7 +171,7 @@ export function DepartmentAssignmentCard({
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-[--radius] bg-warning text-white shadow-sm">
+            <div className="flex h-11 w-11 items-center justify-center rounded-[--radius] bg-warning text-warning-foreground shadow-sm">
               <Warning weight="fill" className="h-5 w-5" />
             </div>
             <div>

@@ -71,7 +71,7 @@ export default function PermissionsEditor({
                   className={cn(
                     "rounded-lg px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider transition-colors",
                     allEnabled
-                      ? "bg-primary text-white"
+                      ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground hover:bg-border",
                   )}
                 >

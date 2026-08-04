@@ -139,7 +139,7 @@ function DropdownButton({
         <span
           className={cn(
             "flex h-9 w-9 items-center justify-center rounded-lg",
-            "bg-destructive text-white",
+            "bg-destructive text-destructive-foreground",
           )}
         >
           <Icon className="h-4 w-4" weight="bold" />

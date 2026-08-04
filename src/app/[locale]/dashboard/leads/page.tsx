@@ -40,8 +40,8 @@ function formatDate(value: string | undefined | null, locale: string): string {
 
 function windowBadgeClass(open: boolean): string {
   return open
-    ? "bg-healthy text-white"
-    : "bg-muted text-white"
+    ? "bg-healthy text-healthy-foreground"
+    : "bg-muted text-muted-foreground"
 }
 
 export default function LeadsPage() {

@@ -540,7 +540,7 @@ function renderNodeContent(
       return (
         <div className="min-w-0 rounded-lg bg-muted px-2.5 py-2">
           <div className="flex items-center gap-1.5 min-w-0">
-            <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.18em] text-white">
+            <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               {method}
             </span>
             <code className="min-w-0 flex-1 truncate text-[10px] text-foreground/60">

@@ -49,6 +49,13 @@ import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { useToast } from "@/hooks/use-toast";
 import { useWorkspace } from "@/contexts/workspace-context";
 
+/**
+ * VoIP is no longer sold, so call-channel addons and the entitlement they grant
+ * never reach the catalogue, the active list or the capacity readouts — the API
+ * may still return rows created before the feature was withdrawn.
+ */
+const RETIRED_KINDS = new Set<AddonEntitlementKind>(["call_channels"]);
+
 const KIND_TILE: Record<AddonEntitlementKind, string> = {
   call_channels: "bg-muted",
   whatsapp_business_phones: "bg-healthy",
@@ -124,9 +131,15 @@ export default function UserAddonsCatalog() {
       getWorkspaceEntitlementsAction(workspaceId),
       getExchangeRateAction(),
     ]);
-    setAvailable(avail.addons);
-    setActive(subs.subscriptions);
-    setEntitlements(ents.entitlements);
+    setAvailable(
+      avail.addons.filter((a) => !RETIRED_KINDS.has(a.entitlementKind)),
+    );
+    setActive(
+      subs.subscriptions.filter((s) => !RETIRED_KINDS.has(s.entitlementKind)),
+    );
+    setEntitlements(
+      ents.entitlements.filter((e) => !RETIRED_KINDS.has(e.kind)),
+    );
     if (ex.item && ex.item.priceMicros > 0) {
       setRate(ex.item.priceMicros / 1_000_000);
     }

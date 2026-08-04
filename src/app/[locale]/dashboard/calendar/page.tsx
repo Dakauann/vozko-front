@@ -444,7 +444,7 @@ export default function CalendarPage() {
                                 "bg-primary text-primary-foreground font-semibold",
                               sel &&
                                 !tod &&
-                                "bg-primary text-white font-semibold",
+                                "bg-primary text-primary-foreground font-semibold",
                               !tod && !sel && "text-foreground/80",
                             )}
                           >

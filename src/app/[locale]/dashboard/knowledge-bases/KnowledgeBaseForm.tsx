@@ -88,8 +88,8 @@ const StepIndicator = ({
       <div
         className={cn(
           "flex h-8 w-8 items-center justify-center rounded-full border text-sm font-semibold transition-all",
-          isCompleted && "border-healthy bg-healthy text-white",
-          isCurrent && "border-primary bg-primary text-white",
+          isCompleted && "border-healthy bg-healthy text-healthy-foreground",
+          isCurrent && "border-primary bg-primary text-primary-foreground",
           !isCompleted &&
             !isCurrent &&
             "border-border bg-muted text-muted-foreground",

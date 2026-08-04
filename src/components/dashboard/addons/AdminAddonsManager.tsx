@@ -53,6 +53,14 @@ const KIND_LABELS: Record<AddonEntitlementKind, string> = {
   whatsapp_business_phones: "Números WhatsApp Business",
 };
 
+/**
+ * VoIP is no longer part of the product, so a call-channel addon cannot be
+ * created, listed or sold. The kind stays in the type because the API still
+ * returns it for rows created before the feature was withdrawn — those are
+ * filtered out here rather than rendered as a purchasable capability.
+ */
+const RETIRED_KINDS = new Set<AddonEntitlementKind>(["call_channels"]);
+
 function KindGlyph({ kind }: { kind: AddonEntitlementKind }) {
   return kind === "whatsapp_business_phones" ? (
     <WhatsappLogo className="h-5 w-5" weight="fill" />
@@ -66,7 +74,7 @@ function emptyDraft(): AddonDraft {
     key: "",
     name: "",
     description: "",
-    entitlementKind: "call_channels",
+    entitlementKind: "whatsapp_business_phones",
     unitsPerQuantity: "1",
     monthlyPrice: "0",
     annualPrice: "0",
@@ -111,9 +119,9 @@ function usd(micros: number): string {
 }
 
 function statusChip(addon: AddonDefinition) {
-  if (addon.archivedAt) return { label: "arquivado", cls: "bg-muted text-white" };
-  if (!addon.isActive) return { label: "inativo", cls: "bg-warning text-white" };
-  return { label: "ativo", cls: "bg-healthy text-white" };
+  if (addon.archivedAt) return { label: "arquivado", cls: "bg-muted text-muted-foreground" };
+  if (!addon.isActive) return { label: "inativo", cls: "bg-warning text-warning-foreground" };
+  return { label: "ativo", cls: "bg-healthy text-healthy-foreground" };
 }
 
 const PANEL = "rounded-[--radius] border border-border bg-card";
@@ -129,10 +137,11 @@ export function AdminAddonsManager() {
   const load = React.useCallback(async () => {
     setLoading(true);
     const { addons: list, error } = await adminListAddonsAction(true);
+    const visible = list.filter((a) => !RETIRED_KINDS.has(a.entitlementKind));
     if (error) {
       toast({ title: "Erro ao carregar addons", description: error, variant: "destructive" });
     } else {
-      setAddons(list);
+      setAddons(visible);
     }
     setLoading(false);
   }, [toast]);
@@ -327,9 +336,6 @@ export function AdminAddonsManager() {
             value={draft.entitlementKind}
             onValueChange={(v) => set("entitlementKind", v as AddonEntitlementKind)}
           >
-            <ElevatedSelectItem value="call_channels">
-              {KIND_LABELS.call_channels}
-            </ElevatedSelectItem>
             <ElevatedSelectItem value="whatsapp_business_phones">
               {KIND_LABELS.whatsapp_business_phones}
             </ElevatedSelectItem>

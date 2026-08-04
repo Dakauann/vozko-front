@@ -7,7 +7,6 @@ import {
   MagnifyingGlass,
   Plus,
   Robot,
-  Sparkle,
 } from "@/components/icons";
 import {
   archiveAgentAction,
@@ -38,7 +37,6 @@ const SEARCH_DEBOUNCE_MS = 300;
 
 export default function AgentsPage() {
   const t = useTranslations("agents");
-  const tTemplates = useTranslations("resourceTemplates.emptyState");
   const { can, currentWorkspace, isLoading: workspaceLoading } = useWorkspace();
   const { currentDepartment } = useDepartment();
   const router = useRouter();
@@ -181,8 +179,8 @@ export default function AgentsPage() {
             className={cn(
               "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
               row.isActive
-                ? "bg-healthy text-white"
-                : "bg-muted text-white",
+                ? "bg-healthy text-healthy-foreground"
+                : "bg-muted text-muted-foreground",
             )}
           >
             {row.isActive ? t("card.status.active") : t("card.status.inactive")}
@@ -374,30 +372,17 @@ export default function AgentsPage() {
                   />
                 ),
                 title: t("empty.title"),
-                action: (
-                  <div className="flex flex-col items-center gap-3">
-                    {can("agents", "create") && (
-                      <Button
-                        variant="primary"
-                        title={t("button")}
-                        icon={<Plus className="h-4 w-4" weight="bold" />}
-                        iconVisible
-                        iconSide="left"
-                        link="/dashboard/agents/new"
-                        newTab={false}
-                      />
-                    )}
-                    <Button
-                      variant="ghost"
-                      title={tTemplates("browseAction")}
-                      icon={<Sparkle className="h-4 w-4" weight="fill" />}
-                      iconVisible
-                      iconSide="left"
-                      link="/dashboard/resource-templates?resourceType=agent"
-                      newTab={false}
-                    />
-                  </div>
-                ),
+                action: can("agents", "create") ? (
+                  <Button
+                    variant="primary"
+                    title={t("button")}
+                    icon={<Plus className="h-4 w-4" weight="bold" />}
+                    iconVisible
+                    iconSide="left"
+                    link="/dashboard/agents/new"
+                    newTab={false}
+                  />
+                ) : undefined,
               }
         }
       />

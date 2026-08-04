@@ -710,7 +710,7 @@ export default function SendWhatsAppTemplatePage() {
                     <span className="font-medium">
                       {t("send.preview.paramFormat")}:
                     </span>
-                    <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-xs font-medium text-white">
+                    <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
                       {template.parameterFormat}
                     </span>
                   </div>
@@ -718,7 +718,7 @@ export default function SendWhatsAppTemplatePage() {
                 {hasMediaHeader && (
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span className="font-medium">Header:</span>
-                    <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-xs font-medium text-white">
+                    <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
                       {headerComponent?.format}
                     </span>
                   </div>

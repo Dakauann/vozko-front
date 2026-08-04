@@ -1596,7 +1596,7 @@ export default function CrmLayout({
               className={cn(
                 "flex items-center justify-center h-8 w-8 rounded-full transition-all duration-200",
                 isDialerBusy
-                  ? "bg-healthy text-white cursor-not-allowed"
+                  ? "bg-healthy text-healthy-foreground cursor-not-allowed"
                   : "bg-muted text-muted-foreground hover:bg-primary hover:text-white",
               )}
             >
@@ -1798,8 +1798,11 @@ export default function CrmLayout({
         the grouping a border used to, so the panel stays continuous and the CRM
         gets a band of height back.
       */}
-      <div className="flex shrink-0 items-stretch border-b border-border bg-card">
-        <div className="flex min-w-0 flex-1 items-stretch overflow-x-auto">
+      <div className="flex shrink-0 flex-col border-b border-border bg-card sm:flex-row sm:items-stretch">
+        {/* Below sm the two groups stack: a phone cannot hold both banks of a
+            console side by side, and forcing it made the whole page scroll
+            sideways by the width the action bank could not give up. */}
+        <div className="flex min-w-0 items-stretch overflow-x-auto sm:flex-1">
           {/* Unified Funil selector: switch between atendimento (conversation) and
               vendas (deal) funnels. A funnel only scopes a BOARD, so the selector is
               shown on the Kanban (and the deal board), never on the flat Chat/Tabela
@@ -1856,7 +1859,7 @@ export default function CrmLayout({
           )}
         </div>
 
-        <div className="flex shrink-0 items-stretch border-l border-border">
+        <div className="flex min-w-0 shrink-0 items-stretch border-t border-border sm:border-l sm:border-t-0">
           {!showOpportunityBoard && (
             <ConsoleBank legend={tBoard("bank.manage")}>
               <TooltipWrapper content={tBoard("toolbar.manageTags")}>

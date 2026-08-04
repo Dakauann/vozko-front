@@ -67,7 +67,7 @@ function resolveEdgeLabel(
     return {
       text: output?.label ?? rawLabel,
       className:
-        "border-destructive bg-destructive text-white dark:border-destructive dark:bg-destructive dark:text-white",
+        "border-destructive bg-destructive text-destructive-foreground dark:border-destructive dark:bg-destructive dark:text-white",
     };
   }
 
@@ -83,7 +83,7 @@ function resolveEdgeLabel(
     return {
       text: output?.label ?? rawLabel,
       className:
-        "border-healthy bg-healthy text-white dark:border-healthy dark:bg-healthy dark:text-white",
+        "border-healthy bg-healthy text-healthy-foreground dark:border-healthy dark:bg-healthy dark:text-white",
     };
   }
 
@@ -91,14 +91,14 @@ function resolveEdgeLabel(
     return {
       text: output?.label ?? rawLabel,
       className:
-        "border-destructive bg-destructive text-white dark:border-destructive dark:bg-destructive dark:text-white",
+        "border-destructive bg-destructive text-destructive-foreground dark:border-destructive dark:bg-destructive dark:text-white",
     };
   }
 
   return {
     text: output?.label ?? rawLabel,
     className:
-      "border-cyan-600 bg-muted text-white dark:border-cyan-600 dark:bg-muted dark:text-white",
+      "border-cyan-600 bg-muted text-muted-foreground dark:border-cyan-600 dark:bg-muted dark:text-white",
   };
 }
 

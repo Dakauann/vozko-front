@@ -1026,7 +1026,7 @@ function HTTPRequestConfigSection({
   return (
     <div className="space-y-4 rounded-[--radius] border border-border bg-mist p-3.5">
       <div className="flex items-start gap-2">
-        <div className="rounded-lg bg-muted px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white">
+        <div className="rounded-lg bg-muted px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           HTTP
         </div>
         <div className="min-w-0">

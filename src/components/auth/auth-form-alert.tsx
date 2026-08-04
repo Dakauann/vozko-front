@@ -12,7 +12,7 @@ export function AuthFormAlert({ message }: { message: string }) {
       transition={{ duration: 0.2, ease: "easeOut" }}
       className="mb-6 flex items-start gap-3 text-destructive"
     >
-      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-muted text-white shadow-sm">
+      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground shadow-sm">
         <WarningCircle weight="fill" className="h-4 w-4" />
       </div>
       <p className="text-sm font-medium leading-snug">{message}</p>

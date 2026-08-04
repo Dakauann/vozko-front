@@ -133,7 +133,7 @@ export function AgentsTable({ agents, meta }: AgentsTableProps) {
                   className={cn(
                     "inline-flex items-center rounded-[--radius] px-3 py-1 text-xs font-semibold",
                     agent.isActive
-                      ? "bg-healthy text-white"
+                      ? "bg-healthy text-healthy-foreground"
                       : "bg-muted text-muted-foreground",
                   )}
                 >

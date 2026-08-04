@@ -118,17 +118,17 @@ function getServiceMeta(serviceType: string) {
   switch (serviceType) {
     case "voice_call":
     case "voice_campaign":
-      return { icon: Phone, color: "bg-muted text-white" };
+      return { icon: Phone, color: "bg-muted text-muted-foreground" };
     case "ai":
-      return { icon: Robot, color: "bg-muted text-white" };
+      return { icon: Robot, color: "bg-muted text-muted-foreground" };
     case "whatsapp_campaign":
-      return { icon: WhatsappLogo, color: "bg-healthy text-white" };
+      return { icon: WhatsappLogo, color: "bg-healthy text-healthy-foreground" };
     case "top_up":
-      return { icon: ArrowUp, color: "bg-healthy text-white" };
+      return { icon: ArrowUp, color: "bg-healthy text-healthy-foreground" };
     case "manual_adjustment":
     case "admin_credit":
     case "admin_debit":
-      return { icon: ArrowsLeftRight, color: "bg-warning text-white" };
+      return { icon: ArrowsLeftRight, color: "bg-warning text-warning-foreground" };
     default:
       return { icon: Lightning, color: "bg-gray-500 text-white" };
   }
@@ -344,8 +344,8 @@ export default function BalancePage() {
               className={cn(
                 "inline-flex items-center gap-1 rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
                 isCredit
-                  ? "bg-healthy text-white"
-                  : "bg-destructive text-white",
+                  ? "bg-healthy text-healthy-foreground"
+                  : "bg-destructive text-destructive-foreground",
               )}
             >
               {isCredit ? (

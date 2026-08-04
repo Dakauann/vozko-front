@@ -92,7 +92,7 @@ const textareaVariantClasses: Record<BaseVariant, string> = {
     "bg-card text-foreground border border-border border-t-rule-strong bg-muted hover:border-rule-strong focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-rule-strong",
   ghost:
     "bg-card text-foreground border border-transparent hover:border-border focus-visible:ring-2 focus-visible:ring-ring",
-  vsl: "bg-muted text-white border border-transparent focus-visible:ring-2 focus-visible:ring-cyan-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[rgba(12,42,36,0.65)]",
+  vsl: "bg-muted text-muted-foreground border border-transparent focus-visible:ring-2 focus-visible:ring-cyan-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[rgba(12,42,36,0.65)]",
   action:
     "bg-primary text-primary-foreground border border-primary focus-visible:ring-2 focus-visible:ring-ring",
   search:

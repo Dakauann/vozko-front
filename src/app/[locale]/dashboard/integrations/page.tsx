@@ -112,7 +112,7 @@ export default function IntegrationsPage() {
                   <span
                     className={`inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[10px] font-medium ${
                       connected
-                        ? "bg-healthy text-white"
+                        ? "bg-healthy text-healthy-foreground"
                         : "bg-zinc-500 text-white"
                     }`}
                   >

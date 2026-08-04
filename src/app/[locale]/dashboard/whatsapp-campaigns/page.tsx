@@ -42,18 +42,18 @@ import { useDepartment } from "@/contexts/department-context";
 const ITEMS_PER_PAGE = 15;
 
 const statusColor: Record<string, string> = {
-  RUNNING: "bg-healthy text-white",
-  PAUSED: "bg-warning text-white",
-  STOPPED: "bg-muted text-white",
-  COMPLETED: "bg-muted text-white",
+  RUNNING: "bg-healthy text-healthy-foreground",
+  PAUSED: "bg-warning text-warning-foreground",
+  STOPPED: "bg-muted text-muted-foreground",
+  COMPLETED: "bg-muted text-muted-foreground",
 };
 
 // Solid opaque tiles + white label, matches status chips and DESIGN.md
 // (never bg-x/10 + text-x wash).
 const CATEGORY_TONE: Record<string, string> = {
-  MARKETING: "bg-muted text-white",
-  UTILITY: "bg-muted text-white",
-  AUTHENTICATION: "bg-warning text-white",
+  MARKETING: "bg-muted text-muted-foreground",
+  UTILITY: "bg-muted text-muted-foreground",
+  AUTHENTICATION: "bg-warning text-warning-foreground",
 };
 
 export default function WhatsAppCampaignsPage() {

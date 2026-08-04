@@ -12,19 +12,18 @@ import {
   ArrowsDownUp,
   CaretLeft,
   CaretRight,
-  CheckCircle,
   CircleNotch,
   Crown,
   FloppyDisk,
   MagnifyingGlass,
   PencilSimple,
   UserCircle,
-  XCircle,
 } from "@/components/icons";
 
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
+import { StatusRail } from "@/components/console/page-shapes";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
@@ -83,6 +82,7 @@ function AdminAffiliatesTable() {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [search, setSearch] = React.useState("");
+  const [statusFilter, setStatusFilter] = React.useState<string | null>(null);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [draftPct, setDraftPct] = React.useState("");
   const [saving, setSaving] = React.useState(false);
@@ -111,13 +111,16 @@ function AdminAffiliatesTable() {
 
   const filteredItems = React.useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return items;
-    return items.filter(
-      (a) =>
+    return items.filter((a) => {
+      if (statusFilter === "active" && !a.active) return false;
+      if (statusFilter === "inactive" && a.active) return false;
+      if (!q) return true;
+      return (
         a.brandName.toLowerCase().includes(q) ||
-        a.code.toLowerCase().includes(q),
-    );
-  }, [items, search]);
+        a.code.toLowerCase().includes(q)
+      );
+    });
+  }, [items, search, statusFilter]);
 
   const activeCount = items.filter((a) => a.active).length;
   const inactiveCount = items.length - activeCount;
@@ -231,26 +234,18 @@ function AdminAffiliatesTable() {
         icon={<UserCircle className="h-6 w-6" weight="fill" />}
       />
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatCard
-          bg="bg-muted"
-          icon={<UserCircle className="h-4 w-4 text-white" weight="fill" />}
-          label={t("stats.total")}
-          value={String(meta.totalItems)}
-        />
-        <StatCard
-          bg="bg-healthy"
-          icon={<CheckCircle className="h-4 w-4 text-white" weight="fill" />}
-          label={t("stats.active")}
-          value={String(activeCount)}
-        />
-        <StatCard
-          bg="bg-warning"
-          icon={<XCircle className="h-4 w-4 text-white" weight="fill" />}
-          label={t("stats.inactive")}
-          value={String(inactiveCount)}
-        />
-      </div>
+      {/* ROSTER. The three cards here reported active/inactive and left the
+          operator to go find them in a filter that did not exist; the banks
+          report the same split and select it. */}
+      <StatusRail
+        activeKey={statusFilter}
+        allLabel={t("stats.total")}
+        onSelect={setStatusFilter}
+        segments={[
+          { key: "active", label: t("stats.active"), count: activeCount, tone: "healthy" },
+          { key: "inactive", label: t("stats.inactive"), count: inactiveCount, tone: "warning" },
+        ]}
+      />
 
       <section
         className="space-y-4 rounded-[--radius] border border-border bg-card p-5"
@@ -327,7 +322,7 @@ function AdminAffiliatesTable() {
                               src={aff.brandLogoUrl}
                             />
                           ) : (
-                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-white">
+                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-muted-foreground">
                               <UserCircle
                                 className="h-3.5 w-3.5"
                                 weight="fill"
@@ -368,7 +363,7 @@ function AdminAffiliatesTable() {
                       </td>
                       <td className="px-3 py-3">
                         {aff.tier === "reseller" ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase text-white shadow-sm">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase text-muted-foreground shadow-sm">
                             <Crown className="h-3 w-3" weight="fill" />
                             {t("tier.reseller")}
                           </span>
@@ -525,38 +520,6 @@ function Th({
     >
       {children}
     </th>
-  );
-}
-
-function StatCard({
-  bg,
-  icon,
-  label,
-  value,
-}: {
-  bg: string;
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div
-      className="flex items-center gap-3 rounded-[--radius] border border-border bg-card px-4 py-3"
-      style={{ boxShadow: softSurfaceShadow }}
-    >
-      <div
-        className={cn(
-          "flex h-10 w-10 items-center justify-center rounded-[--radius] shadow-lg",
-          bg,
-        )}
-      >
-        {icon}
-      </div>
-      <div>
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <p className="text-lg font-semibold text-foreground">{value}</p>
-      </div>
-    </div>
   );
 }
 

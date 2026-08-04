@@ -204,7 +204,7 @@ export default function AssignMemberPicker({
             className={cn(
               "flex items-center justify-center h-8 w-8 rounded-full transition-all duration-200",
               assignedUserId
-                ? "bg-primary text-white"
+                ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted hover:text-foreground",
             )}
           >

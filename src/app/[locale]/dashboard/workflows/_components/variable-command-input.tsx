@@ -521,7 +521,7 @@ export function VariableCommandInput({
                                 {v.description}
                               </span>
                               {category === "last" && (
-                                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-healthy text-white font-medium shrink-0">
+                                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-healthy text-healthy-foreground font-medium shrink-0">
                                   Recomendado
                                 </span>
                               )}

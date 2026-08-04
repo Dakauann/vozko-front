@@ -93,7 +93,6 @@ export interface NavItem {
   admin?: boolean;
   hideForAdmin?: boolean;
   children?: NavItem[];
-  special?: "ai" | "new" | "premium";
   family?: string;
   /** Single required permission (legacy). */
   requiredPermission?: NavPermission;
@@ -176,7 +175,6 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.aiChat",
     href: "/dashboard/ai-chat",
     family: "ai",
-    special: "new",
     requiredPermission: { resource: "ai_chat", action: "read" },
   },
   {
@@ -890,45 +888,6 @@ function ProductSwitcher({
 }
 
 /**
- * A silkscreened qualifier on a nav row.
- *
- * These keep their meaning and lose their motion. The previous versions pulsed,
- * floated and cycled a gradient forever; an attendant holds this sidebar in
- * peripheral vision for a whole shift, and perpetual movement out there is a
- * cost with no message. A legend chip says the same thing once.
- */
-const SpecialBadge = ({ type }: { type: NavItem["special"] }) => {
-  if (!type) return null;
-
-  const chip =
-    "shrink-0 border px-1 py-px text-[9px] font-semibold uppercase tracking-[0.1em] leading-[1.4]";
-
-  switch (type) {
-    // A word, not a glyph in a box. A 10px sparkle alone in a bordered chip
-    // reads as a smudge at nav scale and says nothing; the other two qualifiers
-    // are words, and this one should be too.
-    case "ai":
-      return (
-        <span className={cn(chip, "border-border text-muted-foreground")}>
-          IA
-        </span>
-      );
-    case "new":
-      return (
-        <span className={cn(chip, "border-healthy/60 text-healthy")}>Novo</span>
-      );
-    case "premium":
-      return (
-        <span className={cn(chip, "border-border text-muted-foreground")}>
-          Premium
-        </span>
-      );
-    default:
-      return null;
-  }
-};
-
-/**
  * The mobile drawer slides, because a drawer arriving from offscreen is
  * reporting where it came from. The desktop spine does not: it is furniture and
  * it is simply there on load. The old staggered spring entrance made every
@@ -1040,8 +999,6 @@ function NavItemComponent({
               >
                 {t(item.labelKey)}
               </span>
-
-              {item.special && <SpecialBadge type={item.special} />}
 
               {item.children && (
                 <CaretDown

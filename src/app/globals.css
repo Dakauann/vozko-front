@@ -198,6 +198,24 @@ input:-webkit-autofill:active {
     border-radius: var(--radius);
   }
 
+  /*
+    Touch floor.
+
+    Below sm every control sits under a thumb, and a 24–29px button is a
+    desktop control shipped to a phone. The shared components carry their own
+    floor, but forty pages also hand-roll one-off buttons — segmented cycle
+    toggles, icon buttons in list rows, date presets. Rather than chase each,
+    the floor is set once, here. Anything that genuinely must stay dense on a
+    phone opts out with data-dense.
+  */
+  @media (max-width: 639px) {
+    button:not([data-dense]),
+    [role="button"]:not([data-dense]),
+    select:not([data-dense]) {
+      min-height: 34px;
+    }
+  }
+
   /* An engraved divider: a cut line, not a drawn box. */
   .rule-engraved {
     border-bottom: 1px solid hsl(var(--border));

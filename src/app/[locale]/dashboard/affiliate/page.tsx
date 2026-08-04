@@ -387,7 +387,7 @@ function AffiliateDashboard({
             className={cn(
               "inline-flex items-center justify-center gap-2 rounded-[--radius] px-5 py-3 text-sm font-semibold transition-all",
               copied
-                ? "bg-healthy text-white"
+                ? "bg-healthy text-healthy-foreground"
                 : "bg-primary text-primary-foreground hover:bg-[hsl(var(--primary-hover))] active:scale-[0.98]",
             )}
           >

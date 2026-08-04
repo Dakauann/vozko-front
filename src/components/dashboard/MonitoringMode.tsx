@@ -1612,8 +1612,8 @@ function ConnectedUsersMonitorPanel({ campaignId }: { campaignId: string }) {
                     className={cn(
                       "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider",
                       user.view_mode === "global"
-                        ? "bg-healthy text-white"
-                        : "bg-primary text-white",
+                        ? "bg-healthy text-healthy-foreground"
+                        : "bg-primary text-primary-foreground",
                     )}
                   >
                     <span

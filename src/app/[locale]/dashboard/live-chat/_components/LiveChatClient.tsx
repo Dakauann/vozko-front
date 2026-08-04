@@ -474,7 +474,7 @@ function LiveChatContent({
   const showCampaignPicker = isCampaignChannel || activeFilter === "all";
 
   return (
-    <div className="relative -m-6 h-[calc(100dvh-3rem)] min-h-[480px] w-[calc(100%+3rem)] overflow-hidden">
+    <div className="relative -m-3 h-[calc(100dvh-3rem)] min-h-[480px] w-[calc(100%+1.5rem)] overflow-hidden sm:-m-6 sm:w-[calc(100%+3rem)]">
       <CrmLayout
         campaignType={campaignType}
         channelFilter={channelFilter}

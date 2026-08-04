@@ -224,7 +224,7 @@ const ElevatedSelectItem = forwardRef<
       <div className="flex min-w-0 flex-1 items-center gap-3">
         {icon ? (
           iconStyled ? (
-            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[--radius] bg-primary text-white">
+            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground">
               {icon}
             </span>
           ) : (

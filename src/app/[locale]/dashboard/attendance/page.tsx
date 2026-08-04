@@ -75,6 +75,7 @@ import type { WorkspaceMember } from "@/lib/workspace/types";
 import { motion } from "framer-motion";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
+import { InstrumentStrip } from "@/components/console/page-shapes";
 import { cn } from "@/lib/utils";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useLocale, useTranslations } from "next-intl";
@@ -256,18 +257,6 @@ function ChartSkeleton({ height = 220 }: { height?: number }) {
   );
 }
 
-function MetricTip({ text }: { text: string }) {
-  return (
-    <span
-      className="inline-flex text-muted-foreground/70"
-      title={text}
-      aria-label={text}
-    >
-      <Info className="h-3 w-3" weight="bold" />
-    </span>
-  );
-}
-
 /* ── KPI strip ────────────────────────────────────────────────────── */
 
 type KpiDef = {
@@ -372,43 +361,20 @@ function KpiStrip({
 
   return (
     <div className="space-y-2.5">
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 xl:grid-cols-8">
-        {cards.map((c) => {
-          const Icon = c.icon;
-          return (
-            <div
-              key={c.key}
-              className="rounded-[--radius] border border-border bg-background px-3 py-3"
-              title={c.hint}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                      {c.label}
-                    </p>
-                    <MetricTip text={c.hint} />
-                  </div>
-                  <p className="mt-1 truncate text-xl font-semibold tabular-nums tracking-tight text-foreground">
-                    {c.value}
-                  </p>
-                  <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
-                    {c.short}
-                  </p>
-                </div>
-                <div
-                  className={cn(
-                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-[--radius]",
-                    c.bg,
-                  )}
-                >
-                  <Icon className="h-3.5 w-3.5 text-white" weight="fill" />
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      {/* Eight operations KPIs as one instrument strip. They were eight
+          separate bordered tiles, each carrying a filled icon tile in a
+          category colour — eight boxes and eight accents to report eight
+          integers, on the page an attendance manager keeps open all shift. */}
+      <InstrumentStrip
+        columns={8}
+        compact
+        instruments={cards.map((c) => ({
+          label: c.label,
+          value: String(c.value),
+          detail: c.short,
+          tooltip: c.hint,
+        }))}
+      />
 
       {/* Campaign shells: not real chats, kept out of primary KPIs */}
       {!loading && shell > 0 ? (

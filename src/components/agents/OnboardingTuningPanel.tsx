@@ -245,7 +245,7 @@ export function OnboardingTuningPanel({ agent }: OnboardingTuningPanelProps) {
             onClick={handleSave}
             disabled={!dirty || isSaving}
             className={cn(
-              "inline-flex items-center gap-2 rounded-[--radius] bg-muted px-3.5 py-2 text-xs font-semibold text-white shadow-md transition-all",
+              "inline-flex items-center gap-2 rounded-[--radius] bg-muted px-3.5 py-2 text-xs font-semibold text-muted-foreground shadow-md transition-all",
               "hover:brightness-110 active:scale-[0.98]",
               "disabled:cursor-not-allowed disabled:opacity-50",
             )}

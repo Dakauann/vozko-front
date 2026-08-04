@@ -102,7 +102,6 @@ function normalizeStageGroups(stageGroups: StageGroup[]) {
 export default function TagGroupsPage() {
   const { toast } = useToast();
   const t = useTranslations("tagGroupsPage");
-  const tTemplates = useTranslations("resourceTemplates.emptyState");
   const { can, permissionsLoading } = useWorkspace();
   const permissionsReady = !permissionsLoading;
   const canReadStageGroups = permissionsReady && can("stage_groups", "read");
@@ -542,24 +541,16 @@ export default function TagGroupsPage() {
             <p className="mt-1 text-sm text-muted-foreground">
               {t("empty.description")}
             </p>
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-              {canCreateStageGroups && (
+            {canCreateStageGroups && (
+              <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
                 <Button
                   onClick={openCreate}
                   title={t("empty.createButton")}
                   icon={<Plus weight="bold" className="h-4 w-4" />}
                   iconVisible
                 />
-              )}
-              <Button
-                variant="outline"
-                title={tTemplates("browseAction")}
-                icon={<Sparkle weight="fill" className="h-4 w-4" />}
-                iconVisible
-                link="/dashboard/resource-templates?resourceType=stage_group"
-                newTab={false}
-              />
-            </div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">

@@ -4,11 +4,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   CaretDown,
   CaretUp,
-  Clock,
   FloppyDisk,
   GearSix,
-  Lightning,
-  Phone,
   Robot,
 } from "@/components/icons";
 import {
@@ -20,11 +17,8 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
-import ElevatedInput from "@/components/elevated-design/elevated-input";
-import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import type { SystemConfig } from "@/lib/system-config/types";
-import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
 
@@ -64,7 +58,7 @@ function FieldDescription({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        className="-mx-1 flex min-h-[34px] items-center gap-1 px-1 text-xs text-muted-foreground transition-colors hover:text-foreground sm:min-h-0"
       >
         {isOpen ? (
           <CaretUp className="h-3 w-3" weight="bold" />
@@ -157,10 +151,6 @@ export default function GeneralSettingsPage() {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const clampMin1 = (n: number | undefined) => {
-    if (n === undefined || Number.isNaN(n)) return undefined;
-    return Math.max(1, Math.round(n));
-  };
 
   const onSave = () => {
     if (!hasChanges) return;
@@ -252,99 +242,6 @@ export default function GeneralSettingsPage() {
             <FieldDescription
               description={t("fields.baseSystemPrompt.description")}
             />
-          </div>
-        </ElevatedContainer>
-      </motion.section>
-
-      <motion.section variants={itemVariants}>
-        <ElevatedContainer className="border border-border bg-card p-6 space-y-6">
-          <div className="flex items-center gap-2">
-            <Phone className="h-5 w-5 text-lamp-ink" weight="fill" />
-            <h2 className="text-lg font-semibold text-foreground">
-              {t("sections.calls")}
-            </h2>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-3">
-            <div>
-              <ElevatedInput
-                type="number"
-                label={t("fields.maxConcurrentCalls.label")}
-                placeholder={t("fields.maxConcurrentCalls.placeholder")}
-                min={1}
-                value={form.maxConcurrentCalls ?? ""}
-                onChange={(e) =>
-                  updateField(
-                    "maxConcurrentCalls",
-                    clampMin1(Number(e.target.value)),
-                  )
-                }
-                icon={<Lightning className="h-4 w-4" weight="bold" />}
-              />
-              <FieldDescription
-                description={t("fields.maxConcurrentCalls.description")}
-              />
-            </div>
-          </div>
-        </ElevatedContainer>
-      </motion.section>
-
-      <motion.section variants={itemVariants}>
-        <ElevatedContainer className="border border-border bg-card p-6 space-y-6">
-          <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-lamp-ink" weight="bold" />
-            <h2 className="text-lg font-semibold text-foreground">
-              {t("sections.workTime")}
-            </h2>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <ElevatedSwitch
-                checked={Boolean(form.workTimeEnabled)}
-                onCheckedChange={(checked) =>
-                  updateField("workTimeEnabled", checked)
-                }
-                label={t("fields.workTimeEnabled.label")}
-              />
-              <FieldDescription
-                description={t("fields.workTimeEnabled.description")}
-              />
-            </div>
-
-            <div
-              className={cn(
-                "grid gap-6 md:grid-cols-2",
-                !form.workTimeEnabled && "opacity-60",
-              )}
-            >
-              <div>
-                <ElevatedInput
-                  type="time"
-                  label={t("fields.workTimeStart.label")}
-                  placeholder={t("fields.workTimeStart.placeholder")}
-                  value={form.workTimeStart ?? ""}
-                  onChange={(e) => updateField("workTimeStart", e.target.value)}
-                  disabled={!form.workTimeEnabled}
-                />
-                <FieldDescription
-                  description={t("fields.workTimeStart.description")}
-                />
-              </div>
-              <div>
-                <ElevatedInput
-                  type="time"
-                  label={t("fields.workTimeEnd.label")}
-                  placeholder={t("fields.workTimeEnd.placeholder")}
-                  value={form.workTimeEnd ?? ""}
-                  onChange={(e) => updateField("workTimeEnd", e.target.value)}
-                  disabled={!form.workTimeEnabled}
-                />
-                <FieldDescription
-                  description={t("fields.workTimeEnd.description")}
-                />
-              </div>
-            </div>
           </div>
         </ElevatedContainer>
       </motion.section>

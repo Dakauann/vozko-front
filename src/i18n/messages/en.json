@@ -129,8 +129,6 @@
     "untitled": "New chat",
     "noConversations": "No conversations yet",
     "deleteConversation": "Delete conversation",
-    "emptyTitle": "How can I help?",
-    "emptyDescription": "Ask me to list, count or create agents, or just chat to draft prompts and clear up questions. Actions that change data ask for your approval.",
     "loading": "Loading…",
     "scrollToBottom": "Go to bottom",
     "modelLabel": "Model",
@@ -157,7 +155,14 @@
       "list_voices": "Voices",
       "list_departments": "Departments",
       "list_agent_tools": "Agent tools"
-    }
+    },
+    "threadsLegend": "Conversations",
+    "greeting": "What are we working on?",
+    "starterListAgents": "List my agents",
+    "starterCreateAgent": "Create a collections agent",
+    "starterModels": "Which models are available?",
+    "starterAgentTools": "Review an agent's tools",
+    "conversationLegend": "Conversation"
   },
   "crmContactPanel": {
     "title": "Contact details",
@@ -1188,7 +1193,7 @@
       "whatsappTemplates": "Templates",
       "whatsappTemplatesList": "List",
       "createWhatsappTemplate": "New Template",
-      "manageAllTemplates": "Manage All",
+      "manageAllTemplates": "Global",
       "whatsappFlows": "Flows",
       "whatsappFlowsList": "List",
       "createWhatsappFlow": "New Flow",
@@ -1196,16 +1201,16 @@
       "whatsappBusinessPhonesList": "List",
       "connectWhatsappPhone": "Connect Number",
       "sendWhatsappMessage": "Send Message",
-      "manageAllPhones": "Manage All",
+      "manageAllPhones": "Global",
       "registerWhatsappPhone": "Register",
       "generalSettings": "General Settings",
       "users": "User Management",
-      "adminOverview": "Admin Overview",
-      "platformUsers": "Platform Users",
+      "adminOverview": "Revenue",
+      "platformUsers": "Accounts",
       "usersList": "Users List",
       "registerUser": "Register User",
       "workspaces": "Workspaces",
-      "platformWorkspaces": "Platform Workspaces",
+      "platformWorkspaces": "Workspaces",
       "workspacesList": "Workspaces List",
       "balance": "Balance",
       "invoices": "Invoices",
@@ -1225,12 +1230,12 @@
       "stageGroups": "Funnel",
       "plans": "Plans",
       "addons": "Addons",
-      "manageAddons": "Manage Addons",
-      "managePlans": "Manage Plans",
+      "manageAddons": "Extensions",
+      "managePlans": "Catalog",
       "pricing": "Pricing",
-      "platformPricing": "Platform Pricing",
+      "platformPricing": "Rates",
       "adminAffiliates": "Affiliates",
-      "systemConfig": "System Config",
+      "systemConfig": "System",
       "mcpServers": "MCP Servers",
       "workflows": "Automations",
       "workflowsList": "Automations List",
@@ -1242,14 +1247,13 @@
       "support": "Support",
       "supportList": "Requests",
       "createSupport": "New Request",
-      "manageSupport": "Manage",
+      "manageSupport": "Global",
       "calendar": "Calendar",
       "calendarEvents": "Events",
       "calendarSettings": "Integrations",
       "integrations": "Integrations",
       "platformSettings": "Platform Settings",
       "resourceTemplates": "Templates",
-      "templatesCatalog": "Browse Templates",
       "messageShortcuts": "Shortcuts",
       "affiliate": "Affiliates",
       "affiliateDashboard": "Affiliate Dashboard",
@@ -5329,7 +5333,10 @@
       "usageMetrics": "Usage & Costs"
     },
     "usagePageTitle": "Usage & Costs",
-    "usagePageSubtitle": "Monitor AI token consumption and call minutes"
+    "usagePageSubtitle": "Monitor AI token consumption and call minutes",
+    "stats": {
+      "legend": "Totals"
+    }
   },
   "usageMetrics": {
     "pageTitle": "Usage & Costs",
@@ -5420,14 +5427,12 @@
     "showDetails": "Show details",
     "hideDetails": "Hide details",
     "header": {
-      "badge": "Settings",
-      "title": "General System Settings",
-      "description": "Manage global parameters such as AI, calls, and work hours."
+      "badge": "System",
+      "title": "Platform-wide parameters.",
+      "description": "Platform-wide parameters: the base prompt every AI agent inherits."
     },
     "sections": {
       "ai": "Artificial Intelligence",
-      "calls": "Calls",
-      "workTime": "Work Hours",
       "whatsappCampaigns": "WhatsApp Campaigns"
     },
     "fields": {
@@ -5436,29 +5441,10 @@
         "placeholder": "Enter the base prompt that will be used by all agents...",
         "description": "This prompt defines the default behavior of all AI agents on the platform. Changes to this field will affect all future interactions. Use clear and specific language to define the tone, objective, and constraints of the agents."
       },
-      "workTimeEnabled": {
-        "label": "Enable work hours",
-        "description": "When enabled, the system will only process calls and interactions within the schedule configured below. Outside this period, calls will be queued for later processing. Useful for respecting business hours and local regulations."
-      },
-      "workTimeStart": {
-        "label": "Start time",
-        "placeholder": "HH:MM",
-        "description": "Defines the daily operation start time (24h format). Calls started before this time will be queued. Time configured in America/Sao_Paulo timezone (UTC-3)."
-      },
-      "workTimeEnd": {
-        "label": "End time",
-        "placeholder": "HH:MM",
-        "description": "Defines the daily operation end time (24h format). Ongoing calls may continue, but new calls will not be started after this time. Time configured in America/Sao_Paulo timezone (UTC-3)."
-      },
       "campaignSpamProtectionDays": {
         "label": "Prevent spam",
         "placeholder": "Enter the minimum number of days (0 = disabled)",
         "description": "Defines the minimum interval in days before the same phone number can receive another WhatsApp campaign message from the same business phone. Set to 0 to disable spam protection. Contacts that received a campaign recently will be marked as 'Possible Spam' and skipped."
-      },
-      "maxConcurrentCalls": {
-        "label": "Max concurrent calls",
-        "placeholder": "Enter the platform-wide call ceiling",
-        "description": "Caps how many telephony legs the platform may hold open at once, across every workspace. New calls wait for a free slot instead of overloading the SIP trunks. Minimum: 1 call."
       }
     },
     "buttons": {
@@ -5656,8 +5642,8 @@
   },
   "users": {
     "header": {
-      "badge": "Administration",
-      "title": "User Management",
+      "badge": "Accounts",
+      "title": "Every account on the platform, with its roles and permissions.",
       "description": "Manage system users, view their information and update their roles and permissions."
     },
     "stats": {
@@ -5974,8 +5960,8 @@
   },
   "adminWorkspaces": {
     "header": {
-      "badge": "Admin · Workspace Management",
-      "title": "Workspaces",
+      "badge": "Workspaces",
+      "title": "Every workspace on the platform.",
       "description": "View and manage all workspaces in the system."
     },
     "stats": {
@@ -6894,8 +6880,8 @@
   },
   "adminPricing": {
     "header": {
-      "badge": "Admin · Pricing",
-      "title": "Pricing Management",
+      "badge": "Rates",
+      "title": "Default per-service prices, the exchange rate, and the change history.",
       "description": "Configure default pricing for all services, manage exchange rate, and view the audit trail."
     },
     "tabs": {
@@ -6999,7 +6985,7 @@
   },
   "adminPlans": {
     "header": {
-      "badge": "Admin · Plans",
+      "badge": "Catalog",
       "description": "Create and maintain subscription plans with a BRL base price, included capacity, and service pricing that stays aligned with the billing engine."
     },
     "stats": {
@@ -8226,112 +8212,6 @@
       "disconnectionSuccess": "Google Calendar disconnected.",
       "connectionError": "Failed to connect Google Calendar.",
       "disconnectionError": "Failed to disconnect Google Calendar."
-    }
-  },
-  "resourceTemplates": {
-    "header": {
-      "badge": "Templates",
-      "description": "Browse ready-to-use templates and get started faster."
-    },
-    "admin": {
-      "badge": "Template Management",
-      "description": "Create, edit and manage resource templates available to all workspaces.",
-      "create": "New Template",
-      "edit": "Edit Template",
-      "backButton": "Back to templates"
-    },
-    "stats": {
-      "total": "Total",
-      "published": "Published",
-      "draft": "Draft",
-      "archived": "Archived",
-      "installs": "Installs"
-    },
-    "search": {
-      "placeholder": "Search templates..."
-    },
-    "loading": "Loading templates...",
-    "error": {
-      "title": "Error loading",
-      "default": "Error loading templates"
-    },
-    "empty": {
-      "title": "No templates found",
-      "description": "There are no templates matching your criteria."
-    },
-    "catalog": {
-      "badge": "Templates Catalog",
-      "description": "Explore ready-to-use configurations and add them to your workspace with one click.",
-      "install": "Use Template",
-      "installed": "Already Installed",
-      "installing": "Installing...",
-      "installSuccess": "Template installed successfully!",
-      "installError": "Failed to install template.",
-      "featured": "Featured",
-      "allTemplates": "All Templates",
-      "empty": {
-        "title": "No templates available",
-        "description": "There are no templates available at the moment."
-      }
-    },
-    "form": {
-      "name": "Name",
-      "namePlaceholder": "Template name",
-      "description": "Description",
-      "descriptionPlaceholder": "Describe what this template does",
-      "resourceType": "Resource Type",
-      "category": "Category",
-      "subcategory": "Subcategory",
-      "snapshotId": "Source Resource ID",
-      "snapshotIdPlaceholder": "ID of the resource to use as template",
-      "iconUrl": "Icon URL",
-      "iconUrlPlaceholder": "https://example.com/icon.png",
-      "featured": "Featured",
-      "position": "Position",
-      "save": "Save Template",
-      "saving": "Saving...",
-      "publish": "Publish",
-      "unpublish": "Unpublish",
-      "archive": "Archive",
-      "delete": "Delete",
-      "deleteConfirm": "Are you sure you want to delete this template?"
-    },
-    "status": {
-      "draft": "Draft",
-      "published": "Published",
-      "archived": "Archived"
-    },
-    "resourceType": {
-      "agent": "Agent",
-      "workflow": "Automation",
-      "stage_group": "Stage Group",
-      "label_group": "Label Group",
-      "tool": "Tool",
-      "support_inbox": "Support Inbox"
-    },
-    "category": {
-      "retail": "Retail",
-      "healthcare": "Healthcare",
-      "finance": "Finance",
-      "real_estate": "Real Estate",
-      "education": "Education",
-      "hospitality": "Hospitality",
-      "automotive": "Automotive",
-      "professional_services": "Professional Services",
-      "technology": "Technology",
-      "government": "Government",
-      "food_beverage": "Food & Beverage",
-      "manufacturing": "Manufacturing",
-      "fitness": "Fitness",
-      "legal": "Legal",
-      "nonprofit": "Nonprofit",
-      "media": "Media",
-      "general": "General"
-    },
-    "emptyState": {
-      "title": "Get started faster",
-      "description": "Browse ready-to-use templates to quickly set up your workspace.",
-      "browseAction": "Browse Templates"
     }
   },
   "affiliatePage": {

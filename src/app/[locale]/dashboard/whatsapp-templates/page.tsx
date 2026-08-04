@@ -49,16 +49,16 @@ import {
 } from "@/app/actions/whatsapp-templates";
 
 const STATUS_COLORS: Record<TemplateStatus, string> = {
-  APPROVED: "bg-healthy text-white",
-  PENDING: "bg-warning text-white",
-  REJECTED: "bg-destructive text-white",
-  PAUSED: "bg-muted text-white",
-  DISABLED: "bg-muted text-white",
+  APPROVED: "bg-healthy text-healthy-foreground",
+  PENDING: "bg-warning text-warning-foreground",
+  REJECTED: "bg-destructive text-destructive-foreground",
+  PAUSED: "bg-muted text-muted-foreground",
+  DISABLED: "bg-muted text-muted-foreground",
 };
 
 const CATEGORY_COLORS: Record<TemplateCategory, string> = {
-  MARKETING: "bg-muted text-white",
-  UTILITY: "bg-muted text-white",
+  MARKETING: "bg-muted text-muted-foreground",
+  UTILITY: "bg-muted text-muted-foreground",
   AUTHENTICATION: "bg-orange-500 text-white",
 };
 
@@ -303,7 +303,7 @@ export default function WhatsAppTemplatesPage({
           <span
             className={cn(
               "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
-              STATUS_COLORS[row.status] ?? "bg-muted text-white",
+              STATUS_COLORS[row.status] ?? "bg-muted text-muted-foreground",
             )}
           >
             {t(`status.${row.status.toLowerCase()}`)}
@@ -317,7 +317,7 @@ export default function WhatsAppTemplatesPage({
           <span
             className={cn(
               "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
-              CATEGORY_COLORS[row.category] ?? "bg-muted text-white",
+              CATEGORY_COLORS[row.category] ?? "bg-muted text-muted-foreground",
             )}
           >
             {t(`category.${row.category.toLowerCase()}`)}

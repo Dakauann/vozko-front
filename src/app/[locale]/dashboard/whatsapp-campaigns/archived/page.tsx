@@ -24,11 +24,11 @@ import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
 const statusColor: Record<string, string> = {
-  RUNNING: "bg-healthy text-white",
-  PAUSED: "bg-warning text-white",
-  IDLE: "bg-muted text-white",
-  STOPPED: "bg-muted text-white",
-  COMPLETED: "bg-muted text-white",
+  RUNNING: "bg-healthy text-healthy-foreground",
+  PAUSED: "bg-warning text-warning-foreground",
+  IDLE: "bg-muted text-muted-foreground",
+  STOPPED: "bg-muted text-muted-foreground",
+  COMPLETED: "bg-muted text-muted-foreground",
 };
 
 export default function ArchivedWhatsAppCampaignsPage() {

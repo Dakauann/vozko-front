@@ -414,13 +414,13 @@ export default function KnowledgeBaseDetailPage() {
                           className={cn(
                             "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
                             doc.status === "ready" &&
-                              "bg-healthy text-white",
+                              "bg-healthy text-healthy-foreground",
                             doc.status === "processing" &&
-                              "bg-warning text-white",
+                              "bg-warning text-warning-foreground",
                             doc.status === "pending" &&
-                              "bg-muted text-white",
+                              "bg-muted text-muted-foreground",
                             doc.status === "failed" &&
-                              "bg-destructive text-white",
+                              "bg-destructive text-destructive-foreground",
                           )}
                         >
                           {(doc.status === "processing" ||

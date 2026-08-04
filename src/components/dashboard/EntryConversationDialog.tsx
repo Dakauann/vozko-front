@@ -126,16 +126,20 @@ function formatAnalysisDate(dateString: string, locale: string) {
   }).format(date);
 }
 
+// Each surface takes its own paired foreground rather than a literal white:
+// the pairs invert with the theme (--healthy-foreground is white in light mode
+// and near-black in dark), and `cold_lead` was white on --muted, which is L92%
+// in the default theme — the label was there but could not be read.
 const sentimentStyles: Record<string, { bg: string; text: string }> = {
-  positive: { bg: "bg-healthy", text: "text-white" },
+  positive: { bg: "bg-healthy", text: "text-healthy-foreground" },
   neutral: { bg: "bg-muted", text: "text-foreground" },
-  negative: { bg: "bg-destructive", text: "text-white" },
+  negative: { bg: "bg-destructive", text: "text-destructive-foreground" },
 };
 
 const qualificationStyles: Record<string, { bg: string; text: string }> = {
-  hot_lead: { bg: "bg-destructive", text: "text-white" },
-  warm_lead: { bg: "bg-warning", text: "text-white" },
-  cold_lead: { bg: "bg-muted", text: "text-white" },
+  hot_lead: { bg: "bg-destructive", text: "text-destructive-foreground" },
+  warm_lead: { bg: "bg-warning", text: "text-warning-foreground" },
+  cold_lead: { bg: "bg-muted", text: "text-muted-foreground" },
 };
 
 function AnalysisPanel({
@@ -213,7 +217,7 @@ function AnalysisPanel({
       style={{ boxShadow: softSurfaceShadow }}
     >
       <div className="flex items-center gap-2 mb-3">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Robot weight="fill" className="h-4 w-4" />
         </div>
         <div>
@@ -489,7 +493,7 @@ function MessageBubble({
             </span>
           </div>
           <div className="flex items-center gap-2 text-muted-foreground">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-white">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground">
               <Waveform weight="fill" className="h-4 w-4" />
             </div>
             <span className="text-sm italic">

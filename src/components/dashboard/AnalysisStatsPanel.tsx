@@ -15,6 +15,7 @@ import {
 
 import type { AnalysisStats } from "@/lib/analysis/types";
 import { IconBox } from "@/components/elevated-design/listing-card";
+import { InstrumentStrip } from "@/components/console/page-shapes";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
@@ -26,43 +27,6 @@ interface AnalysisStatsPanelProps {
   error: string | null;
   translationNamespace: "campaignsPage" | "whatsappCampaignsPage";
   compact?: boolean;
-}
-
-function StatCard({
-  title,
-  value,
-  icon,
-  color,
-  delay = 0,
-}: {
-  title: string;
-  value: string | number;
-  icon: React.ReactNode;
-  color: string;
-  delay?: number;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay }}
-      className="flex items-center gap-3 p-4 rounded-[--radius] bg-card border border-border"
-      style={{ boxShadow: softSurfaceShadow }}
-    >
-      <div
-        className="flex h-10 w-10 items-center justify-center rounded-lg"
-        style={{ backgroundColor: `${color}15` }}
-      >
-        <span style={{ color }}>{icon}</span>
-      </div>
-      <div>
-        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          {title}
-        </p>
-        <p className="text-xl font-semibold text-foreground">{value}</p>
-      </div>
-    </motion.div>
-  );
 }
 
 function ProgressBar({
@@ -284,7 +248,7 @@ export default function AnalysisStatsPanel({
           >
             <div
               className={cn(
-                "flex items-center justify-center rounded-[--radius] bg-muted text-white",
+                "flex items-center justify-center rounded-[--radius] bg-muted text-muted-foreground",
                 compact ? "h-8 w-8" : "h-10 w-10",
               )}
             >
@@ -346,14 +310,14 @@ export default function AnalysisStatsPanel({
         >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-white">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                 <Brain weight="bold" className="h-4 w-4" />
               </div>
               <h2 className="text-base font-semibold text-foreground">
                 {t("title")}
               </h2>
             </div>
-            <span className="flex items-center gap-1.5 rounded-[--radius] bg-muted px-2.5 py-1 text-[11px] font-semibold text-white">
+            <span className="flex items-center gap-1.5 rounded-[--radius] bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
               <Brain weight="fill" className="h-3.5 w-3.5" />
               {stats.totalAnalyses}
             </span>
@@ -503,7 +467,7 @@ export default function AnalysisStatsPanel({
       >
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-muted-foreground">
               <Brain weight="bold" className="h-5 w-5" />
             </div>
             <div>
@@ -513,41 +477,36 @@ export default function AnalysisStatsPanel({
               <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
             </div>
           </div>
-          <span className="flex items-center gap-2 rounded-[--radius] bg-muted px-3 py-1.5 text-xs font-semibold text-white">
+          <span className="flex items-center gap-2 rounded-[--radius] bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground">
             <Brain weight="fill" className="h-4 w-4" />
             {stats.totalAnalyses} {t("totalAnalyses").toLowerCase()}
           </span>
         </div>
 
         {/* Summary Stats */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-          <StatCard
-            title={t("totalAnalyses")}
-            value={stats.totalAnalyses}
-            icon={<Brain weight="fill" className="h-5 w-5" />}
-            color="#8b5cf6"
-            delay={0}
-          />
-          <StatCard
-            title={t("avgQuality")}
-            value={`${stats.avgAttendanceQuality.toFixed(1)}%`}
-            icon={<TrendUp weight="fill" className="h-5 w-5" />}
-            color="#22c55e"
-            delay={0.1}
-          />
-          <StatCard
-            title={t("totalMessages")}
-            value={stats.totalMessages.toLocaleString()}
-            icon={<ChatCircle weight="fill" className="h-5 w-5" />}
-            color="#3b82f6"
-            delay={0.2}
-          />
-          <StatCard
-            title={t("avgMessages")}
-            value={stats.avgMessagesPerAnalysis.toFixed(1)}
-            icon={<ChatCircle weight="bold" className="h-5 w-5" />}
-            color="#6366f1"
-            delay={0.3}
+        {/* Four analysis figures on one strip. They were four cards, each with
+            a hardcoded hex icon tile (#8b5cf6, #22c55e, #3b82f6, #6366f1) and
+            a staggered entrance — four palettes this design system does not
+            own, and four separate animations for numbers that arrive together. */}
+        <div className="mb-8">
+          <InstrumentStrip
+            columns={4}
+            compact
+            instruments={[
+              { label: t("totalAnalyses"), value: String(stats.totalAnalyses) },
+              {
+                label: t("avgQuality"),
+                value: `${stats.avgAttendanceQuality.toFixed(1)}%`,
+              },
+              {
+                label: t("totalMessages"),
+                value: stats.totalMessages.toLocaleString(),
+              },
+              {
+                label: t("avgMessages"),
+                value: stats.avgMessagesPerAnalysis.toFixed(1),
+              },
+            ]}
           />
         </div>
 

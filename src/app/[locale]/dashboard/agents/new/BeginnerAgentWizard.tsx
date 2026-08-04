@@ -164,7 +164,7 @@ function ExampleBlock({ label, body }: { label: string; body: string }) {
   return (
     <div className="mt-3 rounded-[--radius] border border-border bg-muted p-3">
       <div className="flex items-center gap-2">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-white shadow">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground shadow">
           <Lightbulb className="h-4 w-4" weight="fill" />
         </div>
         <p className="text-xs font-semibold uppercase tracking-wider text-foreground">

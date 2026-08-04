@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/chart";
 import {
   ArrowClockwise,
-  ArrowUp,
   Calendar,
   ChartBar,
   ChartLine,
@@ -69,7 +68,7 @@ import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import { ElevatedDatePicker } from "@/components/elevated-design/elevated-date-picker";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import GradientText from "@/components/elevated-design/gradient-text";
-import type { Icon } from "@/components/icons";
+import { ReadoutBar } from "@/components/console/page-shapes";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
@@ -150,66 +149,6 @@ function getRecommendedInterval(preset: DateRangePreset): IntervalType {
     default:
       return "day";
   }
-}
-
-function StatCard({
-  title,
-  value,
-  change,
-  icon: Icon,
-  color,
-  loading = false,
-}: {
-  title: string;
-  value: number;
-  change?: number;
-  icon: Icon;
-  color: string;
-  loading?: boolean;
-}) {
-  return (
-    <ElevatedContainer className="border border-border bg-card p-5">
-      <div className="flex items-center gap-3 mb-3">
-        <div
-          className={cn(
-            "flex h-11 w-11 items-center justify-center rounded-[--radius]",
-            color,
-          )}
-        >
-          <Icon className="h-5 w-5 text-white" weight="fill" />
-        </div>
-        <div>
-          {loading ? (
-            <div className="animate-pulse">
-              <div className="h-7 w-16 bg-border rounded mb-1" />
-              <div className="h-4 w-24 bg-border rounded" />
-            </div>
-          ) : (
-            <>
-              <p className="text-2xl font-semibold text-foreground">
-                {value.toLocaleString()}
-              </p>
-              <p className="text-sm text-muted-foreground">{title}</p>
-            </>
-          )}
-        </div>
-      </div>
-      {change !== undefined && !loading && (
-        <div
-          className={cn(
-            "flex items-center gap-1 text-xs",
-            change >= 0 ? "text-healthy" : "text-destructive",
-          )}
-        >
-          <ArrowUp
-            className={cn("h-3 w-3", change < 0 && "rotate-180")}
-            weight="bold"
-          />
-          {Math.abs(change).toFixed(1)}% vs período anterior
-        </div>
-      )}
-    </ElevatedContainer>
-  );
 }
 
 function CategoryStatsGrid({
@@ -300,19 +239,18 @@ function CategoryStatsGrid({
     ];
   }, [stats, t]);
 
+  // LEDGER. Six category totals are context for the charts below, not six
+  // separate objects: they were six bordered cards with six coloured icon
+  // tiles, which spent the top of an admin page — and the one accent this
+  // interface has — on decoration. One engraved line reports the same numbers.
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-      {categoryStats.map((cat) => (
-        <StatCard
-          key={cat.category}
-          title={cat.title}
-          value={cat.total}
-          icon={cat.icon}
-          color={cat.color}
-          loading={loading}
-        />
-      ))}
-    </div>
+    <ReadoutBar
+      legend={t("stats.legend")}
+      readouts={categoryStats.map((cat) => ({
+        label: cat.title,
+        value: loading ? "—" : cat.total.toLocaleString(),
+      }))}
+    />
   );
 }
 
@@ -1106,7 +1044,7 @@ export default function AdminMetricsDashboard() {
             className={cn(
               "flex items-center gap-2 px-4 py-2.5 rounded-[--radius] text-sm font-medium transition-all",
               mainSection === "business-metrics"
-                ? "bg-muted text-white shadow-md"
+                ? "bg-muted text-muted-foreground shadow-md"
                 : "bg-muted text-muted-foreground hover:bg-border",
             )}
           >
@@ -1211,7 +1149,7 @@ export default function AdminMetricsDashboard() {
                       {t("filters.eventTypes")}
                     </span>
                     {selectedEvents.length > 0 && (
-                      <span className="px-2 py-0.5 rounded-full bg-primary text-white text-xs font-medium">
+                      <span className="px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-xs font-medium">
                         {selectedEvents.length} {t("filters.selected")}
                       </span>
                     )}

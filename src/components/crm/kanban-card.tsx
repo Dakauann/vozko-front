@@ -240,11 +240,11 @@ export type PillTone =
   | "neutral";
 
 const PILL_TONE: Record<PillTone, string> = {
-  success: "bg-healthy text-white",
-  warning: "bg-warning text-white",
-  danger: "bg-destructive text-white",
-  info: "bg-muted text-white",
-  accent: "bg-primary text-white",
+  success: "bg-healthy text-healthy-foreground",
+  warning: "bg-warning text-warning-foreground",
+  danger: "bg-destructive text-destructive-foreground",
+  info: "bg-muted text-muted-foreground",
+  accent: "bg-primary text-primary-foreground",
   // Neutral is the only non-white pill: muted fill, muted ink (still ≥4.5:1).
   neutral: "bg-muted text-muted-foreground",
 };

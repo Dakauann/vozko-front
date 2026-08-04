@@ -129,8 +129,6 @@
     "untitled": "Nova conversa",
     "noConversations": "Nenhuma conversa ainda",
     "deleteConversation": "Excluir conversa",
-    "emptyTitle": "Como posso ajudar?",
-    "emptyDescription": "Peça para listar, contar ou criar agentes, ou converse para criar prompts e tirar dúvidas. Ações que alteram dados pedem sua aprovação.",
     "loading": "Carregando…",
     "scrollToBottom": "Ir para o final",
     "modelLabel": "Modelo",
@@ -157,7 +155,14 @@
       "list_voices": "Vozes",
       "list_departments": "Departamentos",
       "list_agent_tools": "Ferramentas de agente"
-    }
+    },
+    "threadsLegend": "Conversas",
+    "greeting": "No que vamos trabalhar?",
+    "starterListAgents": "Listar meus agentes",
+    "starterCreateAgent": "Criar um agente de cobrança",
+    "starterModels": "Quais modelos estão disponíveis?",
+    "starterAgentTools": "Revisar as ferramentas de um agente",
+    "conversationLegend": "Conversa"
   },
   "crmContactPanel": {
     "title": "Detalhes do contato",
@@ -1580,7 +1585,7 @@
       "whatsappTemplates": "Templates",
       "whatsappTemplatesList": "Lista",
       "createWhatsappTemplate": "Novo Template",
-      "manageAllTemplates": "Gerenciar Todos",
+      "manageAllTemplates": "Global",
       "whatsappFlows": "Flows",
       "whatsappFlowsList": "Lista",
       "createWhatsappFlow": "Novo Flow",
@@ -1588,16 +1593,16 @@
       "whatsappBusinessPhonesList": "Lista",
       "connectWhatsappPhone": "Conectar Número",
       "sendWhatsappMessage": "Enviar mensagem",
-      "manageAllPhones": "Gerenciar Todos",
+      "manageAllPhones": "Global",
       "registerWhatsappPhone": "Registrar",
       "generalSettings": "Configurações Gerais",
       "users": "Gestão de Usuários",
-      "adminOverview": "Visão Admin",
-      "platformUsers": "Usuários da Plataforma",
+      "adminOverview": "Receita",
+      "platformUsers": "Contas",
       "usersList": "Lista de Usuários",
       "registerUser": "Registrar Usuário",
       "workspaces": "Áreas de Trabalho",
-      "platformWorkspaces": "Áreas de Trabalho da Plataforma",
+      "platformWorkspaces": "Áreas",
       "workspacesList": "Lista de Áreas de Trabalho",
       "balance": "Saldo",
       "invoices": "Faturas",
@@ -1621,12 +1626,12 @@
       "leads": "Leads",
       "plans": "Planos",
       "addons": "Addons",
-      "manageAddons": "Gerenciar Addons",
-      "managePlans": "Gerenciar Planos",
+      "manageAddons": "Extensões",
+      "managePlans": "Catálogo",
       "pricing": "Precificação",
-      "platformPricing": "Precificação da Plataforma",
+      "platformPricing": "Tarifas",
       "adminAffiliates": "Afiliados",
-      "systemConfig": "Configuração do Sistema",
+      "systemConfig": "Sistema",
       "mcpServers": "Servidores MCP",
       "workflows": "Automações",
       "workflowsList": "Lista de Automações",
@@ -1638,14 +1643,13 @@
       "support": "Suporte",
       "supportList": "Solicitações",
       "createSupport": "Nova Solicitação",
-      "manageSupport": "Gerenciar",
+      "manageSupport": "Global",
       "calendar": "Calendário",
       "calendarEvents": "Eventos",
       "calendarSettings": "Integrações",
       "integrations": "Integrações",
       "platformSettings": "Configurações da Plataforma",
       "resourceTemplates": "Templates",
-      "templatesCatalog": "Explorar Templates",
       "messageShortcuts": "Atalhos",
       "affiliate": "Afiliados",
       "affiliateDashboard": "Painel de Afiliado",
@@ -5368,7 +5372,10 @@
       "usageMetrics": "Uso e Custos"
     },
     "usagePageTitle": "Uso e Custos",
-    "usagePageSubtitle": "Monitore o consumo de tokens de IA e minutos de chamadas"
+    "usagePageSubtitle": "Monitore o consumo de tokens de IA e minutos de chamadas",
+    "stats": {
+      "legend": "Totais"
+    }
   },
   "usageMetrics": {
     "pageTitle": "Uso e Custos",
@@ -5459,14 +5466,12 @@
     "showDetails": "Ver detalhes",
     "hideDetails": "Ocultar detalhes",
     "header": {
-      "badge": "Configurações",
-      "title": "Configurações Gerais do Sistema",
-      "description": "Gerencie parâmetros globais como IA, ligações e horário de funcionamento."
+      "badge": "Sistema",
+      "title": "Parâmetros globais da plataforma.",
+      "description": "Parâmetros globais da plataforma: o prompt base que todos os agentes de IA herdam."
     },
     "sections": {
       "ai": "Inteligência Artificial",
-      "calls": "Ligações",
-      "workTime": "Horário de Trabalho",
       "whatsappCampaigns": "Disparos WhatsApp"
     },
     "fields": {
@@ -5475,29 +5480,10 @@
         "placeholder": "Insira o prompt base que será usado por todos os agentes...",
         "description": "Este prompt define o comportamento padrão de todos os agentes de IA na plataforma. Alterações neste campo afetarão todas as interações futuras. Use linguagem clara e específica para definir o tom, objetivo e restrições dos agentes."
       },
-      "workTimeEnabled": {
-        "label": "Ativar horário de funcionamento",
-        "description": "Quando ativado, o sistema só processará chamadas e interações dentro do horário configurado abaixo. Fora deste período, as chamadas serão enfileiradas para processamento posterior. Útil para respeitar horários comerciais e regulamentações locais."
-      },
-      "workTimeStart": {
-        "label": "Início",
-        "placeholder": "HH:MM",
-        "description": "Define o horário de início da operação diária (formato 24h). Chamadas iniciadas antes deste horário serão enfileiradas. Horário configurado no fuso America/Sao_Paulo (UTC-3)."
-      },
-      "workTimeEnd": {
-        "label": "Fim",
-        "placeholder": "HH:MM",
-        "description": "Define o horário de término da operação diária (formato 24h). Chamadas em andamento podem continuar, mas novas chamadas não serão iniciadas após este horário. Horário configurado no fuso America/Sao_Paulo (UTC-3)."
-      },
       "campaignSpamProtectionDays": {
         "label": "Prevenir spam",
         "placeholder": "Informe o número mínimo de dias (0 = desativado)",
         "description": "Define o intervalo mínimo em dias antes que o mesmo número possa receber outra mensagem de Disparo WhatsApp do mesmo telefone comercial. Defina como 0 para desativar a proteção contra spam. Contatos que receberam uma campanha recentemente serão marcados como 'Ignorado (Evitando Spam)' e ignorados."
-      },
-      "maxConcurrentCalls": {
-        "label": "Máximo de chamadas simultâneas",
-        "placeholder": "Informe o limite global de chamadas",
-        "description": "Limita quantas pernas de telefonia a plataforma mantém abertas ao mesmo tempo, somando todos os workspaces. Novas chamadas aguardam uma vaga em vez de sobrecarregar os troncos SIP. Mínimo: 1 chamada."
       }
     },
     "buttons": {
@@ -5695,8 +5681,8 @@
   },
   "users": {
     "header": {
-      "badge": "Administração",
-      "title": "Gestão de Usuários",
+      "badge": "Contas",
+      "title": "Todas as contas da plataforma, com seus papéis e permissões.",
       "description": "Gerencie os usuários do sistema, visualize suas informações e atualize seus papéis e permissões."
     },
     "stats": {
@@ -6013,8 +5999,8 @@
   },
   "adminWorkspaces": {
     "header": {
-      "badge": "Admin · Gestão de Áreas de Trabalho",
-      "title": "Áreas de Trabalho",
+      "badge": "Áreas",
+      "title": "Todas as áreas de trabalho do sistema.",
       "description": "Visualize e gerencie todas as áreas de trabalho do sistema."
     },
     "stats": {
@@ -6932,8 +6918,8 @@
   },
   "adminPricing": {
     "header": {
-      "badge": "Admin · Precificação",
-      "title": "Gestão de Preços",
+      "badge": "Tarifas",
+      "title": "Preços padrão por serviço, taxa de câmbio e histórico de alterações.",
       "description": "Configure preços padrão de todos os serviços, gerencie a taxa de câmbio e veja o histórico de alterações."
     },
     "tabs": {
@@ -7037,7 +7023,7 @@
   },
   "adminPlans": {
     "header": {
-      "badge": "Admin · Planos",
+      "badge": "Catálogo",
       "description": "Crie e mantenha planos de assinatura com preço base em BRL, capacidade inclusa e precificação por serviço alinhada ao motor de billing."
     },
     "stats": {
@@ -8264,112 +8250,6 @@
       "disconnectionSuccess": "Google Calendar desconectado.",
       "connectionError": "Falha ao conectar o Google Calendar.",
       "disconnectionError": "Falha ao desconectar o Google Calendar."
-    }
-  },
-  "resourceTemplates": {
-    "header": {
-      "badge": "Templates",
-      "description": "Explore templates prontos para uso e comece mais rápido."
-    },
-    "admin": {
-      "badge": "Gerenciar Templates",
-      "description": "Crie, edite e gerencie templates de recursos disponíveis para todos os workspaces.",
-      "create": "Novo Template",
-      "edit": "Editar Template",
-      "backButton": "Voltar aos templates"
-    },
-    "stats": {
-      "total": "Total",
-      "published": "Publicados",
-      "draft": "Rascunho",
-      "archived": "Arquivados",
-      "installs": "Instalações"
-    },
-    "search": {
-      "placeholder": "Buscar templates..."
-    },
-    "loading": "Carregando templates...",
-    "error": {
-      "title": "Erro ao carregar",
-      "default": "Erro ao carregar templates"
-    },
-    "empty": {
-      "title": "Nenhum template encontrado",
-      "description": "Não há templates que correspondam aos seus critérios."
-    },
-    "catalog": {
-      "badge": "Catálogo de Templates",
-      "description": "Explore configurações prontas para uso e adicione ao seu workspace com um clique.",
-      "install": "Usar Template",
-      "installed": "Já Instalado",
-      "installing": "Instalando...",
-      "installSuccess": "Template instalado com sucesso!",
-      "installError": "Falha ao instalar template.",
-      "featured": "Destaques",
-      "allTemplates": "Todos os Templates",
-      "empty": {
-        "title": "Nenhum template disponível",
-        "description": "Não há templates disponíveis no momento."
-      }
-    },
-    "form": {
-      "name": "Nome",
-      "namePlaceholder": "Nome do template",
-      "description": "Descrição",
-      "descriptionPlaceholder": "Descreva o que este template faz",
-      "resourceType": "Tipo de Recurso",
-      "category": "Categoria",
-      "subcategory": "Subcategoria",
-      "snapshotId": "ID do Recurso de Origem",
-      "snapshotIdPlaceholder": "ID do recurso a ser usado como template",
-      "iconUrl": "URL do Ícone",
-      "iconUrlPlaceholder": "https://exemplo.com/icone.png",
-      "featured": "Destaque",
-      "position": "Posição",
-      "save": "Salvar Template",
-      "saving": "Salvando...",
-      "publish": "Publicar",
-      "unpublish": "Despublicar",
-      "archive": "Arquivar",
-      "delete": "Excluir",
-      "deleteConfirm": "Tem certeza que deseja excluir este template?"
-    },
-    "status": {
-      "draft": "Rascunho",
-      "published": "Publicado",
-      "archived": "Arquivado"
-    },
-    "resourceType": {
-      "agent": "Agente",
-      "workflow": "Automação",
-      "stage_group": "Grupo de Etapas",
-      "label_group": "Grupo de Etiquetas",
-      "tool": "Ferramenta",
-      "support_inbox": "Caixa de Suporte"
-    },
-    "category": {
-      "retail": "Varejo",
-      "healthcare": "Saúde",
-      "finance": "Finanças",
-      "real_estate": "Imobiliário",
-      "education": "Educação",
-      "hospitality": "Hotelaria",
-      "automotive": "Automotivo",
-      "professional_services": "Serviços Profissionais",
-      "technology": "Tecnologia",
-      "government": "Governo",
-      "food_beverage": "Alimentos & Bebidas",
-      "manufacturing": "Manufatura",
-      "fitness": "Fitness",
-      "legal": "Jurídico",
-      "nonprofit": "Sem Fins Lucrativos",
-      "media": "Mídia",
-      "general": "Geral"
-    },
-    "emptyState": {
-      "title": "Comece mais rápido",
-      "description": "Explore templates prontos para configurar seu workspace rapidamente.",
-      "browseAction": "Explorar Templates"
     }
   },
   "affiliatePage": {

@@ -157,7 +157,7 @@ export function ModelPickerSheet({
       >
         <ElevatedSheetHeader className="gap-3 pr-16">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[--radius] bg-primary text-white shadow-sm">
+            <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground shadow-sm">
               <Brain weight="fill" className="h-5 w-5" />
             </span>
             <div className="min-w-0">

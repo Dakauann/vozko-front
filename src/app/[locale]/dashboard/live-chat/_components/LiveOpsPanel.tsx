@@ -73,6 +73,7 @@ import { getAttendanceOverviewAction } from "@/app/actions/attendance";
 import { listMembersAction } from "@/app/actions/workspace";
 import { fetchDepartments } from "@/lib/department/client";
 import { useWorkspace } from "@/contexts/workspace-context";
+import { onSurface } from "@/components/console/page-shapes";
 import { cn } from "@/lib/utils";
 import {
   softSurfaceShadow,
@@ -287,8 +288,9 @@ function CardHead({
     <div className="mb-2 flex min-w-0 items-center gap-2">
       <div
         className={cn(
-          "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-white",
+          "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg",
           iconBg,
+          onSurface(iconBg),
         )}
       >
         {icon}
@@ -1303,7 +1305,7 @@ export default function LiveOpsPanel({
       {/* Toolbar: identity · mode · period · actions / filters · live */}
       <header className="shrink-0 border-b border-border bg-card px-3 py-2 sm:px-4">
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[--radius] bg-primary text-white">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground">
             <ChartBar className="h-4 w-4" weight="fill" />
           </div>
           <div className="min-w-0 max-w-[180px]">
@@ -1410,10 +1412,10 @@ export default function LiveOpsPanel({
               <span className="rounded-[--radius] bg-healthy px-2.5 py-0.5 text-[10px] font-semibold text-white">
                 {tc("online")} {fmt.num(live.online)}
               </span>
-              <span className="rounded-[--radius] bg-muted px-2.5 py-0.5 text-[10px] font-semibold text-white">
+              <span className="rounded-[--radius] bg-muted px-2.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
                 {tc("onCall")} {fmt.num(live.in_call)}
               </span>
-              <span className="rounded-[--radius] bg-muted px-2.5 py-0.5 text-[10px] font-semibold text-white">
+              <span className="rounded-[--radius] bg-muted px-2.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
                 {t("freeAgents")} {fmt.num(live.free)}
               </span>
             </div>
@@ -1479,9 +1481,10 @@ export default function LiveOpsPanel({
                     </div>
                     <div
                       className={cn(
-                        "flex shrink-0 items-center justify-center rounded-md text-white sm:rounded-lg",
+                        "flex shrink-0 items-center justify-center rounded-md sm:rounded-lg",
                         dense ? "h-5 w-5" : "h-6 w-6 sm:h-7 sm:w-7",
                         c.bg,
+                        onSurface(c.bg),
                       )}
                     >
                       <Icon

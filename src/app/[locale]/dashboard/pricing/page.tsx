@@ -74,11 +74,11 @@ const CATEGORY_ICONS: Record<string, Icon> = {
 
 // Solid opaque tiles with white glyphs (DESIGN.md symbols rule).
 const CATEGORY_TILE: Record<string, string> = {
-  tts: "bg-muted text-white",
-  stt: "bg-healthy text-white",
-  whatsapp: "bg-healthy text-white",
-  telephony: "bg-muted text-white",
-  exchange_rate: "bg-warning text-white",
+  tts: "bg-muted text-muted-foreground",
+  stt: "bg-healthy text-healthy-foreground",
+  whatsapp: "bg-healthy text-healthy-foreground",
+  telephony: "bg-muted text-muted-foreground",
+  exchange_rate: "bg-warning text-warning-foreground",
 };
 
 function formatDate(value?: string | null) {
@@ -326,7 +326,7 @@ export default function AdminPricingPage() {
               {rateNumber != null ? (
                 <div className="flex flex-col gap-3 rounded-[--radius] border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between shadow-sm">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-warning text-white">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-warning text-warning-foreground">
                       <Scales className="h-5 w-5" weight="fill" />
                     </div>
                     <div>
@@ -360,7 +360,7 @@ export default function AdminPricingPage() {
               {Array.from(grouped.entries()).map(([category, items]) => {
                 const Icon = CATEGORY_ICONS[category] ?? Lightning;
                 const tile =
-                  CATEGORY_TILE[category] ?? "bg-muted text-white";
+                  CATEGORY_TILE[category] ?? "bg-muted text-muted-foreground";
                 return (
                   <div
                     key={category}
@@ -547,7 +547,7 @@ export default function AdminPricingPage() {
           <TabsContent value="exchangeRate">
             <div className="rounded-[--radius] border border-border bg-card p-6 space-y-6 max-w-lg shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-[--radius] bg-warning text-white">
+                <div className="flex h-12 w-12 items-center justify-center rounded-[--radius] bg-warning text-warning-foreground">
                   <Scales className="h-6 w-6" weight="fill" />
                 </div>
                 <div>

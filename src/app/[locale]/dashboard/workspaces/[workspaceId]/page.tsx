@@ -88,12 +88,23 @@ function microsToDisplay(micros: number): string {
   return (micros / MICROS).toFixed(6).replace(/0+$/, "").replace(/\.$/, "");
 }
 
-const CATEGORY_META: Record<string, { icon: Icon; bg: string }> = {
-  tts: { icon: SpeakerHigh, bg: "bg-muted" },
-  stt: { icon: Microphone, bg: "bg-healthy" },
-  whatsapp: { icon: WhatsappLogo, bg: "bg-healthy" },
-  telephony: { icon: Phone, bg: "bg-muted" },
-  exchange_rate: { icon: CurrencyDollar, bg: "bg-warning" },
+// The tile carries its own foreground. It used to be a fixed `text-white` over
+// whichever surface the entry named, so `tts` and `telephony` — the two on
+// --muted, which is L92% in the default theme — rendered an invisible glyph.
+const CATEGORY_META: Record<string, { icon: Icon; bg: string; fg: string }> = {
+  tts: { icon: SpeakerHigh, bg: "bg-muted", fg: "text-muted-foreground" },
+  stt: { icon: Microphone, bg: "bg-healthy", fg: "text-healthy-foreground" },
+  whatsapp: {
+    icon: WhatsappLogo,
+    bg: "bg-healthy",
+    fg: "text-healthy-foreground",
+  },
+  telephony: { icon: Phone, bg: "bg-muted", fg: "text-muted-foreground" },
+  exchange_rate: {
+    icon: CurrencyDollar,
+    bg: "bg-warning",
+    fg: "text-warning-foreground",
+  },
 };
 
 
@@ -130,8 +141,8 @@ function RoleBadge({
   t: ReturnType<typeof useTranslations>;
 }) {
   const config = {
-    owner: { bg: "bg-warning text-white", icon: Crown },
-    admin: { bg: "bg-primary text-white", icon: Shield },
+    owner: { bg: "bg-warning text-warning-foreground", icon: Crown },
+    admin: { bg: "bg-primary text-primary-foreground", icon: Shield },
     member: { bg: "bg-muted text-muted-foreground", icon: Users },
     employee: { bg: "bg-muted text-muted-foreground", icon: Users },
   };
@@ -158,9 +169,9 @@ function StatusBadge({
   t: ReturnType<typeof useTranslations>;
 }) {
   const config: Record<string, string> = {
-    pending: "bg-warning text-white",
-    accepted: "bg-healthy text-white",
-    declined: "bg-destructive text-white",
+    pending: "bg-warning text-warning-foreground",
+    accepted: "bg-healthy text-healthy-foreground",
+    declined: "bg-destructive text-destructive-foreground",
     expired: "bg-muted text-muted-foreground",
   };
   return (
@@ -390,7 +401,7 @@ export default function AdminWorkspaceDetailPage() {
                   meta.bg,
                 )}
               >
-                <Icon className="h-4 w-4 text-white" weight="fill" />
+                <Icon className={cn("h-4 w-4", meta.fg)} weight="fill" />
               </div>
               <span className="text-xs font-semibold text-foreground uppercase tracking-wide">
                 {tp(`categories.${item.category}`)}
@@ -458,9 +469,9 @@ export default function AdminWorkspaceDetailPage() {
 
   const subscriptionStatusClass = currentSubscription
     ? currentSubscription.status === "active"
-      ? "bg-healthy text-white"
+      ? "bg-healthy text-healthy-foreground"
       : currentSubscription.status === "cancelled"
-        ? "bg-warning text-white"
+        ? "bg-warning text-warning-foreground"
         : "bg-muted text-muted-foreground"
     : "bg-muted text-muted-foreground";
 

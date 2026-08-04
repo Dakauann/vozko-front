@@ -59,7 +59,7 @@ export function InvoiceDetailDialog({
       <ElevatedDialogContent className="max-w-lg">
         <ElevatedDialogHeader>
           <ElevatedDialogTitle className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-[--radius] bg-primary text-white">
+            <span className="flex h-8 w-8 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground">
               <Receipt className="h-4 w-4" weight="fill" />
             </span>
             {t("detail.title")}

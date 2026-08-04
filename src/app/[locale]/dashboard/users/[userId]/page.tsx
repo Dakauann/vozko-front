@@ -325,8 +325,8 @@ export default function AdminUserDetailPage() {
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider",
                     user.emailVerified
-                      ? "bg-healthy text-white"
-                      : "bg-destructive text-white",
+                      ? "bg-healthy text-healthy-foreground"
+                      : "bg-destructive text-destructive-foreground",
                   )}
                 >
                   {user.emailVerified ? (

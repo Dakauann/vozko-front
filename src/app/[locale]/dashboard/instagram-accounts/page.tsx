@@ -52,12 +52,12 @@ const ITEMS_PER_PAGE = 15;
  * from a reconnect.
  */
 const STATUS_COLORS: Record<InstagramAccountStatus | "MESSAGING_OFF", string> = {
-  PENDING: "bg-warning text-white",
-  CONNECTED: "bg-healthy text-white",
-  TOKEN_EXPIRED: "bg-destructive text-white",
-  REVOKED: "bg-muted text-white",
+  PENDING: "bg-warning text-warning-foreground",
+  CONNECTED: "bg-healthy text-healthy-foreground",
+  TOKEN_EXPIRED: "bg-destructive text-destructive-foreground",
+  REVOKED: "bg-muted text-muted-foreground",
   SUSPENDED: "bg-orange-500 text-white",
-  MESSAGING_OFF: "bg-warning text-white",
+  MESSAGING_OFF: "bg-warning text-warning-foreground",
 };
 
 export default function InstagramAccountsPage() {
@@ -207,7 +207,7 @@ export default function InstagramAccountsPage() {
               <span
                 className={cn(
                   "inline-flex w-fit items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
-                  STATUS_COLORS[key] ?? "bg-muted text-white",
+                  STATUS_COLORS[key] ?? "bg-muted text-muted-foreground",
                 )}
               >
                 {key === "MESSAGING_OFF"

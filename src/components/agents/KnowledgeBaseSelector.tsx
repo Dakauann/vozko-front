@@ -120,7 +120,7 @@ export function KnowledgeBaseSelector({
                 <button
                   type="button"
                   onClick={() => removeKnowledgeBase(kb.id)}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-destructive text-white opacity-0 transition-all hover:bg-destructive group-hover:opacity-100"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-destructive text-destructive-foreground opacity-0 transition-all hover:bg-destructive group-hover:opacity-100"
                 >
                   <Trash className="h-4 w-4" weight="bold" />
                 </button>
@@ -163,7 +163,7 @@ export function KnowledgeBaseSelector({
                     {kb.documentCount || 0} documents
                   </p>
                 </div>
-                <div className="shrink-0 flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white">
+                <div className="shrink-0 flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                   <Plus className="h-4 w-4" weight="bold" />
                 </div>
               </button>

@@ -321,7 +321,7 @@ export default function CampaignFilters({
                 {modeTranslations.title}
               </h3>
               {hasActiveFilters && (
-                <span className="inline-flex items-center justify-center rounded-[--radius] bg-muted px-2 py-0.5 text-[10px] font-semibold text-white">
+                <span className="inline-flex items-center justify-center rounded-[--radius] bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
                   {activeFilterCount}
                 </span>
               )}
@@ -406,7 +406,7 @@ export default function CampaignFilters({
                   className={cn(
                     "flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-colors",
                     values.mode === "analysis"
-                      ? "bg-primary text-white"
+                      ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted",
                   )}
                 >
@@ -424,7 +424,7 @@ export default function CampaignFilters({
                   className={cn(
                     "flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-colors",
                     values.mode === "conversation"
-                      ? "bg-primary text-white"
+                      ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted",
                   )}
                 >

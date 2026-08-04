@@ -163,7 +163,7 @@ export default function CustomFieldManager({
       <ElevatedSheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
         <ElevatedSheetHeader className="border-b border-border px-6 pb-4 pt-6">
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-white">
+            <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Sliders weight="bold" className="h-4 w-4" />
             </span>
             <div>

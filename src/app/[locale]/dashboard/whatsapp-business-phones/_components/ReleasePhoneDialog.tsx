@@ -279,7 +279,7 @@ export function ReleasePhoneDialog({
                   iconSide="left"
                   onClick={handleRelease}
                   disabled={loading || !confirmed}
-                  className="bg-destructive text-white hover:bg-destructive/90 disabled:opacity-50"
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
                 />
               </>
             ) : (

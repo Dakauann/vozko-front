@@ -87,37 +87,37 @@ const accentClasses: Record<
 > = {
   blue: {
     icon: "bg-muted",
-    chip: "bg-muted text-white",
+    chip: "bg-muted text-muted-foreground",
     border: "border-blue-500/20",
   },
   emerald: {
     icon: "bg-muted",
-    chip: "bg-healthy text-white",
+    chip: "bg-healthy text-healthy-foreground",
     border: "border-healthy/20",
   },
   amber: {
     icon: "bg-muted",
-    chip: "bg-warning text-white",
+    chip: "bg-warning text-warning-foreground",
     border: "border-warning/25",
   },
   rose: {
     icon: "bg-muted",
-    chip: "bg-destructive text-white",
+    chip: "bg-destructive text-destructive-foreground",
     border: "border-destructive/20",
   },
   slate: {
     icon: "bg-muted",
-    chip: "bg-muted text-white",
+    chip: "bg-muted text-muted-foreground",
     border: "border-border",
   },
   violet: {
     icon: "bg-muted",
-    chip: "bg-muted text-white",
+    chip: "bg-muted text-muted-foreground",
     border: "border-violet-500/20",
   },
   sky: {
     icon: "bg-muted",
-    chip: "bg-muted text-white",
+    chip: "bg-muted text-muted-foreground",
     border: "border-sky-500/20",
   },
 };
@@ -428,7 +428,7 @@ function PromptCard({
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors",
                     copied
-                      ? "bg-healthy text-white"
+                      ? "bg-healthy text-healthy-foreground"
                       : "border border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground",
                   )}
                 >
@@ -704,7 +704,7 @@ export default function AgentDetail({
                   title={t("detail.back")}
                   variant="ghost"
                 />
-                <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-muted px-2.5 py-1 text-xs font-semibold text-white">
+                <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
                   <Robot weight="fill" className="h-3.5 w-3.5" />
                   {t("header.badge")}
                 </span>
@@ -821,7 +821,7 @@ export default function AgentDetail({
           <Panel
             accent="blue"
             action={
-              <span className="rounded-[--radius] bg-muted px-2.5 py-1 text-xs font-semibold text-white">
+              <span className="rounded-[--radius] bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
                 {promptCount} / 4
               </span>
             }

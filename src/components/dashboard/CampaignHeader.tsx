@@ -157,7 +157,7 @@ function WsStatusIndicator({
     connecting: {
       icon: WifiMedium,
       label: t.wsConnecting,
-      className: "text-white bg-warning border-warning",
+      className: "text-warning-foreground bg-warning border-warning",
       dotClass: "bg-warning",
       animate: true,
     },
@@ -171,7 +171,7 @@ function WsStatusIndicator({
     error: {
       icon: WifiSlash,
       label: t.wsDisconnected,
-      className: "text-white bg-destructive border-destructive",
+      className: "text-destructive-foreground bg-destructive border-destructive",
       dotClass: "bg-destructive",
       animate: false,
     },

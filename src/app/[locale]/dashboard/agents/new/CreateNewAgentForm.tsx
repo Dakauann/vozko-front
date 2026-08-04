@@ -388,7 +388,7 @@ const SelectedToolItem = ({
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium transition-colors",
                   effectiveVisibility.includes("messaging")
-                    ? "border border-healthy bg-healthy text-white"
+                    ? "border border-healthy bg-healthy text-healthy-foreground"
                     : "border border-border bg-muted text-muted-foreground hover:border-healthy/50 hover:text-foreground",
                 )}
               >
@@ -2184,7 +2184,7 @@ onStep={(_index, step) => {
                   <button
                     type="button"
                     onClick={() => handleRemoveMedia(media.id)}
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-destructive text-white opacity-0 transition-all hover:bg-destructive group-hover:opacity-100"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-destructive text-destructive-foreground opacity-0 transition-all hover:bg-destructive group-hover:opacity-100"
                   >
                     <Trash className="h-4 w-4" weight="bold" />
                   </button>
@@ -2390,7 +2390,7 @@ onStep={(_index, step) => {
                 <button
                   type="button"
                   onClick={() => handleRemovePendingFile(index)}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-destructive text-white transition-all hover:bg-destructive"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-destructive text-destructive-foreground transition-all hover:bg-destructive"
                 >
                   <Trash className="h-4 w-4" weight="bold" />
                 </button>

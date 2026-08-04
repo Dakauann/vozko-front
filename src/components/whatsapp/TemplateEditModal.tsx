@@ -194,7 +194,7 @@ export default function TemplateEditModal({
               {/* Left: Preview */}
               <div className="space-y-4">
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-muted text-white shadow-lg">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-muted text-muted-foreground shadow-lg">
                     <WhatsappLogo className="h-3.5 w-3.5" weight="fill" />
                   </span>
                   {t("preview")}
@@ -213,7 +213,7 @@ export default function TemplateEditModal({
               {/* Right: Editor */}
               <div className="space-y-4">
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-white">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                     <Info className="h-3.5 w-3.5" weight="fill" />
                   </span>
                   {t("settings")}
@@ -395,9 +395,9 @@ export default function TemplateEditModal({
                         className={cn(
                           "px-2 py-0.5 rounded-full font-medium",
                           template.status === "APPROVED"
-                            ? "bg-healthy text-white"
+                            ? "bg-healthy text-healthy-foreground"
                             : template.status === "PENDING"
-                              ? "bg-warning text-white"
+                              ? "bg-warning text-warning-foreground"
                               : template.status === "REJECTED"
                                 ? "bg-red-500 text-white"
                                 : "bg-muted text-foreground",

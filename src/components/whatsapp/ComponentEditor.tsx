@@ -207,7 +207,7 @@ function HeaderEditor({
                 }
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all text-left ${
                   isSelected
-                    ? "border-primary bg-primary text-white"
+                    ? "border-primary bg-primary text-primary-foreground"
                     : "border-border hover:border-foreground/20 text-foreground"
                 }`}
               >

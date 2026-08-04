@@ -143,7 +143,7 @@ export default function AnalysisHoverCard({
         >
           <div className="mb-1.5 flex items-center gap-2">
             <div className="flex min-w-0 flex-1 items-center gap-1.5">
-              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md bg-primary text-white">
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
                 <ChartBar weight="fill" className="h-3 w-3" />
               </span>
               <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
@@ -191,7 +191,7 @@ export default function AnalysisHoverCard({
               {interest.label}
             </span>
 
-            <span className="inline-flex items-center rounded-[--radius] bg-muted px-1.5 py-0.5 text-[8px] font-semibold text-white">
+            <span className="inline-flex items-center rounded-[--radius] bg-muted px-1.5 py-0.5 text-[8px] font-semibold text-muted-foreground">
               {DISPOSITION_MAP[analysis.disposition] || analysis.disposition}
             </span>
 

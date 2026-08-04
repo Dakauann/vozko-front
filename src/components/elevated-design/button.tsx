@@ -73,10 +73,10 @@ const variantClasses: Record<BaseVariant, string> = {
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  default: "min-h-[32px] px-3 py-1 text-[13px] leading-[18px]",
-  sm: "min-h-[28px] px-2.5 py-0.5 text-xs",
-  lg: "min-h-[36px] px-5 py-1.5 text-sm",
-  icon: "min-h-[32px] w-8 px-2 py-1",
+  default: "min-h-[34px] px-3 py-1 text-[13px] leading-[18px] sm:min-h-[32px]",
+  sm: "min-h-[34px] px-2.5 py-0.5 text-xs sm:min-h-[28px]",
+  lg: "min-h-[38px] px-5 py-1.5 text-sm sm:min-h-[36px]",
+  icon: "min-h-[34px] w-9 px-2 py-1 sm:min-h-[32px] sm:w-8",
 };
 
 function resolveIconColorClass(variant: BaseVariant) {

@@ -94,7 +94,7 @@ function Meter({
 }) {
   return (
     <div className="min-w-0">
-      <dt className="legend truncate">{legend}</dt>
+      <dt className="legend leading-[1.35] sm:truncate">{legend}</dt>
       <dd>
         <span className="readout mt-2.5 block text-[30px] font-semibold leading-none tracking-[-0.03em] text-foreground">
           {value}
@@ -464,7 +464,7 @@ function UserDashboard() {
               </div>
               <Link
                 href="/dashboard/whatsapp-campaigns"
-                className="legend text-lamp-ink transition-colors hover:text-foreground"
+                className="legend -my-2 flex min-h-[34px] items-center text-lamp-ink transition-colors hover:text-foreground sm:my-0 sm:min-h-0"
               >
                 {t("viewAll")}
               </Link>
@@ -558,7 +558,7 @@ function UserDashboard() {
                 {can("whatsapp_campaigns", "create") ? (
                   <Link
                     href="/dashboard/whatsapp-campaigns/new"
-                    className="legend mt-3 inline-flex items-center gap-1.5 text-lamp-ink transition-colors hover:text-foreground"
+                    className="legend mt-2 inline-flex min-h-[34px] items-center gap-1.5 text-lamp-ink transition-colors hover:text-foreground sm:mt-3 sm:min-h-0"
                   >
                     {t("log.emptyCta")}
                     <ArrowRight className="h-3 w-3" weight="bold" />

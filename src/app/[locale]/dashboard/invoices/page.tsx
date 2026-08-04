@@ -73,17 +73,17 @@ const STATUS_CONFIG: Record<
   PENDING: {
     icon: Hourglass,
     label: "pending",
-    className: "text-white bg-warning border-warning",
+    className: "text-warning-foreground bg-warning border-warning",
   },
   PAID: {
     icon: Check,
     label: "paid",
-    className: "text-white bg-healthy border-healthy",
+    className: "text-healthy-foreground bg-healthy border-healthy",
   },
   OVERDUE: {
     icon: Warning,
     label: "overdue",
-    className: "text-white bg-destructive border-destructive",
+    className: "text-destructive-foreground bg-destructive border-destructive",
   },
   CANCELLED: {
     icon: XCircle,
@@ -93,7 +93,7 @@ const STATUS_CONFIG: Record<
   REFUNDED: {
     icon: Clock,
     label: "refunded",
-    className: "text-white bg-muted border-blue-600",
+    className: "text-muted-foreground bg-muted border-blue-600",
   },
   EXPIRED: {
     icon: Clock,

@@ -752,7 +752,7 @@ export default function CrmMessageInput({
             <button
               type="button"
               onClick={stopRecording}
-              className="flex h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 items-center justify-center rounded-full bg-muted text-white shadow-md transition-transform hover:scale-105 active:scale-95"
+              className="flex h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground shadow-md transition-transform hover:scale-105 active:scale-95"
               aria-label="Stop and send"
             >
               <Stop weight="fill" className="h-4 w-4" />

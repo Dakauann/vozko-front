@@ -44,9 +44,9 @@ async function deleteKnowledgeBase(id: string): Promise<{ error?: string }> {
 }
 
 const statusColor: Record<string, string> = {
-  active: "bg-healthy text-white",
-  processing: "bg-warning text-white",
-  error: "bg-destructive text-white",
+  active: "bg-healthy text-healthy-foreground",
+  processing: "bg-warning text-warning-foreground",
+  error: "bg-destructive text-destructive-foreground",
 };
 
 export default function KnowledgeBasesPage() {

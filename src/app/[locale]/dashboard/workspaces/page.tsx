@@ -156,9 +156,9 @@ function MembersPanel({ workspaceId }: { workspaceId: string }) {
                         className={cn(
                           "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold uppercase",
                           member.role === "owner"
-                            ? "bg-muted text-white"
+                            ? "bg-muted text-muted-foreground"
                             : member.role === "admin"
-                              ? "bg-primary text-white"
+                              ? "bg-primary text-primary-foreground"
                               : "bg-muted text-muted-foreground",
                         )}
                       >
@@ -409,9 +409,9 @@ export default function AdminWorkspacesPage() {
                   className={cn(
                     "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold uppercase",
                     isActive
-                      ? "bg-healthy text-white"
+                      ? "bg-healthy text-healthy-foreground"
                       : ws.subscriptionStatus === "cancelled"
-                        ? "bg-destructive text-white"
+                        ? "bg-destructive text-destructive-foreground"
                         : "bg-muted text-muted-foreground",
                   )}
                 >
@@ -569,7 +569,7 @@ export default function AdminWorkspacesPage() {
                   className={cn(
                     "flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-colors",
                     searchMode === "workspace"
-                      ? "bg-primary text-white"
+                      ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-muted-foreground",
                   )}
                 >
@@ -584,7 +584,7 @@ export default function AdminWorkspacesPage() {
                   className={cn(
                     "flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-colors",
                     searchMode === "email"
-                      ? "bg-primary text-white"
+                      ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-muted-foreground",
                   )}
                 >

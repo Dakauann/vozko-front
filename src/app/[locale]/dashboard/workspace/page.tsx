@@ -407,20 +407,20 @@ function RoleBadge({
 }) {
   const config: Record<string, { bg: string; icon: typeof Crown }> = {
     owner: {
-      bg: "bg-warning text-white",
+      bg: "bg-warning text-warning-foreground",
       icon: Crown,
     },
     admin: {
-      bg: "bg-primary text-white",
+      bg: "bg-primary text-primary-foreground",
       icon: Shield,
     },
     member: {
-      bg: "bg-healthy text-white",
+      bg: "bg-healthy text-healthy-foreground",
       icon: Users,
     },
   };
   const { bg, icon: Icon } = config[role] ?? {
-    bg: "bg-healthy text-white",
+    bg: "bg-healthy text-healthy-foreground",
     icon: Users,
   };
   const label = roleName || t(`roles.${role}`);
@@ -452,15 +452,15 @@ function MemberAvatar({
     .join("");
 
   const roleColors: Record<string, string> = {
-    owner: "bg-warning text-white",
-    admin: "bg-primary text-white",
+    owner: "bg-warning text-warning-foreground",
+    admin: "bg-primary text-primary-foreground",
   };
 
   return (
     <div
       className={cn(
         "flex items-center justify-center rounded-[--radius] font-semibold select-none",
-        roleColors[member.role] ?? "bg-healthy text-white",
+        roleColors[member.role] ?? "bg-healthy text-healthy-foreground",
         size === "sm" ? "h-8 w-8 text-xs" : "h-10 w-10 text-sm",
       )}
     >
@@ -697,7 +697,7 @@ function MembersTab({
         <ElevatedDialogContent className="max-w-[460px] gap-5">
           <ElevatedDialogHeader>
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[--radius] bg-destructive text-white">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[--radius] bg-destructive text-destructive-foreground">
                 <UserMinus className="h-5 w-5" weight="bold" />
               </div>
               <ElevatedDialogTitle>{t("removeMember")}</ElevatedDialogTitle>
@@ -910,7 +910,7 @@ function InvitesTab({
                 <ElevatedContainer className="!p-5 space-y-4">
                   {/* Header */}
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-white">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground">
                       <UserCirclePlus className="h-5 w-5" weight="fill" />
                     </div>
                     <div>
@@ -1162,7 +1162,7 @@ function InvitesTab({
                               className={cn(
                                 "flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs transition-all",
                                 selected
-                                  ? "border-primary bg-primary text-white font-medium"
+                                  ? "border-primary bg-primary text-primary-foreground font-medium"
                                   : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground",
                               )}
                             >
@@ -2581,7 +2581,7 @@ function DepartmentsTab({
             >
               <ElevatedContainer className="!p-5 space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-white">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground">
                     <TreeStructure className="h-5 w-5" weight="fill" />
                   </div>
                   <div>

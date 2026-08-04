@@ -43,11 +43,11 @@ import { useWorkspace } from "@/contexts/workspace-context";
 const ITEMS_PER_PAGE = 15;
 
 const STATUS_COLORS: Record<TelegramAccountStatus, string> = {
-  PENDING: "bg-warning text-white",
-  ACTIVE: "bg-healthy text-white",
-  TOKEN_INVALID: "bg-destructive text-white",
+  PENDING: "bg-warning text-warning-foreground",
+  ACTIVE: "bg-healthy text-healthy-foreground",
+  TOKEN_INVALID: "bg-destructive text-destructive-foreground",
   WEBHOOK_FAILING: "bg-orange-500 text-white",
-  REVOKED: "bg-muted text-white",
+  REVOKED: "bg-muted text-muted-foreground",
 };
 
 export default function TelegramAccountsPage() {
@@ -168,7 +168,7 @@ export default function TelegramAccountsPage() {
               <span
                 className={cn(
                   "inline-flex w-fit items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
-                  STATUS_COLORS[row.status] ?? "bg-muted text-white",
+                  STATUS_COLORS[row.status] ?? "bg-muted text-muted-foreground",
                 )}
               >
                 {t(`status.${row.status.toLowerCase()}`)}
@@ -474,8 +474,8 @@ function Chip({ label, tone }: { label: string; tone: "emerald" | "sky" }) {
   const tones = {
     // Solid tone, white ink, the CardPill rule. A tinted fill under same-hue
     // ink washes out, and these chips sit on both card and muted surfaces.
-    emerald: "bg-healthy text-white",
-    sky: "bg-muted text-white",
+    emerald: "bg-healthy text-healthy-foreground",
+    sky: "bg-muted text-muted-foreground",
   } as const;
   return (
     <span className={cn("rounded-[--radius] px-2 py-0.5 text-[11px] font-medium", tones[tone])}>

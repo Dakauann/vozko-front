@@ -569,8 +569,8 @@ export default function ProfilePage() {
                   <span
                     className={`inline-flex items-center gap-1 rounded-[--radius] px-2.5 py-0.5 text-xs font-semibold ${
                       user.emailVerified
-                        ? "bg-healthy text-white"
-                        : "bg-warning text-white"
+                        ? "bg-healthy text-healthy-foreground"
+                        : "bg-warning text-warning-foreground"
                     }`}
                   >
                     {user.emailVerified ? (

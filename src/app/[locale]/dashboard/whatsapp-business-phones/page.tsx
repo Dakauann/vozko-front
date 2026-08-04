@@ -64,25 +64,25 @@ import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
 const STATUS_COLORS: Record<BusinessPhoneStatus, string> = {
-  PENDING: "bg-warning text-white",
-  VERIFYING: "bg-muted text-white",
-  CONNECTED: "bg-healthy text-white",
-  DISCONNECTED: "bg-muted text-white",
-  BANNED: "bg-destructive text-white",
+  PENDING: "bg-warning text-warning-foreground",
+  VERIFYING: "bg-muted text-muted-foreground",
+  CONNECTED: "bg-healthy text-healthy-foreground",
+  DISCONNECTED: "bg-muted text-muted-foreground",
+  BANNED: "bg-destructive text-destructive-foreground",
   FLAGGED: "bg-orange-500 text-white",
   RESTRICTED: "bg-yellow-500 text-white",
-  RATE_LIMITED: "bg-muted text-white",
+  RATE_LIMITED: "bg-muted text-muted-foreground",
   UNVERIFIED: "bg-orange-500 text-white",
-  ONBOARDING_FAILED: "bg-destructive text-white",
-  DELETED: "bg-muted text-white",
+  ONBOARDING_FAILED: "bg-destructive text-destructive-foreground",
+  DELETED: "bg-muted text-muted-foreground",
 };
 
 const QUALITY_COLORS: Record<QualityRating, string> = {
-  GREEN: "bg-healthy text-white",
-  YELLOW: "bg-warning text-white",
-  RED: "bg-destructive text-white",
-  UNKNOWN: "bg-muted text-white",
-  NA: "bg-muted text-white",
+  GREEN: "bg-healthy text-healthy-foreground",
+  YELLOW: "bg-warning text-warning-foreground",
+  RED: "bg-destructive text-destructive-foreground",
+  UNKNOWN: "bg-muted text-muted-foreground",
+  NA: "bg-muted text-muted-foreground",
 };
 
 
@@ -401,7 +401,7 @@ export default function WhatsAppBusinessPhonesPage({
             <span
               className={cn(
                 "inline-flex w-fit items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
-                STATUS_COLORS[row.status] ?? "bg-muted text-white",
+                STATUS_COLORS[row.status] ?? "bg-muted text-muted-foreground",
               )}
             >
               {getStatusLabel(row.status)}
@@ -440,7 +440,7 @@ export default function WhatsAppBusinessPhonesPage({
           <span
             className={cn(
               "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
-              QUALITY_COLORS[row.qualityRating] ?? "bg-muted text-white",
+              QUALITY_COLORS[row.qualityRating] ?? "bg-muted text-muted-foreground",
             )}
           >
             {getQualityLabel(row.qualityRating)}

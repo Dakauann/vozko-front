@@ -304,12 +304,12 @@ export function ConnectNotice({
   const marks = {
     info: {
       Icon: WarningCircle,
-      chip: "bg-muted text-white",
+      chip: "bg-muted text-muted-foreground",
       label: "",
     },
     warn: {
       Icon: Warning,
-      chip: "bg-warning text-white",
+      chip: "bg-warning text-warning-foreground",
       label: "",
     },
     danger: {
@@ -440,7 +440,7 @@ export function ConnectResult({
             className={cn(
               "flex size-11 shrink-0 items-center justify-center rounded-full",
               ok
-                ? "bg-healthy text-white"
+                ? "bg-healthy text-healthy-foreground"
                 : "bg-destructive text-destructive-foreground",
             )}
           >

@@ -285,7 +285,7 @@ export default function OpportunityDrawer({
       >
         <ElevatedSheetHeader className="border-b border-border px-6 pb-4 pt-6">
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-white">
+            <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <TrendUp weight="bold" className="h-4 w-4" />
             </span>
             <div className="min-w-0">

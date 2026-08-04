@@ -120,18 +120,18 @@ export default function WhatsAppCampaignDetail({
 
 const campaignStatusStyles: Record<string, string> = {
   STOPPED: "bg-muted text-muted-foreground",
-  RUNNING: "bg-healthy text-white",
-  PAUSED: "bg-warning text-white",
-  COMPLETED: "bg-primary text-white",
+  RUNNING: "bg-healthy text-healthy-foreground",
+  PAUSED: "bg-warning text-warning-foreground",
+  COMPLETED: "bg-primary text-primary-foreground",
 };
 
 const phoneStatusStyles: Record<string, string> = {
   PENDING: "bg-muted text-muted-foreground",
-  SENT: "bg-primary text-white",
-  DELIVERED: "bg-healthy text-white",
-  READ: "bg-healthy text-white",
-  FAILED: "bg-destructive text-white",
-  NOT_ELIGIBLE_POSSIBLE_SPAM: "bg-warning text-white",
+  SENT: "bg-primary text-primary-foreground",
+  DELIVERED: "bg-healthy text-healthy-foreground",
+  READ: "bg-healthy text-healthy-foreground",
+  FAILED: "bg-destructive text-destructive-foreground",
+  NOT_ELIGIBLE_POSSIBLE_SPAM: "bg-warning text-warning-foreground",
 };
 
 const statusKeys: Record<string, string> = {
@@ -1816,7 +1816,7 @@ function WhatsAppCampaignDetailContent({
         >
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-healthy text-white">
+              <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-healthy text-healthy-foreground">
                 <UserCircle weight="bold" className="h-5 w-5" />
               </div>
               <div>
@@ -1899,7 +1899,7 @@ function WhatsAppCampaignDetailContent({
                               trigger={
                                 <button
                                   type="button"
-                                  className="inline-flex h-10 w-10 items-center justify-center rounded-[--radius] bg-healthy text-white transition-all hover:bg-healthy hover:scale-105"
+                                  className="inline-flex h-10 w-10 items-center justify-center rounded-[--radius] bg-healthy text-healthy-foreground transition-all hover:bg-healthy hover:scale-105"
                                   title="Ver conversa"
                                 >
                                   <ChatCircle

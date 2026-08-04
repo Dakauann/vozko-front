@@ -47,7 +47,7 @@ export default function CrmStageFilter({
         className={cn(
           "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-medium transition-all duration-150",
           hasSelection
-            ? "border-healthy bg-healthy text-white"
+            ? "border-healthy bg-healthy text-healthy-foreground"
             : "border-border bg-card text-muted-foreground hover:bg-muted",
         )}
       >

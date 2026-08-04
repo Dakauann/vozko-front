@@ -73,7 +73,7 @@ export default function InvitesPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-[--radius] bg-muted text-white shadow-lg shadow-amber-200">
+        <div className="flex h-12 w-12 items-center justify-center rounded-[--radius] bg-muted text-muted-foreground shadow-lg shadow-amber-200">
           <Envelope className="h-6 w-6" weight="fill" />
         </div>
         <div>
@@ -104,7 +104,7 @@ export default function InvitesPage() {
               className="rounded-[--radius] border border-border bg-card p-5 shadow-sm"
             >
               <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-white">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground">
                   <Buildings className="h-5 w-5" weight="fill" />
                 </div>
                 <div className="flex-1 min-w-0">

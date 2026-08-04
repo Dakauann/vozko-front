@@ -93,7 +93,7 @@ function createEmptyParameter(required = false): SchemaParameter {
 
 function DialogIcon({ children }: { children: ReactNode }) {
   return (
-    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[--radius] bg-muted text-white shadow-sm [&>svg]:h-5 [&>svg]:w-5">
+    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[--radius] bg-muted text-muted-foreground shadow-sm [&>svg]:h-5 [&>svg]:w-5">
       {children}
     </span>
   );
@@ -1155,7 +1155,7 @@ export default function HttpRequestConfigDialog({
                 </ConfigSection>
               ) : (
                 <div className="flex items-start gap-3 rounded-[--radius] border border-border bg-card p-4 shadow-sm">
-                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius] bg-muted text-white shadow-sm">
+                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius] bg-muted text-muted-foreground shadow-sm">
                     <Info weight="fill" className="h-4 w-4" />
                   </span>
                   <p className="text-sm text-muted-foreground">

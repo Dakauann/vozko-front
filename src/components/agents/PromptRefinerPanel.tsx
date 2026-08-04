@@ -143,7 +143,7 @@ export function PromptRefinerPanel({
     >
       {/* Header */}
       <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-white shadow-lg">
+        <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-muted-foreground shadow-lg">
           <Sparkle className="h-5 w-5" weight="fill" />
         </div>
         <div className="flex-1">
@@ -263,7 +263,7 @@ export function PromptRefinerPanel({
             <button
               type="button"
               onClick={handleApply}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-[--radius] bg-muted px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:brightness-110 active:scale-[0.98]"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-[--radius] bg-muted px-4 py-2 text-sm font-semibold text-muted-foreground shadow-md transition-all hover:brightness-110 active:scale-[0.98]"
             >
               <CheckCircle className="h-4 w-4" weight="fill" />
               {t("apply")}

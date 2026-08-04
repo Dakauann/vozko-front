@@ -621,7 +621,7 @@ export default function ConversationAttendanceSection({
       <section className="space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary text-white">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <ClockCounterClockwise className="h-3.5 w-3.5" weight="bold" />
             </span>
             <div className="min-w-0">

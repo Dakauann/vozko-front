@@ -107,8 +107,8 @@ export default function SupportInboxesPage() {
           <span
             className={`inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium ${
               row.enableAgentResponses
-                ? "bg-healthy text-white"
-                : "bg-muted text-white"
+                ? "bg-healthy text-healthy-foreground"
+                : "bg-muted text-muted-foreground"
             }`}
           >
             {row.enableAgentResponses ? t("enabled") : t("disabled")}

@@ -178,7 +178,7 @@ export default function TelegramAccountPage() {
             className={cn(
               "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
               account.webhookHealthy
-                ? "bg-healthy text-white"
+                ? "bg-healthy text-healthy-foreground"
                 : "bg-orange-600 text-white",
             )}
           >

@@ -109,7 +109,7 @@ function InviteContent() {
         <div className="rounded-[--radius] border border-border bg-card p-8 shadow-lg">
           {/* Logo/Brand */}
           <div className="mb-8 text-center">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[--radius] bg-primary text-white shadow-lg">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground shadow-lg">
               <Buildings className="h-8 w-8" weight="fill" />
             </div>
             <h1 className="mt-4 text-2xl font-semibold text-foreground">
@@ -128,7 +128,7 @@ function InviteContent() {
           {/* No token provided */}
           {state === "no-token" && (
             <div className="flex flex-col items-center gap-4 py-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-warning text-white">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-warning text-warning-foreground">
                 <WarningCircle className="h-6 w-6" weight="fill" />
               </div>
               <div className="text-center">
@@ -149,7 +149,7 @@ function InviteContent() {
           {/* Not authenticated */}
           {state === "not-authenticated" && (
             <div className="flex flex-col items-center gap-4 py-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-white">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
                 <SignIn className="h-6 w-6" weight="fill" />
               </div>
               <div className="text-center">
@@ -189,7 +189,7 @@ function InviteContent() {
           {/* Accepted */}
           {state === "accepted" && (
             <div className="flex flex-col items-center gap-4 py-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-healthy text-white">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-healthy text-healthy-foreground">
                 <CheckCircle className="h-6 w-6" weight="fill" />
               </div>
               <div className="text-center">
@@ -204,7 +204,7 @@ function InviteContent() {
           {/* Error */}
           {state === "error" && (
             <div className="flex flex-col items-center gap-4 py-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive text-white">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive text-destructive-foreground">
                 <XCircle className="h-6 w-6" weight="fill" />
               </div>
               <div className="text-center">

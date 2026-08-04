@@ -41,19 +41,13 @@ import {
   ChartBar,
   ChartLine,
   ChartPie,
-  CurrencyDollar,
   DownloadSimple,
-  Info,
   Lightning,
   Package,
   Receipt,
   Spinner,
-  TrendUp,
   Users,
-  Vault,
-  Wallet,
 } from "@/components/icons";
-import type { Icon } from "@/components/icons";
 import { endOfDay, format, startOfDay, subDays } from "date-fns";
 import { motion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -68,8 +62,8 @@ import {
   DashboardTable,
   type DashboardTableColumn,
 } from "@/components/elevated-design/table/dashboard-table";
+import { InstrumentStrip } from "@/components/console/page-shapes";
 import { cn } from "@/lib/utils";
-import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { useAuth } from "@/contexts/auth-context";
 
 type DatePreset = "7d" | "30d" | "90d" | "custom";
@@ -302,73 +296,6 @@ function downloadCSV(filename: string, headers: string[], rows: string[][]) {
   URL.revokeObjectURL(url);
 }
 
-function MetricCard({
-  title,
-  value,
-  detail,
-  tooltip,
-  icon: Icon,
-  accentClass = "bg-primary",
-  loading,
-}: {
-  title: string;
-  value: string;
-  detail?: string;
-  tooltip?: string;
-  icon: Icon;
-  accentClass?: string;
-  loading?: boolean;
-}) {
-  return (
-    <ElevatedContainer
-      className="group relative overflow-hidden border border-border bg-card p-5"
-      style={{ boxShadow: softSurfaceShadow }}
-    >
-      <div className={cn("absolute inset-x-0 top-0 h-1", accentClass)} />
-      <div className="flex items-start justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-1.5">
-            <p className="text-xs font-semibold uppercase text-muted-foreground">
-              {title}
-            </p>
-            {tooltip ? (
-              <div className="relative">
-                <Info
-                  className="h-3.5 w-3.5 text-muted-foreground/50 cursor-help peer"
-                  weight="fill"
-                />
-                <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 w-56 -translate-x-1/2 rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md opacity-0 transition-opacity peer-hover:opacity-100">
-                  {tooltip}
-                </div>
-              </div>
-            ) : null}
-          </div>
-          {loading ? (
-            <div className="space-y-2 animate-pulse">
-              <div className="h-8 w-32 rounded bg-border" />
-              <div className="h-4 w-40 rounded bg-border" />
-            </div>
-          ) : (
-            <>
-              <p className="text-2xl font-semibold text-foreground">{value}</p>
-              {detail ? (
-                <p className="text-sm text-muted-foreground">{detail}</p>
-              ) : null}
-            </>
-          )}
-        </div>
-        <div
-          className={cn(
-            "flex h-11 w-11 items-center justify-center rounded-[--radius] text-white",
-            accentClass,
-          )}
-        >
-          <Icon className="h-5 w-5" weight="fill" />
-        </div>
-      </div>
-    </ElevatedContainer>
-  );
-}
 
 
 
@@ -813,8 +740,7 @@ export default function AdminFinancialDashboard() {
       {/* â”€â”€ Header + Period filters â”€â”€ */}
       <motion.div variants={itemVariants}>
         <ElevatedContainer
-          className="border border-border bg-card p-5 md:p-6"
-          style={{ boxShadow: softSurfaceShadow }}
+          className="border border-border border-t-rule-strong bg-card p-5 md:p-6"
         >
           <DashboardPageHeader
             actions={
@@ -945,65 +871,59 @@ export default function AdminFinancialDashboard() {
         </motion.div>
       )}
 
-      {/* â”€â”€ Metric cards â”€â”€ */}
-      <motion.div
-        variants={itemVariants}
-        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
-      >
-        <MetricCard
-          title="Receita operacional"
-          value={formatCompactBRLDirect(totalPlatformRevenueBRL)}
-          detail={`${((profitReport?.totals.txCount ?? 0) - manualAdjustment.txCount).toLocaleString()} transações`}
-          tooltip="Receita líquida: serviços consumidos menos estornos. Exclui recargas e ajustes manuais. Pode exceder créditos quando há saldo pré-existente de períodos anteriores."
-          icon={TrendUp}
+      {/* The six figures this page exists to report, as one instrument strip.
+          They were six cards across two grids: each with an accent bar, a
+          filled icon tile and a drop shadow, which put three decorations and a
+          lifted surface on every number, and split one reading into two rows
+          for no reason the content gave. */}
+      <motion.div variants={itemVariants}>
+        <InstrumentStrip
           loading={loading}
-        />
-        <MetricCard
-          title="Custo operacional"
-          value={formatCompactBRLDirect(totalPlatformCostBRL)}
-          detail="custo de provedores agregado"
-          tooltip="Custo real pago aos provedores (Meta, operadoras) pelo uso consumido no período."
-          icon={CurrencyDollar}
-          loading={loading}
-        />
-        <MetricCard
-          title="Lucro operacional"
-          value={formatCompactBRLDirect(totalPlatformProfitBRL)}
-          detail={`margem ${formatPercent(operationalMarginPct)}`}
-          tooltip="Lucro líquido: receita menos custo, já descontados os estornos de serviço."
-          icon={Wallet}
-          loading={loading}
-        />
-      </motion.div>
-
-      <motion.div
-        variants={itemVariants}
-        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
-      >
-        <MetricCard
-          title="Créditos recebidos"
-          value={formatCompactBRLDirect(totalPeriodCreditsBRL)}
-          detail="assinaturas + recargas no período"
-          tooltip="Pagamentos reais confirmados (assinaturas e recargas). Exclui estornos de serviço e estornos de recarga."
-          icon={Receipt}
-          accentClass="bg-muted"
-          loading={loading}
-        />
-        <MetricCard
-          title="Saldo pré-existente consumido"
-          value={formatCompactBRLDirect(carryOverBRL)}
-          detail="depositado antes do período"
-          tooltip="Parte da receita originada de saldos que foram depositados antes do início do período selecionado."
-          icon={Vault}
-          accentClass="bg-warning"
-          loading={loading}
-        />
-        <MetricCard
-          title="Áreas de Trabalho"
-          value={`${workspaceMeta?.total_items?.toLocaleString() ?? "0"}`}
-          detail="com movimentação rastreada"
-          icon={Users}
-          loading={loading}
+          instruments={[
+            {
+              label: "Receita operacional",
+              value: formatCompactBRLDirect(totalPlatformRevenueBRL),
+              detail: `${((profitReport?.totals.txCount ?? 0) - manualAdjustment.txCount).toLocaleString()} transações`,
+              tooltip:
+                "Receita líquida: serviços consumidos menos estornos. Exclui recargas e ajustes manuais. Pode exceder créditos quando há saldo pré-existente de períodos anteriores.",
+            },
+            {
+              label: "Custo operacional",
+              value: formatCompactBRLDirect(totalPlatformCostBRL),
+              detail: "custo de provedores agregado",
+              tooltip:
+                "Custo real pago aos provedores (Meta, operadoras) pelo uso consumido no período.",
+            },
+            {
+              label: "Lucro operacional",
+              value: formatCompactBRLDirect(totalPlatformProfitBRL),
+              detail: `margem ${formatPercent(operationalMarginPct)}`,
+              // The one figure on the strip that carries a state rather than a
+              // quantity: a negative operating profit is a fault, not a number.
+              tone: totalPlatformProfitBRL < 0 ? "fault" : "healthy",
+              tooltip:
+                "Lucro líquido: receita menos custo, já descontados os estornos de serviço.",
+            },
+            {
+              label: "Créditos recebidos",
+              value: formatCompactBRLDirect(totalPeriodCreditsBRL),
+              detail: "assinaturas + recargas no período",
+              tooltip:
+                "Pagamentos reais confirmados (assinaturas e recargas). Exclui estornos de serviço e estornos de recarga.",
+            },
+            {
+              label: "Saldo pré-existente consumido",
+              value: formatCompactBRLDirect(carryOverBRL),
+              detail: "depositado antes do período",
+              tooltip:
+                "Parte da receita originada de saldos que foram depositados antes do início do período selecionado.",
+            },
+            {
+              label: "Áreas de Trabalho",
+              value: `${workspaceMeta?.total_items?.toLocaleString() ?? "0"}`,
+              detail: "com movimentação rastreada",
+            },
+          ]}
         />
       </motion.div>
 
@@ -1012,7 +932,6 @@ export default function AdminFinancialDashboard() {
         <motion.div variants={itemVariants}>
           <ElevatedContainer
             className="border border-warning/40 border-dashed bg-warning/5 p-4"
-            style={{ boxShadow: softSurfaceShadow }}
           >
             <div className="flex flex-wrap items-center gap-6">
               <div className="flex items-center gap-2">
@@ -1042,7 +961,6 @@ export default function AdminFinancialDashboard() {
         <motion.div variants={itemVariants}>
           <ElevatedContainer
             className="border border-border border-dashed bg-muted p-4"
-            style={{ boxShadow: softSurfaceShadow }}
           >
             <div className="flex flex-wrap items-center gap-6">
               <p className="text-xs font-semibold uppercase text-muted-foreground">
@@ -1081,8 +999,7 @@ export default function AdminFinancialDashboard() {
       {/* â”€â”€ Revenue vs Cost chart â”€â”€ */}
       <motion.div variants={itemVariants}>
         <ElevatedContainer
-          className="border border-border bg-card p-5"
-          style={{ boxShadow: softSurfaceShadow }}
+          className="border border-border border-t-rule-strong bg-card p-5"
         >
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>
@@ -1220,8 +1137,7 @@ export default function AdminFinancialDashboard() {
       {/*, Revenue by service (Pie) + Profit by service (Bar), */}
       <motion.div variants={itemVariants} className="grid gap-4 lg:grid-cols-2">
         <ElevatedContainer
-          className="border border-border bg-card p-5"
-          style={{ boxShadow: softSurfaceShadow }}
+          className="border border-border border-t-rule-strong bg-card p-5"
         >
           <div className="mb-2 flex items-center gap-2">
             <ChartPie className="h-4 w-4 text-healthy" weight="fill" />
@@ -1322,8 +1238,7 @@ export default function AdminFinancialDashboard() {
         </ElevatedContainer>
 
         <ElevatedContainer
-          className="border border-border bg-card p-5"
-          style={{ boxShadow: softSurfaceShadow }}
+          className="border border-border border-t-rule-strong bg-card p-5"
         >
           <div className="mb-2 flex items-center gap-2">
             <ChartBar className="h-4 w-4 text-blue-500" weight="fill" />
@@ -1445,8 +1360,7 @@ export default function AdminFinancialDashboard() {
       {!loading && productUsage && productUsage.byService.length > 0 && (
         <motion.div variants={itemVariants}>
           <ElevatedContainer
-            className="border border-border bg-card p-5"
-            style={{ boxShadow: softSurfaceShadow }}
+            className="border border-border border-t-rule-strong bg-card p-5"
           >
             <div className="mb-4 flex items-center gap-2">
               <Package className="h-4 w-4 text-violet-500" weight="fill" />
@@ -1497,12 +1411,11 @@ export default function AdminFinancialDashboard() {
       {/*, Plan contractions, */}
       <motion.div variants={itemVariants} className="grid gap-4 lg:grid-cols-2">
         <ElevatedContainer
-          className="border border-border bg-card p-5"
-          style={{ boxShadow: softSurfaceShadow }}
+          className="border border-border border-t-rule-strong bg-card p-5"
         >
           <div className="mb-4 flex items-start justify-between gap-4">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-[--radius] bg-primary text-white">
+              <div className="flex h-8 w-8 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground">
                 <Certificate className="h-4 w-4" weight="fill" />
               </div>
               <div>
@@ -1598,8 +1511,7 @@ export default function AdminFinancialDashboard() {
         </ElevatedContainer>
 
         <ElevatedContainer
-          className="border border-border bg-card p-5"
-          style={{ boxShadow: softSurfaceShadow }}
+          className="border border-border border-t-rule-strong bg-card p-5"
         >
           <div className="mb-4 flex items-center gap-2">
             <CalendarCheck className="h-4 w-4 text-lamp-ink" weight="fill" />
@@ -1682,8 +1594,7 @@ export default function AdminFinancialDashboard() {
       {!loading && recentTransactions.length > 0 && (
         <motion.div variants={itemVariants}>
           <ElevatedContainer
-            className="border border-border bg-card p-5"
-            style={{ boxShadow: softSurfaceShadow }}
+            className="border border-border border-t-rule-strong bg-card p-5"
           >
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">

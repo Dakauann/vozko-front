@@ -241,7 +241,7 @@ export default function LeadDetailClient({
             className="text-xs font-semibold uppercase"
           />
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-primary text-white shadow-lg">
+            <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground shadow-lg">
               <Users weight="fill" className="h-7 w-7" />
             </div>
             <div>
@@ -295,7 +295,7 @@ export default function LeadDetailClient({
             {/* Overview tab */}
             <TabsContent value="overview" className="mt-6 space-y-4 focus-visible:outline-none">
               <div className="mb-2 flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-white">
+                <span className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground">
                   <Phone weight="fill" className="h-5 w-5" />
                 </span>
                 <div>
@@ -317,7 +317,7 @@ export default function LeadDetailClient({
             {/* Campaigns tab */}
             <TabsContent value="campaigns" className="mt-6 space-y-4 focus-visible:outline-none">
               <div className="mb-2 flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-healthy text-white">
+                <span className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-healthy text-healthy-foreground">
                   <Phone weight="fill" className="h-5 w-5" />
                 </span>
                 <div>

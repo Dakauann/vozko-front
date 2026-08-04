@@ -254,7 +254,7 @@ export function DashboardTable<T>({
                     className={cn(
                       "flex h-4 w-4 items-center justify-center rounded border transition-colors",
                       allSelected || someSelected
-                        ? "border-primary bg-primary text-white"
+                        ? "border-primary bg-primary text-primary-foreground"
                         : "border-border bg-card hover:border-muted-foreground",
                     )}
                   >
@@ -348,7 +348,7 @@ export function DashboardTable<T>({
                                 className={cn(
                                   "flex h-4 w-4 items-center justify-center rounded border transition-colors",
                                   isSelected
-                                    ? "border-primary bg-primary text-white"
+                                    ? "border-primary bg-primary text-primary-foreground"
                                     : "border-border bg-card hover:border-muted-foreground",
                                 )}
                               >
@@ -480,7 +480,7 @@ export function DashboardTable<T>({
                 className={cn(
                   "w-7 h-7 flex items-center justify-center rounded text-xs font-medium transition-colors",
                   pagination.currentPage === pageNum
-                    ? "border border-primary bg-primary text-white"
+                    ? "border border-primary bg-primary text-primary-foreground"
                     : "border border-border bg-card text-muted-foreground hover:bg-muted",
                 )}
               >

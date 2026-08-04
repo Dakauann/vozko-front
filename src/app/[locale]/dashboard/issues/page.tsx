@@ -35,15 +35,15 @@ const ITEMS_PER_PAGE = 15;
 
 const statusConfig: Record<string, { color: string; icon: Icon }> = {
   open: {
-    color: "bg-muted text-white",
+    color: "bg-muted text-muted-foreground",
     icon: Circle,
   },
   in_progress: {
-    color: "bg-warning text-white",
+    color: "bg-warning text-warning-foreground",
     icon: ArrowClockwise,
   },
   closed: {
-    color: "bg-healthy text-white",
+    color: "bg-healthy text-healthy-foreground",
     icon: CheckCircle,
   },
 };

@@ -129,8 +129,6 @@
     "untitled": "Nueva conversación",
     "noConversations": "Aún no hay conversaciones",
     "deleteConversation": "Eliminar conversación",
-    "emptyTitle": "¿Cómo puedo ayudar?",
-    "emptyDescription": "Pídeme listar, contar o crear agentes, o conversa para redactar prompts y resolver dudas. Las acciones que modifican datos requieren tu aprobación.",
     "loading": "Cargando…",
     "scrollToBottom": "Ir al final",
     "modelLabel": "Modelo",
@@ -157,7 +155,14 @@
       "list_voices": "Voces",
       "list_departments": "Departamentos",
       "list_agent_tools": "Herramientas de agente"
-    }
+    },
+    "threadsLegend": "Conversaciones",
+    "greeting": "¿En qué vamos a trabajar?",
+    "starterListAgents": "Listar mis agentes",
+    "starterCreateAgent": "Crear un agente de cobranza",
+    "starterModels": "¿Qué modelos están disponibles?",
+    "starterAgentTools": "Revisar las herramientas de un agente",
+    "conversationLegend": "Conversación"
   },
   "crmContactPanel": {
     "title": "Detalles del contacto",
@@ -879,7 +884,7 @@
       "whatsappTemplates": "Plantillas",
       "whatsappTemplatesList": "Lista",
       "createWhatsappTemplate": "Nueva Plantilla",
-      "manageAllTemplates": "Gestionar Todas",
+      "manageAllTemplates": "Global",
       "whatsappFlows": "Flows",
       "whatsappFlowsList": "Lista",
       "createWhatsappFlow": "Nuevo Flow",
@@ -887,16 +892,16 @@
       "whatsappBusinessPhonesList": "Lista",
       "connectWhatsappPhone": "Conectar Número",
       "sendWhatsappMessage": "Enviar mensaje",
-      "manageAllPhones": "Gestionar Todos",
+      "manageAllPhones": "Global",
       "registerWhatsappPhone": "Registrar Teléfono",
       "generalSettings": "Configuración General",
       "users": "Gestión de Usuarios",
-      "adminOverview": "Vista Admin",
-      "platformUsers": "Usuarios de la Plataforma",
+      "adminOverview": "Ingresos",
+      "platformUsers": "Cuentas",
       "usersList": "Lista de Usuarios",
       "registerUser": "Registrar Usuario",
       "workspaces": "Espacios de Trabajo",
-      "platformWorkspaces": "Espacios de Trabajo de la Plataforma",
+      "platformWorkspaces": "Áreas",
       "workspacesList": "Lista de Espacios de Trabajo",
       "balance": "Saldo",
       "invoices": "Facturas",
@@ -916,12 +921,12 @@
       "stageGroups": "Embudo",
       "plans": "Planes",
       "addons": "Addons",
-      "manageAddons": "Gestionar Addons",
-      "managePlans": "Gestionar Planes",
+      "manageAddons": "Extensiones",
+      "managePlans": "Catálogo",
       "pricing": "Precios",
-      "platformPricing": "Precios de la Plataforma",
+      "platformPricing": "Tarifas",
       "adminAffiliates": "Afiliados",
-      "systemConfig": "Configuración del Sistema",
+      "systemConfig": "Sistema",
       "mcpServers": "Servidores MCP",
       "workflows": "Automatizaciones",
       "workflowsList": "Lista de Automatizaciones",
@@ -936,7 +941,6 @@
       "integrations": "Integraciones",
       "platformSettings": "Configuración de la Plataforma",
       "resourceTemplates": "Plantillas",
-      "templatesCatalog": "Explorar Plantillas",
       "messageShortcuts": "Atajos",
       "affiliate": "Afiliados",
       "affiliateDashboard": "Panel de Afiliado",
@@ -953,7 +957,7 @@
       "connectInstagram": "Conectar cuenta",
       "support": "Soporte",
       "createSupport": "Nueva solicitud",
-      "manageSupport": "Gestionar",
+      "manageSupport": "Global",
       "whatsapp": "WhatsApp",
       "instagramChannel": "Instagram",
       "campaigns": "Campañas",
@@ -4646,45 +4650,27 @@
     "recentActivity": {
       "title": "Actividad Reciente",
       "total": "Total de eventos"
+    },
+    "stats": {
+      "legend": "Totales"
     }
   },
   "systemConfig": {
     "showDetails": "Ver detalles",
     "hideDetails": "Ocultar detalles",
     "header": {
-      "badge": "Configuración",
-      "title": "Configuración General del Sistema",
-      "description": "Gestione parámetros globales como IA, llamadas y horario de funcionamiento."
+      "badge": "Sistema",
+      "title": "Parámetros globales de la plataforma.",
+      "description": "Parámetros globales de la plataforma: el prompt base que heredan todos los agentes de IA."
     },
     "sections": {
-      "ai": "Inteligencia Artificial",
-      "calls": "Llamadas",
-      "workTime": "Horario de Trabajo"
+      "ai": "Inteligencia Artificial"
     },
     "fields": {
       "baseSystemPrompt": {
         "label": "Prompt del sistema (base)",
         "placeholder": "Ingrese el prompt base que será utilizado por todos los agentes...",
         "description": "Este prompt define el comportamiento predeterminado de todos los agentes de IA en la plataforma. Los cambios en este campo afectarán todas las interacciones futuras. Use un lenguaje claro y específico para definir el tono, objetivo y restricciones de los agentes."
-      },
-      "workTimeEnabled": {
-        "label": "Activar horario de funcionamiento",
-        "description": "Cuando está activado, el sistema solo procesará llamadas e interacciones dentro del horario configurado abajo. Fuera de este período, las llamadas serán encoladas para procesamiento posterior. Útil para respetar horarios comerciales y regulaciones locales."
-      },
-      "workTimeStart": {
-        "label": "Inicio",
-        "placeholder": "HH:MM",
-        "description": "Define el horario de inicio de la operación diaria (formato 24h). Las llamadas iniciadas antes de este horario serán encoladas. Horario configurado en la zona horaria America/Sao_Paulo (UTC-3)."
-      },
-      "workTimeEnd": {
-        "label": "Fin",
-        "placeholder": "HH:MM",
-        "description": "Define el horario de término de la operación diaria (formato 24h). Las llamadas en curso pueden continuar, pero no se iniciarán nuevas llamadas después de este horario. Horario configurado en la zona horaria America/Sao_Paulo (UTC-3)."
-      },
-      "maxConcurrentCalls": {
-        "label": "Máximo de llamadas simultáneas",
-        "placeholder": "Indica el límite global de llamadas",
-        "description": "Limita cuántas patas de telefonía mantiene abiertas la plataforma a la vez, sumando todos los espacios de trabajo. Las nuevas llamadas esperan un hueco libre en lugar de sobrecargar los troncales SIP. Mínimo: 1 llamada."
       }
     },
     "buttons": {
@@ -4882,8 +4868,8 @@
   },
   "users": {
     "header": {
-      "badge": "Administración",
-      "title": "Gestión de Usuarios",
+      "badge": "Cuentas",
+      "title": "Todas las cuentas de la plataforma, con sus roles y permisos.",
       "description": "Administra los usuarios del sistema, visualiza su información y actualiza sus roles y permisos."
     },
     "stats": {
@@ -5375,6 +5361,11 @@
       "cancelConfirm": "¿Estás seguro de que deseas cancelar la suscripción de \"{name}\"?",
       "cancelSuccess": "Suscripción cancelada exitosamente.",
       "cancelling": "Cancelando..."
+    },
+    "header": {
+      "badge": "Áreas",
+      "title": "Todas las áreas de trabajo del sistema.",
+      "description": "Visualice y gestione todas las áreas de trabajo del sistema."
     }
   },
   "tagGroupsPage": {
@@ -5566,8 +5557,8 @@
   },
   "adminPricing": {
     "header": {
-      "badge": "Admin · Precios",
-      "title": "Gestión de Precios",
+      "badge": "Tarifas",
+      "title": "Precios predeterminados por servicio, tipo de cambio e historial de cambios.",
       "description": "Configure precios predeterminados para todos los servicios, gestione la tasa de cambio y vea el historial de cambios."
     },
     "tabs": {
@@ -5669,7 +5660,7 @@
   },
   "adminPlans": {
     "header": {
-      "badge": "Admin · Planes",
+      "badge": "Catálogo",
       "description": "Crea y administra planes de suscripción con precio base en BRL, capacidad incluida y precios por servicio alineados con el motor de cobro."
     },
     "stats": {
@@ -6897,112 +6888,6 @@
       "disconnectionSuccess": "Google Calendar desconectado.",
       "connectionError": "Error al conectar Google Calendar.",
       "disconnectionError": "Error al desconectar Google Calendar."
-    }
-  },
-  "resourceTemplates": {
-    "header": {
-      "badge": "Plantillas",
-      "description": "Explore plantillas listas para usar y comience más rápido."
-    },
-    "admin": {
-      "badge": "Gestión de Plantillas",
-      "description": "Cree, edite y gestione plantillas de recursos disponibles para todos los workspaces.",
-      "create": "Nueva Plantilla",
-      "edit": "Editar Plantilla",
-      "backButton": "Volver a plantillas"
-    },
-    "stats": {
-      "total": "Total",
-      "published": "Publicadas",
-      "draft": "Borrador",
-      "archived": "Archivadas",
-      "installs": "Instalaciones"
-    },
-    "search": {
-      "placeholder": "Buscar plantillas..."
-    },
-    "loading": "Cargando plantillas...",
-    "error": {
-      "title": "Error al cargar",
-      "default": "Error al cargar plantillas"
-    },
-    "empty": {
-      "title": "No se encontraron plantillas",
-      "description": "No hay plantillas que coincidan con sus criterios."
-    },
-    "catalog": {
-      "badge": "Catálogo de Plantillas",
-      "description": "Explore configuraciones listas para usar y agréguelas a su workspace con un clic.",
-      "install": "Usar Plantilla",
-      "installed": "Ya Instalada",
-      "installing": "Instalando...",
-      "installSuccess": "¡Plantilla instalada correctamente!",
-      "installError": "Error al instalar la plantilla.",
-      "featured": "Destacadas",
-      "allTemplates": "Todas las Plantillas",
-      "empty": {
-        "title": "No hay plantillas disponibles",
-        "description": "No hay plantillas disponibles en este momento."
-      }
-    },
-    "form": {
-      "name": "Nombre",
-      "namePlaceholder": "Nombre de la plantilla",
-      "description": "Descripción",
-      "descriptionPlaceholder": "Describa lo que hace esta plantilla",
-      "resourceType": "Tipo de Recurso",
-      "category": "Categoría",
-      "subcategory": "Subcategoría",
-      "snapshotId": "ID del Recurso de Origen",
-      "snapshotIdPlaceholder": "ID del recurso a usar como plantilla",
-      "iconUrl": "URL del Ícono",
-      "iconUrlPlaceholder": "https://ejemplo.com/icono.png",
-      "featured": "Destacada",
-      "position": "Posición",
-      "save": "Guardar Plantilla",
-      "saving": "Guardando...",
-      "publish": "Publicar",
-      "unpublish": "Despublicar",
-      "archive": "Archivar",
-      "delete": "Eliminar",
-      "deleteConfirm": "¿Está seguro de que desea eliminar esta plantilla?"
-    },
-    "status": {
-      "draft": "Borrador",
-      "published": "Publicada",
-      "archived": "Archivada"
-    },
-    "resourceType": {
-      "agent": "Agente",
-      "workflow": "Automatización",
-      "stage_group": "Grupo de Etapas",
-      "label_group": "Grupo de Etiquetas",
-      "tool": "Herramienta",
-      "support_inbox": "Bandeja de Soporte"
-    },
-    "category": {
-      "retail": "Retail",
-      "healthcare": "Salud",
-      "finance": "Finanzas",
-      "real_estate": "Inmobiliario",
-      "education": "Educación",
-      "hospitality": "Hostelería",
-      "automotive": "Automotriz",
-      "professional_services": "Servicios Profesionales",
-      "technology": "Tecnología",
-      "government": "Gobierno",
-      "food_beverage": "Alimentos & Bebidas",
-      "manufacturing": "Manufactura",
-      "fitness": "Fitness",
-      "legal": "Legal",
-      "nonprofit": "Sin Fines de Lucro",
-      "media": "Medios",
-      "general": "General"
-    },
-    "emptyState": {
-      "title": "Comience más rápido",
-      "description": "Explore plantillas listas para configurar su workspace rápidamente.",
-      "browseAction": "Explorar Plantillas"
     }
   },
   "leadsPage": {
@@ -8368,5 +8253,67 @@
     "inCall": "En llamada",
     "waitingSlot": "Esperando línea",
     "endCall": "Colgar"
+  },
+  "adminAffiliates": {
+    "header": {
+      "badge": "Afiliados",
+      "description": "Gestione los afiliados registrados, ajuste comisiones y active o desactive cada cuenta."
+    },
+    "stats": {
+      "total": "Total de afiliados",
+      "active": "Activos",
+      "inactive": "Inactivos"
+    },
+    "filters": {
+      "searchPlaceholder": "Buscar por marca o código..."
+    },
+    "table": {
+      "brand": "Marca",
+      "code": "Código",
+      "commission": "Comisión",
+      "tier": "Nivel",
+      "status": "Estado",
+      "actions": "Acciones"
+    },
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "tier": {
+      "affiliate": "Afiliado",
+      "reseller": "Revendedor"
+    },
+    "button": {
+      "refresh": "Actualizar",
+      "edit": "Editar",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "activate": "Activar",
+      "deactivate": "Desactivar",
+      "promoteToReseller": "Promover a revendedor",
+      "demoteToAffiliate": "Degradar a afiliado"
+    },
+    "pagination": {
+      "summary": "Página {page} de {totalPages} · {totalItems} resultados",
+      "prev": "Anterior",
+      "next": "Siguiente"
+    },
+    "empty": {
+      "title": "No se encontraron afiliados",
+      "description": "Todavía no hay afiliados registrados."
+    },
+    "toast": {
+      "updated": "Afiliado actualizado.",
+      "activated": "Afiliado activado.",
+      "deactivated": "Afiliado desactivado.",
+      "tierPromoted": "Afiliado promovido a revendedor.",
+      "tierDemoted": "Afiliado degradado al nivel estándar.",
+      "updateFailed": "No se pudo actualizar el afiliado.",
+      "invalidCommission": "Introduzca una comisión entre 0 y 30%."
+    },
+    "error": {
+      "default": "No se pudieron cargar los afiliados."
+    },
+    "forbidden": "No tiene permiso para acceder a esta página."
   }
 }

@@ -677,7 +677,7 @@ export default function CrmInbox({
             className={cn(
               "relative flex h-[34px] w-[34px] items-center justify-center rounded-[--radius] border transition-colors flex-shrink-0",
               filtersOpen || activeFilterCount > 0
-                ? "border-emerald-300 bg-healthy text-white"
+                ? "border-emerald-300 bg-healthy text-healthy-foreground"
                 : "border-border bg-muted text-muted-foreground hover:text-muted-foreground hover:border-foreground/20",
             )}
             title="Filtros avançados"

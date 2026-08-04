@@ -159,7 +159,7 @@ export default function ConversationAnalysisPanel({
             : "bg-card border-border hover:bg-card hover:shadow-xl",
         )}
       >
-        <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-white">
+        <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <ChartBar weight="fill" className="h-3.5 w-3.5" />
         </span>
         <span className="text-xs font-semibold text-foreground flex-1">
@@ -268,7 +268,7 @@ export default function ConversationAnalysisPanel({
                   {qualification.label}
                 </span>
 
-                <span className="inline-flex items-center rounded-[--radius] bg-muted px-2 py-0.5 text-[10px] font-semibold text-white">
+                <span className="inline-flex items-center rounded-[--radius] bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
                   {DISPOSITION_LABELS[analysis.disposition] ??
                     analysis.disposition}
                 </span>

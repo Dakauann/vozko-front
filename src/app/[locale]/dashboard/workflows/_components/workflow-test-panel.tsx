@@ -236,23 +236,23 @@ function StatusBadge({ status }: { status: SimStatus }) {
     },
     waiting_trigger: {
       label: "Aguardando mensagem",
-      className: "bg-muted text-white",
+      className: "bg-muted text-muted-foreground",
     },
     running: {
       label: "Executando",
-      className: "bg-muted text-white",
+      className: "bg-muted text-muted-foreground",
     },
     waiting_reply: {
       label: "Aguardando",
-      className: "bg-warning text-white",
+      className: "bg-warning text-warning-foreground",
     },
     completed: {
       label: "Concluído",
-      className: "bg-healthy text-white",
+      className: "bg-healthy text-healthy-foreground",
     },
     error: {
       label: "Erro",
-      className: "bg-destructive text-white",
+      className: "bg-destructive text-destructive-foreground",
     },
     cancelled: {
       label: "Cancelado",
