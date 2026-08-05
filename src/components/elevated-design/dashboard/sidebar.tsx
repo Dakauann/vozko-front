@@ -81,6 +81,83 @@ import { useWorkspace } from "@/contexts/workspace-context";
 import type { ResourceAction, ResourceType } from "@/lib/workspace/types";
 import { getBrand } from "@/config/brand";
 
+/** Which nav items (the per-row accordions) the operator left open. */
+const OPEN_ITEMS_KEY = "dashboard-open-families";
+/** Which section families (Atendimento, WhatsApp, …) the operator left open. */
+const OPEN_FAMILIES_KEY = "dashboard-open-nav-families";
+
+/**
+ * useLayoutEffect on the client, useEffect on the server.
+ *
+ * The restore below has to land BEFORE the browser paints, or the spine paints
+ * collapsed and then visibly jumps open. useLayoutEffect does exactly that, but
+ * React warns when it runs during SSR, so it is swapped for the passive version
+ * there (where it does nothing anyway).
+ */
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? React.useLayoutEffect : React.useEffect;
+
+/**
+ * A Set of open keys that survives a refresh, collapsed by default.
+ *
+ * Three things have to be true at once for this to feel stable, and each is a
+ * separate mechanism:
+ *
+ * 1. NO HYDRATION MISMATCH. The initial value is an empty Set on the server AND
+ *    on the client's first render, so the markup React hydrates against matches
+ *    exactly. Reading localStorage in the useState initialiser would render open
+ *    sections on the client against a collapsed server payload, which React
+ *    reports as a hydration error and repairs by discarding the markup.
+ *
+ * 2. NO FLASH. The restore runs in a LAYOUT effect, which React flushes
+ *    synchronously before the browser paints — so the first frame the operator
+ *    sees is already the remembered shape, with no collapsed frame in between.
+ *
+ * 3. NO STUTTER. Restored sections must not replay their accordion. Callers gate
+ *    the transition duration on `motionEnabled`, which flips one animation frame
+ *    later, i.e. after that first paint.
+ */
+function usePersistentOpenSet(storageKey: string) {
+  const [open, setOpen] = React.useState<Set<string>>(new Set());
+  const didRestore = React.useRef(false);
+
+  useIsomorphicLayoutEffect(() => {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) {
+        const parsed: unknown = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          setOpen(
+            new Set(parsed.filter((k): k is string => typeof k === "string")),
+          );
+        }
+      }
+    } catch {
+      // Private mode, quota, or corrupt JSON: collapsed is a fine fallback.
+    }
+    didRestore.current = true;
+  }, [storageKey]);
+
+  React.useEffect(() => {
+    // Guarded so the empty initial Set can never overwrite stored state.
+    if (!didRestore.current) return;
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(Array.from(open)));
+    } catch {}
+  }, [open, storageKey]);
+
+  const toggle = React.useCallback((key: string) => {
+    setOpen((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }, []);
+
+  return [open, toggle] as const;
+}
+
 export type NavPermission = {
   resource: string;
   action?: string;
@@ -908,6 +985,7 @@ function NavItemComponent({
   depth = 0,
   onToggle,
   openItems,
+  motionEnabled,
   t,
   isAdmin = false,
   can,
@@ -918,6 +996,9 @@ function NavItemComponent({
   depth?: number;
   onToggle: (href: string) => void;
   openItems: Set<string>;
+  /** False for the paint that restores remembered families, so they appear
+      instantly instead of replaying their accordion on every refresh. */
+  motionEnabled: boolean;
   t: ReturnType<typeof useTranslations>;
   isAdmin?: boolean;
   can: (resource: ResourceType, action: ResourceAction) => boolean;
@@ -936,14 +1017,17 @@ function NavItemComponent({
     (child) =>
       pathname === child.href || pathname?.startsWith(child.href + "/"),
   );
-  const didAutoOpenRef = React.useRef(false);
+  /*
+    Auto-opening the family that contains the current route is deliberately
+    gone. It fought the remembered state on every single load: a family the
+    operator had collapsed on purpose sprang back open the moment they
+    navigated into it, so the spine could never actually stay the shape they
+    left it in.
 
-  React.useEffect(() => {
-    if (hasActiveChild && !isOpen && !didAutoOpenRef.current) {
-      onToggle(item.href);
-      didAutoOpenRef.current = true;
-    }
-  }, [hasActiveChild, isOpen, onToggle, item.href]);
+    Orientation does not depend on it — a family whose child is active still
+    lights its own row through `hasActiveChild`, so "you are in here" is
+    readable with the family shut.
+  */
 
   const handleClick = (e: React.MouseEvent) => {
     if (item.children) {
@@ -1040,7 +1124,9 @@ function NavItemComponent({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.16, ease: [0.2, 0, 0, 1] }}
+            transition={{
+              duration: motionEnabled ? 0.2 : 0,
+              ease: [0.1, 0.9, 0.2, 1] }}
             className="overflow-hidden"
           >
             {/* An engraved runner, not a coloured rail: children hang off the
@@ -1060,6 +1146,7 @@ function NavItemComponent({
                     depth={depth + 1}
                     onToggle={onToggle}
                     openItems={openItems}
+                    motionEnabled={motionEnabled}
                     t={t}
                     isAdmin={isAdmin}
                     can={can}
@@ -1129,6 +1216,9 @@ function GroupedNavItems({
   isExpanded,
   onToggle,
   openItems,
+  openFamilies,
+  toggleFamily,
+  motionEnabled,
   t,
   isAdmin,
   can,
@@ -1137,6 +1227,10 @@ function GroupedNavItems({
   isExpanded: boolean;
   onToggle: (href: string) => void;
   openItems: Set<string>;
+  /** Section families the operator has opened; everything else stays shut. */
+  openFamilies: Set<string>;
+  toggleFamily: (family: string) => void;
+  motionEnabled: boolean;
   t: ReturnType<typeof useTranslations>;
   isAdmin: boolean;
   can: (resource: ResourceType, action: ResourceAction) => boolean;
@@ -1154,6 +1248,15 @@ function GroupedNavItems({
   return (
     <div className={cn("py-1", isExpanded ? "px-2" : "px-1.5")}>
       {groups.map((group, gi) => {
+        // A family only collapses where its header exists. In the rail there is
+        // no header to click, and an ungrouped run has no family to belong to,
+        // so both stay open — otherwise the operator would be left with rows
+        // they cannot reach and no control to reveal them.
+        const collapsible = Boolean(group.family) && isExpanded;
+        const familyOpen = collapsible
+          ? openFamilies.has(group.family as string)
+          : true;
+
         return (
           <div key={group.family ?? `ungrouped-${gi}`}>
             {/*
@@ -1163,7 +1266,17 @@ function GroupedNavItems({
             */}
             {group.family && isExpanded && (
               <div className={cn("px-1 pb-1 pt-3", gi > 0 && "mt-1")}>
-                <span className="legend flex items-center gap-1.5">
+                {/*
+                  The section legend is the control that opens the section. It
+                  keeps the rule it rides on, so the grouping still reads at a
+                  glance when every family is shut — which is the default.
+                */}
+                <button
+                  type="button"
+                  onClick={() => toggleFamily(group.family as string)}
+                  aria-expanded={familyOpen}
+                  className="legend group/family flex w-full items-center gap-1.5 rounded-[--radius] px-1 py-0.5 text-left transition-colors hover:!text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
                   {familyBrandIcon[group.family] &&
                     React.createElement(familyBrandIcon[group.family], {
                       className: "h-3 w-3 flex-shrink-0" })}
@@ -1182,27 +1295,51 @@ function GroupedNavItems({
                     aria-hidden="true"
                     className="ml-0.5 h-px flex-1 bg-border"
                   />
-                </span>
+                  <CaretDown
+                    aria-hidden="true"
+                    weight="bold"
+                    className={cn(
+                      "h-3 w-3 flex-shrink-0 opacity-50 transition-transform",
+                      motionEnabled ? "duration-150" : "duration-0",
+                      familyOpen && "rotate-180",
+                    )}
+                  />
+                </button>
               </div>
             )}
             {(!group.family || !isExpanded) && gi > 0 && (
               <div className="my-1.5 h-px bg-border" />
             )}
-            <div className="space-y-px">
-              {group.items.map((item, index) => (
-                <NavItemComponent
-                  key={index}
-                  item={item}
-                  isExpanded={isExpanded}
-                  onToggle={onToggle}
-                  openItems={openItems}
-                  t={t}
-                  isAdmin={isAdmin}
-                  can={can}
-                  canAny={canAny}
-                />
-              ))}
-            </div>
+            <AnimatePresence initial={false}>
+              {familyOpen && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{
+                    duration: motionEnabled ? 0.2 : 0,
+                    ease: [0.1, 0.9, 0.2, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="space-y-px">
+                    {group.items.map((item, index) => (
+                      <NavItemComponent
+                        key={index}
+                        item={item}
+                        isExpanded={isExpanded}
+                        onToggle={onToggle}
+                        openItems={openItems}
+                        motionEnabled={motionEnabled}
+                        t={t}
+                        isAdmin={isAdmin}
+                        can={can}
+                        canAny={canAny}
+                      />
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         );
       })}
@@ -1228,10 +1365,9 @@ export function DashboardSidebar({
   // this spine is read continuously for a whole shift.
   const isExpanded = !isCollapsed;
   const [isMobileOpen, setIsMobileOpen] = React.useState(false);
-  const [openItems, setOpenItems] = React.useState<Set<string>>(new Set());
 
-  // Soft navigation must close the mobile drawer; otherwise the bg-black veil
-  // and drawer panel stay painted over the next route (reported as blackout).
+  // Soft navigation must close the mobile drawer; otherwise the veil and drawer
+  // panel stay painted over the next route (reported as a blackout).
   React.useEffect(() => {
     setIsMobileOpen(false);
   }, [pathname]);
@@ -1258,12 +1394,10 @@ export function DashboardSidebar({
 
   React.useEffect(() => {
     if (!pendingRestoreId.current) return;
-    const saved = visibleProducts.find(
-      (p) => p.id === pendingRestoreId.current,
-    );
+    const saved = visibleProducts.find((p) => p.id === pendingRestoreId.current);
     if (saved) {
       setCurrentProduct(saved);
-      pendingRestoreId.current = null; 
+      pendingRestoreId.current = null;
     }
   }, [visibleProducts]);
 
@@ -1279,17 +1413,18 @@ export function DashboardSidebar({
     }
   }, [visibleProducts, currentProduct.id]);
 
-  const toggleItem = React.useCallback((href: string) => {
-    setOpenItems((prev) => {
-      const next = new Set(prev);
-      if (next.has(href)) {
-        next.delete(href);
-      } else {
-        next.add(href);
-      }
-      return next;
-    });
+  // Both the per-row accordions and the section families are collapsed by
+  // default and remember what the operator left open. See usePersistentOpenSet.
+  const [openItems, toggleItem] = usePersistentOpenSet(OPEN_ITEMS_KEY);
+  const [openFamilies, toggleFamily] = usePersistentOpenSet(OPEN_FAMILIES_KEY);
+  const [motionEnabled, setMotionEnabled] = React.useState(false);
+
+  React.useEffect(() => {
+    const id = requestAnimationFrame(() => setMotionEnabled(true));
+    return () => cancelAnimationFrame(id);
   }, []);
+
+
 
   const handleProductSwitch = (product: Product) => {
     setCurrentProduct(product);
@@ -1351,6 +1486,9 @@ export function DashboardSidebar({
           isExpanded={isExpanded || mobile}
           onToggle={toggleItem}
           openItems={openItems}
+          openFamilies={openFamilies}
+          toggleFamily={toggleFamily}
+          motionEnabled={motionEnabled}
           t={t}
           isAdmin={isAdmin}
           can={can}
@@ -1369,6 +1507,9 @@ export function DashboardSidebar({
               isExpanded={isExpanded || mobile}
               onToggle={toggleItem}
               openItems={openItems}
+              openFamilies={openFamilies}
+              toggleFamily={toggleFamily}
+              motionEnabled={motionEnabled}
               t={t}
               isAdmin={isAdmin}
               can={can}

@@ -37,6 +37,8 @@ export function WorkspaceSwitcher({
   const [newName, setNewName] = React.useState("");
   const [createError, setCreateError] = React.useState("");
   const dropdownRef = React.useRef<HTMLDivElement>(null);
+  /** The portalled panel. Needed by the click-outside test — see below. */
+  const panelRef = React.useRef<HTMLDivElement>(null);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const [menuPos, setMenuPos] = React.useState<{
     top: number;
@@ -130,11 +132,20 @@ export function WorkspaceSwitcher({
   }, [isFetching, page, totalPages, debouncedSearch, loadWorkspaces]);
 
   React.useEffect(() => {
+    /*
+      The panel is portalled to document.body, so it is NOT a DOM descendant of
+      dropdownRef — that ref only wraps the trigger. Testing containment against
+      the trigger alone therefore reported "outside" for every click INSIDE the
+      panel, which is why clicking the search field closed the menu instantly:
+      mousedown fired, the menu unmounted, and the click never reached the input.
+
+      Both subtrees have to be excluded.
+    */
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
+      const target = event.target as Node;
+      const inTrigger = dropdownRef.current?.contains(target) ?? false;
+      const inPanel = panelRef.current?.contains(target) ?? false;
+      if (!inTrigger && !inPanel) {
         setIsOpen(false);
         setSearch("");
         setDebouncedSearch("");
@@ -242,17 +253,18 @@ export function WorkspaceSwitcher({
           <AnimatePresence>
             {isOpen && menuPos && (
               <motion.div
+                ref={panelRef}
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.12, ease: [0.2, 0, 0, 1] }}
+                transition={{ duration: 0.15, ease: [0.1, 0.9, 0.2, 1] }}
                 style={{
                   position: "fixed",
                   top: menuPos.top,
                   left: menuPos.left,
                   width: menuPos.width,
                 }}
-                className="z-[100] overflow-hidden rounded-[--radius] border border-border bg-popover shadow-2xl"
+                className="z-[100] overflow-hidden rounded-lg border border-border bg-popover shadow-xl"
               >
             <div className="border-b border-border px-3 py-2.5 space-y-2">
               {/* Search mode toggle */}

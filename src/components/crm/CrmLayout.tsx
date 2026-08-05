@@ -31,6 +31,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import CrmConversationView from "./CrmConversationView";
+import CrmWallpaper from "./CrmWallpaper";
 import CrmInbox from "./CrmInbox";
 import { AiHandlerChip } from "./AiHandlerChip";
 import { WorkflowRunDrawer } from "./WorkflowRunDrawer";
@@ -2008,7 +2009,8 @@ export default function CrmLayout({
 
             {/* Conversation panel in kanban mode */}
             {activeConversation && (
-              <div className="w-[420px] flex-shrink-0 border-l border-border flex flex-col">
+              <div className="relative isolate w-[420px] flex-shrink-0 border-l border-border flex flex-col">
+                <CrmWallpaper />
                 {conversationHeader}
                 <div className="flex-1 min-h-0">
                   <CrmConversationView
@@ -2156,7 +2158,7 @@ export default function CrmLayout({
             <div
               data-tour="live-chat-conversation"
               className={cn(
-                "flex-1 flex flex-col min-w-0",
+                "relative isolate flex-1 flex flex-col min-w-0",
                 !mobileShowConversation && !activeConversation
                   ? "hidden lg:flex"
                   : "flex",
@@ -2167,6 +2169,10 @@ export default function CrmLayout({
                     : "hidden lg:flex",
               )}
             >
+              {/* Spans the message list AND the composer, so the wallpaper is
+                  one surface across the seam between them. The header paints
+                  its own bg-card over the top of it. */}
+              <CrmWallpaper />
               {conversationHeader}
 
               <div className="flex-1 min-h-0">
