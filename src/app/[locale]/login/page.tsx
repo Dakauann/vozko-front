@@ -214,7 +214,7 @@ function LoginContent() {
     <main className="flex min-h-[calc(100vh-3rem)] items-center justify-center bg-background px-4 py-10 sm:py-16">
       <div className="w-full max-w-[400px]">
         <div className="well overflow-hidden">
-          <div className="rule-engraved flex items-center gap-2.5 bg-muted px-5 py-3">
+          <div className="rule-engraved flex items-center gap-2.5 bg-muted px-5 py-3.5">
             <BrandLogo size="sm" />
           </div>
 

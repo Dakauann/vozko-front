@@ -1,9 +1,9 @@
 "use client";
 
 import { ChatCircle, Envelope } from "@/components/icons";
+import { BrandLogo } from "@/components/brand-logo";
 
 import type { Icon } from "@/components/icons";
-import Image from "next/image";
 import { Link } from "@/i18n/routing";
 import { getBrand } from "@/config/brand";
 import { useTranslations } from "next-intl";
@@ -44,14 +44,7 @@ export default function Footer() {
               href="/"
               className="inline-flex items-center rounded-[--radius] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <Image
-                src={brand.logo.mark}
-                alt={brand.name}
-                width={104}
-                height={52}
-                style={{ height: "auto" }}
-                className="object-contain"
-              />
+              <BrandLogo size="md" />
             </Link>
             <p className="max-w-[62ch] text-sm leading-relaxed text-muted-foreground">
               {t("description")}

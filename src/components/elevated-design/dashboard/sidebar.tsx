@@ -1449,9 +1449,9 @@ export function DashboardSidebar({
       >
         <Link
           href="/dashboard"
-          className="flex min-w-0 items-center rounded-[--radius] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex min-w-0 max-w-full items-center rounded-[--radius] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <BrandLogo size="sm" hideTextOnMobile={!isExpanded} />
+          <BrandLogo size="sm" square={!isExpanded} />
         </Link>
       </div>
       {isExpanded && (

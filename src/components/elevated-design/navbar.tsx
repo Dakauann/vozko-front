@@ -31,7 +31,7 @@ const BrandMark = ({
 }: {
   className?: string;
   useWhite?: boolean;
-}) => <BrandLogo useWhite={useWhite} size="lg" hideTextOnMobile />;
+}) => <BrandLogo useWhite={useWhite} size="sm" hideTextOnMobile />;
 
 // Public marketing pages (about / how-it-works / contact / pricing) were removed.
 // The top bar is now a clean sign-in surface with no marketing navigation.
