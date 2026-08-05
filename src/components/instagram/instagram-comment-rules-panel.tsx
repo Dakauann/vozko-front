@@ -134,7 +134,7 @@ export function InstagramCommentRulesPanel({
         <button
           type="button"
           onClick={() => setCreating(true)}
-          className="flex shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Plus className="h-3.5 w-3.5" weight="bold" />
           {t("new")}
@@ -143,7 +143,7 @@ export function InstagramCommentRulesPanel({
 
       <div className="p-5">
         {error && (
-          <p className="mb-4 flex items-start gap-2 rounded-lg bg-destructive/5 p-3 text-xs text-destructive">
+          <p className="mb-4 flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-destructive-ink">
             <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             {error}
           </p>
@@ -167,7 +167,7 @@ export function InstagramCommentRulesPanel({
             <button
               type="button"
               onClick={() => setCreating(true)}
-              className="mt-3 text-xs font-semibold text-lamp-ink hover:underline"
+              className="mt-3 text-xs font-semibold text-primary-ink hover:underline"
             >
               {t("emptyCta")}
             </button>
@@ -184,7 +184,7 @@ export function InstagramCommentRulesPanel({
                 )}
               >
                 {/* Evaluation order is visible: the first match wins. */}
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-muted text-[10px] font-semibold tabular-nums text-muted-foreground">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-muted text-[11px] font-semibold tabular-nums text-muted-foreground">
                   {index + 1}
                 </span>
 
@@ -194,11 +194,11 @@ export function InstagramCommentRulesPanel({
                       {rule.name}
                     </span>
                     {rule.igMediaId ? (
-                      <span className="rounded-full bg-fuchsia-500/10 px-1.5 py-0.5 text-[10px] font-medium text-fuchsia-600 dark:text-fuchsia-400">
+                      <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-medium text-chart-4-ink dark:text-chart-4">
                         {t("scopePost")}
                       </span>
                     ) : (
-                      <span className="rounded-[--radius] bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                      <span className="rounded-[--radius] bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
                         {t("scopeAccount")}
                       </span>
                     )}
@@ -239,7 +239,7 @@ export function InstagramCommentRulesPanel({
                     type="button"
                     onClick={() => setDeletingRule(rule)}
                     aria-label={t("delete", { name: rule.name })}
-                    className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
+                    className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-destructive-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
                   >
                     <Trash className="h-3.5 w-3.5" />
                   </button>
@@ -288,10 +288,10 @@ function ActionChip({ action, label }: { action: CommentRuleAction; label: strin
   return (
     <span
       className={cn(
-        "flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[10px] font-medium",
+        "flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[11px] font-medium",
         action === "hide"
-          ? "bg-warning/10 text-warning dark:text-amber-400"
-          : "bg-muted text-lamp-ink",
+          ? "bg-muted text-warning-ink dark:text-warning"
+          : "bg-muted text-primary-ink",
       )}
     >
       {icon}

@@ -313,7 +313,7 @@ export default function AdminUserBalancePage() {
         >
           <div className="flex items-center gap-3 mb-5">
             <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted">
-              <Wallet className="h-5 w-5 text-white" weight="fill" />
+              <Wallet className="h-5 w-5" weight="fill" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-foreground">
@@ -330,14 +330,14 @@ export default function AdminUserBalancePage() {
           <div className="grid gap-3 grid-cols-1">
             <div className="group relative flex flex-col gap-4 p-5 rounded-[--radius] border border-border bg-card overflow-hidden">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] from-amber-500 to-amber-600 bg-gradient-to-br">
+                <div className="ink-plate ink-3 flex h-10 w-10 items-center justify-center">
                   <CurrencyDollar
-                    className="h-5 w-5 text-white"
+                    className="h-5 w-5"
                     weight="fill"
                   />
                 </div>
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">
+                  <p className="text-[11px] text-muted-foreground font-medium">
                     {t("resource.money")}
                   </p>
                   <p className="text-2xl font-semibold text-foreground">
@@ -354,7 +354,7 @@ export default function AdminUserBalancePage() {
               {!loadingSummary && moneyBalance && (
                 <div className="grid grid-cols-2 gap-2">
                   <div className="rounded-[--radius] bg-muted px-3 py-2 text-center">
-                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">
+                    <p className="text-[11px] text-muted-foreground font-medium">
                       {t("card.credited")}
                     </p>
                     <p className="text-sm font-semibold text-foreground">
@@ -365,7 +365,7 @@ export default function AdminUserBalancePage() {
                     </p>
                   </div>
                   <div className="rounded-[--radius] bg-muted px-3 py-2 text-center">
-                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">
+                    <p className="text-[11px] text-muted-foreground font-medium">
                       {t("card.debited")}
                     </p>
                     <p className="text-sm font-semibold text-foreground">
@@ -392,7 +392,7 @@ export default function AdminUserBalancePage() {
             transition={{ duration: 0.3 }}
           >
             <div
-              className="rounded-[--radius] border border-blue-500/20/70 bg-muted p-6"
+              className="rounded-[--radius] border border-info/20/70 bg-muted p-6"
               style={{ boxShadow: softSurfaceShadow }}
             >
               <h3 className="text-lg font-semibold text-foreground mb-4">
@@ -424,7 +424,7 @@ export default function AdminUserBalancePage() {
                       <ElevatedSelectItem value="debit">
                         <span className="flex items-center gap-2">
                           <ArrowDown
-                            className="h-3.5 w-3.5 text-red-500"
+                            className="h-3.5 w-3.5 text-destructive-ink"
                             weight="bold"
                           />
                           {t("form.debit")}
@@ -500,7 +500,7 @@ export default function AdminUserBalancePage() {
                       "inline-flex items-center gap-1.5 rounded-[--radius] px-4 py-2 text-sm font-medium text-white transition-colors disabled:opacity-50",
                       operationType === "credit"
                         ? "bg-healthy hover:bg-healthy"
-                        : "bg-destructive hover:bg-red-700",
+                        : "bg-destructive hover:bg-destructive",
                     )}
                   >
                     {submitting ? (
@@ -660,7 +660,7 @@ export default function AdminUserBalancePage() {
                         />
                       ) : (
                         <ArrowDown
-                          className="h-4 w-4 text-red-500"
+                          className="h-4 w-4 text-destructive-ink"
                           weight="bold"
                         />
                       )}

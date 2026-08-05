@@ -109,8 +109,8 @@ export default function KanbanColumnShell({
         dashed
           ? "border border-dashed border-border bg-muted"
           : isDragOver
-            ? "border border-dashed border-rule-strong bg-muted"
-            : "border border-solid border-border border-t-rule-strong bg-muted",
+            ? "border border-dashed border-border-strong bg-muted"
+            : "border border-solid border-border bg-muted",
       )}
       style={{
         willChange: "box-shadow, border-color",

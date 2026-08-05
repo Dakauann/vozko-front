@@ -29,7 +29,7 @@ export default function TemplateBubble({
       {header && (
         <div className="px-3 pt-2.5">
           {header.format === "TEXT" && header.text && (
-            <p className="text-[13px] font-semibold text-foreground leading-snug">
+            <p className="text-sm font-semibold text-foreground leading-snug">
               {header.text}
             </p>
           )}
@@ -60,7 +60,7 @@ export default function TemplateBubble({
               ) : (
                 <div className="flex flex-col items-center gap-1 text-muted-foreground">
                   <Video className="h-8 w-8" />
-                  <span className="text-[10px]">Vídeo</span>
+                  <span className="text-[11px]">Vídeo</span>
                 </div>
               )}
             </div>
@@ -79,7 +79,7 @@ export default function TemplateBubble({
       {/* Body */}
       {body?.text && (
         <div className="px-3 py-1.5">
-          <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-wrap">
+          <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
             {body.text}
           </p>
         </div>
@@ -100,7 +100,7 @@ export default function TemplateBubble({
           {buttonsComp.buttons.map((btn, idx) => (
             <div
               key={idx}
-              className="flex items-center justify-center gap-1.5 px-3 py-2 text-[12px] font-medium text-lamp-ink border-b border-border last:border-b-0 hover:bg-muted transition-colors"
+              className="flex items-center justify-center gap-1.5 px-3 py-2 text-[12px] font-medium text-primary-ink border-b border-border last:border-b-0 hover:bg-muted transition-colors"
             >
               {btn.type === "URL" && <ArrowSquareOut className="h-3.5 w-3.5" />}
               {btn.type === "PHONE_NUMBER" && <Phone className="h-3.5 w-3.5" />}
@@ -118,7 +118,7 @@ export default function TemplateBubble({
 
       {/* Template badge */}
       <div className="px-3 py-1 bg-muted border-t border-border">
-        <span className="text-[9px] text-muted-foreground uppercase tracking-wider font-medium">
+        <span className="text-[11px] text-muted-foreground font-medium">
           Template: {metadata.template_name}
         </span>
       </div>

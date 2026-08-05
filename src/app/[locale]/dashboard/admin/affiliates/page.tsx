@@ -270,12 +270,12 @@ function AdminAffiliatesTable() {
         {loading ? (
           <div className="flex justify-center py-16">
             <CircleNotch
-              className="h-8 w-8 animate-spin text-lamp-ink"
+              className="h-8 w-8 animate-spin text-primary-ink"
               weight="bold"
             />
           </div>
         ) : error ? (
-          <div className="rounded-[--radius] border border-destructive/30 bg-destructive/5 px-4 py-6 text-center text-sm text-destructive">
+          <div className="rounded-[--radius] border border-destructive/30 bg-muted px-4 py-6 text-center text-sm text-destructive-ink">
             {error}
           </div>
         ) : filteredItems.length === 0 ? (
@@ -363,12 +363,12 @@ function AdminAffiliatesTable() {
                       </td>
                       <td className="px-3 py-3">
                         {aff.tier === "reseller" ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase text-muted-foreground shadow-sm">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground shadow-sm">
                             <Crown className="h-3 w-3" weight="fill" />
                             {t("tier.reseller")}
                           </span>
                         ) : (
-                          <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase text-muted-foreground">
+                          <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
                             {t("tier.affiliate")}
                           </span>
                         )}
@@ -376,10 +376,10 @@ function AdminAffiliatesTable() {
                       <td className="px-3 py-3">
                         <span
                           className={cn(
-                            "rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold uppercase",
+                            "rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold",
                             aff.active
-                              ? "bg-healthy/10 text-healthy"
-                              : "bg-warning/10 text-warning",
+                              ? "bg-muted text-healthy-ink"
+                              : "bg-muted text-warning-ink",
                           )}
                         >
                           {aff.active
@@ -514,7 +514,7 @@ function Th({
   return (
     <th
       className={cn(
-        "px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground",
+        "px-3 py-2.5 text-left text-[11px] font-semibold text-muted-foreground",
         className,
       )}
     >
@@ -531,7 +531,7 @@ export default function AdminAffiliatesPage() {
     return (
       <div className="flex flex-col items-center justify-center py-32">
         <CircleNotch
-          className="h-8 w-8 animate-spin text-lamp-ink"
+          className="h-8 w-8 animate-spin text-primary-ink"
           weight="bold"
         />
       </div>
@@ -540,7 +540,7 @@ export default function AdminAffiliatesPage() {
 
   if (!isSystemAdmin(user?.role)) {
     return (
-      <div className="rounded-[--radius] border border-destructive/30 bg-destructive/5 px-4 py-8 text-center text-sm text-destructive">
+      <div className="rounded-[--radius] border border-destructive/30 bg-muted px-4 py-8 text-center text-sm text-destructive-ink">
         {t("forbidden")}
       </div>
     );

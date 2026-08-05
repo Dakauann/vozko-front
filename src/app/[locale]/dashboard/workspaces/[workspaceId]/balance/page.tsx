@@ -122,7 +122,7 @@ const INVOICE_STATUS_CONFIG: Record<
   },
   REFUNDED: {
     icon: ArrowDown,
-    className: "text-muted-foreground bg-muted border-blue-600",
+    className: "text-muted-foreground bg-muted border-info",
   },
   EXPIRED: {
     icon: XCircle,
@@ -456,7 +456,7 @@ export default function AdminWorkspaceBalancePage() {
               {isCredit ? (
                 <ArrowUp className="h-4 w-4 text-healthy" weight="bold" />
               ) : (
-                <ArrowDown className="h-4 w-4 text-red-500" weight="bold" />
+                <ArrowDown className="h-4 w-4 text-destructive-ink" weight="bold" />
               )}
               <span
                 className={cn(
@@ -785,7 +785,7 @@ export default function AdminWorkspaceBalancePage() {
                       "inline-flex items-center gap-1.5 rounded-[--radius] px-4 py-2 text-sm font-medium text-white transition-colors disabled:opacity-50",
                       showForm === "invoice"
                         ? "bg-healthy hover:bg-healthy"
-                        : "bg-destructive hover:bg-red-700",
+                        : "bg-destructive hover:bg-destructive",
                     )}
                   >
                     {submitting ? (
@@ -851,7 +851,7 @@ export default function AdminWorkspaceBalancePage() {
                   ? "..."
                   : formatMoneyValue(moneyBalance.total_debited, exchangeRate!),
               icon: (
-                <ArrowDown className="h-4 w-4 text-red-500" weight="bold" />
+                <ArrowDown className="h-4 w-4 text-destructive-ink" weight="bold" />
               ),
             },
           ]}
@@ -937,7 +937,7 @@ export default function AdminWorkspaceBalancePage() {
         transition={{ duration: 0.4, delay: 0.2 }}
       >
         <div className="flex items-center gap-2 mb-3">
-          <InvoiceIcon className="h-5 w-5 text-lamp-ink" weight="bold" />
+          <InvoiceIcon className="h-5 w-5 text-primary-ink" weight="bold" />
           <h2 className="text-lg font-semibold text-foreground">
             {t("invoices.title")}
           </h2>
@@ -1118,7 +1118,7 @@ export default function AdminWorkspaceBalancePage() {
                 </span>
               </div>
 
-              <div className="flex items-center gap-2 rounded-[--radius] bg-amber-50 border border-amber-200 px-4 py-3">
+              <div className="flex items-center gap-2 rounded-[--radius] bg-warning/10 border border-warning/30 px-4 py-3">
                 <Hourglass className="h-4 w-4 text-warning" weight="bold" />
                 <span className="text-sm text-warning">
                   {t("invoiceDialog.waitingPayment")}

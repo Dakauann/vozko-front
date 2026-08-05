@@ -45,7 +45,7 @@ export function LinkPreview({ url }: { url: string }) {
           href={href}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-0.5 text-lamp-ink underline decoration-primary/40 underline-offset-2 hover:decoration-primary transition-colors break-all"
+          className="inline-flex items-center gap-0.5 text-primary-ink underline decoration-primary/40 underline-offset-2 hover:decoration-primary transition-colors break-all"
           onClick={(e) => {
             if (href === "#") e.preventDefault();
           }}
@@ -78,7 +78,7 @@ export function LinkPreview({ url }: { url: string }) {
               {t("description")}
             </p>
             <p
-              className="truncate text-[10px] font-mono text-muted-foreground/60"
+              className="truncate text-[11px] font-mono text-muted-foreground/60"
               title={href !== "#" ? href : url}
             >
               {href !== "#" ? href : url}

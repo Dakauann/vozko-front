@@ -156,7 +156,7 @@ export function PromptRefinerPanel({
 
       {/* Instruction input */}
       <div className="mt-4 space-y-2">
-        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <label className="text-xs font-semibold text-muted-foreground">
           {t("instructionLabel")}
         </label>
         <ElevatedTextarea
@@ -213,7 +213,7 @@ export function PromptRefinerPanel({
       {segments && refinedText !== null ? (
         <div className="mt-5 flex flex-1 flex-col">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold uppercase tracking-wider text-foreground">
+            <p className="text-xs font-semibold text-foreground">
               {t("diffTitle")}
             </p>
             {stats ? (
@@ -242,7 +242,7 @@ export function PromptRefinerPanel({
                 return (
                   <span
                     key={i}
-                    className="rounded bg-healthy/15 px-0.5 text-healthy whitespace-pre-wrap"
+                    className="rounded bg-muted px-0.5 text-healthy-ink whitespace-pre-wrap"
                   >
                     {seg.text}
                   </span>
@@ -251,7 +251,7 @@ export function PromptRefinerPanel({
               return (
                 <span
                   key={i}
-                  className="rounded bg-destructive/15 px-0.5 text-destructive line-through whitespace-pre-wrap"
+                  className="rounded bg-muted px-0.5 text-destructive-ink line-through whitespace-pre-wrap"
                 >
                   {seg.text}
                 </span>
@@ -322,7 +322,7 @@ function ExampleChips({
 
   return (
     <div className="mt-3 space-y-2">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="text-[11px] font-semibold text-muted-foreground">
         {t("examplesLabel")}
       </p>
       <div className="flex flex-wrap gap-1.5">
@@ -333,8 +333,8 @@ function ExampleChips({
             disabled={disabled}
             onClick={() => onPick(ex)}
             className={cn(
-              "inline-flex items-center gap-1 rounded-[--radius] border border-warning/30 bg-warning/10 px-2.5 py-1 text-[11px] font-medium text-warning transition-all",
-              "hover:bg-warning/20 hover:text-amber-800",
+              "inline-flex items-center gap-1 rounded-[--radius] border border-warning/30 bg-muted px-2.5 py-1 text-[11px] font-medium text-warning-ink transition-all",
+              "hover:bg-muted hover:text-warning-ink",
               "disabled:cursor-not-allowed disabled:opacity-50",
             )}
           >

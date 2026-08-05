@@ -50,7 +50,7 @@ export default function VideoBackground() {
           Seu navegador não suporta vídeos em HTML5.
         </video>
       </div>
-      <div className="absolute inset-0 bg-gradient-to-br from-card via-card/92 to-emerald-50/35" />
+      <div className="absolute inset-0 bg-gradient-to-br from-card via-card/92 to-background/60" />
     </div>
   );
 }

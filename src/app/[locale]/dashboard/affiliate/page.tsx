@@ -87,7 +87,7 @@ export default function AffiliatePage() {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
         <CircleNotch
-          className="h-8 w-8 animate-spin text-lamp-ink"
+          className="h-8 w-8 animate-spin text-primary-ink"
           weight="bold"
         />
       </div>
@@ -194,7 +194,7 @@ function AffiliateLanding({ onCta }: { onCta: () => void }) {
 
         <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-xl space-y-4">
-            <span className="inline-flex items-center gap-2 rounded-[--radius] bg-primary px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary-foreground shadow-sm">
+            <span className="inline-flex items-center gap-2 rounded-[--radius] bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow-sm">
               <Sparkle className="h-3.5 w-3.5" weight="fill" />
               {t("landing.tagline")}
             </span>
@@ -343,7 +343,7 @@ function AffiliateDashboard({
               style={{ boxShadow: softSurfaceShadow }}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <span className="text-xs font-semibold text-muted-foreground">
                   {card.label}
                 </span>
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
@@ -365,7 +365,7 @@ function AffiliateDashboard({
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
               <LinkSimple className="h-3.5 w-3.5" weight="bold" />
               {t("dashboard.referralLink.badge")}
             </span>
@@ -464,7 +464,7 @@ function QuickLink({
           <p className="mt-1 text-xs text-muted-foreground">{description}</p>
         </div>
         <ArrowRight
-          className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-lamp-ink"
+          className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary-ink"
           weight="bold"
         />
       </div>

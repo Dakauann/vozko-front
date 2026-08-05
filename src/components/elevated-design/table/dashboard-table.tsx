@@ -218,8 +218,8 @@ export function DashboardTable<T>({
 
       {/* ── Selection bar ── */}
       {hasSelection && selectedCount > 0 && (
-        <div className="flex items-center gap-3 border-b border-primary/20 bg-muted px-5 py-2">
-          <span className="text-sm font-medium text-lamp-ink">
+        <div className="flex items-center gap-3 border-b border-border bg-muted px-5 py-2">
+          <span className="text-sm font-medium text-primary-ink">
             {selection!.label
               ? selection!.label(selectedCount)
               : `${selectedCount} selected`}
@@ -245,7 +245,10 @@ export function DashboardTable<T>({
           ) : null}
 
           <thead>
-            <tr className="bg-muted border-b border-border">
+            {/* The head is the one row that gets a quiet fill and the stronger
+                rule under it — that rule is what separates head from body once
+                the body rows are white. */}
+            <tr className="bg-muted border-b border-border-strong">
               {hasSelection && (
                 <th className="w-12 px-4 py-3" scope="col">
                   <button
@@ -269,7 +272,7 @@ export function DashboardTable<T>({
                 <th
                   key={column.key}
                   className={cn(
-                    "px-6 py-3 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider",
+                    "px-6 py-3 text-[11px] font-semibold text-muted-foreground",
                     column.className,
                   )}
                   scope="col"
@@ -279,7 +282,7 @@ export function DashboardTable<T>({
               ))}
               {renderRowActions ? (
                 <th
-                  className="px-6 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right"
+                  className="px-6 py-3 text-xs font-semibold text-muted-foreground text-right"
                   scope="col"
                 />
               ) : null}
@@ -318,7 +321,6 @@ export function DashboardTable<T>({
                     const extraClass = rowClassName?.(row, rowIndex) ?? "";
                     const isSelected =
                       selection?.selectedKeys.has(key) ?? false;
-                    const shouldBeDarker = rowIndex % 2 === 0;
 
                     return (
                       <Fragment key={key}>
@@ -328,12 +330,24 @@ export function DashboardTable<T>({
                               ? () => onRowClick(row, rowIndex)
                               : undefined
                           }
+                          /*
+                            No zebra. The previous attempt was
+                            `shouldBeDarker ? "bg-muted" : "bg-muted"` — both
+                            branches identical — so every row was grey AND the
+                            hover state was the same grey, meaning row hover
+                            did nothing at all on a 36-consumer table.
+
+                            Rows sit on the sheet; hover tints; selection takes
+                            the brand wash. Separation comes from the hairline
+                            rules on <tbody>, which is how both reference
+                            systems set a data table.
+                          */
                           className={cn(
-                            "group transition-colors hover:bg-muted",
-                            shouldBeDarker ? "bg-muted" : "bg-muted",
+                            "group bg-card transition-colors duration-150",
                             clickable && "cursor-pointer",
+                            "hover:bg-muted",
                             expanded && "bg-muted",
-                            isSelected && "bg-muted",
+                            isSelected && "bg-muted hover:bg-[hsl(var(--accent-hover))]",
                             extraClass,
                           )}
                         >

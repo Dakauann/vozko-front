@@ -219,7 +219,7 @@ export default function CustomFieldManager({
                     <button
                       type="button"
                       onClick={() => handleDelete(f.id)}
-                      className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive hover:text-white"
+                      className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive hover:text-destructive-foreground"
                       aria-label="Excluir campo"
                     >
                       <Trash weight="bold" className="h-3.5 w-3.5" />
@@ -266,7 +266,7 @@ function DraftForm({
 
   return (
     <div className="space-y-4 rounded-[--radius] border border-border bg-card p-4">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="text-[11px] font-semibold text-muted-foreground">
         {draft.id ? "Editar campo" : "Novo campo"}
       </p>
       <ElevatedInput
@@ -279,7 +279,7 @@ function DraftForm({
         placeholder="Ex.: Segmento, Score, Origem..."
       />
       <div className="space-y-1.5">
-        <label className="pl-1 text-[13px] font-medium text-foreground">Tipo</label>
+        <label className="pl-1 text-sm font-medium text-foreground">Tipo</label>
         <ElevatedSelect
           value={draft.type}
           onValueChange={(v) => setDraft({ ...draft, type: v as CustomFieldType })}
@@ -297,7 +297,7 @@ function DraftForm({
 
       {hasOptions ? (
         <div className="space-y-1.5">
-          <label className="pl-1 text-[13px] font-medium text-foreground">
+          <label className="pl-1 text-sm font-medium text-foreground">
             Opções (uma por linha)
           </label>
           <textarea
@@ -328,7 +328,7 @@ function DraftForm({
             )}
           />
         </button>
-        <span className="text-[13px] font-medium text-foreground">Obrigatório</span>
+        <span className="text-sm font-medium text-foreground">Obrigatório</span>
       </label>
 
       <div className="flex items-center justify-end gap-2 pt-1">

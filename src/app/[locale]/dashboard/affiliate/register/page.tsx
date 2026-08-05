@@ -34,7 +34,7 @@ export default function AffiliateRegisterPage() {
   if (checking) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border border-rule-strong/30 border-t-primary" />
+        <div className="h-8 w-8 animate-spin rounded-full border border-border-strong/30 border-t-primary" />
       </div>
     );
   }

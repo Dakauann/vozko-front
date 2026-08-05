@@ -80,13 +80,13 @@ function channelBadge(type: string) {
   switch (type) {
     case "voice":
       return (
-        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-healthy/10 px-2 py-0.5 text-[11px] font-medium text-healthy dark:bg-emerald-900/30 dark:text-healthy">
+        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-medium text-healthy-ink dark:bg-healthy/30 dark:text-healthy">
           <Phone weight="fill" size={12} /> Voz
         </span>
       )
     case "whatsapp":
       return (
-        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-healthy/10 px-2 py-0.5 text-[11px] font-medium text-healthy dark:bg-emerald-900/30 dark:text-healthy">
+        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-medium text-healthy-ink dark:bg-healthy/30 dark:text-healthy">
           <WhatsappLogo weight="fill" size={12} /> WhatsApp
         </span>
       )
@@ -97,10 +97,10 @@ function channelBadge(type: string) {
 
 function statusBadgeClass(status: string): string {
   const s = status.toUpperCase()
-  if (["PENDING"].includes(s)) return "bg-amber-100 text-warning dark:bg-amber-900/30 dark:text-amber-400"
-  if (["ONGOING", "RINGING"].includes(s)) return "bg-muted text-muted-foreground dark:bg-blue-900/30 dark:text-blue-400"
-  if (["RECEIVED", "DELIVERED", "SENT"].includes(s)) return "bg-healthy/10 text-healthy dark:bg-emerald-900/30 dark:text-healthy"
-  if (["FAILED", "NOT_FOUND", "BUSY", "NO_ANSWER", "CANCELLED"].includes(s)) return "bg-destructive/10 text-destructive dark:bg-red-900/30 dark:text-red-400"
+  if (["PENDING"].includes(s)) return "bg-muted text-warning-ink dark:bg-warning/30 dark:text-warning"
+  if (["ONGOING", "RINGING"].includes(s)) return "bg-muted text-muted-foreground dark:bg-muted dark:text-info-ink"
+  if (["RECEIVED", "DELIVERED", "SENT"].includes(s)) return "bg-muted text-healthy-ink dark:bg-healthy/30 dark:text-healthy"
+  if (["FAILED", "NOT_FOUND", "BUSY", "NO_ANSWER", "CANCELLED"].includes(s)) return "bg-muted text-destructive-ink dark:bg-destructive/30 dark:text-destructive"
   if (["ENDED", "VOICEMAIL"].includes(s)) return "bg-slate-100 text-muted-foreground dark:bg-muted dark:text-muted-foreground"
   return "bg-slate-100 text-muted-foreground dark:bg-muted dark:text-muted-foreground"
 }
@@ -141,16 +141,16 @@ function CampaignCard({ campaign, locale, t }: { campaign: CampaignHistoryItem; 
               <table className="w-full text-xs">
                 <thead>
                   <tr className="text-muted-foreground border-b">
-                    <th className="py-1.5 pr-3 text-left font-semibold uppercase tracking-wide">{t("campaignHistory.status")}</th>
-                    <th className="py-1.5 px-3 text-left font-semibold uppercase tracking-wide">{t("campaignHistory.date")}</th>
-                    <th className="py-1.5 pl-3 text-left font-semibold uppercase tracking-wide">ID</th>
+                    <th className="py-1.5 pr-3 text-left font-semibold">{t("campaignHistory.status")}</th>
+                    <th className="py-1.5 px-3 text-left font-semibold">{t("campaignHistory.date")}</th>
+                    <th className="py-1.5 pl-3 text-left font-semibold">ID</th>
                   </tr>
                 </thead>
                 <tbody>
                   {campaign.entries.map((entry) => (
                     <tr key={entry.id} className="border-b last:border-0 hover:bg-muted">
                       <td className="py-1.5 pr-3">
-                        <span className={`inline-block rounded-[--radius] px-2 py-0.5 text-[10px] font-medium ${statusBadgeClass(entry.status)}`}>
+                        <span className={`inline-block rounded-[--radius] px-2 py-0.5 text-[11px] font-medium ${statusBadgeClass(entry.status)}`}>
                           {entry.status}
                         </span>
                       </td>
@@ -202,7 +202,7 @@ export default function LeadDetailClient({
   if (loading) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
-        <Clock weight="bold" className="h-8 w-8 animate-spin text-lamp-ink" />
+        <Clock weight="bold" className="h-8 w-8 animate-spin text-primary-ink" />
       </div>
     )
   }
@@ -214,7 +214,7 @@ export default function LeadDetailClient({
           <Users weight="fill" className="mx-auto mb-4 h-12 w-12 text-warning" />
           <h2 className="text-xl font-semibold text-foreground">{t("error.title")}</h2>
           <p className="mt-2 text-sm text-muted-foreground">{error || t("records.empty")}</p>
-          <Button variant="outline" title="Voltar" link="/dashboard/leads" newTab={false} className="mt-4 text-[11px] font-semibold uppercase" />
+          <Button variant="outline" title="Voltar" link="/dashboard/leads" newTab={false} className="mt-4 text-[11px] font-semibold" />
         </ElevatedContainer>
       </div>
     )
@@ -238,14 +238,14 @@ export default function LeadDetailClient({
             iconSide="left"
             link="/dashboard/leads"
             newTab={false}
-            className="text-xs font-semibold uppercase"
+            className="text-xs font-semibold"
           />
           <div className="flex items-center gap-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground shadow-lg">
               <Users weight="fill" className="h-7 w-7" />
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-lamp-ink">
+              <p className="text-xs font-semibold text-primary-ink">
                 {t("header.badge")}
               </p>
               <h1 className="text-2xl font-semibold text-foreground">
@@ -260,11 +260,11 @@ export default function LeadDetailClient({
       <motion.div variants={itemVariants}>
         <div className="rounded-[--radius] border border-border bg-card p-5" style={{ boxShadow: softSurfaceShadow }}>
           <div className="flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-healthy/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-healthy dark:bg-emerald-900/30 dark:text-healthy">
+            <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-muted px-3 py-1.5 text-[11px] font-semibold text-healthy-ink dark:bg-healthy/30 dark:text-healthy">
               <WhatsappLogo weight="fill" className="h-3.5 w-3.5" />
               {lead.whatsappWindowOpen ? t("window.open") : t("window.closed")}
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground dark:bg-muted dark:text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-semibold text-muted-foreground dark:bg-muted dark:text-muted-foreground">
               <WhatsappLogo weight="fill" className="h-3.5 w-3.5" />
               {lead.whatsappCampaigns} whatsapp
             </span>

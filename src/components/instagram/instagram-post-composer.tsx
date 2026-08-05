@@ -188,7 +188,7 @@ export function InstagramPostComposer({
           // The post published; only the rule failed. Say exactly that, and do
           // not offer "publish" again.
           <div className="space-y-4 p-5">
-            <p className="flex items-start gap-2 rounded-lg bg-warning/10 p-3 text-xs text-warning dark:text-amber-400">
+            <p className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-warning-ink dark:text-warning">
               <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" weight="fill" />
               {t("publishedButRuleFailed", { error: ruleWarning })}
             </p>
@@ -274,7 +274,7 @@ export function InstagramPostComposer({
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0 space-y-0.5">
                     <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-                      <Sparkle className="h-3.5 w-3.5 text-lamp-ink" weight="fill" />
+                      <Sparkle className="h-3.5 w-3.5 text-primary-ink" weight="fill" />
                       {t("ruleTitle")}
                     </span>
                     <p className="text-xs text-muted-foreground">{t("ruleHint")}</p>
@@ -299,7 +299,7 @@ export function InstagramPostComposer({
               </div>
 
               {error && (
-                <p className="flex items-start gap-2 rounded-lg bg-destructive/5 p-3 text-xs text-destructive">
+                <p className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-destructive-ink">
                   <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                   {error}
                 </p>

@@ -384,7 +384,7 @@ function ResetModal({
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.1 }}
                       >
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                        <p className="text-xs font-semibold text-muted-foreground mb-3">
                           {t("yourCode")}
                         </p>
                         <div className="flex justify-center gap-2">
@@ -616,7 +616,7 @@ function ClearHistoryModal({
                       </p>
 
                       <motion.div
-                        className="rounded-[--radius] bg-destructive/10 border border-rose-200/50 p-5"
+                        className="rounded-[--radius] bg-destructive/10 border border-destructive/50 p-5"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
@@ -629,7 +629,7 @@ function ClearHistoryModal({
                             />
                           </div>
                           <div>
-                            <p className="font-semibold text-rose-800 mb-1">
+                            <p className="font-semibold text-destructive-ink mb-1">
                               {t("warningTitle")}
                             </p>
                             <p className="text-sm text-destructive">
@@ -680,7 +680,7 @@ function ClearHistoryModal({
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.1 }}
                       >
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                        <p className="text-xs font-semibold text-muted-foreground mb-3">
                           {t("yourCode")}
                         </p>
                         <div className="flex justify-center gap-2">
@@ -1423,7 +1423,7 @@ function WhatsAppCampaignDetailContent({
             </div>
             <span
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-[--radius] px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide",
+                "inline-flex items-center gap-1.5 rounded-[--radius] px-2.5 py-1 text-[11px] font-medium",
                 statusClass,
               )}
             >
@@ -1490,7 +1490,7 @@ function WhatsAppCampaignDetailContent({
                   <WhatsappLogo weight="fill" className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">
+                  <p className="text-[11px] text-muted-foreground font-medium">
                     {t("detail.metrics.total")}
                   </p>
                   <p className="text-xl font-semibold text-foreground">
@@ -1505,7 +1505,7 @@ function WhatsAppCampaignDetailContent({
                   <Clock weight="fill" className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">
+                  <p className="text-[11px] text-muted-foreground font-medium">
                     {t("detail.metrics.pending")}
                   </p>
                   <p className="text-xl font-semibold text-foreground">
@@ -1523,13 +1523,13 @@ function WhatsAppCampaignDetailContent({
                   />
                 </div>
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">
+                  <p className="text-[11px] text-muted-foreground font-medium">
                     {t("detail.metrics.sent")}
                   </p>
                   <p className="text-xl font-semibold text-foreground">
                     {metrics.sent.toLocaleString()}
                   </p>
-                  <p className="text-[10px] text-muted-foreground font-medium">
+                  <p className="text-[11px] text-muted-foreground font-medium">
                     {metrics.completionRate.toFixed(1)}%
                   </p>
                 </div>
@@ -1541,7 +1541,7 @@ function WhatsAppCampaignDetailContent({
                   <CheckCircle weight="fill" className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">
+                  <p className="text-[11px] text-muted-foreground font-medium">
                     {t("detail.metrics.delivered")}
                   </p>
                   <p className="text-xl font-semibold text-foreground">
@@ -1556,7 +1556,7 @@ function WhatsAppCampaignDetailContent({
                   <Eye weight="fill" className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">
+                  <p className="text-[11px] text-muted-foreground font-medium">
                     {t("detail.metrics.read")}
                   </p>
                   <p className="text-xl font-semibold text-foreground">
@@ -1571,7 +1571,7 @@ function WhatsAppCampaignDetailContent({
                   <Warning weight="fill" className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">
+                  <p className="text-[11px] text-muted-foreground font-medium">
                     {t("detail.metrics.failed")}
                   </p>
                   <p className="text-xl font-semibold text-foreground">
@@ -1586,7 +1586,7 @@ function WhatsAppCampaignDetailContent({
                   <ShieldWarning weight="fill" className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">
+                  <p className="text-[11px] text-muted-foreground font-medium">
                     {t("detail.metrics.notEligiblePossibleSpam")}
                   </p>
                   <p className="text-xl font-semibold text-foreground">
@@ -1829,7 +1829,7 @@ function WhatsAppCampaignDetailContent({
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-2 rounded-[--radius] bg-healthy px-3 py-1.5 text-xs font-semibold text-white">
+              <span className="flex items-center gap-2 rounded-[--radius] bg-healthy px-3 py-1.5 text-xs font-semibold text-healthy-foreground">
                 <CheckCircle weight="fill" className="h-4 w-4" />
                 {entriesTotalItems} {t("detail.records")}
               </span>
@@ -1929,7 +1929,7 @@ function WhatsAppCampaignDetailContent({
                         </div>
                         <span
                           className={cn(
-                            "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider",
+                            "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-semibold",
                             badgeClass,
                           )}
                         >
@@ -1940,13 +1940,13 @@ function WhatsAppCampaignDetailContent({
 
                       {/* Error info for failed entries */}
                       {errorDisplay?.show ? (
-                        <div className="mb-3 rounded-lg border border-rose-200 bg-destructive/10 px-3 py-2 dark:border-destructive/30 dark:bg-destructive/10">
+                        <div className="mb-3 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 dark:border-destructive/30 dark:bg-destructive/10">
                           {errorDisplay.code !== null ? (
                             <p className="text-[11px] font-semibold text-destructive dark:text-destructive">
                               {t("detail.errorCode")}: {errorDisplay.code}
                             </p>
                           ) : null}
-                          <p className="mt-0.5 text-[11px] text-destructive dark:text-rose-300 line-clamp-2">
+                          <p className="mt-0.5 text-[11px] text-destructive dark:text-destructive line-clamp-2">
                             {errorDisplay.description}
                           </p>
                         </div>
@@ -1993,7 +1993,7 @@ function WhatsAppCampaignDetailContent({
                             {contact.variables.map((variable, vi) => (
                               <span
                                 key={vi}
-                                className="inline-flex items-center gap-1 rounded-md bg-healthy border border-healthy px-2 py-1 text-[11px] text-white"
+                                className="inline-flex items-center gap-1 rounded-md bg-healthy border border-healthy px-2 py-1 text-[11px] text-healthy-foreground"
                               >
                                 <span className="font-semibold text-white">
                                   {`{{${vi + 1}}}`}

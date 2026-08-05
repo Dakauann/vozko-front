@@ -222,7 +222,7 @@ function LoginContent() {
             <h1 className="text-[19px] font-semibold leading-tight tracking-[-0.01em] text-foreground">
               {t("header.title")}
             </h1>
-            <p className="mt-1.5 max-w-[46ch] text-[13px] leading-snug text-muted-foreground">
+            <p className="mt-1.5 max-w-[46ch] text-sm leading-snug text-muted-foreground">
               {t("header.description")}
             </p>
 
@@ -267,14 +267,14 @@ function LoginContent() {
                   />
                   <label
                     htmlFor="remember"
-                    className="cursor-pointer select-none text-[13px] text-muted-foreground"
+                    className="cursor-pointer select-none text-sm text-muted-foreground"
                   >
                     {t("form.rememberMe")}
                   </label>
                 </div>
                 <Link
                   href="/forgot-password"
-                  className="rounded-[--radius] text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="rounded-[--radius] text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   {t("form.forgotPassword")}
                 </Link>

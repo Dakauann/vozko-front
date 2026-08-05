@@ -14,11 +14,12 @@ import { cn } from "@/lib/utils";
  * visual weight as the only action on the page and parked the action beside the
  * instructions that make it completable rather than after them.
  *
- * OWN-WORLD: the incumbent dashboard system, unchanged. ElevatedContainer's
- * layered shadow on bg-card, rounded-[--radius], border-token hairlines, Phosphor
- * icons at one weight, the primary token carrying the action. Colour appears
- * only as a solid fill under contrasting ink, never as a tint behind text of
- * its own hue.
+ * OWN-WORLD: the incumbent dashboard system, unchanged — which now means the
+ * Surface identity: white sheets on a cool canvas, the tinted --elev-* shadow
+ * stack, the 6/8/10px radius ramp, hairline borders, Tabler icons at one
+ * weight, Inter, and the primary token carrying the action. Colour appears only
+ * as a solid fill under contrasting ink or as a mark, never as a tint behind
+ * text of its own hue.
  *
  * STORY: an admin who already chose a channel learns what must be true before
  * starting, does the one thing this screen exists for, and lands on a
@@ -126,12 +127,12 @@ export function ConnectIdentity({
 }) {
   return (
     <motion.header variants={item} className="flex items-start gap-4">
-      <span className="flex size-12 shrink-0 items-center justify-center rounded-[--radius] border border-border bg-card shadow-[0_1px_2px_-1px_rgba(0,0,0,0.10),0_3px_8px_-3px_rgba(0,0,0,0.12)]">
+      <span className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-border bg-card shadow-sm">
         {logo}
       </span>
 
       <div className="min-w-0 flex-1 space-y-1.5 pt-0.5">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+        <h1 className="text-xl font-semibold tracking-[-0.015em] text-foreground sm:text-2xl">
           {title}
         </h1>
         {/* Held to a readable measure rather than the container's full width. */}
@@ -145,7 +146,7 @@ export function ConnectIdentity({
 }
 
 const PANEL_SHADOW =
-  "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)";
+  "var(--elev-1)";
 
 /**
  * The panel's surface, with no animation of its own.
@@ -169,7 +170,7 @@ function PanelSurface({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-[--radius] border border-border bg-card p-6 sm:p-8",
+        "relative overflow-hidden rounded-lg border border-border bg-card p-6 sm:p-8",
         className,
       )}
       style={{ boxShadow: PANEL_SHADOW }}
@@ -304,24 +305,24 @@ export function ConnectNotice({
   const marks = {
     info: {
       Icon: WarningCircle,
-      chip: "bg-muted text-muted-foreground",
+      chip: "bg-card text-muted-foreground ring-1 ring-inset ring-border",
       label: "",
     },
     warn: {
       Icon: Warning,
-      chip: "bg-warning text-warning-foreground",
+      chip: "bg-card text-warning-ink ring-1 ring-inset ring-border",
       label: "",
     },
     danger: {
       Icon: Warning,
-      chip: "bg-destructive text-destructive-foreground",
+      chip: "bg-card text-destructive-ink ring-1 ring-inset ring-border",
       label: "",
     },
   }[tone];
   const { Icon, chip } = marks;
 
   return (
-    <div className="flex gap-3 rounded-[--radius] border border-border bg-muted p-4">
+    <div className="flex gap-3 rounded-lg border border-border bg-muted p-4">
       <span
         className={cn(
           "flex size-6 shrink-0 items-center justify-center rounded-full",
@@ -473,7 +474,7 @@ export function ConnectResult({
                   <div key={d.label} className="min-w-0">
                     {/* Foreground, not muted: at 11px on the notice's own
                         tinted surface the muted token falls under 4.5:1. */}
-                    <dt className="text-[11px] font-medium uppercase tracking-wide text-foreground/80">
+                    <dt className="text-[11px] font-medium text-foreground/80">
                       {d.label}
                     </dt>
                     <dd className="truncate font-mono text-xs text-foreground">

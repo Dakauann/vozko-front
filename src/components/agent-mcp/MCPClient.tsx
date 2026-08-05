@@ -75,15 +75,15 @@ function statusLabel(t: TranslateText, status: AgentMCPBindingStatus): string {
 function statusChipClasses(status: AgentMCPBindingStatus): string {
   switch (status) {
     case "connected":
-      return "bg-healthy/10 border-healthy/30 text-healthy";
+      return "bg-muted border-healthy/30 text-healthy-ink";
     case "pending":
-      return "bg-warning/10 border-warning/30 text-warning";
+      return "bg-muted border-warning/30 text-warning-ink";
     case "disconnected":
-      return "bg-orange-500/10 border-orange-500/30 text-orange-700";
+      return "bg-muted border-warning/30 text-warning-ink";
     case "revoked":
       return "bg-muted border-border text-muted-foreground";
     case "error":
-      return "bg-destructive/10 border-destructive/30 text-destructive";
+      return "bg-muted border-destructive/30 text-destructive-ink";
     default:
       return "bg-muted border-border text-muted-foreground";
   }
@@ -354,7 +354,7 @@ export default function MCPClient() {
             >
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
-                  <p className="text-[11px] font-semibold uppercase text-muted-foreground">
+                  <p className="text-[11px] font-semibold text-muted-foreground">
                     {stat.label}
                   </p>
                   <p className="mt-2 text-2xl font-semibold text-foreground">
@@ -394,7 +394,7 @@ export default function MCPClient() {
               style={{ boxShadow: softSurfaceShadow }}
             >
               <div className="flex items-center justify-center gap-3">
-                <div className="h-5 w-5 animate-spin rounded-full border border-rule-strong border-t-transparent" />
+                <div className="h-5 w-5 animate-spin rounded-full border border-border-strong border-t-transparent" />
                 <span className="text-sm text-muted-foreground">
                   {t("remote.loading")}
                 </span>
@@ -484,11 +484,11 @@ export default function MCPClient() {
                                 {server.url}
                               </p>
                               <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                                <span className="rounded-[--radius] border border-border px-2 py-0.5 text-[10px] font-semibold uppercase text-muted-foreground">
+                                <span className="rounded-[--radius] border border-border px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
                                   {server.transport}
                                 </span>
                                 {server.authMode ? (
-                                  <span className="rounded-[--radius] border border-border px-2 py-0.5 text-[10px] font-semibold uppercase text-muted-foreground">
+                                  <span className="rounded-[--radius] border border-border px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
                                     {authBadgeLabel(server.authMode, t)}
                                   </span>
                                 ) : null}
@@ -606,7 +606,7 @@ function RemoteDetail({
               <Globe weight="fill" />
             </IconBox>
             <div>
-              <p className="text-xs font-semibold uppercase text-lamp-ink">
+              <p className="text-xs font-semibold text-primary-ink">
                 {t("detail.badge")}
               </p>
               <h2 className="mt-2 text-2xl font-semibold text-foreground">
@@ -644,7 +644,7 @@ function RemoteDetail({
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-[--radius] border border-border bg-background p-4">
-          <p className="text-[10px] font-semibold uppercase text-muted-foreground">
+          <p className="text-[11px] font-semibold text-muted-foreground">
             {t("detail.statusLabel")}
           </p>
           <div className="mt-2">
@@ -652,7 +652,7 @@ function RemoteDetail({
           </div>
         </div>
         <div className="rounded-[--radius] border border-border bg-background p-4">
-          <p className="text-[10px] font-semibold uppercase text-muted-foreground">
+          <p className="text-[11px] font-semibold text-muted-foreground">
             {t("detail.transportLabel")}
           </p>
           <p className="mt-2 text-sm font-medium text-foreground">
@@ -660,7 +660,7 @@ function RemoteDetail({
           </p>
         </div>
         <div className="rounded-[--radius] border border-border bg-background p-4">
-          <p className="text-[10px] font-semibold uppercase text-muted-foreground">
+          <p className="text-[11px] font-semibold text-muted-foreground">
             {t("detail.authLabel")}
           </p>
           <p className="mt-2 text-sm font-medium text-foreground">
@@ -672,7 +672,7 @@ function RemoteDetail({
       </div>
 
       <div className="rounded-[--radius] border border-border bg-background p-4">
-        <p className="text-xs font-semibold uppercase text-muted-foreground">
+        <p className="text-xs font-semibold text-muted-foreground">
           {t("detail.endpointLabel")}
         </p>
         <div className="mt-3 flex items-start gap-2 rounded-[--radius] border border-border bg-card px-4 py-3 font-mono text-xs text-foreground">
@@ -687,15 +687,15 @@ function RemoteDetail({
       {server.status === "disconnected" ? (
         <div
           role="alert"
-          className="flex items-start gap-3 rounded-[--radius] border border-orange-500/30 bg-orange-500/5 p-4 text-sm text-orange-700"
+          className="flex items-start gap-3 rounded-[--radius] border border-warning/30 bg-muted p-4 text-sm text-warning-ink"
         >
           <Warning
             weight="fill"
-            className="mt-0.5 h-4 w-4 shrink-0 text-orange-500"
+            className="mt-0.5 h-4 w-4 shrink-0 text-warning-ink"
           />
           <div>
             <p className="font-semibold">{t("detail.disconnectedTitle")}</p>
-            <p className="mt-1 text-orange-700/80">
+            <p className="mt-1 text-warning/80">
               {t("detail.disconnectedDescription")}
             </p>
           </div>
@@ -703,7 +703,7 @@ function RemoteDetail({
       ) : server.status === "error" ? (
         <div
           role="alert"
-          className="flex items-start gap-3 rounded-[--radius] border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive"
+          className="flex items-start gap-3 rounded-[--radius] border border-destructive/30 bg-muted p-4 text-sm text-destructive-ink"
         >
           <Warning
             weight="fill"
@@ -827,7 +827,7 @@ function RegisterRemoteDialog({
             icon={<LinkSimple weight="bold" className="h-4 w-4" />}
           />
           <div className="space-y-1">
-            <label className="text-xs font-semibold uppercase text-muted-foreground">
+            <label className="text-xs font-semibold text-muted-foreground">
               {t("dialogs.remote.authentication")}
             </label>
             <ElevatedSelect
@@ -860,7 +860,7 @@ function RegisterRemoteDialog({
           ) : null}
 
           {authMode === "oauth2" ? (
-            <p className="rounded-[--radius] border border-blue-500/30 bg-muted px-4 py-3 text-xs text-muted-foreground">
+            <p className="rounded-[--radius] border border-info/30 bg-muted px-4 py-3 text-xs text-muted-foreground">
               {t("dialogs.remote.oauth2Hint")}
             </p>
           ) : null}

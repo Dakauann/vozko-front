@@ -492,7 +492,7 @@ export default function TagGroupsPage() {
             >
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
-                  <p className="text-[11px] font-semibold uppercase text-muted-foreground">
+                  <p className="text-[11px] font-semibold text-muted-foreground">
                     {stat.label}
                   </p>
                   <p className="mt-2 text-2xl font-semibold text-foreground">
@@ -516,7 +516,7 @@ export default function TagGroupsPage() {
             style={{ boxShadow: softSurfaceShadow }}
           >
             <div className="flex items-center justify-center gap-3">
-              <div className="h-5 w-5 animate-spin rounded-full border border-rule-strong border-t-transparent" />
+              <div className="h-5 w-5 animate-spin rounded-full border border-border-strong border-t-transparent" />
               <span className="text-sm text-muted-foreground">
                 {t("loading")}
               </span>
@@ -566,7 +566,7 @@ export default function TagGroupsPage() {
               />
 
               <div className="rounded-[--radius] border border-border bg-background px-4 py-3">
-                <p className="text-xs font-semibold uppercase text-muted-foreground">
+                <p className="text-xs font-semibold text-muted-foreground">
                   {t("filters.resultsLabel")}
                 </p>
                 <p className="mt-2 text-sm font-medium text-foreground">
@@ -631,7 +631,7 @@ export default function TagGroupsPage() {
                                   })}
                                 </p>
                               </div>
-                              <span className="rounded-[--radius] border border-border px-2.5 py-1 text-[10px] font-semibold uppercase text-muted-foreground">
+                              <span className="rounded-[--radius] border border-border px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
                                 {group.items.length}
                               </span>
                             </div>
@@ -640,14 +640,14 @@ export default function TagGroupsPage() {
                               {previewItems.map((item) => (
                                 <span
                                   key={item.id}
-                                  className="rounded-[--radius] px-2.5 py-1 text-[10px] font-semibold text-white"
+                                  className="rounded-[--radius] px-2.5 py-1 text-[11px] font-semibold text-white"
                                   style={{ backgroundColor: item.color }}
                                 >
                                   {item.name}
                                 </span>
                               ))}
                               {remainingCount > 0 ? (
-                                <span className="rounded-[--radius] border border-border px-2.5 py-1 text-[10px] font-semibold text-muted-foreground">
+                                <span className="rounded-[--radius] border border-border px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
                                   +{remainingCount}
                                 </span>
                               ) : null}
@@ -674,7 +674,7 @@ export default function TagGroupsPage() {
                           <Tag weight="fill" />
                         </IconBox>
                         <div>
-                          <p className="text-xs font-semibold uppercase text-lamp-ink">
+                          <p className="text-xs font-semibold text-primary-ink">
                             {t("detail.badge")}
                           </p>
                           <h2 className="mt-2 text-2xl font-semibold text-foreground">
@@ -715,7 +715,7 @@ export default function TagGroupsPage() {
 
                   <div className="grid gap-4 md:grid-cols-3">
                     <div className="rounded-[--radius] border border-border bg-background p-4">
-                      <p className="text-[10px] font-semibold uppercase text-muted-foreground">
+                      <p className="text-[11px] font-semibold text-muted-foreground">
                         {t("detail.countLabel")}
                       </p>
                       <p className="mt-2 text-sm font-medium text-foreground">
@@ -725,7 +725,7 @@ export default function TagGroupsPage() {
                       </p>
                     </div>
                     <div className="rounded-[--radius] border border-border bg-background p-4">
-                      <p className="text-[10px] font-semibold uppercase text-muted-foreground">
+                      <p className="text-[11px] font-semibold text-muted-foreground">
                         {t("detail.firstStageLabel")}
                       </p>
                       <p className="mt-2 text-sm font-medium text-foreground">
@@ -733,7 +733,7 @@ export default function TagGroupsPage() {
                       </p>
                     </div>
                     <div className="rounded-[--radius] border border-border bg-background p-4">
-                      <p className="text-[10px] font-semibold uppercase text-muted-foreground">
+                      <p className="text-[11px] font-semibold text-muted-foreground">
                         {t("detail.lastStageLabel")}
                       </p>
                       <p className="mt-2 text-sm font-medium text-foreground">
@@ -743,7 +743,7 @@ export default function TagGroupsPage() {
                   </div>
 
                   <div className="rounded-[--radius] border border-border bg-background p-4">
-                    <p className="text-xs font-semibold uppercase text-muted-foreground">
+                    <p className="text-xs font-semibold text-muted-foreground">
                       {t("detail.stagesLabel")}
                     </p>
                     <div className="mt-4 space-y-3">
@@ -754,7 +754,7 @@ export default function TagGroupsPage() {
                         >
                           <div className="flex items-start gap-4">
                             <div
-                              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[--radius] text-sm font-semibold text-white"
+                              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[--radius] text-sm font-semibold"
                               style={{ backgroundColor: item.color }}
                             >
                               {index + 1}
@@ -824,10 +824,10 @@ export default function TagGroupsPage() {
             <div className="space-y-5">
               <div className="rounded-[--radius] border border-border bg-background p-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-[--radius] bg-primary px-3 py-1 text-[11px] font-semibold uppercase text-primary-foreground">
+                  <span className="rounded-[--radius] bg-primary px-3 py-1 text-[11px] font-semibold text-primary-foreground">
                     {groupName || t("modal.namePlaceholder")}
                   </span>
-                  <span className="rounded-[--radius] border border-border px-3 py-1 text-[11px] font-semibold uppercase text-muted-foreground">
+                  <span className="rounded-[--radius] border border-border px-3 py-1 text-[11px] font-semibold text-muted-foreground">
                     {t("card.itemCount", { count: draftPreviewItems.length })}
                   </span>
                 </div>
@@ -836,7 +836,7 @@ export default function TagGroupsPage() {
                     draftPreviewItems.slice(0, 4).map((item) => (
                       <span
                         key={item.id}
-                        className="rounded-[--radius] px-2.5 py-1 text-[10px] font-semibold text-white"
+                        className="rounded-[--radius] px-2.5 py-1 text-[11px] font-semibold text-white"
                         style={{ backgroundColor: item.color }}
                       >
                         {item.name}
@@ -871,7 +871,7 @@ export default function TagGroupsPage() {
 
               <div className="space-y-3 rounded-[--radius] border border-border bg-background p-4">
                 <div className="flex items-center justify-between gap-3">
-                  <label className="text-xs font-semibold uppercase text-muted-foreground">
+                  <label className="text-xs font-semibold text-muted-foreground">
                     {t("modal.itemsLabel")}
                   </label>
                   <Button
@@ -880,7 +880,7 @@ export default function TagGroupsPage() {
                     icon={<Plus weight="bold" className="h-3.5 w-3.5" />}
                     iconVisible
                     onClick={addDraftItem}
-                    className="text-[10px] font-semibold uppercase"
+                    className="text-[11px] font-semibold"
                   />
                 </div>
 
@@ -939,7 +939,7 @@ export default function TagGroupsPage() {
                           <button
                             type="button"
                             onClick={() => removeDraftItem(item.id)}
-                            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-destructive hover:text-white"
+                            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-destructive hover:text-destructive-foreground"
                           >
                             <Trash weight="bold" className="h-3.5 w-3.5" />
                           </button>
@@ -1016,8 +1016,8 @@ export default function TagGroupsPage() {
             </div>
           </ElevatedDialogHeader>
 
-          <div className="rounded-[--radius] border border-red-200 bg-destructive/10/90 p-4">
-            <p className="text-sm text-red-800">
+          <div className="rounded-[--radius] border border-destructive/30 bg-destructive/10/90 p-4">
+            <p className="text-sm text-destructive-ink">
               {deletingGroup
                 ? t("delete.warning", { name: deletingGroup.name })
                 : ""}
@@ -1037,7 +1037,7 @@ export default function TagGroupsPage() {
               iconVisible
               onClick={handleDelete}
               disabled={isDeleting || !canDeleteStageGroups}
-              className="bg-destructive hover:bg-red-700"
+              className="bg-destructive hover:bg-destructive"
             />
           </ElevatedDialogFooter>
         </ElevatedDialogContent>

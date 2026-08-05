@@ -223,7 +223,7 @@ export function WorkspaceSwitcher({
           )}
         >
           <span className="legend leading-none">{t("label")}</span>
-          <span className="mt-0.5 max-w-[9rem] truncate text-[13px] font-semibold leading-none text-foreground">
+          <span className="mt-0.5 max-w-[9rem] truncate text-sm font-semibold leading-none text-foreground">
             {currentWorkspace.name}
           </span>
         </span>
@@ -252,7 +252,7 @@ export function WorkspaceSwitcher({
                   left: menuPos.left,
                   width: menuPos.width,
                 }}
-                className="z-[100] overflow-hidden rounded-[--radius] border border-border border-t-rule-strong bg-popover shadow-2xl"
+                className="z-[100] overflow-hidden rounded-[--radius] border border-border bg-popover shadow-2xl"
               >
             <div className="border-b border-border px-3 py-2.5 space-y-2">
               {/* Search mode toggle */}
@@ -367,7 +367,7 @@ export function WorkspaceSwitcher({
                         </div>
                         {isSelected && (
                           <Check
-                            className="h-4 w-4 flex-shrink-0 text-lamp-ink"
+                            className="h-4 w-4 flex-shrink-0 text-primary-ink"
                             weight="bold"
                           />
                         )}
@@ -406,7 +406,7 @@ export function WorkspaceSwitcher({
                     autoFocus
                   />
                   {createError && (
-                    <p className="text-xs text-red-500">{createError}</p>
+                    <p className="text-xs text-destructive-ink">{createError}</p>
                   )}
                   <div className="flex gap-2">
                     <button
@@ -422,7 +422,7 @@ export function WorkspaceSwitcher({
                     <button
                       onClick={handleCreate}
                       disabled={!newName.trim()}
-                      className="flex-1 rounded-lg bg-primary px-3 py-1.5 text-sm text-white hover:bg-primary/90 disabled:opacity-50 transition-colors"
+                      className="flex-1 rounded-lg bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
                     >
                       {t("create")}
                     </button>

@@ -28,10 +28,10 @@ const DropdownMenuSubTrigger = React.forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      "flex cursor-pointer gap-3 select-none items-center px-3 py-3 text-sm outline-none transition-colors border-l-4 border-transparent rounded-none",
-      "hover:bg-muted hover:border-primary hover:text-foreground",
-      "focus:bg-muted focus:border-primary data-[state=open]:bg-muted data-[state=open]:border-primary data-[state=open]:text-foreground",
-      "[&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0",
+      "flex cursor-pointer gap-3 select-none items-center px-2.5 py-1.5 text-sm outline-none transition-colors rounded-[--radius]",
+      "hover:bg-muted hover:text-foreground",
+      "focus:bg-muted data-[state=open]:bg-muted data-[state=open]:text-foreground",
+      "[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
       inset && "pl-8",
       className,
     )}
@@ -89,11 +89,11 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-pointer select-none items-center gap-3 px-3 py-3 text-sm outline-none transition-colors border-l-4 border-transparent rounded-none",
-      "hover:bg-muted hover:border-primary hover:text-foreground",
-      "focus:bg-muted focus:border-primary focus:text-foreground",
+      "relative flex cursor-pointer select-none items-center gap-3 px-2.5 py-1.5 text-sm outline-none transition-colors rounded-[--radius]",
+      "hover:bg-muted hover:text-foreground",
+      "focus:bg-muted focus:text-foreground",
       "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-      "[&>svg]:size-5 [&>svg]:shrink-0",
+      "[&>svg]:size-4 [&>svg]:shrink-0",
       inset && "pl-8",
       className,
     )}
@@ -109,9 +109,9 @@ const DropdownMenuCheckboxItem = React.forwardRef<
   <DropdownMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      "relative flex cursor-pointer select-none items-center py-3 pl-8 pr-3 text-sm outline-none transition-colors border-l-4 border-transparent rounded-none",
-      "hover:bg-muted hover:border-primary hover:text-foreground",
-      "focus:bg-muted focus:border-primary focus:text-foreground",
+      "relative flex cursor-pointer select-none items-center py-1.5 pl-8 pr-2.5 text-sm outline-none transition-colors rounded-[--radius]",
+      "hover:bg-muted hover:text-foreground",
+      "focus:bg-muted focus:text-foreground",
       "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className,
     )}
@@ -120,7 +120,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
   >
     <span className="absolute left-2.5 flex h-5 w-5 items-center justify-center">
       <DropdownMenuPrimitive.ItemIndicator>
-        <Check className="h-5 w-5 text-lamp-ink" weight="bold" />
+        <Check className="h-5 w-5 text-primary-ink" weight="bold" />
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
     {children}
@@ -136,9 +136,9 @@ const DropdownMenuRadioItem = React.forwardRef<
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      "relative flex cursor-pointer select-none items-center py-3 pl-8 pr-3 text-sm outline-none transition-colors border-l-4 border-transparent rounded-none",
-      "hover:bg-muted hover:border-primary hover:text-foreground",
-      "focus:bg-muted focus:border-primary focus:text-foreground",
+      "relative flex cursor-pointer select-none items-center py-1.5 pl-8 pr-2.5 text-sm outline-none transition-colors rounded-[--radius]",
+      "hover:bg-muted hover:text-foreground",
+      "focus:bg-muted focus:text-foreground",
       "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className,
     )}
@@ -146,7 +146,7 @@ const DropdownMenuRadioItem = React.forwardRef<
   >
     <span className="absolute left-2.5 flex h-5 w-5 items-center justify-center">
       <DropdownMenuPrimitive.ItemIndicator>
-        <Circle className="h-3 w-3 fill-primary text-lamp-ink" weight="fill" />
+        <Circle className="h-3 w-3 fill-primary text-primary-ink" weight="fill" />
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
     {children}

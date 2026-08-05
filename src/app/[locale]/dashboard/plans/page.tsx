@@ -679,7 +679,7 @@ export function AdminPlansManager() {
     return (
       <div className="flex flex-col items-center justify-center py-32">
         <CircleNotch
-          className="h-8 w-8 animate-spin text-lamp-ink"
+          className="h-8 w-8 animate-spin text-primary-ink"
           weight="bold"
         />
         <p className="mt-3 text-sm text-muted-foreground">{t("loading")}</p>
@@ -694,7 +694,7 @@ export function AdminPlansManager() {
         style={{ boxShadow: softSurfaceShadow }}
       >
         <Package
-          className="mx-auto mb-4 h-12 w-12 text-red-400"
+          className="mx-auto mb-4 h-12 w-12 text-destructive"
           weight="fill"
         />
         <p className="font-semibold text-foreground">{t("error.title")}</p>
@@ -780,7 +780,7 @@ export function AdminPlansManager() {
           <div className="flex flex-wrap items-center gap-2">
             <input
               aria-label={t("filters.search")}
-              className="h-8 w-full rounded-[--radius] border border-border border-t-rule-strong bg-background px-2.5 text-[13px] text-foreground outline-none transition placeholder:text-muted-foreground/60 focus:border-primary/50 sm:w-60"
+              className="h-8 w-full rounded-[--radius] border border-border bg-background px-2.5 text-sm text-foreground outline-none transition placeholder:text-muted-foreground/60 focus:border-primary/50 sm:w-60"
               onChange={(event) => setSearch(event.target.value)}
               placeholder={t("filters.search")}
               type="search"
@@ -789,7 +789,7 @@ export function AdminPlansManager() {
             <button
               aria-pressed={includeArchived}
               className={cn(
-                "legend inline-flex h-8 items-center gap-2 border border-border border-t-rule-strong px-2.5 transition-colors",
+                "rounded-[--radius] legend inline-flex h-8 items-center gap-2 border border-border px-2.5 transition-colors",
                 includeArchived
                   ? "bg-muted text-foreground"
                   : "bg-background text-muted-foreground hover:text-foreground",
@@ -830,7 +830,7 @@ export function AdminPlansManager() {
               <p className="text-sm font-semibold text-foreground">
                 {t("empty.title")}
               </p>
-              <p className="mt-1 text-[13px] text-muted-foreground">
+              <p className="mt-1 text-sm text-muted-foreground">
                 {t("empty.description")}
               </p>
             </div>
@@ -869,10 +869,10 @@ export function AdminPlansManager() {
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="flex items-baseline justify-between gap-2">
-                          <span className="truncate text-[13px] font-semibold text-foreground">
+                          <span className="truncate text-sm font-semibold text-foreground">
                             {item.name}
                           </span>
-                          <span className="readout shrink-0 text-[13px] font-semibold text-foreground">
+                          <span className="readout shrink-0 text-sm font-semibold text-foreground">
                             {formatBRLFromCents(item.basePriceBRLCents)}
                           </span>
                         </span>
@@ -882,7 +882,7 @@ export function AdminPlansManager() {
                               "legend",
                               isArchived
                                 ? "text-muted-foreground"
-                                : "text-lamp-ink",
+                                : "text-primary-ink",
                             )}
                           >
                             {isArchived
@@ -921,7 +921,7 @@ export function AdminPlansManager() {
                       : t("editor.editBadge")}
                   </p>
                   <span aria-hidden className="h-3 w-px bg-border" />
-                  <p className="truncate text-[13px] font-semibold text-foreground">
+                  <p className="truncate text-sm font-semibold text-foreground">
                     {selectedPlanId === "new"
                       ? t("editor.newTitle")
                       : (selectedPlan?.name ?? t("editor.editTitle"))}
@@ -981,7 +981,7 @@ export function AdminPlansManager() {
               <div className="space-y-7 px-4 py-5">
                 {selectedPlan?.archivedAt ? (
                   <div className="border-l-2 border-warning bg-warning/5 px-3 py-2.5">
-                    <p className="text-[13px] font-semibold text-foreground">
+                    <p className="text-sm font-semibold text-foreground">
                       {t("editor.archivedTitle")}
                     </p>
                     <p className="mt-1 text-[12px] text-muted-foreground">
@@ -1015,7 +1015,7 @@ export function AdminPlansManager() {
                         {t("form.description")}
                       </label>
                       <textarea
-                        className="min-h-[104px] w-full rounded-[--radius] border border-border border-t-rule-strong bg-background px-3 py-2.5 text-[13px] leading-snug text-foreground outline-none transition focus:border-primary/50"
+                        className="min-h-[104px] w-full rounded-[--radius] border border-border bg-background px-3 py-2.5 text-sm leading-snug text-foreground outline-none transition focus:border-primary/50"
                         disabled={selectedPlan?.archivedAt != null}
                         id="plan-description"
                         onChange={(event) =>
@@ -1088,7 +1088,7 @@ export function AdminPlansManager() {
                       <button
                         aria-pressed={visibilityGlobal}
                         className={cn(
-                          "legend inline-flex h-7 items-center gap-1.5 border border-border border-t-rule-strong px-2 transition-colors",
+                          "rounded-[--radius] legend inline-flex h-7 items-center gap-1.5 border border-border px-2 transition-colors",
                           visibilityGlobal
                             ? "bg-muted text-foreground"
                             : "bg-background text-muted-foreground",
@@ -1111,7 +1111,7 @@ export function AdminPlansManager() {
                     title={t("visibility.title")}
                   >
                     {visibilityGlobal ? (
-                      <p className="text-[13px] text-muted-foreground">
+                      <p className="text-sm text-muted-foreground">
                         {t("visibility.globalHint")}
                       </p>
                     ) : (
@@ -1149,7 +1149,7 @@ export function AdminPlansManager() {
                                       className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
                                       weight="fill"
                                     />
-                                    <span className="truncate text-[13px] font-medium text-foreground">
+                                    <span className="truncate text-sm font-medium text-foreground">
                                       {ws.name}
                                     </span>
                                     <span className="readout truncate text-[11px] text-muted-foreground">
@@ -1198,7 +1198,7 @@ export function AdminPlansManager() {
                     actions={
                       <span
                         className={cn(
-                          "legend inline-flex items-center gap-1.5 border border-border border-t-rule-strong px-2 py-1",
+                          "rounded-[--radius] legend inline-flex items-center gap-1.5 border border-border px-2 py-1",
                           exclusiveAffiliate
                             ? "bg-muted text-foreground"
                             : "bg-background text-muted-foreground",
@@ -1234,7 +1234,7 @@ export function AdminPlansManager() {
                             className="h-3.5 w-3.5 shrink-0 text-warning"
                             weight="fill"
                           />
-                          <span className="truncate text-[13px] font-medium text-foreground">
+                          <span className="truncate text-sm font-medium text-foreground">
                             {exclusiveAffiliate.brandName ||
                               t("exclusive.resolving")}
                           </span>
@@ -1381,7 +1381,7 @@ function PricingItemsEditor({
   if (rate == null) {
     return (
       <PanelSection legend={legend} title={t("pricingItems.title")}>
-        <p className="text-[13px] text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           {t("pricingItems.rateRequired")}
         </p>
       </PanelSection>
@@ -1395,7 +1395,7 @@ function PricingItemsEditor({
           <span className="legend block">
             {t("pricingItems.rateBannerLabel")}
           </span>
-          <span className="readout mt-1 block text-[13px] font-semibold text-foreground">
+          <span className="readout mt-1 block text-sm font-semibold text-foreground">
             {t("pricingItems.rateBannerValue", {
               rate: rate.toFixed(4).replace(/0+$/, "").replace(/\.$/, ""),
             })}
@@ -1411,7 +1411,7 @@ function PricingItemsEditor({
       </p>
 
       {items.length === 0 ? (
-        <p className="py-8 text-center text-[13px] text-muted-foreground">
+        <p className="py-8 text-center text-sm text-muted-foreground">
           {t("pricingItems.empty")}
         </p>
       ) : (
@@ -1499,13 +1499,13 @@ function PricingItemsEditor({
                         className="border-b border-border/50 last:border-b-0"
                       >
                         <th
-                          className="py-2 pr-3 align-top text-[13px] font-medium text-foreground"
+                          className="py-2 pr-3 align-top text-sm font-medium text-foreground"
                           scope="row"
                         >
                           <span className="flex flex-wrap items-center gap-1.5">
                             {serviceLabel(t, item.service)}
                             {customized ? (
-                              <span className="legend border border-border border-t-rule-strong bg-muted px-1.5 py-0.5 text-lamp-ink">
+                              <span className="rounded-lg legend border border-border bg-muted px-1.5 py-0.5 text-primary-ink">
                                 {t("pricingItems.customized")}
                               </span>
                             ) : null}
@@ -1533,7 +1533,7 @@ function PricingItemsEditor({
                             <>
                               <input
                                 aria-label={t("pricingItems.costBrl")}
-                                className="readout w-28 rounded-[--radius] border border-border border-t-rule-strong bg-background px-2 py-1 text-[12px] outline-none transition focus:border-primary/50"
+                                className="readout w-28 rounded-[--radius] border border-border bg-background px-2 py-1 text-[12px] outline-none transition focus:border-primary/50"
                                 disabled={!!disabled}
                                 inputMode="decimal"
                                 min="0"
@@ -1564,7 +1564,7 @@ function PricingItemsEditor({
                             <>
                               <input
                                 aria-label={t("pricingItems.priceBrl")}
-                                className="readout w-28 rounded-[--radius] border border-border border-t-rule-strong bg-background px-2 py-1 text-[12px] outline-none transition focus:border-primary/50"
+                                className="readout w-28 rounded-[--radius] border border-border bg-background px-2 py-1 text-[12px] outline-none transition focus:border-primary/50"
                                 disabled={!!disabled}
                                 inputMode="decimal"
                                 min="0"
@@ -1589,7 +1589,7 @@ function PricingItemsEditor({
                         <td className="px-3 py-2 align-top">
                           <input
                             aria-label={t("pricingItems.markupPct")}
-                            className="readout w-20 rounded-[--radius] border border-border border-t-rule-strong bg-background px-2 py-1 text-[12px] outline-none transition focus:border-primary/50"
+                            className="readout w-20 rounded-[--radius] border border-border bg-background px-2 py-1 text-[12px] outline-none transition focus:border-primary/50"
                             disabled={!!disabled}
                             min="0"
                             onChange={(e) =>
@@ -1605,7 +1605,7 @@ function PricingItemsEditor({
                             className={cn(
                               "legend inline-flex items-center gap-1 py-1 transition-colors",
                               customized && !disabled
-                                ? "text-lamp-ink hover:text-foreground"
+                                ? "text-primary-ink hover:text-foreground"
                                 : "cursor-default text-muted-foreground/40",
                             )}
                             disabled={!!disabled || !customized}

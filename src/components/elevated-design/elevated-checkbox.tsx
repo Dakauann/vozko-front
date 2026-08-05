@@ -18,7 +18,7 @@ const Checkbox = React.forwardRef<
     )}
     style={{
       boxShadow:
-        "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)",
+        "var(--elev-1)",
     }}
     {...props}
   >

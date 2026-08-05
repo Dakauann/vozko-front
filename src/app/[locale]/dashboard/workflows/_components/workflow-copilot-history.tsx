@@ -98,7 +98,7 @@ export function WorkflowCopilotHistory({ workflowId }: WorkflowCopilotHistoryPro
             </div>
           )}
           {detailError && (
-            <p className="text-xs text-red-500">{detailError}</p>
+            <p className="text-xs text-destructive-ink">{detailError}</p>
           )}
           {!loadingDetail &&
             detail?.messages?.map((m, i) => (
@@ -121,7 +121,7 @@ export function WorkflowCopilotHistory({ workflowId }: WorkflowCopilotHistoryPro
           <CircleNotch size={18} className="animate-spin" />
         </div>
       )}
-      {listError && <p className="px-1 text-xs text-red-500">{listError}</p>}
+      {listError && <p className="px-1 text-xs text-destructive-ink">{listError}</p>}
       {!loadingList && sessions.length === 0 && !listError && (
         <div className="flex flex-col items-center justify-center h-full text-center gap-2 text-muted-foreground text-xs py-8">
           <ChatCircleDots size={26} weight="duotone" className="opacity-50" />

@@ -121,7 +121,7 @@ export default function InstagramAccountProfilePage({
       >
         <DashboardPageHeader
           icon={<InstagramLogo className="h-5 w-5" weight="fill" />}
-          colorClass="text-fuchsia-600"
+          colorClass="text-chart-4"
           badge={t("page.title")}
           title={account ? `@${account.username}` : t("page.title")}
           description={account?.name ?? ""}

@@ -195,7 +195,7 @@ export default function WorkspaceSettingsPage() {
     return (
       <div className="flex h-64 items-center justify-center">
         <CircleNotch
-          className="h-8 w-8 animate-spin text-lamp-ink"
+          className="h-8 w-8 animate-spin text-primary-ink"
           weight="bold"
         />
       </div>
@@ -214,8 +214,8 @@ export default function WorkspaceSettingsPage() {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <Buildings className="h-5 w-5 text-lamp-ink" weight="fill" />
-              <span className="text-xs font-semibold uppercase tracking-wider text-lamp-ink">
+              <Buildings className="h-5 w-5 text-primary-ink" weight="fill" />
+              <span className="text-xs font-semibold text-primary-ink">
                 {t("header.badge", { fallback: "Workspace" })}
               </span>
             </div>
@@ -258,7 +258,7 @@ export default function WorkspaceSettingsPage() {
                   iconVisible
                 />
                 {nameError && (
-                  <span className="text-sm text-red-500">{nameError}</span>
+                  <span className="text-sm text-destructive-ink">{nameError}</span>
                 )}
               </div>
             ) : (
@@ -297,7 +297,7 @@ export default function WorkspaceSettingsPage() {
             <TabsTrigger value="members" className="gap-2">
               <Users className="h-4 w-4" weight="fill" />
               <span className="hidden sm:inline">{t("tabs.members")}</span>
-              <span className="ml-1 rounded-[--radius] bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-white">
+              <span className="ml-1 rounded-[--radius] bg-primary px-1.5 py-0.5 text-[11px] font-semibold text-primary-foreground">
                 {members.length}
               </span>
             </TabsTrigger>
@@ -305,7 +305,7 @@ export default function WorkspaceSettingsPage() {
               <Envelope className="h-4 w-4" weight="fill" />
               <span className="hidden sm:inline">{t("tabs.invites")}</span>
               {pendingInvitesCount > 0 && (
-                <span className="ml-1 rounded-full bg-warning px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                <span className="ml-1 rounded-full bg-warning px-1.5 py-0.5 text-[11px] font-semibold text-warning-foreground">
                   {pendingInvitesCount}
                 </span>
               )}
@@ -318,7 +318,7 @@ export default function WorkspaceSettingsPage() {
               <UserGear className="h-4 w-4" weight="fill" />
               <span className="hidden sm:inline">{t("tabs.roles")}</span>
               {customRoles.length > 0 && (
-                <span className="ml-1 rounded-[--radius] bg-healthy px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                <span className="ml-1 rounded-[--radius] bg-healthy px-1.5 py-0.5 text-[11px] font-semibold text-healthy-foreground">
                   {customRoles.length}
                 </span>
               )}
@@ -333,7 +333,7 @@ export default function WorkspaceSettingsPage() {
             <div className="flex h-48 items-center justify-center">
               <div className="flex flex-col items-center gap-3">
                 <CircleNotch
-                  className="h-8 w-8 animate-spin text-lamp-ink"
+                  className="h-8 w-8 animate-spin text-primary-ink"
                   weight="bold"
                 />
                 <p className="text-sm text-muted-foreground">{t("loading")}</p>
@@ -539,7 +539,7 @@ function MembersTab({
   return (
     <div className="space-y-4">
       {/* Search bar */}
-      <ElevatedContainer className="border border-border bg-card p-4">
+      <ElevatedContainer className="rounded-lg border border-border bg-card p-4">
         <div className="flex items-center gap-3">
           <div className="relative flex-1 max-w-md">
             <ElevatedInput
@@ -560,7 +560,7 @@ function MembersTab({
 
       {error && (
         <ElevatedContainer className="!bg-destructive/10 !border-destructive/20 !p-3">
-          <p className="text-sm text-destructive dark:text-red-400">{error}</p>
+          <p className="text-sm text-destructive dark:text-destructive">{error}</p>
         </ElevatedContainer>
       )}
 
@@ -611,7 +611,7 @@ function MembersTab({
                           {member.username || member.email}
                         </p>
                         {isCurrentUser && (
-                          <span className="rounded-[--radius] bg-primary px-2 py-0.5 text-[10px] font-semibold text-white">
+                          <span className="rounded-[--radius] bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">
                             {t("you", { fallback: "You" })}
                           </span>
                         )}
@@ -672,7 +672,7 @@ function MembersTab({
                         {canRemove && (
                           <button
                             onClick={() => setConfirmRemove(member.userId)}
-                            className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                            className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive-ink dark:hover:text-destructive transition-colors"
                             title={t("removeMember")}
                           >
                             <UserMinus className="h-4 w-4" weight="bold" />
@@ -720,7 +720,7 @@ function MembersTab({
 
           <div className="flex gap-3 rounded-[--radius] border border-warning/25 bg-warning/10 p-3.5">
             <Warning
-              className="mt-0.5 h-5 w-5 shrink-0 text-warning dark:text-amber-400"
+              className="mt-0.5 h-5 w-5 shrink-0 text-warning dark:text-warning"
               weight="fill"
             />
             <div className="space-y-1">
@@ -738,7 +738,7 @@ function MembersTab({
           </ElevatedDialogDescription>
 
           {error && (
-            <p className="text-sm text-destructive dark:text-red-400">{error}</p>
+            <p className="text-sm text-destructive dark:text-destructive">{error}</p>
           )}
 
           <ElevatedDialogFooter>
@@ -751,7 +751,7 @@ function MembersTab({
             <button
               onClick={() => confirmRemove && handleRemove(confirmRemove)}
               disabled={!!removing}
-              className="inline-flex min-h-[36px] items-center justify-center gap-1.5 rounded-lg bg-destructive px-5 text-[13px] font-semibold text-white transition-colors hover:bg-destructive disabled:opacity-50"
+              className="inline-flex min-h-[36px] items-center justify-center gap-1.5 rounded-lg bg-destructive px-5 text-sm font-semibold text-destructive-foreground transition-colors hover:bg-destructive disabled:opacity-50"
             >
               {removing ? (
                 <CircleNotch className="h-4 w-4 animate-spin" weight="bold" />
@@ -974,7 +974,7 @@ function InvitesTab({
                             <ShieldPlus className="h-4 w-4" weight="fill" />
                           }
                         >
-                          <span className="text-lamp-ink font-semibold">
+                          <span className="text-primary-ink font-semibold">
                             {t("customRoles.createRole")}
                           </span>
                         </ElevatedSelectItem>
@@ -986,10 +986,10 @@ function InvitesTab({
                   {selectedValue === "admin" && (
                     <div className="flex items-start gap-2 rounded-[--radius] bg-muted border border-primary/20 px-3 py-2.5">
                       <Shield
-                        className="h-4 w-4 text-lamp-ink mt-0.5 flex-shrink-0"
+                        className="h-4 w-4 text-primary-ink mt-0.5 flex-shrink-0"
                         weight="fill"
                       />
-                      <p className="text-[11px] text-lamp-ink leading-relaxed">
+                      <p className="text-[11px] text-primary-ink leading-relaxed">
                         {t("adminRoleHint")}
                       </p>
                     </div>
@@ -1064,7 +1064,7 @@ function InvitesTab({
                             {loadingPerms ? (
                               <div className="flex h-20 items-center justify-center">
                                 <CircleNotch
-                                  className="h-6 w-6 animate-spin text-lamp-ink"
+                                  className="h-6 w-6 animate-spin text-primary-ink"
                                   weight="bold"
                                 />
                               </div>
@@ -1083,10 +1083,10 @@ function InvitesTab({
                           {roleError && (
                             <div className="flex items-start gap-2 rounded-[--radius] bg-destructive/10 border border-destructive/20 px-3 py-2.5">
                               <X
-                                className="h-4 w-4 text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0"
+                                className="h-4 w-4 text-destructive-ink dark:text-destructive mt-0.5 flex-shrink-0"
                                 weight="bold"
                               />
-                              <p className="text-xs text-destructive dark:text-red-400">
+                              <p className="text-xs text-destructive dark:text-destructive">
                                 {roleError}
                               </p>
                             </div>
@@ -1106,7 +1106,7 @@ function InvitesTab({
                             />
                             <div className="flex items-center gap-2">
                               {hasAnyPermissions && (
-                                <span className="text-[10px] text-muted-foreground">
+                                <span className="text-[11px] text-muted-foreground">
                                   {t("customRoles.permissionCount", {
                                     count: getPermissionEntries().length,
                                   })}
@@ -1180,10 +1180,10 @@ function InvitesTab({
                   {error && (
                     <div className="flex items-start gap-2 rounded-[--radius] bg-destructive/10 border border-destructive/20 px-3 py-2.5">
                       <X
-                        className="h-4 w-4 text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0"
+                        className="h-4 w-4 text-destructive-ink dark:text-destructive mt-0.5 flex-shrink-0"
                         weight="bold"
                       />
-                      <p className="text-xs text-destructive dark:text-red-400">
+                      <p className="text-xs text-destructive dark:text-destructive">
                         {error}
                       </p>
                     </div>
@@ -1278,7 +1278,7 @@ function InvitesTab({
                         onClick={() =>
                           setExpandedInvite(isExpanded ? null : invite.id)
                         }
-                        className="inline-flex items-center gap-1 rounded-[--radius] bg-primary px-2 py-0.5 text-[10px] font-semibold text-white hover:bg-primary/80 transition-colors"
+                        className="inline-flex items-center gap-1 rounded-[--radius] bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground hover:bg-primary/80 transition-colors"
                       >
                         <ShieldCheck className="h-3 w-3" weight="fill" />
                         {permCount} {t("permissionsLabel").toLowerCase()}
@@ -1291,7 +1291,7 @@ function InvitesTab({
                         />
                       </button>
                     )}
-                    <span className="rounded-full bg-warning px-2.5 py-1 text-xs font-semibold text-white">
+                    <span className="rounded-full bg-warning px-2.5 py-1 text-xs font-semibold text-warning-foreground">
                       {t("pending")}
                     </span>
                     {can("members", "delete") && (
@@ -1308,7 +1308,7 @@ function InvitesTab({
                           setCancelling(null);
                         }}
                         disabled={cancelling === invite.id}
-                        className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-destructive hover:bg-destructive/10 dark:text-red-400 dark:hover:bg-red-950/30 disabled:opacity-50 transition-colors"
+                        className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-destructive-ink hover:bg-muted dark:text-destructive dark:hover:bg-destructive/30 disabled:opacity-50 transition-colors"
                         title={t("cancelInvite")}
                       >
                         <X className="h-3.5 w-3.5" weight="bold" />
@@ -1331,16 +1331,16 @@ function InvitesTab({
                         className="overflow-hidden"
                       >
                         <div className="border-t border-border bg-muted px-4 py-3">
-                          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                          <p className="text-[11px] font-semibold text-muted-foreground mb-2">
                             {t("preConfiguredPermissions")}
                           </p>
                           <div className="flex flex-wrap gap-1.5">
                             {invite.permissions.map((p, idx) => (
                               <span
                                 key={`${p.resource}-${p.action}-${idx}`}
-                                className="inline-flex items-center gap-1 rounded-lg bg-card border border-border px-2 py-1 text-[10px] font-medium text-muted-foreground"
+                                className="inline-flex items-center gap-1 rounded-lg bg-card border border-border px-2 py-1 text-[11px] font-medium text-muted-foreground"
                               >
-                                <span className="text-lamp-ink font-semibold">
+                                <span className="text-primary-ink font-semibold">
                                   {t(`resources.${p.resource}`)}
                                 </span>
                                 <span className="text-muted-foreground/50">
@@ -1631,7 +1631,7 @@ function PermissionsTab({
 
         {error && (
           <ElevatedContainer className="!bg-destructive/10 !border-destructive/20 !p-3">
-            <p className="text-sm text-destructive dark:text-red-400">{error}</p>
+            <p className="text-sm text-destructive dark:text-destructive">{error}</p>
           </ElevatedContainer>
         )}
 
@@ -1643,14 +1643,14 @@ function PermissionsTab({
                 <ElevatedContainer className="!bg-muted !border-primary/20 !p-4">
                   <div className="flex items-start gap-3">
                     <Shield
-                      className="h-5 w-5 text-lamp-ink mt-0.5 flex-shrink-0"
+                      className="h-5 w-5 text-primary-ink mt-0.5 flex-shrink-0"
                       weight="fill"
                     />
                     <div>
-                      <p className="text-sm font-semibold text-lamp-ink">
+                      <p className="text-sm font-semibold text-primary-ink">
                         {t("fullAccessTitle")}
                       </p>
-                      <p className="text-xs text-lamp-ink/80 mt-1 leading-relaxed">
+                      <p className="text-xs text-primary-ink/80 mt-1 leading-relaxed">
                         {t("fullAccessDescription", {
                           role: t(`roles.${selectedMember.role}`),
                         })}
@@ -1662,7 +1662,7 @@ function PermissionsTab({
                 {isLoadingPerms ? (
                   <div className="flex h-32 items-center justify-center">
                     <CircleNotch
-                      className="h-8 w-8 animate-spin text-lamp-ink"
+                      className="h-8 w-8 animate-spin text-primary-ink"
                       weight="bold"
                     />
                   </div>
@@ -1680,7 +1680,7 @@ function PermissionsTab({
             ) : isLoadingPerms ? (
               <div className="flex h-32 items-center justify-center">
                 <CircleNotch
-                  className="h-8 w-8 animate-spin text-lamp-ink"
+                  className="h-8 w-8 animate-spin text-primary-ink"
                   weight="bold"
                 />
               </div>
@@ -1765,7 +1765,7 @@ function PermissionsTab({
                 />
               </div>
               {assignError && (
-                <p className="text-xs text-red-500 dark:text-red-400">
+                <p className="text-xs text-destructive-ink dark:text-destructive">
                   {assignError}
                 </p>
               )}
@@ -1802,7 +1802,7 @@ function PermissionsTab({
                             );
                             if (member) handleUnassign(member.userId);
                           }}
-                          className="rounded-lg p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                          className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-destructive-ink dark:hover:text-destructive transition-colors"
                         >
                           <Trash className="h-4 w-4" weight="bold" />
                         </button>
@@ -1812,7 +1812,7 @@ function PermissionsTab({
                 )}
 
                 <div className="border-t border-border pt-3">
-                  <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  <h5 className="text-xs font-semibold text-muted-foreground mb-2">
                     {t("assignMember")}
                   </h5>
                   <div className="space-y-1">
@@ -1838,7 +1838,7 @@ function PermissionsTab({
                               {emp.username || emp.email}
                             </p>
                           </div>
-                          <span className="text-xs text-lamp-ink font-medium">
+                          <span className="text-xs text-primary-ink font-medium">
                             {t("assign")}
                           </span>
                         </button>
@@ -1856,7 +1856,7 @@ function PermissionsTab({
   return (
     <div className="space-y-4">
       {/* Search bar for member selection */}
-      <ElevatedContainer className="border border-border bg-card p-4">
+      <ElevatedContainer className="rounded-lg border border-border bg-card p-4">
         <div className="flex items-center gap-3">
           <div className="relative flex-1 max-w-md">
             <ElevatedInput
@@ -1879,7 +1879,7 @@ function PermissionsTab({
 
       {filteredPrivileged.length > 0 && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-semibold text-muted-foreground">
             {t("privilegedMembersLabel")}
           </p>
           <motion.div
@@ -1924,7 +1924,7 @@ function PermissionsTab({
 
       {filteredEmployees.length > 0 && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-semibold text-muted-foreground">
             {t("employeeMembersLabel")}
           </p>
           <motion.div
@@ -2185,7 +2185,7 @@ function RolesTab({
               {loadingPerms ? (
                 <div className="flex h-20 items-center justify-center">
                   <CircleNotch
-                    className="h-6 w-6 animate-spin text-lamp-ink"
+                    className="h-6 w-6 animate-spin text-primary-ink"
                     weight="bold"
                   />
                 </div>
@@ -2203,10 +2203,10 @@ function RolesTab({
             {error && (
               <div className="flex items-start gap-2 rounded-[--radius] bg-destructive/10 border border-destructive/20 px-3 py-2.5">
                 <X
-                  className="h-4 w-4 text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0"
+                  className="h-4 w-4 text-destructive-ink dark:text-destructive mt-0.5 flex-shrink-0"
                   weight="bold"
                 />
-                <p className="text-xs text-destructive dark:text-red-400">
+                <p className="text-xs text-destructive dark:text-destructive">
                   {error}
                 </p>
               </div>
@@ -2223,7 +2223,7 @@ function RolesTab({
               />
               <div className="flex items-center gap-2">
                 {hasAnyPermissions && (
-                  <span className="text-[10px] text-muted-foreground">
+                  <span className="text-[11px] text-muted-foreground">
                     {t("customRoles.permissionCount", {
                       count: getPermissionEntries().length,
                     })}
@@ -2296,7 +2296,7 @@ function RolesTab({
                       </p>
                     )}
                     <div className="flex items-center gap-3 mt-1">
-                      <span className="text-[10px] text-muted-foreground">
+                      <span className="text-[11px] text-muted-foreground">
                         {t("customRoles.permissionCount", {
                           count: role.permissions.length,
                         })}
@@ -2319,7 +2319,7 @@ function RolesTab({
                             <button
                               onClick={() => handleDelete(role.id)}
                               disabled={deleting === role.id}
-                              className="flex items-center gap-1.5 rounded-lg bg-destructive px-3 py-1.5 text-xs font-semibold text-white hover:bg-destructive disabled:opacity-50 transition-colors"
+                              className="flex items-center gap-1.5 rounded-lg bg-destructive px-3 py-1.5 text-xs font-semibold text-destructive-foreground hover:bg-destructive disabled:opacity-50 transition-colors"
                             >
                               {deleting === role.id ? (
                                 <CircleNotch
@@ -2341,7 +2341,7 @@ function RolesTab({
                         ) : (
                           <button
                             onClick={() => setConfirmDelete(role.id)}
-                            className="rounded-lg p-2 text-muted-foreground hover:bg-destructive hover:text-white transition-colors"
+                            className="rounded-lg p-2 text-muted-foreground hover:bg-destructive hover:text-destructive-foreground transition-colors"
                           >
                             <Trash className="h-4 w-4" weight="bold" />
                           </button>
@@ -2359,10 +2359,10 @@ function RolesTab({
       {error && (
         <div className="flex items-start gap-2 rounded-[--radius] bg-destructive/10 border border-destructive/20 px-3 py-2.5">
           <X
-            className="h-4 w-4 text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0"
+            className="h-4 w-4 text-destructive-ink dark:text-destructive mt-0.5 flex-shrink-0"
             weight="bold"
           />
-          <p className="text-xs text-destructive dark:text-red-400">{error}</p>
+          <p className="text-xs text-destructive dark:text-destructive">{error}</p>
         </div>
       )}
     </div>
@@ -2559,7 +2559,7 @@ function DepartmentsTab({
     return (
       <div className="flex h-32 items-center justify-center">
         <CircleNotch
-          className="h-6 w-6 animate-spin text-lamp-ink"
+          className="h-6 w-6 animate-spin text-primary-ink"
           weight="bold"
         />
       </div>
@@ -2736,7 +2736,7 @@ function DepartmentsTab({
                           <button
                             onClick={() => handleUpdate(dept.id)}
                             disabled={saving || !editName.trim()}
-                            className="rounded-lg p-1.5 text-lamp-ink hover:bg-muted transition-colors disabled:opacity-50"
+                            className="rounded-lg p-1.5 text-primary-ink hover:bg-muted transition-colors disabled:opacity-50"
                           >
                             {saving ? (
                               <CircleNotch
@@ -2764,7 +2764,7 @@ function DepartmentsTab({
                               {dept.description}
                             </p>
                           )}
-                          <span className="text-[10px] text-muted-foreground">
+                          <span className="text-[11px] text-muted-foreground">
                             {t("departments.memberCount", {
                               count: dept.memberCount ?? 0,
                             })}
@@ -2795,7 +2795,7 @@ function DepartmentsTab({
                               <button
                                 onClick={() => handleDelete(dept.id)}
                                 disabled={deleting === dept.id}
-                                className="flex items-center gap-1.5 rounded-lg bg-destructive px-3 py-1.5 text-xs font-semibold text-white hover:bg-destructive disabled:opacity-50 transition-colors"
+                                className="flex items-center gap-1.5 rounded-lg bg-destructive px-3 py-1.5 text-xs font-semibold text-destructive-foreground hover:bg-destructive disabled:opacity-50 transition-colors"
                               >
                                 {deleting === dept.id ? (
                                   <CircleNotch
@@ -2820,7 +2820,7 @@ function DepartmentsTab({
                           ) : (
                             <button
                               onClick={() => setConfirmDelete(dept.id)}
-                              className="rounded-lg p-2 text-muted-foreground hover:bg-destructive hover:text-white transition-colors"
+                              className="rounded-lg p-2 text-muted-foreground hover:bg-destructive hover:text-destructive-foreground transition-colors"
                             >
                               <Trash className="h-4 w-4" weight="bold" />
                             </button>
@@ -2886,11 +2886,11 @@ function DepartmentsTab({
                                           <span className="flex-1 truncate">
                                             {m.username || m.email}
                                           </span>
-                                          <span className="text-[10px] text-muted-foreground">
+                                          <span className="text-[11px] text-muted-foreground">
                                             {m.email}
                                           </span>
                                           <Plus
-                                            className="h-3.5 w-3.5 text-lamp-ink"
+                                            className="h-3.5 w-3.5 text-primary-ink"
                                             weight="bold"
                                           />
                                         </button>
@@ -2927,7 +2927,7 @@ function DepartmentsTab({
                           {isLoadingMembers ? (
                             <div className="flex h-16 items-center justify-center">
                               <CircleNotch
-                                className="h-5 w-5 animate-spin text-lamp-ink"
+                                className="h-5 w-5 animate-spin text-primary-ink"
                                 weight="bold"
                               />
                             </div>
@@ -2957,7 +2957,7 @@ function DepartmentsTab({
                                           dm.memberId}
                                       </p>
                                       {wsMember?.email && (
-                                        <p className="text-[10px] text-muted-foreground truncate">
+                                        <p className="text-[11px] text-muted-foreground truncate">
                                           {wsMember.email}
                                         </p>
                                       )}
@@ -2971,7 +2971,7 @@ function DepartmentsTab({
                                           )
                                         }
                                         disabled={removingMember === dm.id}
-                                        className="rounded-lg p-1.5 text-muted-foreground hover:bg-destructive hover:text-white transition-colors disabled:opacity-50"
+                                        className="rounded-lg p-1.5 text-muted-foreground hover:bg-destructive hover:text-destructive-foreground transition-colors disabled:opacity-50"
                                       >
                                         {removingMember === dm.id ? (
                                           <CircleNotch
@@ -3005,10 +3005,10 @@ function DepartmentsTab({
       {error && (
         <div className="flex items-start gap-2 rounded-[--radius] bg-destructive/10 border border-destructive/20 px-3 py-2.5">
           <X
-            className="h-4 w-4 text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0"
+            className="h-4 w-4 text-destructive-ink dark:text-destructive mt-0.5 flex-shrink-0"
             weight="bold"
           />
-          <p className="text-xs text-destructive dark:text-red-400">{error}</p>
+          <p className="text-xs text-destructive dark:text-destructive">{error}</p>
         </div>
       )}
     </div>

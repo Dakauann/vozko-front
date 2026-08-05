@@ -56,7 +56,7 @@ const STATUS_COLORS: Record<InstagramAccountStatus | "MESSAGING_OFF", string> = 
   CONNECTED: "bg-healthy text-healthy-foreground",
   TOKEN_EXPIRED: "bg-destructive text-destructive-foreground",
   REVOKED: "bg-muted text-muted-foreground",
-  SUSPENDED: "bg-orange-500 text-white",
+  SUSPENDED: "bg-warning text-warning-foreground",
   MESSAGING_OFF: "bg-warning text-warning-foreground",
 };
 
@@ -220,7 +220,7 @@ export default function InstagramAccountsPage() {
                   green-looking row. */}
               {key === "MESSAGING_OFF" && (
                 <span
-                  className="flex max-w-[280px] items-start gap-1 text-xs text-warning dark:text-amber-400"
+                  className="flex max-w-[280px] items-start gap-1 text-xs text-warning dark:text-warning"
                   title={t("card.messagingDisabled")}
                 >
                   <Warning weight="fill" className="mt-0.5 h-3 w-3 flex-shrink-0" />
@@ -230,7 +230,7 @@ export default function InstagramAccountsPage() {
 
               {row.needsReconnect && row.statusReason && (
                 <span
-                  className="flex max-w-[280px] items-start gap-1 text-xs text-destructive dark:text-red-400"
+                  className="flex max-w-[280px] items-start gap-1 text-xs text-destructive dark:text-destructive"
                   title={row.statusReason}
                 >
                   <Warning weight="fill" className="mt-0.5 h-3 w-3 flex-shrink-0" />
@@ -276,7 +276,7 @@ export default function InstagramAccountsPage() {
               connect("/dashboard/instagram-accounts");
             }}
             title={t("card.reconnect")}
-            className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50 dark:text-red-400 dark:hover:bg-destructive/10"
+            className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-destructive-ink transition-colors hover:bg-muted disabled:opacity-50 dark:text-destructive dark:hover:bg-destructive/10"
           >
             <ArrowClockwise
               className={cn("h-3.5 w-3.5", isConnecting && "animate-spin")}
@@ -307,7 +307,7 @@ export default function InstagramAccountsPage() {
               void handleDisconnect(row);
             }}
             title={t("card.disconnect")}
-            className="inline-flex items-center rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+            className="inline-flex items-center rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-destructive-ink disabled:opacity-50"
           >
             <Trash className="h-4 w-4" />
           </button>
@@ -328,7 +328,7 @@ export default function InstagramAccountsPage() {
         badge={t("page.title")}
         description={t("page.description")}
         icon={<InstagramLogo className="h-6 w-6" weight="fill" />}
-        colorClass="text-fuchsia-600"
+        colorClass="text-chart-4"
         actions={
           canCreate ? (
             <div className="flex flex-wrap items-center gap-3">
@@ -387,7 +387,7 @@ export default function InstagramAccountsPage() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+        <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-muted px-4 py-3 text-sm text-destructive-ink">
           <Warning className="h-4 w-4" />
           {error}
         </div>
@@ -426,7 +426,7 @@ export default function InstagramAccountsPage() {
         />
       ) : (
         <div className="space-y-4">
-          <ElevatedContainer className="overflow-hidden border border-border !p-0">
+          <ElevatedContainer className="rounded-lg overflow-hidden border border-border !p-0">
             <DashboardTable<InstagramAccount>
               data={accounts}
               columns={columns}

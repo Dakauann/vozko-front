@@ -20,11 +20,17 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-10 w-full items-center justify-between whitespace-nowrap rounded-[--radius] border border-border bg-card px-4 py-2 text-sm text-foreground shadow-sm transition-colors",
-      "hover:border-foreground/20",
+      // Matches ui/input.tsx exactly — same height, same padding, same edge,
+      // same focus. A select that is 8px taller than the input beside it is the
+      // kind of mismatch that reads as unfinished before anything else does.
+      "flex h-8 w-full items-center justify-between whitespace-nowrap rounded-[--radius] border border-border-strong bg-card px-2.5 py-1 text-sm text-foreground",
+      "transition-[border-color,box-shadow] duration-150",
+      "hover:border-[hsl(var(--muted-foreground)/0.5)]",
       "placeholder:text-muted-foreground",
-      "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary",
-      "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-muted",
+      "focus:outline-none focus-visible:border-border-strong",
+      "focus-visible:shadow-[inset_0_-2px_0_0_hsl(var(--primary))]",
+      "focus-visible:ring-2 focus-visible:ring-primary/15",
+      "disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:opacity-70",
       "[&>span]:line-clamp-1",
       className,
     )}
@@ -127,8 +133,8 @@ const SelectItem = React.forwardRef<
     ref={ref}
     className={cn(
       "relative flex w-full cursor-pointer select-none items-center rounded-[--radius] py-2.5 pl-3 pr-8 text-sm outline-none transition-colors",
-      "hover:bg-muted hover:text-lamp-ink",
-      "focus:bg-muted focus:text-lamp-ink",
+      "hover:bg-muted hover:text-primary-ink",
+      "focus:bg-muted focus:text-primary-ink",
       "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className,
     )}
@@ -136,7 +142,7 @@ const SelectItem = React.forwardRef<
   >
     <span className="absolute right-2.5 flex h-4 w-4 items-center justify-center">
       <SelectPrimitive.ItemIndicator>
-        <Check className="h-4 w-4 text-lamp-ink" weight="bold" />
+        <Check className="h-4 w-4 text-primary-ink" weight="bold" />
       </SelectPrimitive.ItemIndicator>
     </span>
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>

@@ -355,7 +355,7 @@ function UserDashboard() {
         <h2 className="text-[17px] font-semibold text-foreground">
           {t("noWorkspaceSelected")}
         </h2>
-        <p className="mt-1.5 text-[13px] text-muted-foreground">
+        <p className="mt-1.5 text-sm text-muted-foreground">
           {t("noWorkspaceDescription")}
         </p>
       </div>
@@ -416,7 +416,7 @@ function UserDashboard() {
           <header className="rule-engraved flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 bg-muted px-4 py-2.5">
             <div className="flex min-w-0 items-baseline gap-2.5">
               <span className="legend">{t("workspaceLegend")}</span>
-              <span className="truncate text-[13px] font-semibold text-foreground">
+              <span className="truncate text-sm font-semibold text-foreground">
                 {currentWorkspace?.name ?? t("noWorkspaceSelected")}
               </span>
             </div>
@@ -464,7 +464,7 @@ function UserDashboard() {
               </div>
               <Link
                 href="/dashboard/whatsapp-campaigns"
-                className="legend -my-2 flex min-h-[34px] items-center text-lamp-ink transition-colors hover:text-foreground sm:my-0 sm:min-h-0"
+                className="legend -my-2 flex min-h-[34px] items-center text-primary-ink transition-colors hover:text-foreground sm:my-0 sm:min-h-0"
               >
                 {t("viewAll")}
               </Link>
@@ -522,7 +522,7 @@ function UserDashboard() {
                                 }
                               />
                               <span className="min-w-0">
-                                <span className="block truncate text-[13px] font-semibold text-foreground">
+                                <span className="block truncate text-sm font-semibold text-foreground">
                                   {campaign.name}
                                 </span>
                                 <span className="legend mt-1 block">
@@ -535,7 +535,7 @@ function UserDashboard() {
                           <td className="max-w-[200px] truncate px-3 py-2.5 text-[12px] text-muted-foreground">
                             {campaign.templateName ?? t("log.noTemplate")}
                           </td>
-                          <td className="readout px-3 py-2.5 text-right text-[13px] font-semibold text-foreground">
+                          <td className="readout px-3 py-2.5 text-right text-sm font-semibold text-foreground">
                             {formatNumber(campaign.metrics?.totalNumbers ?? 0)}
                           </td>
                           <td className="readout px-4 py-2.5 text-right text-[12px] text-muted-foreground">
@@ -549,7 +549,7 @@ function UserDashboard() {
               </div>
             ) : (
               <div className="px-4 py-14 text-center">
-                <p className="text-[13px] font-semibold text-foreground">
+                <p className="text-sm font-semibold text-foreground">
                   {t("noCampaignsYet")}
                 </p>
                 <p className="mt-1 text-[12px] text-muted-foreground">
@@ -558,7 +558,7 @@ function UserDashboard() {
                 {can("whatsapp_campaigns", "create") ? (
                   <Link
                     href="/dashboard/whatsapp-campaigns/new"
-                    className="legend mt-2 inline-flex min-h-[34px] items-center gap-1.5 text-lamp-ink transition-colors hover:text-foreground sm:mt-3 sm:min-h-0"
+                    className="legend mt-2 inline-flex min-h-[34px] items-center gap-1.5 text-primary-ink transition-colors hover:text-foreground sm:mt-3 sm:min-h-0"
                   >
                     {t("log.emptyCta")}
                     <ArrowRight className="h-3 w-3" weight="bold" />
@@ -598,7 +598,7 @@ function UserDashboard() {
                           weight="fill"
                         />
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-[13px] font-medium text-foreground">
+                          <span className="block truncate text-sm font-medium text-foreground">
                             {action.title}
                           </span>
                           <span className="block truncate text-[11px] text-muted-foreground">
@@ -629,7 +629,7 @@ function UserDashboard() {
               <p className="text-[15px] font-semibold tracking-[-0.01em] text-foreground">
                 {t("planBlock.title")}
               </p>
-              <p className="mt-1.5 text-[13px] leading-snug text-muted-foreground">
+              <p className="mt-1.5 text-sm leading-snug text-muted-foreground">
                 {t("planBlock.description")}
               </p>
               {canReadPlans ? (

@@ -336,7 +336,7 @@ export default function CalendarPage() {
 
       {/* No connection alert */}
       {connected === false && (
-        <ElevatedContainer className="border-warning/30 bg-amber-50 dark:bg-amber-950/20">
+        <ElevatedContainer className="border-warning/30 bg-warning/10 dark:bg-warning/20">
           <div className="flex items-start gap-3 p-4">
             <Warning
               size={24}
@@ -344,7 +344,7 @@ export default function CalendarPage() {
               className="text-warning mt-0.5 shrink-0"
             />
             <div className="space-y-1">
-              <p className="text-sm font-medium text-warning dark:text-amber-400">
+              <p className="text-sm font-medium text-warning dark:text-warning">
                 {t("noConnection")}
               </p>
               <p className="text-xs text-warning dark:text-warning">
@@ -387,7 +387,7 @@ export default function CalendarPage() {
             </div>
             <button
               onClick={goToday}
-              className="text-xs font-medium text-lamp-ink hover:text-lamp-ink/80 px-3 py-1.5 rounded-lg hover:bg-muted transition-colors"
+              className="text-xs font-medium text-primary-ink hover:text-primary-ink/80 px-3 py-1.5 rounded-lg hover:bg-muted transition-colors"
             >
               {t("today")}
             </button>
@@ -398,7 +398,7 @@ export default function CalendarPage() {
             {dayNames.map((day) => (
               <div
                 key={day}
-                className="py-2 text-center text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider"
+                className="py-2 text-center text-[11px] font-semibold text-muted-foreground/70"
               >
                 {day}
               </div>
@@ -468,7 +468,7 @@ export default function CalendarPage() {
                           {dayEvents.slice(0, 2).map((evt) => (
                             <button
                               key={evt.id}
-                              className="w-full text-left flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] leading-tight truncate transition-colors hover:opacity-80"
+                              className="w-full text-left flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[11px] leading-tight truncate transition-colors hover:opacity-80"
                               style={{
                                 backgroundColor: `${evt.color || EVENT_COLORS[0]}12`,
                                 color: evt.color || EVENT_COLORS[0],
@@ -492,7 +492,7 @@ export default function CalendarPage() {
                             </button>
                           ))}
                           {dayEvents.length > 2 && (
-                            <p className="text-[10px] text-muted-foreground/60 px-1.5 font-medium">
+                            <p className="text-[11px] text-muted-foreground/60 px-1.5 font-medium">
                               +{dayEvents.length - 2}
                             </p>
                           )}
@@ -513,7 +513,7 @@ export default function CalendarPage() {
             <div className="px-4 py-3 border-b border-border">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <p className="text-xs font-medium text-muted-foreground">
                     {selectedDate.toLocaleDateString(undefined, {
                       weekday: "long",
                     })}
@@ -546,7 +546,7 @@ export default function CalendarPage() {
                   {connected !== false && (
                     <button
                       onClick={() => openCreateDialog(selectedDate.getDate())}
-                      className="mt-3 text-xs text-lamp-ink hover:underline"
+                      className="mt-3 text-xs text-primary-ink hover:underline"
                     >
                       {t("createEvent")}
                     </button>
@@ -656,7 +656,7 @@ export default function CalendarPage() {
                     href={editingEvent.meetingLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-lamp-ink hover:underline flex items-center gap-1.5"
+                    className="text-sm text-primary-ink hover:underline flex items-center gap-1.5"
                   >
                     <VideoCamera size={14} weight="fill" />
                     {t("joinMeeting")}
@@ -702,7 +702,7 @@ export default function CalendarPage() {
             {/* Guest permissions */}
             {formAttendees.trim() && (
               <div className="ml-[30px] space-y-1.5 py-2 pl-1">
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                <p className="text-[11px] font-semibold text-muted-foreground">
                   {t("guestPermissions")}
                 </p>
                 {[
@@ -860,7 +860,7 @@ export default function CalendarPage() {
               type="button"
               onClick={handleReschedule}
               disabled={rescheduleSaving || !rescheduleStart}
-              className="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-primary-hover disabled:opacity-50"
+              className="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-50"
             >
               {rescheduleSaving ? "Reagendando..." : "Confirmar"}
             </button>
@@ -919,7 +919,7 @@ function AgendaEventCard({
             href={event.meetingLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 mt-1 text-xs text-lamp-ink hover:underline"
+            className="inline-flex items-center gap-1 mt-1 text-xs text-primary-ink hover:underline"
             onClick={(e) => e.stopPropagation()}
           >
             <VideoCamera size={11} weight="fill" />
@@ -938,13 +938,13 @@ function AgendaEventCard({
                   weight="duotone"
                   className="text-muted-foreground shrink-0"
                 />
-                <span className="text-[10px] text-muted-foreground truncate max-w-[80px]">
+                <span className="text-[11px] text-muted-foreground truncate max-w-[80px]">
                   {a.email}
                 </span>
               </div>
             ))}
             {event.attendees.length > 3 && (
-              <span className="text-[10px] text-muted-foreground/60">
+              <span className="text-[11px] text-muted-foreground/60">
                 +{event.attendees.length - 3}
               </span>
             )}
@@ -975,7 +975,7 @@ function AgendaEventCard({
             title="Reagendar"
             aria-label="Reagendar evento"
           >
-            <ArrowsClockwise size={13} className="text-lamp-ink" />
+            <ArrowsClockwise size={13} className="text-primary-ink" />
           </button>
         )}
         <button

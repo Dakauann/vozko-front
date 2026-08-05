@@ -93,7 +93,7 @@ const STATUS_CONFIG: Record<
   REFUNDED: {
     icon: Clock,
     label: "refunded",
-    className: "text-muted-foreground bg-muted border-blue-600",
+    className: "text-muted-foreground bg-muted border-info",
   },
   EXPIRED: {
     icon: Clock,
@@ -232,9 +232,9 @@ export default function InvoicesPage() {
               {row.purpose && (
                 <span
                   className={cn(
-                    "rounded-[--radius] px-1.5 py-0.5 text-[10px] font-medium",
+                    "rounded-[--radius] px-1.5 py-0.5 text-[11px] font-medium",
                     row.purpose === "MONTHLY_BILLING"
-                      ? "bg-muted text-lamp-ink"
+                      ? "bg-muted text-primary-ink"
                       : "bg-muted text-muted-foreground",
                   )}
                 >
@@ -609,7 +609,7 @@ export default function InvoicesPage() {
                 <div className="rounded-[--radius] border border-border bg-background p-4">
                   <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                     <div>
-                      <p className="text-[11px] font-semibold uppercase text-muted-foreground">
+                      <p className="text-[11px] font-semibold text-muted-foreground">
                         {gateT("currentPlanTitle")}
                       </p>
                       <p className="mt-2 text-lg font-semibold text-foreground">
@@ -622,7 +622,7 @@ export default function InvoicesPage() {
                     {subscriptionStatusLabel ? (
                       <span
                         className={cn(
-                          "inline-flex w-fit items-center rounded-[--radius] px-3 py-1 text-xs font-semibold uppercase text-white",
+                          "inline-flex w-fit items-center rounded-[--radius] px-3 py-1 text-xs font-semibold text-white",
                           hasRechargeEligiblePlan
                             ? "bg-healthy"
                             : "bg-warning",
@@ -641,7 +641,7 @@ export default function InvoicesPage() {
 
               {loadingPlans ? (
                 <div className="flex min-h-[220px] flex-col items-center justify-center rounded-[--radius] border border-border bg-background text-center">
-                  <Spinner className="h-6 w-6 animate-spin text-lamp-ink" />
+                  <Spinner className="h-6 w-6 animate-spin text-primary-ink" />
                   <p className="mt-3 text-sm text-muted-foreground">
                     {gateT("loading")}
                   </p>
@@ -758,7 +758,7 @@ export default function InvoicesPage() {
                     className={cn(
                       "flex flex-col items-center gap-2 rounded-[--radius] border p-4 transition-all",
                       paymentMethod === "pix"
-                        ? "border-rule-strong bg-muted text-foreground"
+                        ? "border-border-strong bg-muted text-foreground"
                         : "border-border bg-card text-muted-foreground hover:border-foreground/20",
                     )}
                   >
@@ -771,7 +771,7 @@ export default function InvoicesPage() {
                     className={cn(
                       "flex flex-col items-center gap-2 rounded-[--radius] border p-4 transition-all",
                       paymentMethod === "boleto"
-                        ? "border-rule-strong bg-muted text-foreground"
+                        ? "border-border-strong bg-muted text-foreground"
                         : "border-border bg-card text-muted-foreground hover:border-foreground/20",
                     )}
                   >

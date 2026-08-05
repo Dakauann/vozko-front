@@ -3,7 +3,6 @@
 import * as SwitchPrimitive from "@radix-ui/react-switch";
 
 import { ReactNode, forwardRef } from "react";
-import { softSurfaceShadow, softSurfaceWithInset } from "./shadow-presets";
 
 import { cn } from "@/lib/utils";
 
@@ -37,27 +36,27 @@ const ElevatedSwitch = forwardRef<
             "peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border border-transparent transition-colors",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
             "disabled:cursor-not-allowed disabled:opacity-50",
-            "data-[state=checked]:bg-foreground data-[state=unchecked]:bg-border",
+            // Reconciled with ui/switch.tsx. These two disagreed: that one
+            // filled with the brand, this one filled with plain --foreground
+            // and hardcoded a raw bg-gray-500 when disabled. Two switches in
+            // one product cannot mean different things by "on", so both now
+            // use the brand fill and a token for every state.
+            "data-[state=checked]:bg-primary data-[state=unchecked]:bg-[hsl(var(--muted-foreground)/0.42)]",
             props.disabled &&
-              "data-[state=checked]:bg-gray-500 data-[state=unchecked]:bg-muted",
+              "data-[state=checked]:bg-[hsl(var(--primary)/0.45)] data-[state=unchecked]:bg-muted",
             className
           )}
-          style={{
-            boxShadow: props.disabled
-              ? `${softSurfaceShadow}, inset 0 1px 0 var(--shadow-highlight)`
-              : softSurfaceWithInset,
-          }}
           {...props}
         >
           <SwitchPrimitive.Thumb
             className={cn(
-              "pointer-events-none block h-5 w-5 rounded-full bg-card shadow-lg ring-0 transition-transform",
+              "pointer-events-none block h-5 w-5 rounded-full bg-white ring-0 transition-transform duration-150",
               "data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
             )}
             style={{
               boxShadow: props.disabled
-                ? "0 1px 2px rgba(0, 0, 0, 0.1)"
-                : "0 1px 3px rgba(0, 0, 0, 0.2)",
+                ? "0 1px 2px hsl(228 40% 28% / 0.14)"
+                : "0 1px 2px hsl(228 40% 28% / 0.28)",
             }}
           />
         </SwitchPrimitive.Root>

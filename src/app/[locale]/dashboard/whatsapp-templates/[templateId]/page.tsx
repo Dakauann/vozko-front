@@ -93,17 +93,17 @@ function statusTone(status: TemplateStatus): {
   switch (status) {
     case "APPROVED":
       return {
-        cls: "bg-healthy/10 text-healthy border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900",
+        cls: "bg-muted text-healthy-ink border-healthy/30 dark:bg-healthy/40 dark:text-healthy dark:border-healthy",
         icon: CheckCircle,
       };
     case "PENDING":
       return {
-        cls: "bg-amber-50 text-warning border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900",
+        cls: "bg-muted text-warning-ink border-warning/30 dark:bg-warning/40 dark:text-warning dark:border-warning",
         icon: Clock,
       };
     case "REJECTED":
       return {
-        cls: "bg-destructive/10 text-destructive border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900",
+        cls: "bg-muted text-destructive-ink border-destructive/30 dark:bg-destructive/40 dark:text-destructive dark:border-destructive",
         icon: XCircle,
       };
     case "PAUSED":
@@ -120,11 +120,11 @@ function statusTone(status: TemplateStatus): {
 function categoryTone(category: TemplateCategory): string {
   switch (category) {
     case "MARKETING":
-      return "bg-muted text-muted-foreground border-violet-200 dark:bg-violet-950/40 dark:text-violet-300 dark:border-violet-900";
+      return "bg-muted text-muted-foreground border-chart-4/30 dark:bg-chart-4/40 dark:text-chart-4 dark:border-chart-4";
     case "UTILITY":
-      return "bg-muted text-muted-foreground border-teal-200 dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-900";
+      return "bg-muted text-muted-foreground border-healthy/30 dark:bg-healthy/40 dark:text-healthy dark:border-healthy";
     case "AUTHENTICATION":
-      return "bg-amber-50 text-warning border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900";
+      return "bg-muted text-warning-ink border-warning/30 dark:bg-warning/40 dark:text-warning dark:border-warning";
     default:
       return "bg-muted text-muted-foreground border-border";
   }
@@ -132,10 +132,10 @@ function categoryTone(category: TemplateCategory): string {
 
 function usabilityTone(status: string): string {
   if (status === "ready")
-    return "bg-healthy/10 text-healthy border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900";
+    return "bg-muted text-healthy-ink border-healthy/30 dark:bg-healthy/40 dark:text-healthy dark:border-healthy";
   if (status === "missing_header_media")
-    return "bg-amber-50 text-warning border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900";
-  return "bg-destructive/10 text-destructive border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900";
+    return "bg-muted text-warning-ink border-warning/30 dark:bg-warning/40 dark:text-warning dark:border-warning";
+  return "bg-muted text-destructive-ink border-destructive/30 dark:bg-destructive/40 dark:text-destructive dark:border-destructive";
 }
 
 function convertToDraggableComponents(
@@ -581,7 +581,7 @@ export default function WhatsAppTemplateDetailPage() {
     return (
       <div className="mx-auto flex max-w-5xl items-center justify-center p-6">
         <ElevatedContainer className="flex min-h-[320px] w-full max-w-md flex-col items-center justify-center gap-4 p-8 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-destructive/10 text-destructive dark:bg-red-950/40">
+          <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-muted text-destructive-ink dark:bg-destructive/40">
             <WhatsappLogo className="h-7 w-7" weight="fill" />
           </div>
           <div>
@@ -632,7 +632,7 @@ export default function WhatsAppTemplateDetailPage() {
           <ElevatedContainer className="p-6">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[--radius] bg-healthy/10 text-healthy">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[--radius] bg-muted text-healthy-ink">
                   <WhatsappLogo className="h-6 w-6" weight="fill" />
                 </div>
                 <div className="min-w-0">
@@ -752,7 +752,7 @@ export default function WhatsAppTemplateDetailPage() {
         {/* Details */}
         <motion.div variants={itemVariants}>
           <ElevatedContainer className="p-6">
-            <h2 className="mb-5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <h2 className="mb-5 text-xs font-semibold text-muted-foreground">
               {t("detail.details")}
             </h2>
             <dl className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
@@ -824,7 +824,7 @@ export default function WhatsAppTemplateDetailPage() {
             <ElevatedContainer className="p-6">
               <div className="mb-4 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-lamp-ink">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-primary-ink">
                     <ImageIcon className="h-5 w-5" weight="fill" />
                   </div>
                   <div>
@@ -857,8 +857,8 @@ export default function WhatsAppTemplateDetailPage() {
                   </p>
                 </div>
               ) : (
-                <div className="flex items-start gap-3 rounded-[--radius] border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/40">
-                  <p className="text-sm text-warning dark:text-amber-300">
+                <div className="flex items-start gap-3 rounded-[--radius] border border-warning/30 bg-warning/10 p-4 dark:border-warning dark:bg-warning/40">
+                  <p className="text-sm text-warning dark:text-warning">
                     {t("detail.headerMedia.notConfigured")}
                   </p>
                 </div>
@@ -872,7 +872,7 @@ export default function WhatsAppTemplateDetailPage() {
           <motion.div variants={itemVariants}>
             <ElevatedContainer className="p-6">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-lamp-ink">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-primary-ink">
                   <UserCircle className="h-5 w-5" weight="fill" />
                 </div>
                 <div>
@@ -899,7 +899,7 @@ export default function WhatsAppTemplateDetailPage() {
             <ElevatedContainer className="p-6">
               <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-lamp-ink">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-primary-ink">
                     <Buildings className="h-5 w-5" weight="fill" />
                   </div>
                   <div>
@@ -971,7 +971,7 @@ export default function WhatsAppTemplateDetailPage() {
                     {t("access.loading")}
                   </div>
                 ) : accessError ? (
-                  <div className="rounded-[--radius] border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+                  <div className="rounded-[--radius] border border-destructive/30 bg-muted p-4 text-sm text-destructive-ink">
                     {accessError}
                   </div>
                 ) : accessItems.length === 0 ? (
@@ -997,7 +997,7 @@ export default function WhatsAppTemplateDetailPage() {
                           className="flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-muted"
                         >
                           <div className="flex min-w-0 items-center gap-3">
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius] bg-muted text-lamp-ink">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius] bg-muted text-primary-ink">
                               <Buildings className="h-4 w-4" weight="fill" />
                             </div>
                             <div className="min-w-0">
@@ -1008,7 +1008,7 @@ export default function WhatsAppTemplateDetailPage() {
                                     commonT("loading")}
                                 </p>
                                 {workspace?.isDefault && (
-                                  <span className="shrink-0 rounded-[--radius] bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                                  <span className="shrink-0 rounded-[--radius] bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
                                     default
                                   </span>
                                 )}
@@ -1036,7 +1036,7 @@ export default function WhatsAppTemplateDetailPage() {
                             iconVisible
                             disabled={revokingWorkspaceId === item.workspaceId}
                             onClick={() => handleRevokeAccess(item.workspaceId)}
-                            className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            className="shrink-0 text-destructive-ink hover:bg-muted hover:text-destructive"
                           />
                         </div>
                       );
@@ -1092,7 +1092,7 @@ export default function WhatsAppTemplateDetailPage() {
           >
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-healthy/10 text-healthy">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-healthy-ink">
                   <Copy className="h-5 w-5" weight="fill" />
                 </div>
                 <div>
@@ -1116,7 +1116,7 @@ export default function WhatsAppTemplateDetailPage() {
             <div className="space-y-4 px-6 py-5">
               <div className="rounded-[--radius] border border-border bg-muted p-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-healthy/10 text-healthy">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted text-healthy-ink">
                     <WhatsappLogo className="h-5 w-5" weight="fill" />
                   </div>
                   <div className="min-w-0">
@@ -1145,8 +1145,8 @@ export default function WhatsAppTemplateDetailPage() {
                     {t("replicate.loadingPhones")}
                   </div>
                 ) : replicatePhones.length === 0 ? (
-                  <div className="rounded-[--radius] border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/40">
-                    <p className="text-sm text-warning dark:text-amber-300">
+                  <div className="rounded-[--radius] border border-warning/30 bg-warning/10 p-4 dark:border-warning dark:bg-warning/40">
+                    <p className="text-sm text-warning dark:text-warning">
                       {t("replicate.noPhones")}
                     </p>
                   </div>
@@ -1170,7 +1170,7 @@ export default function WhatsAppTemplateDetailPage() {
                             className={cn(
                               "flex h-9 w-9 items-center justify-center rounded-lg",
                               selected
-                                ? "bg-muted text-lamp-ink"
+                                ? "bg-muted text-primary-ink"
                                 : "bg-muted text-muted-foreground",
                             )}
                           >
@@ -1186,7 +1186,7 @@ export default function WhatsAppTemplateDetailPage() {
                           </div>
                           {selected && (
                             <CheckCircle
-                              className="h-5 w-5 shrink-0 text-lamp-ink"
+                              className="h-5 w-5 shrink-0 text-primary-ink"
                               weight="fill"
                             />
                           )}

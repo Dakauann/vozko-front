@@ -240,13 +240,13 @@ export default function AdminRegisterUserPage() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <ElevatedContainer className="border border-healthy/20 bg-healthy/10 p-4">
+          <ElevatedContainer className="rounded-lg border border-healthy/20 bg-healthy/10 p-4">
             <div className="flex items-center gap-3">
               <CheckCircle
                 className="h-5 w-5 text-healthy flex-shrink-0"
                 weight="fill"
               />
-              <p className="text-sm text-emerald-800 font-medium">{success}</p>
+              <p className="text-sm text-healthy-ink font-medium">{success}</p>
             </div>
           </ElevatedContainer>
         </motion.div>
@@ -264,12 +264,12 @@ export default function AdminRegisterUserPage() {
       )}
 
       {/* Form */}
-      <ElevatedContainer className="border border-border bg-card p-6">
+      <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Account Type */}
           <div>
             <label className="block text-sm font-semibold text-foreground mb-3">
-              Tipo de Conta <span className="text-red-500">*</span>
+              Tipo de Conta <span className="text-destructive-ink">*</span>
             </label>
             <div className="grid grid-cols-2 gap-3">
               <button

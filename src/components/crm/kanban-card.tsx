@@ -83,11 +83,11 @@ export function kanbanCardClass(
   return cn(
     "group relative rounded-[--radius] border bg-card p-3 transition-all",
     state?.won
-      ? "border-emerald-300 bg-healthy/10/40 hover:border-healthy hover:shadow-sm dark:bg-healthy/5"
+      ? "border-healthy/30 bg-healthy/10/40 hover:border-healthy hover:shadow-sm dark:bg-healthy/5"
       : state?.lost
         ? "border-border opacity-75 hover:opacity-100 hover:border-foreground/20 hover:shadow-sm"
         : state?.selected
-          ? "border-emerald-300 shadow-md ring-1 ring-emerald-500/30"
+          ? "border-healthy/30 shadow-md ring-1 ring-healthy/30"
           : "border-border hover:border-foreground/20 hover:shadow-sm",
     extra,
   );
@@ -128,7 +128,7 @@ export function KanbanCardHeader({
           {title}
         </p>
         {subtitle ? (
-          <p className="truncate text-[9px] text-muted-foreground">{subtitle}</p>
+          <p className="truncate text-[11px] text-muted-foreground">{subtitle}</p>
         ) : null}
         {thirdLine ?? null}
       </div>
@@ -213,7 +213,7 @@ export function CardTile({
   return (
     <span
       className={cn(
-        "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white",
+        "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold",
         !color && "bg-primary",
         className,
       )}
@@ -269,7 +269,7 @@ export function CardPill({
     <span
       title={title}
       className={cn(
-        "inline-flex max-w-full items-center gap-1 truncate rounded-[--radius] px-1.5 py-0.5 text-[9px] font-semibold",
+        "inline-flex max-w-full items-center gap-1 truncate rounded-[--radius] px-1.5 py-0.5 text-[11px] font-semibold",
         color ? "text-white" : PILL_TONE[tone],
         className,
       )}
@@ -288,7 +288,7 @@ export function CardPill({
 export function CardLabelChip({ name, color }: { name: string; color: string }) {
   return (
     <span
-      className="inline-flex items-center gap-1 truncate rounded-[--radius] px-2 py-0.5 text-[9px] font-semibold text-white shadow-sm"
+      className="inline-flex items-center gap-1 truncate rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm"
       style={{ backgroundColor: color }}
     >
       <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-white/40" />

@@ -21,10 +21,9 @@ interface DashboardPageHeaderProps {
 /**
  * The page strip.
  *
- * One form for every page, closed by an engraved rule: the name of the thing on
- * the left, the actions rack on the right, content recessed below. It is called
- * from 77 places, so both prop shapes are preserved exactly — only the render
- * changed.
+ * One form for every page, closed by a hairline: the name of the thing on the
+ * left, the actions rack on the right, content below. It is called from 77
+ * places, so both prop shapes are preserved exactly — only the render changed.
  *
  * Two deliberate departures from the previous header:
  *
@@ -70,12 +69,12 @@ export function DashboardPageHeader({
             >
               {icon}
             </span>
-            <h1 className="truncate text-[17px] font-semibold leading-tight tracking-[-0.01em] text-foreground">
+            <h1 className="truncate text-lg font-semibold leading-tight tracking-[-0.015em] text-foreground">
               {heading}
             </h1>
           </div>
           {description && (
-            <p className="mt-1 max-w-2xl text-[13px] leading-snug text-muted-foreground">
+            <p className="mt-1 max-w-2xl text-sm leading-snug text-muted-foreground">
               {description}
             </p>
           )}

@@ -321,7 +321,7 @@ export default function SendWhatsAppTemplatePage() {
   if (error || !template) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <ElevatedContainer className="flex flex-col items-center gap-4 p-8 border border-border bg-card">
+        <ElevatedContainer className="rounded-lg flex flex-col items-center gap-4 p-8 border border-border bg-card">
           <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-destructive/10">
             <WhatsappLogo className="h-7 w-7 text-destructive" weight="fill" />
           </div>
@@ -348,7 +348,7 @@ export default function SendWhatsAppTemplatePage() {
   if (template.status !== "APPROVED") {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <ElevatedContainer className="flex flex-col items-center gap-4 p-8 border border-border bg-card max-w-md">
+        <ElevatedContainer className="rounded-lg flex flex-col items-center gap-4 p-8 border border-border bg-card max-w-md">
           <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-warning/15">
             <Warning className="h-7 w-7 text-warning" weight="fill" />
           </div>
@@ -401,7 +401,7 @@ export default function SendWhatsAppTemplatePage() {
           <motion.div variants={containerVariants} className="space-y-6">
             {/* Recipient Section */}
             <motion.div variants={itemVariants}>
-              <ElevatedContainer className="border border-border bg-card p-6">
+              <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
                 <h2 className="text-lg font-semibold text-foreground mb-4">
                   {t("send.sections.recipient")}
                 </h2>
@@ -455,27 +455,27 @@ export default function SendWhatsAppTemplatePage() {
             {/* Header Info Section (media or text params) */}
             {(hasMediaHeader || headerParamNames.length > 0) && (
               <motion.div variants={itemVariants}>
-                <ElevatedContainer className="border border-border bg-card p-6">
+                <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
                   <h2 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
                     {hasMediaHeader ? (
                       headerComponent?.format === "VIDEO" ? (
                         <VideoCamera
-                          className="h-5 w-5 text-blue-500"
+                          className="h-5 w-5 text-info-ink"
                           weight="fill"
                         />
                       ) : headerComponent?.format === "DOCUMENT" ? (
                         <File
-                          className="h-5 w-5 text-orange-500"
+                          className="h-5 w-5 text-warning-ink"
                           weight="fill"
                         />
                       ) : (
                         <ImageIcon
-                          className="h-5 w-5 text-purple-500"
+                          className="h-5 w-5 text-chart-4"
                           weight="fill"
                         />
                       )
                     ) : (
-                      <TextT className="h-5 w-5 text-blue-500" weight="fill" />
+                      <TextT className="h-5 w-5 text-info-ink" weight="fill" />
                     )}
                     Header
                   </h2>
@@ -546,7 +546,7 @@ export default function SendWhatsAppTemplatePage() {
             {/* Body Parameters Section */}
             {bodyParamNames.length > 0 && (
               <motion.div variants={itemVariants}>
-                <ElevatedContainer className="border border-border bg-card p-6">
+                <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
                   <h2 className="text-lg font-semibold text-foreground mb-4">
                     {t("send.sections.parameters")}
                   </h2>
@@ -617,9 +617,9 @@ export default function SendWhatsAppTemplatePage() {
             {/* Debug Payload Section (admin only) */}
             {(debugInfo || sendError || sendSuccess) && (
               <motion.div variants={itemVariants}>
-                <ElevatedContainer className="border border-border bg-card p-6">
+                <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
                   <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                    <Code className="h-5 w-5 text-blue-500" weight="fill" />
+                    <Code className="h-5 w-5 text-info-ink" weight="fill" />
                     {t("send.debug.title")}
                   </h2>
 
@@ -635,7 +635,7 @@ export default function SendWhatsAppTemplatePage() {
                           {debugInfo?.serverMessage ?? t("toast.sendSuccess")}
                         </span>
                         {debugInfo?.responseStatus && (
-                          <span className="ml-auto rounded-[--radius] bg-healthy px-2 py-0.5 text-xs font-mono text-white">
+                          <span className="ml-auto rounded-[--radius] bg-healthy px-2 py-0.5 text-xs font-mono text-healthy-foreground">
                             {debugInfo.responseStatus}
                           </span>
                         )}
@@ -650,7 +650,7 @@ export default function SendWhatsAppTemplatePage() {
                           {sendError}
                         </span>
                         {debugInfo?.responseStatus && (
-                          <span className="ml-auto rounded-[--radius] bg-destructive px-2 py-0.5 text-xs font-mono text-white">
+                          <span className="ml-auto rounded-[--radius] bg-destructive px-2 py-0.5 text-xs font-mono text-destructive-foreground">
                             {debugInfo.responseStatus}
                           </span>
                         )}
@@ -686,7 +686,7 @@ export default function SendWhatsAppTemplatePage() {
 
           {/* Preview Panel */}
           <motion.div variants={itemVariants}>
-            <ElevatedContainer className="border border-border bg-card p-6 sticky top-6">
+            <ElevatedContainer className="rounded-lg border border-border bg-card p-6 sticky top-6">
               <h2 className="text-lg font-semibold text-foreground mb-4">
                 {t("send.preview.title")}
               </h2>
@@ -781,7 +781,7 @@ export default function SendWhatsAppTemplatePage() {
 
                   {/* Timestamp */}
                   <div className="px-3 py-1 text-right">
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       {new Date().toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -811,7 +811,7 @@ export default function SendWhatsAppTemplatePage() {
 
               {phoneNumber && (
                 <div className="mt-4 p-3 rounded-lg bg-healthy/10 border border-healthy/20">
-                  <p className="text-xs text-healthy dark:text-green-400 flex items-center gap-2">
+                  <p className="text-xs text-healthy dark:text-healthy flex items-center gap-2">
                     <Phone className="h-3 w-3" weight="fill" />
                     {t("send.preview.sendingTo")}:{" "}
                     <strong>{phoneNumber}</strong>

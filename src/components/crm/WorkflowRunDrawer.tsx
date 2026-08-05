@@ -63,18 +63,18 @@ interface WorkflowRunDrawerProps {
 }
 
 const RUN_STATUS_META: Record<string, { label: string; className: string }> = {
-  running: { label: "Em execução", className: "bg-muted text-lamp-ink" },
+  running: { label: "Em execução", className: "bg-muted text-primary-ink" },
   waiting: {
     label: "Aguardando",
-    className: "bg-warning/10 text-warning dark:text-amber-400",
+    className: "bg-muted text-warning-ink dark:text-warning",
   },
   completed: {
     label: "Concluído",
-    className: "bg-healthy/10 text-healthy dark:text-healthy",
+    className: "bg-muted text-healthy-ink dark:text-healthy",
   },
   error: {
     label: "Erro",
-    className: "bg-destructive/10 text-destructive dark:text-red-400",
+    className: "bg-muted text-destructive-ink dark:text-destructive",
   },
   cancelled: { label: "Cancelado", className: "bg-muted text-muted-foreground" },
 };
@@ -273,7 +273,7 @@ export function WorkflowRunDrawer({
                 {statusMeta && (
                   <span
                     className={cn(
-                      "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[10px] font-medium",
+                      "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[11px] font-medium",
                       statusMeta.className,
                     )}
                   >

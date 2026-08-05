@@ -228,7 +228,7 @@ function EmptyOptions({
         className,
       )}
     >
-      <span className="text-[10px] italic text-black/40 dark:text-white/40">
+      <span className="text-[11px] italic text-black/40 dark:text-white/40">
         {label}
       </span>
     </div>

@@ -89,14 +89,14 @@ function InfoCard({
     >
       <div
         className={cn(
-          "flex h-10 w-10 shrink-0 items-center justify-center rounded-[--radius] text-white",
+          "flex h-10 w-10 shrink-0 items-center justify-center rounded-[--radius]",
           iconBg,
         )}
       >
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-semibold uppercase text-muted-foreground">
+        <p className="text-[11px] font-semibold text-muted-foreground">
           {label}
         </p>
         <p
@@ -147,7 +147,7 @@ export default function AdminUserDetailPage() {
     return (
       <div className="flex h-[60vh] items-center justify-center">
         <CircleNotch
-          className="h-8 w-8 animate-spin text-lamp-ink"
+          className="h-8 w-8 animate-spin text-primary-ink"
           weight="bold"
         />
       </div>
@@ -173,7 +173,7 @@ export default function AdminUserDetailPage() {
           </Link>
         </div>
         <div className="flex flex-col items-center justify-center gap-4 py-20">
-          <XCircle className="h-12 w-12 text-red-400" weight="fill" />
+          <XCircle className="h-12 w-12 text-destructive" weight="fill" />
           <p className="text-sm text-muted-foreground">
             {error ?? t("error.notFound")}
           </p>
@@ -271,7 +271,7 @@ export default function AdminUserDetailPage() {
               ) : (
                 <div className="flex h-20 w-20 items-center justify-center rounded-[--radius] bg-muted">
                   <UserCircle
-                    className="h-12 w-12 text-lamp-ink"
+                    className="h-12 w-12 text-primary-ink"
                     weight="fill"
                   />
                 </div>
@@ -303,7 +303,7 @@ export default function AdminUserDetailPage() {
                 {/* Role badge */}
                 <span
                   className={cn(
-                    "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider",
+                    "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-semibold",
                     role.bg,
                     role.text,
                   )}
@@ -313,7 +313,7 @@ export default function AdminUserDetailPage() {
                 </span>
 
                 {/* Customer type badge */}
-                <span className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-white">
+                <span className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground">
                   <Buildings className="h-3.5 w-3.5" weight="fill" />
                   {user.customerType === "company"
                     ? t("customerType.company")
@@ -323,7 +323,7 @@ export default function AdminUserDetailPage() {
                 {/* Email verified badge */}
                 <span
                   className={cn(
-                    "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider",
+                    "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-semibold",
                     user.emailVerified
                       ? "bg-healthy text-healthy-foreground"
                       : "bg-destructive text-destructive-foreground",
@@ -354,7 +354,7 @@ export default function AdminUserDetailPage() {
           {/* Email */}
           <InfoCard
             icon={<EnvelopeSimple className="h-5 w-5" weight="bold" />}
-            iconBg="bg-muted"
+            iconBg="tile-neutral"
             label={t("fields.email")}
             value={user.email}
           />
@@ -362,7 +362,7 @@ export default function AdminUserDetailPage() {
           {/* Username */}
           <InfoCard
             icon={<User className="h-5 w-5" weight="bold" />}
-            iconBg="bg-muted"
+            iconBg="tile-neutral"
             label={t("fields.username")}
             value={user.username}
           />
@@ -370,7 +370,7 @@ export default function AdminUserDetailPage() {
           {/* Customer Type */}
           <InfoCard
             icon={<Buildings className="h-5 w-5" weight="bold" />}
-            iconBg="bg-muted"
+            iconBg="tile-neutral"
             label={t("fields.customerType")}
             value={
               user.customerType === "company"
@@ -383,7 +383,7 @@ export default function AdminUserDetailPage() {
           {formattedDocument ? (
             <InfoCard
               icon={<IdentificationCard className="h-5 w-5" weight="bold" />}
-              iconBg="bg-healthy"
+              iconBg="tile-healthy"
               label={documentLabel}
               value={formattedDocument}
               mono
@@ -391,7 +391,7 @@ export default function AdminUserDetailPage() {
           ) : (
             <InfoCard
               icon={<IdentificationCard className="h-5 w-5" weight="bold" />}
-              iconBg="bg-muted"
+              iconBg="tile-neutral"
               label={documentLabel}
               value={
                 <span className="text-muted-foreground italic">
@@ -404,7 +404,7 @@ export default function AdminUserDetailPage() {
           {/* User ID */}
           <InfoCard
             icon={<IdentificationBadge className="h-5 w-5" weight="bold" />}
-            iconBg="bg-muted"
+            iconBg="tile-neutral"
             label={t("fields.userId")}
             value={user.id}
             mono
@@ -413,7 +413,7 @@ export default function AdminUserDetailPage() {
           {/* Role */}
           <InfoCard
             icon={<Crown className="h-5 w-5" weight="bold" />}
-            iconBg="bg-warning"
+            iconBg="tile-warning"
             label={t("fields.role")}
             value={
               <span
@@ -438,7 +438,7 @@ export default function AdminUserDetailPage() {
                 <XCircle className="h-5 w-5" weight="bold" />
               )
             }
-            iconBg={user.emailVerified ? "bg-healthy" : "bg-red-400"}
+            iconBg={user.emailVerified ? "bg-healthy" : "bg-destructive/20"}
             label={t("fields.emailVerified")}
             value={
               user.emailVerified ? t("status.verified") : t("status.unverified")
@@ -448,7 +448,7 @@ export default function AdminUserDetailPage() {
           {/* Created At */}
           <InfoCard
             icon={<CalendarCheck className="h-5 w-5" weight="bold" />}
-            iconBg="bg-primary"
+            iconBg="tile-brand"
             label={t("fields.createdAt")}
             value={formatDateTime(user.createdAt)}
           />
@@ -456,7 +456,7 @@ export default function AdminUserDetailPage() {
           {/* Updated At */}
           <InfoCard
             icon={<Clock className="h-5 w-5" weight="bold" />}
-            iconBg="bg-orange-500"
+            iconBg="tile-warning"
             label={t("fields.updatedAt")}
             value={formatDateTime(user.updatedAt)}
           />

@@ -108,13 +108,13 @@ export function RegisterPhoneDialog({
             </div>
           </div>
 
-          <div className="flex items-start gap-3 p-4 bg-warning/10 dark:bg-amber-900/20 rounded-lg">
+          <div className="flex items-start gap-3 p-4 bg-warning/10 dark:bg-warning/20 rounded-lg">
             <Warning
               className="w-5 h-5 text-warning flex-shrink-0 mt-0.5"
               weight="fill"
             />
             <div>
-              <p className="text-sm text-amber-800 dark:text-amber-200">
+              <p className="text-sm text-warning-ink dark:text-warning">
                 {t("cloudRegistration.rateLimitWarning")}
               </p>
             </div>

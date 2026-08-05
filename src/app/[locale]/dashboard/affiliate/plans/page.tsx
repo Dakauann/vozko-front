@@ -134,7 +134,7 @@ export default function AffiliatePlansPage() {
 
       {error ? (
         <div
-          className="rounded-[--radius] border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive"
+          className="rounded-[--radius] border border-destructive/30 bg-muted p-4 text-sm text-destructive-ink"
           role="alert"
         >
           {error}
@@ -144,7 +144,7 @@ export default function AffiliatePlansPage() {
       {loading ? (
         <div className="flex min-h-[30vh] items-center justify-center">
           <CircleNotch
-            className="h-8 w-8 animate-spin text-lamp-ink"
+            className="h-8 w-8 animate-spin text-primary-ink"
             weight="bold"
           />
         </div>
@@ -215,7 +215,7 @@ export default function AffiliatePlansPage() {
             <section className="space-y-6 rounded-[--radius] border border-border bg-card p-5 sm:p-6">
               <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-wide text-lamp-ink">
+                  <p className="text-[11px] font-semibold text-primary-ink">
                     {plansT("subscription.availableBadge")}
                   </p>
                   <h2 className="mt-1 text-xl font-semibold text-foreground">
@@ -228,7 +228,7 @@ export default function AffiliatePlansPage() {
                 </div>
 
                 <div className="text-left sm:text-right">
-                  <p className="text-xs uppercase text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     {plansT("list.basePrice")}
                   </p>
                   <p className="text-2xl font-semibold tabular-nums text-foreground">

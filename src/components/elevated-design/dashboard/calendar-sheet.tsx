@@ -346,7 +346,7 @@ function EventSection({
 }) {
   return (
     <div>
-      <h3 className="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <h3 className="mb-2.5 text-[11px] font-semibold text-muted-foreground">
         {label}
       </h3>
       <div className="divide-y divide-border/40">
@@ -424,7 +424,7 @@ function EventCard({
             href={event.meetingLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 mt-1 text-xs text-lamp-ink hover:underline"
+            className="inline-flex items-center gap-1.5 mt-1 text-xs text-primary-ink hover:underline"
             onClick={(e) => e.stopPropagation()}
           >
             <VideoCamera className="h-3 w-3" weight="fill" />
@@ -443,13 +443,13 @@ function EventCard({
                   weight="duotone"
                   className="text-muted-foreground shrink-0"
                 />
-                <span className="text-[10px] text-muted-foreground truncate max-w-[80px]">
+                <span className="text-[11px] text-muted-foreground truncate max-w-[80px]">
                   {a.email}
                 </span>
               </div>
             ))}
             {event.attendees.length > 3 && (
-              <span className="text-[10px] text-muted-foreground/60">
+              <span className="text-[11px] text-muted-foreground/60">
                 +{event.attendees.length - 3}
               </span>
             )}
@@ -473,7 +473,7 @@ function EventCard({
             e.stopPropagation();
             onDelete(event.id);
           }}
-          className="rounded-lg p-1.5 text-muted-foreground hover:bg-destructive hover:text-white transition-colors"
+          className="rounded-lg p-1.5 text-muted-foreground hover:bg-destructive hover:text-destructive-foreground transition-colors"
         >
           <Trash className="h-3.5 w-3.5" weight="bold" />
         </button>
@@ -661,7 +661,7 @@ function EventForm({
                 href={event.meetingLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-lamp-ink hover:underline flex items-center gap-1.5"
+                className="text-sm text-primary-ink hover:underline flex items-center gap-1.5"
               >
                 <VideoCamera size={14} weight="fill" />
                 {t("form.joinMeeting") || "Join meeting"}
@@ -710,7 +710,7 @@ function EventForm({
         {/* Guest permissions */}
         {attendees.trim() && (
           <div className="ml-[30px] space-y-1.5 py-2 pl-1">
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+            <p className="text-[11px] font-semibold text-muted-foreground">
               {t("form.guestPermissions") || "Guest Permissions"}
             </p>
             {[

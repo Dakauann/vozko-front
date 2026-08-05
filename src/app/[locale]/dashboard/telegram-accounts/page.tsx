@@ -46,7 +46,7 @@ const STATUS_COLORS: Record<TelegramAccountStatus, string> = {
   PENDING: "bg-warning text-warning-foreground",
   ACTIVE: "bg-healthy text-healthy-foreground",
   TOKEN_INVALID: "bg-destructive text-destructive-foreground",
-  WEBHOOK_FAILING: "bg-orange-500 text-white",
+  WEBHOOK_FAILING: "bg-warning text-warning-foreground",
   REVOKED: "bg-muted text-muted-foreground",
 };
 
@@ -180,7 +180,7 @@ export default function TelegramAccountsPage() {
                   one button, and is losing messages until it is pressed. */}
               {issue === "webhook" && (
                 <span
-                  className="flex max-w-[320px] items-start gap-1 text-xs text-orange-700 dark:text-orange-400"
+                  className="flex max-w-[320px] items-start gap-1 text-xs text-warning-ink dark:text-warning"
                   title={row.webhookLastError || t("card.webhookFailing")}
                 >
                   <Warning weight="fill" className="mt-0.5 h-3 w-3 flex-shrink-0" />
@@ -194,7 +194,7 @@ export default function TelegramAccountsPage() {
 
               {issue === "token" && (
                 <span
-                  className="flex max-w-[320px] items-start gap-1 text-xs text-destructive dark:text-red-400"
+                  className="flex max-w-[320px] items-start gap-1 text-xs text-destructive dark:text-destructive"
                   title={row.statusReason}
                 >
                   <Warning weight="fill" className="mt-0.5 h-3 w-3 flex-shrink-0" />
@@ -235,7 +235,7 @@ export default function TelegramAccountsPage() {
             <span
               className={cn(
                 "text-sm",
-                row.webhookHealthy ? "text-healthy dark:text-healthy" : "text-orange-600",
+                row.webhookHealthy ? "text-healthy dark:text-healthy" : "text-warning-ink",
               )}
             >
               {row.webhookHealthy ? t("webhook.healthy") : t("webhook.failing")}
@@ -244,7 +244,7 @@ export default function TelegramAccountsPage() {
                 discards undelivered updates after 24 hours and has no history
                 API, so the number is shown as soon as it is non-zero. */}
             {row.webhookPendingCount > 0 && (
-              <span className="text-xs text-orange-600 dark:text-orange-400 tabular-nums">
+              <span className="text-xs text-warning-ink dark:text-warning tabular-nums">
                 {t("webhook.pending", { count: row.webhookPendingCount })}
               </span>
             )}
@@ -269,7 +269,7 @@ export default function TelegramAccountsPage() {
                 void handleReregister(row);
               }}
               title={t("card.reregister")}
-              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-orange-700 transition-colors hover:bg-orange-50 disabled:opacity-50 dark:text-orange-400 dark:hover:bg-orange-500/10"
+              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-warning-ink transition-colors hover:bg-muted disabled:opacity-50 dark:text-warning dark:hover:bg-warning/10"
             >
               <ArrowClockwise
                 className={cn("h-3.5 w-3.5", busyId === row.id && "animate-spin")}
@@ -300,7 +300,7 @@ export default function TelegramAccountsPage() {
                 void handleDisconnect(row);
               }}
               title={t("card.disconnect")}
-              className="inline-flex items-center rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+              className="inline-flex items-center rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-destructive-ink disabled:opacity-50"
             >
               <Trash className="h-4 w-4" />
             </button>
@@ -322,7 +322,7 @@ export default function TelegramAccountsPage() {
         badge={t("page.title")}
         description={t("page.description")}
         icon={<TelegramLogoColor className="h-6 w-6" />}
-        colorClass="text-sky-500"
+        colorClass="text-info-ink"
         actions={
           canCreate ? (
             <div className="flex flex-wrap items-center gap-3">
@@ -376,7 +376,7 @@ export default function TelegramAccountsPage() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+        <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-muted px-4 py-3 text-sm text-destructive-ink">
           <Warning className="h-4 w-4" />
           {error}
         </div>
@@ -417,7 +417,7 @@ export default function TelegramAccountsPage() {
         />
       ) : (
         <div className="space-y-4">
-          <ElevatedContainer className="overflow-hidden border border-border !p-0">
+          <ElevatedContainer className="rounded-lg overflow-hidden border border-border !p-0">
             <DashboardTable<TelegramAccount>
               data={accounts}
               columns={columns}

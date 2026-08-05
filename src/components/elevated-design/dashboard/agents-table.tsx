@@ -37,7 +37,7 @@ function formatDate(value: string) {
 function InfoItem({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="rounded-[--radius] border border-border bg-muted px-4 py-3">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <p className="text-[11px] font-semibold text-muted-foreground">
         {label}
       </p>
       <div className="mt-1 text-sm font-medium text-foreground">{value}</div>
@@ -168,7 +168,7 @@ export function AgentsTable({ agents, meta }: AgentsTableProps) {
               </div>
 
               <div className="mt-5 space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <p className="text-xs font-semibold text-muted-foreground">
                   Ferramentas habilitadas
                 </p>
                 <ToolsList tools={tools} agentId={agent.id} />
@@ -187,7 +187,7 @@ export function AgentsTable({ agents, meta }: AgentsTableProps) {
                     iconSide="left"
                     link={`/dashboard/agents/${agent.id}/tune`}
                     newTab={false}
-                    className="text-[11px] font-semibold uppercase"
+                    className="text-[11px] font-semibold"
                   />
                   <Button
                     variant="outline"
@@ -197,7 +197,7 @@ export function AgentsTable({ agents, meta }: AgentsTableProps) {
                     iconSide="left"
                     link={`/dashboard/agents/${agent.id}/edit`}
                     newTab={false}
-                    className="text-[11px] font-semibold uppercase"
+                    className="text-[11px] font-semibold"
                   />
                   <Button
                     variant="ghost"
@@ -207,7 +207,7 @@ export function AgentsTable({ agents, meta }: AgentsTableProps) {
                     iconSide="left"
                     link={`/dashboard/agents/${agent.id}/delete`}
                     newTab={false}
-                    className="text-[11px] font-semibold uppercase text-destructive hover:bg-destructive/10"
+                    className="text-[11px] font-semibold text-destructive-ink hover:bg-muted"
                   />
                 </div>
               </div>

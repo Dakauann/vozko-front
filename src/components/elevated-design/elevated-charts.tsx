@@ -117,7 +117,7 @@ export const ChartLoadingState: React.FC<ChartLoadingStateProps> = ({
     className="flex items-center justify-center"
     style={{ height: `${height}px` }}
   >
-    <Spinner className="h-8 w-8 animate-spin text-lamp-ink" />
+    <Spinner className="h-8 w-8 animate-spin text-primary-ink" />
   </div>
 );
 

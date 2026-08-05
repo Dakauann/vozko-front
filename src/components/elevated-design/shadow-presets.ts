@@ -1,26 +1,31 @@
 /**
- * Surface depth in the Console identity.
+ * Surface depth.
  *
- * Depth here is CUT, not stacked: a surface reads as recessed into the panel
- * because it carries an engraved hairline and a darker top edge, not because it
- * floats on a soft drop shadow. These three constants are consumed across
- * elevated-design, so redefining them retires the old raised-card model at every
- * call site at once rather than editing each one.
+ * Depth is STACKED again, not cut. The outgoing identity resolved all three of
+ * these to an inset hairline and a darker top edge, so a surface read as
+ * recessed into a panel and nothing in the product ever floated. That model is
+ * retired: these now point at the shared elevation stack in globals.css, where
+ * each step is a tinted contact shadow plus a softer ambient one.
  *
- * They are kept as named exports (rather than deleted) precisely so those call
- * sites keep compiling and keep resolving to the current system.
+ * They stay as named exports rather than being deleted precisely so the call
+ * sites across elevated-design keep compiling and keep resolving to whatever
+ * the current system says depth is — which is the reason a single edit here
+ * moves all of them at once.
  */
 
-/** An engraved hairline. The 1px inset top edge is the recess cue. */
-export const softSurfaceShadow =
-  "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)";
+/** A resting surface: the first step off the canvas. */
+export const softSurfaceShadow = "var(--elev-1)";
 
-/** Identical: the old variant existed only to add a raised inset highlight. */
+/**
+ * Kept identical. The old variant existed only to add an inset top highlight,
+ * a raised-card cue this system does not use — its highlight token is still
+ * defined as transparent so any hand-written string interpolating it stays
+ * valid rather than invalidating the whole declaration.
+ */
 export const softSurfaceWithInset = softSurfaceShadow;
 
 /**
- * Hover does not lift. It deepens the cut, so this differs from the resting
- * state by edge contrast rather than by blur radius.
+ * Hover lifts rather than deepening a cut, so this differs from the resting
+ * state by blur and spread instead of by edge contrast.
  */
-export const softHoverShadow =
-  "inset 0 1px 0 hsl(var(--rule-strong)), inset 0 0 0 1px hsl(var(--border))";
+export const softHoverShadow = "var(--elev-3)";

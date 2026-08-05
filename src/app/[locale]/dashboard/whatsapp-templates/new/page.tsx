@@ -689,7 +689,7 @@ export default function NewWhatsAppTemplatePage() {
     },
     mixed: {
       label: t("new.guidelines.formatMixed"),
-      cls: "bg-warning/10 text-warning border-warning/20",
+      cls: "bg-muted text-warning-ink border-warning/20",
     },
   }[detectedFormat];
   const guidelineKeys = [
@@ -765,7 +765,7 @@ export default function NewWhatsAppTemplatePage() {
         <div className="flex-1 min-w-0 space-y-5">
           {/* Template Basic Info */}
           <motion.div variants={itemVariants} data-tour="wt-template-info">
-            <ElevatedContainer className="border border-border bg-card p-5">
+            <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
               <h2 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
                 <div className="flex h-6 w-6 items-center justify-center rounded-md bg-healthy">
                   <WhatsappLogo
@@ -790,7 +790,7 @@ export default function NewWhatsAppTemplatePage() {
                           .replace(/[^a-z0-9_]/g, "_"),
                       )
                     }
-                    className={errors.name ? "border-red-300" : ""}
+                    className={errors.name ? "border-destructive/30" : ""}
                   />
                   {errors.name ? (
                     <p className="mt-1 text-xs text-destructive flex items-center gap-1">
@@ -859,7 +859,7 @@ export default function NewWhatsAppTemplatePage() {
 
           {/* Template Builder */}
           <motion.div variants={itemVariants}>
-            <ElevatedContainer className="border border-border bg-card p-5">
+            <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <div className="flex h-6 w-6 items-center justify-center rounded-md bg-muted">
@@ -927,7 +927,7 @@ export default function NewWhatsAppTemplatePage() {
 
           {/* Guidelines */}
           <motion.div variants={itemVariants}>
-            <ElevatedContainer className="border border-border bg-card p-5">
+            <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
               <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
                 <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[#2463eb]">
@@ -973,7 +973,7 @@ export default function NewWhatsAppTemplatePage() {
           className="hidden xl:block w-[340px] flex-shrink-0 sticky top-6"
           data-tour="wt-preview"
         >
-          <ElevatedContainer className="border border-border bg-card p-5">
+          <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
             <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <div className="flex h-6 w-6 items-center justify-center rounded-md bg-muted">
                 <DeviceMobile
@@ -1001,7 +1001,7 @@ export default function NewWhatsAppTemplatePage() {
                   weight="fill"
                 />
                 <div>
-                  <h4 className="text-xs font-semibold text-amber-800 mb-0.5">
+                  <h4 className="text-xs font-semibold text-warning-ink mb-0.5">
                     {t("new.approvalRequired.title")}
                   </h4>
                   <p className="text-[11px] text-warning leading-relaxed">

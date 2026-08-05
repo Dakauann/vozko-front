@@ -228,7 +228,7 @@ export function AdminAddonsManager() {
         <section className="space-y-3">
           {loading ? (
             <div className="flex items-center justify-center py-24">
-              <CircleNotch className="h-7 w-7 animate-spin text-lamp-ink" weight="bold" />
+              <CircleNotch className="h-7 w-7 animate-spin text-primary-ink" weight="bold" />
             </div>
           ) : addons.length === 0 ? (
             <div
@@ -275,7 +275,7 @@ export function AdminAddonsManager() {
                     </div>
                     <span
                       className={cn(
-                        "shrink-0 rounded-[--radius] px-2.5 py-1 text-[10px] font-semibold uppercase",
+                        "shrink-0 rounded-[--radius] px-2.5 py-1 text-[11px] font-semibold",
                         chip.cls,
                       )}
                     >
@@ -310,7 +310,7 @@ export function AdminAddonsManager() {
           className={cn(PANEL, "h-fit space-y-3 rounded-[--radius] p-5")}
           style={{ boxShadow: softSurfaceShadow }}
         >
-          <p className="text-xs font-semibold uppercase text-lamp-ink">
+          <p className="text-xs font-semibold text-primary-ink">
             {editingId ? "Editar addon" : "Novo addon"}
           </p>
 

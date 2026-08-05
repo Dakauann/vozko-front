@@ -231,7 +231,7 @@ const FAQSection: React.FC<FAQSectionProps> = ({
                   href="mailto:orbai@support.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-lamp-ink hover:text-blue-800 underline transition-colors"
+                  className="text-primary-ink hover:text-info-ink underline transition-colors"
                 >
                   orbai@support.com
                 </a>

@@ -236,7 +236,7 @@ export default function KnowledgeBaseDetailPage() {
     return (
       <div className="flex items-center justify-center py-20">
         <CircleNotch
-          className="h-8 w-8 animate-spin text-lamp-ink"
+          className="h-8 w-8 animate-spin text-primary-ink"
           weight="bold"
         />
       </div>
@@ -275,7 +275,7 @@ export default function KnowledgeBaseDetailPage() {
           badge={t("header.badge")}
           title={knowledgeBase.name}
           description={knowledgeBase.description || t("card.noDescription")}
-          colorClass="text-cyan-500"
+          colorClass="text-info-ink"
           actions={
             <Button
               variant="secondary"
@@ -347,14 +347,14 @@ export default function KnowledgeBaseDetailPage() {
               documents.length >= MAX_DOCUMENTS &&
                 "opacity-50 cursor-not-allowed",
               isDragActive
-                ? "border-cyan-500 bg-muted"
-                : "border-border hover:border-cyan-500/50 hover:bg-muted",
+                ? "border-info bg-muted"
+                : "border-border hover:border-info/50 hover:bg-muted",
             )}
           >
             <input {...getInputProps()} />
             {uploading ? (
               <div className="flex flex-col items-center gap-2">
-                <CircleNotch className="h-8 w-8 animate-spin text-cyan-500" />
+                <CircleNotch className="h-8 w-8 animate-spin text-info-ink" />
                 <p className="text-sm text-muted-foreground">
                   {t("documents.uploading")}
                 </p>
@@ -412,7 +412,7 @@ export default function KnowledgeBaseDetailPage() {
                       <div className="flex items-center gap-2 mt-0.5">
                         <span
                           className={cn(
-                            "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                            "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold",
                             doc.status === "ready" &&
                               "bg-healthy text-healthy-foreground",
                             doc.status === "processing" &&
@@ -450,7 +450,7 @@ export default function KnowledgeBaseDetailPage() {
                   </div>
                   <button
                     onClick={() => deleteDocument(doc.id)}
-                    className="rounded-lg p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                    className="rounded-lg p-2 text-muted-foreground hover:text-destructive-ink hover:bg-muted transition-colors"
                   >
                     <Trash className="h-4 w-4" weight="bold" />
                   </button>

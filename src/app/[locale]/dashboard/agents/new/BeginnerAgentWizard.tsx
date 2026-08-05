@@ -148,7 +148,7 @@ function StepHeader({
   return (
     <div className="mb-6 flex items-start gap-4">
       <div
-        className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-[--radius] bg-gradient-to-br ${gradientFrom} ${gradientTo} text-white shadow-lg`}
+        className={`ink-plate flex h-14 w-14 shrink-0 items-center justify-center ${gradientFrom} ${gradientTo}`}
       >
         <Icon className="h-7 w-7" weight="fill" />
       </div>
@@ -167,7 +167,7 @@ function ExampleBlock({ label, body }: { label: string; body: string }) {
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground shadow">
           <Lightbulb className="h-4 w-4" weight="fill" />
         </div>
-        <p className="text-xs font-semibold uppercase tracking-wider text-foreground">
+        <p className="text-xs font-semibold text-foreground">
           {label}
         </p>
       </div>
@@ -569,8 +569,8 @@ export default function BeginnerAgentWizard({
               Icon={Robot}
               title={tWizard("steps.identity.title")}
               intro={tWizard("steps.identity.intro")}
-              gradientFrom="from-blue-500"
-              gradientTo="to-blue-700"
+              gradientFrom="ink-1"
+              gradientTo=""
             />
 
             <div className="space-y-5">
@@ -621,8 +621,8 @@ export default function BeginnerAgentWizard({
               Icon={Sparkle}
               title={tWizard("steps.models.title")}
               intro={tWizard("steps.models.intro")}
-              gradientFrom="from-violet-500"
-              gradientTo="to-fuchsia-700"
+              gradientFrom="ink-4"
+              gradientTo=""
             />
 
             <div className="space-y-5">
@@ -658,8 +658,8 @@ export default function BeginnerAgentWizard({
               Icon={ChatCircle}
               title={tWizard("steps.prompts.title")}
               intro={tWizard("steps.prompts.intro")}
-              gradientFrom="from-orange-500"
-              gradientTo="to-red-600"
+              gradientFrom="ink-3"
+              gradientTo=""
             />
 
             <div className="space-y-5">
@@ -711,8 +711,8 @@ export default function BeginnerAgentWizard({
               Icon={PaperPlaneTilt}
               title={tWizard("steps.whatsapp.title")}
               intro={tWizard("steps.whatsapp.intro")}
-              gradientFrom="from-emerald-500"
-              gradientTo="to-emerald-700"
+              gradientFrom="ink-2"
+              gradientTo=""
             />
 
             <div className="space-y-5">
@@ -820,8 +820,8 @@ export default function BeginnerAgentWizard({
               Icon={CheckCircle}
               title={tWizard("steps.review.title")}
               intro={tWizard("steps.review.intro")}
-              gradientFrom="from-emerald-500"
-              gradientTo="to-emerald-700"
+              gradientFrom="ink-2"
+              gradientTo=""
             />
 
             <div className="space-y-3">
@@ -885,7 +885,7 @@ export default function BeginnerAgentWizard({
 function ReviewRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-start justify-between gap-4 rounded-[--radius] border border-border bg-card px-4 py-3">
-      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="text-xs font-semibold text-muted-foreground">
         {label}
       </p>
       <p className="max-w-[60%] truncate text-right text-sm text-foreground">

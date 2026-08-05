@@ -106,7 +106,7 @@ export default function AffiliateReferralsPage() {
       />
 
       {error ? (
-        <div className="rounded-[--radius] border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+        <div className="rounded-[--radius] border border-destructive/30 bg-muted p-4 text-sm text-destructive-ink">
           {error}
         </div>
       ) : null}
@@ -114,7 +114,7 @@ export default function AffiliateReferralsPage() {
       {loading && rows.length === 0 ? (
         <div className="flex min-h-[30vh] items-center justify-center">
           <CircleNotch
-            className="h-8 w-8 animate-spin text-lamp-ink"
+            className="h-8 w-8 animate-spin text-primary-ink"
             weight="bold"
           />
         </div>

@@ -8,7 +8,7 @@ import { X } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 const panelShadow =
-  "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)";
+  "var(--elev-1)";
 
 const ElevatedDialog = DialogPrimitive.Root;
 const ElevatedDialogTrigger = DialogPrimitive.Trigger;

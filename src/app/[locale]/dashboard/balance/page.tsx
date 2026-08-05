@@ -464,7 +464,7 @@ export default function BalancePage() {
                       locale,
                     ),
               icon: (
-                <ArrowDown className="h-4 w-4 text-red-500" weight="bold" />
+                <ArrowDown className="h-4 w-4 text-destructive-ink" weight="bold" />
               ),
             },
           ]}

@@ -61,7 +61,7 @@ export function ChannelReachLegend({
         return (
           <span
             key={channel}
-            className="flex items-center gap-1 text-[10px] text-muted-foreground"
+            className="flex items-center gap-1 text-[11px] text-muted-foreground"
           >
             <ChannelLogo channel={channel} className="h-3 w-3 shrink-0" />
             <span>
@@ -100,7 +100,7 @@ export function OptionChannelReach({
   if (problems.length === 0) return null;
 
   return (
-    <div className="flex items-start gap-1.5 text-[10px] leading-relaxed text-warning">
+    <div className="flex items-start gap-1.5 text-[11px] leading-relaxed text-warning">
       <WarningCircle size={12} weight="fill" className="mt-px shrink-0" />
       <ul className="space-y-0.5">
         {problems.map((reach) => (
@@ -130,7 +130,7 @@ export function DescriptionReachNote({
   if (without.length === 0) return null;
 
   return (
-    <p className="text-[10px] leading-relaxed text-muted-foreground">
+    <p className="text-[11px] leading-relaxed text-muted-foreground">
       A descrição aparece só no WhatsApp, {without.map(channelName).join(" e ")}{" "}
       {without.length > 1 ? "mostram" : "mostra"} apenas o título.
     </p>

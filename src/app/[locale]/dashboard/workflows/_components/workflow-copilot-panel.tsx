@@ -215,7 +215,7 @@ export function WorkflowCopilotPanel({
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-border">
         <div className="flex items-center gap-2 text-sm font-medium">
-          <Sparkle size={16} weight="fill" className="text-lamp-ink" />
+          <Sparkle size={16} weight="fill" className="text-primary-ink" />
           {showHistory ? "Conversas" : "Copiloto de Fluxos"}
           {!showHistory && (
             <button
@@ -231,12 +231,12 @@ export function WorkflowCopilotPanel({
                       : "Conectando…"
               }
               className={cn(
-                "inline-flex items-center gap-1 rounded-full px-1 text-[10px] font-medium",
+                "inline-flex items-center gap-1 rounded-full px-1 text-[11px] font-medium",
                 connection === "online"
                   ? "cursor-default text-muted-foreground"
                   : connection === "offline"
                     ? "text-destructive dark:text-destructive"
-                    : "text-warning dark:text-amber-400",
+                    : "text-warning dark:text-warning",
               )}
             >
               <span
@@ -277,7 +277,7 @@ export function WorkflowCopilotPanel({
               onClick={() => setShowHistory((v) => !v)}
               className={cn(
                 "hover:text-foreground",
-                showHistory ? "text-lamp-ink" : "text-muted-foreground",
+                showHistory ? "text-primary-ink" : "text-muted-foreground",
               )}
               aria-label={showHistory ? "Voltar ao copiloto" : "Histórico de conversas"}
               title={showHistory ? "Voltar ao copiloto" : "Histórico de conversas"}
@@ -374,7 +374,7 @@ export function WorkflowCopilotPanel({
 
         {blocking.length > 0 && (
           <div className="rounded-md border border-destructive/30 bg-destructive/5 p-2 space-y-1">
-            <div className="flex items-center gap-1 text-xs font-medium text-destructive dark:text-red-400">
+            <div className="flex items-center gap-1 text-xs font-medium text-destructive dark:text-destructive">
               <Warning size={13} weight="fill" /> {blocking.length} problema(s)
               bloqueante(s)
             </div>
@@ -390,7 +390,7 @@ export function WorkflowCopilotPanel({
           <div className="rounded-md border border-warning/30 bg-warning/5 p-2">
             <button
               onClick={() => setAdvisoryOpen((o) => !o)}
-              className="flex w-full items-center gap-1 text-xs font-medium text-warning dark:text-amber-400"
+              className="flex w-full items-center gap-1 text-xs font-medium text-warning dark:text-warning"
             >
               <Lightbulb size={13} weight="fill" /> {advisory.length} dica(s)
               {advisoryOpen ? (
@@ -416,9 +416,9 @@ export function WorkflowCopilotPanel({
       {isBusy && (
         <div className="flex items-center gap-2 px-3 py-1.5 border-t border-border text-[11px] text-muted-foreground">
           <span className="flex gap-0.5">
-            <span className="w-1 h-1 rounded-full bg-primary animate-bounce [animation-delay:-0.2s]" />
-            <span className="w-1 h-1 rounded-full bg-primary animate-bounce [animation-delay:-0.1s]" />
-            <span className="w-1 h-1 rounded-full bg-primary animate-bounce" />
+            <span className="w-1 h-1 rounded-full bg-primary animate-dot-pulse [animation-delay:-0.2s]" />
+            <span className="w-1 h-1 rounded-full bg-primary animate-dot-pulse [animation-delay:-0.1s]" />
+            <span className="w-1 h-1 rounded-full bg-primary animate-dot-pulse" />
           </span>
           <span>
             {status === "connecting"

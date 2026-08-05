@@ -65,7 +65,7 @@ function ElevatedSheetContent({
           "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4 transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
 
           "shadow-[0px_0.7066px_0.7066px_-0.6667px_rgba(0,0,0,0.08),0px_1.8066px_1.8066px_-1.3333px_rgba(0,0,0,0.08),0px_3.6218px_3.6218px_-2px_rgba(0,0,0,0.07),0px_6.8656px_6.8656px_-2.6667px_rgba(0,0,0,0.07),0px_13.6468px_13.6468px_-3.3333px_rgba(0,0,0,0.05),0px_30px_30px_-4px_rgba(0,0,0,0.02)]",
-          "[box-shadow:inset_0_1px_0_hsl(var(--rule-strong))]",
+          "[box-shadow:inset_0_1px_0_hsl(var(--border-strong))]",
           side === "right" &&
             "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 h-full w-3/4 border-l border-border sm:max-w-sm rounded-l-[20px]",
           side === "left" &&
@@ -83,7 +83,7 @@ function ElevatedSheetContent({
           className="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-6 right-6 rounded-full p-2 opacity-70 transition-all hover:opacity-100 hover:bg-muted focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
           style={{
             boxShadow:
-              "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)",
+              "var(--elev-1)",
           }}
         >
           <X weight="bold" className="size-5 text-foreground" />

@@ -102,7 +102,7 @@ export function ReadoutBar({
   return (
     <div
       className={cn(
-        "flex flex-wrap items-stretch border border-border border-t-rule-strong bg-card",
+        "flex flex-wrap items-stretch border border-border bg-card",
         className,
       )}
     >
@@ -193,7 +193,7 @@ export function InstrumentStrip({
       className={cn(
         // A 1px border field with the cells sitting on it: the dividers between
         // gauges are hairlines, and they do not double up at the seams.
-        "grid gap-px border border-border border-t-rule-strong bg-border",
+        "grid gap-px border border-border bg-border",
         STRIP_COLUMNS[columns],
         className,
       )}
@@ -211,7 +211,7 @@ export function InstrumentStrip({
             {inst.tooltip ? (
               <span className="relative flex-shrink-0">
                 <InfoGlyph />
-                <span className="pointer-events-none fixed inset-x-3 bottom-auto z-50 mb-2 w-auto border border-border border-t-rule-strong bg-popover px-3 py-2 text-xs leading-relaxed text-popover-foreground opacity-0 shadow-xl transition-opacity duration-DEFAULT peer-hover:opacity-100 peer-focus-visible:opacity-100 sm:absolute sm:bottom-full sm:left-0 sm:inset-x-auto sm:w-60">
+                <span className="pointer-events-none fixed inset-x-3 bottom-auto z-50 mb-2 w-auto border border-border bg-popover px-3 py-2 text-xs leading-relaxed text-popover-foreground opacity-0 shadow-xl transition-opacity duration-DEFAULT peer-hover:opacity-100 peer-focus-visible:opacity-100 sm:absolute sm:bottom-full sm:left-0 sm:inset-x-auto sm:w-60">
                   {inst.tooltip}
                 </span>
               </span>
@@ -253,7 +253,7 @@ function InfoGlyph() {
     <button
       type="button"
       aria-label="?"
-      className="peer relative flex h-3 w-3 items-center justify-center border border-border text-[8px] font-bold leading-none text-muted-foreground before:absolute before:-inset-[11px] before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:before:hidden"
+      className="peer relative flex h-3 w-3 items-center justify-center border border-border text-[11px] font-bold leading-none text-muted-foreground before:absolute before:-inset-[11px] before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:before:hidden"
     >
       ?
     </button>
@@ -308,7 +308,7 @@ export function StatusRail({
   return (
     <div
       className={cn(
-        "flex flex-wrap items-stretch border border-border border-t-rule-strong bg-card",
+        "flex flex-wrap items-stretch border border-border bg-card",
         className,
       )}
       role="group"
@@ -393,7 +393,7 @@ export function GalleryGrid({
   return (
     <div
       className={cn(
-        "grid gap-px border border-border border-t-rule-strong bg-border",
+        "grid gap-px border border-border bg-border",
         "sm:grid-cols-2 xl:grid-cols-3",
         className,
       )}

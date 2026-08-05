@@ -69,10 +69,10 @@ const STATUS_COLORS: Record<BusinessPhoneStatus, string> = {
   CONNECTED: "bg-healthy text-healthy-foreground",
   DISCONNECTED: "bg-muted text-muted-foreground",
   BANNED: "bg-destructive text-destructive-foreground",
-  FLAGGED: "bg-orange-500 text-white",
-  RESTRICTED: "bg-yellow-500 text-white",
+  FLAGGED: "bg-warning text-warning-foreground",
+  RESTRICTED: "bg-warning text-warning-foreground",
   RATE_LIMITED: "bg-muted text-muted-foreground",
-  UNVERIFIED: "bg-orange-500 text-white",
+  UNVERIFIED: "bg-warning text-warning-foreground",
   ONBOARDING_FAILED: "bg-destructive text-destructive-foreground",
   DELETED: "bg-muted text-muted-foreground",
 };
@@ -392,7 +392,7 @@ export default function WhatsAppBusinessPhonesPage({
           row.status === "PENDING" && row.provider === "dialog360" ? (
             // Provisioning is async at 360dialog (~30-60s after redirect): show a clear
             // "connecting" state instead of an empty-looking pending row.
-            <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-warning px-2.5 py-0.5 text-xs font-medium text-white">
+            <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-warning px-2.5 py-0.5 text-xs font-medium text-warning-foreground">
               <CircleNotch className="h-3 w-3 animate-spin" weight="bold" />
               {t("status.connecting")}
             </span>
@@ -571,7 +571,7 @@ export default function WhatsAppBusinessPhonesPage({
                 void handleRetryOnboarding(row.id, row.ownerWorkspaceId);
               }}
               title={row.onboardingError || t("onboarding.retry")}
-              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-destructive-ink hover:bg-muted transition-colors disabled:opacity-50"
             >
               <ArrowClockwise
                 className={cn(
@@ -652,13 +652,13 @@ export default function WhatsAppBusinessPhonesPage({
       {!adminAllMode && <WhatsAppCapacityCard capacity={capacity} />}
 
       {adminAllMode && (
-        <ElevatedContainer className="border-amber-200 bg-amber-50 p-4">
+        <ElevatedContainer className="border-warning/30 bg-warning/10 p-4">
           <div className="flex items-center gap-3">
             <Info
               weight="fill"
               className="h-5 w-5 flex-shrink-0 text-warning"
             />
-            <p className="text-sm text-amber-900">
+            <p className="text-sm text-warning-ink">
               {t.has("header.adminNotice")
                 ? t("header.adminNotice")
                 : t("header.description")}
@@ -669,13 +669,13 @@ export default function WhatsAppBusinessPhonesPage({
 
       {/* User Info Box - Non-admin only */}
       {!canManagePhones && !adminAllMode && (
-        <ElevatedContainer className="p-4 bg-muted border-blue-100">
+        <ElevatedContainer className="p-4 bg-muted border-info/30">
           <div className="flex items-center gap-3">
             <Info
               weight="fill"
-              className="h-5 w-5 text-lamp-ink flex-shrink-0"
+              className="h-5 w-5 text-primary-ink flex-shrink-0"
             />
-            <p className="text-sm text-blue-800">{t("userAccess.info")}</p>
+            <p className="text-sm text-info-ink">{t("userAccess.info")}</p>
           </div>
         </ElevatedContainer>
       )}
@@ -834,7 +834,7 @@ export default function WhatsAppBusinessPhonesPage({
         />
       ) : (
         <div className="space-y-4">
-          <ElevatedContainer className="overflow-hidden border border-border !p-0">
+          <ElevatedContainer className="rounded-lg overflow-hidden border border-border !p-0">
             <DashboardTable<WhatsAppBusinessPhone>
               data={phones}
               columns={columns}

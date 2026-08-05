@@ -66,7 +66,7 @@ export function SendMediaPreview({
             WA_MEDIA_BUBBLE,
           )}
         >
-          <span className="text-[10px] italic text-black/40 dark:text-white/40">
+          <span className="text-[11px] italic text-black/40 dark:text-white/40">
             Nenhuma mídia
           </span>
         </div>
@@ -182,7 +182,7 @@ function WhatsAppMedia({
           </div>
           <div className="mt-1 flex items-center gap-1">
             <Microphone size={10} className={WA_BUBBLE_MUTED} />
-            <span className={cn("text-[9px]", WA_BUBBLE_MUTED)}>0:00</span>
+            <span className={cn("text-[11px]", WA_BUBBLE_MUTED)}>0:00</span>
           </div>
         </div>
       </div>
@@ -200,7 +200,7 @@ function WhatsAppMedia({
         <p className={cn("truncate text-[11px] font-medium", WA_BUBBLE_TEXT)}>
           {name || "Documento"}
         </p>
-        <p className={cn("truncate text-[9px] uppercase", WA_BUBBLE_MUTED)}>
+        <p className={cn("truncate text-[11px]", WA_BUBBLE_MUTED)}>
           {ext} · Documento
         </p>
       </div>
@@ -219,7 +219,7 @@ function MediaPlaceholder({
   return (
     <div className="flex h-24 w-full items-center justify-center gap-1.5 bg-black/10 dark:bg-white/10">
       <Icon size={18} weight="duotone" className="text-black/30 dark:text-white/40" />
-      <span className="text-[10px] text-black/40 dark:text-white/40">{label}</span>
+      <span className="text-[11px] text-black/40 dark:text-white/40">{label}</span>
     </div>
   );
 }

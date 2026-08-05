@@ -47,20 +47,20 @@ const statusConfig: Record<
   { color: string; bgColor: string; icon: Icon; label: string }
 > = {
   open: {
-    color: "text-muted-foreground dark:text-blue-400",
-    bgColor: "bg-muted dark:bg-blue-900/30",
+    color: "text-muted-foreground dark:text-info",
+    bgColor: "bg-muted dark:bg-info/30",
     icon: Circle,
     label: "open",
   },
   in_progress: {
-    color: "text-warning dark:text-amber-400",
-    bgColor: "bg-amber-100 dark:bg-amber-900/30",
+    color: "text-warning dark:text-warning",
+    bgColor: "bg-warning/10 dark:bg-warning/30",
     icon: ArrowClockwise,
     label: "in_progress",
   },
   closed: {
     color: "text-healthy dark:text-healthy",
-    bgColor: "bg-healthy/10 dark:bg-emerald-900/30",
+    bgColor: "bg-healthy/10 dark:bg-healthy/30",
     icon: CheckCircle,
     label: "closed",
   },
@@ -239,7 +239,7 @@ export default function AdminIssueDetailClient({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <SpinnerGap className="h-8 w-8 animate-spin text-lamp-ink" />
+        <SpinnerGap className="h-8 w-8 animate-spin text-primary-ink" />
       </div>
     );
   }
@@ -255,7 +255,7 @@ export default function AdminIssueDetailClient({
           <ArrowLeft className="h-4 w-4" />
           {t("admin.backToManage")}
         </button>
-        <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-white">
+        <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-destructive-foreground">
           {error}
         </div>
       </div>
@@ -306,7 +306,7 @@ export default function AdminIssueDetailClient({
                 <StatusIcon className="h-3 w-3" weight="bold" />
                 {t(`status.${config.label}` as Parameters<typeof t>[0])}
               </span>
-              <span className="font-mono text-[10px] text-muted-foreground/50">
+              <span className="font-mono text-[11px] text-muted-foreground/50">
                 WS: {issue.workspaceId.slice(0, 8)}…
               </span>
             </div>
@@ -400,7 +400,7 @@ export default function AdminIssueDetailClient({
                       </span>
                       <span>·</span>
                       <span>{formatTimestamp(resp.createdAt)}</span>
-                      <span className="font-mono text-[10px] text-muted-foreground/40">
+                      <span className="font-mono text-[11px] text-muted-foreground/40">
                         {resp.authorId.slice(0, 8)}…
                       </span>
                     </div>
@@ -446,7 +446,7 @@ export default function AdminIssueDetailClient({
                 />
                 {imageUploading && (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <SpinnerGap className="h-5 w-5 animate-spin text-lamp-ink" />
+                    <SpinnerGap className="h-5 w-5 animate-spin text-primary-ink" />
                   </div>
                 )}
                 <button
@@ -475,7 +475,7 @@ export default function AdminIssueDetailClient({
                     "disabled:opacity-50 disabled:cursor-not-allowed",
                   )}
                 />
-                <span className="absolute bottom-2 right-2 text-[10px] text-muted-foreground/50">
+                <span className="absolute bottom-2 right-2 text-[11px] text-muted-foreground/50">
                   {responseBody.length}/2000
                 </span>
               </div>

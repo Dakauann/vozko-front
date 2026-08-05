@@ -17,9 +17,23 @@ const GradientText: React.FC<GradientTextProps> = ({
   className,
   containerClassName,
 }) => {
-  const gradientStyle = {
-    backgroundImage: `linear-gradient(${gradientDirection}deg, ${startColor} ${startPosition}%, ${endColor} ${endPosition}%)`,
-  };
+  /*
+    The gradient is retired; the component is not.
+
+    Gradient text is emphasis borrowed from decoration — it makes a heading
+    harder to read, it cannot be relied on for contrast, and it was fading the
+    tail of every heading it touched to 30% opacity. Emphasis in this system
+    comes from weight and size, which the size map below already provides.
+
+    The gradient props stay in the signature and are ignored, so the two live
+    call sites (settings and the admin metrics dashboard) need no edit.
+  */
+  void gradientDirection;
+  void startColor;
+  void endColor;
+  void startPosition;
+  void endPosition;
+  const gradientStyle = undefined;
 
   const alignmentStyles = {
     "--framer-text-alignment": alignment,
@@ -32,7 +46,7 @@ const GradientText: React.FC<GradientTextProps> = ({
   );
 
   const textStyles = cn(
-    "bg-clip-text text-transparent font-semibold leading-tight",
+    "text-foreground font-semibold leading-tight tracking-[-0.01em]",
 
     {
       "text-2xl md:text-3xl": as === "h1",
@@ -90,7 +104,6 @@ const GradientText: React.FC<GradientTextProps> = ({
       <HeadingComponent className={textStyles}>
         <motion.span
           style={gradientStyle}
-          className="bg-clip-text text-transparent"
           variants={textVariants}
         >
           {children}

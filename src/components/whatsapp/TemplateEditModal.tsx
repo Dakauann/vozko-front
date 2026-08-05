@@ -221,17 +221,17 @@ export default function TemplateEditModal({
 
                 {isMediaHeader ? (
                   <div className="space-y-4">
-                    <div className="p-4 rounded-[--radius] bg-muted border border-blue-500/20">
+                    <div className="p-4 rounded-[--radius] bg-muted border border-info/20">
                       <div className="flex items-start gap-3">
                         <Info
-                          className="h-5 w-5 text-lamp-ink flex-shrink-0 mt-0.5"
+                          className="h-5 w-5 text-primary-ink flex-shrink-0 mt-0.5"
                           weight="fill"
                         />
                         <div className="flex-1">
-                          <h4 className="text-sm font-semibold text-lamp-ink mb-1">
+                          <h4 className="text-sm font-semibold text-primary-ink mb-1">
                             {t("mediaInfo.title")}
                           </h4>
-                          <p className="text-xs text-lamp-ink leading-relaxed">
+                          <p className="text-xs text-primary-ink leading-relaxed">
                             {t("mediaInfo.description")}
                           </p>
                         </div>
@@ -258,7 +258,7 @@ export default function TemplateEditModal({
                     {/* Divider: URL or upload from computer */}
                     <div className="flex items-center gap-3">
                       <div className="h-px flex-1 bg-border" />
-                      <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      <span className="text-xs font-medium text-muted-foreground">
                         {t("upload.or")}
                       </span>
                       <div className="h-px flex-1 bg-border" />
@@ -298,7 +298,7 @@ export default function TemplateEditModal({
                       />
                       {isUploading ? (
                         <>
-                          <CircleNotch className="h-6 w-6 animate-spin text-lamp-ink" />
+                          <CircleNotch className="h-6 w-6 animate-spin text-primary-ink" />
                           <p className="text-sm font-medium text-foreground">
                             {t("upload.uploading")}
                           </p>
@@ -307,7 +307,7 @@ export default function TemplateEditModal({
                         <>
                           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
                             <UploadSimple
-                              className="h-5 w-5 text-lamp-ink"
+                              className="h-5 w-5 text-primary-ink"
                               weight="bold"
                             />
                           </span>
@@ -324,13 +324,13 @@ export default function TemplateEditModal({
                     </div>
 
                     {uploadError && (
-                      <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                      <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
                         <div className="flex items-center gap-2">
                           <Warning
-                            className="h-4 w-4 text-red-600"
+                            className="h-4 w-4 text-destructive-ink"
                             weight="fill"
                           />
-                          <p className="text-xs text-red-700 font-medium">
+                          <p className="text-xs text-destructive-ink font-medium">
                             {uploadError}
                           </p>
                         </div>
@@ -399,7 +399,7 @@ export default function TemplateEditModal({
                             : template.status === "PENDING"
                               ? "bg-warning text-warning-foreground"
                               : template.status === "REJECTED"
-                                ? "bg-red-500 text-white"
+                                ? "bg-destructive text-destructive-foreground"
                                 : "bg-muted text-foreground",
                         )}
                       >
@@ -493,7 +493,7 @@ function TemplatePreview({ template, headerMediaUrl }: TemplatePreviewProps) {
           </div>
           <div className="flex-1">
             <h3 className="text-white font-semibold text-sm">{getBrand().name}</h3>
-            <p className="text-emerald-100 text-xs">
+            <p className="text-healthy text-xs">
               Typically replies instantly
             </p>
           </div>
@@ -509,7 +509,7 @@ function TemplatePreview({ template, headerMediaUrl }: TemplatePreviewProps) {
       >
         <div className="mb-3 text-center">
           <div className="inline-block bg-card px-3 py-1.5 rounded-full">
-            <p className="text-[10px] text-muted-foreground font-medium">
+            <p className="text-[11px] text-muted-foreground font-medium">
               Template: {template.name} ({template.language.toUpperCase()})
             </p>
           </div>
@@ -547,7 +547,7 @@ function TemplatePreview({ template, headerMediaUrl }: TemplatePreviewProps) {
           </div>
 
           <div className="flex justify-end mt-1 px-1">
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-[11px] text-muted-foreground">
               {new Date().toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -623,7 +623,7 @@ function HeaderPreview({
       <div className="px-4 pt-4 pb-2 border-b border-border">
         <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
           <div className="h-10 w-10 rounded-lg bg-primary/15 flex items-center justify-center flex-shrink-0">
-            <FileIcon className="h-5 w-5 text-lamp-ink" weight="duotone" />
+            <FileIcon className="h-5 w-5 text-primary-ink" weight="duotone" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-foreground truncate">
@@ -704,7 +704,7 @@ function ButtonsPreview({ component }: { component: TemplateComponent }) {
       {buttons.map((button, index: number) => (
         <button
           key={index}
-          className={`w-full px-4 py-3 text-center text-sm font-medium text-lamp-ink hover:bg-muted transition-colors ${
+          className={`w-full px-4 py-3 text-center text-sm font-medium text-primary-ink hover:bg-muted transition-colors ${
             index !== buttons.length - 1 ? "border-b border-border" : ""
           }`}
         >

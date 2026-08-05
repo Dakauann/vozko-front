@@ -106,7 +106,7 @@ export default function WhatsAppCallHost() {
       aria-live="polite"
       className={cn(
         "fixed bottom-4 right-4 z-50 flex items-center gap-3",
-        "rounded-[--radius] border border-border border-t-rule-strong bg-card px-3 py-2 shadow-2xl",
+        "rounded-[--radius] border border-border bg-card px-3 py-2 shadow-2xl",
       )}
     >
       <span
@@ -126,13 +126,13 @@ export default function WhatsAppCallHost() {
               : (t("inCall") ?? "Em chamada")}
           {activeLabel ? ` · ${activeLabel}` : ""}
         </span>
-        <span className="readout mt-1 truncate text-[13px] font-semibold leading-none text-foreground">
+        <span className="readout mt-1 truncate text-sm font-semibold leading-none text-foreground">
           {callState.phoneNumber}
         </span>
       </span>
 
       {callState.status === "answered" && (
-        <span className="readout shrink-0 text-[13px] font-semibold tabular-nums text-muted-foreground">
+        <span className="readout shrink-0 text-sm font-semibold tabular-nums text-muted-foreground">
           {formatDuration(elapsedSeconds)}
         </span>
       )}

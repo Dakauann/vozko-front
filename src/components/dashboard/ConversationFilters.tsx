@@ -199,7 +199,7 @@ export default function ConversationFilters({
         <div>
           <h3 className="text-sm font-semibold text-foreground">{t.title}</h3>
           {hasActiveFilters && (
-            <p className="text-xs text-lamp-ink font-medium">
+            <p className="text-xs text-primary-ink font-medium">
               {activeFilterCount} filter{activeFilterCount !== 1 ? "s" : ""}{" "}
               active
             </p>
@@ -240,7 +240,7 @@ export default function ConversationFilters({
         {showWhatsAppFilter && (
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <label className="text-xs font-semibold text-muted-foreground">
                 {t.hasWhatsAppMessages}
               </label>
               {values.hasWhatsAppMessages !== undefined && (
@@ -284,7 +284,7 @@ export default function ConversationFilters({
         {/* Has Tool Calls Toggle */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <label className="text-xs font-semibold text-muted-foreground">
               {t.hasToolCalls}
             </label>
             {values.hasToolCalls !== undefined && (
@@ -327,7 +327,7 @@ export default function ConversationFilters({
         {/* Tool Name Selection */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <label className="text-xs font-semibold text-muted-foreground">
               {t.toolName}
             </label>
             {values.toolName && (
@@ -358,7 +358,7 @@ export default function ConversationFilters({
         {/* Message Type Filter */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <label className="text-xs font-semibold text-muted-foreground">
               {t.messageType.label}
             </label>
             {values.messageType && (
@@ -407,7 +407,7 @@ export default function ConversationFilters({
         {showChannelFilter && (
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <label className="text-xs font-semibold text-muted-foreground">
                 {t.channel.label}
               </label>
               {values.channel && (
@@ -443,7 +443,7 @@ export default function ConversationFilters({
         {/* Min Message Count */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <label className="text-xs font-semibold text-muted-foreground">
               {t.minMessageCount}
             </label>
             {values.minMessageCount !== undefined && (
@@ -477,7 +477,7 @@ export default function ConversationFilters({
         {/* Max Message Count */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <label className="text-xs font-semibold text-muted-foreground">
               {t.maxMessageCount}
             </label>
             {values.maxMessageCount !== undefined && (

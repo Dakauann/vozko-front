@@ -172,7 +172,7 @@ export function ConfirmDialog({
                 buttonVariants(),
                 "flex-1 gap-2 rounded-[--radius]",
                 danger &&
-                  "bg-destructive text-destructive-foreground hover:bg-destructive focus-visible:ring-rose-500",
+                  "bg-destructive text-destructive-foreground hover:bg-destructive focus-visible:ring-destructive",
               )}
             >
               {busy && (

@@ -133,7 +133,7 @@ function FilterMultiSelect({
           <span className="text-muted-foreground">{icon}</span>
           <span>{triggerLabel}</span>
           {active ? (
-            <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-[--radius] bg-primary px-1.5 text-[11px] font-semibold text-white">
+            <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-[--radius] bg-primary px-1.5 text-[11px] font-semibold text-primary-foreground">
               {count}
             </span>
           ) : null}
@@ -152,14 +152,14 @@ function FilterMultiSelect({
         className="w-64 rounded-[--radius] border border-border bg-card p-0 shadow-2xl"
       >
         <div className="flex items-center justify-between border-b border-border px-3 py-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-[11px] font-semibold text-muted-foreground">
             {triggerLabel}
           </span>
           {active ? (
             <button
               type="button"
               onClick={onClear}
-              className="text-[11px] font-medium text-lamp-ink transition-colors hover:text-[hsl(var(--primary-hover))]"
+              className="text-[11px] font-medium text-primary-ink transition-colors hover:text-[hsl(var(--primary-hover))]"
             >
               Limpar
             </button>

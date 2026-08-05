@@ -86,9 +86,9 @@ export default function CrmSavedViews({
           type="button"
           onClick={() => onSelect(null)}
           className={cn(
-            "inline-flex flex-shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors",
+            "inline-flex flex-shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
             activeViewId === null
-              ? "bg-card text-lamp-ink shadow-sm ring-1 ring-border"
+              ? "bg-card text-primary-ink shadow-sm ring-1 ring-border"
               : "text-muted-foreground hover:bg-muted hover:text-foreground",
           )}
         >
@@ -103,16 +103,16 @@ export default function CrmSavedViews({
                 type="button"
                 onClick={() => onSelect(view)}
                 className={cn(
-                  "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors",
+                  "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-card text-lamp-ink shadow-sm ring-1 ring-border"
+                    ? "bg-card text-primary-ink shadow-sm ring-1 ring-border"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground",
                 )}
               >
                 {view.isDefault ? (
                   <Star
                     weight="fill"
-                    className="h-3 w-3 text-amber-400"
+                    className="h-3 w-3 text-warning"
                     aria-hidden
                   />
                 ) : null}
@@ -146,7 +146,7 @@ export default function CrmSavedViews({
           <PopoverTrigger asChild>
             <button
               type="button"
-              className="inline-flex h-9 flex-shrink-0 items-center gap-1.5 rounded-[--radius] border border-border bg-transparent px-3 text-[13px] font-medium text-foreground transition-colors hover:border-foreground/20 hover:bg-muted"
+              className="inline-flex h-9 flex-shrink-0 items-center gap-1.5 rounded-[--radius] border border-border bg-transparent px-3 text-sm font-medium text-foreground transition-colors hover:border-foreground/20 hover:bg-muted"
             >
               <Plus weight="bold" className="h-3.5 w-3.5" />
               <span>Salvar visão</span>
@@ -157,7 +157,7 @@ export default function CrmSavedViews({
             sideOffset={6}
             className="w-72 rounded-[--radius] border border-border bg-card p-3 shadow-2xl"
           >
-            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <p className="mb-2 text-[11px] font-semibold text-muted-foreground">
               Salvar visão atual
             </p>
             <ElevatedInput
@@ -213,7 +213,7 @@ function VisibilityToggle({
         className={cn(
           "inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
           !shared
-            ? "bg-card text-lamp-ink shadow-sm ring-1 ring-border"
+            ? "bg-card text-primary-ink shadow-sm ring-1 ring-border"
             : "text-muted-foreground hover:text-foreground",
         )}
       >
@@ -226,7 +226,7 @@ function VisibilityToggle({
         className={cn(
           "inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
           shared
-            ? "bg-card text-lamp-ink shadow-sm ring-1 ring-border"
+            ? "bg-card text-primary-ink shadow-sm ring-1 ring-border"
             : "text-muted-foreground hover:text-foreground",
         )}
       >
@@ -332,7 +332,7 @@ function ViewManageMenu({
           <>
             {onUpdateToCurrent ? (
               <MenuItem
-                icon={<ArrowsClockwise weight="bold" className="h-3.5 w-3.5 text-lamp-ink" />}
+                icon={<ArrowsClockwise weight="bold" className="h-3.5 w-3.5 text-primary-ink" />}
                 label="Atualizar com filtros atuais"
                 onClick={() => {
                   onUpdateToCurrent(view.id);
@@ -365,7 +365,7 @@ function ViewManageMenu({
             ) : null}
             {onSetDefault && !view.isDefault ? (
               <MenuItem
-                icon={<Star weight="bold" className="h-3.5 w-3.5 text-amber-400" />}
+                icon={<Star weight="bold" className="h-3.5 w-3.5 text-warning" />}
                 label="Definir como padrão"
                 onClick={() => {
                   onSetDefault(view.id);
@@ -409,7 +409,7 @@ function MenuItem({
       className={cn(
         "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-medium transition-colors",
         destructive
-          ? "text-destructive hover:bg-destructive hover:text-white"
+          ? "text-destructive-foreground hover:bg-destructive hover:text-destructive-foreground"
           : "text-foreground hover:bg-muted",
       )}
     >

@@ -83,13 +83,13 @@ export default function CrmStageFilter({
             >
               {/* Header */}
               <div className="flex items-center justify-between border-b border-border px-3 py-2">
-                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                <span className="text-[11px] font-semibold text-muted-foreground">
                   Tags
                 </span>
                 {hasSelection && (
                   <button
                     onClick={clearAll}
-                    className="text-[10px] font-medium text-healthy hover:text-healthy transition-colors"
+                    className="text-[11px] font-medium text-healthy hover:text-healthy transition-colors"
                   >
                     Limpar
                   </button>

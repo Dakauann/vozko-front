@@ -53,7 +53,7 @@ export default function Footer() {
                 className="object-contain"
               />
             </Link>
-            <p className="max-w-[62ch] text-[13px] leading-relaxed text-muted-foreground">
+            <p className="max-w-[62ch] text-sm leading-relaxed text-muted-foreground">
               {t("description")}
             </p>
           </div>
@@ -67,7 +67,7 @@ export default function Footer() {
                     className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
                     aria-hidden="true"
                   />
-                  <span className="min-w-0 break-all text-[13px] text-foreground">
+                  <span className="min-w-0 break-all text-sm text-foreground">
                     {channel.value}
                   </span>
                 </li>
@@ -78,7 +78,7 @@ export default function Footer() {
                     href={brand.docsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-[--radius] text-[13px] text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="rounded-[--radius] text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {t("quickLinks.documentation")}
                   </a>
@@ -94,7 +94,7 @@ export default function Footer() {
                 <li key={doc.label} className="min-w-0">
                   <span className="legend block">{doc.label}</span>
                   <span
-                    className={`mt-0.5 block min-w-0 break-words text-[13px] text-foreground ${
+                    className={`mt-0.5 block min-w-0 break-words text-sm text-foreground ${
                       doc.readout ? "readout" : ""
                     }`}
                   >

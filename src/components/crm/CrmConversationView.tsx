@@ -403,7 +403,7 @@ function CollapsibleMessageText({ text }: { text: string }) {
 
   if (!shouldCollapse) {
     return (
-      <p className="text-[13px] leading-relaxed whitespace-pre-wrap break-words">
+      <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
         <FormattedMessageText>{text}</FormattedMessageText>
       </p>
     );
@@ -414,7 +414,7 @@ function CollapsibleMessageText({ text }: { text: string }) {
     : text.slice(0, MESSAGE_COLLAPSE_LIMIT).trimEnd() + "...";
 
   return (
-    <div className="text-[13px] leading-relaxed">
+    <div className="text-sm leading-relaxed">
       <p className="whitespace-pre-wrap break-words">
         <FormattedMessageText>{displayedText}</FormattedMessageText>
       </p>
@@ -424,7 +424,7 @@ function CollapsibleMessageText({ text }: { text: string }) {
           e.stopPropagation();
           setIsExpanded(!isExpanded);
         }}
-        className="mt-1 text-[12px] font-medium text-lamp-ink hover:text-lamp-ink hover:underline transition-colors"
+        className="mt-1 text-[12px] font-medium text-primary-ink hover:text-primary-ink hover:underline transition-colors"
       >
         {isExpanded ? "Ler menos" : "Ler mais"}
       </button>
@@ -475,7 +475,7 @@ function DownloadButton({
       rel="noopener noreferrer"
       download
       className={cn(
-        "flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white transition-colors hover:bg-black/60",
+        "flex h-7 w-7 items-center justify-center rounded-full bg-black/40 transition-colors hover:bg-black/60",
         className,
       )}
       onClick={(e) => e.stopPropagation()}
@@ -616,13 +616,13 @@ function AudioPlayer({ url }: { url: string }) {
           ))}
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-medium tabular-nums text-muted-foreground">
+          <span className="text-[11px] font-medium tabular-nums text-muted-foreground">
             {formatTime(isPlaying || currentTime ? currentTime : duration)}
           </span>
           <button
             type="button"
             onClick={cycleSpeed}
-            className="rounded-[--radius] bg-card px-1.5 py-0.5 text-[9px] font-semibold tabular-nums text-muted-foreground shadow-sm transition-colors hover:text-foreground"
+            className="rounded-[--radius] bg-card px-1.5 py-0.5 text-[11px] font-semibold tabular-nums text-muted-foreground shadow-sm transition-colors hover:text-foreground"
             aria-label="Velocidade de reprodução"
           >
             {speed}×
@@ -636,7 +636,7 @@ function AudioPlayer({ url }: { url: string }) {
         target="_blank"
         rel="noopener noreferrer"
         download
-        className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-lamp-ink"
+        className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-primary-ink"
         onClick={(e) => e.stopPropagation()}
         aria-label="Download audio"
       >
@@ -679,7 +679,7 @@ function ImageLightbox({
           rel="noopener noreferrer"
           download
           onClick={(e) => e.stopPropagation()}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
           aria-label="Download"
         >
           <DownloadSimple weight="bold" className="h-5 w-5" />
@@ -687,7 +687,7 @@ function ImageLightbox({
         <button
           type="button"
           onClick={onClose}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
           aria-label="Fechar"
         >
           <X weight="bold" className="h-5 w-5" />
@@ -835,7 +835,7 @@ function MediaBubble({
             <p className="truncate text-xs font-semibold text-foreground">
               {fileName}
             </p>
-            <p className="text-[10px] text-muted-foreground">
+            <p className="text-[11px] text-muted-foreground">
               {ext ? `${ext} · ` : ""}Toque para abrir
             </p>
           </div>
@@ -884,7 +884,7 @@ function ReadReceipt({
         return (
           <WarningIcon
             weight="fill"
-            className="h-3.5 w-3.5 flex-shrink-0 text-red-500"
+            className="h-3.5 w-3.5 flex-shrink-0 text-destructive-ink"
           />
         );
       case "read":
@@ -1026,9 +1026,9 @@ function ToolEventRow({
   const isResult = info.kind === "result";
   const [expanded, setExpanded] = useState(false);
   const iconGradient = isResult
-    ? "from-amber-500 to-amber-600"
-    : "from-orange-500 to-orange-600";
-  const ringTone = isResult ? "ring-amber-500/20" : "ring-orange-500/20";
+    ? "ink-3"
+    : "ink-3";
+  const ringTone = isResult ? "ring-warning/20" : "ring-warning/20";
 
   const hasDetail = Boolean(info.detail);
 
@@ -1047,13 +1047,13 @@ function ToolEventRow({
           "ring-1 ring-inset transition-colors",
           ringTone,
           hasDetail ? "cursor-pointer hover:bg-muted" : "cursor-default",
-          isMatched && "ring-2 ring-amber-400 ring-offset-1",
-          isCurrentMatch && "ring-2 ring-emerald-500 ring-offset-2",
+          isMatched && "ring-2 ring-warning ring-offset-1",
+          isCurrentMatch && "ring-2 ring-healthy ring-offset-2",
         )}
       >
         <span
           className={cn(
-            "flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gradient-to-br text-white",
+            "flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gradient-to-br",
             iconGradient,
           )}
         >
@@ -1066,7 +1066,7 @@ function ToolEventRow({
         <span className="min-w-0 max-w-[220px] truncate text-[11px] font-medium leading-none text-foreground">
           {info.title}
         </span>
-        <span className="shrink-0 text-[9px] tabular-nums leading-none text-muted-foreground/70">
+        <span className="shrink-0 text-[11px] tabular-nums leading-none text-muted-foreground/70">
           {formatMessageTime(createdAt)}
         </span>
         {hasDetail && (
@@ -1145,7 +1145,7 @@ function EntryMetadataPanel({
           className="flex w-full items-center justify-between rounded-[--radius] bg-card px-4 py-2.5 shadow-sm transition-colors hover:bg-card"
         >
           <div className="flex items-center gap-2">
-            <Info weight="fill" className="h-4 w-4 text-lamp-ink" />
+            <Info weight="fill" className="h-4 w-4 text-primary-ink" />
             <span className="text-[12px] font-semibold text-foreground">
               Detalhes do contato
             </span>
@@ -1180,7 +1180,7 @@ function EntryMetadataPanel({
                     />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                    <p className="text-[11px] font-medium  text-muted-foreground">
                       Nome
                     </p>
                     <p className="text-[12px] font-semibold text-foreground truncate">
@@ -1197,7 +1197,7 @@ function EntryMetadataPanel({
                     />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                    <p className="text-[11px] font-medium  text-muted-foreground">
                       Telefone
                     </p>
                     <p className="text-[12px] font-semibold text-foreground truncate">
@@ -1210,18 +1210,18 @@ function EntryMetadataPanel({
                 {hasVariables && (
                   <>
                     <div className="border-t border-border pt-2">
-                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-1.5">
+                      <p className="text-[11px] font-medium  text-muted-foreground mb-1.5">
                         Variáveis
                       </p>
                       <div className="flex flex-wrap gap-1.5">
                         {variables.map((v, i) => (
                           <span
                             key={`${i}-${v}`}
-                            className="inline-flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-[11px] font-medium text-white"
+                            className="inline-flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-[11px] font-medium text-primary-foreground"
                           >
                             <Hash
                               weight="bold"
-                              className="h-3 w-3 text-blue-400"
+                              className="h-3 w-3 text-info"
                             />
                             {v}
                           </span>
@@ -1254,7 +1254,7 @@ function EntryMetadataPanel({
                       >
                         <CaretDown
                           weight="bold"
-                          className="h-3 w-3 text-green-500"
+                          className="h-3 w-3 text-healthy-ink"
                         />
                       </motion.div>
                     </button>
@@ -1279,7 +1279,7 @@ function EntryMetadataPanel({
 
                 {/* Entry ID (subtle) */}
                 <div className="border-t border-border pt-2">
-                  <p className="text-[10px] text-muted-foreground font-mono truncate">
+                  <p className="text-[11px] text-muted-foreground font-mono truncate">
                     ID: {conversation.entry_id}
                   </p>
                 </div>
@@ -1483,9 +1483,9 @@ export default function CrmConversationView({
       if (el) {
         loadAroundAttemptRef.current = null;
         el.scrollIntoView({ behavior: "smooth", block: "center" });
-        el.classList.add("ring-2", "ring-amber-400", "ring-offset-1");
+        el.classList.add("ring-2", "ring-warning", "ring-offset-1");
         setTimeout(() => {
-          el.classList.remove("ring-2", "ring-amber-400", "ring-offset-1");
+          el.classList.remove("ring-2", "ring-warning", "ring-offset-1");
           scrollLockRef.current = false;
         }, 2000);
       } else if (
@@ -1540,9 +1540,9 @@ export default function CrmConversationView({
         );
         if (el) {
           el.scrollIntoView({ behavior: "instant", block: "center" });
-          el.classList.add("ring-2", "ring-amber-400", "ring-offset-1");
+          el.classList.add("ring-2", "ring-warning", "ring-offset-1");
           setTimeout(() => {
-            el.classList.remove("ring-2", "ring-amber-400", "ring-offset-1");
+            el.classList.remove("ring-2", "ring-warning", "ring-offset-1");
           }, 2500);
         }
         setTimeout(() => {
@@ -1698,7 +1698,7 @@ export default function CrmConversationView({
                 className={cn(
                   "flex h-10 w-10 items-center justify-center rounded-full shadow-lg transition-colors",
                   stageSelectorOpen
-                    ? "bg-healthy/100 text-white"
+                    ? "bg-healthy/100 text-healthy-foreground"
                     : "bg-card text-muted-foreground hover:bg-muted",
                 )}
                 whileHover={{ scale: 1.05 }}
@@ -1744,7 +1744,7 @@ export default function CrmConversationView({
                     transition={{ duration: 0.15 }}
                     className="absolute left-0 top-full z-40 mt-2 w-48 rounded-[--radius] border border-border bg-card shadow-xl py-1.5 overflow-hidden"
                   >
-                    <div className="px-3 py-1.5 text-[9px] font-semibold text-muted-foreground uppercase tracking-wide">
+                    <div className="px-3 py-1.5 text-[11px] font-semibold text-muted-foreground ">
                       {tags.length > 0 ? "Mover para" : "Etapas"}
                     </div>
                     <div className="max-h-64 overflow-y-auto">
@@ -1781,7 +1781,7 @@ export default function CrmConversationView({
                                   {tag.name}
                                 </span>
                                 {isCurrentTag && (
-                                  <span className="text-[9px] text-muted-foreground flex-shrink-0">
+                                  <span className="text-[11px] text-muted-foreground flex-shrink-0">
                                     atual
                                   </span>
                                 )}
@@ -1820,7 +1820,7 @@ export default function CrmConversationView({
                                   {tag.name}
                                 </span>
                                 {isAssigned && (
-                                  <span className="text-[9px] text-healthy flex-shrink-0">
+                                  <span className="text-[11px] text-healthy flex-shrink-0">
                                     ✓
                                   </span>
                                 )}
@@ -1887,7 +1887,7 @@ export default function CrmConversationView({
                     transition={{ duration: 0.15 }}
                     className="absolute left-0 top-full z-40 mt-2 w-48 rounded-[--radius] border border-border bg-card shadow-xl py-1.5 overflow-hidden"
                   >
-                    <div className="px-3 py-1.5 text-[9px] font-semibold text-muted-foreground uppercase tracking-wide">
+                    <div className="px-3 py-1.5 text-[11px] font-semibold text-muted-foreground ">
                       Etiquetas
                     </div>
                     <div className="max-h-64 overflow-y-auto">
@@ -1925,7 +1925,7 @@ export default function CrmConversationView({
                               {label.name}
                             </span>
                             {isAssigned && (
-                              <span className="text-[9px] text-violet-500 flex-shrink-0">
+                              <span className="text-[11px] text-chart-4 flex-shrink-0">
                                 ✓
                               </span>
                             )}
@@ -2103,7 +2103,7 @@ export default function CrmConversationView({
                   if (run.channel === "__system__") {
                     return run.messages.map((msg) => (
                       <div key={msg.id} className="flex justify-center py-1">
-                        <span className="rounded-lg bg-warning px-3 py-1.5 text-[11px] text-white shadow-sm max-w-[80%] text-center">
+                        <span className="rounded-lg bg-warning px-3 py-1.5 text-[11px] text-warning-foreground shadow-sm max-w-[80%] text-center">
                           {msg.text}
                         </span>
                       </div>
@@ -2113,7 +2113,7 @@ export default function CrmConversationView({
                   const isVoiceRun = run.channel === "voice";
                   const isWhatsAppRun = run.channel === "whatsapp";
                   const channelColor = isVoiceRun
-                    ? "border-blue-400"
+                    ? "border-info"
                     : isWhatsAppRun
                       ? "border-healthy"
                       : "border-foreground/20";
@@ -2154,7 +2154,7 @@ export default function CrmConversationView({
                                 className={cn(
                                   "flex items-center gap-1.5 rounded-[--radius] px-3 py-1.5 text-[11px] font-medium",
                                   missed
-                                    ? "bg-destructive/10 text-destructive dark:text-red-400"
+                                    ? "bg-muted text-destructive-ink dark:text-destructive"
                                     : "bg-muted text-muted-foreground",
                                 )}
                               >
@@ -2197,8 +2197,8 @@ export default function CrmConversationView({
                               key={msg.id ?? `${runIdx}-${msgIdx}`}
                               className="flex justify-start my-1"
                             >
-                              <div className="max-w-[75%] rounded-lg border border-fuchsia-500/30 bg-fuchsia-500/5 p-2">
-                                <div className="mb-1 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-fuchsia-400">
+                              <div className="max-w-[75%] rounded-lg border border-chart-4/30 bg-chart-4/5 p-2">
+                                <div className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold  text-chart-4">
                                   <InstagramLogo className="h-3 w-3" />
                                   <span>
                                     {isMention
@@ -2426,10 +2426,10 @@ export default function CrmConversationView({
                               className={cn(
                                 "relative max-w-[75%] rounded-[--radius] px-3 py-2 shadow-sm transition-all duration-300",
                                 matchedIds.has(msg.id) &&
-                                  "ring-2 ring-amber-400 ring-offset-1 bg-warning/10/40",
+                                  "ring-2 ring-warning ring-offset-1 bg-warning/10/40",
                                 messageSearchResults?.[currentMatchIdx]?.id ===
                                   msg.id &&
-                                  "ring-2 ring-emerald-500 ring-offset-2",
+                                  "ring-2 ring-healthy ring-offset-2",
                                 isOutgoing
                                   ? isVoiceRun
                                     ? "bg-primary/15/70 text-foreground rounded-tr-sm"
@@ -2462,7 +2462,7 @@ export default function CrmConversationView({
                                         weight="fill"
                                         className="h-2.5 w-2.5 text-healthy/60"
                                       />
-                                      <span className="text-[9px] font-semibold uppercase tracking-wider text-healthy/50">
+                                      <span className="text-[11px] font-semibold  text-healthy/50">
                                         WhatsApp
                                       </span>
                                     </>
@@ -2471,9 +2471,9 @@ export default function CrmConversationView({
                                     <>
                                       <PhoneCall
                                         weight="fill"
-                                        className="h-2.5 w-2.5 text-blue-400/60"
+                                        className="h-2.5 w-2.5 text-info/60"
                                       />
-                                      <span className="text-[9px] font-semibold uppercase tracking-wider text-lamp-ink/50">
+                                      <span className="text-[11px] font-semibold  text-primary-ink/50">
                                         Voz
                                       </span>
                                     </>
@@ -2487,7 +2487,7 @@ export default function CrmConversationView({
                                   className={cn(
                                     "text-[11px] font-semibold mb-0.5",
                                     isVoiceRun
-                                      ? "text-lamp-ink"
+                                      ? "text-primary-ink"
                                       : "text-healthy",
                                   )}
                                 >
@@ -2516,21 +2516,21 @@ export default function CrmConversationView({
                                           });
                                           el.classList.add(
                                             "ring-2",
-                                            "ring-blue-400",
+                                            "ring-info",
                                             "ring-offset-1",
                                           );
                                           setTimeout(() => {
                                             el.classList.remove(
                                               "ring-2",
-                                              "ring-blue-400",
+                                              "ring-info",
                                               "ring-offset-1",
                                             );
                                           }, 2000);
                                         }
                                       }}
-                                      className="mb-1 w-full rounded-lg bg-black/5 px-2.5 py-1.5 text-left border-l-[3px] border-blue-400 hover:bg-black/[0.08] transition-colors"
+                                      className="mb-1 w-full rounded-lg bg-black/5 px-2.5 py-1.5 text-left border-l-[3px] border-info hover:bg-black/[0.08] transition-colors"
                                     >
-                                      <p className="text-[10px] font-semibold text-lamp-ink truncate">
+                                      <p className="text-[11px] font-semibold text-primary-ink truncate">
                                         {repliedMsg.sender_name ||
                                           repliedMsg.from}
                                       </p>
@@ -2586,21 +2586,21 @@ export default function CrmConversationView({
                                 )}
                               >
                                 {isAgentMessage && (
-                                  <span className="rounded-md bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                  <span className="rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-semibold  text-muted-foreground">
                                     AI
                                   </span>
                                 )}
                                 {isOperatorMessage && (
-                                  <span className="rounded-md bg-primary px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white">
+                                  <span className="rounded-md bg-primary px-1.5 py-0.5 text-[11px] font-semibold  text-primary-foreground">
                                     Operador
                                   </span>
                                 )}
                                 {isTemplateMessage && (
-                                  <span className="rounded-md bg-healthy px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white">
+                                  <span className="rounded-md bg-healthy px-1.5 py-0.5 text-[11px] font-semibold  text-healthy-foreground">
                                     Template
                                   </span>
                                 )}
-                                <span className="text-[10px] text-muted-foreground">
+                                <span className="text-[11px] text-muted-foreground">
                                   {formatMessageTime(createdAt)}
                                 </span>
                                 {isOutgoing && (

@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
  * surfaces these sit on; a solid tone holds its contrast anywhere.
  */
 const TINTS = [
-  "bg-fuchsia-600 text-white",
+  "bg-chart-4 text-white",
   "bg-muted text-muted-foreground",
   "bg-muted text-muted-foreground",
   "bg-healthy text-healthy-foreground",
@@ -58,7 +58,7 @@ function hasChannelMark(entryType: string | null | undefined): boolean {
 }
 
 const SIZES = {
-  sm: { circle: "size-8", badge: "size-3.5", text: "text-[10px]" },
+  sm: { circle: "size-8", badge: "size-3.5", text: "text-[11px]" },
   md: { circle: "size-10", badge: "size-4", text: "text-xs" },
   lg: { circle: "size-12", badge: "size-5", text: "text-sm" },
 } as const;

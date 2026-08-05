@@ -98,7 +98,7 @@ export default function SupportInboxDetail({
       <motion.header variants={itemVariants} className="space-y-2">
         <div className="flex items-center gap-4">
           <div
-            className="flex h-14 w-14 items-center justify-center rounded-[--radius] text-white shadow-lg"
+            className="flex h-14 w-14 items-center justify-center rounded-[--radius] shadow-lg"
             style={{ backgroundColor: widgetColor }}
           >
             <Headset weight="fill" className="h-7 w-7" />
@@ -208,7 +208,7 @@ export default function SupportInboxDetail({
           <motion.div variants={itemVariants}>
             <ElevatedContainer className="space-y-4">
               <div className="flex items-center gap-2">
-                <Code className="h-5 w-5 text-violet-500" weight="bold" />
+                <Code className="h-5 w-5 text-chart-4" weight="bold" />
                 <h3 className="text-lg font-semibold text-foreground">
                   {t("embedTitle")}
                 </h3>
@@ -265,7 +265,7 @@ export default function SupportInboxDetail({
                   transition={{ type: "spring", delay: 0.3 }}
                   type="button"
                   onClick={() => setWidgetOpen(true)}
-                  className="absolute bottom-5 right-5 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-xl transition-transform hover:scale-110"
+                  className="absolute bottom-5 right-5 flex h-14 w-14 items-center justify-center rounded-full shadow-xl transition-transform hover:scale-110"
                   style={{ backgroundColor: widgetColor }}
                 >
                   <ChatCircleDots className="h-7 w-7" weight="fill" />
@@ -348,7 +348,7 @@ export default function SupportInboxDetail({
                         {inbox.greetingMessage && (
                           <div className="flex gap-2">
                             <div
-                              className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-white"
+                              className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full"
                               style={{ backgroundColor: widgetColor }}
                             >
                               <Headset className="h-3.5 w-3.5" weight="fill" />
@@ -368,7 +368,7 @@ export default function SupportInboxDetail({
                           </div>
                           <button
                             type="button"
-                            className="flex h-9 w-9 items-center justify-center rounded-full text-white transition-colors"
+                            className="flex h-9 w-9 items-center justify-center rounded-full transition-colors"
                             style={{ backgroundColor: widgetColor }}
                           >
                             <PaperPlaneTilt className="h-4 w-4" weight="fill" />

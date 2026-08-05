@@ -1501,7 +1501,7 @@ export default function CrmLayout({
           {statusMenuOpen && can("conversations", "send") && (
             <div className="absolute right-0 top-full mt-1 z-50 w-64 rounded-[--radius] border border-border bg-card shadow-lg py-1 animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="border-b border-border px-3 py-2">
-                <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
+                <div className="text-[11px] font-semibold text-muted-foreground">
                   Status atual
                 </div>
                 <div
@@ -1514,20 +1514,20 @@ export default function CrmLayout({
                 </div>
                 {currentConversationStatusMeta.provenance ? (
                   <div className="mt-1.5 space-y-0.5 rounded-lg bg-muted px-2.5 py-2">
-                    <div className="text-[10px] text-muted-foreground">
+                    <div className="text-[11px] text-muted-foreground">
                       Encerrada por{" "}
                       <span className="font-medium text-foreground">
                         {currentConversationStatusMeta.provenance.by}
                       </span>
                     </div>
-                    <div className="text-[10px] text-muted-foreground">
+                    <div className="text-[11px] text-muted-foreground">
                       Motivo:{" "}
                       <span className="font-medium text-foreground">
                         {currentConversationStatusMeta.provenance.reasonLabel}
                       </span>
                     </div>
                     {currentConversationStatusMeta.provenance.isSilence ? (
-                      <div className="text-[10px] font-medium text-warning dark:text-amber-400">
+                      <div className="text-[11px] font-medium text-warning dark:text-warning">
                         Encerrada automaticamente por silêncio
                       </div>
                     ) : null}
@@ -1597,7 +1597,7 @@ export default function CrmLayout({
                 "flex items-center justify-center h-8 w-8 rounded-full transition-all duration-200",
                 isDialerBusy
                   ? "bg-healthy text-healthy-foreground cursor-not-allowed"
-                  : "bg-muted text-muted-foreground hover:bg-primary hover:text-white",
+                  : "bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground",
               )}
             >
               <PhoneCall
@@ -1658,7 +1658,7 @@ export default function CrmLayout({
                       <span className="truncate">
                         {t.conversation.callViaWhatsapp ?? "WhatsApp"}
                       </span>
-                      <span className="ml-auto text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      <span className="ml-auto text-[11px] font-semibold text-muted-foreground">
                         {callPermissionLoading
                           ? "Verificando…"
                           : "Permissão necessária"}
@@ -1685,7 +1685,7 @@ export default function CrmLayout({
                       {t.conversation.callViaWhatsapp ?? "WhatsApp"}
                     </span>
                     {resolvedPhone && (
-                      <span className="ml-auto text-[9px] text-muted-foreground truncate">
+                      <span className="ml-auto text-[11px] text-muted-foreground truncate">
                         {resolvedPhone.displayPhoneNumber}
                       </span>
                     )}
@@ -1701,7 +1701,7 @@ export default function CrmLayout({
                   >
                     <WhatsappLogo weight="bold" className="h-3.5 w-3.5" />
                     <span>{t.conversation.callViaWhatsapp ?? "WhatsApp"}</span>
-                    <span className="ml-auto text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    <span className="ml-auto text-[11px] font-semibold text-muted-foreground">
                       Indisponível
                     </span>
                   </button>
@@ -1710,7 +1710,7 @@ export default function CrmLayout({
 
               return (
                 <>
-                  <div className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <div className="px-3 py-1.5 text-[11px] font-semibold text-muted-foreground">
                     {t.conversation.callViaWhatsapp ?? "WhatsApp"}
                   </div>
                   {whatsappPhones.map((phone) => (
@@ -1732,7 +1732,7 @@ export default function CrmLayout({
                         {phone.verifiedName || phone.displayPhoneNumber}
                       </span>
                       {phone.verifiedName && (
-                        <span className="ml-auto text-[9px] text-muted-foreground truncate">
+                        <span className="ml-auto text-[11px] text-muted-foreground truncate">
                           {phone.displayPhoneNumber}
                         </span>
                       )}
@@ -1786,7 +1786,7 @@ export default function CrmLayout({
           // A rack cut into the panel, not a card floating on it: hairline
           // rule, system radius, no drop shadow. The extra 40px of height comes
           // back from the header bar shrinking 80px -> 48px.
-          : "h-[calc(100vh-188px)] min-h-[500px] rounded-[--radius] border border-border border-t-rule-strong bg-card",
+          : "h-[calc(100vh-188px)] min-h-[500px] rounded-[--radius] border border-border bg-card",
       )}
     >
       {/*

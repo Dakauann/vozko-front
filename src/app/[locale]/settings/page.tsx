@@ -267,7 +267,7 @@ export default function SettingsPage() {
         color: "text-muted-foreground",
         bg: "bg-muted",
       },
-      manager: { label: "Gerente", color: "text-lamp-ink", bg: "bg-primary/15" },
+      manager: { label: "Gerente", color: "text-primary-ink", bg: "bg-primary/15" },
       user: { label: "Usuário", color: "text-foreground", bg: "bg-muted" },
       customer: {
         label: "Cliente",
@@ -318,7 +318,7 @@ export default function SettingsPage() {
               <ElevatedContainer className="flex items-center justify-center py-20 border border-border bg-card">
                 <div className="flex flex-col items-center gap-4">
                   <CircleNotch
-                    className="h-8 w-8 animate-spin text-lamp-ink"
+                    className="h-8 w-8 animate-spin text-primary-ink"
                     weight="bold"
                   />
                   <p className="text-sm text-muted-foreground">
@@ -351,8 +351,8 @@ export default function SettingsPage() {
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <GearSix className="h-6 w-6 text-lamp-ink" weight="fill" />
-                  <span className="text-xs font-semibold uppercase tracking-wider text-lamp-ink">
+                  <GearSix className="h-6 w-6 text-primary-ink" weight="fill" />
+                  <span className="text-xs font-semibold text-primary-ink">
                     Configurações
                   </span>
                 </div>
@@ -378,7 +378,7 @@ export default function SettingsPage() {
             className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
           >
             <motion.div variants={itemVariants}>
-              <ElevatedContainer className="border border-border bg-card p-5">
+              <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
                 <div className="flex items-center gap-4">
                   <IconBox color="blue" size="md">
                     <UserCircle weight="fill" />
@@ -394,7 +394,7 @@ export default function SettingsPage() {
             </motion.div>
 
             <motion.div variants={itemVariants}>
-              <ElevatedContainer className="border border-border bg-card p-5">
+              <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
                 <div className="flex items-center gap-4">
                   <IconBox color="emerald" size="md">
                     <Envelope weight="fill" />
@@ -413,7 +413,7 @@ export default function SettingsPage() {
             </motion.div>
 
             <motion.div variants={itemVariants}>
-              <ElevatedContainer className="border border-border bg-card p-5">
+              <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
                 <div className="flex items-center gap-4">
                   <IconBox color="purple" size="md">
                     <ShieldCheck weight="fill" />
@@ -433,7 +433,7 @@ export default function SettingsPage() {
             </motion.div>
 
             <motion.div variants={itemVariants}>
-              <ElevatedContainer className="border border-border bg-card p-5">
+              <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
                 <div className="flex items-center gap-4">
                   <IconBox color="amber" size="md">
                     {customerTypeBadge?.icon ? (
@@ -457,7 +457,7 @@ export default function SettingsPage() {
 
           {plan && (
             <motion.div variants={itemVariants}>
-              <ElevatedContainer className="border border-border bg-card p-6">
+              <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
                 <div className="flex items-center gap-3 mb-6">
                   <IconBox color="primary" size="sm">
                     <CrownSimple weight="fill" />
@@ -519,7 +519,7 @@ export default function SettingsPage() {
                         weight="fill"
                       />
                       <div>
-                        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        <p className="text-xs font-medium text-muted-foreground">
                           Nome Completo
                         </p>
                         <p className="text-sm font-medium text-foreground">
@@ -536,7 +536,7 @@ export default function SettingsPage() {
                         weight="fill"
                       />
                       <div>
-                        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        <p className="text-xs font-medium text-muted-foreground">
                           E-mail
                         </p>
                         <p className="text-sm font-medium text-foreground">
@@ -553,7 +553,7 @@ export default function SettingsPage() {
                         weight="fill"
                       />
                       <div>
-                        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        <p className="text-xs font-medium text-muted-foreground">
                           ID do Usuário
                         </p>
                         <p className="text-sm font-medium text-foreground font-mono">
@@ -570,7 +570,7 @@ export default function SettingsPage() {
                         weight="fill"
                       />
                       <div>
-                        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        <p className="text-xs font-medium text-muted-foreground">
                           Tipo de Conta
                         </p>
                         <p className="text-sm font-medium text-foreground">
@@ -664,7 +664,7 @@ export default function SettingsPage() {
                         >
                           <div className="flex flex-col items-center gap-3">
                             <CircleNotch
-                              className="h-8 w-8 animate-spin text-lamp-ink"
+                              className="h-8 w-8 animate-spin text-primary-ink"
                               weight="bold"
                             />
                             <p className="text-sm text-muted-foreground">
@@ -685,7 +685,7 @@ export default function SettingsPage() {
                           <div className="flex items-start justify-between gap-3 mb-4">
                             <div className="flex items-start gap-3">
                               <Lock
-                                className="h-5 w-5 text-lamp-ink mt-0.5"
+                                className="h-5 w-5 text-primary-ink mt-0.5"
                                 weight="fill"
                               />
                               <div>
@@ -816,7 +816,7 @@ export default function SettingsPage() {
                             <button
                               type="button"
                               onClick={handleSendPasswordReset}
-                              className="text-xs text-lamp-ink hover:text-lamp-ink font-medium transition-colors"
+                              className="text-xs text-primary-ink hover:text-primary-ink font-medium transition-colors"
                             >
                               Não recebeu o código? Enviar novamente
                             </button>
@@ -835,7 +835,7 @@ export default function SettingsPage() {
                         >
                           <div className="flex flex-col items-center gap-3">
                             <CircleNotch
-                              className="h-8 w-8 animate-spin text-lamp-ink"
+                              className="h-8 w-8 animate-spin text-primary-ink"
                               weight="bold"
                             />
                             <p className="text-sm text-muted-foreground">
@@ -883,7 +883,7 @@ export default function SettingsPage() {
                   <div className="rounded-[--radius] border border-border bg-muted p-4">
                     <div className="flex items-start gap-3">
                       <Lock
-                        className="h-5 w-5 text-lamp-ink mt-0.5"
+                        className="h-5 w-5 text-primary-ink mt-0.5"
                         weight="fill"
                       />
                       <div className="flex-1">
@@ -906,7 +906,7 @@ export default function SettingsPage() {
 
           {/* Active Sessions Section */}
           <motion.div variants={itemVariants}>
-            <ElevatedContainer className="border border-border bg-card p-6">
+            <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <IconBox color="primary" size="sm">
@@ -926,7 +926,7 @@ export default function SettingsPage() {
               {sessionsLoading ? (
                 <div className="flex items-center justify-center py-10">
                   <CircleNotch
-                    className="h-6 w-6 animate-spin text-lamp-ink"
+                    className="h-6 w-6 animate-spin text-primary-ink"
                     weight="bold"
                   />
                 </div>
@@ -960,7 +960,7 @@ export default function SettingsPage() {
                                 {device.browser}, {device.os}
                               </p>
                               {session.isCurrent && (
-                                <span className="inline-flex items-center rounded-[--radius] bg-healthy px-2 py-0.5 text-[10px] font-semibold text-white">
+                                <span className="inline-flex items-center rounded-[--radius] bg-healthy px-2 py-0.5 text-[11px] font-semibold text-healthy-foreground">
                                   Este dispositivo
                                 </span>
                               )}
@@ -988,7 +988,7 @@ export default function SettingsPage() {
                           <button
                             onClick={() => handleRevokeSession(session.id)}
                             disabled={isRevoking}
-                            className="shrink-0 flex items-center gap-1.5 rounded-lg border border-destructive bg-destructive px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-destructive disabled:opacity-50"
+                            className="shrink-0 flex items-center gap-1.5 rounded-lg border border-destructive bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground transition-colors hover:bg-destructive disabled:opacity-50"
                           >
                             {isRevoking ? (
                               <CircleNotch
@@ -1010,7 +1010,7 @@ export default function SettingsPage() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <ElevatedContainer className="border border-border bg-card p-6">
+            <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
               <div className="flex items-center gap-3 mb-6">
                 <IconBox color="amber" size="sm">
                   <Bell weight="fill" />
@@ -1030,7 +1030,7 @@ export default function SettingsPage() {
                   <input
                     type="checkbox"
                     defaultChecked
-                    className="mt-1 h-4 w-4 rounded border-foreground/20 text-lamp-ink focus:ring-blue-500"
+                    className="mt-1 h-4 w-4 rounded border-foreground/20 text-primary-ink focus:ring-info"
                   />
                   <div>
                     <p className="text-sm font-medium text-foreground">
@@ -1046,7 +1046,7 @@ export default function SettingsPage() {
                 <label className="flex items-start gap-4 rounded-[--radius] border border-border bg-muted p-4 cursor-pointer hover:bg-muted transition-colors">
                   <input
                     type="checkbox"
-                    className="mt-1 h-4 w-4 rounded border-foreground/20 text-lamp-ink focus:ring-blue-500"
+                    className="mt-1 h-4 w-4 rounded border-foreground/20 text-primary-ink focus:ring-info"
                   />
                   <div>
                     <p className="text-sm font-medium text-foreground">
@@ -1063,7 +1063,7 @@ export default function SettingsPage() {
                   <input
                     type="checkbox"
                     defaultChecked
-                    className="mt-1 h-4 w-4 rounded border-foreground/20 text-lamp-ink focus:ring-blue-500"
+                    className="mt-1 h-4 w-4 rounded border-foreground/20 text-primary-ink focus:ring-info"
                   />
                   <div>
                     <p className="text-sm font-medium text-foreground">
@@ -1079,7 +1079,7 @@ export default function SettingsPage() {
                 <label className="flex items-start gap-4 rounded-[--radius] border border-border bg-muted p-4 cursor-pointer hover:bg-muted transition-colors">
                   <input
                     type="checkbox"
-                    className="mt-1 h-4 w-4 rounded border-foreground/20 text-lamp-ink focus:ring-blue-500"
+                    className="mt-1 h-4 w-4 rounded border-foreground/20 text-primary-ink focus:ring-info"
                   />
                   <div>
                     <p className="text-sm font-medium text-foreground">

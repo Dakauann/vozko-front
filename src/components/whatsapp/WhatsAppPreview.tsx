@@ -46,7 +46,7 @@ export default function WhatsAppPreview({
           </div>
           <div className="flex-1">
             <h3 className="text-white font-semibold text-sm">{getBrand().name}</h3>
-            <p className="text-emerald-100 text-xs">
+            <p className="text-healthy text-xs">
               Typically replies instantly
             </p>
           </div>
@@ -61,7 +61,7 @@ export default function WhatsAppPreview({
       >
         <div className="mb-3 text-center">
           <div className="inline-block bg-card px-3 py-1.5 rounded-full">
-            <p className="text-[10px] text-muted-foreground font-medium">
+            <p className="text-[11px] text-muted-foreground font-medium">
               Template: {templateName} ({language.toUpperCase()})
             </p>
           </div>
@@ -116,7 +116,7 @@ export default function WhatsAppPreview({
             </div>
 
             <div className="flex justify-end mt-1 px-1">
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-[11px] text-muted-foreground">
                 {new Date().toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -187,7 +187,7 @@ function HeaderPreview({ component }: { component: DraggableComponent }) {
       <div className="px-4 pt-4 pb-2 border-b border-border">
         <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
           <div className="h-10 w-10 rounded-lg bg-primary/15 flex items-center justify-center flex-shrink-0">
-            <FileIcon className="h-5 w-5 text-lamp-ink" weight="duotone" />
+            <FileIcon className="h-5 w-5 text-primary-ink" weight="duotone" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-foreground truncate">
@@ -206,7 +206,7 @@ function HeaderPreview({ component }: { component: DraggableComponent }) {
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-100 to-teal-100" />
         <div className="relative text-center">
           <MapPin
-            className="h-12 w-12 text-emerald-600 mx-auto mb-2"
+            className="h-12 w-12 text-healthy-ink mx-auto mb-2"
             weight="duotone"
           />
           <p className="text-xs font-medium text-foreground">
@@ -285,7 +285,7 @@ function ButtonsPreview({ component }: { component: DraggableComponent }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: index * 0.05 }}
-          className={`w-full px-4 py-3 text-center text-sm font-medium text-lamp-ink hover:bg-muted transition-colors ${
+          className={`w-full px-4 py-3 text-center text-sm font-medium text-primary-ink hover:bg-muted transition-colors ${
             index !== buttons.length - 1 ? "border-b border-border" : ""
           }`}
         >
@@ -328,7 +328,7 @@ function CallPermissionPreview() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: index * 0.05 }}
-          className={`w-full px-4 py-3 text-center text-sm font-medium text-lamp-ink hover:bg-muted transition-colors ${
+          className={`w-full px-4 py-3 text-center text-sm font-medium text-primary-ink hover:bg-muted transition-colors ${
             index !== buttons.length - 1 ? "border-b border-border" : ""
           }`}
         >

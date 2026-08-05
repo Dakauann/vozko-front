@@ -15,7 +15,7 @@ export default function DashboardAddonsManagePage() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-32">
-        <CircleNotch className="h-8 w-8 animate-spin text-lamp-ink" weight="bold" />
+        <CircleNotch className="h-8 w-8 animate-spin text-primary-ink" weight="bold" />
       </div>
     );
   }

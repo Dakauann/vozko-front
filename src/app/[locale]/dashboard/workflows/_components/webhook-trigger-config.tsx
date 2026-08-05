@@ -360,7 +360,7 @@ function ConfigShell({
           <div className="flex items-center gap-2">
             <p className="text-sm font-semibold text-foreground">Gatilho de Webhook</p>
             {active === false && (
-              <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+              <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
                 inativo
               </span>
             )}
@@ -389,7 +389,7 @@ function PayloadReference() {
   return (
     <div className="space-y-2 rounded-lg border border-border bg-mist p-3">
       <div className="flex items-center gap-1.5 text-xs font-medium text-foreground">
-        <Info className="h-3.5 w-3.5 text-lamp-ink" weight="bold" />
+        <Info className="h-3.5 w-3.5 text-primary-ink" weight="bold" />
         Variáveis disponíveis no fluxo
       </div>
       <ul className="space-y-1 text-[11px] text-muted-foreground">
@@ -412,7 +412,7 @@ function PayloadReference() {
 
 function ErrorLine({ message }: { message: string }) {
   return (
-    <p className="rounded-lg border border-red-200 bg-destructive/10 px-3 py-2 text-xs text-destructive dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">
+    <p className="rounded-lg border border-destructive/30 bg-muted px-3 py-2 text-xs text-destructive-ink dark:border-destructive/50 dark:bg-destructive/40 dark:text-destructive">
       {message}
     </p>
   );

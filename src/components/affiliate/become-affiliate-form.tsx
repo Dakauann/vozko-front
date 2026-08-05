@@ -275,7 +275,7 @@ export function BecomeAffiliateForm() {
           role="alert"
           initial={{ opacity: 0, y: -6 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-start gap-3 rounded-[--radius] border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive"
+          className="flex items-start gap-3 rounded-[--radius] border border-destructive/30 bg-muted p-4 text-sm text-destructive-ink"
         >
           <Info className="mt-0.5 h-4 w-4 shrink-0" weight="bold" />
           <div className="min-w-0 flex-1">
@@ -389,7 +389,7 @@ export function BecomeAffiliateForm() {
             <Hint>{t("steps.code.hint")}</Hint>
             {finalCode ? (
               <div className="rounded-[--radius] border border-border bg-background p-4">
-                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <p className="text-xs font-medium text-muted-foreground">
                   {t("steps.code.previewLabel")}
                 </p>
                 <p className="mt-1 font-mono text-base font-semibold text-foreground">
@@ -535,7 +535,7 @@ function ReviewStep({
             key={row.label}
             className="grid grid-cols-1 gap-1 px-4 py-3 sm:grid-cols-3 sm:items-center"
           >
-            <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:col-span-1">
+            <dt className="text-xs font-semibold text-muted-foreground sm:col-span-1">
               {row.label}
             </dt>
             <dd

@@ -169,7 +169,7 @@ export default function AdminIssuesPage() {
               </span>
             )}
             {row.imageUrls && row.imageUrls.length > 0 && (
-              <span className="text-[10px] text-muted-foreground/60 mt-0.5">
+              <span className="text-[11px] text-muted-foreground/60 mt-0.5">
                 📎 {row.imageUrls.length} {t("admin.images")}
               </span>
             )}
@@ -355,7 +355,7 @@ export default function AdminIssuesPage() {
       />
 
       {error && (
-        <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-white">
+        <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-destructive-foreground">
           {error}
         </div>
       )}

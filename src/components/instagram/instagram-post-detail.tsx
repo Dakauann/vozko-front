@@ -219,7 +219,7 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
             </div>
 
             {error && (
-              <p className="border-b border-border bg-destructive/5 px-4 py-2 text-xs text-destructive">
+              <p className="border-b border-border bg-muted px-4 py-2 text-xs text-destructive-ink">
                 {error}
               </p>
             )}

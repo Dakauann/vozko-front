@@ -63,7 +63,7 @@ export default function EditAgentPage({ params }: EditAgentPageProps) {
   if (state.error) {
     return (
       <main className="w-full space-y-6">
-        <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-white">
+        <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-destructive-foreground">
           {state.error}
         </div>
       </main>

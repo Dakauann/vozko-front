@@ -33,7 +33,7 @@ function Calendar({
         table: "w-full border-collapse",
         head_row: "flex",
         head_cell:
-          "text-muted-foreground rounded-full w-9 font-medium text-[0.75rem] uppercase",
+          "text-muted-foreground rounded-full w-9 font-medium text-[0.75rem]",
         row: "flex w-full mt-1",
         cell: cn(
           "relative p-0.5 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-muted [&:has([aria-selected].day-outside)]:bg-muted",
@@ -42,7 +42,7 @@ function Calendar({
             : "[&:has([aria-selected])]:rounded-full",
         ),
         day: cn(
-          "inline-flex items-center justify-center h-8 w-8 rounded-full font-normal transition-colors hover:bg-muted hover:text-lamp-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring aria-selected:opacity-100",
+          "inline-flex items-center justify-center h-8 w-8 rounded-full font-normal transition-colors hover:bg-muted hover:text-primary-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring aria-selected:opacity-100",
         ),
         day_range_start: "day-range-start",
         day_range_end: "day-range-end",
@@ -53,7 +53,7 @@ function Calendar({
           "day-outside text-muted-foreground/50 aria-selected:bg-muted aria-selected:text-muted-foreground/70",
         day_disabled: "text-muted-foreground/40 opacity-50 cursor-not-allowed",
         day_range_middle:
-          "aria-selected:bg-primary/15 aria-selected:text-lamp-ink",
+          "aria-selected:bg-muted aria-selected:text-primary-ink",
         day_hidden: "invisible",
         ...classNames,
       }}

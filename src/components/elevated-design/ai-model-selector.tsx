@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { softSurfaceWithInset } from "./shadow-presets";
 
 const DISABLED_SHADOW =
-  "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)";
+  "var(--elev-1)";
 
 function formatPrice(price: number): string {
   if (!price || price <= 0) return "Grátis";
@@ -83,8 +83,8 @@ export function AIModelSelector({
         aria-haspopup="dialog"
         aria-expanded={open}
         className={cn(
-          "flex w-full items-center justify-between gap-2 rounded-[--radius] border border-border border-t-rule-strong bg-muted px-2.5 py-1.5 text-left text-[13px] font-medium text-foreground transition-colors",
-          "hover:border-rule-strong",
+          "flex w-full items-center justify-between gap-2 rounded-[--radius] border border-border bg-muted px-2.5 py-1.5 text-left text-sm font-medium text-foreground transition-colors",
+          "hover:border-border-strong",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           "disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:opacity-60",
         )}

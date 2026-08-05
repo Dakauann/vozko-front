@@ -130,14 +130,14 @@ export function PlanCatalogRail({
                 <div className="mt-3 flex min-h-[52px] flex-wrap content-start gap-2">
                   <span
                     className={cn(
-                      "legend border border-border border-t-rule-strong bg-background px-1.5 py-1",
-                      isCurrent ? "text-lamp-ink" : "text-muted-foreground",
+                      "rounded-lg legend border border-border bg-background px-1.5 py-1",
+                      isCurrent ? "text-primary-ink" : "text-muted-foreground",
                     )}
                   >
                     {isCurrent ? labels.current : labels.available}
                   </span>
                   {isBest ? (
-                    <span className="legend border border-border border-t-rule-strong bg-muted px-1.5 py-1 text-foreground">
+                    <span className="rounded-lg legend border border-border bg-muted px-1.5 py-1 text-foreground">
                       {labels.best}
                     </span>
                   ) : null}

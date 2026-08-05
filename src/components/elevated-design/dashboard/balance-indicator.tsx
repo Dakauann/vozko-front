@@ -342,7 +342,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                 // made the label outweigh the thing it names; the accessible
                 // name carries the label instead.
                 <span
-                  className="readout truncate text-[13px] font-semibold leading-none text-foreground"
+                  className="readout truncate text-sm font-semibold leading-none text-foreground"
                   title={t("moneyLabel")}
                 >
                   {balanceVisible
@@ -363,7 +363,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
               {/* Plan state is a lamp dot plus a word, never colour alone. */}
               {hasPlansPermission && hasVisiblePlan ? (
                 <span
-                  className="hidden max-w-[8rem] items-center gap-1 truncate border border-border px-1 py-px text-[10px] font-medium text-muted-foreground md:inline-flex"
+                  className="rounded-[--radius] hidden max-w-[8rem] items-center gap-1 truncate border border-border px-1 py-px text-[11px] font-medium text-muted-foreground md:inline-flex"
                   title={currentPlanName ?? undefined}
                 >
                   <span
@@ -376,7 +376,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                   <span className="truncate">{currentPlanName}</span>
                 </span>
               ) : hasPlansPermission && !hasVisiblePlan ? (
-                <span className="hidden items-center gap-1 border border-border px-1 py-px text-[10px] font-medium text-muted-foreground md:inline-flex">
+                <span className="rounded-[--radius] hidden items-center gap-1 border border-border px-1 py-px text-[11px] font-medium text-muted-foreground md:inline-flex">
                   <span
                     aria-hidden="true"
                     className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
@@ -458,7 +458,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                     {t("description")}
                   </p>
                 </div>
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-muted text-[10px] font-semibold text-foreground">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-muted text-[11px] font-semibold text-foreground">
                   VX
                 </div>
               </div>
@@ -471,7 +471,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                         <Package className="h-5 w-5" weight="fill" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[11px] font-semibold uppercase text-muted-foreground">
+                        <p className="text-[11px] font-semibold text-muted-foreground">
                           {t("workspacePlan.label")}
                         </p>
                         <p className="mt-1 truncate text-sm font-semibold text-foreground">
@@ -487,7 +487,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                     {subscriptionStatusLabel ? (
                       <span
                         className={cn(
-                          "rounded-[--radius] px-2.5 py-1 text-[10px] font-semibold uppercase text-white",
+                          "rounded-[--radius] px-2.5 py-1 text-[11px] font-semibold text-white",
                           hasRechargeEligiblePlan
                             ? "bg-healthy"
                             : "bg-warning",
@@ -561,7 +561,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                       : "—"}
                   </span>
                   <Button
-                    className="!min-h-0 min-w-0 !px-0 !py-0 text-xs font-medium text-lamp-ink shadow-none hover:bg-transparent"
+                    className="!min-h-0 min-w-0 !px-0 !py-0 text-xs font-medium text-primary-ink shadow-none hover:bg-transparent"
                     link="/dashboard/balance"
                     newTab={false}
                     title={t("actions.viewHistory")}
@@ -612,7 +612,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
 
               {loadingPlans ? (
                 <div className="flex min-h-[220px] flex-col items-center justify-center rounded-[--radius] border border-border bg-muted text-center">
-                  <Spinner className="h-6 w-6 animate-spin text-lamp-ink" />
+                  <Spinner className="h-6 w-6 animate-spin text-primary-ink" />
                   <p className="mt-3 text-sm text-muted-foreground">
                     {gateT("loading")}
                   </p>
@@ -709,7 +709,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                     className={cn(
                       "flex flex-col items-center gap-2 rounded-[--radius] border p-4 transition-colors",
                       paymentMethod === "pix"
-                        ? "border-rule-strong bg-muted text-foreground"
+                        ? "border-border-strong bg-muted text-foreground"
                         : "border-border bg-card text-muted-foreground hover:border-foreground/20",
                     )}
                   >
@@ -724,7 +724,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                     className={cn(
                       "flex flex-col items-center gap-2 rounded-[--radius] border p-4 transition-colors",
                       paymentMethod === "boleto"
-                        ? "border-rule-strong bg-muted text-foreground"
+                        ? "border-border-strong bg-muted text-foreground"
                         : "border-border bg-card text-muted-foreground hover:border-foreground/20",
                     )}
                   >

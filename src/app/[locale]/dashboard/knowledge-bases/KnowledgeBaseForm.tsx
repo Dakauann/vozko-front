@@ -352,10 +352,10 @@ export default function KnowledgeBaseForm({
 
       {/* Step 1: Basic Info */}
       {(currentStep === 1 || mode === "edit") && (
-        <ElevatedContainer className="p-6 space-y-6 border border-border">
+        <ElevatedContainer className="rounded-lg p-6 space-y-6 border border-border">
           <div className="flex items-center gap-3 mb-4">
             <div className="rounded-[--radius] bg-muted p-3">
-              <Files className="h-6 w-6 text-lamp-ink" weight="fill" />
+              <Files className="h-6 w-6 text-primary-ink" weight="fill" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-foreground">
@@ -391,10 +391,10 @@ export default function KnowledgeBaseForm({
 
       {/* Step 2: Documents */}
       {currentStep === 2 && mode === "create" && (
-        <ElevatedContainer className="p-6 space-y-6 border border-border">
+        <ElevatedContainer className="rounded-lg p-6 space-y-6 border border-border">
           <div className="flex items-center gap-3 mb-4">
             <div className="rounded-[--radius] bg-muted p-3">
-              <UploadSimple className="h-6 w-6 text-lamp-ink" weight="fill" />
+              <UploadSimple className="h-6 w-6 text-primary-ink" weight="fill" />
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-foreground">
@@ -448,7 +448,7 @@ export default function KnowledgeBaseForm({
 
             <div className="flex flex-col items-center gap-3 text-center px-6">
               <div className="rounded-full bg-muted p-4">
-                <UploadSimple className="h-8 w-8 text-lamp-ink" weight="bold" />
+                <UploadSimple className="h-8 w-8 text-primary-ink" weight="bold" />
               </div>
               <div>
                 <p className="font-medium text-foreground">
@@ -486,7 +486,7 @@ export default function KnowledgeBaseForm({
                     className="flex items-center gap-3 rounded-lg border border-border bg-card p-3"
                   >
                     <div className="rounded-lg bg-muted p-2">
-                      <File className="h-4 w-4 text-lamp-ink" weight="fill" />
+                      <File className="h-4 w-4 text-primary-ink" weight="fill" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">
@@ -499,7 +499,7 @@ export default function KnowledgeBaseForm({
                     <button
                       type="button"
                       onClick={() => removeFile(pf.name)}
-                      className="rounded-lg p-2 text-muted-foreground hover:bg-destructive hover:text-white"
+                      className="rounded-lg p-2 text-muted-foreground hover:bg-destructive hover:text-destructive-foreground"
                     >
                       <Trash className="h-4 w-4" weight="bold" />
                     </button>

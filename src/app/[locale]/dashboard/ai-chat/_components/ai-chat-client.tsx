@@ -394,7 +394,7 @@ export function AIChatClient() {
           <button
             type="button"
             onClick={newChat}
-            className="inline-flex items-center gap-1.5 border border-border border-t-rule-strong bg-muted px-2 py-1 text-[11px] font-semibold text-foreground transition-colors duration-DEFAULT hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="rounded-[--radius] inline-flex items-center gap-1.5 border border-border bg-muted px-2 py-1 text-[11px] font-semibold text-foreground transition-colors duration-DEFAULT hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Plus weight="bold" className="h-3 w-3" />
             {t("newChat")}
@@ -407,7 +407,7 @@ export function AIChatClient() {
               <div
                 key={thread.id}
                 className={cn(
-                  "group flex items-center gap-2 pr-2 text-[13px] transition-colors duration-DEFAULT",
+                  "group flex items-center gap-2 pr-2 text-sm transition-colors duration-DEFAULT",
                   current
                     ? "bg-muted font-semibold text-foreground"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -533,7 +533,7 @@ export function AIChatClient() {
                     key={s}
                     type="button"
                     onClick={() => setInput(s)}
-                    className="border border-border border-t-rule-strong bg-card px-3 py-1.5 text-[13px] text-muted-foreground transition-colors duration-DEFAULT hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-muted-foreground transition-colors duration-DEFAULT hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {s}
                   </button>
@@ -610,7 +610,7 @@ function Composer({
         <button
           type="button"
           onClick={onScrollDown}
-          className="absolute -top-11 left-1/2 z-10 flex h-8 w-8 -translate-x-1/2 items-center justify-center border border-border border-t-rule-strong bg-card text-foreground shadow-lg transition-colors duration-DEFAULT hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="absolute -top-11 left-1/2 z-10 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-lg transition-colors duration-DEFAULT hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label={labels.scrollToBottom}
         >
           <CaretDown weight="bold" className="h-4 w-4" />
@@ -624,20 +624,20 @@ function Composer({
         {error ? (
           <p
             role="alert"
-            className="mb-2 border border-destructive/40 border-t-destructive/60 bg-destructive/10 px-3 py-2 text-[13px] text-destructive"
+            className="rounded-lg mb-2 border border-destructive/40 border-t-destructive/60 bg-muted px-3 py-2 text-sm text-destructive-ink"
           >
             {error}
           </p>
         ) : null}
 
-        <div className="border border-border border-t-rule-strong bg-muted focus-within:ring-2 focus-within:ring-ring">
+        <div className="rounded-lg border border-border bg-muted focus-within:ring-2 focus-within:ring-ring">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={onKeyDown}
             rows={docked ? 1 : 2}
             placeholder={labels.placeholder}
-            className="block max-h-40 w-full resize-none bg-transparent px-3 pt-2.5 text-[13px] leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
+            className="block max-h-40 w-full resize-none bg-transparent px-3 pt-2.5 text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
           />
           {/* Instrument rail: what this turn will be sent with, and the commit
               key, on one engraved line under the field. */}
@@ -656,7 +656,7 @@ function Composer({
               <button
                 type="button"
                 onClick={onStop}
-                className="flex h-8 w-8 flex-shrink-0 items-center justify-center border border-border border-t-rule-strong bg-card text-foreground transition-colors duration-DEFAULT hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[--radius] border border-border bg-card text-foreground transition-colors duration-DEFAULT hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label={labels.stop}
               >
                 <Stop weight="fill" className="h-3.5 w-3.5" />
@@ -666,7 +666,7 @@ function Composer({
                 type="button"
                 onClick={onSend}
                 disabled={!input.trim() || !model}
-                className="flex h-8 w-8 flex-shrink-0 items-center justify-center bg-primary text-primary-foreground transition-colors duration-DEFAULT hover:bg-primary-hover active:bg-primary-active disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground transition-colors duration-DEFAULT hover:bg-primary-hover active:bg-primary-active disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label={labels.send}
               >
                 <PaperPlaneTilt weight="fill" className="h-3.5 w-3.5" />
@@ -698,7 +698,7 @@ function MessageBubble({
     // painting every one of them orange spends the only signal the panel has.
     return (
       <div className="flex justify-end">
-        <div className="max-w-[85%] whitespace-pre-wrap break-words border border-border border-t-rule-strong bg-muted px-3.5 py-2.5 text-[13px] leading-relaxed text-foreground">
+        <div className="rounded-lg max-w-[85%] whitespace-pre-wrap break-words border border-border bg-muted px-3.5 py-2.5 text-sm leading-relaxed text-foreground">
           {message.content}
         </div>
       </div>
@@ -712,11 +712,11 @@ function MessageBubble({
   return (
     <div className="flex gap-3">
       {message.model ? (
-        <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center border border-border border-t-rule-strong bg-muted">
+        <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-[--radius] border border-border bg-muted">
           <ModelBrandIcon modelId={message.model} size={15} />
         </span>
       ) : (
-        <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center border border-border border-t-rule-strong bg-muted text-muted-foreground">
+        <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-[--radius] border border-border bg-muted text-muted-foreground">
           <Brain weight="fill" className="h-4 w-4" />
         </span>
       )}
@@ -772,7 +772,7 @@ function ThinkingBlock({
   const [userToggled, setUserToggled] = useState<boolean | null>(null);
   const open = userToggled ?? !!streaming;
   return (
-    <div className="border border-border border-t-rule-strong bg-muted">
+    <div className="rounded-lg border border-border bg-muted">
       <button
         type="button"
         onClick={() => setUserToggled(!open)}
@@ -839,9 +839,9 @@ function ApprovalCard({
   const [busy, setBusy] = useState<null | "approve" | "reject">(null);
   const TileIcon = TOOL_ICON[pending.toolName] ?? Wrench;
   return (
-    <div className="border border-primary/40 border-t-primary/60 bg-primary/[0.06] p-3.5">
+    <div className="rounded-lg border border-border bg-muted p-3.5">
       <div className="flex items-start gap-3">
-        <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center bg-primary text-primary-foreground">
+        <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground">
           <TileIcon weight="bold" className="h-[18px] w-[18px]" />
         </span>
         <div className="min-w-0 flex-1">
@@ -855,8 +855,8 @@ function ApprovalCard({
           ) : null}
         </div>
       </div>
-      <div className="mt-3 flex flex-col gap-2.5 border-t border-primary/25 pt-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-        <span className="text-xs font-medium text-lamp-ink">{labels.approvalHint}</span>
+      <div className="mt-3 flex flex-col gap-2.5 border-t border-border pt-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <span className="text-xs font-medium text-primary-ink">{labels.approvalHint}</span>
         <div className="flex gap-2">
           <button
             type="button"
@@ -865,7 +865,7 @@ function ApprovalCard({
               setBusy("reject");
               onReject(pending.id);
             }}
-            className="inline-flex items-center gap-1.5 border border-border border-t-rule-strong bg-card px-3.5 py-2 text-[13px] font-medium text-foreground transition-colors duration-DEFAULT hover:bg-muted disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="rounded-[--radius] inline-flex items-center gap-1.5 border border-border bg-card px-3.5 py-2 text-sm font-medium text-foreground transition-colors duration-DEFAULT hover:bg-muted disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             {busy === "reject" ? (
               <CircleNotch weight="bold" className="h-3.5 w-3.5 animate-spin" />
@@ -879,7 +879,7 @@ function ApprovalCard({
               setBusy("approve");
               onApprove(pending.id);
             }}
-            className="inline-flex items-center gap-1.5 bg-primary px-3.5 py-2 text-[13px] font-semibold text-primary-foreground transition-colors duration-DEFAULT hover:bg-primary-hover active:bg-primary-active disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="inline-flex items-center gap-1.5 rounded-[--radius] bg-primary px-3.5 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-DEFAULT hover:bg-primary-hover active:bg-primary-active disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             {busy === "approve" ? (
               <CircleNotch weight="bold" className="h-3.5 w-3.5 animate-spin" />
@@ -904,7 +904,7 @@ function TypingDots({ label }: { label: string }) {
       {[0, 1, 2].map((i) => (
         <span
           key={i}
-          className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/60"
+          className="h-1.5 w-1.5 animate-dot-pulse rounded-full bg-muted-foreground/60"
           style={{ animationDelay: `${i * 120}ms` }}
         />
       ))}

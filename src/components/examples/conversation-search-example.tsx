@@ -206,7 +206,7 @@ export function ConversationSearchExample({
             key={index}
             className={
               segment.isMatch
-                ? "bg-yellow-200 dark:bg-yellow-800 font-semibold"
+                ? "bg-warning/10 dark:bg-warning font-semibold"
                 : ""
             }
           >
@@ -229,7 +229,7 @@ export function ConversationSearchExample({
     return (
       <span className="text-sm">
         <span className="text-muted-foreground">{context.before}</span>
-        <span className="bg-yellow-200 dark:bg-yellow-800 font-semibold">
+        <span className="bg-warning/10 dark:bg-warning font-semibold">
           {context.match}
         </span>
         <span className="text-muted-foreground">{context.after}</span>
@@ -257,7 +257,7 @@ export function ConversationSearchExample({
                 status === "connected"
                   ? "bg-healthy"
                   : status === "connecting"
-                    ? "bg-yellow-500"
+                    ? "bg-warning"
                     : "bg-destructive"
               }`}
             />
@@ -352,7 +352,7 @@ export function ConversationSearchExample({
               {activeFilters.map((label, index) => (
                 <span
                   key={index}
-                  className="text-xs bg-primary/15 text-blue-800 px-2 py-1 rounded-full"
+                  className="text-xs bg-primary/15 text-info-ink px-2 py-1 rounded-full"
                 >
                   {label}
                 </span>
@@ -453,7 +453,7 @@ export function ConversationSearchExample({
                     activeConversation.lead_number}
                 </h2>
                 {!activeConversation.window_open && (
-                  <span className="text-xs bg-destructive/10 text-red-800 px-2 py-1 rounded">
+                  <span className="text-xs bg-muted text-destructive-ink px-2 py-1 rounded">
                     Window Closed
                   </span>
                 )}

@@ -148,7 +148,7 @@ export function CommentRuleFields({
                   <Icon
                     className={cn(
                       "mt-0.5 h-4 w-4 shrink-0",
-                      selected ? "text-lamp-ink" : "text-muted-foreground",
+                      selected ? "text-primary-ink" : "text-muted-foreground",
                     )}
                     weight={selected ? "fill" : "regular"}
                   />

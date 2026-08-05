@@ -205,12 +205,12 @@ function CommentRow({
               @{comment.fromUsername || t("comments.unknownUser")}
             </span>
             {comment.isOurs && (
-              <span className="ml-1.5 rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+              <span className="ml-1.5 rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground">
                 {t("comments.you")}
               </span>
             )}
             {comment.hidden && (
-              <span className="ml-1.5 rounded bg-warning/10 px-1.5 py-0.5 text-[10px] text-warning dark:text-amber-400">
+              <span className="ml-1.5 rounded bg-muted px-1.5 py-0.5 text-[11px] text-warning-ink dark:text-warning">
                 {t("comments.hidden")}
               </span>
             )}
@@ -272,7 +272,7 @@ function CommentRow({
                 disabled={busy}
                 aria-label={t("comments.delete")}
                 title={t("comments.delete")}
-                className="rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
+                className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-destructive-ink disabled:opacity-40"
               >
                 <Trash size={14} />
               </button>

@@ -58,7 +58,7 @@ export default function NewSupportInboxPage() {
 
       {error && (
         <motion.div variants={itemVariants}>
-          <ElevatedContainer className="border-rose-200 bg-destructive/10">
+          <ElevatedContainer className="border-destructive/30 bg-destructive/10">
             <p className="text-sm text-destructive">{error}</p>
           </ElevatedContainer>
         </motion.div>
@@ -69,7 +69,7 @@ export default function NewSupportInboxPage() {
           <ElevatedContainer className="border-border bg-card">
             <div className="flex items-center justify-center py-12">
               <div className="flex items-center gap-3">
-                <div className="h-5 w-5 animate-spin rounded-full border border-violet-500 border-t-transparent" />
+                <div className="h-5 w-5 animate-spin rounded-full border border-chart-4 border-t-transparent" />
                 <span className="text-sm text-muted-foreground">
                   {t("loading")}
                 </span>

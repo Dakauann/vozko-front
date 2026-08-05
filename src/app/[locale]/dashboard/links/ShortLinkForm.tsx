@@ -337,7 +337,7 @@ export default function ShortLinkForm({ mode, initialData }: ShortLinkFormProps)
                 type="checkbox"
                 checked={clearPassword}
                 onChange={(e) => setClearPassword(e.target.checked)}
-                className="h-4 w-4 rounded border-border text-lamp-ink focus-visible:ring-2 focus-visible:ring-ring"
+                className="h-4 w-4 rounded border-border text-primary-ink focus-visible:ring-2 focus-visible:ring-ring"
               />
               {t("form.labels.removePassword")}
             </label>
@@ -345,7 +345,7 @@ export default function ShortLinkForm({ mode, initialData }: ShortLinkFormProps)
         </div>
       </ElevatedContainer>
 
-      <ElevatedContainer className="border border-border p-6">
+      <ElevatedContainer className="rounded-lg border border-border p-6">
         <button
           type="button"
           onClick={() => setUtmOpen((v) => !v)}

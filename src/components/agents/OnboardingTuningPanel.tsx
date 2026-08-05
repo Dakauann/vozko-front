@@ -236,7 +236,7 @@ export function OnboardingTuningPanel({ agent }: OnboardingTuningPanelProps) {
         />
         <div className="ml-auto flex items-center gap-2">
           {dirty ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2.5 py-1 text-[11px] font-medium text-warning">
+            <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-warning-ink">
               {t("unsaved")}
             </span>
           ) : null}
@@ -271,7 +271,7 @@ export function OnboardingTuningPanel({ agent }: OnboardingTuningPanelProps) {
       ) : (
         <div className="mt-4 flex flex-1 flex-col gap-4">
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <label className="text-xs font-semibold text-muted-foreground">
               {t("editorLabel")}
             </label>
             <ElevatedTextarea

@@ -114,7 +114,7 @@ function ConfigSection({
     <section className="rounded-[--radius] border border-border bg-card p-5 shadow-sm">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+          <h3 className="text-sm font-semibold text-foreground">
             {title}
           </h3>
           {description ? (
@@ -488,7 +488,7 @@ function NestedSchemaParameterRow({
               onChange={(e) =>
                 onChange({ ...param, required: e.target.checked })
               }
-              className="h-4 w-4 rounded border-foreground/20 text-lamp-ink focus:ring-ring"
+              className="h-4 w-4 rounded border-foreground/20 text-primary-ink focus:ring-ring"
             />
             <span className="text-sm text-foreground">
               {t("httpConfig.required")}
@@ -509,7 +509,7 @@ function NestedSchemaParameterRow({
       {expanded && param.type === "object" && depth < maxDepth && (
         <div className="mt-4 space-y-3 border-l-2 border-dashed border-border pl-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            <span className="text-xs font-semibold text-muted-foreground">
               {t("httpConfig.properties")}
             </span>
             <AddConfigButton
@@ -554,7 +554,7 @@ function NestedSchemaParameterRow({
         depth < maxDepth && (
           <div className="mt-4 space-y-3 border-l-2 border-dashed border-border pl-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              <span className="text-xs font-semibold text-muted-foreground">
                 {t("httpConfig.arrayItems")}
               </span>
             </div>
@@ -604,7 +604,7 @@ function NestedSchemaParameterRow({
             {param.items.type === "object" && (
               <div className="mt-3 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  <span className="text-xs font-semibold text-muted-foreground">
                     {t("httpConfig.itemProperties")}
                   </span>
                   <AddConfigButton
@@ -745,7 +745,7 @@ function HeaderRow({
       <button
         type="button"
         onClick={onRemove}
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive hover:text-white"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive hover:text-destructive-foreground"
       >
         <Trash className="h-4 w-4" />
       </button>

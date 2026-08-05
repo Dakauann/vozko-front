@@ -223,7 +223,7 @@ export default function LinkAnalyticsPage() {
         contentClassName="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
       >
         <div className="min-w-0 space-y-2">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="text-xs font-medium text-muted-foreground">
             {t("detail.shortUrl")}
           </p>
           <div className="flex items-center gap-2">
@@ -271,7 +271,7 @@ export default function LinkAnalyticsPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile
-          icon={<CursorClick className="h-4 w-4 text-blue-500" weight="fill" />}
+          icon={<CursorClick className="h-4 w-4 text-info-ink" weight="fill" />}
           label={t("stats.totalClicks")}
           value={analytics?.totalClicks ?? link.clickCount}
         />

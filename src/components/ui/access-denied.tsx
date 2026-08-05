@@ -19,7 +19,7 @@ export function AccessDenied({ backHref }: AccessDeniedProps) {
       <div className="w-full max-w-lg text-center">
         {/* Icon */}
         <div className="mx-auto mb-6">
-          <IconBox color="amber" size="lg" className="mx-auto h-20 w-20 rounded-full ring-8 ring-amber-50/50">
+          <IconBox color="amber" size="lg" className="mx-auto h-20 w-20 rounded-full ring-8 ring-warning/50">
             <ShieldWarning
               className="h-10 w-10"
               weight="duotone"

@@ -6,10 +6,9 @@ import { CaretDown, CaretUp, Check } from "@/components/icons";
 import { ReactNode, forwardRef, useCallback, useState } from "react";
 
 import { cn } from "@/lib/utils";
-import { softSurfaceWithInset } from "./shadow-presets";
 
 const DISABLED_SHADOW =
-  "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)";
+  "var(--elev-1)";
 
 type ElevatedSelectProps = React.ComponentPropsWithoutRef<
   typeof SelectPrimitive.Root
@@ -67,9 +66,8 @@ const ElevatedSelect = forwardRef<
         ? value !== null && String(value).length > 0
         : hasValue;
 
-    const boxShadowValue = props.disabled
-      ? DISABLED_SHADOW
-      : softSurfaceWithInset;
+    // A resting trigger sits on the sheet; only the focus underline uses this slot.
+    const boxShadowValue = props.disabled ? DISABLED_SHADOW : "none";
 
     if (trigger) {
       return (
@@ -122,7 +120,7 @@ const ElevatedSelect = forwardRef<
         ) : null}
         <div className="relative flex w-full items-center">
         {icon && (
-          <span className="pointer-events-none absolute left-5 z-[1] flex h-full items-center text-lamp-ink/60">
+          <span className="pointer-events-none absolute left-5 z-[1] flex h-full items-center text-primary-ink/60">
             {icon}
           </span>
         )}
@@ -139,12 +137,13 @@ const ElevatedSelect = forwardRef<
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
             className={cn(
-              "flex w-full items-center justify-between gap-3 rounded-[--radius] border border-border bg-card px-3 py-2 text-sm font-medium text-foreground transition-all duration-200 ease-out",
-              "hover:border-foreground/20",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+              "flex w-full items-center justify-between gap-3 rounded-[--radius] border border-border-strong bg-card px-3 py-2 text-sm font-medium text-foreground transition-[border-color,box-shadow] duration-150",
+              "hover:border-[hsl(var(--muted-foreground)/0.5)]",
+              // Same focus as every other field: brand underline plus halo.
+              "focus-visible:outline-none focus-visible:border-border-strong focus-visible:shadow-[inset_0_-2px_0_0_hsl(var(--primary))] focus-visible:ring-2 focus-visible:ring-primary/15",
               "disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:opacity-60",
-              icon && "pl-12",
-              !icon && "pl-5",
+              icon && "pl-9",
+              !icon && "pl-3",
             )}
             style={{ boxShadow: boxShadowValue }}
           >
@@ -212,11 +211,11 @@ const ElevatedSelectItem = forwardRef<
       ref={ref}
       className={cn(
         "relative flex w-full cursor-pointer select-none items-center gap-3 rounded-[--radius] px-3 py-2.5 text-sm outline-none transition-colors",
-        "hover:bg-muted hover:text-lamp-ink hover:border-l-primary",
-        "focus:bg-muted focus:text-lamp-ink",
-        "data-[state=checked]:bg-muted data-[state=checked]:text-lamp-ink data-[state=checked]:border-l-primary",
+        "hover:bg-muted hover:text-primary-ink hover:border-l-primary",
+        "focus:bg-muted focus:text-primary-ink",
+        "data-[state=checked]:bg-muted data-[state=checked]:text-primary-ink data-[state=checked]:border-l-primary",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-        "border-l-4 border-l-transparent rounded-none",
+        "rounded-[--radius]",
         className,
       )}
       {...props}
@@ -246,7 +245,7 @@ const ElevatedSelectItem = forwardRef<
         <span className="text-xs text-muted-foreground">{meta}</span>
       ) : null}
       <SelectPrimitive.ItemIndicator className="ml-2">
-        <Check className="h-4 w-4 flex-shrink-0 text-lamp-ink" weight="bold" />
+        <Check className="h-4 w-4 flex-shrink-0 text-primary-ink" weight="bold" />
       </SelectPrimitive.ItemIndicator>
     </SelectPrimitive.Item>
   ),
@@ -263,7 +262,7 @@ const ElevatedSelectLabel = forwardRef<
   <SelectPrimitive.Label
     ref={ref}
     className={cn(
-      "px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide",
+      "px-3 py-2 text-xs font-semibold text-muted-foreground",
       className,
     )}
     {...props}

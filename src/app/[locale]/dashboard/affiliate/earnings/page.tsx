@@ -54,17 +54,17 @@ const STATUS_CONFIG: Record<
 > = {
   pending: {
     icon: Clock,
-    className: "bg-warning/10 text-warning border-warning/30",
+    className: "bg-muted text-warning-ink border-warning/30",
     fallbackLabel: "Pending",
   },
   paid: {
     icon: CheckCircle,
-    className: "bg-healthy/10 text-healthy border-healthy/30",
+    className: "bg-muted text-healthy-ink border-healthy/30",
     fallbackLabel: "Paid",
   },
   cancelled: {
     icon: XCircle,
-    className: "bg-destructive/10 text-destructive border-destructive/30",
+    className: "bg-muted text-destructive-ink border-destructive/30",
     fallbackLabel: "Cancelled",
   },
 };
@@ -194,7 +194,7 @@ export default function AffiliateEarningsPage() {
             <span className="text-sm font-medium tabular-nums text-foreground">
               {formatBRL(brlFromEarning(row))}
             </span>
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-[11px] text-muted-foreground">
               @{(row.exchangeRateMicros / 1_000_000).toFixed(4)}
             </span>
           </div>
@@ -218,7 +218,7 @@ export default function AffiliateEarningsPage() {
       />
 
       {error ? (
-        <div className="rounded-[--radius] border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+        <div className="rounded-[--radius] border border-destructive/30 bg-muted p-4 text-sm text-destructive-ink">
           {error}
         </div>
       ) : null}
@@ -226,7 +226,7 @@ export default function AffiliateEarningsPage() {
       {loading && rows.length === 0 ? (
         <div className="flex min-h-[30vh] items-center justify-center">
           <CircleNotch
-            className="h-8 w-8 animate-spin text-lamp-ink"
+            className="h-8 w-8 animate-spin text-primary-ink"
             weight="bold"
           />
         </div>

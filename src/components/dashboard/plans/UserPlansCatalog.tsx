@@ -609,7 +609,7 @@ export default function UserPlansCatalog() {
     return (
       <div className="flex flex-col items-center justify-center py-32">
         <CircleNotch
-          className="h-8 w-8 animate-spin text-lamp-ink"
+          className="h-8 w-8 animate-spin text-primary-ink"
           weight="bold"
         />
         <p className="mt-3 text-sm text-muted-foreground">{t("loading")}</p>
@@ -662,7 +662,7 @@ export default function UserPlansCatalog() {
         style={{ boxShadow: softSurfaceShadow }}
       >
         <Package
-          className="mx-auto mb-4 h-12 w-12 text-red-400"
+          className="mx-auto mb-4 h-12 w-12 text-destructive"
           weight="fill"
         />
         <p className="font-semibold text-foreground">{t("error.title")}</p>
@@ -747,7 +747,7 @@ export default function UserPlansCatalog() {
                 <h2 className="truncate text-[17px] font-semibold tracking-[-0.01em] text-foreground">
                   {currentPlan?.name ?? t("subscription.noneTitle")}
                 </h2>
-                <p className="mt-1 max-w-[60ch] text-[13px] leading-snug text-muted-foreground">
+                <p className="mt-1 max-w-[60ch] text-sm leading-snug text-muted-foreground">
                   {subscriptionDescription}
                 </p>
               </div>
@@ -758,19 +758,19 @@ export default function UserPlansCatalog() {
                 <dl className="grid grid-cols-2 gap-x-10 gap-y-4 sm:grid-cols-4">
                   <div>
                     <dt className="legend">{t("subscription.plan")}</dt>
-                    <dd className="mt-1.5 truncate text-[13px] font-medium text-foreground">
+                    <dd className="mt-1.5 truncate text-sm font-medium text-foreground">
                       {currentPlan?.name ?? "-"}
                     </dd>
                   </div>
                   <div>
                     <dt className="legend">{t("subscription.basePrice")}</dt>
-                    <dd className="readout mt-1.5 text-[13px] font-semibold text-foreground">
+                    <dd className="readout mt-1.5 text-sm font-semibold text-foreground">
                       {formatBRLFromCents(currentPlan?.basePriceBRLCents ?? 0)}
                     </dd>
                   </div>
                   <div>
                     <dt className="legend">{t("subscription.period")}</dt>
-                    <dd className="readout mt-1.5 whitespace-nowrap text-[13px] text-foreground">
+                    <dd className="readout mt-1.5 whitespace-nowrap text-sm text-foreground">
                       {formatDateOnly(
                         currentSubscription.currentPeriodStart,
                         locale,
@@ -784,7 +784,7 @@ export default function UserPlansCatalog() {
                   </div>
                   <div>
                     <dt className="legend">{t("stats.currentStatus")}</dt>
-                    <dd className="mt-1.5 text-[13px] font-medium text-foreground">
+                    <dd className="mt-1.5 text-sm font-medium text-foreground">
                       {t(`status.${currentSubscription.status}`)}
                     </dd>
                   </div>
@@ -793,13 +793,13 @@ export default function UserPlansCatalog() {
                 <dl className="grid grid-cols-2 gap-x-10 gap-y-4">
                   <div>
                     <dt className="legend">{t("stats.totalPlans")}</dt>
-                    <dd className="readout mt-1.5 text-[13px] font-semibold text-foreground">
+                    <dd className="readout mt-1.5 text-sm font-semibold text-foreground">
                       {plans.length}
                     </dd>
                   </div>
                   <div>
                     <dt className="legend">{t("stats.currentStatus")}</dt>
-                    <dd className="mt-1.5 text-[13px] font-medium text-foreground">
+                    <dd className="mt-1.5 text-sm font-medium text-foreground">
                       {t("stats.available")}
                     </dd>
                   </div>
@@ -855,7 +855,7 @@ export default function UserPlansCatalog() {
             </div>
             <input
               aria-label={t("filters.search")}
-              className="h-8 w-full rounded-[--radius] border border-border border-t-rule-strong bg-background px-2.5 text-[13px] text-foreground outline-none transition placeholder:text-muted-foreground/60 focus:border-primary/50 sm:w-60"
+              className="h-8 w-full rounded-[--radius] border border-border bg-background px-2.5 text-sm text-foreground outline-none transition placeholder:text-muted-foreground/60 focus:border-primary/50 sm:w-60"
               onChange={(event) => setSearch(event.target.value)}
               placeholder={t("filters.search")}
               type="search"
@@ -868,7 +868,7 @@ export default function UserPlansCatalog() {
               <p className="text-sm font-semibold text-foreground">
                 {t("empty.title")}
               </p>
-              <p className="mt-1 text-[13px] text-muted-foreground">
+              <p className="mt-1 text-sm text-muted-foreground">
                 {t("empty.description")}
               </p>
             </div>
@@ -926,12 +926,12 @@ export default function UserPlansCatalog() {
 
                             <span className="mt-2 flex min-h-[22px] flex-wrap items-center gap-1.5">
                               {isFeatured && featuredLabelKey ? (
-                                <span className="legend inline-flex border border-border border-t-rule-strong bg-background px-1.5 py-1 text-foreground">
+                                <span className="rounded-[--radius] legend inline-flex border border-border bg-background px-1.5 py-1 text-foreground">
                                   {pricingT(featuredLabelKey)}
                                 </span>
                               ) : null}
                               {state.isCurrent ? (
-                                <span className="legend inline-flex border border-border border-t-rule-strong bg-background px-1.5 py-1 text-lamp-ink">
+                                <span className="rounded-[--radius] legend inline-flex border border-border bg-background px-1.5 py-1 text-primary-ink">
                                   {t("list.current")}
                                 </span>
                               ) : null}
@@ -999,7 +999,7 @@ export default function UserPlansCatalog() {
                         <td
                           key={item.plan.id}
                           className={cn(
-                            "readout border-l border-border/60 px-4 py-2.5 text-[13px] font-semibold text-foreground",
+                            "readout border-l border-border/60 px-4 py-2.5 text-sm font-semibold text-foreground",
                             item.plan.id === selectedPlan?.plan.id && "bg-muted",
                           )}
                         >
@@ -1078,7 +1078,7 @@ export default function UserPlansCatalog() {
                     : t("detail.availableBadge")}
                 </p>
                 <span aria-hidden className="h-3 w-px bg-border" />
-                <p className="truncate text-[13px] font-semibold text-foreground">
+                <p className="truncate text-sm font-semibold text-foreground">
                   {selectedPlan.plan.name}
                 </p>
               </div>
@@ -1135,11 +1135,11 @@ export default function UserPlansCatalog() {
           {generatedInvoice ? (
             <div className="space-y-4">
               {paymentConfirmed ? (
-                <div className="rounded-[--radius] border border-emerald-200 bg-healthy/10/90 px-4 py-3 text-sm text-emerald-900">
+                <div className="rounded-[--radius] border border-healthy/30 bg-muted/90 px-4 py-3 text-sm text-healthy-ink">
                   <p className="font-medium">
                     {t("dialog.paymentConfirmedTitle")}
                   </p>
-                  <p className="mt-1 text-xs text-emerald-800">
+                  <p className="mt-1 text-xs text-healthy-ink">
                     {t("dialog.paymentConfirmedDescription")}
                   </p>
                 </div>
@@ -1147,7 +1147,7 @@ export default function UserPlansCatalog() {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="rounded-[--radius] border border-border bg-background p-4">
-                  <p className="text-[11px] font-semibold uppercase text-muted-foreground">
+                  <p className="text-[11px] font-semibold text-muted-foreground">
                     {t("dialog.amount")}
                   </p>
                   <p className="mt-2 text-xl font-semibold text-foreground">
@@ -1157,7 +1157,7 @@ export default function UserPlansCatalog() {
                   </p>
                 </div>
                 <div className="rounded-[--radius] border border-border bg-background p-4">
-                  <p className="text-[11px] font-semibold uppercase text-muted-foreground">
+                  <p className="text-[11px] font-semibold text-muted-foreground">
                     {t("dialog.method")}
                   </p>
                   <p className="mt-2 text-xl font-semibold text-foreground">
@@ -1167,7 +1167,7 @@ export default function UserPlansCatalog() {
               </div>
 
               <div className="rounded-[--radius] border border-border bg-background p-4">
-                <p className="text-[11px] font-semibold uppercase text-muted-foreground">
+                <p className="text-[11px] font-semibold text-muted-foreground">
                   {t("dialog.status")}
                 </p>
                 <p className="mt-2 text-sm text-foreground">
@@ -1301,7 +1301,7 @@ export default function UserPlansCatalog() {
                   <div className="rounded-[--radius] border border-border bg-background p-5">
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
-                        <p className="text-xs font-semibold uppercase text-lamp-ink tracking-wide">
+                        <p className="text-xs font-semibold text-primary-ink">
                           {selectedPlan?.plan.name ?? t("detail.emptyTitle")}
                         </p>
                         <p className="mt-1.5 text-sm text-muted-foreground line-clamp-2">
@@ -1464,7 +1464,7 @@ export default function UserPlansCatalog() {
 
                   {/* ── Order summary ── */}
                   <div className="rounded-[--radius] border border-border bg-muted p-4 space-y-2">
-                    <p className="text-xs font-semibold uppercase text-muted-foreground tracking-wide">
+                    <p className="text-xs font-semibold text-muted-foreground">
                       {t("dialog.orderSummary")}
                     </p>
                     <div className="flex items-center justify-between text-sm">
@@ -1510,7 +1510,7 @@ export default function UserPlansCatalog() {
                   </p>
 
                   {invoiceError ? (
-                    <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-white">
+                    <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-destructive-foreground">
                       {invoiceError}
                     </div>
                   ) : null}
@@ -1682,7 +1682,7 @@ export function PlanPricingTable({
     <div>
       <div className="rule-engraved pb-2.5">
         <p className="legend">{t("pricing.title")}</p>
-        <p className="mt-1.5 max-w-[74ch] text-[13px] leading-snug text-muted-foreground">
+        <p className="mt-1.5 max-w-[74ch] text-sm leading-snug text-muted-foreground">
           {t("pricing.description")}
         </p>
         <p className="readout mt-1 text-[11px] text-muted-foreground/70">
@@ -1763,7 +1763,7 @@ export function PlanPricingTable({
                         className="border-b border-border/50 last:border-b-0"
                       >
                         <th
-                          className="py-2 pr-3 text-[13px] font-medium text-foreground"
+                          className="py-2 pr-3 text-sm font-medium text-foreground"
                           scope="row"
                         >
                           {t.has(serviceKey)
@@ -1774,7 +1774,7 @@ export function PlanPricingTable({
                           {/* An unmapped metric would otherwise print its i18n path. */}
                           {t.has(metricKey) ? t(metricKey) : item.metric}
                         </td>
-                        <td className="readout px-3 py-2 text-right text-[13px] font-semibold text-foreground">
+                        <td className="readout px-3 py-2 text-right text-sm font-semibold text-foreground">
                           {formatBRLPrice(item.priceMicros, exchangeRate)}
                         </td>
                         <td className="readout py-2 pl-3 text-right text-[12px] text-muted-foreground">
@@ -1828,7 +1828,7 @@ export function PlanEstimatesPanel({
     <div>
       <div className="rule-engraved pb-2.5">
         <p className="legend">{t("estimates.title")}</p>
-        <p className="mt-1.5 max-w-[74ch] text-[13px] leading-snug text-muted-foreground">
+        <p className="mt-1.5 max-w-[74ch] text-sm leading-snug text-muted-foreground">
           {t("estimates.description")}
         </p>
       </div>
@@ -1844,7 +1844,7 @@ export function PlanEstimatesPanel({
               key={`${est.category}-${est.service}`}
               className="flex items-baseline justify-between gap-3 border-b border-border/50 py-2.5"
             >
-              <dt className="flex min-w-0 items-center gap-2 text-[13px] text-muted-foreground">
+              <dt className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
                 <CategoryMark category={est.category} />
                 <span className="truncate">
                   {t.has(serviceKey) ? t(serviceKey) : est.service}

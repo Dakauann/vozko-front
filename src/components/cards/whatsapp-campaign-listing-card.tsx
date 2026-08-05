@@ -135,7 +135,7 @@ export function WhatsAppCampaignListingCard({
             icon: <Robot weight="fill" />,
             label: t("card.agent"),
             value: campaign.agentName,
-            color: "text-blue-500",
+            color: "text-info-ink",
           },
         ]
       : []),

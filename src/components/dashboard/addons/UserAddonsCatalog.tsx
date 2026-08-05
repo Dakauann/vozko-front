@@ -236,7 +236,7 @@ export default function UserAddonsCatalog() {
   if (loading || permissionsLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-32">
-        <CircleNotch className="h-8 w-8 animate-spin text-lamp-ink" weight="bold" />
+        <CircleNotch className="h-8 w-8 animate-spin text-primary-ink" weight="bold" />
         <p className="mt-3 text-sm text-muted-foreground">{t("loading")}</p>
       </div>
     );
@@ -282,7 +282,7 @@ export default function UserAddonsCatalog() {
       label: t("stats.activeAddons"),
       value: String(activeCount),
       helper: t("stats.subscriptionCount", { count: activeCount }),
-      tile: "bg-warning",
+      tile: "tile-warning",
       glyph: <PuzzlePiece className="h-4 w-4 text-white" weight="fill" />,
     },
   ];
@@ -319,7 +319,7 @@ export default function UserAddonsCatalog() {
             >
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
-                  <p className="text-[11px] font-semibold uppercase text-muted-foreground">
+                  <p className="text-[11px] font-semibold text-muted-foreground">
                     {stat.label}
                   </p>
                   <p className="mt-2 truncate text-2xl font-semibold text-foreground">
@@ -447,7 +447,7 @@ export default function UserAddonsCatalog() {
                     </div>
                   </div>
                   {sub.cancelledAt ? (
-                    <span className="rounded-full bg-warning px-2.5 py-1 text-[10px] font-semibold uppercase text-white">
+                    <span className="rounded-full bg-warning px-2.5 py-1 text-[11px] font-semibold text-warning-foreground">
                       {t("active.cancelled")}
                     </span>
                   ) : (
@@ -522,7 +522,7 @@ export default function UserAddonsCatalog() {
               <div className="space-y-2 rounded-[--radius] border border-border bg-background p-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-foreground">{t("purchase.payNow")}</span>
-                  <span className="text-lg font-semibold text-lamp-ink tabular-nums">
+                  <span className="text-lg font-semibold text-primary-ink tabular-nums">
                     {previewLoading || !preview
                       ? formatBRL(selectedUnit * quantity, rate)
                       : formatBRL(preview.chargeNowMicros, rate)}

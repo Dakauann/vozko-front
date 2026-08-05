@@ -19,10 +19,10 @@ const sizeConfig = {
 };
 
 const variantConfig = {
-  primary: "text-lamp-ink",
+  primary: "text-primary-ink",
   emerald: "text-healthy dark:text-healthy",
-  purple: "text-muted-foreground dark:text-purple-500",
-  gradient: "text-lamp-ink",
+  purple: "text-muted-foreground dark:text-chart-4",
+  gradient: "text-primary-ink",
 };
 
 export function Loader({

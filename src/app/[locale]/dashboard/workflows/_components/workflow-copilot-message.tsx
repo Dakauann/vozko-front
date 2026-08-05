@@ -55,12 +55,12 @@ export const CopilotMessage = memo(function CopilotMessage({
         <Wrench
           size={12}
           weight="fill"
-          className={cn("mt-0.5 shrink-0", ok === false ? "text-red-500" : "text-sky-500")}
+          className={cn("mt-0.5 shrink-0", ok === false ? "text-destructive-ink" : "text-info-ink")}
         />
         <span
           className={cn(
             "font-mono break-words",
-            ok === false ? "text-red-500" : "text-muted-foreground",
+            ok === false ? "text-destructive-ink" : "text-muted-foreground",
           )}
         >
           {text}
@@ -72,7 +72,7 @@ export const CopilotMessage = memo(function CopilotMessage({
   return (
     <div className={cn("flex gap-2 text-xs", role === "user" && "justify-end")}>
       {role === "assistant" && (
-        <Robot size={14} className="mt-0.5 shrink-0 text-lamp-ink" />
+        <Robot size={14} className="mt-0.5 shrink-0 text-primary-ink" />
       )}
       <div
         className={cn(

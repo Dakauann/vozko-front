@@ -371,7 +371,7 @@ export function VariableCommandInput({
                 type="button"
                 className={cn(
                   "absolute right-1.5 flex h-6 w-6 items-center justify-center rounded-md transition-all",
-                  "bg-muted text-muted-foreground hover:bg-muted hover:text-lamp-ink",
+                  "bg-muted text-muted-foreground hover:bg-muted hover:text-primary-ink",
                   multiline ? "top-1.5" : "top-1/2 -translate-y-1/2",
                 )}
                 title="Inserir variável (Ctrl+Espaço ou {{)"
@@ -415,7 +415,7 @@ export function VariableCommandInput({
                 <div className="flex h-6 w-6 items-center justify-center rounded-md bg-muted">
                   <BracketsCurly
                     size={14}
-                    className="text-lamp-ink"
+                    className="text-primary-ink"
                     weight="bold"
                   />
                 </div>
@@ -423,7 +423,7 @@ export function VariableCommandInput({
                   <h4 className="text-sm font-semibold text-foreground">
                     Inserir Variável
                   </h4>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-[11px] text-muted-foreground">
                     Selecione uma variável para inserir no campo
                   </p>
                 </div>
@@ -471,15 +471,15 @@ export function VariableCommandInput({
                           weight="bold"
                           className={cn(
                             category === "last" && "text-healthy",
-                            category === "custom" && "text-violet-500",
-                            category === "system" && "text-blue-500",
+                            category === "custom" && "text-chart-4",
+                            category === "system" && "text-info-ink",
                             category === "node" && "text-warning",
                           )}
                         />
-                        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        <span className="text-[11px] font-semibold text-muted-foreground">
                           {categoryLabel}
                         </span>
-                        <span className="text-[9px] text-muted-foreground/60 ml-auto">
+                        <span className="text-[11px] text-muted-foreground/60 ml-auto">
                           {vars.length}
                         </span>
                       </div>
@@ -521,12 +521,12 @@ export function VariableCommandInput({
                                 {v.description}
                               </span>
                               {category === "last" && (
-                                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-healthy text-healthy-foreground font-medium shrink-0">
+                                <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-healthy text-healthy-foreground font-medium shrink-0">
                                   Recomendado
                                 </span>
                               )}
                             </div>
-                            <code className="text-[10px] text-muted-foreground/70 font-mono mt-0.5 block">
+                            <code className="text-[11px] text-muted-foreground/70 font-mono mt-0.5 block">
                               {v.template}
                             </code>
                           </div>
@@ -540,21 +540,21 @@ export function VariableCommandInput({
 
             {/* Footer hint */}
             <div className="px-3 py-2 border-t bg-muted flex items-center justify-between">
-              <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+              <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
                 <span className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 rounded bg-muted border text-[9px] font-mono">
+                  <kbd className="px-1.5 py-0.5 rounded bg-muted border text-[11px] font-mono">
                     ↑↓
                   </kbd>
                   navegar
                 </span>
                 <span className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 rounded bg-muted border text-[9px] font-mono">
+                  <kbd className="px-1.5 py-0.5 rounded bg-muted border text-[11px] font-mono">
                     Enter
                   </kbd>
                   selecionar
                 </span>
                 <span className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 rounded bg-muted border text-[9px] font-mono">
+                  <kbd className="px-1.5 py-0.5 rounded bg-muted border text-[11px] font-mono">
                     Esc
                   </kbd>
                   fechar

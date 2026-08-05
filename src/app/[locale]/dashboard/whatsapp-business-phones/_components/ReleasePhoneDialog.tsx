@@ -126,7 +126,7 @@ export function ReleasePhoneDialog({
     success ? (
       <CheckCircle className="h-4 w-4 shrink-0 text-healthy" weight="fill" />
     ) : (
-      <XCircle className="h-4 w-4 shrink-0 text-red-500" weight="fill" />
+      <XCircle className="h-4 w-4 shrink-0 text-destructive-ink" weight="fill" />
     );
 
   return (
@@ -158,13 +158,13 @@ export function ReleasePhoneDialog({
               </div>
 
               <div className="space-y-3">
-                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <p className="text-xs font-medium text-muted-foreground">
                   {t("release.stepsTitle")}
                 </p>
                 <ol className="space-y-2.5 text-sm text-muted-foreground">
                   {["step1", "step2", "step3", "step4"].map((key, idx) => (
                     <li key={key} className="flex items-start gap-2.5">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-foreground">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-semibold text-foreground">
                         {idx + 1}
                       </span>
                       <span>{t(`release.${key}`)}</span>
@@ -201,7 +201,7 @@ export function ReleasePhoneDialog({
 
           {result && (
             <div className="space-y-3">
-              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <p className="text-xs font-medium text-muted-foreground">
                 {t("release.resultTitle")}
               </p>
               <div className="space-y-2 rounded-[--radius] border border-border bg-card p-4">

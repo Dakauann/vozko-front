@@ -139,7 +139,7 @@ export function CanvasContextMenu({
           const styles = CATEGORY_STYLES[category];
           return (
             <div key={category} className="mb-1.5">
-              <p className="text-[10px] font-semibold uppercase tracking-wider px-2 py-1 text-muted-foreground">
+              <p className="text-[11px] font-semibold px-2 py-1 text-muted-foreground">
                 {CATEGORY_LABEL[category]}
               </p>
               {items.map((def) => {
@@ -154,7 +154,7 @@ export function CanvasContextMenu({
                     )}
                   >
                     <div
-                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-white"
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
                       style={{ backgroundColor: styles.color }}
                     >
                       {IconComp && <IconComp size={14} weight="fill" />}
@@ -164,7 +164,7 @@ export function CanvasContextMenu({
                         {def.label}
                       </p>
                       {def.description && (
-                        <p className="text-[10px] text-muted-foreground truncate">
+                        <p className="text-[11px] text-muted-foreground truncate">
                           {def.description}
                         </p>
                       )}

@@ -134,7 +134,7 @@ export default function TelegramAccountPage() {
 
   if (error || !account) {
     return (
-      <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+      <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-muted px-4 py-3 text-sm text-destructive-ink">
         <Warning className="h-4 w-4" />
         {error ?? t("profile.notFound")}
       </div>
@@ -154,7 +154,7 @@ export default function TelegramAccountPage() {
         badge={account.displayName}
         description={t("profile.description")}
         icon={<TelegramLogo className="h-6 w-6" weight="fill" />}
-        colorClass="text-sky-500"
+        colorClass="text-info-ink"
         actions={
           <Link href="/dashboard/telegram-accounts">
             <Button
@@ -179,7 +179,7 @@ export default function TelegramAccountPage() {
               "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
               account.webhookHealthy
                 ? "bg-healthy text-healthy-foreground"
-                : "bg-orange-600 text-white",
+                : "bg-warning text-warning-foreground",
             )}
           >
             {account.webhookHealthy ? t("webhook.healthy") : t("webhook.failing")}
@@ -187,8 +187,8 @@ export default function TelegramAccountPage() {
         </div>
 
         {issue === "webhook" && (
-          <p className="flex items-start gap-2 rounded-lg border border-orange-500/30 bg-muted p-3 text-xs leading-relaxed text-foreground">
-            <Warning weight="fill" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-orange-600 dark:text-orange-500" />
+          <p className="flex items-start gap-2 rounded-lg border border-warning/30 bg-muted p-3 text-xs leading-relaxed text-foreground">
+            <Warning weight="fill" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-warning-ink dark:text-warning-ink" />
             <span>
               {t("profile.webhookLosingMessages")}
               {account.webhookLastError ? `, ${account.webhookLastError}` : ""}
@@ -197,7 +197,7 @@ export default function TelegramAccountPage() {
         )}
 
         {issue === "token" && (
-          <p className="flex items-start gap-2 rounded-lg bg-destructive/5 p-3 text-xs leading-relaxed text-destructive">
+          <p className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs leading-relaxed text-destructive-ink">
             <Warning weight="fill" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
             {t("profile.tokenInvalidHelp")}
           </p>
@@ -307,7 +307,7 @@ export default function TelegramAccountPage() {
                     disabled={busy}
                     onClick={() => void handleDeleteLink(link.token)}
                     title={t("links.delete")}
-                    className="inline-flex shrink-0 items-center rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+                    className="inline-flex shrink-0 items-center rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-destructive-ink disabled:opacity-50"
                   >
                     <Trash className="h-4 w-4" />
                   </button>
@@ -336,7 +336,7 @@ function Field({
       <dd
         className={cn(
           "text-sm font-medium tabular-nums",
-          tone === "warn" ? "text-orange-600 dark:text-orange-400" : "text-foreground",
+          tone === "warn" ? "text-warning-ink dark:text-warning" : "text-foreground",
         )}
       >
         {value}

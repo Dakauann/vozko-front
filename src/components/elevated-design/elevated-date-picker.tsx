@@ -139,7 +139,7 @@ export function ElevatedDatePicker({
             inputClassName={cn(
               "font-medium text-foreground",
               hasError
-                ? "border-destructive focus-visible:ring-red-200 focus-visible:ring-offset-2"
+                ? "border-destructive focus-visible:ring-destructive/30 focus-visible:ring-offset-2"
                 : "border-border focus-visible:ring-border focus-visible:ring-offset-2",
               inputClassName
             )}

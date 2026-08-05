@@ -88,7 +88,7 @@ const accentClasses: Record<
   blue: {
     icon: "bg-muted",
     chip: "bg-muted text-muted-foreground",
-    border: "border-blue-500/20",
+    border: "border-info/20",
   },
   emerald: {
     icon: "bg-muted",
@@ -113,12 +113,12 @@ const accentClasses: Record<
   violet: {
     icon: "bg-muted",
     chip: "bg-muted text-muted-foreground",
-    border: "border-violet-500/20",
+    border: "border-chart-4/20",
   },
   sky: {
     icon: "bg-muted",
     chip: "bg-muted text-muted-foreground",
-    border: "border-sky-500/20",
+    border: "border-info/20",
   },
 };
 
@@ -267,7 +267,7 @@ function MetricCard({
     >
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <p className="text-[11px] font-semibold text-muted-foreground">
             {label}
           </p>
           <div className="mt-2 min-w-0 text-base font-semibold text-foreground">
@@ -502,7 +502,7 @@ function ToolCard({
         </span>
         <span className="flex shrink-0 items-center gap-2">
           {hasConfig ? (
-            <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-healthy px-2.5 py-1 text-[10px] font-semibold uppercase text-white">
+            <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-healthy px-2.5 py-1 text-[11px] font-semibold text-healthy-foreground">
               <Gear weight="fill" className="h-3 w-3" />
               Configurado
             </span>
@@ -695,7 +695,7 @@ export default function AgentDetail({
             <div className="min-w-0 space-y-3">
               <div className="flex flex-wrap items-center gap-2">
                 <Button
-                  className="text-xs font-semibold uppercase"
+                  className="text-xs font-semibold"
                   icon={<CaretLeft weight="bold" className="h-4 w-4" />}
                   iconSide="left"
                   iconVisible
@@ -762,7 +762,7 @@ export default function AgentDetail({
                 />
                 <Button
                   className={cn(
-                    agent.isActive && "text-warning hover:bg-amber-50",
+                    agent.isActive && "text-warning-ink hover:bg-muted",
                   )}
                   disabled={isPending}
                   icon={
@@ -848,7 +848,7 @@ export default function AgentDetail({
           <Panel
             accent="amber"
             action={
-              <span className="rounded-full bg-warning px-2.5 py-1 text-xs font-semibold text-white">
+              <span className="rounded-full bg-warning px-2.5 py-1 text-xs font-semibold text-warning-foreground">
                 {toolCount}
               </span>
             }

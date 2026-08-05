@@ -714,7 +714,7 @@ function ProductSwitcher({
               left: menuPos.left,
               width: menuPos.width,
             }}
-            className="z-[100] border border-border border-t-rule-strong bg-popover p-1 shadow-2xl"
+            className="rounded-lg z-[100] border border-border bg-popover p-1 shadow-2xl"
           >
             {body}
           </div>,
@@ -781,7 +781,7 @@ function ProductSwitcher({
                   <ProductIcon className="h-4 w-4 shrink-0" weight="regular" />
                   <span
                     className={cn(
-                      "flex-1 truncate text-[13px]",
+                      "flex-1 truncate text-sm",
                       isSelected && "font-semibold",
                     )}
                   >
@@ -817,7 +817,7 @@ function ProductSwitcher({
           className="h-[18px] w-[18px] shrink-0 text-muted-foreground"
           weight="regular"
         />
-        <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-foreground">
+        <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
           {t(currentProduct.nameKey)}
         </span>
         <CaretDown
@@ -862,7 +862,7 @@ function ProductSwitcher({
                 <span className="min-w-0 flex-1">
                   <span
                     className={cn(
-                      "block truncate text-[13px] text-foreground",
+                      "block truncate text-sm text-foreground",
                       isSelected && "font-semibold",
                     )}
                   >
@@ -962,10 +962,13 @@ function NavItemComponent({
         prefetch={false}
         aria-current={isActive ? "page" : undefined}
         className={cn(
-          "sidebar-item group relative flex items-center rounded-[--radius] text-[13px] transition-colors",
+          "sidebar-item group relative flex items-center rounded-[--radius] text-sm transition-colors",
           isExpanded ? "h-8 w-full pr-2" : "h-8 w-full justify-center",
-          // Lit state is carried by three signals at once — a lamp pip, a sunk
-          // ground and a brightened label — so it never rests on colour alone.
+          // The selected-item treatment from the reference system: a tinted
+          // ground in the brand hue, the label in brand ink, and the rounded
+          // accent bar on the leading edge. Three signals at once, so it never
+          // rests on colour alone — a grey fill alone (what this used to be)
+          // was indistinguishable from hover two rows away.
           isLit
             ? "bg-muted text-foreground"
             : "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -1170,7 +1173,7 @@ function GroupedNavItems({
                   {familyBadgeKey[group.family] && (
                     <span
                       title={t("families.badges.officialHint")}
-                      className="shrink-0 border border-border px-1 py-px text-[9px] font-medium normal-case tracking-normal text-muted-foreground"
+                      className="rounded-lg shrink-0 border border-border px-1 py-px text-[11px] font-medium normal-case tracking-normal text-muted-foreground"
                     >
                       {t(familyBadgeKey[group.family])}
                     </span>
@@ -1429,7 +1432,7 @@ export function DashboardSidebar({
               aria-label={t("openMenu")}
             >
               <div className="flex h-12 flex-shrink-0 items-center justify-between border-b border-border px-3">
-                <span className="truncate text-[13px] font-semibold text-foreground">
+                <span className="truncate text-sm font-semibold text-foreground">
                   {getBrand().name}
                 </span>
                 <button
@@ -1486,7 +1489,7 @@ export function DashboardSidebar({
               aria-label={isExpanded ? t("collapse") : t("expand")}
               title={isExpanded ? t("collapse") : t("expand")}
               className={cn(
-                "flex h-8 w-full items-center gap-2 rounded-[--radius] px-2 text-[13px]",
+                "flex h-8 w-full items-center gap-2 rounded-[--radius] px-2 text-sm",
                 "text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
                 !isExpanded && "justify-center px-0",
               )}

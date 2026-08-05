@@ -63,31 +63,31 @@ function channelMeta(entryType: string): ChannelMeta {
       return {
         label: "WhatsApp",
         icon: <WhatsappLogo weight="fill" className="h-3.5 w-3.5 text-white" />,
-        tile: "bg-[#25d366]",
+        tile: "bg-[#25d366] text-white",
       };
     case "voice":
       return {
         label: "Voz",
         icon: <Phone weight="fill" className="h-3.5 w-3.5 text-white" />,
-        tile: "bg-foreground/80",
+        tile: "bg-foreground/80 text-background",
       };
     case "sip":
       return {
         label: "SIP",
         icon: <Phone weight="fill" className="h-3.5 w-3.5 text-white" />,
-        tile: "bg-foreground/80",
+        tile: "bg-foreground/80 text-background",
       };
     case "support":
       return {
         label: "Suporte",
         icon: <Headset weight="fill" className="h-3.5 w-3.5 text-white" />,
-        tile: "bg-foreground/80",
+        tile: "bg-foreground/80 text-background",
       };
     default:
       return {
         label: entryType || "—",
         icon: <ChatCircleDots weight="fill" className="h-3.5 w-3.5 text-white" />,
-        tile: "bg-foreground/80",
+        tile: "bg-foreground/80 text-background",
       };
   }
 }
@@ -99,7 +99,7 @@ function OwnerCell({ name }: { name: string | null }) {
   if (!name) return <span className="text-sm text-muted-foreground">—</span>;
   return (
     <span className="inline-flex items-center gap-2">
-      <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold uppercase text-foreground">
+      <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-semibold uppercase text-foreground">
         {name.charAt(0)}
       </span>
       <span className="max-w-[10rem] truncate text-sm text-foreground">{name}</span>
@@ -168,7 +168,7 @@ function BulkMenu({
         className="w-64 rounded-[--radius] border border-border bg-card p-0 shadow-2xl"
       >
         <div className="border-b border-border px-3 py-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-[11px] font-semibold text-muted-foreground">
             {heading}
           </span>
         </div>
@@ -525,7 +525,7 @@ export default function CrmListView({
                 {preview || "—"}
               </span>
               {unread > 0 ? (
-                <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-[--radius] bg-primary px-1.5 text-[11px] font-semibold text-white">
+                <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-[--radius] bg-primary px-1.5 text-[11px] font-semibold text-primary-foreground">
                   {unread}
                 </span>
               ) : null}
@@ -615,7 +615,7 @@ export default function CrmListView({
           {
             label: "Conversas",
             value: loading ? "..." : String(total),
-            icon: <UsersThree className="h-4 w-4 text-lamp-ink" weight="fill" />,
+            icon: <UsersThree className="h-4 w-4 text-primary-ink" weight="fill" />,
           },
         ]}
         headerRight={

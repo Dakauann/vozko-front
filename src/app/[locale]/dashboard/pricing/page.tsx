@@ -251,7 +251,7 @@ export default function AdminPricingPage() {
     return (
       <div className="flex flex-col items-center justify-center py-32">
         <CircleNotch
-          className="h-8 w-8 animate-spin text-lamp-ink"
+          className="h-8 w-8 animate-spin text-primary-ink"
           weight="bold"
         />
         <p className="text-sm text-muted-foreground mt-3">{t("loading")}</p>
@@ -263,7 +263,7 @@ export default function AdminPricingPage() {
     return (
       <div className="mx-auto max-w-2xl rounded-[--radius] border border-border bg-card p-12 text-center mt-8 shadow-sm">
         <CurrencyDollar
-          className="h-12 w-12 text-red-400 mx-auto mb-4"
+          className="h-12 w-12 text-destructive mx-auto mb-4"
           weight="fill"
         />
         <p className="font-semibold text-foreground">{t("error.title")}</p>
@@ -330,7 +330,7 @@ export default function AdminPricingPage() {
                       <Scales className="h-5 w-5" weight="fill" />
                     </div>
                     <div>
-                      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                      <p className="text-[11px] font-medium text-muted-foreground">
                         {t("defaults.rateBannerLabel")}
                       </p>
                       <p className="text-sm font-semibold tabular-nums text-foreground">
@@ -344,7 +344,7 @@ export default function AdminPricingPage() {
                     </div>
                   </div>
                   <button
-                    className="text-sm font-medium text-lamp-ink hover:underline"
+                    className="text-sm font-medium text-primary-ink hover:underline"
                     onClick={() => setActiveTab("exchangeRate")}
                     type="button"
                   >
@@ -352,7 +352,7 @@ export default function AdminPricingPage() {
                   </button>
                 </div>
               ) : (
-                <div className="rounded-[--radius] border border-warning/30 bg-card p-4 text-sm text-amber-800">
+                <div className="rounded-[--radius] border border-warning/30 bg-card p-4 text-sm text-warning-ink">
                   {t("defaults.rateMissing")}
                 </div>
               )}
@@ -381,13 +381,13 @@ export default function AdminPricingPage() {
                       <table className="w-full text-left">
                         <thead>
                           <tr className="border-b border-border">
-                            <th className="px-6 py-3 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                            <th className="px-6 py-3 text-[11px] font-semibold text-muted-foreground">
                               {t("table.service")}
                             </th>
-                            <th className="px-6 py-3 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                            <th className="px-6 py-3 text-[11px] font-semibold text-muted-foreground">
                               {t("table.metric")}
                             </th>
-                            <th className="px-6 py-3 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider text-right">
+                            <th className="px-6 py-3 text-[11px] font-semibold text-muted-foreground text-right">
                               {t("table.priceBrl")}
                             </th>
                             <th className="px-4 py-3 w-12" />
@@ -563,7 +563,7 @@ export default function AdminPricingPage() {
               {exchangeRate ? (
                 <div className="space-y-4">
                   <div>
-                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
+                    <p className="text-[11px] text-muted-foreground font-medium">
                       {t("exchangeRate.currentRate")}
                     </p>
                     <p className="text-2xl font-semibold text-foreground tabular-nums">
@@ -572,7 +572,7 @@ export default function AdminPricingPage() {
                   </div>
 
                   <div className="pt-2 border-t border-border">
-                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
+                    <p className="text-[11px] text-muted-foreground font-medium">
                       {t("exchangeRate.updatedAt")}
                     </p>
                     <p className="text-xs text-muted-foreground">
@@ -681,19 +681,19 @@ export default function AdminPricingPage() {
                   <table className="w-full text-left">
                     <thead>
                       <tr className="border-b border-border">
-                        <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        <th className="px-6 py-4 text-xs font-semibold text-muted-foreground">
                           {t("audit.date")}
                         </th>
-                        <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        <th className="px-6 py-4 text-xs font-semibold text-muted-foreground">
                           {t("audit.service")}
                         </th>
-                        <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        <th className="px-6 py-4 text-xs font-semibold text-muted-foreground">
                           {t("audit.oldPrice")}
                         </th>
-                        <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        <th className="px-6 py-4 text-xs font-semibold text-muted-foreground">
                           {t("audit.newPrice")}
                         </th>
-                        <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        <th className="px-6 py-4 text-xs font-semibold text-muted-foreground">
                           {t("audit.changedBy")}
                         </th>
                       </tr>
@@ -865,7 +865,7 @@ function CalculatorSection({
   return (
     <div className="rounded-[--radius] border border-border bg-card overflow-hidden shadow-sm">
       <div className="px-5 py-3 border-b border-border">
-        <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+        <h4 className="text-xs font-semibold text-muted-foreground">
           {title}
         </h4>
       </div>
@@ -901,7 +901,7 @@ function ResultCard({
   return (
     <div className="rounded-[--radius] border border-border bg-card overflow-hidden shadow-sm">
       <div className="px-5 py-3 border-b border-border">
-        <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+        <h4 className="text-xs font-semibold text-muted-foreground">
           {title}
         </h4>
       </div>

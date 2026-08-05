@@ -597,7 +597,7 @@ export default function CrmMessageInput({
               <p className="text-[11px] font-semibold text-foreground">
                 {t.windowClosed}
               </p>
-              <p className="truncate text-[10px] text-muted-foreground">
+              <p className="truncate text-[11px] text-muted-foreground">
                 {/* An expiry means a clock that reopens on its own; its absence
                     means a structural block. The backend distinguishes them
                     deliberately (nil expiry == "not a clock") and showing the
@@ -616,7 +616,7 @@ export default function CrmMessageInput({
         <div className="flex justify-center px-4 pt-2">
           <div className="flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1 shadow-sm">
             <span className="h-1.5 w-1.5 rounded-full bg-healthy animate-pulse" />
-            <span className="text-[10px] font-medium text-foreground">
+            <span className="text-[11px] font-medium text-foreground">
               {t.windowExpires}: {windowRemaining}
             </span>
           </div>
@@ -646,7 +646,7 @@ export default function CrmMessageInput({
                   <div className="flex h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-lg bg-muted">
                     <Waveform
                       weight="fill"
-                      className="h-5 w-5 sm:h-6 sm:w-6 text-lamp-ink"
+                      className="h-5 w-5 sm:h-6 sm:w-6 text-primary-ink"
                     />
                   </div>
                 ) : (
@@ -673,7 +673,7 @@ export default function CrmMessageInput({
                 <p className="truncate text-[11px] sm:text-xs font-medium text-foreground">
                   {pendingMedia.file.name}
                 </p>
-                <p className="text-[10px] text-muted-foreground">
+                <p className="text-[11px] text-muted-foreground">
                   {pendingMedia.uploading
                     ? t.uploading
                     : pendingMedia.error
@@ -711,7 +711,7 @@ export default function CrmMessageInput({
             <button
               type="button"
               onClick={cancelRecording}
-              className="flex h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors hover:bg-destructive hover:text-white"
+              className="flex h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors hover:bg-destructive hover:text-destructive-foreground"
               aria-label="Cancel recording"
             >
               <Trash weight="bold" className="h-4 w-4" />
@@ -721,7 +721,7 @@ export default function CrmMessageInput({
             <div className="flex flex-1 min-w-0 items-center gap-2 sm:gap-3 rounded-full bg-muted px-3 sm:px-4 py-2">
               {/* Pulsing dot */}
               <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5 flex-shrink-0">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive/20 opacity-75" />
                 <span className="relative inline-flex h-full w-full rounded-full bg-destructive" />
               </span>
 
@@ -743,7 +743,7 @@ export default function CrmMessageInput({
               </div>
 
               {/* Timer */}
-              <span className="flex-shrink-0 font-mono text-[10px] sm:text-xs font-semibold text-lamp-ink tabular-nums">
+              <span className="flex-shrink-0 font-mono text-[11px] sm:text-xs font-semibold text-primary-ink tabular-nums">
                 {formatDuration(recordingDuration)}
               </span>
             </div>
@@ -777,10 +777,10 @@ export default function CrmMessageInput({
                 <div className="flex items-center gap-2 px-4 py-2 bg-muted">
                   <ArrowBendUpLeft
                     weight="bold"
-                    className="h-4 w-4 text-lamp-ink flex-shrink-0"
+                    className="h-4 w-4 text-primary-ink flex-shrink-0"
                   />
-                  <div className="min-w-0 flex-1 rounded-md bg-card border-l-[3px] border-blue-400 px-2.5 py-1.5">
-                    <p className="text-[10px] font-semibold text-lamp-ink truncate">
+                  <div className="min-w-0 flex-1 rounded-md bg-card border-l-[3px] border-info px-2.5 py-1.5">
+                    <p className="text-[11px] font-semibold text-primary-ink truncate">
                       {replyToMessage.sender_name || replyToMessage.from}
                     </p>
                     <p className="text-[11px] text-muted-foreground truncate">
@@ -880,7 +880,7 @@ export default function CrmMessageInput({
 
               {/* sign-with-name toggle */}
               <div className="flex flex-shrink-0 items-center gap-1 self-center pl-1 pr-0.5">
-                <span className="hidden text-[9px] font-medium uppercase tracking-wide text-muted-foreground sm:inline">
+                <span className="hidden text-[11px] font-medium text-muted-foreground sm:inline">
                   Assinar
                 </span>
                 <ElevatedSwitch

@@ -4,19 +4,35 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 /**
- * A silkscreen chip. Bordered and quiet by default — a page of solid-filled
- * badges competes with the lamp, and the lamp is the only thing here allowed to
- * mean "this one".
+ * A status chip.
+ *
+ * Borderless tinted fills, not the outlined stencil this used to be. The
+ * outgoing version was a bordered 11px uppercase chip tracked at 0.08em — a
+ * silkscreen legend on a panel — and a row of them read as machine labelling.
+ * Both reference systems draw a status chip the same way instead: a soft tint
+ * of the status hue carrying text in the same hue, no border, sentence case.
+ * That reads as a state at a glance and stops competing with real controls for
+ * attention.
+ *
+ * Sized to sit on a table row without changing its height.
  */
 const badgeVariants = cva(
-  "inline-flex items-center gap-1 rounded-[--radius] border px-1.5 py-px text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
+  "inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-[11px] font-semibold leading-4 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
   {
     variants: {
       variant: {
-        default: "border-primary/40 bg-muted text-lamp-ink",
-        secondary: "border-border bg-muted text-muted-foreground",
-        destructive: "border-destructive/40 bg-destructive/10 text-destructive",
-        outline: "border-border text-foreground",
+        // One neutral chip; the STATUS lives in the label's colour and the dot
+        // beside it, never in a wash of the label's own hue behind it. That
+        // wash-plus-matching-ink pattern is banned in this system: it is the
+        // clearest tell of a generated interface, and it makes six states read
+        // as six shades of one thing instead of six distinct states.
+        default: "bg-muted text-primary-ink",
+        secondary: "bg-muted text-muted-foreground",
+        destructive: "bg-muted text-destructive-ink",
+        healthy: "bg-muted text-healthy-ink",
+        warning: "bg-muted text-warning-ink",
+        info: "bg-muted text-info-ink",
+        outline: "border border-border text-foreground",
       },
     },
     defaultVariants: {

@@ -118,7 +118,7 @@ export const WorkflowSearch = forwardRef<HTMLInputElement, WorkflowSearchProps>(
               className={cn(
                 "flex h-6 shrink-0 items-center gap-1 rounded-md px-1.5 text-xs font-medium transition-colors",
                 activeType
-                  ? "bg-muted text-lamp-ink"
+                  ? "bg-muted text-primary-ink"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >

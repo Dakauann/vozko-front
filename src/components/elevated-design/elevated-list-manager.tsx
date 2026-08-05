@@ -70,42 +70,42 @@ export interface ElevatedListManagerProps<T extends ColoredItem> {
 
 const accentMap = {
   emerald: {
-    focusBorder: "focus:border-emerald-300",
-    focusRing: "focus:ring-emerald-100",
+    focusBorder: "focus:border-healthy/30",
+    focusRing: "focus:ring-healthy/30",
     confirmBg: "bg-healthy hover:bg-healthy",
-    selectedRing: "ring-2 ring-emerald-500 ring-offset-1",
+    selectedRing: "ring-2 ring-healthy ring-offset-1",
     createText: "text-healthy",
     createHover: "hover:bg-healthy/10/40",
   },
   violet: {
-    focusBorder: "focus:border-violet-300",
-    focusRing: "focus:ring-violet-100",
+    focusBorder: "focus:border-chart-4/30",
+    focusRing: "focus:ring-chart-4/30",
     confirmBg: "bg-muted hover:bg-muted",
-    selectedRing: "ring-2 ring-violet-500 ring-offset-1",
+    selectedRing: "ring-2 ring-chart-4 ring-offset-1",
     createText: "text-muted-foreground",
     createHover: "hover:bg-muted",
   },
   blue: {
-    focusBorder: "focus:border-blue-300",
+    focusBorder: "focus:border-info/30",
     focusRing: "focus:ring-ring",
     confirmBg: "bg-muted hover:bg-muted",
-    selectedRing: "ring-2 ring-blue-500 ring-offset-1",
-    createText: "text-lamp-ink",
+    selectedRing: "ring-2 ring-info ring-offset-1",
+    createText: "text-primary-ink",
     createHover: "hover:bg-muted",
   },
   rose: {
-    focusBorder: "focus:border-rose-300",
-    focusRing: "focus:ring-rose-100",
+    focusBorder: "focus:border-destructive/30",
+    focusRing: "focus:ring-destructive/30",
     confirmBg: "bg-destructive hover:bg-destructive",
-    selectedRing: "ring-2 ring-rose-500 ring-offset-1",
+    selectedRing: "ring-2 ring-destructive ring-offset-1",
     createText: "text-destructive",
     createHover: "hover:bg-destructive/10/40",
   },
   amber: {
-    focusBorder: "focus:border-amber-300",
-    focusRing: "focus:ring-amber-100",
+    focusBorder: "focus:border-warning/30",
+    focusRing: "focus:ring-warning/30",
     confirmBg: "bg-warning hover:bg-warning",
-    selectedRing: "ring-2 ring-amber-500 ring-offset-1",
+    selectedRing: "ring-2 ring-warning ring-offset-1",
     createText: "text-warning",
     createHover: "hover:bg-warning/10/40",
   },
@@ -341,7 +341,7 @@ export default function ElevatedListManager<T extends ColoredItem>({
                             onClick={() => handleUpdate(item.id)}
                             disabled={loading}
                             className={cn(
-                              "flex h-7 w-7 items-center justify-center rounded-lg text-white transition-colors disabled:opacity-50",
+                              "flex h-7 w-7 items-center justify-center rounded-lg transition-colors disabled:opacity-50",
                               colors.confirmBg,
                             )}
                           >
@@ -431,7 +431,7 @@ export default function ElevatedListManager<T extends ColoredItem>({
                               <button
                                 onClick={() => handleDelete(item.id)}
                                 disabled={loading}
-                                className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-red-500 transition-colors disabled:opacity-50"
+                                className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive-ink transition-colors disabled:opacity-50"
                               >
                                 <Trash weight="bold" className="h-3 w-3" />
                               </button>
@@ -495,7 +495,7 @@ export default function ElevatedListManager<T extends ColoredItem>({
                               !newDescription.trim()
                             }
                             className={cn(
-                              "flex h-7 w-7 items-center justify-center rounded-lg text-white transition-colors disabled:opacity-50",
+                              "flex h-7 w-7 items-center justify-center rounded-lg transition-colors disabled:opacity-50",
                               colors.confirmBg,
                             )}
                           >

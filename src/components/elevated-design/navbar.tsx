@@ -310,7 +310,7 @@ export default function Navbar() {
                         <motion.div variants={menuItemVariants}>
                           <div className="rounded-[--radius] bg-muted px-4 py-4">
                             <div className="flex items-center gap-3 mb-3">
-                              <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border border-border shadow-md ring-2 ring-blue-500/20">
+                              <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border border-border shadow-md ring-2 ring-info/20">
                                 <Image
                                   src={
                                     user.picture

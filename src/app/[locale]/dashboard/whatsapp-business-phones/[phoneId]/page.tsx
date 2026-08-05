@@ -92,17 +92,17 @@ const itemVariants: Variants = {
 function statusTone(status: BusinessPhoneStatus): string {
   switch (status) {
     case "CONNECTED":
-      return "bg-healthy/10 text-healthy border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900";
+      return "bg-muted text-healthy-ink border-healthy/30 dark:bg-healthy/40 dark:text-healthy dark:border-healthy";
     case "PENDING":
     case "VERIFYING":
     case "RATE_LIMITED":
-      return "bg-amber-50 text-warning border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900";
+      return "bg-muted text-warning-ink border-warning/30 dark:bg-warning/40 dark:text-warning dark:border-warning";
     case "DISCONNECTED":
     case "BANNED":
     case "FLAGGED":
     case "RESTRICTED":
     case "UNVERIFIED":
-      return "bg-destructive/10 text-destructive border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900";
+      return "bg-muted text-destructive-ink border-destructive/30 dark:bg-destructive/40 dark:text-destructive dark:border-destructive";
     default:
       return "bg-muted text-muted-foreground border-border";
   }
@@ -111,11 +111,11 @@ function statusTone(status: BusinessPhoneStatus): string {
 function qualityTone(quality: QualityRating): string {
   switch (quality) {
     case "GREEN":
-      return "bg-healthy/10 text-healthy border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900";
+      return "bg-muted text-healthy-ink border-healthy/30 dark:bg-healthy/40 dark:text-healthy dark:border-healthy";
     case "YELLOW":
-      return "bg-amber-50 text-warning border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900";
+      return "bg-muted text-warning-ink border-warning/30 dark:bg-warning/40 dark:text-warning dark:border-warning";
     case "RED":
-      return "bg-destructive/10 text-destructive border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900";
+      return "bg-muted text-destructive-ink border-destructive/30 dark:bg-destructive/40 dark:text-destructive dark:border-destructive";
     default:
       return "bg-muted text-muted-foreground border-border";
   }
@@ -419,7 +419,7 @@ export default function BusinessPhoneDetailPage() {
       case "APPROVED":
         return "text-healthy dark:text-healthy";
       case "PENDING_REVIEW":
-        return "text-warning dark:text-amber-400";
+        return "text-warning dark:text-warning";
       case "DECLINED":
         return "text-destructive";
       default:
@@ -492,7 +492,7 @@ export default function BusinessPhoneDetailPage() {
           <ElevatedContainer className="p-6">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[--radius] bg-healthy/10 text-healthy">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[--radius] bg-muted text-healthy-ink">
                   <WhatsappLogo className="h-6 w-6" weight="fill" />
                 </div>
                 <div className="min-w-0">
@@ -502,7 +502,7 @@ export default function BusinessPhoneDetailPage() {
                     </h1>
                     {phone.isOfficialBusiness && (
                       <SealCheck
-                        className="h-5 w-5 text-lamp-ink"
+                        className="h-5 w-5 text-primary-ink"
                         weight="fill"
                       />
                     )}
@@ -644,7 +644,7 @@ export default function BusinessPhoneDetailPage() {
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
               {/* Status details */}
               <div className="space-y-4">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <h3 className="text-xs font-semibold text-muted-foreground">
                   {t("detail.statusDetails")}
                 </h3>
                 <dl className="space-y-3">
@@ -672,7 +672,7 @@ export default function BusinessPhoneDetailPage() {
                           {t("detail.verified")}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-warning dark:text-amber-400">
+                        <span className="inline-flex items-center gap-1 text-warning dark:text-warning">
                           <Warning className="h-4 w-4" weight="fill" />
                           {t("detail.notVerified")}
                         </span>
@@ -704,7 +704,7 @@ export default function BusinessPhoneDetailPage() {
 
               {/* Identifiers */}
               <div className="space-y-4">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <h3 className="text-xs font-semibold text-muted-foreground">
                   {t("detail.identifiers")}
                 </h3>
                 <dl className="space-y-3">
@@ -822,7 +822,7 @@ export default function BusinessPhoneDetailPage() {
                             href={url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm text-lamp-ink hover:underline"
+                            className="text-sm text-primary-ink hover:underline"
                           >
                             {url}
                           </a>
@@ -850,7 +850,7 @@ export default function BusinessPhoneDetailPage() {
             <ElevatedContainer className="p-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-healthy/10 text-healthy">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-healthy-ink">
                     <Phone className="h-5 w-5" weight="fill" />
                   </div>
                   <div>
@@ -881,7 +881,7 @@ export default function BusinessPhoneDetailPage() {
           <motion.div variants={itemVariants}>
             <ElevatedContainer className="p-6">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-lamp-ink">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-primary-ink">
                   <UserCircle className="h-5 w-5" weight="fill" />
                 </div>
                 <div>
@@ -908,7 +908,7 @@ export default function BusinessPhoneDetailPage() {
             <ElevatedContainer className="p-6">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-lamp-ink">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-primary-ink">
                     <Buildings className="h-5 w-5" weight="fill" />
                   </div>
                   <div>
@@ -916,7 +916,7 @@ export default function BusinessPhoneDetailPage() {
                       <h3 className="text-base font-semibold text-foreground">
                         {t("access.title")}
                       </h3>
-                      <span className="inline-flex items-center rounded-[--radius] border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-warning dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">
+                      <span className="inline-flex items-center rounded-[--radius] border border-warning/30 bg-muted px-2 py-0.5 text-[11px] font-semibold text-warning-ink dark:border-warning dark:bg-warning/40 dark:text-warning">
                         {t("access.deprecated")}
                       </span>
                     </div>
@@ -986,7 +986,7 @@ export default function BusinessPhoneDetailPage() {
                           className="flex items-center justify-between gap-3 px-4 py-3"
                         >
                           <div className="flex min-w-0 items-center gap-3">
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius] bg-muted text-lamp-ink">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius] bg-muted text-primary-ink">
                               <Buildings className="h-4 w-4" weight="fill" />
                             </div>
                             <div className="min-w-0">
@@ -997,7 +997,7 @@ export default function BusinessPhoneDetailPage() {
                                     commonT("loading")}
                                 </p>
                                 {workspace?.isDefault && (
-                                  <span className="shrink-0 rounded-[--radius] bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                                  <span className="shrink-0 rounded-[--radius] bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
                                     default
                                   </span>
                                 )}

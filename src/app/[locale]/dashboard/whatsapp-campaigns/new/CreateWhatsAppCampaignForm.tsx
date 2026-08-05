@@ -1715,7 +1715,7 @@ export default function CreateWhatsAppCampaignForm({
           !organic && "lg:grid-cols-[minmax(0,1fr)_360px]",
         )}
       >
-        <ElevatedContainer className="border border-border bg-card p-6" data-tour="wc-basic-info">
+        <ElevatedContainer className="rounded-lg border border-border bg-card p-6" data-tour="wc-basic-info">
           <h2 className="mb-4 text-xl font-semibold text-foreground">
             {t("basicInfo.title")}
           </h2>
@@ -1845,7 +1845,7 @@ export default function CreateWhatsAppCampaignForm({
                           weight="fill"
                         />
                         <div className="flex-1">
-                          <h4 className="text-sm font-semibold text-amber-800">
+                          <h4 className="text-sm font-semibold text-warning-ink">
                             {t("media.missingTitle")}
                           </h4>
                           <p className="text-xs text-warning mt-1">
@@ -1871,7 +1871,7 @@ export default function CreateWhatsAppCampaignForm({
                 {/* Show template variables info when a template is selected */}
                 {selectedTemplate && templateVariables.length > 0 && (
                   <div className="mt-3 rounded-lg border border-healthy/20 bg-healthy/10 p-4" data-tour="wc-template-variables">
-                    <h4 className="text-sm font-semibold text-emerald-800 mb-2">
+                    <h4 className="text-sm font-semibold text-healthy-ink mb-2">
                       {t("basicInfo.templateVariables")}
                     </h4>
                     <p className="text-xs text-healthy mb-3">
@@ -1881,7 +1881,7 @@ export default function CreateWhatsAppCampaignForm({
                       {templateVariables.map((varPlaceholder, idx) => (
                         <span
                           key={idx}
-                          className="inline-flex items-center rounded-md bg-healthy px-2 py-1 text-xs font-medium text-white"
+                          className="inline-flex items-center rounded-md bg-healthy px-2 py-1 text-xs font-medium text-healthy-foreground"
                         >
                           {varPlaceholder}
                         </span>
@@ -2156,7 +2156,7 @@ export default function CreateWhatsAppCampaignForm({
         </ElevatedContainer>
 
         {!organic && (
-          <ElevatedContainer className="border border-border bg-card p-5 lg:sticky lg:top-16" data-tour="wc-preview">
+          <ElevatedContainer className="rounded-lg border border-border bg-card p-5 lg:sticky lg:top-16" data-tour="wc-preview">
             <div className="mb-4 flex items-center justify-between gap-3">
               <h3 className="text-sm font-semibold text-foreground">
                 Prévia do template
@@ -2274,7 +2274,7 @@ export default function CreateWhatsAppCampaignForm({
       </div>
 
       {!organic && (
-        <ElevatedContainer className="border border-border bg-card p-6" data-tour="wc-contacts">
+        <ElevatedContainer className="rounded-lg border border-border bg-card p-6" data-tour="wc-contacts">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-xl font-semibold text-foreground">
               {t("contacts.title")}
@@ -2330,7 +2330,7 @@ export default function CreateWhatsAppCampaignForm({
           )}
 
           {csvError && (
-            <div className="mb-4 rounded-lg border border-rose-200 bg-destructive/10 p-3">
+            <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 p-3">
               <p className="text-sm text-destructive">{csvError}</p>
             </div>
           )}
@@ -2350,7 +2350,7 @@ export default function CreateWhatsAppCampaignForm({
                   className="h-5 w-5 flex-shrink-0 text-warning"
                   weight="bold"
                 />
-                <span className="flex-1 text-sm font-semibold text-amber-800">
+                <span className="flex-1 text-sm font-semibold text-warning-ink">
                   {t("csv.skippedTitle", { count: skippedLines.length })}
                 </span>
                 <CaretDown
@@ -2374,7 +2374,7 @@ export default function CreateWhatsAppCampaignForm({
                         {pageItems.map((sl) => (
                           <div
                             key={sl.line}
-                            className="rounded-lg bg-warning px-3 py-2 text-xs text-white"
+                            className="rounded-lg bg-warning px-3 py-2 text-xs text-warning-foreground"
                           >
                             <span className="font-semibold">
                               {t("csv.skippedLineLabel", { line: sl.line })}
@@ -2400,7 +2400,7 @@ export default function CreateWhatsAppCampaignForm({
                               type="button"
                               disabled={skippedPage === 0}
                               onClick={() => setSkippedPage((p) => p - 1)}
-                              className="rounded p-1 text-warning hover:bg-warning/20 disabled:opacity-40"
+                              className="rounded p-1 text-warning-ink hover:bg-muted disabled:opacity-40"
                             >
                               <CaretLeft className="h-4 w-4" weight="bold" />
                             </button>
@@ -2411,7 +2411,7 @@ export default function CreateWhatsAppCampaignForm({
                               type="button"
                               disabled={skippedPage >= totalPages - 1}
                               onClick={() => setSkippedPage((p) => p + 1)}
-                              className="rounded p-1 text-warning hover:bg-warning/20 disabled:opacity-40"
+                              className="rounded p-1 text-warning-ink hover:bg-muted disabled:opacity-40"
                             >
                               <CaretRight className="h-4 w-4" weight="bold" />
                             </button>
@@ -2434,7 +2434,7 @@ export default function CreateWhatsAppCampaignForm({
                     weight="bold"
                   />
                   <div className="flex-1">
-                    <h4 className="text-sm font-semibold text-amber-800">
+                    <h4 className="text-sm font-semibold text-warning-ink">
                       {t("validation.missingVariablesTitle")}
                     </h4>
                     <p className="text-sm text-warning mt-1">
@@ -2448,7 +2448,7 @@ export default function CreateWhatsAppCampaignForm({
                         setShowOnlyMissingVars(true);
                         setCurrentPage(0);
                       }}
-                      className="mt-2 text-sm font-medium text-amber-800 hover:text-amber-900 underline"
+                      className="mt-2 text-sm font-medium text-warning-ink hover:text-warning-ink underline"
                     >
                       {t("validation.showMissingVariables")}
                     </button>
@@ -2472,7 +2472,7 @@ export default function CreateWhatsAppCampaignForm({
                   setCurrentPage(0);
                 }}
                 placeholder={t("contacts.searchPlaceholder")}
-                className="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-healthy focus:border-transparent"
               />
               {searchQuery && (
                 <button
@@ -2495,7 +2495,7 @@ export default function CreateWhatsAppCampaignForm({
                 }}
                 className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
                   showOnlyMissingVars
-                    ? "bg-warning border-warning text-white"
+                    ? "bg-warning border-warning text-warning-foreground"
                     : "bg-card border-border text-muted-foreground hover:bg-muted"
                 }`}
               >
@@ -2505,7 +2505,7 @@ export default function CreateWhatsAppCampaignForm({
                 />
                 {t("contacts.filterMissingVars")}
                 {missingVariablesCount > 0 && (
-                  <span className="ml-1 px-1.5 py-0.5 text-xs font-semibold rounded-full bg-amber-200 text-amber-800">
+                  <span className="ml-1 px-1.5 py-0.5 text-xs font-semibold rounded-full bg-muted text-warning-ink">
                     {missingVariablesCount}
                   </span>
                 )}
@@ -2547,7 +2547,7 @@ export default function CreateWhatsAppCampaignForm({
                   <div
                     key={field.key}
                     className={`flex items-center gap-2 rounded-lg px-3 py-1.5 ${
-                      field.required ? "bg-amber-50" : "bg-healthy/10"
+                      field.required ? "bg-warning/10" : "bg-healthy/10"
                     }`}
                   >
                     <span
@@ -2560,7 +2560,7 @@ export default function CreateWhatsAppCampaignForm({
                       <button
                         type="button"
                         onClick={() => removeMetadataField(field.key)}
-                        className="text-healthy hover:text-emerald-800"
+                        className="text-healthy hover:text-healthy-ink"
                       >
                         <X className="h-3 w-3" weight="bold" />
                       </button>
@@ -2682,7 +2682,7 @@ export default function CreateWhatsAppCampaignForm({
                       <button
                         type="button"
                         onClick={() => remove(originalIndex)}
-                        className="flex h-9 w-9 items-center justify-center rounded-lg text-destructive transition-colors hover:bg-destructive/10"
+                        className="flex h-9 w-9 items-center justify-center rounded-lg text-destructive-ink transition-colors hover:bg-muted"
                       >
                         <Trash className="h-4 w-4" weight="bold" />
                       </button>

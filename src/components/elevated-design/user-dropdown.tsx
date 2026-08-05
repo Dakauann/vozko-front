@@ -132,8 +132,8 @@ function DropdownButton({
           "group flex w-full items-center gap-3 rounded-[--radius] px-3 py-2 text-left text-sm font-medium",
           "transition-colors focus-visible:outline-none focus-visible:ring-2",
           isDark
-            ? "text-red-300 hover:bg-destructive/10 focus-visible:ring-red-500/40"
-            : "text-destructive hover:bg-destructive/10 focus-visible:ring-red-300/60",
+            ? "text-destructive-ink hover:bg-muted focus-visible:ring-destructive/40"
+            : "text-destructive-ink hover:bg-muted focus-visible:ring-destructive/60",
         )}
       >
         <span
@@ -157,7 +157,7 @@ function DropdownButton({
             <span
               className={cn(
                 "mt-0.5 text-xs",
-                isDark ? "text-red-300/80" : "text-red-500/80",
+                isDark ? "text-destructive/80" : "text-destructive/80",
               )}
             >
               {description}
@@ -333,7 +333,7 @@ export function UserDropdown({
                     {user.role === "admin" ? (
                       <span
                         className={cn(
-                          "ml-2 inline-flex items-center gap-1 rounded-[--radius] px-2 py-1 text-[11px] font-semibold uppercase tracking-wide",
+                          "ml-2 inline-flex items-center gap-1 rounded-[--radius] px-2 py-1 text-[11px] font-semibold",
                           tone === "dark"
                             ? "bg-card text-foreground"
                             : "bg-foreground text-white",

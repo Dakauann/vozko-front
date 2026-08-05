@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
 import { softSurfaceWithInset } from "./shadow-presets";
 
 const DISABLED_SHADOW =
-  "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)";
+  "var(--elev-1)";
 
 type ElevatedCommandOption = {
   value: string;
@@ -186,7 +186,7 @@ const ElevatedCommandSelect = ({
               {selectedOption ? (
                 <>
                   {selectedOption.icon ? (
-                    <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center text-lamp-ink/60">
+                    <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center text-primary-ink/60">
                       {selectedOption.icon}
                     </span>
                   ) : null}
@@ -248,14 +248,15 @@ const ElevatedCommandSelect = ({
                       keywords={option.keywords}
                       onSelect={() => handleSelect(option)}
                       className={cn(
-                        "flex items-center gap-3 rounded-[--radius] px-3 py-2.5 text-sm text-foreground",
-                        "data-[selected=true]:bg-muted data-[selected=true]:text-lamp-ink",
+                        "flex items-center gap-3 rounded-[--radius] px-2.5 py-2 text-sm text-foreground",
+                        "data-[selected=true]:bg-muted data-[selected=true]:text-foreground",
                         "data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50",
-                        `border-l-4 ${
-                          currentValue === option.value
-                            ? "border-l-primary"
-                            : "border-l-transparent"
-                        } rounded-none data-[selected=true]:border-l-primary`,
+                        // The chosen option takes the tinted selected ground,
+                        // not a 4px stripe on its leading edge — a coloured
+                        // side-tab reads as a tab, and it forced every row to
+                        // square its corners inside a rounded menu.
+                        currentValue === option.value &&
+                          "bg-muted font-semibold text-foreground",
                       )}
                     >
                       <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -287,7 +288,7 @@ const ElevatedCommandSelect = ({
                       <Check
                         weight="bold"
                         className={cn(
-                          "ml-2 h-4 w-4 flex-shrink-0 text-lamp-ink transition-opacity",
+                          "ml-2 h-4 w-4 flex-shrink-0 text-primary-ink transition-opacity",
                           currentValue === option.value
                             ? "opacity-100"
                             : "opacity-0",

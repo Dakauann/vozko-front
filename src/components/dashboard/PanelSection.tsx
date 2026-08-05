@@ -59,7 +59,7 @@ export function PanelSection({
             {title}
           </h2>
           {description ? (
-            <p className="mt-1 max-w-[68ch] text-[13px] leading-snug text-muted-foreground">
+            <p className="mt-1 max-w-[68ch] text-sm leading-snug text-muted-foreground">
               {description}
             </p>
           ) : null}

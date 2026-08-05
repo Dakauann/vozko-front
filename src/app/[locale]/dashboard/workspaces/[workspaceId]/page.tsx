@@ -177,7 +177,7 @@ function StatusBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold uppercase",
+        "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold",
         config[status] ?? "bg-muted text-muted-foreground",
       )}
     >
@@ -403,7 +403,7 @@ export default function AdminWorkspaceDetailPage() {
               >
                 <Icon className={cn("h-4 w-4", meta.fg)} weight="fill" />
               </div>
-              <span className="text-xs font-semibold text-foreground uppercase tracking-wide">
+              <span className="text-xs font-semibold text-foreground">
                 {tp(`categories.${item.category}`)}
               </span>
             </div>
@@ -433,7 +433,7 @@ export default function AdminWorkspaceDetailPage() {
           return (
             <div className="flex items-center justify-end gap-1.5">
               {item.isOverride && (
-                <span className="text-[10px] text-muted-foreground line-through tabular-nums">
+                <span className="text-[11px] text-muted-foreground line-through tabular-nums">
                   ${microsToDisplay(item.defaultPriceMicros)}
                 </span>
               )}
@@ -479,7 +479,7 @@ export default function AdminWorkspaceDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center py-32">
         <CircleNotch
-          className="h-8 w-8 animate-spin text-lamp-ink"
+          className="h-8 w-8 animate-spin text-primary-ink"
           weight="bold"
         />
         <p className="text-sm text-muted-foreground mt-3">{t("loading")}</p>
@@ -494,7 +494,7 @@ export default function AdminWorkspaceDetailPage() {
         style={{ boxShadow: softSurfaceShadow }}
       >
         <Buildings
-          className="h-12 w-12 text-red-400 mx-auto mb-4"
+          className="h-12 w-12 text-destructive mx-auto mb-4"
           weight="fill"
         />
         <p className="font-semibold text-foreground">{t("error.title")}</p>
@@ -519,7 +519,7 @@ export default function AdminWorkspaceDetailPage() {
       {/* Back link */}
       <Link
         href="/dashboard/workspaces"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-lamp-ink transition-colors"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary-ink transition-colors"
       >
         <ArrowLeft className="h-4 w-4" weight="bold" />
         {t("header.backToWorkspaces")}
@@ -539,7 +539,7 @@ export default function AdminWorkspaceDetailPage() {
             <>
               <Link
                 href="/dashboard/plans"
-                className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-4 py-2 text-xs font-semibold text-foreground transition-all hover:bg-muted hover:border-blue-300 hover:text-lamp-ink flex-shrink-0"
+                className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-4 py-2 text-xs font-semibold text-foreground transition-all hover:bg-muted hover:border-info/30 hover:text-primary-ink flex-shrink-0"
                 style={{ boxShadow: softSurfaceShadow }}
               >
                 <CurrencyDollar className="h-4 w-4" weight="bold" />
@@ -547,7 +547,7 @@ export default function AdminWorkspaceDetailPage() {
               </Link>
               <Link
                 href={`/dashboard/workspaces/${workspace.id}/balance`}
-                className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-4 py-2 text-xs font-semibold text-foreground transition-all hover:bg-muted hover:border-blue-300 hover:text-lamp-ink flex-shrink-0"
+                className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-4 py-2 text-xs font-semibold text-foreground transition-all hover:bg-muted hover:border-info/30 hover:text-primary-ink flex-shrink-0"
                 style={{ boxShadow: softSurfaceShadow }}
               >
                 <Wallet className="h-4 w-4" weight="bold" />
@@ -599,7 +599,7 @@ export default function AdminWorkspaceDetailPage() {
             >
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <WhatsappLogo
-                  className="h-4 w-4 text-green-500"
+                  className="h-4 w-4 text-healthy-ink"
                   weight="fill"
                 />
                 {t("config.spamProtection.title")}
@@ -718,7 +718,7 @@ export default function AdminWorkspaceDetailPage() {
               </div>
 
               {subscriptionError ? (
-                <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-xs text-white">
+                <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-xs text-destructive-foreground">
                   {subscriptionError}
                 </div>
               ) : currentSubscription ? (
@@ -729,7 +729,7 @@ export default function AdminWorkspaceDetailPage() {
                     </span>
                     <span
                       className={cn(
-                        "rounded-[--radius] px-2.5 py-1 font-semibold uppercase",
+                        "rounded-[--radius] px-2.5 py-1 font-semibold",
                         subscriptionStatusClass,
                       )}
                     >
@@ -739,7 +739,7 @@ export default function AdminWorkspaceDetailPage() {
 
                   <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                     <div>
-                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
+                      <p className="text-[11px] text-muted-foreground font-medium">
                         {t("config.subscription.plan")}
                       </p>
                       <p className="mt-1 text-sm font-medium text-foreground">
@@ -747,7 +747,7 @@ export default function AdminWorkspaceDetailPage() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
+                      <p className="text-[11px] text-muted-foreground font-medium">
                         {t("config.subscription.period")}
                       </p>
                       <p className="mt-1 text-sm text-foreground">
@@ -757,7 +757,7 @@ export default function AdminWorkspaceDetailPage() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
+                      <p className="text-[11px] text-muted-foreground font-medium">
                         {t("config.subscription.basePrice")}
                       </p>
                       <p className="mt-1 text-sm font-medium text-foreground">
@@ -790,7 +790,7 @@ export default function AdminWorkspaceDetailPage() {
                       </p>
                       <div className="flex flex-wrap items-end gap-3">
                         <div className="w-56">
-                          <label className="block text-[10px] uppercase tracking-wide text-muted-foreground font-medium mb-1">
+                          <label className="block text-[11px] text-muted-foreground font-medium mb-1">
                             {t("config.subscription.plan")}
                           </label>
                           <select
@@ -813,7 +813,7 @@ export default function AdminWorkspaceDetailPage() {
                           </select>
                         </div>
                         <div className="w-36">
-                          <label className="block text-[10px] uppercase tracking-wide text-muted-foreground font-medium mb-1">
+                          <label className="block text-[11px] text-muted-foreground font-medium mb-1">
                             {t("config.subscription.billingType")}
                           </label>
                           <select
@@ -893,12 +893,12 @@ export default function AdminWorkspaceDetailPage() {
                 style={{ boxShadow: softSurfaceShadow }}
               >
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Buildings className="h-4 w-4 text-lamp-ink" weight="fill" />
+                  <Buildings className="h-4 w-4 text-primary-ink" weight="fill" />
                   {t("overview.info")}
                 </h3>
                 <div className="space-y-3">
                   <div>
-                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
+                    <p className="text-[11px] text-muted-foreground font-medium">
                       {t("overview.name")}
                     </p>
                     <p className="text-sm text-foreground font-medium">
@@ -906,7 +906,7 @@ export default function AdminWorkspaceDetailPage() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
+                    <p className="text-[11px] text-muted-foreground font-medium">
                       ID
                     </p>
                     <p className="text-xs text-muted-foreground font-mono break-all">
@@ -914,17 +914,17 @@ export default function AdminWorkspaceDetailPage() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
+                    <p className="text-[11px] text-muted-foreground font-medium">
                       {t("overview.type")}
                     </p>
                     <p className="text-sm text-foreground">
                       {workspace.isDefault ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-warning px-2 py-0.5 text-[10px] font-semibold text-white uppercase">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-warning px-2 py-0.5 text-[11px] font-semibold text-warning-foreground">
                           <Star className="h-3 w-3" weight="fill" />
                           {t("badge.default")}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground uppercase">
+                        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
                           {t("badge.custom")}
                         </span>
                       )}
@@ -932,7 +932,7 @@ export default function AdminWorkspaceDetailPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-3 pt-1">
                     <div>
-                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
+                      <p className="text-[11px] text-muted-foreground font-medium">
                         {t("overview.createdAt")}
                       </p>
                       <p className="text-sm text-foreground">
@@ -940,7 +940,7 @@ export default function AdminWorkspaceDetailPage() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
+                      <p className="text-[11px] text-muted-foreground font-medium">
                         {t("overview.updatedAt")}
                       </p>
                       <p className="text-sm text-foreground">
@@ -1000,7 +1000,7 @@ export default function AdminWorkspaceDetailPage() {
                           "font-medium",
                           owner.emailVerified
                             ? "text-healthy"
-                            : "text-red-500",
+                            : "text-destructive-ink",
                         )}
                       >
                         {owner.emailVerified
@@ -1018,7 +1018,7 @@ export default function AdminWorkspaceDetailPage() {
                 style={{ boxShadow: softSurfaceShadow }}
               >
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Users className="h-4 w-4 text-lamp-ink" weight="fill" />
+                  <Users className="h-4 w-4 text-primary-ink" weight="fill" />
                   {t("overview.membersSummary")}
                 </h3>
                 <div className="space-y-3">
@@ -1035,7 +1035,7 @@ export default function AdminWorkspaceDetailPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-lamp-ink" weight="fill" />
+                      <Shield className="h-4 w-4 text-primary-ink" weight="fill" />
                       <span className="text-sm text-foreground">
                         {t("roles.admin")}
                       </span>
@@ -1062,7 +1062,7 @@ export default function AdminWorkspaceDetailPage() {
                     <span className="text-sm font-medium text-foreground">
                       {t("overview.total")}
                     </span>
-                    <span className="text-sm font-semibold text-lamp-ink">
+                    <span className="text-sm font-semibold text-primary-ink">
                       {members.length}
                     </span>
                   </div>
@@ -1093,7 +1093,7 @@ export default function AdminWorkspaceDetailPage() {
                   label: t("overview.total"),
                   value: String(members.length),
                   icon: (
-                    <Users className="h-4 w-4 text-lamp-ink" weight="fill" />
+                    <Users className="h-4 w-4 text-primary-ink" weight="fill" />
                   ),
                 },
                 {
@@ -1107,7 +1107,7 @@ export default function AdminWorkspaceDetailPage() {
                   label: t("roles.admin"),
                   value: String(adminMembers.length),
                   icon: (
-                    <Shield className="h-4 w-4 text-lamp-ink" weight="fill" />
+                    <Shield className="h-4 w-4 text-primary-ink" weight="fill" />
                   ),
                 },
                 {
@@ -1144,7 +1144,7 @@ export default function AdminWorkspaceDetailPage() {
                   label: t("overview.total"),
                   value: String(invites.length),
                   icon: (
-                    <Envelope className="h-4 w-4 text-lamp-ink" weight="fill" />
+                    <Envelope className="h-4 w-4 text-primary-ink" weight="fill" />
                   ),
                 },
                 {
@@ -1173,12 +1173,12 @@ export default function AdminWorkspaceDetailPage() {
           {/* ── Pricing Tab ── */}
           <TabsContent value="pricing">
             {resolvedPricing.some((p) => p.category === "exchange_rate") && (
-              <div className="flex items-start gap-3 rounded-[--radius] border border-amber-200 bg-amber-50/60 px-4 py-3 mb-4">
+              <div className="flex items-start gap-3 rounded-[--radius] border border-warning/30 bg-warning/60 px-4 py-3 mb-4">
                 <Info
                   className="h-4 w-4 text-warning mt-0.5 flex-shrink-0"
                   weight="fill"
                 />
-                <p className="text-xs text-amber-800">
+                <p className="text-xs text-warning-ink">
                   {t("overview.exchangeRateWarning")}
                 </p>
               </div>
@@ -1193,7 +1193,7 @@ export default function AdminWorkspaceDetailPage() {
                   value: String(resolvedPricing.length),
                   icon: (
                     <CurrencyDollar
-                      className="h-4 w-4 text-lamp-ink"
+                      className="h-4 w-4 text-primary-ink"
                       weight="fill"
                     />
                   ),
@@ -1209,7 +1209,7 @@ export default function AdminWorkspaceDetailPage() {
                   ),
                 },
               ]}
-              rowClassName={(row) => (row.isOverride ? "bg-amber-50/50" : "")}
+              rowClassName={(row) => (row.isOverride ? "bg-warning/50" : "")}
               emptyState={{
                 icon: (
                   <CurrencyDollar

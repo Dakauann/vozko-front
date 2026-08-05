@@ -291,7 +291,7 @@ function PlanCard({
               )}
             </span>
             <div className="flex min-w-0 flex-col leading-tight">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              <span className="text-[11px] font-semibold tracking-[0.18em] text-muted-foreground">
                 {t("exclusivePartner")}
               </span>
               <span className="truncate text-sm font-semibold tracking-tight text-foreground">
@@ -305,7 +305,7 @@ function PlanCard({
             {item.plan.name}
           </h3>
           {isCurrent && (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-[--radius] bg-healthy/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-healthy dark:text-healthy">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-semibold text-healthy-ink dark:text-healthy">
               <Check className="h-3 w-3" weight="bold" />
               {t("currentBadge")}
             </span>
@@ -360,7 +360,7 @@ function PlanCard({
         {pricingGroups.size > 0 && (
           <>
             <div className="h-px bg-border/50" />
-            <p className="text-[11px] font-semibold uppercase text-muted-foreground tracking-wider">
+            <p className="text-[11px] font-semibold text-muted-foreground">
               {t("servicePricing")}
             </p>
             <div className="space-y-2">
@@ -405,7 +405,7 @@ export function AffiliateBrandChip({ brand }: { brand: AffiliateBrand }) {
         )}
       </span>
       <div className="flex flex-col leading-tight text-left">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <span className="text-[11px] font-semibold tracking-[0.18em] text-muted-foreground">
           {t("exclusivePartner")}
         </span>
         <span className="text-sm font-semibold tracking-tight text-foreground">

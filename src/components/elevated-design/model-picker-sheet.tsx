@@ -189,7 +189,7 @@ export function ModelPickerSheet({
                   "[&_[cmdk-group-heading]]:sticky [&_[cmdk-group-heading]]:top-0 [&_[cmdk-group-heading]]:z-10",
                   "[&_[cmdk-group-heading]]:bg-background [&_[cmdk-group-heading]]:",
                   // Normal-case provider names, not an uppercase tracked eyebrow.
-                  "[&_[cmdk-group-heading]]:text-[13px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:normal-case [&_[cmdk-group-heading]]:tracking-normal [&_[cmdk-group-heading]]:text-foreground/70",
+                  "[&_[cmdk-group-heading]]:text-sm [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:normal-case [&_[cmdk-group-heading]]:tracking-normal [&_[cmdk-group-heading]]:text-foreground/70",
                 )}
               >
                 {group.models.map((model) => (
@@ -272,7 +272,7 @@ function ModelRow({
       <Check
         weight="bold"
         className={cn(
-          "h-4 w-4 flex-shrink-0 text-lamp-ink transition-opacity",
+          "h-4 w-4 flex-shrink-0 text-primary-ink transition-opacity",
           isSelected ? "opacity-100" : "opacity-0",
         )}
       />
@@ -282,7 +282,7 @@ function ModelRow({
 
 function NewBadge(): ReactNode {
   return (
-    <span className="flex-shrink-0 rounded-[--radius] bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-lamp-ink">
+    <span className="flex-shrink-0 rounded-[--radius] bg-muted px-1.5 py-0.5 text-[11px] font-semibold leading-none text-primary-ink">
       Novo
     </span>
   );

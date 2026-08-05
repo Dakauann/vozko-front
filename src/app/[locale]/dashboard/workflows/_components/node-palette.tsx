@@ -95,7 +95,7 @@ export function NodePalette({ definitions }: NodePaletteProps) {
   return (
     <div className="w-64 border-r border-border bg-card overflow-y-auto flex-shrink-0">
       <div className="p-3 border-b border-border space-y-2">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <h3 className="text-xs font-semibold text-muted-foreground">
           {t("palette.title")}
         </h3>
         <div className="relative">
@@ -127,7 +127,7 @@ export function NodePalette({ definitions }: NodePaletteProps) {
             <div key={category}>
               <p
                 className={cn(
-                  "text-[10px] font-semibold uppercase tracking-wider px-1 mb-1.5 text-muted-black",
+                  "text-[11px] font-semibold px-1 mb-1.5 text-muted-black",
                 )}
               >
                 {CATEGORY_LABEL[category]}
@@ -147,7 +147,7 @@ export function NodePalette({ definitions }: NodePaletteProps) {
                       )}
                     >
                       <div
-                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white shadow-sm"
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg shadow-sm"
                         style={{ backgroundColor: styles.color }}
                       >
                         {IconComp && <IconComp size={18} weight="fill" />}
@@ -157,7 +157,7 @@ export function NodePalette({ definitions }: NodePaletteProps) {
                           {def.label}
                         </p>
                         {def.description && (
-                          <p className="text-[10px] leading-tight text-muted-foreground line-clamp-2 mt-0.5">
+                          <p className="text-[11px] leading-tight text-muted-foreground line-clamp-2 mt-0.5">
                             {def.description}
                           </p>
                         )}

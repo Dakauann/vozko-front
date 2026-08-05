@@ -118,7 +118,7 @@ export function DashboardNavbar({
         // The offset is animated by the same easing the spine uses so the two
         // edges stay joined while it collapses.
         "fixed right-0 top-0 z-30 flex h-12 items-center gap-3",
-        "border-b border-border bg-card px-3 transition-[left] duration-[160ms]",
+        "border-b border-border bg-card px-3 shadow-sm transition-[left] duration-150",
         "left-0",
         isCollapsed ? "md:left-[52px]" : "md:left-[208px]",
         className,
@@ -223,7 +223,7 @@ export function DashboardNavbar({
               )}
             </span>
             <span className="hidden min-w-0 flex-col items-start lg:flex">
-              <span className="max-w-[140px] truncate text-[13px] font-semibold leading-tight text-foreground">
+              <span className="max-w-[140px] truncate text-sm font-semibold leading-tight text-foreground">
                 {user?.name || user?.email?.split("@")[0] || "Admin"}
               </span>
               <span className="legend leading-tight">
@@ -248,10 +248,10 @@ export function DashboardNavbar({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
                 transition={{ duration: 0.12, ease: [0.2, 0, 0, 1] }}
-                className="absolute right-0 top-full mt-1 w-56 overflow-hidden border border-border border-t-rule-strong bg-popover shadow-xl"
+                className="absolute right-0 top-full mt-1 w-56 overflow-hidden border border-border bg-popover shadow-xl"
               >
                 <div className="border-b border-border px-3 py-2.5">
-                  <p className="truncate text-[13px] font-semibold text-foreground">
+                  <p className="truncate text-sm font-semibold text-foreground">
                     {user?.name || user?.email?.split("@")[0]}
                   </p>
                   <p className="truncate text-[11px] text-muted-foreground">
@@ -262,7 +262,7 @@ export function DashboardNavbar({
                 <div className="p-1">
                   <Link
                     href={settingsLink}
-                    className="flex items-center gap-2 rounded-[--radius] px-2 py-1.5 text-[13px] text-foreground transition-colors hover:bg-muted"
+                    className="flex items-center gap-2 rounded-[--radius] px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-muted"
                     onClick={() => setShowUserMenu(false)}
                   >
                     <Gear
@@ -276,7 +276,7 @@ export function DashboardNavbar({
                 <div className="border-t border-border p-1">
                   <button
                     onClick={handleLogout}
-                    className="flex w-full items-center gap-2 rounded-[--radius] px-2 py-1.5 text-[13px] text-destructive transition-colors hover:bg-destructive/10"
+                    className="flex w-full items-center gap-2 rounded-[--radius] px-2 py-1.5 text-sm text-destructive-ink transition-colors hover:bg-muted"
                   >
                     <SignOut className="h-4 w-4" weight="bold" />
                     <span>{t("userMenu.logout")}</span>

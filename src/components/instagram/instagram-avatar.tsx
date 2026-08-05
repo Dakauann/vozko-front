@@ -22,12 +22,12 @@ interface Props {
  * which is what makes it useful as a recognition cue instead of decoration.
  */
 const TINTS = [
-  "bg-fuchsia-500/15 text-fuchsia-700 dark:text-fuchsia-300",
-  "bg-muted text-muted-foreground dark:text-violet-300",
-  "bg-muted text-muted-foreground dark:text-sky-300",
-  "bg-healthy/15 text-healthy dark:text-emerald-300",
-  "bg-warning/15 text-warning dark:text-amber-300",
-  "bg-destructive/15 text-destructive dark:text-rose-300",
+  "bg-muted text-chart-4-ink dark:text-chart-4",
+  "bg-muted text-muted-foreground dark:text-chart-4",
+  "bg-muted text-muted-foreground dark:text-info",
+  "bg-muted text-healthy-ink dark:text-healthy",
+  "bg-muted text-warning-ink dark:text-warning",
+  "bg-muted text-destructive-ink dark:text-destructive",
 ];
 
 function tintFor(seed: string): string {

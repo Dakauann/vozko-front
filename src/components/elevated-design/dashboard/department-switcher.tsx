@@ -104,7 +104,7 @@ export function DepartmentSwitcher({
         />
         <span
           className={cn(
-            "max-w-[120px] truncate text-[13px] text-foreground",
+            "max-w-[120px] truncate text-sm text-foreground",
             fullWidth ? "max-w-none flex-1 text-left" : "hidden lg:block",
           )}
         >
@@ -243,7 +243,7 @@ function DepartmentItem({
       </div>
 
       {isSelected && (
-        <Check className="h-4 w-4 shrink-0 text-lamp-ink" weight="bold" />
+        <Check className="h-4 w-4 shrink-0 text-primary-ink" weight="bold" />
       )}
     </button>
   );

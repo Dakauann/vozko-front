@@ -67,7 +67,7 @@ function resolveEdgeLabel(
     return {
       text: output?.label ?? rawLabel,
       className:
-        "border-destructive bg-destructive text-destructive-foreground dark:border-destructive dark:bg-destructive dark:text-white",
+        "border-destructive bg-destructive text-destructive-foreground dark:border-destructive dark:bg-destructive dark:text-destructive-foreground",
     };
   }
 
@@ -83,7 +83,7 @@ function resolveEdgeLabel(
     return {
       text: output?.label ?? rawLabel,
       className:
-        "border-healthy bg-healthy text-healthy-foreground dark:border-healthy dark:bg-healthy dark:text-white",
+        "border-healthy bg-healthy text-healthy-foreground dark:border-healthy dark:bg-healthy dark:text-healthy-foreground",
     };
   }
 
@@ -91,14 +91,14 @@ function resolveEdgeLabel(
     return {
       text: output?.label ?? rawLabel,
       className:
-        "border-destructive bg-destructive text-destructive-foreground dark:border-destructive dark:bg-destructive dark:text-white",
+        "border-destructive bg-destructive text-destructive-foreground dark:border-destructive dark:bg-destructive dark:text-destructive-foreground",
     };
   }
 
   return {
     text: output?.label ?? rawLabel,
     className:
-      "border-cyan-600 bg-muted text-muted-foreground dark:border-cyan-600 dark:bg-muted dark:text-white",
+      "border-info bg-muted text-muted-foreground dark:border-info dark:bg-muted dark:text-white",
   };
 }
 
@@ -390,7 +390,7 @@ export function SmartBezierEdge({
             }}
           >
             <span
-              className={`inline-flex rounded-[--radius] border px-2 py-0.5 text-[10px] font-semibold shadow-sm ${resolvedLabel.className}`}
+              className={`inline-flex rounded-[--radius] border px-2 py-0.5 text-[11px] font-semibold shadow-sm ${resolvedLabel.className}`}
               style={DOT_PATTERN_STYLE}
             >
               {resolvedLabel.text}

@@ -59,7 +59,7 @@ const STATUS_COLORS: Record<TemplateStatus, string> = {
 const CATEGORY_COLORS: Record<TemplateCategory, string> = {
   MARKETING: "bg-muted text-muted-foreground",
   UTILITY: "bg-muted text-muted-foreground",
-  AUTHENTICATION: "bg-orange-500 text-white",
+  AUTHENTICATION: "bg-warning text-warning-foreground",
 };
 
 
@@ -384,7 +384,7 @@ export default function WhatsAppTemplatesPage({
                 e.stopPropagation();
                 router.push(`/dashboard/whatsapp-templates/${row.id}/send`);
               }}
-              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-healthy hover:bg-healthy/10 transition-colors"
+              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-healthy-ink hover:bg-muted transition-colors"
             >
               <PaperPlaneTilt className="h-3.5 w-3.5" weight="fill" />
               {t("card.send")}
@@ -445,13 +445,13 @@ export default function WhatsAppTemplatesPage({
       />
 
       {adminAllMode && (
-        <ElevatedContainer className="border-amber-200 bg-amber-50 p-4">
+        <ElevatedContainer className="border-warning/30 bg-warning/10 p-4">
           <div className="flex items-center gap-3">
             <Buildings
               weight="fill"
               className="h-5 w-5 flex-shrink-0 text-warning"
             />
-            <p className="text-sm text-amber-900">
+            <p className="text-sm text-warning-ink">
               {t.has("header.adminNotice")
                 ? t("header.adminNotice")
                 : t("header.description")}
@@ -588,7 +588,7 @@ export default function WhatsAppTemplatesPage({
         />
       ) : (
         <div className="space-y-4">
-          <ElevatedContainer className="overflow-hidden border border-border !p-0">
+          <ElevatedContainer className="rounded-lg overflow-hidden border border-border !p-0">
             <DashboardTable<WhatsAppTemplate>
               data={templates}
               columns={columns}

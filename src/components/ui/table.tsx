@@ -9,7 +9,7 @@ const Table = React.forwardRef<
   <div className="relative w-full overflow-auto">
     <table
       ref={ref}
-      className={cn("w-full caption-bottom text-[13px]", className)}
+      className={cn("w-full caption-bottom text-sm", className)}
       {...props}
     />
   </div>
@@ -24,7 +24,7 @@ const TableHeader = React.forwardRef<
   // bank of channels.
   <thead
     ref={ref}
-    className={cn("[&_tr]:border-b [&_tr]:border-rule-strong", className)}
+    className={cn("[&_tr]:border-b [&_tr]:border-border-strong", className)}
     {...props}
   />
 ))

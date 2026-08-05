@@ -48,7 +48,7 @@ export default function WhatsAppCapacityCard({
   const reduceMotion = useReducedMotion();
 
   const shell = cn(
-    variant === "card" && "rounded-[--radius] border border-border bg-card p-5 shadow-sm",
+    variant === "card" && "rounded-lg border border-border bg-card p-5 shadow-sm",
     className,
   );
 
@@ -56,7 +56,7 @@ export default function WhatsAppCapacityCard({
     return (
       <section className={shell} aria-busy="true" aria-label={t("capacity.label")}>
         <div className="flex items-center gap-3">
-          <div className="h-11 w-11 shrink-0 animate-pulse rounded-[--radius] bg-muted" />
+          <div className="h-11 w-11 shrink-0 animate-pulse rounded-lg bg-muted" />
           <div className="flex-1 space-y-2">
             <div className="h-4 w-40 animate-pulse rounded bg-muted" />
             <div className="h-3 w-28 animate-pulse rounded bg-muted" />
@@ -76,11 +76,11 @@ export default function WhatsAppCapacityCard({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
           {/* Brand mark on a neutral tile, keeping WhatsApp's own green. */}
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[--radius] bg-muted">
+          <span className="tile-neutral flex h-11 w-11 shrink-0 items-center justify-center">
             <WhatsappLogo className="h-5 w-5 text-[#25d366]" weight="fill" />
           </span>
           <div className="min-w-0">
-            <p className="text-[13px] font-medium text-muted-foreground">
+            <p className="text-sm font-medium text-muted-foreground">
               {t("capacity.label")}
             </p>
             <p className="mt-0.5 text-xl font-semibold leading-none tracking-tight text-foreground">
@@ -235,7 +235,7 @@ function StateHint({
 }) {
   if (state === "atLimit") {
     return (
-      <p className="mt-3 flex items-start gap-1.5 text-xs text-warning dark:text-amber-400">
+      <p className="mt-3 flex items-start gap-1.5 text-xs text-warning dark:text-warning">
         <WarningCircle
           className="mt-px h-4 w-4 shrink-0 text-warning"
           weight="fill"

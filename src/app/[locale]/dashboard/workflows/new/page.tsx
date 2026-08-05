@@ -50,7 +50,7 @@ export default function NewWorkflowPage() {
   if (state.error) {
     return (
       <div className="-m-6 flex min-h-[calc(100vh-3rem)] items-center justify-center p-6">
-        <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-white">
+        <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-destructive-foreground">
           {state.error}
         </div>
       </div>

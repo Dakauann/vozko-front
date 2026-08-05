@@ -110,7 +110,7 @@ export default function IntegrationsPage() {
                 <h3 className="text-sm font-semibold">{t("google.title")}</h3>
                 {!loading && (
                   <span
-                    className={`inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[10px] font-medium ${
+                    className={`inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[11px] font-medium ${
                       connected
                         ? "bg-healthy text-healthy-foreground"
                         : "bg-zinc-500 text-white"

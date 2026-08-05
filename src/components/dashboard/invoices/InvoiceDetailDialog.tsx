@@ -74,7 +74,7 @@ export function InvoiceDetailDialog({
         <div className="space-y-4">
           {invoice.dueDate ? (
             <div className="flex items-center gap-2 rounded-[--radius] border border-border bg-muted px-3 py-2 text-sm">
-              <CalendarBlank className="h-4 w-4 text-lamp-ink" weight="bold" />
+              <CalendarBlank className="h-4 w-4 text-primary-ink" weight="bold" />
               <span className="text-muted-foreground">{t("detail.dueDate")}</span>
               <span className="ml-auto font-medium text-foreground">
                 {dateFmt.format(new Date(invoice.dueDate))}
@@ -84,7 +84,7 @@ export function InvoiceDetailDialog({
 
           {hasBreakdown ? (
             <div className="overflow-hidden rounded-[--radius] border border-border">
-              <div className="border-b border-border bg-muted px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <div className="border-b border-border bg-muted px-3 py-2 text-[11px] font-semibold text-muted-foreground">
                 {t("detail.breakdown")}
               </div>
               <ul className="divide-y divide-border/40">
@@ -105,9 +105,9 @@ export function InvoiceDetailDialog({
                       <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
                         <span
                           className={cn(
-                            "inline-flex items-center gap-1 rounded-[--radius] px-1.5 py-0.5 text-[10px] font-medium",
+                            "inline-flex items-center gap-1 rounded-[--radius] px-1.5 py-0.5 text-[11px] font-medium",
                             item.creditable
-                              ? "bg-healthy/10 text-healthy"
+                              ? "bg-muted text-healthy-ink"
                               : "bg-muted text-muted-foreground",
                           )}
                         >
@@ -121,7 +121,7 @@ export function InvoiceDetailDialog({
                             : t("detail.passthroughTag")}
                         </span>
                         {item.prorated ? (
-                          <span className="inline-flex items-center rounded-full bg-warning/10 px-1.5 py-0.5 text-[10px] font-medium text-warning">
+                          <span className="inline-flex items-center rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-medium text-warning-ink">
                             {t("detail.proratedTag")}
                           </span>
                         ) : null}
@@ -154,7 +154,7 @@ export function InvoiceDetailDialog({
           )}
 
           {creditedBRL > 0 ? (
-            <p className="flex items-start gap-2 rounded-[--radius] bg-healthy/5 px-3 py-2.5 text-xs text-healthy">
+            <p className="flex items-start gap-2 rounded-[--radius] bg-muted px-3 py-2.5 text-xs text-healthy-ink">
               <ArrowDown className="mt-0.5 h-3.5 w-3.5 shrink-0" weight="bold" />
               <span>
                 {t("detail.saldoNote", { amount: formatBRL(creditedBRL) })}

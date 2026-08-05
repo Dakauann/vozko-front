@@ -66,7 +66,7 @@ export default function WhatsAppCampaignCrmPage({ params }: CrmPageProps) {
   if (state.error) {
     return (
       <main className="w-full space-y-6">
-        <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-white">
+        <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-destructive-foreground">
           {state.error}
         </div>
       </main>
@@ -78,7 +78,7 @@ export default function WhatsAppCampaignCrmPage({ params }: CrmPageProps) {
   return (
     <main className="w-full space-y-6">
       <header className="space-y-2">
-        <p className="text-sm font-semibold uppercase tracking-wide text-healthy">
+        <p className="text-sm font-semibold text-healthy">
           {t("header.badge")}
         </p>
         <div className="flex flex-wrap items-center justify-between gap-4">

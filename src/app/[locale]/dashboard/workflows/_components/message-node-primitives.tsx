@@ -53,7 +53,7 @@ export function centerWithin(el: HTMLElement, root: HTMLElement): number {
 // EmptyPreview is the shared "nothing configured yet" hint used by node previews.
 export function EmptyPreview({ label }: { label: string }) {
   return (
-    <span className="text-[10px] italic text-muted-foreground/60">{label}</span>
+    <span className="text-[11px] italic text-muted-foreground/60">{label}</span>
   );
 }
 
@@ -133,10 +133,10 @@ export function MessageBubble({
             {body}
           </p>
         ) : (
-          <p className={cn("text-[10px] italic", t.muted)}>{emptyBodyLabel}</p>
+          <p className={cn("text-[11px] italic", t.muted)}>{emptyBodyLabel}</p>
         )}
         {footer?.trim() && (
-          <p className={cn("mt-0.5 text-[9px] leading-tight", t.muted)}>
+          <p className={cn("mt-0.5 text-[11px] leading-tight", t.muted)}>
             {footer}
           </p>
         )}
@@ -241,7 +241,7 @@ export function ActionRowList({
               {r.primary}
             </p>
             {r.secondary && (
-              <p className={cn("truncate text-[9px] leading-tight", WA_MUTED_TEXT)}>
+              <p className={cn("truncate text-[11px] leading-tight", WA_MUTED_TEXT)}>
                 {r.secondary}
               </p>
             )}
@@ -302,7 +302,7 @@ export function BranchRow({
       ref={(el) => registerRow(el, id)}
       className="flex h-5 items-center justify-end gap-1.5 pr-4"
     >
-      <span className="truncate text-[8px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/70">
+      <span className="truncate text-[11px] font-semibold tracking-[0.08em] text-muted-foreground/70">
         {label}
       </span>
     </div>
@@ -477,7 +477,7 @@ export function InteractiveNodeShell({
           // Search match wins over the selection ring (ordered last) so a found
           // node is unmistakable even when it is also the selected one.
           searchMatch &&
-            "ring-[3px] ring-amber-500 ring-offset-2 ring-offset-background shadow-lg shadow-amber-500/30",
+            "ring-[3px] ring-warning ring-offset-2 ring-offset-background shadow-lg shadow-warning/30",
         )}
       >
         {flashing && (
@@ -505,7 +505,7 @@ export function InteractiveNodeShell({
           {Boolean(hasMissingRequired) && (
             <Warning size={12} weight="fill" className="shrink-0 text-warning" />
           )}
-          <span className="pointer-events-none font-mono text-[8px] font-medium text-muted-foreground/50">
+          <span className="pointer-events-none font-mono text-[11px] font-medium text-muted-foreground/50">
             {id}
           </span>
         </div>

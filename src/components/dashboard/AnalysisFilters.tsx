@@ -171,7 +171,7 @@ export default function AnalysisFilters({
         <div>
           <h3 className="text-sm font-semibold text-foreground">{t.title}</h3>
           {hasActiveFilters && (
-            <p className="text-xs text-lamp-ink font-medium">
+            <p className="text-xs text-primary-ink font-medium">
               {activeFilterCount} filter{activeFilterCount !== 1 ? "s" : ""}{" "}
               active
             </p>
@@ -208,7 +208,7 @@ export default function AnalysisFilters({
         {/* Has Analysis Toggle */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <label className="text-xs font-semibold text-muted-foreground">
               {t.hasAnalysis}
             </label>
             {values.hasAnalysis !== undefined && (
@@ -250,7 +250,7 @@ export default function AnalysisFilters({
         {/* Interest Filter */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <label className="text-xs font-semibold text-muted-foreground">
               {t.interest.label}
             </label>
             {values.interest !== undefined && (
@@ -289,7 +289,7 @@ export default function AnalysisFilters({
         {/* Disposition Filter */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <label className="text-xs font-semibold text-muted-foreground">
               {t.disposition.label}
             </label>
             {values.disposition !== undefined && (
@@ -337,7 +337,7 @@ export default function AnalysisFilters({
         {/* Sentiment Filter */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <label className="text-xs font-semibold text-muted-foreground">
               {t.sentiment.label}
             </label>
             {values.sentiment !== undefined && (
@@ -376,7 +376,7 @@ export default function AnalysisFilters({
         {/* Qualification Filter */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <label className="text-xs font-semibold text-muted-foreground">
               {t.qualification.label}
             </label>
             {values.qualification !== undefined && (
@@ -415,7 +415,7 @@ export default function AnalysisFilters({
         {/* Attendance Quality Min */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <label className="text-xs font-semibold text-muted-foreground">
               {t.minQuality}
             </label>
             {values.attendanceQualityMin !== undefined && (
@@ -451,7 +451,7 @@ export default function AnalysisFilters({
         {/* Attendance Quality Max */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <label className="text-xs font-semibold text-muted-foreground">
               {t.maxQuality}
             </label>
             {values.attendanceQualityMax !== undefined && (

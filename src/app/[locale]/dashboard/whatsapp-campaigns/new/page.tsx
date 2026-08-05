@@ -103,7 +103,7 @@ export default function NewWhatsAppCampaignPage() {
 
       {error && (
         <motion.div variants={itemVariants}>
-          <ElevatedContainer className="border-rose-200 bg-destructive/10">
+          <ElevatedContainer className="border-destructive/30 bg-destructive/10">
             <p className="text-sm text-destructive">{error}</p>
           </ElevatedContainer>
         </motion.div>

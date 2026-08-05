@@ -1824,7 +1824,7 @@ export function WorkflowEditor({
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem
-                  className="rounded-lg border-l-0 text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive dark:text-destructive"
+                  className="rounded-lg border-l-0 text-destructive-ink hover:bg-muted hover:text-destructive focus:bg-destructive/10 focus:text-destructive dark:text-destructive"
                   onSelect={() => setConfirmDeleteOpen(true)}
                 >
                   <Trash />
@@ -1931,7 +1931,7 @@ export function WorkflowEditor({
                   icon={<Trash size={14} />}
                   iconVisible
                   onClick={deleteSelected}
-                  className="text-destructive border-rose-300 hover:bg-destructive/10"
+                  className="text-destructive-ink border-destructive/30 hover:bg-muted"
                 />
               </Panel>
             )}

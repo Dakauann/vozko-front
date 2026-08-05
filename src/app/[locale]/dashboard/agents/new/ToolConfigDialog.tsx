@@ -216,7 +216,7 @@ function ToolConfigDialogContent({
       <span className="flex items-center gap-2">
         <span className="font-medium">{fieldLabel}</span>
         {isRequired && (
-          <span className="rounded-md bg-warning px-1.5 py-0.5 text-xs font-semibold text-white">
+          <span className="rounded-md bg-warning px-1.5 py-0.5 text-xs font-semibold text-warning-foreground">
             {t("required")}
           </span>
         )}
@@ -298,14 +298,14 @@ function ToolConfigDialogContent({
                 type="checkbox"
                 checked={boolValue}
                 onChange={(e) => handleFieldChange(key, e.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-foreground/20 text-lamp-ink focus:ring-ring"
+                className="mt-1 h-4 w-4 rounded border-foreground/20 text-primary-ink focus:ring-ring"
               />
               <div>
                 <span className="text-sm font-medium text-foreground">
                   {fieldLabel}
                 </span>
                 {isRequired && (
-                  <span className="ml-2 rounded-md bg-warning px-1.5 py-0.5 text-xs font-semibold text-white">
+                  <span className="ml-2 rounded-md bg-warning px-1.5 py-0.5 text-xs font-semibold text-warning-foreground">
                     {t("required")}
                   </span>
                 )}
@@ -413,7 +413,7 @@ function ToolConfigDialogContent({
 
           {/* Configuration fields */}
           <div className="rounded-[--radius] border border-border bg-card p-5">
-            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">
+            <h3 className="text-sm font-semibold text-foreground">
               {t("configurationFields")}
             </h3>
             {schemaEntries.length > 0 ? (

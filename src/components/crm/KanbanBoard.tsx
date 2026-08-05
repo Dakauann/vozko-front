@@ -261,7 +261,7 @@ export default function KanbanBoard<T>({
                   <button
                     type="button"
                     onClick={() => onAddCard(col.id)}
-                    className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-border py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-lamp-ink"
+                    className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-border py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary-ink"
                   >
                     <Plus weight="bold" className="h-3 w-3" />
                     {addLabel}

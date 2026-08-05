@@ -141,8 +141,8 @@ const SUBSCRIPTION_STATUS_LABELS: Record<string, string> = {
 };
 
 const SUBSCRIPTION_STATUS_CLASSES: Record<string, string> = {
-  active: "bg-healthy/10 text-healthy",
-  cancelled: "bg-destructive/10 text-destructive",
+  active: "bg-muted text-healthy-ink",
+  cancelled: "bg-muted text-destructive-ink",
   expired: "bg-muted text-muted-foreground",
 };
 
@@ -740,7 +740,7 @@ export default function AdminFinancialDashboard() {
       {/* â”€â”€ Header + Period filters â”€â”€ */}
       <motion.div variants={itemVariants}>
         <ElevatedContainer
-          className="border border-border border-t-rule-strong bg-card p-5 md:p-6"
+          className="rounded-lg border border-border bg-card p-5 md:p-6"
         >
           <DashboardPageHeader
             actions={
@@ -759,7 +759,7 @@ export default function AdminFinancialDashboard() {
 
           <div className="mt-5 grid gap-3 md:grid-cols-2 2xl:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))]">
             <div className="rounded-[--radius] border border-border bg-background px-4 py-4">
-              <p className="text-[11px] font-semibold uppercase text-lamp-ink">
+              <p className="text-[11px] font-semibold text-primary-ink">
                 Período analisado
               </p>
               <p className="mt-2 text-xl font-semibold text-foreground">
@@ -771,7 +771,7 @@ export default function AdminFinancialDashboard() {
             </div>
 
             <div className="rounded-[--radius] border border-border bg-background px-4 py-4">
-              <p className="text-[10px] font-semibold uppercase text-muted-foreground">
+              <p className="text-[11px] font-semibold text-muted-foreground">
                 Granularidade
               </p>
               <p className="mt-2 text-lg font-semibold text-foreground">
@@ -784,7 +784,7 @@ export default function AdminFinancialDashboard() {
             </div>
 
             <div className="rounded-[--radius] border border-border bg-background px-4 py-4">
-              <p className="text-[10px] font-semibold uppercase text-muted-foreground">
+              <p className="text-[11px] font-semibold text-muted-foreground">
                 Áreas de Trabalho
               </p>
               <p className="mt-2 text-lg font-semibold text-foreground">
@@ -793,7 +793,7 @@ export default function AdminFinancialDashboard() {
             </div>
 
             <div className="rounded-[--radius] border border-border bg-background px-4 py-4">
-              <p className="text-[10px] font-semibold uppercase text-muted-foreground">
+              <p className="text-[11px] font-semibold text-muted-foreground">
                 Transações
               </p>
               <p className="mt-2 text-lg font-semibold text-foreground">
@@ -865,7 +865,7 @@ export default function AdminFinancialDashboard() {
       {/* Error */}
       {error && (
         <motion.div variants={itemVariants}>
-          <ElevatedContainer className="border border-destructive bg-destructive p-4 text-sm text-white">
+          <ElevatedContainer className="rounded-lg border border-destructive bg-destructive p-4 text-sm text-destructive-foreground">
             {error}
           </ElevatedContainer>
         </motion.div>
@@ -931,7 +931,7 @@ export default function AdminFinancialDashboard() {
       {!loading && totalPeriodRefundsBRL > 0 && (
         <motion.div variants={itemVariants}>
           <ElevatedContainer
-            className="border border-warning/40 border-dashed bg-warning/5 p-4"
+            className="rounded-lg border border-warning/40 border-dashed bg-warning/5 p-4"
           >
             <div className="flex flex-wrap items-center gap-6">
               <div className="flex items-center gap-2">
@@ -939,7 +939,7 @@ export default function AdminFinancialDashboard() {
                   className="h-4 w-4 text-warning"
                   weight="bold"
                 />
-                <p className="text-xs font-semibold uppercase text-muted-foreground">
+                <p className="text-xs font-semibold text-muted-foreground">
                   Reembolsos (já descontados da receita e do lucro)
                 </p>
               </div>
@@ -960,10 +960,10 @@ export default function AdminFinancialDashboard() {
       {!loading && manualAdjustment.txCount > 0 && (
         <motion.div variants={itemVariants}>
           <ElevatedContainer
-            className="border border-border border-dashed bg-muted p-4"
+            className="rounded-lg border border-border border-dashed bg-muted p-4"
           >
             <div className="flex flex-wrap items-center gap-6">
-              <p className="text-xs font-semibold uppercase text-muted-foreground">
+              <p className="text-xs font-semibold text-muted-foreground">
                 Ajuste manual (excluído da receita operacional)
               </p>
               <div className="flex flex-wrap items-center gap-6">
@@ -999,11 +999,11 @@ export default function AdminFinancialDashboard() {
       {/* â”€â”€ Revenue vs Cost chart â”€â”€ */}
       <motion.div variants={itemVariants}>
         <ElevatedContainer
-          className="border border-border border-t-rule-strong bg-card p-5"
+          className="rounded-lg border border-border bg-card p-5"
         >
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase text-muted-foreground">
+              <p className="text-xs font-semibold text-muted-foreground">
                 Evolução financeira
               </p>
               <h2 className="text-lg font-semibold text-foreground">
@@ -1020,7 +1020,7 @@ export default function AdminFinancialDashboard() {
               className="flex items-center justify-center"
               style={{ height: 340 }}
             >
-              <Spinner className="h-8 w-8 animate-spin text-lamp-ink" />
+              <Spinner className="h-8 w-8 animate-spin text-primary-ink" />
             </div>
           ) : profitSeries.length === 0 ? (
             <div
@@ -1137,11 +1137,11 @@ export default function AdminFinancialDashboard() {
       {/*, Revenue by service (Pie) + Profit by service (Bar), */}
       <motion.div variants={itemVariants} className="grid gap-4 lg:grid-cols-2">
         <ElevatedContainer
-          className="border border-border border-t-rule-strong bg-card p-5"
+          className="rounded-lg border border-border bg-card p-5"
         >
           <div className="mb-2 flex items-center gap-2">
             <ChartPie className="h-4 w-4 text-healthy" weight="fill" />
-            <p className="text-xs font-semibold uppercase text-muted-foreground">
+            <p className="text-xs font-semibold text-muted-foreground">
               Receita por produto
             </p>
           </div>
@@ -1150,7 +1150,7 @@ export default function AdminFinancialDashboard() {
               className="flex items-center justify-center"
               style={{ height: 280 }}
             >
-              <Spinner className="h-8 w-8 animate-spin text-lamp-ink" />
+              <Spinner className="h-8 w-8 animate-spin text-primary-ink" />
             </div>
           ) : serviceRevenuePie.length === 0 ? (
             <div
@@ -1227,7 +1227,7 @@ export default function AdminFinancialDashboard() {
                         currency: "BRL",
                       }).format(item.value)}
                     </span>
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       ({formatPercent(pct)})
                     </span>
                   </div>
@@ -1238,11 +1238,11 @@ export default function AdminFinancialDashboard() {
         </ElevatedContainer>
 
         <ElevatedContainer
-          className="border border-border border-t-rule-strong bg-card p-5"
+          className="rounded-lg border border-border bg-card p-5"
         >
           <div className="mb-2 flex items-center gap-2">
-            <ChartBar className="h-4 w-4 text-blue-500" weight="fill" />
-            <p className="text-xs font-semibold uppercase text-muted-foreground">
+            <ChartBar className="h-4 w-4 text-info-ink" weight="fill" />
+            <p className="text-xs font-semibold text-muted-foreground">
               Lucro por produto
             </p>
           </div>
@@ -1251,7 +1251,7 @@ export default function AdminFinancialDashboard() {
               className="flex items-center justify-center"
               style={{ height: 280 }}
             >
-              <Spinner className="h-8 w-8 animate-spin text-lamp-ink" />
+              <Spinner className="h-8 w-8 animate-spin text-primary-ink" />
             </div>
           ) : serviceProfitBar.length === 0 ? (
             <div
@@ -1345,7 +1345,7 @@ export default function AdminFinancialDashboard() {
                         currency: "BRL",
                       }).format(item.value)}
                     </span>
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       ({formatPercent(pct)})
                     </span>
                   </div>
@@ -1360,12 +1360,12 @@ export default function AdminFinancialDashboard() {
       {!loading && productUsage && productUsage.byService.length > 0 && (
         <motion.div variants={itemVariants}>
           <ElevatedContainer
-            className="border border-border border-t-rule-strong bg-card p-5"
+            className="rounded-lg border border-border bg-card p-5"
           >
             <div className="mb-4 flex items-center gap-2">
-              <Package className="h-4 w-4 text-violet-500" weight="fill" />
+              <Package className="h-4 w-4 text-chart-4" weight="fill" />
               <div>
-                <p className="text-xs font-semibold uppercase text-muted-foreground">
+                <p className="text-xs font-semibold text-muted-foreground">
                   Uso por produto
                 </p>
                 <p className="text-sm font-semibold text-foreground">
@@ -1380,7 +1380,7 @@ export default function AdminFinancialDashboard() {
                   className="flex items-center gap-3 rounded-[--radius] border border-border bg-muted p-3"
                 >
                   <div
-                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[--radius] text-white"
+                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[--radius]"
                     style={{
                       backgroundColor: serviceColor(metric.key, 0),
                     }}
@@ -1411,7 +1411,7 @@ export default function AdminFinancialDashboard() {
       {/*, Plan contractions, */}
       <motion.div variants={itemVariants} className="grid gap-4 lg:grid-cols-2">
         <ElevatedContainer
-          className="border border-border border-t-rule-strong bg-card p-5"
+          className="rounded-lg border border-border bg-card p-5"
         >
           <div className="mb-4 flex items-start justify-between gap-4">
             <div className="flex items-center gap-2">
@@ -1419,7 +1419,7 @@ export default function AdminFinancialDashboard() {
                 <Certificate className="h-4 w-4" weight="fill" />
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase text-muted-foreground">
+                <p className="text-xs font-semibold text-muted-foreground">
                   Contratações de plano
                 </p>
                 <p className="text-sm font-semibold text-foreground">
@@ -1427,7 +1427,7 @@ export default function AdminFinancialDashboard() {
                 </p>
               </div>
             </div>
-            <span className="rounded-[--radius] bg-muted px-3 py-1 text-xs font-semibold text-lamp-ink tabular-nums">
+            <span className="rounded-[--radius] bg-muted px-3 py-1 text-xs font-semibold text-primary-ink tabular-nums">
               {(planContractions?.totalCount ?? 0).toLocaleString("pt-BR")} no
               total
             </span>
@@ -1438,7 +1438,7 @@ export default function AdminFinancialDashboard() {
               className="flex items-center justify-center"
               style={{ height: 260 }}
             >
-              <Spinner className="h-8 w-8 animate-spin text-lamp-ink" />
+              <Spinner className="h-8 w-8 animate-spin text-primary-ink" />
             </div>
           ) : contractionsSeries.length === 0 ? (
             <div
@@ -1511,11 +1511,11 @@ export default function AdminFinancialDashboard() {
         </ElevatedContainer>
 
         <ElevatedContainer
-          className="border border-border border-t-rule-strong bg-card p-5"
+          className="rounded-lg border border-border bg-card p-5"
         >
           <div className="mb-4 flex items-center gap-2">
-            <CalendarCheck className="h-4 w-4 text-lamp-ink" weight="fill" />
-            <p className="text-xs font-semibold uppercase text-muted-foreground">
+            <CalendarCheck className="h-4 w-4 text-primary-ink" weight="fill" />
+            <p className="text-xs font-semibold text-muted-foreground">
               Contratações recentes
             </p>
           </div>
@@ -1525,7 +1525,7 @@ export default function AdminFinancialDashboard() {
               className="flex items-center justify-center"
               style={{ height: 260 }}
             >
-              <Spinner className="h-8 w-8 animate-spin text-lamp-ink" />
+              <Spinner className="h-8 w-8 animate-spin text-primary-ink" />
             </div>
           ) : recentContractions.length === 0 ? (
             <div
@@ -1542,7 +1542,7 @@ export default function AdminFinancialDashboard() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <tr className="border-b border-border text-xs font-semibold text-muted-foreground">
                     <th className="pb-3 pr-4">Área de Trabalho</th>
                     <th className="pb-3 pr-4">Plano</th>
                     <th className="pb-3 pr-4">Ciclo</th>
@@ -1594,15 +1594,15 @@ export default function AdminFinancialDashboard() {
       {!loading && recentTransactions.length > 0 && (
         <motion.div variants={itemVariants}>
           <ElevatedContainer
-            className="border border-border border-t-rule-strong bg-card p-5"
+            className="rounded-lg border border-border bg-card p-5"
           >
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-[--radius] bg-orange-500 text-white">
+                <div className="flex h-8 w-8 items-center justify-center rounded-[--radius] bg-warning text-warning-foreground">
                   <Receipt className="h-4 w-4" weight="fill" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold uppercase text-muted-foreground">
+                  <p className="text-xs font-semibold text-muted-foreground">
                     Movimentações recentes
                   </p>
                   <p className="text-sm font-semibold text-foreground">
@@ -1620,7 +1620,7 @@ export default function AdminFinancialDashboard() {
                   className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-muted"
                 >
                   <DownloadSimple
-                    className="h-3.5 w-3.5 text-lamp-ink"
+                    className="h-3.5 w-3.5 text-primary-ink"
                     weight="bold"
                   />
                   CSV
@@ -1631,7 +1631,7 @@ export default function AdminFinancialDashboard() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <tr className="border-b border-border text-xs font-semibold text-muted-foreground">
                     <th className="pb-3 pr-4">Data</th>
                     <th className="pb-3 pr-4">Área de Trabalho</th>
                     <th className="pb-3 pr-4">Serviço</th>
@@ -1774,12 +1774,12 @@ export default function AdminFinancialDashboard() {
                 >
                   {workspaceSortOrder === "desc" ? (
                     <ArrowDown
-                      className="h-3.5 w-3.5 text-lamp-ink"
+                      className="h-3.5 w-3.5 text-primary-ink"
                       weight="bold"
                     />
                   ) : (
                     <ArrowUp
-                      className="h-3.5 w-3.5 text-lamp-ink"
+                      className="h-3.5 w-3.5 text-primary-ink"
                       weight="bold"
                     />
                   )}
@@ -1791,7 +1791,7 @@ export default function AdminFinancialDashboard() {
                   className="inline-flex items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-muted"
                 >
                   <DownloadSimple
-                    className="h-3.5 w-3.5 text-lamp-ink"
+                    className="h-3.5 w-3.5 text-primary-ink"
                     weight="bold"
                   />
                   CSV

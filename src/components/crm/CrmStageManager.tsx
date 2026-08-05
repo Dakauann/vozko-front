@@ -127,7 +127,7 @@ export default function CrmStageManager({
         stage.isInitial ? (
           <Star
             weight="fill"
-            className="h-3 w-3 text-amber-400 flex-shrink-0"
+            className="h-3 w-3 text-warning flex-shrink-0"
           />
         ) : null
       }
@@ -136,7 +136,7 @@ export default function CrmStageManager({
           <button
             onClick={() => handleSetInitial(stage.id)}
             title="Definir como etapa inicial"
-            className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-warning hover:text-white transition-colors"
+            className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-warning hover:text-warning-foreground transition-colors"
           >
             <Star weight="regular" className="h-3 w-3" />
           </button>

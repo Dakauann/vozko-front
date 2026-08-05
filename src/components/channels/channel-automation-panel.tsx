@@ -257,7 +257,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
       <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
         <div className="flex items-center gap-2">
           <Robot
-            className={cn("h-4 w-4", active ? "text-lamp-ink" : "text-muted-foreground")}
+            className={cn("h-4 w-4", active ? "text-primary-ink" : "text-muted-foreground")}
             weight="fill"
           />
           <h2 className="text-sm font-semibold text-foreground">{t("title")}</h2>

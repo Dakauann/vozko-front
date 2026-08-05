@@ -92,45 +92,45 @@ function iconForEvent(type: string): { Icon: IconComp; tile: string } {
   switch (type) {
     case "assigned":
     case "auto_assigned":
-      return { Icon: UserPlus, tile: "bg-primary" };
+      return { Icon: UserPlus, tile: "tile-brand" };
     case "unassigned":
-      return { Icon: UserMinus, tile: "bg-muted" };
+      return { Icon: UserMinus, tile: "tile-neutral" };
     case "replied":
-      return { Icon: UserCircle, tile: "bg-primary" };
+      return { Icon: UserCircle, tile: "tile-brand" };
     case "ai_replied":
     case "ai_enabled":
     case "ai_disabled":
     case "ai_session_started":
     case "ai_session_ended":
-      return { Icon: Robot, tile: "bg-warning" };
+      return { Icon: Robot, tile: "tile-warning" };
     case "stage_changed":
     case "status_changed":
     case "finished":
     case "reopened":
-      return { Icon: CheckCircle, tile: "bg-healthy" };
+      return { Icon: CheckCircle, tile: "tile-healthy" };
     case "label_added":
     case "label_removed":
     case "tag_added":
     case "tag_removed":
-      return { Icon: Tag, tile: "bg-muted" };
+      return { Icon: Tag, tile: "tile-neutral" };
     case "analysis_created":
-      return { Icon: ChartBar, tile: "bg-muted" };
+      return { Icon: ChartBar, tile: "tile-neutral" };
     case "call_linked":
-      return { Icon: Phone, tile: "bg-muted" };
+      return { Icon: Phone, tile: "tile-neutral" };
     case "queue_enqueued":
     case "queue_connected":
     case "queue_abandoned":
     case "queue_overflow":
-      return { Icon: Queue, tile: "bg-orange-500" };
+      return { Icon: Queue, tile: "tile-warning" };
     case "transfer_offered":
     case "transfer_accepted":
     case "transfer_declined":
     case "transfer_completed":
     case "transfer_failed":
     case "transfer_queued":
-      return { Icon: ArrowsLeftRight, tile: "bg-orange-500" };
+      return { Icon: ArrowsLeftRight, tile: "tile-warning" };
     default:
-      return { Icon: ClockCounterClockwise, tile: "bg-muted" };
+      return { Icon: ClockCounterClockwise, tile: "tile-neutral" };
   }
 }
 
@@ -291,9 +291,9 @@ function ownerTile(kind: AttendanceOwnerKind): {
   tile: string;
   Icon: typeof UserCircle;
 } {
-  if (kind === "ai") return { tile: "bg-warning", Icon: Robot };
-  if (kind === "unassigned") return { tile: "bg-muted", Icon: UserMinus };
-  return { tile: "bg-primary", Icon: UserCircle };
+  if (kind === "ai") return { tile: "tile-warning", Icon: Robot };
+  if (kind === "unassigned") return { tile: "tile-neutral", Icon: UserMinus };
+  return { tile: "tile-brand", Icon: UserCircle };
 }
 
 function outcomeLabel(
@@ -567,7 +567,7 @@ export default function ConversationAttendanceSection({
         <div className="flex min-w-0 items-center gap-2">
           <span
             className={cn(
-              "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-white",
+              "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg",
               tile,
             )}
           >
@@ -592,7 +592,7 @@ export default function ConversationAttendanceSection({
                 row.muted && "opacity-70",
               )}
             >
-              <p className="text-[10px] font-medium text-muted-foreground">
+              <p className="text-[11px] font-medium text-muted-foreground">
                 {row.label}
               </p>
               <p className="mt-0.5 text-xs font-semibold tabular-nums text-foreground">
@@ -606,7 +606,7 @@ export default function ConversationAttendanceSection({
           href={metricsHref}
           className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted"
         >
-          <ChartBar className="h-3.5 w-3.5 text-lamp-ink" weight="bold" />
+          <ChartBar className="h-3.5 w-3.5 text-primary-ink" weight="bold" />
           {campaignId
             ? tSummary("viewCampaignMetrics")
             : tSummary("viewMetrics")}
@@ -679,7 +679,7 @@ export default function ConversationAttendanceSection({
             <button
               type="button"
               onClick={() => setReloadToken((n) => n + 1)}
-              className="mt-2 text-xs font-semibold text-lamp-ink hover:underline"
+              className="mt-2 text-xs font-semibold text-primary-ink hover:underline"
             >
               {t("retry")}
             </button>
@@ -698,7 +698,7 @@ export default function ConversationAttendanceSection({
           <div className="space-y-4">
             {groups.map(([day, dayEvents]) => (
               <div key={day}>
-                <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                <p className="mb-1.5 text-[11px] font-semibold text-muted-foreground">
                   {day}
                 </p>
                 <ul className="space-y-1.5">
@@ -728,7 +728,7 @@ export default function ConversationAttendanceSection({
                       >
                         <span
                           className={cn(
-                            "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-white",
+                            "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg",
                             evTile,
                           )}
                         >
@@ -740,13 +740,13 @@ export default function ConversationAttendanceSection({
                               {title}
                             </p>
                             <time
-                              className="shrink-0 text-[10px] tabular-nums text-muted-foreground"
+                              className="shrink-0 text-[11px] tabular-nums text-muted-foreground"
                               dateTime={ev.created_at}
                             >
                               {formatWhen(ev.created_at, localeTag)}
                             </time>
                           </div>
-                          <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-muted-foreground">
+                          <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-muted-foreground">
                             <span
                               className={cn(
                                 "inline-flex rounded-full px-1.5 py-px font-semibold text-white",
@@ -768,7 +768,7 @@ export default function ConversationAttendanceSection({
                             ) : null}
                           </div>
                           {sub ? (
-                            <p className="mt-0.5 line-clamp-2 text-[10px] text-muted-foreground">
+                            <p className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">
                               {sub}
                             </p>
                           ) : null}
@@ -781,7 +781,7 @@ export default function ConversationAttendanceSection({
             ))}
 
             {totalItems > 0 ? (
-              <p className="text-center text-[10px] text-muted-foreground">
+              <p className="text-center text-[11px] text-muted-foreground">
                 {t("count", {
                   shown: filtered.length,
                   total: totalItems,
@@ -834,7 +834,7 @@ export function AttendanceOwnerBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold text-white",
+        "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold text-white",
         isAi
           ? "bg-warning"
           : kind === "unassigned"

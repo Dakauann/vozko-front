@@ -84,7 +84,7 @@ export default function NewAgentPage() {
         >
           <ChooserCard
             Icon={GraduationCap}
-            iconGradient="from-emerald-500 to-teal-700"
+            iconGradient="ink-2"
             title={tChooser("beginner.title")}
             badge={tChooser("beginner.badge")}
             description={tChooser("beginner.description")}
@@ -100,7 +100,7 @@ export default function NewAgentPage() {
           />
           <ChooserCard
             Icon={Wrench}
-            iconGradient="from-violet-500 to-fuchsia-700"
+            iconGradient="ink-4"
             title={tChooser("professional.title")}
             badge={tChooser("professional.badge")}
             description={tChooser("professional.description")}
@@ -181,17 +181,17 @@ function ChooserCard({
       className="group relative flex h-full flex-col rounded-[--radius] border border-border bg-card p-7 text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-lg max-w-xl"
     >
       {recommended && recommendedLabel ? (
-        <span className="absolute right-5 top-5 inline-flex items-center gap-1 rounded-[--radius] bg-primary px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary-foreground shadow">
+        <span className="absolute right-5 top-5 inline-flex items-center gap-1 rounded-[--radius] bg-primary px-3 py-1 text-[11px] font-semibold text-primary-foreground shadow">
           <Sparkle className="h-3 w-3" weight="fill" />
           {recommendedLabel}
         </span>
       ) : null}
       <div
-        className={`flex h-10 w-10 items-center justify-center rounded-[--radius] bg-gradient-to-br ${iconGradient} text-white shadow-lg`}
+        className={`ink-plate flex h-10 w-10 items-center justify-center ${iconGradient}`}
       >
         <Icon className="h-5 w-5" weight="fill" />
       </div>
-      <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="mt-5 text-xs font-semibold text-muted-foreground">
         {badge}
       </p>
       <h2 className="mt-1 text-2xl font-semibold text-foreground">{title}</h2>
@@ -208,7 +208,7 @@ function ChooserCard({
         ))}
       </ul>
       <div className="mt-auto flex items-center justify-between pt-6">
-        <span className="text-sm font-semibold text-lamp-ink">{cta}</span>
+        <span className="text-sm font-semibold text-primary-ink">{cta}</span>
         <span className="flex h-9 w-9 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground shadow-md transition-transform group-hover:translate-x-1">
           <CaretRight className="h-4 w-4" weight="bold" />
         </span>

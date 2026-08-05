@@ -81,7 +81,7 @@ export function WorkflowTestPanel({
       {/* ─── Header ──────────────────────────────────────── */}
       <div className="flex items-center justify-between px-3 py-2.5 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2">
-          <Robot size={16} weight="duotone" className="text-lamp-ink" />
+          <Robot size={16} weight="duotone" className="text-primary-ink" />
           <span className="text-sm font-medium">Simulação</span>
           <StatusBadge status={status} />
         </div>
@@ -156,7 +156,7 @@ export function WorkflowTestPanel({
           </button>
           {showState && (
             <div className="px-3 pb-2 max-h-32 overflow-y-auto">
-              <pre className="text-[10px] text-muted-foreground font-mono whitespace-pre-wrap break-all">
+              <pre className="text-[11px] text-muted-foreground font-mono whitespace-pre-wrap break-all">
                 {JSON.stringify(latestState.vars, null, 2)}
               </pre>
             </div>
@@ -218,7 +218,7 @@ export function WorkflowTestPanel({
             icon={<Stop size={14} weight="fill" />}
             iconVisible
             onClick={cancel}
-            className="flex-1 text-destructive border-rose-300 hover:bg-destructive/10"
+            className="flex-1 text-destructive-ink border-destructive/30 hover:bg-muted"
           />
         )}
       </div>
@@ -232,7 +232,7 @@ function StatusBadge({ status }: { status: SimStatus }) {
     idle: { label: "", className: "" },
     connecting: {
       label: "Conectando",
-      className: "bg-yellow-500 text-white",
+      className: "bg-warning text-warning-foreground",
     },
     waiting_trigger: {
       label: "Aguardando mensagem",
@@ -266,7 +266,7 @@ function StatusBadge({ status }: { status: SimStatus }) {
   return (
     <span
       className={cn(
-        "text-[10px] font-medium px-1.5 py-0.5 rounded-full",
+        "text-[11px] font-medium px-1.5 py-0.5 rounded-full",
         c.className,
       )}
     >
@@ -284,7 +284,7 @@ function EventItem({ event }: { event: SimEvent }) {
       return <NodeEventItem event={event} />;
     case "waiting_reply":
       return (
-        <div className="flex items-center gap-1.5 text-xs text-warning dark:text-amber-400 py-1">
+        <div className="flex items-center gap-1.5 text-xs text-warning dark:text-warning py-1">
           <Warning size={12} weight="fill" />
           Aguardando resposta... ({event.timeoutSeconds}s)
         </div>
@@ -293,7 +293,7 @@ function EventItem({ event }: { event: SimEvent }) {
       return null; 
     case "error":
       return (
-        <div className="flex items-center gap-1.5 text-xs text-destructive dark:text-red-400 py-1">
+        <div className="flex items-center gap-1.5 text-xs text-destructive dark:text-destructive py-1">
           <XCircle size={12} weight="fill" />
           {event.message}
         </div>
@@ -314,7 +314,7 @@ function MessageBubble({
     >
       {isOutbound && (
         <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center mt-0.5">
-          <Robot size={12} className="text-lamp-ink" />
+          <Robot size={12} className="text-primary-ink" />
         </div>
       )}
       <div
@@ -336,7 +336,7 @@ function MessageBubble({
           event.text
         )}
         {event.msgType !== "text" && !event.audioBase64 && (
-          <span className="block text-[10px] opacity-60 mt-0.5">
+          <span className="block text-[11px] opacity-60 mt-0.5">
             [{event.msgType}]
           </span>
         )}
@@ -360,16 +360,16 @@ function NodeEventItem({
   return (
     <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground py-0.5">
       {hasError ? (
-        <XCircle size={11} className="text-red-500 flex-shrink-0" />
+        <XCircle size={11} className="text-destructive-ink flex-shrink-0" />
       ) : (
-        <CheckCircle size={11} className="text-green-500 flex-shrink-0" />
+        <CheckCircle size={11} className="text-healthy-ink flex-shrink-0" />
       )}
       <span className="truncate">
         {event.nodeType}
         {event.nodeId && <span className="opacity-50"> ({event.nodeId})</span>}
       </span>
       {hasError && (
-        <span className="text-red-500 truncate">, {event.error}</span>
+        <span className="text-destructive-ink truncate">, {event.error}</span>
       )}
     </div>
   );

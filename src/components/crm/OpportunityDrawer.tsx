@@ -332,7 +332,7 @@ export default function OpportunityDrawer({
           </div>
 
           <div className="space-y-1.5">
-            <label className="pl-1 text-[13px] font-medium text-foreground">Etapa</label>
+            <label className="pl-1 text-sm font-medium text-foreground">Etapa</label>
             <ElevatedSelect value={stageId} onValueChange={setStageId} className="w-full">
               {columns.map((c) => (
                 <ElevatedSelectItem key={c.id} value={c.id}>
@@ -376,9 +376,9 @@ export default function OpportunityDrawer({
             ) : (
               // No permission to assign others: locked to the current user.
               <div>
-                <label className="pl-1 text-[13px] font-medium text-foreground">Responsável</label>
+                <label className="pl-1 text-sm font-medium text-foreground">Responsável</label>
                 <div className="mt-1.5 flex items-center gap-2 rounded-lg border border-border bg-muted px-3 py-2 text-sm text-muted-foreground">
-                  <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold uppercase text-foreground">
+                  <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-semibold uppercase text-foreground">
                     {(memberOptions.find((m) => m.value === ownerId)?.label ?? "?").charAt(0)}
                   </span>
                   <span className="truncate">
@@ -408,7 +408,7 @@ export default function OpportunityDrawer({
 
           {customFields.length > 0 ? (
             <div className="space-y-4 border-t border-border pt-4">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-[11px] font-semibold text-muted-foreground">
                 Campos personalizados
               </p>
               {customFields.map((f) => (
@@ -431,7 +431,7 @@ export default function OpportunityDrawer({
               type="button"
               onClick={handleDelete}
               disabled={deleting}
-              className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-medium text-destructive transition-colors hover:bg-destructive hover:text-white disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-medium text-destructive-foreground transition-colors hover:bg-destructive hover:text-destructive-foreground disabled:opacity-50"
             >
               <Trash weight="bold" className="h-3.5 w-3.5" />
               {deleting ? "Excluindo..." : "Excluir"}
@@ -473,19 +473,19 @@ function LinkedConversations({
   function meta(entryType: string) {
     switch (entryType) {
       case "whatsapp":
-        return { label: "WhatsApp", icon: <WhatsappLogo weight="fill" className="h-3.5 w-3.5 text-white" />, tile: "bg-[#25d366]" };
+        return { label: "WhatsApp", icon: <WhatsappLogo weight="fill" className="h-3.5 w-3.5 text-white" />, tile: "bg-[#25d366] text-white" };
       case "voice":
-        return { label: "Voz", icon: <Phone weight="fill" className="h-3.5 w-3.5 text-white" />, tile: "bg-foreground/80" };
+        return { label: "Voz", icon: <Phone weight="fill" className="h-3.5 w-3.5 text-white" />, tile: "bg-foreground/80 text-background" };
       case "support":
-        return { label: "Suporte", icon: <Headset weight="fill" className="h-3.5 w-3.5 text-white" />, tile: "bg-foreground/80" };
+        return { label: "Suporte", icon: <Headset weight="fill" className="h-3.5 w-3.5 text-white" />, tile: "bg-foreground/80 text-background" };
       default:
-        return { label: entryType, icon: <ChatCircleDots weight="fill" className="h-3.5 w-3.5 text-white" />, tile: "bg-foreground/80" };
+        return { label: entryType, icon: <ChatCircleDots weight="fill" className="h-3.5 w-3.5 text-white" />, tile: "bg-foreground/80 text-background" };
     }
   }
 
   return (
     <div className="space-y-2 border-t border-border pt-4">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="text-[11px] font-semibold text-muted-foreground">
         Conversas vinculadas
       </p>
       {links.length === 0 ? (
@@ -505,7 +505,7 @@ function LinkedConversations({
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-medium text-foreground">{m.label}</p>
-                <p className="truncate font-mono text-[10px] text-muted-foreground">{l.entryId}</p>
+                <p className="truncate font-mono text-[11px] text-muted-foreground">{l.entryId}</p>
               </div>
               <a
                 href={`/dashboard/live-chat?entry=${encodeURIComponent(l.entryId)}`}
@@ -518,7 +518,7 @@ function LinkedConversations({
                 type="button"
                 onClick={() => onUnlink(l.entryId, l.entryType)}
                 title="Desvincular"
-                className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive hover:text-white"
+                className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive hover:text-destructive-foreground"
               >
                 <LinkSimpleBreak weight="bold" className="h-3.5 w-3.5" />
               </button>
@@ -544,7 +544,7 @@ function CustomFieldInput({
   if (field.type === "select") {
     return (
       <div className="space-y-1.5">
-        <label className="pl-1 text-[13px] font-medium text-foreground">{label}</label>
+        <label className="pl-1 text-sm font-medium text-foreground">{label}</label>
         <ElevatedSelect
           value={typeof value === "string" ? value : ""}
           onValueChange={(v) => onChange(v)}
@@ -581,7 +581,7 @@ function CustomFieldInput({
             )}
           />
         </button>
-        <span className="text-[13px] font-medium text-foreground">{label}</span>
+        <span className="text-sm font-medium text-foreground">{label}</span>
       </label>
     );
   }

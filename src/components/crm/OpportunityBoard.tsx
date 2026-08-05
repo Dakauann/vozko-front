@@ -457,13 +457,13 @@ function DealCard({
         title={deal.title || "Sem título"}
         subtitle={deal.source || undefined}
         thirdLine={
-          age ? <p className="truncate text-[10px] text-muted-foreground">{age}</p> : undefined
+          age ? <p className="truncate text-[11px] text-muted-foreground">{age}</p> : undefined
         }
         rightSlot={
           isMoving ? (
             <CircleNotch
               weight="bold"
-              className="h-4 w-4 flex-shrink-0 animate-spin text-lamp-ink"
+              className="h-4 w-4 flex-shrink-0 animate-spin text-primary-ink"
             />
           ) : (
             <DotsThreeVertical
@@ -476,7 +476,7 @@ function DealCard({
           deal.valueCents > 0 ? (
             <p
               className={cn(
-                "text-[13px] font-semibold tabular-nums tracking-tight",
+                "text-sm font-semibold tabular-nums tracking-tight",
                 won
                   ? "text-healthy dark:text-healthy"
                   : lost
@@ -525,7 +525,7 @@ function DealCard({
             customChips.map((c) => (
               <span
                 key={c.key}
-                className="inline-flex max-w-full items-center gap-1 truncate rounded-md bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground"
+                className="inline-flex max-w-full items-center gap-1 truncate rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground"
               >
                 <span className="font-semibold text-foreground/70">{c.label}:</span>
                 <span className="truncate">{c.val}</span>

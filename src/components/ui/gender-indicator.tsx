@@ -36,8 +36,8 @@ const GenderIndicator: React.FC<GenderIndicatorProps> = ({
           type: "male",
           label: "Masculino",
           bgColor: "bg-primary/15/30",
-          textColor: "text-lamp-ink dark:text-blue-300",
-          borderColor: "border-blue-500/20 dark:border-blue-700",
+          textColor: "text-primary-ink dark:text-info",
+          borderColor: "border-info/20 dark:border-info",
           icon: <User className="h-3 w-3" weight="fill" />,
         };
 
@@ -52,9 +52,9 @@ const GenderIndicator: React.FC<GenderIndicatorProps> = ({
         return {
           type: "female",
           label: "Feminino",
-          bgColor: "bg-pink-500/15 dark:bg-pink-900/30",
-          textColor: "text-pink-700 dark:text-pink-300",
-          borderColor: "border-pink-500/20 dark:border-pink-700",
+          bgColor: "bg-chart-4/15 dark:bg-chart-4/30",
+          textColor: "text-chart-4 dark:text-chart-4",
+          borderColor: "border-chart-4/20 dark:border-chart-4",
           icon: <Users className="h-3 w-3" weight="fill" />,
         };
 

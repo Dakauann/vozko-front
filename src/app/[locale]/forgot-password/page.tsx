@@ -107,7 +107,7 @@ export default function ForgotPasswordPage() {
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.1 }}
-                    className="inline-flex items-center rounded-[--radius] bg-muted border border-border px-4 py-1.5 text-xs font-semibold uppercase text-muted-foreground mb-4"
+                    className="inline-flex items-center rounded-[--radius] bg-muted border border-border px-4 py-1.5 text-xs font-semibold text-muted-foreground mb-4"
                   >
                     {t("badge")}
                   </motion.div>
@@ -161,7 +161,7 @@ export default function ForgotPasswordPage() {
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.1 }}
-                    className="inline-flex items-center rounded-[--radius] bg-muted border border-border px-4 py-1.5 text-xs font-semibold uppercase text-muted-foreground mb-4"
+                    className="inline-flex items-center rounded-[--radius] bg-muted border border-border px-4 py-1.5 text-xs font-semibold text-muted-foreground mb-4"
                   >
                     {t("reset.badge")}
                   </motion.div>

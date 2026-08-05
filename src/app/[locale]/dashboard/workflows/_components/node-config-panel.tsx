@@ -478,8 +478,8 @@ export function NodeConfigPanel({
                 className={cn(
                   "rounded-lg border px-3 py-2",
                   googleCalendarStatus.connected
-                    ? "border-emerald-200 bg-healthy/10/70 text-emerald-900"
-                    : "border-amber-200 bg-amber-50/80 text-amber-950",
+                    ? "border-healthy/30 bg-muted/70 text-healthy-ink"
+                    : "border-warning/30 bg-warning/80 text-warning-foreground",
                 )}
               >
                 <div className="flex items-start gap-2">
@@ -497,14 +497,14 @@ export function NodeConfigPanel({
                     </p>
                     {!googleCalendarStatus.loading &&
                       !googleCalendarStatus.connected && (
-                        <p className="text-[10px] leading-relaxed text-current/70">
+                        <p className="text-[11px] leading-relaxed text-current/70">
                           Conecte o Google Calendar na página de Integrações
                           antes de testar ou publicar este fluxo.
                         </p>
                       )}
                     {!googleCalendarStatus.loading &&
                       googleCalendarStatus.error && (
-                        <p className="text-[10px] leading-relaxed text-current/70">
+                        <p className="text-[11px] leading-relaxed text-current/70">
                           Não foi possível confirmar o status agora:{" "}
                           {googleCalendarStatus.error}
                         </p>
@@ -652,7 +652,7 @@ export function NodeConfigPanel({
               />
             )}
             {templateLoading && currentTemplateId && (
-              <p className="text-[10px] text-muted-foreground italic">
+              <p className="text-[11px] text-muted-foreground italic">
                 Carregando parâmetros do template...
               </p>
             )}
@@ -662,7 +662,7 @@ export function NodeConfigPanel({
               <MediaPreviewSection media={selectedMedia} />
             )}
             {mediaLoading && currentMediaId && (
-              <p className="text-[10px] text-muted-foreground italic">
+              <p className="text-[11px] text-muted-foreground italic">
                 Carregando preview da mídia...
               </p>
             )}
@@ -682,7 +682,7 @@ export function NodeConfigPanel({
             )}
 
             {isTestableNode && !workflowId && (
-              <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+              <div className="rounded-lg border border-warning/30 bg-muted px-3 py-2 text-xs text-warning-ink">
                 Salve o workflow primeiro para habilitar o teste de nós.
               </div>
             )}
@@ -748,9 +748,9 @@ function NodeIdField({
         placeholder={nodeId}
       />
       {error ? (
-        <p className="mt-1 text-[10px] text-destructive">{error}</p>
+        <p className="mt-1 text-[11px] text-destructive">{error}</p>
       ) : (
-        <p className="mt-1 text-[10px] text-muted-foreground">
+        <p className="mt-1 text-[11px] text-muted-foreground">
           Referenciado como{" "}
           <code className="font-mono text-foreground/70">{`{{${nodeId}.campo}}`}</code>
           . Renomear reconecta as arestas e referências.
@@ -897,7 +897,7 @@ function KeyValueField({
       <div>
         <p className="text-xs font-medium text-foreground">{label}</p>
         {field.description && (
-          <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">
+          <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
             {field.description}
           </p>
         )}
@@ -912,7 +912,7 @@ function KeyValueField({
             >
               <div className="space-y-3">
                 <div className="min-w-0 space-y-1">
-                  <p className="mb-1 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  <p className="mb-1 text-[11px] tracking-[0.18em] text-muted-foreground">
                     Chave
                   </p>
                   <div className="rounded-[--radius] border border-border bg-background px-2.5 py-2 font-mono text-[11px] text-foreground break-all max-h-24 overflow-y-auto">
@@ -983,7 +983,7 @@ function KeyValueField({
         </div>
       </div>
 
-      {error && <p className="text-[10px] text-destructive">{error}</p>}
+      {error && <p className="text-[11px] text-destructive">{error}</p>}
     </div>
   );
 }
@@ -1026,14 +1026,14 @@ function HTTPRequestConfigSection({
   return (
     <div className="space-y-4 rounded-[--radius] border border-border bg-mist p-3.5">
       <div className="flex items-start gap-2">
-        <div className="rounded-lg bg-muted px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <div className="rounded-lg bg-muted px-2 py-1 text-[11px] font-semibold tracking-[0.18em] text-muted-foreground">
           HTTP
         </div>
         <div className="min-w-0">
           <p className="text-xs font-semibold text-foreground">
             Configuração da requisição
           </p>
-          <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">
+          <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
             Monte a chamada com método, autenticação, headers, query params e
             captura de resposta.
           </p>
@@ -1095,12 +1095,12 @@ function HTTPRequestConfigSection({
             <p className="text-xs font-semibold text-foreground">
               Autenticação
             </p>
-            <p className="mt-1 text-[10px] text-muted-foreground">
+            <p className="mt-1 text-[11px] text-muted-foreground">
               Configure Bearer, Basic Auth ou API Key sem precisar montar
               headers manualmente.
             </p>
           </div>
-          <div className="rounded-[--radius] bg-muted px-2 py-1 text-[10px] font-medium text-muted-foreground">
+          <div className="rounded-[--radius] bg-muted px-2 py-1 text-[11px] font-medium text-muted-foreground">
             {authType || "nenhuma"}
           </div>
         </div>
@@ -1396,7 +1396,7 @@ function SendTemplateConfigSection({
           isLoading={phoneSelect.isLoading}
         />
         {phonesError && (
-          <p className="text-[10px] text-destructive">{phonesError}</p>
+          <p className="text-[11px] text-destructive">{phonesError}</p>
         )}
       </div>
 
@@ -1419,13 +1419,13 @@ function SendTemplateConfigSection({
           disabled={!currentBusinessPhoneId}
         />
         {!!currentBusinessPhoneId && !currentTemplateId && (
-          <p className="text-[10px] text-destructive">Campo obrigatório</p>
+          <p className="text-[11px] text-destructive">Campo obrigatório</p>
         )}
         {templatesError && (
-          <p className="text-[10px] text-destructive">{templatesError}</p>
+          <p className="text-[11px] text-destructive">{templatesError}</p>
         )}
         {selectedPhone && !templatesError && (
-          <p className="text-[10px] text-muted-foreground">
+          <p className="text-[11px] text-muted-foreground">
             Listando apenas templates do mesmo WABA do número selecionado:
             <span className="font-medium text-foreground">
               {" "}
@@ -1437,14 +1437,14 @@ function SendTemplateConfigSection({
         {!!currentTemplateId &&
           !currentTemplateIsVisible &&
           !templateSelect.isLoading && (
-            <p className="text-[10px] text-warning">
+            <p className="text-[11px] text-warning">
               O template salvo não está pronto para envio neste WABA. Escolha um
               template aprovado e utilizável.
             </p>
           )}
       </div>
 
-      <div className="rounded-lg border border-sky-200 bg-muted px-3 py-2 text-sky-950">
+      <div className="rounded-lg border border-info/30 bg-muted px-3 py-2 text-info-ink">
         <div className="flex items-start gap-2">
           <Info size={15} className="mt-0.5 shrink-0" />
           <div className="space-y-1">
@@ -1453,7 +1453,7 @@ function SendTemplateConfigSection({
               Execuções reais debitam o saldo conforme a categoria do template.
               Se a API do WhatsApp rejeitar o envio, o valor é estornado.
             </p>
-            <p className="text-[10px] leading-relaxed text-current/70">
+            <p className="text-[11px] leading-relaxed text-current/70">
               Na simulação do fluxo, este nó é executado em modo não faturado.
             </p>
           </div>
@@ -1461,7 +1461,7 @@ function SendTemplateConfigSection({
       </div>
 
       {selectedTemplate && selectedTemplate.usabilityStatus !== "ready" && (
-        <p className="text-[10px] text-warning">
+        <p className="text-[11px] text-warning">
           O template atual não está pronto para envio:{" "}
           {selectedTemplate.usabilityMessage ??
             selectedTemplate.usabilityStatus}
@@ -1604,16 +1604,16 @@ function RangeField({
           }
         }}
       />
-      <div className="flex justify-between text-[10px] text-muted-foreground tabular-nums">
+      <div className="flex justify-between text-[11px] text-muted-foreground tabular-nums">
         <span>{min.toFixed(decimals)}</span>
         <span>{max.toFixed(decimals)}</span>
       </div>
       {field.description && (
-        <p className="text-[10px] leading-relaxed text-muted-foreground">
+        <p className="text-[11px] leading-relaxed text-muted-foreground">
           {field.description}
         </p>
       )}
-      {error && <p className="text-[10px] text-destructive">{error}</p>}
+      {error && <p className="text-[11px] text-destructive">{error}</p>}
     </div>
   );
 }
@@ -1701,7 +1701,7 @@ function SchemaField({
             workspaceId={workspaceId}
           />
           {field.description && (
-            <p className="text-[10px] leading-relaxed text-muted-foreground">
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
               {field.description}
             </p>
           )}
@@ -1735,12 +1735,12 @@ function SchemaField({
             </span>
           </label>
           {field.description && (
-            <p className="text-[10px] text-muted-foreground pl-6">
+            <p className="text-[11px] text-muted-foreground pl-6">
               {field.description}
             </p>
           )}
           {reqError && (
-            <p className="text-[10px] text-destructive pl-6">{reqError}</p>
+            <p className="text-[11px] text-destructive pl-6">{reqError}</p>
           )}
         </div>
       );
@@ -1924,14 +1924,14 @@ function AIAgentSection({
             isLoading={agentsLoading}
           />
           {!config.agent_id && (
-            <p className="text-[10px] text-destructive">Campo obrigatório</p>
+            <p className="text-[11px] text-destructive">Campo obrigatório</p>
           )}
           {agentError && (
-            <p className="text-[10px] text-destructive">{agentError}</p>
+            <p className="text-[11px] text-destructive">{agentError}</p>
           )}
           {agentId && agentRequiredVars.length > 0 && (
             <div className="mt-2 space-y-1.5">
-              <p className="text-[10px] font-medium text-muted-foreground">
+              <p className="text-[11px] font-medium text-muted-foreground">
                 {nc("agentVariables") ?? "Agent variables"}:
               </p>
               <div className="flex flex-wrap gap-1">
@@ -1939,9 +1939,9 @@ function AIAgentSection({
                   <span
                     key={v.name}
                     className={cn(
-                      "inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium",
+                      "inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-medium",
                       v.required
-                        ? "bg-amber-100 text-amber-800"
+                        ? "bg-muted text-warning-ink"
                         : "bg-muted text-muted-foreground",
                     )}
                     title={[
@@ -1954,7 +1954,7 @@ function AIAgentSection({
                   </span>
                 ))}
               </div>
-              <p className="text-[9px] text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground">
                 {nc("agentVariablesAutoMap") ?? "Variables are auto-mapped from campaign entry metadata by name."}
               </p>
             </div>
@@ -1968,7 +1968,7 @@ function AIAgentSection({
               onValueChange={(v: string) => updateField("model", v)}
             />
             {!config.model && (
-              <p className="text-[10px] text-destructive">Campo obrigatório</p>
+              <p className="text-[11px] text-destructive">Campo obrigatório</p>
             )}
           </div>
           <ElevatedTextarea
@@ -1990,7 +1990,7 @@ function AIAgentSection({
                 {selectedKBIds.map((id) => (
                   <span
                     key={id}
-                    className="inline-flex items-center gap-1 rounded-md bg-primary px-2 py-0.5 text-[11px] font-medium text-white"
+                    className="inline-flex items-center gap-1 rounded-md bg-primary px-2 py-0.5 text-[11px] font-medium text-primary-foreground"
                   >
                     {selectedKBLabels[id] || id.slice(0, 8)}
                     <button
@@ -2016,7 +2016,7 @@ function AIAgentSection({
               onOpenChange={onKBOpenChange}
               isLoading={kbLoading}
             />
-            <p className="text-[10px] text-muted-foreground">
+            <p className="text-[11px] text-muted-foreground">
               Opcional, contexto adicional da base de conhecimento será
               injetado no prompt.
             </p>
@@ -2353,14 +2353,14 @@ function TemplateParamsSection({
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <div className="h-px flex-1 bg-border" />
-        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+        <span className="text-[11px] font-semibold text-muted-foreground">
           Parâmetros do Template
         </span>
         <div className="h-px flex-1 bg-border" />
       </div>
 
       {templateName && (
-        <p className="text-[10px] text-muted-foreground">
+        <p className="text-[11px] text-muted-foreground">
           Template:{" "}
           <span className="font-medium text-foreground">{templateName}</span>
         </p>
@@ -2368,7 +2368,7 @@ function TemplateParamsSection({
 
       {headerParams.length > 0 && (
         <div className="space-y-2">
-          <span className="text-[10px] font-medium text-muted-foreground uppercase">
+          <span className="text-[11px] font-medium text-muted-foreground">
             Cabeçalho
           </span>
           {headerParams.map((p) => {
@@ -2391,7 +2391,7 @@ function TemplateParamsSection({
       {bodyParams.length > 0 && (
         <div className="space-y-2">
           {headerParams.length > 0 && (
-            <span className="text-[10px] font-medium text-muted-foreground uppercase">
+            <span className="text-[11px] font-medium text-muted-foreground">
               Corpo
             </span>
           )}
@@ -2409,7 +2409,7 @@ function TemplateParamsSection({
         </div>
       )}
 
-      <p className="text-[10px] text-muted-foreground italic">
+      <p className="text-[11px] text-muted-foreground italic">
         Use {"{{var.nome}}"} para interpolar variáveis do fluxo.
       </p>
     </div>
@@ -2472,7 +2472,7 @@ function SelectField({
           value={(value as string) ?? ""}
           onValueChange={(v: string) => onChange(v)}
         />
-        {error && <p className="text-[10px] text-destructive">{error}</p>}
+        {error && <p className="text-[11px] text-destructive">{error}</p>}
       </div>
     );
   }
@@ -2517,9 +2517,9 @@ function SelectField({
           onOpenChange={onOpenChange}
           isLoading={paginatedLoading}
         />
-        {error && <p className="text-[10px] text-destructive">{error}</p>}
+        {error && <p className="text-[11px] text-destructive">{error}</p>}
         {paginatedError && (
-          <p className="text-[10px] text-destructive">{paginatedError}</p>
+          <p className="text-[11px] text-destructive">{paginatedError}</p>
         )}
       </div>
     );
@@ -2545,7 +2545,7 @@ function SelectField({
           </ElevatedSelectItem>
         ))}
       </ElevatedSelect>
-      {error && <p className="text-[10px] text-destructive">{error}</p>}
+      {error && <p className="text-[11px] text-destructive">{error}</p>}
     </div>
   );
 }
@@ -2682,7 +2682,7 @@ function MediaSelectField({
           </ElevatedSelectItem>
         ))}
       </ElevatedSelect>
-      {error && <p className="text-[10px] text-destructive">{error}</p>}
+      {error && <p className="text-[11px] text-destructive">{error}</p>}
 
       {/* Inline upload area */}
       <input
@@ -2698,7 +2698,7 @@ function MediaSelectField({
         onClick={() => fileRef.current?.click()}
         className={cn(
           "w-full flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border py-2 px-3",
-          "text-[11px] text-muted-foreground hover:border-primary/50 hover:text-lamp-ink transition-colors",
+          "text-[11px] text-muted-foreground hover:border-primary/50 hover:text-primary-ink transition-colors",
           "disabled:opacity-50 disabled:cursor-not-allowed",
         )}
       >
@@ -2706,7 +2706,7 @@ function MediaSelectField({
         {uploading ? "Enviando..." : "Enviar nova mídia"}
       </button>
       {uploadError && (
-        <p className="text-[10px] text-destructive">{uploadError}</p>
+        <p className="text-[11px] text-destructive">{uploadError}</p>
       )}
     </div>
   );
@@ -2776,7 +2776,7 @@ function ModelCombobox({
         disabled={loading || models.length === 0}
         emptyMessage={loadError ?? "Nenhum modelo encontrado"}
       />
-      {loadError && <p className="text-[10px] text-destructive">{loadError}</p>}
+      {loadError && <p className="text-[11px] text-destructive">{loadError}</p>}
     </div>
   );
 }
@@ -2907,7 +2907,7 @@ function ToolsField({
           <span className="text-xs font-medium text-foreground block">
             Ferramentas Personalizadas
           </span>
-          <span className="text-[10px] text-muted-foreground">
+          <span className="text-[11px] text-muted-foreground">
             A IA pode chamar estas ferramentas durante a conversa
           </span>
         </div>
@@ -2932,7 +2932,7 @@ function ToolsField({
           <p className="text-xs text-muted-foreground">
             Nenhuma ferramenta configurada
           </p>
-          <p className="text-[10px] text-muted-foreground/70 mt-1">
+          <p className="text-[11px] text-muted-foreground/70 mt-1">
             Adicione ferramentas para que a IA possa executar ações
           </p>
         </div>
@@ -2966,7 +2966,7 @@ function ToolsField({
                   size={14}
                   weight="duotone"
                   className={
-                    tool.name ? "text-lamp-ink" : "text-muted-foreground"
+                    tool.name ? "text-primary-ink" : "text-muted-foreground"
                   }
                 />
               </div>
@@ -2979,13 +2979,13 @@ function ToolsField({
                   )}
                 </span>
                 {tool.description && (
-                  <span className="text-[10px] text-muted-foreground truncate block">
+                  <span className="text-[11px] text-muted-foreground truncate block">
                     {tool.description}
                   </span>
                 )}
               </div>
               {tool.parameters.length > 0 && (
-                <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-md font-medium">
+                <span className="text-[11px] text-muted-foreground bg-muted px-2 py-0.5 rounded-md font-medium">
                   {tool.parameters.length}{" "}
                   {tool.parameters.length === 1 ? "param" : "params"}
                 </span>
@@ -2996,7 +2996,7 @@ function ToolsField({
                   e.stopPropagation();
                   removeTool(ti);
                 }}
-                className="text-muted-foreground hover:text-destructive shrink-0 p-1 rounded hover:bg-destructive/10 transition-colors"
+                className="text-muted-foreground hover:text-destructive-ink shrink-0 p-1 rounded hover:bg-muted transition-colors"
               >
                 <Trash size={14} />
               </button>
@@ -3054,14 +3054,14 @@ function ToolsField({
                       onClick={() => addParam(ti)}
                       icon={<Plus size={12} weight="bold" />}
                       iconVisible
-                      className="h-7 text-[10px]"
+                      className="h-7 text-[11px]"
                     >
                       Adicionar
                     </ElevatedButton>
                   </div>
 
                   {tool.parameters.length === 0 && (
-                    <p className="text-[10px] text-muted-foreground italic py-2 px-2 bg-muted rounded-md">
+                    <p className="text-[11px] text-muted-foreground italic py-2 px-2 bg-muted rounded-md">
                       Sem parâmetros, a IA chamará esta função sem argumentos
                     </p>
                   )}
@@ -3162,7 +3162,7 @@ function ToolsField({
                           <button
                             type="button"
                             onClick={() => removeParam(ti, pi)}
-                            className="text-muted-foreground hover:text-destructive shrink-0 p-1.5 rounded hover:bg-destructive/10 transition-colors mt-5"
+                            className="text-muted-foreground hover:text-destructive-ink shrink-0 p-1.5 rounded hover:bg-muted transition-colors mt-5"
                           >
                             <Trash size={14} />
                           </button>
@@ -3210,7 +3210,7 @@ function ToolsField({
                           <span className="font-medium">
                             {param.required ? nc("required") : nc("optional")}
                           </span>
-                          <span className="text-muted-foreground text-[10px]">
+                          <span className="text-muted-foreground text-[11px]">
                             {param.required
                               ? ", IA deve preencher"
                               : ", IA pode ignorar"}
@@ -3231,7 +3231,7 @@ function ToolsField({
           <div className="flex h-5 w-5 items-center justify-center rounded bg-muted">
             <ArrowRight size={10} className="text-muted-foreground" />
           </div>
-          <span className="text-[10px] text-muted-foreground">
+          <span className="text-[11px] text-muted-foreground">
             <strong>Resposta de texto:</strong> Quando a IA responde sem chamar
             nenhuma ferramenta
           </span>
@@ -3354,7 +3354,7 @@ function ButtonsField({
             <button
               type="button"
               onClick={addReply}
-              className="flex-1 flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-muted py-2 text-[11px] font-medium text-lamp-ink hover:bg-muted transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-muted py-2 text-[11px] font-medium text-primary-ink hover:bg-muted transition-colors"
             >
               <Plus size={13} weight="bold" />
               Resposta rápida
@@ -3364,7 +3364,7 @@ function ButtonsField({
             <button
               type="button"
               onClick={addCopyCode}
-              className="flex-1 flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-muted py-2 text-[11px] font-medium text-lamp-ink hover:bg-muted transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-muted py-2 text-[11px] font-medium text-primary-ink hover:bg-muted transition-colors"
             >
               <Copy size={13} weight="bold" />
               Copiar código
@@ -3375,7 +3375,7 @@ function ButtonsField({
 
       {/* Empty hint */}
       {buttons.length === 0 && (
-        <p className="text-[10px] text-muted-foreground leading-relaxed">
+        <p className="text-[11px] text-muted-foreground leading-relaxed">
           Adicione até{" "}
           <strong>
             {maxOptions} {maxOptions === 1 ? "opção" : "opções"}
@@ -3392,19 +3392,19 @@ function ButtonsField({
           className="rounded-lg border border-border bg-mist p-2.5 space-y-2"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-medium text-muted-foreground flex items-center gap-1.5">
+            <span className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5">
               {btn.Type === "reply" ? (
                 <>
                   <CaretRight
                     size={10}
                     weight="bold"
-                    className="text-lamp-ink"
+                    className="text-primary-ink"
                   />
                   Resposta rápida
                 </>
               ) : (
                 <>
-                  <Copy size={10} weight="bold" className="text-lamp-ink" />
+                  <Copy size={10} weight="bold" className="text-primary-ink" />
                   Copiar código
                 </>
               )}
@@ -3443,9 +3443,9 @@ function ButtonsField({
                 controlSize="sm"
                 error={!btn.CopyCode ? nc("required") : undefined}
               />
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground">
                 Use{" "}
-                <code className="bg-muted px-1 rounded text-[10px]">
+                <code className="bg-muted px-1 rounded text-[11px]">
                   {"{{variável}}"}
                 </code>{" "}
                 para valores dinâmicos. O usuário receberá um botão para copiar
@@ -3465,12 +3465,12 @@ function ButtonsField({
 
       {/* Limit / constraint hints */}
       {isFull && (
-        <p className="text-[10px] text-muted-foreground italic">
+        <p className="text-[11px] text-muted-foreground italic">
           Limite de {maxOptions} opções atingido
         </p>
       )}
       {hasReply && !isFull && (
-        <p className="text-[10px] text-muted-foreground">
+        <p className="text-[11px] text-muted-foreground">
           {buttons.length}/{maxOptions} opções · Clique acima para adicionar
           mais
         </p>
@@ -3564,7 +3564,7 @@ function ListSectionsField({
         <button
           type="button"
           onClick={addRow}
-          className="w-full flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-muted py-2 text-[11px] font-medium text-lamp-ink hover:bg-muted transition-colors"
+          className="w-full flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-muted py-2 text-[11px] font-medium text-primary-ink hover:bg-muted transition-colors"
         >
           <Plus size={13} weight="bold" />
           Adicionar opção
@@ -3572,7 +3572,7 @@ function ListSectionsField({
       )}
 
       {rows.length === 0 && (
-        <p className="text-[10px] text-muted-foreground leading-relaxed">
+        <p className="text-[11px] text-muted-foreground leading-relaxed">
           Adicione até <strong>{maxOptions} opções</strong>. Cada opção vira uma
           saída do nó, permitindo um caminho diferente por escolha.
         </p>
@@ -3584,8 +3584,8 @@ function ListSectionsField({
           className="rounded-lg border border-border bg-mist p-2.5 space-y-2"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-medium text-muted-foreground flex items-center gap-1.5">
-              <CaretRight size={10} weight="bold" className="text-lamp-ink" />
+            <span className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5">
+              <CaretRight size={10} weight="bold" className="text-primary-ink" />
               Opção {i + 1}
             </span>
             <button
@@ -3628,12 +3628,12 @@ function ListSectionsField({
       ))}
 
       {isFull && (
-        <p className="text-[10px] text-muted-foreground italic">
+        <p className="text-[11px] text-muted-foreground italic">
           Limite de {maxOptions} opções atingido
         </p>
       )}
       {rows.length > 0 && !isFull && (
-        <p className="text-[10px] text-muted-foreground">
+        <p className="text-[11px] text-muted-foreground">
           {rows.length}/{maxOptions} opções
         </p>
       )}
@@ -3695,13 +3695,13 @@ function ExpressionsField({
         Expressões
       </span>
 
-      <p className="text-[10px] text-muted-foreground leading-relaxed">
+      <p className="text-[11px] text-muted-foreground leading-relaxed">
         Cada expressão cria uma variável acessível nos próximos nós via{" "}
-        <code className="bg-muted px-1 rounded text-[10px]">
+        <code className="bg-muted px-1 rounded text-[11px]">
           {"{{var.nome}}"}
         </code>
         . Use{" "}
-        <code className="bg-muted px-1 rounded text-[10px]">
+        <code className="bg-muted px-1 rounded text-[11px]">
           {"{{last.campo}}"}
         </code>{" "}
         para dados do nó anterior.
@@ -3713,7 +3713,7 @@ function ExpressionsField({
           className="rounded-lg border border-border bg-mist p-2.5 space-y-2"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-medium text-muted-foreground">
+            <span className="text-[11px] font-medium text-muted-foreground">
               Variável #{i + 1}
             </span>
             <button
@@ -3750,13 +3750,13 @@ function ExpressionsField({
       <button
         type="button"
         onClick={addExpression}
-        className="w-full flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-muted py-2 text-[11px] font-medium text-lamp-ink hover:bg-muted transition-colors"
+        className="w-full flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-muted py-2 text-[11px] font-medium text-primary-ink hover:bg-muted transition-colors"
       >
         <Plus size={13} weight="bold" />
         Adicionar expressão
       </button>
 
-      <details className="text-[10px] text-muted-foreground">
+      <details className="text-[11px] text-muted-foreground">
         <summary className="cursor-pointer hover:text-foreground transition-colors font-medium">
           Funções disponíveis
         </summary>
@@ -3827,7 +3827,7 @@ function CasesField({
         <button
           type="button"
           onClick={addCase}
-          className="flex items-center gap-1 text-[10px] font-medium text-lamp-ink hover:underline"
+          className="flex items-center gap-1 text-[11px] font-medium text-primary-ink hover:underline"
         >
           <Plus size={12} weight="bold" />
           Adicionar
@@ -3836,7 +3836,7 @@ function CasesField({
 
       {cases.map((c, i) => (
         <div key={i} className="flex items-center gap-1.5">
-          <span className="text-[10px] text-muted-foreground font-mono w-5 shrink-0">
+          <span className="text-[11px] text-muted-foreground font-mono w-5 shrink-0">
             {i + 1}.
           </span>
           <ElevatedInput
@@ -3859,10 +3859,10 @@ function CasesField({
 
       {cases.length > 0 && (
         <div className="flex items-center gap-1.5 opacity-60">
-          <span className="text-[10px] text-muted-foreground font-mono w-5 shrink-0">
+          <span className="text-[11px] text-muted-foreground font-mono w-5 shrink-0">
             ↳
           </span>
-          <span className="text-[10px] text-muted-foreground italic">
+          <span className="text-[11px] text-muted-foreground italic">
             Nenhuma correspondência (se nenhum caso corresponder)
           </span>
         </div>
@@ -4041,7 +4041,7 @@ function MediaPreviewSection({ media }: { media: Media }) {
     <div className="space-y-2">
       <div className="flex items-center gap-2">
         <div className="h-px flex-1 bg-border" />
-        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+        <span className="text-[11px] font-semibold text-muted-foreground">
           Preview
         </span>
         <div className="h-px flex-1 bg-border" />
@@ -4078,14 +4078,14 @@ function MediaPreviewSection({ media }: { media: Media }) {
               <p className="text-xs font-medium truncate">
                 {media.description || "Documento"}
               </p>
-              <p className="text-[10px] text-muted-foreground">{media.type}</p>
+              <p className="text-[11px] text-muted-foreground">{media.type}</p>
             </div>
           </div>
         )}
       </div>
 
       {media.description && (
-        <p className="text-[10px] text-muted-foreground truncate">
+        <p className="text-[11px] text-muted-foreground truncate">
           {media.description}
         </p>
       )}
@@ -4128,7 +4128,7 @@ function AvailableVariablesPanel({ groups }: { groups: VarGroup[] }) {
         )}
         <Info size={12} />
         Variáveis disponíveis
-        <span className="ml-auto text-[10px] text-muted-foreground/60">
+        <span className="ml-auto text-[11px] text-muted-foreground/60">
           {groups.reduce((n, g) => n + g.vars.length, 0)}
         </span>
       </button>
@@ -4144,7 +4144,7 @@ function AvailableVariablesPanel({ groups }: { groups: VarGroup[] }) {
             controlSize="sm"
           />
           {filteredGroups.length === 0 && (
-            <p className="text-[10px] text-muted-foreground italic py-1">
+            <p className="text-[11px] text-muted-foreground italic py-1">
               Nenhuma variável encontrada.
             </p>
           )}
@@ -4160,7 +4160,7 @@ function AvailableVariablesPanel({ groups }: { groups: VarGroup[] }) {
 function VariableGroup({ group }: { group: VarGroup }) {
   return (
     <div className="space-y-1">
-      <span className="text-[10px] font-semibold text-foreground uppercase tracking-wider">
+      <span className="text-[11px] font-semibold text-foreground">
         {group.label}
       </span>
       {group.vars.map((v) => (
@@ -4195,11 +4195,11 @@ function VariableRow({
       <button
         type="button"
         onClick={handleCopy}
-        className="flex items-center gap-1 w-full font-mono text-[10px] bg-muted hover:bg-muted px-1.5 py-0.5 rounded text-lamp-ink transition-colors text-left min-w-0"
+        className="flex items-center gap-1 w-full font-mono text-[11px] bg-muted hover:bg-muted px-1.5 py-0.5 rounded text-primary-ink transition-colors text-left min-w-0"
         title={template}
       >
         {copied ? (
-          <span className="text-green-500 shrink-0">✓</span>
+          <span className="text-healthy-ink shrink-0">✓</span>
         ) : (
           <Copy
             size={10}
@@ -4209,7 +4209,7 @@ function VariableRow({
         <span className="truncate">{template}</span>
       </button>
       <span
-        className="text-[10px] text-muted-foreground leading-snug pl-1 line-clamp-2"
+        className="text-[11px] text-muted-foreground leading-snug pl-1 line-clamp-2"
         title={description}
       >
         {description}

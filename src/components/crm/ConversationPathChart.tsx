@@ -314,7 +314,7 @@ export default function ConversationPathChart({
           <p className="text-[11px] font-semibold text-foreground">
             {t("title")}
           </p>
-          <p className="text-[10px] text-muted-foreground">{t("subtitle")}</p>
+          <p className="text-[11px] text-muted-foreground">{t("subtitle")}</p>
         </div>
 
         <div className="h-[72px] w-full">
@@ -409,7 +409,7 @@ export default function ConversationPathChart({
           {stages.map((s) => (
             <li
               key={s.id}
-              className="inline-flex items-center gap-1.5 text-[10px] text-muted-foreground"
+              className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground"
             >
               <span
                 className={cn(
@@ -491,11 +491,11 @@ function StatChip({
     <div
       className={cn(
         "rounded-lg border border-border bg-background px-2.5 py-2",
-        danger && "border-rose-200 bg-destructive/10/80",
+        danger && "border-destructive/30 bg-destructive/10/80",
         className,
       )}
     >
-      <p className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <p className="text-[11px] font-semibold text-muted-foreground">
         {label}
       </p>
       <p
@@ -512,7 +512,7 @@ function StatChip({
 
 function TagChip({ label }: { label: string }) {
   return (
-    <span className="inline-flex rounded-[--radius] border border-border bg-muted px-2 py-0.5 text-[10px] font-medium text-foreground">
+    <span className="inline-flex rounded-[--radius] border border-border bg-muted px-2 py-0.5 text-[11px] font-medium text-foreground">
       {label}
     </span>
   );
@@ -531,7 +531,7 @@ function HorizontalBars({
     <div>
       <div className="mb-2">
         <p className="text-[11px] font-semibold text-foreground">{title}</p>
-        <p className="text-[10px] text-muted-foreground">{subtitle}</p>
+        <p className="text-[11px] text-muted-foreground">{subtitle}</p>
       </div>
       <div
         className="w-full"

@@ -59,7 +59,7 @@ export default function PermissionsEditor({
               <span
                 className={cn(
                   "text-xs font-semibold",
-                  someEnabled ? "text-lamp-ink" : "text-foreground",
+                  someEnabled ? "text-primary-ink" : "text-foreground",
                 )}
               >
                 {t(`resources.${perm.resource}`)}
@@ -69,7 +69,7 @@ export default function PermissionsEditor({
                   type="button"
                   onClick={() => onToggleAll(perm.resource, actions)}
                   className={cn(
-                    "rounded-lg px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider transition-colors",
+                    "rounded-lg px-2 py-0.5 text-[11px] font-semibold transition-colors",
                     allEnabled
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground hover:bg-border",

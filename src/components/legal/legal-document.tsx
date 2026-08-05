@@ -142,7 +142,7 @@ export default function LegalDocument({
             ].map((item) => (
               <div key={item.label}>
                 <dt className="legend">{item.label}</dt>
-                <dd className="readout mt-1 text-[13px] font-semibold text-foreground">
+                <dd className="readout mt-1 text-sm font-semibold text-foreground">
                   {item.value}
                 </dd>
               </div>
@@ -261,7 +261,7 @@ export default function LegalDocument({
                     ? brand.dpoEmail
                     : brand.supportEmail
                 }`}
-                className="readout mt-1.5 inline-block rounded-[--radius] text-[13px] text-lamp-ink underline underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="readout mt-1.5 inline-block rounded-[--radius] text-sm text-primary-ink underline underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {namespace === "privacyPolicy"
                   ? brand.dpoEmail

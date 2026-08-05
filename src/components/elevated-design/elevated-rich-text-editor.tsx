@@ -153,9 +153,9 @@ export default function ElevatedRichTextEditor({
   };
 
   const shadowDisabled =
-    "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)";
+    "var(--elev-1)";
   const shadowEnabled =
-    "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)";
+    "var(--elev-1)";
 
   return (
     <div className={`${className} relative flex flex-col`}>

@@ -156,7 +156,7 @@ export function InstagramCommentRuleDialog({
           </div>
 
           {error && (
-            <p className="flex items-start gap-2 rounded-lg bg-destructive/5 p-3 text-xs text-destructive">
+            <p className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-destructive-ink">
               <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" />
               {error}
             </p>

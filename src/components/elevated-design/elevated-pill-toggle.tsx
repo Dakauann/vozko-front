@@ -52,18 +52,16 @@ export function ElevatedPillToggle<T extends string = string>({
       role="group"
       aria-label={ariaLabel}
       className={cn(
-        // A bank of keys in a sunk track. The track is recessed into the panel;
-        // the pressed key rises out of it. Selection is carried by that raised
-        // surface plus a brightened label — not by an accent fill, which put a
-        // saturated orange block in the middle of every CRM toolbar and was one
-        // of the clearest survivors of the previous identity.
+        // A quiet track holding the segments; the selected one rises out of it
+        // as a white sheet. Not an accent fill: a saturated orange block in the
+        // middle of every CRM toolbar spends the brand on a view switch.
         //
         // nowrap: keep the control as one toolbar unit so siblings wrap around it
         // instead of the group fracturing and overlapping neighbors.
         "inline-flex shrink-0 flex-nowrap items-center gap-0.5",
         bare
           ? "gap-0"
-          : "rounded-[--radius] border border-border border-t-rule-strong bg-muted p-0.5",
+          : "rounded-lg border border-border bg-muted p-0.5",
         className,
       )}
     >
@@ -96,27 +94,27 @@ export function ElevatedPillToggle<T extends string = string>({
               collapseLabels === "sm" && "max-sm:px-2",
               collapseLabels === "md" && "max-md:px-2",
               disabled && "cursor-not-allowed opacity-40",
+              // The segmented control both reference systems ship: a quiet
+              // track with the selected segment raised out of it as a white
+              // sheet on a small shadow.
+              //
+              // The label stays NEUTRAL. An earlier pass set it in brand ink,
+              // which made a view filter — "all channels", a date preset —
+              // shout as loudly as the page's actual primary action, and put a
+              // saturated word in the middle of every CRM toolbar. The raised
+              // sheet plus the weight step is already an unambiguous "this
+              // one"; the accent is not needed and is better spent elsewhere.
               !disabled &&
                 active &&
-                (bare
-                  ? "bg-muted font-semibold text-foreground"
-                  : "border border-border bg-card font-semibold text-foreground"),
+                "bg-card font-semibold text-foreground shadow-sm",
               !disabled &&
                 !active &&
                 cn(
                   "text-muted-foreground hover:text-foreground",
-                  bare ? "hover:bg-muted/60" : "border border-transparent",
+                  bare ? "hover:bg-muted/60" : "hover:bg-card/60",
                 ),
             )}
           >
-            {/* The lamp marks the pressed key, so selection never rests on the
-                raised surface alone. */}
-            {active && !disabled && (
-              <span
-                aria-hidden="true"
-                className="mr-0.5 h-2.5 w-[3px] shrink-0 rounded-[1px] bg-[hsl(var(--lamp))]"
-              />
-            )}
             {opt.icon}
             {opt.label != null && opt.label !== "" ? (
               <span

@@ -99,7 +99,7 @@ const statusStyles: Record<string, { bg: string; text: string; dot: string }> =
     },
     COMPLETED: {
       bg: "bg-primary/15",
-      text: "text-lamp-ink",
+      text: "text-primary-ink",
       dot: "bg-muted",
     },
   };
@@ -109,7 +109,7 @@ function StatusBadge({ status }: { status: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-[--radius] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider",
+        "inline-flex items-center gap-1.5 rounded-[--radius] px-2.5 py-1 text-[11px] font-semibold",
         style.bg,
         style.text,
       )}
@@ -150,7 +150,7 @@ function WsStatusIndicator({
     connected: {
       icon: WifiHigh,
       label: t.wsConnected,
-      className: "text-healthy bg-healthy/10 border-healthy/20",
+      className: "text-healthy-ink bg-muted border-healthy/20",
       dotClass: "bg-healthy",
       animate: false,
     },
@@ -182,7 +182,7 @@ function WsStatusIndicator({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-[--radius] border px-2 py-0.5 text-[10px] font-semibold transition-colors",
+        "inline-flex items-center gap-1.5 rounded-[--radius] border px-2 py-0.5 text-[11px] font-semibold transition-colors",
         className,
       )}
       title={label}
@@ -285,7 +285,7 @@ function ActionsDropdown({
 
             <div className="my-1 border-t border-border" />
 
-            <p className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <p className="px-3 py-1 text-[11px] font-semibold text-muted-foreground">
               {t.dangerZone}
             </p>
 
@@ -306,7 +306,7 @@ function ActionsDropdown({
                 iconVisible
                 iconSide="left"
                 iconColor="currentColor"
-                className="w-full justify-start rounded-lg text-sm text-warning hover:!bg-warning/10"
+                className="w-full justify-start rounded-lg text-sm text-warning-ink hover:!bg-muted"
               />
             </TooltipWrapper>
 
@@ -327,7 +327,7 @@ function ActionsDropdown({
                 iconVisible
                 iconSide="left"
                 iconColor="currentColor"
-                className="w-full justify-start rounded-lg text-sm text-destructive hover:!bg-destructive/10"
+                className="w-full justify-start rounded-lg text-sm text-destructive-ink hover:!bg-muted"
               />
             </TooltipWrapper>
           </motion.div>
@@ -365,7 +365,7 @@ export default function CampaignHeader({
   const wsStatus = crmContext.status;
 
   const badgeColor =
-    campaignType === "whatsapp" ? "text-healthy" : "text-lamp-ink";
+    campaignType === "whatsapp" ? "text-healthy" : "text-primary-ink";
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -379,14 +379,14 @@ export default function CampaignHeader({
           iconSide="left"
           link={backLink}
           newTab={false}
-          className="flex-shrink-0 text-xs font-semibold uppercase px-2"
+          className="flex-shrink-0 text-xs font-semibold px-2"
         />
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <p
               className={cn(
-                "text-[11px] font-semibold uppercase tracking-wider",
+                "text-[11px] font-semibold",
                 badgeColor,
               )}
             >

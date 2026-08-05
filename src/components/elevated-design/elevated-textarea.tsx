@@ -6,7 +6,6 @@ import type {
   ReactNode,
 } from "react";
 import { forwardRef, useCallback, useEffect, useRef, useState } from "react";
-import { softSurfaceShadow, softSurfaceWithInset } from "./shadow-presets";
 
 import { cn } from "@/lib/utils";
 
@@ -64,9 +63,9 @@ const sizeClasses: Record<ElevatedTextareaSize, string> = {
 };
 
 const basePadding: Record<ElevatedTextareaSize, string> = {
-  sm: "px-4",
-  default: "px-5",
-  lg: "px-6",
+  sm: "px-3",
+  default: "px-3",
+  lg: "px-3.5",
 };
 
 const iconPadding: Record<ElevatedTextareaSize, string> = {
@@ -83,20 +82,26 @@ const iconPosition: Record<ElevatedTextareaSize, string> = {
 
 
 
+// Every text-entry variant is a white sheet with a hairline, and every one of
+// them focuses the same way: the brand underline drawn as an inset shadow plus
+// a soft halo. The outgoing versions stacked `bg-card` and `bg-muted` on the
+// same element — the later class won, so every field rendered as a grey sunk
+// track regardless of which variant the page asked for.
+const FIELD =
+  "bg-card text-foreground border border-border-strong hover:border-[hsl(var(--muted-foreground)/0.5)] focus-visible:border-border-strong focus-visible:shadow-[inset_0_-2px_0_0_hsl(var(--primary))] focus-visible:ring-2 focus-visible:ring-primary/15";
+
 const textareaVariantClasses: Record<BaseVariant, string> = {
   primary:
-    "bg-primary text-primary-foreground border border-transparent focus-visible:ring-2 focus-visible:ring-ring",
-  secondary:
-    "bg-card text-foreground border border-border border-t-rule-strong bg-muted hover:border-rule-strong focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-rule-strong",
-  outline:
-    "bg-card text-foreground border border-border border-t-rule-strong bg-muted hover:border-rule-strong focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-rule-strong",
+    "bg-primary text-primary-foreground border border-transparent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+  secondary: FIELD,
+  outline: FIELD,
   ghost:
-    "bg-card text-foreground border border-transparent hover:border-border focus-visible:ring-2 focus-visible:ring-ring",
-  vsl: "bg-muted text-muted-foreground border border-transparent focus-visible:ring-2 focus-visible:ring-cyan-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[rgba(12,42,36,0.65)]",
+    "bg-card text-foreground border border-transparent hover:border-border focus-visible:border-border-strong focus-visible:ring-2 focus-visible:ring-primary/15",
+  vsl: FIELD,
   action:
-    "bg-primary text-primary-foreground border border-primary focus-visible:ring-2 focus-visible:ring-ring",
+    "bg-primary text-primary-foreground border border-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
   search:
-    "bg-muted text-foreground border border-transparent hover:border-border focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-foreground/20",
+    "bg-muted text-foreground border border-transparent hover:border-border focus-visible:bg-card focus-visible:border-border-strong focus-visible:ring-2 focus-visible:ring-primary/15",
 };
 
 const disabledClasses =
@@ -104,8 +109,8 @@ const disabledClasses =
 
 const iconColorByVariant: Record<BaseVariant, string> = {
   primary: "text-primary-foreground",
-  secondary: "text-lamp-ink/60",
-  outline: "text-lamp-ink/60",
+  secondary: "text-primary-ink/60",
+  outline: "text-primary-ink/60",
   ghost: "text-muted-foreground",
   vsl: "text-white",
   action: "text-primary-foreground",
@@ -114,18 +119,21 @@ const iconColorByVariant: Record<BaseVariant, string> = {
 
 
 
+// A resting field does not float. These were hand-tuned 20-38px blurs that
+// put a soft glow under every field on the page. `none` also leaves the
+// box-shadow slot free for the focus underline to occupy.
 const textareaShadowByVariant: Record<BaseVariant, string> = {
-  primary: `${softSurfaceShadow}, inset 0 1px 0 var(--shadow-highlight)`,
-  secondary: softSurfaceWithInset,
-  outline: softSurfaceShadow,
-  ghost: "0 16px 30px -20px rgba(15,23,42,0.22)",
-  vsl: "0 22px 38px -20px rgba(14,165,233,0.42)",
-  action: `${softSurfaceShadow}, inset 0 1px 0 var(--shadow-highlight)`,
-  search: "0 8px 16px -10px rgba(15,23,42,0.12)",
+  primary: "none",
+  secondary: "none",
+  outline: "none",
+  ghost: "none",
+  vsl: "none",
+  action: "none",
+  search: "none",
 };
 
 const disabledShadow =
-  "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)";
+  "var(--elev-1)";
 
 const ElevatedTextarea = forwardRef<HTMLTextAreaElement, ElevatedTextareaProps>(
   (

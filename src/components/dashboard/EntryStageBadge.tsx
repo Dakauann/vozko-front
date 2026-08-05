@@ -88,7 +88,7 @@ export default function EntryStageBadge({
     if (!currentStage) return null;
     return (
       <span
-        className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider"
+        className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[11px] font-semibold"
         style={{
           backgroundColor: `${currentStage.stageColor}18`,
           color: currentStage.stageColor,
@@ -111,7 +111,7 @@ export default function EntryStageBadge({
             type="button"
             className={cn(
               "inline-flex items-center gap-1 rounded-lg border border-dashed border-foreground/20 px-2 py-1",
-              "text-[10px] font-semibold uppercase tracking-wider text-muted-foreground",
+              "text-[11px] font-semibold text-muted-foreground",
               "transition-all hover:border-slate-400 hover:text-muted-foreground hover:bg-muted",
               loading && "opacity-50 pointer-events-none",
             )}
@@ -139,7 +139,7 @@ export default function EntryStageBadge({
         <button
           type="button"
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider",
+            "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[11px] font-semibold",
             "transition-all hover:opacity-80 cursor-pointer",
             loading && "opacity-50 pointer-events-none",
           )}
@@ -237,7 +237,7 @@ function StagePickerContent({
                     />
                     <X
                       weight="bold"
-                      className="h-3 w-3 text-muted-foreground hover:text-red-500 transition-colors"
+                      className="h-3 w-3 text-muted-foreground hover:text-destructive-ink transition-colors"
                     />
                   </div>
                 )}

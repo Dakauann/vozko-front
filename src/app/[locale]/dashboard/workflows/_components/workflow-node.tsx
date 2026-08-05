@@ -405,11 +405,11 @@ function PreviewIcon({
   return (
     <div
       className={cn(
-        "flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-gradient-to-br shadow-sm",
+        "ink-plate flex h-5 w-5 shrink-0 items-center justify-center",
         gradient,
       )}
     >
-      <IconEl size={11} weight="fill" className="text-white" />
+      <IconEl size={11} weight="fill" />
     </div>
   );
 }
@@ -433,7 +433,7 @@ function renderNodeContent(
         <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
           <PreviewIcon
             icon={Lightning}
-            gradient="from-emerald-500 to-emerald-600"
+            gradient="ink-2"
           />
           <span>Primeira mensagem do contato</span>
         </div>
@@ -443,7 +443,7 @@ function renderNodeContent(
         <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
           <PreviewIcon
             icon={ChatCircleDots}
-            gradient="from-emerald-500 to-emerald-600"
+            gradient="ink-2"
           />
           <span>Qualquer mensagem recebida</span>
         </div>
@@ -471,7 +471,7 @@ function renderNodeContent(
               weight="bold"
               className="text-white shrink-0"
             />
-            <span className="text-[9px] font-semibold text-white">
+            <span className="text-[11px] font-semibold text-white">
               Execução inline
             </span>
           </div>
@@ -486,14 +486,14 @@ function renderNodeContent(
             <div className="flex items-center gap-2">
               <PreviewIcon
                 icon={Robot}
-                gradient="from-violet-500 to-violet-600"
+                gradient="ink-4"
               />
               <span className="text-[11px] text-foreground/70 truncate">
                 {model || "Modelo IA"}
               </span>
             </div>
             {instructionsPreview ? (
-              <p className="text-[10px] text-muted-foreground/80 leading-relaxed line-clamp-2">
+              <p className="text-[11px] text-muted-foreground/80 leading-relaxed line-clamp-2">
                 {instructionsPreview.slice(0, 120)}
                 {instructionsPreview.length > 120 ? "…" : ""}
               </p>
@@ -508,7 +508,7 @@ function renderNodeContent(
           <div className="flex items-center gap-2 rounded-lg bg-muted px-2.5 py-1.5">
             <PreviewIcon
               icon={Robot}
-              gradient="from-violet-500 to-violet-600"
+              gradient="ink-4"
             />
             <span className="text-[11px] font-medium text-foreground/70 truncate">
               {agentName}
@@ -540,15 +540,15 @@ function renderNodeContent(
       return (
         <div className="min-w-0 rounded-lg bg-muted px-2.5 py-2">
           <div className="flex items-center gap-1.5 min-w-0">
-            <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[11px] font-semibold tracking-[0.18em] text-muted-foreground">
               {method}
             </span>
-            <code className="min-w-0 flex-1 truncate text-[10px] text-foreground/60">
+            <code className="min-w-0 flex-1 truncate text-[11px] text-foreground/60">
               {url}
             </code>
           </div>
           {captureVariable ? (
-            <div className="mt-1 flex items-center gap-1 text-[9px] text-muted-foreground min-w-0">
+            <div className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground min-w-0">
               <span className="shrink-0">captura</span>
               <code className="min-w-0 truncate">{`{{${captureVariable}}}`}</code>
             </div>
@@ -569,7 +569,7 @@ function renderNodeContent(
             : `${sec}s`;
       return (
         <div className="flex items-center gap-2">
-          <PreviewIcon icon={Timer} gradient="from-amber-500 to-amber-600" />
+          <PreviewIcon icon={Timer} gradient="ink-3" />
           <span className="text-[11px] font-medium text-foreground/70">
             {display}
           </span>
@@ -592,7 +592,7 @@ function renderNodeContent(
         <div className="flex items-center gap-2">
           <PreviewIcon
             icon={ChatTeardropDots}
-            gradient="from-amber-500 to-amber-600"
+            gradient="ink-3"
           />
           <span className="text-[11px] text-foreground/70">
             {timeDisplay ? `Tempo limite: ${timeDisplay}` : "Aguardar resposta"}
@@ -607,7 +607,7 @@ function renderNodeContent(
         <div className="flex items-center gap-2">
           <PreviewIcon
             icon={Lightning}
-            gradient="from-amber-500 to-amber-600"
+            gradient="ink-3"
           />
           <span className="text-[11px] text-foreground/70">
             {event || "Aguardar evento"}
@@ -624,7 +624,7 @@ function renderNodeContent(
         <div className="flex items-center gap-2">
           <PreviewIcon
             icon={FlagCheckered}
-            gradient="from-rose-500 to-rose-600"
+            gradient="ink-5"
           />
           <span className="text-[11px] text-muted-foreground">
             Fim do fluxo
@@ -640,7 +640,7 @@ function renderNodeContent(
         <div className="flex items-center gap-2">
           <PreviewIcon
             icon={CalendarBlank}
-            gradient="from-blue-500 to-blue-600"
+            gradient="ink-1"
           />
           <span className="text-[11px] text-foreground/70 truncate">
             {input || "now"} → {format || "YYYY-MM-DD"}
@@ -657,7 +657,7 @@ function renderNodeContent(
       const lines = trimmed.split("\n").length;
       return (
         <div className="flex items-center gap-2">
-          <PreviewIcon icon={Code} gradient="from-blue-500 to-blue-600" />
+          <PreviewIcon icon={Code} gradient="ink-1" />
           <span className="text-[11px] text-foreground/70">
             JavaScript · {lines} linha{lines > 1 ? "s" : ""}
           </span>
@@ -671,7 +671,7 @@ function renderNodeContent(
       if (!wfId) return <EmptyPreview label="Nenhum fluxo" />;
       return (
         <div className="flex items-center gap-2">
-          <PreviewIcon icon={GitMerge} gradient="from-blue-500 to-blue-600" />
+          <PreviewIcon icon={GitMerge} gradient="ink-1" />
           <span className="text-[11px] text-foreground/70 truncate">
             {wfName || "Sub-fluxo"}
           </span>
@@ -687,7 +687,7 @@ function renderNodeContent(
         <div className="flex items-center gap-2">
           <PreviewIcon
             icon={ArrowsClockwise}
-            gradient="from-blue-500 to-blue-600"
+            gradient="ink-1"
           />
           <span className="text-[11px] text-foreground/70 truncate">
             {listVar} → {itemVar || "item"}
@@ -700,7 +700,7 @@ function renderNodeContent(
       const tz = config.timezone as string;
       return (
         <div className="flex items-center gap-2">
-          <PreviewIcon icon={Clock} gradient="from-blue-500 to-blue-600" />
+          <PreviewIcon icon={Clock} gradient="ink-1" />
           <span className="text-[11px] text-foreground/70">{tz || "UTC"}</span>
         </div>
       );
@@ -720,7 +720,7 @@ function renderNodeContent(
         <div className="flex items-center gap-2">
           <PreviewIcon
             icon={CalendarCheck}
-            gradient="from-amber-500 to-amber-600"
+            gradient="ink-3"
           />
           <span className="text-[11px] text-foreground/70 truncate">
             {label}
@@ -747,31 +747,31 @@ const BORDER_STYLE_MAP: Record<string, string> = {
 
 const GROUP_BG_COLORS: Record<string, string> = {
   gray: "bg-gray-100/50 dark:bg-gray-800/20",
-  blue: "bg-muted dark:bg-blue-900/15",
-  green: "bg-healthy/10/40 dark:bg-emerald-900/15",
-  yellow: "bg-amber-100/40 dark:bg-amber-900/15",
-  red: "bg-destructive/10/40 dark:bg-rose-900/15",
-  purple: "bg-muted dark:bg-violet-900/15",
+  blue: "bg-muted dark:bg-info/15",
+  green: "bg-healthy/10/40 dark:bg-healthy/15",
+  yellow: "bg-warning/40 dark:bg-warning/15",
+  red: "bg-destructive/10/40 dark:bg-destructive/15",
+  purple: "bg-muted dark:bg-chart-4/15",
   transparent: "bg-transparent",
 };
 
 const GROUP_BG_COLORS_SOLID: Record<string, string> = {
   gray: "bg-gray-100 dark:bg-gray-800",
-  blue: "bg-muted dark:bg-blue-900",
-  green: "bg-healthy/10 dark:bg-emerald-900",
-  yellow: "bg-amber-100 dark:bg-amber-900",
-  red: "bg-destructive/10 dark:bg-rose-900",
-  purple: "bg-muted dark:bg-violet-900",
+  blue: "bg-muted dark:bg-info",
+  green: "bg-healthy/10 dark:bg-healthy",
+  yellow: "bg-warning/10 dark:bg-warning",
+  red: "bg-destructive/10 dark:bg-destructive",
+  purple: "bg-muted dark:bg-chart-4",
   transparent: "bg-transparent",
 };
 
 const GROUP_BORDER_COLORS: Record<string, string> = {
   gray: "border-gray-300 dark:border-gray-600",
-  blue: "border-blue-300 dark:border-blue-700",
-  green: "border-emerald-300 dark:border-emerald-700",
-  yellow: "border-amber-300 dark:border-amber-700",
-  red: "border-rose-300 dark:border-rose-700",
-  purple: "border-violet-300 dark:border-violet-700",
+  blue: "border-info/30 dark:border-info",
+  green: "border-healthy/30 dark:border-healthy",
+  yellow: "border-warning/30 dark:border-warning",
+  red: "border-destructive/30 dark:border-destructive",
+  purple: "border-chart-4/30 dark:border-chart-4",
   transparent: "border-gray-300/50 dark:border-gray-600/50",
 };
 
@@ -816,7 +816,7 @@ function GroupNodeComponent({ data, selected }: NodeProps) {
       />
       {label && (
         <div className="px-3 py-1.5">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-[11px] font-semibold text-muted-foreground">
             {label}
           </span>
         </div>

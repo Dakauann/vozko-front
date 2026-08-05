@@ -59,7 +59,7 @@ export function TelegramBusinessPanel({ account }: { account: TelegramAccount })
           )}
 
           <p className="flex items-start gap-2 rounded-lg border border-border bg-muted p-3 text-xs leading-relaxed text-foreground">
-            <Info weight="fill" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground dark:text-sky-500" />
+            <Info weight="fill" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground dark:text-info-ink" />
             {t("windowNote")}
           </p>
         </div>
@@ -70,7 +70,7 @@ export function TelegramBusinessPanel({ account }: { account: TelegramAccount })
           <ol className="space-y-2.5">
             {[t("step1"), t("step2"), t("step3"), t("step4")].map((step, i) => (
               <li key={i} className="flex gap-2.5 text-xs leading-relaxed text-muted-foreground">
-                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-foreground">
+                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-semibold text-foreground">
                   {i + 1}
                 </span>
                 <span className="pt-0.5">

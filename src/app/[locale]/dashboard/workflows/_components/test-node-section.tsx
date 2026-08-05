@@ -127,7 +127,7 @@ function OutputEntry({
         {badge && (
           <span
             className={cn(
-              "shrink-0 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider",
+              "shrink-0 rounded px-1.5 py-0.5 text-[11px] font-semibold",
               badgeColor ?? "bg-muted text-muted-foreground",
             )}
           >
@@ -181,8 +181,8 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
       className={cn(
         "rounded-[--radius] border overflow-hidden",
         result.success
-          ? "border-emerald-200 bg-healthy/10/50"
-          : "border-red-200 bg-destructive/10/50",
+          ? "border-healthy/30 bg-healthy/10/50"
+          : "border-destructive/30 bg-destructive/10/50",
       )}
     >
       {/* Header */}
@@ -190,8 +190,8 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
         className={cn(
           "flex items-center justify-between px-3 py-2",
           result.success
-            ? "bg-healthy/10/60 border-b border-emerald-200"
-            : "bg-destructive/10/60 border-b border-red-200",
+            ? "bg-healthy/10/60 border-b border-healthy/30"
+            : "bg-destructive/10/60 border-b border-destructive/30",
         )}
       >
         <div className="flex items-center gap-2">
@@ -203,13 +203,13 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
           <span
             className={cn(
               "text-xs font-semibold",
-              result.success ? "text-emerald-900" : "text-red-900",
+              result.success ? "text-healthy-ink" : "text-destructive-ink",
             )}
           >
             {result.success ? "Teste bem-sucedido" : "Teste falhou"}
           </span>
         </div>
-        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
           <Clock size={11} />
           <span>{result.execution_duration_ms}ms</span>
         </div>
@@ -218,7 +218,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
       <div className="p-3 space-y-2.5">
         {/* Error message */}
         {result.error && (
-          <div className="rounded-lg bg-destructive/10/80 border border-red-200 px-2.5 py-2 text-xs text-red-800">
+          <div className="rounded-lg bg-muted/80 border border-destructive/30 px-2.5 py-2 text-xs text-destructive-ink">
             {result.error}
           </div>
         )}
@@ -226,15 +226,15 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
         {/* HTTP status (for HTTP nodes) */}
         {httpStatusCode != null && (
           <div className="flex items-center gap-2">
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+            <span className="text-[11px] text-muted-foreground">
               HTTP
             </span>
             <span
               className={cn(
                 "rounded px-1.5 py-0.5 text-[11px] font-semibold",
                 httpSuccess
-                  ? "bg-emerald-200/60 text-emerald-800"
-                  : "bg-red-200/60 text-red-800",
+                  ? "bg-healthy/60 text-healthy-foreground"
+                  : "bg-destructive/60 text-destructive-foreground",
               )}
             >
               {httpStatusCode}
@@ -253,7 +253,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
         {/* Key output entries */}
         {outputEntries.length > 0 && (
           <div className="rounded-lg border border-border bg-background p-2">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
+            <p className="text-[11px] text-muted-foreground mb-1">
               Saída do nó
             </p>
             {outputEntries.map(([key, val]) => (
@@ -275,7 +275,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
             <button
               type="button"
               onClick={() => setShowRawOutput(!showRawOutput)}
-              className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
             >
               {showRawOutput ? (
                 <CaretDown size={10} />
@@ -286,7 +286,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
               <CopyButton text={responseBody} />
             </button>
             {showRawOutput && (
-              <pre className="text-[10px] bg-background rounded-lg border border-border p-2.5 overflow-x-auto max-h-48 overflow-y-auto font-mono text-foreground/80">
+              <pre className="text-[11px] bg-background rounded-lg border border-border p-2.5 overflow-x-auto max-h-48 overflow-y-auto font-mono text-foreground/80">
                 {(() => {
                   try {
                     return JSON.stringify(JSON.parse(responseBody), null, 2);
@@ -305,7 +305,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
             <button
               type="button"
               onClick={() => setShowRawConfig(!showRawConfig)}
-              className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
             >
               {showRawConfig ? (
                 <CaretDown size={10} />
@@ -315,7 +315,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
               <span>Config interpolado</span>
             </button>
             {showRawConfig && (
-              <pre className="text-[10px] bg-background rounded-lg border border-border p-2.5 overflow-x-auto max-h-48 overflow-y-auto font-mono text-foreground/80">
+              <pre className="text-[11px] bg-background rounded-lg border border-border p-2.5 overflow-x-auto max-h-48 overflow-y-auto font-mono text-foreground/80">
                 {JSON.stringify(result.interpolated_config, null, 2)}
               </pre>
             )}
@@ -328,7 +328,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
             <button
               type="button"
               onClick={() => setShowStateAfter(!showStateAfter)}
-              className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
             >
               {showStateAfter ? (
                 <CaretDown size={10} />
@@ -336,7 +336,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
                 <CaretRight size={10} />
               )}
               <span>Estado após execução</span>
-              <span className="text-[9px] bg-muted rounded-[--radius] px-1.5 py-0.5">
+              <span className="text-[11px] bg-muted rounded-[--radius] px-1.5 py-0.5">
                 {stateEntries.length}
               </span>
             </button>
@@ -442,7 +442,7 @@ export function TestNodeSection({
           ) : (
             <CaretRight size={14} className="text-muted-foreground" />
           )}
-          <Play size={15} weight="duotone" className="text-lamp-ink" />
+          <Play size={15} weight="duotone" className="text-primary-ink" />
           <span className="text-xs font-medium">Testar Nó</span>
         </div>
         {status === "analyzing" && (
@@ -452,7 +452,7 @@ export function TestNodeSection({
           <CheckCircle size={14} weight="fill" className="text-healthy" />
         )}
         {status === "error" && (
-          <XCircle size={14} weight="fill" className="text-red-500" />
+          <XCircle size={14} weight="fill" className="text-destructive-ink" />
         )}
       </button>
 
@@ -460,7 +460,7 @@ export function TestNodeSection({
       {expanded && (
         <div className="p-3 space-y-3">
           {disabled && disabledReason && (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+            <div className="rounded-lg border border-warning/30 bg-muted px-3 py-2 text-xs text-warning-ink">
               {disabledReason}
             </div>
           )}
@@ -481,15 +481,15 @@ export function TestNodeSection({
                 className={cn(
                   "flex items-start gap-2 rounded-lg px-3 py-2 text-xs",
                   analysis.test_mode === "direct" &&
-                    "bg-healthy/10 border border-emerald-200 text-emerald-900",
+                    "bg-muted border border-healthy/30 text-healthy-ink",
                   analysis.test_mode === "mock" &&
-                    "bg-amber-50 border border-amber-200 text-amber-900",
+                    "bg-muted border border-warning/30 text-warning-ink",
                   analysis.test_mode === "execute_until" &&
                     analysis.has_ai_deps &&
-                    "bg-muted border border-blue-200 text-blue-900",
+                    "bg-muted border border-info/30 text-info-ink",
                   analysis.test_mode === "execute_until" &&
                     !analysis.has_ai_deps &&
-                    "bg-healthy/10 border border-emerald-200 text-emerald-900",
+                    "bg-muted border border-healthy/30 text-healthy-ink",
                 )}
               >
                 <Info size={14} className="mt-0.5 shrink-0" />
@@ -523,14 +523,14 @@ export function TestNodeSection({
                           <p className="text-sm font-semibold text-foreground break-all">
                             {field.display_name}
                           </p>
-                          <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                          <p className="mt-1 text-[11px] tracking-[0.18em] text-muted-foreground">
                             Variavel esperada
                           </p>
                           <div className="mt-1 rounded-lg border border-border bg-background px-2.5 py-2 font-mono text-[11px] text-muted-foreground break-all">
                             {getMockTemplate(field)}
                           </div>
                         </div>
-                        <span className="shrink-0 rounded-[--radius] bg-muted px-2 py-1 text-[10px] font-medium text-muted-foreground">
+                        <span className="shrink-0 rounded-[--radius] bg-muted px-2 py-1 text-[11px] font-medium text-muted-foreground">
                           {getSourceLabel(field.source)}
                         </span>
                       </div>
@@ -611,10 +611,10 @@ export function TestNodeSection({
 
           {/* Error display */}
           {status === "error" && error && !result && (
-            <div className="rounded-lg border border-red-200 bg-destructive/10 p-3">
+            <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3">
               <div className="flex items-center gap-2">
                 <XCircle size={16} weight="fill" className="text-destructive" />
-                <span className="text-sm font-medium text-red-900">Erro</span>
+                <span className="text-sm font-medium text-destructive-ink">Erro</span>
               </div>
               <p className="text-xs text-destructive mt-1">{error}</p>
             </div>

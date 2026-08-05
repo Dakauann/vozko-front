@@ -137,7 +137,7 @@ export function VerificationDialog({
 
         <div className="space-y-6 py-4">
           <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
-            <ShieldCheck className="w-8 h-8 text-lamp-ink" weight="fill" />
+            <ShieldCheck className="w-8 h-8 text-primary-ink" weight="fill" />
             <div>
               <p className="text-sm font-medium text-foreground">
                 {t("verification.verifyingNumber")}

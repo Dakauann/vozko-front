@@ -87,9 +87,9 @@ export function WorkflowAlerts({
           className={cn(
             "inline-flex items-center gap-1.5 min-h-[32px] rounded-[--radius] border px-2.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
             tone === "blocking" &&
-              "border-rose-300 text-destructive hover:bg-destructive/10 dark:border-destructive/40 dark:text-rose-300 dark:hover:bg-destructive/10",
+              "border-destructive/30 text-destructive-ink hover:bg-muted dark:border-destructive/40 dark:text-destructive dark:hover:bg-destructive/10",
             tone === "advisory" &&
-              "border-amber-300 text-warning hover:bg-amber-50 dark:border-warning/40 dark:text-amber-300 dark:hover:bg-warning/10",
+              "border-warning/30 text-warning-ink hover:bg-muted dark:border-warning/40 dark:text-warning dark:hover:bg-warning/10",
             tone === "clean" &&
               "border-border text-muted-foreground hover:border-foreground/20 hover:bg-muted",
           )}
@@ -123,7 +123,7 @@ export function WorkflowAlerts({
             className={cn(
               "text-xs font-medium",
               tone === "blocking" && "text-destructive dark:text-destructive",
-              tone === "advisory" && "text-warning dark:text-amber-400",
+              tone === "advisory" && "text-warning dark:text-warning",
               tone === "clean" && "text-muted-foreground",
             )}
           >
@@ -173,7 +173,7 @@ export function WorkflowAlerts({
                       />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="text-[13px] font-medium leading-snug text-foreground">
+                      <div className="text-sm font-medium leading-snug text-foreground">
                         {issue.message}
                       </div>
                       {issue.hint && (
@@ -187,7 +187,7 @@ export function WorkflowAlerts({
                             {chip}
                           </span>
                           {clickable && (
-                            <span className="inline-flex items-center gap-0.5 text-[11px] font-medium text-lamp-ink opacity-0 transition-opacity group-hover:opacity-100">
+                            <span className="inline-flex items-center gap-0.5 text-[11px] font-medium text-primary-ink opacity-0 transition-opacity group-hover:opacity-100">
                               Ver no fluxo
                               <ArrowRight size={11} weight="bold" />
                             </span>

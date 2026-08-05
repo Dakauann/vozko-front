@@ -200,7 +200,7 @@ const FormErrorSummary = ({
   };
 
   return (
-    <div className="rounded-[--radius] border border-rose-300 bg-destructive/10 dark:bg-rose-950/30 dark:border-rose-800 px-5 py-4 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+    <div className="rounded-[--radius] border border-destructive/30 bg-destructive/10 dark:bg-destructive/30 dark:border-destructive px-5 py-4 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
       <div className="flex items-center gap-2 text-destructive dark:text-destructive">
         <Warning weight="fill" className="h-5 w-5 flex-shrink-0" />
         <p className="text-sm font-semibold">
@@ -248,7 +248,7 @@ const AvailableToolRow = ({ tool, disabled, onAdd, t }: AvailableToolRowProps) =
         disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
       )}
     >
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground transition-colors group-hover:bg-muted group-hover:text-lamp-ink">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground transition-colors group-hover:bg-muted group-hover:text-primary-ink">
         <PlugsConnected weight="fill" className="h-4 w-4" aria-hidden="true" />
       </span>
       <span className="min-w-0 flex-1">
@@ -337,7 +337,7 @@ const SelectedToolItem = ({
   return (
     <li className="px-3 py-3">
       <div className="flex items-start gap-3">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-lamp-ink">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-primary-ink">
           <PlugsConnected weight="fill" className="h-4 w-4" aria-hidden="true" />
         </span>
         <div className="min-w-0 flex-1 space-y-2.5">
@@ -348,7 +348,7 @@ const SelectedToolItem = ({
                   {name}
                 </span>
                 {requiresConfig && (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-medium text-lamp-ink">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-medium text-primary-ink">
                     <Gear weight="fill" className="h-3 w-3" />
                     {t("tools.configurable")}
                   </span>
@@ -365,7 +365,7 @@ const SelectedToolItem = ({
               onClick={onRemove}
               disabled={disabled}
               aria-label={`${t("tools.remove")}, ${name}`}
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-destructive-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Trash weight="bold" className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -424,7 +424,7 @@ const SelectedToolItem = ({
               <button
                 type="button"
                 onClick={onConfigureClick}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1 text-xs font-medium text-foreground shadow-sm transition-colors hover:border-primary hover:text-lamp-ink"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1 text-xs font-medium text-foreground shadow-sm transition-colors hover:border-primary hover:text-primary-ink"
               >
                 <Gear weight="fill" className="h-3.5 w-3.5" />
                 {isConfigComplete ? t("tools.editConfig") : t("tools.configure")}
@@ -461,7 +461,7 @@ const SelectedToolItem = ({
                           {parameter?.type ?? "string"}
                         </span>
                         {requiredParameters.has(key) && (
-                          <span className="rounded bg-warning/15 px-1.5 py-0.5 text-[11px] font-medium text-warning">
+                          <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] font-medium text-warning-ink">
                             {t("tools.required")}
                           </span>
                         )}
@@ -1560,13 +1560,13 @@ onStep={(_index, step) => {
         }}
       />
       {optionsError ? (
-        <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-white">
+        <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-destructive-foreground">
           {optionsError}
         </div>
       ) : null}
 
       {toolsError ? (
-        <div className="rounded-[--radius] border border-warning bg-warning px-4 py-3 text-sm text-white">
+        <div className="rounded-[--radius] border border-warning bg-warning px-4 py-3 text-sm text-warning-foreground">
           {toolsError}
         </div>
       ) : null}
@@ -1717,7 +1717,7 @@ onStep={(_index, step) => {
       <section className="space-y-6" data-tour="agents-variables">
         <div className="space-y-1">
           <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-            <GearSix className="h-5 w-5 text-orange-500" weight="fill" />
+            <GearSix className="h-5 w-5 text-warning-ink" weight="fill" />
             {t("sections.variables.title")}
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -1787,7 +1787,7 @@ onStep={(_index, step) => {
                       const next = agentVariables.filter((_, idx) => idx !== i);
                       setAgentVariables(next);
                     }}
-                    className="mt-1.5 rounded-md p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                    className="mt-1.5 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-destructive-ink transition-colors"
                   >
                     <Trash weight="bold" className="h-3.5 w-3.5" />
                   </button>
@@ -1810,7 +1810,7 @@ onStep={(_index, step) => {
         <section className="space-y-6" data-tour="agents-whatsapp">
           <div className="space-y-1">
             <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-              <WhatsappLogo className="h-5 w-5 text-green-500" weight="fill" />
+              <WhatsappLogo className="h-5 w-5 text-healthy-ink" weight="fill" />
               {t("sections.whatsapp.title")}
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -1819,7 +1819,7 @@ onStep={(_index, step) => {
         </div>
 
         {templatesError ? (
-          <div className="rounded-[--radius] border border-warning bg-warning px-4 py-3 text-sm text-white">
+          <div className="rounded-[--radius] border border-warning bg-warning px-4 py-3 text-sm text-warning-foreground">
             {templatesError}
           </div>
         ) : null}
@@ -1874,7 +1874,7 @@ onStep={(_index, step) => {
               type="button"
               onClick={() => setCreateTemplateDialogOpen(true)}
               disabled={!selectedBusinessPhoneId}
-              className="flex items-center gap-2 rounded-[--radius] border border-healthy bg-healthy px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-healthy hover:border-green-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-healthy disabled:hover:border-healthy"
+              className="flex items-center gap-2 rounded-[--radius] border border-healthy bg-healthy px-4 py-3 text-sm font-semibold text-healthy-foreground transition-all hover:bg-healthy hover:border-healthy disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-healthy disabled:hover:border-healthy"
             >
               <Plus className="h-4 w-4" weight="bold" />
               {t("buttons.createTemplate")}
@@ -1893,7 +1893,7 @@ onStep={(_index, step) => {
                   weight="fill"
                 />
                 <div className="flex-1">
-                  <h4 className="text-sm font-semibold text-amber-800">
+                  <h4 className="text-sm font-semibold text-warning-ink">
                     {t("templateMedia.missingTitle")}
                   </h4>
                   <p className="text-xs text-warning mt-1">
@@ -1983,7 +1983,7 @@ onStep={(_index, step) => {
                           className={cn(
                             "rounded-lg px-2.5 py-1 text-xs font-medium transition-colors",
                             toolsCategory === cat.value
-                              ? "bg-muted text-lamp-ink"
+                              ? "bg-muted text-primary-ink"
                               : "text-muted-foreground hover:bg-muted hover:text-foreground",
                           )}
                         >
@@ -2033,7 +2033,7 @@ onStep={(_index, step) => {
                       className={cn(
                         "inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full px-2 text-xs font-semibold",
                         selectedToolList.length > 0
-                          ? "bg-muted text-lamp-ink"
+                          ? "bg-muted text-primary-ink"
                           : "bg-muted text-muted-foreground",
                       )}
                     >
@@ -2090,7 +2090,7 @@ onStep={(_index, step) => {
       <section className="space-y-6">
         <div className="space-y-1">
           <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-            <File className="h-5 w-5 text-lamp-ink" weight="fill" />
+            <File className="h-5 w-5 text-primary-ink" weight="fill" />
             {t("sections.media.title")}
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -2121,7 +2121,7 @@ onStep={(_index, step) => {
           >
             {isUploadingMedia ? (
               <>
-                <div className="h-5 w-5 animate-spin rounded-full border border-rule-strong border-t-transparent" />
+                <div className="h-5 w-5 animate-spin rounded-full border border-border-strong border-t-transparent" />
                 <span className="text-sm font-medium text-muted-foreground">
                   {t("media.uploading")}
                 </span>
@@ -2198,7 +2198,7 @@ onStep={(_index, step) => {
       <section className="space-y-6" data-tour="agents-knowledge">
         <div className="space-y-1">
           <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-            <Files className="h-5 w-5 text-purple-500" weight="fill" />
+            <Files className="h-5 w-5 text-chart-4" weight="fill" />
             {t("sections.knowledgeBases.title")}
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -2272,7 +2272,7 @@ onStep={(_index, step) => {
                     type="checkbox"
                     checked={checked}
                     onChange={() => setSelectedMCPIds(prev => checked ? prev.filter(id => id !== col.id) : [...prev, col.id])}
-                    className="h-4 w-4 rounded border-zinc-300 text-lamp-ink focus:ring-ring"
+                    className="h-4 w-4 rounded border-zinc-300 text-primary-ink focus:ring-ring"
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">{col.name}</p>

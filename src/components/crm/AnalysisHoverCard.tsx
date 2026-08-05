@@ -17,21 +17,21 @@ import { cn } from "@/lib/utils";
 
 /** Solid tile + white glyph, never colored glyph on same-hue wash. */
 const SENTIMENT_MAP = {
-  positive: { label: "Positivo", icon: ThumbsUp, tile: "bg-healthy" },
-  neutral: { label: "Neutro", icon: SmileyMeh, tile: "bg-warning" },
-  negative: { label: "Negativo", icon: ThumbsDown, tile: "bg-destructive" },
+  positive: { label: "Positivo", icon: ThumbsUp, tile: "tile-healthy" },
+  neutral: { label: "Neutro", icon: SmileyMeh, tile: "tile-warning" },
+  negative: { label: "Negativo", icon: ThumbsDown, tile: "tile-fault" },
 } as const;
 
 const INTEREST_MAP = {
-  interested: { label: "Interessado", tile: "bg-healthy" },
-  not_interested: { label: "Sem interesse", tile: "bg-destructive" },
-  undecided: { label: "Indeciso", tile: "bg-warning" },
+  interested: { label: "Interessado", tile: "tile-healthy" },
+  not_interested: { label: "Sem interesse", tile: "tile-fault" },
+  undecided: { label: "Indeciso", tile: "tile-warning" },
 } as const;
 
 const QUALIFICATION_MAP = {
-  hot_lead: { label: "Quente", icon: Fire, tile: "bg-destructive" },
-  warm_lead: { label: "Morno", icon: Sparkle, tile: "bg-warning" },
-  cold_lead: { label: "Frio", icon: Target, tile: "bg-primary" },
+  hot_lead: { label: "Quente", icon: Fire, tile: "tile-fault" },
+  warm_lead: { label: "Morno", icon: Sparkle, tile: "tile-warning" },
+  cold_lead: { label: "Frio", icon: Target, tile: "tile-brand" },
 } as const;
 
 const DISPOSITION_MAP: Record<string, string> = {
@@ -155,14 +155,14 @@ export default function AnalysisHoverCard({
                   style={{ width: `${analysis.attendanceQuality}%` }}
                 />
               </div>
-              <span className="w-6 text-right text-[9px] font-semibold tabular-nums text-muted-foreground">
+              <span className="w-6 text-right text-[11px] font-semibold tabular-nums text-muted-foreground">
                 {analysis.attendanceQuality}
               </span>
             </div>
 
             <span
               className={cn(
-                "flex h-5 w-5 items-center justify-center rounded-md text-white",
+                "flex h-5 w-5 items-center justify-center rounded-md",
                 sentiment.tile,
               )}
               title={sentiment.label}
@@ -172,7 +172,7 @@ export default function AnalysisHoverCard({
 
             <span
               className={cn(
-                "flex h-5 w-5 items-center justify-center rounded-md text-white",
+                "flex h-5 w-5 items-center justify-center rounded-md",
                 qualification.tile,
               )}
               title={qualification.label}
@@ -184,25 +184,25 @@ export default function AnalysisHoverCard({
           <div className="mb-1.5 flex flex-wrap items-center gap-1">
             <span
               className={cn(
-                "inline-flex items-center gap-0.5 rounded-[--radius] px-1.5 py-0.5 text-[8px] font-semibold text-white",
+                "inline-flex items-center gap-0.5 rounded-[--radius] px-1.5 py-0.5 text-[11px] font-semibold text-white",
                 interest.tile,
               )}
             >
               {interest.label}
             </span>
 
-            <span className="inline-flex items-center rounded-[--radius] bg-muted px-1.5 py-0.5 text-[8px] font-semibold text-muted-foreground">
+            <span className="inline-flex items-center rounded-[--radius] bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
               {DISPOSITION_MAP[analysis.disposition] || analysis.disposition}
             </span>
 
-            <span className="inline-flex items-center gap-0.5 rounded-[--radius] bg-primary px-1.5 py-0.5 text-[8px] font-semibold text-white">
+            <span className="inline-flex items-center gap-0.5 rounded-[--radius] bg-primary px-1.5 py-0.5 text-[11px] font-semibold text-primary-foreground">
               <Sparkle weight="fill" className="h-2 w-2" />
               {NEXT_ACTION_MAP[analysis.nextAction] || analysis.nextAction}
             </span>
           </div>
 
           {analysis.summary && (
-            <p className="line-clamp-2 text-[9px] leading-relaxed text-muted-foreground">
+            <p className="line-clamp-2 text-[11px] leading-relaxed text-muted-foreground">
               {analysis.summary}
             </p>
           )}

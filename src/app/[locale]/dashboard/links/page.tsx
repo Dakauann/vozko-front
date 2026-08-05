@@ -190,7 +190,7 @@ export default function LinksPage() {
           {
             label: t("stats.totalLinks"),
             value: loading ? "..." : String(stats?.totalLinks ?? totalItems),
-            icon: <LinkSimple className="h-4 w-4 text-blue-500" weight="fill" />,
+            icon: <LinkSimple className="h-4 w-4 text-info-ink" weight="fill" />,
           },
           {
             label: t("stats.totalClicks"),
@@ -247,7 +247,7 @@ export default function LinksPage() {
         emptyState={
           error
             ? {
-                icon: <LinkSimple className="h-7 w-7 text-red-500" weight="fill" />,
+                icon: <LinkSimple className="h-7 w-7 text-destructive-ink" weight="fill" />,
                 title: t("empty.errorTitle"),
                 description: error,
               }

@@ -3,11 +3,13 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 /**
- * A well: content recessed INTO the panel, not a card floating above it.
+ * A sheet: content sitting ON the canvas, layered by elevation.
  *
  * This inversion is the single largest structural change in the identity. The
- * darker top edge (border-t-rule-strong) is what sells the recess — a drop
- * shadow would put the surface back on top of the panel and undo it.
+ * outgoing version was a well — recessed INTO the panel, sold by a darker top
+ * edge and no shadow at all, because a drop shadow would have put the surface
+ * back on top and undone it. Here the shadow is the point: 8px corners, one
+ * hairline, and the first step of the elevation stack.
  */
 const Card = React.forwardRef<
   HTMLDivElement,
@@ -16,7 +18,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-[--radius] border border-border border-t-rule-strong bg-card text-card-foreground",
+      "rounded-lg border border-border bg-card text-card-foreground shadow-sm",
       className
     )}
     {...props}

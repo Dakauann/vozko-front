@@ -221,7 +221,7 @@ export default function NewIssuePage() {
               ) : (
                 <span />
               )}
-              <span className="text-[10px] text-muted-foreground/50">
+              <span className="text-[11px] text-muted-foreground/50">
                 {title.length}/{TITLE_MAX}
               </span>
             </div>
@@ -268,7 +268,7 @@ export default function NewIssuePage() {
               ) : (
                 <span />
               )}
-              <span className="text-[10px] text-muted-foreground/50">
+              <span className="text-[11px] text-muted-foreground/50">
                 {description.length}/{DESCRIPTION_MAX}
               </span>
             </div>
@@ -294,7 +294,7 @@ export default function NewIssuePage() {
                     />
                     {img.uploading && (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <SpinnerGap className="h-5 w-5 animate-spin text-lamp-ink" />
+                        <SpinnerGap className="h-5 w-5 animate-spin text-primary-ink" />
                       </div>
                     )}
                     <button
@@ -329,16 +329,16 @@ export default function NewIssuePage() {
                 />
               </label>
             )}
-            <p className="text-[10px] text-muted-foreground/60">
+            <p className="text-[11px] text-muted-foreground/60">
               {t("form.imageHint", { max: MAX_IMAGES, current: images.length })}
             </p>
           </div>
 
           {/* Error */}
           {error && (
-            <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-destructive/10 dark:border-red-800 dark:bg-red-950/30 px-3 py-2">
-              <Warning className="h-4 w-4 text-destructive dark:text-red-400 shrink-0" />
-              <p className="text-sm text-destructive dark:text-red-400">{error}</p>
+            <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 dark:border-destructive dark:bg-destructive/30 px-3 py-2">
+              <Warning className="h-4 w-4 text-destructive dark:text-destructive shrink-0" />
+              <p className="text-sm text-destructive dark:text-destructive">{error}</p>
             </div>
           )}
 

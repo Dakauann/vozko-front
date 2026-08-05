@@ -302,7 +302,7 @@ export default function IssuesPage() {
       />
 
       {error && (
-        <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-white">
+        <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-destructive-foreground">
           {error}
         </div>
       )}

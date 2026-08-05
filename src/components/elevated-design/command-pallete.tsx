@@ -86,7 +86,7 @@ export default function CommandPalette({
           className="flex justify-between w-full p-[14px] border border-border bg-transparent rounded-full text-foreground placeholder:text-transparent focus:outline-none focus:shadow-sm focus:border-foreground/20 transition-all duration-200"
           style={{
             boxShadow:
-              "inset 0 1px 0 hsl(var(--rule-strong)), 0 1px 0 hsl(var(--card) / 0.6)",
+              "var(--elev-1)",
           }}
           type="button"
         >

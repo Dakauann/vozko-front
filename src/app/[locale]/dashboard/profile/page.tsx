@@ -366,12 +366,12 @@ export default function ProfilePage() {
     > = {
       admin: {
         label: t("roles.admin"),
-        color: "text-muted-foreground dark:text-purple-400",
+        color: "text-muted-foreground dark:text-chart-4",
         bg: "bg-muted",
       },
       manager: {
         label: t("roles.manager"),
-        color: "text-lamp-ink",
+        color: "text-primary-ink",
         bg: "bg-primary/15",
       },
       user: {
@@ -406,7 +406,7 @@ export default function ProfilePage() {
           <ElevatedContainer className="flex items-center justify-center py-20 border border-border bg-card">
             <div className="flex flex-col items-center gap-4">
               <CircleNotch
-                className="h-8 w-8 animate-spin text-lamp-ink"
+                className="h-8 w-8 animate-spin text-primary-ink"
                 weight="bold"
               />
               <p className="text-sm text-muted-foreground">{t("loading")}</p>
@@ -464,7 +464,7 @@ export default function ProfilePage() {
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center">
-                    <span className="text-2xl font-semibold text-lamp-ink">
+                    <span className="text-2xl font-semibold text-primary-ink">
                       {initials}
                     </span>
                   </div>
@@ -473,7 +473,7 @@ export default function ProfilePage() {
               {uploadingAvatar && (
                 <div className="absolute inset-0 flex items-center justify-center rounded-[--radius] bg-background">
                   <CircleNotch
-                    className="h-6 w-6 animate-spin text-lamp-ink"
+                    className="h-6 w-6 animate-spin text-primary-ink"
                     weight="bold"
                   />
                 </div>
@@ -528,7 +528,7 @@ export default function ProfilePage() {
 
           <div className="rounded-[--radius] border border-border bg-muted p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <span className="text-xs font-medium text-muted-foreground">
                 {t("info.name")}
               </span>
               <span className="text-sm font-medium text-foreground">
@@ -537,7 +537,7 @@ export default function ProfilePage() {
             </div>
             <div className="h-px bg-border" />
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <span className="text-xs font-medium text-muted-foreground">
                 {t("info.email")}
               </span>
               <span className="text-sm font-medium text-foreground truncate ml-4 max-w-[260px]">
@@ -546,7 +546,7 @@ export default function ProfilePage() {
             </div>
             <div className="h-px bg-border" />
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <span className="text-xs font-medium text-muted-foreground">
                 {t("info.role")}
               </span>
               {roleBadge ? (
@@ -563,7 +563,7 @@ export default function ProfilePage() {
               <>
                 <div className="h-px bg-border" />
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <span className="text-xs font-medium text-muted-foreground">
                     {t("info.emailStatus")}
                   </span>
                   <span
@@ -587,7 +587,7 @@ export default function ProfilePage() {
               <>
                 <div className="h-px bg-border" />
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <span className="text-xs font-medium text-muted-foreground">
                     {t("info.userId")}
                   </span>
                   <span className="text-xs font-mono text-muted-foreground truncate ml-4 max-w-[220px]">
@@ -604,7 +604,7 @@ export default function ProfilePage() {
                 <span className="legend">
                   {t("info.plan")}
                 </span>
-                <span className="readout text-[13px] font-semibold text-foreground">
+                <span className="readout text-sm font-semibold text-foreground">
                   {plan.name}
                 </span>
               </div>
@@ -623,7 +623,7 @@ export default function ProfilePage() {
           {user?.hasDocument ? (
             <div className="rounded-[--radius] border border-border bg-muted p-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <span className="text-xs font-medium text-muted-foreground">
                   {t("document.label")}
                 </span>
                 <span className="text-sm font-mono font-medium text-foreground">
@@ -647,7 +647,7 @@ export default function ProfilePage() {
                 inputMode="numeric"
               />
               {documentError && (
-                <p className="text-xs text-red-500">{documentError}</p>
+                <p className="text-xs text-destructive-ink">{documentError}</p>
               )}
               {documentSaved && (
                 <p className="text-xs text-healthy">
@@ -732,7 +732,7 @@ export default function ProfilePage() {
                   >
                     <div className="flex flex-col items-center gap-3">
                       <CircleNotch
-                        className="h-8 w-8 animate-spin text-lamp-ink"
+                        className="h-8 w-8 animate-spin text-primary-ink"
                         weight="bold"
                       />
                       <p className="text-sm text-muted-foreground">
@@ -753,7 +753,7 @@ export default function ProfilePage() {
                     <div className="flex items-start justify-between gap-3 mb-4">
                       <div className="flex items-start gap-3">
                         <Lock
-                          className="h-5 w-5 text-lamp-ink mt-0.5"
+                          className="h-5 w-5 text-primary-ink mt-0.5"
                           weight="fill"
                         />
                         <div>
@@ -780,7 +780,7 @@ export default function ProfilePage() {
 
                     {passwordResetError && (
                       <div className="mb-4 flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/30 p-3">
-                        <p className="text-sm text-destructive dark:text-red-400">
+                        <p className="text-sm text-destructive dark:text-destructive">
                           {passwordResetError}
                         </p>
                       </div>
@@ -870,7 +870,7 @@ export default function ProfilePage() {
                       <button
                         type="button"
                         onClick={handleSendPasswordReset}
-                        className="text-xs text-lamp-ink hover:text-lamp-ink/80 font-medium transition-colors"
+                        className="text-xs text-primary-ink hover:text-primary-ink/80 font-medium transition-colors"
                       >
                         {t("security.resendCode")}
                       </button>
@@ -889,7 +889,7 @@ export default function ProfilePage() {
                   >
                     <div className="flex flex-col items-center gap-3">
                       <CircleNotch
-                        className="h-8 w-8 animate-spin text-lamp-ink"
+                        className="h-8 w-8 animate-spin text-primary-ink"
                         weight="bold"
                       />
                       <p className="text-sm text-muted-foreground">
@@ -936,7 +936,7 @@ export default function ProfilePage() {
             {/* 2FA placeholder */}
             <div className="rounded-[--radius] border border-border bg-muted p-4">
               <div className="flex items-start gap-3">
-                <Lock className="h-5 w-5 text-lamp-ink mt-0.5" weight="fill" />
+                <Lock className="h-5 w-5 text-primary-ink mt-0.5" weight="fill" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-foreground">
                     {t("security.twoFactor")}
@@ -956,7 +956,7 @@ export default function ProfilePage() {
 
       {/* Active Sessions */}
       <motion.div variants={itemVariants}>
-        <ElevatedContainer className="border border-border bg-card p-6">
+        <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <IconBox color="primary" size="sm">
@@ -976,7 +976,7 @@ export default function ProfilePage() {
           {sessionsLoading ? (
             <div className="flex items-center justify-center py-10">
               <CircleNotch
-                className="h-6 w-6 animate-spin text-lamp-ink"
+                className="h-6 w-6 animate-spin text-primary-ink"
                 weight="bold"
               />
             </div>
@@ -1010,7 +1010,7 @@ export default function ProfilePage() {
                             {device.browser}, {device.os}
                           </p>
                           {session.isCurrent && (
-                            <span className="inline-flex items-center rounded-[--radius] bg-healthy px-2 py-0.5 text-[10px] font-semibold text-white">
+                            <span className="inline-flex items-center rounded-[--radius] bg-healthy px-2 py-0.5 text-[11px] font-semibold text-healthy-foreground">
                               {t("sessions.thisDevice")}
                             </span>
                           )}
@@ -1038,7 +1038,7 @@ export default function ProfilePage() {
                       <button
                         onClick={() => handleRevokeSession(session.id)}
                         disabled={isRevoking}
-                        className="shrink-0 flex items-center gap-1.5 rounded-lg border border-destructive bg-destructive px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-destructive disabled:opacity-50"
+                        className="shrink-0 flex items-center gap-1.5 rounded-lg border border-destructive bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground transition-colors hover:bg-destructive disabled:opacity-50"
                       >
                         {isRevoking ? (
                           <CircleNotch

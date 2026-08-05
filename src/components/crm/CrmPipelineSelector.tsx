@@ -68,14 +68,14 @@ export default function CrmPipelineSelector({
         key: "conversation" as PipelineObjectType,
         label: "Atendimento",
         icon: <ChatCircle weight="fill" className="h-3.5 w-3.5 text-white" />,
-        tile: "bg-foreground/80",
+        tile: "bg-foreground/80 text-background",
         pipelines: conversation,
       },
       {
         key: "opportunity" as PipelineObjectType,
         label: "Vendas",
         icon: <TrendUp weight="bold" className="h-3.5 w-3.5 text-white" />,
-        tile: "bg-primary",
+        tile: "tile-brand",
         pipelines: opportunity,
       },
     ],
@@ -98,7 +98,7 @@ export default function CrmPipelineSelector({
         <button
           type="button"
           className={cn(
-            "inline-flex h-9 min-w-[190px] items-center gap-2 rounded-[--radius] border border-border bg-card px-2.5 text-[13px] font-medium text-foreground transition-colors hover:border-foreground/20 hover:bg-muted",
+            "inline-flex h-9 min-w-[190px] items-center gap-2 rounded-[--radius] border border-border bg-card px-2.5 text-sm font-medium text-foreground transition-colors hover:border-foreground/20 hover:bg-muted",
             className,
           )}
         >
@@ -115,7 +115,7 @@ export default function CrmPipelineSelector({
             )}
           </span>
           <span className="flex min-w-0 flex-col items-start leading-tight">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="text-[11px] font-semibold text-muted-foreground">
               {isAll ? "Escopo" : (activeGroup?.label ?? "Funil")}
             </span>
             <span className="max-w-[9rem] truncate">{activeName}</span>
@@ -138,7 +138,7 @@ export default function CrmPipelineSelector({
             setOpen(false);
           }}
           className={cn(
-            "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[13px] transition-colors",
+            "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition-colors",
             disableAllFunnels
               ? "cursor-not-allowed opacity-40"
               : isAll
@@ -173,7 +173,7 @@ export default function CrmPipelineSelector({
                 >
                   {group.icon}
                 </span>
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                <span className="text-[11px] font-semibold text-muted-foreground">
                   {group.label}
                 </span>
               </div>
@@ -188,7 +188,7 @@ export default function CrmPipelineSelector({
                       setOpen(false);
                     }}
                     className={cn(
-                      "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[13px] transition-colors",
+                      "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition-colors",
                       isActive
                         ? "bg-muted font-medium text-foreground"
                         : "text-foreground hover:bg-muted",

@@ -205,7 +205,7 @@ function SectionTitle({
       <div className="flex min-w-0 items-start gap-2.5">
         <div
           className={cn(
-            "flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius] text-white",
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius]",
             iconBg,
           )}
         >
@@ -382,7 +382,7 @@ function KpiStrip({
           className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-[--radius] border border-dashed border-border bg-muted px-3 py-2 text-xs text-muted-foreground"
           title={t("shellHint")}
         >
-          <span className="font-semibold uppercase tracking-wide text-muted-foreground/90">
+          <span className="font-semibold text-muted-foreground/90">
             {t("shellLabel")}
           </span>
           <span className="tabular-nums text-foreground">
@@ -429,7 +429,7 @@ function StatBlock({
       )}
       title={hint}
     >
-      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <p className="text-[11px] font-semibold text-muted-foreground">
         {label}
       </p>
       <p className="mt-1 text-lg font-semibold tabular-nums tracking-tight text-foreground">
@@ -509,7 +509,7 @@ function ChannelMixChart({
                 <div className="flex min-w-0 items-center gap-2.5">
                   <div
                     className={cn(
-                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius] text-white",
+                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius]",
                       d.solid,
                     )}
                   >
@@ -584,7 +584,7 @@ function ExtendedOpsPanels({
           <Surface className="xl:col-span-6">
             <SectionTitle
               icon={<Lightning className="h-4 w-4" weight="fill" />}
-              iconBg="bg-muted"
+              iconBg="tile-neutral"
               title={ts("frtTitle")}
               subtitle={ts("frtSub")}
             />
@@ -632,7 +632,7 @@ function ExtendedOpsPanels({
           <Surface className="xl:col-span-3">
             <SectionTitle
               icon={<ChartBar className="h-4 w-4" weight="fill" />}
-              iconBg="bg-muted"
+              iconBg="tile-neutral"
               title={ts("messages")}
               subtitle={ts("messagesSub")}
             />
@@ -685,7 +685,7 @@ function ExtendedOpsPanels({
           <Surface className="xl:col-span-3">
             <SectionTitle
               icon={<Pulse className="h-4 w-4" weight="fill" />}
-              iconBg="bg-orange-500"
+              iconBg="tile-warning"
               title={ts("reopen")}
               subtitle={ts("reopenSub")}
             />
@@ -742,7 +742,7 @@ function ExtendedOpsPanels({
         <Surface>
           <SectionTitle
             icon={<WhatsappLogo className="h-4 w-4" weight="fill" />}
-            iconBg="bg-[#25d366]"
+            iconBg="bg-[#25d366] text-white"
             title={ts("templatesTitle")}
             subtitle={ts("templatesTitleSub")}
           />
@@ -797,7 +797,7 @@ function ExtendedOpsPanels({
         <Surface>
           <SectionTitle
             icon={<ChartPie className="h-4 w-4" weight="fill" />}
-            iconBg="bg-healthy"
+            iconBg="tile-healthy"
             title={ts("channelsUsed")}
             subtitle={ts("channelsUsedSub")}
           />
@@ -810,7 +810,7 @@ function ExtendedOpsPanels({
         <Surface>
           <SectionTitle
             icon={<Robot className="h-4 w-4" weight="fill" />}
-            iconBg="bg-warning"
+            iconBg="tile-warning"
             title={ts("aiTitle")}
             subtitle={ts("aiTitleSub")}
           />
@@ -994,11 +994,11 @@ function CloseOriginCell({
         <span className="mx-0.5 font-normal text-muted-foreground">/</span>
         {fmt.num(s)}
       </span>
-      <span className="text-[10px] leading-none text-muted-foreground">
+      <span className="text-[11px] leading-none text-muted-foreground">
         {tl("closeOriginHint")}
       </span>
       {a > 0 ? (
-        <span className="text-[10px] leading-none text-muted-foreground">
+        <span className="text-[11px] leading-none text-muted-foreground">
           {tl("closeOriginAi", { count: fmt.num(a) })}
         </span>
       ) : null}
@@ -1108,7 +1108,7 @@ function StatusCompositionChart({
 
       <div className="space-y-2.5">
         <div className="rounded-[--radius] border border-border bg-background px-3 py-2">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <p className="text-[11px] font-semibold text-muted-foreground">
             {tl("pctFinished")}
           </p>
           <p className="mt-0.5 text-2xl font-semibold tabular-nums text-foreground">
@@ -1144,7 +1144,7 @@ function StatusCompositionChart({
                     style={{ width: `${pct}%`, backgroundColor: s.color }}
                   />
                 </div>
-                <p className="mt-0.5 text-right text-[10px] tabular-nums text-muted-foreground">
+                <p className="mt-0.5 text-right text-[11px] tabular-nums text-muted-foreground">
                   {tl("pctOfTotal", { pct: pct.toFixed(1) })}
                 </p>
               </li>
@@ -1178,7 +1178,7 @@ function OverallCloseOriginNote({
       : "0%";
   return (
     <div className="mt-3 rounded-[--radius] border border-border bg-background px-3 py-2.5">
-      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <p className="text-[11px] font-semibold text-muted-foreground">
         {tl("closeOriginCol")}
       </p>
       <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
@@ -1212,7 +1212,7 @@ function OverallCloseOriginNote({
           </span>
         ) : null}
       </div>
-      <p className="mt-1 text-[10px] text-muted-foreground">
+      <p className="mt-1 text-[11px] text-muted-foreground">
         {tl("closeOriginOverallHint")}
       </p>
     </div>
@@ -1582,7 +1582,7 @@ function DepartmentDetailTable({
     <div className="overflow-x-auto">
       <table className="w-full min-w-[520px] text-left text-sm">
         <thead>
-          <tr className="border-b border-border text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <tr className="border-b border-border text-[11px] font-semibold text-muted-foreground">
             <th className="px-2 py-2">{tc("department")}</th>
             <th className="px-2 py-2 text-right" title={tl("waitColTitle")}>
               {tc("wait")}
@@ -1632,7 +1632,7 @@ function DepartmentDetailTable({
                 <td className="px-2 py-2.5 text-right tabular-nums text-foreground">
                   {fmt.num(r.ongoing)}
                 </td>
-                <td className="px-2 py-2.5 text-right tabular-nums text-warning dark:text-amber-400">
+                <td className="px-2 py-2.5 text-right tabular-nums text-warning dark:text-warning">
                   {fmt.num(r.pending)}
                 </td>
                 <td className="px-2 py-2.5 text-right font-semibold tabular-nums text-foreground">
@@ -1677,7 +1677,7 @@ function TeamDetailTable({
     <div className="overflow-x-auto">
       <table className="w-full min-w-[680px] text-left text-sm">
         <thead>
-          <tr className="border-b border-border text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <tr className="border-b border-border text-[11px] font-semibold text-muted-foreground">
             <th className="px-2 py-2">{tl("agentCol")}</th>
             <th className="px-2 py-2">{tc("type")}</th>
             <th className="px-2 py-2">{tc("status")}</th>
@@ -1715,7 +1715,7 @@ function TeamDetailTable({
                 <div className="flex items-center gap-2">
                   <div
                     className={cn(
-                      "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-white",
+                      "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg",
                       m.actor_kind === "ai" ? "bg-warning" : "bg-primary",
                     )}
                   >
@@ -1740,7 +1740,7 @@ function TeamDetailTable({
               <td className="px-2 py-2.5">
                 <span
                   className={cn(
-                    "inline-flex rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold text-white",
+                    "inline-flex rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold text-white",
                     m.actor_kind === "ai" ? "bg-warning" : "bg-primary",
                   )}
                 >
@@ -1786,7 +1786,7 @@ function TeamDetailTable({
               <td className="px-2 py-2.5 text-right tabular-nums">
                 {fmt.num(m.open)}
               </td>
-              <td className="px-2 py-2.5 text-right tabular-nums text-warning dark:text-amber-400">
+              <td className="px-2 py-2.5 text-right tabular-nums text-warning dark:text-warning">
                 {fmt.num(m.pending)}
               </td>
               <td className="px-2 py-2.5 text-right font-semibold tabular-nums text-healthy dark:text-healthy">
@@ -1971,7 +1971,7 @@ export default function AttendanceOpsPage() {
           {/* Compact filter bar */}
           <div className="mt-4 flex flex-col gap-3 rounded-[--radius] border border-border bg-background p-3 lg:flex-row lg:items-end lg:gap-3">
             <div className="min-w-0 flex-1">
-              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <p className="mb-1.5 text-[11px] font-semibold text-muted-foreground">
                 {tc("period")}
               </p>
               <ElevatedPillToggle
@@ -2064,7 +2064,7 @@ export default function AttendanceOpsPage() {
                 type="checkbox"
                 checked={includeAi}
                 onChange={(e) => setIncludeAi(e.target.checked)}
-                className="h-3.5 w-3.5 rounded border-border text-lamp-ink focus:ring-ring"
+                className="h-3.5 w-3.5 rounded border-border text-primary-ink focus:ring-ring"
               />
               <span className="whitespace-nowrap font-medium text-foreground">
                 {tl("showAi")}
@@ -2111,7 +2111,7 @@ export default function AttendanceOpsPage() {
           </div>
 
           {error ? (
-            <div className="mt-3 rounded-[--radius] border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+            <div className="mt-3 rounded-[--radius] border border-destructive/30 bg-muted px-3 py-2 text-sm text-destructive-ink">
               {error}
             </div>
           ) : null}
@@ -2141,7 +2141,7 @@ export default function AttendanceOpsPage() {
               <Surface className="xl:col-span-7">
                 <SectionTitle
                   icon={<ChartBar className="h-4 w-4" weight="fill" />}
-                  iconBg="bg-primary"
+                  iconBg="tile-brand"
                   title={ts("hourly")}
                   subtitle={ts("hourlySub")}
                 />
@@ -2154,7 +2154,7 @@ export default function AttendanceOpsPage() {
               <Surface className="xl:col-span-5">
                 <SectionTitle
                   icon={<ChartPie className="h-4 w-4" weight="fill" />}
-                  iconBg="bg-healthy"
+                  iconBg="tile-healthy"
                   title={ts("status")}
                   subtitle={ts("statusSub")}
                 />
@@ -2180,7 +2180,7 @@ export default function AttendanceOpsPage() {
               <Surface className="xl:col-span-5">
                 <SectionTitle
                   icon={<Buildings className="h-4 w-4" weight="fill" />}
-                  iconBg="bg-muted"
+                  iconBg="tile-neutral"
                   title={ts("deptChart")}
                   subtitle={ts("deptChartSub")}
                 />
@@ -2193,7 +2193,7 @@ export default function AttendanceOpsPage() {
               <Surface className="xl:col-span-7">
                 <SectionTitle
                   icon={<Buildings className="h-4 w-4" weight="fill" />}
-                  iconBg="bg-muted"
+                  iconBg="tile-neutral"
                   title={ts("deptTable")}
                   subtitle={ts("deptTableSub")}
                 />
@@ -2211,7 +2211,7 @@ export default function AttendanceOpsPage() {
               <Surface className="xl:col-span-5">
                 <SectionTitle
                   icon={<Users className="h-4 w-4" weight="fill" />}
-                  iconBg="bg-muted"
+                  iconBg="tile-neutral"
                   title={ts("teamRank")}
                   subtitle={ts("teamRankSub")}
                 />
@@ -2224,7 +2224,7 @@ export default function AttendanceOpsPage() {
               <Surface className="xl:col-span-7">
                 <SectionTitle
                   icon={<Users className="h-4 w-4" weight="fill" />}
-                  iconBg="bg-muted"
+                  iconBg="tile-neutral"
                   title={ts("teamDetail")}
                   subtitle={ts("teamDetailSub")}
                 />
@@ -2238,7 +2238,7 @@ export default function AttendanceOpsPage() {
 
           <motion.div variants={itemVariants}>
             <Surface className="!py-3">
-              <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <p className="mb-2 text-[11px] font-semibold text-muted-foreground">
                 {tc("glossaryTitle")}
               </p>
               <div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2 lg:grid-cols-3">

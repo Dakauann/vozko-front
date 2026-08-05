@@ -62,15 +62,15 @@ const basePadding: Record<ControlSize, string> = {
 };
 
 const activeVariantClasses: Record<BaseVariant, string> = {
-  primary: "bg-muted text-lamp-ink border border-dashed border-primary",
+  primary: "bg-muted text-primary-ink border border-dashed border-primary",
   secondary:
     "bg-muted text-secondary-foreground border border-dashed border-secondary",
   outline:
     "bg-muted text-foreground border border-dashed border-primary",
   ghost:
     "bg-background text-foreground border border-dashed border-foreground/30",
-  vsl: "bg-muted text-muted-foreground border border-dashed border-cyan-500",
-  action: "bg-muted text-lamp-ink border border-dashed border-primary",
+  vsl: "bg-muted text-muted-foreground border border-dashed border-info",
+  action: "bg-muted text-primary-ink border border-dashed border-primary",
 };
 
 const inactiveVariantClasses: Record<BaseVariant, string> = {
@@ -82,18 +82,18 @@ const inactiveVariantClasses: Record<BaseVariant, string> = {
     "bg-transparent text-foreground border border-dashed border-foreground/20 hover:border-foreground/30 hover:bg-muted",
   ghost:
     "bg-transparent text-foreground border border-dashed border-border hover:border-foreground/20 hover:bg-muted",
-  vsl: "bg-transparent text-muted-foreground border border-dashed border-foreground/20 hover:border-cyan-300 hover:bg-muted",
+  vsl: "bg-transparent text-muted-foreground border border-dashed border-foreground/20 hover:border-info/30 hover:bg-muted",
   action:
     "bg-transparent text-muted-foreground border border-dashed border-foreground/20 hover:border-foreground/30 hover:bg-muted",
 };
 
 const iconColorByVariant: Record<BaseVariant, string> = {
-  primary: "text-lamp-ink",
+  primary: "text-primary-ink",
   secondary: "text-secondary-foreground",
-  outline: "text-lamp-ink",
+  outline: "text-primary-ink",
   ghost: "text-foreground",
   vsl: "text-muted-foreground",
-  action: "text-lamp-ink",
+  action: "text-primary-ink",
 };
 
 export function ElevatedSegmentedControl({

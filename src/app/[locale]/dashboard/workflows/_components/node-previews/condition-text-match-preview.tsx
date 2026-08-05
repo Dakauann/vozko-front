@@ -17,7 +17,7 @@ export function ConditionTextMatchPreview({
   return (
     <DecisionBlock>
       {text}
-      <span className="ml-1 font-sans text-[9px] text-muted-foreground">
+      <span className="ml-1 font-sans text-[11px] text-muted-foreground">
         · {mode} · {n} caso{n === 1 ? "" : "s"}
       </span>
     </DecisionBlock>

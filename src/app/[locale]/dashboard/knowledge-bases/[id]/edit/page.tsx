@@ -69,7 +69,7 @@ export default function EditKnowledgeBasePage() {
     return (
       <div className="flex items-center justify-center py-20">
         <CircleNotch
-          className="h-8 w-8 animate-spin text-lamp-ink"
+          className="h-8 w-8 animate-spin text-primary-ink"
           weight="bold"
         />
       </div>
@@ -103,7 +103,7 @@ export default function EditKnowledgeBasePage() {
           badge={t("title")}
           title={knowledgeBase.name}
           description={t("description")}
-          colorClass="text-cyan-500"
+          colorClass="text-info-ink"
         />
       </motion.div>
 

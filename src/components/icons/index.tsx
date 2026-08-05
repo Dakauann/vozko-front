@@ -264,8 +264,10 @@ export type Icon = React.FC<IconProps>;
 /**
  * Wrap a Tabler icon in the old call signature.
  *
- * stroke is pinned to 1.75: Tabler's 2 is a touch heavy beside 13px Archivo at
- * the 14-18px sizes this UI actually renders at.
+ * stroke is pinned to 1.6: Tabler's default 2 is heavy beside Inter, and the
+ * previous 1.75 was balanced against a squarer, denser face at 13px. Inter at
+ * 14px has more open counters and a lighter colour on the page, so the icons
+ * step down with it to stay the same visual weight as the text they label.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- `weight` is
 // destructured precisely so it is swallowed and never reaches the SVG.
@@ -274,7 +276,7 @@ function adapt(Cmp: TablerIcon): Icon {
     <Cmp
       size={typeof size === "string" ? Number.parseFloat(size) || 24 : size}
       color={color}
-      stroke={1.75}
+      stroke={1.6}
       style={mirrored ? { ...style, transform: "scaleX(-1)" } : style}
       {...rest}
     />

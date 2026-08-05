@@ -1,27 +1,30 @@
 import "./globals.css";
 import "highlight.js/styles/github.css";
 
-import { Archivo } from "next/font/google";
+import { Inter } from "next/font/google";
 
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { getBrand } from "@/config/brand";
 
 /**
- * Archivo is the single UI face (Console identity).
+ * Inter is the single UI face (Surface identity).
  *
- * A grotesque with a squarer, more mechanical skeleton than the neutral sans it
- * replaces, which is what lets one family cover both registers this design
- * needs: normal width for body and data, and the `wdth` axis pushed to ~112 for
- * the small tracked caps that legend every panel. One family, per product-UI
- * practice — no display/body pairing.
+ * Neither reference face can ship here — one is a system font, the other is
+ * proprietary — and Inter is the closest honest stand-in for both: it is
+ * effectively the register one of them sets its dashboard in, and a clean
+ * substitute for the other. It replaces a grotesque with a squarer, more
+ * mechanical skeleton that was chosen to serve the retired panel identity, and
+ * whose small tracked caps that design depended on are gone with it.
+ *
+ * One family, per product-UI practice — no display/body pairing. Weight and
+ * size carry the hierarchy.
  *
  * `latin-ext` is required, not optional: pt-BR, de and es all need it.
  */
-const archivo = Archivo({
-  variable: "--font-archivo",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin", "latin-ext"],
-  axes: ["wdth"],
   display: "swap",
 });
 
@@ -44,17 +47,17 @@ export default function RootLayout({
   return (
     <html
       suppressHydrationWarning
-      // Product default is light (the Console enamel panel). The use scene
-      // decides this, not taste: Brazilian operations floors under fluorescent
-      // light, full shifts, many 1366x768 laptops, text-dense queues read for
-      // hours. Dark is a first-class graphite panel, not an inversion. System
-      // can still override via next-themes; pinning color-scheme avoids a
-      // pure-black FOUC before the theme class hydrates on some browsers.
+      // Product default is light. The use scene decides this, not taste:
+      // Brazilian operations floors under fluorescent light, full shifts, many
+      // 1366x768 laptops, text-dense queues read for hours. Dark is a
+      // first-class cool-slate scene, not an inversion. System can still
+      // override via next-themes; pinning color-scheme avoids a pure-black
+      // FOUC before the theme class hydrates on some browsers.
       className="light"
       style={{ colorScheme: "light" }}
     >
       <body
-        className={`${archivo.variable} font-sans antialiased bg-background text-foreground`}
+        className={`${inter.variable} font-sans antialiased bg-background text-foreground`}
       >
         {/* The direction contract, emitted as a real HTML comment so it
             survives the production build and stays auditable. A JSX comment
@@ -63,19 +66,25 @@ export default function RootLayout({
           hidden
           dangerouslySetInnerHTML={{
             __html: `<!--
-  THESIS: Many labeled channels, one operator, every state lit and visible. This
-  surface refuses the hover-to-reveal icon rail and the floating rounded card -
-  an attendant sitting eight hours should never hunt for a label or guess a state.
-  OWN-WORLD: Enamel/graphite panel ground with content recessed into paper wells,
-  engraved hairline rules instead of shadows, silkscreen caps legends, 2px radius
-  everywhere, tabular figures on every number, and one orange lamp reserved for
-  lit state and commit.
-  STORY: The operator reads queue depth per channel in one glance, finds any
-  conversation without hunting, and acts without leaving the strip.
-  FIRST VIEWPORT: 208px full-height spine owns the top-left corner and carries the
-  workspace selector at its head; a 48px header bar starts to the right of it with
-  scope route left and readouts right; content sits recessed below.
-  FORM: Console channel-strip, candidate 6 of the grounded list, seed 304906d6.
+  THESIS: An operator tool that looks like the software this business runs its
+  money through. This surface refuses the machined control panel it replaces -
+  the engraved groove, the single flat 2px corner, the putty-beige ground and
+  the stencilled caps legend - and refuses equally the soft pill-and-gradient
+  shell that came before it.
+  OWN-WORLD: Content sits ON a cool near-white canvas as clean white sheets,
+  layered by a slate-tinted micro-shadow stack; a real corner ramp of 4/6/8/10/
+  12/16px; hairline borders that compose with elevation instead of cutting into
+  it; Inter at 14px; tabular figures on every number; and hue-17 orange spent
+  only on commit, selection and focus.
+  STORY: An attendant reads queue depth per channel in one glance, finds any
+  conversation without hunting, and acts without leaving the strip - now in an
+  interface a manager is willing to show a client.
+  FIRST VIEWPORT: 208px full-height spine owns the top-left corner and carries
+  the workspace selector at its head; a 48px header bar starts to the right of
+  it with scope route left and readouts right; content sits on the canvas below.
+  Topology is inherited unchanged - the layout was never the problem.
+  FORM: Fluent 2 x Stripe, the category canon executed at full fidelity, pinned
+  by the user rather than rolled. Seed key 7fb31c40.
   FINISH: unreviewed and undocumented is unfinished; this build ends with the
   finish review, the verdict, and DESIGN.md.
 -->`,

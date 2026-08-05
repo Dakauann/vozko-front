@@ -63,7 +63,7 @@ const components: Components = {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="font-medium text-lamp-ink underline underline-offset-2 hover:text-lamp-ink/80"
+      className="font-medium text-primary-ink underline underline-offset-2 hover:text-primary-ink/80"
     >
       {children}
     </a>
@@ -81,9 +81,9 @@ const components: Components = {
     </div>
   ),
   th: ({ children }) => (
-    <th className="border border-border bg-muted px-2 py-1 text-left font-semibold">{children}</th>
+    <th className="rounded-lg border border-border bg-muted px-2 py-1 text-left font-semibold">{children}</th>
   ),
-  td: ({ children }) => <td className="border border-border px-2 py-1">{children}</td>,
+  td: ({ children }) => <td className="rounded-lg border border-border px-2 py-1">{children}</td>,
   // Inline code only, block code is handled by the `pre` override below.
   code: ({ className: codeClass, children, ...props }) => {
     const isBlock = /language-|hljs/.test(codeClass ?? "");

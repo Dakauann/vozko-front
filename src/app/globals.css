@@ -11,15 +11,19 @@
 */
 @media (min-width: 1024px) and (max-width: 1440px) {
   html {
-    font-size: 87.5%;
-    /* 14px: a 1366px screen behaves like ~1560px */
+    font-size: 92%;
+    /* 14.7px. The previous identity ran 87.5% because its body size was 13px
+       fixed-px and did not scale with it. Body is now 14px in rem, so it does:
+       at 87.5% a table cell would render 12.25px, below the floor this product
+       can ask an attendant to read for a full shift. 92% lands ~12.9px, i.e.
+       the density the old build actually shipped, with a size that scales. */
   }
 }
 
 @media (min-width: 1441px) and (max-width: 1599px) {
   html {
-    font-size: 93.75%;
-    /* 15px: gentle step so 1440 to 1600 is not a jarring jump */
+    font-size: 96%;
+    /* Gentle step so 1440 to 1600 is not a jarring jump. */
   }
 }
 
@@ -132,24 +136,30 @@ input:-webkit-autofill:active {
   }
 
   /*
-    The silkscreen register. A console legends its panel in small, wide-tracked
-    caps set beside the control they name — this is that, and it is the only
-    place caps are used. It is a LABEL, never a kicker stacked above a heading.
+    Section and column labels.
+
+    Unchanged in NAME only, so all 160 call sites keep working — but the register
+    is new. The outgoing identity set these as 10px uppercase tracked 0.14em: a
+    silkscreen stencil legend, which is exactly the device that read as
+    industrial and dated. Both reference systems label the same way instead — a
+    small semibold sentence-case label in secondary ink. Casing now comes back
+    from the i18n string rather than from CSS, so each translation keeps its own
+    capitalisation rules (German nouns, Portuguese sentence case) instead of
+    being flattened to caps.
   */
   .legend {
-    font-size: 10px;
-    line-height: 1;
+    font-size: 12px;
+    line-height: 1.3;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    font-stretch: 112%;
+    letter-spacing: -0.005em;
     color: hsl(var(--muted-foreground));
   }
 
   /*
     Anywhere a number lives. Tabular figures keep columns of counts, currency
-    and durations from shifting width as they tick, which is the whole reason a
-    console uses a fixed readout.
+    and durations from shifting width as they tick. This one is pure function and
+    survives the identity change untouched — both reference systems set data in
+    lining tabular figures for the same reason.
   */
   .readout {
     font-variant-numeric: tabular-nums;
@@ -158,31 +168,34 @@ input:-webkit-autofill:active {
   }
 
   /*
-    The lamp. An indicator pip, not a border: short, centred on the row, and
-    always accompanied by a brightened label and a sunk ground so the state
-    never rests on colour alone.
+    The selection bar.
+
+    Was a 3x12px hard-cornered pip — a lit lamp on a panel. It is now the
+    selected-item indicator both reference systems use: a short, fully rounded
+    bar pinned to the leading edge of the active row. The element and its class
+    name are kept so the ~348 call sites that toggle its opacity keep working;
+    only the shape and its partner treatment changed. Selection still never
+    rests on colour alone — the row also takes a tinted ground and a heavier
+    label.
   */
   .lamp {
     width: 3px;
-    height: 12px;
-    border-radius: 1px;
-    background: hsl(var(--lamp));
+    height: 16px;
+    border-radius: 9999px;
+    background: hsl(var(--primary));
     flex-shrink: 0;
   }
 
   /*
     Category inks.
 
-    A console is not monochrome — a patch bay is colour-coded, and so is a bank
-    of channel strips. What it never has is a grid of saturated candy tiles.
-
-    So category identity lives in the GLYPH, not in a filled tile: the tile stays
-    a recessed neutral well and the icon takes one of five inks. The inks are the
-    chart series (--chart-1..5), reused deliberately so the product has one
+    Category identity lives in the GLYPH, not in a saturated filled tile: the
+    plate stays a quiet neutral and the icon takes one of five inks. The inks are
+    the chart series (--chart-1..5), reused deliberately so the product has one
     colour vocabulary rather than two — a category reads the same in a tile as it
     does in a graph.
 
-    These are identity, never state. State is still the lamp.
+    These are identity, never state.
   */
   .ink-1 { color: hsl(var(--chart-1)); }
   .ink-2 { color: hsl(var(--chart-2)); }
@@ -190,13 +203,53 @@ input:-webkit-autofill:active {
   .ink-4 { color: hsl(var(--chart-4)); }
   .ink-5 { color: hsl(var(--chart-5)); }
 
-  /* The matching recessed plate an ink glyph sits on. */
+  /* The plate an ink glyph sits on: a soft tinted chip, no engraved edge. */
   .ink-plate {
     background: hsl(var(--muted));
-    border: 1px solid hsl(var(--border));
-    border-top-color: hsl(var(--rule-strong));
-    border-radius: var(--radius);
+    border: 1px solid hsl(var(--border) / 0.7);
+    border-radius: 8px;
   }
+
+  /*
+    Glyph tiles.
+
+    THE RULE: colour is a MARK, never a wash behind its own hue.
+
+    Two patterns are banned here and both were in this codebase.
+
+    1. A saturated block carrying a WHITE glyph, with the block's colour
+       supplied by a prop. It fails outright when the caller passes a neutral
+       fill — several tiles on the attendance metrics page were rendering as
+       empty squares, white-on-pale — and when the caller does pass a saturated
+       fill, a grid of solid colour blocks is enormous weight for something that
+       only labels a section.
+
+    2. A 10-15% wash of a hue carrying text or a glyph in a darker shade of THAT
+       SAME hue. It is the most recognisable tell of a generated interface, it
+       muddies at small sizes, and it makes six different states look like six
+       variations of one thing.
+
+    So the plate is always the same quiet neutral and only the GLYPH takes the
+    status colour. The tile stops competing for attention, the six states differ
+    by mark rather than by background, and the glyph is legible on every one
+    because it is always sitting on the same known ground.
+  */
+  .tile-neutral,
+  .tile-brand,
+  .tile-healthy,
+  .tile-warning,
+  .tile-fault,
+  .tile-info {
+    background: hsl(var(--muted));
+    border: 1px solid hsl(var(--border));
+    border-radius: 8px;
+  }
+  .tile-neutral { color: hsl(var(--muted-foreground)); }
+  .tile-brand   { color: hsl(var(--primary-ink)); }
+  .tile-healthy { color: hsl(var(--healthy-ink)); }
+  .tile-warning { color: hsl(var(--warning-ink)); }
+  .tile-fault   { color: hsl(var(--destructive-ink)); }
+  .tile-info    { color: hsl(var(--info-ink)); }
 
   /*
     Touch floor.
@@ -216,21 +269,62 @@ input:-webkit-autofill:active {
     }
   }
 
-  /* An engraved divider: a cut line, not a drawn box. */
+  /*
+    A plain hairline divider. The outgoing version added a 1px light line under
+    the rule to fake an engraved cut; that highlight is what made every divider
+    look like a machined groove, so it is gone. Kept under its old name because
+    22 call sites reference it.
+  */
   .rule-engraved {
     border-bottom: 1px solid hsl(var(--border));
-    box-shadow: 0 1px 0 hsl(var(--card) / 0.6);
   }
 
   /*
-    A well is content recessed INTO the panel. The darker top edge is what
-    sells the recess; a shadow would put it back on top of the panel.
+    A surface. Content sits ON the canvas as a clean sheet, layered by elevation.
+
+    This is the exact inversion of what this class used to mean: it was a well,
+    content recessed INTO the panel, sold by a darker top edge and no shadow at
+    all. The name is kept because 35 call sites use it, but the material is the
+    opposite one — a white sheet, a hairline that reads as a boundary rather than
+    a cut, and the first step of the elevation stack.
   */
   .well {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
-    border-top-color: hsl(var(--rule-strong));
-    border-radius: var(--radius);
+    border-radius: 8px;
+    box-shadow: var(--elev-1);
+  }
+
+  /*
+    Focus, part one: the halo.
+
+    A 1px solid core in the brand hue plus a soft outer ring at low alpha. This
+    is the ring the reference dashboards put on every focusable control, and it
+    reads at a glance without the 2px hard outline the outgoing identity used.
+    Applied on :focus-visible only, so pointer users never see it.
+  */
+  .focus-halo:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 1px hsl(var(--primary)),
+      0 0 0 3px hsl(var(--primary) / 0.2);
+  }
+
+  /*
+    Focus, part two: the field underline.
+
+    The other reference system lands a 2px brand rule along the bottom edge of a
+    focused text field — its single most recognisable control detail. Drawing it
+    as an inset shadow rather than a border means no layout shift and no extra
+    DOM, so it drops into every existing bare <input> and <textarea>.
+  */
+  .focus-field:focus-visible,
+  .focus-field:focus-within {
+    outline: none;
+    border-color: hsl(var(--border-strong));
+    box-shadow:
+      inset 0 -2px 0 0 hsl(var(--primary)),
+      0 0 0 3px hsl(var(--primary) / 0.16);
   }
 }
 
@@ -258,192 +352,334 @@ input:-webkit-autofill:active {
 
 
 /*
-  CONSOLE — the panel palette.
+  SURFACE — the sheet palette.
 
-  The ground is an enamel/graphite PANEL and content sits RECESSED into it as
-  paper wells. That is the inverse of the previous model (white cards floating
-  above a light ground on soft shadows), and it is what carries the identity:
-  depth here comes from an engraved hairline and a darker top edge, never from
-  a shadow.
+  Content sits ON a soft cool canvas as clean white sheets, layered by
+  elevation. That is the inverse of the outgoing model (content cut INTO an
+  enamel panel, depth sold by an engraved hairline and a darker top edge, no
+  shadow anywhere), and the inversion is the identity: depth here is a stack of
+  slate-tinted micro-shadows, and a border is a boundary rather than a groove.
 
-  The accent hue is unchanged and deliberately so. What changed is its role:
-  it was a painted surface (filled nav rows, gradient tiles, pill buttons,
-  roughly a third of the chrome) and it is now a LAMP — a lit indicator at a
-  fraction of the area, flat, with no gradient and no glow. `--primary` is a
-  signal, not a text colour; where accent text is genuinely needed use
-  `--lamp-ink`, which is darkened to clear AA on a paper well.
+  The neutrals carry a deliberate cool cast. The outgoing ground was hue 40 at
+  87% lightness — a warm putty beige, and the single strongest reason the
+  interface read as old software. Every neutral here sits in the 210-227 band
+  instead, so white sheets read as white against it.
+
+  The accent hue is unchanged, by decision: hue 17 is the brand. What changed is
+  its shape. It was a lamp — a lit indicator pip on a panel — and it is now what
+  both reference systems spend their brand colour on: commit, selection, and
+  focus. --primary is a fill; accent TEXT uses --primary-ink, darkened until it
+  clears AA on white.
 */
 @layer base {
   :root {
-    /* Panel stack: chassis → well → sunk track */
-    --background: 40 7% 87%;
-    --foreground: 220 14% 15%;
-    --card: 42 14% 97%;
-    --card-foreground: 220 14% 15%;
-    --popover: 42 14% 97%;
-    --popover-foreground: 220 14% 15%;
+    /* Canvas → sheet → subtle fill */
+    --background: 210 38% 98%;
+    --foreground: 227 37% 16%;
+    --card: 0 0% 100%;
+    --card-foreground: 227 37% 16%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 227 37% 16%;
 
-    /* The lamp. Hue unchanged from the previous identity by decision. */
+    /* The brand. Hue unchanged; L42 measures 4.6:1 against white, so a 14px
+       button label on a filled primary clears AA with headroom. */
     --primary: 17 100% 42%;
     --primary-foreground: 0 0% 100%;
     --primary-hover: 17 100% 37%;
-    --primary-active: 17 100% 33%;
+    --primary-active: 17 100% 32%;
 
-    /* Accent TEXT only. --primary at L42 measures 4.36:1 on a paper well,
-       which is under AA; this is the same hue darkened until it clears. */
-    --lamp-ink: 17 90% 33%;
+    /* The tinted ground under a selected row, a soft badge, an active tab. */
+    --primary-subtle: 20 100% 96%;
+    --primary-subtle-hover: 20 100% 93%;
 
-    /* The indicator value. Identical to --primary in light, where a lit pip
-       and a filled button can share one colour; they cannot in dark. */
-    --lamp: 17 100% 42%;
+    /* Accent TEXT. --primary at L42 is 4.6:1 on white, which is fine for a
+       label on a filled button but leaves nothing for 12px secondary text on a
+       sheet; this is the same hue darkened until it has real margin (6.0:1). */
+    --primary-ink: 15 88% 36%;
 
-    --primary-50: 17 60% 95%;
-    --primary-100: 17 65% 90%;
-    --primary-200: 17 70% 82%;
-    --primary-300: 17 80% 70%;
-    --primary-400: 17 95% 55%;
-    --primary-500: 17 100% 47%;
+    --primary-50: 20 100% 97%;
+    --primary-100: 19 100% 93%;
+    --primary-200: 19 100% 86%;
+    --primary-300: 18 100% 74%;
+    --primary-400: 18 100% 60%;
+    --primary-500: 17 100% 50%;
     --primary-600: 17 100% 42%;
-    --primary-700: 17 95% 36%;
-    --primary-800: 17 90% 29%;
-    --primary-900: 17 85% 23%;
+    --primary-700: 16 96% 35%;
+    --primary-800: 15 90% 28%;
+    --primary-900: 14 84% 22%;
 
-    --secondary: 40 8% 92%;
-    --secondary-foreground: 220 14% 15%;
+    --secondary: 214 32% 96%;
+    --secondary-foreground: 227 37% 16%;
 
-    --accent: 40 8% 92%;
-    --accent-foreground: 220 14% 15%;
-    --accent-hover: 40 8% 88%;
+    --accent: 214 32% 96%;
+    --accent-foreground: 227 37% 16%;
+    --accent-hover: 214 30% 93%;
 
-    --muted: 40 8% 92%;
-    /* Measured, not estimated: at L40 this was 5.65:1 on --card and exactly
-       4.50:1 on --background — sitting on the AA line with no headroom, and
-       page descriptions do sit on the panel ground. L37 restores real margin
-       (6.4:1 on card, 5.1:1 on background). */
-    --muted-foreground: 220 8% 37%;
+    --muted: 214 32% 96%;
+    /* 5.7:1 on a white sheet, 5.5:1 on the canvas. Secondary text sits on both,
+       so it is measured against the worse of the two. */
+    --muted-foreground: 220 14% 42%;
 
-    /* Healthy / fault. Fault sits at 352 rather than the lamp's 17 so the two
-       are separable, and it is never the sole signal — every fault carries a
-       glyph and a label. */
-    --healthy: 152 48% 32%;
+    /* Status.
+
+       With an orange brand, warning is the colour most at risk of collapsing
+       into the accent, so it is pushed to a true amber at hue 45 rather than
+       the hue 42 the outgoing palette used, and status never rests on colour
+       alone — every one of these ships with a glyph and a label. Destructive
+       sits at 346, far enough from 17 that a delete button and a commit button
+       are never the same colour. */
+    --healthy: 160 84% 26%;
     --healthy-foreground: 0 0% 100%;
-    --warning: 42 84% 38%;
-    --warning-foreground: 0 0% 100%;
-    --destructive: 352 68% 44%;
+    --warning: 42 96% 45%;
+    --warning-foreground: 24 90% 14%;
+    --destructive: 352 74% 45%;
     --destructive-foreground: 0 0% 100%;
+    /* Informational. The blue the palette otherwise gives up by keeping orange
+       as the brand — banners, hints, neutral callouts. */
+    --info: 212 92% 43%;
+    --info-foreground: 0 0% 100%;
 
-    /* Engraved rules. --rule-strong is the top edge of a well: darker, so the
-       well reads as cut into the panel rather than laid on top of it. */
-    --border: 40 7% 73%;
-    --input: 40 7% 73%;
-    --rule-strong: 40 8% 62%;
+    /* Status INK: the text value, for a label sitting on a tint of its own hue.
+       A status colour tuned to be legible as a fill is not legible as 11px text
+       on a 10-15% wash of itself — amber is the worst offender and was the one
+       that failed first. Same split as --primary / --primary-ink. */
+    --healthy-ink: 160 84% 22%;
+    --warning-ink: 32 94% 30%;
+    --destructive-ink: 352 76% 40%;
+    --info-ink: 212 92% 36%;
 
-    /* Focus is its own hue. It must never be confused with the lamp, or a
-       keyboard user cannot tell "focused" from "current". */
-    --ring: 192 82% 32%;
+    /* Hairlines. --border is a boundary; --border-strong is the deliberate
+       step up for a field edge, a resting control, a table head rule. */
+    --border: 214 26% 90%;
+    --border-strong: 214 20% 80%;
+    --input: 214 26% 90%;
 
-    /* Charts do not use the lamp hue: a series colour that matches the state
-       signal makes a chart look like it is reporting state. */
-    --chart-1: 192 70% 34%;
-    --chart-2: 152 45% 34%;
-    --chart-3: 38 75% 45%;
-    --chart-4: 262 40% 52%;
-    --chart-5: 352 55% 48%;
+    /* Focus may own the brand hue now. The outgoing identity had to give focus
+       its own hue (192) because a lit accent pip already meant "current" and a
+       keyboard user could not tell the two apart. The pip is retired, so focus
+       takes the brand back — which is what both reference systems do. */
+    --ring: 17 100% 42%;
 
-    --radius: 2px;
+    /* Series colour, deliberately clear of the brand hue: a chart series that
+       matches the accent makes a graph look like it is reporting state. */
+    --chart-1: 231 60% 56%;
+    --chart-2: 160 70% 34%;
+    --chart-3: 43 92% 45%;
+    --chart-4: 199 89% 42%;
+    --chart-5: 280 52% 55%;
+
+    /* The control radius. The scale itself is remapped in tailwind.config.ts,
+       so this is the value ~1,000 `rounded-[--radius]` call sites resolve to. */
+    --radius: 6px;
 
     /*
-      Kept defined, deliberately transparent. Roughly thirty hand-written
-      box-shadow strings across elevated-design still interpolate these for an
-      inset top highlight — the raised-card cue this world does not use. An
-      undefined var would invalidate the whole declaration and drop shadows
-      unpredictably; transparent neutralises the highlight at every call site
-      at once and leaves the declarations valid.
+      The elevation stack.
+
+      Two shadows per step, always: a tight, near-opaque contact shadow that
+      draws the edge, and a wider, softer ambient one that gives it a room to
+      sit in. Both are tinted with a desaturated slate rather than neutral
+      black — a pure-black shadow over a cool canvas goes grey and dirty, and
+      the tint is what makes the stack read as considered rather than default.
     */
+    --elev-1:
+      0 1px 1px 0 hsl(228 40% 28% / 0.06),
+      0 1px 2px 0 hsl(228 40% 28% / 0.04);
+    --elev-2:
+      0 1px 1px 0 hsl(228 40% 28% / 0.07),
+      0 2px 5px -1px hsl(228 40% 28% / 0.07),
+      0 1px 2px 0 hsl(0 0% 0% / 0.04);
+    --elev-3:
+      0 2px 5px -1px hsl(228 40% 28% / 0.10),
+      0 1px 3px -1px hsl(0 0% 0% / 0.06);
+    --elev-4:
+      0 4px 12px -2px hsl(228 40% 28% / 0.12),
+      0 2px 6px -2px hsl(0 0% 0% / 0.06);
+    --elev-5:
+      0 8px 24px -4px hsl(228 40% 28% / 0.16),
+      0 4px 10px -4px hsl(0 0% 0% / 0.08);
+    --elev-6:
+      0 16px 48px -8px hsl(228 40% 28% / 0.22),
+      0 8px 16px -8px hsl(0 0% 0% / 0.10);
+
+    /*
+      Buttons get their own two steps rather than borrowing from the stack.
+
+      A filled button carries an inset bottom rule as well as its drop shadow —
+      that single dark line under the fill is what makes it read as a physical
+      key rather than a coloured rectangle, and it is the detail that most
+      distinguishes a finished button from a default one. The secondary variant
+      draws its border AS the first shadow layer (`0 0 0 1px`) so the border and
+      the elevation compose instead of fighting.
+    */
+    --elev-button:
+      0 1px 1px 0 hsl(228 40% 28% / 0.11),
+      0 1px 2px 0 hsl(0 0% 0% / 0.08),
+      inset 0 -1px 0 0 hsl(0 0% 0% / 0.12);
+    --elev-button-hover:
+      0 2px 4px -1px hsl(228 40% 28% / 0.16),
+      0 3px 8px -2px hsl(0 0% 0% / 0.10),
+      inset 0 -1px 0 0 hsl(0 0% 0% / 0.12);
+    --elev-button-quiet:
+      0 0 0 1px hsl(214 26% 88%),
+      0 1px 1px 0 hsl(228 40% 28% / 0.05),
+      0 2px 5px -1px hsl(228 40% 28% / 0.06);
+    --elev-button-quiet-hover:
+      0 0 0 1px hsl(214 22% 80%),
+      0 2px 5px -1px hsl(228 40% 28% / 0.12),
+      0 3px 8px -2px hsl(0 0% 0% / 0.06);
+
+    /*
+      Legacy aliases, kept defined on purpose.
+
+      Hundreds of call sites still name the outgoing identity's tokens. Defining
+      them as aliases means the migration never has a broken intermediate state
+      and no dynamic/computed class silently loses its colour: --rule-strong
+      resolves to the new strong hairline, and the two lamp tokens resolve to
+      the brand and its ink. --shadow-highlight* stay transparent because ~30
+      hand-written box-shadow strings interpolate them, and an undefined var
+      invalidates the whole declaration.
+    */
+    --rule-strong: 214 20% 80%;
+    --lamp: 17 100% 42%;
+    --lamp-ink: 15 88% 36%;
     --shadow-highlight: transparent;
     --shadow-highlight-strong: transparent;
 
-    --sidebar-background: 42 14% 97%;
-    --sidebar-foreground: 220 14% 15%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 227 37% 16%;
     --sidebar-primary: 17 100% 42%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 40 8% 92%;
-    --sidebar-accent-foreground: 220 14% 15%;
-    --sidebar-border: 40 7% 73%;
-    --sidebar-ring: 192 82% 32%;
+    --sidebar-accent: 214 32% 96%;
+    --sidebar-accent-foreground: 227 37% 16%;
+    --sidebar-border: 214 26% 90%;
+    --sidebar-ring: 17 100% 42%;
   }
 
   .dark {
-    --background: 220 9% 10%;
-    --foreground: 40 10% 91%;
-    --card: 220 9% 13%;
-    --card-foreground: 40 10% 91%;
-    --popover: 220 9% 13%;
-    --popover-foreground: 40 10% 91%;
-
     /*
-      The lamp and a filled button want opposite things on graphite, and one
-      value cannot serve both: L52 is what makes a 3px indicator read as lit,
-      but white on L52 measures 3.29:1 — under AA for a 13px button label.
-      So the roles are split. --lamp is the indicator value; --primary is the
-      fill value, dropped to L42 for 4.6:1 against white.
+      Dark is a first-class scene, not an inversion: a cool near-black slate
+      that keeps the same hue family as the light canvas, so the product reads
+      as one design in either theme. Sheets step UP in lightness here rather
+      than staying white, because on a dark ground elevation is carried by
+      lightness first and shadow second.
     */
+    --background: 224 24% 8%;
+    --foreground: 210 24% 96%;
+    --card: 224 21% 11%;
+    --card-foreground: 210 24% 96%;
+    --popover: 224 20% 13%;
+    --popover-foreground: 210 24% 96%;
+
+    /* Held at L42 rather than brightened: a lighter fill looks better in
+       isolation but white on it drops under AA, and the label has to be
+       readable before the fill is pretty. */
     --primary: 17 100% 42%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 17 100% 48%;
+    --primary-hover: 17 100% 47%;
     --primary-active: 17 100% 36%;
-    --lamp: 17 100% 52%;
-    --lamp-ink: 17 100% 62%;
+    --primary-subtle: 17 55% 15%;
+    --primary-subtle-hover: 17 55% 19%;
+    --primary-ink: 20 100% 68%;
 
-    --primary-50: 17 40% 12%;
-    --primary-100: 17 45% 16%;
-    --primary-200: 17 55% 22%;
-    --primary-300: 17 70% 31%;
-    --primary-400: 17 90% 42%;
+    --primary-50: 14 60% 11%;
+    --primary-100: 15 60% 15%;
+    --primary-200: 16 62% 21%;
+    --primary-300: 16 72% 30%;
+    --primary-400: 17 88% 40%;
     --primary-500: 17 100% 47%;
-    --primary-600: 17 100% 52%;
-    --primary-700: 17 100% 60%;
-    --primary-800: 17 100% 72%;
-    --primary-900: 17 100% 85%;
+    --primary-600: 17 100% 54%;
+    --primary-700: 18 100% 63%;
+    --primary-800: 19 100% 74%;
+    --primary-900: 20 100% 86%;
 
-    --secondary: 220 8% 16%;
-    --secondary-foreground: 40 10% 91%;
-    --muted: 220 8% 16%;
-    --muted-foreground: 220 7% 60%;
-    --accent: 220 8% 16%;
-    --accent-foreground: 40 10% 91%;
-    --accent-hover: 220 8% 20%;
+    --secondary: 223 18% 16%;
+    --secondary-foreground: 210 24% 96%;
+    --muted: 223 18% 16%;
+    --muted-foreground: 218 14% 66%;
+    --accent: 223 18% 16%;
+    --accent-foreground: 210 24% 96%;
+    --accent-hover: 223 16% 21%;
 
-    --healthy: 152 52% 46%;
-    --healthy-foreground: 220 9% 10%;
-    --warning: 42 90% 55%;
-    --warning-foreground: 220 9% 10%;
-    --destructive: 352 72% 56%;
-    --destructive-foreground: 220 9% 10%;
+    --healthy: 158 62% 42%;
+    --healthy-foreground: 224 24% 8%;
+    --warning: 42 94% 55%;
+    --warning-foreground: 224 24% 8%;
+    --destructive: 352 78% 48%;
+    --destructive-foreground: 0 0% 100%;
+    --info: 210 92% 62%;
+    --info-foreground: 224 24% 8%;
 
-    --border: 220 8% 19%;
-    --input: 220 8% 19%;
-    --rule-strong: 220 8% 28%;
+    /* On a dark ground the ink goes lighter than the fill, not darker. */
+    --healthy-ink: 158 62% 58%;
+    --warning-ink: 42 96% 62%;
+    --destructive-ink: 352 88% 70%;
+    --info-ink: 210 92% 70%;
 
-    --ring: 192 78% 46%;
+    --border: 220 14% 21%;
+    --border-strong: 220 12% 31%;
+    --input: 220 14% 21%;
 
+    /* Brighter than the fill: the halo has to register against a near-black
+       ground, where the fill value disappears into it. */
+    --ring: 17 100% 54%;
+
+    --chart-1: 231 78% 70%;
+    --chart-2: 158 62% 48%;
+    --chart-3: 43 92% 58%;
+    --chart-4: 199 89% 58%;
+    --chart-5: 280 68% 70%;
+
+    /* On a dark ground a tinted shadow does nothing — there is no lightness
+       left to remove — so these go to plain black at higher alpha and let the
+       surface lightness step do the separating. */
+    --elev-1:
+      0 1px 1px 0 hsl(0 0% 0% / 0.30),
+      0 1px 2px 0 hsl(0 0% 0% / 0.24);
+    --elev-2:
+      0 1px 2px 0 hsl(0 0% 0% / 0.34),
+      0 2px 5px -1px hsl(0 0% 0% / 0.30);
+    --elev-3:
+      0 2px 6px -1px hsl(0 0% 0% / 0.40),
+      0 1px 3px -1px hsl(0 0% 0% / 0.30);
+    --elev-4:
+      0 4px 14px -2px hsl(0 0% 0% / 0.46),
+      0 2px 6px -2px hsl(0 0% 0% / 0.32);
+    --elev-5:
+      0 8px 28px -4px hsl(0 0% 0% / 0.54),
+      0 4px 10px -4px hsl(0 0% 0% / 0.36);
+    --elev-6:
+      0 16px 52px -8px hsl(0 0% 0% / 0.64),
+      0 8px 18px -8px hsl(0 0% 0% / 0.42);
+
+    --elev-button:
+      0 1px 2px 0 hsl(0 0% 0% / 0.40),
+      0 1px 3px 0 hsl(0 0% 0% / 0.28),
+      inset 0 -1px 0 0 hsl(0 0% 0% / 0.22);
+    --elev-button-hover:
+      0 2px 6px -1px hsl(0 0% 0% / 0.48),
+      0 3px 10px -2px hsl(0 0% 0% / 0.34),
+      inset 0 -1px 0 0 hsl(0 0% 0% / 0.22);
+    --elev-button-quiet:
+      0 0 0 1px hsl(220 14% 24%),
+      0 1px 2px 0 hsl(0 0% 0% / 0.30);
+    --elev-button-quiet-hover:
+      0 0 0 1px hsl(220 12% 34%),
+      0 2px 6px -1px hsl(0 0% 0% / 0.40);
+
+    --rule-strong: 220 12% 31%;
+    --lamp: 17 100% 54%;
+    --lamp-ink: 20 100% 68%;
     --shadow-highlight: transparent;
     --shadow-highlight-strong: transparent;
 
-    --chart-1: 192 65% 52%;
-    --chart-2: 152 50% 48%;
-    --chart-3: 38 80% 58%;
-    --chart-4: 262 50% 66%;
-    --chart-5: 352 62% 60%;
-
-    --sidebar-background: 220 9% 13%;
-    --sidebar-foreground: 40 10% 91%;
-    --sidebar-primary: 17 100% 52%;
+    --sidebar-background: 224 21% 11%;
+    --sidebar-foreground: 210 24% 96%;
+    --sidebar-primary: 17 100% 42%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 8% 16%;
-    --sidebar-accent-foreground: 40 10% 91%;
-    --sidebar-border: 220 8% 19%;
-    --sidebar-ring: 192 78% 46%;
+    --sidebar-accent: 223 18% 16%;
+    --sidebar-accent-foreground: 210 24% 96%;
+    --sidebar-border: 220 14% 21%;
+    --sidebar-ring: 17 100% 54%;
   }
 }
 

@@ -209,7 +209,7 @@ export default function AnalysisStatsPanel({
       >
         <div
           className={cn(
-            "rounded-[--radius] border border-rose-200/70 bg-destructive/10/50 h-full",
+            "rounded-[--radius] border border-destructive/70 bg-destructive/10/50 h-full",
             compact ? "p-5" : "p-8",
           )}
           style={{ boxShadow: softSurfaceShadow }}
@@ -326,9 +326,9 @@ export default function AnalysisStatsPanel({
           {/* Compact Summary Grid */}
           <div className="grid grid-cols-2 gap-2 mb-4">
             <div className="flex items-center gap-2 p-2.5 rounded-lg bg-muted border border-border">
-              <TrendUp weight="fill" className="h-4 w-4 text-green-500" />
+              <TrendUp weight="fill" className="h-4 w-4 text-healthy-ink" />
               <div>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                <p className="text-[11px] text-muted-foreground">
                   {t("avgQuality")}
                 </p>
                 <p className="text-sm font-semibold text-foreground">
@@ -337,9 +337,9 @@ export default function AnalysisStatsPanel({
               </div>
             </div>
             <div className="flex items-center gap-2 p-2.5 rounded-lg bg-muted border border-border">
-              <ChatCircle weight="fill" className="h-4 w-4 text-lamp-ink" />
+              <ChatCircle weight="fill" className="h-4 w-4 text-primary-ink" />
               <div>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                <p className="text-[11px] text-muted-foreground">
                   {t("totalMessages")}
                 </p>
                 <p className="text-sm font-semibold text-foreground">
@@ -351,12 +351,12 @@ export default function AnalysisStatsPanel({
 
           {/* Compact Sentiment Row */}
           <div className="mb-4">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-2">
+            <p className="text-[11px] text-muted-foreground mb-2">
               {t("sentiment.title")}
             </p>
             <div className="flex gap-2">
               <div className="flex-1 flex items-center gap-1.5 p-2 rounded-lg bg-healthy/10 border border-healthy/15">
-                <Smiley weight="fill" className="h-3.5 w-3.5 text-green-500" />
+                <Smiley weight="fill" className="h-3.5 w-3.5 text-healthy-ink" />
                 <span className="text-xs font-semibold text-healthy">
                   {stats.sentimentPositive}
                 </span>
@@ -371,7 +371,7 @@ export default function AnalysisStatsPanel({
                 </span>
               </div>
               <div className="flex-1 flex items-center gap-1.5 p-2 rounded-lg bg-destructive/10 border border-destructive/20">
-                <SmileySad weight="fill" className="h-3.5 w-3.5 text-red-500" />
+                <SmileySad weight="fill" className="h-3.5 w-3.5 text-destructive-ink" />
                 <span className="text-xs font-semibold text-destructive">
                   {stats.sentimentNegative}
                 </span>
@@ -381,7 +381,7 @@ export default function AnalysisStatsPanel({
 
           {/* Compact Lead Qualification */}
           <div className="mb-4">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-2">
+            <p className="text-[11px] text-muted-foreground mb-2">
               {t("qualification.title")}
             </p>
             <div className="space-y-1.5">
@@ -417,7 +417,7 @@ export default function AnalysisStatsPanel({
 
           {/* Compact Interest */}
           <div>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-2">
+            <p className="text-[11px] text-muted-foreground mb-2">
               {t("interest.title")}
             </p>
             <div className="space-y-1.5">
@@ -431,7 +431,7 @@ export default function AnalysisStatsPanel({
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                <div className="w-2 h-2 rounded-full bg-warning" />
                 <span className="text-xs text-muted-foreground flex-1">
                   {t("interest.undecided")}
                 </span>

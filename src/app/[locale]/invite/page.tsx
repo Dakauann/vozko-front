@@ -120,7 +120,7 @@ function InviteContent() {
           {/* Checking / Loading */}
           {(state === "checking" || authLoading) && (
             <div className="flex flex-col items-center gap-3 py-8">
-              <div className="h-8 w-8 animate-spin rounded-full border border-rule-strong border-t-transparent" />
+              <div className="h-8 w-8 animate-spin rounded-full border border-border-strong border-t-transparent" />
               <p className="text-sm text-muted-foreground">{t("checking")}</p>
             </div>
           )}
@@ -139,7 +139,7 @@ function InviteContent() {
               </div>
               <Link
                 href="/dashboard/workspace/invites"
-                className="mt-2 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white hover:bg-primary/90 transition-colors"
+                className="mt-2 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
               >
                 {t("viewInvites")}
               </Link>
@@ -163,7 +163,7 @@ function InviteContent() {
               <div className="mt-2 flex w-full flex-col gap-2">
                 <Link
                   href={`/login?redirect=${encodeURIComponent(currentPath)}`}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white hover:bg-primary/90 transition-colors"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
                 >
                   <SignIn className="h-4 w-4" weight="bold" />
                   {t("login")}
@@ -181,7 +181,7 @@ function InviteContent() {
           {/* Accepting */}
           {state === "accepting" && (
             <div className="flex flex-col items-center gap-3 py-8">
-              <div className="h-8 w-8 animate-spin rounded-full border border-rule-strong border-t-transparent" />
+              <div className="h-8 w-8 animate-spin rounded-full border border-border-strong border-t-transparent" />
               <p className="text-sm text-muted-foreground">{t("accepting")}</p>
             </div>
           )}
@@ -215,7 +215,7 @@ function InviteContent() {
                 <button
                   onClick={handleAccept}
                   disabled={isPending}
-                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-50 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
                 >
                   {t("tryAgain")}
                 </button>

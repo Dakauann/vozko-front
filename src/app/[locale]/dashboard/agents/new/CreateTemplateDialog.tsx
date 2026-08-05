@@ -418,7 +418,7 @@ export default function CreateTemplateDialog({
                               .replace(/[^a-z0-9_]/g, "_"),
                           )
                         }
-                        className={errors.name ? "border-red-300" : ""}
+                        className={errors.name ? "border-destructive/30" : ""}
                       />
                       {errors.name && (
                         <p className="mt-1 text-xs text-destructive flex items-center gap-1">
@@ -527,14 +527,14 @@ export default function CreateTemplateDialog({
                                 {t(`componentType.${component.type}`)}
                               </span>
                               {component.type === "BODY" && (
-                                <span className="text-xs text-red-500">*</span>
+                                <span className="text-xs text-destructive-ink">*</span>
                               )}
                             </div>
                             {component.type !== "BODY" && (
                               <button
                                 type="button"
                                 onClick={() => removeComponent(component.type)}
-                                className="p-1 text-muted-foreground hover:text-red-500"
+                                className="p-1 text-muted-foreground hover:text-destructive-ink"
                               >
                                 <Trash className="h-4 w-4" weight="bold" />
                               </button>
@@ -583,7 +583,7 @@ export default function CreateTemplateDialog({
                                   {/* Header variable examples */}
                                   {headerVars.variables.length > 0 && (
                                     <div className="p-3 rounded-lg bg-warning/10 border border-warning/20">
-                                      <p className="text-xs font-medium text-amber-800 mb-2">
+                                      <p className="text-xs font-medium text-warning-ink mb-2">
                                         {t(
                                           "form.editor.body.examplesRequired.title",
                                         )}
@@ -652,7 +652,7 @@ export default function CreateTemplateDialog({
                               {/* Variable examples section */}
                               {bodyVars.variables.length > 0 && (
                                 <div className="mt-3 p-3 rounded-lg bg-warning/10 border border-warning/20">
-                                  <p className="text-xs font-medium text-amber-800 mb-2">
+                                  <p className="text-xs font-medium text-warning-ink mb-2">
                                     {t(
                                       "form.editor.body.examplesRequired.title",
                                     )}
@@ -774,7 +774,7 @@ export default function CreateTemplateDialog({
                                   <button
                                     type="button"
                                     onClick={() => removeButton(index)}
-                                    className="p-2 text-muted-foreground hover:text-red-500 mt-6"
+                                    className="p-2 text-muted-foreground hover:text-destructive-ink mt-6"
                                   >
                                     <Trash className="h-4 w-4" weight="bold" />
                                   </button>

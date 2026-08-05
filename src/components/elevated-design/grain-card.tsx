@@ -95,7 +95,7 @@ export default function GrainCard(props: GrainCardProps) {
         <span className="text-4xl font-semibold text-white md:text-5xl">
           {value}
         </span>
-        <p className="text-xs font-semibold uppercase text-white/60">{label}</p>
+        <p className="text-xs font-semibold text-white/60">{label}</p>
         {description && (
           <p className="text-sm text-white/70 md:text-base">{description}</p>
         )}

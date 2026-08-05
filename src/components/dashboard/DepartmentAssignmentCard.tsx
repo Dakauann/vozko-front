@@ -164,7 +164,7 @@ export function DepartmentAssignmentCard({
   return (
     <ElevatedContainer
       className={cn(
-        "!p-5 border-amber-200/60 bg-amber-50/70 dark:border-warning/20 dark:bg-warning/5",
+        "!p-5 border-warning/60 bg-warning/70 dark:border-warning/20 dark:bg-warning/5",
         className,
       )}
     >
@@ -175,7 +175,7 @@ export function DepartmentAssignmentCard({
               <Warning weight="fill" className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-[11px] font-semibold uppercase text-warning dark:text-amber-300">
+              <p className="text-[11px] font-semibold text-warning dark:text-warning">
                 {t("scopeLabel")}
               </p>
               <h3 className="text-base font-semibold text-foreground">
@@ -190,7 +190,7 @@ export function DepartmentAssignmentCard({
               : t("description")}
           </p>
 
-          <span className="inline-flex items-center gap-2 rounded-full bg-warning px-3 py-1.5 text-xs font-semibold text-white">
+          <span className="inline-flex items-center gap-2 rounded-full bg-warning px-3 py-1.5 text-xs font-semibold text-warning-foreground">
             <TreeStructure weight="fill" className="h-3.5 w-3.5" />
             {currentDepartmentName}
           </span>

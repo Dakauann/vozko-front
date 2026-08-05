@@ -117,7 +117,7 @@ export default function LeadsPage() {
       header: t("table.window"),
       render: (row) => (
         <span className={cn(
-          "inline-flex text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full",
+          "inline-flex text-[11px] font-semibold px-2 py-0.5 rounded-full",
           windowBadgeClass(row.whatsappWindowOpen),
         )}>
           {row.whatsappWindowOpen ? t("window.open") : t("window.closed")}
@@ -169,7 +169,7 @@ export default function LeadsPage() {
             {
               label: t("summary.total"),
               value: loading ? "..." : String(totalItems),
-              icon: <Users className="h-4 w-4 text-blue-500" weight="fill" />,
+              icon: <Users className="h-4 w-4 text-info-ink" weight="fill" />,
             },
             {
               label: t("summary.withWhatsApp"),

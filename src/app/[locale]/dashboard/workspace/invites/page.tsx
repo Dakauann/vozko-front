@@ -73,7 +73,7 @@ export default function InvitesPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-[--radius] bg-muted text-muted-foreground shadow-lg shadow-amber-200">
+        <div className="flex h-12 w-12 items-center justify-center rounded-[--radius] bg-muted text-muted-foreground shadow-lg shadow-warning/10">
           <Envelope className="h-6 w-6" weight="fill" />
         </div>
         <div>
@@ -83,7 +83,7 @@ export default function InvitesPage() {
       </div>
 
       {error && (
-        <div className="rounded-[--radius] bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
+        <div className="rounded-[--radius] bg-muted border border-destructive/20 px-4 py-3 text-sm text-destructive-ink">
           {error}
         </div>
       )}
@@ -124,7 +124,7 @@ export default function InvitesPage() {
                   <button
                     onClick={() => handleAccept(invite)}
                     disabled={processing === invite.id}
-                    className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-white hover:bg-primary/90 disabled:opacity-50 transition-colors"
+                    className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
                   >
                     <Check className="h-3.5 w-3.5" weight="bold" />
                     {t("accept")}

@@ -214,7 +214,7 @@ export default function GeneralSettingsPage() {
 
       {isLoading ? (
         <motion.div variants={itemVariants}>
-          <ElevatedContainer className="border border-border bg-card p-5">
+          <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
             <p className="text-sm text-muted-foreground">
               {t("messages.loading")}
             </p>
@@ -223,9 +223,9 @@ export default function GeneralSettingsPage() {
       ) : null}
 
       <motion.section variants={itemVariants}>
-        <ElevatedContainer className="border border-border bg-card p-6 space-y-6">
+        <ElevatedContainer className="rounded-lg border border-border bg-card p-6 space-y-6">
           <div className="flex items-center gap-2">
-            <Robot className="h-5 w-5 text-lamp-ink" weight="fill" />
+            <Robot className="h-5 w-5 text-primary-ink" weight="fill" />
             <h2 className="text-lg font-semibold text-foreground">
               {t("sections.ai")}
             </h2>

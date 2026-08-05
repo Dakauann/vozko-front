@@ -268,11 +268,11 @@ export default function CrmConversationInfosPanel({
           {/* Sticky identity (compact horizontal, not a tall marketing hero) */}
           <div className="shrink-0 border-b border-border px-3 py-3">
             {isBlocked && (
-              <div className="mb-2.5 flex items-start gap-2 rounded-lg border border-red-200 bg-destructive/10 px-2.5 py-2 text-destructive">
+              <div className="mb-2.5 flex items-start gap-2 rounded-lg border border-destructive/30 bg-muted px-2.5 py-2 text-destructive-ink">
                 <Prohibit weight="fill" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 <div className="min-w-0">
                   <p className="text-[11px] font-semibold">{t("blockedTitle")}</p>
-                  <p className="mt-0.5 text-[10px] leading-snug text-destructive/90">
+                  <p className="mt-0.5 text-[11px] leading-snug text-destructive/90">
                     {t("blockedDescription")}
                   </p>
                 </div>
@@ -282,7 +282,7 @@ export default function CrmConversationInfosPanel({
             <div className="flex items-center gap-3">
               <div
                 className={cn(
-                  "flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white shadow-sm",
+                  "flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-sm font-semibold shadow-sm",
                   isWhatsApp ? "bg-healthy" : "bg-muted",
                   isBlocked && "grayscale",
                 )}
@@ -318,19 +318,19 @@ export default function CrmConversationInfosPanel({
                   )}
                 </button>
                 <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                  <span className="inline-flex items-center gap-1 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-[10px] font-semibold text-foreground">
+                  <span className="inline-flex items-center gap-1 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-[11px] font-semibold text-foreground">
                     {isWhatsApp ? (
                       <WhatsappLogo
                         weight="fill"
                         className="h-3 w-3 text-healthy"
                       />
                     ) : (
-                      <Phone weight="fill" className="h-3 w-3 text-blue-500" />
+                      <Phone weight="fill" className="h-3 w-3 text-info-ink" />
                     )}
                     {isWhatsApp ? t("channelWhatsapp") : t("channelVoice")}
                   </span>
                   {assignedUsername ? (
-                    <span className="inline-flex max-w-[10rem] truncate rounded-[--radius] bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                    <span className="inline-flex max-w-[10rem] truncate rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
                       {assignedUsername}
                     </span>
                   ) : null}
@@ -434,7 +434,7 @@ export default function CrmConversationInfosPanel({
                       {labels.map((label) => (
                         <span
                           key={label.label_id}
-                          className="inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[10px] font-medium"
+                          className="inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[11px] font-medium"
                           style={{
                             backgroundColor: `${label.color}1a`,
                             color: label.color,
@@ -588,7 +588,7 @@ export default function CrmConversationInfosPanel({
                   onClick={handleToggleBlock}
                   disabled={blocking}
                   className={cn(
-                    "flex flex-1 items-center justify-center gap-2 rounded-md bg-destructive px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700",
+                    "flex flex-1 items-center justify-center gap-2 rounded-md bg-destructive px-3 py-2 text-sm font-semibold text-destructive-foreground transition-colors hover:bg-destructive",
                     blocking && "pointer-events-none opacity-70",
                   )}
                 >
@@ -608,7 +608,7 @@ export default function CrmConversationInfosPanel({
               onClick={() => setConfirmingBlock(true)}
               disabled={!leadId}
               className={cn(
-                "flex w-full items-center justify-center gap-2 rounded-md border border-red-200 bg-card px-3 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10",
+                "flex w-full items-center justify-center gap-2 rounded-md border border-destructive/30 bg-card px-3 py-2 text-sm font-medium text-destructive-ink transition-colors hover:bg-muted",
                 !leadId && "pointer-events-none opacity-50",
               )}
             >

@@ -294,7 +294,7 @@ export default function MessageShortcutsPage() {
             >
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
-                  <p className="text-[11px] font-semibold uppercase text-muted-foreground">
+                  <p className="text-[11px] font-semibold text-muted-foreground">
                     {stat.label}
                   </p>
                   <p className="mt-2 text-2xl font-semibold text-foreground">
@@ -318,7 +318,7 @@ export default function MessageShortcutsPage() {
             style={{ boxShadow: softSurfaceShadow }}
           >
             <div className="flex items-center justify-center gap-3">
-              <div className="h-5 w-5 animate-spin rounded-full border border-rule-strong border-t-transparent" />
+              <div className="h-5 w-5 animate-spin rounded-full border border-border-strong border-t-transparent" />
               <span className="text-sm text-muted-foreground">
                 {t("loading")}
               </span>
@@ -367,7 +367,7 @@ export default function MessageShortcutsPage() {
               />
 
               <div className="rounded-[--radius] border border-border bg-background px-4 py-3">
-                <p className="text-xs font-semibold uppercase text-muted-foreground">
+                <p className="text-xs font-semibold text-muted-foreground">
                   {t("filters.workspaceLabel")}
                 </p>
                 <p className="mt-2 text-sm font-medium text-foreground">
@@ -424,7 +424,7 @@ export default function MessageShortcutsPage() {
                                   {shortcut.name}
                                 </p>
                               </div>
-                              <span className="rounded-[--radius] border border-border px-2.5 py-1 text-[10px] font-semibold uppercase text-muted-foreground">
+                              <span className="rounded-[--radius] border border-border px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
                                 {getShortcutTypeLabel(shortcut.messageType, t)}
                               </span>
                             </div>
@@ -472,7 +472,7 @@ export default function MessageShortcutsPage() {
                           })()}
                         </IconBox>
                         <div>
-                          <p className="text-xs font-semibold uppercase text-lamp-ink">
+                          <p className="text-xs font-semibold text-primary-ink">
                             {t("detail.badge")}
                           </p>
                           <h2 className="mt-2 text-2xl font-semibold text-foreground">
@@ -513,7 +513,7 @@ export default function MessageShortcutsPage() {
 
                   <div className="grid gap-4 md:grid-cols-3">
                     <div className="rounded-[--radius] border border-border bg-background p-4">
-                      <p className="text-[10px] font-semibold uppercase text-muted-foreground">
+                      <p className="text-[11px] font-semibold text-muted-foreground">
                         {t("modal.shortcut")}
                       </p>
                       <p className="mt-2 text-sm font-medium text-foreground">
@@ -521,7 +521,7 @@ export default function MessageShortcutsPage() {
                       </p>
                     </div>
                     <div className="rounded-[--radius] border border-border bg-background p-4">
-                      <p className="text-[10px] font-semibold uppercase text-muted-foreground">
+                      <p className="text-[11px] font-semibold text-muted-foreground">
                         {t("modal.type")}
                       </p>
                       <p className="mt-2 text-sm font-medium text-foreground">
@@ -529,7 +529,7 @@ export default function MessageShortcutsPage() {
                       </p>
                     </div>
                     <div className="rounded-[--radius] border border-border bg-background p-4">
-                      <p className="text-[10px] font-semibold uppercase text-muted-foreground">
+                      <p className="text-[11px] font-semibold text-muted-foreground">
                         {t("detail.deliveryLabel")}
                       </p>
                       <p className="mt-2 text-sm font-medium text-foreground">
@@ -539,7 +539,7 @@ export default function MessageShortcutsPage() {
                   </div>
 
                   <div className="rounded-[--radius] border border-border bg-background p-4">
-                    <p className="text-xs font-semibold uppercase text-muted-foreground">
+                    <p className="text-xs font-semibold text-muted-foreground">
                       {t("detail.messageLabel")}
                     </p>
                     <div className="mt-3 rounded-[--radius] border border-border bg-card px-4 py-4 text-sm text-foreground whitespace-pre-wrap">
@@ -551,7 +551,7 @@ export default function MessageShortcutsPage() {
                   {selectedShortcut.messageType === "button" ? (
                     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
                       <div className="rounded-[--radius] border border-border bg-background p-4">
-                        <p className="text-xs font-semibold uppercase text-muted-foreground">
+                        <p className="text-xs font-semibold text-muted-foreground">
                           {t("detail.buttonsLabel")}
                         </p>
                         <div className="mt-3 flex flex-wrap gap-2">
@@ -570,7 +570,7 @@ export default function MessageShortcutsPage() {
 
                       <div className="space-y-4">
                         <div className="rounded-[--radius] border border-border bg-background p-4">
-                          <p className="text-[10px] font-semibold uppercase text-muted-foreground">
+                          <p className="text-[11px] font-semibold text-muted-foreground">
                             {t("modal.headerText")}
                           </p>
                           <p className="mt-2 text-sm text-foreground">
@@ -579,7 +579,7 @@ export default function MessageShortcutsPage() {
                           </p>
                         </div>
                         <div className="rounded-[--radius] border border-border bg-background p-4">
-                          <p className="text-[10px] font-semibold uppercase text-muted-foreground">
+                          <p className="text-[11px] font-semibold text-muted-foreground">
                             {t("modal.footerText")}
                           </p>
                           <p className="mt-2 text-sm text-foreground">
@@ -634,7 +634,7 @@ export default function MessageShortcutsPage() {
             </ElevatedDialogDescription>
           </ElevatedDialogHeader>
 
-          <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-4 text-sm text-white">
+          <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-4 text-sm text-destructive-foreground">
             {t("delete.warning", { name: deletingShortcut?.name || "" })}
           </div>
 

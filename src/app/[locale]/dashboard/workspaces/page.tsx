@@ -106,7 +106,7 @@ function MembersPanel({ workspaceId }: { workspaceId: string }) {
         {loading && members.length === 0 ? (
           <div className="flex items-center justify-center py-6 gap-2">
             <CircleNotch
-              className="h-4 w-4 animate-spin text-lamp-ink"
+              className="h-4 w-4 animate-spin text-primary-ink"
               weight="bold"
             />
             <span className="text-xs text-muted-foreground">
@@ -122,16 +122,16 @@ function MembersPanel({ workspaceId }: { workspaceId: string }) {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="pb-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                  <th className="pb-2 text-[11px] font-semibold text-muted-foreground">
                     {t("members.username")}
                   </th>
-                  <th className="pb-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                  <th className="pb-2 text-[11px] font-semibold text-muted-foreground">
                     {t("members.email")}
                   </th>
-                  <th className="pb-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                  <th className="pb-2 text-[11px] font-semibold text-muted-foreground">
                     {t("members.role")}
                   </th>
-                  <th className="pb-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                  <th className="pb-2 text-[11px] font-semibold text-muted-foreground">
                     {t("members.joined")}
                   </th>
                 </tr>
@@ -154,7 +154,7 @@ function MembersPanel({ workspaceId }: { workspaceId: string }) {
                     <td className="py-2">
                       <span
                         className={cn(
-                          "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold uppercase",
+                          "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold",
                           member.role === "owner"
                             ? "bg-muted text-muted-foreground"
                             : member.role === "admin"
@@ -178,7 +178,7 @@ function MembersPanel({ workspaceId }: { workspaceId: string }) {
                 <button
                   onClick={handleLoadMore}
                   disabled={loading}
-                  className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-all hover:bg-muted hover:border-blue-300 hover:text-lamp-ink disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-all hover:bg-muted hover:border-info/30 hover:text-primary-ink disabled:opacity-50"
                   style={{ boxShadow: softSurfaceShadow }}
                 >
                   {loading ? (
@@ -305,7 +305,7 @@ export default function AdminWorkspacesPage() {
         render: (ws) => (
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted ring-1 ring-ring">
-              <Buildings className="h-5 w-5 text-lamp-ink" weight="fill" />
+              <Buildings className="h-5 w-5 text-primary-ink" weight="fill" />
             </div>
             <div>
               <p className="text-sm font-semibold text-foreground">{ws.name}</p>
@@ -332,7 +332,7 @@ export default function AdminWorkspacesPage() {
                   ws.ownerId.slice(0, 8) + "..."}
               </p>
               {owners[ws.ownerId]?.email && (
-                <p className="text-[10px] text-muted-foreground">
+                <p className="text-[11px] text-muted-foreground">
                   {owners[ws.ownerId].email}
                 </p>
               )}
@@ -354,8 +354,8 @@ export default function AdminWorkspacesPage() {
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-[--radius] border px-3 py-1.5 text-xs font-semibold transition-all",
                 isExpanded
-                  ? "bg-muted border-blue-300 text-lamp-ink"
-                  : "bg-card border-border text-muted-foreground hover:bg-muted hover:border-blue-300 hover:text-lamp-ink",
+                  ? "bg-muted border-info/30 text-primary-ink"
+                  : "bg-card border-border text-muted-foreground hover:bg-muted hover:border-info/30 hover:text-primary-ink",
               )}
             >
               <UsersFour className="h-3.5 w-3.5" weight="bold" />
@@ -374,12 +374,12 @@ export default function AdminWorkspacesPage() {
         key: "type",
         render: (ws) =>
           ws.isDefault ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-warning px-2 py-0.5 text-[10px] font-semibold text-white uppercase">
+            <span className="inline-flex items-center gap-1 rounded-full bg-warning px-2 py-0.5 text-[11px] font-semibold text-warning-foreground">
               <Star className="h-3 w-3" weight="fill" />
               {t("badge.default")}
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground uppercase">
+            <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
               {t("badge.custom")}
             </span>
           ),
@@ -407,7 +407,7 @@ export default function AdminWorkspacesPage() {
                 </p>
                 <span
                   className={cn(
-                    "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[10px] font-semibold uppercase",
+                    "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold",
                     isActive
                       ? "bg-healthy text-healthy-foreground"
                       : ws.subscriptionStatus === "cancelled"
@@ -450,7 +450,7 @@ export default function AdminWorkspacesPage() {
                     );
                     toast({ title: t("plan.cancelSuccess") });
                   }}
-                  className="ml-1 inline-flex items-center justify-center rounded-lg border border-destructive bg-destructive p-1.5 text-white transition-all hover:bg-destructive hover:border-red-700 disabled:opacity-50"
+                  className="ml-1 inline-flex items-center justify-center rounded-lg border border-destructive bg-destructive p-1.5 text-destructive-foreground transition-all hover:bg-destructive hover:border-destructive disabled:opacity-50"
                   title={t("plan.cancel")}
                 >
                   {isCancelling ? (
@@ -485,7 +485,7 @@ export default function AdminWorkspacesPage() {
           <div className="flex items-center justify-end gap-2">
             <Link
               href={`/dashboard/workspaces/${ws.id}`}
-              className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-muted hover:border-blue-300 hover:text-lamp-ink"
+              className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-muted hover:border-info/30 hover:text-primary-ink"
               onClick={(e) => e.stopPropagation()}
             >
               <Eye className="h-4 w-4" weight="bold" />
@@ -493,7 +493,7 @@ export default function AdminWorkspacesPage() {
             </Link>
             <Link
               href={`/dashboard/workspaces/${ws.id}/balance`}
-              className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-muted hover:border-blue-300 hover:text-lamp-ink"
+              className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-muted hover:border-info/30 hover:text-primary-ink"
               onClick={(e) => e.stopPropagation()}
             >
               <Wallet className="h-4 w-4" weight="bold" />
@@ -538,7 +538,7 @@ export default function AdminWorkspacesPage() {
               label: t("stats.total"),
               value: loading ? "..." : String(totalCount),
               icon: (
-                <Buildings className="h-4 w-4 text-blue-500" weight="fill" />
+                <Buildings className="h-4 w-4 text-info-ink" weight="fill" />
               ),
             },
             {
@@ -642,7 +642,7 @@ export default function AdminWorkspacesPage() {
             error
               ? {
                   icon: (
-                    <Buildings className="h-7 w-7 text-red-400" weight="fill" />
+                    <Buildings className="h-7 w-7 text-destructive" weight="fill" />
                   ),
                   title: t("error.title"),
                   description: error,

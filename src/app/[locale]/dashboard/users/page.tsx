@@ -173,7 +173,7 @@ export default function UsersPage() {
               />
             ) : (
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
-                <UserCircle className="h-6 w-6 text-lamp-ink" weight="fill" />
+                <UserCircle className="h-6 w-6 text-primary-ink" weight="fill" />
               </div>
             )}
             <div>
@@ -205,7 +205,7 @@ export default function UsersPage() {
           return (
             <span
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider",
+                "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-semibold",
                 roleConfig[user.role]?.bgColor ?? "bg-muted",
                 roleConfig[user.role]?.color ?? "text-muted-foreground",
               )}
@@ -221,12 +221,12 @@ export default function UsersPage() {
         key: "status",
         render: (user) =>
           user.emailVerified ? (
-            <span className="inline-flex items-center gap-1.5 rounded-lg bg-healthy px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-white">
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-healthy px-3 py-1.5 text-[11px] font-semibold text-healthy-foreground">
               <CheckCircle className="h-3.5 w-3.5" weight="fill" />
               {t("status.verified")}
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5 text-[11px] font-semibold text-muted-foreground">
               <XCircle className="h-3.5 w-3.5" weight="fill" />
               {t("status.unverified")}
             </span>
@@ -358,7 +358,7 @@ export default function UsersPage() {
               label: t("stats.total"),
               value: loading ? "..." : totalItems.toLocaleString(),
               icon: (
-                <UsersFour className="h-4 w-4 text-blue-500" weight="fill" />
+                <UsersFour className="h-4 w-4 text-info-ink" weight="fill" />
               ),
             },
             {

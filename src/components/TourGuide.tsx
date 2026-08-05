@@ -262,7 +262,7 @@ export default function TourGuide({
         <div className="fixed bottom-6 right-6 z-[61] animate-in fade-in slide-in-from-right-4 duration-300">
           <div
             className={cn(
-              "w-[320px] overflow-hidden rounded-[--radius] border border-border border-t-rule-strong bg-card shadow-xl",
+              "w-[320px] overflow-hidden rounded-[--radius] border border-border bg-card shadow-xl",
               className,
             )}
           >
@@ -337,7 +337,7 @@ function TourTooltip({
     <div
       {...tooltipProps}
       className={cn(
-        "w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-[--radius] border border-border border-t-rule-strong bg-card shadow-2xl",
+        "w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-[--radius] border border-border bg-card shadow-2xl",
       )}
     >
       <TooltipArrow placement={placement} />

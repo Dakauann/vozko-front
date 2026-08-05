@@ -200,10 +200,10 @@ export default function MessageShortcutSheet({
           <div className="space-y-5">
             <div className="rounded-[--radius] border border-border bg-background p-4">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-[--radius] bg-primary px-3 py-1 text-[11px] font-semibold uppercase text-primary-foreground">
+                <span className="rounded-[--radius] bg-primary px-3 py-1 text-[11px] font-semibold text-primary-foreground">
                   /{shortcut || t("modal.shortcutPlaceholder")}
                 </span>
-                <span className="rounded-[--radius] border border-border px-3 py-1 text-[11px] font-semibold uppercase text-muted-foreground">
+                <span className="rounded-[--radius] border border-border px-3 py-1 text-[11px] font-semibold text-muted-foreground">
                   {messageType === "button"
                     ? t("modal.typeButton")
                     : t("modal.typeText")}
@@ -235,7 +235,7 @@ export default function MessageShortcutSheet({
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-semibold uppercase text-muted-foreground">
+              <label className="mb-2 block text-xs font-semibold text-muted-foreground">
                 {t("modal.type")}
               </label>
               <div className="grid gap-2 sm:grid-cols-2">
@@ -313,7 +313,7 @@ export default function MessageShortcutSheet({
 
                 <div>
                   <div className="mb-3 flex items-center justify-between gap-3">
-                    <label className="text-xs font-semibold uppercase text-muted-foreground">
+                    <label className="text-xs font-semibold text-muted-foreground">
                       {t("modal.buttonsLabel")}
                     </label>
                     {buttons.length < 3 ? (

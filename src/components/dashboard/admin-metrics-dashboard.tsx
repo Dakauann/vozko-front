@@ -227,7 +227,7 @@ function CategoryStatsGrid({
         category: "email",
         title: t("categories.email"),
         icon: EnvelopeSimple,
-        color: "bg-pink-500",
+        color: "bg-chart-4",
         total: eventCounts[EVENT_TYPES.EMAIL_SENT] || 0,
         breakdown: [
           {
@@ -313,7 +313,7 @@ function TimeSeriesChart({
   if (loading) {
     return (
       <div className="flex items-center justify-center" style={{ height: 400 }}>
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-primary" />
       </div>
     );
   }
@@ -452,7 +452,7 @@ function DistributionPieChart({
   if (loading) {
     return (
       <div className="flex items-center justify-center" style={{ height: 300 }}>
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-primary" />
       </div>
     );
   }
@@ -571,7 +571,7 @@ function CategoryBarChart({
   if (loading) {
     return (
       <div className="flex items-center justify-center" style={{ height: 300 }}>
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-primary" />
       </div>
     );
   }
@@ -1057,7 +1057,7 @@ export default function AdminMetricsDashboard() {
       {mainSection === "business-metrics" && (
         <>
           <motion.div variants={itemVariants}>
-            <ElevatedContainer className="border border-border bg-card p-4">
+            <ElevatedContainer className="rounded-lg border border-border bg-card p-4">
               <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                 <div className="flex items-center gap-2 flex-wrap">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -1160,7 +1160,7 @@ export default function AdminMetricsDashboard() {
                       size="sm"
                       onClick={handleClearFilters}
                       title={t("filters.clearAll")}
-                      className="text-lamp-ink hover:text-blue-800 hover:bg-muted"
+                      className="text-primary-ink hover:text-info-ink hover:bg-muted"
                     />
                   )}
                 </div>
@@ -1178,7 +1178,7 @@ export default function AdminMetricsDashboard() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <ElevatedContainer className="border border-border bg-card p-6">
+            <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList
                   className="mb-6 bg-muted border border-border shadow-none"
@@ -1315,7 +1315,7 @@ export default function AdminMetricsDashboard() {
                       chart.width === 2 && "lg:col-span-2",
                     )}
                   >
-                    <ElevatedContainer className="border border-border bg-card p-6 cursor-move hover:border-foreground/20 transition-colors">
+                    <ElevatedContainer className="rounded-lg border border-border bg-card p-6 cursor-move hover:border-foreground/20 transition-colors">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
                           <DotsSixVertical
@@ -1344,7 +1344,7 @@ export default function AdminMetricsDashboard() {
                             icon={<Trash className="h-4 w-4" />}
                             iconVisible
                             onClick={() => handleDeleteChart(chart.id)}
-                            className="text-destructive hover:text-red-800 hover:bg-destructive/10"
+                            className="text-destructive-ink hover:text-destructive-ink hover:bg-muted"
                           />
                         </div>
                       </div>
@@ -1530,10 +1530,10 @@ export default function AdminMetricsDashboard() {
           </ElevatedDialog>
 
           <motion.div variants={itemVariants}>
-            <ElevatedContainer className="border border-border bg-card p-6">
+            <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-lamp-ink" weight="fill" />
+                  <Clock className="h-5 w-5 text-primary-ink" weight="fill" />
                   <h2 className="text-lg font-semibold text-foreground">
                     {t("recentActivity.title")}
                   </h2>

@@ -66,7 +66,7 @@ const DEFAULT_PALETTE: ComponentPaletteItem[] = [
     icon: TextT,
     label: "Header",
     description: "Add a header with text, image, video, or document",
-    color: "from-blue-500 to-cyan-500",
+    color: "ink-1",
     singleton: true,
   },
   {
@@ -74,7 +74,7 @@ const DEFAULT_PALETTE: ComponentPaletteItem[] = [
     icon: ChatCircle,
     label: "Body",
     description: "Main message content with variables",
-    color: "from-emerald-500 to-teal-500",
+    color: "ink-2",
     singleton: true,
   },
   {
@@ -82,7 +82,7 @@ const DEFAULT_PALETTE: ComponentPaletteItem[] = [
     icon: TextT,
     label: "Footer",
     description: "Optional footer text (max 60 chars)",
-    color: "from-amber-500 to-orange-500",
+    color: "ink-3",
     singleton: true,
   },
   {
@@ -90,7 +90,7 @@ const DEFAULT_PALETTE: ComponentPaletteItem[] = [
     icon: Cursor,
     label: "Buttons",
     description: "Add action or quick reply buttons",
-    color: "from-purple-500 to-pink-500",
+    color: "ink-4",
     singleton: true,
   },
   {
@@ -98,7 +98,7 @@ const DEFAULT_PALETTE: ComponentPaletteItem[] = [
     icon: PhoneCall,
     label: "Call permission",
     description: "Ask the user for permission to call them on WhatsApp",
-    color: "from-indigo-500 to-blue-500",
+    color: "ink-1",
     singleton: true,
   },
 ];
@@ -312,7 +312,7 @@ export default function DragDropBuilder({
           onDrop={handleDrop}
           className={`min-h-[400px] rounded-[--radius] border border-dashed transition-all ${
             isDraggingOver
-              ? "border-blue-400 bg-muted"
+              ? "border-info bg-muted"
               : "border-border bg-muted"
           }`}
         >
@@ -386,7 +386,7 @@ export default function DragDropBuilder({
                                 e.stopPropagation();
                                 handleRemoveComponent(component.id);
                               }}
-                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-muted-foreground hover:text-destructive-ink hover:bg-muted transition-all"
                             >
                               <Trash className="h-4 w-4" weight="bold" />
                             </button>

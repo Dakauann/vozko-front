@@ -72,7 +72,7 @@ export function KnowledgeBaseSelector({
           </p>
           <Link
             href="/dashboard/knowledge-bases/new"
-            className="inline-flex items-center gap-2 text-sm font-medium text-lamp-ink hover:underline"
+            className="inline-flex items-center gap-2 text-sm font-medium text-primary-ink hover:underline"
           >
             <Plus className="h-4 w-4" weight="bold" />
             {t("knowledgeBases.createNew")}
@@ -104,7 +104,7 @@ export function KnowledgeBaseSelector({
                 className="group relative flex items-center gap-3 rounded-[--radius] border border-primary/50 bg-muted p-3 transition-all hover:border-primary/70 hover:shadow-md"
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-muted">
-                  <Files className="h-6 w-6 text-lamp-ink" weight="fill" />
+                  <Files className="h-6 w-6 text-primary-ink" weight="fill" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">
@@ -174,7 +174,7 @@ export function KnowledgeBaseSelector({
 
       <Link
         href="/dashboard/knowledge-bases/new"
-        className="inline-flex items-center gap-2 text-sm font-medium text-lamp-ink hover:underline"
+        className="inline-flex items-center gap-2 text-sm font-medium text-primary-ink hover:underline"
       >
         <Plus className="h-4 w-4" weight="bold" />
         {t("knowledgeBases.createNew")}

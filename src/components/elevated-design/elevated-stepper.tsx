@@ -115,7 +115,7 @@ export function ElevatedStepper({
                       </p>
                     ) : null}
                     {step.optional ? (
-                      <span className="mt-1 inline-block rounded-[--radius] bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                      <span className="mt-1 inline-block rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
                         opcional
                       </span>
                     ) : null}
@@ -141,7 +141,7 @@ export function ElevatedStepper({
       {/* ── Mobile compact header ── */}
       {compactOnMobile && activeStep ? (
         <div className="sm:hidden px-5 pt-5 pb-0">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-lamp-ink">
+          <p className="text-[11px] font-semibold text-primary-ink">
             Etapa {safeIndex + 1} de {total}
           </p>
           <h2 className="mt-1 text-lg font-semibold text-foreground">
@@ -230,7 +230,7 @@ export function ElevatedStepperFooter({
         )}
       >
         {loading ? (
-          <span className="inline-block h-4 w-4 animate-spin rounded-full border border-rule-strong-foreground/40 border-t-primary-foreground" />
+          <span className="inline-block h-4 w-4 animate-spin rounded-full border border-border-strong-foreground/40 border-t-primary-foreground" />
         ) : null}
         {isLast ? labels.submit : labels.next}
         {!isLast && !loading ? <span aria-hidden>→</span> : null}
