@@ -511,6 +511,7 @@
     "footer": "Precios en BRL. Los valores pueden variar según el tipo de cambio. Los planes se pueden cambiar en cualquier momento."
   },
   "common": {
+    "groupConversation": "Grupo",
     "learnMore": "Saber más",
     "getStarted": "Comenzar",
     "contact": "Contacto",

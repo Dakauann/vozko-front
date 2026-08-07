@@ -207,6 +207,11 @@ export type MessageType =
     | 'tool_call'
     | 'tool_result'
     | 'audio'
+    // A non-audio attachment: image, video, document, sticker. The backend has
+    // emitted this since the unofficial WhatsApp channel landed; the union was
+    // never updated, so every place that branched on it was comparing against a
+    // type TypeScript believed impossible.
+    | 'media'
     | 'system'
     | 'template'
     | 'call_permission_request'
@@ -354,6 +359,19 @@ export interface ConversationMessage {
     entry_type: EntryType;
     channel: MessageChannel;
     message_type: MessageType;
+    /**
+     * Who sent this: the contact, or us.
+     *
+     * Stated by the backend rather than inferred from message_type, which is
+     * the kind of CONTENT. The two came apart on unofficial WhatsApp, where a
+     * reply the owner typed on their own phone arrives as an ordinary text —
+     * indistinguishable by type from the customer writing, and rendered as
+     * exactly that until this field existed.
+     *
+     * Absent on rows written before the column. Use `isOutgoingMessage`, which
+     * falls back to the old inference rather than assuming a side.
+     */
+    direction?: 'INBOUND' | 'OUTBOUND';
     from: string;
     to: string;
     text: string;

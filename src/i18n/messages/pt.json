@@ -814,6 +814,7 @@
     }
   },
   "common": {
+    "groupConversation": "Grupo",
     "learnMore": "Saiba mais",
     "getStarted": "Começar",
     "contact": "Contato",

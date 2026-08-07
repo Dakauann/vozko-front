@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
 
+import {
+  isAgentMessage as isAgentMsg,
+  isOutgoingMessage,
+  messageTypeOf,
+} from "@/lib/conversations/direction";
+
 import type { ConversationMessage } from "@/lib/conversations/types";
 
 
@@ -76,27 +82,26 @@ function groupMessagesByChannel(messages: ConversationMessage[]) {
 }
 
 
+// The direction rules come from the module the UI actually uses. This file used
+// to re-declare them, which meant the tests could keep passing while the screen
+// was wrong — and it did: the copy and the original had both inferred direction
+// from the message type, and neither noticed that a reply typed on the owner's
+// own phone lands on the customer's side.
 function classifyMessage(
   msg: ConversationMessage,
   leadNumber: string,
 ) {
-  const messageType =
-    msg.message_type ??
-    (msg as unknown as { messageType?: string }).messageType;
+  const messageType = messageTypeOf(msg);
 
+  const isOutgoing = isOutgoingMessage(msg, leadNumber);
   const isExplicitOutgoing =
     messageType === "operator" ||
     messageType === "ai_response" ||
     messageType === "tool_call" ||
     messageType === "tool_result" ||
     messageType === "template";
-  const isMediaOutgoing =
-    (messageType === "audio" || !!msg.media_type) &&
-    msg.to === leadNumber;
-  const isOutgoing = isExplicitOutgoing || isMediaOutgoing;
-  const isAgentMessage =
-    messageType === "ai_response" ||
-    (isMediaOutgoing && messageType === "audio");
+  const isMediaOutgoing = isOutgoing && !isExplicitOutgoing;
+  const isAgentMessage = isAgentMsg(msg, leadNumber);
   const isOperatorMessage = messageType === "operator";
   const isToolMessage =
     messageType === "tool_call" ||

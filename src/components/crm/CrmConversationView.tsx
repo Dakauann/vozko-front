@@ -52,6 +52,11 @@ import {
 } from "react";
 
 import type { AgentToolDefinition } from "@/lib/agents/types";
+import {
+  isAgentMessage as isAgentMsg,
+  isOutgoingMessage,
+} from "@/lib/conversations/direction";
+
 import { ChannelAvatar } from "@/components/channels/channel-avatar";
 import ConversationAnalysisPanel from "@/components/crm/ConversationAnalysisPanel";
 import DocumentPreview from "./DocumentPreview";
@@ -2276,20 +2281,17 @@ export default function CrmConversationView({
                           );
                         }
 
-                        const isExplicitOutgoing =
-                          messageType === "operator" ||
-                          messageType === "ai_response" ||
-                          messageType === "tool_call" ||
-                          messageType === "tool_result" ||
-                          messageType === "template";
-                        const isMediaOutgoing =
-                          (messageType === "audio" || msg.media_type) &&
-                          msg.to === conversation.lead_number;
-                        const isOutgoing =
-                          isExplicitOutgoing || isMediaOutgoing;
-                        const isAgentMessage =
-                          messageType === "ai_response" ||
-                          (isMediaOutgoing && messageType === "audio");
+                        // One shared classifier, not a copy per surface: the
+                        // rule now has a legacy branch, and a second copy of it
+                        // is a second thing to keep in step.
+                        const isOutgoing = isOutgoingMessage(
+                          msg,
+                          conversation.lead_number,
+                        );
+                        const isAgentMessage = isAgentMsg(
+                          msg,
+                          conversation.lead_number,
+                        );
                         const isOperatorMessage = messageType === "operator";
                         const isToolEventMessage = isToolMessage(msg);
                         const isTemplateMessage = messageType === "template";

@@ -812,6 +812,7 @@
     }
   },
   "common": {
+    "groupConversation": "Group",
     "learnMore": "Learn more",
     "getStarted": "Get started",
     "contact": "Contact",

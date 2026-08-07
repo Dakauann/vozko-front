@@ -532,6 +532,7 @@
     "footer": "Preise in BRL. Werte können je nach Wechselkurs variieren. Pläne können jederzeit geändert werden."
   },
   "common": {
+    "groupConversation": "Gruppe",
     "learnMore": "Mehr erfahren",
     "getStarted": "Loslegen",
     "contact": "Kontakt",

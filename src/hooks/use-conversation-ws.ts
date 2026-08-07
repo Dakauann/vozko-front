@@ -444,6 +444,12 @@ export function useConversationWs({
           (msg.message_type as string) ??
           (msg.messageType as string) ??
           "user_message",
+        // Who sent it. Dropping this on the live push would leave a message
+        // correctly placed on reload and on the wrong side of the thread the
+        // moment it arrived — the worst of both, because it looks like a
+        // rendering race rather than a missing field.
+        direction: (msg.direction as ConversationMessage["direction"]) ??
+          (msg.Direction as ConversationMessage["direction"]),
         from: (msg.from as string) ?? "",
         to: (msg.to as string) ?? "",
         text: (msg.text as string) ?? "",
