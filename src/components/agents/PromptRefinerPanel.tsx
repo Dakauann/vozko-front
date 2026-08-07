@@ -218,9 +218,9 @@ export function PromptRefinerPanel({
             </p>
             {stats ? (
               <p className="text-[11px] font-medium text-muted-foreground">
-                <span className="text-healthy">+{stats.added}</span>
+                <span className="text-healthy-ink">+{stats.added}</span>
                 {" / "}
-                <span className="text-destructive">−{stats.removed}</span>{" "}
+                <span className="text-destructive-ink">−{stats.removed}</span>{" "}
                 {t("characters")}
               </p>
             ) : null}
@@ -333,7 +333,7 @@ function ExampleChips({
             disabled={disabled}
             onClick={() => onPick(ex)}
             className={cn(
-              "inline-flex items-center gap-1 rounded-[--radius] border border-warning/30 bg-muted px-2.5 py-1 text-[11px] font-medium text-warning-ink transition-all",
+              "inline-flex items-center gap-1 rounded-[--radius] border border-border bg-muted px-2.5 py-1 text-[11px] font-medium text-warning-ink transition-all",
               "hover:bg-muted hover:text-warning-ink",
               "disabled:cursor-not-allowed disabled:opacity-50",
             )}

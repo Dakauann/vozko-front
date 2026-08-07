@@ -19,6 +19,7 @@ import {
   BellSlash,
   CaretDown,
   CaretLeft,
+  ChatCircleDots,
   Check,
   Info,
   Phone,
@@ -61,7 +62,11 @@ import {
   type CrmFilterPredicate,
   type CrmGroupBy,
 } from "@/lib/crm/board";
-import { getCrmBoardAction, getCrmEntriesAction, listPipelinesAction } from "@/app/actions/crm-board";
+import {
+  getCrmBoardAction,
+  getCrmEntriesAction,
+  listPipelinesAction,
+} from "@/app/actions/crm-board";
 import CrmFilterBar from "./CrmFilterBar";
 import CrmSavedViews from "./CrmSavedViews";
 import {
@@ -95,6 +100,7 @@ import { ChannelAvatar } from "@/components/channels/channel-avatar";
 import { cn } from "@/lib/utils";
 import { useCrmNotifications } from "@/hooks/use-crm-notifications";
 import { useCrm } from "@/contexts/crm-context";
+import { StartConversationDialog } from "@/components/unofficial-whatsapp/start-conversation-dialog";
 import { useWorkspace } from "@/contexts/workspace-context";
 import {
   requestDialerCall,
@@ -110,7 +116,6 @@ import ElevatedButton from "../elevated-design/button";
 import { useTranslations } from "next-intl";
 import CrmConversationInfosPanel from "./CrmConversationInfosPanel";
 import { AttendanceOwnerBadge } from "./ConversationAttendanceSection";
-
 
 export interface CrmTranslations {
   inbox: {
@@ -222,13 +227,23 @@ const CHANNEL_BADGES: Record<
   },
   // Telegram blue, the brand's own #229ED9 rather than the nearest Tailwind sky.
   telegram: { className: "bg-[#229ED9]", Icon: TelegramLogo },
+  // Same glyph as WhatsApp because it IS WhatsApp to the customer, but a
+  // muted-foreground chip rather than the healthy green: an operator has to be
+  // able to tell at a glance which transport a reply will leave on, since the
+  // two send from different numbers with different rules. Falling through to
+  // the default here would render a phone icon, which is what "unknown" looks
+  // like — the exact bug this registry exists to prevent.
+  unofficial_whatsapp: { className: "bg-muted-foreground", Icon: WhatsappLogo },
 };
 
 // The predicate that isolates one board column, mirroring the backend
 // crmboard.withPredicate: stage/label/owner columns append an `in` predicate, the
 // owner "unassigned" swimlane an `is_empty`, and none/__all__ add nothing. Used to
 // page a single column through /crm/entries.
-function columnPredicate(groupBy: CrmGroupBy, columnId: string): CrmFilterPredicate | null {
+function columnPredicate(
+  groupBy: CrmGroupBy,
+  columnId: string,
+): CrmFilterPredicate | null {
   if (groupBy === "none" || columnId === "__all__") return null;
   if (groupBy === "owner") {
     if (columnId === "__unassigned__") {
@@ -236,12 +251,16 @@ function columnPredicate(groupBy: CrmGroupBy, columnId: string): CrmFilterPredic
     }
     return { field: "owner", operator: "in", values: [columnId] };
   }
-  if (groupBy === "label") return { field: "label", operator: "in", values: [columnId] };
+  if (groupBy === "label")
+    return { field: "label", operator: "in", values: [columnId] };
   return { field: "stage", operator: "in", values: [columnId] };
 }
 
 // base filter AND (column predicate), matching the backend's per-column narrowing.
-function withColumnPredicate(base: CrmFilter, p: CrmFilterPredicate | null): CrmFilter {
+function withColumnPredicate(
+  base: CrmFilter,
+  p: CrmFilterPredicate | null,
+): CrmFilter {
   if (!p) return base;
   return {
     groups: [...base.groups, { conjunction: "and", predicates: [p] }],
@@ -282,7 +301,8 @@ export default function CrmLayout({
   // The unified Funil selection: which pipeline (conversation OR opportunity) the
   // board currently shows. Drives whether we render the conversation board or the
   // deal board on the SAME surface.
-  const [selectedPipeline, setSelectedPipeline] = useState<SelectedPipeline | null>(null);
+  const [selectedPipeline, setSelectedPipeline] =
+    useState<SelectedPipeline | null>(null);
   // The workspace default conversation funnel, kept so we can snap back to a concrete
   // funnel when the user switches to the stage axis while on "Todos os funis".
   const [defaultConvPipeline, setDefaultConvPipeline] = useState<{
@@ -400,8 +420,12 @@ export default function CrmLayout({
       setActivePipelineId((prev) => prev || (def?.id ?? ""));
       // Seed the unified selector with the default conversation funnel (unless the
       // user has already picked one this session).
-      setSelectedPipeline((prev) =>
-        prev ?? (def ? { id: def.id, objectType: "conversation", name: def.name } : null),
+      setSelectedPipeline(
+        (prev) =>
+          prev ??
+          (def
+            ? { id: def.id, objectType: "conversation", name: def.name }
+            : null),
       );
     })();
     return () => {
@@ -645,7 +669,11 @@ export default function CrmLayout({
   // Reflect groupBy / active view / filter back into the URL (replace, no
   // history spam) once hydration has run.
   useEffect(() => {
-    if (!urlHydratedRef.current || hasCampaign || typeof window === "undefined") {
+    if (
+      !urlHydratedRef.current ||
+      hasCampaign ||
+      typeof window === "undefined"
+    ) {
       return;
     }
     const params = new URLSearchParams(window.location.search);
@@ -728,7 +756,10 @@ export default function CrmLayout({
         next.set(columnId, { ...next.get(columnId)!, loading: true });
         return next;
       });
-      const colFilter = withColumnPredicate(filter, columnPredicate(groupBy, columnId));
+      const colFilter = withColumnPredicate(
+        filter,
+        columnPredicate(groupBy, columnId),
+      );
       const { result } = await getCrmEntriesAction({
         filter: colFilter,
         page,
@@ -740,7 +771,10 @@ export default function CrmLayout({
         const cur = prev.get(columnId)!;
         const incoming = (result?.entries ?? []).map(boardEntryToInboxEntry);
         const seen = new Set(cur.entries.map((e) => e.entry_id));
-        const merged = [...cur.entries, ...incoming.filter((e) => !seen.has(e.entry_id))];
+        const merged = [
+          ...cur.entries,
+          ...incoming.filter((e) => !seen.has(e.entry_id)),
+        ];
         const next = new Map(prev);
         next.set(columnId, { ...cur, entries: merged, page, loading: false });
         return next;
@@ -777,8 +811,6 @@ export default function CrmLayout({
     switchView,
   ]);
 
-
-
   useEffect(() => {
     if (!enabled) return;
     let cancelled = false;
@@ -796,7 +828,6 @@ export default function CrmLayout({
     };
   }, [enabled]);
 
-
   useEffect(() => {
     if (!enabled) return;
     const timer = setTimeout(() => {
@@ -807,10 +838,8 @@ export default function CrmLayout({
     return () => clearTimeout(timer);
   }, [enabled, notificationPermission, requestNotificationPermission]);
 
-
   const prevInboxRef = useRef<typeof inbox>([]);
   const lastNotificationTimeRef = useRef<number>(0);
-
 
   useEffect(() => {
     if (!enabled || inbox.length === 0) {
@@ -863,7 +892,6 @@ export default function CrmLayout({
     subscribe,
   ]);
 
-
   const filteredInbox = useMemo(() => {
     let list = inbox;
     // Channels without campaigns (Instagram, Telegram) are selected by CHANNEL
@@ -879,13 +907,28 @@ export default function CrmLayout({
     });
   }, [inbox, filterStageIds, channelFilter]);
 
-
   const handleSelect = useCallback(
     (entryId: string, entryType: EntryType) => {
       subscribe(entryId, entryType);
       setMobileShowConversation(true);
     },
     [subscribe],
+  );
+
+  // Cold outbound on the unofficial WhatsApp channel. Gated on the SEND
+  // permission rather than on update: replying is attendance, but messaging a
+  // stranger is the action that gets an unofficial number banned, so an
+  // attendant with full attendance rights does not get it by default.
+  const canStartConversation = can("unofficial_whatsapp_instances", "send");
+  const [startConversationOpen, setStartConversationOpen] = useState(false);
+
+  const handleConversationStarted = useCallback(
+    (entryId: string, entryType: string) => {
+      // Straight into the thread that was just opened, so the operator lands
+      // where they can type rather than hunting for it in the list.
+      handleSelect(entryId, entryType as EntryType);
+    },
+    [handleSelect],
   );
 
   const handleBack = useCallback(() => {
@@ -985,7 +1028,6 @@ export default function CrmLayout({
     }
   }, [activeConversation]);
 
-
   const handleEntryStageChange = useCallback(
     async (
       entryId: string,
@@ -1008,7 +1050,6 @@ export default function CrmLayout({
   const handleStagesChange = useCallback(() => {
     reloadStages(campaignId || undefined, campaignType);
   }, [reloadStages, campaignId, campaignType]);
-
 
   const handleAssignLabel = useCallback(
     async (labelId: string, entryId: string, entryType: EntryType) => {
@@ -1083,7 +1124,6 @@ export default function CrmLayout({
     reloadLabels();
   }, [reloadLabels]);
 
-
   const [togglingAi, setTogglingAi] = useState(false);
   const [callDropdownOpen, setCallDropdownOpen] = useState(false);
   const callDropdownRef = useRef<HTMLDivElement>(null);
@@ -1109,7 +1149,6 @@ export default function CrmLayout({
       setTogglingAi(false);
     }
   }, [activeConversation, togglingAi]);
-
 
   useEffect(() => {
     if (!callDropdownOpen) return;
@@ -1271,11 +1310,7 @@ export default function CrmLayout({
       currentCloseSource,
       currentCloseReason,
     );
-  }, [
-    currentConversationStatus,
-    currentCloseSource,
-    currentCloseReason,
-  ]);
+  }, [currentConversationStatus, currentCloseSource, currentCloseReason]);
 
   const conversationStatusActions = useMemo(() => {
     switch (currentConversationStatus) {
@@ -1322,7 +1357,6 @@ export default function CrmLayout({
     },
     [activeConversation, setConversationStatus],
   );
-
 
   // Toggle state for the robot button (backend: null defaults to true).
   // Header owner badge uses assignee first; see AttendanceOwnerBadge below.
@@ -1407,178 +1441,180 @@ export default function CrmLayout({
 
       {/* Actions stay compact on the right */}
       <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2">
-      {/* Turn this conversation into a sales deal (linked to the chat). */}
-      {can("conversations", "update") && (
-        <CreateOpportunityButton
-          entryId={activeConversation.entry_id}
-          entryType={activeConversation.entry_type}
-          leadName={activeConversation.lead_name || activeConversation.lead_number}
-          workspaceId={currentWorkspace?.id}
-        />
-      )}
-
-      {/* Contact info panel toggle, only in classic mode, where the panel renders */}
-      {viewMode !== "funnel" && (
-        <TooltipWrapper content={tContactPanel("toggleTooltip")}>
-          <button
-            type="button"
-            onClick={() => setInfoPanelOpen((prev) => !prev)}
-            aria-pressed={infoPanelOpen}
-            className={cn(
-              "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
-              infoPanelOpen
-                ? "bg-muted text-foreground"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground",
-            )}
-          >
-            <Info
-              weight={infoPanelOpen ? "fill" : "regular"}
-              className="h-4 w-4"
-            />
-          </button>
-        </TooltipWrapper>
-      )}
-
-      {/* AI Toggle - Available for all campaign types */}
-      <TooltipWrapper
-        content={t.conversation.aiToggleTooltip ?? "Toggle AI responses"}
-      >
-        <ElevatedButton
-          variant={aiIsActive ? "primary" : "outline-subtle"}
-          size="sm"
-          onClick={handleToggleAi}
-          disabled={togglingAi || !canToggleAi}
-          title={
-            aiIsActive
-              ? (t.conversation.aiEnabled ?? "Automação")
-              : (t.conversation.aiDisabled ?? "Automação Off")
-          }
-          icon={
-            <Robot
-              weight={aiIsActive ? "fill" : "regular"}
-              className={cn("h-3.5 w-3.5", togglingAi && "animate-pulse")}
-            />
-          }
-          iconVisible
-        />
-      </TooltipWrapper>
-
-      {currentInboxEntry && (
-        <div className="relative" ref={statusMenuRef}>
-          <TooltipWrapper
-            content={
-              can("conversations", "send")
-                ? "Gerenciar status da conversa"
-                : "Status atual da conversa"
+        {/* Turn this conversation into a sales deal (linked to the chat). */}
+        {can("conversations", "update") && (
+          <CreateOpportunityButton
+            entryId={activeConversation.entry_id}
+            entryType={activeConversation.entry_type}
+            leadName={
+              activeConversation.lead_name || activeConversation.lead_number
             }
-          >
+            workspaceId={currentWorkspace?.id}
+          />
+        )}
+
+        {/* Contact info panel toggle, only in classic mode, where the panel renders */}
+        {viewMode !== "funnel" && (
+          <TooltipWrapper content={tContactPanel("toggleTooltip")}>
             <button
               type="button"
-              onClick={() => {
-                if (!can("conversations", "send")) return;
-                setStatusMenuOpen((open) => !open);
-              }}
+              onClick={() => setInfoPanelOpen((prev) => !prev)}
+              aria-pressed={infoPanelOpen}
               className={cn(
-                "flex items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-[11px] font-semibold text-foreground transition-colors",
-                can("conversations", "send") && "hover:bg-muted",
-                !can("conversations", "send") && "cursor-default opacity-90",
+                "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
+                infoPanelOpen
+                  ? "bg-muted text-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
-              <span
-                className={cn(
-                  "h-2 w-2 shrink-0 rounded-full",
-                  currentConversationStatusMeta.dotClassName,
-                )}
+              <Info
+                weight={infoPanelOpen ? "fill" : "regular"}
+                className="h-4 w-4"
               />
-              <span className="max-w-[11rem] truncate">
-                {currentConversationStatusMeta.label}
-              </span>
-              {can("conversations", "send") && (
-                <CaretDown weight="bold" className="h-3.5 w-3.5 shrink-0" />
-              )}
             </button>
           </TooltipWrapper>
+        )}
 
-          {statusMenuOpen && can("conversations", "send") && (
-            <div className="absolute right-0 top-full mt-1 z-50 w-64 rounded-[--radius] border border-border bg-card shadow-lg py-1 animate-in fade-in slide-in-from-top-1 duration-150">
-              <div className="border-b border-border px-3 py-2">
-                <div className="text-[11px] font-semibold text-muted-foreground">
-                  Status atual
-                </div>
-                <div
+        {/* AI Toggle - Available for all campaign types */}
+        <TooltipWrapper
+          content={t.conversation.aiToggleTooltip ?? "Toggle AI responses"}
+        >
+          <ElevatedButton
+            variant={aiIsActive ? "primary" : "outline-subtle"}
+            size="sm"
+            onClick={handleToggleAi}
+            disabled={togglingAi || !canToggleAi}
+            title={
+              aiIsActive
+                ? (t.conversation.aiEnabled ?? "Automação")
+                : (t.conversation.aiDisabled ?? "Automação Off")
+            }
+            icon={
+              <Robot
+                weight={aiIsActive ? "fill" : "regular"}
+                className={cn("h-3.5 w-3.5", togglingAi && "animate-pulse")}
+              />
+            }
+            iconVisible
+          />
+        </TooltipWrapper>
+
+        {currentInboxEntry && (
+          <div className="relative" ref={statusMenuRef}>
+            <TooltipWrapper
+              content={
+                can("conversations", "send")
+                  ? "Gerenciar status da conversa"
+                  : "Status atual da conversa"
+              }
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  if (!can("conversations", "send")) return;
+                  setStatusMenuOpen((open) => !open);
+                }}
+                className={cn(
+                  "flex items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-[11px] font-semibold text-foreground transition-colors",
+                  can("conversations", "send") && "hover:bg-muted",
+                  !can("conversations", "send") && "cursor-default opacity-90",
+                )}
+              >
+                <span
                   className={cn(
-                    "mt-1 text-xs font-semibold",
-                    currentConversationStatusMeta.menuAccentClassName,
+                    "h-2 w-2 shrink-0 rounded-full",
+                    currentConversationStatusMeta.dotClassName,
                   )}
-                >
-                  {currentConversationStatusMeta.baseLabel}
-                </div>
-                {currentConversationStatusMeta.provenance ? (
-                  <div className="mt-1.5 space-y-0.5 rounded-lg bg-muted px-2.5 py-2">
-                    <div className="text-[11px] text-muted-foreground">
-                      Encerrada por{" "}
-                      <span className="font-medium text-foreground">
-                        {currentConversationStatusMeta.provenance.by}
-                      </span>
-                    </div>
-                    <div className="text-[11px] text-muted-foreground">
-                      Motivo:{" "}
-                      <span className="font-medium text-foreground">
-                        {currentConversationStatusMeta.provenance.reasonLabel}
-                      </span>
-                    </div>
-                    {currentConversationStatusMeta.provenance.isSilence ? (
-                      <div className="text-[11px] font-medium text-warning dark:text-warning">
-                        Encerrada automaticamente por silêncio
-                      </div>
-                    ) : null}
+                />
+                <span className="max-w-[11rem] truncate">
+                  {currentConversationStatusMeta.label}
+                </span>
+                {can("conversations", "send") && (
+                  <CaretDown weight="bold" className="h-3.5 w-3.5 shrink-0" />
+                )}
+              </button>
+            </TooltipWrapper>
+
+            {statusMenuOpen && can("conversations", "send") && (
+              <div className="absolute right-0 top-full mt-1 z-50 w-64 rounded-[--radius] border border-border bg-card shadow-lg py-1 animate-in fade-in slide-in-from-top-1 duration-150">
+                <div className="border-b border-border px-3 py-2">
+                  <div className="text-[11px] font-semibold text-muted-foreground">
+                    Status atual
                   </div>
-                ) : null}
+                  <div
+                    className={cn(
+                      "mt-1 text-xs font-semibold",
+                      currentConversationStatusMeta.menuAccentClassName,
+                    )}
+                  >
+                    {currentConversationStatusMeta.baseLabel}
+                  </div>
+                  {currentConversationStatusMeta.provenance ? (
+                    <div className="mt-1.5 space-y-0.5 rounded-lg bg-muted px-2.5 py-2">
+                      <div className="text-[11px] text-muted-foreground">
+                        Encerrada por{" "}
+                        <span className="font-medium text-foreground">
+                          {currentConversationStatusMeta.provenance.by}
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-muted-foreground">
+                        Motivo:{" "}
+                        <span className="font-medium text-foreground">
+                          {currentConversationStatusMeta.provenance.reasonLabel}
+                        </span>
+                      </div>
+                      {currentConversationStatusMeta.provenance.isSilence ? (
+                        <div className="text-[11px] font-medium text-warning-ink">
+                          Encerrada automaticamente por silêncio
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
+
+                {conversationStatusActions.length > 0 ? (
+                  <div className="py-1">
+                    {conversationStatusActions.map((action) => (
+                      <button
+                        key={action.value}
+                        type="button"
+                        onClick={() =>
+                          handleConversationStatusChange(action.value)
+                        }
+                        className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                      >
+                        <Check
+                          weight="bold"
+                          className="h-3.5 w-3.5 text-muted-foreground"
+                        />
+                        <span>{action.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="px-3 py-2 text-xs text-muted-foreground">
+                    Reabre automaticamente quando o cliente enviar uma nova
+                    mensagem.
+                  </div>
+                )}
               </div>
+            )}
+          </div>
+        )}
 
-              {conversationStatusActions.length > 0 ? (
-                <div className="py-1">
-                  {conversationStatusActions.map((action) => (
-                    <button
-                      key={action.value}
-                      type="button"
-                      onClick={() =>
-                        handleConversationStatusChange(action.value)
-                      }
-                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium text-foreground transition-colors hover:bg-muted"
-                    >
-                      <Check
-                        weight="bold"
-                        className="h-3.5 w-3.5 text-muted-foreground"
-                      />
-                      <span>{action.label}</span>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <div className="px-3 py-2 text-xs text-muted-foreground">
-                  Reabre automaticamente quando o cliente enviar uma nova
-                  mensagem.
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+        {/* Assign To dropdown */}
+        {can("conversations", "assign") && currentWorkspace?.id && (
+          <AssignMemberPicker
+            workspaceId={currentWorkspace.id}
+            assignedUserId={currentInboxEntry?.assigned_user_id ?? null}
+            onlineUserIds={onlineUserIdSet}
+            onAssign={handleAssignTo}
+          />
+        )}
 
-      {/* Assign To dropdown */}
-      {can("conversations", "assign") && currentWorkspace?.id && (
-        <AssignMemberPicker
-          workspaceId={currentWorkspace.id}
-          assignedUserId={currentInboxEntry?.assigned_user_id ?? null}
-          onlineUserIds={onlineUserIdSet}
-          onAssign={handleAssignTo}
-        />
-      )}
-
-      {/* Call dropdown */}
-      <div className="relative" ref={callDropdownRef}>
-        {/* Outbound calling (SIP + WhatsApp) and the consent request all flow
+        {/* Call dropdown */}
+        <div className="relative" ref={callDropdownRef}>
+          {/* Outbound calling (SIP + WhatsApp) and the consent request all flow
             through the dialer, so the whole control is gated on dialer:use.
             Hiding it avoids a button that silently no-ops for members without
             the permission.
@@ -1586,211 +1622,214 @@ export default function CrmLayout({
             It is also gated on the channel: an Instagram contact has no phone
             number, so offering a call would open a dropdown that can never
             place one. */}
-        {can("dialer", "use") &&
-          channelCapabilities.supportsCalling(
-            activeConversation.entry_type as EntryType,
-          ) && (
-          <TooltipWrapper content={t.conversation.startCall ?? "Ligar"}>
-            <button
-              onClick={() => setCallDropdownOpen((v) => !v)}
-              disabled={isDialerBusy}
-              className={cn(
-                "flex items-center justify-center h-8 w-8 rounded-full transition-all duration-200",
-                isDialerBusy
-                  ? "bg-healthy text-healthy-foreground cursor-not-allowed"
-                  : "bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground",
-              )}
-            >
-              <PhoneCall
-                weight={isDialerBusy ? "fill" : "regular"}
-                className="h-4 w-4"
-              />
-            </button>
-          </TooltipWrapper>
-        )}
+          {can("dialer", "use") &&
+            channelCapabilities.supportsCalling(
+              activeConversation.entry_type as EntryType,
+            ) && (
+              <TooltipWrapper content={t.conversation.startCall ?? "Ligar"}>
+                <button
+                  onClick={() => setCallDropdownOpen((v) => !v)}
+                  disabled={isDialerBusy}
+                  className={cn(
+                    "flex items-center justify-center h-8 w-8 rounded-full transition-all duration-200",
+                    isDialerBusy
+                      ? "bg-healthy text-healthy-foreground cursor-not-allowed"
+                      : "bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground",
+                  )}
+                >
+                  <PhoneCall
+                    weight={isDialerBusy ? "fill" : "regular"}
+                    className="h-4 w-4"
+                  />
+                </button>
+              </TooltipWrapper>
+            )}
 
-        {callDropdownOpen && can("dialer", "use") && (
-          <div className="absolute right-0 top-full mt-1 z-50 w-56 rounded-[--radius] border border-border bg-card shadow-lg py-1 animate-in fade-in slide-in-from-top-1 duration-150">
-            {/* WhatsApp call. A WhatsApp call is placed FROM one of the
+          {callDropdownOpen && can("dialer", "use") && (
+            <div className="absolute right-0 top-full mt-1 z-50 w-56 rounded-[--radius] border border-border bg-card shadow-lg py-1 animate-in fade-in slide-in-from-top-1 duration-150">
+              {/* WhatsApp call. A WhatsApp call is placed FROM one of the
                 workspace's connected numbers to the lead. We resolve the
                 business phone intelligently, the number this contact
                 already talks to us on, and only fall back to a picker when
                 it's genuinely ambiguous (several numbers, no prior WA chat). */}
-            {(() => {
-              const openEntry = inbox.find(
-                (e) => e.entry_id === activeConversation?.entry_id,
-              );
-              const leadNumber = activeConversation?.lead_number;
-              const openEntryIsWa =
-                !!openEntry &&
-                normalizeEntryType(openEntry.entry_type) === "whatsapp";
-              const sameLeadWaEntry = leadNumber
-                ? inbox.find(
-                    (e) =>
-                      e.lead_number === leadNumber &&
-                      normalizeEntryType(e.entry_type) === "whatsapp" &&
-                      !!e.business_phone_id,
-                  )
-                : undefined;
-              const resolvedPhoneId =
-                (openEntryIsWa ? openEntry?.business_phone_id : "") ||
-                sameLeadWaEntry?.business_phone_id ||
-                (whatsappPhones.length === 1 ? whatsappPhones[0].id : "");
-              const resolvedPhone = whatsappPhones.find(
-                (p) => p.id === resolvedPhoneId,
-              );
+              {(() => {
+                const openEntry = inbox.find(
+                  (e) => e.entry_id === activeConversation?.entry_id,
+                );
+                const leadNumber = activeConversation?.lead_number;
+                const openEntryIsWa =
+                  !!openEntry &&
+                  normalizeEntryType(openEntry.entry_type) === "whatsapp";
+                const sameLeadWaEntry = leadNumber
+                  ? inbox.find(
+                      (e) =>
+                        e.lead_number === leadNumber &&
+                        normalizeEntryType(e.entry_type) === "whatsapp" &&
+                        !!e.business_phone_id,
+                    )
+                  : undefined;
+                const resolvedPhoneId =
+                  (openEntryIsWa ? openEntry?.business_phone_id : "") ||
+                  sameLeadWaEntry?.business_phone_id ||
+                  (whatsappPhones.length === 1 ? whatsappPhones[0].id : "");
+                const resolvedPhone = whatsappPhones.find(
+                  (p) => p.id === resolvedPhoneId,
+                );
 
-              if (resolvedPhoneId) {
-                // The lead must have granted (and not let expire) WhatsApp call
-                // permission before we can place the call. Until then, keep the
-                // action disabled and steer the operator to "request permission".
-                if (callPermissionLoading || !callPermission?.can_call) {
+                if (resolvedPhoneId) {
+                  // The lead must have granted (and not let expire) WhatsApp call
+                  // permission before we can place the call. Until then, keep the
+                  // action disabled and steer the operator to "request permission".
+                  if (callPermissionLoading || !callPermission?.can_call) {
+                    return (
+                      <button
+                        disabled
+                        title={
+                          callPermissionLoading
+                            ? undefined
+                            : "O cliente precisa autorizar ligações pelo WhatsApp antes de você ligar."
+                        }
+                        className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium text-muted-foreground cursor-not-allowed"
+                      >
+                        <WhatsappLogo weight="bold" className="h-3.5 w-3.5" />
+                        <span className="truncate">
+                          {t.conversation.callViaWhatsapp ?? "WhatsApp"}
+                        </span>
+                        <span className="ml-auto text-[11px] font-semibold text-muted-foreground">
+                          {callPermissionLoading
+                            ? "Verificando…"
+                            : "Permissão necessária"}
+                        </span>
+                      </button>
+                    );
+                  }
                   return (
                     <button
-                      disabled
-                      title={
-                        callPermissionLoading
-                          ? undefined
-                          : "O cliente precisa autorizar ligações pelo WhatsApp antes de você ligar."
-                      }
-                      className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium text-muted-foreground cursor-not-allowed"
-                    >
-                      <WhatsappLogo weight="bold" className="h-3.5 w-3.5" />
-                      <span className="truncate">
-                        {t.conversation.callViaWhatsapp ?? "WhatsApp"}
-                      </span>
-                      <span className="ml-auto text-[11px] font-semibold text-muted-foreground">
-                        {callPermissionLoading
-                          ? "Verificando…"
-                          : "Permissão necessária"}
-                      </span>
-                    </button>
-                  );
-                }
-                return (
-                  <button
-                    onClick={() =>
-                      handleWhatsAppCall(
-                        resolvedPhoneId,
-                        resolvedPhone?.verifiedName ||
-                          resolvedPhone?.displayPhoneNumber,
-                      )
-                    }
-                    className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
-                  >
-                    <WhatsappLogo
-                      weight="bold"
-                      className="h-3.5 w-3.5 text-healthy"
-                    />
-                    <span className="truncate">
-                      {t.conversation.callViaWhatsapp ?? "WhatsApp"}
-                    </span>
-                    {resolvedPhone && (
-                      <span className="ml-auto text-[11px] text-muted-foreground truncate">
-                        {resolvedPhone.displayPhoneNumber}
-                      </span>
-                    )}
-                  </button>
-                );
-              }
-
-              if (whatsappPhones.length === 0) {
-                return (
-                  <button
-                    disabled
-                    className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium text-muted-foreground cursor-not-allowed"
-                  >
-                    <WhatsappLogo weight="bold" className="h-3.5 w-3.5" />
-                    <span>{t.conversation.callViaWhatsapp ?? "WhatsApp"}</span>
-                    <span className="ml-auto text-[11px] font-semibold text-muted-foreground">
-                      Indisponível
-                    </span>
-                  </button>
-                );
-              }
-
-              return (
-                <>
-                  <div className="px-3 py-1.5 text-[11px] font-semibold text-muted-foreground">
-                    {t.conversation.callViaWhatsapp ?? "WhatsApp"}
-                  </div>
-                  {whatsappPhones.map((phone) => (
-                    <button
-                      key={phone.id}
                       onClick={() =>
                         handleWhatsAppCall(
-                          phone.id,
-                          phone.verifiedName || phone.displayPhoneNumber,
+                          resolvedPhoneId,
+                          resolvedPhone?.verifiedName ||
+                            resolvedPhone?.displayPhoneNumber,
                         )
                       }
                       className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
                     >
                       <WhatsappLogo
                         weight="bold"
-                        className="h-3.5 w-3.5 text-healthy"
+                        className="h-3.5 w-3.5 text-healthy-ink"
                       />
                       <span className="truncate">
-                        {phone.verifiedName || phone.displayPhoneNumber}
+                        {t.conversation.callViaWhatsapp ?? "WhatsApp"}
                       </span>
-                      {phone.verifiedName && (
+                      {resolvedPhone && (
                         <span className="ml-auto text-[11px] text-muted-foreground truncate">
-                          {phone.displayPhoneNumber}
+                          {resolvedPhone.displayPhoneNumber}
                         </span>
                       )}
                     </button>
-                  ))}
-                </>
-              );
-            })()}
+                  );
+                }
 
-            {/* Request call permission (WhatsApp). The request and the lead's
+                if (whatsappPhones.length === 0) {
+                  return (
+                    <button
+                      disabled
+                      className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium text-muted-foreground cursor-not-allowed"
+                    >
+                      <WhatsappLogo weight="bold" className="h-3.5 w-3.5" />
+                      <span>
+                        {t.conversation.callViaWhatsapp ?? "WhatsApp"}
+                      </span>
+                      <span className="ml-auto text-[11px] font-semibold text-muted-foreground">
+                        Indisponível
+                      </span>
+                    </button>
+                  );
+                }
+
+                return (
+                  <>
+                    <div className="px-3 py-1.5 text-[11px] font-semibold text-muted-foreground">
+                      {t.conversation.callViaWhatsapp ?? "WhatsApp"}
+                    </div>
+                    {whatsappPhones.map((phone) => (
+                      <button
+                        key={phone.id}
+                        onClick={() =>
+                          handleWhatsAppCall(
+                            phone.id,
+                            phone.verifiedName || phone.displayPhoneNumber,
+                          )
+                        }
+                        className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                      >
+                        <WhatsappLogo
+                          weight="bold"
+                          className="h-3.5 w-3.5 text-healthy-ink"
+                        />
+                        <span className="truncate">
+                          {phone.verifiedName || phone.displayPhoneNumber}
+                        </span>
+                        {phone.verifiedName && (
+                          <span className="ml-auto text-[11px] text-muted-foreground truncate">
+                            {phone.displayPhoneNumber}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </>
+                );
+              })()}
+
+              {/* Request call permission (WhatsApp). The request and the lead's
                 reply appear in the conversation thread. Gated on the dedicated
                 "call" permission, which the backend route also enforces. */}
-            {can("conversations", "call") && (
-              <>
-                <div className="my-1 border-t border-border" />
-                <button
-                  onClick={handleRequestCallPermission}
-                  disabled={requestingPermission}
-                  className={cn(
-                    "flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium transition-colors",
-                    requestingPermission
-                      ? "text-muted-foreground cursor-not-allowed"
-                      : "text-foreground hover:bg-muted",
-                  )}
-                >
-                  <WhatsappLogo
-                    weight="bold"
-                    className="h-3.5 w-3.5 text-warning"
-                  />
-                  <span>
-                    {requestingPermission
-                      ? "Enviando…"
-                      : "Solicitar permissão de ligação"}
-                  </span>
-                </button>
-              </>
-            )}
-          </div>
-        )}
-      </div>
+              {can("conversations", "call") && (
+                <>
+                  <div className="my-1 border-t border-border" />
+                  <button
+                    onClick={handleRequestCallPermission}
+                    disabled={requestingPermission}
+                    className={cn(
+                      "flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium transition-colors",
+                      requestingPermission
+                        ? "text-muted-foreground cursor-not-allowed"
+                        : "text-foreground hover:bg-muted",
+                    )}
+                  >
+                    <WhatsappLogo
+                      weight="bold"
+                      className="h-3.5 w-3.5 text-warning-ink"
+                    />
+                    <span>
+                      {requestingPermission
+                        ? "Enviando…"
+                        : "Solicitar permissão de ligação"}
+                    </span>
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   ) : null;
 
   return (
-    <div
-      className={cn(
-        "flex flex-col overflow-hidden",
-        embedded
-          ? "h-full bg-card"
-          // A rack cut into the panel, not a card floating on it: hairline
-          // rule, system radius, no drop shadow. The extra 40px of height comes
-          // back from the header bar shrinking 80px -> 48px.
-          : "h-[calc(100vh-188px)] min-h-[500px] rounded-[--radius] border border-border bg-card",
-      )}
-    >
-      {/*
+    <>
+      <div
+        className={cn(
+          "flex flex-col overflow-hidden",
+          embedded
+            ? "h-full bg-card"
+            : // A rack cut into the panel, not a card floating on it: hairline
+              // rule, system radius, no drop shadow. The extra 40px of height comes
+              // back from the header bar shrinking 80px -> 48px.
+              "h-[calc(100vh-188px)] min-h-[500px] rounded-[--radius] border border-border bg-card",
+        )}
+      >
+        {/*
         THE CONSOLE BAR.
 
         Was three stacked bands: a toolbar of four bordered control groups, a
@@ -1799,219 +1838,419 @@ export default function CrmLayout({
         the grouping a border used to, so the panel stays continuous and the CRM
         gets a band of height back.
       */}
-      <div className="flex shrink-0 flex-col border-b border-border bg-card sm:flex-row sm:items-stretch">
-        {/* Below sm the two groups stack: a phone cannot hold both banks of a
+        <div className="flex shrink-0 flex-col border-b border-border bg-card sm:flex-row sm:items-stretch">
+          {/* Below sm the two groups stack: a phone cannot hold both banks of a
             console side by side, and forcing it made the whole page scroll
             sideways by the width the action bank could not give up. */}
-        <div className="flex min-w-0 items-stretch overflow-x-auto sm:flex-1">
-          {/* Unified Funil selector: switch between atendimento (conversation) and
+          <div className="flex min-w-0 items-stretch overflow-x-auto sm:flex-1">
+            {/* Unified Funil selector: switch between atendimento (conversation) and
               vendas (deal) funnels. A funnel only scopes a BOARD, so the selector is
               shown on the Kanban (and the deal board), never on the flat Chat/Tabela
               views, where picking a funnel does nothing (industry-standard: the funnel
               switch lives on the board, not the inbox). */}
-          {!hasCampaign && (viewMode === "funnel" || showOpportunityBoard) && (
-            <ConsoleBank legend={tBoard("bank.funnel")}>
-              <CrmPipelineSelector
-                value={selectedPipeline}
-                onChange={handleSelectPipeline}
-                disableAllFunnels={groupBy === "stage"}
-              />
-            </ConsoleBank>
-          )}
+            {!hasCampaign &&
+              (viewMode === "funnel" || showOpportunityBoard) && (
+                <ConsoleBank legend={tBoard("bank.funnel")}>
+                  <CrmPipelineSelector
+                    value={selectedPipeline}
+                    onChange={handleSelectPipeline}
+                    disableAllFunnels={groupBy === "stage"}
+                  />
+                </ConsoleBank>
+              )}
 
-          {hasCampaign && (
-            <ConsoleBank legend={tBoard("bank.tags")}>
-              <TooltipWrapper content={tBoard("toolbar.filterByTags")}>
-                <CrmStageFilter
-                  stages={tags}
-                  selectedStageIds={filterStageIds}
-                  onSelectionChange={setFilterStageIds}
-                />
-              </TooltipWrapper>
-            </ConsoleBank>
-          )}
-
-          {toolbarExtra}
-
-          {isGlobalBoard && !showOpportunityBoard && (
-            <ConsoleBank legend={tBoard("bank.axis")}>
-              <CrmSegmentedToggle
-                bare
-                options={[
-                  { value: "stage", label: tBoard("axis.stage") },
-                  { value: "label", label: tBoard("axis.label") },
-                  { value: "owner", label: tBoard("axis.owner") },
-                ]}
-                value={groupBy}
-                onChange={(v) => handleGroupByChange(v as CrmGroupBy)}
-              />
-            </ConsoleBank>
-          )}
-
-          {!showOpportunityBoard && (
-            <ConsoleBank legend={tBoard("bank.view")}>
-              <CrmViewSwitcher
-                bare
-                mode={viewMode}
-                onChange={setViewMode}
-                showTable={!hasCampaign}
-              />
-            </ConsoleBank>
-          )}
-        </div>
-
-        <div className="flex min-w-0 shrink-0 items-stretch border-t border-border sm:border-l sm:border-t-0">
-          {!showOpportunityBoard && (
-            <ConsoleBank legend={tBoard("bank.manage")}>
-              <TooltipWrapper content={tBoard("toolbar.manageTags")}>
-                <CrmStageManager
-                  stages={tags}
-                  onStagesChange={handleStagesChange}
-                  campaignId={campaignId}
-                  campaignType={campaignType}
-                />
-              </TooltipWrapper>
-              {can("labels", "read") && (
-                <TooltipWrapper content={tBoard("toolbar.manageLabels")}>
-                  <CrmLabelManager
-                    labels={labels}
-                    onLabelsChange={handleLabelsChange}
-                    canCreate={can("labels", "create")}
-                    canUpdate={can("labels", "update")}
-                    canDelete={can("labels", "delete")}
+            {hasCampaign && (
+              <ConsoleBank legend={tBoard("bank.tags")}>
+                <TooltipWrapper content={tBoard("toolbar.filterByTags")}>
+                  <CrmStageFilter
+                    stages={tags}
+                    selectedStageIds={filterStageIds}
+                    onSelectionChange={setFilterStageIds}
                   />
                 </TooltipWrapper>
-              )}
-            </ConsoleBank>
-          )}
+              </ConsoleBank>
+            )}
 
-          <ConsoleBank legend={tBoard("bank.session")}>
-            {toolbarBeforeUsers}
-            <CrmConnectedUsers connectedUsers={connectedUsers} />
-            <TooltipWrapper
-              content={
-                isMuted ? tBoard("toolbar.muteOff") : tBoard("toolbar.muteOn")
-              }
-            >
-              <ElevatedButton
-                variant="outline-subtle"
-                size="sm"
-                aria-label={
+            {toolbarExtra}
+
+            {isGlobalBoard && !showOpportunityBoard && (
+              <ConsoleBank legend={tBoard("bank.axis")}>
+                <CrmSegmentedToggle
+                  bare
+                  options={[
+                    { value: "stage", label: tBoard("axis.stage") },
+                    { value: "label", label: tBoard("axis.label") },
+                    { value: "owner", label: tBoard("axis.owner") },
+                  ]}
+                  value={groupBy}
+                  onChange={(v) => handleGroupByChange(v as CrmGroupBy)}
+                />
+              </ConsoleBank>
+            )}
+
+            {!showOpportunityBoard && (
+              <ConsoleBank legend={tBoard("bank.view")}>
+                <CrmViewSwitcher
+                  bare
+                  mode={viewMode}
+                  onChange={setViewMode}
+                  showTable={!hasCampaign}
+                />
+              </ConsoleBank>
+            )}
+          </div>
+
+          <div className="flex min-w-0 shrink-0 items-stretch border-t border-border sm:border-l sm:border-t-0">
+            {canStartConversation && (
+              <ConsoleBank legend={tBoard("bank.outbound")}>
+                <TooltipWrapper
+                  content={tBoard("toolbar.startConversationHint")}
+                >
+                  {/* Named, not a bare glyph. This is the one control in the row that
+                      SENDS something rather than filtering or arranging what is already
+                      there, and an icon alone cannot carry that. The label folds away
+                      only below sm, where the row wraps anyway. */}
+                  <ElevatedButton
+                    variant="outline-subtle"
+                    size="sm"
+                    onClick={() => setStartConversationOpen(true)}
+                    title={tBoard("toolbar.startConversation")}
+                    titleClassName="hidden sm:inline"
+                    icon={<ChatCircleDots size={16} weight="bold" />}
+                    iconVisible
+                    iconSide="left"
+                  />
+                </TooltipWrapper>
+              </ConsoleBank>
+            )}
+
+            {!showOpportunityBoard && (
+              <ConsoleBank legend={tBoard("bank.manage")}>
+                <TooltipWrapper content={tBoard("toolbar.manageTags")}>
+                  <CrmStageManager
+                    stages={tags}
+                    onStagesChange={handleStagesChange}
+                    campaignId={campaignId}
+                    campaignType={campaignType}
+                  />
+                </TooltipWrapper>
+                {can("labels", "read") && (
+                  <TooltipWrapper content={tBoard("toolbar.manageLabels")}>
+                    <CrmLabelManager
+                      labels={labels}
+                      onLabelsChange={handleLabelsChange}
+                      canCreate={can("labels", "create")}
+                      canUpdate={can("labels", "update")}
+                      canDelete={can("labels", "delete")}
+                    />
+                  </TooltipWrapper>
+                )}
+              </ConsoleBank>
+            )}
+
+            <ConsoleBank legend={tBoard("bank.session")}>
+              {toolbarBeforeUsers}
+              <CrmConnectedUsers connectedUsers={connectedUsers} />
+              <TooltipWrapper
+                content={
                   isMuted ? tBoard("toolbar.muteOff") : tBoard("toolbar.muteOn")
                 }
-                onClick={toggleNotificationMute}
-                icon={
-                  isMuted ? (
-                    <BellSlash size={16} weight="bold" />
-                  ) : (
-                    <Bell size={16} weight="fill" />
-                  )
-                }
-                iconVisible
-              />
-            </TooltipWrapper>
-          </ConsoleBank>
+              >
+                <ElevatedButton
+                  variant="outline-subtle"
+                  size="sm"
+                  aria-label={
+                    isMuted
+                      ? tBoard("toolbar.muteOff")
+                      : tBoard("toolbar.muteOn")
+                  }
+                  onClick={toggleNotificationMute}
+                  icon={
+                    isMuted ? (
+                      <BellSlash size={16} weight="bold" />
+                    ) : (
+                      <Bell size={16} weight="fill" />
+                    )
+                  }
+                  iconVisible
+                />
+              </TooltipWrapper>
+            </ConsoleBank>
+          </div>
         </div>
-      </div>
 
-      {/* Saved views + filter bar for the workspace-global board AND table (both
+        {/* Saved views + filter bar for the workspace-global board AND table (both
           read the same filter). Not shown for the classic inbox, which keeps its
           own chrome untouched. */}
-      {(isGlobalBoard || isGlobalTable) && !showOpportunityBoard && (
-        <>
-          <CrmSavedViews
-            views={savedViews}
-            activeViewId={activeViewId}
-            onSelect={handleSelectView}
-            onSave={handleSaveView}
-            onRename={
-              can("conversations", "update") ? handleRenameView : undefined
-            }
-            onUpdateToCurrent={
-              can("conversations", "update") ? handleUpdateViewToCurrent : undefined
-            }
-            onSetVisibility={
-              can("conversations", "update") ? handleSetViewVisibility : undefined
-            }
-            onDelete={
-              can("conversations", "update") ? handleDeleteView : undefined
-            }
-            onSetDefault={
-              can("conversations", "update") ? handleSetDefaultView : undefined
-            }
-            canManage={can("conversations", "update")}
-          />
-          <CrmFilterBar
-            value={filter}
-            onChange={handleFilterChange}
-            labels={labels}
-            workspaceId={currentWorkspace?.id}
-          />
-        </>
-      )}
+        {(isGlobalBoard || isGlobalTable) && !showOpportunityBoard && (
+          <>
+            <CrmSavedViews
+              views={savedViews}
+              activeViewId={activeViewId}
+              onSelect={handleSelectView}
+              onSave={handleSaveView}
+              onRename={
+                can("conversations", "update") ? handleRenameView : undefined
+              }
+              onUpdateToCurrent={
+                can("conversations", "update")
+                  ? handleUpdateViewToCurrent
+                  : undefined
+              }
+              onSetVisibility={
+                can("conversations", "update")
+                  ? handleSetViewVisibility
+                  : undefined
+              }
+              onDelete={
+                can("conversations", "update") ? handleDeleteView : undefined
+              }
+              onSetDefault={
+                can("conversations", "update")
+                  ? handleSetDefaultView
+                  : undefined
+              }
+              canManage={can("conversations", "update")}
+            />
+            <CrmFilterBar
+              value={filter}
+              onChange={handleFilterChange}
+              labels={labels}
+              workspaceId={currentWorkspace?.id}
+            />
+          </>
+        )}
 
-      <div className="relative flex flex-1 min-h-0 overflow-hidden">
-        {showOpportunityBoard ? (
-          /* Same surface, deal object: the selector above flips the board to the
+        <div className="relative flex flex-1 min-h-0 overflow-hidden">
+          {showOpportunityBoard ? (
+            /* Same surface, deal object: the selector above flips the board to the
              vendas funnel. OpportunityBoard owns its own filter bar + drawer. */
-          <OpportunityBoard
-            pipelineId={selectedPipeline?.id}
-            workspaceId={currentWorkspace?.id}
-            canEdit={can("conversations", "update")}
-            embedded
-          />
-        ) : viewMode === "funnel" ? (
-          <div className="flex flex-1 min-h-0 overflow-hidden">
-            <div className="flex-1 min-w-0 overflow-hidden">
-              <CrmFunnelView
-                entries={isGlobalBoard ? [] : filteredInbox}
-                stages={isGlobalBoard ? globalBoardStages : tags}
-                selectedEntryId={activeConversation?.entry_id ?? null}
-                onSelect={handleSelect}
-                onStagesReorder={
-                  isGlobalBoard
-                    ? handleGlobalBoardReorder
-                    : handleStagesReorder
-                }
-                onEntryStageChange={
-                  isGlobalBoard
-                    ? groupBy === "stage" && can("stages", "assign")
-                      ? handleEntryStageChange
-                      : groupBy === "label" && can("labels", "assign")
-                        ? handleEntryLabelChange
-                        : groupBy === "owner" && can("conversations", "assign")
-                          ? handleEntryOwnerChange
+            <OpportunityBoard
+              pipelineId={selectedPipeline?.id}
+              workspaceId={currentWorkspace?.id}
+              canEdit={can("conversations", "update")}
+              embedded
+            />
+          ) : viewMode === "funnel" ? (
+            <div className="flex flex-1 min-h-0 overflow-hidden">
+              <div className="flex-1 min-w-0 overflow-hidden">
+                <CrmFunnelView
+                  entries={isGlobalBoard ? [] : filteredInbox}
+                  stages={isGlobalBoard ? globalBoardStages : tags}
+                  selectedEntryId={activeConversation?.entry_id ?? null}
+                  onSelect={handleSelect}
+                  onStagesReorder={
+                    isGlobalBoard
+                      ? handleGlobalBoardReorder
+                      : handleStagesReorder
+                  }
+                  onEntryStageChange={
+                    isGlobalBoard
+                      ? groupBy === "stage" && can("stages", "assign")
+                        ? handleEntryStageChange
+                        : groupBy === "label" && can("labels", "assign")
+                          ? handleEntryLabelChange
+                          : groupBy === "owner" &&
+                              can("conversations", "assign")
+                            ? handleEntryOwnerChange
+                            : undefined
+                      : can("stages", "assign")
+                        ? handleEntryStageChange
+                        : undefined
+                  }
+                  funnelColumns={
+                    isGlobalBoard ? globalBoardFunnelColumns : funnelColumns
+                  }
+                  funnelSummary={
+                    isGlobalBoard ? globalBoardSummary : funnelSummary
+                  }
+                  loadingFunnelColumn={
+                    isGlobalBoard ? null : loadingFunnelColumn
+                  }
+                  onRequestColumn={
+                    isGlobalBoard
+                      ? handleRequestGlobalColumn
+                      : requestFunnelColumn
+                  }
+                  onRequestSummary={
+                    isGlobalBoard ? undefined : requestFunnelSummary
+                  }
+                  labels={labels}
+                  onAssignLabel={handleAssignLabel}
+                  onRemoveLabel={handleRemoveLabel}
+                />
+              </div>
+
+              {/* Conversation panel in kanban mode */}
+              {activeConversation && (
+                <div className="relative isolate w-[420px] flex-shrink-0 border-l border-border flex flex-col">
+                  <CrmWallpaper />
+                  {conversationHeader}
+                  <div className="flex-1 min-h-0">
+                    <CrmConversationView
+                      conversation={activeConversation}
+                      isTyping={isRemoteTyping}
+                      onLoadMore={loadHistory}
+                      loadingHistory={loadingHistory}
+                      loadingConversation={loadingConversation}
+                      translations={t.conversation}
+                      onSearchMessages={searchMessages}
+                      onClearMessageSearch={clearMessageSearch}
+                      messageSearchResults={messageSearchResults}
+                      searchingMessages={searchingMessages}
+                      messageSearchTotalItems={messageSearchTotalItems}
+                      messageSearchQuery={messageSearchQuery}
+                      scrollToMessageTimestamp={pendingScrollToMessageId}
+                      onScrolledToMessage={() =>
+                        setPendingScrollToMessageId(null)
+                      }
+                      onLoadAround={loadAround}
+                      onReply={setReplyToMessage}
+                      tags={tags}
+                      currentEntryTags={currentEntryStages}
+                      entryAvailableTags={entryAvailableStages}
+                      onEntryStageChange={
+                        can("stages", "assign")
+                          ? handleEntryStageChange
                           : undefined
-                    : can("stages", "assign")
-                      ? handleEntryStageChange
-                      : undefined
-                }
-                funnelColumns={
-                  isGlobalBoard ? globalBoardFunnelColumns : funnelColumns
-                }
-                funnelSummary={
-                  isGlobalBoard ? globalBoardSummary : funnelSummary
-                }
-                loadingFunnelColumn={
-                  isGlobalBoard ? null : loadingFunnelColumn
-                }
-                onRequestColumn={
-                  isGlobalBoard ? handleRequestGlobalColumn : requestFunnelColumn
-                }
-                onRequestSummary={
-                  isGlobalBoard ? undefined : requestFunnelSummary
-                }
+                      }
+                      onAssignStage={
+                        can("stages", "assign") ? handleAssignStage : undefined
+                      }
+                      onRemoveStage={
+                        can("stages", "assign") ? handleRemoveStage : undefined
+                      }
+                      availableLabels={labels}
+                      currentEntryLabels={currentEntryLabels}
+                      onAssignLabel={
+                        can("labels", "assign") ? handleAssignLabel : undefined
+                      }
+                      onRemoveLabel={
+                        can("labels", "assign") ? handleRemoveLabel : undefined
+                      }
+                    />
+                  </div>
+                  <CrmMessageInput
+                    entryType={activeConversation.entry_type}
+                    entryId={activeConversation.entry_id}
+                    onSend={handleSend}
+                    onSendMedia={handleSendMedia}
+                    onSendButton={handleSendButton}
+                    onTyping={handleTyping}
+                    windowOpen={activeConversation.window_open}
+                    windowExpiresAt={activeConversation.window_expires_at}
+                    translations={t.input}
+                    replyToMessage={replyToMessage}
+                    onClearReply={() => setReplyToMessage(null)}
+                    disabled={!can("conversations", "send")}
+                    disabledReason={
+                      !can("conversations", "send")
+                        ? (t.input.noPermissionSend ??
+                          "You don't have permission to send messages")
+                        : undefined
+                    }
+                  />
+                </div>
+              )}
+            </div>
+          ) : isGlobalTable ? (
+            <div className="flex flex-1 min-h-0 overflow-hidden">
+              <CrmListView
+                filter={filter}
+                stages={tags}
                 labels={labels}
-                onAssignLabel={handleAssignLabel}
-                onRemoveLabel={handleRemoveLabel}
+                workspaceId={currentWorkspace?.id}
+                canAssignStage={can("stages", "assign")}
+                canAssignOwner={can("conversations", "assign")}
+                canAssignLabel={can("labels", "assign")}
               />
             </div>
+          ) : (
+            <>
+              {/*
+              The queue strip.
 
-            {/* Conversation panel in kanban mode */}
-            {activeConversation && (
-              <div className="relative isolate w-[420px] flex-shrink-0 border-l border-border flex flex-col">
+              Each column in this rack is headed by its own scribble strip, the
+              way a bank of channels is legended on the desk. Previously the
+              three panes were unlabelled and separated only by a hairline, so
+              which region you were in had to be inferred from its contents —
+              the layout read as a generic three-pane chat client. Naming the
+              strips is what makes it a rack.
+            */}
+              <div
+                data-tour="live-chat-inbox"
+                className={cn(
+                  "w-full border-r border-border lg:w-[356px] lg:flex-shrink-0",
+                  mobileShowConversation
+                    ? "hidden lg:flex lg:flex-col"
+                    : "flex flex-col",
+                )}
+              >
+                <CrmInbox
+                  entries={filteredInbox}
+                  selectedEntryId={activeConversation?.entry_id ?? null}
+                  onSelect={handleSelect}
+                  connectionStatus={status}
+                  onLoadMore={handleLoadMoreInbox}
+                  hasMore={inboxHasMore}
+                  inboxTotalItems={inboxTotalItems}
+                  conversationStatusCounts={conversationStatusCounts}
+                  loadingMore={loadingInbox}
+                  tags={tags}
+                  campaignType={campaignType}
+                  translations={t.inbox}
+                  onSearch={searchInbox}
+                  onClearSearch={clearSearch}
+                  searchResults={searchResults}
+                  searching={searching}
+                  searchTotalItems={searchTotalItems}
+                  searchTotalPages={searchTotalPages}
+                  searchPage={searchPage}
+                  searchHasMore={searchHasMore}
+                  onLoadMoreSearch={requestSearchPage}
+                  loadingSearchMore={loadingSearchMore}
+                  onConversationStatusFilterChange={(statusFilter) =>
+                    switchView(
+                      campaignId || undefined,
+                      campaignType,
+                      whatsappCampaignType,
+                      statusFilter,
+                    )
+                  }
+                  onNavigateToMessage={handleNavigateToMessage}
+                  labels={labels}
+                  onAssignLabel={handleAssignLabel}
+                  onRemoveLabel={handleRemoveLabel}
+                  onEntryStageChange={
+                    can("stages", "assign") ? handleEntryStageChange : undefined
+                  }
+                  noPermissionStageAssign={
+                    t.conversation.noPermissionStageAssign
+                  }
+                />
+              </div>
+
+              {/* Conversation Panel */}
+              <div
+                data-tour="live-chat-conversation"
+                className={cn(
+                  "relative isolate flex-1 flex flex-col min-w-0",
+                  !mobileShowConversation && !activeConversation
+                    ? "hidden lg:flex"
+                    : "flex",
+                  mobileShowConversation
+                    ? "flex"
+                    : !activeConversation
+                      ? ""
+                      : "hidden lg:flex",
+                )}
+              >
+                {/* Spans the message list AND the composer, so the wallpaper is
+                  one surface across the seam between them. The header paints
+                  its own bg-card over the top of it. */}
                 <CrmWallpaper />
                 {conversationHeader}
+
                 <div className="flex-1 min-h-0">
                   <CrmConversationView
                     conversation={activeConversation}
@@ -2056,209 +2295,62 @@ export default function CrmLayout({
                     }
                   />
                 </div>
-                <CrmMessageInput
-                  entryType={activeConversation.entry_type}
-                  entryId={activeConversation.entry_id}
-                  onSend={handleSend}
-                  onSendMedia={handleSendMedia}
-                  onSendButton={handleSendButton}
-                  onTyping={handleTyping}
-                  windowOpen={activeConversation.window_open}
-                  windowExpiresAt={activeConversation.window_expires_at}
-                  translations={t.input}
-                  replyToMessage={replyToMessage}
-                  onClearReply={() => setReplyToMessage(null)}
-                  disabled={!can("conversations", "send")}
-                  disabledReason={
-                    !can("conversations", "send")
-                      ? (t.input.noPermissionSend ??
-                        "You don't have permission to send messages")
-                      : undefined
-                  }
-                />
+
+                {activeConversation && (
+                  <CrmMessageInput
+                    entryType={activeConversation.entry_type}
+                    entryId={activeConversation.entry_id}
+                    onSend={handleSend}
+                    onSendMedia={handleSendMedia}
+                    onSendButton={handleSendButton}
+                    onTyping={handleTyping}
+                    windowOpen={activeConversation.window_open}
+                    windowExpiresAt={activeConversation.window_expires_at}
+                    translations={t.input}
+                    replyToMessage={replyToMessage}
+                    onClearReply={() => setReplyToMessage(null)}
+                    disabled={!can("conversations", "send")}
+                    disabledReason={
+                      !can("conversations", "send")
+                        ? (t.input.noPermissionSend ??
+                          "You don't have permission to send messages")
+                        : undefined
+                    }
+                  />
+                )}
               </div>
-            )}
-          </div>
-        ) : isGlobalTable ? (
-          <div className="flex flex-1 min-h-0 overflow-hidden">
-            <CrmListView
-              filter={filter}
-              stages={tags}
-              labels={labels}
-              workspaceId={currentWorkspace?.id}
-              canAssignStage={can("stages", "assign")}
-              canAssignOwner={can("conversations", "assign")}
-              canAssignLabel={can("labels", "assign")}
+            </>
+          )}
+          {activeConversation && (
+            <CrmConversationInfosPanel
+              open={infoPanelOpen}
+              onClose={() => setInfoPanelOpen(false)}
+              conversation={activeConversation}
+              inboxEntry={currentInboxEntry}
+              conversationStatus={currentConversationStatus}
+              canBlock={can("leads", "block")}
             />
-          </div>
-        ) : (
-          <>
-            {/*
-              The queue strip.
-
-              Each column in this rack is headed by its own scribble strip, the
-              way a bank of channels is legended on the desk. Previously the
-              three panes were unlabelled and separated only by a hairline, so
-              which region you were in had to be inferred from its contents —
-              the layout read as a generic three-pane chat client. Naming the
-              strips is what makes it a rack.
-            */}
-            <div
-              data-tour="live-chat-inbox"
-              className={cn(
-                "w-full border-r border-border lg:w-[356px] lg:flex-shrink-0",
-                mobileShowConversation
-                  ? "hidden lg:flex lg:flex-col"
-                  : "flex flex-col",
-              )}
-            >
-              <CrmInbox
-                entries={filteredInbox}
-                selectedEntryId={activeConversation?.entry_id ?? null}
-                onSelect={handleSelect}
-                connectionStatus={status}
-                onLoadMore={handleLoadMoreInbox}
-                hasMore={inboxHasMore}
-                inboxTotalItems={inboxTotalItems}
-                conversationStatusCounts={conversationStatusCounts}
-                loadingMore={loadingInbox}
-                tags={tags}
-                campaignType={campaignType}
-                translations={t.inbox}
-                onSearch={searchInbox}
-                onClearSearch={clearSearch}
-                searchResults={searchResults}
-                searching={searching}
-                searchTotalItems={searchTotalItems}
-                searchTotalPages={searchTotalPages}
-                searchPage={searchPage}
-                searchHasMore={searchHasMore}
-                onLoadMoreSearch={requestSearchPage}
-                loadingSearchMore={loadingSearchMore}
-                onConversationStatusFilterChange={(statusFilter) =>
-                  switchView(
-                    campaignId || undefined,
-                    campaignType,
-                    whatsappCampaignType,
-                    statusFilter,
-                  )
-                }
-                onNavigateToMessage={handleNavigateToMessage}
-                labels={labels}
-                onAssignLabel={handleAssignLabel}
-                onRemoveLabel={handleRemoveLabel}
-                onEntryStageChange={
-                  can("stages", "assign") ? handleEntryStageChange : undefined
-                }
-                noPermissionStageAssign={t.conversation.noPermissionStageAssign}
-              />
-            </div>
-
-            {/* Conversation Panel */}
-            <div
-              data-tour="live-chat-conversation"
-              className={cn(
-                "relative isolate flex-1 flex flex-col min-w-0",
-                !mobileShowConversation && !activeConversation
-                  ? "hidden lg:flex"
-                  : "flex",
-                mobileShowConversation
-                  ? "flex"
-                  : !activeConversation
-                    ? ""
-                    : "hidden lg:flex",
-              )}
-            >
-              {/* Spans the message list AND the composer, so the wallpaper is
-                  one surface across the seam between them. The header paints
-                  its own bg-card over the top of it. */}
-              <CrmWallpaper />
-              {conversationHeader}
-
-              <div className="flex-1 min-h-0">
-                <CrmConversationView
-                  conversation={activeConversation}
-                  isTyping={isRemoteTyping}
-                  onLoadMore={loadHistory}
-                  loadingHistory={loadingHistory}
-                  loadingConversation={loadingConversation}
-                  translations={t.conversation}
-                  onSearchMessages={searchMessages}
-                  onClearMessageSearch={clearMessageSearch}
-                  messageSearchResults={messageSearchResults}
-                  searchingMessages={searchingMessages}
-                  messageSearchTotalItems={messageSearchTotalItems}
-                  messageSearchQuery={messageSearchQuery}
-                  scrollToMessageTimestamp={pendingScrollToMessageId}
-                  onScrolledToMessage={() => setPendingScrollToMessageId(null)}
-                  onLoadAround={loadAround}
-                  onReply={setReplyToMessage}
-                  tags={tags}
-                  currentEntryTags={currentEntryStages}
-                  entryAvailableTags={entryAvailableStages}
-                  onEntryStageChange={
-                    can("stages", "assign") ? handleEntryStageChange : undefined
-                  }
-                  onAssignStage={
-                    can("stages", "assign") ? handleAssignStage : undefined
-                  }
-                  onRemoveStage={
-                    can("stages", "assign") ? handleRemoveStage : undefined
-                  }
-                  availableLabels={labels}
-                  currentEntryLabels={currentEntryLabels}
-                  onAssignLabel={
-                    can("labels", "assign") ? handleAssignLabel : undefined
-                  }
-                  onRemoveLabel={
-                    can("labels", "assign") ? handleRemoveLabel : undefined
-                  }
-                />
-              </div>
-
-              {activeConversation && (
-                <CrmMessageInput
-                  entryType={activeConversation.entry_type}
-                  entryId={activeConversation.entry_id}
-                  onSend={handleSend}
-                  onSendMedia={handleSendMedia}
-                  onSendButton={handleSendButton}
-                  onTyping={handleTyping}
-                  windowOpen={activeConversation.window_open}
-                  windowExpiresAt={activeConversation.window_expires_at}
-                  translations={t.input}
-                  replyToMessage={replyToMessage}
-                  onClearReply={() => setReplyToMessage(null)}
-                  disabled={!can("conversations", "send")}
-                  disabledReason={
-                    !can("conversations", "send")
-                      ? (t.input.noPermissionSend ??
-                        "You don't have permission to send messages")
-                      : undefined
-                  }
-                />
-              )}
-            </div>
-          </>
-        )}
-        {activeConversation && (
-          <CrmConversationInfosPanel
-            open={infoPanelOpen}
-            onClose={() => setInfoPanelOpen(false)}
-            conversation={activeConversation}
-            inboxEntry={currentInboxEntry}
-            conversationStatus={currentConversationStatus}
-            canBlock={can("leads", "block")}
+          )}
+          <WorkflowRunDrawer
+            handler={workflowDrawerHandler}
+            open={!!workflowDrawerHandler}
+            onOpenChange={(open) => {
+              if (!open) setWorkflowDrawerHandler(null);
+            }}
           />
-        )}
-        <WorkflowRunDrawer
-          handler={workflowDrawerHandler}
-          open={!!workflowDrawerHandler}
-          onOpenChange={(open) => {
-            if (!open) setWorkflowDrawerHandler(null);
-          }}
-        />
+        </div>
       </div>
-    </div>
+
+      {/* Mounted unconditionally rather than inside the toolbar branch: the
+          dialog owns its own open state, and unmounting it on close would
+          discard what the operator typed if the toolbar ever re-renders. */}
+      {canStartConversation && (
+        <StartConversationDialog
+          open={startConversationOpen}
+          onOpenChange={setStartConversationOpen}
+          onStarted={handleConversationStarted}
+        />
+      )}
+    </>
   );
 }

@@ -432,7 +432,7 @@ export function AIChatClient() {
                 <button
                   type="button"
                   onClick={() => removeThread(thread.id)}
-                  className="flex-shrink-0 text-muted-foreground opacity-0 transition-opacity duration-DEFAULT hover:text-destructive focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring group-hover:opacity-100"
+                  className="flex-shrink-0 text-muted-foreground opacity-0 transition-opacity duration-DEFAULT hover:text-destructive-ink focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring group-hover:opacity-100"
                   aria-label={t("deleteConversation")}
                 >
                   <TrashSimple className="h-3.5 w-3.5" />
@@ -624,7 +624,7 @@ function Composer({
         {error ? (
           <p
             role="alert"
-            className="rounded-lg mb-2 border border-destructive/40 border-t-destructive/60 bg-muted px-3 py-2 text-sm text-destructive-ink"
+            className="rounded-lg mb-2 border border-border border-t-destructive/60 bg-muted px-3 py-2 text-sm text-destructive-ink"
           >
             {error}
           </p>
@@ -811,7 +811,7 @@ function ToolLine({
     <div
       className={cn(
         "flex items-center gap-2 text-xs",
-        ok ? "text-muted-foreground" : "text-destructive",
+        ok ? "text-muted-foreground" : "text-destructive-ink",
       )}
     >
       <TileIcon weight="bold" className="h-3.5 w-3.5 flex-shrink-0" />

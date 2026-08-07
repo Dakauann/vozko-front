@@ -559,8 +559,8 @@ function MembersTab({
       </ElevatedContainer>
 
       {error && (
-        <ElevatedContainer className="!bg-destructive/10 !border-destructive/20 !p-3">
-          <p className="text-sm text-destructive dark:text-destructive">{error}</p>
+        <ElevatedContainer className="!bg-muted !border-border !p-3">
+          <p className="text-sm text-destructive-ink">{error}</p>
         </ElevatedContainer>
       )}
 
@@ -672,7 +672,7 @@ function MembersTab({
                         {canRemove && (
                           <button
                             onClick={() => setConfirmRemove(member.userId)}
-                            className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive-ink dark:hover:text-destructive transition-colors"
+                            className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive-ink dark:hover:text-destructive-ink transition-colors"
                             title={t("removeMember")}
                           >
                             <UserMinus className="h-4 w-4" weight="bold" />
@@ -718,9 +718,9 @@ function MembersTab({
             </div>
           )}
 
-          <div className="flex gap-3 rounded-[--radius] border border-warning/25 bg-warning/10 p-3.5">
+          <div className="flex gap-3 rounded-[--radius] border border-border bg-muted p-3.5">
             <Warning
-              className="mt-0.5 h-5 w-5 shrink-0 text-warning dark:text-warning"
+              className="mt-0.5 h-5 w-5 shrink-0 text-warning-ink"
               weight="fill"
             />
             <div className="space-y-1">
@@ -738,7 +738,7 @@ function MembersTab({
           </ElevatedDialogDescription>
 
           {error && (
-            <p className="text-sm text-destructive dark:text-destructive">{error}</p>
+            <p className="text-sm text-destructive-ink">{error}</p>
           )}
 
           <ElevatedDialogFooter>
@@ -984,7 +984,7 @@ function InvitesTab({
 
                   {/* Admin role info */}
                   {selectedValue === "admin" && (
-                    <div className="flex items-start gap-2 rounded-[--radius] bg-muted border border-primary/20 px-3 py-2.5">
+                    <div className="flex items-start gap-2 rounded-[--radius] bg-muted border border-border px-3 py-2.5">
                       <Shield
                         className="h-4 w-4 text-primary-ink mt-0.5 flex-shrink-0"
                         weight="fill"
@@ -1005,7 +1005,7 @@ function InvitesTab({
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                       >
-                        <div className="rounded-[--radius] border border-healthy/30 bg-healthy/5 p-4 space-y-4">
+                        <div className="rounded-[--radius] border border-border bg-muted p-4 space-y-4">
                           <div className="flex items-center gap-3">
                             <IconBox color="emerald" size="sm">
                               <UserGear className="h-4 w-4" weight="fill" />
@@ -1081,12 +1081,12 @@ function InvitesTab({
                           </div>
 
                           {roleError && (
-                            <div className="flex items-start gap-2 rounded-[--radius] bg-destructive/10 border border-destructive/20 px-3 py-2.5">
+                            <div className="flex items-start gap-2 rounded-[--radius] bg-muted border border-border px-3 py-2.5">
                               <X
-                                className="h-4 w-4 text-destructive-ink dark:text-destructive mt-0.5 flex-shrink-0"
+                                className="h-4 w-4 text-destructive-ink dark:text-destructive-ink mt-0.5 flex-shrink-0"
                                 weight="bold"
                               />
-                              <p className="text-xs text-destructive dark:text-destructive">
+                              <p className="text-xs text-destructive-ink">
                                 {roleError}
                               </p>
                             </div>
@@ -1178,12 +1178,12 @@ function InvitesTab({
                   )}
 
                   {error && (
-                    <div className="flex items-start gap-2 rounded-[--radius] bg-destructive/10 border border-destructive/20 px-3 py-2.5">
+                    <div className="flex items-start gap-2 rounded-[--radius] bg-muted border border-border px-3 py-2.5">
                       <X
-                        className="h-4 w-4 text-destructive-ink dark:text-destructive mt-0.5 flex-shrink-0"
+                        className="h-4 w-4 text-destructive-ink dark:text-destructive-ink mt-0.5 flex-shrink-0"
                         weight="bold"
                       />
-                      <p className="text-xs text-destructive dark:text-destructive">
+                      <p className="text-xs text-destructive-ink">
                         {error}
                       </p>
                     </div>
@@ -1308,7 +1308,7 @@ function InvitesTab({
                           setCancelling(null);
                         }}
                         disabled={cancelling === invite.id}
-                        className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-destructive-ink hover:bg-muted dark:text-destructive dark:hover:bg-destructive/30 disabled:opacity-50 transition-colors"
+                        className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-destructive-ink hover:bg-muted dark:text-destructive-ink dark:hover:bg-muted disabled:opacity-50 transition-colors"
                         title={t("cancelInvite")}
                       >
                         <X className="h-3.5 w-3.5" weight="bold" />
@@ -1630,8 +1630,8 @@ function PermissionsTab({
         </motion.div>
 
         {error && (
-          <ElevatedContainer className="!bg-destructive/10 !border-destructive/20 !p-3">
-            <p className="text-sm text-destructive dark:text-destructive">{error}</p>
+          <ElevatedContainer className="!bg-muted !border-border !p-3">
+            <p className="text-sm text-destructive-ink">{error}</p>
           </ElevatedContainer>
         )}
 
@@ -1640,7 +1640,7 @@ function PermissionsTab({
             {selectedMember.role === "owner" ||
             selectedMember.role === "admin" ? (
               <motion.div variants={itemVariants} className="space-y-4">
-                <ElevatedContainer className="!bg-muted !border-primary/20 !p-4">
+                <ElevatedContainer className="!bg-muted !border-border !p-4">
                   <div className="flex items-start gap-3">
                     <Shield
                       className="h-5 w-5 text-primary-ink mt-0.5 flex-shrink-0"
@@ -1765,7 +1765,7 @@ function PermissionsTab({
                 />
               </div>
               {assignError && (
-                <p className="text-xs text-destructive-ink dark:text-destructive">
+                <p className="text-xs text-destructive-ink dark:text-destructive-ink">
                   {assignError}
                 </p>
               )}
@@ -1802,7 +1802,7 @@ function PermissionsTab({
                             );
                             if (member) handleUnassign(member.userId);
                           }}
-                          className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-destructive-ink dark:hover:text-destructive transition-colors"
+                          className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-destructive-ink dark:hover:text-destructive-ink transition-colors"
                         >
                           <Trash className="h-4 w-4" weight="bold" />
                         </button>
@@ -2201,12 +2201,12 @@ function RolesTab({
             </div>
 
             {error && (
-              <div className="flex items-start gap-2 rounded-[--radius] bg-destructive/10 border border-destructive/20 px-3 py-2.5">
+              <div className="flex items-start gap-2 rounded-[--radius] bg-muted border border-border px-3 py-2.5">
                 <X
-                  className="h-4 w-4 text-destructive-ink dark:text-destructive mt-0.5 flex-shrink-0"
+                  className="h-4 w-4 text-destructive-ink dark:text-destructive-ink mt-0.5 flex-shrink-0"
                   weight="bold"
                 />
-                <p className="text-xs text-destructive dark:text-destructive">
+                <p className="text-xs text-destructive-ink">
                   {error}
                 </p>
               </div>
@@ -2357,12 +2357,12 @@ function RolesTab({
       )}
 
       {error && (
-        <div className="flex items-start gap-2 rounded-[--radius] bg-destructive/10 border border-destructive/20 px-3 py-2.5">
+        <div className="flex items-start gap-2 rounded-[--radius] bg-muted border border-border px-3 py-2.5">
           <X
-            className="h-4 w-4 text-destructive-ink dark:text-destructive mt-0.5 flex-shrink-0"
+            className="h-4 w-4 text-destructive-ink dark:text-destructive-ink mt-0.5 flex-shrink-0"
             weight="bold"
           />
-          <p className="text-xs text-destructive dark:text-destructive">{error}</p>
+          <p className="text-xs text-destructive-ink">{error}</p>
         </div>
       )}
     </div>
@@ -3003,12 +3003,12 @@ function DepartmentsTab({
       )}
 
       {error && (
-        <div className="flex items-start gap-2 rounded-[--radius] bg-destructive/10 border border-destructive/20 px-3 py-2.5">
+        <div className="flex items-start gap-2 rounded-[--radius] bg-muted border border-border px-3 py-2.5">
           <X
-            className="h-4 w-4 text-destructive-ink dark:text-destructive mt-0.5 flex-shrink-0"
+            className="h-4 w-4 text-destructive-ink dark:text-destructive-ink mt-0.5 flex-shrink-0"
             weight="bold"
           />
-          <p className="text-xs text-destructive dark:text-destructive">{error}</p>
+          <p className="text-xs text-destructive-ink">{error}</p>
         </div>
       )}
     </div>

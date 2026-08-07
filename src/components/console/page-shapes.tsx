@@ -61,9 +61,9 @@ export type ReadoutTone = "default" | "healthy" | "fault" | "warning";
 
 const TONE_TEXT: Record<ReadoutTone, string> = {
   default: "text-foreground",
-  healthy: "text-healthy",
-  fault: "text-destructive",
-  warning: "text-warning",
+  healthy: "text-healthy-ink",
+  fault: "text-destructive-ink",
+  warning: "text-warning-ink",
 };
 
 const TONE_BAR: Record<ReadoutTone, string> = {

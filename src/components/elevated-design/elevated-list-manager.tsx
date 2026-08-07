@@ -74,8 +74,8 @@ const accentMap = {
     focusRing: "focus:ring-healthy/30",
     confirmBg: "bg-healthy hover:bg-healthy",
     selectedRing: "ring-2 ring-healthy ring-offset-1",
-    createText: "text-healthy",
-    createHover: "hover:bg-healthy/10/40",
+    createText: "text-healthy-ink",
+    createHover: "hover:bg-muted",
   },
   violet: {
     focusBorder: "focus:border-chart-4/30",
@@ -98,16 +98,16 @@ const accentMap = {
     focusRing: "focus:ring-destructive/30",
     confirmBg: "bg-destructive hover:bg-destructive",
     selectedRing: "ring-2 ring-destructive ring-offset-1",
-    createText: "text-destructive",
-    createHover: "hover:bg-destructive/10/40",
+    createText: "text-destructive-ink",
+    createHover: "hover:bg-muted",
   },
   amber: {
     focusBorder: "focus:border-warning/30",
     focusRing: "focus:ring-warning/30",
     confirmBg: "bg-warning hover:bg-warning",
     selectedRing: "ring-2 ring-warning ring-offset-1",
-    createText: "text-warning",
-    createHover: "hover:bg-warning/10/40",
+    createText: "text-warning-ink",
+    createHover: "hover:bg-muted",
   },
 } as const;
 

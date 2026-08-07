@@ -246,7 +246,7 @@ type WhatsAppCampaignFormProps = {
 
 const FieldError = ({ message }: { message?: string }) => {
   if (!message) return null;
-  return <p className="mt-1 text-xs font-semibold text-destructive">{message}</p>;
+  return <p className="mt-1 text-xs font-semibold text-destructive-ink">{message}</p>;
 };
 
 interface ParsedCsvRecord {
@@ -1838,17 +1838,17 @@ export default function CreateWhatsAppCampaignForm({
                 {selectedTemplateMissingMedia &&
                   isAdmin &&
                   selectedTemplate && (
-                    <div className="mt-3 rounded-lg border border-warning/20 bg-warning/10 p-4">
+                    <div className="mt-3 rounded-lg border border-border bg-muted p-4">
                       <div className="flex items-start gap-3">
                         <ImageSquare
-                          className="h-5 w-5 text-warning flex-shrink-0 mt-0.5"
+                          className="h-5 w-5 text-warning-ink flex-shrink-0 mt-0.5"
                           weight="fill"
                         />
                         <div className="flex-1">
                           <h4 className="text-sm font-semibold text-warning-ink">
                             {t("media.missingTitle")}
                           </h4>
-                          <p className="text-xs text-warning mt-1">
+                          <p className="text-xs text-warning-ink mt-1">
                             {t("media.missingDescription")}
                           </p>
                           <Button
@@ -1870,11 +1870,11 @@ export default function CreateWhatsAppCampaignForm({
 
                 {/* Show template variables info when a template is selected */}
                 {selectedTemplate && templateVariables.length > 0 && (
-                  <div className="mt-3 rounded-lg border border-healthy/20 bg-healthy/10 p-4" data-tour="wc-template-variables">
+                  <div className="mt-3 rounded-lg border border-border bg-muted p-4"data-tour="wc-template-variables">
                     <h4 className="text-sm font-semibold text-healthy-ink mb-2">
                       {t("basicInfo.templateVariables")}
                     </h4>
-                    <p className="text-xs text-healthy mb-3">
+                    <p className="text-xs text-healthy-ink mb-3">
                       {t("basicInfo.templateVariablesDescription")}
                     </p>
                     <div className="flex flex-wrap gap-2 mb-4">
@@ -1888,7 +1888,7 @@ export default function CreateWhatsAppCampaignForm({
                       ))}
                     </div>
 
-                    <p className="text-xs text-healthy border-t border-healthy/20 pt-3">
+                    <p className="text-xs text-healthy-ink border-t border-healthy/20 pt-3">
                       A prévia do template fica no painel da direita com um
                       contato aleatório desta campanha.
                     </p>
@@ -2330,14 +2330,14 @@ export default function CreateWhatsAppCampaignForm({
           )}
 
           {csvError && (
-            <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 p-3">
-              <p className="text-sm text-destructive">{csvError}</p>
+            <div className="mb-4 rounded-lg border border-border bg-muted p-3">
+              <p className="text-sm text-destructive-ink">{csvError}</p>
             </div>
           )}
 
           {/* Skipped lines warning */}
           {skippedLines.length > 0 && (
-            <div className="mb-4 rounded-[--radius] border border-warning/20 bg-warning/10 px-4 py-3">
+            <div className="mb-4 rounded-[--radius] border border-border bg-muted px-4 py-3">
               <button
                 type="button"
                 className="flex w-full items-center gap-2 text-left"
@@ -2347,14 +2347,14 @@ export default function CreateWhatsAppCampaignForm({
                 }}
               >
                 <Warning
-                  className="h-5 w-5 flex-shrink-0 text-warning"
+                  className="h-5 w-5 flex-shrink-0 text-warning-ink"
                   weight="bold"
                 />
                 <span className="flex-1 text-sm font-semibold text-warning-ink">
                   {t("csv.skippedTitle", { count: skippedLines.length })}
                 </span>
                 <CaretDown
-                  className={`h-4 w-4 text-warning transition-transform duration-200 ${skippedLinesOpen ? "rotate-180" : ""}`}
+                  className={`h-4 w-4 text-warning-ink transition-transform duration-200 ${skippedLinesOpen ? "rotate-180" : ""}`}
                   weight="bold"
                 />
               </button>
@@ -2379,7 +2379,7 @@ export default function CreateWhatsAppCampaignForm({
                             <span className="font-semibold">
                               {t("csv.skippedLineLabel", { line: sl.line })}
                             </span>{" "}
-                            <span className="break-all font-mono text-warning">
+                            <span className="break-all font-mono text-warning-ink">
                               {sl.rawContent}
                             </span>
                           </div>
@@ -2387,7 +2387,7 @@ export default function CreateWhatsAppCampaignForm({
                       </div>
                       {totalPages > 1 && (
                         <div className="mt-2 flex items-center justify-between">
-                          <span className="text-xs text-warning">
+                          <span className="text-xs text-warning-ink">
                             {start + 1}–
                             {Math.min(
                               start + SKIPPED_PAGE_SIZE,
@@ -2404,7 +2404,7 @@ export default function CreateWhatsAppCampaignForm({
                             >
                               <CaretLeft className="h-4 w-4" weight="bold" />
                             </button>
-                            <span className="text-xs text-warning">
+                            <span className="text-xs text-warning-ink">
                               {skippedPage + 1} / {totalPages.toLocaleString()}
                             </span>
                             <button
@@ -2427,17 +2427,17 @@ export default function CreateWhatsAppCampaignForm({
           {/* Missing variables warning */}
           {(templateVariables.length > 0 || requiredCampaignVars.length > 0) &&
             missingVariablesCount > 0 && (
-              <div className="mb-4 rounded-lg border border-warning/20 bg-warning/10 p-4" data-tour="wc-missing-vars">
+              <div className="mb-4 rounded-lg border border-border bg-muted p-4"data-tour="wc-missing-vars">
                 <div className="flex items-start gap-3">
                   <Warning
-                    className="h-5 w-5 text-warning flex-shrink-0 mt-0.5"
+                    className="h-5 w-5 text-warning-ink flex-shrink-0 mt-0.5"
                     weight="bold"
                   />
                   <div className="flex-1">
                     <h4 className="text-sm font-semibold text-warning-ink">
                       {t("validation.missingVariablesTitle")}
                     </h4>
-                    <p className="text-sm text-warning mt-1">
+                    <p className="text-sm text-warning-ink mt-1">
                       {t("validation.missingVariablesDescription", {
                         count: missingVariablesCount,
                       })}
@@ -2530,7 +2530,7 @@ export default function CreateWhatsAppCampaignForm({
                   setShowOnlyMissingVars(false);
                   setCurrentPage(0);
                 }}
-                className="text-sm text-healthy hover:text-healthy font-medium"
+                className="text-sm text-healthy-ink hover:text-healthy-ink font-medium"
               >
                 {t("contacts.clearFilters")}
               </button>
@@ -2547,11 +2547,11 @@ export default function CreateWhatsAppCampaignForm({
                   <div
                     key={field.key}
                     className={`flex items-center gap-2 rounded-lg px-3 py-1.5 ${
-                      field.required ? "bg-warning/10" : "bg-healthy/10"
+                      field.required ? "bg-muted" : "bg-muted"
                     }`}
                   >
                     <span
-                      className={`text-sm ${field.required ? "text-warning font-medium" : "text-healthy"}`}
+                      className={`text-sm ${field.required ? "text-warning-ink font-medium" : "text-healthy-ink"}`}
                     >
                       {field.label}
                       {field.required ? " *" : ""}
@@ -2560,7 +2560,7 @@ export default function CreateWhatsAppCampaignForm({
                       <button
                         type="button"
                         onClick={() => removeMetadataField(field.key)}
-                        className="text-healthy hover:text-healthy-ink"
+                        className="text-healthy-ink hover:text-healthy-ink"
                       >
                         <X className="h-3 w-3" weight="bold" />
                       </button>
@@ -2618,7 +2618,7 @@ export default function CreateWhatsAppCampaignForm({
                   key={field.id}
                   className={`grid grid-cols-12 gap-3 items-start rounded-lg p-2 -mx-2 ${
                     isMissingVars
-                      ? "bg-warning/10 border border-warning/20"
+                      ? "bg-muted border border-border"
                       : ""
                   }`}
                 >

@@ -100,7 +100,7 @@ export const WorkflowSearch = forwardRef<HTMLInputElement, WorkflowSearchProps>(
           <span
             className={cn(
               "shrink-0 whitespace-nowrap px-1 text-xs tabular-nums",
-              matchCount === 0 ? "text-destructive" : "text-muted-foreground",
+              matchCount === 0 ? "text-destructive-ink" : "text-muted-foreground",
             )}
           >
             {status}

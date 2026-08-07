@@ -305,7 +305,7 @@ function PlanCard({
             {item.plan.name}
           </h3>
           {isCurrent && (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-semibold text-healthy-ink dark:text-healthy">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-semibold text-healthy-ink dark:text-healthy-ink">
               <Check className="h-3 w-3" weight="bold" />
               {t("currentBadge")}
             </span>
@@ -352,7 +352,7 @@ function PlanCard({
       <div className="flex-1 space-y-4">
         <div className="flex items-start gap-3">
           <Check
-            className="h-4 w-4 shrink-0 text-healthy mt-0.5"
+            className="h-4 w-4 shrink-0 text-healthy-ink mt-0.5"
             weight="bold"
           />
         </div>

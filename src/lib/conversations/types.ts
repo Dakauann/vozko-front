@@ -60,7 +60,23 @@ export interface InboxEntryLabel {
 }
 
 
-export type EntryType = 'voice' | 'whatsapp' | 'sip' | 'support' | 'instagram' | 'telegram';
+export type EntryType =
+    | 'voice'
+    | 'whatsapp'
+    | 'sip'
+    | 'support'
+    | 'instagram'
+    | 'telegram'
+    /**
+     * WhatsApp over a linked-device session rather than Meta's Cloud API.
+     *
+     * The same channel to a customer, a different transport to us: no template,
+     * no 24h window, real delivery receipts, editable messages. It is a separate
+     * entry type because the two share nothing on the send path — conflating
+     * them would route every reply through the Cloud API's template-and-balance
+     * machinery.
+     */
+    | 'unofficial_whatsapp';
 
 /**
  * Instagram is deliberately absent here.
@@ -70,7 +86,7 @@ export type EntryType = 'voice' | 'whatsapp' | 'sip' | 'support' | 'instagram' |
  * no Instagram campaign to model, and adding one would invent a capability the
  * platform does not grant.
  */
-export type CampaignType = 'voice' | 'whatsapp' | 'support';
+export type CampaignType = 'voice' | 'whatsapp' | 'support' | 'unofficial_whatsapp';
 
 /**
  * The channel a MESSAGE was carried on, which is what the inbox filters by.
@@ -81,11 +97,15 @@ export type CampaignType = 'voice' | 'whatsapp' | 'support';
  * inbox with no filter option, and a Telegram message rendered a telephone icon
  * because it fell through the whatsapp/instagram checks to the voice branch.
  */
-export type MessageChannel = 'voice' | 'whatsapp' | 'instagram' | 'telegram';
+export type MessageChannel = 'voice' | 'whatsapp' | 'instagram' | 'telegram' | 'unofficial_whatsapp';
 
 /** The channels an operator can filter the inbox by, in display order. */
 export const FILTERABLE_MESSAGE_CHANNELS: readonly MessageChannel[] = [
     'whatsapp',
+    // Next to the official transport, not at the end: an operator filtering by
+    // "WhatsApp" needs to see immediately that there are two, because a reply
+    // leaves from a different number depending on which one they pick.
+    'unofficial_whatsapp',
     'instagram',
     'telegram',
     'voice',
@@ -95,9 +115,15 @@ export type WhatsAppCampaignTypeFilter = 'standard' | 'organic';
 
 export function normalizeEntryType(
     entryType: EntryType,
-): 'voice' | 'whatsapp' | 'support' | 'instagram' | 'telegram' {
+): 'voice' | 'whatsapp' | 'support' | 'instagram' | 'telegram' | 'unofficial_whatsapp' {
     if (entryType === 'sip') return 'voice';
-    return entryType as 'voice' | 'whatsapp' | 'support' | 'instagram' | 'telegram';
+    return entryType as
+        | 'voice'
+        | 'whatsapp'
+        | 'support'
+        | 'instagram'
+        | 'telegram'
+        | 'unofficial_whatsapp';
 }
 
 /**
@@ -116,7 +142,11 @@ export const channelCapabilities = {
      */
     supportsCalling(entryType: EntryType): boolean {
         const t = normalizeEntryType(entryType);
-        return t === 'whatsapp' || t === 'voice';
+        // The unofficial transport's contact IS an E.164 number, unlike an
+        // IGSID or a Telegram user id, so the dialer can reach it. This gates
+        // the DIALER only; the WhatsApp call-permission flow is a Cloud API
+        // feature and stays gated on 'whatsapp' where it is used.
+        return t === 'whatsapp' || t === 'voice' || t === 'unofficial_whatsapp';
     },
 
     /**
@@ -128,7 +158,11 @@ export const channelCapabilities = {
      * why this is asked rather than assumed.
      */
     supportsMessageEditing(entryType: EntryType): boolean {
-        return normalizeEntryType(entryType) === 'telegram';
+        const t = normalizeEntryType(entryType);
+        // Telegram was the first; the unofficial WhatsApp transport is the
+        // second, because a linked-device session can edit and delete-for-all
+        // where the Cloud API cannot.
+        return t === 'telegram' || t === 'unofficial_whatsapp';
     },
 
     /**
@@ -142,6 +176,10 @@ export const channelCapabilities = {
      */
     hasTimedOutboundWindow(entryType: EntryType): boolean {
         const t = normalizeEntryType(entryType);
+        // Deliberately NOT the unofficial transport: it has no clock at all.
+        // What closes its composer is a dead session, a WhatsApp restriction or
+        // a block — none of which reopens by itself, so a countdown would be a
+        // lie in all three cases.
         return t === 'whatsapp' || t === 'instagram';
     },
 
@@ -157,7 +195,7 @@ export const channelCapabilities = {
         const t = normalizeEntryType(entryType);
         return (
             t === 'whatsapp' || t === 'voice' || t === 'support' ||
-            t === 'instagram' || t === 'telegram'
+            t === 'instagram' || t === 'telegram' || t === 'unofficial_whatsapp'
         );
     },
 } as const;

@@ -83,7 +83,7 @@ export default function InvitesPage() {
       </div>
 
       {error && (
-        <div className="rounded-[--radius] bg-muted border border-destructive/20 px-4 py-3 text-sm text-destructive-ink">
+        <div className="rounded-[--radius] bg-muted border border-border px-4 py-3 text-sm text-destructive-ink">
           {error}
         </div>
       )}

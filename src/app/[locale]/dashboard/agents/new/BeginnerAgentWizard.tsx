@@ -129,7 +129,7 @@ interface BeginnerAgentWizardProps {
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
-  return <p className="mt-1 text-xs font-semibold text-destructive">{message}</p>;
+  return <p className="mt-1 text-xs font-semibold text-destructive-ink">{message}</p>;
 }
 
 function StepHeader({
@@ -148,7 +148,7 @@ function StepHeader({
   return (
     <div className="mb-6 flex items-start gap-4">
       <div
-        className={`ink-plate flex h-14 w-14 shrink-0 items-center justify-center ${gradientFrom} ${gradientTo}`}
+        className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl ${gradientFrom} ${gradientTo}`}
       >
         <Icon className="h-7 w-7" weight="fill" />
       </div>
@@ -569,7 +569,7 @@ export default function BeginnerAgentWizard({
               Icon={Robot}
               title={tWizard("steps.identity.title")}
               intro={tWizard("steps.identity.intro")}
-              gradientFrom="ink-1"
+              gradientFrom="tile-1"
               gradientTo=""
             />
 
@@ -621,7 +621,7 @@ export default function BeginnerAgentWizard({
               Icon={Sparkle}
               title={tWizard("steps.models.title")}
               intro={tWizard("steps.models.intro")}
-              gradientFrom="ink-4"
+              gradientFrom="tile-4"
               gradientTo=""
             />
 
@@ -658,7 +658,7 @@ export default function BeginnerAgentWizard({
               Icon={ChatCircle}
               title={tWizard("steps.prompts.title")}
               intro={tWizard("steps.prompts.intro")}
-              gradientFrom="ink-3"
+              gradientFrom="tile-3"
               gradientTo=""
             />
 
@@ -711,7 +711,7 @@ export default function BeginnerAgentWizard({
               Icon={PaperPlaneTilt}
               title={tWizard("steps.whatsapp.title")}
               intro={tWizard("steps.whatsapp.intro")}
-              gradientFrom="ink-2"
+              gradientFrom="tile-2"
               gradientTo=""
             />
 
@@ -820,7 +820,7 @@ export default function BeginnerAgentWizard({
               Icon={CheckCircle}
               title={tWizard("steps.review.title")}
               intro={tWizard("steps.review.intro")}
-              gradientFrom="ink-2"
+              gradientFrom="tile-2"
               gradientTo=""
             />
 

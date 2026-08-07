@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { ChannelLogo } from "@/components/icons/channel-logos";
+import { ChannelLogo, hasChannelMark } from "@/components/icons/channel-logos";
 import type { EntryType } from "@/lib/conversations/types";
 import { cn } from "@/lib/utils";
 
@@ -48,13 +48,6 @@ function tintFor(seed: string): string {
     hash = (hash * 31 + seed.charCodeAt(i)) | 0;
   }
   return TINTS[Math.abs(hash) % TINTS.length];
-}
-
-/** Channels that have a brand mark worth badging. */
-function hasChannelMark(entryType: string | null | undefined): boolean {
-  return (
-    entryType === "whatsapp" || entryType === "instagram" || entryType === "telegram"
-  );
 }
 
 const SIZES = {

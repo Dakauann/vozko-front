@@ -26,6 +26,7 @@ import {
   WhatsappLogo,
   X,
 } from "@/components/icons";
+import { channelPlate } from "@/components/channels/channel-tile";
 import type { Icon } from "@/components/icons";
 import {
   Tabs,
@@ -88,25 +89,16 @@ function microsToDisplay(micros: number): string {
   return (micros / MICROS).toFixed(6).replace(/0+$/, "").replace(/\.$/, "");
 }
 
-// The tile carries its own foreground. It used to be a fixed `text-white` over
-// whichever surface the entry named, so `tts` and `telephony` — the two on
-// --muted, which is L92% in the default theme — rendered an invisible glyph.
+// The plate carries the glyph colour, so `fg` is vestigial and empty. Both the
+// fixed `text-white` and the `bg-muted` fallback that replaced it were wrong in
+// the same place: tts and telephony rendered a glyph nobody could see.
 const CATEGORY_META: Record<string, { icon: Icon; bg: string; fg: string }> = {
-  tts: { icon: SpeakerHigh, bg: "bg-muted", fg: "text-muted-foreground" },
-  stt: { icon: Microphone, bg: "bg-healthy", fg: "text-healthy-foreground" },
-  whatsapp: {
-    icon: WhatsappLogo,
-    bg: "bg-healthy",
-    fg: "text-healthy-foreground",
-  },
-  telephony: { icon: Phone, bg: "bg-muted", fg: "text-muted-foreground" },
-  exchange_rate: {
-    icon: CurrencyDollar,
-    bg: "bg-warning",
-    fg: "text-warning-foreground",
-  },
+  tts: { icon: SpeakerHigh, bg: "tile-5", fg: "" },
+  stt: { icon: Microphone, bg: "tile-4", fg: "" },
+  whatsapp: { icon: WhatsappLogo, bg: channelPlate("whatsapp"), fg: "" },
+  telephony: { icon: Phone, bg: channelPlate("voice"), fg: "" },
+  exchange_rate: { icon: CurrencyDollar, bg: "tile-3", fg: "" },
 };
-
 
 function formatDate(value?: string | null) {
   if (!value) return "-";
@@ -141,10 +133,10 @@ function RoleBadge({
   t: ReturnType<typeof useTranslations>;
 }) {
   const config = {
-    owner: { bg: "bg-warning text-warning-foreground", icon: Crown },
-    admin: { bg: "bg-primary text-primary-foreground", icon: Shield },
-    member: { bg: "bg-muted text-muted-foreground", icon: Users },
-    employee: { bg: "bg-muted text-muted-foreground", icon: Users },
+    owner: { bg: "tile-3", icon: Crown },
+    admin: { bg: "tile-brand", icon: Shield },
+    member: { bg: "tile-2", icon: Users },
+    employee: { bg: "tile-2", icon: Users },
   };
   const { bg, icon: Icon } = config[role] ?? config.member;
   return (
@@ -440,7 +432,7 @@ export default function AdminWorkspaceDetailPage() {
               <span
                 className={cn(
                   "text-sm font-semibold tabular-nums whitespace-nowrap",
-                  item.isOverride ? "text-warning" : "text-foreground",
+                  item.isOverride ? "text-warning-ink" : "text-foreground",
                 )}
               >
                 ${microsToDisplay(item.priceMicros)}
@@ -494,7 +486,7 @@ export default function AdminWorkspaceDetailPage() {
         style={{ boxShadow: softSurfaceShadow }}
       >
         <Buildings
-          className="h-12 w-12 text-destructive mx-auto mb-4"
+          className="h-12 w-12 text-destructive-ink mx-auto mb-4"
           weight="fill"
         />
         <p className="font-semibold text-foreground">{t("error.title")}</p>
@@ -539,7 +531,7 @@ export default function AdminWorkspaceDetailPage() {
             <>
               <Link
                 href="/dashboard/plans"
-                className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-4 py-2 text-xs font-semibold text-foreground transition-all hover:bg-muted hover:border-info/30 hover:text-primary-ink flex-shrink-0"
+                className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-4 py-2 text-xs font-semibold text-foreground transition-all hover:bg-muted hover:border-border hover:text-primary-ink flex-shrink-0"
                 style={{ boxShadow: softSurfaceShadow }}
               >
                 <CurrencyDollar className="h-4 w-4" weight="bold" />
@@ -547,7 +539,7 @@ export default function AdminWorkspaceDetailPage() {
               </Link>
               <Link
                 href={`/dashboard/workspaces/${workspace.id}/balance`}
-                className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-4 py-2 text-xs font-semibold text-foreground transition-all hover:bg-muted hover:border-info/30 hover:text-primary-ink flex-shrink-0"
+                className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-4 py-2 text-xs font-semibold text-foreground transition-all hover:bg-muted hover:border-border hover:text-primary-ink flex-shrink-0"
                 style={{ boxShadow: softSurfaceShadow }}
               >
                 <Wallet className="h-4 w-4" weight="bold" />
@@ -667,7 +659,7 @@ export default function AdminWorkspaceDetailPage() {
                 <div>
                   <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <CurrencyDollar
-                      className="h-4 w-4 text-healthy"
+                      className="h-4 w-4 text-healthy-ink"
                       weight="fill"
                     />
                     {t("config.subscription.title")}
@@ -957,7 +949,7 @@ export default function AdminWorkspaceDetailPage() {
                 style={{ boxShadow: softSurfaceShadow }}
               >
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Crown className="h-4 w-4 text-warning" weight="fill" />
+                  <Crown className="h-4 w-4 text-warning-ink" weight="fill" />
                   {t("overview.owner")}
                 </h3>
                 <div className="flex items-center gap-3">
@@ -999,7 +991,7 @@ export default function AdminWorkspaceDetailPage() {
                         className={cn(
                           "font-medium",
                           owner.emailVerified
-                            ? "text-healthy"
+                            ? "text-healthy-ink"
                             : "text-destructive-ink",
                         )}
                       >
@@ -1024,7 +1016,7 @@ export default function AdminWorkspaceDetailPage() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Crown className="h-4 w-4 text-warning" weight="fill" />
+                      <Crown className="h-4 w-4 text-warning-ink" weight="fill" />
                       <span className="text-sm text-foreground">
                         {t("roles.owner")}
                       </span>
@@ -1070,10 +1062,10 @@ export default function AdminWorkspaceDetailPage() {
                 {pendingInvites.length > 0 && (
                   <div className="flex items-center gap-2 pt-2 border-t border-border">
                     <Envelope
-                      className="h-4 w-4 text-warning"
+                      className="h-4 w-4 text-warning-ink"
                       weight="fill"
                     />
-                    <span className="text-xs text-warning font-medium">
+                    <span className="text-xs text-warning-ink font-medium">
                       {pendingInvites.length} {t("overview.pendingInvites")}
                     </span>
                   </div>
@@ -1100,7 +1092,7 @@ export default function AdminWorkspaceDetailPage() {
                   label: t("roles.owner"),
                   value: String(ownerMember ? 1 : 0),
                   icon: (
-                    <Crown className="h-4 w-4 text-warning" weight="fill" />
+                    <Crown className="h-4 w-4 text-warning-ink" weight="fill" />
                   ),
                 },
                 {
@@ -1152,7 +1144,7 @@ export default function AdminWorkspaceDetailPage() {
                   value: String(pendingInvites.length),
                   icon: (
                     <Envelope
-                      className="h-4 w-4 text-warning"
+                      className="h-4 w-4 text-warning-ink"
                       weight="fill"
                     />
                   ),
@@ -1175,7 +1167,7 @@ export default function AdminWorkspaceDetailPage() {
             {resolvedPricing.some((p) => p.category === "exchange_rate") && (
               <div className="flex items-start gap-3 rounded-[--radius] border border-warning/30 bg-warning/60 px-4 py-3 mb-4">
                 <Info
-                  className="h-4 w-4 text-warning mt-0.5 flex-shrink-0"
+                  className="h-4 w-4 text-warning-ink mt-0.5 flex-shrink-0"
                   weight="fill"
                 />
                 <p className="text-xs text-warning-ink">
@@ -1203,7 +1195,7 @@ export default function AdminWorkspaceDetailPage() {
                   value: String(overrideCount),
                   icon: (
                     <PencilSimple
-                      className="h-4 w-4 text-warning"
+                      className="h-4 w-4 text-warning-ink"
                       weight="bold"
                     />
                   ),

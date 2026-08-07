@@ -21,6 +21,7 @@ import {
   Users,
   WhatsappLogo,
 } from "@/components/icons";
+import { GLYPH_PLATE } from "@/components/icons/glyph-plates";
 import {
   Bar,
   BarChart,
@@ -77,6 +78,7 @@ import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 import { InstrumentStrip } from "@/components/console/page-shapes";
 import { cn } from "@/lib/utils";
+import { ChannelTile, channelPlate } from "@/components/channels/channel-tile";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -288,7 +290,7 @@ function KpiStrip({
       value: loading ? tc("loading") : fmt.num(kpis?.finished),
       hint: t("finishedHint"),
       icon: CheckCircle,
-      bg: "bg-healthy",
+      bg: GLYPH_PLATE.CheckCircle,
     },
     {
       key: "ongoing",
@@ -297,7 +299,7 @@ function KpiStrip({
       value: loading ? tc("loading") : fmt.num(kpis?.ongoing),
       hint: t("ongoingHint"),
       icon: Pulse,
-      bg: "bg-muted",
+      bg: GLYPH_PLATE.Pulse,
     },
     {
       key: "pending",
@@ -306,7 +308,7 @@ function KpiStrip({
       value: loading ? tc("loading") : fmt.num(kpis?.pending),
       hint: t("pendingHint"),
       icon: Hourglass,
-      bg: "bg-warning",
+      bg: GLYPH_PLATE.Hourglass,
     },
     {
       key: "unassigned",
@@ -315,7 +317,7 @@ function KpiStrip({
       value: loading ? tc("loading") : fmt.num(kpis?.unassigned_backlog),
       hint: t("unassignedHint"),
       icon: UserMinus,
-      bg: "bg-destructive",
+      bg: "tile-fault",
     },
     {
       key: "new",
@@ -324,7 +326,7 @@ function KpiStrip({
       value: loading ? tc("loading") : fmt.num(kpis?.new_contacts),
       hint: t("newContactsHint"),
       icon: Users,
-      bg: "bg-muted",
+      bg: GLYPH_PLATE.Users,
     },
     {
       key: "tme",
@@ -333,7 +335,7 @@ function KpiStrip({
       value: loading ? tc("loading") : fmt.mins(kpis?.avg_wait_mins ?? null),
       hint: t("avgWaitHint"),
       icon: Clock,
-      bg: "bg-muted",
+      bg: GLYPH_PLATE.Clock,
     },
     {
       key: "tma",
@@ -342,7 +344,7 @@ function KpiStrip({
       value: loading ? tc("loading") : fmt.mins(kpis?.avg_handle_mins ?? null),
       hint: t("avgHandleHint"),
       icon: Timer,
-      bg: "bg-primary",
+      bg: GLYPH_PLATE.Timer,
     },
     {
       key: "frt",
@@ -351,7 +353,7 @@ function KpiStrip({
       value: loading ? tc("loading") : fmt.mins(kpis?.avg_frt_mins ?? null),
       hint: t("frtHint"),
       icon: Lightning,
-      bg: "bg-muted",
+      bg: GLYPH_PLATE.Lightning,
     },
   ];
 
@@ -444,6 +446,43 @@ function StatBlock({
   );
 }
 
+/**
+ * Brand colour per channel, for the share bar only.
+ *
+ * Not for the tile behind the glyph: one neutral ground with the identity in the
+ * mark is the system rule, and a grid of saturated blocks is what it replaced.
+ * The bar is a measurement, so colour there is carrying data rather than
+ * decorating a container.
+ */
+const CHANNEL_BAR: Record<string, string> = {
+  whatsapp: "#25d366",
+  // The two transports share a brand and must not share a bar: an operator
+  // reading a 50/50 split has to see WHICH WhatsApp half is which.
+  unofficial_whatsapp: "#7d8f86",
+  instagram: "#e1306c",
+  telegram: "#229ed9",
+  voice: "#8b5cf6",
+};
+
+/** Display name per channel, falling back to the key only for a channel we have
+ * genuinely never heard of rather than for every one we simply forgot. */
+function channelLabel(channel: string, tc: (key: string) => string): string {
+  switch (channel) {
+    case "whatsapp":
+      return tc("whatsapp");
+    case "unofficial_whatsapp":
+      return tc("unofficialWhatsapp");
+    case "instagram":
+      return tc("instagram");
+    case "telegram":
+      return tc("telegram");
+    case "voice":
+      return tc("voice");
+    default:
+      return channel;
+  }
+}
+
 function ChannelMixChart({
   mix,
   loading,
@@ -458,18 +497,17 @@ function ChannelMixChart({
     if (!mix?.length) return [];
     return mix.map((c) => ({
       key: c.channel,
-      name:
-        c.channel === "whatsapp"
-          ? tc("whatsapp")
-          : c.channel === "voice"
-            ? tc("voice")
-            : c.channel,
+      // A ternary chain that ended in the RAW KEY, so every channel added after
+      // WhatsApp and voice rendered "telegram" and "unofficial_whatsapp"
+      // verbatim to the operator, on a muted tile carrying a telephone glyph.
+      name: channelLabel(c.channel, tc),
       value: c.count,
       pct: c.pct,
-      // Solid channel colors (product meaning, not wash tiles).
-      solid: c.channel === "whatsapp" ? "bg-[#25d366]" : "bg-muted",
-      bar: c.channel === "whatsapp" ? "#25d366" : "#8b5cf6",
-      Icon: c.channel === "whatsapp" ? WhatsappLogo : Phone,
+      // The bar keeps the brand colour, which is what makes two rows tellable
+      // apart at a glance. The PLATE does not: DESIGN.md §9 keeps one neutral
+      // ground and puts the identity in the mark, and the brand marks carry
+      // their own real colours.
+      bar: CHANNEL_BAR[c.channel] ?? "#8b5cf6",
     }));
   }, [mix, tc]);
   const total = data.reduce((s, d) => s + d.value, 0);
@@ -499,7 +537,6 @@ function ChannelMixChart({
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         {data.map((d) => {
-          const Icon = d.Icon;
           return (
             <div
               key={d.key}
@@ -507,14 +544,7 @@ function ChannelMixChart({
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-2.5">
-                  <div
-                    className={cn(
-                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius]",
-                      d.solid,
-                    )}
-                  >
-                    <Icon className="h-4 w-4" weight="fill" />
-                  </div>
+                  <ChannelTile channel={d.key} size="md" />
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-foreground">
                       {d.name}
@@ -584,7 +614,7 @@ function ExtendedOpsPanels({
           <Surface className="xl:col-span-6">
             <SectionTitle
               icon={<Lightning className="h-4 w-4" weight="fill" />}
-              iconBg="tile-neutral"
+              iconBg={GLYPH_PLATE.Lightning}
               title={ts("frtTitle")}
               subtitle={ts("frtSub")}
             />
@@ -632,7 +662,7 @@ function ExtendedOpsPanels({
           <Surface className="xl:col-span-3">
             <SectionTitle
               icon={<ChartBar className="h-4 w-4" weight="fill" />}
-              iconBg="tile-neutral"
+              iconBg={GLYPH_PLATE.ChartBar}
               title={ts("messages")}
               subtitle={ts("messagesSub")}
             />
@@ -685,7 +715,7 @@ function ExtendedOpsPanels({
           <Surface className="xl:col-span-3">
             <SectionTitle
               icon={<Pulse className="h-4 w-4" weight="fill" />}
-              iconBg="tile-warning"
+              iconBg={GLYPH_PLATE.Pulse}
               title={ts("reopen")}
               subtitle={ts("reopenSub")}
             />
@@ -742,7 +772,7 @@ function ExtendedOpsPanels({
         <Surface>
           <SectionTitle
             icon={<WhatsappLogo className="h-4 w-4" weight="fill" />}
-            iconBg="bg-[#25d366] text-white"
+            iconBg={channelPlate("whatsapp")}
             title={ts("templatesTitle")}
             subtitle={ts("templatesTitleSub")}
           />
@@ -797,7 +827,7 @@ function ExtendedOpsPanels({
         <Surface>
           <SectionTitle
             icon={<ChartPie className="h-4 w-4" weight="fill" />}
-            iconBg="tile-healthy"
+            iconBg={GLYPH_PLATE.ChartPie}
             title={ts("channelsUsed")}
             subtitle={ts("channelsUsedSub")}
           />
@@ -810,7 +840,7 @@ function ExtendedOpsPanels({
         <Surface>
           <SectionTitle
             icon={<Robot className="h-4 w-4" weight="fill" />}
-            iconBg="tile-warning"
+            iconBg={GLYPH_PLATE.Robot}
             title={ts("aiTitle")}
             subtitle={ts("aiTitleSub")}
           />
@@ -1619,7 +1649,7 @@ function DepartmentDetailTable({
                 <td className="px-2 py-2.5 text-right tabular-nums text-muted-foreground">
                   {fmt.mins(r.avg_handle_mins)}
                 </td>
-                <td className="px-2 py-2.5 text-right tabular-nums text-healthy dark:text-healthy">
+                <td className="px-2 py-2.5 text-right tabular-nums text-healthy-ink">
                   {fmt.num(r.finished)}
                 </td>
                 <td className="px-2 py-2.5 text-right">
@@ -1632,7 +1662,7 @@ function DepartmentDetailTable({
                 <td className="px-2 py-2.5 text-right tabular-nums text-foreground">
                   {fmt.num(r.ongoing)}
                 </td>
-                <td className="px-2 py-2.5 text-right tabular-nums text-warning dark:text-warning">
+                <td className="px-2 py-2.5 text-right tabular-nums text-warning-ink">
                   {fmt.num(r.pending)}
                 </td>
                 <td className="px-2 py-2.5 text-right font-semibold tabular-nums text-foreground">
@@ -1786,10 +1816,10 @@ function TeamDetailTable({
               <td className="px-2 py-2.5 text-right tabular-nums">
                 {fmt.num(m.open)}
               </td>
-              <td className="px-2 py-2.5 text-right tabular-nums text-warning dark:text-warning">
+              <td className="px-2 py-2.5 text-right tabular-nums text-warning-ink">
                 {fmt.num(m.pending)}
               </td>
-              <td className="px-2 py-2.5 text-right font-semibold tabular-nums text-healthy dark:text-healthy">
+              <td className="px-2 py-2.5 text-right font-semibold tabular-nums text-healthy-ink">
                 {fmt.num(m.resolved)}
               </td>
               <td className="px-2 py-2.5 text-right font-semibold tabular-nums text-foreground">
@@ -2044,16 +2074,32 @@ export default function AttendanceOpsPage() {
                 placeholder={tc("all")}
               >
                 <ElevatedSelectItem value="all">{tc("all")}</ElevatedSelectItem>
+                {/* Every channel that can appear in the mix above, or the
+                    filter silently cannot reach half the data it charts. Real
+                    brand marks rather than a generic glyph: the two WhatsApp
+                    transports are otherwise indistinguishable in a dropdown. */}
                 <ElevatedSelectItem value="whatsapp">
                   <span className="inline-flex items-center gap-1.5">
-                    <WhatsappLogo className="h-3.5 w-3.5" weight="fill" />
+                    <ChannelTile channel="whatsapp" size="sm" className="h-5 w-5" />
                     {tc("whatsapp")}
                   </span>
                 </ElevatedSelectItem>
-                <ElevatedSelectItem value="voice">
+                <ElevatedSelectItem value="unofficial_whatsapp">
                   <span className="inline-flex items-center gap-1.5">
-                    <Phone className="h-3.5 w-3.5" weight="fill" />
-                    {tc("phone")}
+                    <ChannelTile channel="unofficial_whatsapp" size="sm" className="h-5 w-5" />
+                    {tc("unofficialWhatsapp")}
+                  </span>
+                </ElevatedSelectItem>
+                <ElevatedSelectItem value="instagram">
+                  <span className="inline-flex items-center gap-1.5">
+                    <ChannelTile channel="instagram" size="sm" className="h-5 w-5" />
+                    {tc("instagram")}
+                  </span>
+                </ElevatedSelectItem>
+                <ElevatedSelectItem value="telegram">
+                  <span className="inline-flex items-center gap-1.5">
+                    <ChannelTile channel="telegram" size="sm" className="h-5 w-5" />
+                    {tc("telegram")}
                   </span>
                 </ElevatedSelectItem>
               </ElevatedSelect>
@@ -2111,7 +2157,7 @@ export default function AttendanceOpsPage() {
           </div>
 
           {error ? (
-            <div className="mt-3 rounded-[--radius] border border-destructive/30 bg-muted px-3 py-2 text-sm text-destructive-ink">
+            <div className="mt-3 rounded-[--radius] border border-border bg-muted px-3 py-2 text-sm text-destructive-ink">
               {error}
             </div>
           ) : null}
@@ -2141,7 +2187,7 @@ export default function AttendanceOpsPage() {
               <Surface className="xl:col-span-7">
                 <SectionTitle
                   icon={<ChartBar className="h-4 w-4" weight="fill" />}
-                  iconBg="tile-brand"
+                  iconBg={GLYPH_PLATE.ChartBar}
                   title={ts("hourly")}
                   subtitle={ts("hourlySub")}
                 />
@@ -2154,7 +2200,7 @@ export default function AttendanceOpsPage() {
               <Surface className="xl:col-span-5">
                 <SectionTitle
                   icon={<ChartPie className="h-4 w-4" weight="fill" />}
-                  iconBg="tile-healthy"
+                  iconBg={GLYPH_PLATE.ChartPie}
                   title={ts("status")}
                   subtitle={ts("statusSub")}
                 />
@@ -2180,7 +2226,7 @@ export default function AttendanceOpsPage() {
               <Surface className="xl:col-span-5">
                 <SectionTitle
                   icon={<Buildings className="h-4 w-4" weight="fill" />}
-                  iconBg="tile-neutral"
+                  iconBg={GLYPH_PLATE.Buildings}
                   title={ts("deptChart")}
                   subtitle={ts("deptChartSub")}
                 />
@@ -2193,7 +2239,7 @@ export default function AttendanceOpsPage() {
               <Surface className="xl:col-span-7">
                 <SectionTitle
                   icon={<Buildings className="h-4 w-4" weight="fill" />}
-                  iconBg="tile-neutral"
+                  iconBg={GLYPH_PLATE.Buildings}
                   title={ts("deptTable")}
                   subtitle={ts("deptTableSub")}
                 />
@@ -2211,7 +2257,7 @@ export default function AttendanceOpsPage() {
               <Surface className="xl:col-span-5">
                 <SectionTitle
                   icon={<Users className="h-4 w-4" weight="fill" />}
-                  iconBg="tile-neutral"
+                  iconBg={GLYPH_PLATE.Users}
                   title={ts("teamRank")}
                   subtitle={ts("teamRankSub")}
                 />
@@ -2224,7 +2270,7 @@ export default function AttendanceOpsPage() {
               <Surface className="xl:col-span-7">
                 <SectionTitle
                   icon={<Users className="h-4 w-4" weight="fill" />}
-                  iconBg="tile-neutral"
+                  iconBg={GLYPH_PLATE.Users}
                   title={ts("teamDetail")}
                   subtitle={ts("teamDetailSub")}
                 />

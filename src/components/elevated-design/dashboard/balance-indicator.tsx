@@ -607,7 +607,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
           {showPlanCatalog ? (
             <div className="flex flex-col gap-5 pt-2">
               {rechargeError ? (
-                <p className="text-sm text-destructive">{rechargeError}</p>
+                <p className="text-sm text-destructive-ink">{rechargeError}</p>
               ) : null}
 
               {loadingPlans ? (
@@ -737,7 +737,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
               </div>
 
               {rechargeError && (
-                <p className="text-sm text-destructive">{rechargeError}</p>
+                <p className="text-sm text-destructive-ink">{rechargeError}</p>
               )}
 
               {/* Generate button */}
@@ -851,7 +851,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                       >
                         {copied ? (
                           <Check
-                            className="h-4 w-4 text-healthy"
+                            className="h-4 w-4 text-healthy-ink"
                             weight="bold"
                           />
                         ) : (

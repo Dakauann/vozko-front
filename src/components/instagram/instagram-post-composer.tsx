@@ -188,7 +188,7 @@ export function InstagramPostComposer({
           // The post published; only the rule failed. Say exactly that, and do
           // not offer "publish" again.
           <div className="space-y-4 p-5">
-            <p className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-warning-ink dark:text-warning">
+            <p className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-warning-ink dark:text-warning-ink">
               <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" weight="fill" />
               {t("publishedButRuleFailed", { error: ruleWarning })}
             </p>
@@ -263,7 +263,7 @@ export function InstagramPostComposer({
                   {/* Captions cannot be edited after publishing, Instagram has no
                       such endpoint, so the operator is warned while it still
                       matters. */}
-                  <p className="flex items-start gap-1.5 text-xs text-warning dark:text-warning">
+                  <p className="flex items-start gap-1.5 text-xs text-warning-ink">
                     <Warning className="mt-0.5 h-3 w-3 shrink-0" />
                     {t("captionImmutable")}
                   </p>

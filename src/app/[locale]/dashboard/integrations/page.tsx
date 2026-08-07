@@ -158,7 +158,7 @@ export default function IntegrationsPage() {
                   }
                   onClick={handleDisconnect}
                   disabled={disconnecting}
-                  className="text-destructive hover:text-destructive"
+                  className="text-destructive-ink hover:text-destructive-ink"
                 />
               ) : (
                 <ElevatedButton

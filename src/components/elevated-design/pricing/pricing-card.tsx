@@ -53,8 +53,8 @@ export function PricingCard({
         <h3 className="text-xl font-semibold text-black">{planName}</h3>
         {showPopularTag && (
           <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-muted rounded-full border-[rgba(216,231,242,0.07)] shadow-[0px_0.7px_0.7px_-0.67px_rgba(0,0,0,0.16),0px_1.8px_1.8px_-1.33px_rgba(0,0,0,0.15),0px_3.6px_3.6px_-2px_rgba(0,0,0,0.15),0px_6.9px_6.9px_-2.67px_rgba(0,0,0,0.13),0px_13.6px_13.6px_-3.33px_rgba(0,0,0,0.11),0px_30px_30px_-4px_rgba(0,0,0,0.04)]">
-            <Fire className="w-5 h-5 text-white" weight="fill" />
-            <span className="text-sm font-medium text-white">Popular</span>
+            <Fire className="w-5 h-5 text-warning-ink" weight="fill" />
+            <span className="text-sm font-medium text-foreground">Popular</span>
           </div>
         )}
       </div>

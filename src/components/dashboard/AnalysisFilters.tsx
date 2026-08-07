@@ -215,7 +215,7 @@ export default function AnalysisFilters({
               <button
                 type="button"
                 onClick={() => handleChange("hasAnalysis", undefined)}
-                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive-ink transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -257,7 +257,7 @@ export default function AnalysisFilters({
               <button
                 type="button"
                 onClick={() => handleChange("interest", undefined)}
-                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive-ink transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -296,7 +296,7 @@ export default function AnalysisFilters({
               <button
                 type="button"
                 onClick={() => handleChange("disposition", undefined)}
-                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive-ink transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -344,7 +344,7 @@ export default function AnalysisFilters({
               <button
                 type="button"
                 onClick={() => handleChange("sentiment", undefined)}
-                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive-ink transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -383,7 +383,7 @@ export default function AnalysisFilters({
               <button
                 type="button"
                 onClick={() => handleChange("qualification", undefined)}
-                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive-ink transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -422,7 +422,7 @@ export default function AnalysisFilters({
               <button
                 type="button"
                 onClick={() => handleChange("attendanceQualityMin", undefined)}
-                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive-ink transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -458,7 +458,7 @@ export default function AnalysisFilters({
               <button
                 type="button"
                 onClick={() => handleChange("attendanceQualityMax", undefined)}
-                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive-ink transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>

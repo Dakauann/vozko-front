@@ -431,7 +431,7 @@ export default function KnowledgeBaseForm({
                 : "cursor-pointer",
               isDragging
                 ? "border-primary bg-muted"
-                : "border-border hover:border-primary/50 hover:bg-muted",
+                : "border-border hover:border-border hover:bg-muted",
             )}
           >
             <input

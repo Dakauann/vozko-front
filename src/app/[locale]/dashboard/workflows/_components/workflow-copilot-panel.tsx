@@ -235,8 +235,8 @@ export function WorkflowCopilotPanel({
                 connection === "online"
                   ? "cursor-default text-muted-foreground"
                   : connection === "offline"
-                    ? "text-destructive dark:text-destructive"
-                    : "text-warning dark:text-warning",
+                    ? "text-destructive-ink"
+                    : "text-warning-ink",
               )}
             >
               <span
@@ -322,9 +322,9 @@ export function WorkflowCopilotPanel({
         )}
         {status === "done" &&
           (valid ? (
-            <CheckCircle size={13} weight="fill" className="text-healthy" />
+            <CheckCircle size={13} weight="fill" className="text-healthy-ink" />
           ) : (
-            <Warning size={13} weight="fill" className="text-warning" />
+            <Warning size={13} weight="fill" className="text-warning-ink" />
           ))}
         <span>
           {status === "connecting" && "Conectando…"}
@@ -373,8 +373,8 @@ export function WorkflowCopilotPanel({
         )}
 
         {blocking.length > 0 && (
-          <div className="rounded-md border border-destructive/30 bg-destructive/5 p-2 space-y-1">
-            <div className="flex items-center gap-1 text-xs font-medium text-destructive dark:text-destructive">
+          <div className="rounded-md border border-border bg-muted p-2 space-y-1">
+            <div className="flex items-center gap-1 text-xs font-medium text-destructive-ink">
               <Warning size={13} weight="fill" /> {blocking.length} problema(s)
               bloqueante(s)
             </div>
@@ -387,10 +387,10 @@ export function WorkflowCopilotPanel({
           </div>
         )}
         {advisory.length > 0 && (
-          <div className="rounded-md border border-warning/30 bg-warning/5 p-2">
+          <div className="rounded-md border border-border bg-muted p-2">
             <button
               onClick={() => setAdvisoryOpen((o) => !o)}
-              className="flex w-full items-center gap-1 text-xs font-medium text-warning dark:text-warning"
+              className="flex w-full items-center gap-1 text-xs font-medium text-warning-ink"
             >
               <Lightbulb size={13} weight="fill" /> {advisory.length} dica(s)
               {advisoryOpen ? (

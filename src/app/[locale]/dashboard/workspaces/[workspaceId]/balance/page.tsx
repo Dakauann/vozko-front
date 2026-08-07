@@ -428,7 +428,7 @@ export default function AdminWorkspaceBalancePage() {
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg">
               <CurrencyDollar
-                className="h-4 w-4 text-warning"
+                className="h-4 w-4 text-warning-ink"
                 weight="fill"
               />
             </div>
@@ -454,14 +454,14 @@ export default function AdminWorkspaceBalancePage() {
           return (
             <div className="flex items-center gap-2 justify-end">
               {isCredit ? (
-                <ArrowUp className="h-4 w-4 text-healthy" weight="bold" />
+                <ArrowUp className="h-4 w-4 text-healthy-ink" weight="bold" />
               ) : (
                 <ArrowDown className="h-4 w-4 text-destructive-ink" weight="bold" />
               )}
               <span
                 className={cn(
                   "text-sm font-semibold tabular-nums",
-                  isCredit ? "text-healthy" : "text-destructive",
+                  isCredit ? "text-healthy-ink" : "text-destructive-ink",
                 )}
               >
                 {isCredit ? "+" : "-"}
@@ -509,7 +509,7 @@ export default function AdminWorkspaceBalancePage() {
         className: "text-center",
         render: (row) =>
           row.billingType === "PIX" ? (
-            <div className="flex items-center justify-center gap-1.5 text-xs font-medium text-healthy">
+            <div className="flex items-center justify-center gap-1.5 text-xs font-medium text-healthy-ink">
               <PixLogo className="h-3.5 w-3.5" weight="bold" />
               PIX
             </div>
@@ -583,7 +583,7 @@ export default function AdminWorkspaceBalancePage() {
                 >
                   {copiedInvoiceId === row.id ? (
                     <Check
-                      className="h-3.5 w-3.5 text-healthy"
+                      className="h-3.5 w-3.5 text-healthy-ink"
                       weight="bold"
                     />
                   ) : (
@@ -663,8 +663,8 @@ export default function AdminWorkspaceBalancePage() {
               className={cn(
                 "rounded-[--radius] border p-6",
                 showForm === "invoice"
-                  ? "border-primary/20 bg-muted"
-                  : "border-destructive/20 bg-destructive/5",
+                  ? "border-border bg-muted"
+                  : "border-border bg-muted",
               )}
             >
               <h3 className="text-lg font-semibold text-foreground mb-4">
@@ -826,7 +826,7 @@ export default function AdminWorkspaceBalancePage() {
                     ),
               icon: (
                 <CurrencyDollar
-                  className="h-4 w-4 text-warning"
+                  className="h-4 w-4 text-warning-ink"
                   weight="fill"
                 />
               ),
@@ -841,7 +841,7 @@ export default function AdminWorkspaceBalancePage() {
                       exchangeRate!,
                     ),
               icon: (
-                <ArrowUp className="h-4 w-4 text-healthy" weight="bold" />
+                <ArrowUp className="h-4 w-4 text-healthy-ink" weight="bold" />
               ),
             },
             {
@@ -912,7 +912,7 @@ export default function AdminWorkspaceBalancePage() {
             error
               ? {
                   icon: (
-                    <Wallet className="h-7 w-7 text-destructive" weight="fill" />
+                    <Wallet className="h-7 w-7 text-destructive-ink" weight="fill" />
                   ),
                   title: t("error.title"),
                   description: error,
@@ -1008,8 +1008,8 @@ export default function AdminWorkspaceBalancePage() {
 
           {paymentConfirmed ? (
             <div className="flex flex-col items-center gap-5 py-8">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-healthy/10">
-                <Check className="h-8 w-8 text-healthy" weight="bold" />
+              <div className="flex h-16 w-16 items-center justify-center rounded-full tile-healthy">
+                <Check className="h-8 w-8 text-healthy-ink" weight="bold" />
               </div>
               <div className="flex flex-col items-center gap-1">
                 <p className="text-lg font-semibold text-foreground">
@@ -1071,7 +1071,7 @@ export default function AdminWorkspaceBalancePage() {
                       >
                         {pixCopied ? (
                           <Check
-                            className="h-4 w-4 text-healthy"
+                            className="h-4 w-4 text-healthy-ink"
                             weight="bold"
                           />
                         ) : (
@@ -1118,9 +1118,9 @@ export default function AdminWorkspaceBalancePage() {
                 </span>
               </div>
 
-              <div className="flex items-center gap-2 rounded-[--radius] bg-warning/10 border border-warning/30 px-4 py-3">
-                <Hourglass className="h-4 w-4 text-warning" weight="bold" />
-                <span className="text-sm text-warning">
+              <div className="flex items-center gap-2 rounded-[--radius] bg-muted border border-border px-4 py-3">
+                <Hourglass className="h-4 w-4 text-warning-ink" weight="bold" />
+                <span className="text-sm text-warning-ink">
                   {t("invoiceDialog.waitingPayment")}
                 </span>
               </div>

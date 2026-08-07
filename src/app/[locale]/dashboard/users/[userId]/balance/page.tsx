@@ -330,7 +330,7 @@ export default function AdminUserBalancePage() {
           <div className="grid gap-3 grid-cols-1">
             <div className="group relative flex flex-col gap-4 p-5 rounded-[--radius] border border-border bg-card overflow-hidden">
               <div className="flex items-center gap-3">
-                <div className="ink-plate ink-3 flex h-10 w-10 items-center justify-center">
+                <div className="tile-3 flex h-10 w-10 items-center justify-center">
                   <CurrencyDollar
                     className="h-5 w-5"
                     weight="fill"
@@ -392,7 +392,7 @@ export default function AdminUserBalancePage() {
             transition={{ duration: 0.3 }}
           >
             <div
-              className="rounded-[--radius] border border-info/20/70 bg-muted p-6"
+              className="rounded-[--radius] border border-border bg-muted p-6"
               style={{ boxShadow: softSurfaceShadow }}
             >
               <h3 className="text-lg font-semibold text-foreground mb-4">
@@ -415,7 +415,7 @@ export default function AdminUserBalancePage() {
                       <ElevatedSelectItem value="credit">
                         <span className="flex items-center gap-2">
                           <ArrowUp
-                            className="h-3.5 w-3.5 text-healthy"
+                            className="h-3.5 w-3.5 text-healthy-ink"
                             weight="bold"
                           />
                           {t("form.credit")}
@@ -607,8 +607,8 @@ export default function AdminUserBalancePage() {
             </div>
           ) : error && transactions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20">
-              <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-destructive/10 mb-4">
-                <Wallet className="h-7 w-7 text-destructive" weight="fill" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] tile-fault mb-4">
+                <Wallet className="h-7 w-7 text-destructive-ink" weight="fill" />
               </div>
               <p className="font-semibold text-foreground">
                 {t("error.title")}
@@ -634,7 +634,7 @@ export default function AdminUserBalancePage() {
                   >
                     <div className="flex h-10 w-10 items-center justify-center rounded-[--radius]">
                       <CurrencyDollar
-                        className="h-5 w-5 text-warning"
+                        className="h-5 w-5 text-warning-ink"
                         weight="fill"
                       />
                     </div>
@@ -655,7 +655,7 @@ export default function AdminUserBalancePage() {
                     <div className="flex items-center gap-2">
                       {isCredit ? (
                         <ArrowUp
-                          className="h-4 w-4 text-healthy"
+                          className="h-4 w-4 text-healthy-ink"
                           weight="bold"
                         />
                       ) : (
@@ -667,7 +667,7 @@ export default function AdminUserBalancePage() {
                       <span
                         className={cn(
                           "text-sm font-semibold tabular-nums",
-                          isCredit ? "text-healthy" : "text-destructive",
+                          isCredit ? "text-healthy-ink" : "text-destructive-ink",
                         )}
                       >
                         {isCredit ? "+" : "-"}

@@ -37,6 +37,8 @@ import {
   Users,
   WhatsappLogo,
 } from "@/components/icons";
+import { GLYPH_PLATE } from "@/components/icons/glyph-plates";
+import { channelPlate } from "@/components/channels/channel-tile";
 import {
   ElevatedDialog,
   ElevatedDialogContent,
@@ -640,24 +642,33 @@ function RecentActivityList({
   loading: boolean;
   t: ReturnType<typeof useTranslations>;
 }) {
-  const getEventIcon = (eventType: string) => {
+  /*
+   * The glyph and its plate are decided together, because the plate's colour
+   * belongs to the mark. The feed used to build the plate from EVENT_COLORS at
+   * 15% alpha — `backgroundColor: ${eventColor}15` — and paint the glyph the
+   * same value at full strength: a green mark on mint, an amber mark on cream,
+   * nine of them stacked in a scrolling column. WhatsApp gets the real channel
+   * plate here rather than a generic green, for the same reason the channel
+   * tiles do: the operator recognises the mark faster than the label.
+   */
+  const getEventMark = (eventType: string) => {
     switch (eventType) {
       case EVENT_TYPES.USER_ACCOUNT_CREATED:
       case EVENT_TYPES.USER_LOGIN:
-        return User;
+        return { Icon: User, plate: GLYPH_PLATE.User };
       case EVENT_TYPES.CAMPAIGN_STARTED:
       case EVENT_TYPES.CAMPAIGN_STOPPED:
-        return TrendUp;
+        return { Icon: TrendUp, plate: GLYPH_PLATE.TrendUp };
       case EVENT_TYPES.CALL_STARTED:
       case EVENT_TYPES.CALL_ENDED:
-        return PhoneCall;
+        return { Icon: PhoneCall, plate: channelPlate("voice") };
       case EVENT_TYPES.WHATSAPP_MESSAGE_SENT:
       case EVENT_TYPES.WHATSAPP_TEMPLATE_MESSAGE_SENT:
-        return WhatsappLogo;
+        return { Icon: WhatsappLogo, plate: channelPlate("whatsapp") };
       case EVENT_TYPES.EMAIL_SENT:
-        return EnvelopeSimple;
+        return { Icon: EnvelopeSimple, plate: GLYPH_PLATE.EnvelopeSimple };
       default:
-        return Pulse;
+        return { Icon: Pulse, plate: GLYPH_PLATE.Pulse };
     }
   };
 
@@ -692,8 +703,7 @@ function RecentActivityList({
   return (
     <div className="space-y-2 max-h-[400px] overflow-y-auto">
       {data.metrics.slice(0, 10).map((metric) => {
-        const Icon = getEventIcon(metric.event_type);
-        const eventColor = EVENT_COLORS[metric.event_type] || "#64748b";
+        const { Icon, plate } = getEventMark(metric.event_type);
 
         return (
           <div
@@ -701,14 +711,12 @@ function RecentActivityList({
             className="flex items-center gap-3 p-3 rounded-[--radius] bg-muted hover:bg-muted transition-colors"
           >
             <div
-              className="flex h-10 w-10 items-center justify-center rounded-lg"
-              style={{ backgroundColor: `${eventColor}15` }}
+              className={cn(
+                "flex h-10 w-10 items-center justify-center rounded-lg",
+                plate,
+              )}
             >
-              <Icon
-                className="h-5 w-5"
-                style={{ color: eventColor }}
-                weight="fill"
-              />
+              <Icon className="h-5 w-5" weight="fill" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">

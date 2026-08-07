@@ -206,7 +206,7 @@ export function ConversationSearchExample({
             key={index}
             className={
               segment.isMatch
-                ? "bg-warning/10 dark:bg-warning font-semibold"
+                ? "bg-muted dark:bg-warning font-semibold"
                 : ""
             }
           >
@@ -229,7 +229,7 @@ export function ConversationSearchExample({
     return (
       <span className="text-sm">
         <span className="text-muted-foreground">{context.before}</span>
-        <span className="bg-warning/10 dark:bg-warning font-semibold">
+        <span className="bg-muted dark:bg-warning font-semibold">
           {context.match}
         </span>
         <span className="text-muted-foreground">{context.after}</span>
@@ -352,7 +352,7 @@ export function ConversationSearchExample({
               {activeFilters.map((label, index) => (
                 <span
                   key={index}
-                  className="text-xs bg-primary/15 text-info-ink px-2 py-1 rounded-full"
+                  className="text-xs bg-muted text-info-ink px-2 py-1 rounded-full"
                 >
                   {label}
                 </span>
@@ -362,7 +362,7 @@ export function ConversationSearchExample({
 
           {/* Search Error */}
           {inboxSearchError && (
-            <div className="text-sm text-destructive">{inboxSearchError}</div>
+            <div className="text-sm text-destructive-ink">{inboxSearchError}</div>
           )}
 
           {/* Search Status */}
@@ -480,7 +480,7 @@ export function ConversationSearchExample({
 
               {/* Message Search Error */}
               {messageSearchError && (
-                <div className="text-sm text-destructive">{messageSearchError}</div>
+                <div className="text-sm text-destructive-ink">{messageSearchError}</div>
               )}
 
               {/* Message Search Status */}

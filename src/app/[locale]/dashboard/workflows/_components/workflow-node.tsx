@@ -405,7 +405,7 @@ function PreviewIcon({
   return (
     <div
       className={cn(
-        "ink-plate flex h-5 w-5 shrink-0 items-center justify-center",
+        "flex h-5 w-5 shrink-0 items-center justify-center rounded",
         gradient,
       )}
     >
@@ -433,7 +433,7 @@ function renderNodeContent(
         <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
           <PreviewIcon
             icon={Lightning}
-            gradient="ink-2"
+            gradient="tile-2"
           />
           <span>Primeira mensagem do contato</span>
         </div>
@@ -443,7 +443,7 @@ function renderNodeContent(
         <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
           <PreviewIcon
             icon={ChatCircleDots}
-            gradient="ink-2"
+            gradient="tile-2"
           />
           <span>Qualquer mensagem recebida</span>
         </div>
@@ -469,9 +469,9 @@ function renderNodeContent(
             <ArrowsClockwise
               size={10}
               weight="bold"
-              className="text-white shrink-0"
+              className="text-primary-ink shrink-0"
             />
-            <span className="text-[11px] font-semibold text-white">
+            <span className="text-[11px] font-semibold text-primary-ink">
               Execução inline
             </span>
           </div>
@@ -486,7 +486,7 @@ function renderNodeContent(
             <div className="flex items-center gap-2">
               <PreviewIcon
                 icon={Robot}
-                gradient="ink-4"
+                gradient="tile-4"
               />
               <span className="text-[11px] text-foreground/70 truncate">
                 {model || "Modelo IA"}
@@ -508,7 +508,7 @@ function renderNodeContent(
           <div className="flex items-center gap-2 rounded-lg bg-muted px-2.5 py-1.5">
             <PreviewIcon
               icon={Robot}
-              gradient="ink-4"
+              gradient="tile-4"
             />
             <span className="text-[11px] font-medium text-foreground/70 truncate">
               {agentName}
@@ -569,7 +569,7 @@ function renderNodeContent(
             : `${sec}s`;
       return (
         <div className="flex items-center gap-2">
-          <PreviewIcon icon={Timer} gradient="ink-3" />
+          <PreviewIcon icon={Timer} gradient="tile-3" />
           <span className="text-[11px] font-medium text-foreground/70">
             {display}
           </span>
@@ -592,7 +592,7 @@ function renderNodeContent(
         <div className="flex items-center gap-2">
           <PreviewIcon
             icon={ChatTeardropDots}
-            gradient="ink-3"
+            gradient="tile-3"
           />
           <span className="text-[11px] text-foreground/70">
             {timeDisplay ? `Tempo limite: ${timeDisplay}` : "Aguardar resposta"}
@@ -607,7 +607,7 @@ function renderNodeContent(
         <div className="flex items-center gap-2">
           <PreviewIcon
             icon={Lightning}
-            gradient="ink-3"
+            gradient="tile-3"
           />
           <span className="text-[11px] text-foreground/70">
             {event || "Aguardar evento"}
@@ -624,7 +624,7 @@ function renderNodeContent(
         <div className="flex items-center gap-2">
           <PreviewIcon
             icon={FlagCheckered}
-            gradient="ink-5"
+            gradient="tile-5"
           />
           <span className="text-[11px] text-muted-foreground">
             Fim do fluxo
@@ -640,7 +640,7 @@ function renderNodeContent(
         <div className="flex items-center gap-2">
           <PreviewIcon
             icon={CalendarBlank}
-            gradient="ink-1"
+            gradient="tile-1"
           />
           <span className="text-[11px] text-foreground/70 truncate">
             {input || "now"} → {format || "YYYY-MM-DD"}
@@ -657,7 +657,7 @@ function renderNodeContent(
       const lines = trimmed.split("\n").length;
       return (
         <div className="flex items-center gap-2">
-          <PreviewIcon icon={Code} gradient="ink-1" />
+          <PreviewIcon icon={Code} gradient="tile-1" />
           <span className="text-[11px] text-foreground/70">
             JavaScript · {lines} linha{lines > 1 ? "s" : ""}
           </span>
@@ -671,7 +671,7 @@ function renderNodeContent(
       if (!wfId) return <EmptyPreview label="Nenhum fluxo" />;
       return (
         <div className="flex items-center gap-2">
-          <PreviewIcon icon={GitMerge} gradient="ink-1" />
+          <PreviewIcon icon={GitMerge} gradient="tile-1" />
           <span className="text-[11px] text-foreground/70 truncate">
             {wfName || "Sub-fluxo"}
           </span>
@@ -687,7 +687,7 @@ function renderNodeContent(
         <div className="flex items-center gap-2">
           <PreviewIcon
             icon={ArrowsClockwise}
-            gradient="ink-1"
+            gradient="tile-1"
           />
           <span className="text-[11px] text-foreground/70 truncate">
             {listVar} → {itemVar || "item"}
@@ -700,7 +700,7 @@ function renderNodeContent(
       const tz = config.timezone as string;
       return (
         <div className="flex items-center gap-2">
-          <PreviewIcon icon={Clock} gradient="ink-1" />
+          <PreviewIcon icon={Clock} gradient="tile-1" />
           <span className="text-[11px] text-foreground/70">{tz || "UTC"}</span>
         </div>
       );
@@ -720,7 +720,7 @@ function renderNodeContent(
         <div className="flex items-center gap-2">
           <PreviewIcon
             icon={CalendarCheck}
-            gradient="ink-3"
+            gradient="tile-3"
           />
           <span className="text-[11px] text-foreground/70 truncate">
             {label}
@@ -747,10 +747,10 @@ const BORDER_STYLE_MAP: Record<string, string> = {
 
 const GROUP_BG_COLORS: Record<string, string> = {
   gray: "bg-gray-100/50 dark:bg-gray-800/20",
-  blue: "bg-muted dark:bg-info/15",
-  green: "bg-healthy/10/40 dark:bg-healthy/15",
-  yellow: "bg-warning/40 dark:bg-warning/15",
-  red: "bg-destructive/10/40 dark:bg-destructive/15",
+  blue: "bg-muted",
+  green: "bg-muted",
+  yellow: "bg-warning/40 dark:bg-muted",
+  red: "bg-muted",
   purple: "bg-muted dark:bg-chart-4/15",
   transparent: "bg-transparent",
 };
@@ -758,19 +758,19 @@ const GROUP_BG_COLORS: Record<string, string> = {
 const GROUP_BG_COLORS_SOLID: Record<string, string> = {
   gray: "bg-gray-100 dark:bg-gray-800",
   blue: "bg-muted dark:bg-info",
-  green: "bg-healthy/10 dark:bg-healthy",
-  yellow: "bg-warning/10 dark:bg-warning",
-  red: "bg-destructive/10 dark:bg-destructive",
+  green: "bg-muted dark:bg-healthy",
+  yellow: "bg-muted dark:bg-warning",
+  red: "bg-muted dark:bg-destructive",
   purple: "bg-muted dark:bg-chart-4",
   transparent: "bg-transparent",
 };
 
 const GROUP_BORDER_COLORS: Record<string, string> = {
   gray: "border-gray-300 dark:border-gray-600",
-  blue: "border-info/30 dark:border-info",
-  green: "border-healthy/30 dark:border-healthy",
-  yellow: "border-warning/30 dark:border-warning",
-  red: "border-destructive/30 dark:border-destructive",
+  blue: "border-info/30",
+  green: "border-healthy/30",
+  yellow: "border-warning/30",
+  red: "border-destructive/30",
   purple: "border-chart-4/30 dark:border-chart-4",
   transparent: "border-gray-300/50 dark:border-gray-600/50",
 };

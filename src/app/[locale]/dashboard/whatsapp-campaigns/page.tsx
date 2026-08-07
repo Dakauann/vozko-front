@@ -261,7 +261,7 @@ export default function WhatsAppCampaignsPage() {
         key: "delivered",
         header: t("status.delivered"),
         render: (row) => (
-          <span className="text-sm font-semibold tabular-nums text-healthy">
+          <span className="text-sm font-semibold tabular-nums text-healthy-ink">
             {row.metrics?.delivered ?? 0}
           </span>
         ),
@@ -279,7 +279,7 @@ export default function WhatsAppCampaignsPage() {
         key: "failed",
         header: t("status.failed"),
         render: (row) => (
-          <span className="text-sm font-semibold tabular-nums text-destructive">
+          <span className="text-sm font-semibold tabular-nums text-destructive-ink">
             {row.metrics?.failed ?? 0}
           </span>
         ),
@@ -319,7 +319,7 @@ export default function WhatsAppCampaignsPage() {
         icon={<WhatsappLogo className="h-6 w-6" weight="fill" />}
         badge={t("header.badge")}
         description={t("header.description")}
-        colorClass="text-healthy"
+        colorClass="text-healthy-ink"
         actions={
           can("whatsapp_campaigns", "create") ? (
             <Button
@@ -453,7 +453,7 @@ export default function WhatsAppCampaignsPage() {
             ? {
                 icon: (
                   <WhatsappLogo
-                    className="h-7 w-7 text-destructive"
+                    className="h-7 w-7 text-destructive-ink"
                     weight="fill"
                   />
                 ),

@@ -40,8 +40,8 @@ const roleConfig: Record<
 > = {
   admin: {
     icon: Crown,
-    color: "text-warning",
-    bgColor: "bg-warning/15",
+    color: "text-warning-ink",
+    bgColor: "bg-muted",
   },
   user: {
     icon: User,
@@ -172,7 +172,7 @@ export default function UsersPage() {
                 className="h-10 w-10 rounded-full object-cover ring-2 ring-slate-100"
               />
             ) : (
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full tile-brand">
                 <UserCircle className="h-6 w-6 text-primary-ink" weight="fill" />
               </div>
             )}
@@ -294,10 +294,10 @@ export default function UsersPage() {
                       disabled={user.role === "admin"}
                       className={cn(
                         "flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-muted disabled:opacity-50",
-                        user.role === "admin" && "bg-warning/10 font-medium",
+                        user.role === "admin" && "bg-muted font-medium",
                       )}
                     >
-                      <Crown className="h-4 w-4 text-warning" weight="fill" />
+                      <Crown className="h-4 w-4 text-warning-ink" weight="fill" />
                       {t("role.admin")}
                     </button>
                     <button
@@ -364,7 +364,7 @@ export default function UsersPage() {
             {
               label: t("stats.admins"),
               value: loading ? "..." : adminCount.toLocaleString(),
-              icon: <Crown className="h-4 w-4 text-warning" weight="fill" />,
+              icon: <Crown className="h-4 w-4 text-warning-ink" weight="fill" />,
             },
             {
               label: t("stats.users"),
@@ -378,7 +378,7 @@ export default function UsersPage() {
               value: loading ? "..." : verifiedCount.toLocaleString(),
               icon: (
                 <CheckCircle
-                  className="h-4 w-4 text-healthy"
+                  className="h-4 w-4 text-healthy-ink"
                   weight="fill"
                 />
               ),
@@ -446,7 +446,7 @@ export default function UsersPage() {
             error
               ? {
                   icon: (
-                    <XCircle className="h-7 w-7 text-destructive" weight="fill" />
+                    <XCircle className="h-7 w-7 text-destructive-ink" weight="fill" />
                   ),
                   title: t("error.title"),
                   description: error,

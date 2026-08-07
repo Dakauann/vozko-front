@@ -381,9 +381,9 @@ export default function CreateTemplateDialog({
               <div className="rounded-[--radius] border border-border bg-card p-6 shadow-2xl">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-[--radius] bg-healthy/15">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-[--radius] tile-healthy">
                       <WhatsappLogo
-                        className="h-6 w-6 text-healthy"
+                        className="h-6 w-6 text-healthy-ink"
                         weight="fill"
                       />
                     </div>
@@ -421,7 +421,7 @@ export default function CreateTemplateDialog({
                         className={errors.name ? "border-destructive/30" : ""}
                       />
                       {errors.name && (
-                        <p className="mt-1 text-xs text-destructive flex items-center gap-1">
+                        <p className="mt-1 text-xs text-destructive-ink flex items-center gap-1">
                           <Warning className="h-3 w-3" /> {errors.name}
                         </p>
                       )}
@@ -465,7 +465,7 @@ export default function CreateTemplateDialog({
                           <button
                             type="button"
                             onClick={() => addComponent("HEADER")}
-                            className="text-xs font-medium text-healthy hover:text-healthy"
+                            className="text-xs font-medium text-healthy-ink hover:text-healthy-ink"
                           >
                             + {t("form.addHeader")}
                           </button>
@@ -474,7 +474,7 @@ export default function CreateTemplateDialog({
                           <button
                             type="button"
                             onClick={() => addComponent("FOOTER")}
-                            className="text-xs font-medium text-healthy hover:text-healthy"
+                            className="text-xs font-medium text-healthy-ink hover:text-healthy-ink"
                           >
                             + {t("form.addFooter")}
                           </button>
@@ -483,7 +483,7 @@ export default function CreateTemplateDialog({
                           <button
                             type="button"
                             onClick={() => addComponent("BUTTONS")}
-                            className="text-xs font-medium text-healthy hover:text-healthy"
+                            className="text-xs font-medium text-healthy-ink hover:text-healthy-ink"
                           >
                             + {t("form.addButtons")}
                           </button>
@@ -574,7 +574,7 @@ export default function CreateTemplateDialog({
                                     }
                                   />
                                   {(errors.headerStart || errors.headerEnd) && (
-                                    <p className="text-xs text-destructive flex items-center gap-1">
+                                    <p className="text-xs text-destructive-ink flex items-center gap-1">
                                       <Warning className="h-3 w-3" />{" "}
                                       {errors.headerStart || errors.headerEnd}
                                     </p>
@@ -582,7 +582,7 @@ export default function CreateTemplateDialog({
 
                                   {/* Header variable examples */}
                                   {headerVars.variables.length > 0 && (
-                                    <div className="p-3 rounded-lg bg-warning/10 border border-warning/20">
+                                    <div className="p-3 rounded-lg bg-muted border border-border">
                                       <p className="text-xs font-medium text-warning-ink mb-2">
                                         {t(
                                           "form.editor.body.examplesRequired.title",
@@ -610,7 +610,7 @@ export default function CreateTemplateDialog({
                                         ))}
                                       </div>
                                       {errors.headerExamples && (
-                                        <p className="mt-2 text-xs text-destructive flex items-center gap-1">
+                                        <p className="mt-2 text-xs text-destructive-ink flex items-center gap-1">
                                           <Warning className="h-3 w-3" />{" "}
                                           {errors.headerExamples}
                                         </p>
@@ -638,12 +638,12 @@ export default function CreateTemplateDialog({
                                 {t("form.hints.body")}
                               </p>
                               {errors.body && (
-                                <p className="text-xs text-destructive flex items-center gap-1">
+                                <p className="text-xs text-destructive-ink flex items-center gap-1">
                                   <Warning className="h-3 w-3" /> {errors.body}
                                 </p>
                               )}
                               {(errors.bodyStart || errors.bodyEnd) && (
-                                <p className="text-xs text-destructive flex items-center gap-1">
+                                <p className="text-xs text-destructive-ink flex items-center gap-1">
                                   <Warning className="h-3 w-3" />{" "}
                                   {errors.bodyStart || errors.bodyEnd}
                                 </p>
@@ -651,14 +651,14 @@ export default function CreateTemplateDialog({
 
                               {/* Variable examples section */}
                               {bodyVars.variables.length > 0 && (
-                                <div className="mt-3 p-3 rounded-lg bg-warning/10 border border-warning/20">
+                                <div className="mt-3 p-3 rounded-lg bg-muted border border-border">
                                   <p className="text-xs font-medium text-warning-ink mb-2">
                                     {t(
                                       "form.editor.body.examplesRequired.title",
                                     )}
                                   </p>
                                   <p
-                                    className="text-xs text-warning mb-3"
+                                    className="text-xs text-warning-ink mb-3"
                                     dangerouslySetInnerHTML={{
                                       __html: t(
                                         "form.editor.body.examplesRequired.description",
@@ -685,7 +685,7 @@ export default function CreateTemplateDialog({
                                     ))}
                                   </div>
                                   {errors.bodyExamples && (
-                                    <p className="mt-2 text-xs text-destructive flex items-center gap-1">
+                                    <p className="mt-2 text-xs text-destructive-ink flex items-center gap-1">
                                       <Warning className="h-3 w-3" />{" "}
                                       {errors.bodyExamples}
                                     </p>
@@ -784,7 +784,7 @@ export default function CreateTemplateDialog({
                                 <button
                                   type="button"
                                   onClick={addButton}
-                                  className="flex items-center gap-1 text-xs font-medium text-healthy hover:text-healthy"
+                                  className="flex items-center gap-1 text-xs font-medium text-healthy-ink hover:text-healthy-ink"
                                 >
                                   <Plus className="h-3 w-3" />{" "}
                                   {t("form.addButton")}

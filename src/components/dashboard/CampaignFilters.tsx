@@ -499,7 +499,7 @@ export default function CampaignFilters({
                     icon={<X className="h-4 w-4" weight="bold" />}
                     iconVisible
                     iconSide="left"
-                    className="text-muted-foreground hover:text-destructive"
+                    className="text-muted-foreground hover:text-destructive-ink"
                   />
                 </motion.div>
               )}

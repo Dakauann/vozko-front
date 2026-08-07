@@ -297,7 +297,7 @@ export function AdminAddonsManager() {
                     </div>
                     <div>
                       <p className="text-muted-foreground">Margem/mês</p>
-                      <p className="mt-1 font-semibold text-healthy">{usd(margin(addon))}</p>
+                      <p className="mt-1 font-semibold text-healthy-ink">{usd(margin(addon))}</p>
                     </div>
                   </div>
                 </button>

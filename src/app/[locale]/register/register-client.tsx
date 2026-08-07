@@ -421,7 +421,7 @@ export default function RegisterClient() {
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-3">
                   {t("form.accountType.label")}{" "}
-                  <span className="text-destructive">*</span>
+                  <span className="text-destructive-ink">*</span>
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
@@ -611,7 +611,7 @@ export default function RegisterClient() {
                         key={rule}
                         className={`flex items-center gap-2 ${
                           ok
-                            ? "text-healthy dark:text-healthy"
+                            ? "text-healthy-ink"
                             : "text-muted-foreground"
                         }`}
                       >
@@ -651,14 +651,14 @@ export default function RegisterClient() {
                   {t("form.terms.prefix")}{" "}
                   <Link
                     href="/terms-of-service"
-                    className="text-foreground font-semibold hover:text-warning transition-colors"
+                    className="text-foreground font-semibold hover:text-warning-ink transition-colors"
                   >
                     {t("form.terms.termsLink")}
                   </Link>{" "}
                   {t("form.terms.middle")}{" "}
                   <Link
                     href="/privacy-policy"
-                    className="text-foreground font-semibold hover:text-warning transition-colors"
+                    className="text-foreground font-semibold hover:text-warning-ink transition-colors"
                   >
                     {t("form.terms.privacyLink")}
                   </Link>

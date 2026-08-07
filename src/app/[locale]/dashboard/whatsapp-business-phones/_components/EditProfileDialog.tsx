@@ -295,7 +295,7 @@ export function EditProfileDialog({
                       iconSide="left"
                       onClick={handleRemoveImage}
                       disabled={uploadingImage}
-                      className="text-destructive-ink hover:text-destructive hover:bg-muted"
+                      className="text-destructive-ink hover:text-destructive-ink hover:bg-muted"
                     />
                   )}
                 </div>

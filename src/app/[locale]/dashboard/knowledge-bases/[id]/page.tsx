@@ -348,7 +348,7 @@ export default function KnowledgeBaseDetailPage() {
                 "opacity-50 cursor-not-allowed",
               isDragActive
                 ? "border-info bg-muted"
-                : "border-border hover:border-info/50 hover:bg-muted",
+                : "border-border hover:border-border hover:bg-muted",
             )}
           >
             <input {...getInputProps()} />
@@ -441,7 +441,7 @@ export default function KnowledgeBaseDetailPage() {
                           </span>
                         )}
                         {doc.status === "failed" && doc.errorMessage && (
-                          <span className="text-xs text-destructive/70 truncate max-w-[200px]">
+                          <span className="text-xs text-destructive-ink/70 truncate max-w-[200px]">
                             {doc.errorMessage}
                           </span>
                         )}

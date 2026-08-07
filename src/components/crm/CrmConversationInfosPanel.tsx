@@ -268,11 +268,11 @@ export default function CrmConversationInfosPanel({
           {/* Sticky identity (compact horizontal, not a tall marketing hero) */}
           <div className="shrink-0 border-b border-border px-3 py-3">
             {isBlocked && (
-              <div className="mb-2.5 flex items-start gap-2 rounded-lg border border-destructive/30 bg-muted px-2.5 py-2 text-destructive-ink">
+              <div className="mb-2.5 flex items-start gap-2 rounded-lg border border-border bg-muted px-2.5 py-2 text-destructive-ink">
                 <Prohibit weight="fill" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 <div className="min-w-0">
                   <p className="text-[11px] font-semibold">{t("blockedTitle")}</p>
-                  <p className="mt-0.5 text-[11px] leading-snug text-destructive/90">
+                  <p className="mt-0.5 text-[11px] leading-snug text-destructive-ink/90">
                     {t("blockedDescription")}
                   </p>
                 </div>
@@ -308,7 +308,7 @@ export default function CrmConversationInfosPanel({
                   {copied ? (
                     <Check
                       weight="bold"
-                      className="h-3 w-3 shrink-0 text-healthy"
+                      className="h-3 w-3 shrink-0 text-healthy-ink"
                     />
                   ) : (
                     <Copy
@@ -322,7 +322,7 @@ export default function CrmConversationInfosPanel({
                     {isWhatsApp ? (
                       <WhatsappLogo
                         weight="fill"
-                        className="h-3 w-3 text-healthy"
+                        className="h-3 w-3 text-healthy-ink"
                       />
                     ) : (
                       <Phone weight="fill" className="h-3 w-3 text-info-ink" />
@@ -355,12 +355,12 @@ export default function CrmConversationInfosPanel({
                 {isWhatsApp && (
                   <InfoRow label={t("windowStatus")}>
                     {windowOpen ? (
-                      <span className="inline-flex items-center gap-1.5 text-healthy">
+                      <span className="inline-flex items-center gap-1.5 text-healthy-ink">
                         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-healthy" />
                         {t("windowOpen")}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 text-warning">
+                      <span className="inline-flex items-center gap-1.5 text-warning-ink">
                         <span className="h-1.5 w-1.5 rounded-full bg-warning" />
                         {t("windowClosed")}
                       </span>
@@ -379,7 +379,7 @@ export default function CrmConversationInfosPanel({
                 <InfoRow label={t("aiResponses")}>
                   {(conversation.automation_enabled ??
                     inboxEntry?.automation_enabled) !== false ? (
-                    <span className="inline-flex items-center gap-1.5 text-healthy">
+                    <span className="inline-flex items-center gap-1.5 text-healthy-ink">
                       <span className="h-1.5 w-1.5 rounded-full bg-healthy" />
                       {t("aiOn")}
                     </span>
@@ -608,7 +608,7 @@ export default function CrmConversationInfosPanel({
               onClick={() => setConfirmingBlock(true)}
               disabled={!leadId}
               className={cn(
-                "flex w-full items-center justify-center gap-2 rounded-md border border-destructive/30 bg-card px-3 py-2 text-sm font-medium text-destructive-ink transition-colors hover:bg-muted",
+                "flex w-full items-center justify-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-destructive-ink transition-colors hover:bg-muted",
                 !leadId && "pointer-events-none opacity-50",
               )}
             >

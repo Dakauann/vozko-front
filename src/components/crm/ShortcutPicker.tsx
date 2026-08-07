@@ -136,7 +136,7 @@ export default function ShortcutPicker({
           <CursorClick weight="fill" className="h-3.5 w-3.5 text-info-ink" />
         );
       case "media":
-        return <Image weight="fill" className="h-3.5 w-3.5 text-healthy" />;
+        return <Image weight="fill" className="h-3.5 w-3.5 text-healthy-ink" />;
       default:
         return (
           <ChatText
@@ -187,7 +187,7 @@ export default function ShortcutPicker({
         ) : (
           <div ref={listRef} className="py-1">
             <div className="flex items-center gap-1.5 px-3 py-1.5 border-b border-border">
-              <Lightning weight="fill" className="h-3 w-3 text-warning" />
+              <Lightning weight="fill" className="h-3 w-3 text-warning-ink" />
               <span className="text-[11px] font-semibold text-muted-foreground">
                 {t("header")}
               </span>

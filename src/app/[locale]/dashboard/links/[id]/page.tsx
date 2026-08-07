@@ -276,7 +276,7 @@ export default function LinkAnalyticsPage() {
           value={analytics?.totalClicks ?? link.clickCount}
         />
         <StatTile
-          icon={<Users className="h-4 w-4 text-healthy" weight="fill" />}
+          icon={<Users className="h-4 w-4 text-healthy-ink" weight="fill" />}
           label={t("stats.uniqueClicks")}
           value={analytics?.uniqueClicks ?? link.uniqueClickCount}
         />

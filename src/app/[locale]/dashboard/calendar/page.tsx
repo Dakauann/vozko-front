@@ -336,18 +336,18 @@ export default function CalendarPage() {
 
       {/* No connection alert */}
       {connected === false && (
-        <ElevatedContainer className="border-warning/30 bg-warning/10 dark:bg-warning/20">
+        <ElevatedContainer className="border-border bg-muted dark:bg-muted">
           <div className="flex items-start gap-3 p-4">
             <Warning
               size={24}
               weight="duotone"
-              className="text-warning mt-0.5 shrink-0"
+              className="text-warning-ink mt-0.5 shrink-0"
             />
             <div className="space-y-1">
-              <p className="text-sm font-medium text-warning dark:text-warning">
+              <p className="text-sm font-medium text-warning-ink">
                 {t("noConnection")}
               </p>
-              <p className="text-xs text-warning dark:text-warning">
+              <p className="text-xs text-warning-ink">
                 {t("noConnectionDescription")}
               </p>
               <ElevatedButton
@@ -785,7 +785,7 @@ export default function CalendarPage() {
               {editingEvent && (
                 <button
                   onClick={() => handleDelete(editingEvent.id)}
-                  className="flex items-center gap-1.5 text-xs text-destructive hover:text-destructive/80 transition-colors"
+                  className="flex items-center gap-1.5 text-xs text-destructive-ink hover:text-destructive-ink/80 transition-colors"
                 >
                   <Trash size={14} />
                   {t("deleteEvent") || "Excluir"}
@@ -983,11 +983,11 @@ function AgendaEventCard({
             e.stopPropagation();
             onDelete();
           }}
-          className="p-1 rounded hover:bg-destructive/10"
+          className="p-1 rounded hover:bg-muted"
           title="Excluir"
           aria-label="Excluir evento"
         >
-          <Trash size={13} className="text-destructive" />
+          <Trash size={13} className="text-destructive-ink" />
         </button>
       </div>
     </div>

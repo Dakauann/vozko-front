@@ -146,7 +146,7 @@ export default function CrmPipelineSelector({
                 : "text-foreground hover:bg-muted",
           )}
         >
-          <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded bg-foreground/80">
+          <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded bg-foreground">
             <Stack weight="fill" className="h-3 w-3 text-white" />
           </span>
           <span className="flex-1 truncate">Todos os funis</span>

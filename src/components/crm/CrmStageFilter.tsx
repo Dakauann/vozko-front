@@ -89,7 +89,7 @@ export default function CrmStageFilter({
                 {hasSelection && (
                   <button
                     onClick={clearAll}
-                    className="text-[11px] font-medium text-healthy hover:text-healthy transition-colors"
+                    className="text-[11px] font-medium text-healthy-ink hover:text-healthy-ink transition-colors"
                   >
                     Limpar
                   </button>

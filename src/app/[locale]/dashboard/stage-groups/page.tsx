@@ -863,7 +863,7 @@ export default function TagGroupsPage() {
                   placeholder={t("modal.namePlaceholder")}
                 />
                 {nameError ? (
-                  <p className="mt-1 text-xs font-semibold text-destructive">
+                  <p className="mt-1 text-xs font-semibold text-destructive-ink">
                     {nameError}
                   </p>
                 ) : null}
@@ -1016,7 +1016,7 @@ export default function TagGroupsPage() {
             </div>
           </ElevatedDialogHeader>
 
-          <div className="rounded-[--radius] border border-destructive/30 bg-destructive/10/90 p-4">
+          <div className="rounded-[--radius] border border-border bg-muted p-4">
             <p className="text-sm text-destructive-ink">
               {deletingGroup
                 ? t("delete.warning", { name: deletingGroup.name })

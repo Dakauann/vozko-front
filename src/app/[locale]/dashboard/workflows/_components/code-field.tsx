@@ -205,7 +205,7 @@ export function CodeField({
       <div className="flex items-center justify-between">
         <label className="text-xs font-medium text-foreground">
           {field.label}
-          {field.required ? <span className="text-destructive"> *</span> : null}
+          {field.required ? <span className="text-destructive-ink"> *</span> : null}
         </label>
         <span className="text-[11px] font-medium text-muted-foreground">
           JavaScript · sandbox

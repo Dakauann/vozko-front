@@ -211,7 +211,7 @@ export default function ConnectTelegramPage() {
                     >
                       <Warning
                         weight="fill"
-                        className="mt-px size-3.5 shrink-0 text-warning dark:text-warning"
+                        className="mt-px size-3.5 shrink-0 text-warning-ink"
                       />
                       {t("connect.tokenMalformed")}
                     </p>
@@ -224,7 +224,7 @@ export default function ConnectTelegramPage() {
                     >
                       <Warning
                         weight="fill"
-                        className="mt-px size-3.5 shrink-0 text-destructive"
+                        className="mt-px size-3.5 shrink-0 text-destructive-ink"
                       />
                       {error}
                     </p>
@@ -273,7 +273,7 @@ function CommandChip({ value }: { value: string }) {
       className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border bg-muted px-3 py-2 font-mono text-xs text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
     >
       {copied ? (
-        <Check weight="bold" className="size-3.5 text-healthy dark:text-healthy" />
+        <Check weight="bold" className="size-3.5 text-healthy-ink" />
       ) : (
         <Copy className="size-3.5 text-muted-foreground" />
       )}

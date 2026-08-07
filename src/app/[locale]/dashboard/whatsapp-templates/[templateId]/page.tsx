@@ -93,17 +93,17 @@ function statusTone(status: TemplateStatus): {
   switch (status) {
     case "APPROVED":
       return {
-        cls: "bg-muted text-healthy-ink border-healthy/30 dark:bg-healthy/40 dark:text-healthy dark:border-healthy",
+        cls: "bg-muted text-healthy-ink border-border dark:text-healthy-ink",
         icon: CheckCircle,
       };
     case "PENDING":
       return {
-        cls: "bg-muted text-warning-ink border-warning/30 dark:bg-warning/40 dark:text-warning dark:border-warning",
+        cls: "bg-muted text-warning-ink border-border dark:text-warning-ink",
         icon: Clock,
       };
     case "REJECTED":
       return {
-        cls: "bg-muted text-destructive-ink border-destructive/30 dark:bg-destructive/40 dark:text-destructive dark:border-destructive",
+        cls: "bg-muted text-destructive-ink border-border dark:text-destructive-ink",
         icon: XCircle,
       };
     case "PAUSED":
@@ -120,11 +120,11 @@ function statusTone(status: TemplateStatus): {
 function categoryTone(category: TemplateCategory): string {
   switch (category) {
     case "MARKETING":
-      return "bg-muted text-muted-foreground border-chart-4/30 dark:bg-chart-4/40 dark:text-chart-4 dark:border-chart-4";
+      return "bg-muted text-muted-foreground border-border";
     case "UTILITY":
-      return "bg-muted text-muted-foreground border-healthy/30 dark:bg-healthy/40 dark:text-healthy dark:border-healthy";
+      return "bg-muted text-muted-foreground border-border dark:text-healthy-ink";
     case "AUTHENTICATION":
-      return "bg-muted text-warning-ink border-warning/30 dark:bg-warning/40 dark:text-warning dark:border-warning";
+      return "bg-muted text-warning-ink border-border dark:text-warning-ink";
     default:
       return "bg-muted text-muted-foreground border-border";
   }
@@ -132,10 +132,10 @@ function categoryTone(category: TemplateCategory): string {
 
 function usabilityTone(status: string): string {
   if (status === "ready")
-    return "bg-muted text-healthy-ink border-healthy/30 dark:bg-healthy/40 dark:text-healthy dark:border-healthy";
+    return "bg-muted text-healthy-ink border-border dark:text-healthy-ink";
   if (status === "missing_header_media")
-    return "bg-muted text-warning-ink border-warning/30 dark:bg-warning/40 dark:text-warning dark:border-warning";
-  return "bg-muted text-destructive-ink border-destructive/30 dark:bg-destructive/40 dark:text-destructive dark:border-destructive";
+    return "bg-muted text-warning-ink border-border dark:text-warning-ink";
+  return "bg-muted text-destructive-ink border-border dark:text-destructive-ink";
 }
 
 function convertToDraggableComponents(
@@ -373,7 +373,7 @@ export default function WhatsAppTemplateDetailPage() {
           icon: <Buildings className="h-4 w-4" weight="fill" />,
           disabled: alreadyGranted,
           meta: alreadyGranted ? (
-            <CheckCircle className="h-4 w-4 text-healthy" weight="fill" />
+            <CheckCircle className="h-4 w-4 text-healthy-ink" weight="fill" />
           ) : undefined,
         };
       },
@@ -581,7 +581,7 @@ export default function WhatsAppTemplateDetailPage() {
     return (
       <div className="mx-auto flex max-w-5xl items-center justify-center p-6">
         <ElevatedContainer className="flex min-h-[320px] w-full max-w-md flex-col items-center justify-center gap-4 p-8 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-muted text-destructive-ink dark:bg-destructive/40">
+          <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-muted text-destructive-ink">
             <WhatsappLogo className="h-7 w-7" weight="fill" />
           </div>
           <div>
@@ -857,8 +857,8 @@ export default function WhatsAppTemplateDetailPage() {
                   </p>
                 </div>
               ) : (
-                <div className="flex items-start gap-3 rounded-[--radius] border border-warning/30 bg-warning/10 p-4 dark:border-warning dark:bg-warning/40">
-                  <p className="text-sm text-warning dark:text-warning">
+                <div className="flex items-start gap-3 rounded-[--radius] border border-border bg-muted p-4">
+                  <p className="text-sm text-warning-ink">
                     {t("detail.headerMedia.notConfigured")}
                   </p>
                 </div>
@@ -971,7 +971,7 @@ export default function WhatsAppTemplateDetailPage() {
                     {t("access.loading")}
                   </div>
                 ) : accessError ? (
-                  <div className="rounded-[--radius] border border-destructive/30 bg-muted p-4 text-sm text-destructive-ink">
+                  <div className="rounded-[--radius] border border-border bg-muted p-4 text-sm text-destructive-ink">
                     {accessError}
                   </div>
                 ) : accessItems.length === 0 ? (
@@ -1036,7 +1036,7 @@ export default function WhatsAppTemplateDetailPage() {
                             iconVisible
                             disabled={revokingWorkspaceId === item.workspaceId}
                             onClick={() => handleRevokeAccess(item.workspaceId)}
-                            className="shrink-0 text-destructive-ink hover:bg-muted hover:text-destructive"
+                            className="shrink-0 text-destructive-ink hover:bg-muted hover:text-destructive-ink"
                           />
                         </div>
                       );
@@ -1145,8 +1145,8 @@ export default function WhatsAppTemplateDetailPage() {
                     {t("replicate.loadingPhones")}
                   </div>
                 ) : replicatePhones.length === 0 ? (
-                  <div className="rounded-[--radius] border border-warning/30 bg-warning/10 p-4 dark:border-warning dark:bg-warning/40">
-                    <p className="text-sm text-warning dark:text-warning">
+                  <div className="rounded-[--radius] border border-border bg-muted p-4">
+                    <p className="text-sm text-warning-ink">
                       {t("replicate.noPhones")}
                     </p>
                   </div>

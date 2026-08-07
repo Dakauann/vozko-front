@@ -20,7 +20,7 @@ const sizeConfig = {
 
 const variantConfig = {
   primary: "text-primary-ink",
-  emerald: "text-healthy dark:text-healthy",
+  emerald: "text-healthy-ink",
   purple: "text-muted-foreground dark:text-chart-4",
   gradient: "text-primary-ink",
 };

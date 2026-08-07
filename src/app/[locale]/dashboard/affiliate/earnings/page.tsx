@@ -54,17 +54,17 @@ const STATUS_CONFIG: Record<
 > = {
   pending: {
     icon: Clock,
-    className: "bg-muted text-warning-ink border-warning/30",
+    className: "bg-muted text-warning-ink border-border",
     fallbackLabel: "Pending",
   },
   paid: {
     icon: CheckCircle,
-    className: "bg-muted text-healthy-ink border-healthy/30",
+    className: "bg-muted text-healthy-ink border-border",
     fallbackLabel: "Paid",
   },
   cancelled: {
     icon: XCircle,
-    className: "bg-muted text-destructive-ink border-destructive/30",
+    className: "bg-muted text-destructive-ink border-border",
     fallbackLabel: "Cancelled",
   },
 };
@@ -218,7 +218,7 @@ export default function AffiliateEarningsPage() {
       />
 
       {error ? (
-        <div className="rounded-[--radius] border border-destructive/30 bg-muted p-4 text-sm text-destructive-ink">
+        <div className="rounded-[--radius] border border-border bg-muted p-4 text-sm text-destructive-ink">
           {error}
         </div>
       ) : null}

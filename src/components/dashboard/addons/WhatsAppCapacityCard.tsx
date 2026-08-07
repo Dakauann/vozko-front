@@ -8,6 +8,7 @@ import {
   WarningCircle,
   WhatsappLogo,
 } from "@/components/icons";
+import { channelPlate } from "@/components/channels/channel-tile";
 import { motion, useReducedMotion } from "framer-motion";
 
 import Button from "@/components/elevated-design/button";
@@ -75,9 +76,9 @@ export default function WhatsAppCapacityCard({
     <section className={shell} aria-label={t("capacity.label")}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
-          {/* Brand mark on a neutral tile, keeping WhatsApp's own green. */}
-          <span className="tile-neutral flex h-11 w-11 shrink-0 items-center justify-center">
-            <WhatsappLogo className="h-5 w-5 text-[#25d366]" weight="fill" />
+          {/* The channel lockup: WhatsApp's own green as the plate, white glyph. */}
+          <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-lg", channelPlate("whatsapp"))}>
+            <WhatsappLogo className="h-5 w-5" weight="fill" />
           </span>
           <div className="min-w-0">
             <p className="text-sm font-medium text-muted-foreground">
@@ -235,9 +236,9 @@ function StateHint({
 }) {
   if (state === "atLimit") {
     return (
-      <p className="mt-3 flex items-start gap-1.5 text-xs text-warning dark:text-warning">
+      <p className="mt-3 flex items-start gap-1.5 text-xs text-warning-ink">
         <WarningCircle
-          className="mt-px h-4 w-4 shrink-0 text-warning"
+          className="mt-px h-4 w-4 shrink-0 text-warning-ink"
           weight="fill"
           aria-hidden
         />
@@ -261,7 +262,7 @@ function StateHint({
   return (
     <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
       <CheckCircle
-        className="h-4 w-4 shrink-0 text-healthy"
+        className="h-4 w-4 shrink-0 text-healthy-ink"
         weight="fill"
         aria-hidden
       />

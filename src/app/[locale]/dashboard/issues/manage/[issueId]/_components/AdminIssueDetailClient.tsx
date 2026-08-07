@@ -47,20 +47,20 @@ const statusConfig: Record<
   { color: string; bgColor: string; icon: Icon; label: string }
 > = {
   open: {
-    color: "text-muted-foreground dark:text-info",
-    bgColor: "bg-muted dark:bg-info/30",
+    color: "text-muted-foreground dark:text-info-ink",
+    bgColor: "bg-muted",
     icon: Circle,
     label: "open",
   },
   in_progress: {
-    color: "text-warning dark:text-warning",
-    bgColor: "bg-warning/10 dark:bg-warning/30",
+    color: "text-warning-ink",
+    bgColor: "bg-muted dark:bg-muted",
     icon: ArrowClockwise,
     label: "in_progress",
   },
   closed: {
-    color: "text-healthy dark:text-healthy",
-    bgColor: "bg-healthy/10 dark:bg-healthy/30",
+    color: "text-healthy-ink",
+    bgColor: "bg-muted dark:bg-muted",
     icon: CheckCircle,
     label: "closed",
   },
@@ -521,7 +521,7 @@ export default function AdminIssueDetailClient({
             </div>
 
             {submitError && (
-              <p className="text-xs text-destructive">{submitError}</p>
+              <p className="text-xs text-destructive-ink">{submitError}</p>
             )}
           </div>
         )}

@@ -239,17 +239,126 @@ input:-webkit-autofill:active {
   .tile-healthy,
   .tile-warning,
   .tile-fault,
-  .tile-info {
+  .tile-info,
+  .tile-1,
+  .tile-2,
+  .tile-3,
+  .tile-4,
+  .tile-5 {
+    background: var(--tile-plate);
+    color: var(--tile-glyph);
+    border: 1px solid transparent;
+    border-radius: 8px;
+  }
+
+  /*
+    The glyph is forced from the plate, not inherited.
+
+    `.tile-brand > svg` is specificity 0-1-1 and a Tailwind `text-destructive`
+    on the icon is 0-1-0, so the plate wins. That is deliberate: ~200 call
+    sites paint the icon's colour on the icon itself, and without this every
+    one of them would have to be edited before the tile read correctly. A
+    coloured glyph on a saturated plate of a different hue is worse than the
+    wash this replaces.
+  */
+  .tile-neutral > svg,
+  .tile-brand > svg,
+  .tile-healthy > svg,
+  .tile-warning > svg,
+  .tile-fault > svg,
+  .tile-info > svg,
+  .tile-1 > svg,
+  .tile-2 > svg,
+  .tile-3 > svg,
+  .tile-4 > svg,
+  .tile-5 > svg {
+    color: var(--tile-glyph);
+  }
+
+  /* Neutral is the only plate that keeps a hairline: it is the one whose fill
+     is close enough to the sheet to need an edge to exist at all. */
+  .tile-neutral {
+    --tile-plate: hsl(var(--muted));
+    --tile-glyph: hsl(var(--muted-foreground));
+    border-color: hsl(var(--border));
+  }
+
+  /* Status plates carry the fill value and that hue's own measured foreground —
+     white on all but amber, which is near-black because white on a mid-lightness
+     amber measured 2.4:1. */
+  .tile-brand   { --tile-plate: hsl(var(--primary));     --tile-glyph: hsl(var(--primary-foreground)); }
+  .tile-healthy { --tile-plate: hsl(var(--healthy));     --tile-glyph: hsl(var(--healthy-foreground)); }
+  .tile-warning { --tile-plate: hsl(var(--warning));     --tile-glyph: hsl(var(--warning-foreground)); }
+  .tile-fault   { --tile-plate: hsl(var(--destructive)); --tile-glyph: hsl(var(--destructive-foreground)); }
+  .tile-info    { --tile-plate: hsl(var(--info));        --tile-glyph: hsl(var(--info-foreground)); }
+
+  /*
+    Category plates. The five chart series, so a category reads the same in a
+    tile as it does in the graph beside it.
+
+    The glyph is picked per plate from a measured ratio, not by rule. A chart
+    series is tuned to be told apart from four neighbours on a white canvas,
+    which puts three of the five at a lightness where white sits under 4:1 —
+    chart-2 measured 3.85:1 in light and 2.18:1 in dark against white. Where
+    white loses, the glyph takes --warning-foreground, which is the near-black
+    both themes already define for exactly this case.
+
+           light          dark
+    1      white 5.39     ink 5.86
+    2      ink   4.86     ink 8.57
+    3      ink   8.12     ink 11.04
+    4      ink   5.12     ink 8.20
+    5      white 4.67     ink 6.68
+  */
+  .tile-1 { --tile-plate: hsl(var(--chart-1)); --tile-glyph: hsl(var(--primary-foreground)); }
+  .tile-2 { --tile-plate: hsl(var(--chart-2)); --tile-glyph: hsl(var(--warning-foreground)); }
+  .tile-3 { --tile-plate: hsl(var(--chart-3)); --tile-glyph: hsl(var(--warning-foreground)); }
+  .tile-4 { --tile-plate: hsl(var(--chart-4)); --tile-glyph: hsl(var(--warning-foreground)); }
+  .tile-5 { --tile-plate: hsl(var(--chart-5)); --tile-glyph: hsl(var(--primary-foreground)); }
+
+  /* Dark lifts every series toward the canvas, so the two that carried white
+     in light lose it here. */
+  .dark .tile-1,
+  .dark .tile-5 { --tile-glyph: hsl(var(--warning-foreground)); }
+
+  /*
+    Status notices — the same rule as the tiles, at banner scale.
+
+    A callout is where the banned wash was most entrenched: bg-destructive/10
+    behind text-destructive, a border-destructive/50 around it, on 178 sites.
+    Three things are wrong with it and only the first is cosmetic.
+
+    1. The ground is TRANSLUCENT, so the banner's real colour depends on what
+       it happens to sit on. The same alert reads pink on a white card, brown
+       on a muted panel and near-black inside a dialog scrim. Nobody chose any
+       of those.
+    2. The text is the FILL value of the hue on a 10% wash of itself. That is
+       the pair the token system exists to prevent: --destructive is tuned to
+       carry a white button label, not to be 13px body copy on its own tint.
+    3. Six states become six tints of one shape, so an operator scanning a
+       column of them tells success from failure by hue alone at 10% strength.
+
+    So a notice keeps ONE opaque ground — the same quiet --muted every tile
+    already sits on — and spends the hue where it survives: the glyph and the
+    title. Ink values are the measured ones, so every notice clears AA on a
+    known surface instead of each needing its own tuned wash.
+  */
+  .notice {
+    --notice-ink: hsl(var(--muted-foreground));
     background: hsl(var(--muted));
     border: 1px solid hsl(var(--border));
     border-radius: 8px;
+    color: hsl(var(--muted-foreground));
   }
-  .tile-neutral { color: hsl(var(--muted-foreground)); }
-  .tile-brand   { color: hsl(var(--primary-ink)); }
-  .tile-healthy { color: hsl(var(--healthy-ink)); }
-  .tile-warning { color: hsl(var(--warning-ink)); }
-  .tile-fault   { color: hsl(var(--destructive-ink)); }
-  .tile-info    { color: hsl(var(--info-ink)); }
+  .notice-brand   { --notice-ink: hsl(var(--primary-ink)); }
+  .notice-healthy { --notice-ink: hsl(var(--healthy-ink)); }
+  .notice-warning { --notice-ink: hsl(var(--warning-ink)); }
+  .notice-fault   { --notice-ink: hsl(var(--destructive-ink)); }
+  .notice-info    { --notice-ink: hsl(var(--info-ink)); }
+
+  /* The hue, where it still reads: the mark and the one line that names the
+     problem. Body copy stays neutral — it is prose, not a status. */
+  .notice-ink { color: var(--notice-ink); }
 
   /*
     Touch floor.

@@ -220,7 +220,7 @@ export default function InstagramAccountsPage() {
                   green-looking row. */}
               {key === "MESSAGING_OFF" && (
                 <span
-                  className="flex max-w-[280px] items-start gap-1 text-xs text-warning dark:text-warning"
+                  className="flex max-w-[280px] items-start gap-1 text-xs text-warning-ink"
                   title={t("card.messagingDisabled")}
                 >
                   <Warning weight="fill" className="mt-0.5 h-3 w-3 flex-shrink-0" />
@@ -230,7 +230,7 @@ export default function InstagramAccountsPage() {
 
               {row.needsReconnect && row.statusReason && (
                 <span
-                  className="flex max-w-[280px] items-start gap-1 text-xs text-destructive dark:text-destructive"
+                  className="flex max-w-[280px] items-start gap-1 text-xs text-destructive-ink"
                   title={row.statusReason}
                 >
                   <Warning weight="fill" className="mt-0.5 h-3 w-3 flex-shrink-0" />
@@ -276,7 +276,7 @@ export default function InstagramAccountsPage() {
               connect("/dashboard/instagram-accounts");
             }}
             title={t("card.reconnect")}
-            className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-destructive-ink transition-colors hover:bg-muted disabled:opacity-50 dark:text-destructive dark:hover:bg-destructive/10"
+            className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-destructive-ink transition-colors hover:bg-muted disabled:opacity-50 dark:text-destructive-ink dark:hover:bg-muted"
           >
             <ArrowClockwise
               className={cn("h-3.5 w-3.5", isConnecting && "animate-spin")}
@@ -387,7 +387,7 @@ export default function InstagramAccountsPage() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-muted px-4 py-3 text-sm text-destructive-ink">
+        <div className="flex items-center gap-2 rounded-lg border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">
           <Warning className="h-4 w-4" />
           {error}
         </div>

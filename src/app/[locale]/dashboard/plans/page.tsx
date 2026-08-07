@@ -589,7 +589,7 @@ export function AdminPlansManager() {
           icon: <Buildings className="h-4 w-4" weight="fill" />,
           disabled: alreadyGranted,
           meta: alreadyGranted ? (
-            <CheckCircle className="h-4 w-4 text-healthy" weight="fill" />
+            <CheckCircle className="h-4 w-4 text-healthy-ink" weight="fill" />
           ) : undefined,
         };
       },
@@ -694,7 +694,7 @@ export function AdminPlansManager() {
         style={{ boxShadow: softSurfaceShadow }}
       >
         <Package
-          className="mx-auto mb-4 h-12 w-12 text-destructive"
+          className="mx-auto mb-4 h-12 w-12 text-destructive-ink"
           weight="fill"
         />
         <p className="font-semibold text-foreground">{t("error.title")}</p>
@@ -980,7 +980,7 @@ export function AdminPlansManager() {
 
               <div className="space-y-7 px-4 py-5">
                 {selectedPlan?.archivedAt ? (
-                  <div className="border-l-2 border-warning bg-warning/5 px-3 py-2.5">
+                  <div className="border-l-2 border-warning bg-muted px-3 py-2.5">
                     <p className="text-sm font-semibold text-foreground">
                       {t("editor.archivedTitle")}
                     </p>
@@ -1157,7 +1157,7 @@ export function AdminPlansManager() {
                                     </span>
                                   </span>
                                   <button
-                                    className="shrink-0 p-1 text-muted-foreground transition-colors hover:text-destructive"
+                                    className="shrink-0 p-1 text-muted-foreground transition-colors hover:text-destructive-ink"
                                     onClick={() => handleRevokeWorkspace(ws.id)}
                                     type="button"
                                   >
@@ -1220,7 +1220,7 @@ export function AdminPlansManager() {
                   >
                     {!visibilityGlobal && !exclusiveAffiliate ? (
                       <p
-                        className="mb-3 border-l-2 border-warning bg-warning/5 px-3 py-2 text-[12px] text-foreground"
+                        className="mb-3 border-l-2 border-warning bg-muted px-3 py-2 text-[12px] text-foreground"
                         role="note"
                       >
                         {t("exclusive.conflictWithRestricted")}
@@ -1231,7 +1231,7 @@ export function AdminPlansManager() {
                       <div className="flex items-center justify-between gap-2 border-b border-border/50 py-2">
                         <span className="flex min-w-0 items-center gap-2">
                           <UserCircle
-                            className="h-3.5 w-3.5 shrink-0 text-warning"
+                            className="h-3.5 w-3.5 shrink-0 text-warning-ink"
                             weight="fill"
                           />
                           <span className="truncate text-sm font-medium text-foreground">
@@ -1246,7 +1246,7 @@ export function AdminPlansManager() {
                         </span>
                         <button
                           aria-label={t("exclusive.clear")}
-                          className="shrink-0 p-1 text-muted-foreground transition-colors hover:text-destructive"
+                          className="shrink-0 p-1 text-muted-foreground transition-colors hover:text-destructive-ink"
                           onClick={handleClearExclusiveAffiliate}
                           type="button"
                         >
@@ -1511,12 +1511,12 @@ function PricingItemsEditor({
                             ) : null}
                           </span>
                           {priceBelowCost ? (
-                            <span className="mt-1 block text-[11px] font-normal text-warning">
+                            <span className="mt-1 block text-[11px] font-normal text-warning-ink">
                               {t("pricingItems.priceBelowCost")}
                             </span>
                           ) : null}
                           {invalidBrl ? (
-                            <span className="mt-1 block text-[11px] font-normal text-destructive">
+                            <span className="mt-1 block text-[11px] font-normal text-destructive-ink">
                               {t("pricingItems.invalidAmount")}
                             </span>
                           ) : null}

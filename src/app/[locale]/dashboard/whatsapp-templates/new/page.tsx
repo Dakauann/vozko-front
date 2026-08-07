@@ -689,7 +689,7 @@ export default function NewWhatsAppTemplatePage() {
     },
     mixed: {
       label: t("new.guidelines.formatMixed"),
-      cls: "bg-muted text-warning-ink border-warning/20",
+      cls: "bg-muted text-warning-ink border-border",
     },
   }[detectedFormat];
   const guidelineKeys = [
@@ -793,7 +793,7 @@ export default function NewWhatsAppTemplatePage() {
                     className={errors.name ? "border-destructive/30" : ""}
                   />
                   {errors.name ? (
-                    <p className="mt-1 text-xs text-destructive flex items-center gap-1">
+                    <p className="mt-1 text-xs text-destructive-ink flex items-center gap-1">
                       <Warning className="h-3 w-3" /> {errors.name}
                     </p>
                   ) : (
@@ -820,7 +820,7 @@ export default function NewWhatsAppTemplatePage() {
                     isLoading={businessPhoneSelect.isLoading}
                   />
                   {errors.businessPhone ? (
-                    <p className="mt-1 text-xs text-destructive flex items-center gap-1">
+                    <p className="mt-1 text-xs text-destructive-ink flex items-center gap-1">
                       <Warning className="h-3 w-3" /> {errors.businessPhone}
                     </p>
                   ) : (
@@ -862,9 +862,9 @@ export default function NewWhatsAppTemplatePage() {
             <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-md bg-muted">
+                  <div className="tile-brand flex h-6 w-6 items-center justify-center">
                     <FlowArrow
-                      className="h-3.5 w-3.5 text-white"
+                      className="h-3.5 w-3.5"
                       weight="bold"
                     />
                   </div>
@@ -911,13 +911,13 @@ export default function NewWhatsAppTemplatePage() {
                     .map((error, i) => (
                       <div
                         key={i}
-                        className="flex items-center gap-2 p-2.5 rounded-lg bg-destructive/10 border border-destructive/20"
+                        className="flex items-center gap-2 p-2.5 rounded-lg bg-muted border border-border"
                       >
                         <Warning
-                          className="h-3.5 w-3.5 text-destructive flex-shrink-0"
+                          className="h-3.5 w-3.5 text-destructive-ink flex-shrink-0"
                           weight="fill"
                         />
-                        <p className="text-xs text-destructive">{error}</p>
+                        <p className="text-xs text-destructive-ink">{error}</p>
                       </div>
                     ))}
                 </div>
@@ -930,8 +930,8 @@ export default function NewWhatsAppTemplatePage() {
             <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
               <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
                 <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[#2463eb]">
-                    <Info className="h-3.5 w-3.5 text-white" weight="fill" />
+                  <div className="tile-info flex h-6 w-6 items-center justify-center">
+                    <Info className="h-3.5 w-3.5" weight="fill" />
                   </div>
                   {t("new.guidelines.title")}
                 </h2>
@@ -975,9 +975,9 @@ export default function NewWhatsAppTemplatePage() {
         >
           <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
             <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-muted">
+              <div className="tile-neutral flex h-6 w-6 items-center justify-center">
                 <DeviceMobile
-                  className="h-3.5 w-3.5 text-white"
+                  className="h-3.5 w-3.5"
                   weight="fill"
                 />
               </div>
@@ -994,17 +994,17 @@ export default function NewWhatsAppTemplatePage() {
               </div>
             </div>
 
-            <div className="mt-4 p-3 rounded-lg bg-warning/10 border border-warning/20">
+            <div className="mt-4 p-3 rounded-lg bg-muted border border-border">
               <div className="flex items-start gap-2.5">
                 <Warning
-                  className="h-4 w-4 text-warning flex-shrink-0 mt-0.5"
+                  className="h-4 w-4 text-warning-ink flex-shrink-0 mt-0.5"
                   weight="fill"
                 />
                 <div>
                   <h4 className="text-xs font-semibold text-warning-ink mb-0.5">
                     {t("new.approvalRequired.title")}
                   </h4>
-                  <p className="text-[11px] text-warning leading-relaxed">
+                  <p className="text-[11px] text-warning-ink leading-relaxed">
                     {t("new.approvalRequired.description")}
                   </p>
                 </div>

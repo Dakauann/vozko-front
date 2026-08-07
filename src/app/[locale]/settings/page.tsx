@@ -267,12 +267,12 @@ export default function SettingsPage() {
         color: "text-muted-foreground",
         bg: "bg-muted",
       },
-      manager: { label: "Gerente", color: "text-primary-ink", bg: "bg-primary/15" },
+      manager: { label: "Gerente", color: "text-primary-ink", bg: "bg-muted"},
       user: { label: "Usuário", color: "text-foreground", bg: "bg-muted" },
       customer: {
         label: "Cliente",
-        color: "text-healthy",
-        bg: "bg-healthy/15",
+        color: "text-healthy-ink",
+        bg: "bg-muted",
       },
     };
     return (
@@ -612,7 +612,7 @@ export default function SettingsPage() {
                         >
                           <div className="flex items-start gap-3">
                             <ShieldCheck
-                              className="h-5 w-5 text-healthy mt-0.5"
+                              className="h-5 w-5 text-healthy-ink mt-0.5"
                               weight="fill"
                             />
                             <div className="flex-1">
@@ -627,8 +627,8 @@ export default function SettingsPage() {
                           </div>
 
                           {passwordResetError && (
-                            <div className="mt-4 flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/30 p-3">
-                              <p className="text-sm text-destructive">
+                            <div className="mt-4 flex items-center gap-2 rounded-lg bg-muted border border-border p-3">
+                              <p className="text-sm text-destructive-ink">
                                 {passwordResetError}
                               </p>
                             </div>
@@ -710,8 +710,8 @@ export default function SettingsPage() {
                           </div>
 
                           {passwordResetError && (
-                            <div className="mb-4 flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/30 p-3">
-                              <p className="text-sm text-destructive">
+                            <div className="mb-4 flex items-center gap-2 rounded-lg bg-muted border border-border p-3">
+                              <p className="text-sm text-destructive-ink">
                                 {passwordResetError}
                               </p>
                             </div>
@@ -854,10 +854,10 @@ export default function SettingsPage() {
                           transition={{ duration: 0.3 }}
                           className="text-center py-6"
                         >
-                          <div className="mx-auto w-14 h-14 mb-4 rounded-full bg-healthy/15 flex items-center justify-center">
+                          <div className="mx-auto w-14 h-14 mb-4 rounded-full tile-healthy flex items-center justify-center">
                             <CheckCircle
                               weight="fill"
-                              className="w-8 h-8 text-healthy"
+                              className="w-8 h-8 text-healthy-ink"
                             />
                           </div>
                           <h3 className="text-lg font-semibold text-foreground mb-1">

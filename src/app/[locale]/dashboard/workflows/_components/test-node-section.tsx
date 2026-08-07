@@ -181,8 +181,8 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
       className={cn(
         "rounded-[--radius] border overflow-hidden",
         result.success
-          ? "border-healthy/30 bg-healthy/10/50"
-          : "border-destructive/30 bg-destructive/10/50",
+          ? "border-border bg-muted"
+          : "border-border bg-muted",
       )}
     >
       {/* Header */}
@@ -190,15 +190,15 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
         className={cn(
           "flex items-center justify-between px-3 py-2",
           result.success
-            ? "bg-healthy/10/60 border-b border-healthy/30"
-            : "bg-destructive/10/60 border-b border-destructive/30",
+            ? "bg-muted border-b border-border"
+            : "bg-muted border-b border-border",
         )}
       >
         <div className="flex items-center gap-2">
           {result.success ? (
-            <CheckCircle size={16} weight="fill" className="text-healthy" />
+            <CheckCircle size={16} weight="fill" className="text-healthy-ink" />
           ) : (
-            <XCircle size={16} weight="fill" className="text-destructive" />
+            <XCircle size={16} weight="fill" className="text-destructive-ink" />
           )}
           <span
             className={cn(
@@ -218,7 +218,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
       <div className="p-3 space-y-2.5">
         {/* Error message */}
         {result.error && (
-          <div className="rounded-lg bg-muted/80 border border-destructive/30 px-2.5 py-2 text-xs text-destructive-ink">
+          <div className="rounded-lg bg-muted/80 border border-border px-2.5 py-2 text-xs text-destructive-ink">
             {result.error}
           </div>
         )}
@@ -449,7 +449,7 @@ export function TestNodeSection({
           <Spinner size={14} className="animate-spin text-muted-foreground" />
         )}
         {status === "success" && (
-          <CheckCircle size={14} weight="fill" className="text-healthy" />
+          <CheckCircle size={14} weight="fill" className="text-healthy-ink" />
         )}
         {status === "error" && (
           <XCircle size={14} weight="fill" className="text-destructive-ink" />
@@ -460,7 +460,7 @@ export function TestNodeSection({
       {expanded && (
         <div className="p-3 space-y-3">
           {disabled && disabledReason && (
-            <div className="rounded-lg border border-warning/30 bg-muted px-3 py-2 text-xs text-warning-ink">
+            <div className="rounded-lg border border-border bg-muted px-3 py-2 text-xs text-warning-ink">
               {disabledReason}
             </div>
           )}
@@ -481,15 +481,15 @@ export function TestNodeSection({
                 className={cn(
                   "flex items-start gap-2 rounded-lg px-3 py-2 text-xs",
                   analysis.test_mode === "direct" &&
-                    "bg-muted border border-healthy/30 text-healthy-ink",
+                    "bg-muted border border-border text-healthy-ink",
                   analysis.test_mode === "mock" &&
-                    "bg-muted border border-warning/30 text-warning-ink",
+                    "bg-muted border border-border text-warning-ink",
                   analysis.test_mode === "execute_until" &&
                     analysis.has_ai_deps &&
-                    "bg-muted border border-info/30 text-info-ink",
+                    "bg-muted border border-border text-info-ink",
                   analysis.test_mode === "execute_until" &&
                     !analysis.has_ai_deps &&
-                    "bg-muted border border-healthy/30 text-healthy-ink",
+                    "bg-muted border border-border text-healthy-ink",
                 )}
               >
                 <Info size={14} className="mt-0.5 shrink-0" />
@@ -599,7 +599,7 @@ export function TestNodeSection({
               </div>
 
               {missingMocksMessage && (
-                <p className="text-[11px] text-warning">
+                <p className="text-[11px] text-warning-ink">
                   {missingMocksMessage}
                 </p>
               )}
@@ -611,12 +611,12 @@ export function TestNodeSection({
 
           {/* Error display */}
           {status === "error" && error && !result && (
-            <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3">
+            <div className="rounded-lg border border-border bg-muted p-3">
               <div className="flex items-center gap-2">
-                <XCircle size={16} weight="fill" className="text-destructive" />
+                <XCircle size={16} weight="fill" className="text-destructive-ink" />
                 <span className="text-sm font-medium text-destructive-ink">Erro</span>
               </div>
-              <p className="text-xs text-destructive mt-1">{error}</p>
+              <p className="text-xs text-destructive-ink mt-1">{error}</p>
             </div>
           )}
         </div>

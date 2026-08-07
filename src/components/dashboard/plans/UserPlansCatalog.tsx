@@ -644,7 +644,7 @@ export default function UserPlansCatalog() {
         style={{ boxShadow: softSurfaceShadow }}
       >
         <ShieldCheck
-          className="mx-auto mb-4 h-12 w-12 text-warning"
+          className="mx-auto mb-4 h-12 w-12 text-warning-ink"
           weight="fill"
         />
         <p className="font-semibold text-foreground">{t("noAccess.title")}</p>
@@ -662,7 +662,7 @@ export default function UserPlansCatalog() {
         style={{ boxShadow: softSurfaceShadow }}
       >
         <Package
-          className="mx-auto mb-4 h-12 w-12 text-destructive"
+          className="mx-auto mb-4 h-12 w-12 text-destructive-ink"
           weight="fill"
         />
         <p className="font-semibold text-foreground">{t("error.title")}</p>
@@ -1043,7 +1043,7 @@ export default function UserPlansCatalog() {
                               {included ? (
                                 <Check
                                   aria-label={t("compare.included")}
-                                  className="h-3.5 w-3.5 text-healthy"
+                                  className="h-3.5 w-3.5 text-healthy-ink"
                                   weight="bold"
                                 />
                               ) : (
@@ -1135,7 +1135,7 @@ export default function UserPlansCatalog() {
           {generatedInvoice ? (
             <div className="space-y-4">
               {paymentConfirmed ? (
-                <div className="rounded-[--radius] border border-healthy/30 bg-muted/90 px-4 py-3 text-sm text-healthy-ink">
+                <div className="rounded-[--radius] border border-border bg-muted/90 px-4 py-3 text-sm text-healthy-ink">
                   <p className="font-medium">
                     {t("dialog.paymentConfirmedTitle")}
                   </p>
@@ -1214,7 +1214,7 @@ export default function UserPlansCatalog() {
                       >
                         {pixCopied ? (
                           <Check
-                            className="h-4 w-4 text-healthy"
+                            className="h-4 w-4 text-healthy-ink"
                             weight="bold"
                           />
                         ) : (
@@ -1333,11 +1333,11 @@ export default function UserPlansCatalog() {
                           description: t("dialog.monthlyDescription"),
                           icon: (
                             <CalendarBlank
-                              className="h-5 w-5 text-white"
+                              className="h-5 w-5"
                               weight="bold"
                             />
                           ),
-                          bg: "bg-muted",
+                          bg: "tile-3",
                         },
                         {
                           value: "annual" as const,
@@ -1355,11 +1355,11 @@ export default function UserPlansCatalog() {
                               : t("dialog.annualDescription"),
                           icon: (
                             <CalendarBlank
-                              className="h-5 w-5 text-white"
+                              className="h-5 w-5"
                               weight="fill"
                             />
                           ),
-                          bg: "bg-muted",
+                          bg: "tile-3",
                         },
                       ].map((option) => (
                         <button
@@ -1409,7 +1409,7 @@ export default function UserPlansCatalog() {
                           description: t("dialog.pixMethodDescription"),
                           icon: (
                             <PixLogo
-                              className="h-5 w-5 text-white"
+                              className="h-5 w-5"
                               weight="fill"
                             />
                           ),
@@ -1421,7 +1421,7 @@ export default function UserPlansCatalog() {
                           description: t("dialog.boletoMethodDescription"),
                           icon: (
                             <Barcode
-                              className="h-5 w-5 text-white"
+                              className="h-5 w-5"
                               weight="bold"
                             />
                           ),
@@ -1480,12 +1480,12 @@ export default function UserPlansCatalog() {
                     </div>
                     {hasDiscount && (
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-healthy">
+                        <span className="text-healthy-ink">
                           {t("dialog.discountLabel", {
                             discount: String(annualDiscountPct),
                           })}
                         </span>
-                        <span className="font-medium tabular-nums text-healthy">
+                        <span className="font-medium tabular-nums text-healthy-ink">
                           -
                           {formatBRLFromCents(
                             totalCentsNoDiscount - totalCents,

@@ -498,7 +498,7 @@ function NestedSchemaParameterRow({
         <button
           type="button"
           onClick={onRemove}
-          className="flex items-center gap-1.5 text-sm text-destructive hover:text-destructive transition-colors"
+          className="flex items-center gap-1.5 text-sm text-destructive-ink hover:text-destructive-ink transition-colors"
         >
           <Trash className="h-4 w-4" />
           {t("httpConfig.remove")}
@@ -703,7 +703,7 @@ function SimpleSchemaParameterRow({
         <button
           type="button"
           onClick={onRemove}
-          className="flex items-center gap-1.5 text-sm text-destructive hover:text-destructive transition-colors"
+          className="flex items-center gap-1.5 text-sm text-destructive-ink hover:text-destructive-ink transition-colors"
         >
           <Trash className="h-4 w-4" />
           {t("httpConfig.remove")}
@@ -907,7 +907,7 @@ export default function HttpRequestConfigDialog({
                 placeholder='{\n  "url": "https://api.example.com",\n  "method": "POST"\n}'
               />
               {errors.json && (
-                <p className="text-xs font-semibold text-destructive">
+                <p className="text-xs font-semibold text-destructive-ink">
                   {errors.json}
                 </p>
               )}
@@ -942,7 +942,7 @@ export default function HttpRequestConfigDialog({
                       placeholder="https://api.example.com/users/{user_id}"
                     />
                     {errors.url && (
-                      <p className="mt-1 text-xs font-semibold text-destructive">
+                      <p className="mt-1 text-xs font-semibold text-destructive-ink">
                         {errors.url}
                       </p>
                     )}

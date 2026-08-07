@@ -267,7 +267,7 @@ function EventList({
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-destructive">
+      <div className="flex flex-col items-center justify-center py-12 text-destructive-ink">
         <p className="text-sm">{t("error")}</p>
       </div>
     );
@@ -795,7 +795,7 @@ function EventForm({
             <button
               type="button"
               onClick={onDelete}
-              className="flex items-center gap-1.5 text-xs text-destructive hover:text-destructive/80 transition-colors"
+              className="flex items-center gap-1.5 text-xs text-destructive-ink hover:text-destructive-ink/80 transition-colors"
             >
               <Trash size={14} />
               {t("form.delete") || "Delete"}

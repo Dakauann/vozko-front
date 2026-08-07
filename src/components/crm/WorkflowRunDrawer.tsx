@@ -66,15 +66,15 @@ const RUN_STATUS_META: Record<string, { label: string; className: string }> = {
   running: { label: "Em execução", className: "bg-muted text-primary-ink" },
   waiting: {
     label: "Aguardando",
-    className: "bg-muted text-warning-ink dark:text-warning",
+    className: "bg-muted text-warning-ink dark:text-warning-ink",
   },
   completed: {
     label: "Concluído",
-    className: "bg-muted text-healthy-ink dark:text-healthy",
+    className: "bg-muted text-healthy-ink dark:text-healthy-ink",
   },
   error: {
     label: "Erro",
-    className: "bg-muted text-destructive-ink dark:text-destructive",
+    className: "bg-muted text-destructive-ink dark:text-destructive-ink",
   },
   cancelled: { label: "Cancelado", className: "bg-muted text-muted-foreground" },
 };

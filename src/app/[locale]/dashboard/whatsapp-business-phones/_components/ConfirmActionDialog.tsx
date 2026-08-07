@@ -87,7 +87,7 @@ export function ConfirmActionDialog({
             disabled={loading}
             className={cn(
               tone === "warning" &&
-                "border-warning/30 text-warning-ink hover:border-warning hover:bg-muted dark:border-warning dark:hover:bg-warning/30",
+                "border-border text-warning-ink hover:border-warning hover:bg-muted dark:hover:bg-muted",
             )}
           />
         </div>

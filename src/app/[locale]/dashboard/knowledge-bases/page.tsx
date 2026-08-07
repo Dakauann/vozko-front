@@ -250,7 +250,7 @@ export default function KnowledgeBasesPage() {
         emptyState={
           error
             ? {
-                icon: <Files className="h-7 w-7 text-destructive" weight="fill" />,
+                icon: <Files className="h-7 w-7 text-destructive-ink" weight="fill" />,
                 title: t("error.title"),
                 description: error,
               }

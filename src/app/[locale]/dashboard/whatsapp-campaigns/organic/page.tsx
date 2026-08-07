@@ -159,7 +159,7 @@ export default function OrganicCampaignsPage() {
         key: "delivered",
         header: t("status.delivered"),
         render: (row) => (
-          <span className="text-sm font-semibold tabular-nums text-healthy">
+          <span className="text-sm font-semibold tabular-nums text-healthy-ink">
             {row.metrics?.delivered ?? 0}
           </span>
         ),
@@ -177,7 +177,7 @@ export default function OrganicCampaignsPage() {
         key: "failed",
         header: t("status.failed"),
         render: (row) => (
-          <span className="text-sm font-semibold tabular-nums text-destructive">
+          <span className="text-sm font-semibold tabular-nums text-destructive-ink">
             {row.metrics?.failed ?? 0}
           </span>
         ),
@@ -324,7 +324,7 @@ export default function OrganicCampaignsPage() {
         emptyState={
           error
             ? {
-                icon: <Leaf className="h-7 w-7 text-destructive" weight="fill" />,
+                icon: <Leaf className="h-7 w-7 text-destructive-ink" weight="fill" />,
                 title: t("error.title"),
                 description: error,
               }

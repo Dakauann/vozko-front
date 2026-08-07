@@ -231,7 +231,7 @@ function ModelRow({
         // chosen value (which gets the tinted well + ring below). No left-stripe.
         "data-[selected=true]:bg-muted data-[selected=true]:text-foreground",
         isSelected &&
-          "bg-muted ring-1 ring-inset ring-primary/25 data-[selected=true]:bg-primary/15",
+          "bg-muted ring-1 ring-inset ring-primary/25 data-[selected=true]:bg-muted",
       )}
     >
       {/* Brand logo on a neutral tile, keeping the provider's own color (DESIGN §5). */}

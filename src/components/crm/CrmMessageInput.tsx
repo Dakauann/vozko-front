@@ -583,7 +583,7 @@ export default function CrmMessageInput({
           <div className="flex max-w-[92%] items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-2 shadow-md">
             <Warning
               weight="fill"
-              className="h-4 w-4 flex-shrink-0 text-warning"
+              className="h-4 w-4 flex-shrink-0 text-warning-ink"
             />
             <div className="min-w-0">
               <p className="text-[11px] font-semibold text-foreground">
@@ -713,7 +713,7 @@ export default function CrmMessageInput({
             <div className="flex flex-1 min-w-0 items-center gap-2 sm:gap-3 rounded-full bg-muted px-3 sm:px-4 py-2">
               {/* Pulsing dot */}
               <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5 flex-shrink-0">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive/20 opacity-75" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-muted opacity-75" />
                 <span className="relative inline-flex h-full w-full rounded-full bg-destructive" />
               </span>
 

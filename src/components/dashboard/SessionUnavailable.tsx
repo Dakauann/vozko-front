@@ -19,8 +19,8 @@ export default function SessionUnavailable() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-background p-6 text-center">
-      <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-warning/10 ring-1 ring-warning/20">
-        <WarningCircle className="h-7 w-7 text-warning" weight="fill" />
+      <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] tile-warning ring-1 ring-warning/20">
+        <WarningCircle className="h-7 w-7 text-warning-ink" weight="fill" />
       </div>
       <div className="space-y-1.5">
         <h1 className="text-lg font-semibold text-foreground">{t("title")}</h1>

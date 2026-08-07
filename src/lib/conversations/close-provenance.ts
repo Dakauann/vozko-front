@@ -173,7 +173,7 @@ export function getConversationStatusDisplay(
         baseLabel: "Nova",
         label: "Nova",
         dotClassName: "bg-primary",
-        menuAccentClassName: "text-primary",
+        menuAccentClassName: "text-primary-ink",
         provenance: null,
       };
   }

@@ -255,7 +255,7 @@ export default function UserAddonsCatalog() {
   if (!canRead) {
     return (
       <div className={EMPTY_STATE} style={{ boxShadow: softSurfaceShadow }}>
-        <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-warning" weight="fill" />
+        <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-warning-ink" weight="fill" />
         <p className="font-semibold text-foreground">{t("noAccess.title")}</p>
         <p className="mt-1 text-sm text-muted-foreground">{t("noAccess.description")}</p>
       </div>

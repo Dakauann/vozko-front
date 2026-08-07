@@ -286,7 +286,7 @@ export default function InvoicesPage() {
         className: "text-center",
         render: (row) =>
           row.billingType === "PIX" ? (
-            <div className="flex items-center justify-center gap-1.5 text-xs font-medium text-healthy">
+            <div className="flex items-center justify-center gap-1.5 text-xs font-medium text-healthy-ink">
               <PixLogo className="h-3.5 w-3.5" weight="bold" />
               PIX
             </div>
@@ -364,7 +364,7 @@ export default function InvoicesPage() {
                 >
                   {copiedId === row.id ? (
                     <Check
-                      className="h-3.5 w-3.5 text-healthy"
+                      className="h-3.5 w-3.5 text-healthy-ink"
                       weight="bold"
                     />
                   ) : (
@@ -548,7 +548,7 @@ export default function InvoicesPage() {
           error
             ? {
                 icon: (
-                  <Receipt className="h-7 w-7 text-destructive" weight="fill" />
+                  <Receipt className="h-7 w-7 text-destructive-ink" weight="fill" />
                 ),
                 title: t("error.title"),
                 description: error,
@@ -586,8 +586,8 @@ export default function InvoicesPage() {
 
           {paymentConfirmed ? (
             <div className="flex flex-col items-center gap-5 py-8">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-healthy/10">
-                <Check className="h-8 w-8 text-healthy" weight="bold" />
+              <div className="flex h-16 w-16 items-center justify-center rounded-full tile-healthy">
+                <Check className="h-8 w-8 text-healthy-ink" weight="bold" />
               </div>
               <div className="flex flex-col items-center gap-1">
                 <p className="text-lg font-semibold text-foreground">
@@ -636,7 +636,7 @@ export default function InvoicesPage() {
               ) : null}
 
               {createError ? (
-                <p className="text-sm text-destructive">{createError}</p>
+                <p className="text-sm text-destructive-ink">{createError}</p>
               ) : null}
 
               {loadingPlans ? (
@@ -784,7 +784,7 @@ export default function InvoicesPage() {
               </div>
 
               {createError ? (
-                <p className="text-sm text-destructive">{createError}</p>
+                <p className="text-sm text-destructive-ink">{createError}</p>
               ) : null}
 
               <Button
@@ -853,7 +853,7 @@ export default function InvoicesPage() {
                       >
                         {pixCopied ? (
                           <Check
-                            className="h-4 w-4 text-healthy"
+                            className="h-4 w-4 text-healthy-ink"
                             weight="bold"
                           />
                         ) : (

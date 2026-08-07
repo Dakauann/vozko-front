@@ -621,7 +621,7 @@ export default function AdminFinancialDashboard() {
               "text-sm font-semibold tabular-nums",
               row.currentBalanceMicros > 0
                 ? "text-foreground"
-                : "text-destructive",
+                : "text-destructive-ink",
             )}
           >
             {formatBRL(row.currentBalanceMicros, exchangeRate)}
@@ -632,7 +632,7 @@ export default function AdminFinancialDashboard() {
         header: "Receita (período)",
         key: "revenue",
         render: (row) => (
-          <span className="text-sm font-medium tabular-nums text-healthy">
+          <span className="text-sm font-medium tabular-nums text-healthy-ink">
             {formatBRLDirect(row.revenueBRLMicros)}
           </span>
         ),
@@ -654,7 +654,7 @@ export default function AdminFinancialDashboard() {
             <p
               className={cn(
                 "text-sm font-semibold tabular-nums",
-                row.profitMicros >= 0 ? "text-foreground" : "text-destructive",
+                row.profitMicros >= 0 ? "text-foreground" : "text-destructive-ink",
               )}
             >
               {formatBRLDirect(row.profitBRLMicros)}
@@ -931,12 +931,12 @@ export default function AdminFinancialDashboard() {
       {!loading && totalPeriodRefundsBRL > 0 && (
         <motion.div variants={itemVariants}>
           <ElevatedContainer
-            className="rounded-lg border border-warning/40 border-dashed bg-warning/5 p-4"
+            className="rounded-lg border border-border border-dashed bg-muted p-4"
           >
             <div className="flex flex-wrap items-center gap-6">
               <div className="flex items-center gap-2">
                 <ArrowClockwise
-                  className="h-4 w-4 text-warning"
+                  className="h-4 w-4 text-warning-ink"
                   weight="bold"
                 />
                 <p className="text-xs font-semibold text-muted-foreground">
@@ -947,7 +947,7 @@ export default function AdminFinancialDashboard() {
                 <p className="text-xs text-muted-foreground">
                   Estornos de serviço no período
                 </p>
-                <p className="text-sm font-semibold tabular-nums text-warning">
+                <p className="text-sm font-semibold tabular-nums text-warning-ink">
                   −{formatBRLDirect(totalPeriodRefundsBRL)}
                 </p>
               </div>
@@ -1140,7 +1140,7 @@ export default function AdminFinancialDashboard() {
           className="rounded-lg border border-border bg-card p-5"
         >
           <div className="mb-2 flex items-center gap-2">
-            <ChartPie className="h-4 w-4 text-healthy" weight="fill" />
+            <ChartPie className="h-4 w-4 text-healthy-ink" weight="fill" />
             <p className="text-xs font-semibold text-muted-foreground">
               Receita por produto
             </p>
@@ -1396,7 +1396,7 @@ export default function AdminFinancialDashboard() {
                     </p>
                     {metric.revenueBRLMicros != null &&
                       metric.revenueBRLMicros > 0 && (
-                        <p className="text-xs text-healthy font-medium">
+                        <p className="text-xs text-healthy-ink font-medium">
                           {formatBRLDirect(metric.revenueBRLMicros)}
                         </p>
                       )}
@@ -1673,8 +1673,8 @@ export default function AdminFinancialDashboard() {
                           className={cn(
                             "text-sm font-semibold tabular-nums",
                             tx.amountMicros < 0
-                              ? "text-destructive"
-                              : "text-healthy",
+                              ? "text-destructive-ink"
+                              : "text-healthy-ink",
                           )}
                         >
                           {tx.amountMicros < 0 ? "-" : "+"}
@@ -1698,7 +1698,7 @@ export default function AdminFinancialDashboard() {
                             "text-sm font-semibold tabular-nums",
                             tx.profitMicros >= 0
                               ? "text-foreground"
-                              : "text-destructive",
+                              : "text-destructive-ink",
                           )}
                         >
                           {formatTxBRL(

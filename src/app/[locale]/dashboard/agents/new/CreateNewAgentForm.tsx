@@ -149,7 +149,7 @@ type AgentFormData = z.infer<ReturnType<typeof createAgentSchema>>;
 
 const FieldError = ({ message }: { message?: string }) => {
   if (!message) return null;
-  return <p className="mt-1 text-xs font-semibold text-destructive">{message}</p>;
+  return <p className="mt-1 text-xs font-semibold text-destructive-ink">{message}</p>;
 };
 
 function upsertEntitiesById<T extends { id: string }>(
@@ -200,14 +200,14 @@ const FormErrorSummary = ({
   };
 
   return (
-    <div className="rounded-[--radius] border border-destructive/30 bg-destructive/10 dark:bg-destructive/30 dark:border-destructive px-5 py-4 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
-      <div className="flex items-center gap-2 text-destructive dark:text-destructive">
+    <div className="rounded-[--radius] border border-border bg-muted dark:bg-muted px-5 py-4 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+      <div className="flex items-center gap-2 text-destructive-ink">
         <Warning weight="fill" className="h-5 w-5 flex-shrink-0" />
         <p className="text-sm font-semibold">
           {t("validation.formErrorTitle")}
         </p>
       </div>
-      <ul className="list-disc list-inside space-y-0.5 text-xs text-destructive dark:text-destructive pl-1">
+      <ul className="list-disc list-inside space-y-0.5 text-xs text-destructive-ink pl-1">
         {errorKeys.map((key) => {
           const err = errors[key] as { message?: string } | undefined;
           const label = fieldLabels[key] || key;
@@ -389,7 +389,7 @@ const SelectedToolItem = ({
                   "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium transition-colors",
                   effectiveVisibility.includes("messaging")
                     ? "border border-healthy bg-healthy text-healthy-foreground"
-                    : "border border-border bg-muted text-muted-foreground hover:border-healthy/50 hover:text-foreground",
+                    : "border border-border bg-muted text-muted-foreground hover:border-border hover:text-foreground",
                 )}
               >
                 <ChatCircle className="h-3 w-3" weight="fill" aria-hidden="true" />
@@ -404,20 +404,20 @@ const SelectedToolItem = ({
               className={cn(
                 "flex items-center justify-between gap-3 rounded-lg border px-3 py-2",
                 isConfigComplete
-                  ? "border-healthy/25 bg-healthy/10"
-                  : "border-warning/25 bg-warning/10",
+                  ? "border-border bg-muted"
+                  : "border-border bg-muted",
               )}
             >
               <span className="flex items-center gap-1.5 text-xs font-medium">
                 {isConfigComplete ? (
                   <>
-                    <CheckCircle weight="fill" className="h-4 w-4 text-healthy" />
-                    <span className="text-healthy">{t("tools.configComplete")}</span>
+                    <CheckCircle weight="fill" className="h-4 w-4 text-healthy-ink" />
+                    <span className="text-healthy-ink">{t("tools.configComplete")}</span>
                   </>
                 ) : (
                   <>
-                    <Warning weight="fill" className="h-4 w-4 text-warning" />
-                    <span className="text-warning">{t("tools.configRequired")}</span>
+                    <Warning weight="fill" className="h-4 w-4 text-warning-ink" />
+                    <span className="text-warning-ink">{t("tools.configRequired")}</span>
                   </>
                 )}
               </span>
@@ -645,7 +645,7 @@ export default function CreateNewAgentForm({
         description: needsMedia
           ? `${template.language}, ${t("templateMedia.missingMediaShort")}`
           : template.language,
-        icon: <WhatsappLogo className="h-4 w-4 text-healthy" weight="fill" />,
+        icon: <WhatsappLogo className="h-4 w-4 text-healthy-ink" weight="fill" />,
       };
     },
     [t],
@@ -1531,7 +1531,7 @@ export default function CreateNewAgentForm({
   const scrollToFirstError = useCallback(() => {
     setTimeout(() => {
       const firstError = formRef.current?.querySelector(
-        "[data-error-summary], .text-destructive",
+        "[data-error-summary], .text-destructive-ink",
       );
       if (firstError) {
         firstError.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1886,17 +1886,17 @@ onStep={(_index, step) => {
         {selectedTemplateMissingMedia &&
           isAdmin &&
           selectedWhatsAppTemplate && (
-            <div className="rounded-lg border border-warning/20 bg-warning/10 p-4">
+            <div className="rounded-lg border border-border bg-muted p-4">
               <div className="flex items-start gap-3">
                 <ImageSquare
-                  className="h-5 w-5 text-warning flex-shrink-0 mt-0.5"
+                  className="h-5 w-5 text-warning-ink flex-shrink-0 mt-0.5"
                   weight="fill"
                 />
                 <div className="flex-1">
                   <h4 className="text-sm font-semibold text-warning-ink">
                     {t("templateMedia.missingTitle")}
                   </h4>
-                  <p className="text-xs text-warning mt-1">
+                  <p className="text-xs text-warning-ink mt-1">
                     {t("templateMedia.missingDescription")}
                   </p>
                   <Button
@@ -2256,7 +2256,7 @@ onStep={(_index, step) => {
         <section className="space-y-4" data-tour="agents-mcp">
           <div className="space-y-1">
             <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-              <svg className="h-5 w-5 text-warning" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z"/></svg>
+              <svg className="h-5 w-5 text-warning-ink" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z" /></svg>
               {t("sections.mcp.title")}
             </h2>
             <p className="text-sm text-muted-foreground">

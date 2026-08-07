@@ -83,7 +83,7 @@ export function kanbanCardClass(
   return cn(
     "group relative rounded-[--radius] border bg-card p-3 transition-all",
     state?.won
-      ? "border-healthy/30 bg-healthy/10/40 hover:border-healthy hover:shadow-sm dark:bg-healthy/5"
+      ? "border-border bg-muted hover:border-healthy hover:shadow-sm"
       : state?.lost
         ? "border-border opacity-75 hover:opacity-100 hover:border-foreground/20 hover:shadow-sm"
         : state?.selected

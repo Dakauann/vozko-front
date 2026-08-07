@@ -22,6 +22,7 @@ import {
   WhatsappLogo,
   X,
 } from "@/components/icons";
+import { channelPlate } from "@/components/channels/channel-tile";
 import type {
   WhatsAppCampaign,
   WhatsAppCampaignEntryWithLead,
@@ -578,10 +579,10 @@ function ClearHistoryModal({
               <div className="relative flex items-center justify-between px-7 pt-6 pb-2">
                 <div className="flex items-center gap-3">
                   <div
-                    className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-destructive/10"
+                    className="flex h-10 w-10 items-center justify-center rounded-[--radius] tile-fault"
                     style={{ boxShadow: softSurfaceShadow }}
                   >
-                    <Trash className="h-5 w-5 text-destructive" weight="bold" />
+                    <Trash className="h-5 w-5 text-destructive-ink" weight="bold" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-foreground">
@@ -616,15 +617,15 @@ function ClearHistoryModal({
                       </p>
 
                       <motion.div
-                        className="rounded-[--radius] bg-destructive/10 border border-destructive/50 p-5"
+                        className="rounded-[--radius] bg-muted border border-border p-5"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
                       >
                         <div className="flex gap-4">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-destructive/10 flex-shrink-0">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] tile-fault flex-shrink-0">
                             <Warning
-                              className="h-5 w-5 text-destructive"
+                              className="h-5 w-5 text-destructive-ink"
                               weight="fill"
                             />
                           </div>
@@ -632,7 +633,7 @@ function ClearHistoryModal({
                             <p className="font-semibold text-destructive-ink mb-1">
                               {t("warningTitle")}
                             </p>
-                            <p className="text-sm text-destructive">
+                            <p className="text-sm text-destructive-ink">
                               {t("warningDescription")}
                             </p>
                           </div>
@@ -1391,8 +1392,8 @@ function WhatsAppCampaignDetailContent({
         >
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-[--radius] bg-healthy">
-                <WhatsappLogo className="h-6 w-6 text-white" weight="fill" />
+              <div className={cn("flex h-12 w-12 items-center justify-center rounded-lg", channelPlate("whatsapp"))}>
+                <WhatsappLogo className="h-6 w-6" weight="fill" />
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-foreground">
@@ -1413,7 +1414,7 @@ function WhatsAppCampaignDetailContent({
                   {campaign.enableAgentResponses && agentName && (
                     <>
                       <span className="text-muted-foreground">•</span>
-                      <span className="text-healthy">
+                      <span className="text-healthy-ink">
                         Agente: {agentName}
                       </span>
                     </>
@@ -1469,12 +1470,13 @@ function WhatsAppCampaignDetailContent({
                     }}
                   >
                     <div
-                      className="flex h-8 w-8 items-center justify-center rounded-full shadow-lg"
-                      style={{ backgroundColor: msg.color }}
+                      className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card shadow-sm"
+                      aria-hidden
                     >
                       <ChatCircle
                         weight="fill"
-                        className="h-4 w-4 text-white"
+                        className="h-4 w-4"
+                        style={{ color: msg.color }}
                       />
                     </div>
                   </motion.div>
@@ -1486,8 +1488,8 @@ function WhatsAppCampaignDetailContent({
               {/* Total */}
               <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
                 <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-healthy opacity-[0.06] blur-2xl" />
-                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted shadow-lg">
-                  <WhatsappLogo weight="fill" className="h-5 w-5 text-white" />
+                <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg", channelPlate("whatsapp"))}>
+                  <WhatsappLogo weight="fill" className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="text-[11px] text-muted-foreground font-medium">
@@ -1501,8 +1503,8 @@ function WhatsAppCampaignDetailContent({
               {/* Pending */}
               <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
                 <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-muted opacity-[0.06] blur-2xl" />
-                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted shadow-lg">
-                  <Clock weight="fill" className="h-5 w-5 text-white" />
+                <div className="tile-neutral flex h-10 w-10 items-center justify-center">
+                  <Clock weight="fill" className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="text-[11px] text-muted-foreground font-medium">
@@ -1516,10 +1518,9 @@ function WhatsAppCampaignDetailContent({
               {/* Sent */}
               <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
                 <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-muted opacity-[0.06] blur-2xl" />
-                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted shadow-lg">
+                <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg", channelPlate("whatsapp"))}>
                   <PaperPlaneTilt
-                    weight="fill"
-                    className="h-5 w-5 text-white"
+                    weight="fill" className="h-5 w-5"
                   />
                 </div>
                 <div>
@@ -1537,8 +1538,8 @@ function WhatsAppCampaignDetailContent({
               {/* Delivered */}
               <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
                 <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-muted opacity-[0.06] blur-2xl" />
-                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted shadow-lg">
-                  <CheckCircle weight="fill" className="h-5 w-5 text-white" />
+                <div className="tile-healthy flex h-10 w-10 items-center justify-center">
+                  <CheckCircle weight="fill" className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="text-[11px] text-muted-foreground font-medium">
@@ -1552,8 +1553,8 @@ function WhatsAppCampaignDetailContent({
               {/* Read */}
               <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
                 <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-muted opacity-[0.06] blur-2xl" />
-                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted shadow-lg">
-                  <Eye weight="fill" className="h-5 w-5 text-white" />
+                <div className="tile-healthy flex h-10 w-10 items-center justify-center">
+                  <Eye weight="fill" className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="text-[11px] text-muted-foreground font-medium">
@@ -1567,8 +1568,8 @@ function WhatsAppCampaignDetailContent({
               {/* Failed */}
               <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
                 <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-destructive opacity-[0.06] blur-2xl" />
-                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted shadow-lg">
-                  <Warning weight="fill" className="h-5 w-5 text-white" />
+                <div className="tile-fault flex h-10 w-10 items-center justify-center">
+                  <Warning weight="fill" className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="text-[11px] text-muted-foreground font-medium">
@@ -1582,8 +1583,8 @@ function WhatsAppCampaignDetailContent({
               {/* Not Eligible (Possible Spam) */}
               <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
                 <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-warning opacity-[0.06] blur-2xl" />
-                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted shadow-lg">
-                  <ShieldWarning weight="fill" className="h-5 w-5 text-white" />
+                <div className="tile-warning flex h-10 w-10 items-center justify-center">
+                  <ShieldWarning weight="fill" className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="text-[11px] text-muted-foreground font-medium">
@@ -1940,13 +1941,13 @@ function WhatsAppCampaignDetailContent({
 
                       {/* Error info for failed entries */}
                       {errorDisplay?.show ? (
-                        <div className="mb-3 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 dark:border-destructive/30 dark:bg-destructive/10">
+                        <div className="mb-3 rounded-lg border border-border bg-muted px-3 py-2 dark:border-border dark:bg-muted">
                           {errorDisplay.code !== null ? (
-                            <p className="text-[11px] font-semibold text-destructive dark:text-destructive">
+                            <p className="text-[11px] font-semibold text-destructive-ink">
                               {t("detail.errorCode")}: {errorDisplay.code}
                             </p>
                           ) : null}
-                          <p className="mt-0.5 text-[11px] text-destructive dark:text-destructive line-clamp-2">
+                          <p className="mt-0.5 text-[11px] text-destructive-ink line-clamp-2">
                             {errorDisplay.description}
                           </p>
                         </div>
@@ -1993,9 +1994,9 @@ function WhatsAppCampaignDetailContent({
                             {contact.variables.map((variable, vi) => (
                               <span
                                 key={vi}
-                                className="inline-flex items-center gap-1 rounded-md bg-healthy border border-healthy px-2 py-1 text-[11px] text-healthy-foreground"
+                                className="inline-flex items-center gap-1 rounded-md border border-border bg-muted px-2 py-1 text-[11px] text-foreground"
                               >
-                                <span className="font-semibold text-white">
+                                <span className="font-semibold text-healthy-ink">
                                   {`{{${vi + 1}}}`}
                                 </span>
                                 <span>{variable}</span>

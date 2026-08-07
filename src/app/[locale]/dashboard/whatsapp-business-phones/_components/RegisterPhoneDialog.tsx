@@ -93,9 +93,9 @@ export function RegisterPhoneDialog({
         </ElevatedDialogHeader>
 
         <div className="space-y-6 py-4">
-          <div className="flex items-center gap-3 p-4 bg-healthy/10 rounded-lg">
+          <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
             <Lightning
-              className="w-8 h-8 text-healthy"
+              className="w-8 h-8 text-healthy-ink"
               weight="fill"
             />
             <div>
@@ -108,13 +108,13 @@ export function RegisterPhoneDialog({
             </div>
           </div>
 
-          <div className="flex items-start gap-3 p-4 bg-warning/10 dark:bg-warning/20 rounded-lg">
+          <div className="flex items-start gap-3 p-4 bg-muted dark:bg-muted rounded-lg">
             <Warning
-              className="w-5 h-5 text-warning flex-shrink-0 mt-0.5"
+              className="w-5 h-5 text-warning-ink flex-shrink-0 mt-0.5"
               weight="fill"
             />
             <div>
-              <p className="text-sm text-warning-ink dark:text-warning">
+              <p className="text-sm text-warning-ink dark:text-warning-ink">
                 {t("cloudRegistration.rateLimitWarning")}
               </p>
             </div>

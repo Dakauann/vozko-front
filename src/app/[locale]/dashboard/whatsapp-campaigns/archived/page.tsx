@@ -134,7 +134,7 @@ export default function ArchivedWhatsAppCampaignsPage() {
         key: "delivered",
         header: t("status.delivered"),
         render: (row) => (
-          <span className="text-sm font-semibold tabular-nums text-healthy">
+          <span className="text-sm font-semibold tabular-nums text-healthy-ink">
             {row.metrics?.delivered ?? 0}
           </span>
         ),
@@ -143,7 +143,7 @@ export default function ArchivedWhatsAppCampaignsPage() {
         key: "failed",
         header: t("status.failed"),
         render: (row) => (
-          <span className="text-sm font-semibold tabular-nums text-destructive">
+          <span className="text-sm font-semibold tabular-nums text-destructive-ink">
             {row.metrics?.failed ?? 0}
           </span>
         ),
@@ -183,7 +183,7 @@ export default function ArchivedWhatsAppCampaignsPage() {
         icon={<WhatsappLogo className="h-6 w-6" weight="fill" />}
         badge={tSidebar("nav.archivedWhatsappCampaigns")}
         description={t("archived.description")}
-        colorClass="text-healthy"
+        colorClass="text-healthy-ink"
       />
 
       <DashboardTable<WhatsAppCampaign>
@@ -228,7 +228,7 @@ export default function ArchivedWhatsAppCampaignsPage() {
             ? {
                 icon: (
                   <WhatsappLogo
-                    className="h-7 w-7 text-destructive"
+                    className="h-7 w-7 text-destructive-ink"
                     weight="fill"
                   />
                 ),

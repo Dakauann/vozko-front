@@ -35,9 +35,13 @@ const GenderIndicator: React.FC<GenderIndicatorProps> = ({
         return {
           type: "male",
           label: "Masculino",
-          bgColor: "bg-primary/15/30",
-          textColor: "text-primary-ink dark:text-info",
-          borderColor: "border-info/20 dark:border-info",
+          // One opaque ground for all three states; gender is identity, so the
+          // mark takes a chart ink rather than a status hue. The outgoing value
+          // was a malformed double-alpha class Tailwind never emitted, so this
+          // chip has been rendering with no ground at all.
+          bgColor: "bg-muted",
+          textColor: "ink-1",
+          borderColor: "border-border",
           icon: <User className="h-3 w-3" weight="fill" />,
         };
 
@@ -52,9 +56,9 @@ const GenderIndicator: React.FC<GenderIndicatorProps> = ({
         return {
           type: "female",
           label: "Feminino",
-          bgColor: "bg-chart-4/15 dark:bg-chart-4/30",
-          textColor: "text-chart-4 dark:text-chart-4",
-          borderColor: "border-chart-4/20 dark:border-chart-4",
+          bgColor: "bg-muted",
+          textColor: "ink-4",
+          borderColor: "border-border",
           icon: <Users className="h-3 w-3" weight="fill" />,
         };
 

@@ -92,17 +92,17 @@ const itemVariants: Variants = {
 function statusTone(status: BusinessPhoneStatus): string {
   switch (status) {
     case "CONNECTED":
-      return "bg-muted text-healthy-ink border-healthy/30 dark:bg-healthy/40 dark:text-healthy dark:border-healthy";
+      return "bg-muted text-healthy-ink border-border dark:text-healthy-ink";
     case "PENDING":
     case "VERIFYING":
     case "RATE_LIMITED":
-      return "bg-muted text-warning-ink border-warning/30 dark:bg-warning/40 dark:text-warning dark:border-warning";
+      return "bg-muted text-warning-ink border-border dark:text-warning-ink";
     case "DISCONNECTED":
     case "BANNED":
     case "FLAGGED":
     case "RESTRICTED":
     case "UNVERIFIED":
-      return "bg-muted text-destructive-ink border-destructive/30 dark:bg-destructive/40 dark:text-destructive dark:border-destructive";
+      return "bg-muted text-destructive-ink border-border dark:text-destructive-ink";
     default:
       return "bg-muted text-muted-foreground border-border";
   }
@@ -111,11 +111,11 @@ function statusTone(status: BusinessPhoneStatus): string {
 function qualityTone(quality: QualityRating): string {
   switch (quality) {
     case "GREEN":
-      return "bg-muted text-healthy-ink border-healthy/30 dark:bg-healthy/40 dark:text-healthy dark:border-healthy";
+      return "bg-muted text-healthy-ink border-border dark:text-healthy-ink";
     case "YELLOW":
-      return "bg-muted text-warning-ink border-warning/30 dark:bg-warning/40 dark:text-warning dark:border-warning";
+      return "bg-muted text-warning-ink border-border dark:text-warning-ink";
     case "RED":
-      return "bg-muted text-destructive-ink border-destructive/30 dark:bg-destructive/40 dark:text-destructive dark:border-destructive";
+      return "bg-muted text-destructive-ink border-border dark:text-destructive-ink";
     default:
       return "bg-muted text-muted-foreground border-border";
   }
@@ -417,11 +417,11 @@ export default function BusinessPhoneDetailPage() {
   const getNameStatusColor = (status: NameStatus) => {
     switch (status) {
       case "APPROVED":
-        return "text-healthy dark:text-healthy";
+        return "text-healthy-ink";
       case "PENDING_REVIEW":
-        return "text-warning dark:text-warning";
+        return "text-warning-ink";
       case "DECLINED":
-        return "text-destructive";
+        return "text-destructive-ink";
       default:
         return "text-muted-foreground";
     }
@@ -620,7 +620,7 @@ export default function BusinessPhoneDetailPage() {
                       )}
                       <DropdownMenuItem
                         onClick={() => setShowReleaseDialog(true)}
-                        className="text-destructive focus:text-destructive"
+                        className="text-destructive-ink focus:text-destructive-ink"
                       >
                         <Trash className="mr-2 h-4 w-4" />
                         <div className="flex flex-col">
@@ -667,12 +667,12 @@ export default function BusinessPhoneDetailPage() {
                     </dt>
                     <dd className="text-sm font-medium">
                       {isVerified ? (
-                        <span className="inline-flex items-center gap-1 text-healthy dark:text-healthy">
+                        <span className="inline-flex items-center gap-1 text-healthy-ink">
                           <CheckCircle className="h-4 w-4" weight="fill" />
                           {t("detail.verified")}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-warning dark:text-warning">
+                        <span className="inline-flex items-center gap-1 text-warning-ink">
                           <Warning className="h-4 w-4" weight="fill" />
                           {t("detail.notVerified")}
                         </span>
@@ -916,7 +916,7 @@ export default function BusinessPhoneDetailPage() {
                       <h3 className="text-base font-semibold text-foreground">
                         {t("access.title")}
                       </h3>
-                      <span className="inline-flex items-center rounded-[--radius] border border-warning/30 bg-muted px-2 py-0.5 text-[11px] font-semibold text-warning-ink dark:border-warning dark:bg-warning/40 dark:text-warning">
+                      <span className="inline-flex items-center rounded-[--radius] border border-border bg-muted px-2 py-0.5 text-[11px] font-semibold text-warning-ink dark:text-warning-ink">
                         {t("access.deprecated")}
                       </span>
                     </div>

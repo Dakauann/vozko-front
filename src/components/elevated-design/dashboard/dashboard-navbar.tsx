@@ -52,6 +52,11 @@ export function DashboardNavbar({
     campaigns: t("breadcrumbs.campaigns"),
     configuracoes: t("breadcrumbs.settings"),
     profile: t("breadcrumbs.profile"),
+    // Without a mapping the segment is titleised into "Unofficial Whatsapp",
+    // which is wrong in every locale including English.
+    "unofficial-whatsapp": t("breadcrumbs.unofficial-whatsapp"),
+    broadcasts: t("breadcrumbs.broadcasts"),
+    connect: t("breadcrumbs.connect"),
   };
 
   const getBreadcrumbSegments = (pathname: string) => {

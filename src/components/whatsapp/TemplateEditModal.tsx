@@ -221,7 +221,7 @@ export default function TemplateEditModal({
 
                 {isMediaHeader ? (
                   <div className="space-y-4">
-                    <div className="p-4 rounded-[--radius] bg-muted border border-info/20">
+                    <div className="p-4 rounded-[--radius] bg-muted border border-border">
                       <div className="flex items-start gap-3">
                         <Info
                           className="h-5 w-5 text-primary-ink flex-shrink-0 mt-0.5"
@@ -285,7 +285,7 @@ export default function TemplateEditModal({
                           : "cursor-pointer",
                         isDragging
                           ? "border-primary bg-muted"
-                          : "border-border hover:border-primary/50 hover:bg-muted",
+                          : "border-border hover:border-border hover:bg-muted",
                       )}
                     >
                       <input
@@ -324,7 +324,7 @@ export default function TemplateEditModal({
                     </div>
 
                     {uploadError && (
-                      <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                      <div className="p-3 rounded-lg bg-muted border border-border">
                         <div className="flex items-center gap-2">
                           <Warning
                             className="h-4 w-4 text-destructive-ink"
@@ -349,13 +349,13 @@ export default function TemplateEditModal({
                     )}
 
                     {hasChanges && (
-                      <div className="p-3 rounded-lg bg-warning/10 border border-warning/20">
+                      <div className="p-3 rounded-lg bg-muted border border-border">
                         <div className="flex items-center gap-2">
                           <Warning
-                            className="h-4 w-4 text-warning"
+                            className="h-4 w-4 text-warning-ink"
                             weight="fill"
                           />
-                          <p className="text-xs text-warning font-medium">
+                          <p className="text-xs text-warning-ink font-medium">
                             {t("unsavedChanges")}
                           </p>
                         </div>
@@ -488,12 +488,12 @@ function TemplatePreview({ template, headerMediaUrl }: TemplatePreviewProps) {
       {/* WhatsApp Header */}
       <div className="flex-shrink-0 bg-muted px-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
-            <span className="text-white font-semibold text-sm">V</span>
+          <div className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card">
+            <span className="text-sm font-semibold text-muted-foreground">V</span>
           </div>
           <div className="flex-1">
             <h3 className="text-white font-semibold text-sm">{getBrand().name}</h3>
-            <p className="text-healthy text-xs">
+            <p className="text-healthy-ink text-xs">
               Typically replies instantly
             </p>
           </div>
@@ -622,7 +622,7 @@ function HeaderPreview({
     return (
       <div className="px-4 pt-4 pb-2 border-b border-border">
         <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-          <div className="h-10 w-10 rounded-lg bg-primary/15 flex items-center justify-center flex-shrink-0">
+          <div className="h-10 w-10 rounded-lg tile-brand flex items-center justify-center flex-shrink-0">
             <FileIcon className="h-5 w-5 text-primary-ink" weight="duotone" />
           </div>
           <div className="flex-1 min-w-0">
@@ -642,7 +642,7 @@ function HeaderPreview({
         <div className="absolute inset-0 bg-muted" />
         <div className="relative text-center">
           <MapPin
-            className="h-12 w-12 text-healthy mx-auto mb-2"
+            className="h-12 w-12 text-healthy-ink mx-auto mb-2"
             weight="duotone"
           />
           <p className="text-xs font-medium text-foreground">Location</p>

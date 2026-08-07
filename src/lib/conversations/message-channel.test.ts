@@ -44,6 +44,7 @@ describe("FILTERABLE_MESSAGE_CHANNELS", () => {
     it("covers the MessageChannel union exhaustively", () => {
         const covered: Record<MessageChannel, true> = {
             whatsapp: true,
+            unofficial_whatsapp: true,
             instagram: true,
             telegram: true,
             voice: true,

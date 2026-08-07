@@ -136,9 +136,9 @@ export function WorkflowCopilotHistory({ workflowId }: WorkflowCopilotHistoryPro
         >
           <div className="flex items-center gap-1.5">
             {s.valid ? (
-              <CheckCircle size={13} weight="fill" className="shrink-0 text-healthy" />
+              <CheckCircle size={13} weight="fill" className="shrink-0 text-healthy-ink" />
             ) : (
-              <Warning size={13} weight="fill" className="shrink-0 text-warning" />
+              <Warning size={13} weight="fill" className="shrink-0 text-warning-ink" />
             )}
             <span className="text-xs font-medium truncate">
               {s.title || "Conversa sem título"}

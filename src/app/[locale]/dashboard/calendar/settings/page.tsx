@@ -145,7 +145,7 @@ export default function CalendarSettingsPage() {
                   size="sm"
                   onClick={handleDisconnect}
                   disabled={disconnecting}
-                  className="text-destructive hover:text-destructive"
+                  className="text-destructive-ink hover:text-destructive-ink"
                 >
                   {disconnecting ? t("disconnecting") : t("disconnectGoogle")}
                 </ElevatedButton>

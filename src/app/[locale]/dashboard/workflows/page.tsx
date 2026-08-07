@@ -423,7 +423,7 @@ export default function WorkflowsPage() {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => handleDelete(row.id)}
-                  className="text-destructive"
+                  className="text-destructive-ink"
                 >
                   <Trash size={14} className="mr-2" />
                   {t("actions.delete")}

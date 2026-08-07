@@ -7,69 +7,83 @@ import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import ElevatedContainer from "./elevated-container";
 
+/*
+ * Accent recipes.
+ *
+ * `light` is the GROUND a badge or pill sits on and it is the same opaque
+ * --muted for every accent, deliberately. It used to be a 10% wash of the
+ * accent's own hue carrying that hue's fill value as the label — the shape
+ * this system bans, shipped from a shared map so it landed on every listing
+ * card in the product at once. `text` is now the measured ink for that hue in
+ * both themes rather than the fill value, which was tuned to sit under a white
+ * button label and had nothing left for 11px text.
+ *
+ * `border` follows the ground: a hairline at --border, so the chip reads as one
+ * material instead of a tinted box outlined in a second tint of the same tint.
+ */
 const colorMap = {
   primary: {
     solid: "tile-brand",
     light: "bg-muted",
     text: "text-primary-ink",
-    border: "border-primary/20",
+    border: "border-border",
     ring: "ring-ring",
     gradient: "from-primary to-primary/80",
   },
   emerald: {
     solid: "tile-healthy",
-    light: "bg-healthy/10",
-    text: "text-healthy dark:text-healthy",
-    border: "border-healthy/20",
+    light: "bg-muted",
+    text: "text-healthy-ink",
+    border: "border-border",
     ring: "ring-healthy/30",
   },
   blue: {
     solid: "tile-neutral",
     light: "bg-muted",
-    text: "text-primary-ink",
-    border: "border-info/20",
+    text: "text-info-ink",
+    border: "border-border",
     ring: "ring-info/30",
   },
   amber: {
     solid: "tile-warning",
-    light: "bg-warning/10",
-    text: "text-warning dark:text-warning",
-    border: "border-warning/20",
+    light: "bg-muted",
+    text: "text-warning-ink",
+    border: "border-border",
     ring: "ring-warning/30",
   },
   rose: {
     solid: "tile-fault",
-    light: "bg-destructive/10",
-    text: "text-destructive dark:text-destructive",
-    border: "border-destructive/20",
+    light: "bg-muted",
+    text: "text-destructive-ink",
+    border: "border-border",
     ring: "ring-destructive/30",
   },
   purple: {
     solid: "tile-neutral",
     light: "bg-muted",
     text: "text-muted-foreground dark:text-chart-4",
-    border: "border-chart-4/20",
+    border: "border-border",
     ring: "ring-chart-4/30",
   },
   orange: {
     solid: "tile-warning",
-    light: "bg-warning/10",
-    text: "text-warning-ink dark:text-warning",
-    border: "border-warning/20",
+    light: "bg-muted",
+    text: "text-warning-ink",
+    border: "border-border",
     ring: "ring-warning/30",
   },
   yellow: {
     solid: "tile-warning",
-    light: "bg-warning/10",
-    text: "text-warning-ink dark:text-warning",
-    border: "border-warning/20",
+    light: "bg-muted",
+    text: "text-warning-ink",
+    border: "border-border",
     ring: "ring-warning/30",
   },
   cyan: {
     solid: "tile-neutral",
     light: "bg-muted",
-    text: "text-muted-foreground dark:text-info",
-    border: "border-info/20",
+    text: "text-muted-foreground dark:text-info-ink",
+    border: "border-border",
     ring: "ring-info/30",
   },
   slate: {
@@ -81,30 +95,30 @@ const colorMap = {
   },
   red: {
     solid: "tile-fault",
-    light: "bg-destructive/10",
-    text: "text-destructive dark:text-destructive",
-    border: "border-destructive/20",
+    light: "bg-muted",
+    text: "text-destructive-ink",
+    border: "border-border",
     ring: "ring-destructive/30",
   },
   green: {
     solid: "tile-healthy",
-    light: "bg-healthy/10",
-    text: "text-healthy dark:text-healthy",
-    border: "border-healthy/20",
+    light: "bg-muted",
+    text: "text-healthy-ink",
+    border: "border-border",
     ring: "ring-healthy/30",
   },
   indigo: {
     solid: "tile-neutral",
     light: "bg-muted",
-    text: "text-muted-foreground dark:text-info",
-    border: "border-info/20",
+    text: "text-muted-foreground dark:text-info-ink",
+    border: "border-border",
     ring: "ring-info/30",
   },
   violet: {
     solid: "tile-neutral",
     light: "bg-muted",
     text: "text-muted-foreground dark:text-chart-4",
-    border: "border-chart-4/20",
+    border: "border-border",
     ring: "ring-chart-4/30",
   },
 } as const;
@@ -123,38 +137,41 @@ interface IconBoxProps {
 }
 
 /**
- * Ink plate.
+ * Icon plate.
  *
- * Used 141 times across the product, so this component alone set the tone. It
- * used to render a gradient tile with a white glyph, a drop shadow, a hover
- * scale-and-rotate, an inner glow AND an infinite shimmer sweep — perpetual
- * motion in the periphery of a tool people sit in for a full shift, multiplied
- * by every icon on the page.
+ * Used 141 times across the product, so this component alone sets the tone.
+ * It has now been wrong twice in opposite directions: first a gradient tile
+ * with a white glyph, a drop shadow, a hover scale-and-rotate, an inner glow
+ * AND an infinite shimmer sweep; then a pale plate carrying the glyph in a
+ * darker shade of the plate's own hue — an orange mark on peach, a green mark
+ * on mint. The second is quieter but it is the wash, and at 18px the mark and
+ * its ground collapse into one smudge.
  *
- * It is now the panel's plate: a recess cut into the surface, with the category
- * carried by the GLYPH's ink rather than by a coloured fill. Same props, so all
- * 141 call sites are untouched; `animated` is accepted and ignored, because
- * there is no longer anything to animate.
+ * It is the channel lockup now: the colour is the PLATE, opaque, and the glyph
+ * is the foreground that colour ships with. Same shape as the WhatsApp mark
+ * beside it, which is the one tile in the product that always read correctly.
+ * Same props, so all 141 call sites are untouched; `animated` is accepted and
+ * ignored, because there is no longer anything to animate.
  */
-const inkByColor: Record<string, string> = {
-  // Neutral by default: "primary" is the most common value here, and spraying
-  // the lamp across 141 tiles would spend the one signal the UI has.
-  primary: "text-foreground",
-  slate: "text-muted-foreground",
-  // Semantic colours keep their meaning.
-  emerald: "text-healthy",
-  green: "text-healthy",
-  rose: "text-destructive",
-  red: "text-destructive",
-  // Category identity draws from the shared chart inks.
-  blue: "ink-1",
-  cyan: "ink-1",
-  indigo: "ink-4",
-  violet: "ink-4",
-  purple: "ink-4",
-  amber: "ink-3",
-  orange: "ink-3",
-  yellow: "ink-3",
+const plateByColor: Record<string, string> = {
+  // The brand fill, for the tile that means the product's own primary object.
+  primary: "tile-brand",
+  slate: "tile-neutral",
+  // Semantic colours keep their meaning and their measured foreground.
+  emerald: "tile-healthy",
+  green: "tile-healthy",
+  rose: "tile-fault",
+  red: "tile-fault",
+  amber: "tile-warning",
+  orange: "tile-warning",
+  yellow: "tile-warning",
+  // Category identity draws from the chart series, so a category reads the
+  // same in a tile as it does in the graph beside it.
+  blue: "tile-1",
+  indigo: "tile-1",
+  cyan: "tile-4",
+  violet: "tile-5",
+  purple: "tile-5",
 };
 
 export function IconBox({
@@ -177,10 +194,10 @@ export function IconBox({
   return (
     <span
       className={cn(
-        "ink-plate inline-flex shrink-0 items-center justify-center",
+        "inline-flex shrink-0 items-center justify-center",
         sizeClasses[size],
         iconSizeClasses[size],
-        inkByColor[color] ?? inkByColor.primary,
+        plateByColor[color] ?? plateByColor.primary,
         className,
       )}
     >
@@ -237,7 +254,7 @@ export function StatsCard({
                 <span
                   className={cn(
                     "flex items-center text-xs font-semibold",
-                    trend.positive ? "text-healthy" : "text-destructive",
+                    trend.positive ? "text-healthy-ink" : "text-destructive-ink",
                   )}
                 >
                   {trend.positive ? "↑" : "↓"} {Math.abs(trend.value)}%
@@ -354,7 +371,7 @@ function MenuDropdown({ items, isOpen, onClose }: MenuDropdownProps) {
                   className={cn(
                     "flex items-center gap-2 px-3 py-2 text-sm transition-colors",
                     item.danger
-                      ? "text-destructive-ink dark:text-destructive hover:bg-muted"
+                      ? "text-destructive-ink dark:text-destructive-ink hover:bg-muted"
                       : "text-foreground hover:bg-muted",
                   )}
                 >

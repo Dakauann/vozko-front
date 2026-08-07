@@ -178,7 +178,7 @@ function MembersPanel({ workspaceId }: { workspaceId: string }) {
                 <button
                   onClick={handleLoadMore}
                   disabled={loading}
-                  className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-all hover:bg-muted hover:border-info/30 hover:text-primary-ink disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-all hover:bg-muted hover:border-border hover:text-primary-ink disabled:opacity-50"
                   style={{ boxShadow: softSurfaceShadow }}
                 >
                   {loading ? (
@@ -354,8 +354,8 @@ export default function AdminWorkspacesPage() {
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-[--radius] border px-3 py-1.5 text-xs font-semibold transition-all",
                 isExpanded
-                  ? "bg-muted border-info/30 text-primary-ink"
-                  : "bg-card border-border text-muted-foreground hover:bg-muted hover:border-info/30 hover:text-primary-ink",
+                  ? "bg-muted border-border text-primary-ink"
+                  : "bg-card border-border text-muted-foreground hover:bg-muted hover:border-border hover:text-primary-ink",
               )}
             >
               <UsersFour className="h-3.5 w-3.5" weight="bold" />
@@ -485,7 +485,7 @@ export default function AdminWorkspacesPage() {
           <div className="flex items-center justify-end gap-2">
             <Link
               href={`/dashboard/workspaces/${ws.id}`}
-              className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-muted hover:border-info/30 hover:text-primary-ink"
+              className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-muted hover:border-border hover:text-primary-ink"
               onClick={(e) => e.stopPropagation()}
             >
               <Eye className="h-4 w-4" weight="bold" />
@@ -493,7 +493,7 @@ export default function AdminWorkspacesPage() {
             </Link>
             <Link
               href={`/dashboard/workspaces/${ws.id}/balance`}
-              className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-muted hover:border-info/30 hover:text-primary-ink"
+              className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-muted hover:border-border hover:text-primary-ink"
               onClick={(e) => e.stopPropagation()}
             >
               <Wallet className="h-4 w-4" weight="bold" />
@@ -544,7 +544,7 @@ export default function AdminWorkspacesPage() {
             {
               label: t("stats.default"),
               value: loading ? "..." : String(defaultCount),
-              icon: <Star className="h-4 w-4 text-warning" weight="fill" />,
+              icon: <Star className="h-4 w-4 text-warning-ink" weight="fill" />,
             },
             {
               label: t("stats.onPage"),
@@ -642,7 +642,7 @@ export default function AdminWorkspacesPage() {
             error
               ? {
                   icon: (
-                    <Buildings className="h-7 w-7 text-destructive" weight="fill" />
+                    <Buildings className="h-7 w-7 text-destructive-ink" weight="fill" />
                   ),
                   title: t("error.title"),
                   description: error,

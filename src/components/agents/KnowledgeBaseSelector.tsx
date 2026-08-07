@@ -101,7 +101,7 @@ export function KnowledgeBaseSelector({
             {selectedKBs.map((kb) => (
               <div
                 key={kb.id}
-                className="group relative flex items-center gap-3 rounded-[--radius] border border-primary/50 bg-muted p-3 transition-all hover:border-primary/70 hover:shadow-md"
+                className="group relative flex items-center gap-3 rounded-[--radius] border border-border bg-muted p-3 transition-all hover:border-primary/70 hover:shadow-md"
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-muted">
                   <Files className="h-6 w-6 text-primary-ink" weight="fill" />
@@ -144,7 +144,7 @@ export function KnowledgeBaseSelector({
                 key={kb.id}
                 type="button"
                 onClick={() => addKnowledgeBase(kb.id)}
-                className="flex items-start gap-3 rounded-[--radius] border border-border bg-card p-4 text-left transition-all hover:border-primary/30 hover:bg-muted"
+                className="flex items-start gap-3 rounded-[--radius] border border-border bg-card p-4 text-left transition-all hover:border-border hover:bg-muted"
               >
                 <div className="shrink-0 rounded-lg p-2 bg-muted">
                   <Files

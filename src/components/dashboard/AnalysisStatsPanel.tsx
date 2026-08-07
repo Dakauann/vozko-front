@@ -90,7 +90,7 @@ function SentimentBadge({
     positive: {
       icon: <Smiley weight="fill" className="h-5 w-5" />,
       color: "#22c55e",
-      bgColor: "bg-healthy/10",
+      bgColor: "bg-muted",
       borderColor: "border-healthy/20",
     },
     neutral: {
@@ -102,7 +102,7 @@ function SentimentBadge({
     negative: {
       icon: <SmileySad weight="fill" className="h-5 w-5" />,
       color: "#ef4444",
-      bgColor: "bg-destructive/10",
+      bgColor: "bg-muted",
       borderColor: "border-destructive/30",
     },
   };
@@ -209,12 +209,12 @@ export default function AnalysisStatsPanel({
       >
         <div
           className={cn(
-            "rounded-[--radius] border border-destructive/70 bg-destructive/10/50 h-full",
+            "rounded-[--radius] border border-destructive/70 bg-muted h-full",
             compact ? "p-5" : "p-8",
           )}
           style={{ boxShadow: softSurfaceShadow }}
         >
-          <div className="flex items-center gap-3 text-destructive">
+          <div className="flex items-center gap-3 text-destructive-ink">
             <Warning
               weight="fill"
               className={compact ? "h-4 w-4" : "h-5 w-5"}
@@ -355,9 +355,9 @@ export default function AnalysisStatsPanel({
               {t("sentiment.title")}
             </p>
             <div className="flex gap-2">
-              <div className="flex-1 flex items-center gap-1.5 p-2 rounded-lg bg-healthy/10 border border-healthy/15">
+              <div className="flex-1 flex items-center gap-1.5 p-2 rounded-lg bg-muted border border-border">
                 <Smiley weight="fill" className="h-3.5 w-3.5 text-healthy-ink" />
-                <span className="text-xs font-semibold text-healthy">
+                <span className="text-xs font-semibold text-healthy-ink">
                   {stats.sentimentPositive}
                 </span>
               </div>
@@ -370,9 +370,9 @@ export default function AnalysisStatsPanel({
                   {stats.sentimentNeutral}
                 </span>
               </div>
-              <div className="flex-1 flex items-center gap-1.5 p-2 rounded-lg bg-destructive/10 border border-destructive/20">
+              <div className="flex-1 flex items-center gap-1.5 p-2 rounded-lg bg-muted border border-border">
                 <SmileySad weight="fill" className="h-3.5 w-3.5 text-destructive-ink" />
-                <span className="text-xs font-semibold text-destructive">
+                <span className="text-xs font-semibold text-destructive-ink">
                   {stats.sentimentNegative}
                 </span>
               </div>
@@ -621,11 +621,11 @@ export default function AnalysisStatsPanel({
                   {stats.minAttendanceQuality}%
                 </p>
               </div>
-              <div className="p-4 rounded-[--radius] bg-healthy/10 border border-healthy/20 text-center">
-                <p className="text-xs text-healthy mb-1">
+              <div className="p-4 rounded-[--radius] bg-muted border border-border text-center">
+                <p className="text-xs text-healthy-ink mb-1">
                   {t("quality.avg")}
                 </p>
-                <p className="text-xl font-semibold text-healthy">
+                <p className="text-xl font-semibold text-healthy-ink">
                   {stats.avgAttendanceQuality.toFixed(1)}%
                 </p>
               </div>

@@ -10,7 +10,10 @@ import {
   useTransition,
 } from "react";
 
+import { AnimatePresence, motion } from "framer-motion";
+
 import { AuthFormAlert } from "@/components/auth/auth-form-alert";
+import { SlideToUnlock } from "@/components/auth/slide-to-unlock";
 import { BrandLogo } from "@/components/brand-logo";
 import Button from "@/components/elevated-design/button";
 import { Checkbox } from "@/components/elevated-design/elevated-checkbox";
@@ -49,6 +52,14 @@ function LoginContent() {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
+  // The gate. Arming and locking share one predicate, so clearing a field takes
+  // the key back while fixing a typo — or a rejected password — does not.
+  const [unlocked, setUnlocked] = useState(false);
+  const canArm = email.trim().length > 0 && password.length > 0;
+
+  useEffect(() => {
+    if (!canArm) setUnlocked(false);
+  }, [canArm]);
 
   const isRateLimitError = (message?: string | null) =>
     message?.toLowerCase().includes("rate limit") ?? false;
@@ -280,13 +291,42 @@ function LoginContent() {
                 </Link>
               </div>
 
+              {/*
+                The gate, and then the key.
+
+                The track collapses on the same 150ms the button uses to cross
+                out of its disabled chip, so the two read as one handoff — this
+                became that — rather than as two things animating near each
+                other. AnimatePresence owns the collapse; the button un-disables
+                off the same state flip.
+              */}
+              <AnimatePresence initial={false}>
+                {!unlocked && (
+                  <motion.div
+                    key="gate"
+                    initial={false}
+                    exit={{ height: 0, opacity: 0, marginBottom: 0 }}
+                    transition={{ duration: 0.15, ease: [0.9, 0.1, 1, 0.2] }}
+                    className="overflow-hidden"
+                  >
+                    <SlideToUnlock
+                      armed={canArm}
+                      onUnlock={() => setUnlocked(true)}
+                      label={t("form.slideIdle")}
+                      armedLabel={t("form.slideToUnlock")}
+                      unlockedLabel={t("form.slideUnlocked")}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               <Button
                 variant="primary"
                 size="lg"
                 type="submit"
                 className="w-full"
                 title={isPending ? t("form.submitting") : t("form.submit")}
-                disabled={isPending}
+                disabled={isPending || !unlocked}
               />
             </form>
           </div>

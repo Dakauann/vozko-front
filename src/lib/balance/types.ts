@@ -120,36 +120,43 @@ export interface BalanceOperationResponse {
     message?: string;
 }
 
+/*
+ * Resource identity is carried by the GLYPH, on the one opaque neutral plate
+ * every tile in this system sits on. These were raw Tailwind palette values
+ * (emerald-500, amber-500, red-100) at 15% behind text of the same hue, so they
+ * missed the token system twice over: off-palette, and a wash of themselves.
+ * `bgColor` is now the plate and `color`/`iconColor` are the measured ink.
+ */
 export const RESOURCE_TYPE_CONFIG: Record<ResourceType, { labelKey: string; color: string; bgColor: string; iconColor: string }> = {
     whatsapp_sendings: {
         labelKey: 'resourceType.whatsappSendings',
-        color: 'text-emerald-700',
-        bgColor: 'bg-emerald-500/15',
-        iconColor: 'text-emerald-500',
+        color: 'text-healthy-ink',
+        bgColor: 'tile-healthy',
+        iconColor: 'text-healthy-ink',
     },
     voip_minutes: {
         labelKey: 'resourceType.voipMinutes',
-        color: 'text-primary',
-        bgColor: 'bg-primary/15',
-        iconColor: 'text-primary',
+        color: 'text-primary-ink',
+        bgColor: 'tile-brand',
+        iconColor: 'text-primary-ink',
     },
     money: {
         labelKey: 'resourceType.money',
-        color: 'text-amber-700',
-        bgColor: 'bg-amber-500/15',
-        iconColor: 'text-amber-500',
+        color: 'text-warning-ink',
+        bgColor: 'tile-warning',
+        iconColor: 'text-warning-ink',
     },
 };
 
 export const TRANSACTION_TYPE_CONFIG: Record<TransactionType, { labelKey: string; color: string; bgColor: string }> = {
     credit: {
         labelKey: 'transactionType.credit',
-        color: 'text-emerald-700',
-        bgColor: 'bg-emerald-500/15',
+        color: 'text-healthy-ink',
+        bgColor: 'bg-muted',
     },
     debit: {
         labelKey: 'transactionType.debit',
-        color: 'text-red-700',
-        bgColor: 'bg-red-100',
+        color: 'text-destructive-ink',
+        bgColor: 'bg-muted',
     },
 };

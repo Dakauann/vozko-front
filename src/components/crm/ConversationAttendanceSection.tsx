@@ -674,8 +674,8 @@ export default function ConversationAttendanceSection({
             ))}
           </div>
         ) : error ? (
-          <div className="rounded-[--radius] border border-destructive/30 bg-destructive/5 px-3 py-3 text-center">
-            <p className="text-xs text-destructive">{error}</p>
+          <div className="rounded-[--radius] border border-border bg-muted px-3 py-3 text-center">
+            <p className="text-xs text-destructive-ink">{error}</p>
             <button
               type="button"
               onClick={() => setReloadToken((n) => n + 1)}

@@ -157,7 +157,7 @@ function DropdownButton({
             <span
               className={cn(
                 "mt-0.5 text-xs",
-                isDark ? "text-destructive/80" : "text-destructive/80",
+                isDark ? "text-destructive-ink/80" : "text-destructive-ink/80",
               )}
             >
               {description}

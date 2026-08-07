@@ -1183,7 +1183,7 @@ export default function CrmFunnelView({
                                   funnelColumns?.get("__unstaged__")?.page ?? 1;
                                 onRequestColumn("__unstaged__", page + 1, 20);
                               }}
-                              className="w-full py-2 text-[11px] font-medium text-muted-foreground hover:text-healthy hover:bg-muted rounded-lg transition-colors"
+                              className="w-full py-2 text-[11px] font-medium text-muted-foreground hover:text-healthy-ink hover:bg-muted rounded-lg transition-colors"
                             >
                               Carregar mais ({unstagedEntries.length} de{" "}
                               {unstagedTotal})

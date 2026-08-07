@@ -80,13 +80,13 @@ function channelBadge(type: string) {
   switch (type) {
     case "voice":
       return (
-        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-medium text-healthy-ink dark:bg-healthy/30 dark:text-healthy">
+        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-medium text-healthy-ink dark:text-healthy-ink">
           <Phone weight="fill" size={12} /> Voz
         </span>
       )
     case "whatsapp":
       return (
-        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-medium text-healthy-ink dark:bg-healthy/30 dark:text-healthy">
+        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-medium text-healthy-ink dark:text-healthy-ink">
           <WhatsappLogo weight="fill" size={12} /> WhatsApp
         </span>
       )
@@ -97,10 +97,10 @@ function channelBadge(type: string) {
 
 function statusBadgeClass(status: string): string {
   const s = status.toUpperCase()
-  if (["PENDING"].includes(s)) return "bg-muted text-warning-ink dark:bg-warning/30 dark:text-warning"
+  if (["PENDING"].includes(s)) return "bg-muted text-warning-ink dark:text-warning-ink"
   if (["ONGOING", "RINGING"].includes(s)) return "bg-muted text-muted-foreground dark:bg-muted dark:text-info-ink"
-  if (["RECEIVED", "DELIVERED", "SENT"].includes(s)) return "bg-muted text-healthy-ink dark:bg-healthy/30 dark:text-healthy"
-  if (["FAILED", "NOT_FOUND", "BUSY", "NO_ANSWER", "CANCELLED"].includes(s)) return "bg-muted text-destructive-ink dark:bg-destructive/30 dark:text-destructive"
+  if (["RECEIVED", "DELIVERED", "SENT"].includes(s)) return "bg-muted text-healthy-ink dark:text-healthy-ink"
+  if (["FAILED", "NOT_FOUND", "BUSY", "NO_ANSWER", "CANCELLED"].includes(s)) return "bg-muted text-destructive-ink dark:text-destructive-ink"
   if (["ENDED", "VOICEMAIL"].includes(s)) return "bg-slate-100 text-muted-foreground dark:bg-muted dark:text-muted-foreground"
   return "bg-slate-100 text-muted-foreground dark:bg-muted dark:text-muted-foreground"
 }
@@ -211,7 +211,7 @@ export default function LeadDetailClient({
     return (
       <div className="flex min-h-[400px] items-center justify-center">
         <ElevatedContainer className="max-w-md p-8 text-center">
-          <Users weight="fill" className="mx-auto mb-4 h-12 w-12 text-warning" />
+          <Users weight="fill" className="mx-auto mb-4 h-12 w-12 text-warning-ink" />
           <h2 className="text-xl font-semibold text-foreground">{t("error.title")}</h2>
           <p className="mt-2 text-sm text-muted-foreground">{error || t("records.empty")}</p>
           <Button variant="outline" title="Voltar" link="/dashboard/leads" newTab={false} className="mt-4 text-[11px] font-semibold" />
@@ -260,7 +260,7 @@ export default function LeadDetailClient({
       <motion.div variants={itemVariants}>
         <div className="rounded-[--radius] border border-border bg-card p-5" style={{ boxShadow: softSurfaceShadow }}>
           <div className="flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-muted px-3 py-1.5 text-[11px] font-semibold text-healthy-ink dark:bg-healthy/30 dark:text-healthy">
+            <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-muted px-3 py-1.5 text-[11px] font-semibold text-healthy-ink dark:text-healthy-ink">
               <WhatsappLogo weight="fill" className="h-3.5 w-3.5" />
               {lead.whatsappWindowOpen ? t("window.open") : t("window.closed")}
             </span>

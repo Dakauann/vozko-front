@@ -381,7 +381,7 @@ export default function BalancePage() {
             <span
               className={cn(
                 "text-sm font-semibold tabular-nums",
-                isCredit ? "text-healthy" : "text-destructive",
+                isCredit ? "text-healthy-ink" : "text-destructive-ink",
               )}
             >
               {isCredit ? "+" : "-"}
@@ -434,7 +434,7 @@ export default function BalancePage() {
                     ),
               icon: (
                 <CurrencyDollar
-                  className="h-4 w-4 text-warning"
+                  className="h-4 w-4 text-warning-ink"
                   weight="fill"
                 />
               ),
@@ -450,7 +450,7 @@ export default function BalancePage() {
                       locale,
                     ),
               icon: (
-                <ArrowUp className="h-4 w-4 text-healthy" weight="bold" />
+                <ArrowUp className="h-4 w-4 text-healthy-ink" weight="bold" />
               ),
             },
             {
@@ -651,7 +651,7 @@ export default function BalancePage() {
             error
               ? {
                   icon: (
-                    <Wallet className="h-7 w-7 text-destructive" weight="fill" />
+                    <Wallet className="h-7 w-7 text-destructive-ink" weight="fill" />
                   ),
                   title: t("error.title"),
                   description: error,

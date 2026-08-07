@@ -233,7 +233,7 @@ function StagePickerContent({
                   <div className="flex items-center gap-1 shrink-0">
                     <Check
                       weight="bold"
-                      className="h-3.5 w-3.5 text-healthy"
+                      className="h-3.5 w-3.5 text-healthy-ink"
                     />
                     <X
                       weight="bold"

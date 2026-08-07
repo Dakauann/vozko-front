@@ -142,7 +142,7 @@ export default function SupportInboxDetail({
                   icon={
                     inbox.enableAgentResponses ? (
                       <Robot
-                        className="h-4 w-4 text-healthy"
+                        className="h-4 w-4 text-healthy-ink"
                         weight="fill"
                       />
                     ) : undefined
@@ -190,7 +190,7 @@ export default function SupportInboxDetail({
                               {field.type}
                             </span>
                             {field.required && (
-                              <span className="text-xs font-medium text-destructive">
+                              <span className="text-xs font-medium text-destructive-ink">
                                 {t("required")}
                               </span>
                             )}
@@ -315,7 +315,7 @@ export default function SupportInboxDetail({
                           <label className="text-xs font-medium text-foreground">
                             {field.label}
                             {field.required && (
-                              <span className="ml-1 text-destructive">*</span>
+                              <span className="ml-1 text-destructive-ink">*</span>
                             )}
                           </label>
                           {field.type === "textarea" ? (

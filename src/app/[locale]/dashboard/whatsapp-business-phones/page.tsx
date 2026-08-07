@@ -366,10 +366,10 @@ export default function WhatsAppBusinessPhonesPage({
         header: t("card.phoneNumber"),
         render: (row) => (
           <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-healthy/10">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg tile-healthy">
               <WhatsappLogo
                 weight="fill"
-                className="h-3.5 w-3.5 text-healthy"
+                className="h-3.5 w-3.5 text-healthy-ink"
               />
             </div>
             <div className="flex flex-col">
@@ -408,7 +408,7 @@ export default function WhatsAppBusinessPhonesPage({
             </span>
             {row.status === "ONBOARDING_FAILED" && row.onboardingError && (
               <span
-                className="flex max-w-[240px] items-start gap-1 text-xs text-destructive"
+                className="flex max-w-[240px] items-start gap-1 text-xs text-destructive-ink"
                 title={row.onboardingError}
               >
                 <Warning
@@ -452,7 +452,7 @@ export default function WhatsAppBusinessPhonesPage({
         header: t("card.official"),
         render: (row) =>
           row.isOfficialBusiness ? (
-            <span className="inline-flex items-center gap-1 text-xs font-medium text-healthy">
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-healthy-ink">
               <CheckCircle weight="fill" className="h-3.5 w-3.5" />
             </span>
           ) : (
@@ -623,7 +623,7 @@ export default function WhatsAppBusinessPhonesPage({
               ? t("header.description")
               : t("header.descriptionUser")
         }
-        colorClass="text-healthy"
+        colorClass="text-healthy-ink"
         actions={
           canManagePhones && !adminAllMode ? (
             <div className="flex flex-wrap items-center gap-3">
@@ -652,11 +652,11 @@ export default function WhatsAppBusinessPhonesPage({
       {!adminAllMode && <WhatsAppCapacityCard capacity={capacity} />}
 
       {adminAllMode && (
-        <ElevatedContainer className="border-warning/30 bg-warning/10 p-4">
+        <ElevatedContainer className="border-border bg-muted p-4">
           <div className="flex items-center gap-3">
             <Info
               weight="fill"
-              className="h-5 w-5 flex-shrink-0 text-warning"
+              className="h-5 w-5 flex-shrink-0 text-warning-ink"
             />
             <p className="text-sm text-warning-ink">
               {t.has("header.adminNotice")
@@ -669,7 +669,7 @@ export default function WhatsAppBusinessPhonesPage({
 
       {/* User Info Box - Non-admin only */}
       {!canManagePhones && !adminAllMode && (
-        <ElevatedContainer className="p-4 bg-muted border-info/30">
+        <ElevatedContainer className="p-4 bg-muted border-border">
           <div className="flex items-center gap-3">
             <Info
               weight="fill"

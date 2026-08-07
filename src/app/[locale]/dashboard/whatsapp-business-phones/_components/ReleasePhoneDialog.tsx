@@ -124,7 +124,7 @@ export function ReleasePhoneDialog({
 
   const StepIcon = ({ success }: { success: boolean }) =>
     success ? (
-      <CheckCircle className="h-4 w-4 shrink-0 text-healthy" weight="fill" />
+      <CheckCircle className="h-4 w-4 shrink-0 text-healthy-ink" weight="fill" />
     ) : (
       <XCircle className="h-4 w-4 shrink-0 text-destructive-ink" weight="fill" />
     );
@@ -142,9 +142,9 @@ export function ReleasePhoneDialog({
         <div className="space-y-5 py-4">
           {!result && (
             <>
-              <div className="flex items-start gap-4 rounded-[--radius] border border-destructive/30 bg-destructive/10 p-4">
+              <div className="flex items-start gap-4 rounded-[--radius] border border-border bg-muted p-4">
                 <Warning
-                  className="mt-0.5 h-7 w-7 shrink-0 text-destructive"
+                  className="mt-0.5 h-7 w-7 shrink-0 text-destructive-ink"
                   weight="fill"
                 />
                 <div className="space-y-1">
@@ -239,12 +239,12 @@ export function ReleasePhoneDialog({
                 {(result.deregisterError || result.webhooksError) && (
                   <div className="mt-3 space-y-1.5 border-t border-border pt-3">
                     {result.deregisterError && (
-                      <p className="text-xs text-warning">
+                      <p className="text-xs text-warning-ink">
                         {t("release.partialWarning")}: {result.deregisterError}
                       </p>
                     )}
                     {result.webhooksError && (
-                      <p className="text-xs text-warning">
+                      <p className="text-xs text-warning-ink">
                         {t("release.partialWarning")}: {result.webhooksError}
                       </p>
                     )}

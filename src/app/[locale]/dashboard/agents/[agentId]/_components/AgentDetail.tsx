@@ -77,6 +77,20 @@ type Accent =
   | "violet"
   | "sky";
 
+/*
+ * Accent recipes.
+ *
+ * `icon` was `bg-muted` for all seven accents while IconTile hardcodes
+ * `text-white` on the glyph — a white mark on a pale grey plate, which is not
+ * a subtle tile but an invisible one. Every icon on this page was a ghost
+ * square. It is the exact failure the shared guardrail names: a block whose
+ * colour comes from a prop, carrying a white glyph, the moment a caller
+ * passes a neutral fill.
+ *
+ * These are the shared plates now, so the glyph colour comes from the plate
+ * rather than from IconTile, and each accent lands on the colour its mark
+ * means elsewhere in the product.
+ */
 const accentClasses: Record<
   Accent,
   {
@@ -86,39 +100,39 @@ const accentClasses: Record<
   }
 > = {
   blue: {
-    icon: "bg-muted",
+    icon: "tile-1",
     chip: "bg-muted text-muted-foreground",
-    border: "border-info/20",
+    border: "border-border",
   },
   emerald: {
-    icon: "bg-muted",
+    icon: "tile-healthy",
     chip: "bg-healthy text-healthy-foreground",
-    border: "border-healthy/20",
+    border: "border-border",
   },
   amber: {
-    icon: "bg-muted",
+    icon: "tile-3",
     chip: "bg-warning text-warning-foreground",
-    border: "border-warning/25",
+    border: "border-border",
   },
   rose: {
-    icon: "bg-muted",
+    icon: "tile-fault",
     chip: "bg-destructive text-destructive-foreground",
-    border: "border-destructive/20",
+    border: "border-border",
   },
   slate: {
-    icon: "bg-muted",
+    icon: "tile-neutral",
     chip: "bg-muted text-muted-foreground",
     border: "border-border",
   },
   violet: {
-    icon: "bg-muted",
+    icon: "tile-5",
     chip: "bg-muted text-muted-foreground",
-    border: "border-chart-4/20",
+    border: "border-border",
   },
   sky: {
-    icon: "bg-muted",
+    icon: "tile-4",
     chip: "bg-muted text-muted-foreground",
-    border: "border-info/20",
+    border: "border-border",
   },
 };
 
@@ -166,7 +180,7 @@ function IconTile({
   return (
     <span
       className={cn(
-        "flex shrink-0 items-center justify-center text-white shadow-sm",
+        "flex shrink-0 items-center justify-center shadow-sm",
         size === "sm" && "h-9 w-9 rounded-[--radius] [&>svg]:h-4 [&>svg]:w-4",
         size === "md" && "h-11 w-11 rounded-[--radius] [&>svg]:h-5 [&>svg]:w-5",
         size === "lg" && "h-14 w-14 rounded-[--radius] [&>svg]:h-7 [&>svg]:w-7",
@@ -333,7 +347,7 @@ function InfoRow({
             title="Copiar"
           >
             {copied ? (
-              <CheckCircle weight="fill" className="h-4 w-4 text-healthy" />
+              <CheckCircle weight="fill" className="h-4 w-4 text-healthy-ink" />
             ) : (
               <Copy weight="bold" className="h-4 w-4" />
             )}

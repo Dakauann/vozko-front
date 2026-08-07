@@ -185,7 +185,7 @@ function AffiliateLanding({ onCta }: { onCta: () => void }) {
       >
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/15 blur-3xl"
+          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-muted blur-3xl"
         />
         <div
           aria-hidden

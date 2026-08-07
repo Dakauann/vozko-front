@@ -63,7 +63,7 @@ export default function EditWhatsAppCampaignPage({
           badge={t("badge")}
           title={t("title")}
           description={t("description")}
-          colorClass="text-healthy"
+          colorClass="text-healthy-ink"
         />
       </motion.div>
 

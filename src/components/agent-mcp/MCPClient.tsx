@@ -75,15 +75,15 @@ function statusLabel(t: TranslateText, status: AgentMCPBindingStatus): string {
 function statusChipClasses(status: AgentMCPBindingStatus): string {
   switch (status) {
     case "connected":
-      return "bg-muted border-healthy/30 text-healthy-ink";
+      return "bg-muted border-border text-healthy-ink";
     case "pending":
-      return "bg-muted border-warning/30 text-warning-ink";
+      return "bg-muted border-border text-warning-ink";
     case "disconnected":
-      return "bg-muted border-warning/30 text-warning-ink";
+      return "bg-muted border-border text-warning-ink";
     case "revoked":
       return "bg-muted border-border text-muted-foreground";
     case "error":
-      return "bg-muted border-destructive/30 text-destructive-ink";
+      return "bg-muted border-border text-destructive-ink";
     default:
       return "bg-muted border-border text-muted-foreground";
   }
@@ -687,7 +687,7 @@ function RemoteDetail({
       {server.status === "disconnected" ? (
         <div
           role="alert"
-          className="flex items-start gap-3 rounded-[--radius] border border-warning/30 bg-muted p-4 text-sm text-warning-ink"
+          className="flex items-start gap-3 rounded-[--radius] border border-border bg-muted p-4 text-sm text-warning-ink"
         >
           <Warning
             weight="fill"
@@ -695,7 +695,7 @@ function RemoteDetail({
           />
           <div>
             <p className="font-semibold">{t("detail.disconnectedTitle")}</p>
-            <p className="mt-1 text-warning/80">
+            <p className="mt-1 text-warning-ink/80">
               {t("detail.disconnectedDescription")}
             </p>
           </div>
@@ -703,15 +703,15 @@ function RemoteDetail({
       ) : server.status === "error" ? (
         <div
           role="alert"
-          className="flex items-start gap-3 rounded-[--radius] border border-destructive/30 bg-muted p-4 text-sm text-destructive-ink"
+          className="flex items-start gap-3 rounded-[--radius] border border-border bg-muted p-4 text-sm text-destructive-ink"
         >
           <Warning
             weight="fill"
-            className="mt-0.5 h-4 w-4 shrink-0 text-destructive"
+            className="mt-0.5 h-4 w-4 shrink-0 text-destructive-ink"
           />
           <div>
             <p className="font-semibold">{t("detail.errorTitle")}</p>
-            <p className="mt-1 text-destructive/80">
+            <p className="mt-1 text-destructive-ink/80">
               {t("detail.errorDescription")}
             </p>
           </div>
@@ -860,7 +860,7 @@ function RegisterRemoteDialog({
           ) : null}
 
           {authMode === "oauth2" ? (
-            <p className="rounded-[--radius] border border-info/30 bg-muted px-4 py-3 text-xs text-muted-foreground">
+            <p className="rounded-[--radius] border border-border bg-muted px-4 py-3 text-xs text-muted-foreground">
               {t("dialogs.remote.oauth2Hint")}
             </p>
           ) : null}

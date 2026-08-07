@@ -173,7 +173,7 @@ export default function AdminUserDetailPage() {
           </Link>
         </div>
         <div className="flex flex-col items-center justify-center gap-4 py-20">
-          <XCircle className="h-12 w-12 text-destructive" weight="fill" />
+          <XCircle className="h-12 w-12 text-destructive-ink" weight="fill" />
           <p className="text-sm text-muted-foreground">
             {error ?? t("error.notFound")}
           </p>
@@ -191,14 +191,14 @@ export default function AdminUserDetailPage() {
     admin: {
       icon: Crown,
       label: t("role.admin"),
-      bg: "bg-warning/15",
-      text: "text-warning",
+      bg: "tile-3",
+      text: "",
     },
     user: {
       icon: User,
       label: t("role.user"),
-      bg: "bg-muted",
-      text: "text-muted-foreground",
+      bg: "tile-2",
+      text: "",
     },
   };
   const role = roleConfig[user.role] ?? roleConfig.user;
@@ -282,7 +282,7 @@ export default function AdminUserDetailPage() {
                   "absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border border-card",
                   user.emailVerified
                     ? "bg-healthy"
-                    : "bg-muted-foreground/40",
+                    : "bg-muted-foreground",
                 )}
               >
                 {user.emailVerified ? (
@@ -438,7 +438,7 @@ export default function AdminUserDetailPage() {
                 <XCircle className="h-5 w-5" weight="bold" />
               )
             }
-            iconBg={user.emailVerified ? "bg-healthy" : "bg-destructive/20"}
+            iconBg={user.emailVerified ? "bg-healthy" : "bg-muted"}
             label={t("fields.emailVerified")}
             value={
               user.emailVerified ? t("status.verified") : t("status.unverified")

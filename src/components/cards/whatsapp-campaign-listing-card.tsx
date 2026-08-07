@@ -115,7 +115,7 @@ export function WhatsAppCampaignListingCard({
             icon: <WhatsappLogo weight="fill" />,
             label: t("card.template"),
             value: campaign.templateName,
-            color: "text-healthy",
+            color: "text-healthy-ink",
           },
         ]
       : []),
@@ -162,7 +162,7 @@ export function WhatsAppCampaignListingCard({
       label: t("card.conversations"),
       value: metrics.sent.toLocaleString(),
       icon: <ChatsCircle weight="fill" />,
-      color: "text-healthy",
+      color: "text-healthy-ink",
     },
   ];
 
@@ -177,13 +177,13 @@ export function WhatsAppCampaignListingCard({
       label: t("card.asr"),
       value: `${Math.round(metrics.successRate)}%`,
       icon: <ChartLineUp weight="fill" />,
-      color: metrics.successRate >= 70 ? "text-healthy" : metrics.successRate >= 40 ? "text-warning" : "text-destructive",
+      color: metrics.successRate >= 70 ? "text-healthy-ink" : metrics.successRate >= 40 ? "text-warning-ink" : "text-destructive-ink",
     },
     {
       label: t("card.delivered"),
       value: metrics.delivered.toLocaleString(),
       icon: <CheckCircle weight="fill" />,
-      color: "text-healthy",
+      color: "text-healthy-ink",
     },
     {
       label: t("card.read"),
@@ -195,7 +195,7 @@ export function WhatsAppCampaignListingCard({
       label: t("card.failed"),
       value: metrics.failed.toLocaleString(),
       icon: <XCircle weight="fill" />,
-      color: metrics.failed > 0 ? "text-destructive" : "text-muted-foreground",
+      color: metrics.failed > 0 ? "text-destructive-ink" : "text-muted-foreground",
     },
   ];
 

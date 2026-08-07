@@ -13,6 +13,7 @@ import {
   ChatCircle,
   PlusCircle,
   ClipboardText,
+  DeviceMobile,
   Files,
   SquaresFour,
   List as ListIcon,
@@ -463,6 +464,30 @@ export const campanhasNavItems: NavItem[] = [
         labelKey: "nav.connectTelegram",
         href: "/dashboard/telegram-accounts/connect",
         requiredPermission: { resource: "telegram_accounts", action: "create" },
+      },
+    ],
+  },
+  {
+    // The channel logo is deliberately NOT used here: the spine already carries
+    // the official WhatsApp entry, and two identical marks in one group is how
+    // an operator picks the wrong number to send from.
+    icon: DeviceMobile,
+    labelKey: "nav.unofficialWhatsapp",
+    href: "/dashboard/unofficial-whatsapp",
+    family: "unofficial-whatsapp",
+    requiredPermission: { resource: "unofficial_whatsapp_instances" },
+    children: [
+      {
+        icon: ClipboardText,
+        labelKey: "nav.unofficialWhatsappNumbers",
+        href: "/dashboard/unofficial-whatsapp",
+        requiredPermission: { resource: "unofficial_whatsapp_instances", action: "read" },
+      },
+      {
+        icon: LinkSimple,
+        labelKey: "nav.connectUnofficialWhatsapp",
+        href: "/dashboard/unofficial-whatsapp/connect",
+        requiredPermission: { resource: "unofficial_whatsapp_instances", action: "create" },
       },
     ],
   },
@@ -1185,12 +1210,22 @@ function NavItemComponent({
  */
 const familyBadgeKey: Record<string, string> = {
   whatsapp: "families.badges.official",
+  // The counterpart this map was built for. Two WhatsApp families now sit next
+  // to each other in the spine, and the badge is the ONLY thing that separates
+  // them at a glance — an operator picking the wrong one sends from the wrong
+  // number, under the wrong rules, with a different risk profile.
+  "unofficial-whatsapp": "families.badges.unofficial",
 };
 
 const familyBrandIcon: Record<string, NavIcon> = {
   whatsapp: WhatsAppLogoColor,
+  // It IS WhatsApp, so it carries the WhatsApp mark: swapping in a generic
+  // glyph would hide which channel this is. The badge, not the icon, is what
+  // distinguishes the transport.
+  "unofficial-whatsapp": WhatsAppLogoColor,
   instagram: InstagramLogoColor,
-  telegram: TelegramLogoColor };
+  telegram: TelegramLogoColor,
+};
 
 function groupByFamily(
   items: NavItem[],
@@ -1280,12 +1315,19 @@ function GroupedNavItems({
                   {familyBrandIcon[group.family] &&
                     React.createElement(familyBrandIcon[group.family], {
                       className: "h-3 w-3 flex-shrink-0" })}
-                  <span className="truncate">
+                  {/* min-w-0 is what makes `truncate` actually shrink inside a
+                      flex row. Without it the name holds its full width and a
+                      longer badge than "Oficial" — "Não oficial", "Inoffiziell" —
+                      overlaps it instead of ellipsing the name. */}
+                  <span className="min-w-0 truncate">
                     {t(`families.${group.family}`)}
                   </span>
                   {familyBadgeKey[group.family] && (
                     <span
-                      title={t("families.badges.officialHint")}
+                      // The hint is derived from the badge key rather than
+                      // hardcoded, or every badge explains the OFFICIAL channel
+                      // — which on the unofficial one is exactly backwards.
+                      title={t(`${familyBadgeKey[group.family]}Hint`)}
                       className="rounded-lg shrink-0 border border-border px-1 py-px text-[11px] font-medium normal-case tracking-normal text-muted-foreground"
                     >
                       {t(familyBadgeKey[group.family])}

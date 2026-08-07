@@ -38,8 +38,8 @@ type Tone = "default" | "danger" | "warning";
 
 const toneClass: Record<Tone, string> = {
   default: "text-foreground",
-  danger: "text-destructive",
-  warning: "text-warning",
+  danger: "text-destructive-ink",
+  warning: "text-warning-ink",
 };
 
 const num = (value: number | undefined) =>

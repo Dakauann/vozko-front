@@ -649,7 +649,7 @@ export default function CrmListView({
         emptyState={
           error
             ? {
-                icon: <ArrowsClockwise className="h-7 w-7 text-destructive" weight="bold" />,
+                icon: <ArrowsClockwise className="h-7 w-7 text-destructive-ink" weight="bold" />,
                 title: "Não foi possível carregar",
                 description: error,
                 action: (

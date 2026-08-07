@@ -88,17 +88,17 @@ const statusStyles: Record<string, { bg: string; text: string; dot: string }> =
       dot: "bg-muted",
     },
     RUNNING: {
-      bg: "bg-healthy/15",
-      text: "text-healthy",
+      bg: "bg-muted",
+      text: "text-healthy-ink",
       dot: "bg-healthy",
     },
     PAUSED: {
-      bg: "bg-warning/15",
-      text: "text-warning",
+      bg: "bg-muted",
+      text: "text-warning-ink",
       dot: "bg-warning",
     },
     COMPLETED: {
-      bg: "bg-primary/15",
+      bg: "bg-muted",
       text: "text-primary-ink",
       dot: "bg-muted",
     },
@@ -150,7 +150,7 @@ function WsStatusIndicator({
     connected: {
       icon: WifiHigh,
       label: t.wsConnected,
-      className: "text-healthy-ink bg-muted border-healthy/20",
+      className: "text-healthy-ink bg-muted border-border",
       dotClass: "bg-healthy",
       animate: false,
     },
@@ -365,7 +365,7 @@ export default function CampaignHeader({
   const wsStatus = crmContext.status;
 
   const badgeColor =
-    campaignType === "whatsapp" ? "text-healthy" : "text-primary-ink";
+    campaignType === "whatsapp" ? "text-healthy-ink" : "text-primary-ink";
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

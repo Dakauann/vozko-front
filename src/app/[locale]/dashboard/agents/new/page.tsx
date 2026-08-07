@@ -84,7 +84,7 @@ export default function NewAgentPage() {
         >
           <ChooserCard
             Icon={GraduationCap}
-            iconGradient="ink-2"
+            iconGradient="tile-2"
             title={tChooser("beginner.title")}
             badge={tChooser("beginner.badge")}
             description={tChooser("beginner.description")}
@@ -100,7 +100,7 @@ export default function NewAgentPage() {
           />
           <ChooserCard
             Icon={Wrench}
-            iconGradient="ink-4"
+            iconGradient="tile-4"
             title={tChooser("professional.title")}
             badge={tChooser("professional.badge")}
             description={tChooser("professional.description")}
@@ -187,7 +187,7 @@ function ChooserCard({
         </span>
       ) : null}
       <div
-        className={`ink-plate flex h-10 w-10 items-center justify-center ${iconGradient}`}
+        className={`flex h-10 w-10 items-center justify-center rounded-lg ${iconGradient}`}
       >
         <Icon className="h-5 w-5" weight="fill" />
       </div>

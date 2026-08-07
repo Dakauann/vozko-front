@@ -321,7 +321,7 @@ export default function OpportunityBoard({
       <div className="relative flex-1 min-h-0 overflow-x-auto overflow-y-hidden">
         {error ? (
           <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-            <ArrowsClockwise className="h-8 w-8 text-destructive" weight="bold" />
+            <ArrowsClockwise className="h-8 w-8 text-destructive-ink" weight="bold" />
             <p className="text-sm text-muted-foreground">{error}</p>
             <ElevatedButton variant="outline-subtle" size="sm" title={t("deals.retry")} onClick={() => void load()} />
           </div>
@@ -346,7 +346,7 @@ export default function OpportunityBoard({
                     className={cn(
                       "text-[11px] font-semibold tabular-nums",
                       c.isWon
-                        ? "text-healthy dark:text-healthy"
+                        ? "text-healthy-ink"
                         : c.isLost
                           ? "text-muted-foreground"
                           : "text-foreground",
@@ -478,7 +478,7 @@ function DealCard({
               className={cn(
                 "text-sm font-semibold tabular-nums tracking-tight",
                 won
-                  ? "text-healthy dark:text-healthy"
+                  ? "text-healthy-ink"
                   : lost
                     ? "text-muted-foreground line-through"
                     : "text-foreground",

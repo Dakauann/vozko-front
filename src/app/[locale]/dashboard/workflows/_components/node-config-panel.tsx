@@ -423,7 +423,7 @@ export function NodeConfigPanel({
     >
       {/* Resize handle - outside scroll container for consistent behavior */}
       <div
-        className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-primary/30 active:bg-primary/50 transition-colors z-20"
+        className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-muted active:bg-primary/50 transition-colors z-20"
         onMouseDown={handleResizeStart}
       />
       <div className="p-3 border-b border-border flex items-center justify-between shrink-0">
@@ -478,7 +478,7 @@ export function NodeConfigPanel({
                 className={cn(
                   "rounded-lg border px-3 py-2",
                   googleCalendarStatus.connected
-                    ? "border-healthy/30 bg-muted/70 text-healthy-ink"
+                    ? "border-border bg-muted/70 text-healthy-ink"
                     : "border-warning/30 bg-warning/80 text-warning-foreground",
                 )}
               >
@@ -682,7 +682,7 @@ export function NodeConfigPanel({
             )}
 
             {isTestableNode && !workflowId && (
-              <div className="rounded-lg border border-warning/30 bg-muted px-3 py-2 text-xs text-warning-ink">
+              <div className="rounded-lg border border-border bg-muted px-3 py-2 text-xs text-warning-ink">
                 Salve o workflow primeiro para habilitar o teste de nós.
               </div>
             )}
@@ -748,7 +748,7 @@ function NodeIdField({
         placeholder={nodeId}
       />
       {error ? (
-        <p className="mt-1 text-[11px] text-destructive">{error}</p>
+        <p className="mt-1 text-[11px] text-destructive-ink">{error}</p>
       ) : (
         <p className="mt-1 text-[11px] text-muted-foreground">
           Referenciado como{" "}
@@ -983,7 +983,7 @@ function KeyValueField({
         </div>
       </div>
 
-      {error && <p className="text-[11px] text-destructive">{error}</p>}
+      {error && <p className="text-[11px] text-destructive-ink">{error}</p>}
     </div>
   );
 }
@@ -1396,7 +1396,7 @@ function SendTemplateConfigSection({
           isLoading={phoneSelect.isLoading}
         />
         {phonesError && (
-          <p className="text-[11px] text-destructive">{phonesError}</p>
+          <p className="text-[11px] text-destructive-ink">{phonesError}</p>
         )}
       </div>
 
@@ -1419,10 +1419,10 @@ function SendTemplateConfigSection({
           disabled={!currentBusinessPhoneId}
         />
         {!!currentBusinessPhoneId && !currentTemplateId && (
-          <p className="text-[11px] text-destructive">Campo obrigatório</p>
+          <p className="text-[11px] text-destructive-ink">Campo obrigatório</p>
         )}
         {templatesError && (
-          <p className="text-[11px] text-destructive">{templatesError}</p>
+          <p className="text-[11px] text-destructive-ink">{templatesError}</p>
         )}
         {selectedPhone && !templatesError && (
           <p className="text-[11px] text-muted-foreground">
@@ -1437,14 +1437,14 @@ function SendTemplateConfigSection({
         {!!currentTemplateId &&
           !currentTemplateIsVisible &&
           !templateSelect.isLoading && (
-            <p className="text-[11px] text-warning">
+            <p className="text-[11px] text-warning-ink">
               O template salvo não está pronto para envio neste WABA. Escolha um
               template aprovado e utilizável.
             </p>
           )}
       </div>
 
-      <div className="rounded-lg border border-info/30 bg-muted px-3 py-2 text-info-ink">
+      <div className="rounded-lg border border-border bg-muted px-3 py-2 text-info-ink">
         <div className="flex items-start gap-2">
           <Info size={15} className="mt-0.5 shrink-0" />
           <div className="space-y-1">
@@ -1461,7 +1461,7 @@ function SendTemplateConfigSection({
       </div>
 
       {selectedTemplate && selectedTemplate.usabilityStatus !== "ready" && (
-        <p className="text-[11px] text-warning">
+        <p className="text-[11px] text-warning-ink">
           O template atual não está pronto para envio:{" "}
           {selectedTemplate.usabilityMessage ??
             selectedTemplate.usabilityStatus}
@@ -1613,7 +1613,7 @@ function RangeField({
           {field.description}
         </p>
       )}
-      {error && <p className="text-[11px] text-destructive">{error}</p>}
+      {error && <p className="text-[11px] text-destructive-ink">{error}</p>}
     </div>
   );
 }
@@ -1740,7 +1740,7 @@ function SchemaField({
             </p>
           )}
           {reqError && (
-            <p className="text-[11px] text-destructive pl-6">{reqError}</p>
+            <p className="text-[11px] text-destructive-ink pl-6">{reqError}</p>
           )}
         </div>
       );
@@ -1924,10 +1924,10 @@ function AIAgentSection({
             isLoading={agentsLoading}
           />
           {!config.agent_id && (
-            <p className="text-[11px] text-destructive">Campo obrigatório</p>
+            <p className="text-[11px] text-destructive-ink">Campo obrigatório</p>
           )}
           {agentError && (
-            <p className="text-[11px] text-destructive">{agentError}</p>
+            <p className="text-[11px] text-destructive-ink">{agentError}</p>
           )}
           {agentId && agentRequiredVars.length > 0 && (
             <div className="mt-2 space-y-1.5">
@@ -1968,7 +1968,7 @@ function AIAgentSection({
               onValueChange={(v: string) => updateField("model", v)}
             />
             {!config.model && (
-              <p className="text-[11px] text-destructive">Campo obrigatório</p>
+              <p className="text-[11px] text-destructive-ink">Campo obrigatório</p>
             )}
           </div>
           <ElevatedTextarea
@@ -2472,7 +2472,7 @@ function SelectField({
           value={(value as string) ?? ""}
           onValueChange={(v: string) => onChange(v)}
         />
-        {error && <p className="text-[11px] text-destructive">{error}</p>}
+        {error && <p className="text-[11px] text-destructive-ink">{error}</p>}
       </div>
     );
   }
@@ -2517,9 +2517,9 @@ function SelectField({
           onOpenChange={onOpenChange}
           isLoading={paginatedLoading}
         />
-        {error && <p className="text-[11px] text-destructive">{error}</p>}
+        {error && <p className="text-[11px] text-destructive-ink">{error}</p>}
         {paginatedError && (
-          <p className="text-[11px] text-destructive">{paginatedError}</p>
+          <p className="text-[11px] text-destructive-ink">{paginatedError}</p>
         )}
       </div>
     );
@@ -2545,7 +2545,7 @@ function SelectField({
           </ElevatedSelectItem>
         ))}
       </ElevatedSelect>
-      {error && <p className="text-[11px] text-destructive">{error}</p>}
+      {error && <p className="text-[11px] text-destructive-ink">{error}</p>}
     </div>
   );
 }
@@ -2682,7 +2682,7 @@ function MediaSelectField({
           </ElevatedSelectItem>
         ))}
       </ElevatedSelect>
-      {error && <p className="text-[11px] text-destructive">{error}</p>}
+      {error && <p className="text-[11px] text-destructive-ink">{error}</p>}
 
       {/* Inline upload area */}
       <input
@@ -2706,7 +2706,7 @@ function MediaSelectField({
         {uploading ? "Enviando..." : "Enviar nova mídia"}
       </button>
       {uploadError && (
-        <p className="text-[11px] text-destructive">{uploadError}</p>
+        <p className="text-[11px] text-destructive-ink">{uploadError}</p>
       )}
     </div>
   );
@@ -2776,7 +2776,7 @@ function ModelCombobox({
         disabled={loading || models.length === 0}
         emptyMessage={loadError ?? "Nenhum modelo encontrado"}
       />
-      {loadError && <p className="text-[11px] text-destructive">{loadError}</p>}
+      {loadError && <p className="text-[11px] text-destructive-ink">{loadError}</p>}
     </div>
   );
 }
@@ -2947,7 +2947,7 @@ function ToolsField({
             className={cn(
               "rounded-lg border overflow-hidden transition-colors",
               hasErrors && !isExpanded
-                ? "border-warning/50 bg-warning/5"
+                ? "border-border bg-muted"
                 : "border-border bg-card",
             )}
           >
@@ -3187,7 +3187,7 @@ function ToolsField({
                           className={cn(
                             "flex items-center gap-2 text-xs rounded-md px-2.5 py-2 transition-colors cursor-pointer select-none border",
                             param.required
-                              ? "bg-muted border-primary/30 text-foreground"
+                              ? "bg-muted border-border text-foreground"
                               : "bg-muted border-transparent text-muted-foreground hover:bg-muted",
                           )}
                         >
@@ -3354,7 +3354,7 @@ function ButtonsField({
             <button
               type="button"
               onClick={addReply}
-              className="flex-1 flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-muted py-2 text-[11px] font-medium text-primary-ink hover:bg-muted transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 rounded-md border border-dashed border-border bg-muted py-2 text-[11px] font-medium text-primary-ink hover:bg-muted transition-colors"
             >
               <Plus size={13} weight="bold" />
               Resposta rápida
@@ -3364,7 +3364,7 @@ function ButtonsField({
             <button
               type="button"
               onClick={addCopyCode}
-              className="flex-1 flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-muted py-2 text-[11px] font-medium text-primary-ink hover:bg-muted transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 rounded-md border border-dashed border-border bg-muted py-2 text-[11px] font-medium text-primary-ink hover:bg-muted transition-colors"
             >
               <Copy size={13} weight="bold" />
               Copiar código
@@ -3412,7 +3412,7 @@ function ButtonsField({
             <button
               type="button"
               onClick={() => removeButton(i)}
-              className="text-muted-foreground hover:text-destructive transition-colors"
+              className="text-muted-foreground hover:text-destructive-ink transition-colors"
             >
               <Trash size={14} />
             </button>
@@ -3564,7 +3564,7 @@ function ListSectionsField({
         <button
           type="button"
           onClick={addRow}
-          className="w-full flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-muted py-2 text-[11px] font-medium text-primary-ink hover:bg-muted transition-colors"
+          className="w-full flex items-center justify-center gap-1.5 rounded-md border border-dashed border-border bg-muted py-2 text-[11px] font-medium text-primary-ink hover:bg-muted transition-colors"
         >
           <Plus size={13} weight="bold" />
           Adicionar opção
@@ -3591,7 +3591,7 @@ function ListSectionsField({
             <button
               type="button"
               onClick={() => removeRow(i)}
-              className="text-muted-foreground hover:text-destructive transition-colors"
+              className="text-muted-foreground hover:text-destructive-ink transition-colors"
             >
               <Trash size={14} />
             </button>
@@ -3719,7 +3719,7 @@ function ExpressionsField({
             <button
               type="button"
               onClick={() => removeExpression(i)}
-              className="text-muted-foreground hover:text-destructive transition-colors"
+              className="text-muted-foreground hover:text-destructive-ink transition-colors"
             >
               <Trash size={14} />
             </button>
@@ -3750,7 +3750,7 @@ function ExpressionsField({
       <button
         type="button"
         onClick={addExpression}
-        className="w-full flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-muted py-2 text-[11px] font-medium text-primary-ink hover:bg-muted transition-colors"
+        className="w-full flex items-center justify-center gap-1.5 rounded-md border border-dashed border-border bg-muted py-2 text-[11px] font-medium text-primary-ink hover:bg-muted transition-colors"
       >
         <Plus size={13} weight="bold" />
         Adicionar expressão
@@ -3850,7 +3850,7 @@ function CasesField({
           <button
             type="button"
             onClick={() => removeCase(i)}
-            className="text-muted-foreground hover:text-destructive shrink-0"
+            className="text-muted-foreground hover:text-destructive-ink shrink-0"
           >
             <Trash size={14} />
           </button>

@@ -210,7 +210,7 @@ function CommentRow({
               </span>
             )}
             {comment.hidden && (
-              <span className="ml-1.5 rounded bg-muted px-1.5 py-0.5 text-[11px] text-warning-ink dark:text-warning">
+              <span className="ml-1.5 rounded bg-muted px-1.5 py-0.5 text-[11px] text-warning-ink dark:text-warning-ink">
                 {t("comments.hidden")}
               </span>
             )}
@@ -314,7 +314,7 @@ function CommentRow({
         </div>
       )}
 
-      {error && <p className="mt-1.5 text-[11px] text-destructive">{error}</p>}
+      {error && <p className="mt-1.5 text-[11px] text-destructive-ink">{error}</p>}
 
       {comment.replies?.map((reply) => (
         <CommentRow

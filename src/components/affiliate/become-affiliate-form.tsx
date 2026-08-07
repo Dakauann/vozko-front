@@ -275,7 +275,7 @@ export function BecomeAffiliateForm() {
           role="alert"
           initial={{ opacity: 0, y: -6 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-start gap-3 rounded-[--radius] border border-destructive/30 bg-muted p-4 text-sm text-destructive-ink"
+          className="flex items-start gap-3 rounded-[--radius] border border-border bg-muted p-4 text-sm text-destructive-ink"
         >
           <Info className="mt-0.5 h-4 w-4 shrink-0" weight="bold" />
           <div className="min-w-0 flex-1">
@@ -604,7 +604,7 @@ function FieldWithError({
     <div className="space-y-1.5">
       {children}
       {error ? (
-        <p className="pl-4 text-xs font-medium text-destructive">{error}</p>
+        <p className="pl-4 text-xs font-medium text-destructive-ink">{error}</p>
       ) : null}
     </div>
   );

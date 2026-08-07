@@ -380,7 +380,7 @@ function LatestInteractionsPanel() {
 
                 <div className="flex items-center gap-1.5 mt-0.5">
                   {entry.last_message_sender === "agent" && (
-                    <span className="text-[11px] text-healthy font-semibold flex-shrink-0">
+                    <span className="text-[11px] text-healthy-ink font-semibold flex-shrink-0">
                       AI
                     </span>
                   )}
@@ -518,7 +518,7 @@ function StatusGraphPanel({
             transition={{ duration: 2, repeat: Infinity }}
           >
             <span className="h-2 w-2 rounded-full bg-healthy" />
-            <span className="text-xs font-semibold text-healthy">
+            <span className="text-xs font-semibold text-healthy-ink">
               {t("live")}
             </span>
           </motion.div>
@@ -572,7 +572,7 @@ function StatusGraphPanel({
             <p className="text-[11px] text-muted-foreground font-semibold">
               {t("rate")}
             </p>
-            <p className="text-lg font-semibold text-healthy">
+            <p className="text-lg font-semibold text-healthy-ink">
               {completionRate.toFixed(1)}%
             </p>
           </div>
@@ -1486,7 +1486,7 @@ function MiniStat({
       className={cn(
         "rounded-lg border px-2 py-1.5",
         accent
-          ? "border-primary/25 bg-muted"
+          ? "border-border bg-muted"
           : "border-border bg-background",
       )}
     >

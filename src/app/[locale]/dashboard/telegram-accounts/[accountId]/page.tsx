@@ -134,7 +134,7 @@ export default function TelegramAccountPage() {
 
   if (error || !account) {
     return (
-      <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-muted px-4 py-3 text-sm text-destructive-ink">
+      <div className="flex items-center gap-2 rounded-lg border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">
         <Warning className="h-4 w-4" />
         {error ?? t("profile.notFound")}
       </div>
@@ -187,7 +187,7 @@ export default function TelegramAccountPage() {
         </div>
 
         {issue === "webhook" && (
-          <p className="flex items-start gap-2 rounded-lg border border-warning/30 bg-muted p-3 text-xs leading-relaxed text-foreground">
+          <p className="flex items-start gap-2 rounded-lg border border-border bg-muted p-3 text-xs leading-relaxed text-foreground">
             <Warning weight="fill" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-warning-ink dark:text-warning-ink" />
             <span>
               {t("profile.webhookLosingMessages")}
@@ -336,7 +336,7 @@ function Field({
       <dd
         className={cn(
           "text-sm font-medium tabular-nums",
-          tone === "warn" ? "text-warning-ink dark:text-warning" : "text-foreground",
+          tone === "warn" ? "text-warning-ink dark:text-warning-ink" : "text-foreground",
         )}
       >
         {value}
@@ -359,7 +359,7 @@ function CopyButton({ value, label }: { value: string; label: string }) {
       className="inline-flex shrink-0 items-center rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
     >
       {copied ? (
-        <CheckCircle weight="fill" className="h-4 w-4 text-healthy" />
+        <CheckCircle weight="fill" className="h-4 w-4 text-healthy-ink" />
       ) : (
         <Copy className="h-4 w-4" />
       )}

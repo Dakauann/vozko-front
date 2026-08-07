@@ -290,7 +290,7 @@ function ActionChip({ action, label }: { action: CommentRuleAction; label: strin
       className={cn(
         "flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[11px] font-medium",
         action === "hide"
-          ? "bg-muted text-warning-ink dark:text-warning"
+          ? "bg-muted text-warning-ink dark:text-warning-ink"
           : "bg-muted text-primary-ink",
       )}
     >

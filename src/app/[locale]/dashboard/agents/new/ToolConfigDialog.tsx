@@ -249,7 +249,7 @@ function ToolConfigDialogContent({
             ))}
           </ElevatedSelect>
           {error && (
-            <p className="text-xs font-semibold text-destructive">{error}</p>
+            <p className="text-xs font-semibold text-destructive-ink">{error}</p>
           )}
         </div>
       );
@@ -284,7 +284,7 @@ function ToolConfigDialogContent({
               className="font-mono text-sm"
             />
             {error && (
-              <p className="text-xs font-semibold text-destructive">{error}</p>
+              <p className="text-xs font-semibold text-destructive-ink">{error}</p>
             )}
           </div>
         );
@@ -333,7 +333,7 @@ function ToolConfigDialogContent({
               placeholder={defaultPlaceholder}
             />
             {error && (
-              <p className="text-xs font-semibold text-destructive">{error}</p>
+              <p className="text-xs font-semibold text-destructive-ink">{error}</p>
             )}
           </div>
         );
@@ -353,7 +353,7 @@ function ToolConfigDialogContent({
               placeholder={defaultPlaceholder}
             />
             {error && (
-              <p className="text-xs font-semibold text-destructive">{error}</p>
+              <p className="text-xs font-semibold text-destructive-ink">{error}</p>
             )}
           </div>
         );

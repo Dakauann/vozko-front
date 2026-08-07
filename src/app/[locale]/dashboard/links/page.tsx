@@ -195,7 +195,7 @@ export default function LinksPage() {
           {
             label: t("stats.totalClicks"),
             value: loading ? "..." : String(stats?.totalClicks ?? 0),
-            icon: <CursorClick className="h-4 w-4 text-healthy" weight="fill" />,
+            icon: <CursorClick className="h-4 w-4 text-healthy-ink" weight="fill" />,
           },
         ]}
         data={links}
@@ -226,7 +226,7 @@ export default function LinksPage() {
                   e.stopPropagation();
                   void handleDelete(row);
                 }}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-destructive-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <Trash className="h-4 w-4" weight="bold" />
               </button>

@@ -165,7 +165,7 @@ export function PlanCatalogRail({
                   className="flex items-center gap-2 text-sm text-foreground"
                 >
                   <Check
-                    className="h-3.5 w-3.5 shrink-0 text-healthy"
+                    className="h-3.5 w-3.5 shrink-0 text-healthy-ink"
                     weight="bold"
                   />
                   <span className="flex items-center gap-1.5">
@@ -219,7 +219,7 @@ export function PlanCatalogRail({
 
 const RAIL_ICON_MAP: Record<string, React.ReactNode> = {
   whatsapp: (
-    <WhatsappLogo className="h-3 w-3 shrink-0 text-healthy" weight="fill" />
+    <WhatsappLogo className="h-3 w-3 shrink-0 text-healthy-ink" weight="fill" />
   ),
 };
 
@@ -256,7 +256,7 @@ function RailEstimateBadges({
         >
           {RAIL_ICON_MAP[est.category] ?? (
             <ChatCircle
-              className="h-3 w-3 shrink-0 text-healthy"
+              className="h-3 w-3 shrink-0 text-healthy-ink"
               weight="fill"
             />
           )}

@@ -58,8 +58,8 @@ export default function NewSupportInboxPage() {
 
       {error && (
         <motion.div variants={itemVariants}>
-          <ElevatedContainer className="border-destructive/30 bg-destructive/10">
-            <p className="text-sm text-destructive">{error}</p>
+          <ElevatedContainer className="border-border bg-muted">
+            <p className="text-sm text-destructive-ink">{error}</p>
           </ElevatedContainer>
         </motion.div>
       )}

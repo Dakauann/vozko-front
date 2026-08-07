@@ -87,9 +87,9 @@ export function WorkflowAlerts({
           className={cn(
             "inline-flex items-center gap-1.5 min-h-[32px] rounded-[--radius] border px-2.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
             tone === "blocking" &&
-              "border-destructive/30 text-destructive-ink hover:bg-muted dark:border-destructive/40 dark:text-destructive dark:hover:bg-destructive/10",
+              "border-border text-destructive-ink hover:bg-muted dark:border-border dark:text-destructive-ink dark:hover:bg-muted",
             tone === "advisory" &&
-              "border-warning/30 text-warning-ink hover:bg-muted dark:border-warning/40 dark:text-warning dark:hover:bg-warning/10",
+              "border-border text-warning-ink hover:bg-muted dark:border-border dark:text-warning-ink dark:hover:bg-muted",
             tone === "clean" &&
               "border-border text-muted-foreground hover:border-foreground/20 hover:bg-muted",
           )}
@@ -99,7 +99,7 @@ export function WorkflowAlerts({
             weight={tone === "clean" ? "regular" : "fill"}
             className={cn(
               linting && "animate-spin",
-              tone === "clean" && !linting && "text-healthy dark:text-healthy",
+              tone === "clean" && !linting && "text-healthy-ink",
             )}
           />
           <span>Alertas</span>
@@ -122,8 +122,8 @@ export function WorkflowAlerts({
           <div
             className={cn(
               "text-xs font-medium",
-              tone === "blocking" && "text-destructive dark:text-destructive",
-              tone === "advisory" && "text-warning dark:text-warning",
+              tone === "blocking" && "text-destructive-ink",
+              tone === "advisory" && "text-warning-ink",
               tone === "clean" && "text-muted-foreground",
             )}
           >

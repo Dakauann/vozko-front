@@ -203,7 +203,7 @@ export default function AgentsPage() {
                   title={t("detail.messagingModel")}
                 >
                   <ChatCircle
-                    className="h-3 w-3 shrink-0 text-healthy"
+                    className="h-3 w-3 shrink-0 text-healthy-ink"
                     weight="fill"
                   />
                   <ModelBrandIcon modelId={messaging} size={12} />
@@ -360,7 +360,7 @@ export default function AgentsPage() {
         emptyState={
           error
             ? {
-                icon: <Robot className="h-7 w-7 text-destructive" weight="fill" />,
+                icon: <Robot className="h-7 w-7 text-destructive-ink" weight="fill" />,
                 title: t("error.title"),
                 description: error,
               }

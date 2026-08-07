@@ -82,7 +82,7 @@ const inactiveVariantClasses: Record<BaseVariant, string> = {
     "bg-transparent text-foreground border border-dashed border-foreground/20 hover:border-foreground/30 hover:bg-muted",
   ghost:
     "bg-transparent text-foreground border border-dashed border-border hover:border-foreground/20 hover:bg-muted",
-  vsl: "bg-transparent text-muted-foreground border border-dashed border-foreground/20 hover:border-info/30 hover:bg-muted",
+  vsl: "bg-transparent text-muted-foreground border border-dashed border-foreground/20 hover:border-border hover:bg-muted",
   action:
     "bg-transparent text-muted-foreground border border-dashed border-foreground/20 hover:border-foreground/30 hover:bg-muted",
 };

@@ -46,7 +46,7 @@ export default function WhatsAppPreview({
           </div>
           <div className="flex-1">
             <h3 className="text-white font-semibold text-sm">{getBrand().name}</h3>
-            <p className="text-healthy text-xs">
+            <p className="text-healthy-ink text-xs">
               Typically replies instantly
             </p>
           </div>
@@ -186,7 +186,7 @@ function HeaderPreview({ component }: { component: DraggableComponent }) {
     return (
       <div className="px-4 pt-4 pb-2 border-b border-border">
         <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-          <div className="h-10 w-10 rounded-lg bg-primary/15 flex items-center justify-center flex-shrink-0">
+          <div className="h-10 w-10 rounded-lg tile-brand flex items-center justify-center flex-shrink-0">
             <FileIcon className="h-5 w-5 text-primary-ink" weight="duotone" />
           </div>
           <div className="flex-1 min-w-0">

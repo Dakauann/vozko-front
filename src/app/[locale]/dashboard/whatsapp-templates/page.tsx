@@ -428,7 +428,7 @@ export default function WhatsAppTemplatesPage({
               : t("header.description")
             : t("header.description")
         }
-        colorClass="text-healthy"
+        colorClass="text-healthy-ink"
         actions={
           can("whatsapp_templates", "create") && !adminAllMode ? (
             <Button
@@ -445,11 +445,11 @@ export default function WhatsAppTemplatesPage({
       />
 
       {adminAllMode && (
-        <ElevatedContainer className="border-warning/30 bg-warning/10 p-4">
+        <ElevatedContainer className="border-border bg-muted p-4">
           <div className="flex items-center gap-3">
             <Buildings
               weight="fill"
-              className="h-5 w-5 flex-shrink-0 text-warning"
+              className="h-5 w-5 flex-shrink-0 text-warning-ink"
             />
             <p className="text-sm text-warning-ink">
               {t.has("header.adminNotice")

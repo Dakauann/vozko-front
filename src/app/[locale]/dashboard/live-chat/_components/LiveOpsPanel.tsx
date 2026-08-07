@@ -24,6 +24,7 @@ import {
   WhatsappLogo,
   X,
 } from "@/components/icons";
+import { GLYPH_PLATE } from "@/components/icons/glyph-plates";
 import {
   Bar,
   BarChart,
@@ -1221,56 +1222,56 @@ export default function LiveOpsPanel({
       label: tk("finished"),
       value: empty ? "…" : fmt.num(kpis?.finished),
       icon: CheckCircle,
-      bg: "bg-healthy",
+      bg: GLYPH_PLATE.CheckCircle,
     },
     {
       key: "ongoing",
       label: tk("ongoing"),
       value: empty ? "…" : fmt.num(kpis?.ongoing),
       icon: Pulse,
-      bg: "bg-muted",
+      bg: GLYPH_PLATE.Pulse,
     },
     {
       key: "pending",
       label: tk("pending"),
       value: empty ? "…" : fmt.num(kpis?.pending),
       icon: Hourglass,
-      bg: "bg-warning",
+      bg: GLYPH_PLATE.Hourglass,
     },
     {
       key: "unassigned",
       label: tk("unassigned"),
       value: empty ? "…" : fmt.num(kpis?.unassigned_backlog),
       icon: UserMinus,
-      bg: "bg-destructive",
+      bg: "tile-fault",
     },
     {
       key: "new",
       label: tk("newContacts"),
       value: empty ? "…" : fmt.num(kpis?.new_contacts),
       icon: Users,
-      bg: "bg-muted",
+      bg: GLYPH_PLATE.Users,
     },
     {
       key: "wait",
       label: tk("avgWait"),
       value: empty ? "…" : fmt.mins(kpis?.avg_wait_mins ?? null),
       icon: Clock,
-      bg: "bg-muted",
+      bg: GLYPH_PLATE.Clock,
     },
     {
       key: "handle",
       label: tk("avgHandle"),
       value: empty ? "…" : fmt.mins(kpis?.avg_handle_mins ?? null),
       icon: Timer,
-      bg: "bg-primary",
+      bg: GLYPH_PLATE.Timer,
     },
     {
       key: "frt",
       label: tk("frt"),
       value: empty ? "…" : fmt.mins(kpis?.avg_frt_mins ?? null),
       icon: Lightning,
-      bg: "bg-muted",
+      bg: GLYPH_PLATE.Lightning,
     },
   ] as const;
 
@@ -1440,7 +1441,7 @@ export default function LiveOpsPanel({
           )}
         >
           {error ? (
-            <div className="rounded-[--radius] border border-destructive/30 bg-muted px-3 py-2 text-sm text-destructive-ink">
+            <div className="rounded-[--radius] border border-border bg-muted px-3 py-2 text-sm text-destructive-ink">
               {error}
             </div>
           ) : null}

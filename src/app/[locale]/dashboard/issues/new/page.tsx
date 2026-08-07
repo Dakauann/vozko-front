@@ -194,7 +194,7 @@ export default function NewIssuePage() {
               htmlFor="issue-title"
               className="text-sm font-medium text-foreground"
             >
-              {t("form.titleLabel")} <span className="text-destructive">*</span>
+              {t("form.titleLabel")} <span className="text-destructive-ink">*</span>
             </label>
             <ElevatedInput
               id="issue-title"
@@ -217,7 +217,7 @@ export default function NewIssuePage() {
             />
             <div className="flex justify-between">
               {fieldErrors.title ? (
-                <p className="text-xs text-destructive">{fieldErrors.title}</p>
+                <p className="text-xs text-destructive-ink">{fieldErrors.title}</p>
               ) : (
                 <span />
               )}
@@ -262,7 +262,7 @@ export default function NewIssuePage() {
             />
             <div className="flex justify-between">
               {fieldErrors.description ? (
-                <p className="text-xs text-destructive">
+                <p className="text-xs text-destructive-ink">
                   {fieldErrors.description}
                 </p>
               ) : (
@@ -336,9 +336,9 @@ export default function NewIssuePage() {
 
           {/* Error */}
           {error && (
-            <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 dark:border-destructive dark:bg-destructive/30 px-3 py-2">
-              <Warning className="h-4 w-4 text-destructive dark:text-destructive shrink-0" />
-              <p className="text-sm text-destructive dark:text-destructive">{error}</p>
+            <div className="flex items-center gap-2 rounded-lg border border-border bg-muted dark:bg-muted px-3 py-2">
+              <Warning className="h-4 w-4 text-destructive-ink shrink-0" />
+              <p className="text-sm text-destructive-ink">{error}</p>
             </div>
           )}
 

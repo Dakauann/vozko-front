@@ -160,7 +160,7 @@ export default function ArchivedAgentsPage() {
         emptyState={
           error
             ? {
-                icon: <Robot className="h-7 w-7 text-destructive" weight="fill" />,
+                icon: <Robot className="h-7 w-7 text-destructive-ink" weight="fill" />,
                 title: t("error.title"),
                 description: error,
               }

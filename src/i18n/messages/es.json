@@ -639,7 +639,10 @@
       "rememberMe": "Recordarme",
       "forgotPassword": "¿Olvidaste tu contraseña?",
       "submit": "Iniciar sesión",
-      "submitting": "Iniciando sesión..."
+      "submitting": "Iniciando sesión...",
+      "slideIdle": "Completa ambos campos para continuar",
+      "slideToUnlock": "Desliza para desbloquear el acceso",
+      "slideUnlocked": "Acceso desbloqueado"
     },
     "registration": {
       "text": "¿Aún no tienes una cuenta?",
@@ -774,7 +777,10 @@
       "campaigns": "Campañas",
       "quotes": "Cotizaciones",
       "settings": "Configuración",
-      "details": "Detalles"
+      "details": "Detalles",
+      "unofficial-whatsapp": "WhatsApp no oficial",
+      "broadcasts": "Envíos",
+      "connect": "Conectar número"
     },
     "search": {
       "placeholder": "Buscar agentes, campañas, métricas..."
@@ -964,7 +970,10 @@
       "telegram": "Cuentas",
       "telegramAccounts": "Cuentas",
       "connectTelegram": "Conectar cuenta",
-      "telegramChannel": "Telegram"
+      "telegramChannel": "Telegram",
+      "unofficialWhatsapp": "Números",
+      "unofficialWhatsappNumbers": "Números",
+      "connectUnofficialWhatsapp": "Conectar número"
     },
     "badges": {
       "new": "Nuevo",
@@ -984,8 +993,11 @@
       "telegram": "Telegram",
       "badges": {
         "official": "Oficial",
-        "officialHint": "Integración oficial de Meta (WhatsApp Cloud API). Estable, admite plantillas y sin riesgo de bloqueo."
-      }
+        "officialHint": "Integración oficial de Meta (WhatsApp Cloud API). Estable, admite plantillas y sin riesgo de bloqueo.",
+        "unofficial": "No oficial",
+        "unofficialHint": "Sesión vinculada por lectura de código, fuera de la API oficial de Meta. Envía sin plantillas, con riesgo de bloqueo del número."
+      },
+      "unofficial-whatsapp": "WhatsApp"
     },
     "pin": {
       "pin": "Fijar",
@@ -7488,7 +7500,9 @@
       "muteOff": "Activar sonidos",
       "switchView": "Cambiar vista",
       "manageTags": "Gestionar tags",
-      "manageLabels": "Gestionar etiquetas"
+      "manageLabels": "Gestionar etiquetas",
+      "startConversation": "Nueva conversación",
+      "startConversationHint": "Enviar el primer mensaje a un número nuevo (WhatsApp no oficial)"
     },
     "deals": {
       "title": "Embudo de Ventas",
@@ -7510,7 +7524,8 @@
       "funnel": "Embudo",
       "tags": "Etiquetas",
       "manage": "Gestionar",
-      "session": "Sesión"
+      "session": "Sesión",
+      "outbound": "Contacto"
     }
   },
   "metricsOps": {
@@ -7554,7 +7569,10 @@
       "response": "Respuesta",
       "resolved": "Resueltas",
       "wait": "Espera",
-      "duration": "Duración"
+      "duration": "Duración",
+      "unofficialWhatsapp": "WhatsApp (no oficial)",
+      "instagram": "Instagram",
+      "telegram": "Telegram"
     },
     "attendance": {
       "badge": "Métricas · Atención",
@@ -8315,5 +8333,185 @@
       "default": "No se pudieron cargar los afiliados."
     },
     "forbidden": "No tiene permiso para acceder a esta página."
+  },
+  "unofficialWhatsapp": {
+    "page": {
+      "badge": "WhatsApp no oficial",
+      "description": "Números conectados por sesión vinculada, fuera de la API oficial.",
+      "connect": "Conectar número"
+    },
+    "state": {
+      "live": "Conectado",
+      "banned": "Bloqueado por WhatsApp",
+      "restricted": "Restringido por WhatsApp",
+      "disconnected": "Desconectado",
+      "awaiting-scan": "Esperando lectura",
+      "provisioning": "Preparando",
+      "provision-failed": "Fallo al preparar"
+    },
+    "table": {
+      "number": "Number",
+      "state": "Status",
+      "automation": "Automation",
+      "automationOn": "On",
+      "automationOff": "Off",
+      "search": "Search by number or name",
+      "unlinked": "Not linked yet"
+    },
+    "actions": {
+      "open": "Open",
+      "reset": "Restart session",
+      "remove": "Remove number",
+      "disconnect": "Disconnect",
+      "relink": "Reconnect",
+      "refresh": "Actualizar"
+    },
+    "notice": {
+      "removed": "{name} was removed from the workspace.",
+      "resetStarted": "Restart requested. The session returns shortly.",
+      "disconnected": "{name} was disconnected.",
+      "rotated": "A new delivery address was generated and registered."
+    },
+    "empty": {
+      "title": "No numbers connected",
+      "description": "Connect a WhatsApp by scanning a code to receive and reply in the inbox.",
+      "noMatch": "No numbers found",
+      "noMatchHint": "Adjust the search to see connected numbers."
+    },
+    "restriction": {
+      "title": "WhatsApp is limiting this number",
+      "quota": "Quota used:",
+      "until": "Until:"
+    },
+    "disclosure": {
+      "title": "Lee esto antes de conectar",
+      "unofficial": "Es una conexión no oficial: un dispositivo vinculado, no la API oficial de WhatsApp Business.",
+      "ban": "Meta puede bloquear el número, y nosotros no podemos revertir un bloqueo.",
+      "business": "Usa una cuenta WhatsApp Business. Las cuentas personales son inestables y se desconectan.",
+      "session": "La sesión cae con el teléfono. WhatsApp no encola los mensajes enviados sin conexión."
+    },
+    "connect": {
+      "badge": "Unofficial WhatsApp",
+      "title": "Connect number",
+      "description": "Link a WhatsApp to this workspace.",
+      "back": "Back",
+      "methodTitle": "How do you want to link it?",
+      "methodHint": "Both connect the same number; only what the person does on the phone changes.",
+      "qrTitle": "Scan a code",
+      "qrHint": "The phone scans a code shown here. Expires in 2 minutes.",
+      "pairingTitle": "Type a code on the phone",
+      "pairingHint": "Give the number and type the code on the device. Expires in 5 minutes.",
+      "phoneLabel": "Number with country code",
+      "phoneHint": "Digits only, starting with the country code. E.g. 5511999999999.",
+      "continue": "Continue",
+      "preparing": "Preparing…",
+      "provisionFailed": "There is no capacity to connect a number right now. Try again shortly.",
+      "codeFailed": "The code could not be generated. Try again.",
+      "qrAlt": "Code to scan in WhatsApp",
+      "waitingCode": "Generating code…",
+      "waitingScan": "Waiting for the phone to scan…",
+      "expiresIn": "Expires in {time}",
+      "expired": "The code expired.",
+      "newCode": "Generate a new code",
+      "qrStep1": "Open WhatsApp on the phone that will answer.",
+      "qrStep2": "Go to Settings, Linked devices, Link a device.",
+      "qrStep3": "Point the camera at the code beside this.",
+      "pairStep1": "Open WhatsApp on the phone that will answer.",
+      "pairStep2": "Go to Settings, Linked devices, Link a device, Link with phone number.",
+      "pairStep3": "Type the code shown beside this.",
+      "historyNote": "On connect, the last 7 days of conversations appear in the inbox. They do not trigger assignment or automatic replies.",
+      "successTitle": "Number connected",
+      "successBody": "{name} now sends and receives through the inbox.",
+      "openNumber": "Open number",
+      "backToList": "See all numbers"
+    },
+    "detail": {
+      "notFound": "Number not found.",
+      "unnamed": "No profile name",
+      "saveFailed": "Could not save",
+      "connectedAt": "Connected",
+      "lastChecked": "Last checked",
+      "platform": "Device",
+      "bannedTitle": "This number was disabled by Meta",
+      "bannedBody": "No reconnection is possible. Connect another number to keep working.",
+      "webhookTitle": "Delivery address",
+      "webhookBody": "Generate a new address if you suspect the current one leaked.",
+      "rotate": "Generate new address"
+    },
+    "automation": {
+      "title": "Atención con IA",
+      "enableAgentResponses": "AI agent replies",
+      "enableWorkflow": "Workflows active",
+      "enableAnalysis": "Analyse conversations",
+      "enableAutoStaging": "Move stage automatically",
+      "handleGroups": "Attend groups",
+      "groupsHint": "When off, groups stay visible in the inbox but get no automatic reply.",
+      "modeLabel": "Quién atiende",
+      "modeAgent": "Agente",
+      "modeWorkflow": "Automatización",
+      "agentLabel": "Agente responsable",
+      "agentHint": "El agente responde a los mensajes recibidos en este número.",
+      "agentSearch": "Buscar agente...",
+      "agentEmpty": "No se encontraron agentes.",
+      "agentInactive": "Inactivo",
+      "workflowLabel": "Automatización responsable",
+      "workflowHint": "La automatización se ejecuta con cada mensaje nuevo a este número.",
+      "workflowSearch": "Buscar automatización...",
+      "workflowEmpty": "No se encontraron automatizaciones.",
+      "enableLabel": "Responder automáticamente",
+      "enableHint": "Cuando está activo, responde los mensajes nuevos. Puedes pausar la automatización en una conversación concreta sin cambiar esta configuración.",
+      "enableRequiresAgent": "Selecciona un agente para activar las respuestas automáticas.",
+      "enableRequiresWorkflow": "Selecciona una automatización para activarla.",
+      "statusActive": "Activo",
+      "statusInactive": "Inactivo",
+      "saving": "Guardando...",
+      "saved": "Guardado",
+      "saveFailed": "No se pudo guardar. Inténtalo de nuevo.",
+      "activeNote": "Los mensajes nuevos serán respondidos por este agente. En este canal no hay ventana de 24 horas, pero las respuestas solo salen mientras la sesión esté conectada y respetan el intervalo y el límite diario definidos en Protección del número.",
+      "activeNoteWorkflow": "Los mensajes nuevos activarán esta automatización. Los nodos de plantilla y botones de la API oficial se ignoran en este canal."
+    },
+    "safety": {
+      "title": "Number protection",
+      "description": "Pacing and limits that reduce the risk of a ban.",
+      "delayMin": "Minimum gap (ms)",
+      "delayMax": "Maximum gap (ms)",
+      "dailyCap": "Daily send limit",
+      "dailyCapHint": "Zero removes the limit. It applies across every broadcast on this number.",
+      "autoRejectCalls": "Reject calls automatically",
+      "autoRejectCallsHint": "Calls are still recorded in the conversation."
+    },
+    "handling": {
+      "title": "Tratamiento de las conversaciones",
+      "description": "Qué ocurre con cada conversación, sin importar quién responde.",
+      "analysisHint": "Genera resumen, sentimiento y temas de cada conversación cerrada.",
+      "autoStagingHint": "Mueve el lead por el embudo a medida que avanza la conversación."
+    },
+    "stats": {
+      "total": "Total",
+      "connected": "Conectados",
+      "attention": "Atención"
+    },
+    "pagination": {
+      "pageOf": "Página {page} de {totalPages}",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    },
+    "startConversation": {
+      "title": "Nueva conversación",
+      "description": "Envía el primer mensaje a un número que aún no te ha contactado.",
+      "fromLabel": "Enviar desde",
+      "phoneLabel": "Número de teléfono",
+      "phoneHint": "Con código de país y área, solo dígitos. Ej.: 5511999999999",
+      "nameLabel": "Nombre (opcional)",
+      "namePlaceholder": "Cómo identificar a este contacto",
+      "risk": "Una conversación que inicias tú es contacto en frío. Es la principal causa de bloqueo de números no oficiales, y un bloqueo no podemos revertirlo. Verificamos que el número exista en WhatsApp antes de abrir el chat, pero el riesgo de contactar a quien no te buscó es tuyo.",
+      "submit": "Abrir conversación",
+      "opening": "Abriendo...",
+      "cancel": "Cancelar",
+      "failed": "No se pudo abrir la conversación.",
+      "noNumbers": "Ningún número conectado ahora. Conecta uno para iniciar conversaciones.",
+      "resolved": "será el destinatario",
+      "phoneInvalid": "Número incompleto o inválido. Usa código de país + área."
+    }
   }
 }

@@ -201,7 +201,7 @@ export default function CustomFieldManager({
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-foreground">
                         {f.label}
-                        {f.required ? <span className="ml-1 text-destructive">*</span> : null}
+                        {f.required ? <span className="ml-1 text-destructive-ink">*</span> : null}
                       </p>
                       <p className="truncate text-xs text-muted-foreground">
                         {FIELD_TYPES.find((t) => t.value === f.type)?.label ?? f.type}

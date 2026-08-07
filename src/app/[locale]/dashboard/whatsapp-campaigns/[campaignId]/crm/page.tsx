@@ -78,7 +78,7 @@ export default function WhatsAppCampaignCrmPage({ params }: CrmPageProps) {
   return (
     <main className="w-full space-y-6">
       <header className="space-y-2">
-        <p className="text-sm font-semibold text-healthy">
+        <p className="text-sm font-semibold text-healthy-ink">
           {t("header.badge")}
         </p>
         <div className="flex flex-wrap items-center justify-between gap-4">

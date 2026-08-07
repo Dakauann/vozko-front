@@ -24,10 +24,10 @@ interface Props {
 const TINTS = [
   "bg-muted text-chart-4-ink dark:text-chart-4",
   "bg-muted text-muted-foreground dark:text-chart-4",
-  "bg-muted text-muted-foreground dark:text-info",
-  "bg-muted text-healthy-ink dark:text-healthy",
-  "bg-muted text-warning-ink dark:text-warning",
-  "bg-muted text-destructive-ink dark:text-destructive",
+  "bg-muted text-muted-foreground dark:text-info-ink",
+  "bg-muted text-healthy-ink dark:text-healthy-ink",
+  "bg-muted text-warning-ink dark:text-warning-ink",
+  "bg-muted text-destructive-ink dark:text-destructive-ink",
 ];
 
 function tintFor(seed: string): string {

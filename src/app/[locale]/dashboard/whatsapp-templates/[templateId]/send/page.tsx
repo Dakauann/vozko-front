@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  WarningCircle,
   ArrowLeft,
   CheckCircle,
   CircleNotch,
@@ -309,7 +310,7 @@ export default function SendWhatsAppTemplatePage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-4">
           <CircleNotch
-            className="h-8 w-8 animate-spin text-healthy"
+            className="h-8 w-8 animate-spin text-healthy-ink"
             weight="bold"
           />
           <p className="text-sm text-muted-foreground">{t("loading")}</p>
@@ -322,8 +323,11 @@ export default function SendWhatsAppTemplatePage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <ElevatedContainer className="rounded-lg flex flex-col items-center gap-4 p-8 border border-border bg-card">
-          <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-destructive/10">
-            <WhatsappLogo className="h-7 w-7 text-destructive" weight="fill" />
+          {/* This is a failure state, so the mark is the failure — not the
+              channel. A WhatsApp logo on a red plate reads as "WhatsApp is
+              broken" rather than "this template could not be loaded". */}
+          <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] tile-fault">
+            <WarningCircle className="h-7 w-7" weight="fill" />
           </div>
           <div className="text-center">
             <p className="font-semibold text-foreground">{t("error.title")}</p>
@@ -349,8 +353,8 @@ export default function SendWhatsAppTemplatePage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <ElevatedContainer className="rounded-lg flex flex-col items-center gap-4 p-8 border border-border bg-card max-w-md">
-          <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-warning/15">
-            <Warning className="h-7 w-7 text-warning" weight="fill" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] tile-warning">
+            <Warning className="h-7 w-7 text-warning-ink" weight="fill" />
           </div>
           <div className="text-center">
             <p className="font-semibold text-foreground">
@@ -392,7 +396,7 @@ export default function SendWhatsAppTemplatePage() {
           badge={t("send.title")}
           title={t("send.title")}
           description={t("send.description", { name: template.name })}
-          colorClass="text-healthy"
+          colorClass="text-healthy-ink"
         />
       </motion.div>
 
@@ -424,7 +428,7 @@ export default function SendWhatsAppTemplatePage() {
                       isLoading={businessPhoneSelect.isLoading}
                     />
                     {errors.businessPhone && (
-                      <p className="mt-1 text-xs text-destructive flex items-center gap-1">
+                      <p className="mt-1 text-xs text-destructive-ink flex items-center gap-1">
                         <Warning className="h-3 w-3" /> {errors.businessPhone}
                       </p>
                     )}
@@ -440,7 +444,7 @@ export default function SendWhatsAppTemplatePage() {
                       inputMode="numeric"
                     />
                     {errors.phone && (
-                      <p className="mt-1 text-xs text-destructive flex items-center gap-1">
+                      <p className="mt-1 text-xs text-destructive-ink flex items-center gap-1">
                         <Warning className="h-3 w-3" /> {errors.phone}
                       </p>
                     )}
@@ -488,22 +492,22 @@ export default function SendWhatsAppTemplatePage() {
                         })}
                       </p>
                       {template.headerMediaUrl ? (
-                        <div className="flex items-center gap-2 rounded-lg border border-healthy/20 bg-healthy/5 p-3">
+                        <div className="flex items-center gap-2 rounded-lg border border-border bg-muted p-3">
                           <CheckCircle
-                            className="h-4 w-4 text-healthy"
+                            className="h-4 w-4 text-healthy-ink"
                             weight="fill"
                           />
-                          <span className="text-xs text-healthy">
+                          <span className="text-xs text-healthy-ink">
                             {t("send.headerMedia.configured")}
                           </span>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-2 rounded-lg border border-warning/20 bg-warning/5 p-3">
+                        <div className="flex items-center gap-2 rounded-lg border border-border bg-muted p-3">
                           <Warning
-                            className="h-4 w-4 text-warning"
+                            className="h-4 w-4 text-warning-ink"
                             weight="fill"
                           />
-                          <span className="text-xs text-warning">
+                          <span className="text-xs text-warning-ink">
                             {t("send.headerMedia.notConfigured")}
                           </span>
                         </div>
@@ -530,7 +534,7 @@ export default function SendWhatsAppTemplatePage() {
                             icon={<TextT className="h-5 w-5" weight="fill" />}
                           />
                           {errors[`header_param_${index}`] && (
-                            <p className="mt-1 text-xs text-destructive flex items-center gap-1">
+                            <p className="mt-1 text-xs text-destructive-ink flex items-center gap-1">
                               <Warning className="h-3 w-3" />{" "}
                               {errors[`header_param_${index}`]}
                             </p>
@@ -573,7 +577,7 @@ export default function SendWhatsAppTemplatePage() {
                           icon={<User className="h-5 w-5" weight="fill" />}
                         />
                         {errors[`body_param_${index}`] && (
-                          <p className="mt-1 text-xs text-destructive flex items-center gap-1">
+                          <p className="mt-1 text-xs text-destructive-ink flex items-center gap-1">
                             <Warning className="h-3 w-3" />{" "}
                             {errors[`body_param_${index}`]}
                           </p>
@@ -626,12 +630,12 @@ export default function SendWhatsAppTemplatePage() {
                   {/* Status Badge */}
                   <div className="mb-4">
                     {sendSuccess ? (
-                      <div className="flex items-center gap-2 rounded-lg border border-healthy/20 bg-healthy/5 p-3">
+                      <div className="flex items-center gap-2 rounded-lg border border-border bg-muted p-3">
                         <CheckCircle
-                          className="h-5 w-5 text-healthy"
+                          className="h-5 w-5 text-healthy-ink"
                           weight="fill"
                         />
-                        <span className="text-sm font-medium text-healthy">
+                        <span className="text-sm font-medium text-healthy-ink">
                           {debugInfo?.serverMessage ?? t("toast.sendSuccess")}
                         </span>
                         {debugInfo?.responseStatus && (
@@ -641,12 +645,12 @@ export default function SendWhatsAppTemplatePage() {
                         )}
                       </div>
                     ) : sendError ? (
-                      <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 p-3">
+                      <div className="flex items-center gap-2 rounded-lg border border-border bg-muted p-3">
                         <XCircle
-                          className="h-5 w-5 text-destructive"
+                          className="h-5 w-5 text-destructive-ink"
                           weight="fill"
                         />
-                        <span className="text-sm font-medium text-destructive break-all">
+                        <span className="text-sm font-medium text-destructive-ink break-all">
                           {sendError}
                         </span>
                         {debugInfo?.responseStatus && (
@@ -810,8 +814,8 @@ export default function SendWhatsAppTemplatePage() {
               </div>
 
               {phoneNumber && (
-                <div className="mt-4 p-3 rounded-lg bg-healthy/10 border border-healthy/20">
-                  <p className="text-xs text-healthy dark:text-healthy flex items-center gap-2">
+                <div className="mt-4 p-3 rounded-lg bg-muted border border-border">
+                  <p className="text-xs text-healthy-ink flex items-center gap-2">
                     <Phone className="h-3 w-3" weight="fill" />
                     {t("send.preview.sendingTo")}:{" "}
                     <strong>{phoneNumber}</strong>

@@ -247,7 +247,7 @@ export default function ConversationFilters({
                 <button
                   type="button"
                   onClick={() => handleChange("hasWhatsAppMessages", undefined)}
-                  className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
+                  className="text-xs text-muted-foreground hover:text-destructive-ink transition-colors flex items-center gap-1"
                 >
                   <X className="h-3 w-3" weight="bold" />
                 </button>
@@ -291,7 +291,7 @@ export default function ConversationFilters({
               <button
                 type="button"
                 onClick={() => handleChange("hasToolCalls", undefined)}
-                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive-ink transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -334,7 +334,7 @@ export default function ConversationFilters({
               <button
                 type="button"
                 onClick={() => handleChange("toolName", undefined)}
-                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive-ink transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -365,7 +365,7 @@ export default function ConversationFilters({
               <button
                 type="button"
                 onClick={() => handleChange("messageType", undefined)}
-                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive-ink transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -414,7 +414,7 @@ export default function ConversationFilters({
                 <button
                   type="button"
                   onClick={() => handleChange("channel", undefined)}
-                  className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
+                  className="text-xs text-muted-foreground hover:text-destructive-ink transition-colors flex items-center gap-1"
                 >
                   <X className="h-3 w-3" weight="bold" />
                 </button>
@@ -450,7 +450,7 @@ export default function ConversationFilters({
               <button
                 type="button"
                 onClick={() => handleChange("minMessageCount", undefined)}
-                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive-ink transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>
@@ -484,7 +484,7 @@ export default function ConversationFilters({
               <button
                 type="button"
                 onClick={() => handleChange("maxMessageCount", undefined)}
-                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive-ink transition-colors flex items-center gap-1"
               >
                 <X className="h-3 w-3" weight="bold" />
               </button>

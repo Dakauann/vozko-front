@@ -229,7 +229,7 @@ export default function SupportInboxesPage() {
           error
             ? {
                 icon: (
-                  <Headset className="h-7 w-7 text-destructive" weight="fill" />
+                  <Headset className="h-7 w-7 text-destructive-ink" weight="fill" />
                 ),
                 title: t("error.title"),
                 description: error,

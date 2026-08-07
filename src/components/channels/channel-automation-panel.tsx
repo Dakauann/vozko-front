@@ -268,7 +268,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
           aria-live="polite"
           className={cn(
             "text-xs",
-            error ? "text-destructive" : justSaved ? "text-healthy" : "text-muted-foreground",
+            error ? "text-destructive-ink" : justSaved ? "text-healthy-ink" : "text-muted-foreground",
           )}
         >
           {saving
@@ -383,7 +383,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
         </div>
 
         {error ? (
-          <p className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-muted p-3 text-xs text-foreground">
+          <p className="flex items-start gap-2 rounded-lg border border-border bg-muted p-3 text-xs text-foreground">
             <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             {error}
           </p>

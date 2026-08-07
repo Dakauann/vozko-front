@@ -503,7 +503,7 @@ export function InteractiveNodeShell({
             {label}
           </span>
           {Boolean(hasMissingRequired) && (
-            <Warning size={12} weight="fill" className="shrink-0 text-warning" />
+            <Warning size={12} weight="fill" className="shrink-0 text-warning-ink" />
           )}
           <span className="pointer-events-none font-mono text-[11px] font-medium text-muted-foreground/50">
             {id}

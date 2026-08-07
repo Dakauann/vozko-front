@@ -491,7 +491,7 @@ function StatChip({
     <div
       className={cn(
         "rounded-lg border border-border bg-background px-2.5 py-2",
-        danger && "border-destructive/30 bg-destructive/10/80",
+        danger && "border-border bg-muted",
         className,
       )}
     >
@@ -501,7 +501,7 @@ function StatChip({
       <p
         className={cn(
           "mt-0.5 text-sm font-semibold tabular-nums tracking-tight text-foreground",
-          danger && "text-destructive",
+          danger && "text-destructive-ink",
         )}
       >
         {value}

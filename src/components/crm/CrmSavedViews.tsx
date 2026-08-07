@@ -112,7 +112,7 @@ export default function CrmSavedViews({
                 {view.isDefault ? (
                   <Star
                     weight="fill"
-                    className="h-3 w-3 text-warning"
+                    className="h-3 w-3 text-warning-ink"
                     aria-hidden
                   />
                 ) : null}
@@ -365,7 +365,7 @@ function ViewManageMenu({
             ) : null}
             {onSetDefault && !view.isDefault ? (
               <MenuItem
-                icon={<Star weight="bold" className="h-3.5 w-3.5 text-warning" />}
+                icon={<Star weight="bold" className="h-3.5 w-3.5 text-warning-ink" />}
                 label="Definir como padrão"
                 onClick={() => {
                   onSetDefault(view.id);

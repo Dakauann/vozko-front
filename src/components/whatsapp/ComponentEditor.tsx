@@ -112,9 +112,9 @@ function CallPermissionEditor() {
 
   return (
     <div data-tour="wt-call-permission-editor" className="space-y-3">
-      <div className="flex items-start gap-3 rounded-lg border border-info/20 bg-muted p-4">
-        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-muted">
-          <PhoneCall className="h-5 w-5 text-white" weight="duotone" />
+      <div className="flex items-start gap-3 rounded-lg border border-border bg-muted p-4">
+        <div className="tile-info flex h-9 w-9 flex-shrink-0 items-center justify-center">
+          <PhoneCall className="h-5 w-5" weight="duotone" />
         </div>
         <div className="min-w-0">
           <h4 className="text-xs font-semibold text-foreground">
@@ -282,7 +282,7 @@ function HeaderEditor({
               </span>
             </div>
             {headerUploadError && (
-              <p className="text-xs text-destructive mt-1">{headerUploadError}</p>
+              <p className="text-xs text-destructive-ink mt-1">{headerUploadError}</p>
             )}
           </div>
 
@@ -402,14 +402,14 @@ function BodyEditor({
       </div>
 
       {variables.length > 0 && (
-        <div className="bg-warning/10 border border-warning/20 rounded-lg p-3" data-tour="wt-body-variables">
+        <div className="bg-muted border border-border rounded-lg p-3"data-tour="wt-body-variables">
           <h4 className="text-xs font-semibold text-warning-ink mb-2 flex items-center gap-1">
             <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-muted text-[11px] font-semibold text-warning-ink">
               !
             </span>
             {t("body.examplesRequired.title")}
           </h4>
-          <p className="text-xs text-warning mb-3">
+          <p className="text-xs text-warning-ink mb-3">
             {t("body.examplesRequired.description")}
           </p>
           <div className="space-y-2">
@@ -457,7 +457,7 @@ function BodyEditor({
         </div>
       )}
 
-      <div className="bg-muted border border-info/20 rounded-lg p-3">
+      <div className="bg-muted border border-border rounded-lg p-3">
         <h4 className="text-xs font-semibold text-primary-ink mb-1">
           {t("body.variablesTitle")}
         </h4>
@@ -562,7 +562,7 @@ function ButtonsEditor({
                   <button
                     key={type.value}
                     onClick={() => addButton(type.value)}
-                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-foreground hover:text-primary-ink bg-card hover:bg-muted border border-border hover:border-info/30 rounded-lg transition-all"
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-foreground hover:text-primary-ink bg-card hover:bg-muted border border-border hover:border-border rounded-lg transition-all"
                   >
                     <Icon className="h-3 w-3" />
                     {type.label}
@@ -683,7 +683,7 @@ function ButtonsEditor({
                   <button
                     key={type.value}
                     onClick={() => addButton(type.value)}
-                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-foreground hover:text-primary-ink bg-card hover:bg-muted border border-border hover:border-info/30 rounded-lg transition-all"
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-foreground hover:text-primary-ink bg-card hover:bg-muted border border-border hover:border-border rounded-lg transition-all"
                   >
                     <Icon className="h-3 w-3" />
                     {type.label}
@@ -696,8 +696,8 @@ function ButtonsEditor({
       </div>
 
       {buttons.length >= 3 && (
-        <div className="bg-warning/10 border border-warning/20 rounded-lg p-3">
-          <p className="text-xs text-warning">{t("maxReached")}</p>
+        <div className="bg-muted border border-border rounded-lg p-3">
+          <p className="text-xs text-warning-ink">{t("maxReached")}</p>
         </div>
       )}
     </>

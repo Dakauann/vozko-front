@@ -115,7 +115,7 @@ export function AiHandlerChip({
           ? "border-border bg-muted text-muted-foreground"
           : "border-border bg-card text-foreground shadow-sm",
         clickable &&
-          "cursor-pointer hover:border-primary/40 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          "cursor-pointer hover:border-border hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         className,
       )}
     >

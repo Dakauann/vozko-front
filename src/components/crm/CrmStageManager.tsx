@@ -127,7 +127,7 @@ export default function CrmStageManager({
         stage.isInitial ? (
           <Star
             weight="fill"
-            className="h-3 w-3 text-warning flex-shrink-0"
+            className="h-3 w-3 text-warning-ink flex-shrink-0"
           />
         ) : null
       }

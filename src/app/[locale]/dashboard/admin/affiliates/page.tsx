@@ -275,7 +275,7 @@ function AdminAffiliatesTable() {
             />
           </div>
         ) : error ? (
-          <div className="rounded-[--radius] border border-destructive/30 bg-muted px-4 py-6 text-center text-sm text-destructive-ink">
+          <div className="rounded-[--radius] border border-border bg-muted px-4 py-6 text-center text-sm text-destructive-ink">
             {error}
           </div>
         ) : filteredItems.length === 0 ? (
@@ -540,7 +540,7 @@ export default function AdminAffiliatesPage() {
 
   if (!isSystemAdmin(user?.role)) {
     return (
-      <div className="rounded-[--radius] border border-destructive/30 bg-muted px-4 py-8 text-center text-sm text-destructive-ink">
+      <div className="rounded-[--radius] border border-border bg-muted px-4 py-8 text-center text-sm text-destructive-ink">
         {t("forbidden")}
       </div>
     );

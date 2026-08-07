@@ -164,7 +164,7 @@ export function DepartmentAssignmentCard({
   return (
     <ElevatedContainer
       className={cn(
-        "!p-5 border-warning/60 bg-warning/70 dark:border-warning/20 dark:bg-warning/5",
+        "!p-5 border-warning/60 bg-warning/70 dark:border-border dark:bg-muted",
         className,
       )}
     >
@@ -175,7 +175,7 @@ export function DepartmentAssignmentCard({
               <Warning weight="fill" className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-[11px] font-semibold text-warning dark:text-warning">
+              <p className="text-[11px] font-semibold text-warning-ink">
                 {t("scopeLabel")}
               </p>
               <h3 className="text-base font-semibold text-foreground">

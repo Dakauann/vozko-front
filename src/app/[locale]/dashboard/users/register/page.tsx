@@ -240,10 +240,10 @@ export default function AdminRegisterUserPage() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <ElevatedContainer className="rounded-lg border border-healthy/20 bg-healthy/10 p-4">
+          <ElevatedContainer className="rounded-lg border border-border bg-muted p-4">
             <div className="flex items-center gap-3">
               <CheckCircle
-                className="h-5 w-5 text-healthy flex-shrink-0"
+                className="h-5 w-5 text-healthy-ink flex-shrink-0"
                 weight="fill"
               />
               <p className="text-sm text-healthy-ink font-medium">{success}</p>
@@ -257,9 +257,9 @@ export default function AdminRegisterUserPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-4 bg-destructive/10 border border-destructive/20 rounded-[--radius]"
+          className="p-4 bg-muted border border-border rounded-[--radius]"
         >
-          <p className="text-sm text-destructive font-medium">{error}</p>
+          <p className="text-sm text-destructive-ink font-medium">{error}</p>
         </motion.div>
       )}
 

@@ -218,7 +218,7 @@ export function WorkflowTestPanel({
             icon={<Stop size={14} weight="fill" />}
             iconVisible
             onClick={cancel}
-            className="flex-1 text-destructive-ink border-destructive/30 hover:bg-muted"
+            className="flex-1 text-destructive-ink border-border hover:bg-muted"
           />
         )}
       </div>
@@ -284,7 +284,7 @@ function EventItem({ event }: { event: SimEvent }) {
       return <NodeEventItem event={event} />;
     case "waiting_reply":
       return (
-        <div className="flex items-center gap-1.5 text-xs text-warning dark:text-warning py-1">
+        <div className="flex items-center gap-1.5 text-xs text-warning-ink py-1">
           <Warning size={12} weight="fill" />
           Aguardando resposta... ({event.timeoutSeconds}s)
         </div>
@@ -293,7 +293,7 @@ function EventItem({ event }: { event: SimEvent }) {
       return null; 
     case "error":
       return (
-        <div className="flex items-center gap-1.5 text-xs text-destructive dark:text-destructive py-1">
+        <div className="flex items-center gap-1.5 text-xs text-destructive-ink py-1">
           <XCircle size={12} weight="fill" />
           {event.message}
         </div>

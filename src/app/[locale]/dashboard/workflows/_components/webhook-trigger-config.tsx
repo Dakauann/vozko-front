@@ -177,7 +177,7 @@ export function WebhookTriggerConfig({
             aria-label="Copiar URL"
             icon={
               copied === "url" ? (
-                <Check className="h-4 w-4 text-healthy" weight="bold" />
+                <Check className="h-4 w-4 text-healthy-ink" weight="bold" />
               ) : (
                 <Copy className="h-4 w-4" />
               )
@@ -243,7 +243,7 @@ export function WebhookTriggerConfig({
               aria-label="Copiar segredo"
               icon={
                 copied === "secret" ? (
-                  <Check className="h-4 w-4 text-healthy" weight="bold" />
+                  <Check className="h-4 w-4 text-healthy-ink" weight="bold" />
                 ) : (
                   <Copy className="h-4 w-4" />
                 )
@@ -412,7 +412,7 @@ function PayloadReference() {
 
 function ErrorLine({ message }: { message: string }) {
   return (
-    <p className="rounded-lg border border-destructive/30 bg-muted px-3 py-2 text-xs text-destructive-ink dark:border-destructive/50 dark:bg-destructive/40 dark:text-destructive">
+    <p className="rounded-lg border border-border bg-muted px-3 py-2 text-xs text-destructive-ink dark:border-border dark:text-destructive-ink">
       {message}
     </p>
   );

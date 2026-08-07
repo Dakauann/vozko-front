@@ -180,7 +180,7 @@ export default function TelegramAccountsPage() {
                   one button, and is losing messages until it is pressed. */}
               {issue === "webhook" && (
                 <span
-                  className="flex max-w-[320px] items-start gap-1 text-xs text-warning-ink dark:text-warning"
+                  className="flex max-w-[320px] items-start gap-1 text-xs text-warning-ink dark:text-warning-ink"
                   title={row.webhookLastError || t("card.webhookFailing")}
                 >
                   <Warning weight="fill" className="mt-0.5 h-3 w-3 flex-shrink-0" />
@@ -194,7 +194,7 @@ export default function TelegramAccountsPage() {
 
               {issue === "token" && (
                 <span
-                  className="flex max-w-[320px] items-start gap-1 text-xs text-destructive dark:text-destructive"
+                  className="flex max-w-[320px] items-start gap-1 text-xs text-destructive-ink"
                   title={row.statusReason}
                 >
                   <Warning weight="fill" className="mt-0.5 h-3 w-3 flex-shrink-0" />
@@ -235,7 +235,7 @@ export default function TelegramAccountsPage() {
             <span
               className={cn(
                 "text-sm",
-                row.webhookHealthy ? "text-healthy dark:text-healthy" : "text-warning-ink",
+                row.webhookHealthy ? "text-healthy-ink" : "text-warning-ink",
               )}
             >
               {row.webhookHealthy ? t("webhook.healthy") : t("webhook.failing")}
@@ -244,7 +244,7 @@ export default function TelegramAccountsPage() {
                 discards undelivered updates after 24 hours and has no history
                 API, so the number is shown as soon as it is non-zero. */}
             {row.webhookPendingCount > 0 && (
-              <span className="text-xs text-warning-ink dark:text-warning tabular-nums">
+              <span className="text-xs text-warning-ink dark:text-warning-ink tabular-nums">
                 {t("webhook.pending", { count: row.webhookPendingCount })}
               </span>
             )}
@@ -269,7 +269,7 @@ export default function TelegramAccountsPage() {
                 void handleReregister(row);
               }}
               title={t("card.reregister")}
-              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-warning-ink transition-colors hover:bg-muted disabled:opacity-50 dark:text-warning dark:hover:bg-warning/10"
+              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-warning-ink transition-colors hover:bg-muted disabled:opacity-50 dark:text-warning-ink dark:hover:bg-muted"
             >
               <ArrowClockwise
                 className={cn("h-3.5 w-3.5", busyId === row.id && "animate-spin")}
@@ -376,7 +376,7 @@ export default function TelegramAccountsPage() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-muted px-4 py-3 text-sm text-destructive-ink">
+        <div className="flex items-center gap-2 rounded-lg border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">
           <Warning className="h-4 w-4" />
           {error}
         </div>

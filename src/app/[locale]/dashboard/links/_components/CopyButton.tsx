@@ -39,7 +39,7 @@ export function CopyButton({ value, label, copiedLabel, className }: CopyButtonP
       )}
     >
       {copied ? (
-        <Check className="h-4 w-4 text-healthy" weight="bold" aria-hidden="true" />
+        <Check className="h-4 w-4 text-healthy-ink" weight="bold"aria-hidden="true" />
       ) : (
         <Copy className="h-4 w-4" weight="bold" aria-hidden="true" />
       )}

@@ -14,6 +14,11 @@ import {
 
 const CHANNEL_NAMES: Record<string, string> = {
   whatsapp: "WhatsApp",
+  // Named, not left to the fallback: an unlisted channel renders its raw key
+  // ("unofficial_whatsapp") straight into the reach summary, and the two
+  // transports carry DIFFERENT interactive limits, so an operator reading this
+  // has to know which one a node will reach.
+  unofficial_whatsapp: "WhatsApp (não oficial)",
   instagram: "Instagram",
   telegram: "Telegram",
 };
@@ -100,7 +105,7 @@ export function OptionChannelReach({
   if (problems.length === 0) return null;
 
   return (
-    <div className="flex items-start gap-1.5 text-[11px] leading-relaxed text-warning">
+    <div className="flex items-start gap-1.5 text-[11px] leading-relaxed text-warning-ink">
       <WarningCircle size={12} weight="fill" className="mt-px shrink-0" />
       <ul className="space-y-0.5">
         {problems.map((reach) => (

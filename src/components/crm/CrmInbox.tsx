@@ -172,6 +172,11 @@ interface FilterState {
 /** Display label per filterable channel. Brand names are not translated. */
 const CHANNEL_FILTER_LABELS: Record<MessageChannel, string> = {
   whatsapp: "WhatsApp",
+  // Two WhatsApp transports reach one inbox, and a reply leaves from a
+  // different number depending on which. The label has to say which one it is,
+  // and it says it in plain words rather than "QR" or a vendor name, neither of
+  // which an operator has any reason to know.
+  unofficial_whatsapp: "WhatsApp (não oficial)",
   instagram: "Instagram",
   telegram: "Telegram",
   voice: "Voz",
@@ -646,7 +651,7 @@ export default function CrmInbox({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t.searchPlaceholder}
-              className="w-full rounded-[--radius] border border-border bg-muted py-2 pl-9 pr-8 text-xs text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-healthy/30 focus:bg-card focus:ring-2 focus:ring-healthy/30"
+              className="w-full rounded-[--radius] border border-border bg-muted py-2 pl-9 pr-8 text-xs text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-border focus:bg-card focus:ring-2 focus:ring-healthy/30"
             />
             {search.trim() && (
               <button
@@ -1039,18 +1044,18 @@ export default function CrmInbox({
       >
         {/* ── Search Results Panel (matched messages across entries) ──── */}
         {isServerSearchActive && allMatchedMessages.length > 0 && (
-          <div className="border-b border-warning/20/60 bg-warning/10/20">
+          <div className="border-b border-border bg-muted">
             <div className="px-4 py-2 flex items-center justify-between">
               <div className="flex items-center gap-1.5">
                 <MagnifyingGlass
                   weight="bold"
-                  className="h-3.5 w-3.5 text-warning"
+                  className="h-3.5 w-3.5 text-warning-ink"
                 />
-                <span className="text-[11px] font-semibold text-warning">
+                <span className="text-[11px] font-semibold text-warning-ink">
                   Mensagens encontradas
                 </span>
               </div>
-              <span className="text-[11px] text-warning font-medium tabular-nums">
+              <span className="text-[11px] text-warning-ink font-medium tabular-nums">
                 {searchTotalItems} conversa{searchTotalItems !== 1 ? "s" : ""}
               </span>
             </div>
@@ -1066,7 +1071,7 @@ export default function CrmInbox({
                         match.created_at,
                       )
                     }
-                    className="flex w-full items-start gap-2.5 px-4 py-2.5 text-left hover:bg-warning/10/80 transition-colors"
+                    className="flex w-full items-start gap-2.5 px-4 py-2.5 text-left hover:bg-muted transition-colors"
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5 mb-0.5">
@@ -1079,7 +1084,7 @@ export default function CrmInbox({
                         {match.channel === "voice" ? (
                           <Phone
                             weight="fill"
-                            className="h-2.5 w-2.5 flex-shrink-0 text-info/60"
+                            className="h-2.5 w-2.5 flex-shrink-0 text-info-ink/60"
                           />
                         ) : (
                           <ChannelLogo
@@ -1135,7 +1140,7 @@ export default function CrmInbox({
               {isServerSearchActive && (
                 <button
                   onClick={handleClearAll}
-                  className="text-xs font-medium text-healthy hover:text-healthy"
+                  className="text-xs font-medium text-healthy-ink hover:text-healthy-ink"
                 >
                   Limpar busca
                 </button>
@@ -1280,7 +1285,7 @@ export default function CrmInbox({
                             className={cn(
                               "inline-flex max-w-full items-center gap-1 text-[11px] font-medium",
                               conversationStatusMeta.isSilence
-                                ? "text-warning dark:text-warning"
+                                ? "text-warning-ink"
                                 : "text-muted-foreground",
                             )}
                           >

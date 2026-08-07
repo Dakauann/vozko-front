@@ -470,10 +470,10 @@ export function VariableCommandInput({
                           size={12}
                           weight="bold"
                           className={cn(
-                            category === "last" && "text-healthy",
+                            category === "last" && "text-healthy-ink",
                             category === "custom" && "text-chart-4",
                             category === "system" && "text-info-ink",
-                            category === "node" && "text-warning",
+                            category === "node" && "text-warning-ink",
                           )}
                         />
                         <span className="text-[11px] font-semibold text-muted-foreground">
@@ -498,20 +498,20 @@ export function VariableCommandInput({
                           <div
                             className={cn(
                               "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
-                              category === "last" && "bg-healthy/10",
+                              category === "last" && "bg-muted",
                               category === "custom" && "bg-muted",
                               category === "system" && "bg-muted",
-                              category === "node" && "bg-warning/10",
+                              category === "node" && "bg-muted",
                             )}
                           >
                             <VarIcon
                               size={14}
                               weight="duotone"
                               className={cn(
-                                category === "last" && "text-healthy",
+                                category === "last" && "text-healthy-ink",
                                 category === "custom" && "text-muted-foreground",
                                 category === "system" && "text-muted-foreground",
-                                category === "node" && "text-warning",
+                                category === "node" && "text-warning-ink",
                               )}
                             />
                           </div>

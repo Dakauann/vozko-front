@@ -123,9 +123,9 @@ export default function ForgotPasswordPage() {
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-[--radius]"
+                    className="mb-6 p-4 bg-muted border border-border rounded-[--radius]"
                   >
-                    <p className="text-sm text-destructive font-medium">{error}</p>
+                    <p className="text-sm text-destructive-ink font-medium">{error}</p>
                   </motion.div>
                 )}
 
@@ -177,9 +177,9 @@ export default function ForgotPasswordPage() {
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-[--radius]"
+                    className="mb-6 p-4 bg-muted border border-border rounded-[--radius]"
                   >
-                    <p className="text-sm text-destructive font-medium">{error}</p>
+                    <p className="text-sm text-destructive-ink font-medium">{error}</p>
                   </motion.div>
                 )}
 
@@ -248,11 +248,11 @@ export default function ForgotPasswordPage() {
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.1 }}
-                  className="w-16 h-16 mx-auto mb-6 rounded-full bg-healthy/15 flex items-center justify-center"
+                  className="w-16 h-16 mx-auto mb-6 rounded-full tile-healthy flex items-center justify-center"
                 >
                   <CheckCircle
                     weight="fill"
-                    className="w-10 h-10 text-healthy"
+                    className="w-10 h-10 text-healthy-ink"
                   />
                 </motion.div>
                 <h2 className="text-2xl font-semibold text-foreground mb-2">

@@ -1221,7 +1221,7 @@ function EntryMetadataPanel({
                           >
                             <Hash
                               weight="bold"
-                              className="h-3 w-3 text-info"
+                              className="h-3 w-3 text-info-ink"
                             />
                             {v}
                           </span>
@@ -1237,14 +1237,14 @@ function EntryMetadataPanel({
                     <button
                       type="button"
                       onClick={() => setShowTemplate(!showTemplate)}
-                      className="flex w-full items-center justify-between rounded-lg bg-healthy/10 px-3 py-2 transition-colors hover:bg-healthy/15"
+                      className="flex w-full items-center justify-between rounded-lg bg-muted px-3 py-2 transition-colors hover:bg-muted"
                     >
                       <div className="flex items-center gap-2">
                         <ChatText
                           weight="fill"
-                          className="h-4 w-4 text-healthy"
+                          className="h-4 w-4 text-healthy-ink"
                         />
-                        <span className="text-[11px] font-semibold text-healthy">
+                        <span className="text-[11px] font-semibold text-healthy-ink">
                           Template enviado: {templateInfo.template_name}
                         </span>
                       </div>
@@ -1813,7 +1813,7 @@ export default function CrmConversationView({
                                   {tag.name}
                                 </span>
                                 {isAssigned && (
-                                  <span className="text-[11px] text-healthy flex-shrink-0">
+                                  <span className="text-[11px] text-healthy-ink flex-shrink-0">
                                     ✓
                                   </span>
                                 )}
@@ -2147,7 +2147,7 @@ export default function CrmConversationView({
                                 className={cn(
                                   "flex items-center gap-1.5 rounded-[--radius] px-3 py-1.5 text-[11px] font-medium",
                                   missed
-                                    ? "bg-muted text-destructive-ink dark:text-destructive"
+                                    ? "bg-muted text-destructive-ink dark:text-destructive-ink"
                                     : "bg-muted text-muted-foreground",
                                 )}
                               >
@@ -2190,7 +2190,7 @@ export default function CrmConversationView({
                               key={msg.id ?? `${runIdx}-${msgIdx}`}
                               className="flex justify-start my-1"
                             >
-                              <div className="max-w-[75%] rounded-lg border border-chart-4/30 bg-chart-4/5 p-2">
+                              <div className="max-w-[75%] rounded-lg border border-border bg-muted p-2">
                                 <div className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold  text-chart-4">
                                   <InstagramLogo className="h-3 w-3" />
                                   <span>
@@ -2419,13 +2419,13 @@ export default function CrmConversationView({
                               className={cn(
                                 "relative max-w-[75%] rounded-[--radius] px-3 py-2 shadow-sm transition-all duration-300",
                                 matchedIds.has(msg.id) &&
-                                  "ring-2 ring-warning ring-offset-1 bg-warning/10/40",
+                                  "ring-2 ring-warning ring-offset-1 bg-muted",
                                 messageSearchResults?.[currentMatchIdx]?.id ===
                                   msg.id &&
                                   "ring-2 ring-healthy ring-offset-2",
                                 isOutgoing
                                   ? isVoiceRun
-                                    ? "bg-primary/15/70 text-foreground rounded-tr-sm"
+                                    ? "bg-muted text-foreground rounded-tr-sm"
                                     : "bg-[#d9fdd3] dark:bg-[#005c4b] text-foreground dark:text-slate-100 rounded-tr-sm"
                                   : isVoiceRun
                                     ? "bg-muted text-foreground rounded-tl-sm"
@@ -2453,9 +2453,9 @@ export default function CrmConversationView({
                                     <>
                                       <WhatsappLogo
                                         weight="fill"
-                                        className="h-2.5 w-2.5 text-healthy/60"
+                                        className="h-2.5 w-2.5 text-healthy-ink/60"
                                       />
-                                      <span className="text-[11px] font-semibold  text-healthy/50">
+                                      <span className="text-[11px] font-semibold text-healthy-ink/50">
                                         WhatsApp
                                       </span>
                                     </>
@@ -2464,7 +2464,7 @@ export default function CrmConversationView({
                                     <>
                                       <PhoneCall
                                         weight="fill"
-                                        className="h-2.5 w-2.5 text-info/60"
+                                        className="h-2.5 w-2.5 text-info-ink/60"
                                       />
                                       <span className="text-[11px] font-semibold  text-primary-ink/50">
                                         Voz
@@ -2481,7 +2481,7 @@ export default function CrmConversationView({
                                     "text-[11px] font-semibold mb-0.5",
                                     isVoiceRun
                                       ? "text-primary-ink"
-                                      : "text-healthy",
+                                      : "text-healthy-ink",
                                   )}
                                 >
                                   {senderName || msg.from}

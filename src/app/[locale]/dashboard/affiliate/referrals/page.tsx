@@ -106,7 +106,7 @@ export default function AffiliateReferralsPage() {
       />
 
       {error ? (
-        <div className="rounded-[--radius] border border-destructive/30 bg-muted p-4 text-sm text-destructive-ink">
+        <div className="rounded-[--radius] border border-border bg-muted p-4 text-sm text-destructive-ink">
           {error}
         </div>
       ) : null}

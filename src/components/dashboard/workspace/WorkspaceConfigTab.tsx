@@ -110,7 +110,7 @@ function ConfigCardShell({
             className={cn(
               "rounded-[--radius] px-2.5 py-1 text-[11px] font-semibold",
               statusActive
-                ? "bg-muted text-healthy-ink dark:text-healthy"
+                ? "bg-muted text-healthy-ink dark:text-healthy-ink"
                 : "bg-muted text-muted-foreground",
             )}
           >

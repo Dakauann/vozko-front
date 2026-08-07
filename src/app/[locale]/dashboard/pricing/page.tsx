@@ -263,7 +263,7 @@ export default function AdminPricingPage() {
     return (
       <div className="mx-auto max-w-2xl rounded-[--radius] border border-border bg-card p-12 text-center mt-8 shadow-sm">
         <CurrencyDollar
-          className="h-12 w-12 text-destructive mx-auto mb-4"
+          className="h-12 w-12 text-destructive-ink mx-auto mb-4"
           weight="fill"
         />
         <p className="font-semibold text-foreground">{t("error.title")}</p>

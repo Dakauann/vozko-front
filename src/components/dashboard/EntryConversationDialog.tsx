@@ -354,8 +354,8 @@ function MessageBubble({
       ? "bg-muted border-chart-4/30"
       : "bg-muted border-chart-4/30"
     : isUser
-      ? "bg-healthy/15 border-healthy/20"
-      : "bg-healthy/10 border-healthy/15";
+      ? "bg-muted border-border"
+      : "bg-muted border-border";
 
   const getIcon = () => {
     if (isUser) {
@@ -368,7 +368,7 @@ function MessageBubble({
     if (isVoice) {
       return <Phone weight="fill" className="h-3 w-3 text-chart-4" />;
     }
-    return <WhatsappLogo weight="fill" className="h-3 w-3 text-healthy" />;
+    return <WhatsappLogo weight="fill" className="h-3 w-3 text-healthy-ink" />;
   };
 
   const getToolInfo = () => {
@@ -654,7 +654,7 @@ export default function EntryConversationDialog({
               <p className="text-sm">{translations?.loading ?? t("loading")}</p>
             </div>
           ) : error ? (
-            <div className="flex flex-col items-center justify-center py-12 text-destructive">
+            <div className="flex flex-col items-center justify-center py-12 text-destructive-ink">
               <X weight="bold" className="h-8 w-8 mb-3" />
               <p className="text-sm">{error}</p>
             </div>
