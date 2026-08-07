@@ -52,6 +52,7 @@ import {
 } from "react";
 
 import type { AgentToolDefinition } from "@/lib/agents/types";
+import { ChannelAvatar } from "@/components/channels/channel-avatar";
 import ConversationAnalysisPanel from "@/components/crm/ConversationAnalysisPanel";
 import DocumentPreview from "./DocumentPreview";
 import FormattedMessageText from "@/components/ui/formatted-message-text";
@@ -1378,6 +1379,13 @@ export default function CrmConversationView({
   onRemoveLabel,
 }: CrmConversationViewProps) {
   const tCrm = useTranslations("crm");
+  /**
+   * A group thread, where the conversation's subject is the GROUP and each
+   * message came from a different member — so a bubble has to name and picture
+   * whoever wrote it. Everywhere else the subject IS the author and the header
+   * already shows them.
+   */
+  const isGroupConversation = Boolean(conversation?.is_group);
   const containerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const [showScrollDown, setShowScrollDown] = useState(false);
@@ -2130,6 +2138,10 @@ export default function CrmConversationView({
                           msg.sender_name ??
                           (msg as unknown as { senderName?: string })
                             .senderName;
+                        const senderAvatar =
+                          msg.sender_avatar ??
+                          (msg as unknown as { senderAvatar?: string })
+                            .senderAvatar;
 
                         if (
                           messageType === "call_received" ||
@@ -2383,6 +2395,20 @@ export default function CrmConversationView({
                           (msgIdx === 0 ||
                             (prevMsg && prevMsg.from !== msg.from));
 
+                        /* In a group the face belongs on the bubble, not just
+                           in the header: the header shows the GROUP, and who
+                           said a given thing is the one fact a name alone makes
+                           you re-read to find. Once per run of consecutive
+                           messages from the same person, like the name — a face
+                           on every bubble is noise, not information.
+
+                           A one-to-one conversation renders none of this: the
+                           other side is already named and pictured in the
+                           header, and repeating them beside every bubble only
+                           narrows the room the message has to breathe. */
+                        const showAuthorAvatar =
+                          isGroupConversation && showSenderName;
+
                         const showChannelLabel = msgIdx === 0;
 
                         return (
@@ -2414,6 +2440,21 @@ export default function CrmConversationView({
                                   className="h-3.5 w-3.5"
                                 />
                               </button>
+                            )}
+                            {isGroupConversation && !isOutgoing && (
+                              /* The gutter is reserved even when no avatar is
+                                 drawn, so a run of messages from one person
+                                 keeps a single left edge instead of stepping in
+                                 and out under the first bubble. */
+                              <div className="size-8 shrink-0 self-start">
+                                {showAuthorAvatar && (
+                                  <ChannelAvatar
+                                    name={senderName || msg.from}
+                                    pictureUrl={senderAvatar}
+                                    size="sm"
+                                  />
+                                )}
+                              </div>
                             )}
                             <div
                               className={cn(

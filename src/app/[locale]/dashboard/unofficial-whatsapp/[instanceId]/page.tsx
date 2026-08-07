@@ -23,6 +23,7 @@ import { useParams, useRouter } from "next/navigation";
 
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
+import { DepartmentAssignmentCard } from "@/components/dashboard/DepartmentAssignmentCard";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { Switch } from "@/components/ui/switch";
@@ -264,6 +265,31 @@ export default function UnofficialWhatsAppInstancePage() {
           />
         </div>
       </ElevatedContainer>
+
+      {/* The department that owns this number.
+          Assigning one narrows the number to that team everywhere at once: its
+          conversations only appear in their inbox, only its members enter the
+          round-robin for inbound messages, and only they can open the number or
+          send from it. Nothing here is channel-specific — the same card assigns
+          departments elsewhere in the product. */}
+      {canUpdate && (
+        <DepartmentAssignmentCard
+          departmentId={instance.departmentId}
+          onAssign={(departmentId) =>
+            updateInstanceAction(instance.id, { departmentId }).then((result) => ({
+              item: result.instance ?? null,
+              error: result.error,
+            }))
+          }
+          onAssigned={() => {
+            // Re-read rather than patch in place: assigning a department can
+            // take the number out of THIS operator's own scope, and the reload
+            // is what turns that into an honest "not found" instead of a page
+            // showing a number they no longer have.
+            void load();
+          }}
+        />
+      )}
 
       <UnofficialWhatsAppAutomationPanel instance={instance} onUpdated={setInstance} />
 

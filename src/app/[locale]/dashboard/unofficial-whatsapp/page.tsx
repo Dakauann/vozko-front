@@ -21,6 +21,7 @@ import {
   getInstanceAllowanceAction,
   listInstancesAction,
   resetInstanceAction,
+  updateInstanceAction,
 } from "@/app/actions/unofficial-whatsapp";
 import {
   instanceIssue,
@@ -30,6 +31,7 @@ import {
 
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
+import { DepartmentRowSwitcher } from "@/components/dashboard/DepartmentRowSwitcher";
 import UnofficialWhatsAppCapacityCard from "@/components/dashboard/addons/UnofficialWhatsAppCapacityCard";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
@@ -241,6 +243,31 @@ export default function UnofficialWhatsAppPage() {
   const renderRowActions = useCallback(
     (instance: UnofficialWhatsAppInstance) => (
       <div className="flex items-center gap-1">
+        {/* The department that owns this number.
+            The same control the WhatsApp campaigns table uses, so assigning a
+            department reads identically wherever it appears. Assigning one is
+            what limits the number to that team: its conversations only reach
+            their inbox, only they enter the round-robin for it, and only they
+            can send from it. */}
+        {canUpdate && (
+          <DepartmentRowSwitcher
+            departmentId={instance.departmentId}
+            onAssign={(departmentId) =>
+              updateInstanceAction(instance.id, { departmentId }).then((result) => ({
+                item: result.instance ?? null,
+                error: result.error,
+              }))
+            }
+            onAssigned={() => {
+              // Re-read rather than patch in place: assigning a department can
+              // remove the number from THIS operator's own view, and a row that
+              // lingers after it stopped being theirs is worse than one that
+              // disappears.
+              void fetchInstances(page, search);
+            }}
+          />
+        )}
+
         {canUpdate && instance.sessionLive && (
           <button
             type="button"
@@ -290,7 +317,7 @@ export default function UnofficialWhatsAppPage() {
         )}
       </div>
     ),
-    [t, canUpdate, canDelete, busyId, handleDelete, handleReset, router],
+    [t, canUpdate, canDelete, busyId, handleDelete, handleReset, router, fetchInstances, page, search],
   );
 
   // The three numbers the toolbar reports. "Attention" is the one that earns its
