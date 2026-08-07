@@ -59,6 +59,19 @@ export default function ConnectUnofficialWhatsAppPage() {
   const [step, setStep] = useState<Step>("disclosure");
   const [mode, setMode] = useState<ConnectMode>("qr");
   const [phone, setPhone] = useState("");
+  /**
+   * The operator's own name for the number being connected.
+   *
+   * Asked for HERE rather than only after linking, because this is the moment
+   * they know what the number is for — "Comercial SP", "Cobrança" — and a
+   * workspace connecting its third number has no way to tell them apart in the
+   * list until one is set. Optional: left empty, the provider's generated name
+   * stands in until the WhatsApp profile name arrives.
+   *
+   * Local to the CRM. It is never sent to WhatsApp and cannot affect the
+   * connected account or what a customer sees.
+   */
+  const [displayName, setDisplayName] = useState("");
   const [challenge, setChallenge] = useState<LinkChallenge | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -98,7 +111,9 @@ export default function ConnectUnofficialWhatsAppPage() {
 
     let instanceId = instanceIdRef.current;
     if (!instanceId) {
-      const provisioned = await provisionInstanceAction({});
+      const provisioned = await provisionInstanceAction({
+        displayName: displayName.trim() || undefined,
+      });
       if (provisioned.error || !provisioned.instance) {
         // Capacity is the failure the operator is most likely to hit, and it is
         // not their fault — the message says so rather than reading as a bug.
@@ -122,7 +137,7 @@ export default function ConnectUnofficialWhatsAppPage() {
     }
     setChallenge(result.challenge);
     setStep("linking");
-  }, [mode, phone, t]);
+  }, [mode, phone, displayName, t]);
 
   /**
    * Polls until the phone scans, then stops.
@@ -201,10 +216,12 @@ export default function ConnectUnofficialWhatsAppPage() {
           <DisclosureStep
             mode={mode}
             phone={phone}
+            displayName={displayName}
             busy={busy}
             error={error}
             onModeChange={setMode}
             onPhoneChange={setPhone}
+            onDisplayNameChange={setDisplayName}
             onContinue={() => void beginLinking()}
           />
         )}
@@ -248,18 +265,22 @@ export default function ConnectUnofficialWhatsAppPage() {
 function DisclosureStep({
   mode,
   phone,
+  displayName,
   busy,
   error,
   onModeChange,
   onPhoneChange,
+  onDisplayNameChange,
   onContinue,
 }: {
   mode: ConnectMode;
   phone: string;
+  displayName: string;
   busy: boolean;
   error: string | null;
   onModeChange: (mode: ConnectMode) => void;
   onPhoneChange: (phone: string) => void;
+  onDisplayNameChange: (name: string) => void;
   onContinue: () => void;
 }) {
   const t = useTranslations("unofficialWhatsapp");
@@ -270,6 +291,23 @@ function DisclosureStep({
       <UnofficialNotice />
 
       <ElevatedContainer className="space-y-5">
+        {/* Optional, and said so: an operator who does not care should not be
+            stopped by a field, and one who does should not have to find the
+            number again afterwards to name it. */}
+        <div className="space-y-1.5">
+          <label htmlFor="uw-display-name" className="legend">
+            {t("connect.displayNameLabel")}
+          </label>
+          <ElevatedInput
+            id="uw-display-name"
+            value={displayName}
+            onChange={(event) => onDisplayNameChange(event.target.value)}
+            placeholder={t("connect.displayNamePlaceholder")}
+            maxLength={120}
+          />
+          <p className="text-xs text-muted-foreground">{t("connect.displayNameHint")}</p>
+        </div>
+
         <div className="space-y-1">
           <h2 className="text-sm font-semibold text-foreground">{t("connect.methodTitle")}</h2>
           <p className="text-sm text-muted-foreground">{t("connect.methodHint")}</p>

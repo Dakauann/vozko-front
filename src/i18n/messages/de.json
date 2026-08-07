@@ -8926,7 +8926,10 @@
       "successTitle": "Number connected",
       "successBody": "{name} now sends and receives through the inbox.",
       "openNumber": "Open number",
-      "backToList": "See all numbers"
+      "backToList": "See all numbers",
+      "displayNameLabel": "Anzeigename (optional)",
+      "displayNamePlaceholder": "Vertrieb SP, Inkasso...",
+      "displayNameHint": "Wie diese Nummer im CRM erscheint. Nur bei uns: Das WhatsApp-Profil bleibt unverändert. Kann später gesetzt werden."
     },
     "detail": {
       "notFound": "Number not found.",

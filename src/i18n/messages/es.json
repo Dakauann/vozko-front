@@ -8427,7 +8427,10 @@
       "successTitle": "Number connected",
       "successBody": "{name} now sends and receives through the inbox.",
       "openNumber": "Open number",
-      "backToList": "See all numbers"
+      "backToList": "See all numbers",
+      "displayNameLabel": "Nombre para mostrar (opcional)",
+      "displayNamePlaceholder": "Comercial SP, Cobranzas...",
+      "displayNameHint": "Cómo aparece este número en el CRM. Solo nuestro: no cambia el perfil de WhatsApp. Se puede definir después."
     },
     "detail": {
       "notFound": "Number not found.",

@@ -9979,7 +9979,10 @@
       "successTitle": "Número conectado",
       "successBody": "{name} já recebe e envia pelo inbox.",
       "openNumber": "Abrir número",
-      "backToList": "Ver todos os números"
+      "backToList": "Ver todos os números",
+      "displayNameLabel": "Nome de exibição (opcional)",
+      "displayNamePlaceholder": "Comercial SP, Cobrança...",
+      "displayNameHint": "Como este número aparece no CRM. Só nosso: não altera o perfil do WhatsApp. Pode ser definido depois."
     },
     "detail": {
       "notFound": "Número não encontrado.",

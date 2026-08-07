@@ -9929,7 +9929,10 @@
       "successTitle": "Number connected",
       "successBody": "{name} now sends and receives through the inbox.",
       "openNumber": "Open number",
-      "backToList": "See all numbers"
+      "backToList": "See all numbers",
+      "displayNameLabel": "Display name (optional)",
+      "displayNamePlaceholder": "Sales SP, Collections...",
+      "displayNameHint": "How this number appears in the CRM. Ours only: it does not change the WhatsApp profile. Can be set later."
     },
     "detail": {
       "notFound": "Number not found.",
