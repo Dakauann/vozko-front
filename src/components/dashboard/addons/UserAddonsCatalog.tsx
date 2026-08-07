@@ -14,6 +14,7 @@ import {
   Plus,
   PuzzlePiece,
   ShieldCheck,
+  DeviceMobile,
   WhatsappLogo,
 } from "@/components/icons";
 import {
@@ -59,6 +60,10 @@ const RETIRED_KINDS = new Set<AddonEntitlementKind>(["call_channels"]);
 const KIND_TILE: Record<AddonEntitlementKind, string> = {
   call_channels: "bg-muted",
   whatsapp_business_phones: "bg-healthy",
+  // Neutral rather than WhatsApp green: the network is the same, the transport
+  // is not, and the two must be distinguishable at a glance in a list where a
+  // workspace may hold both.
+  unofficial_whatsapp_instances: "bg-chart-4",
 };
 
 function KindGlyph({
@@ -68,11 +73,14 @@ function KindGlyph({
   kind: AddonEntitlementKind;
   className?: string;
 }) {
-  return kind === "whatsapp_business_phones" ? (
-    <WhatsappLogo className={className} weight="fill" />
-  ) : (
-    <Phone className={className} weight="fill" />
-  );
+  switch (kind) {
+    case "whatsapp_business_phones":
+      return <WhatsappLogo className={className} weight="fill" />;
+    case "unofficial_whatsapp_instances":
+      return <DeviceMobile className={className} weight="fill" />;
+    default:
+      return <Phone className={className} weight="fill" />;
+  }
 }
 
 function priceMicros(addon: AddonDefinition, cycle: AddonBillingCycle): number {
@@ -96,8 +104,16 @@ export default function UserAddonsCatalog() {
   const { currentWorkspace, can, permissionsLoading } = useWorkspace();
 
   const kindLabel = React.useCallback(
-    (kind: AddonEntitlementKind) =>
-      kind === "whatsapp_business_phones" ? t("kind.whatsappPhones") : t("kind.callChannels"),
+    (kind: AddonEntitlementKind) => {
+      switch (kind) {
+        case "whatsapp_business_phones":
+          return t("kind.whatsappPhones");
+        case "unofficial_whatsapp_instances":
+          return t("kind.unofficialWhatsapp");
+        default:
+          return t("kind.callChannels");
+      }
+    },
     [t],
   );
 

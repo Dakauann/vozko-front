@@ -2,13 +2,8 @@
 
 import * as React from "react";
 
-import {
-  CheckCircle,
-  PuzzlePiece,
-  WarningCircle,
-  WhatsappLogo,
-} from "@/components/icons";
-import { channelPlate } from "@/components/channels/channel-tile";
+import { CheckCircle, PuzzlePiece, WarningCircle } from "@/components/icons";
+import { ChannelTile } from "@/components/channels/channel-tile";
 import { motion, useReducedMotion } from "framer-motion";
 
 import Button from "@/components/elevated-design/button";
@@ -16,13 +11,46 @@ import type { WhatsAppCapacity } from "@/hooks/use-whatsapp-capacity";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
+/**
+ * The shape the meter needs, independent of which channel supplies it.
+ *
+ * Narrower than WhatsAppCapacity on purpose: the official channel's value
+ * carries onboarding-path detail this card never reads, and the unofficial one
+ * has no such concept at all. Both satisfy this.
+ */
+export interface CapacitySnapshot {
+  loading: boolean;
+  used: number;
+  total: number;
+  /** The allowance that came with the plan or the platform grant. */
+  planBase: number;
+  /** Units bought as add-ons. */
+  addonUnits: number;
+  remaining: number;
+  hasPlan: boolean;
+  atLimit: boolean;
+}
+
+/** The strings the card renders, resolved by the caller from its own namespace. */
+export interface CapacityLabels {
+  label: string;
+  breakdown: string;
+  remaining: string;
+  full: string;
+  fullHint: string;
+  noPlan: string;
+  noPlanHint: string;
+  buyMore: string;
+  manage: string;
+}
+
 const ADDONS_HREF = "/dashboard/addons";
 /** Above this, individual slot pips stop being legible; fall back to a bar. */
 const MAX_PIPS = 20;
 
 type CapacityState = "healthy" | "atLimit" | "noPlan";
 
-function resolveState(capacity: WhatsAppCapacity): CapacityState {
+function resolveState(capacity: CapacitySnapshot): CapacityState {
   if (!capacity.hasPlan) return "noPlan";
   if (capacity.atLimit) return "atLimit";
   return "healthy";
@@ -36,17 +64,27 @@ function resolveState(capacity: WhatsAppCapacity): CapacityState {
  *
  * Purely presentational: pass the resolved value from `useWhatsAppCapacity`.
  */
-export default function WhatsAppCapacityCard({
+export function CapacityCard({
   capacity,
+  labels,
+  channel = "whatsapp",
   className,
   variant = "card",
 }: {
-  capacity: WhatsAppCapacity;
+  capacity: CapacitySnapshot;
+  labels: CapacityLabels;
+  /**
+   * Which channel's plate and mark to wear. The meter, the states and the
+   * calls to action are identical across channels — only the lockup and the
+   * words differ — so a second copy of this file would be a second place for
+   * the at-limit behaviour to drift.
+   */
+  channel?: string;
   className?: string;
   variant?: "card" | "bare";
 }) {
-  const t = useTranslations("whatsappBusinessPhones");
   const reduceMotion = useReducedMotion();
+  const t = labels;
 
   const shell = cn(
     variant === "card" && "rounded-lg border border-border bg-card p-5 shadow-sm",
@@ -55,7 +93,7 @@ export default function WhatsAppCapacityCard({
 
   if (capacity.loading) {
     return (
-      <section className={shell} aria-busy="true" aria-label={t("capacity.label")}>
+      <section className={shell} aria-busy="true" aria-label={t.label}>
         <div className="flex items-center gap-3">
           <div className="h-11 w-11 shrink-0 animate-pulse rounded-lg bg-muted" />
           <div className="flex-1 space-y-2">
@@ -73,16 +111,19 @@ export default function WhatsAppCapacityCard({
   const isBlocked = state !== "healthy";
 
   return (
-    <section className={shell} aria-label={t("capacity.label")}>
+    <section className={shell} aria-label={t.label}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
-          {/* The channel lockup: WhatsApp's own green as the plate, white glyph. */}
-          <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-lg", channelPlate("whatsapp"))}>
-            <WhatsappLogo className="h-5 w-5" weight="fill" />
-          </span>
+          {/* The product's own channel lockup, not a hand-built box.
+              Reaching for ChannelLogo here rendered the unofficial mark, which
+              carries its own `text-muted-foreground` — grey on the graphite
+              plate, which is nearly invisible. ChannelTile pairs each plate with
+              the white glyph it was designed for, and it is the same lockup the
+              inbox and the sidebar use. */}
+          <ChannelTile channel={channel} size="lg" />
           <div className="min-w-0">
             <p className="text-sm font-medium text-muted-foreground">
-              {t("capacity.label")}
+              {t.label}
             </p>
             <p className="mt-0.5 text-xl font-semibold leading-none tracking-tight text-foreground">
               <span className="tabular-nums">{used}</span>
@@ -94,7 +135,7 @@ export default function WhatsAppCapacityCard({
               )}
             </p>
             <p className="mt-1.5 text-xs text-muted-foreground">
-              {t("capacity.breakdown", { planBase, addonUnits })}
+              {t.breakdown}
             </p>
           </div>
         </div>
@@ -104,7 +145,7 @@ export default function WhatsAppCapacityCard({
           newTab={false}
           variant={isBlocked ? "primary" : "outline"}
           size="sm"
-          title={isBlocked ? t("capacity.buyMore") : t("capacity.manage")}
+          title={isBlocked ? t.buyMore : t.manage}
           icon={<PuzzlePiece className="h-4 w-4" weight="bold" />}
           iconVisible
           iconSide="left"
@@ -116,16 +157,16 @@ export default function WhatsAppCapacityCard({
         total={total}
         state={state}
         reduceMotion={Boolean(reduceMotion)}
-        label={t("capacity.label")}
+        label={t.label}
       />
 
       <StateHint
         state={state}
-        healthyLabel={t("capacity.remaining", { count: remaining })}
-        fullLabel={t("capacity.full")}
-        fullHint={t("capacity.fullHint")}
-        noPlanLabel={t("capacity.noPlan")}
-        noPlanHint={t("capacity.noPlanHint")}
+        healthyLabel={t.remaining}
+        fullLabel={t.full}
+        fullHint={t.fullHint}
+        noPlanLabel={t.noPlan}
+        noPlanHint={t.noPlanHint}
       />
     </section>
   );
@@ -268,5 +309,46 @@ function StateHint({
       />
       <span>{healthyLabel}</span>
     </p>
+  );
+}
+
+/**
+ * The official channel's capacity meter.
+ *
+ * A thin wrapper: it resolves this channel's strings and hands the generic card
+ * a snapshot. The meter, the pips, the at-limit gate and the call to action all
+ * live in CapacityCard, so the unofficial channel cannot drift from it.
+ */
+export default function WhatsAppCapacityCard({
+  capacity,
+  className,
+  variant = "card",
+}: {
+  capacity: WhatsAppCapacity;
+  className?: string;
+  variant?: "card" | "bare";
+}) {
+  const t = useTranslations("whatsappBusinessPhones");
+  return (
+    <CapacityCard
+      capacity={capacity}
+      channel="whatsapp"
+      className={className}
+      variant={variant}
+      labels={{
+        label: t("capacity.label"),
+        breakdown: t("capacity.breakdown", {
+          planBase: capacity.planBase,
+          addonUnits: capacity.addonUnits,
+        }),
+        remaining: t("capacity.remaining", { count: capacity.remaining }),
+        full: t("capacity.full"),
+        fullHint: t("capacity.fullHint"),
+        noPlan: t("capacity.noPlan"),
+        noPlanHint: t("capacity.noPlanHint"),
+        buyMore: t("capacity.buyMore"),
+        manage: t("capacity.manage"),
+      }}
+    />
   );
 }

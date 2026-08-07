@@ -72,6 +72,21 @@ export default function UnofficialWhatsAppInstancePage() {
     if (instanceId) void load();
   }, [instanceId, load]);
 
+  /**
+   * The operator's own label for this number, held as a draft while they type.
+   *
+   * Separate from the WhatsApp profile name on purpose: the push name is set on
+   * the customer's phone and can be anything, while this is how the CRM should
+   * refer to the number — "Comercial SP", "Cobrança". It is OURS: nothing here
+   * touches the WhatsApp account, and clearing it falls back to the profile
+   * name and then the number.
+   *
+   * A draft rather than a live patch because these toggles are optimistic and a
+   * text field is not: firing a request per keystroke would be a write per
+   * character and a race on the last one.
+   */
+  const [nameDraft, setNameDraft] = useState<string | null>(null);
+
   const patch = useCallback(
     async (payload: UpdateInstancePayload) => {
       if (!instance) return;
@@ -121,7 +136,14 @@ export default function UnofficialWhatsAppInstancePage() {
     );
   }
 
-  const label = instance.phoneNumber ? `+${instance.phoneNumber}` : instance.displayName;
+  // The operator's own label wins the title when they set one; otherwise the
+  // number, which is what they had before and what they recognise.
+  const number = instance.phoneNumber ? `+${instance.phoneNumber}` : "";
+  const label = instance.displayName || number || t("detail.unnamed");
+  const subtitle =
+    [instance.displayName ? number : "", instance.profileName]
+      .filter(Boolean)
+      .join(" · ") || t("detail.unnamed");
 
   return (
     <div className="space-y-6">
@@ -129,7 +151,7 @@ export default function UnofficialWhatsAppInstancePage() {
         icon={<WhatsAppLogoColor className="h-5 w-5" />}
         badge={t("page.badge")}
         title={label}
-        description={instance.profileName || t("detail.unnamed")}
+        description={subtitle}
         back={{
           onClick: () => router.push("/dashboard/unofficial-whatsapp"),
           label: t("connect.back"),
@@ -200,6 +222,49 @@ export default function UnofficialWhatsAppInstancePage() {
       {/* Attendance first and full width: it is the decision that makes the
           number do anything, and it owns its own save state. The two panels
           below configure what happens around it. */}
+      {/* The operator's own name for this number.
+          Local to the CRM: it never reaches WhatsApp, so renaming here cannot
+          affect the connected account or what a customer sees. */}
+      <ElevatedContainer className="space-y-3">
+        <div>
+          <h3 className="text-sm font-semibold text-foreground">
+            {t("detail.displayName.title")}
+          </h3>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {t("detail.displayName.description")}
+          </p>
+        </div>
+        <div className="flex items-end gap-3">
+          <div className="w-full max-w-sm">
+            <ElevatedInput
+              label={t("detail.displayName.label")}
+              placeholder={instance.profileName || number}
+              maxLength={120}
+              value={nameDraft ?? instance.displayName ?? ""}
+              onChange={(e) => setNameDraft(e.target.value)}
+              disabled={!canUpdate}
+            />
+          </div>
+          <Button
+            variant="primary"
+            size="sm"
+            title={t("detail.displayName.save")}
+            disabled={
+              !canUpdate ||
+              nameDraft === null ||
+              nameDraft.trim() === (instance.displayName ?? "")
+            }
+            onClick={() => {
+              if (nameDraft === null) return;
+              // Trimmed, and an empty string is a real value: it CLEARS the
+              // label so the number falls back to its profile name.
+              void patch({ displayName: nameDraft.trim() });
+              setNameDraft(null);
+            }}
+          />
+        </div>
+      </ElevatedContainer>
+
       <UnofficialWhatsAppAutomationPanel instance={instance} onUpdated={setInstance} />
 
       <div className="grid gap-6 lg:grid-cols-2">

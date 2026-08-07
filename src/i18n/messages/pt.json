@@ -368,11 +368,14 @@
     "tabs": {
       "contact": "Contato",
       "attendance": "Atendimento",
-      "insights": "Insights"
+      "insights": "Insights",
+      "group": "Grupo"
     },
     "collapsePanel": "Recolher painel",
     "expandPanel": "Expandir painel",
-    "noOpportunities": "Nenhuma oportunidade ainda"
+    "noOpportunities": "Nenhuma oportunidade ainda",
+    "groupSubtitle": "Conversa em grupo",
+    "unnamedGroup": "Grupo"
   },
   "metadata": {
     "description": "Plataforma unificada de automação e inteligência artificial que entrega precisão, velocidade e escala para organizações que vendem em múltiplos mercados e canais."
@@ -6196,6 +6199,14 @@
         "generate": "Gerar fatura",
         "generating": "Gerando…",
         "generateSuccess": "Fatura de assinatura gerada com sucesso."
+      },
+      "unofficialWhatsapp": {
+        "title": "WhatsApp não oficial",
+        "description": "Quantos números por sessão vinculada este workspace pode conectar. Cada número ocupa um slot em um servidor nosso; adicionais são vendidos como complemento.",
+        "label": "Números incluídos",
+        "save": "Salvar",
+        "saving": "Salvando...",
+        "success": "Quantidade de números atualizada"
       }
     },
     "error": {
@@ -7298,7 +7309,8 @@
     },
     "kind": {
       "callChannels": "Canais de chamada",
-      "whatsappPhones": "Números WhatsApp"
+      "whatsappPhones": "Números WhatsApp",
+      "unofficialWhatsapp": "WhatsApp não oficial"
     },
     "stats": {
       "activeAddons": "Addons ativos",
@@ -9980,7 +9992,13 @@
       "bannedBody": "Não há reconexão possível. Conecte outro número para seguir atendendo.",
       "webhookTitle": "Endereço de recebimento",
       "webhookBody": "Gere um novo endereço se suspeitar que o atual vazou.",
-      "rotate": "Gerar novo endereço"
+      "rotate": "Gerar novo endereço",
+      "displayName": {
+        "title": "Nome de exibição",
+        "description": "Como este número aparece no CRM. É só nosso: não altera o perfil do WhatsApp nem o que o cliente vê. Deixe vazio para usar o nome do perfil.",
+        "label": "Nome de exibição",
+        "save": "Salvar"
+      }
     },
     "automation": {
       "title": "Atendimento com IA",
@@ -10056,6 +10074,80 @@
       "noNumbers": "Nenhum número conectado no momento. Conecte um número para iniciar conversas.",
       "resolved": "será o destinatário",
       "phoneInvalid": "Número incompleto ou inválido. Use código do país + DDD."
+    },
+    "allowance": {
+      "tooltip": "Números conectados / incluídos no plano deste workspace",
+      "counter": "{used} de {limit} números",
+      "none-included": {
+        "title": "Nenhum número incluído",
+        "description": "Este workspace ainda não tem números não oficiais incluídos. Fale com seu gerente de conta para liberar uma quantidade."
+      },
+      "all-in-use": {
+        "title": "Todos os números em uso",
+        "description": "Os {limit} números incluídos já estão conectados. Adquira um adicional para conectar mais."
+      },
+      "over": {
+        "title": "Acima do limite incluído",
+        "description": "Este workspace tem {used} números conectados e {limit} incluídos. Nada foi desconectado — novos números só poderão ser conectados após ajustar o limite."
+      }
+    },
+    "capacity": {
+      "label": "Números não oficiais",
+      "breakdown": "{planBase} incluídos · {addonUnits} via addons",
+      "remaining": "{count, plural, =0 {Nenhuma vaga disponível} one {# vaga disponível} other {# vagas disponíveis}}",
+      "full": "Todas as vagas em uso",
+      "fullHint": "Compre um addon para conectar mais números. Os já conectados continuam funcionando.",
+      "noPlan": "Nenhum número incluído",
+      "noPlanHint": "Fale com seu gerente de conta para liberar uma quantidade, ou contrate um addon.",
+      "manage": "Gerenciar addons",
+      "buyMore": "Comprar mais números"
     }
+  },
+  "crmGroupPanel": {
+    "unavailable": "Não foi possível carregar as informações deste grupo.",
+    "retry": "Tentar novamente",
+    "refresh": "Atualizar",
+    "refreshError": "Não foi possível atualizar o grupo",
+    "edit": "Editar",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "saveSuccess": "Grupo atualizado",
+    "saveError": "Não foi possível salvar as alterações",
+    "subject": "Nome do grupo",
+    "description": "Descrição",
+    "descriptionPlaceholder": "Descrição do grupo (opcional)",
+    "unnamed": "Grupo sem nome",
+    "memberCount": "{count, plural, one {# participante} other {# participantes}}",
+    "youAreAdmin": "Você é admin",
+    "announceOnly": "Só admins enviam",
+    "cannotPost": "Você não pode enviar",
+    "community": "Comunidade",
+    "ephemeral": "Mensagens temporárias",
+    "inviteLink": "Copiar link de convite",
+    "inviteCopied": "Link copiado",
+    "inviteError": "Não foi possível obter o link de convite",
+    "members": "Participantes",
+    "noMembers": "Nenhum participante sincronizado ainda.",
+    "admin": "Administrador",
+    "promote": "Tornar admin",
+    "demote": "Remover admin",
+    "remove": "Remover do grupo",
+    "memberSuccess": {
+      "promote": "{name} agora é admin",
+      "demote": "{name} não é mais admin",
+      "remove": "{name} foi removido do grupo"
+    },
+    "memberError": {
+      "promote": "Não foi possível promover o participante",
+      "demote": "Não foi possível rebaixar o participante",
+      "remove": "Não foi possível remover o participante"
+    },
+    "leave": "Sair do grupo",
+    "confirmLeave": "Você sairá deste grupo no WhatsApp. A conversa e o histórico continuam no CRM.",
+    "confirmLeaveAction": "Sair",
+    "leaveSuccess": "Você saiu do grupo",
+    "leaveError": "Não foi possível sair do grupo",
+    "leftGroup": "Você saiu deste grupo.",
+    "showMore": "Mostrar mais {count}"
   }
 }

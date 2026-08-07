@@ -5,14 +5,21 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   connectInstanceAction,
   linkStatusAction,
+  getInstanceAllowanceAction,
   provisionInstanceAction,
 } from "@/app/actions/unofficial-whatsapp";
-import type { ConnectMode, LinkChallenge } from "@/lib/unofficial-whatsapp/types";
+import {
+  allowanceBlock,
+  type ConnectMode,
+  type LinkChallenge,
+  type UnofficialWhatsAppAllowance,
+} from "@/lib/unofficial-whatsapp/types";
 
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
+import UnofficialWhatsAppCapacityCard from "@/components/dashboard/addons/UnofficialWhatsAppCapacityCard";
 import { UnofficialNotice } from "@/components/unofficial-whatsapp/session-state";
 import { WhatsAppLogoColor } from "@/components/icons/channel-logos";
 import { cn } from "@/lib/utils";
@@ -60,6 +67,29 @@ export default function ConnectUnofficialWhatsAppPage() {
   // Held in a ref rather than state: the poller reads it every two seconds and
   // must not be a dependency that restarts the interval on every tick.
   const instanceIdRef = useRef<string | null>(null);
+
+  /**
+   * The workspace's number allowance, read before anything is offered.
+   *
+   * The server refuses an over-limit provision either way — that is the
+   * authority — but finding out AFTER reading a disclosure and pressing a button
+   * is a worse experience than being told up front. This screen is reachable by
+   * URL, so it cannot rely on the list page having disabled its link.
+   */
+  const [allowance, setAllowance] = useState<UnofficialWhatsAppAllowance | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const result = await getInstanceAllowanceAction();
+      if (!cancelled && !result.error && result.allowance) setAllowance(result.allowance);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const block = allowanceBlock(allowance);
 
   /** Provisions a slot, then asks for a code. Two calls, one operator action. */
   const beginLinking = useCallback(async () => {
@@ -156,7 +186,18 @@ export default function ConnectUnofficialWhatsAppPage() {
       />
 
       <div className="mx-auto w-full max-w-3xl space-y-6">
+        {/* Capacity first, ahead of the control it governs — the same rail the
+            official channel's connect page uses, so an operator who has learnt
+            to read one meter has learnt to read both. When it is full this card
+            IS the gate, and its call to action routes to the add-ons. */}
         {step === "disclosure" && (
+          <UnofficialWhatsAppCapacityCard allowance={allowance} />
+        )}
+
+        {/* No allowance, no flow: walking someone through a ban-risk warning for
+            a number they cannot connect wastes their time and buries the
+            blocker the card above already explains. */}
+        {step === "disclosure" && !block && (
           <DisclosureStep
             mode={mode}
             phone={phone}

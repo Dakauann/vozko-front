@@ -197,6 +197,16 @@ export default function AdminWorkspaceDetailPage() {
   const [error, setError] = React.useState<string | null>(null);
 
   const [wsConfig, setWsConfig] = React.useState<WorkspaceConfig | null>(null);
+  /**
+   * The unofficial-WhatsApp allowance, editable here and NOWHERE else.
+   *
+   * This screen is behind the platform-admin routes; the workspace's own
+   * settings page cannot express this field at all, because the tenant-facing
+   * update takes a different input type on the server. Granting capacity on
+   * hosts we pay for, on a channel where a connected number can get a customer
+   * banned, is a decision that belongs to us.
+   */
+  const [includedInstances, setIncludedInstances] = React.useState<number | "">("");
   const [spamDays, setSpamDays] = React.useState<number | "">(0);
   const [savingConfig, setSavingConfig] = React.useState(false);
 
@@ -251,6 +261,9 @@ export default function AdminWorkspaceDetailPage() {
       if (!configRes.error && configRes.config) {
         setWsConfig(configRes.config);
         setSpamDays(configRes.config.campaignSpamProtectionDays);
+        setIncludedInstances(
+          configRes.config.includedUnofficialWhatsAppInstances ?? 0,
+        );
       }
       if (subscriptionRes.error) {
         setSubscriptionError(subscriptionRes.error);
@@ -644,6 +657,78 @@ export default function AdminWorkspaceDetailPage() {
                       setWsConfig(res.config);
                       setSpamDays(res.config.campaignSpamProtectionDays);
                       toast({ title: t("config.spamProtection.success") });
+                    }
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* ── Unofficial WhatsApp allowance ── */}
+            <div
+              className="rounded-[--radius] border border-border bg-card p-5 space-y-4 mb-4"
+              style={{ boxShadow: softSurfaceShadow }}
+            >
+              <h3 className="text-sm font-semibold text-foreground">
+                {t("config.unofficialWhatsapp.title")}
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                {t("config.unofficialWhatsapp.description")}
+              </p>
+              <div className="flex items-end gap-3">
+                <div className="w-48">
+                  <ElevatedInput
+                    type="number"
+                    label={t("config.unofficialWhatsapp.label")}
+                    min={0}
+                    value={includedInstances}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      // Clamped to a non-negative integer here as well as on the
+                      // server, which REJECTS a negative rather than clamping:
+                      // silently turning a typo into zero would revoke a
+                      // workspace's whole allowance while reporting success.
+                      setIncludedInstances(
+                        Number.isNaN(val) ? "" : Math.max(0, Math.round(val)),
+                      );
+                    }}
+                  />
+                </div>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  title={
+                    savingConfig
+                      ? t("config.unofficialWhatsapp.saving")
+                      : t("config.unofficialWhatsapp.save")
+                  }
+                  icon={<FloppyDisk className="h-3.5 w-3.5" weight="bold" />}
+                  iconVisible
+                  iconSide="left"
+                  disabled={
+                    savingConfig ||
+                    includedInstances === "" ||
+                    includedInstances ===
+                      (wsConfig?.includedUnofficialWhatsAppInstances ?? 0)
+                  }
+                  onClick={async () => {
+                    if (includedInstances === "") return;
+                    setSavingConfig(true);
+                    // ONLY this field. The server reads an absent field as
+                    // "leave it alone", so sending the whole form would rewrite
+                    // settings nobody touched.
+                    const res = await adminUpdateWorkspaceConfigAction(
+                      workspaceId,
+                      { includedUnofficialWhatsAppInstances: includedInstances },
+                    );
+                    setSavingConfig(false);
+                    if (res.error) {
+                      toast({ title: res.error, variant: "destructive" });
+                    } else if (res.config) {
+                      setWsConfig(res.config);
+                      setIncludedInstances(
+                        res.config.includedUnofficialWhatsAppInstances ?? 0,
+                      );
+                      toast({ title: t("config.unofficialWhatsapp.success") });
                     }
                   }}
                 />

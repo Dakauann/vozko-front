@@ -368,11 +368,14 @@
     "tabs": {
       "contact": "Contact",
       "attendance": "Attendance",
-      "insights": "Insights"
+      "insights": "Insights",
+      "group": "Group"
     },
     "collapsePanel": "Collapse panel",
     "expandPanel": "Expand panel",
-    "noOpportunities": "No opportunities yet"
+    "noOpportunities": "No opportunities yet",
+    "groupSubtitle": "Group conversation",
+    "unnamedGroup": "Group"
   },
   "metadata": {
     "title": "{brandLegalName}",
@@ -6158,6 +6161,14 @@
         "generate": "Generate invoice",
         "generating": "Generating…",
         "generateSuccess": "Subscription invoice generated successfully."
+      },
+      "unofficialWhatsapp": {
+        "title": "Unofficial WhatsApp",
+        "description": "How many linked-device numbers this workspace may connect. Each one occupies a slot on a host we operate; more are sold as an add-on.",
+        "label": "Included numbers",
+        "save": "Save",
+        "saving": "Saving...",
+        "success": "Number allowance updated"
       }
     },
     "error": {
@@ -7260,7 +7271,8 @@
     },
     "kind": {
       "callChannels": "Call channels",
-      "whatsappPhones": "WhatsApp numbers"
+      "whatsappPhones": "WhatsApp numbers",
+      "unofficialWhatsapp": "Unofficial WhatsApp"
     },
     "stats": {
       "activeAddons": "Active addons",
@@ -9930,7 +9942,13 @@
       "bannedBody": "No reconnection is possible. Connect another number to keep working.",
       "webhookTitle": "Delivery address",
       "webhookBody": "Generate a new address if you suspect the current one leaked.",
-      "rotate": "Generate new address"
+      "rotate": "Generate new address",
+      "displayName": {
+        "title": "Display name",
+        "description": "How this number appears in the CRM. Ours only: it does not change the WhatsApp profile or what a customer sees. Leave empty to use the profile name.",
+        "label": "Display name",
+        "save": "Save"
+      }
     },
     "automation": {
       "title": "AI attendance",
@@ -10006,6 +10024,80 @@
       "noNumbers": "No connected numbers right now. Connect one to start conversations.",
       "resolved": "will be the recipient",
       "phoneInvalid": "Incomplete or invalid number. Use country code + area code."
+    },
+    "allowance": {
+      "tooltip": "Numbers connected / included in this workspace's plan",
+      "counter": "{used} of {limit} numbers",
+      "none-included": {
+        "title": "No numbers included",
+        "description": "This workspace has no unofficial numbers included yet. Talk to your account manager to have an allowance granted."
+      },
+      "all-in-use": {
+        "title": "All numbers in use",
+        "description": "All {limit} included numbers are already connected. Purchase an add-on to connect more."
+      },
+      "over": {
+        "title": "Over the included limit",
+        "description": "This workspace has {used} numbers connected and {limit} included. Nothing was disconnected — new numbers can only be connected once the limit is adjusted."
+      }
+    },
+    "capacity": {
+      "label": "Unofficial numbers",
+      "breakdown": "{planBase} included · {addonUnits} via add-ons",
+      "remaining": "{count, plural, =0 {No slots available} one {# slot available} other {# slots available}}",
+      "full": "All slots in use",
+      "fullHint": "Purchase an add-on to connect more numbers. The ones already connected keep working.",
+      "noPlan": "No numbers included",
+      "noPlanHint": "Talk to your account manager to have an allowance granted, or purchase an add-on.",
+      "manage": "Manage add-ons",
+      "buyMore": "Buy more numbers"
     }
+  },
+  "crmGroupPanel": {
+    "unavailable": "This group's information could not be loaded.",
+    "retry": "Try again",
+    "refresh": "Refresh",
+    "refreshError": "Could not refresh the group",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saveSuccess": "Group updated",
+    "saveError": "Could not save the changes",
+    "subject": "Group name",
+    "description": "Description",
+    "descriptionPlaceholder": "Group description (optional)",
+    "unnamed": "Unnamed group",
+    "memberCount": "{count, plural, one {# member} other {# members}}",
+    "youAreAdmin": "You're an admin",
+    "announceOnly": "Admins only",
+    "cannotPost": "You can't post",
+    "community": "Community",
+    "ephemeral": "Disappearing messages",
+    "inviteLink": "Copy invite link",
+    "inviteCopied": "Link copied",
+    "inviteError": "Could not get the invite link",
+    "members": "Members",
+    "noMembers": "No members synced yet.",
+    "admin": "Admin",
+    "promote": "Make admin",
+    "demote": "Remove admin",
+    "remove": "Remove from group",
+    "memberSuccess": {
+      "promote": "{name} is now an admin",
+      "demote": "{name} is no longer an admin",
+      "remove": "{name} was removed from the group"
+    },
+    "memberError": {
+      "promote": "Could not promote the member",
+      "demote": "Could not demote the member",
+      "remove": "Could not remove the member"
+    },
+    "leave": "Leave group",
+    "confirmLeave": "You'll leave this group on WhatsApp. The conversation and its history stay in the CRM.",
+    "confirmLeaveAction": "Leave",
+    "leaveSuccess": "You left the group",
+    "leaveError": "Could not leave the group",
+    "leftGroup": "You left this group.",
+    "showMore": "Show {count} more"
   }
 }

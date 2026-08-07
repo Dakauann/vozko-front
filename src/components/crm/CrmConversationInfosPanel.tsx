@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   TrendUp,
   UserCircle,
+  UsersThree,
   WhatsappLogo,
   X,
 } from "@/components/icons";
@@ -25,7 +26,9 @@ import type {
 } from "@/lib/conversations/types";
 import { blockLeadAction } from "@/app/actions/leads";
 import { listOpportunitiesForEntryAction } from "@/app/actions/opportunities";
+import { ChannelLogo, channelLabel } from "@/components/icons/channel-logos";
 import ConversationAttendanceSection from "@/components/crm/ConversationAttendanceSection";
+import ConversationGroupSection from "@/components/crm/ConversationGroupSection";
 import ConversationPathChart from "@/components/crm/ConversationPathChart";
 import CrmSegmentedToggle from "@/components/crm/CrmSegmentedToggle";
 import { type Opportunity, formatValueCents } from "@/lib/crm/opportunities";
@@ -38,7 +41,7 @@ const DEAL_STATUS_DOT: Record<string, string> = {
   lost: "bg-muted",
 };
 
-type PanelTab = "contact" | "attendance" | "insights";
+type PanelTab = "contact" | "group" | "attendance" | "insights";
 
 interface CrmConversationInfosPanelProps {
   open: boolean;
@@ -103,11 +106,32 @@ export default function CrmConversationInfosPanel({
   const leadName = conversation?.lead_name ?? "";
   const leadId = inboxEntry?.lead_id ?? "";
 
+  /**
+   * A group chat rather than a person.
+   *
+   * It suppresses affordances rather than relabelling them. A group has no
+   * number to copy or dial, no lead to block, and no single person to
+   * attribute the thread to — so the identity block, the copy button and the
+   * danger zone all address someone who does not exist here, and offering them
+   * produces controls that can only fail.
+   */
+  const isGroup = Boolean(conversation?.is_group ?? inboxEntry?.is_group);
+
+  /** The channel's own name, or null for anything with no brand (a voice call). */
+  const channelName = channelLabel(conversation?.entry_type);
+
   useEffect(() => {
     setConfirmingBlock(false);
     setBlockedOverride(null);
     setTab("contact");
   }, [inboxEntry?.entry_id, inboxEntry?.entry_type]);
+
+  // Derived, not synced through an effect. A tab that vanished under the
+  // operator must not leave the body blank — a group conversation followed by a
+  // private one would otherwise render nothing until they clicked something —
+  // and resolving it here means there is no frame in which the stale value is
+  // on screen.
+  const activeTab: PanelTab = !isGroup && tab === "group" ? "contact" : tab;
 
   useEffect(() => {
     const entryId = conversation?.entry_id;
@@ -191,6 +215,15 @@ export default function CrmConversationInfosPanel({
   const tabOptions = useMemo(
     () => [
       { value: "contact" as const, label: t("tabs.contact") },
+      ...(isGroup
+        ? [
+            {
+              value: "group" as const,
+              label: t("tabs.group"),
+              icon: <UsersThree className="h-3 w-3" weight="bold" />,
+            },
+          ]
+        : []),
       {
         value: "attendance" as const,
         label: t("tabs.attendance"),
@@ -202,7 +235,7 @@ export default function CrmConversationInfosPanel({
         icon: <TrendUp className="h-3 w-3" weight="bold" />,
       },
     ],
-    [t],
+    [t, isGroup],
   );
 
   return (
@@ -287,7 +320,9 @@ export default function CrmConversationInfosPanel({
                   isBlocked && "grayscale",
                 )}
               >
-                {leadName ? (
+                {isGroup ? (
+                  <UsersThree weight="fill" className="h-6 w-6" />
+                ) : leadName ? (
                   initialsOf(leadName, leadNumber)
                 ) : isWhatsApp ? (
                   <WhatsappLogo weight="fill" className="h-6 w-6" />
@@ -297,37 +332,51 @@ export default function CrmConversationInfosPanel({
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold tracking-tight text-foreground">
-                  {leadName || formatPhone(leadNumber)}
+                  {leadName || (isGroup ? t("unnamedGroup") : formatPhone(leadNumber))}
                 </p>
-                <button
-                  type="button"
-                  onClick={handleCopy}
-                  className="group mt-0.5 inline-flex max-w-full items-center gap-1.5 truncate text-xs text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  <span className="truncate">{formatPhone(leadNumber)}</span>
-                  {copied ? (
-                    <Check
-                      weight="bold"
-                      className="h-3 w-3 shrink-0 text-healthy-ink"
-                    />
-                  ) : (
-                    <Copy
-                      weight="bold"
-                      className="h-3 w-3 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
-                    />
-                  )}
-                </button>
+                {/* A group has no number. Rendering the copy affordance would
+                    offer an operator a phone number that cannot be dialled and
+                    belongs to nobody. */}
+                {isGroup ? (
+                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                    {t("groupSubtitle")}
+                  </p>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleCopy}
+                    className="group mt-0.5 inline-flex max-w-full items-center gap-1.5 truncate text-xs text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <span className="truncate">{formatPhone(leadNumber)}</span>
+                    {copied ? (
+                      <Check
+                        weight="bold"
+                        className="h-3 w-3 shrink-0 text-healthy-ink"
+                      />
+                    ) : (
+                      <Copy
+                        weight="bold"
+                        className="h-3 w-3 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+                      />
+                    )}
+                  </button>
+                )}
                 <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                  {/* The channel this conversation actually arrived on.
+                      This used to be a two-way whatsapp-or-voice guess, so an
+                      Instagram, Telegram or unofficial-WhatsApp conversation was
+                      labelled "Voz" — a voice call it never was. The lookup
+                      lives beside the channel marks so every surface agrees. */}
                   <span className="inline-flex items-center gap-1 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-[11px] font-semibold text-foreground">
-                    {isWhatsApp ? (
-                      <WhatsappLogo
-                        weight="fill"
-                        className="h-3 w-3 text-healthy-ink"
+                    {channelName ? (
+                      <ChannelLogo
+                        channel={conversation.entry_type}
+                        className="h-3 w-3"
                       />
                     ) : (
                       <Phone weight="fill" className="h-3 w-3 text-info-ink" />
                     )}
-                    {isWhatsApp ? t("channelWhatsapp") : t("channelVoice")}
+                    {channelName ?? t("channelVoice")}
                   </span>
                   {assignedUsername ? (
                     <span className="inline-flex max-w-[10rem] truncate rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
@@ -341,7 +390,7 @@ export default function CrmConversationInfosPanel({
             <div className="mt-3">
               <CrmSegmentedToggle
                 options={tabOptions}
-                value={tab}
+                value={activeTab}
                 onChange={setTab}
                 className="w-full justify-between sm:justify-start [&>button]:flex-1 sm:[&>button]:flex-none"
               />
@@ -350,7 +399,7 @@ export default function CrmConversationInfosPanel({
 
           {/* Scrollable tab body */}
           <div className="min-h-0 flex-1 overflow-y-auto">
-            {tab === "contact" && (
+            {activeTab === "contact" && (
               <dl className="flex flex-col gap-px bg-border/60">
                 {isWhatsApp && (
                   <InfoRow label={t("windowStatus")}>
@@ -455,12 +504,23 @@ export default function CrmConversationInfosPanel({
               </dl>
             )}
 
-            {tab === "attendance" && (
+            {activeTab === "group" && conversation && (
+              <ConversationGroupSection
+                // Keyed by conversation: switching chats REMOUNTS this rather
+                // than leaving one group's roster, drafts and confirmations on
+                // screen while another loads.
+                key={conversation.entry_id}
+                entryId={conversation.entry_id}
+                active={open && activeTab === "group"}
+              />
+            )}
+
+            {activeTab === "attendance" && (
               <div className="px-3 py-4">
                 <ConversationAttendanceSection
                   entryType={conversation.entry_type}
                   entryId={conversation.entry_id}
-                  active={open && tab === "attendance"}
+                  active={open && activeTab === "attendance"}
                   assignedUsername={inboxEntry?.assigned_username}
                   assignedUserId={inboxEntry?.assigned_user_id}
                   automationEnabled={
@@ -484,7 +544,7 @@ export default function CrmConversationInfosPanel({
               </div>
             )}
 
-            {tab === "insights" && (
+            {activeTab === "insights" && (
               <div className="space-y-4 px-3 py-4">
                 <ConversationPathChart
                   status={
@@ -546,8 +606,11 @@ export default function CrmConversationInfosPanel({
         </>
       )}
 
-      {/* Danger zone pinned */}
-      {conversation && canBlock && (
+      {/* Danger zone pinned.
+          Hidden for a group: blocking acts on a LEAD, and a group has none. The
+          equivalent act — leaving — lives in the group tab, where it can say
+          what it actually does. */}
+      {conversation && canBlock && !isGroup && (
         <div className="shrink-0 border-t border-border bg-card px-3 py-3">
           {isBlocked ? (
             <button

@@ -114,6 +114,7 @@ function FunnelCardBody({ entry }: { entry: InboxEntry }) {
           name={entry.lead_name || entry.lead_number}
           pictureUrl={entry.lead_picture}
           entryType={entry.entry_type}
+          isGroup={entry.is_group}
           size="sm"
         />
       }

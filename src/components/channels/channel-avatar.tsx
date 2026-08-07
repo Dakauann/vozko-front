@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { UsersThree } from "@/components/icons";
 import { ChannelLogo, hasChannelMark } from "@/components/icons/channel-logos";
 import type { EntryType } from "@/lib/conversations/types";
 import { cn } from "@/lib/utils";
@@ -60,12 +61,25 @@ export function ChannelAvatar({
   name,
   pictureUrl,
   entryType,
+  isGroup = false,
   size = "md",
   className,
 }: {
   name?: string | null;
   pictureUrl?: string | null;
   entryType?: EntryType | string | null;
+  /**
+   * A group chat rather than a person.
+   *
+   * It replaces the INITIAL, never the photo: a group with a picture shows it,
+   * and a group without one shows a group glyph instead of the first letter of
+   * its subject. An initial is a stand-in for a face, and reading "T" for "Time
+   * Comercial" in a list of people is exactly the confusion this removes.
+   *
+   * The channel badge is untouched, because both facts still matter — which
+   * network this arrived on, and that it is a group.
+   */
+  isGroup?: boolean;
   size?: keyof typeof SIZES;
   className?: string;
 }) {
@@ -96,6 +110,8 @@ export function ChannelAvatar({
             onError={() => setFailed(true)}
             loading="lazy"
           />
+        ) : isGroup ? (
+          <UsersThree weight="fill" className="h-[55%] w-[55%]" aria-hidden />
         ) : (
           <span aria-hidden>{initial}</span>
         )}

@@ -1,11 +1,16 @@
 import type {
     ConnectMode,
+    UnofficialWhatsAppAllowance,
+    GroupParticipantAction,
     LinkChallenge,
+    UnofficialWhatsAppGroup,
     UnofficialWhatsAppInstance,
     UnofficialWhatsAppListMeta,
+    UpdateGroupPayload,
     UpdateInstancePayload,
     StartedConversation,
 } from '@/lib/unofficial-whatsapp/types';
+import { DESTRUCTIVE_GROUP_ACTIONS } from '@/lib/unofficial-whatsapp/types';
 
 import { apiClient } from '@/lib/api/browser-client';
 
@@ -175,4 +180,231 @@ export async function startConversationAction(
     );
     if (response.error) return { error: response.error.message };
     return { conversation: response.data };
+}
+
+// ---------------------------------------------------------------- groups
+
+/**
+ * The group endpoints.
+ *
+ * A group is addressed by its WhatsApp JID rather than by a row id we assigned,
+ * because a workspace can act on a group the CRM has never opened and therefore
+ * has no row for. The JID contains an `@`, so every call encodes it.
+ *
+ * None of these polls. The server keeps a cached copy with a staleness clock and
+ * re-reads only when it is stale or when `refresh` is asked for explicitly — a
+ * panel that re-read on every render would spend the customer's own number's API
+ * budget on a screen whose content changes weekly, and traffic that looks
+ * automated is what gets an unofficial number banned.
+ */
+function groupPath(instanceId: string, groupJid: string, suffix = '') {
+    return `${BASE}/instances/${instanceId}/groups/${encodeURIComponent(groupJid)}${suffix}`;
+}
+
+/**
+ * The same endpoints addressed by CONVERSATION.
+ *
+ * The CRM holds an entry id and never a WhatsApp JID, and the server offers both
+ * shapes under identical RBAC. Using this one from the inbox avoids leaking a
+ * channel-specific `group_jid` into InboxEntry — the channel-neutral shape every
+ * list in the CRM renders, which Instagram and Telegram also read.
+ */
+function conversationGroupPath(entryId: string, suffix = '') {
+    return `${BASE}/conversations/${encodeURIComponent(entryId)}/group${suffix}`;
+}
+
+/** Lists the groups a connected number belongs to. Served from our own rows;
+ *  rosters are not included. */
+export async function listGroupsAction(instanceId: string) {
+    const response = await apiClient<UnofficialWhatsAppGroup[]>(
+        `${BASE}/instances/${instanceId}/groups`,
+        { method: 'GET' },
+    );
+    if (response.error) return { groups: [] as UnofficialWhatsAppGroup[], error: response.error.message };
+    return { groups: response.data ?? [] };
+}
+
+/**
+ * Reads one group with its roster.
+ *
+ * `refresh` forces past both our staleness clock and the provider's own cache.
+ * It is what the panel's refresh button sends, and the only path that always
+ * costs a call to WhatsApp — which is why it is an explicit opt-in and not the
+ * default.
+ */
+export async function getGroupAction(instanceId: string, groupJid: string, refresh = false) {
+    const response = await apiClient<UnofficialWhatsAppGroup>(
+        groupPath(instanceId, groupJid, refresh ? '?refresh=true' : ''),
+        { method: 'GET' },
+    );
+    if (response.error) return { error: response.error.message };
+    return { group: response.data };
+}
+
+/**
+ * Fetches the group's join link.
+ *
+ * Its own call, never folded into the read: the link is a standing credential —
+ * anyone who receives it can join the customer's group — so it is fetched when
+ * an operator asks and is not cached in the page.
+ */
+export async function getGroupInviteLinkAction(instanceId: string, groupJid: string) {
+    const response = await apiClient<{ inviteLink: string }>(
+        groupPath(instanceId, groupJid, '/invite-link'),
+        { method: 'GET' },
+    );
+    if (response.error) return { error: response.error.message };
+    return { inviteLink: response.data?.inviteLink ?? '' };
+}
+
+/**
+ * Applies whichever fields were submitted.
+ *
+ * Send ONLY what changed. Every field is optional server-side and an absent one
+ * means "leave it alone", so posting the whole form would re-open an
+ * announce-only group every time somebody corrected a typo in its name.
+ *
+ * The response is a fresh read rather than an echo of the request: a provider
+ * acknowledgement says only that the change was accepted, and the two diverge
+ * whenever it is partially applied.
+ */
+export async function updateGroupAction(
+    instanceId: string,
+    groupJid: string,
+    payload: UpdateGroupPayload,
+) {
+    const response = await apiClient<UnofficialWhatsAppGroup>(groupPath(instanceId, groupJid), {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+    });
+    if (response.error) return { error: response.error.message };
+    return { group: response.data };
+}
+
+/**
+ * Adds, promotes, demotes, approves, removes or rejects members.
+ *
+ * The destructive verbs go to a DELETE on the same path, because the server
+ * guards them with a different permission: an attendant trusted to invite people
+ * into a group is not thereby trusted to throw them out. Routing them here keeps
+ * the client from having to remember which is which.
+ */
+export async function updateGroupParticipantsAction(
+    instanceId: string,
+    groupJid: string,
+    action: GroupParticipantAction,
+    participants: string[],
+) {
+    const destructive = DESTRUCTIVE_GROUP_ACTIONS.includes(action);
+    const response = await apiClient<UnofficialWhatsAppGroup>(
+        groupPath(instanceId, groupJid, '/participants'),
+        {
+            method: destructive ? 'DELETE' : 'POST',
+            body: JSON.stringify({ action, participants }),
+        },
+    );
+    if (response.error) return { error: response.error.message };
+    return { group: response.data };
+}
+
+/**
+ * Leaves the group.
+ *
+ * The CONVERSATION stays. The transcript is history and leaving does not mean
+ * the messages stopped having been exchanged — an operator still needs to read
+ * what was said.
+ */
+export async function leaveGroupAction(instanceId: string, groupJid: string) {
+    const response = await apiClient<{ left: boolean }>(
+        groupPath(instanceId, groupJid, '/leave'),
+        { method: 'POST' },
+    );
+    if (response.error) return { error: response.error.message };
+    return { success: true };
+}
+
+// ------------------------------------------- groups, addressed by conversation
+
+/**
+ * Reads the group behind an open conversation.
+ *
+ * `refresh` forces past both our staleness clock and the provider's cache, and
+ * is the only path that always costs a call to the customer's own WhatsApp —
+ * which is why the panel sends it on an explicit refresh and never on mount.
+ */
+export async function getConversationGroupAction(entryId: string, refresh = false) {
+    const response = await apiClient<UnofficialWhatsAppGroup>(
+        conversationGroupPath(entryId, refresh ? '?refresh=true' : ''),
+        { method: 'GET' },
+    );
+    if (response.error) return { error: response.error.message };
+    return { group: response.data };
+}
+
+export async function getConversationGroupInviteLinkAction(entryId: string) {
+    const response = await apiClient<{ inviteLink: string }>(
+        conversationGroupPath(entryId, '/invite-link'),
+        { method: 'GET' },
+    );
+    if (response.error) return { error: response.error.message };
+    return { inviteLink: response.data?.inviteLink ?? '' };
+}
+
+/** Sends ONLY the fields that changed. An absent field means "leave it alone",
+ *  so posting the whole form would re-open an announce-only group on every
+ *  unrelated edit. */
+export async function updateConversationGroupAction(
+    entryId: string,
+    payload: UpdateGroupPayload,
+) {
+    const response = await apiClient<UnofficialWhatsAppGroup>(conversationGroupPath(entryId), {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+    });
+    if (response.error) return { error: response.error.message };
+    return { group: response.data };
+}
+
+export async function updateConversationGroupParticipantsAction(
+    entryId: string,
+    action: GroupParticipantAction,
+    participants: string[],
+) {
+    const destructive = DESTRUCTIVE_GROUP_ACTIONS.includes(action);
+    const response = await apiClient<UnofficialWhatsAppGroup>(
+        conversationGroupPath(entryId, '/participants'),
+        {
+            method: destructive ? 'DELETE' : 'POST',
+            body: JSON.stringify({ action, participants }),
+        },
+    );
+    if (response.error) return { error: response.error.message };
+    return { group: response.data };
+}
+
+export async function leaveConversationGroupAction(entryId: string) {
+    const response = await apiClient<{ left: boolean }>(
+        conversationGroupPath(entryId, '/leave'),
+        { method: 'POST' },
+    );
+    if (response.error) return { error: response.error.message };
+    return { success: true };
+}
+
+
+// ---------------------------------------------------------------- allowance
+
+/**
+ * Reads how many numbers this workspace may connect.
+ *
+ * Its own call rather than a field on the instance list: the connect screen
+ * needs it before any list is rendered, and folding it into a paginated list
+ * would make "how many may I have" a property of page 1.
+ */
+export async function getInstanceAllowanceAction() {
+    const response = await apiClient<UnofficialWhatsAppAllowance>(`${BASE}/instances/allowance`, {
+        method: 'GET',
+    });
+    if (response.error) return { error: response.error.message };
+    return { allowance: response.data };
 }

@@ -272,6 +272,16 @@ export interface InboxEntry {
      */
     lead_picture?: string;
     lead_number: string;
+    /**
+     * True when the other side is a GROUP chat rather than a person.
+     *
+     * Not just a badge. A group has no number to dial, no lead to open and no
+     * single person to attribute the thread to, so several affordances have to
+     * be suppressed rather than relabelled — blocking, copying the number, and
+     * the lead-shaped fields in the context rail all address a person who does
+     * not exist here.
+     */
+    is_group?: boolean;
     blocked?: boolean;
     entry_variables?: string[];
     unread_count: number;
@@ -782,4 +792,6 @@ export interface ActiveConversation {
     close_reason?: string;
     closed_at?: string | null;
     ai_handler?: AIHandler | null;
+    /** See InboxEntry.is_group. Mirrored here so an open conversation knows. */
+    is_group?: boolean;
 }

@@ -9,6 +9,7 @@ import {
   Phone,
   PlusCircle,
   PuzzlePiece,
+  DeviceMobile,
   WhatsappLogo,
 } from "@/components/icons";
 import {
@@ -51,6 +52,7 @@ type AddonDraft = {
 const KIND_LABELS: Record<AddonEntitlementKind, string> = {
   call_channels: "Canais de chamada",
   whatsapp_business_phones: "Números WhatsApp Business",
+  unofficial_whatsapp_instances: "Números WhatsApp não oficial",
 };
 
 /**
@@ -62,11 +64,14 @@ const KIND_LABELS: Record<AddonEntitlementKind, string> = {
 const RETIRED_KINDS = new Set<AddonEntitlementKind>(["call_channels"]);
 
 function KindGlyph({ kind }: { kind: AddonEntitlementKind }) {
-  return kind === "whatsapp_business_phones" ? (
-    <WhatsappLogo className="h-5 w-5" weight="fill" />
-  ) : (
-    <Phone className="h-5 w-5" weight="fill" />
-  );
+  switch (kind) {
+    case "whatsapp_business_phones":
+      return <WhatsappLogo className="h-5 w-5" weight="fill" />;
+    case "unofficial_whatsapp_instances":
+      return <DeviceMobile className="h-5 w-5" weight="fill" />;
+    default:
+      return <Phone className="h-5 w-5" weight="fill" />;
+  }
 }
 
 function emptyDraft(): AddonDraft {
@@ -338,6 +343,12 @@ export function AdminAddonsManager() {
           >
             <ElevatedSelectItem value="whatsapp_business_phones">
               {KIND_LABELS.whatsapp_business_phones}
+            </ElevatedSelectItem>
+            {/* Without this option the kind is enforced by the server and
+                unsellable through the product: an administrator could not create
+                the definition, so no workspace could ever buy one. */}
+            <ElevatedSelectItem value="unofficial_whatsapp_instances">
+              {KIND_LABELS.unofficial_whatsapp_instances}
             </ElevatedSelectItem>
           </ElevatedSelect>
 

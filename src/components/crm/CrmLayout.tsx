@@ -1390,6 +1390,7 @@ export default function CrmLayout({
         name={activeConversation.lead_name || activeConversation.lead_number}
         pictureUrl={currentInboxEntry?.lead_picture}
         entryType={activeConversation.entry_type}
+        isGroup={activeConversation.is_group ?? currentInboxEntry?.is_group}
         size="md"
       />
 

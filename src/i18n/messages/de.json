@@ -368,11 +368,14 @@
     "tabs": {
       "contact": "Kontakt",
       "attendance": "Betreuung",
-      "insights": "Einblicke"
+      "insights": "Einblicke",
+      "group": "Gruppe"
     },
     "collapsePanel": "Panel einklappen",
     "expandPanel": "Panel ausklappen",
-    "noOpportunities": "Noch keine Opportunities"
+    "noOpportunities": "Noch keine Opportunities",
+    "groupSubtitle": "Gruppenunterhaltung",
+    "unnamedGroup": "Gruppe"
   },
   "metadata": {
     "title": "{brandLegalName}",
@@ -6395,7 +6398,8 @@
     },
     "kind": {
       "callChannels": "Anrufkanäle",
-      "whatsappPhones": "WhatsApp Nummern"
+      "whatsappPhones": "WhatsApp Nummern",
+      "unofficialWhatsapp": "Inoffizielles WhatsApp"
     },
     "stats": {
       "activeAddons": "Aktive Addons",
@@ -8935,7 +8939,13 @@
       "bannedBody": "No reconnection is possible. Connect another number to keep working.",
       "webhookTitle": "Delivery address",
       "webhookBody": "Generate a new address if you suspect the current one leaked.",
-      "rotate": "Generate new address"
+      "rotate": "Generate new address",
+      "displayName": {
+        "title": "Anzeigename",
+        "description": "Wie diese Nummer im CRM erscheint. Nur bei uns: Das WhatsApp-Profil und was der Kunde sieht bleiben unverändert. Leer lassen, um den Profilnamen zu verwenden.",
+        "label": "Anzeigename",
+        "save": "Speichern"
+      }
     },
     "automation": {
       "title": "KI-Betreuung",
@@ -9011,6 +9021,92 @@
       "noNumbers": "Derzeit keine verbundene Nummer. Verbinde eine, um Unterhaltungen zu starten.",
       "resolved": "wird der Empfänger",
       "phoneInvalid": "Unvollständige oder ungültige Nummer. Länder- und Vorwahl verwenden."
+    },
+    "allowance": {
+      "tooltip": "Verbundene / im Plan dieses Workspaces enthaltene Nummern",
+      "counter": "{used} von {limit} Nummern",
+      "none-included": {
+        "title": "Keine Nummern enthalten",
+        "description": "Dieser Workspace hat noch keine inoffiziellen Nummern enthalten. Sprich mit deinem Account Manager, um ein Kontingent freizuschalten."
+      },
+      "all-in-use": {
+        "title": "Alle Nummern in Benutzung",
+        "description": "Alle {limit} enthaltenen Nummern sind bereits verbunden. Kaufe ein Add-on, um weitere zu verbinden."
+      },
+      "over": {
+        "title": "Über dem enthaltenen Limit",
+        "description": "Dieser Workspace hat {used} Nummern verbunden und {limit} enthalten. Es wurde nichts getrennt — neue Nummern können erst nach Anpassung des Limits verbunden werden."
+      }
+    },
+    "capacity": {
+      "label": "Inoffizielle Nummern",
+      "breakdown": "{planBase} enthalten · {addonUnits} über Add-ons",
+      "remaining": "{count, plural, =0 {Keine Plätze verfügbar} one {# Platz verfügbar} other {# Plätze verfügbar}}",
+      "full": "Alle Plätze belegt",
+      "fullHint": "Kaufe ein Add-on, um weitere Nummern zu verbinden. Bereits verbundene bleiben aktiv.",
+      "noPlan": "Keine Nummern enthalten",
+      "noPlanHint": "Sprich mit deinem Account Manager für ein Kontingent oder kaufe ein Add-on.",
+      "manage": "Add-ons verwalten",
+      "buyMore": "Mehr Nummern kaufen"
+    }
+  },
+  "crmGroupPanel": {
+    "unavailable": "Die Informationen dieser Gruppe konnten nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "refresh": "Aktualisieren",
+    "refreshError": "Gruppe konnte nicht aktualisiert werden",
+    "edit": "Bearbeiten",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "saveSuccess": "Gruppe aktualisiert",
+    "saveError": "Änderungen konnten nicht gespeichert werden",
+    "subject": "Gruppenname",
+    "description": "Beschreibung",
+    "descriptionPlaceholder": "Gruppenbeschreibung (optional)",
+    "unnamed": "Unbenannte Gruppe",
+    "memberCount": "{count, plural, one {# Mitglied} other {# Mitglieder}}",
+    "youAreAdmin": "Du bist Admin",
+    "announceOnly": "Nur Admins",
+    "cannotPost": "Du kannst nicht senden",
+    "community": "Community",
+    "ephemeral": "Temporäre Nachrichten",
+    "inviteLink": "Einladungslink kopieren",
+    "inviteCopied": "Link kopiert",
+    "inviteError": "Einladungslink konnte nicht abgerufen werden",
+    "members": "Mitglieder",
+    "noMembers": "Noch keine Mitglieder synchronisiert.",
+    "admin": "Admin",
+    "promote": "Zum Admin machen",
+    "demote": "Admin entziehen",
+    "remove": "Aus Gruppe entfernen",
+    "memberSuccess": {
+      "promote": "{name} ist jetzt Admin",
+      "demote": "{name} ist kein Admin mehr",
+      "remove": "{name} wurde aus der Gruppe entfernt"
+    },
+    "memberError": {
+      "promote": "Mitglied konnte nicht befördert werden",
+      "demote": "Mitglied konnte nicht herabgestuft werden",
+      "remove": "Mitglied konnte nicht entfernt werden"
+    },
+    "leave": "Gruppe verlassen",
+    "confirmLeave": "Du verlässt diese Gruppe auf WhatsApp. Die Unterhaltung und ihr Verlauf bleiben im CRM.",
+    "confirmLeaveAction": "Verlassen",
+    "leaveSuccess": "Du hast die Gruppe verlassen",
+    "leaveError": "Gruppe konnte nicht verlassen werden",
+    "leftGroup": "Du hast diese Gruppe verlassen.",
+    "showMore": "{count} weitere anzeigen"
+  },
+  "adminWorkspaceDetail": {
+    "config": {
+      "unofficialWhatsapp": {
+        "title": "Inoffizielles WhatsApp",
+        "description": "Wie viele Nummern über verknüpfte Geräte dieser Workspace verbinden darf. Jede belegt einen Slot auf einem von uns betriebenen Host; weitere werden als Add-on verkauft.",
+        "label": "Enthaltene Nummern",
+        "save": "Speichern",
+        "saving": "Wird gespeichert...",
+        "success": "Nummernkontingent aktualisiert"
+      }
     }
   }
 }

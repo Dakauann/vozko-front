@@ -477,6 +477,22 @@ export function useConversationWs({
     [],
   );
 
+  /**
+   * Rebuilds one inbox row from a live websocket payload.
+   *
+   * It is an ALLOWLIST, and that is its hazard: a field nobody remembered to add
+   * here is silently dropped every time the server pushes an update, so the row
+   * degrades in a live session and comes back correct on a page refresh — which
+   * reads as a flickering bug rather than as a missing line of code.
+   *
+   * That has already happened twice. `lead_picture` was sent by the backend and
+   * never copied, so an avatar vanished the moment a message arrived; `is_group`
+   * was added and not copied, so a group conversation turned back into a person
+   * — losing its glyph, its Grupo tab, and gaining a block button that addresses
+   * a lead it does not have.
+   *
+   * When you add a field to InboxEntry, add it here too.
+   */
   const normalizeEntry = useCallback(
     (raw: Record<string, unknown>): InboxEntry => {
       return {
@@ -488,6 +504,14 @@ export function useConversationWs({
         lead_name: (raw.lead_name as string) ?? (raw.leadName as string) ?? "",
         lead_number:
           (raw.lead_number as string) ?? (raw.leadNumber as string) ?? "",
+        lead_picture:
+          (raw.lead_picture as string) ??
+          (raw.leadPicture as string) ??
+          undefined,
+        // Omitted by the server when false, so `?? false` is the correct
+        // reading of an absent key rather than a defensive default.
+        is_group: (raw.is_group as boolean) ?? (raw.isGroup as boolean) ?? false,
+        blocked: (raw.blocked as boolean) ?? false,
         entry_variables:
           (raw.entry_variables as string[]) ??
           (raw.entryVariables as string[]) ??

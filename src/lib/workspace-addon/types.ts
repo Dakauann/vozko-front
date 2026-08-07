@@ -1,4 +1,15 @@
-export type AddonEntitlementKind = "call_channels" | "whatsapp_business_phones";
+/**
+ * The entitlements an add-on can grant. Mirrors
+ * domain/workspace/workspace_addon.EntitlementKind.
+ *
+ * Adding a kind on the server is not enough: this union is what lets an
+ * administrator CREATE a definition for it and a workspace BUY one, so a kind
+ * missing here is enforced by the backend and unsellable through the product.
+ */
+export type AddonEntitlementKind =
+  | "call_channels"
+  | "whatsapp_business_phones"
+  | "unofficial_whatsapp_instances";
 export type AddonBillingCycle = "monthly" | "annual";
 export type AddonSubscriptionStatus = "active" | "cancelled" | "expired";
 

@@ -53,7 +53,13 @@ export async function fetchWorkspaceConfig(workspaceId: string): Promise<Workspa
 
 export async function adminUpdateWorkspaceConfigAction(
     workspaceId: string,
-    data: { campaignSpamProtectionDays?: number }
+    // Every field optional and sent only when changed: the server reads an
+    // absent field as "leave it alone", so posting the whole form would reset a
+    // workspace's number allowance on an unrelated edit.
+    data: {
+        campaignSpamProtectionDays?: number;
+        includedUnofficialWhatsAppInstances?: number;
+    }
 ): Promise<{ config: WorkspaceConfig | null; error?: string }> {
     const response = await apiClient<WorkspaceConfig>(`/admin/workspaces/${workspaceId}/config`, {
         method: 'PUT',

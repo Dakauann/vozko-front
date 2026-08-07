@@ -163,6 +163,32 @@ export function hasChannelMark(channel: string | null | undefined): boolean {
 }
 
 /**
+ * The operator-facing NAME of a channel.
+ *
+ * Beside the mark for the same reason the mark list is beside the switch: every
+ * surface that shows a channel has to agree on what to call it, and the ones
+ * that answered the question inline got it wrong. The context rail asked
+ * `entry_type === "whatsapp" ? "WhatsApp" : "Voz"`, so every Instagram, Telegram
+ * and unofficial-WhatsApp conversation was labelled "Voz" — a voice call.
+ *
+ * The unofficial channel says WhatsApp, because that is the network the customer
+ * is on; that it reaches us over a linked device is our concern, and the sub-label
+ * carries it where it matters.
+ */
+const CHANNEL_LABELS: Record<string, string> = {
+  whatsapp: "WhatsApp",
+  unofficial_whatsapp: "WhatsApp",
+  instagram: "Instagram",
+  telegram: "Telegram",
+};
+
+/** The channel's display name, or null when it has none and the caller should
+ *  fall back to whatever it used before. */
+export function channelLabel(channel: string | null | undefined): string | null {
+  return CHANNEL_LABELS[channel ?? ""] ?? null;
+}
+
+/**
  * The mark for a conversation's channel.
  *
  * Kept as one lookup so every surface that shows a channel, the CRM inbox, the

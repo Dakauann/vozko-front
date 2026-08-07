@@ -18,16 +18,19 @@ import { RestrictionNotice, SessionState } from "@/components/unofficial-whatsap
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   deleteInstanceAction,
+  getInstanceAllowanceAction,
   listInstancesAction,
   resetInstanceAction,
 } from "@/app/actions/unofficial-whatsapp";
 import {
   instanceIssue,
+  type UnofficialWhatsAppAllowance,
   type UnofficialWhatsAppInstance,
 } from "@/lib/unofficial-whatsapp/types";
 
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
+import UnofficialWhatsAppCapacityCard from "@/components/dashboard/addons/UnofficialWhatsAppCapacityCard";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { WhatsAppLogoColor } from "@/components/icons/channel-logos";
@@ -63,6 +66,7 @@ export default function UnofficialWhatsAppPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [allowance, setAllowance] = useState<UnofficialWhatsAppAllowance | null>(null);
 
   const canCreate = can("unofficial_whatsapp_instances", "create");
   const canUpdate = can("unofficial_whatsapp_instances", "update");
@@ -86,9 +90,18 @@ export default function UnofficialWhatsAppPage() {
     [],
   );
 
+  // Re-read alongside the list, because both halves of "2 of 5" change when a
+  // number is added or removed. Cheap: two integers, and no provider call —
+  // the limit is a stored grant and the usage is a COUNT.
+  const fetchAllowance = useCallback(async () => {
+    const result = await getInstanceAllowanceAction();
+    if (!result.error && result.allowance) setAllowance(result.allowance);
+  }, []);
+
   useEffect(() => {
     void fetchInstances(1, "");
-  }, [fetchInstances]);
+    void fetchAllowance();
+  }, [fetchInstances, fetchAllowance]);
 
   /**
    * Anything mid-link or in trouble is worth watching; a settled list is not.
@@ -134,9 +147,12 @@ export default function UnofficialWhatsAppPage() {
         title: t("actions.remove"),
         description: t("notice.removed", { name: instance.displayName }),
       });
+      // Removing a number frees its slot, so the counter must follow it down or
+      // the screen keeps claiming the workspace is full.
       void fetchInstances(page, search);
+      void fetchAllowance();
     },
-    [toast, t, fetchInstances, page, search],
+    [toast, t, fetchInstances, fetchAllowance, page, search],
   );
 
   /**
@@ -302,19 +318,53 @@ export default function UnofficialWhatsAppPage() {
         colorClass="text-healthy-ink"
         actions={
           <div className="flex items-center gap-2">
+            {/* The allowance counter, beside the action it governs.
+                Shown even when there is room: "2 of 5" is what makes running out
+                predictable, and a limit an operator only learns about at the
+                moment it stops them is a limit that reads as a bug. */}
+            {allowance && (
+              <span
+                className={cn(
+                  "hidden rounded-[--radius] border px-2.5 py-1 text-xs font-medium tabular-nums sm:inline-flex",
+                  allowance.canConnect
+                    ? "border-border bg-card text-muted-foreground"
+                    : "border-border bg-muted text-warning-ink",
+                )}
+                title={t("allowance.tooltip")}
+              >
+                {t("allowance.counter", {
+                  used: allowance.used,
+                  limit: allowance.limit,
+                })}
+              </span>
+            )}
             {canCreate && (
               <Button
                 variant="primary"
-                link="/dashboard/unofficial-whatsapp/connect"
+                link={
+                  allowance && !allowance.canConnect
+                    ? undefined
+                    : "/dashboard/unofficial-whatsapp/connect"
+                }
                 newTab={false}
                 title={t("page.connect")}
                 icon={<Plus weight="bold" className="h-4 w-4" />}
                 iconVisible
+                // Disabled from the SAME value the server enforces, so the
+                // button and the API cannot disagree about whether a connect
+                // would succeed.
+                disabled={Boolean(allowance && !allowance.canConnect)}
               />
             )}
           </div>
         }
       />
+
+      {/* The allowance, as the same meter the official channel uses: filled
+          pips for numbers in use, empty ones for free slots, and a call to
+          action that becomes "buy more" once it fills. One component for both
+          channels, so the at-limit behaviour cannot drift between them. */}
+      <UnofficialWhatsAppCapacityCard allowance={allowance} />
 
       {/* A restricted number is connected and still cannot start conversations.
           It is the state most likely to be missed, so it is lifted out of the
