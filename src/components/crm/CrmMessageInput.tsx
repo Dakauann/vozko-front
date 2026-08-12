@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowBendUpLeft,
   CircleNotch,
+  Clock,
   File as FileIcon,
   Lightning,
   Microphone,
@@ -15,10 +16,16 @@ import {
   Waveform,
   X,
 } from "@/components/icons";
+import {
+  OUTBOUND_MEDIA_ACCEPT,
+  mediaTypeForFile,
+  normalizeUploadFile,
+} from "@/lib/conversations/media";
 import type {
   ConversationMessage,
   EntryType,
   MediaType,
+  WindowClosedReason,
 } from "@/lib/conversations/types";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -36,6 +43,17 @@ import { uploadConversationMediaAction } from "@/app/actions/conversations";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
+
+/** The composer's current content, handed to the schedule dialog verbatim. */
+export interface ComposerDraft {
+  text: string;
+  mediaId?: string;
+  mediaType?: MediaType;
+  /** Filename of an already-uploaded attachment, so the dialog can name it. */
+  mediaName?: string;
+  replyToMessageId?: string;
+  signed: boolean;
+}
 
 interface PendingMedia {
   file: File;
@@ -61,6 +79,18 @@ interface CrmMessageInputProps {
   onTyping: (isTyping: boolean) => void;
   windowOpen: boolean;
   windowExpiresAt: string | null;
+  /**
+   * Why the server says sending is blocked. The composer RENDERS this rather
+   * than inferring it: inference from a missing expiry is what produced the
+   * "24h window" claim on channels that have no window.
+   */
+  windowClosedReason?: WindowClosedReason | null;
+  /**
+   * Opens the schedule dialog with the current draft. Absent when the caller
+   * has not wired scheduling; the clock affordance is then not rendered at all,
+   * which is better than offering an action that does nothing.
+   */
+  onSchedule?: (draft: ComposerDraft) => void;
   disabled?: boolean;
   disabledReason?: string;
   replyToMessage?: ConversationMessage | null;
@@ -69,11 +99,11 @@ interface CrmMessageInputProps {
     placeholder: string;
     windowClosed: string;
     windowClosedDescription: string;
-    // Shown when the send is blocked WITHOUT a clock, the contact blocked the
-    // bot, or a business connection lost its reply right. Nothing reopens on
-    // its own, so telling the operator to "wait for the contact to write" would
-    // be advice that never works.
-    windowClosedNoClock?: string;
+    // The fallback when the server names no reason. Kept REQUIRED: it was
+    // optional, the live-chat page never passed it, and every clockless channel
+    // reported "the 24h window is closed" on a channel that has no such window.
+    // A missing key must be a compile error, not a silent downgrade to a lie.
+    windowClosedNoClock: string;
     sendButton: string;
     attachFile: string;
     recording: string;
@@ -82,31 +112,6 @@ interface CrmMessageInputProps {
   };
 }
 
-
-function getMediaType(file: File): MediaType {
-  if (file.type.startsWith("image/")) return "image";
-  if (file.type.startsWith("video/")) return "video";
-  if (file.type.startsWith("audio/")) return "audio";
-  return "document";
-}
-
-function normalizeUploadFile(file: File): File {
-  if (file.name) return file;
-
-  const extension =
-    file.type.split("/")[1]?.split("+")[0]?.split(";")[0] || "bin";
-  const prefix = file.type.startsWith("image/")
-    ? "pasted-image"
-    : file.type.startsWith("video/")
-      ? "pasted-video"
-      : file.type.startsWith("audio/")
-        ? "pasted-audio"
-        : "pasted-file";
-
-  return new File([file], `${prefix}-${Date.now()}.${extension}`, {
-    type: file.type || "application/octet-stream",
-  });
-}
 
 function getClipboardFile(clipboardData: DataTransfer): File | null {
   if (clipboardData.files.length > 0) {
@@ -159,6 +164,8 @@ export default function CrmMessageInput({
   onTyping,
   windowOpen,
   windowExpiresAt,
+  windowClosedReason,
+  onSchedule,
   disabled = false,
   disabledReason,
   replyToMessage,
@@ -167,6 +174,12 @@ export default function CrmMessageInput({
 }: CrmMessageInputProps) {
   const { can } = useWorkspace();
   const crmT = useTranslations("crm");
+  const scheduleT = useTranslations("scheduledMessages");
+  // Why the composer is blocked. Its own namespace: this is a property of the
+  // CONVERSATION, not of scheduling, and three pages already hand-list the
+  // composer's translation prop — threading seven more keys through them is how
+  // one of them ends up missing again.
+  const windowT = useTranslations("conversationWindow.closed");
   const shortcutPageT = useTranslations("messageShortcutsPage");
   const [text, setText] = useState("");
   const [pendingMedia, setPendingMedia] = useState<PendingMedia | null>(null);
@@ -247,6 +260,38 @@ export default function CrmMessageInput({
     ta.style.height = `${Math.min(ta.scrollHeight, 120)}px`;
   }, [text, pendingMedia]);
 
+  // Shared by send and schedule: both consume the draft, so both must leave the
+  // composer in the same state. Two copies of this drifted apart is exactly how
+  // a scheduled message ends up sent twice, once now and once later.
+  const clearDraft = useCallback(() => {
+    if (pendingMedia?.previewUrl) URL.revokeObjectURL(pendingMedia.previewUrl);
+    setPendingMedia(null);
+    setText("");
+    onTyping(false);
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    requestAnimationFrame(() => {
+      textareaRef.current?.focus();
+    });
+  }, [onTyping, pendingMedia]);
+
+  const handleSchedule = useCallback(() => {
+    if (!onSchedule) return;
+
+    const trimmed = text.trim();
+    const mediaId = pendingMedia?.mediaId;
+
+    onSchedule({
+      text: pendingMedia?.type === "audio" ? "" : trimmed,
+      mediaId,
+      mediaType: mediaId ? pendingMedia?.type : undefined,
+      mediaName: mediaId ? pendingMedia?.file.name : undefined,
+      replyToMessageId: replyToMessage?.id,
+      signed: sendSigned,
+    });
+    clearDraft();
+    onClearReply?.();
+  }, [clearDraft, onClearReply, onSchedule, pendingMedia, replyToMessage, sendSigned, text]);
+
   const handleSend = useCallback(() => {
     const trimmed = text.trim();
     if (!trimmed && !pendingMedia) return;
@@ -254,20 +299,12 @@ export default function CrmMessageInput({
     if (pendingMedia?.mediaId) {
       const caption = pendingMedia.type === "audio" ? "" : trimmed;
       onSendMedia(caption, pendingMedia.mediaId, pendingMedia.type, sendSigned);
-      URL.revokeObjectURL(pendingMedia.previewUrl);
-      setPendingMedia(null);
     } else if (trimmed) {
       onSend(trimmed, sendSigned);
     }
 
-    setText("");
-    onTyping(false);
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-
-    requestAnimationFrame(() => {
-      textareaRef.current?.focus();
-    });
-  }, [text, pendingMedia, onSend, onSendMedia, onTyping]);
+    clearDraft();
+  }, [text, pendingMedia, onSend, onSendMedia, sendSigned, clearDraft]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (shortcutPickerVisible) {
@@ -360,7 +397,7 @@ export default function CrmMessageInput({
   const uploadMediaFile = useCallback(
     async (rawFile: File) => {
       const file = normalizeUploadFile(rawFile);
-      const type = getMediaType(file);
+      const type = mediaTypeForFile(file);
       const previewUrl = URL.createObjectURL(file);
 
       setPendingMedia((prev) => {
@@ -551,6 +588,17 @@ export default function CrmMessageInput({
   }, []);
 
 
+  // One lookup, one true sentence. `expired` is the only reason that reopens on
+  // its own, which is why it is the only one that keeps the 24h wording.
+  const closedCopy = (() => {
+    if (windowClosedReason && windowT.has(windowClosedReason)) {
+      return windowT(windowClosedReason);
+    }
+    // No reason named (an older server, or a channel that has not adopted the
+    // vocabulary yet): keep the previous behaviour rather than invent one.
+    return windowExpiresAt ? t.windowClosedDescription : t.windowClosedNoClock;
+  })();
+
   const canSend =
     !disabled &&
     windowOpen &&
@@ -595,9 +643,10 @@ export default function CrmMessageInput({
                     deliberately (nil expiry == "not a clock") and showing the
                     24h copy for a blocked contact sends the operator waiting
                     for something that will never happen. */}
-                {windowExpiresAt || !t.windowClosedNoClock
-                  ? t.windowClosedDescription
-                  : t.windowClosedNoClock}
+                {/* The server names the reason; we look it up. Only when it
+                    names none do we fall back, and even then never to the 24h
+                    sentence unless a clock is actually involved. */}
+                {closedCopy}
               </p>
             </div>
           </div>
@@ -799,7 +848,7 @@ export default function CrmMessageInput({
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.pptx,.txt"
+            accept={OUTBOUND_MEDIA_ACCEPT}
             onChange={handleFileSelect}
             className="hidden"
           />
@@ -818,6 +867,23 @@ export default function CrmMessageInput({
               >
                 <Paperclip weight="bold" className="h-5 w-5" />
               </button>
+
+              {/* schedule — available whenever the window is open, EMPTY draft
+                  included: the dialog owns composition, so this is how an
+                  operator starts one. Hidden on a closed window because the
+                  backend refuses a schedule it could not send. */}
+              {onSchedule && windowOpen ? (
+                <button
+                  type="button"
+                  onClick={handleSchedule}
+                  disabled={disabled}
+                  aria-label={scheduleT("composer.scheduleAria")}
+                  title={scheduleT("composer.scheduleAria")}
+                  className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent"
+                >
+                  <Clock weight="bold" className="h-5 w-5" />
+                </button>
+              ) : null}
 
               {/* quick-shortcut */}
               {canCreateShortcut ? (

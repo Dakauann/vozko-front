@@ -120,6 +120,7 @@ export default function WhatsAppCampaignCrmPage({ params }: CrmPageProps) {
             placeholder: t("input.placeholder"),
             windowClosed: t("input.windowClosed"),
             windowClosedDescription: t("input.windowClosedDescription"),
+            windowClosedNoClock: t("input.windowClosedNoClock"),
             sendButton: t("input.sendButton"),
             attachFile: t("input.attachFile"),
             recording: t("input.recording"),

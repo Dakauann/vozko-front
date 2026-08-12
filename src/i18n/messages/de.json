@@ -5607,7 +5607,6 @@
     "fullAccessDescription": "{role}e haben vollen Zugriff auf alle Arbeitsbereichsressourcen. Die unten aufgeführten Berechtigungen werden automatisch gewährt und können nicht einzeln geändert werden.",
     "resources": {
       "agents": "Agenten",
-      "campaigns": "Kampagnen",
       "whatsapp_campaigns": "WhatsApp-Kampagnen",
       "whatsapp_templates": "WhatsApp-Vorlagen",
       "business_phones": "Geschäftstelefone",
@@ -5623,23 +5622,22 @@
       "media": "Medien",
       "leads": "Leads",
       "analysis": "Analysen",
-      "sip_trunks": "SIP-Trunks",
       "call_recordings": "Anrufaufzeichnungen",
       "dialer": "Wählhilfe",
-      "affiliate": "Partnerprogramm",
-      "whatsapp_flows": "WhatsApp-Flows",
       "members": "Mitglieder",
       "assignments": "Zuweisungen",
       "attendance": "Service- und Telefonie-Metriken",
       "knowledge_bases": "Wissensdatenbanken",
-      "usage": "Nutzung",
       "roles": "Rollen",
       "departments": "Abteilungen",
       "issues": "Issues",
       "mcp": "MCP",
       "plans": "Pläne & Abrechnung",
       "ai_chat": "KI-Chat",
-      "branches": "Nebenstellen"
+      "instagram_accounts": "Instagram-Konten",
+      "telegram_accounts": "Telegram-Konten",
+      "unofficial_whatsapp_instances": "WhatsApp-Nummern (inoffiziell)",
+      "short_links": "Kurzlinks"
     },
     "actions": {
       "create": "Erstellen",
@@ -5662,7 +5660,6 @@
     },
     "resourceDescriptions": {
       "agents": "Verwalten Sie KI-Agenten, die Ihre Gespräche bearbeiten",
-      "campaigns": "Steuern Sie Telefonkampagnen zur Kundenansprache",
       "whatsapp_campaigns": "Verwalten Sie Massen-WhatsApp-Nachrichtenkampagnen",
       "whatsapp_templates": "Erstellen und bearbeiten Sie von WhatsApp genehmigte Nachrichtenvorlagen",
       "business_phones": "Geschäftstelefonnummern des Arbeitsbereichs anzeigen",
@@ -5678,23 +5675,22 @@
       "media": "Verwalten Sie Mediendateien wie Bilder, Audio und Dokumente",
       "leads": "Verwalten Sie Leads und potenzielle Kundenkontakte",
       "analysis": "Leistungsberichte und Analysen anzeigen",
-      "sip_trunks": "SIP-Trunk-Konfigurationen für Telefonie anzeigen",
       "call_recordings": "Zugriff auf Aufzeichnungen abgeschlossener Anrufe",
       "dialer": "Anrufe über die Wählhilfe tätigen und weiterleiten (SIP und WhatsApp). Keine Metrik-Dashboards.",
-      "affiliate": "Zugriff auf das Partnerprogramm, Empfehlungen und Provisionen",
-      "whatsapp_flows": "Erstellen und verwalten Sie automatisierte WhatsApp-Flows",
       "members": "Verwalten Sie Arbeitsbereichsmitglieder und deren Rollen",
       "assignments": "Steuern Sie, welche Ressourcen welchen Mitgliedern zugewiesen sind",
-      "attendance": "Ops-Metriken anzeigen: Gespräche, Telefonievolumen, Wartezeiten, Warteschlangen, Auslastung, Kanäle, KI und Team",
+      "attendance": "Operative Kennzahlen ansehen: Konversationen, Zeiten, Warteschlangen, Auslastung, Kanäle, Team und KI-Bearbeitungen in Nachrichtenkanälen sowie Telefonievolumen",
       "knowledge_bases": "Wissensdatenbanken erstellen, anzeigen, bearbeiten und löschen",
-      "usage": "Verbrauch und Kosten des Arbeitsbereichs anzeigen",
       "roles": "Benutzerdefinierte Rollen mit Berechtigungsvorlagen erstellen und verwalten",
       "departments": "Abteilungen erstellen, Abteilungen und ihre Mitglieder anzeigen, Abteilungen bearbeiten und Abteilungen löschen",
       "issues": "Issues erstellen, anzeigen und schließen",
       "mcp": "Integrierte und entfernte MCP-Server anzeigen, aktivieren, konfigurieren und entfernen",
       "plans": "Verfügbare Pläne anzeigen, Pläne buchen und das Workspace-Abo kündigen",
       "ai_chat": "Auf den KI-Chat des Workspace zugreifen und Konversationen erstellen und verwalten",
-      "branches": "SIP-Nebenstellen des Workspace verwalten"
+      "instagram_accounts": "Instagram-Konten des Workspace verbinden und verwalten.",
+      "telegram_accounts": "Telegram-Bots und -Konten des Workspace verbinden und verwalten.",
+      "unofficial_whatsapp_instances": "WhatsApp-Nummern über ein verknüpftes Gerät verbinden und verwalten.",
+      "short_links": "Kurzlinks erstellen und ihre Klickstatistiken verfolgen."
     },
     "customRoles": {
       "title": "Benutzerdefinierte Rollen",
@@ -6744,7 +6740,7 @@
   "callBillingPage": {
     "header": {
       "badge": "Anrufkosten",
-      "description": "Verfolgen Sie die Kostenaufschlüsselung jedes Anrufs mit vollständiger Prüfung von STT, TTS, LLM und Telefonie."
+      "description": "Verfolgen Sie die Telefoniekosten jedes Anrufs mit vollständiger Prüfung."
     },
     "summary": {
       "title": "Zeitraumübersicht",
@@ -6800,11 +6796,10 @@
       "billedMinutes": "Berechnete Minuten",
       "ceilingRounded": "aufgerundet",
       "ratePerMinute": "Tarif pro Minute",
-      "llmBilledSeparately": "⚠ LLM wird separat über KI-Verbrauch abgerechnet, nicht zu diesem Anruf addiert.",
       "totalBreakdown": "Rechnungsaufschlüsselung",
       "totalMismatch": "Abweichung erkannt, bitte Support kontaktieren",
       "total": "Gesamt",
-      "transparencyNote": "Wir berechnen exakt die Sprachverarbeitungskosten (STT/TTS) zuzüglich der SIP-Telefonie-Gebühr pro voller Minute. LLM wird separat pro Anfrage über den KI-Verbrauch abgerechnet."
+      "transparencyNote": "Wir berechnen exakt die Telefoniekosten, pro voller Gesprächsminute."
     },
     "pagination": {
       "page": "Seite",
@@ -9111,6 +9106,73 @@
         "saving": "Wird gespeichert...",
         "success": "Nummernkontingent aktualisiert"
       }
+    }
+  },
+  "scheduledMessages": {
+    "composer": {
+      "scheduleAria": "Nachricht planen"
+    },
+    "dialog": {
+      "title": "Nachricht planen",
+      "description": "Die Nachricht geht zur gewählten Zeit raus, sofern sie in das offene Nachrichtenfenster passt.",
+      "descriptionNoWindow": "Dieser Kanal hat kein 24-Stunden-Fenster. Die Nachricht geht zur gewählten Zeit raus.",
+      "dateLabel": "Datum",
+      "timeLabel": "Uhrzeit",
+      "deliverySummary": "Zustellung am {when}",
+      "marginSuffix": "{margin} bevor das Fenster schließt",
+      "cancel": "Abbrechen",
+      "confirm": "Planen",
+      "scheduling": "Wird geplant...",
+      "to": "An {name}",
+      "messageLabel": "Nachricht",
+      "messagePlaceholder": "Schreibe die Nachricht, die gesendet wird...",
+      "audioNoCaption": "Audio trägt keine Bildunterschrift",
+      "attach": "Datei anhängen",
+      "removeAttachment": "Anhang entfernen",
+      "uploadFailed": "Die Datei konnte nicht hochgeladen werden. Versuche es erneut.",
+      "sign": "Signieren",
+      "whenLabel": "Wann senden",
+      "presetPastWindow": "Diese Zeit liegt nach dem Fensterschluss",
+      "presets": {
+        "1h": "In 1 Stunde",
+        "3h": "In 3 Stunden",
+        "tomorrow": "Morgen, 09:00",
+        "custom": "Benutzerdefiniert"
+      },
+      "uploading": "Wird hochgeladen..."
+    },
+    "panel": {
+      "title": "{count} geplante Nachricht(en)",
+      "failedAt": "Fehlgeschlagen — war für {when} geplant",
+      "mediaOnly": "Anhang ohne Text",
+      "cancel": "Planung abbrechen",
+      "reuse": "Erneut versuchen"
+    },
+    "errors": {
+      "window_closed": "Das Nachrichtenfenster ist geschlossen. In dieser Konversation ist keine Planung möglich.",
+      "past_window": "Diese Zeit liegt nach dem Fensterschluss. Wähle eine frühere.",
+      "too_soon": "Wähle eine Zeit mindestens eine Minute im Voraus. Zum Sofortversand nutze die Senden-Schaltfläche.",
+      "too_far": "Diese Zeit liegt zu weit in der Zukunft. Das Limit sind 30 Tage.",
+      "not_found": "Diese Planung existiert nicht mehr.",
+      "not_pending": "Diese Nachricht hat die Warteschlange bereits verlassen und kann nicht mehr geändert werden.",
+      "invalid_request": "Mit diesen Angaben ist keine Planung möglich."
+    },
+    "failures": {
+      "window_closed": "Das Fenster schloss vor dem Versand. Die Nachricht wurde nicht zugestellt.",
+      "entry_unavailable": "Die Konversation oder das Konto war nicht mehr verfügbar. Die Nachricht wurde nicht zugestellt.",
+      "provider_error": "Der Kanal hat den Versand abgelehnt. Die Nachricht wurde nicht zugestellt.",
+      "dispatch_interrupted": "Die Zustellung konnte nicht bestätigt werden. Prüfe die Konversation, bevor du erneut sendest."
+    }
+  },
+  "conversationWindow": {
+    "closed": {
+      "expired": "Das 24-Stunden-Fenster seit der letzten Nachricht des Kunden ist geschlossen. Es öffnet sich wieder, sobald er erneut schreibt.",
+      "no_inbound": "Der Kunde hat in dieser Konversation noch nicht geschrieben, und dieser Kanal erlaubt kein Initiieren.",
+      "contact_blocked": "Der Kontakt hat diese Nummer blockiert. Es gibt nichts abzuwarten.",
+      "session_down": "Diese Nummer ist getrennt. Verbinde sie neu, um wieder zu senden.",
+      "account_restricted": "WhatsApp hat diese Nummer vorübergehend eingeschränkt.",
+      "reply_revoked": "Die Antwortberechtigung dieses Kanals wurde vom Kontoinhaber widerrufen.",
+      "channel_unavailable": "Die Nummer dieser Konversation wurde entfernt oder ist nicht mehr verfügbar."
     }
   }
 }

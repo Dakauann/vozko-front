@@ -6490,7 +6490,6 @@
     "fullAccessDescription": "{role}s possuem acesso completo a todos os recursos da área de trabalho. As permissões abaixo são concedidas automaticamente e não podem ser alteradas individualmente.",
     "resources": {
       "agents": "Agentes",
-      "campaigns": "Campanhas",
       "whatsapp_campaigns": "Disparos WhatsApp",
       "whatsapp_templates": "Modelos WhatsApp",
       "business_phones": "Telefones Comerciais",
@@ -6506,22 +6505,22 @@
       "media": "Mídia",
       "leads": "Leads",
       "analysis": "Análises",
-      "sip_trunks": "Canais de Telefonia",
       "call_recordings": "Gravações de Chamadas",
       "dialer": "Discador",
-      "affiliate": "Afiliados",
       "members": "Membros",
       "assignments": "Atribuições",
       "attendance": "Métricas de atendimento e telefonia",
       "knowledge_bases": "Bases de conhecimento",
-      "usage": "Consumo",
       "roles": "Cargos",
       "departments": "Departamentos",
       "issues": "Issues",
       "mcp": "MCP",
       "plans": "Planos e Faturamento",
       "ai_chat": "Chat de IA",
-      "branches": "Ramais"
+      "instagram_accounts": "Contas do Instagram",
+      "telegram_accounts": "Contas do Telegram",
+      "unofficial_whatsapp_instances": "Números WhatsApp (não oficial)",
+      "short_links": "Links curtos"
     },
     "actions": {
       "create": "Criar",
@@ -6544,7 +6543,6 @@
     },
     "resourceDescriptions": {
       "agents": "Gerencie os agentes de IA que atendem suas conversas",
-      "campaigns": "Controle campanhas de chamadas telefônicas para alcançar clientes",
       "whatsapp_campaigns": "Gerencie disparos de mensagens pelo WhatsApp",
       "whatsapp_templates": "Crie e edite modelos de mensagens aprovados pelo WhatsApp",
       "business_phones": "Visualize os números de telefone comerciais da área de trabalho",
@@ -6553,22 +6551,18 @@
       "workflows": "Criar, visualizar automações e execuções, editar e excluir automações",
       "calendar": "Criar, visualizar, editar e excluir eventos do calendário",
       "stage_groups": "Crie e leia funis de etapas (agrupamentos) reutilizáveis",
-      "tags": "Organize contatos e conversas com etiquetas personalizadas",
       "labels": "Classifique e filtre itens com rótulos personalizados",
       "balance": "Visualize o saldo e créditos disponíveis na conta",
       "conversations": "Acesse e gerencie conversas com clientes em todos os canais",
       "media": "Gerencie arquivos de mídia como imagens, áudios e documentos",
       "leads": "Gerencie leads e contatos de clientes potenciais",
       "analysis": "Visualize relatórios e análises de desempenho",
-      "sip_trunks": "Gerencie canais de telefonia para chamadas de voz",
       "call_recordings": "Acesse gravações de chamadas realizadas",
       "dialer": "Fazer e transferir chamadas pelo discador (SIP e WhatsApp). Não libera painéis de métricas.",
-      "affiliate": "Acesse o programa de afiliados, suas indicações e comissões",
       "members": "Gerencie os membros e suas funções na área de trabalho",
       "assignments": "Controle quais recursos estão atribuídos a quais membros",
-      "attendance": "Ver métricas operacionais: conversas, volume de telefonia, tempos, filas, ocupação, canais, IA e equipe",
+      "attendance": "Ver métricas operacionais: conversas, tempos, filas, ocupação, canais, equipe e atendimentos por IA nos canais de mensagens, além do volume de telefonia",
       "knowledge_bases": "Crie, visualize, edite e exclua bases de conhecimento",
-      "usage": "Visualize o consumo e os custos da área de trabalho",
       "roles": "Crie e gerencie cargos personalizados com permissões pré-definidas",
       "departments": "Criar departamentos, visualizar departamentos e seus membros, editar departamentos e excluir departamentos",
       "stages": "Crie, visualize, edite, exclua e atribua etapas a contatos e conversas",
@@ -6576,7 +6570,10 @@
       "mcp": "Visualize, habilite, configure e remova servidores MCP integrados e remotos",
       "plans": "Visualizar planos disponíveis, contratar planos e cancelar a assinatura do workspace",
       "ai_chat": "Acesse e use o chat de IA do workspace para criar e gerenciar conversas",
-      "branches": "Gerenciar ramais SIP do workspace"
+      "instagram_accounts": "Conectar e gerenciar as contas do Instagram do workspace.",
+      "telegram_accounts": "Conectar e gerenciar os bots e contas do Telegram do workspace.",
+      "unofficial_whatsapp_instances": "Conectar e gerenciar números de WhatsApp por dispositivo vinculado.",
+      "short_links": "Criar e acompanhar links curtos e suas estatísticas de clique."
     },
     "customRoles": {
       "title": "Cargos Personalizados",
@@ -7590,7 +7587,7 @@
   "callBillingPage": {
     "header": {
       "badge": "Custos de Chamadas",
-      "description": "Acompanhe o detalhamento de custos de cada chamada com auditoria completa de STT, TTS, LLM e telefonia."
+      "description": "Acompanhe o detalhamento de custos de telefonia de cada chamada, com auditoria completa."
     },
     "summary": {
       "title": "Resumo do Período",
@@ -7646,11 +7643,10 @@
       "billedMinutes": "Minutos cobrados",
       "ceilingRounded": "arredondado para cima",
       "ratePerMinute": "Tarifa por minuto",
-      "llmBilledSeparately": "⚠ LLM é cobrado separadamente via consumo de IA, não somado a esta chamada.",
       "totalBreakdown": "Detalhamento do valor cobrado",
       "totalMismatch": "Divergência detectada, contate o suporte",
       "total": "Total",
-      "transparencyNote": "Cobramos exatamente o custo de processamento de voz (STT/TTS) acrescido da tarifa de telefonia SIP por minuto cheio. O LLM é cobrado em separado por cada requisição via consumo de IA."
+      "transparencyNote": "Cobramos exatamente o custo de telefonia por minuto cheio da chamada."
     },
     "pagination": {
       "page": "Página",
@@ -10153,5 +10149,72 @@
     "leaveError": "Não foi possível sair do grupo",
     "leftGroup": "Você saiu deste grupo.",
     "showMore": "Mostrar mais {count}"
+  },
+  "scheduledMessages": {
+    "composer": {
+      "scheduleAria": "Agendar mensagem"
+    },
+    "dialog": {
+      "title": "Agendar mensagem",
+      "description": "A mensagem será enviada no horário escolhido, desde que ele caiba na janela de atendimento aberta.",
+      "descriptionNoWindow": "Este canal não tem janela de 24 horas. A mensagem será enviada no horário escolhido.",
+      "dateLabel": "Data",
+      "timeLabel": "Horário",
+      "deliverySummary": "Envio em {when}",
+      "marginSuffix": "{margin} antes de a janela fechar",
+      "cancel": "Cancelar",
+      "confirm": "Agendar",
+      "scheduling": "Agendando...",
+      "to": "Para {name}",
+      "messageLabel": "Mensagem",
+      "messagePlaceholder": "Escreva a mensagem que será enviada...",
+      "audioNoCaption": "Áudio não acompanha legenda",
+      "attach": "Anexar arquivo",
+      "removeAttachment": "Remover anexo",
+      "uploadFailed": "Não foi possível enviar o arquivo. Tente de novo.",
+      "sign": "Assinar",
+      "whenLabel": "Quando enviar",
+      "presetPastWindow": "Este horário fica depois de a janela fechar",
+      "presets": {
+        "1h": "Em 1 hora",
+        "3h": "Em 3 horas",
+        "tomorrow": "Amanhã, 09:00",
+        "custom": "Personalizado"
+      },
+      "uploading": "Enviando arquivo..."
+    },
+    "panel": {
+      "title": "{count} mensagem(ns) agendada(s)",
+      "failedAt": "Falhou — era para {when}",
+      "mediaOnly": "Anexo sem texto",
+      "cancel": "Cancelar agendamento",
+      "reuse": "Tentar de novo"
+    },
+    "errors": {
+      "window_closed": "A janela de atendimento está fechada. Não é possível agendar nesta conversa.",
+      "past_window": "Esse horário é depois de a janela fechar. Escolha um horário anterior.",
+      "too_soon": "Escolha um horário pelo menos um minuto à frente. Para enviar agora, use o botão de enviar.",
+      "too_far": "Esse horário está longe demais. O limite é de 30 dias.",
+      "not_found": "Esse agendamento não existe mais.",
+      "not_pending": "Esse agendamento já saiu da fila e não pode mais ser alterado.",
+      "invalid_request": "Não foi possível agendar com esses dados."
+    },
+    "failures": {
+      "window_closed": "A janela fechou antes do envio. A mensagem não foi entregue.",
+      "entry_unavailable": "A conversa ou a conta não estava mais disponível. A mensagem não foi entregue.",
+      "provider_error": "O canal recusou o envio. A mensagem não foi entregue.",
+      "dispatch_interrupted": "Não foi possível confirmar a entrega. Verifique a conversa acima antes de enviar de novo."
+    }
+  },
+  "conversationWindow": {
+    "closed": {
+      "expired": "A janela de 24h desde a última mensagem do cliente se fechou. Ela reabre assim que o cliente escrever de novo.",
+      "no_inbound": "O cliente ainda não escreveu nesta conversa, e este canal não permite iniciar a conversa.",
+      "contact_blocked": "O contato bloqueou este número. Não há o que aguardar.",
+      "session_down": "Este número está desconectado. Reconecte-o para voltar a enviar.",
+      "account_restricted": "O WhatsApp restringiu temporariamente este número.",
+      "reply_revoked": "A permissão de resposta deste canal foi revogada pelo dono da conta.",
+      "channel_unavailable": "O número desta conversa foi removido ou não está mais disponível."
+    }
   }
 }

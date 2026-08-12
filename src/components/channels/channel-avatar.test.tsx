@@ -84,7 +84,7 @@ describe("ChannelAvatar group badge", () => {
     expect(new Set(corners).size).toBe(2);
     // Both hang off the same edge, so they read as a matched pair.
     for (const badge of badges) {
-      expect(badge.className).toContain("-bottom-1.5");
+      expect(badge.className).toContain("-bottom-2");
     }
   });
 

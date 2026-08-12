@@ -31,7 +31,12 @@ import {
 } from "@/components/icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import type { ComposerDraft } from "./CrmMessageInput";
 import CrmConversationView from "./CrmConversationView";
+import ScheduleMessageDialog from "./ScheduleMessageDialog";
+import ScheduledMessagesPanel from "./ScheduledMessagesPanel";
+import type { ScheduledMessage } from "@/lib/scheduled-messages/types";
+import { listScheduledMessagesAction } from "@/app/actions/scheduled-messages";
 import CrmWallpaper from "./CrmWallpaper";
 import CrmInbox from "./CrmInbox";
 import { AiHandlerChip } from "./AiHandlerChip";
@@ -154,7 +159,7 @@ export interface CrmTranslations {
     placeholder: string;
     windowClosed: string;
     windowClosedDescription: string;
-    windowClosedNoClock?: string;
+    windowClosedNoClock: string;
     sendButton: string;
     attachFile: string;
     recording: string;
@@ -945,12 +950,67 @@ export default function CrmLayout({
 
   const handleSend = useCallback(
     (text: string, signed: boolean) => {
-      console.log("handle send signed? : ", signed);
       sendMessage(text, signed, replyToMessage?.id);
       setReplyToMessage(null);
     },
     [sendMessage, replyToMessage],
   );
+
+  /* ------------------------------ scheduling ------------------------------ */
+
+  const [scheduleDraft, setScheduleDraft] = useState<ComposerDraft | null>(null);
+  const [scheduledMessages, setScheduledMessages] = useState<ScheduledMessage[]>([]);
+
+  const scheduleEntryType = activeConversation?.entry_type;
+  const scheduleEntryId = activeConversation?.entry_id;
+
+  const refreshScheduledMessages = useCallback(() => {
+    if (!scheduleEntryType || !scheduleEntryId) {
+      setScheduledMessages([]);
+      return;
+    }
+    // Delivered messages are excluded: they are already in the history above,
+    // and listing them again would make the panel a second, worse transcript.
+    listScheduledMessagesAction(scheduleEntryType, scheduleEntryId, [
+      "pending",
+      "sending",
+      "failed",
+    ]).then((result) => {
+      if (!result.error) setScheduledMessages(result.scheduledMessages);
+    });
+  }, [scheduleEntryId, scheduleEntryType]);
+
+  useEffect(() => {
+    refreshScheduledMessages();
+  }, [refreshScheduledMessages]);
+
+  // A dispatched message arrives as an ordinary new message, so the panel is
+  // stale by at most one frame rather than needing a websocket event of its own.
+  const lastMessageId = activeConversation?.messages?.at(-1)?.id;
+  useEffect(() => {
+    if (lastMessageId) refreshScheduledMessages();
+  }, [lastMessageId, refreshScheduledMessages]);
+
+  const handleScheduled = useCallback(
+    (message: ScheduledMessage) => {
+      setScheduledMessages((current) => [...current, message]);
+      setReplyToMessage(null);
+    },
+    [],
+  );
+
+  // "Try again" on a failed message re-opens the dialog with its content, so
+  // the operator picks a new time rather than losing what they wrote. No new
+  // endpoint and no second composer path.
+  const handleReuseScheduled = useCallback((message: ScheduledMessage) => {
+    setScheduleDraft({
+      text: message.text ?? "",
+      mediaId: message.mediaId,
+      mediaType: message.mediaType,
+      replyToMessageId: message.replyToMessageId,
+      signed: message.signed,
+    });
+  }, []);
 
   const handleSendMedia = useCallback(
     (text: string, mediaId: string, mediaType: MediaType, signed: boolean) => {
@@ -2131,6 +2191,12 @@ export default function CrmLayout({
                       }
                     />
                   </div>
+                  <ScheduledMessagesPanel
+                    messages={scheduledMessages}
+                    canManage={can("conversations", "send")}
+                    onChanged={refreshScheduledMessages}
+                    onReuse={handleReuseScheduled}
+                  />
                   <CrmMessageInput
                     entryType={activeConversation.entry_type}
                     entryId={activeConversation.entry_id}
@@ -2138,8 +2204,12 @@ export default function CrmLayout({
                     onSendMedia={handleSendMedia}
                     onSendButton={handleSendButton}
                     onTyping={handleTyping}
+                    onSchedule={
+                      can("conversations", "send") ? setScheduleDraft : undefined
+                    }
                     windowOpen={activeConversation.window_open}
                     windowExpiresAt={activeConversation.window_expires_at}
+                    windowClosedReason={activeConversation.window_closed_reason}
                     translations={t.input}
                     replyToMessage={replyToMessage}
                     onClearReply={() => setReplyToMessage(null)}
@@ -2298,6 +2368,13 @@ export default function CrmLayout({
                 </div>
 
                 {activeConversation && (
+                  <>
+                  <ScheduledMessagesPanel
+                    messages={scheduledMessages}
+                    canManage={can("conversations", "send")}
+                    onChanged={refreshScheduledMessages}
+                    onReuse={handleReuseScheduled}
+                  />
                   <CrmMessageInput
                     entryType={activeConversation.entry_type}
                     entryId={activeConversation.entry_id}
@@ -2305,8 +2382,12 @@ export default function CrmLayout({
                     onSendMedia={handleSendMedia}
                     onSendButton={handleSendButton}
                     onTyping={handleTyping}
+                    onSchedule={
+                      can("conversations", "send") ? setScheduleDraft : undefined
+                    }
                     windowOpen={activeConversation.window_open}
                     windowExpiresAt={activeConversation.window_expires_at}
+                    windowClosedReason={activeConversation.window_closed_reason}
                     translations={t.input}
                     replyToMessage={replyToMessage}
                     onClearReply={() => setReplyToMessage(null)}
@@ -2318,6 +2399,7 @@ export default function CrmLayout({
                         : undefined
                     }
                   />
+                  </>
                 )}
               </div>
             </>
@@ -2350,6 +2432,27 @@ export default function CrmLayout({
           open={startConversationOpen}
           onOpenChange={setStartConversationOpen}
           onStarted={handleConversationStarted}
+        />
+      )}
+
+      {/* The draft IS the open state: the dialog exists exactly while there is
+          something to schedule, so closing it cannot leave a stale draft behind
+          for the next conversation the operator opens. */}
+      {scheduleDraft && scheduleEntryType && scheduleEntryId && (
+        <ScheduleMessageDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) setScheduleDraft(null);
+          }}
+          entryType={scheduleEntryType}
+          entryId={scheduleEntryId}
+          recipientName={activeConversation?.lead_name}
+          window={{
+            open: activeConversation?.window_open ?? false,
+            expiresAt: activeConversation?.window_expires_at ?? null,
+          }}
+          draft={scheduleDraft}
+          onScheduled={handleScheduled}
         />
       )}
     </>

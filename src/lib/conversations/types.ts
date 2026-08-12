@@ -542,6 +542,8 @@ export interface WsSubscribedPayload {
     unread_count: number;
     window_open?: boolean;
     window_expires_at?: string | null;
+    /** Why sending is blocked; empty when open. See WindowClosedReason. */
+    window_closed_reason?: WindowClosedReason | null;
     /**
      * The per-conversation automation override, straight from the server.
      *
@@ -790,6 +792,22 @@ export type ConnectedUser = {
     connected_at: string
 };
 
+/**
+ * Mirrors conversation.WindowClosedReason in the Go domain.
+ *
+ * `account_restricted` is the ONLY closed state that carries a time, and that
+ * time is a countdown to when the restriction lifts — never a deadline to
+ * schedule against.
+ */
+export type WindowClosedReason =
+    | "expired"
+    | "no_inbound"
+    | "contact_blocked"
+    | "session_down"
+    | "account_restricted"
+    | "reply_revoked"
+    | "channel_unavailable";
+
 export interface ActiveConversation {
     entry_id: string;
     entry_type: EntryType;
@@ -804,6 +822,14 @@ export interface ActiveConversation {
     total?: number;
     window_open: boolean;
     window_expires_at: string | null;
+    /**
+     * Why sending is blocked, named by the server. Empty when the window is open.
+     *
+     * The composer used to INFER this from whether an expiry accompanied a
+     * closed window, which shipped a bug where every clockless channel claimed
+     * "the 24-hour window is closed" on a channel that has no such window.
+     */
+    window_closed_reason?: WindowClosedReason | null;
     automation_enabled?: boolean | null;
     conversation_status?: string;
     close_source?: string;

@@ -68,16 +68,19 @@ export function ElevatedPillToggle<T extends string = string>({
       {options.map((opt) => {
         const active = opt.value === value;
         const disabled = Boolean(opt.disabled);
-        const textTitle =
-          opt.title ??
-          (typeof opt.label === "string" ? opt.label : undefined);
+        // The visible label is the accessible NAME; `title` is only a tooltip.
+        // Conflating them let a disabled option's explanation replace its name,
+        // so the control announced the reason instead of the choice.
+        const labelText =
+          typeof opt.label === "string" ? opt.label : undefined;
+        const textTitle = opt.title ?? labelText;
         return (
           <button
             key={opt.value}
             type="button"
             disabled={disabled}
             title={textTitle}
-            aria-label={textTitle}
+            aria-label={labelText}
             aria-pressed={active}
             onClick={() => {
               if (!disabled) onChange(opt.value);

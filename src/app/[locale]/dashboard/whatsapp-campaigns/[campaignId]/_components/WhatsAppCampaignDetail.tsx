@@ -2166,6 +2166,7 @@ function WhatsAppCampaignDetailContent({
             windowClosedDescription: t(
               "detail.crm.input.windowClosedDescription",
             ),
+            windowClosedNoClock: t("detail.crm.input.windowClosedNoClock"),
             sendButton: t("detail.crm.input.sendButton"),
             attachFile: t("detail.crm.input.attachFile"),
             recording: t("detail.crm.input.recording"),

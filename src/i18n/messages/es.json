@@ -5085,7 +5085,6 @@
     "fullAccessDescription": "Los {role}s tienen acceso completo a todos los recursos del espacio de trabajo. Los permisos a continuación se otorgan automáticamente y no se pueden cambiar individualmente.",
     "resources": {
       "agents": "Agentes",
-      "campaigns": "Campañas",
       "whatsapp_campaigns": "Campañas WhatsApp",
       "whatsapp_templates": "Plantillas WhatsApp",
       "business_phones": "Teléfonos Comerciales",
@@ -5101,22 +5100,22 @@
       "media": "Medios",
       "leads": "Leads",
       "analysis": "Análisis",
-      "sip_trunks": "Troncales SIP",
       "call_recordings": "Grabaciones de Llamadas",
       "dialer": "Marcador",
-      "affiliate": "Afiliados",
       "members": "Miembros",
       "assignments": "Asignaciones",
       "attendance": "Métricas de atención y telefonía",
       "knowledge_bases": "Bases de conocimiento",
-      "usage": "Uso",
       "roles": "Roles",
       "departments": "Departamentos",
       "issues": "Issues",
       "mcp": "MCP",
       "plans": "Planes y Facturación",
       "ai_chat": "Chat de IA",
-      "branches": "Extensiones"
+      "instagram_accounts": "Cuentas de Instagram",
+      "telegram_accounts": "Cuentas de Telegram",
+      "unofficial_whatsapp_instances": "Números de WhatsApp (no oficial)",
+      "short_links": "Enlaces cortos"
     },
     "actions": {
       "create": "Crear",
@@ -5139,7 +5138,6 @@
     },
     "resourceDescriptions": {
       "agents": "Gestione los agentes de IA que atienden sus conversaciones",
-      "campaigns": "Controle campañas de llamadas telefónicas para alcanzar clientes",
       "whatsapp_campaigns": "Gestione campañas de mensajes por WhatsApp",
       "whatsapp_templates": "Cree y edite plantillas de mensajes aprobadas por WhatsApp",
       "business_phones": "Visualice los números de teléfono comerciales del espacio de trabajo",
@@ -5155,22 +5153,22 @@
       "media": "Gestione archivos multimedia como imágenes, audio y documentos",
       "leads": "Gestione leads y contactos de clientes potenciales",
       "analysis": "Visualice informes y análisis de rendimiento",
-      "sip_trunks": "Visualice las configuraciones de troncales SIP para telefonía",
       "call_recordings": "Acceda a grabaciones de llamadas realizadas",
       "dialer": "Realizar y transferir llamadas desde el marcador (SIP y WhatsApp). No otorga paneles de métricas.",
-      "affiliate": "Acceda al programa de afiliados, sus referidos y comisiones",
       "members": "Gestione los miembros y sus roles en el espacio de trabajo",
       "assignments": "Controle qué recursos están asignados a qué miembros",
-      "attendance": "Ver métricas operativas: conversaciones, volumen de telefonía, tiempos, colas, ocupación, canales, IA y equipo",
+      "attendance": "Ver métricas operativas: conversaciones, tiempos, colas, ocupación, canales, equipo y atenciones por IA en los canales de mensajes, además del volumen de telefonía",
       "knowledge_bases": "Cree, visualice, edite y elimine bases de conocimiento",
-      "usage": "Visualice el consumo y los costos del espacio de trabajo",
       "roles": "Cree y gestione roles personalizados con permisos predefinidos",
       "departments": "Crear departamentos, ver departamentos y sus miembros, editar departamentos y eliminar departamentos",
       "issues": "Crear, visualizar y cerrar issues",
       "mcp": "Visualice, habilite, configure y elimine servidores MCP integrados y remotos",
       "plans": "Ver planes disponibles, contratar planes y cancelar la suscripción del workspace",
       "ai_chat": "Accede y usa el chat de IA del espacio de trabajo para crear y gestionar conversaciones",
-      "branches": "Gestionar extensiones SIP del workspace"
+      "instagram_accounts": "Conectar y gestionar las cuentas de Instagram del workspace.",
+      "telegram_accounts": "Conectar y gestionar los bots y cuentas de Telegram del workspace.",
+      "unofficial_whatsapp_instances": "Conectar y gestionar números de WhatsApp mediante dispositivo vinculado.",
+      "short_links": "Crear y seguir enlaces cortos y sus estadísticas de clics."
     },
     "customRoles": {
       "title": "Roles Personalizados",
@@ -6220,7 +6218,7 @@
   "callBillingPage": {
     "header": {
       "badge": "Costos de Llamadas",
-      "description": "Seguimiento del desglose de costos de cada llamada con auditoría completa de STT, TTS, LLM y telefonía."
+      "description": "Sigue el desglose de costos de telefonía de cada llamada, con auditoría completa."
     },
     "summary": {
       "title": "Resumen del Período",
@@ -6276,11 +6274,10 @@
       "billedMinutes": "Minutos cobrados",
       "ceilingRounded": "redondeado hacia arriba",
       "ratePerMinute": "Tarifa por minuto",
-      "llmBilledSeparately": "⚠ LLM se cobra por separado vía consumo de IA, no sumado a esta llamada.",
       "totalBreakdown": "Desglose del cobro",
       "totalMismatch": "Divergencia detectada, contacte a soporte",
       "total": "Total",
-      "transparencyNote": "Cobramos exactamente el costo de procesamiento de voz (STT/TTS) más la tarifa de telefonía SIP por minuto completo. El LLM se cobra por separado por cada solicitud vía consumo de IA."
+      "transparencyNote": "Cobramos exactamente el costo de telefonía, por minuto completo de la llamada."
     },
     "pagination": {
       "page": "Página",
@@ -8612,6 +8609,73 @@
         "saving": "Guardando...",
         "success": "Cantidad de números actualizada"
       }
+    }
+  },
+  "scheduledMessages": {
+    "composer": {
+      "scheduleAria": "Programar mensaje"
+    },
+    "dialog": {
+      "title": "Programar mensaje",
+      "description": "El mensaje se enviará a la hora elegida, siempre que quepa dentro de la ventana de atención abierta.",
+      "descriptionNoWindow": "Este canal no tiene ventana de 24 horas. El mensaje se enviará a la hora elegida.",
+      "dateLabel": "Fecha",
+      "timeLabel": "Hora",
+      "deliverySummary": "Se envía el {when}",
+      "marginSuffix": "{margin} antes de que se cierre la ventana",
+      "cancel": "Cancelar",
+      "confirm": "Programar",
+      "scheduling": "Programando...",
+      "to": "Para {name}",
+      "messageLabel": "Mensaje",
+      "messagePlaceholder": "Escribe el mensaje que se enviará...",
+      "audioNoCaption": "El audio no lleva descripción",
+      "attach": "Adjuntar archivo",
+      "removeAttachment": "Quitar adjunto",
+      "uploadFailed": "No se pudo subir el archivo. Inténtalo de nuevo.",
+      "sign": "Firmar",
+      "whenLabel": "Cuándo enviar",
+      "presetPastWindow": "Esa hora queda después del cierre de la ventana",
+      "presets": {
+        "1h": "En 1 hora",
+        "3h": "En 3 horas",
+        "tomorrow": "Mañana, 09:00",
+        "custom": "Personalizado"
+      },
+      "uploading": "Subiendo archivo..."
+    },
+    "panel": {
+      "title": "{count} mensaje(s) programado(s)",
+      "failedAt": "Falló — estaba previsto para {when}",
+      "mediaOnly": "Adjunto sin texto",
+      "cancel": "Cancelar la programación",
+      "reuse": "Intentar de nuevo"
+    },
+    "errors": {
+      "window_closed": "La ventana de atención está cerrada. No puedes programar en esta conversación.",
+      "past_window": "Esa hora es posterior al cierre de la ventana. Elige una anterior.",
+      "too_soon": "Elige una hora al menos un minuto por delante. Para enviar ahora, usa el botón de enviar.",
+      "too_far": "Esa hora está demasiado lejos. El límite es de 30 días.",
+      "not_found": "Esa programación ya no existe.",
+      "not_pending": "Ese mensaje ya salió de la cola y no se puede modificar.",
+      "invalid_request": "No se puede programar con esos datos."
+    },
+    "failures": {
+      "window_closed": "La ventana se cerró antes del envío. El mensaje no se entregó.",
+      "entry_unavailable": "La conversación o la cuenta ya no estaba disponible. El mensaje no se entregó.",
+      "provider_error": "El canal rechazó el envío. El mensaje no se entregó.",
+      "dispatch_interrupted": "No pudimos confirmar la entrega. Revisa la conversación antes de enviar de nuevo."
+    }
+  },
+  "conversationWindow": {
+    "closed": {
+      "expired": "La ventana de 24 h desde el último mensaje del cliente se cerró. Se reabre en cuanto vuelva a escribir.",
+      "no_inbound": "El cliente aún no ha escrito en esta conversación, y este canal no permite iniciarla.",
+      "contact_blocked": "El contacto bloqueó este número. No hay nada que esperar.",
+      "session_down": "Este número está desconectado. Vuelve a conectarlo para enviar.",
+      "account_restricted": "WhatsApp restringió temporalmente este número.",
+      "reply_revoked": "El propietario de la cuenta revocó el permiso de respuesta de este canal.",
+      "channel_unavailable": "El número de esta conversación fue eliminado o ya no está disponible."
     }
   }
 }

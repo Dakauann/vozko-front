@@ -5,7 +5,7 @@ import type {
   MutableRefObject,
   ReactNode,
 } from "react";
-import { forwardRef, useCallback, useEffect, useRef, useState } from "react";
+import { forwardRef, useCallback, useEffect, useId, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -140,6 +140,7 @@ const ElevatedTextarea = forwardRef<HTMLTextAreaElement, ElevatedTextareaProps>(
     {
       className,
       textareaClassName,
+      id,
       label,
       value,
       onFocus,
@@ -156,6 +157,8 @@ const ElevatedTextarea = forwardRef<HTMLTextAreaElement, ElevatedTextareaProps>(
     },
     ref,
   ) => {
+    const fallbackId = useId();
+    const textareaId = id ?? fallbackId;
     const [focused, setFocused] = useState(false);
     const [hasValue, setHasValue] = useState(() => {
       const hasValueProp =
@@ -244,7 +247,7 @@ const ElevatedTextarea = forwardRef<HTMLTextAreaElement, ElevatedTextareaProps>(
     return (
       <div className={cn("w-full", className)}>
         {label ? (
-          <label className="legend mb-1 block max-w-full truncate">
+          <label htmlFor={textareaId} className="legend mb-1 block max-w-full truncate">
             {label}
           </label>
         ) : null}
@@ -263,6 +266,7 @@ const ElevatedTextarea = forwardRef<HTMLTextAreaElement, ElevatedTextareaProps>(
 
         <textarea
           {...textareaProps}
+          id={textareaId}
           ref={combinedRef}
           value={value}
           rows={autoResize ? 1 : rows}

@@ -6451,7 +6451,6 @@
     "fullAccessDescription": "{role}s have full access to all workspace resources. The permissions below are granted automatically and cannot be changed individually.",
     "resources": {
       "agents": "Agents",
-      "campaigns": "Campaigns",
       "whatsapp_campaigns": "WhatsApp Campaigns",
       "whatsapp_templates": "WhatsApp Templates",
       "business_phones": "Business Phones",
@@ -6460,22 +6459,18 @@
       "workflows": "Automations",
       "calendar": "Calendar",
       "stage_groups": "Stage Funnels",
-      "tags": "Tags",
       "labels": "Labels",
       "balance": "Balance",
       "conversations": "Conversations",
       "media": "Media",
       "leads": "Leads",
       "analysis": "Analysis",
-      "sip_trunks": "SIP Trunks",
       "call_recordings": "Call Recordings",
       "dialer": "Dialer",
-      "affiliate": "Affiliates",
       "members": "Members",
       "assignments": "Assignments",
       "attendance": "Service & telephony metrics",
       "knowledge_bases": "Knowledge Bases",
-      "usage": "Usage",
       "roles": "Roles",
       "departments": "Departments",
       "issues": "Issues",
@@ -6483,7 +6478,10 @@
       "plans": "Plans & Billing",
       "ai_chat": "AI Chat",
       "stages": "Stages",
-      "branches": "Branches"
+      "instagram_accounts": "Instagram accounts",
+      "telegram_accounts": "Telegram accounts",
+      "unofficial_whatsapp_instances": "WhatsApp numbers (unofficial)",
+      "short_links": "Short links"
     },
     "actions": {
       "create": "Create",
@@ -6506,7 +6504,6 @@
     },
     "resourceDescriptions": {
       "agents": "Manage AI agents that handle your conversations",
-      "campaigns": "Control phone call campaigns to reach customers",
       "whatsapp_campaigns": "Manage bulk WhatsApp messaging campaigns",
       "whatsapp_templates": "Create and edit WhatsApp-approved message templates",
       "business_phones": "View workspace business phone numbers",
@@ -6515,22 +6512,18 @@
       "workflows": "Create, view automations and executions, edit, and delete automations",
       "calendar": "Create, view, edit, and delete calendar events",
       "stage_groups": "Create and read reusable stage funnels (groupings)",
-      "tags": "Organize contacts and conversations with custom tags",
       "labels": "Classify and filter items with custom labels",
       "balance": "View available account balance and credits",
       "conversations": "Access and manage customer conversations across all channels",
       "media": "Manage media files such as images, audio and documents",
       "leads": "Manage leads and potential customer contacts",
       "analysis": "View performance reports and analytics",
-      "sip_trunks": "View SIP trunk configurations for telephony",
       "call_recordings": "Access recordings of completed calls",
       "dialer": "Make and transfer calls from the built-in dialer (SIP and WhatsApp calling). Does not grant metrics dashboards.",
-      "affiliate": "Access the affiliate program, your referrals and commissions",
       "members": "Manage workspace members and their roles",
       "assignments": "Control which resources are assigned to which members",
-      "attendance": "View ops metrics: conversations, telephony volume, wait times, queues, occupancy, channels, AI and team performance",
+      "attendance": "View operational metrics: conversations, times, queues, occupancy, channels, team and AI-handled attendance on messaging channels, plus telephony volume",
       "knowledge_bases": "Create, view, edit and delete knowledge bases",
-      "usage": "View workspace usage and costs",
       "roles": "Create and manage custom roles with permission presets",
       "departments": "Create departments, view departments and their members, edit departments, and delete departments",
       "stages": "Create, view, edit, delete, and assign stages to contacts and conversations",
@@ -6538,7 +6531,10 @@
       "mcp": "View, enable, configure, and remove integrated and remote MCP servers",
       "plans": "View available plans, contract plans, and cancel the workspace subscription",
       "ai_chat": "Access and use the workspace AI chat to create and manage conversations",
-      "branches": "Manage workspace SIP extensions (branches)"
+      "instagram_accounts": "Connect and manage the workspace's Instagram accounts.",
+      "telegram_accounts": "Connect and manage the workspace's Telegram bots and accounts.",
+      "unofficial_whatsapp_instances": "Connect and manage WhatsApp numbers over a linked device.",
+      "short_links": "Create and track short links and their click statistics."
     },
     "customRoles": {
       "title": "Custom Roles",
@@ -7552,7 +7548,7 @@
   "callBillingPage": {
     "header": {
       "badge": "Call Billing",
-      "description": "Track cost breakdowns for each call with full audit of STT, TTS, LLM and telephony."
+      "description": "Track the telephony cost breakdown for each call, with a full audit trail."
     },
     "summary": {
       "title": "Period Summary",
@@ -7608,11 +7604,10 @@
       "billedMinutes": "Billed minutes",
       "ceilingRounded": "ceiling rounded",
       "ratePerMinute": "Rate per minute",
-      "llmBilledSeparately": "⚠ LLM is billed separately via AI consumption, not added to this call.",
       "totalBreakdown": "Charge breakdown",
       "totalMismatch": "Mismatch detected, please contact support",
       "total": "Total",
-      "transparencyNote": "We charge exactly the voice processing cost (STT/TTS) plus the SIP telephony fee per whole minute. LLM usage is billed separately per request via AI consumption."
+      "transparencyNote": "We charge exactly the telephony cost, per full minute of the call."
     },
     "pagination": {
       "page": "Page",
@@ -10103,5 +10098,72 @@
     "leaveError": "Could not leave the group",
     "leftGroup": "You left this group.",
     "showMore": "Show {count} more"
+  },
+  "scheduledMessages": {
+    "composer": {
+      "scheduleAria": "Schedule message"
+    },
+    "dialog": {
+      "title": "Schedule message",
+      "description": "The message goes out at the time you pick, as long as it fits inside the open messaging window.",
+      "descriptionNoWindow": "This channel has no 24-hour window. The message goes out at the time you pick.",
+      "dateLabel": "Date",
+      "timeLabel": "Time",
+      "deliverySummary": "Delivers {when}",
+      "marginSuffix": "{margin} before the window closes",
+      "cancel": "Cancel",
+      "confirm": "Schedule",
+      "scheduling": "Scheduling...",
+      "to": "To {name}",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Write the message to send...",
+      "audioNoCaption": "Audio doesn't carry a caption",
+      "attach": "Attach file",
+      "removeAttachment": "Remove attachment",
+      "uploadFailed": "The file couldn't be uploaded. Try again.",
+      "sign": "Sign",
+      "whenLabel": "When to send",
+      "presetPastWindow": "That time falls after the window closes",
+      "presets": {
+        "1h": "In 1 hour",
+        "3h": "In 3 hours",
+        "tomorrow": "Tomorrow, 09:00",
+        "custom": "Custom"
+      },
+      "uploading": "Uploading..."
+    },
+    "panel": {
+      "title": "{count} scheduled message(s)",
+      "failedAt": "Failed — was due {when}",
+      "mediaOnly": "Attachment, no text",
+      "cancel": "Cancel this schedule",
+      "reuse": "Try again"
+    },
+    "errors": {
+      "window_closed": "The messaging window is closed. You can't schedule on this conversation.",
+      "past_window": "That time is after the window closes. Pick an earlier one.",
+      "too_soon": "Pick a time at least a minute out. To send now, use the send button.",
+      "too_far": "That time is too far ahead. The limit is 30 days.",
+      "not_found": "That schedule no longer exists.",
+      "not_pending": "That message has already left the queue and can't be changed.",
+      "invalid_request": "Those details can't be scheduled."
+    },
+    "failures": {
+      "window_closed": "The window closed before it went out. The message was not delivered.",
+      "entry_unavailable": "The conversation or account was no longer available. The message was not delivered.",
+      "provider_error": "The channel refused the send. The message was not delivered.",
+      "dispatch_interrupted": "We couldn't confirm delivery. Check the conversation above before sending again."
+    }
+  },
+  "conversationWindow": {
+    "closed": {
+      "expired": "The 24-hour window since the customer's last message has closed. It reopens as soon as they write again.",
+      "no_inbound": "The customer hasn't written in this conversation yet, and this channel doesn't allow starting one.",
+      "contact_blocked": "The contact blocked this number. There's nothing to wait for.",
+      "session_down": "This number is disconnected. Reconnect it to send again.",
+      "account_restricted": "WhatsApp has temporarily restricted this number.",
+      "reply_revoked": "This channel's reply permission was revoked by the account owner.",
+      "channel_unavailable": "The number for this conversation was removed or is no longer available."
+    }
   }
 }
