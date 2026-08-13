@@ -4451,7 +4451,26 @@
     "typeMarketingHelp": "Marketing templates charged on the ledger in the period (debit − refund).",
     "typeUtilityHelp": "Utility templates charged on the ledger in the period (debit − refund).",
     "typeAuthenticationHelp": "Authentication templates charged on the ledger in the period (debit − refund).",
-    "dispatches": "Dispatches"
+    "dispatches": "Dispatches",
+    "export": {
+      "trigger": "Export leads",
+      "title": "Export dispatch leads",
+      "descriptionAllTime": "Exports the leads from every campaign, in a single CSV file.",
+      "descriptionFiltered": "Exports the leads from every campaign created between {from} and {to}, in a single CSV file.",
+      "statusesLabel": "Send statuses",
+      "expectedRows": "{count} leads",
+      "expectedRowsHelp": "Estimated from the entries' current statuses. It is exactly the number of rows in the file.",
+      "ledgerNote": "The sends listed here come from each entry's current status. The \"Sends\" total above comes from the billing ledger and may be slightly higher, because a charge is not erased when a campaign is reset.",
+      "confirm": "Export CSV",
+      "cancel": "Cancel",
+      "exporting": "Exporting...",
+      "success": "Export completed successfully",
+      "errorTitle": "Could not export",
+      "error": "Failed to export leads",
+      "noEntries": "No leads found for these filters",
+      "tooLarge": "This export is too large. Narrow the period or the statuses and try again.",
+      "busy": "Exports are already running. Please try again in a moment."
+    }
   },
   "whatsappCampaignsPage": {
     "header": {
@@ -4923,7 +4942,9 @@
         "exporting": "Exporting...",
         "success": "Export completed successfully",
         "error": "Failed to export entries",
-        "noEntries": "No entries to export"
+        "noEntries": "No entries to export",
+        "tooLarge": "This export is too large. Narrow the filters and try again.",
+        "busy": "Exports are already running. Please try again in a moment."
       }
     },
     "form": {

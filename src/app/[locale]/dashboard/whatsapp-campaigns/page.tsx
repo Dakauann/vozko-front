@@ -22,6 +22,7 @@ import {
   listWhatsAppCampaignsAction,
 } from "@/app/actions/whatsapp-campaigns";
 import { CampaignsSummaryBar } from "@/components/dashboard/CampaignsSummaryBar";
+import { CampaignsLeadsExportDialog } from "./_components/CampaignsLeadsExportDialog";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
@@ -347,6 +348,15 @@ export default function WhatsAppCampaignsPage() {
           setSummaryFrom("");
           setSummaryTo("");
         }}
+        action={
+          <CampaignsLeadsExportDialog
+            type="standard"
+            from={summaryFrom}
+            to={summaryTo}
+            metrics={summaryMetrics}
+            disabled={summaryLoading}
+          />
+        }
       />
 
       <DashboardTable<WhatsAppCampaign>

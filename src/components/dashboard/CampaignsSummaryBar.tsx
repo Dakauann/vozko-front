@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { CalendarBlank, Info } from "@/components/icons";
 import { format, subDays } from "date-fns";
@@ -32,6 +32,12 @@ interface CampaignsSummaryBarProps {
   onFromChange: (value: string) => void;
   onToChange: (value: string) => void;
   onClear: () => void;
+  /**
+   * Rendered in the header row, beside the period presets. A slot rather than a
+   * built-in button: this bar is shared with the voice variant, and it has no
+   * business knowing what a WhatsApp lead export is.
+   */
+  action?: ReactNode;
 }
 
 type Tone = "default" | "danger" | "warning";
@@ -78,6 +84,7 @@ export function CampaignsSummaryBar({
   onFromChange,
   onToChange,
   onClear,
+  action,
 }: CampaignsSummaryBarProps) {
   const t = useTranslations("campaignsSummary");
   const isVoice = variant === "voice";
@@ -218,6 +225,12 @@ export function CampaignsSummaryBar({
               />
             </div>
           )}
+
+          {action ? (
+            <div className="flex items-center border-l border-border pl-2">
+              {action}
+            </div>
+          ) : null}
         </div>
       </div>
 

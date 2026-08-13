@@ -467,29 +467,59 @@ export async function unarchiveWhatsAppCampaignAction(campaignId: string) {
     return { success: true, error: null };
 }
 
-export async function exportWhatsAppCampaignEntriesAction(
-    campaignId: string,
-    filters?: Record<string, string>
-): Promise<{ csvText: string | null; filename: string; error: string | null }> {
+export type CsvExportResult = {
+    csvText: string | null;
+    filename: string;
+    error: string | null;
+};
+
+/**
+ * Build a query string, dropping empty values, and repeating a key per item for
+ * array values — `status: ['SENT','READ']` becomes `status=SENT&status=READ`,
+ * which is how the backend reads a multi-status filter.
+ */
+function exportQueryString(filters?: Record<string, string | string[] | undefined>): string {
     const params = new URLSearchParams();
-    if (filters) {
-        for (const [key, value] of Object.entries(filters)) {
-            if (value) params.set(key, value);
+    for (const [key, value] of Object.entries(filters ?? {})) {
+        if (Array.isArray(value)) {
+            for (const item of value) {
+                if (item) params.append(key, item);
+            }
+        } else if (value) {
+            params.set(key, value);
         }
     }
-    const queryString = params.toString();
-    const url = `${getApiBaseUrl()}/whatsapp/campaigns/${campaignId}/entries/export${queryString ? `?${queryString}` : ''}`;
+    return params.toString();
+}
 
-    // Raw CSV response (not JSON), so this uses fetch directly rather than apiClient;
-    // auth rides the httpOnly cookie (credentials: include) with refresh-on-401.
+/**
+ * Fetch a CSV export endpoint.
+ *
+ * The response is raw CSV rather than JSON, so this uses fetch directly instead
+ * of apiClient; auth rides the httpOnly cookie (credentials: include) with
+ * refresh-on-401. Shared by the per-campaign and workspace-wide exports so the
+ * two cannot disagree about how a filename or an error is read.
+ */
+async function fetchCsv(path: string, filters?: Record<string, string | string[] | undefined>): Promise<CsvExportResult> {
+    const queryString = exportQueryString(filters);
+    const url = `${getApiBaseUrl()}${path}${queryString ? `?${queryString}` : ''}`;
+
     const response = await fetchWithRefresh(() =>
         fetch(url, { credentials: 'include', headers: scopeHeaders() }),
     );
     if (!response.ok) {
         const body = await response.json().catch(() => null);
         const msg = (body as { message?: string })?.message;
-        if (response.status === 404 || (msg && /no entries/i.test(msg))) {
+        if (response.status === 404) {
             return { csvText: null, filename: '', error: 'noEntries' };
+        }
+        // 413 and 429 are the two the operator can act on: narrow the period, or
+        // wait. They get their own codes so the UI can say which.
+        if (response.status === 413) {
+            return { csvText: null, filename: '', error: 'tooLarge' };
+        }
+        if (response.status === 429) {
+            return { csvText: null, filename: '', error: 'busy' };
         }
         return { csvText: null, filename: '', error: msg || 'Failed to export' };
     }
@@ -504,4 +534,37 @@ export async function exportWhatsAppCampaignEntriesAction(
     }
 
     return { csvText, filename, error: null };
+}
+
+export async function exportWhatsAppCampaignEntriesAction(
+    campaignId: string,
+    filters?: Record<string, string | string[] | undefined>
+): Promise<CsvExportResult> {
+    return fetchCsv(`/whatsapp/campaigns/${campaignId}/entries/export`, filters);
+}
+
+/**
+ * Export the leads behind the "Disparos WhatsApp" tiles — every campaign in the
+ * period, in one file.
+ *
+ * Same recorte as getWhatsAppCampaignsSummaryAction (campaign creation date,
+ * type, and the department scope carried on the request headers), so the file
+ * and the numbers above it answer the same question. `statuses` chooses which
+ * sends: the three dispatched ones for "enviados, entregues e lidos", or none
+ * for everything.
+ */
+export async function exportWhatsAppWorkspaceEntriesAction(params: {
+    statuses?: string[];
+    type?: string;
+    from?: string;
+    to?: string;
+    search?: string;
+}): Promise<CsvExportResult> {
+    return fetchCsv('/whatsapp/campaigns/entries/export', {
+        status: params.statuses,
+        type: params.type,
+        from: params.from,
+        to: params.to,
+        search: params.search,
+    });
 }

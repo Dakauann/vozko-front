@@ -84,6 +84,8 @@ import { useToast } from "@/hooks/use-toast";
 import { NextIntlClientProvider, useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useExportEntries } from "@/hooks/use-export-entries";
+import { exportErrorKey } from "@/lib/whatsapp-campaigns/export-errors";
+import { SEND_STATUSES } from "@/lib/whatsapp-campaigns/statuses";
 import { resolveWhatsAppCampaignErrorDisplay } from "@/lib/whatsapp-campaigns/error-display";
 import TourGuide from "@/components/TourGuide";
 import {
@@ -806,7 +808,7 @@ function WhatsAppCampaignDetailContent({
   const t = useTranslations("whatsappCampaignsPage");
   const canManageStages = can("stages", "update");
   const canReadStages = can("stages", "read");
-  const { exporting, exportEntries } = useExportEntries("whatsapp");
+  const { exporting, exportEntries } = useExportEntries();
 
   const prevMetricsRef = useRef<{
     pending: number;
@@ -1010,23 +1012,23 @@ function WhatsAppCampaignDetailContent({
       currentFilters.mode === "analysis"
         ? currentFilters.analysis
         : currentFilters.conversation;
-    const result = await exportEntries(campaign.id, {
-      ...filterParams,
-      ...(currentEntryFilters.search
-        ? { search: currentEntryFilters.search }
-        : {}),
-      ...(currentEntryFilters.status
-        ? { status: currentEntryFilters.status }
-        : {}),
-      ...(currentEntryFilters.stageId
-        ? { stageId: currentEntryFilters.stageId }
-        : {}),
-    });
-    if (result.error) {
-      const msg =
-        result.error === "noEntries"
-          ? t("detail.export.noEntries")
-          : t("detail.export.error");
+    const result = await exportEntries(
+      { kind: "campaign", campaignId: campaign.id },
+      {
+        ...filterParams,
+        ...(currentEntryFilters.search
+          ? { search: currentEntryFilters.search }
+          : {}),
+        ...(currentEntryFilters.status
+          ? { statuses: [currentEntryFilters.status] }
+          : {}),
+        ...(currentEntryFilters.stageId
+          ? { stageId: currentEntryFilters.stageId }
+          : {}),
+      },
+    );
+    if ("error" in result) {
+      const msg = t(`detail.export.${exportErrorKey(result.error)}`);
       toast({
         title: t("detail.toast.error"),
         description: msg,
@@ -1764,17 +1766,10 @@ function WhatsAppCampaignDetailContent({
           stages={stages}
           stagesLoading={stagesLoading}
           canFilterByStage={canReadStages}
-          statusOptions={[
-            { value: "PENDING", label: t("status.pending") },
-            { value: "SENT", label: t("status.sent") },
-            { value: "DELIVERED", label: t("status.delivered") },
-            { value: "READ", label: t("status.read") },
-            { value: "FAILED", label: t("status.failed") },
-            {
-              value: "NOT_ELIGIBLE_POSSIBLE_SPAM",
-              label: t("status.notEligiblePossibleSpam"),
-            },
-          ]}
+          statusOptions={SEND_STATUSES.map(({ value, labelKey }) => ({
+            value,
+            label: t(labelKey),
+          }))}
           translations={{
             searchPlaceholder: t("detail.entryFilters.searchPlaceholder"),
             statusLabel: t("detail.entryFilters.statusLabel"),

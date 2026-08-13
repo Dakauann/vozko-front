@@ -3986,7 +3986,26 @@
     "typeMarketingHelp": "Marketing-Templates im Ledger im Zeitraum (Debit − Refund).",
     "typeUtilityHelp": "Utility-Templates im Ledger im Zeitraum (Debit − Refund).",
     "typeAuthenticationHelp": "Authentifizierungs-Templates im Ledger im Zeitraum (Debit − Refund).",
-    "dispatches": "Versände"
+    "dispatches": "Versände",
+    "export": {
+      "trigger": "Leads exportieren",
+      "title": "Leads der Versendungen exportieren",
+      "descriptionAllTime": "Exportiert die Leads aller Kampagnen in einer einzigen CSV-Datei.",
+      "descriptionFiltered": "Exportiert die Leads aller zwischen {from} und {to} erstellten Kampagnen in einer einzigen CSV-Datei.",
+      "statusesLabel": "Versandstatus",
+      "expectedRows": "{count} Leads",
+      "expectedRowsHelp": "Geschätzt anhand der aktuellen Status der Einträge. Es ist exakt die Anzahl der Zeilen in der Datei.",
+      "ledgerNote": "Die hier aufgeführten Versendungen stammen aus dem aktuellen Status jedes Eintrags. Die Summe \"Versendungen\" oben stammt aus der Abrechnung und kann etwas höher sein, da eine Buchung beim Zurücksetzen einer Kampagne nicht gelöscht wird.",
+      "confirm": "CSV exportieren",
+      "cancel": "Abbrechen",
+      "exporting": "Wird exportiert...",
+      "success": "Export erfolgreich abgeschlossen",
+      "errorTitle": "Export nicht möglich",
+      "error": "Leads konnten nicht exportiert werden",
+      "noEntries": "Keine Leads für diese Filter gefunden",
+      "tooLarge": "Dieser Export ist zu groß. Grenzen Sie den Zeitraum oder die Status ein und versuchen Sie es erneut.",
+      "busy": "Es laufen bereits Exporte. Bitte versuchen Sie es gleich noch einmal."
+    }
   },
   "whatsappCampaignsPage": {
     "header": {
@@ -4369,7 +4388,9 @@
         "exporting": "Exportiere...",
         "success": "Export erfolgreich abgeschlossen",
         "error": "Export der Einträge fehlgeschlagen",
-        "noEntries": "Keine Einträge zum Exportieren"
+        "noEntries": "Keine Einträge zum Exportieren",
+        "tooLarge": "Dieser Export ist zu groß. Grenzen Sie die Filter ein und versuchen Sie es erneut.",
+        "busy": "Es laufen bereits Exporte. Bitte versuchen Sie es gleich noch einmal."
       }
     },
     "form": {

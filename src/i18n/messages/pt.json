@@ -4403,7 +4403,26 @@
     "typeMarketingHelp": "Templates de Marketing cobrados no extrato no período (débito − reembolso).",
     "typeUtilityHelp": "Templates de Utilidade cobrados no extrato no período (débito − reembolso).",
     "typeAuthenticationHelp": "Templates de Autenticação cobrados no extrato no período (débito − reembolso).",
-    "dispatches": "Disparos"
+    "dispatches": "Disparos",
+    "export": {
+      "trigger": "Exportar leads",
+      "title": "Exportar leads dos disparos",
+      "descriptionAllTime": "Exporta os leads de todas as campanhas, em um único arquivo CSV.",
+      "descriptionFiltered": "Exporta os leads de todas as campanhas criadas entre {from} e {to}, em um único arquivo CSV.",
+      "statusesLabel": "Status dos envios",
+      "expectedRows": "{count} leads",
+      "expectedRowsHelp": "Quantidade estimada a partir dos status atuais das entradas. É exatamente o número de linhas do arquivo.",
+      "ledgerNote": "Os envios listados aqui vêm do status atual de cada entrada. O total de \"Envios\" no topo vem do extrato de cobrança e pode ser um pouco maior, porque uma cobrança não é apagada quando a campanha é resetada.",
+      "confirm": "Exportar CSV",
+      "cancel": "Cancelar",
+      "exporting": "Exportando...",
+      "success": "Exportação concluída com sucesso",
+      "errorTitle": "Não foi possível exportar",
+      "error": "Falha ao exportar os leads",
+      "noEntries": "Nenhum lead encontrado para esses filtros",
+      "tooLarge": "Esta exportação é grande demais. Reduza o período ou os status e tente de novo.",
+      "busy": "Já existem exportações em andamento. Tente de novo em instantes."
+    }
   },
   "whatsappCampaignsPage": {
     "header": {
@@ -4875,7 +4894,9 @@
         "exporting": "Exportando...",
         "success": "Exportação concluída com sucesso",
         "error": "Falha ao exportar entradas",
-        "noEntries": "Nenhuma entrada para exportar"
+        "noEntries": "Nenhuma entrada para exportar",
+        "tooLarge": "Esta exportação é grande demais. Reduza os filtros e tente de novo.",
+        "busy": "Já existem exportações em andamento. Tente de novo em instantes."
       }
     },
     "form": {

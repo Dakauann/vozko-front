@@ -3903,7 +3903,26 @@
     "typeMarketingHelp": "Plantillas de Marketing cobradas en el extracto en el período (débito − reembolso).",
     "typeUtilityHelp": "Plantillas de Utilidad cobradas en el extracto en el período (débito − reembolso).",
     "typeAuthenticationHelp": "Plantillas de Autenticación cobradas en el extracto en el período (débito − reembolso).",
-    "dispatches": "Envíos"
+    "dispatches": "Envíos",
+    "export": {
+      "trigger": "Exportar leads",
+      "title": "Exportar leads de los envíos",
+      "descriptionAllTime": "Exporta los leads de todas las campañas, en un único archivo CSV.",
+      "descriptionFiltered": "Exporta los leads de todas las campañas creadas entre {from} y {to}, en un único archivo CSV.",
+      "statusesLabel": "Estados de los envíos",
+      "expectedRows": "{count} leads",
+      "expectedRowsHelp": "Estimado a partir de los estados actuales de las entradas. Es exactamente el número de filas del archivo.",
+      "ledgerNote": "Los envíos listados aquí provienen del estado actual de cada entrada. El total de \"Envíos\" de arriba proviene del extracto de facturación y puede ser algo mayor, porque un cargo no se borra cuando se reinicia la campaña.",
+      "confirm": "Exportar CSV",
+      "cancel": "Cancelar",
+      "exporting": "Exportando...",
+      "success": "Exportación completada con éxito",
+      "errorTitle": "No se pudo exportar",
+      "error": "Error al exportar los leads",
+      "noEntries": "No se encontraron leads con estos filtros",
+      "tooLarge": "Esta exportación es demasiado grande. Reduce el período o los estados e inténtalo de nuevo.",
+      "busy": "Ya hay exportaciones en curso. Inténtalo de nuevo en unos instantes."
+    }
   },
   "whatsappCampaignsPage": {
     "header": {
@@ -4286,7 +4305,9 @@
         "exporting": "Exportando...",
         "success": "Exportación completada exitosamente",
         "error": "Error al exportar entradas",
-        "noEntries": "No hay entradas para exportar"
+        "noEntries": "No hay entradas para exportar",
+        "tooLarge": "Esta exportación es demasiado grande. Reduce los filtros e inténtalo de nuevo.",
+        "busy": "Ya hay exportaciones en curso. Inténtalo de nuevo en unos instantes."
       }
     },
     "form": {
