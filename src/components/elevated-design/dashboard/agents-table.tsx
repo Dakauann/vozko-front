@@ -1,7 +1,7 @@
 "use client";
 
 import type { Agent, AgentListMeta, ToolBinding } from "@/lib/agents/types";
-import { ChatCircle, Pencil, Trash } from "@/components/icons";
+import { Pencil, TestTube, Trash } from "@/components/icons";
 
 import Button from "@/components/elevated-design/button";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
@@ -181,11 +181,11 @@ export function AgentsTable({ agents, meta }: AgentsTableProps) {
                 <div className="flex flex-wrap gap-2">
                   <Button
                     variant="primary"
-                    title="Ajustar"
-                    icon={<ChatCircle className="h-4 w-4" weight="bold" />}
+                    title="Simular"
+                    icon={<TestTube className="h-4 w-4" weight="bold" />}
                     iconVisible
                     iconSide="left"
-                    link={`/dashboard/agents/${agent.id}/tune`}
+                    link={`/dashboard/agents/${agent.id}/simulator`}
                     newTab={false}
                     className="text-[11px] font-semibold"
                   />

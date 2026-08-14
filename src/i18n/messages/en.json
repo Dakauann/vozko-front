@@ -164,6 +164,117 @@
     "starterAgentTools": "Review an agent's tools",
     "conversationLegend": "Conversation"
   },
+  "leadMemories": {
+    "title": "Memories",
+    "subtitle": "Facts about this lead saved by the AI and your team; the AI uses them in every conversation",
+    "noLead": "Memories become available once the conversation is linked to a lead.",
+    "empty": "No memories yet. Facts saved by the AI and your team will appear here.",
+    "emptyFiltered": "No memories in this category.",
+    "addButton": "Add memory",
+    "addPlaceholder": "A short fact about the lead (e.g. prefers bank slip over PIX)",
+    "saveButton": "Save",
+    "cancelButton": "Cancel",
+    "editButton": "Edit memory",
+    "deleteButton": "Delete memory",
+    "confirmDelete": "Confirm deletion",
+    "categoryLabel": "Category",
+    "filterAll": "All",
+    "categories": {
+      "personal": "Personal",
+      "preference": "Preference",
+      "deal": "Deal",
+      "objection": "Objection",
+      "commitment": "Commitment",
+      "event": "Event",
+      "other": "Other"
+    },
+    "byAi": "AI",
+    "byOperator": "Operator",
+    "bySystem": "System",
+    "attribution": "by {who} · {when}",
+    "showing": "Showing {shown} of {total} memories",
+    "errors": {
+      "duplicate": "An equivalent memory already exists for this lead.",
+      "limit": "This lead's memory limit was reached. Delete or edit an existing one.",
+      "generic": "The operation could not be completed. Please try again."
+    }
+  },
+  "agentSimulator": {
+    "panel": {
+      "open": "Simulate",
+      "title": "Simulator: {agent}",
+      "hint": "Tests the last saved version; no real action is executed.",
+      "empty": "Chat in the lead's role to test the agent. Tool calls appear in the conversation with the exact arguments.",
+      "openFull": "Open full simulator"
+    },
+    "loading": "Loading…",
+    "title": "Simulator: {agent}",
+    "backToAgent": "Back to agent",
+    "sandboxBadge": "Safe simulation: no real actions",
+    "transcriptLabel": "Simulated conversation",
+    "typing": "The agent is typing",
+    "jumpToLatest": "Jump to latest message",
+    "composerPlaceholder": "Write as if you were the lead…",
+    "composerHint": "Enter sends · Shift+Enter for a new line · Uses AI credits; no tool actually executes",
+    "send": "Send",
+    "retry": "Try again",
+    "reset": "Restart",
+    "resetConfirm": "Clear the conversation?",
+    "resetConfirmYes": "Confirm restart",
+    "resetConfirmNo": "Keep conversation",
+    "empty": {
+      "title": "Test {agent} before a real lead does",
+      "description": "Chat in the lead's role and watch, alongside, what the agent would do: which tools it would call, with which arguments, with what context and at what cost.",
+      "asLead": "Simulating as {lead}: this lead's real memories are used",
+      "sandboxNote": "No tool actually executes: nothing is written to the CRM or sent to channels."
+    },
+    "tool": {
+      "simulated": "simulated",
+      "refused": "refused"
+    },
+    "leadPicker": {
+      "searchError": "Lead search failed. Please try again.",
+      "button": "Simulate as lead",
+      "clear": "Remove lead from simulation",
+      "searchPlaceholder": "Search leads by name…",
+      "resetWarning": "Switching the lead restarts the current conversation.",
+      "searching": "Searching…",
+      "noResults": "No leads found.",
+      "hint": "The chosen lead's real memories enter the agent's context (read-only)."
+    },
+    "rail": {
+      "open": "Debug",
+      "close": "Close debug panel",
+      "tabs": {
+        "tools": "Tools ({count})",
+        "xray": "X-ray"
+      },
+      "toolsEmpty": "No tool has been called yet. When the agent calls one, it appears here with the exact arguments.",
+      "turnHeading": "Turn {turn}",
+      "arguments": "Arguments",
+      "noArguments": "No arguments.",
+      "result": "Result (simulated)",
+      "sandboxNote": "Intercepted by the sandbox: no real action was executed.",
+      "xrayEmpty": "Send a message to see the turn's X-ray: assembled prompt, injected context and cost.",
+      "model": "Model",
+      "tokens": "Tokens",
+      "tokensValue": "{prompt} in · {completion} out",
+      "latency": "Duration",
+      "finishReason": "Finish reason",
+      "context": "Injected context",
+      "memories": "Lead memories",
+      "knowledge": "Knowledge base",
+      "injected": "injected",
+      "notInjected": "not injected",
+      "toolsAvailable": "Available tools ({count})",
+      "noTools": "This agent has no tools enabled.",
+      "systemPrompt": "System prompt (assembled)"
+    },
+    "errors": {
+      "generic": "The simulation failed. Please try again.",
+      "loadFailed": "Could not load the agent."
+    }
+  },
   "crmContactPanel": {
     "title": "Contact details",
     "toggleTooltip": "Contact details",
@@ -366,6 +477,7 @@
       }
     },
     "tabs": {
+      "memories": "Memories",
       "contact": "Contact",
       "attendance": "Attendance",
       "insights": "Insights",
@@ -2023,6 +2135,7 @@
       "noUpdatePermission": "You don't have permission to edit this agent."
     },
     "card": {
+      "simulate": "Simulate",
       "status": {
         "label": "Status",
         "active": "Active",
@@ -2040,7 +2153,6 @@
       "details": "Details",
       "archive": "Archive",
       "unarchive": "Unarchive",
-      "tune": "Tune",
       "model": "Model"
     },
     "archived": {
@@ -2205,41 +2317,22 @@
       "title": "Edit agent",
       "description": "Update the agent's data, messages and configuration.",
       "chooser": {
-        "description": "Choose how you want to edit this agent.",
+        "description": "Choose how to edit this agent.",
         "backToChooser": "Switch mode",
-        "beginner": {
-          "recommended": "Recommended",
-          "bullets": [
-            "Short steps with real-world examples",
-            "Smart defaults for advanced fields",
-            "Test and refine loop at the end"
-          ],
-          "badge": "Recommended to start",
-          "title": "Beginner",
-          "description": "A guided step-by-step with explanations and ready-made examples for each field. At the end you test and refine the agent live.",
-          "cta": "Start step by step"
+        "legend": "Editing mode",
+        "lastUsed": "Last used",
+        "suggested": "Suggested for this agent",
+        "guided": {
+          "title": "Guided editing",
+          "description": "Step by step with the essential fields and ready examples."
         },
-        "professional": {
-          "bullets": [
-            "Full access to all settings",
-            "Internal tool and template binding",
-            "Granular voice and RAG configuration"
-          ],
-          "badge": "For advanced users",
-          "title": "Professional",
-          "description": "Full form with every field, tools, RAG and WhatsApp templates.",
-          "cta": "Open full form"
+        "complete": {
+          "title": "Complete editing",
+          "description": "Every field: tools, knowledge, model and integrations."
         },
-        "refine": {
-          "bullets": [
-            "AI-improved prompts for voice and messaging",
-            "No manual editing required",
-            "Live preview and comparison"
-          ],
-          "badge": "Refine with AI",
-          "title": "Refine prompts",
-          "description": "Use AI to improve the messaging prompt without editing it by hand.",
-          "cta": "Refine now"
+        "switch": {
+          "guided": "Guided",
+          "complete": "Complete"
         }
       },
       "success": {
@@ -2250,105 +2343,6 @@
         "updateFailed": {
           "title": "Save failed",
           "description": "We couldn't update the agent. Please try again."
-        }
-      }
-    },
-    "refiner": {
-      "instructionLabel": "What to change?",
-      "instructionPlaceholder": "e.g. make it more formal, shorter, friendlier tone...",
-      "examplesLabel": "Examples",
-      "examples": {
-        "generic": [
-          "Make it shorter",
-          "More formal tone",
-          "Friendlier tone"
-        ],
-        "system_prompt": [
-          "Speak more slowly",
-          "Be more direct and to the point",
-          "Always confirm name and phone before finishing"
-        ],
-        "messaging_prompt": [
-          "Shorter replies, max 2 lines",
-          "Use casual language",
-          "Always end asking if you can help with anything else"
-        ],
-        "initial_message": [
-          "Make it warmer",
-          "Shorter and more direct",
-          "Use a friendly greeting"
-        ]
-      },
-      "modelLabel": "Model (optional)",
-      "modelPlaceholder": "Default",
-      "refine": "Refine with AI",
-      "refining": "Refining...",
-      "diffTitle": "Result preview",
-      "characters": "characters",
-      "apply": "Apply",
-      "discard": "Discard",
-      "emptyHint": "Describe what to change and click Refine to see an AI suggestion.",
-      "applied": {
-        "title": "Text applied",
-        "description": "The prompt has been updated. Remember to save it to the agent."
-      },
-      "errors": {
-        "insufficientBalance": {
-          "title": "Insufficient balance",
-          "description": "Not enough balance to refine this text. Top up your wallet and try again."
-        },
-        "failed": {
-          "title": "Refine failed",
-          "description": "Could not refine the text. Please try again."
-        }
-      }
-    },
-    "tuning": {
-      "title": "Tune your agent",
-      "description": "Edit the agent's prompts and ask AI to improve them.",
-      "collapse": "Hide",
-      "finish": "Finish",
-      "unsaved": "Unsaved changes",
-      "editorLabel": "Editor",
-      "collapsed": {
-        "title": "Refinement panel collapsed",
-        "description": "You can reopen it anytime to refine prompts.",
-        "expand": "Show"
-      },
-      "tabs": {
-        "settings": "Model",
-        "messagingPrompt": "Messaging prompt",
-        "initialMessage": "Initial message"
-      },
-      "settings": {
-        "intro": "Adjust the AI model the agent uses. Changes apply on save.",
-        "messagingModelLabel": "Model for messaging",
-        "messagingModelPlaceholder": "Select a model",
-        "loading": "Loading options..."
-      },
-      "placeholders": {
-        "messagingPrompt": "Instructions for text conversations",
-        "initialMessage": "First message when starting a conversation"
-      },
-      "refinerTitle": {
-        "messagingPrompt": "Refine messaging prompt",
-        "initialMessage": "Refine initial message"
-      },
-      "refinerHelper": {
-        "systemPrompt": "Say in one sentence what to improve and AI rewrites it.",
-        "messagingPrompt": "Suggest tone, length or style adjustments.",
-        "initialMessage": "Ask for a friendlier, shorter version, etc."
-      },
-      "save": {
-        "save": "Save",
-        "saving": "Saving...",
-        "success": {
-          "title": "Agent updated",
-          "description": "Your prompts have been saved."
-        },
-        "error": {
-          "title": "Save failed",
-          "description": "Could not save changes. Please try again."
         }
       }
     },

@@ -10,6 +10,7 @@ import type {
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowSquareOut,
+  TestTube,
   Brain,
   CalendarCheck,
   CaretDown,
@@ -752,18 +753,18 @@ export default function AgentDetail({
           </div>
 
           <div className="flex flex-wrap items-center gap-2 xl:justify-end">
-            <Button
-              disabled={isPending}
-              icon={<ChatCircle weight="bold" className="h-4 w-4" />}
-              iconSide="left"
-              iconVisible
-              link={`/dashboard/agents/${agent.id}/tune`}
-              newTab={false}
-              title={t("card.tune")}
-              variant="outline-subtle"
-            />
             {canUpdateAgent ? (
               <>
+                <Button
+                  disabled={isPending}
+                  icon={<TestTube weight="bold" className="h-4 w-4" />}
+                  iconSide="left"
+                  iconVisible
+                  link={`/dashboard/agents/${agent.id}/simulator`}
+                  newTab={false}
+                  title={t("card.simulate")}
+                  variant="outline-subtle"
+                />
                 <Button
                   disabled={isPending}
                   icon={<ArrowSquareOut weight="bold" className="h-4 w-4" />}

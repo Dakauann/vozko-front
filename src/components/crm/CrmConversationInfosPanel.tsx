@@ -4,6 +4,7 @@ import {
   ArrowClockwise,
   ArrowsOutSimple,
   ArrowsInSimple,
+  Brain,
   Check,
   ClockCounterClockwise,
   Copy,
@@ -29,6 +30,7 @@ import { listOpportunitiesForEntryAction } from "@/app/actions/opportunities";
 import { ChannelLogo, channelLabel } from "@/components/icons/channel-logos";
 import ConversationAttendanceSection from "@/components/crm/ConversationAttendanceSection";
 import ConversationGroupSection from "@/components/crm/ConversationGroupSection";
+import LeadMemoriesSection from "@/components/crm/LeadMemoriesSection";
 import ConversationPathChart from "@/components/crm/ConversationPathChart";
 import CrmSegmentedToggle from "@/components/crm/CrmSegmentedToggle";
 import { type Opportunity, formatValueCents } from "@/lib/crm/opportunities";
@@ -41,7 +43,7 @@ const DEAL_STATUS_DOT: Record<string, string> = {
   lost: "bg-muted",
 };
 
-type PanelTab = "contact" | "group" | "attendance" | "insights";
+type PanelTab = "contact" | "group" | "attendance" | "insights" | "memories";
 
 interface CrmConversationInfosPanelProps {
   open: boolean;
@@ -51,6 +53,8 @@ interface CrmConversationInfosPanelProps {
   /** Resolved CRM status from layout (new | ongoing | finished). */
   conversationStatus?: "new" | "ongoing" | "finished" | string | null;
   canBlock: boolean;
+  /** Mirrors `leads:update`; memories render read-only without it. */
+  canManageMemories: boolean;
 }
 
 /**
@@ -89,6 +93,7 @@ export default function CrmConversationInfosPanel({
   inboxEntry,
   conversationStatus,
   canBlock,
+  canManageMemories,
 }: CrmConversationInfosPanelProps) {
   const t = useTranslations("crmContactPanel");
 
@@ -131,7 +136,12 @@ export default function CrmConversationInfosPanel({
   // private one would otherwise render nothing until they clicked something —
   // and resolving it here means there is no frame in which the stale value is
   // on screen.
-  const activeTab: PanelTab = !isGroup && tab === "group" ? "contact" : tab;
+  // Tabs that stop existing for the current conversation fall back to contact:
+  // "group" when the chat is not a group, "memories" when it is (no lead).
+  const activeTab: PanelTab =
+    (!isGroup && tab === "group") || (isGroup && tab === "memories")
+      ? "contact"
+      : tab;
 
   useEffect(() => {
     const entryId = conversation?.entry_id;
@@ -224,6 +234,17 @@ export default function CrmConversationInfosPanel({
             },
           ]
         : []),
+      // A group has no lead, and memories are lead-scoped — same suppression
+      // rule as the identity affordances.
+      ...(isGroup
+        ? []
+        : [
+            {
+              value: "memories" as const,
+              label: t("tabs.memories"),
+              icon: <Brain className="h-3 w-3" weight="bold" />,
+            },
+          ]),
       {
         value: "attendance" as const,
         label: t("tabs.attendance"),
@@ -512,6 +533,16 @@ export default function CrmConversationInfosPanel({
                 key={conversation.entry_id}
                 entryId={conversation.entry_id}
                 active={open && activeTab === "group"}
+              />
+            )}
+
+            {activeTab === "memories" && !isGroup && (
+              <LeadMemoriesSection
+                // Keyed by lead: switching conversations remounts the section
+                // so one lead's list never flashes under another lead's name.
+                key={leadId || "no-lead"}
+                leadId={leadId || null}
+                canManage={canManageMemories}
               />
             )}
 

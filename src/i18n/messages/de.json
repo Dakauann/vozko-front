@@ -164,6 +164,117 @@
     "starterAgentTools": "Die Werkzeuge eines Agenten prüfen",
     "conversationLegend": "Unterhaltung"
   },
+  "leadMemories": {
+    "title": "Erinnerungen",
+    "subtitle": "Fakten über diesen Lead, gespeichert von KI und Team; die KI nutzt sie in jedem Gespräch",
+    "noLead": "Erinnerungen sind verfügbar, sobald die Konversation mit einem Lead verknüpft ist.",
+    "empty": "Noch keine Erinnerungen. Von KI und Team gespeicherte Fakten erscheinen hier.",
+    "emptyFiltered": "Keine Erinnerungen in dieser Kategorie.",
+    "addButton": "Erinnerung hinzufügen",
+    "addPlaceholder": "Ein kurzer Fakt über den Lead (z. B. bevorzugt Boleto statt PIX)",
+    "saveButton": "Speichern",
+    "cancelButton": "Abbrechen",
+    "editButton": "Erinnerung bearbeiten",
+    "deleteButton": "Erinnerung löschen",
+    "confirmDelete": "Löschen bestätigen",
+    "categoryLabel": "Kategorie",
+    "filterAll": "Alle",
+    "categories": {
+      "personal": "Persönliches",
+      "preference": "Präferenz",
+      "deal": "Verhandlung",
+      "objection": "Einwand",
+      "commitment": "Vereinbarung",
+      "event": "Ereignis",
+      "other": "Sonstiges"
+    },
+    "byAi": "KI",
+    "byOperator": "Mitarbeiter(in)",
+    "bySystem": "System",
+    "attribution": "von {who} · {when}",
+    "showing": "{shown} von {total} Erinnerungen angezeigt",
+    "errors": {
+      "duplicate": "Für diesen Lead existiert bereits eine gleichwertige Erinnerung.",
+      "limit": "Das Erinnerungslimit dieses Leads ist erreicht. Löschen oder bearbeiten Sie eine bestehende.",
+      "generic": "Der Vorgang konnte nicht abgeschlossen werden. Bitte erneut versuchen."
+    }
+  },
+  "agentSimulator": {
+    "panel": {
+      "open": "Simulieren",
+      "title": "Simulator: {agent}",
+      "hint": "Testet die zuletzt gespeicherte Version; keine echte Aktion wird ausgeführt.",
+      "empty": "Chatten Sie in der Rolle des Leads, um den Agenten zu testen. Tool-Aufrufe erscheinen mit den exakten Argumenten in der Konversation.",
+      "openFull": "Vollständigen Simulator öffnen"
+    },
+    "loading": "Lädt…",
+    "title": "Simulator: {agent}",
+    "backToAgent": "Zurück zum Agenten",
+    "sandboxBadge": "Sichere Simulation: keine echten Aktionen",
+    "transcriptLabel": "Simulierte Konversation",
+    "typing": "Der Agent schreibt",
+    "jumpToLatest": "Zur neuesten Nachricht springen",
+    "composerPlaceholder": "Schreiben Sie, als wären Sie der Lead…",
+    "composerHint": "Enter sendet · Shift+Enter für neue Zeile · Verbraucht KI-Guthaben; kein Tool wird wirklich ausgeführt",
+    "send": "Senden",
+    "retry": "Erneut versuchen",
+    "reset": "Neu starten",
+    "resetConfirm": "Konversation löschen?",
+    "resetConfirmYes": "Neustart bestätigen",
+    "resetConfirmNo": "Konversation behalten",
+    "empty": {
+      "title": "Testen Sie {agent}, bevor es ein echter Lead tut",
+      "description": "Chatten Sie in der Rolle des Leads und sehen Sie daneben, was der Agent tun würde: welche Tools er aufrufen würde, mit welchen Argumenten, mit welchem Kontext und zu welchen Kosten.",
+      "asLead": "Simulation als {lead}: die echten Erinnerungen dieses Leads werden verwendet",
+      "sandboxNote": "Kein Tool wird wirklich ausgeführt: nichts wird ins CRM geschrieben oder an Kanäle gesendet."
+    },
+    "tool": {
+      "simulated": "simuliert",
+      "refused": "abgelehnt"
+    },
+    "leadPicker": {
+      "searchError": "Die Lead-Suche ist fehlgeschlagen. Bitte erneut versuchen.",
+      "button": "Als Lead simulieren",
+      "clear": "Lead aus der Simulation entfernen",
+      "searchPlaceholder": "Leads nach Namen suchen…",
+      "resetWarning": "Ein Lead-Wechsel startet die aktuelle Konversation neu.",
+      "searching": "Suche…",
+      "noResults": "Keine Leads gefunden.",
+      "hint": "Die echten Erinnerungen des gewählten Leads fließen in den Kontext des Agenten ein (nur lesend)."
+    },
+    "rail": {
+      "open": "Debug",
+      "close": "Debug-Panel schließen",
+      "tabs": {
+        "tools": "Tools ({count})",
+        "xray": "Röntgen"
+      },
+      "toolsEmpty": "Noch kein Tool aufgerufen. Sobald der Agent eines aufruft, erscheint es hier mit den exakten Argumenten.",
+      "turnHeading": "Zug {turn}",
+      "arguments": "Argumente",
+      "noArguments": "Keine Argumente.",
+      "result": "Ergebnis (simuliert)",
+      "sandboxNote": "Von der Sandbox abgefangen: keine echte Aktion wurde ausgeführt.",
+      "xrayEmpty": "Senden Sie eine Nachricht, um das Röntgenbild des Zugs zu sehen: zusammengesetzter Prompt, injizierter Kontext und Kosten.",
+      "model": "Modell",
+      "tokens": "Tokens",
+      "tokensValue": "{prompt} ein · {completion} aus",
+      "latency": "Dauer",
+      "finishReason": "Abschlussgrund",
+      "context": "Injizierter Kontext",
+      "memories": "Lead-Erinnerungen",
+      "knowledge": "Wissensdatenbank",
+      "injected": "injiziert",
+      "notInjected": "nicht injiziert",
+      "toolsAvailable": "Verfügbare Tools ({count})",
+      "noTools": "Dieser Agent hat keine Tools aktiviert.",
+      "systemPrompt": "System-Prompt (zusammengesetzt)"
+    },
+    "errors": {
+      "generic": "Die Simulation ist fehlgeschlagen. Bitte erneut versuchen.",
+      "loadFailed": "Der Agent konnte nicht geladen werden."
+    }
+  },
   "crmContactPanel": {
     "title": "Kontaktdetails",
     "toggleTooltip": "Kontaktdetails",
@@ -366,6 +477,7 @@
       }
     },
     "tabs": {
+      "memories": "Erinnerungen",
       "contact": "Kontakt",
       "attendance": "Betreuung",
       "insights": "Einblicke",
@@ -1755,6 +1867,7 @@
       "noUpdatePermission": "Sie haben keine Berechtigung, diesen Agenten zu bearbeiten."
     },
     "card": {
+      "simulate": "Simulieren",
       "status": {
         "label": "Status",
         "active": "Aktiv",
@@ -1772,7 +1885,6 @@
       "details": "Details",
       "archive": "Archivieren",
       "unarchive": "Dearchivieren",
-      "tune": "Anpassen",
       "model": "Modell"
     },
     "archived": {
@@ -1933,39 +2045,20 @@
       "chooser": {
         "description": "Wählen Sie, wie Sie diesen Agenten bearbeiten möchten.",
         "backToChooser": "Modus wechseln",
-        "refine": {
-          "bullets": [
-            "KI-verbesserte Prompts fur Sprache und Nachrichten",
-            "Keine manuelle Bearbeitung erforderlich",
-            "Live-Vorschau und Vergleich"
-          ],
-          "badge": "Mit KI verfeinern",
-          "title": "Prompts verfeinern",
-          "description": "Verbessern Sie den Nachrichten-Prompt per KI, ohne ihn manuell zu bearbeiten.",
-          "cta": "Jetzt verfeinern"
+        "legend": "Bearbeitungsmodus",
+        "lastUsed": "Zuletzt verwendet",
+        "suggested": "Für diesen Agenten empfohlen",
+        "guided": {
+          "title": "Geführte Bearbeitung",
+          "description": "Schritt für Schritt mit den wichtigsten Feldern und fertigen Beispielen."
         },
-        "beginner": {
-          "recommended": "Empfohlen",
-          "bullets": [
-            "Kurze Schritte mit Praxisbeispielen",
-            "Intelligente Standardwerte fur erweiterte Felder",
-            "Test- und Verfeinerungsschleife am Ende"
-          ],
-          "badge": "Empfohlen für den Einstieg",
-          "title": "Anfänger",
-          "description": "Geführte Schritt-für-Schritt mit Erklärungen und fertigen Beispielen für jedes Feld. Am Ende testen und verfeinern Sie den Agenten live.",
-          "cta": "Schritt für Schritt starten"
+        "complete": {
+          "title": "Vollständige Bearbeitung",
+          "description": "Alle Felder: Tools, Wissen, Modell und Integrationen."
         },
-        "professional": {
-          "bullets": [
-            "Voller Zugriff auf alle Einstellungen",
-            "Interne Tools und Vorlagen binden",
-            "Granulare Sprach- und RAG-Konfiguration"
-          ],
-          "badge": "Für fortgeschrittene Benutzer",
-          "title": "Professionell",
-          "description": "Vollständiges Formular mit allen Feldern, Tools, RAG und WhatsApp-Vorlagen.",
-          "cta": "Vollformular öffnen"
+        "switch": {
+          "guided": "Geführt",
+          "complete": "Vollständig"
         }
       },
       "success": {
@@ -1976,105 +2069,6 @@
         "updateFailed": {
           "title": "Speichern fehlgeschlagen",
           "description": "Wir konnten den Agenten nicht aktualisieren. Bitte erneut versuchen."
-        }
-      }
-    },
-    "refiner": {
-      "instructionLabel": "Was ändern?",
-      "instructionPlaceholder": "z. B. förmlicher, kürzer, freundlicher...",
-      "examplesLabel": "Beispiele",
-      "examples": {
-        "generic": [
-          "Kürzer machen",
-          "Förmlicherer Ton",
-          "Freundlicherer Ton"
-        ],
-        "system_prompt": [
-          "Langsamer sprechen",
-          "Sei direkter und auf den Punkt",
-          "Bestätige immer Name und Telefon vor dem Abschluss"
-        ],
-        "messaging_prompt": [
-          "Kürzere Antworten, max. 2 Zeilen",
-          "Verwende eine lockere Sprache",
-          "Frage am Ende immer, ob ich sonst noch helfen kann"
-        ],
-        "initial_message": [
-          "Herzlicher gestalten",
-          "Kürzer und direkter",
-          "Eine freundliche Begrüßung verwenden"
-        ]
-      },
-      "modelLabel": "Modell (optional)",
-      "modelPlaceholder": "Standard",
-      "refine": "Mit KI verfeinern",
-      "refining": "Verfeinere...",
-      "diffTitle": "Ergebnisvorschau",
-      "characters": "Zeichen",
-      "apply": "Übernehmen",
-      "discard": "Verwerfen",
-      "emptyHint": "Beschreiben Sie, was geändert werden soll, und klicken Sie auf Verfeinern für einen KI-Vorschlag.",
-      "applied": {
-        "title": "Text übernommen",
-        "description": "Der Prompt wurde aktualisiert. Speichern nicht vergessen."
-      },
-      "errors": {
-        "insufficientBalance": {
-          "title": "Guthaben unzureichend",
-          "description": "Nicht genug Guthaben zum Verfeinern. Bitte aufladen und erneut versuchen."
-        },
-        "failed": {
-          "title": "Verfeinern fehlgeschlagen",
-          "description": "Der Text konnte nicht verfeinert werden. Bitte erneut versuchen."
-        }
-      }
-    },
-    "tuning": {
-      "title": "Agenten verfeinern",
-      "description": "Bearbeiten Sie die Prompts des Agenten und lassen Sie sie von der KI verbessern.",
-      "collapse": "Ausblenden",
-      "finish": "Fertig",
-      "unsaved": "Nicht gespeicherte Änderungen",
-      "editorLabel": "Editor",
-      "collapsed": {
-        "title": "Verfeinerungs-Panel minimiert",
-        "description": "Sie können es jederzeit wieder öffnen.",
-        "expand": "Anzeigen"
-      },
-      "tabs": {
-        "settings": "Modell",
-        "messagingPrompt": "Messaging-Prompt",
-        "initialMessage": "Begrüßung"
-      },
-      "settings": {
-        "intro": "Passen Sie das vom Agenten genutzte KI-Modell an. Änderungen gelten nach dem Speichern.",
-        "messagingModelLabel": "Modell für Messaging",
-        "messagingModelPlaceholder": "Modell auswählen",
-        "loading": "Optionen werden geladen..."
-      },
-      "placeholders": {
-        "messagingPrompt": "Anweisungen für Textgespräche",
-        "initialMessage": "Erste Nachricht beim Gesprächsstart"
-      },
-      "refinerTitle": {
-        "messagingPrompt": "Messaging-Prompt verfeinern",
-        "initialMessage": "Begrüßung verfeinern"
-      },
-      "refinerHelper": {
-        "systemPrompt": "In einem Satz sagen, was verbessert werden soll – KI schreibt um.",
-        "messagingPrompt": "Ton, Länge oder Stil anpassen lassen.",
-        "initialMessage": "Bitten Sie um eine freundlichere oder kürzere Variante."
-      },
-      "save": {
-        "save": "Speichern",
-        "saving": "Speichere...",
-        "success": {
-          "title": "Agent aktualisiert",
-          "description": "Ihre Prompts wurden gespeichert."
-        },
-        "error": {
-          "title": "Speichern fehlgeschlagen",
-          "description": "Änderungen konnten nicht gespeichert werden. Bitte erneut versuchen."
         }
       }
     },

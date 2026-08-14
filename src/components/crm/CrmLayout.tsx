@@ -2412,6 +2412,7 @@ export default function CrmLayout({
               inboxEntry={currentInboxEntry}
               conversationStatus={currentConversationStatus}
               canBlock={can("leads", "block")}
+              canManageMemories={can("leads", "update")}
             />
           )}
           <WorkflowRunDrawer

@@ -2,6 +2,7 @@
 
 import {
   ArrowLeft,
+  Brain,
   Calendar,
   CalendarCheck,
   Clock,
@@ -10,6 +11,8 @@ import {
   Users,
   WhatsappLogo,
 } from "@/components/icons"
+import LeadMemoriesSection from "@/components/crm/LeadMemoriesSection"
+import { useWorkspace } from "@/contexts/workspace-context"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useTranslations, useLocale } from "next-intl"
@@ -174,7 +177,10 @@ export default function LeadDetailClient({
   leadId: string
 }) {
   const t = useTranslations("leadsPage")
+  const tMemories = useTranslations("leadMemories")
   const locale = useLocale()
+  const { can } = useWorkspace()
+  const canManageMemories = can("leads", "update")
 
   const [lead, setLead] = useState<LeadDetailResponse["data"] | null>(null)
   const [loading, setLoading] = useState(true)
@@ -281,10 +287,14 @@ export default function LeadDetailClient({
       <motion.div variants={itemVariants}>
         <div className="rounded-[--radius] border border-border bg-card p-6" style={{ boxShadow: softSurfaceShadow }}>
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 h-auto gap-1 p-1">
+            <TabsList className="grid w-full grid-cols-3 h-auto gap-1 p-1">
               <TabsTrigger value="overview" className="flex items-center gap-2 py-2">
                 <Users weight="bold" className="h-4 w-4" />
                 <span className="hidden sm:inline">{t("header.badge")}</span>
+              </TabsTrigger>
+              <TabsTrigger value="memories" className="flex items-center gap-2 py-2">
+                <Brain weight="bold" className="h-4 w-4" />
+                <span className="hidden sm:inline">{tMemories("title")}</span>
               </TabsTrigger>
               <TabsTrigger value="campaigns" className="flex items-center gap-2 py-2">
                 <Phone weight="bold" className="h-4 w-4" />
@@ -312,6 +322,20 @@ export default function LeadDetailClient({
                 <InfoRow icon={<CalendarCheck weight="fill" className="h-4 w-4" />} label={t("table.lastActivity")} value={fmt(lead.lastActivityAt, locale)} />
                 <InfoRow icon={<WhatsappLogo weight="fill" className="h-4 w-4" />} label={t("table.window")} value={lead.whatsappWindowOpen ? t("window.open") : t("window.closed")} />
               </div>
+            </TabsContent>
+
+            {/* Memories tab — same component the inbox context rail renders. */}
+            <TabsContent value="memories" className="mt-6 focus-visible:outline-none">
+              <div className="mb-2 flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground">
+                  <Brain weight="fill" className="h-5 w-5" />
+                </span>
+                <div>
+                  <h2 className="text-lg font-semibold text-foreground">{tMemories("title")}</h2>
+                  <p className="text-sm text-muted-foreground">{tMemories("subtitle")}</p>
+                </div>
+              </div>
+              <LeadMemoriesSection leadId={leadId} canManage={canManageMemories} />
             </TabsContent>
 
             {/* Campaigns tab */}

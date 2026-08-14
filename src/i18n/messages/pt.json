@@ -164,6 +164,117 @@
     "starterAgentTools": "Revisar as ferramentas de um agente",
     "conversationLegend": "Conversa"
   },
+  "leadMemories": {
+    "title": "Memórias",
+    "subtitle": "Fatos sobre este lead salvos pela IA e pela equipe; a IA usa em todas as conversas",
+    "noLead": "As memórias ficam disponíveis quando a conversa é vinculada a um lead.",
+    "empty": "Nenhuma memória ainda. Fatos salvos pela IA e pela equipe aparecem aqui.",
+    "emptyFiltered": "Nenhuma memória nesta categoria.",
+    "addButton": "Adicionar memória",
+    "addPlaceholder": "Um fato curto sobre o lead (ex.: prefere boleto a PIX)",
+    "saveButton": "Salvar",
+    "cancelButton": "Cancelar",
+    "editButton": "Editar memória",
+    "deleteButton": "Apagar memória",
+    "confirmDelete": "Confirmar exclusão",
+    "categoryLabel": "Categoria",
+    "filterAll": "Todas",
+    "categories": {
+      "personal": "Dados pessoais",
+      "preference": "Preferência",
+      "deal": "Negociação",
+      "objection": "Objeção",
+      "commitment": "Combinado",
+      "event": "Evento",
+      "other": "Outros"
+    },
+    "byAi": "IA",
+    "byOperator": "Operador(a)",
+    "bySystem": "Sistema",
+    "attribution": "por {who} · {when}",
+    "showing": "Exibindo {shown} de {total} memórias",
+    "errors": {
+      "duplicate": "Já existe uma memória equivalente para este lead.",
+      "limit": "Limite de memórias deste lead atingido. Apague ou edite uma existente.",
+      "generic": "Não foi possível concluir a operação. Tente novamente."
+    }
+  },
+  "agentSimulator": {
+    "panel": {
+      "open": "Simular",
+      "title": "Simulador: {agent}",
+      "hint": "Testa a última versão salva; nenhuma ação real é executada.",
+      "empty": "Converse no papel do lead para testar o agente. Ferramentas aparecem na conversa com os argumentos exatos.",
+      "openFull": "Abrir simulador completo"
+    },
+    "loading": "Carregando…",
+    "title": "Simulador: {agent}",
+    "backToAgent": "Voltar para o agente",
+    "sandboxBadge": "Simulação segura: nenhuma ação real",
+    "transcriptLabel": "Conversa simulada",
+    "typing": "O agente está digitando",
+    "jumpToLatest": "Ir para a última mensagem",
+    "composerPlaceholder": "Escreva como se você fosse o lead…",
+    "composerHint": "Enter envia · Shift+Enter quebra linha · Consome créditos de IA; nenhuma ferramenta executa de verdade",
+    "send": "Enviar",
+    "retry": "Tentar novamente",
+    "reset": "Reiniciar",
+    "resetConfirm": "Apagar a conversa?",
+    "resetConfirmYes": "Confirmar reinício",
+    "resetConfirmNo": "Manter conversa",
+    "empty": {
+      "title": "Teste o {agent} antes do lead de verdade",
+      "description": "Converse no papel do lead e veja, ao lado, o que o agente faria: quais ferramentas chamaria, com quais argumentos, com que contexto e a que custo.",
+      "asLead": "Simulando como {lead}: as memórias reais deste lead são usadas",
+      "sandboxNote": "Nenhuma ferramenta executa de verdade: nada é gravado no CRM nem enviado a canais."
+    },
+    "tool": {
+      "simulated": "simulado",
+      "refused": "recusado"
+    },
+    "leadPicker": {
+      "searchError": "A busca de leads falhou. Tente novamente.",
+      "button": "Simular como lead",
+      "clear": "Remover lead da simulação",
+      "searchPlaceholder": "Buscar lead por nome…",
+      "resetWarning": "Trocar o lead reinicia a conversa atual.",
+      "searching": "Buscando…",
+      "noResults": "Nenhum lead encontrado.",
+      "hint": "As memórias reais do lead escolhido entram no contexto do agente (somente leitura)."
+    },
+    "rail": {
+      "open": "Depuração",
+      "close": "Fechar depuração",
+      "tabs": {
+        "tools": "Ferramentas ({count})",
+        "xray": "Raio-X"
+      },
+      "toolsEmpty": "Nenhuma ferramenta foi chamada ainda. Quando o agente chamar uma, ela aparece aqui com os argumentos exatos.",
+      "turnHeading": "Turno {turn}",
+      "arguments": "Argumentos",
+      "noArguments": "Sem argumentos.",
+      "result": "Resultado (simulado)",
+      "sandboxNote": "Interceptada pelo sandbox: nenhuma ação real foi executada.",
+      "xrayEmpty": "Envie uma mensagem para ver o raio-X do turno: prompt montado, contexto injetado e custo.",
+      "model": "Modelo",
+      "tokens": "Tokens",
+      "tokensValue": "{prompt} entrada · {completion} saída",
+      "latency": "Duração",
+      "finishReason": "Encerramento",
+      "context": "Contexto injetado",
+      "memories": "Memórias do lead",
+      "knowledge": "Base de conhecimento",
+      "injected": "injetado",
+      "notInjected": "não injetado",
+      "toolsAvailable": "Ferramentas disponíveis ({count})",
+      "noTools": "Este agente não tem ferramentas habilitadas.",
+      "systemPrompt": "Prompt do sistema (montado)"
+    },
+    "errors": {
+      "generic": "A simulação falhou. Tente novamente.",
+      "loadFailed": "Não foi possível carregar o agente."
+    }
+  },
   "crmContactPanel": {
     "title": "Detalhes do contato",
     "toggleTooltip": "Detalhes do contato",
@@ -366,6 +477,7 @@
       }
     },
     "tabs": {
+      "memories": "Memórias",
       "contact": "Contato",
       "attendance": "Atendimento",
       "insights": "Insights",
@@ -1972,6 +2084,7 @@
       "noUpdatePermission": "Você não tem permissão para editar este agente."
     },
     "card": {
+      "simulate": "Simular",
       "status": {
         "label": "Status",
         "active": "Ativo",
@@ -1990,7 +2103,6 @@
       "details": "Detalhes",
       "archive": "Arquivar",
       "unarchive": "Desarquivar",
-      "tune": "Ajustar",
       "model": "Modelo"
     },
     "archived": {
@@ -2149,41 +2261,22 @@
       "title": "Editar agente",
       "description": "Atualize os dados, mensagens e configurações do agente.",
       "chooser": {
-        "description": "Escolha como você quer editar este agente.",
+        "description": "Escolha como editar este agente.",
         "backToChooser": "Trocar de modo",
-        "refine": {
-          "bullets": [
-            "Prompts melhorados por IA para voz e mensagens",
-            "Sem necessidade de edicao manual",
-            "Previa ao vivo e comparacao"
-          ],
-          "badge": "Refinar com IA",
-          "title": "Refinar prompts",
-          "description": "Use IA para melhorar o prompt de mensagens sem edição manual.",
-          "cta": "Refinar agora"
+        "legend": "Modo de edição",
+        "lastUsed": "Última usada",
+        "suggested": "Sugerida para este agente",
+        "guided": {
+          "title": "Edição guiada",
+          "description": "Passo a passo com os campos essenciais e exemplos prontos."
         },
-        "beginner": {
-          "recommended": "Recomendado",
-          "bullets": [
-            "Etapas curtas com exemplos do mundo real",
-            "Padroes inteligentes para campos avancados",
-            "Loop de teste e refinamento no final"
-          ],
-          "badge": "Recomendado para iniciar",
-          "title": "Iniciante",
-          "description": "Passo a passo guiado com explicações e exemplos prontos para cada campo. No final você testa e refina o agente ao vivo.",
-          "cta": "Começar passo a passo"
+        "complete": {
+          "title": "Edição completa",
+          "description": "Todos os campos: ferramentas, conhecimento, modelo e integrações."
         },
-        "professional": {
-          "bullets": [
-            "Acesso total a todas as configuracoes",
-            "Vinculacao de ferramentas e templates",
-            "Configuracao granular de voz e RAG"
-          ],
-          "badge": "Para usuários avançados",
-          "title": "Profissional",
-          "description": "Formulário completo com todos os campos, ferramentas, RAG e templates WhatsApp.",
-          "cta": "Abrir formulário completo"
+        "switch": {
+          "guided": "Guiado",
+          "complete": "Completo"
         }
       },
       "success": {
@@ -2194,105 +2287,6 @@
         "updateFailed": {
           "title": "Falha ao salvar",
           "description": "Não conseguimos atualizar o agente. Tente novamente."
-        }
-      }
-    },
-    "refiner": {
-      "instructionLabel": "O que mudar?",
-      "instructionPlaceholder": "Ex: deixe mais formal, mais curto, em tom amigável...",
-      "examplesLabel": "Exemplos",
-      "examples": {
-        "generic": [
-          "Deixe mais curto",
-          "Tom mais formal",
-          "Tom mais amigável"
-        ],
-        "system_prompt": [
-          "Fale mais devagar",
-          "Seja mais direto e objetivo",
-          "Sempre confirme nome e telefone antes de finalizar"
-        ],
-        "messaging_prompt": [
-          "Respostas mais curtas, no máximo 2 linhas",
-          "Use linguagem informal",
-          "Sempre encerre perguntando se posso ajudar em mais algo"
-        ],
-        "initial_message": [
-          "Deixe mais cordial",
-          "Mais curta e direta",
-          "Use uma saudação amigável"
-        ]
-      },
-      "modelLabel": "Modelo (opcional)",
-      "modelPlaceholder": "Padrão",
-      "refine": "Refinar com IA",
-      "refining": "Refinando...",
-      "diffTitle": "Pré-visualização do resultado",
-      "characters": "caracteres",
-      "apply": "Aplicar",
-      "discard": "Descartar",
-      "emptyHint": "Descreva o que você quer mudar e clique em Refinar para ver uma sugestão de IA.",
-      "applied": {
-        "title": "Texto aplicado",
-        "description": "O prompt foi atualizado. Lembre-se de salvar para enviar ao agente."
-      },
-      "errors": {
-        "insufficientBalance": {
-          "title": "Saldo insuficiente",
-          "description": "Não há saldo suficiente para refinar este texto. Recarregue sua carteira e tente novamente."
-        },
-        "failed": {
-          "title": "Falha ao refinar",
-          "description": "Não foi possível refinar o texto. Tente novamente."
-        }
-      }
-    },
-    "tuning": {
-      "title": "Refine seu agente",
-      "description": "Edite os prompts do agente e peça à IA para melhorá-los.",
-      "collapse": "Esconder",
-      "finish": "Concluir",
-      "unsaved": "Alterações não salvas",
-      "editorLabel": "Editor",
-      "collapsed": {
-        "title": "Painel de refinamento minimizado",
-        "description": "Você pode reabrir a qualquer momento para refinar prompts.",
-        "expand": "Mostrar"
-      },
-      "tabs": {
-        "settings": "Modelo",
-        "messagingPrompt": "Prompt de mensagens",
-        "initialMessage": "Mensagem inicial"
-      },
-      "settings": {
-        "intro": "Ajuste o modelo de IA usado pelo agente. As mudanças se aplicam ao salvar.",
-        "messagingModelLabel": "Modelo para mensagens",
-        "messagingModelPlaceholder": "Selecione um modelo",
-        "loading": "Carregando opções..."
-      },
-      "placeholders": {
-        "messagingPrompt": "Instruções para conversas por mensagem",
-        "initialMessage": "Primeira mensagem ao iniciar uma conversa"
-      },
-      "refinerTitle": {
-        "messagingPrompt": "Refinar prompt de mensagens",
-        "initialMessage": "Refinar mensagem inicial"
-      },
-      "refinerHelper": {
-        "systemPrompt": "Diga em uma frase o que melhorar e a IA reescreve.",
-        "messagingPrompt": "Sugira ajustes de tom, tamanho ou estilo.",
-        "initialMessage": "Peça uma versão mais cordial, mais direta, etc."
-      },
-      "save": {
-        "save": "Salvar",
-        "saving": "Salvando...",
-        "success": {
-          "title": "Agente atualizado",
-          "description": "Seus prompts foram salvos."
-        },
-        "error": {
-          "title": "Erro ao salvar",
-          "description": "Não conseguimos salvar as alterações. Tente novamente."
         }
       }
     },

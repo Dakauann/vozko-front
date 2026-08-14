@@ -120,9 +120,7 @@ export default function NewAgentPage() {
           <BeginnerAgentWizard
             onSwitchMode={() => setMode("professional")}
             onSaved={(agent) => {
-              router.push(
-                `/dashboard/agents/${agent.id}/tune`,
-              );
+              router.push(`/dashboard/agents/${agent.id}`);
             }}
           />
         </motion.div>

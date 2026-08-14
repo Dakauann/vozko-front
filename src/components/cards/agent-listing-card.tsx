@@ -3,7 +3,7 @@
 import {
   Archive,
   ArrowCounterClockwise,
-  ChatCircle,
+  TestTube,
   Eye,
   PencilSimple,
   Robot,
@@ -35,9 +35,9 @@ export function AgentListingCard({
         onClick: () => onUnarchive?.(agent.id),
       }
     : {
-        label: t("card.tune"),
-        icon: <ChatCircle className="h-3.5 w-3.5" weight="fill" />,
-        href: `/dashboard/agents/${agent.id}/tune`,
+        label: t("card.simulate"),
+        icon: <TestTube className="h-3.5 w-3.5" weight="bold" />,
+        href: `/dashboard/agents/${agent.id}/simulator`,
       };
 
   const secondaryAction = isArchived
