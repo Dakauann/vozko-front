@@ -1,9 +1,10 @@
 "use client";
 
 import { ArrowClockwise, CheckCircle, DeviceMobile } from "@/components/icons";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import {
   connectInstanceAction,
+  getInstanceAction,
   linkStatusAction,
   getInstanceAllowanceAction,
   provisionInstanceAction,
@@ -13,7 +14,9 @@ import {
   type ConnectMode,
   type LinkChallenge,
   type UnofficialWhatsAppAllowance,
+  type UnofficialWhatsAppInstance,
 } from "@/lib/unofficial-whatsapp/types";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
@@ -23,7 +26,6 @@ import UnofficialWhatsAppCapacityCard from "@/components/dashboard/addons/Unoffi
 import { UnofficialNotice } from "@/components/unofficial-whatsapp/session-state";
 import { WhatsAppLogoColor } from "@/components/icons/channel-logos";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 /**
@@ -51,10 +53,28 @@ type Step = "disclosure" | "linking" | "connected";
  *
  * After that the screen gets out of the way. One live code, one honest deadline,
  * and a state that changes by itself the moment the phone scans it.
+ *
+ * RECONNECTS reuse this same screen with `?instanceId=`: the uazapi contract
+ * is that `/instance/init` (admin token) CREATES an instance while
+ * `/instance/connect` (instance token) re-pairs the one it belongs to — so a
+ * relink must seed the existing instance and never provision. Before this
+ * carried the id, every "reconectar" click minted a brand-new instance.
  */
 export default function ConnectUnofficialWhatsAppPage() {
+  return (
+    // useSearchParams demands a Suspense boundary during prerender.
+    <Suspense fallback={null}>
+      <ConnectFlow />
+    </Suspense>
+  );
+}
+
+function ConnectFlow() {
   const t = useTranslations("unofficialWhatsapp");
   const router = useRouter();
+  // The instance being RE-linked. Present = skip provisioning entirely; the
+  // slot, its transcript, and its conversations all stay attached to this row.
+  const reconnectId = useSearchParams().get("instanceId");
 
   const [step, setStep] = useState<Step>("disclosure");
   const [mode, setMode] = useState<ConnectMode>("qr");
@@ -82,6 +102,34 @@ export default function ConnectUnofficialWhatsAppPage() {
   const instanceIdRef = useRef<string | null>(null);
 
   /**
+   * The instance a reconnect targets, loaded up front so the screen can name
+   * the number being re-paired and so an already-live session short-circuits
+   * to "connected" instead of offering a pointless QR.
+   */
+  const [reconnectTarget, setReconnectTarget] = useState<UnofficialWhatsAppInstance | null>(null);
+  useEffect(() => {
+    if (!reconnectId) return;
+    instanceIdRef.current = reconnectId;
+    let cancelled = false;
+    void (async () => {
+      const result = await getInstanceAction(reconnectId);
+      if (cancelled) return;
+      if (result.error || !result.instance) {
+        setError(result.error ?? t("connect.codeFailed"));
+        return;
+      }
+      setReconnectTarget(result.instance);
+      if (result.instance.sessionLive) {
+        setChallenge({ instance: result.instance });
+        setStep("connected");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [reconnectId, t]);
+
+  /**
    * The workspace's number allowance, read before anything is offered.
    *
    * The server refuses an over-limit provision either way — that is the
@@ -102,7 +150,9 @@ export default function ConnectUnofficialWhatsAppPage() {
     };
   }, []);
 
-  const block = allowanceBlock(allowance);
+  // A reconnect re-pairs a slot the workspace already pays for, so the
+  // new-number capacity gate does not apply to it.
+  const block = reconnectId ? null : allowanceBlock(allowance);
 
   /** Provisions a slot, then asks for a code. Two calls, one operator action. */
   const beginLinking = useCallback(async () => {
@@ -195,7 +245,7 @@ export default function ConnectUnofficialWhatsAppPage() {
       <DashboardPageHeader
         icon={<WhatsAppLogoColor className="h-5 w-5" />}
         badge={t("connect.badge")}
-        title={t("connect.title")}
+        title={reconnectId ? t("connect.reconnectTitle") : t("connect.title")}
         description={t("connect.description")}
         back={{ onClick: () => router.push("/dashboard/unofficial-whatsapp"), label: t("connect.back") }}
       />
@@ -204,8 +254,10 @@ export default function ConnectUnofficialWhatsAppPage() {
         {/* Capacity first, ahead of the control it governs — the same rail the
             official channel's connect page uses, so an operator who has learnt
             to read one meter has learnt to read both. When it is full this card
-            IS the gate, and its call to action routes to the add-ons. */}
-        {step === "disclosure" && (
+            IS the gate, and its call to action routes to the add-ons. A
+            reconnect re-pairs an existing slot, so the meter stays out of its
+            way. */}
+        {step === "disclosure" && !reconnectId && (
           <UnofficialWhatsAppCapacityCard allowance={allowance} />
         )}
 
@@ -217,6 +269,15 @@ export default function ConnectUnofficialWhatsAppPage() {
             mode={mode}
             phone={phone}
             displayName={displayName}
+            reconnectName={
+              reconnectTarget
+                ? reconnectTarget.phoneNumber
+                  ? `+${reconnectTarget.phoneNumber}`
+                  : reconnectTarget.displayName
+                : reconnectId
+                  ? ""
+                  : null
+            }
             busy={busy}
             error={error}
             onModeChange={setMode}
@@ -266,6 +327,7 @@ function DisclosureStep({
   mode,
   phone,
   displayName,
+  reconnectName,
   busy,
   error,
   onModeChange,
@@ -276,6 +338,8 @@ function DisclosureStep({
   mode: ConnectMode;
   phone: string;
   displayName: string;
+  /** Non-null when re-pairing an existing instance; "" while it loads. */
+  reconnectName: string | null;
   busy: boolean;
   error: string | null;
   onModeChange: (mode: ConnectMode) => void;
@@ -285,28 +349,37 @@ function DisclosureStep({
 }) {
   const t = useTranslations("unofficialWhatsapp");
   const phoneRequired = mode === "pairing" && phone.trim().length < 10;
+  const isReconnect = reconnectName !== null;
 
   return (
     <div className="space-y-6">
       <UnofficialNotice />
 
       <ElevatedContainer className="space-y-5">
-        {/* Optional, and said so: an operator who does not care should not be
-            stopped by a field, and one who does should not have to find the
-            number again afterwards to name it. */}
-        <div className="space-y-1.5">
-          <label htmlFor="uw-display-name" className="legend">
-            {t("connect.displayNameLabel")}
-          </label>
-          <ElevatedInput
-            id="uw-display-name"
-            value={displayName}
-            onChange={(event) => onDisplayNameChange(event.target.value)}
-            placeholder={t("connect.displayNamePlaceholder")}
-            maxLength={120}
-          />
-          <p className="text-xs text-muted-foreground">{t("connect.displayNameHint")}</p>
-        </div>
+        {isReconnect ? (
+          // Re-pairing an existing slot: the name is settled, the transcript
+          // stays, and the screen says WHICH number this QR belongs to.
+          <p className="rounded-[--radius] bg-muted px-3 py-2 text-sm text-foreground">
+            {t("connect.reconnecting", { name: reconnectName || "…" })}
+          </p>
+        ) : (
+          /* Optional, and said so: an operator who does not care should not be
+             stopped by a field, and one who does should not have to find the
+             number again afterwards to name it. */
+          <div className="space-y-1.5">
+            <label htmlFor="uw-display-name" className="legend">
+              {t("connect.displayNameLabel")}
+            </label>
+            <ElevatedInput
+              id="uw-display-name"
+              value={displayName}
+              onChange={(event) => onDisplayNameChange(event.target.value)}
+              placeholder={t("connect.displayNamePlaceholder")}
+              maxLength={120}
+            />
+            <p className="text-xs text-muted-foreground">{t("connect.displayNameHint")}</p>
+          </div>
+        )}
 
         <div className="space-y-1">
           <h2 className="text-sm font-semibold text-foreground">{t("connect.methodTitle")}</h2>

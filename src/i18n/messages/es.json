@@ -8443,7 +8443,9 @@
       "backToList": "See all numbers",
       "displayNameLabel": "Nombre para mostrar (opcional)",
       "displayNamePlaceholder": "Comercial SP, Cobranzas...",
-      "displayNameHint": "Cómo aparece este número en el CRM. Solo nuestro: no cambia el perfil de WhatsApp. Se puede definir después."
+      "displayNameHint": "Cómo aparece este número en el CRM. Solo nuestro: no cambia el perfil de WhatsApp. Se puede definir después.",
+      "reconnectTitle": "Reconectar número",
+      "reconnecting": "Reconectando {name}. Las conversaciones y el historial de este número permanecen donde estaban tras volver a escanear el código."
     },
     "detail": {
       "notFound": "Number not found.",

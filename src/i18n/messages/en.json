@@ -9943,7 +9943,9 @@
       "backToList": "See all numbers",
       "displayNameLabel": "Display name (optional)",
       "displayNamePlaceholder": "Sales SP, Collections...",
-      "displayNameHint": "How this number appears in the CRM. Ours only: it does not change the WhatsApp profile. Can be set later."
+      "displayNameHint": "How this number appears in the CRM. Ours only: it does not change the WhatsApp profile. Can be set later.",
+      "reconnectTitle": "Reconnect number",
+      "reconnecting": "Reconnecting {name}. This number’s conversations and history stay where they are after re-scanning the code."
     },
     "detail": {
       "notFound": "Number not found.",

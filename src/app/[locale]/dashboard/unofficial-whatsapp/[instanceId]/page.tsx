@@ -195,7 +195,13 @@ export default function UnofficialWhatsAppInstancePage() {
                 canRelink(instance) && (
                   <Button
                     variant="primary"
-                    onClick={() => router.push("/dashboard/unofficial-whatsapp/connect")}
+                    // The id is the whole fix: without it the connect screen
+                    // provisions a NEW instance instead of re-pairing this one.
+                    onClick={() =>
+                      router.push(
+                        `/dashboard/unofficial-whatsapp/connect?instanceId=${instance.id}`,
+                      )
+                    }
                     title={t("actions.relink")}
                     icon={<Plugs className="h-4 w-4" />}
                     iconVisible

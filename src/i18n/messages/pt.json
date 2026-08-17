@@ -9994,7 +9994,9 @@
       "backToList": "Ver todos os números",
       "displayNameLabel": "Nome de exibição (opcional)",
       "displayNamePlaceholder": "Comercial SP, Cobrança...",
-      "displayNameHint": "Como este número aparece no CRM. Só nosso: não altera o perfil do WhatsApp. Pode ser definido depois."
+      "displayNameHint": "Como este número aparece no CRM. Só nosso: não altera o perfil do WhatsApp. Pode ser definido depois.",
+      "reconnectTitle": "Reconectar número",
+      "reconnecting": "Reconectando {name}. As conversas e o histórico deste número continuam onde estavam após a releitura do código."
     },
     "detail": {
       "notFound": "Número não encontrado.",

@@ -84,14 +84,14 @@ function ModeList({ agent }: { agent: Agent }) {
             title: tChooser("guided.title"),
             description: tChooser("guided.description"),
             icon: <GraduationCap className="h-5 w-5" weight="bold" />,
-            tile: "tile-2",
+            tile: "tile-info",
         },
         {
             mode: "professional",
             title: tChooser("complete.title"),
             description: tChooser("complete.description"),
             icon: <Wrench className="h-5 w-5" weight="bold" />,
-            tile: "tile-4",
+            tile: "tile-brand",
         },
     ];
 

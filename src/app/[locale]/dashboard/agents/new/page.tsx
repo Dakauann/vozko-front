@@ -84,7 +84,7 @@ export default function NewAgentPage() {
         >
           <ChooserCard
             Icon={GraduationCap}
-            iconGradient="tile-2"
+            iconGradient="tile-info"
             title={tChooser("beginner.title")}
             badge={tChooser("beginner.badge")}
             description={tChooser("beginner.description")}
@@ -100,7 +100,7 @@ export default function NewAgentPage() {
           />
           <ChooserCard
             Icon={Wrench}
-            iconGradient="tile-4"
+            iconGradient="tile-brand"
             title={tChooser("professional.title")}
             badge={tChooser("professional.badge")}
             description={tChooser("professional.description")}

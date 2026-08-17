@@ -8940,7 +8940,9 @@
       "backToList": "See all numbers",
       "displayNameLabel": "Anzeigename (optional)",
       "displayNamePlaceholder": "Vertrieb SP, Inkasso...",
-      "displayNameHint": "Wie diese Nummer im CRM erscheint. Nur bei uns: Das WhatsApp-Profil bleibt unverändert. Kann später gesetzt werden."
+      "displayNameHint": "Wie diese Nummer im CRM erscheint. Nur bei uns: Das WhatsApp-Profil bleibt unverändert. Kann später gesetzt werden.",
+      "reconnectTitle": "Nummer neu verbinden",
+      "reconnecting": "Verbinde {name} neu. Die Konversationen und der Verlauf dieser Nummer bleiben nach dem erneuten Scannen erhalten."
     },
     "detail": {
       "notFound": "Number not found.",
