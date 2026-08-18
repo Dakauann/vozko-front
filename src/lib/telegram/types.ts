@@ -82,6 +82,7 @@ export interface TelegramAccount {
     enableWorkflow: boolean;
     enableAnalysis: boolean;
     enableAutoStaging: boolean;
+    enableAutoMemory: boolean;
 
     createdAt: string;
     updatedAt: string;
@@ -109,6 +110,7 @@ export interface UpdateTelegramAccountPayload {
     enableWorkflow?: boolean;
     enableAnalysis?: boolean;
     enableAutoStaging?: boolean;
+    enableAutoMemory?: boolean;
 }
 
 /**

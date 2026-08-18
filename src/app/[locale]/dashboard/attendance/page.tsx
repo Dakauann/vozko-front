@@ -7,6 +7,7 @@ import {
   ChartPie,
   CheckCircle,
   Clock,
+  DownloadSimple,
   Headset,
   Hourglass,
   Info,
@@ -67,6 +68,8 @@ import type {
 } from "@/lib/attendance/types";
 import { getAttendanceOverviewAction } from "@/app/actions/attendance";
 import { listMembersAction } from "@/app/actions/workspace";
+import { buildAttendanceOverviewCsv } from "@/lib/attendance/csv-export";
+import { downloadCsv } from "@/lib/browser/download";
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { ElevatedDatePicker } from "@/components/elevated-design/elevated-date-picker";
@@ -1855,6 +1858,10 @@ export default function AttendanceOpsPage() {
   const tc = useTranslations("metricsOps.common");
   const tl = useTranslations("metricsOps.attendance.labels");
   const tg = useTranslations("metricsOps.attendance.glossary");
+  const texp = useTranslations("metricsOps.export");
+  // Shared with the tables below, so the export cannot drift from the screen.
+  const actorKindLabel = useActorKindLabel();
+  const presenceLabel = usePresenceLabel();
   const fmt = useMetricsFmt();
   // Matches backend: GET /attendance/* → attendance:read
   const canRead = !permissionsLoading && can("attendance", "read");
@@ -1952,6 +1959,64 @@ export default function AttendanceOpsPage() {
     void load();
   }, [permissionsLoading, load]);
 
+  // Export reads the overview already in state: no second query, and the file
+  // is guaranteed to be the numbers on screen rather than whatever a re-fetch
+  // would have returned a moment later.
+  const exportCsv = useCallback(() => {
+    if (!overview) return;
+    const { csvText, filename } = buildAttendanceOverviewCsv({
+      overview,
+      t: (key) => texp(key),
+      // The dashboard's own label functions, so the file says exactly what the
+      // screen says instead of leaking enum keys like "unofficial_whatsapp".
+      display: {
+        channel: (c) => channelLabel(c, tc),
+        actorKind: actorKindLabel,
+        presence: presenceLabel,
+      },
+      filters: {
+        dateFrom,
+        dateTo,
+        // Resolved to names here, where the option lists live: an id in the
+        // file's header is unreadable by the time anyone opens it.
+        departmentLabel:
+          departmentId === "all"
+            ? tc("all")
+            : (departments.find((d) => d.id === departmentId)?.name ?? departmentId),
+        memberLabel:
+          memberId === "all"
+            ? tc("all")
+            : (() => {
+                const m = members.find((x) => x.userId === memberId);
+                return m ? m.username || m.email : memberId;
+              })(),
+        channelLabel: channel === "all" ? tc("all") : tc(channel),
+        includeAi,
+        campaignId,
+        campaignType,
+        workspaceName: currentWorkspace?.name,
+      },
+    });
+    downloadCsv(csvText, filename);
+  }, [
+    overview,
+    texp,
+    tc,
+    actorKindLabel,
+    presenceLabel,
+    dateFrom,
+    dateTo,
+    departmentId,
+    departments,
+    memberId,
+    members,
+    channel,
+    includeAi,
+    campaignId,
+    campaignType,
+    currentWorkspace?.name,
+  ]);
+
   const kpis = overview?.kpis;
   // Primary header count = engaged conversations (real threads with messages).
   const total =
@@ -1987,14 +2052,29 @@ export default function AttendanceOpsPage() {
             }
             icon={<ChartBar className="h-6 w-6" weight="fill" />}
             actions={
-              <Button
-                icon={<ArrowClockwise className="h-4 w-4" weight="bold" />}
-                iconVisible
-                title={tc("refresh")}
-                variant="outline"
-                onClick={() => void load()}
-                disabled={loading}
-              />
+              <div className="flex items-center gap-2">
+                {/* Disabled until the overview has actually loaded: exporting
+                    a half-populated dashboard would produce a file of zeros
+                    indistinguishable from a genuinely empty period. */}
+                <Button
+                  icon={<DownloadSimple className="h-4 w-4" weight="bold" />}
+                  iconVisible
+                  title={texp("button")}
+                  variant="outline"
+                  onClick={exportCsv}
+                  disabled={loading || !overview}
+                >
+                  <span className="max-sm:sr-only">{texp("button")}</span>
+                </Button>
+                <Button
+                  icon={<ArrowClockwise className="h-4 w-4" weight="bold" />}
+                  iconVisible
+                  title={tc("refresh")}
+                  variant="outline"
+                  onClick={() => void load()}
+                  disabled={loading}
+                />
+              </div>
             }
           />
 

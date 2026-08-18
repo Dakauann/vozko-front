@@ -410,6 +410,11 @@ function ConversationHandlingPanel({
       on: instance.enableAutoStaging,
       hint: t("handling.autoStagingHint"),
     },
+    {
+      key: "enableAutoMemory",
+      on: instance.enableAutoMemory,
+      hint: t("handling.autoMemoryHint"),
+    },
     { key: "handleGroups", on: instance.handleGroups, hint: t("automation.groupsHint") },
   ];
 

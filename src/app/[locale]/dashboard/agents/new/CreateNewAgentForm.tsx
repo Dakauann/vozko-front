@@ -121,9 +121,13 @@ const createAgentSchema = (t: (key: string) => string) => {
       name: z.string().trim().min(2, t("validation.nameRequired")),
       provider: z.string().min(1, t("validation.providerRequired")),
       messagingModel: z.string().min(1, t("validation.messagingModelRequired")),
-      internalTools: z
-        .array(toolBindingSchema)
-        .min(1, t("validation.toolsRequired")),
+      // No minimum: an agent that only converses (answering from its prompt
+      // and its knowledge base) is a legitimate setup, and forcing an unused
+      // ability on it taught the operator that the list is a formality. Safe
+      // because an empty selection now reaches the model as an empty tool set;
+      // it used to arrive as "no preference", which the AI service answered
+      // with the entire tool registry.
+      internalTools: z.array(toolBindingSchema),
       description: z.string().optional(),
       initialMessage: z.string().optional().default(""),
       useInitialMessage: z.boolean().default(true),

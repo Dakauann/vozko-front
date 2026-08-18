@@ -469,10 +469,13 @@ export default function CrmInbox({
 
     if (search.trim() && search.trim().length < 2) {
       const q = search.toLowerCase();
+      // Every one of these is `omitempty` on the wire, so a group with no name
+      // and no number arrives with the keys absent even though the type calls
+      // them `string`. Coalesce before the method call rather than trusting it.
       result = result.filter(
         (e) =>
-          (e.lead_name || e.lead_number).toLowerCase().includes(q) ||
-          e.lead_number.toLowerCase().includes(q) ||
+          (e.lead_name || e.lead_number || "").toLowerCase().includes(q) ||
+          (e.lead_number || "").toLowerCase().includes(q) ||
           (e.last_message_preview || "").toLowerCase().includes(q),
       );
     }

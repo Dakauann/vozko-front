@@ -68,6 +68,7 @@ export interface WhatsAppCampaign {
     showTemplateInCrm: boolean;
     enableAnalysis: boolean;
     enableAutoStaging: boolean;
+    enableAutoMemory: boolean;
     aiModel?: string;
     scheduledStart?: string | null;
     status: WhatsAppCampaignStatus;
@@ -113,6 +114,7 @@ export interface WhatsAppCampaignPayload {
     showTemplateInCrm: boolean;
     enableAnalysis: boolean;
     enableAutoStaging: boolean;
+    enableAutoMemory: boolean;
     aiModel?: string;
     scheduledStart?: string | null;
     phoneNumbers: Omit<WhatsAppCampaignPhoneNumber, 'id' | 'status' | 'createdAt' | 'updatedAt'>[];

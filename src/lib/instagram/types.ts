@@ -60,6 +60,7 @@ export interface InstagramAccount {
     enableWorkflow: boolean;
     enableAnalysis: boolean;
     enableAutoStaging: boolean;
+    enableAutoMemory: boolean;
 
     createdAt: string;
     updatedAt: string;
@@ -130,6 +131,7 @@ export interface UpdateInstagramAccountPayload {
     enableWorkflow?: boolean;
     enableAnalysis?: boolean;
     enableAutoStaging?: boolean;
+    enableAutoMemory?: boolean;
 }
 
 export interface CreateInstagramMediaPayload {

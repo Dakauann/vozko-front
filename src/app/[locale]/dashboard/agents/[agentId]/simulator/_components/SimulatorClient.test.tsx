@@ -32,6 +32,7 @@ function turnResponse(overrides: Partial<SimulateTurnResponse> = {}): SimulateTu
                 arguments: { action: "remember", content: "Prefere boleto." },
                 result: "(SIMULAÇÃO) considere concluída.",
                 isError: false,
+                stubbed: true,
             },
         ],
         debug: {
@@ -110,6 +111,31 @@ describe("SimulatorClient", () => {
             leadId: undefined,
             sessionMemories: [],
         });
+    });
+
+    // A knowledge-base search runs for real server-side. Labelling its result
+    // "simulado" would tell the operator the exact opposite of the truth, and
+    // hide the one thing they opened this page to check.
+    it("marks a tool that really executed as executed, not simulated", async () => {
+        simulateAction.mockResolvedValue({
+            turn: turnResponse({
+                toolCalls: [
+                    {
+                        name: "search_knowledge_base",
+                        arguments: { query: "cafeteira Moka" },
+                        result: "Encontrados 3 trechos...",
+                        isError: false,
+                        stubbed: false,
+                    },
+                ],
+            }),
+        });
+        renderSimulator();
+        await sendMessage("fala da Moka");
+
+        expect(await screen.findByText("Oi!")).toBeInTheDocument();
+        expect(screen.getAllByText(t.tool.executed).length).toBeGreaterThan(0);
+        expect(screen.queryByText(t.tool.simulated)).not.toBeInTheDocument();
     });
 
     it("replays the transcript as history on the next turn", async () => {

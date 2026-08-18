@@ -640,10 +640,18 @@ function InlineToolRow({
                 <span
                     className={cn(
                         "text-[10px] font-semibold",
-                        call.isError ? "text-destructive-ink" : "text-muted-foreground",
+                        call.isError
+                            ? "text-destructive-ink"
+                            : call.stubbed
+                              ? "text-muted-foreground"
+                              : "text-healthy-ink",
                     )}
                 >
-                    {call.isError ? t("tool.refused") : t("tool.simulated")}
+                    {call.isError
+                        ? t("tool.refused")
+                        : call.stubbed
+                          ? t("tool.simulated")
+                          : t("tool.executed")}
                 </span>
             </button>
         </div>
@@ -887,7 +895,9 @@ function ToolCallCard({
                     </div>
                     {call.result && (
                         <div>
-                            <h4 className="legend mb-1">{t("rail.result")}</h4>
+                            <h4 className="legend mb-1">
+                                {call.stubbed ? t("rail.result") : t("rail.resultReal")}
+                            </h4>
                             <p
                                 className={cn(
                                     "whitespace-pre-wrap break-words rounded-[--radius] border border-border bg-muted px-2.5 py-2 text-[11px] leading-relaxed",
@@ -899,8 +909,12 @@ function ToolCallCard({
                         </div>
                     )}
                     <p className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                        <ShieldCheck className="h-3 w-3 text-healthy-ink" weight="bold" />
-                        {t("rail.sandboxNote")}
+                        {call.stubbed ? (
+                            <ShieldCheck className="h-3 w-3 text-healthy-ink" weight="bold" />
+                        ) : (
+                            <Wrench className="h-3 w-3 text-info-ink" weight="bold" />
+                        )}
+                        {call.stubbed ? t("rail.sandboxNote") : t("rail.realNote")}
                     </p>
                 </div>
             )}

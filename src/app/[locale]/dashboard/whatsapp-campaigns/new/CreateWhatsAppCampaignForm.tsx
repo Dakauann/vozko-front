@@ -169,6 +169,7 @@ const createWhatsAppCampaignSchema = (t: (key: string) => string) => {
       showTemplateInCrm: z.boolean().default(false),
       enableAnalysis: z.boolean().default(false),
       enableAutoStaging: z.boolean().default(false),
+      enableAutoMemory: z.boolean().default(false),
       aiModel: z.string().optional().default(""),
       scheduledStart: z.string().optional().nullable(),
       phoneNumbers: z
@@ -214,6 +215,7 @@ const createOrganicCampaignSchema = (t: (key: string) => string) => {
     preferAudio: z.boolean().default(false),
     enableAnalysis: z.boolean().default(false),
     enableAutoStaging: z.boolean().default(false),
+    enableAutoMemory: z.boolean().default(false),
     aiModel: z.string().optional().default(""),
     scheduledStart: z.string().optional().nullable(),
     phoneNumbers: z
@@ -444,6 +446,7 @@ export default function CreateWhatsAppCampaignForm({
       showTemplateInCrm: false,
       enableAnalysis: false,
       enableAutoStaging: false,
+      enableAutoMemory: false,
       aiModel: "",
       scheduledStart: null,
       phoneNumbers: [
@@ -465,6 +468,7 @@ export default function CreateWhatsAppCampaignForm({
   const enableAgentResponses = watch("enableAgentResponses");
   const enableAnalysis = watch("enableAnalysis");
   const enableAutoStaging = watch("enableAutoStaging");
+  const enableAutoMemory = watch("enableAutoMemory");
   const selectedTemplateId = watch("templateId");
   const selectedBusinessPhoneId = watch("businessPhoneId");
   const selectedAgentId = watch("agentId");
@@ -1121,6 +1125,7 @@ export default function CreateWhatsAppCampaignForm({
         showTemplateInCrm: initialCampaign.showTemplateInCrm ?? false,
         enableAnalysis: initialCampaign.enableAnalysis ?? false,
         enableAutoStaging: initialCampaign.enableAutoStaging ?? false,
+        enableAutoMemory: initialCampaign.enableAutoMemory ?? false,
         aiModel: initialCampaign.aiModel ?? "",
         scheduledStart: initialCampaign.scheduledStart || null,
         phoneNumbers:
@@ -1591,9 +1596,14 @@ export default function CreateWhatsAppCampaignForm({
           enableAutoStaging: campaignToolsEnabled
             ? data.enableAutoStaging
             : false,
+          enableAutoMemory: campaignToolsEnabled
+            ? data.enableAutoMemory
+            : false,
           aiModel:
             campaignToolsEnabled &&
-            (data.enableAnalysis || data.enableAutoStaging)
+            (data.enableAnalysis ||
+              data.enableAutoStaging ||
+              data.enableAutoMemory)
               ? data.aiModel || undefined
               : undefined,
           scheduledStart:
@@ -2038,6 +2048,23 @@ export default function CreateWhatsAppCampaignForm({
                   </div>
                 )}
 
+                {campaignToolsAvailable && (
+                  <div>
+                    <Controller
+                      name="enableAutoMemory"
+                      control={control}
+                      render={({ field }) => (
+                        <ElevatedSwitch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          label={t("basicInfo.enableAutoMemory")}
+                          description={t("basicInfo.enableAutoMemoryDescription")}
+                        />
+                      )}
+                    />
+                  </div>
+                )}
+
                 {!organic && (
                   <div data-tour="wc-show-template-in-crm">
                     <Controller
@@ -2058,7 +2085,7 @@ export default function CreateWhatsAppCampaignForm({
             )}
 
             {campaignToolsAvailable &&
-              (enableAnalysis || enableAutoStaging) && (
+              (enableAnalysis || enableAutoStaging || enableAutoMemory) && (
                 <div>
                   <Controller
                     name="aiModel"

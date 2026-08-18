@@ -221,6 +221,9 @@ export function WhatsAppCampaignListingCard({
     ...(campaign.enableAutoStaging
       ? [{ label: t("card.autoTag"), color: "amber" as const }]
       : []),
+    ...(campaign.enableAutoMemory
+      ? [{ label: t("card.autoMemory"), color: "cyan" as const }]
+      : []),
     ...(metrics.notEligiblePossibleSpam && metrics.notEligiblePossibleSpam > 0
       ? [
           {

@@ -43,6 +43,36 @@ const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:4000";
 const RECONNECT_BASE_DELAY = 1000;
 const RECONNECT_MAX_DELAY = 30000;
 
+/**
+ * Fills the string fields the server tags `omitempty` but the type declares as
+ * plain `string`.
+ *
+ * `lead_name`, `lead_number` and the `last_message_*` trio are all omitted from
+ * the JSON when empty, so an unnamed group or a channel entry with no phone
+ * arrives with those keys ABSENT while `InboxEntry` promises a string. The
+ * inbox and search payloads land in state directly — they do not pass through
+ * `normalizeEntry` — so that gap reached the UI: one keystroke in the CRM
+ * search ran `entry.lead_number.toLowerCase()` over such an entry and threw.
+ *
+ * A spread rather than an allowlist, deliberately. `normalizeEntry` names every
+ * field it keeps and drops the rest, which is right for a live patch rebuilt
+ * from a partial payload and wrong here — these entries are already the correct
+ * shape, and rebuilding them would strip whatever the allowlist has not caught
+ * up to (close provenance, `ai_handler`).
+ */
+function withEntryStringDefaults(entry: InboxEntry): InboxEntry {
+  return {
+    ...entry,
+    lead_name: entry.lead_name ?? "",
+    lead_number: entry.lead_number ?? "",
+    last_message_preview: entry.last_message_preview ?? "",
+    last_message_type: entry.last_message_type ?? "user_message",
+    last_message_sender: entry.last_message_sender ?? "",
+    last_message_sender_avatar: entry.last_message_sender_avatar ?? "",
+    business_phone_id: entry.business_phone_id ?? "",
+  };
+}
+
 interface UseConversationWsOptions {
   token: string | null;
   campaignId?: string;
@@ -507,6 +537,11 @@ export function useConversationWs({
           (raw.entry_type as EntryType) ??
           (raw.entryType as EntryType) ??
           "whatsapp",
+        // lead_id is what the memories tab and lead actions key on. Losing it
+        // here is what made memories vanish the moment a live message replaced
+        // the HTTP-loaded entry.
+        lead_id:
+          (raw.lead_id as string) ?? (raw.leadId as string) ?? undefined,
         lead_name: (raw.lead_name as string) ?? (raw.leadName as string) ?? "",
         lead_number:
           (raw.lead_number as string) ?? (raw.leadNumber as string) ?? "",
@@ -623,15 +658,16 @@ export function useConversationWs({
           if (conversation_status_counts)
             setConversationStatusCounts(conversation_status_counts);
           setLoadingInbox(false);
+          const filled = entries.map(withEntryStringDefaults);
           if (page <= 1) {
-            setInbox(entries);
-            inboxRef.current = entries;
+            setInbox(filled);
+            inboxRef.current = filled;
           } else {
             setInbox((prev) => {
               const existingIds = new Set(
                 prev.map((e) => `${e.entry_type}-${e.entry_id}`),
               );
-              const newEntries = entries.filter(
+              const newEntries = filled.filter(
                 (e) => !existingIds.has(`${e.entry_type}-${e.entry_id}`),
               );
               const updated = [...prev, ...newEntries];
@@ -647,6 +683,13 @@ export function useConversationWs({
           const updated = normalizeEntry(
             event.payload.entry as unknown as Record<string, unknown>,
           );
+          // An update that arrives without a lead_id must not unlink a lead the
+          // loaded entry already knows: the linkage only ever grows, it does
+          // not disappear because one broadcast omitted the field.
+          const withLead = (old?: InboxEntry): InboxEntry =>
+            updated.lead_id || !old?.lead_id
+              ? updated
+              : { ...updated, lead_id: old.lead_id };
           setInbox((prev) => {
             const activeStatusFilter =
               currentViewRef.current.conversationStatus;
@@ -684,7 +727,7 @@ export function useConversationWs({
                   e.entry_type === updated.entry_type
                 ),
             );
-            const newInbox = [updated, ...filtered];
+            const newInbox = [withLead(oldEntry), ...filtered];
             inboxRef.current = newInbox;
 
             if (!existed) {
@@ -697,11 +740,12 @@ export function useConversationWs({
 
             const activeSearchStatus =
               currentSearchFiltersRef.current?.conversation_status;
-            const existed = prev.some(
+            const oldSearchEntry = prev.find(
               (e) =>
                 e.entry_id === updated.entry_id &&
                 e.entry_type === updated.entry_type,
             );
+            const existed = !!oldSearchEntry;
             const matchesActiveSearchStatus =
               !activeSearchStatus ||
               updated.conversation_status === activeSearchStatus;
@@ -725,7 +769,7 @@ export function useConversationWs({
                 ),
             );
 
-            return existed ? [updated, ...filtered] : prev;
+            return existed ? [withLead(oldSearchEntry), ...filtered] : prev;
           });
 
           if (
@@ -1337,20 +1381,21 @@ export function useConversationWs({
 
         case "conversation:search_results": {
           const { entries, page, total_pages, total_items } = event.payload;
+          const filled = entries.map(withEntryStringDefaults);
           if (page > 1) {
             setSearchResults((prev) => {
-              if (!prev) return entries;
+              if (!prev) return filled;
               const existingIds = new Set(
                 prev.map((e) => `${e.entry_id}:${e.entry_type}`),
               );
-              const newEntries = entries.filter(
+              const newEntries = filled.filter(
                 (e: InboxEntry) =>
                   !existingIds.has(`${e.entry_id}:${e.entry_type}`),
               );
               return [...prev, ...newEntries];
             });
           } else {
-            setSearchResults(entries);
+            setSearchResults(filled);
           }
           setSearchPageNum(page);
           setSearchTotalPages(total_pages);

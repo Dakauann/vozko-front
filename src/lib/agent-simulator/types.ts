@@ -2,8 +2,9 @@
  * Agent simulator: an operator plays the lead against a real agent in a
  * sandbox. Mirrors vozko-back/delivery/http/handlers/agent_simulate_handler.go.
  *
- * Every tool call the model makes is intercepted server-side: the debug data
- * here describes what WOULD have happened, and nothing did.
+ * Read-only tools run for real server-side, so a knowledge-base search really
+ * searches; anything that could change something is intercepted. Per call,
+ * `stubbed` says which happened.
  */
 
 export type SimulationRole = "user" | "assistant";
@@ -18,6 +19,12 @@ export interface SimulatedToolCall {
     arguments: Record<string, unknown>;
     result?: string;
     isError: boolean;
+    /**
+     * false when the real tool ran and `result` is genuine; true when it was
+     * intercepted and `result` is canned. Without the distinction "the base
+     * returned nothing" and "the search never happened" look identical.
+     */
+    stubbed: boolean;
 }
 
 export interface SimulationDebug {

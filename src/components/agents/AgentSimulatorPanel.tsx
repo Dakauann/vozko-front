@@ -300,10 +300,18 @@ function CompactToolRow({
                 <span
                     className={cn(
                         "text-[10px] font-semibold",
-                        call.isError ? "text-destructive-ink" : "text-muted-foreground",
+                        call.isError
+                            ? "text-destructive-ink"
+                            : call.stubbed
+                              ? "text-muted-foreground"
+                              : "text-healthy-ink",
                     )}
                 >
-                    {call.isError ? t("tool.refused") : t("tool.simulated")}
+                    {call.isError
+                        ? t("tool.refused")
+                        : call.stubbed
+                          ? t("tool.simulated")
+                          : t("tool.executed")}
                 </span>
                 <CaretDown
                     className={cn(

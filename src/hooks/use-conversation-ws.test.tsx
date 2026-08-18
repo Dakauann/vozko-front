@@ -75,6 +75,10 @@ class FakeWebSocket {
     this.readyState = FakeWebSocket.OPEN;
     this.onopen?.({});
   }
+  /** Test helper: push one server frame, exactly as the transport delivers it. */
+  simulateMessage(event: unknown) {
+    this.onmessage?.({ data: JSON.stringify(event) });
+  }
 }
 
 /** Advance past the 50ms connect timer and let the awaited token resolve. */
@@ -184,5 +188,89 @@ describe("useConversationWs socket lifecycle", () => {
     unmount();
 
     expect(socket.closed).toBe(true);
+  });
+});
+
+/**
+ * The server tags lead_name, lead_number and the last_message_* strings
+ * `omitempty`, so an unnamed group arrives with those keys absent while
+ * InboxEntry declares them as `string`. Inbox and search payloads used to land
+ * in state untouched, and the first keystroke in the CRM search — which filters
+ * locally until the query is long enough to hit the server — called
+ * `entry.lead_number.toLowerCase()` on `undefined` and took the list down.
+ */
+describe("useConversationWs entry defaults", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    FakeWebSocket.instances = [];
+    mockWorkspace = { id: "ws-1" };
+    mockDepartment = null;
+    hasUserDataCookie.mockReturnValue(true);
+    vi.stubGlobal("WebSocket", FakeWebSocket);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  /** An entry as the wire actually delivers it: every empty string omitted. */
+  const sparseEntry = {
+    entry_id: "e-1",
+    entry_type: "whatsapp",
+    unread_count: 0,
+    last_message_at: "2026-01-01T00:00:00Z",
+    window_open: true,
+    automation_enabled: true,
+    blocked: false,
+    // Carried by the server but named nowhere in normalizeEntry's allowlist —
+    // present here to prove the fill preserves what it does not know about.
+    ai_handler: { kind: "agent", agent_id: "a-1", agent_active: true },
+  };
+
+  async function openSocket() {
+    const hook = renderHook((props) => useConversationWs(props), {
+      initialProps: baseProps,
+    });
+    await flushConnect();
+    const socket = FakeWebSocket.instances[0];
+    await act(async () => {
+      socket.simulateOpen();
+    });
+    return { hook, socket };
+  }
+
+  it("fills the omitted strings on inbox entries", async () => {
+    const { hook, socket } = await openSocket();
+
+    await act(async () => {
+      socket.simulateMessage({
+        type: "conversation:inbox",
+        payload: { entries: [sparseEntry], page: 1, total_pages: 1, total_items: 1 },
+      });
+    });
+
+    const entry = hook.result.current.inbox[0];
+    expect(entry.lead_name).toBe("");
+    expect(entry.lead_number).toBe("");
+    expect(entry.last_message_preview).toBe("");
+    // The filter the crash lived in, run against the entry that caused it.
+    expect(() =>
+      [entry].filter((e) => e.lead_number.toLowerCase().includes("a")),
+    ).not.toThrow();
+  });
+
+  it("fills the omitted strings on search results without dropping unknown fields", async () => {
+    const { hook, socket } = await openSocket();
+
+    await act(async () => {
+      socket.simulateMessage({
+        type: "conversation:search_results",
+        payload: { entries: [sparseEntry], page: 1, total_pages: 1, total_items: 1 },
+      });
+    });
+
+    const entry = hook.result.current.searchResults?.[0];
+    expect(entry?.lead_number).toBe("");
+    expect(entry?.ai_handler).toEqual(sparseEntry.ai_handler);
   });
 });
