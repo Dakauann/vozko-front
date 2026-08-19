@@ -252,7 +252,7 @@ export default function AssignMemberPicker({
                       )}
                     >
                       <div className="relative flex-shrink-0">
-                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-[11px] font-semibold uppercase">
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-2xs font-semibold uppercase">
                           {name.charAt(0)}
                         </div>
                         {isOnline && (
@@ -261,7 +261,7 @@ export default function AssignMemberPicker({
                       </div>
                       <span className="flex-1 truncate">{name}</span>
                       {isAssigned && (
-                        <span className="ml-auto flex-shrink-0 text-[11px] font-semibold text-primary-ink">
+                        <span className="ml-auto flex-shrink-0 text-2xs font-semibold text-primary-ink">
                           {tx.current}
                         </span>
                       )}
@@ -278,7 +278,7 @@ export default function AssignMemberPicker({
           </CommandList>
         </Command>
         {hasDepartments && (
-          <p className="border-t border-border px-3 py-2 text-[11px] leading-snug text-muted-foreground">
+          <p className="border-t border-border px-3 py-2 text-2xs leading-snug text-muted-foreground">
             {tx.adminHint}
           </p>
         )}

@@ -22,17 +22,17 @@ export const CopilotThinking = memo(function CopilotThinking({
 }) {
   const [open, setOpen] = useState(true);
   return (
-    <div className="text-[11px]">
+    <div className="text-2xs">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-1 italic text-muted-foreground/80 hover:text-muted-foreground"
+        className="flex items-center gap-1 italic text-muted-foreground hover:text-muted-foreground"
       >
         <Brain size={12} weight="duotone" className="shrink-0" />
         <span>{streaming ? "Pensando…" : "Raciocínio"}</span>
         {open ? <CaretDown size={10} /> : <CaretRight size={10} />}
       </button>
       {open && (
-        <div className="mt-0.5 ml-1 border-l-2 border-border pl-2 italic whitespace-pre-wrap text-muted-foreground/70">
+        <div className="mt-0.5 ml-1 border-l-2 border-border pl-2 italic whitespace-pre-wrap text-muted-foreground">
           {text}
           {streaming && (
             <span className="ml-0.5 inline-block w-1 h-3 align-middle bg-muted-foreground/50 animate-pulse" />
@@ -51,7 +51,7 @@ export const CopilotMessage = memo(function CopilotMessage({
 }: CopilotMessageProps) {
   if (role === "tool") {
     return (
-      <div className="flex gap-1.5 items-start text-[11px] pl-1">
+      <div className="flex gap-1.5 items-start text-2xs pl-1">
         <Wrench
           size={12}
           weight="fill"

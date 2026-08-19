@@ -53,7 +53,7 @@ export function centerWithin(el: HTMLElement, root: HTMLElement): number {
 // EmptyPreview is the shared "nothing configured yet" hint used by node previews.
 export function EmptyPreview({ label }: { label: string }) {
   return (
-    <span className="text-[11px] italic text-muted-foreground/60">{label}</span>
+    <span className="text-2xs italic text-muted-foreground">{label}</span>
   );
 }
 
@@ -118,14 +118,14 @@ export function MessageBubble({
       {media && <MediaHeader url={media.url} kind={media.kind} />}
       <div className="px-2 py-1.5">
         {headerText?.trim() && (
-          <p className={cn("mb-0.5 text-[11px] font-semibold leading-snug", t.text)}>
+          <p className={cn("mb-0.5 text-2xs font-semibold leading-snug", t.text)}>
             {headerText}
           </p>
         )}
         {body?.trim() ? (
           <p
             className={cn(
-              "whitespace-pre-wrap break-words text-[11px] leading-snug",
+              "whitespace-pre-wrap break-words text-2xs leading-snug",
               bodyClamp,
               t.text,
             )}
@@ -133,10 +133,10 @@ export function MessageBubble({
             {body}
           </p>
         ) : (
-          <p className={cn("text-[11px] italic", t.muted)}>{emptyBodyLabel}</p>
+          <p className={cn("text-2xs italic", t.muted)}>{emptyBodyLabel}</p>
         )}
         {footer?.trim() && (
-          <p className={cn("mt-0.5 text-[11px] leading-tight", t.muted)}>
+          <p className={cn("mt-0.5 text-2xs leading-tight", t.muted)}>
             {footer}
           </p>
         )}
@@ -209,7 +209,7 @@ export function ActionRowList({
             )}
           >
             {r.leading}
-            <span className={cn("truncate text-[11px] font-medium", WA_ACTION_TEXT)}>
+            <span className={cn("truncate text-2xs font-medium", WA_ACTION_TEXT)}>
               {r.primary}
             </span>
           </div>
@@ -234,14 +234,14 @@ export function ActionRowList({
           <div className="min-w-0 flex-1">
             <p
               className={cn(
-                "truncate text-[11px] font-medium leading-tight",
+                "truncate text-2xs font-medium leading-tight",
                 WA_BUBBLE_TEXT,
               )}
             >
               {r.primary}
             </p>
             {r.secondary && (
-              <p className={cn("truncate text-[11px] leading-tight", WA_MUTED_TEXT)}>
+              <p className={cn("truncate text-2xs leading-tight", WA_MUTED_TEXT)}>
                 {r.secondary}
               </p>
             )}
@@ -302,7 +302,7 @@ export function BranchRow({
       ref={(el) => registerRow(el, id)}
       className="flex h-5 items-center justify-end gap-1.5 pr-4"
     >
-      <span className="truncate text-[11px] font-semibold tracking-[0.08em] text-muted-foreground/70">
+      <span className="truncate text-2xs font-semibold tracking-[0.08em] text-muted-foreground">
         {label}
       </span>
     </div>
@@ -499,13 +499,13 @@ export function InteractiveNodeShell({
           >
             <IconComp size={11} weight="fill" className="text-white" />
           </div>
-          <span className="min-w-0 flex-1 truncate text-[11px] font-semibold text-foreground/80">
+          <span className="min-w-0 flex-1 truncate text-2xs font-semibold text-foreground/80">
             {label}
           </span>
           {Boolean(hasMissingRequired) && (
             <Warning size={12} weight="fill" className="shrink-0 text-warning-ink" />
           )}
-          <span className="pointer-events-none font-mono text-[11px] font-medium text-muted-foreground/50">
+          <span className="pointer-events-none font-mono text-2xs font-medium text-muted-foreground">
             {id}
           </span>
         </div>

@@ -153,7 +153,7 @@ export default function EntryFiltersBar({
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
-                  className="inline-flex h-5 min-w-5 items-center justify-center rounded-[--radius] bg-primary px-1.5 text-[11px] font-semibold text-primary-foreground"
+                  className="inline-flex h-5 min-w-5 items-center justify-center rounded-[--radius] bg-primary px-1.5 text-2xs font-semibold text-primary-foreground"
                 >
                   {activeFilterCount}
                 </motion.span>

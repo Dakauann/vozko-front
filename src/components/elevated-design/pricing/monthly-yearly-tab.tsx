@@ -40,8 +40,7 @@ const MonthlyYearlyTab: React.FC<MonthlyYearlyTabProps> = ({
           0px 3.6217592146567767px 3.6217592146567767px -2px rgba(0, 0, 0, 0.07),
           0px 6.8655999097303715px 6.8655999097303715px -2.6666666666666665px rgba(0, 0, 0, 0.07),
           0px 13.646761411524492px 13.646761411524492px -3.3333333333333335px rgba(0, 0, 0, 0.05),
-          0px 30px 30px -4px rgba(0, 0, 0, 0.02),
-          inset 0px 3px 1px 0px var(--shadow-highlight-strong)
+          0px 30px 30px -4px rgba(0, 0, 0, 0.02)
         `,
       }}
       variants={tabVariants}

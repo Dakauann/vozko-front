@@ -22,7 +22,7 @@ import {
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSegmentedControl } from "@/components/elevated-design/elevated-segmented-control";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
-import { Textarea } from "@/components/ui/textarea";
+import Textarea from "@/components/elevated-design/elevated-textarea";
 import { uploadMediaAction } from "@/app/actions/medias";
 
 import {

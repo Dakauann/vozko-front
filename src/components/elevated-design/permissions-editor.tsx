@@ -69,7 +69,7 @@ export default function PermissionsEditor({
                   type="button"
                   onClick={() => onToggleAll(perm.resource, actions)}
                   className={cn(
-                    "rounded-lg px-2 py-0.5 text-[11px] font-semibold transition-colors",
+                    "rounded-lg px-2 py-0.5 text-2xs font-semibold transition-colors",
                     allEnabled
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground hover:bg-border",
@@ -79,7 +79,7 @@ export default function PermissionsEditor({
                 </button>
               )}
             </div>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
+            <p className="text-2xs text-muted-foreground leading-relaxed">
               {t(`resourceDescriptions.${perm.resource}`)}
             </p>
             <div className="space-y-1">

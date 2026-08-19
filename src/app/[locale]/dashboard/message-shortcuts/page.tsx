@@ -294,7 +294,7 @@ export default function MessageShortcutsPage() {
             >
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
-                  <p className="text-[11px] font-semibold text-muted-foreground">
+                  <p className="text-2xs font-semibold text-muted-foreground">
                     {stat.label}
                   </p>
                   <p className="mt-2 text-2xl font-semibold text-foreground">
@@ -424,7 +424,7 @@ export default function MessageShortcutsPage() {
                                   {shortcut.name}
                                 </p>
                               </div>
-                              <span className="rounded-[--radius] border border-border px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+                              <span className="rounded-[--radius] border border-border px-2.5 py-1 text-2xs font-semibold text-muted-foreground">
                                 {getShortcutTypeLabel(shortcut.messageType, t)}
                               </span>
                             </div>
@@ -435,7 +435,7 @@ export default function MessageShortcutsPage() {
                             </p>
                             {shortcut.messageType === "button" &&
                             shortcut.content.buttons?.length ? (
-                              <p className="mt-3 text-[11px] font-medium text-foreground">
+                              <p className="mt-3 text-2xs font-medium text-foreground">
                                 {t("card.buttons", {
                                   count: shortcut.content.buttons.length,
                                 })}
@@ -513,7 +513,7 @@ export default function MessageShortcutsPage() {
 
                   <div className="grid gap-4 md:grid-cols-3">
                     <div className="rounded-[--radius] border border-border bg-background p-4">
-                      <p className="text-[11px] font-semibold text-muted-foreground">
+                      <p className="text-2xs font-semibold text-muted-foreground">
                         {t("modal.shortcut")}
                       </p>
                       <p className="mt-2 text-sm font-medium text-foreground">
@@ -521,7 +521,7 @@ export default function MessageShortcutsPage() {
                       </p>
                     </div>
                     <div className="rounded-[--radius] border border-border bg-background p-4">
-                      <p className="text-[11px] font-semibold text-muted-foreground">
+                      <p className="text-2xs font-semibold text-muted-foreground">
                         {t("modal.type")}
                       </p>
                       <p className="mt-2 text-sm font-medium text-foreground">
@@ -529,7 +529,7 @@ export default function MessageShortcutsPage() {
                       </p>
                     </div>
                     <div className="rounded-[--radius] border border-border bg-background p-4">
-                      <p className="text-[11px] font-semibold text-muted-foreground">
+                      <p className="text-2xs font-semibold text-muted-foreground">
                         {t("detail.deliveryLabel")}
                       </p>
                       <p className="mt-2 text-sm font-medium text-foreground">
@@ -570,7 +570,7 @@ export default function MessageShortcutsPage() {
 
                       <div className="space-y-4">
                         <div className="rounded-[--radius] border border-border bg-background p-4">
-                          <p className="text-[11px] font-semibold text-muted-foreground">
+                          <p className="text-2xs font-semibold text-muted-foreground">
                             {t("modal.headerText")}
                           </p>
                           <p className="mt-2 text-sm text-foreground">
@@ -579,7 +579,7 @@ export default function MessageShortcutsPage() {
                           </p>
                         </div>
                         <div className="rounded-[--radius] border border-border bg-background p-4">
-                          <p className="text-[11px] font-semibold text-muted-foreground">
+                          <p className="text-2xs font-semibold text-muted-foreground">
                             {t("modal.footerText")}
                           </p>
                           <p className="mt-2 text-sm text-foreground">

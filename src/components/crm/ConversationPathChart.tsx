@@ -263,7 +263,7 @@ export default function ConversationPathChart({
     <div className={cn("space-y-5", className)}>
       {/* Snapshot chips from data we already hold */}
       <div>
-        <p className="mb-2 text-[11px] font-semibold text-foreground">
+        <p className="mb-2 text-2xs font-semibold text-foreground">
           {t("snapshotTitle")}
         </p>
         <div className="grid grid-cols-2 gap-1.5">
@@ -311,10 +311,10 @@ export default function ConversationPathChart({
       {/* Path, horizontal stacked chart */}
       <div>
         <div className="mb-2">
-          <p className="text-[11px] font-semibold text-foreground">
+          <p className="text-2xs font-semibold text-foreground">
             {t("title")}
           </p>
-          <p className="text-[11px] text-muted-foreground">{t("subtitle")}</p>
+          <p className="text-2xs text-muted-foreground">{t("subtitle")}</p>
         </div>
 
         <div className="h-[72px] w-full">
@@ -409,7 +409,7 @@ export default function ConversationPathChart({
           {stages.map((s) => (
             <li
               key={s.id}
-              className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground"
+              className="inline-flex items-center gap-1.5 text-2xs text-muted-foreground"
             >
               <span
                 className={cn(
@@ -455,10 +455,10 @@ export default function ConversationPathChart({
       {/* Compact analysis (if attached to inbox entry) */}
       {analysis?.summary ? (
         <div>
-          <p className="mb-1.5 text-[11px] font-semibold text-foreground">
+          <p className="mb-1.5 text-2xs font-semibold text-foreground">
             {t("analysisTitle")}
           </p>
-          <p className="text-[11px] leading-relaxed text-muted-foreground line-clamp-4">
+          <p className="text-2xs leading-relaxed text-muted-foreground line-clamp-4">
             {analysis.summary}
           </p>
           <div className="mt-2 flex flex-wrap gap-1">
@@ -495,7 +495,7 @@ function StatChip({
         className,
       )}
     >
-      <p className="text-[11px] font-semibold text-muted-foreground">
+      <p className="text-2xs font-semibold text-muted-foreground">
         {label}
       </p>
       <p
@@ -512,7 +512,7 @@ function StatChip({
 
 function TagChip({ label }: { label: string }) {
   return (
-    <span className="inline-flex rounded-[--radius] border border-border bg-muted px-2 py-0.5 text-[11px] font-medium text-foreground">
+    <span className="inline-flex rounded-[--radius] border border-border bg-muted px-2 py-0.5 text-2xs font-medium text-foreground">
       {label}
     </span>
   );
@@ -530,8 +530,8 @@ function HorizontalBars({
   return (
     <div>
       <div className="mb-2">
-        <p className="text-[11px] font-semibold text-foreground">{title}</p>
-        <p className="text-[11px] text-muted-foreground">{subtitle}</p>
+        <p className="text-2xs font-semibold text-foreground">{title}</p>
+        <p className="text-2xs text-muted-foreground">{subtitle}</p>
       </div>
       <div
         className="w-full"

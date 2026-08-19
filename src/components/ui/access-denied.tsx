@@ -33,7 +33,7 @@ export function AccessDenied({ backHref }: AccessDeniedProps) {
         </h1>
 
         {/* Description */}
-        <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-muted-foreground">
+        <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-muted-foreground">
           {t("description")}
         </p>
 

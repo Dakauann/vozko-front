@@ -60,57 +60,102 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 /**
- * A campaign's state, as a lamp.
+ * A campaign's state, as a status dot.
  *
  * Lit for the two states that mean the campaign is doing something, unlit for
  * the two that mean it stopped — with the word next to it, so the state never
- * rests on the pip alone.
+ * rests on the dot alone.
+ *
+ * `COMPLETED` used to draw `--lamp`, which is the brand hue. A finished
+ * campaign is not an action to take, and spending the accent on it left the
+ * strip with no colour that meant "this one wants you". It reads as settled
+ * neutral now; only `RUNNING` earns a semantic colour.
  */
 const STATUS_LAMP: Record<string, string | null> = {
   RUNNING: "var(--healthy)",
-  COMPLETED: "var(--lamp)",
+  COMPLETED: "var(--muted-foreground)",
   PAUSED: null,
   STOPPED: null,
 };
 
 /**
- * One channel of the meter bridge.
+ * One workspace measure.
  *
- * A console tells you the level before it tells you the number, so each meter
- * carries a scale track under its readout. The track only fills where a real
- * denominator exists — a count of open conversations has no ceiling, and
- * inventing one would be a lie drawn to scale. There it stays a plain rule.
+ * Two things changed from the version this replaces, and both were reading
+ * failures rather than taste.
+ *
+ * The track used to fill in `--lamp`, which resolves to the same value as
+ * `--primary`. Every measure on the strip therefore rendered the same
+ * saturated brand orange, so a response rate of 34% and one of 94% were the
+ * same colour, and the accent — which is supposed to mean "commit" — was
+ * spent four times before the operator touched anything. A rate now carries
+ * its own semantic tone, and the brand hue is left to the actions.
+ *
+ * The track itself was a 3px hard-cornered bar: a VU meter drawn on a console
+ * faceplate. It is a rounded 2px rule now, which is what a progress indicator
+ * looks like in every system this product is measured against.
+ *
+ * A measure with no real denominator keeps an unfilled track. An open-window
+ * count has no ceiling, and inventing one would be a lie drawn to scale.
  */
+type MeterTone = "neutral" | "healthy" | "warning" | "critical";
+
+const METER_TONE: Record<MeterTone, { fill: string; ink: string }> = {
+  neutral: { fill: "bg-muted-foreground", ink: "text-foreground" },
+  healthy: { fill: "bg-healthy", ink: "text-healthy-ink" },
+  warning: { fill: "bg-warning", ink: "text-warning-ink" },
+  critical: { fill: "bg-destructive", ink: "text-destructive-ink" },
+};
+
+/** A rate reads as a grade; a bare count has nothing to be graded against. */
+function rateTone(level: number | null | undefined): MeterTone {
+  if (level == null) return "neutral";
+  if (level >= 75) return "healthy";
+  if (level >= 40) return "warning";
+  return "critical";
+}
+
 function Meter({
   legend,
   value,
   helper,
   level,
+  tone = "neutral",
 }: {
   legend: string;
   value: string;
   helper: string;
   level?: number | null;
+  tone?: MeterTone;
 }) {
+  const t = METER_TONE[tone];
+
   return (
     <div className="min-w-0">
-      <dt className="legend leading-[1.35] sm:truncate">{legend}</dt>
+      <dt className="legend sm:truncate">{legend}</dt>
       <dd>
-        <span className="readout mt-2.5 block text-[30px] font-semibold leading-none tracking-[-0.03em] text-foreground">
+        {/* Tight to its label, generous before the track: the number belongs to
+            the legend above it, not to the rule below it. */}
+        <span
+          className={cn(
+            "readout mt-1.5 block text-3xl font-semibold leading-none tracking-[-0.03em]",
+            t.ink,
+          )}
+        >
           {value}
         </span>
-        <span aria-hidden className="mt-3.5 block h-[3px] w-full bg-border">
+        <span
+          aria-hidden
+          className="mt-4 block h-0.5 w-full overflow-hidden rounded-full bg-border"
+        >
           {level != null ? (
             <span
-              className="block h-full"
-              style={{
-                background: "hsl(var(--lamp))",
-                width: `${Math.min(100, Math.max(0, level))}%`,
-              }}
+              className={cn("block h-full rounded-full", t.fill)}
+              style={{ width: `${Math.min(100, Math.max(0, level))}%` }}
             />
           ) : null}
         </span>
-        <span className="mt-2.5 block truncate text-[11px] text-muted-foreground">
+        <span className="mt-2 block truncate text-2xs text-muted-foreground">
           {helper}
         </span>
       </dd>
@@ -133,11 +178,11 @@ function LogSkeleton() {
       {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
-          className="flex animate-pulse items-center gap-3 border-t border-border/50 py-3 first:border-t-0"
+          className="flex animate-pulse items-center gap-3 border-t border-border py-3 first:border-t-0"
         >
-          <span className="h-3 w-3 shrink-0 bg-border" />
-          <span className="h-3 flex-1 bg-border" />
-          <span className="h-3 w-16 shrink-0 bg-border" />
+          <span className="h-3 w-3 shrink-0 rounded-full bg-border" />
+          <span className="h-3 flex-1 rounded-md bg-border" />
+          <span className="h-3 w-16 shrink-0 rounded-md bg-border" />
         </div>
       ))}
     </div>
@@ -244,12 +289,13 @@ function UserDashboard() {
       value: string;
       helper: string;
       level?: number | null;
+      tone?: MeterTone;
     }[] = [];
 
     if (canReadWaCampaigns) {
       list.push({
         legend: t("activeCampaigns"),
-        value: String(runningWa.length).padStart(2, "0"),
+        value: String(runningWa.length),
         helper:
           waCampaigns.length > 0
             ? t("ofTotalCampaigns", { total: waCampaigns.length })
@@ -270,10 +316,12 @@ function UserDashboard() {
             ? t("attendantsCount", { count: attendants.length })
             : t("noConsolidatedAvg"),
         level: aggregateRate,
+        // The only figure on the strip with a good and a bad direction.
+        tone: attendants.length > 0 ? rateTone(aggregateRate) : "neutral",
       });
       list.push({
         legend: t("openWindows"),
-        value: String(totalOpenWindows).padStart(2, "0"),
+        value: String(totalOpenWindows),
         helper: t("ongoingConversations"),
         level: null,
       });
@@ -352,7 +400,7 @@ function UserDashboard() {
           className="mx-auto mb-4 h-10 w-10 text-muted-foreground"
           weight="duotone"
         />
-        <h2 className="text-[17px] font-semibold text-foreground">
+        <h2 className="text-lg font-semibold text-foreground">
           {t("noWorkspaceSelected")}
         </h2>
         <p className="mt-1.5 text-sm text-muted-foreground">
@@ -413,7 +461,7 @@ function UserDashboard() {
       */}
       {meters.length > 0 ? (
         <motion.section variants={itemVariants} className="well overflow-hidden">
-          <header className="rule-engraved flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 bg-muted px-4 py-2.5">
+          <header className="rule-engraved flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-5 py-3">
             <div className="flex min-w-0 items-baseline gap-2.5">
               <span className="legend">{t("workspaceLegend")}</span>
               <span className="truncate text-sm font-semibold text-foreground">
@@ -423,18 +471,9 @@ function UserDashboard() {
             <span className="legend">{t("overview")}</span>
           </header>
 
-          <dl className="grid grid-cols-2 lg:grid-cols-4">
-            {meters.map((meter, index) => (
-              <div
-                key={meter.legend}
-                className={cn(
-                  "min-w-0 border-border px-4 py-4",
-                  index % 2 === 1 && "border-l",
-                  index >= 2 && "border-t",
-                  index > 0 && "lg:border-l",
-                  "lg:border-t-0",
-                )}
-              >
+          <dl className="grid grid-cols-2 gap-x-8 gap-y-7 px-5 py-5 lg:grid-cols-4">
+            {meters.map((meter) => (
+              <div key={meter.legend} className="min-w-0">
                 <Meter {...meter} />
               </div>
             ))}
@@ -455,11 +494,11 @@ function UserDashboard() {
         */}
         {canReadWaCampaigns ? (
           <section className="well overflow-hidden">
-            <header className="rule-engraved flex items-center justify-between gap-3 bg-muted px-4 py-2.5">
+            <header className="rule-engraved flex items-center justify-between gap-3 px-4 py-2.5">
               <div className="flex items-baseline gap-2.5">
                 <p className="legend">{t("whatsappCampaigns")}</p>
-                <span className="readout text-[11px] text-muted-foreground/60">
-                  {String(waCampaigns.length).padStart(2, "0")}
+                <span className="readout text-2xs text-muted-foreground">
+                  {waCampaigns.length}
                 </span>
               </div>
               <Link
@@ -504,7 +543,7 @@ function UserDashboard() {
                       return (
                         <tr
                           key={campaign.id}
-                          className="border-t border-border/50 transition-colors hover:bg-muted"
+                          className="border-t border-border transition-colors hover:bg-muted"
                         >
                           <th
                             className="max-w-[220px] px-4 py-2.5 text-left font-normal"
@@ -532,13 +571,13 @@ function UserDashboard() {
                               </span>
                             </Link>
                           </th>
-                          <td className="max-w-[200px] truncate px-3 py-2.5 text-[12px] text-muted-foreground">
+                          <td className="max-w-[200px] truncate px-3 py-2.5 text-xs text-muted-foreground">
                             {campaign.templateName ?? t("log.noTemplate")}
                           </td>
                           <td className="readout px-3 py-2.5 text-right text-sm font-semibold text-foreground">
                             {formatNumber(campaign.metrics?.totalNumbers ?? 0)}
                           </td>
-                          <td className="readout px-4 py-2.5 text-right text-[12px] text-muted-foreground">
+                          <td className="readout px-4 py-2.5 text-right text-xs text-muted-foreground">
                             {formatDate(campaign.createdAt)}
                           </td>
                         </tr>
@@ -552,7 +591,7 @@ function UserDashboard() {
                 <p className="text-sm font-semibold text-foreground">
                   {t("noCampaignsYet")}
                 </p>
-                <p className="mt-1 text-[12px] text-muted-foreground">
+                <p className="mt-1 text-xs text-muted-foreground">
                   {t("log.emptyHint")}
                 </p>
                 {can("whatsapp_campaigns", "create") ? (
@@ -575,7 +614,7 @@ function UserDashboard() {
             three same-size cards of icon plus heading plus body copy.
           */}
           <section className="well h-fit overflow-hidden">
-            <header className="rule-engraved bg-muted px-4 py-2.5">
+            <header className="rule-engraved px-4 py-2.5">
               <p className="legend">{t("quickActions.sectionTitle")}</p>
             </header>
 
@@ -587,7 +626,7 @@ function UserDashboard() {
                   return (
                     <li
                       key={action.href}
-                      className="border-t border-border/50 first:border-t-0"
+                      className="border-t border-border first:border-t-0"
                     >
                       <Link
                         className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted"
@@ -601,7 +640,7 @@ function UserDashboard() {
                           <span className="block truncate text-sm font-medium text-foreground">
                             {action.title}
                           </span>
-                          <span className="block truncate text-[11px] text-muted-foreground">
+                          <span className="block truncate text-2xs text-muted-foreground">
                             {action.description}
                           </span>
                         </span>
@@ -615,18 +654,18 @@ function UserDashboard() {
                 })}
               </ul>
             ) : (
-              <p className="px-4 py-10 text-center text-[12px] text-muted-foreground">
+              <p className="px-4 py-10 text-center text-xs text-muted-foreground">
                 {t("noQuickActionsHint")}
               </p>
             )}
           </section>
 
           <section className="well overflow-hidden">
-            <header className="rule-engraved bg-muted px-4 py-2.5">
+            <header className="rule-engraved px-4 py-2.5">
               <p className="legend">{t("planBlock.legend")}</p>
             </header>
             <div className="px-4 py-4">
-              <p className="text-[15px] font-semibold tracking-[-0.01em] text-foreground">
+              <p className="text-base font-semibold tracking-[-0.01em] text-foreground">
                 {t("planBlock.title")}
               </p>
               <p className="mt-1.5 text-sm leading-snug text-muted-foreground">

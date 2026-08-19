@@ -390,7 +390,7 @@ export function SmartBezierEdge({
             }}
           >
             <span
-              className={`inline-flex rounded-[--radius] border px-2 py-0.5 text-[11px] font-semibold shadow-sm ${resolvedLabel.className}`}
+              className={`inline-flex rounded-[--radius] border px-2 py-0.5 text-2xs font-semibold shadow-sm ${resolvedLabel.className}`}
               style={DOT_PATTERN_STYLE}
             >
               {resolvedLabel.text}

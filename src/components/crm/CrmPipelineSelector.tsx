@@ -115,7 +115,7 @@ export default function CrmPipelineSelector({
             )}
           </span>
           <span className="flex min-w-0 flex-col items-start leading-tight">
-            <span className="text-[11px] font-semibold text-muted-foreground">
+            <span className="text-2xs font-semibold text-muted-foreground">
               {isAll ? "Escopo" : (activeGroup?.label ?? "Funil")}
             </span>
             <span className="max-w-[9rem] truncate">{activeName}</span>
@@ -155,7 +155,7 @@ export default function CrmPipelineSelector({
           ) : null}
         </button>
         {disableAllFunnels ? (
-          <p className="mb-1 mt-0.5 px-2.5 text-[11px] leading-tight text-muted-foreground">
+          <p className="mb-1 mt-0.5 px-2.5 text-2xs leading-tight text-muted-foreground">
             Escolha um funil para agrupar por etapa.
           </p>
         ) : (
@@ -173,7 +173,7 @@ export default function CrmPipelineSelector({
                 >
                   {group.icon}
                 </span>
-                <span className="text-[11px] font-semibold text-muted-foreground">
+                <span className="text-2xs font-semibold text-muted-foreground">
                   {group.label}
                 </span>
               </div>
@@ -190,7 +190,7 @@ export default function CrmPipelineSelector({
                     className={cn(
                       "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition-colors",
                       isActive
-                        ? "bg-muted font-medium text-foreground"
+                        ? "bg-primary-subtle font-medium text-primary-ink"
                         : "text-foreground hover:bg-muted",
                     )}
                   >

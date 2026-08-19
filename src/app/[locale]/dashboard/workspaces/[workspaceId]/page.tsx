@@ -169,7 +169,7 @@ function StatusBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold",
+        "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-2xs font-semibold",
         config[status] ?? "bg-muted text-muted-foreground",
       )}
     >
@@ -438,7 +438,7 @@ export default function AdminWorkspaceDetailPage() {
           return (
             <div className="flex items-center justify-end gap-1.5">
               {item.isOverride && (
-                <span className="text-[11px] text-muted-foreground line-through tabular-nums">
+                <span className="text-2xs text-muted-foreground line-through tabular-nums">
                   ${microsToDisplay(item.defaultPriceMicros)}
                 </span>
               )}
@@ -816,7 +816,7 @@ export default function AdminWorkspaceDetailPage() {
 
                   <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                     <div>
-                      <p className="text-[11px] text-muted-foreground font-medium">
+                      <p className="text-2xs text-muted-foreground font-medium">
                         {t("config.subscription.plan")}
                       </p>
                       <p className="mt-1 text-sm font-medium text-foreground">
@@ -824,7 +824,7 @@ export default function AdminWorkspaceDetailPage() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-[11px] text-muted-foreground font-medium">
+                      <p className="text-2xs text-muted-foreground font-medium">
                         {t("config.subscription.period")}
                       </p>
                       <p className="mt-1 text-sm text-foreground">
@@ -834,7 +834,7 @@ export default function AdminWorkspaceDetailPage() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-[11px] text-muted-foreground font-medium">
+                      <p className="text-2xs text-muted-foreground font-medium">
                         {t("config.subscription.basePrice")}
                       </p>
                       <p className="mt-1 text-sm font-medium text-foreground">
@@ -867,7 +867,7 @@ export default function AdminWorkspaceDetailPage() {
                       </p>
                       <div className="flex flex-wrap items-end gap-3">
                         <div className="w-56">
-                          <label className="block text-[11px] text-muted-foreground font-medium mb-1">
+                          <label className="block text-2xs text-muted-foreground font-medium mb-1">
                             {t("config.subscription.plan")}
                           </label>
                           <select
@@ -890,7 +890,7 @@ export default function AdminWorkspaceDetailPage() {
                           </select>
                         </div>
                         <div className="w-36">
-                          <label className="block text-[11px] text-muted-foreground font-medium mb-1">
+                          <label className="block text-2xs text-muted-foreground font-medium mb-1">
                             {t("config.subscription.billingType")}
                           </label>
                           <select
@@ -975,7 +975,7 @@ export default function AdminWorkspaceDetailPage() {
                 </h3>
                 <div className="space-y-3">
                   <div>
-                    <p className="text-[11px] text-muted-foreground font-medium">
+                    <p className="text-2xs text-muted-foreground font-medium">
                       {t("overview.name")}
                     </p>
                     <p className="text-sm text-foreground font-medium">
@@ -983,7 +983,7 @@ export default function AdminWorkspaceDetailPage() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-[11px] text-muted-foreground font-medium">
+                    <p className="text-2xs text-muted-foreground font-medium">
                       ID
                     </p>
                     <p className="text-xs text-muted-foreground font-mono break-all">
@@ -991,17 +991,17 @@ export default function AdminWorkspaceDetailPage() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-[11px] text-muted-foreground font-medium">
+                    <p className="text-2xs text-muted-foreground font-medium">
                       {t("overview.type")}
                     </p>
                     <p className="text-sm text-foreground">
                       {workspace.isDefault ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-warning px-2 py-0.5 text-[11px] font-semibold text-warning-foreground">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-warning px-2 py-0.5 text-2xs font-semibold text-warning-foreground">
                           <Star className="h-3 w-3" weight="fill" />
                           {t("badge.default")}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-2xs font-semibold text-muted-foreground">
                           {t("badge.custom")}
                         </span>
                       )}
@@ -1009,7 +1009,7 @@ export default function AdminWorkspaceDetailPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-3 pt-1">
                     <div>
-                      <p className="text-[11px] text-muted-foreground font-medium">
+                      <p className="text-2xs text-muted-foreground font-medium">
                         {t("overview.createdAt")}
                       </p>
                       <p className="text-sm text-foreground">
@@ -1017,7 +1017,7 @@ export default function AdminWorkspaceDetailPage() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-[11px] text-muted-foreground font-medium">
+                      <p className="text-2xs text-muted-foreground font-medium">
                         {t("overview.updatedAt")}
                       </p>
                       <p className="text-sm text-foreground">

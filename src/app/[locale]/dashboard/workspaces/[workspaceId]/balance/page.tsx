@@ -737,7 +737,7 @@ export default function AdminWorkspaceBalancePage() {
                     {formAmount &&
                       Number.parseFloat(formAmount) > 0 &&
                       exchangeRate && (
-                        <p className="mt-1 text-[11px] text-muted-foreground">
+                        <p className="mt-1 text-2xs text-muted-foreground">
                           ≈{" "}
                           <span className="font-semibold text-foreground">
                             $
@@ -746,7 +746,7 @@ export default function AdminWorkspaceBalancePage() {
                             ).toFixed(2)}{" "}
                             USD
                           </span>
-                          <span className="ml-1 text-muted-foreground/60">
+                          <span className="ml-1 text-muted-foreground">
                             (1 USD = R$ {exchangeRate.toFixed(2)})
                           </span>
                         </p>
@@ -920,7 +920,7 @@ export default function AdminWorkspaceBalancePage() {
               : {
                   icon: (
                     <Wallet
-                      className="h-7 w-7 text-muted-foreground/40"
+                      className="h-7 w-7 text-muted-foreground"
                       weight="duotone"
                     />
                   ),
@@ -966,7 +966,7 @@ export default function AdminWorkspaceBalancePage() {
           emptyState={{
             icon: (
               <InvoiceIcon
-                className="h-7 w-7 text-muted-foreground/40"
+                className="h-7 w-7 text-muted-foreground"
                 weight="duotone"
               />
             ),

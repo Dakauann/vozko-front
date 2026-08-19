@@ -1010,7 +1010,7 @@ export default function ProfilePage() {
                             {device.browser}, {device.os}
                           </p>
                           {session.isCurrent && (
-                            <span className="inline-flex items-center rounded-[--radius] bg-healthy px-2 py-0.5 text-[11px] font-semibold text-healthy-foreground">
+                            <span className="inline-flex items-center rounded-[--radius] bg-healthy px-2 py-0.5 text-2xs font-semibold text-healthy-foreground">
                               {t("sessions.thisDevice")}
                             </span>
                           )}

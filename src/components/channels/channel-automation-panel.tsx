@@ -8,7 +8,7 @@ import {
   type ElevatedCommandOption,
 } from "@/components/elevated-design/elevated-command-select";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
-import { Switch } from "@/components/ui/switch";
+import { ElevatedSwitch as Switch } from "@/components/elevated-design/elevated-switch";
 import type { AgentListItem } from "@/lib/agents/types";
 import type { Workflow } from "@/lib/workflows/types";
 import { cn } from "@/lib/utils";

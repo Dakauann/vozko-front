@@ -2228,7 +2228,7 @@ export default function CreateWhatsAppCampaignForm({
                     {selectedTemplate.components.find(
                       (c) => c.type === "HEADER",
                     )?.text && (
-                      <div className="px-3 py-2 bg-muted border-b border-border">
+                      <div className="px-3 py-2 border-b border-border">
                         <p className="text-sm font-semibold text-foreground whitespace-pre-wrap">
                           {renderTemplateText(
                             selectedTemplate.components.find(

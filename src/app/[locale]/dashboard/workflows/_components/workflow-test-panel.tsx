@@ -156,7 +156,7 @@ export function WorkflowTestPanel({
           </button>
           {showState && (
             <div className="px-3 pb-2 max-h-32 overflow-y-auto">
-              <pre className="text-[11px] text-muted-foreground font-mono whitespace-pre-wrap break-all">
+              <pre className="text-2xs text-muted-foreground font-mono whitespace-pre-wrap break-all">
                 {JSON.stringify(latestState.vars, null, 2)}
               </pre>
             </div>
@@ -266,7 +266,7 @@ function StatusBadge({ status }: { status: SimStatus }) {
   return (
     <span
       className={cn(
-        "text-[11px] font-medium px-1.5 py-0.5 rounded-full",
+        "text-2xs font-medium px-1.5 py-0.5 rounded-full",
         c.className,
       )}
     >
@@ -336,7 +336,7 @@ function MessageBubble({
           event.text
         )}
         {event.msgType !== "text" && !event.audioBase64 && (
-          <span className="block text-[11px] opacity-60 mt-0.5">
+          <span className="block text-2xs opacity-60 mt-0.5">
             [{event.msgType}]
           </span>
         )}
@@ -358,7 +358,7 @@ function NodeEventItem({
   const hasError = !!event.error;
 
   return (
-    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground py-0.5">
+    <div className="flex items-center gap-1.5 text-2xs text-muted-foreground py-0.5">
       {hasError ? (
         <XCircle size={11} className="text-destructive-ink flex-shrink-0" />
       ) : (

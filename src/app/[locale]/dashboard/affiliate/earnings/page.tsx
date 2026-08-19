@@ -194,7 +194,7 @@ export default function AffiliateEarningsPage() {
             <span className="text-sm font-medium tabular-nums text-foreground">
               {formatBRL(brlFromEarning(row))}
             </span>
-            <span className="text-[11px] text-muted-foreground">
+            <span className="text-2xs text-muted-foreground">
               @{(row.exchangeRateMicros / 1_000_000).toFixed(4)}
             </span>
           </div>

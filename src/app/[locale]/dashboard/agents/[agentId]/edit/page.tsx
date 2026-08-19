@@ -138,7 +138,7 @@ function ModeList({ agent }: { agent: Agent }) {
                                             {title}
                                         </span>
                                         {isLead && lead ? (
-                                            <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-medium text-primary-ink">
+                                            <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-2xs font-medium text-primary-ink">
                                                 {lead.remembered
                                                     ? tChooser("lastUsed")
                                                     : tChooser("suggested")}

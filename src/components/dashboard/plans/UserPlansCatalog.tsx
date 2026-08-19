@@ -744,7 +744,7 @@ export default function UserPlansCatalog() {
                 style={lampTone ? { background: `hsl(${lampTone})` } : undefined}
               />
               <div className="min-w-0">
-                <h2 className="truncate text-[17px] font-semibold tracking-[-0.01em] text-foreground">
+                <h2 className="truncate text-lg font-semibold tracking-[-0.01em] text-foreground">
                   {currentPlan?.name ?? t("subscription.noneTitle")}
                 </h2>
                 <p className="mt-1 max-w-[60ch] text-sm leading-snug text-muted-foreground">
@@ -824,7 +824,7 @@ export default function UserPlansCatalog() {
           </div>
 
           {currentSubscription ? (
-            <p className="border-t border-border/60 px-4 py-2.5 text-[11px] leading-relaxed text-muted-foreground">
+            <p className="border-t border-border px-4 py-2.5 text-2xs leading-relaxed text-muted-foreground">
               {t("subscription.billingSummary", {
                 date: formatDateOnly(
                   currentSubscription.currentPeriodEnd,
@@ -849,13 +849,13 @@ export default function UserPlansCatalog() {
           <header className="rule-engraved flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2.5">
             <div className="flex items-baseline gap-2.5">
               <p className="legend">{t("stats.totalPlans")}</p>
-              <span className="readout text-[11px] text-muted-foreground/60">
-                {String(rackPlans.length).padStart(2, "0")}
+              <span className="readout text-2xs text-muted-foreground">
+                {rackPlans.length}
               </span>
             </div>
             <input
               aria-label={t("filters.search")}
-              className="h-8 w-full rounded-[--radius] border border-border bg-background px-2.5 text-sm text-foreground outline-none transition placeholder:text-muted-foreground/60 focus:border-primary/50 sm:w-60"
+              className="h-8 w-full rounded-[--radius] border border-border bg-background px-2.5 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 sm:w-60"
               onChange={(event) => setSearch(event.target.value)}
               placeholder={t("filters.search")}
               type="search"
@@ -893,7 +893,7 @@ export default function UserPlansCatalog() {
                         <th
                           key={item.plan.id}
                           className={cn(
-                            "min-w-[204px] border-l border-border/60 px-4 pb-4 align-top font-normal",
+                            "min-w-[204px] border-l border-border px-4 pb-4 align-top font-normal",
                             isSelected && "bg-muted",
                           )}
                           scope="col"
@@ -901,7 +901,7 @@ export default function UserPlansCatalog() {
                           {/* The lit rail: which strip the readouts below belong to. */}
                           <span
                             aria-hidden
-                            className="mb-4 block h-[3px] w-full"
+                            className="mb-4 block h-0.5 w-full rounded-full"
                             style={
                               isSelected
                                 ? { background: "hsl(var(--lamp))" }
@@ -916,10 +916,10 @@ export default function UserPlansCatalog() {
                             type="button"
                           >
                             <span className="flex items-center gap-2">
-                              <span className="readout text-[11px] text-muted-foreground/60">
-                                {String(index + 1).padStart(2, "0")}
+                              <span className="readout text-2xs text-muted-foreground">
+                                {index + 1}
                               </span>
-                              <span className="truncate text-[15px] font-semibold tracking-[-0.01em] text-foreground">
+                              <span className="truncate text-base font-semibold tracking-[-0.01em] text-foreground">
                                 {item.plan.name}
                               </span>
                             </span>
@@ -938,15 +938,15 @@ export default function UserPlansCatalog() {
                             </span>
 
                             <span className="mt-3 flex items-baseline gap-1">
-                              <span className="readout text-[22px] font-semibold leading-none tracking-[-0.02em] text-foreground">
+                              <span className="readout text-2xl font-semibold leading-none tracking-[-0.02em] text-foreground">
                                 {formatBRLFromCents(item.plan.basePriceBRLCents)}
                               </span>
-                              <span className="text-[11px] text-muted-foreground">
+                              <span className="text-2xs text-muted-foreground">
                                 {t("detail.perMonth")}
                               </span>
                             </span>
 
-                            <span className="mt-2 line-clamp-2 block min-h-[32px] text-[12px] leading-snug text-muted-foreground">
+                            <span className="mt-2 line-clamp-2 block min-h-[32px] text-xs leading-snug text-muted-foreground">
                               {item.plan.description || t("list.noDescription")}
                             </span>
                           </button>
@@ -988,9 +988,9 @@ export default function UserPlansCatalog() {
 
                 <tbody>
                   {capacityRows.map((row) => (
-                    <tr key={row.key} className="border-t border-border/50">
+                    <tr key={row.key} className="border-t border-border">
                       <th
-                        className="sticky left-0 z-10 bg-card px-4 py-2.5 text-[12px] font-normal text-muted-foreground"
+                        className="sticky left-0 z-10 bg-card px-4 py-2.5 text-xs font-normal text-muted-foreground"
                         scope="row"
                       >
                         {row.label}
@@ -999,7 +999,7 @@ export default function UserPlansCatalog() {
                         <td
                           key={item.plan.id}
                           className={cn(
-                            "readout border-l border-border/60 px-4 py-2.5 text-sm font-semibold text-foreground",
+                            "readout border-l border-border px-4 py-2.5 text-sm font-semibold text-foreground",
                             item.plan.id === selectedPlan?.plan.id && "bg-muted",
                           )}
                         >
@@ -1016,9 +1016,9 @@ export default function UserPlansCatalog() {
                       >[0];
 
                     return (
-                      <tr key={category} className="border-t border-border/50">
+                      <tr key={category} className="border-t border-border">
                         <th
-                          className="sticky left-0 z-10 bg-card px-4 py-2.5 text-[12px] font-normal text-muted-foreground"
+                          className="sticky left-0 z-10 bg-card px-4 py-2.5 text-xs font-normal text-muted-foreground"
                           scope="row"
                         >
                           <span className="flex items-center gap-2">
@@ -1035,7 +1035,7 @@ export default function UserPlansCatalog() {
                             <td
                               key={item.plan.id}
                               className={cn(
-                                "border-l border-border/60 px-4 py-2.5",
+                                "border-l border-border px-4 py-2.5",
                                 item.plan.id === selectedPlan?.plan.id &&
                                   "bg-muted",
                               )}
@@ -1049,7 +1049,7 @@ export default function UserPlansCatalog() {
                               ) : (
                                 <span
                                   aria-label={t("compare.notIncluded")}
-                                  className="text-muted-foreground/40"
+                                  className="text-muted-foreground"
                                   role="img"
                                 >
                                   —
@@ -1082,7 +1082,7 @@ export default function UserPlansCatalog() {
                   {selectedPlan.plan.name}
                 </p>
               </div>
-              <p className="readout text-[11px] text-muted-foreground">
+              <p className="readout text-2xs text-muted-foreground">
                 {formatBRLFromCents(selectedPlan.plan.basePriceBRLCents)}
                 {t("detail.perMonth")}
               </p>
@@ -1103,7 +1103,7 @@ export default function UserPlansCatalog() {
               />
             </div>
 
-            <p className="border-t border-border/60 px-4 py-2.5 text-[11px] leading-relaxed text-muted-foreground">
+            <p className="border-t border-border px-4 py-2.5 text-2xs leading-relaxed text-muted-foreground">
               {t("detail.ctaHint")} · {t("detail.scheduleNote")}
             </p>
           </section>
@@ -1147,7 +1147,7 @@ export default function UserPlansCatalog() {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="rounded-[--radius] border border-border bg-background p-4">
-                  <p className="text-[11px] font-semibold text-muted-foreground">
+                  <p className="text-2xs font-semibold text-muted-foreground">
                     {t("dialog.amount")}
                   </p>
                   <p className="mt-2 text-xl font-semibold text-foreground">
@@ -1157,7 +1157,7 @@ export default function UserPlansCatalog() {
                   </p>
                 </div>
                 <div className="rounded-[--radius] border border-border bg-background p-4">
-                  <p className="text-[11px] font-semibold text-muted-foreground">
+                  <p className="text-2xs font-semibold text-muted-foreground">
                     {t("dialog.method")}
                   </p>
                   <p className="mt-2 text-xl font-semibold text-foreground">
@@ -1167,7 +1167,7 @@ export default function UserPlansCatalog() {
               </div>
 
               <div className="rounded-[--radius] border border-border bg-background p-4">
-                <p className="text-[11px] font-semibold text-muted-foreground">
+                <p className="text-2xs font-semibold text-muted-foreground">
                   {t("dialog.status")}
                 </p>
                 <p className="mt-2 text-sm text-foreground">
@@ -1313,7 +1313,7 @@ export default function UserPlansCatalog() {
                         <p className="text-lg font-semibold text-foreground tabular-nums">
                           {formatBRLFromCents(baseCents)}
                         </p>
-                        <p className="text-[11px] text-muted-foreground">
+                        <p className="text-2xs text-muted-foreground">
                           {t("detail.perMonth")}
                         </p>
                       </div>
@@ -1503,7 +1503,7 @@ export default function UserPlansCatalog() {
                     </div>
                   </div>
 
-                  <p className="rounded-[--radius] bg-muted px-4 py-3 text-[11px] leading-relaxed text-muted-foreground">
+                  <p className="rounded-[--radius] bg-muted px-4 py-3 text-2xs leading-relaxed text-muted-foreground">
                     {isAnnual
                       ? t("dialog.scheduleNoteAnnual")
                       : t("dialog.scheduleNoteMonthly")}
@@ -1685,7 +1685,7 @@ export function PlanPricingTable({
         <p className="mt-1.5 max-w-[74ch] text-sm leading-snug text-muted-foreground">
           {t("pricing.description")}
         </p>
-        <p className="readout mt-1 text-[11px] text-muted-foreground/70">
+        <p className="readout mt-1 text-2xs text-muted-foreground">
           {t("pricing.exchangeRateHint", {
             rate: `1 USD = ${exchangeRate.toFixed(2)} BRL`,
           })}
@@ -1733,7 +1733,7 @@ export function PlanPricingTable({
                         {t.has(categoryKey) ? t(categoryKey) : category}
                       </span>
                       {t.has(categoryDescKey) ? (
-                        <span className="hidden whitespace-nowrap text-[11px] font-normal text-muted-foreground sm:inline">
+                        <span className="hidden whitespace-nowrap text-2xs font-normal text-muted-foreground sm:inline">
                           {t(categoryDescKey)}
                         </span>
                       ) : null}
@@ -1760,7 +1760,7 @@ export function PlanPricingTable({
                     return (
                       <tr
                         key={`${item.service}-${item.metric}`}
-                        className="border-b border-border/50 last:border-b-0"
+                        className="border-b border-border last:border-b-0"
                       >
                         <th
                           className="py-2 pr-3 text-sm font-medium text-foreground"
@@ -1770,14 +1770,14 @@ export function PlanPricingTable({
                             ? t(serviceKey)
                             : formatPricingServiceFallback(item.service)}
                         </th>
-                        <td className="px-3 py-2 text-[12px] text-muted-foreground">
+                        <td className="px-3 py-2 text-xs text-muted-foreground">
                           {/* An unmapped metric would otherwise print its i18n path. */}
                           {t.has(metricKey) ? t(metricKey) : item.metric}
                         </td>
                         <td className="readout px-3 py-2 text-right text-sm font-semibold text-foreground">
                           {formatBRLPrice(item.priceMicros, exchangeRate)}
                         </td>
-                        <td className="readout py-2 pl-3 text-right text-[12px] text-muted-foreground">
+                        <td className="readout py-2 pl-3 text-right text-xs text-muted-foreground">
                           {formatUSD(item.priceMicros)}
                         </td>
                       </tr>
@@ -1842,7 +1842,7 @@ export function PlanEstimatesPanel({
           return (
             <div
               key={`${est.category}-${est.service}`}
-              className="flex items-baseline justify-between gap-3 border-b border-border/50 py-2.5"
+              className="flex items-baseline justify-between gap-3 border-b border-border py-2.5"
             >
               <dt className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
                 <CategoryMark category={est.category} />
@@ -1850,9 +1850,9 @@ export function PlanEstimatesPanel({
                   {t.has(serviceKey) ? t(serviceKey) : est.service}
                 </span>
               </dt>
-              <dd className="readout shrink-0 text-[15px] font-semibold text-foreground">
+              <dd className="readout shrink-0 text-base font-semibold text-foreground">
                 ~{formatEstimateNumber(est.count, locale)}
-                <span className="ml-1 text-[11px] font-normal text-muted-foreground">
+                <span className="ml-1 text-2xs font-normal text-muted-foreground">
                   {t("estimates.messagesLabel")}
                 </span>
               </dd>

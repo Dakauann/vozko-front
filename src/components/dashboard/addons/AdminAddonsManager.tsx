@@ -280,7 +280,7 @@ export function AdminAddonsManager() {
                     </div>
                     <span
                       className={cn(
-                        "shrink-0 rounded-[--radius] px-2.5 py-1 text-[11px] font-semibold",
+                        "shrink-0 rounded-[--radius] px-2.5 py-1 text-2xs font-semibold",
                         chip.cls,
                       )}
                     >

@@ -128,7 +128,7 @@ export function KanbanCardHeader({
           {title}
         </p>
         {subtitle ? (
-          <p className="truncate text-[11px] text-muted-foreground">{subtitle}</p>
+          <p className="truncate text-2xs text-muted-foreground">{subtitle}</p>
         ) : null}
         {thirdLine ?? null}
       </div>
@@ -269,7 +269,7 @@ export function CardPill({
     <span
       title={title}
       className={cn(
-        "inline-flex max-w-full items-center gap-1 truncate rounded-[--radius] px-1.5 py-0.5 text-[11px] font-semibold",
+        "inline-flex max-w-full items-center gap-1 truncate rounded-[--radius] px-1.5 py-0.5 text-2xs font-semibold",
         color ? "text-white" : PILL_TONE[tone],
         className,
       )}
@@ -288,7 +288,7 @@ export function CardPill({
 export function CardLabelChip({ name, color }: { name: string; color: string }) {
   return (
     <span
-      className="inline-flex items-center gap-1 truncate rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm"
+      className="inline-flex items-center gap-1 truncate rounded-[--radius] px-2 py-0.5 text-2xs font-semibold text-white shadow-sm"
       style={{ backgroundColor: color }}
     >
       <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-white/40" />

@@ -54,7 +54,7 @@ const num = (value: number | undefined) =>
 /** Tile caption with an optional info tooltip explaining what the number counts. */
 function TileLabel({ label, help }: { label: string; help?: string }) {
   return (
-    <span className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground">
+    <span className="flex items-center gap-1 text-2xs font-semibold text-muted-foreground">
       {label}
       {help ? (
         <TooltipWrapper content={help} side="top">

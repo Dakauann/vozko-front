@@ -141,7 +141,7 @@ function PanelIcon({ icon: IconCmp }: { icon: Icon }) {
 function LabelPill({ name, color }: { name: string; color: string }) {
   return (
     <span
-      className="inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold shadow-sm"
+      className="inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-2xs font-semibold shadow-sm"
       style={{ color: "white", backgroundColor: color }}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-card flex-shrink-0" />
@@ -201,7 +201,7 @@ function MiniDonutChart({
   if (!hasData) {
     return (
       <div
-        className="flex items-center justify-center text-muted-foreground/60"
+        className="flex items-center justify-center text-muted-foreground"
         style={{ width: size, height: size }}
       >
         <span className="text-xs">,</span>
@@ -269,7 +269,7 @@ function MiniDonutChart({
             {centerLabel}
           </span>
           {centerSublabel && (
-            <span className="text-[11px] font-semibold text-muted-foreground mt-0.5">
+            <span className="text-2xs font-semibold text-muted-foreground mt-0.5">
               {centerSublabel}
             </span>
           )}
@@ -310,7 +310,7 @@ function LatestInteractionsPanel() {
 
   return (
     <div className="flex flex-col h-full bg-card overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 bg-muted border-b border-border flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2">
           <PanelIcon icon={ChatCircle} />
           <span className="text-sm font-semibold text-foreground">
@@ -348,7 +348,7 @@ function LatestInteractionsPanel() {
                   />
                 </div>
                 {entry.unread_count > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-[--radius] bg-healthy px-1 text-[11px] font-semibold text-healthy-foreground shadow-sm">
+                  <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-[--radius] bg-healthy px-1 text-2xs font-semibold text-healthy-foreground shadow-sm">
                     {entry.unread_count > 99 ? "99+" : entry.unread_count}
                   </span>
                 )}
@@ -367,25 +367,25 @@ function LatestInteractionsPanel() {
                   >
                     {entry.lead_name || entry.lead_number}
                   </span>
-                  <span className="text-[11px] text-muted-foreground flex-shrink-0">
+                  <span className="text-2xs text-muted-foreground flex-shrink-0">
                     {relativeTime(entry.last_message_at)}
                   </span>
                 </div>
 
                 {entry.lead_name && (
-                  <span className="text-[11px] text-muted-foreground font-mono">
+                  <span className="text-2xs text-muted-foreground font-mono">
                     {entry.lead_number}
                   </span>
                 )}
 
                 <div className="flex items-center gap-1.5 mt-0.5">
                   {entry.last_message_sender === "agent" && (
-                    <span className="text-[11px] text-healthy-ink font-semibold flex-shrink-0">
+                    <span className="text-2xs text-healthy-ink font-semibold flex-shrink-0">
                       AI
                     </span>
                   )}
                   {entry.last_message_sender === "operator" && (
-                    <span className="text-[11px] text-primary-ink font-semibold flex-shrink-0">
+                    <span className="text-2xs text-primary-ink font-semibold flex-shrink-0">
                       OP
                     </span>
                   )}
@@ -412,7 +412,7 @@ function LatestInteractionsPanel() {
                       />
                     ))}
                     {entry.labels.length > 3 && (
-                      <span className="inline-flex items-center rounded-[--radius] px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground bg-muted">
+                      <span className="inline-flex items-center rounded-[--radius] px-1.5 py-0.5 text-2xs font-semibold text-muted-foreground bg-muted">
                         +{entry.labels.length - 3}
                       </span>
                     )}
@@ -502,7 +502,7 @@ function StatusGraphPanel({
 
   return (
     <div className="flex flex-col h-full bg-card overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 bg-muted border-b border-border flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2">
           <PanelIcon icon={ChartBar} />
           <span className="text-sm font-semibold text-foreground">
@@ -551,7 +551,7 @@ function StatusGraphPanel({
                 className="h-2.5 w-2.5 rounded-full flex-shrink-0 shadow-sm"
                 style={{ backgroundColor: bar.color }}
               />
-              <span className="text-[11px] font-semibold text-muted-foreground flex-1 truncate">
+              <span className="text-2xs font-semibold text-muted-foreground flex-1 truncate">
                 {bar.label}
               </span>
               <motion.span
@@ -569,7 +569,7 @@ function StatusGraphPanel({
         {/* Stats footer */}
         <div className="flex items-center justify-center gap-4 pt-2 border-t border-border w-full mt-auto">
           <div className="text-center">
-            <p className="text-[11px] text-muted-foreground font-semibold">
+            <p className="text-2xs text-muted-foreground font-semibold">
               {t("rate")}
             </p>
             <p className="text-lg font-semibold text-healthy-ink">
@@ -624,11 +624,11 @@ function MonitorKanbanCard({
         )}
       </div>
       <div className="mt-1 flex items-center gap-2">
-        <span className="truncate font-mono text-[11px] text-muted-foreground">
+        <span className="truncate font-mono text-2xs text-muted-foreground">
           {entry.lead_number}
         </span>
         {entry.last_message_at && (
-          <span className="ml-auto flex-shrink-0 text-[11px] text-muted-foreground tabular-nums">
+          <span className="ml-auto flex-shrink-0 text-2xs text-muted-foreground tabular-nums">
             {formatDate(entry.last_message_at)}
           </span>
         )}
@@ -639,7 +639,7 @@ function MonitorKanbanCard({
             <LabelPill key={label.label_id} name={label.name} color={label.color} />
           ))}
           {entry.labels.length > 2 && (
-            <span className="inline-flex items-center rounded-[--radius] bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
+            <span className="inline-flex items-center rounded-[--radius] bg-muted px-1.5 py-0.5 text-2xs font-semibold text-muted-foreground">
               +{entry.labels.length - 2}
             </span>
           )}
@@ -703,7 +703,7 @@ function MonitorKanbanColumn({
             <Clock weight="fill" className="h-3.5 w-3.5 text-muted-foreground" />
           </motion.span>
         )}
-        <span className="flex h-5 min-w-5 flex-shrink-0 items-center justify-center rounded-[--radius] border border-border bg-card px-1.5 text-[11px] font-semibold text-muted-foreground tabular-nums">
+        <span className="flex h-5 min-w-5 flex-shrink-0 items-center justify-center rounded-[--radius] border border-border bg-card px-1.5 text-2xs font-semibold text-muted-foreground tabular-nums">
           {count}
         </span>
       </div>
@@ -720,7 +720,7 @@ function MonitorKanbanColumn({
         </AnimatePresence>
         {entries.length === 0 && !isLoading && (
           <div className="flex h-20 items-center justify-center">
-            <span className="text-[11px] italic text-muted-foreground">
+            <span className="text-2xs italic text-muted-foreground">
               {emptyLabel}
             </span>
           </div>
@@ -826,7 +826,7 @@ function FunnelMonitorPanel({
   if (tags.length === 0) {
     return (
       <div className="flex flex-col h-full bg-card overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 bg-muted border-b border-border flex-shrink-0">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border flex-shrink-0">
           <div className="flex items-center gap-2">
             <PanelIcon icon={UserCircle} />
             <span className="text-sm font-semibold text-foreground">
@@ -849,7 +849,7 @@ function FunnelMonitorPanel({
 
   return (
     <div className="flex flex-col h-full bg-card overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 bg-muted border-b border-border flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2">
           <PanelIcon icon={UserCircle} />
           <span className="text-sm font-semibold text-foreground">
@@ -994,7 +994,7 @@ function AnalysisStatsPanelMonitor({
 
   return (
     <div className="flex flex-col h-full bg-card overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 bg-muted border-b border-border flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2">
           <PanelIcon icon={Brain} />
           <span className="text-sm font-semibold text-foreground">
@@ -1017,7 +1017,7 @@ function AnalysisStatsPanelMonitor({
             >
               <Brain
                 weight="bold"
-                className="h-6 w-6 text-muted-foreground/60"
+                className="h-6 w-6 text-muted-foreground"
               />
             </motion.div>
           </div>
@@ -1071,14 +1071,14 @@ function AnalysisStatsPanelMonitor({
                   <span className="text-lg font-semibold text-foreground leading-none">
                     {qualityValue.toFixed(0)}%
                   </span>
-                  <span className="text-[11px] font-semibold text-muted-foreground">
+                  <span className="text-2xs font-semibold text-muted-foreground">
                     {t("quality")}
                   </span>
                 </div>
               </div>
               <div className="flex-1 space-y-2">
                 <div className="p-2.5 rounded-[--radius] bg-card border border-border">
-                  <p className="text-[11px] text-muted-foreground font-semibold">
+                  <p className="text-2xs text-muted-foreground font-semibold">
                     {t("messages")}
                   </p>
                   <p className="text-xl font-semibold text-foreground">
@@ -1086,7 +1086,7 @@ function AnalysisStatsPanelMonitor({
                   </p>
                 </div>
                 <div className="p-2.5 rounded-[--radius] bg-card border border-border">
-                  <p className="text-[11px] text-muted-foreground font-semibold">
+                  <p className="text-2xs text-muted-foreground font-semibold">
                     {t("msgsPerAnalysis")}
                   </p>
                   <p className="text-lg font-semibold text-foreground">
@@ -1098,7 +1098,7 @@ function AnalysisStatsPanelMonitor({
 
             {/* Sentiment Donut */}
             <div className="space-y-1">
-              <p className="text-[11px] font-semibold text-muted-foreground">
+              <p className="text-2xs font-semibold text-muted-foreground">
                 {t("sentimentLabel")}
               </p>
               <div className="flex items-center gap-3">
@@ -1118,7 +1118,7 @@ function AnalysisStatsPanelMonitor({
                         className="h-2.5 w-2.5 rounded-full flex-shrink-0 shadow-sm"
                         style={{ backgroundColor: d.color }}
                       />
-                      <span className="text-[11px] font-semibold text-muted-foreground flex-1">
+                      <span className="text-2xs font-semibold text-muted-foreground flex-1">
                         {d.name}
                       </span>
                       <span className="text-xs font-semibold text-foreground tabular-nums">
@@ -1132,7 +1132,7 @@ function AnalysisStatsPanelMonitor({
 
             {/* Qualification Donut */}
             <div className="space-y-1">
-              <p className="text-[11px] font-semibold text-muted-foreground">
+              <p className="text-2xs font-semibold text-muted-foreground">
                 {t("qualificationLabel")}
               </p>
               <div className="flex items-center gap-3">
@@ -1152,7 +1152,7 @@ function AnalysisStatsPanelMonitor({
                         className="h-2.5 w-2.5 rounded-full flex-shrink-0 shadow-sm"
                         style={{ backgroundColor: d.color }}
                       />
-                      <span className="text-[11px] font-semibold text-muted-foreground flex-1">
+                      <span className="text-2xs font-semibold text-muted-foreground flex-1">
                         {d.name}
                       </span>
                       <span className="text-xs font-semibold text-foreground tabular-nums">
@@ -1166,7 +1166,7 @@ function AnalysisStatsPanelMonitor({
 
             {/* Interest mini-indicators */}
             <div className="space-y-1 pt-1 border-t border-border">
-              <p className="text-[11px] font-semibold text-muted-foreground">
+              <p className="text-2xs font-semibold text-muted-foreground">
                 {t("interestLabel")}
               </p>
               <div className="flex gap-2">
@@ -1182,7 +1182,7 @@ function AnalysisStatsPanelMonitor({
                     >
                       {d.value}
                     </span>
-                    <span className="text-[11px] font-semibold text-muted-foreground text-center leading-tight">
+                    <span className="text-2xs font-semibold text-muted-foreground text-center leading-tight">
                       {d.name}
                     </span>
                   </motion.div>
@@ -1286,13 +1286,13 @@ function AttendanceInsightsPanel({
 
   return (
     <div className="flex flex-col h-full bg-card overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-2 bg-muted border-b border-border flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2">
           <PanelIcon icon={isVoice ? Phone : WhatsappLogo} />
           <span className="text-sm font-semibold text-foreground">
             {t("health")}
           </span>
-          <span className="text-[11px] text-muted-foreground">{t("last7d")}</span>
+          <span className="text-2xs text-muted-foreground">{t("last7d")}</span>
         </div>
       </div>
 
@@ -1311,7 +1311,7 @@ function AttendanceInsightsPanel({
           <div className="grid h-full min-h-[160px] grid-cols-1 gap-3 lg:grid-cols-12">
             {/* Primary campaign KPIs */}
             <div className="lg:col-span-5 space-y-2">
-              <p className="text-[11px] font-semibold text-muted-foreground">
+              <p className="text-2xs font-semibold text-muted-foreground">
                 {t("conversations")}
               </p>
               <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-6 lg:grid-cols-3">
@@ -1333,7 +1333,7 @@ function AttendanceInsightsPanel({
               </div>
               {ai?.available ? (
                 <>
-                  <p className="pt-1 text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
+                  <p className="pt-1 text-2xs font-semibold text-muted-foreground flex items-center gap-1">
                     <Robot className="h-3 w-3" weight="fill" /> IA nesta campanha
                   </p>
                   <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-4">
@@ -1358,7 +1358,7 @@ function AttendanceInsightsPanel({
 
             {/* Status pie */}
             <div className="lg:col-span-3 flex flex-col rounded-[--radius] border border-border bg-background px-2 py-2">
-              <p className="mb-1 text-[11px] font-semibold text-muted-foreground px-1">
+              <p className="mb-1 text-2xs font-semibold text-muted-foreground px-1">
                 Situação
               </p>
               {statusPie.length === 0 ? (
@@ -1392,7 +1392,7 @@ function AttendanceInsightsPanel({
                     {statusPie.map((d) => (
                       <li
                         key={d.name}
-                        className="flex items-center justify-between text-[11px]"
+                        className="flex items-center justify-between text-2xs"
                       >
                         <span className="inline-flex items-center gap-1 text-muted-foreground">
                           <span
@@ -1413,7 +1413,7 @@ function AttendanceInsightsPanel({
 
             {/* Team on this campaign */}
             <div className="lg:col-span-4 flex flex-col rounded-[--radius] border border-border bg-background px-3 py-2 min-w-0">
-              <p className="mb-1 text-[11px] font-semibold text-muted-foreground">
+              <p className="mb-1 text-2xs font-semibold text-muted-foreground">
                 {t("whoResolves")}
               </p>
               {teamTop.length === 0 ? (
@@ -1425,16 +1425,16 @@ function AttendanceInsightsPanel({
                   <table className="w-full text-left">
                     <thead>
                       <tr className="border-b border-border">
-                        <th className="pb-1 text-[11px] font-semibold text-muted-foreground">
+                        <th className="pb-1 text-2xs font-semibold text-muted-foreground">
                           Nome
                         </th>
-                        <th className="pb-1 text-right text-[11px] font-semibold text-muted-foreground">
+                        <th className="pb-1 text-right text-2xs font-semibold text-muted-foreground">
                           OK
                         </th>
-                        <th className="pb-1 text-right text-[11px] font-semibold text-muted-foreground">
+                        <th className="pb-1 text-right text-2xs font-semibold text-muted-foreground">
                           %
                         </th>
-                        <th className="pb-1 text-right text-[11px] font-semibold text-muted-foreground">
+                        <th className="pb-1 text-right text-2xs font-semibold text-muted-foreground">
                           Resp.
                         </th>
                       </tr>
@@ -1443,7 +1443,7 @@ function AttendanceInsightsPanel({
                       {teamTop.map((m) => (
                         <tr
                           key={m.actor_id}
-                          className="border-b border-border/30 last:border-0"
+                          className="border-b border-border last:border-0"
                         >
                           <td className="max-w-[100px] truncate py-1 pr-1 text-xs font-medium text-foreground">
                             {m.display_name}
@@ -1490,7 +1490,7 @@ function MiniStat({
           : "border-border bg-background",
       )}
     >
-      <p className="text-[11px] font-semibold text-muted-foreground">
+      <p className="text-2xs font-semibold text-muted-foreground">
         {label}
       </p>
       <p
@@ -1546,7 +1546,7 @@ function ConnectedUsersMonitorPanel({ campaignId }: { campaignId: string }) {
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-card">
-      <div className="flex items-center justify-between border-b border-border bg-muted px-4 py-3 flex-shrink-0">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3 flex-shrink-0">
         <div className="flex items-center gap-2">
           <PanelIcon icon={Users} />
           <span className="text-sm font-semibold text-foreground">
@@ -1558,9 +1558,9 @@ function ConnectedUsersMonitorPanel({ campaignId }: { campaignId: string }) {
         </span>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 border-b border-border bg-muted px-3 py-2.5 flex-shrink-0">
+      <div className="grid grid-cols-3 gap-2 border-b border-border px-3 py-2.5 flex-shrink-0">
         <div className="rounded-lg border border-border bg-card px-2 py-1.5 text-center">
-          <p className="text-[11px] font-semibold text-muted-foreground">
+          <p className="text-2xs font-semibold text-muted-foreground">
             Total
           </p>
           <p className="text-sm font-semibold text-foreground">
@@ -1568,13 +1568,13 @@ function ConnectedUsersMonitorPanel({ campaignId }: { campaignId: string }) {
           </p>
         </div>
         <div className="rounded-lg border border-border bg-card px-2 py-1.5 text-center">
-          <p className="text-[11px] font-semibold text-muted-foreground">
+          <p className="text-2xs font-semibold text-muted-foreground">
             Campanha
           </p>
           <p className="text-sm font-semibold text-primary-ink">{campaignCount}</p>
         </div>
         <div className="rounded-lg border border-border bg-card px-2 py-1.5 text-center">
-          <p className="text-[11px] font-semibold text-muted-foreground">
+          <p className="text-2xs font-semibold text-muted-foreground">
             Global
           </p>
           <p className="text-sm font-semibold text-foreground">{globalCount}</p>
@@ -1604,13 +1604,13 @@ function ConnectedUsersMonitorPanel({ campaignId }: { campaignId: string }) {
                     <p className="truncate text-xs font-semibold text-foreground">
                       {user.email}
                     </p>
-                    <p className="mt-0.5 text-[11px] font-medium text-muted-foreground">
+                    <p className="mt-0.5 text-2xs font-medium text-muted-foreground">
                       ID: {formatShortUserId(user.user_id)}
                     </p>
                   </div>
                   <span
                     className={cn(
-                      "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold",
+                      "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-2xs font-semibold",
                       user.view_mode === "global"
                         ? "bg-healthy text-healthy-foreground"
                         : "bg-primary text-primary-foreground",
@@ -1628,7 +1628,7 @@ function ConnectedUsersMonitorPanel({ campaignId }: { campaignId: string }) {
                   </span>
                 </div>
 
-                <div className="mt-2 space-y-1.5 text-[11px] text-muted-foreground">
+                <div className="mt-2 space-y-1.5 text-2xs text-muted-foreground">
                   <div className="flex items-center gap-1.5">
                     <Broadcast
                       weight="duotone"
@@ -1738,7 +1738,7 @@ export default function MonitoringMode({
             <p className="truncate text-sm font-semibold tracking-tight text-foreground">
               {campaignName}
             </p>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-2xs text-muted-foreground">
               {t("title")} · {t("subtitle")}
             </p>
           </div>
@@ -1746,7 +1746,7 @@ export default function MonitoringMode({
 
         <div className="flex items-center gap-3">
           {isRunning ? (
-            <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-muted px-2.5 py-1 text-[11px] font-semibold text-healthy-ink">
+            <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-muted px-2.5 py-1 text-2xs font-semibold text-healthy-ink">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-healthy opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-healthy" />
@@ -1801,7 +1801,7 @@ export default function MonitoringMode({
                 {t("kanbanHero")}
               </span>
             </div>
-            <span className="text-[11px] text-muted-foreground">
+            <span className="text-2xs text-muted-foreground">
               {entries.length} {t("records")}
             </span>
           </div>

@@ -12,7 +12,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
+import { ElevatedSwitch as Switch } from "@/components/elevated-design/elevated-switch";
 import type { WorkspaceConfig } from "@/lib/workspace/workspace-config/types";
 import { updateWorkspaceConfigAction } from "@/app/actions/workspace-config";
 import { cn } from "@/lib/utils";
@@ -47,7 +47,7 @@ export function WorkspaceConfigTab({
       </div>
 
       <section className="space-y-3">
-        <p className="text-[11px] font-semibold text-muted-foreground">
+        <p className="text-2xs font-semibold text-muted-foreground">
           {t("configTab.sections.attendance")}
         </p>
         <AssignmentConfigCard
@@ -108,7 +108,7 @@ function ConfigCardShell({
         <span className="flex shrink-0 items-center gap-2">
           <span
             className={cn(
-              "rounded-[--radius] px-2.5 py-1 text-[11px] font-semibold",
+              "rounded-[--radius] px-2.5 py-1 text-2xs font-semibold",
               statusActive
                 ? "bg-muted text-healthy-ink dark:text-healthy-ink"
                 : "bg-muted text-muted-foreground",
@@ -302,7 +302,7 @@ function AutoCloseConfigCard({
               {t("autoClose.hoursUnit")}
             </span>
           </div>
-          <span className="mt-1 block text-[11px] text-muted-foreground">
+          <span className="mt-1 block text-2xs text-muted-foreground">
             {t("autoClose.hint")}
           </span>
         </label>
@@ -346,7 +346,7 @@ function AutoCloseConfigCard({
               {t("autoClose.hoursUnit")}
             </span>
           </div>
-          <span className="mt-1 block text-[11px] text-muted-foreground">
+          <span className="mt-1 block text-2xs text-muted-foreground">
             {t("autoClose.maxAgeHint")}
           </span>
         </label>

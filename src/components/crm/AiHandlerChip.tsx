@@ -33,7 +33,7 @@ interface AiHandlerChipProps {
 
 const SIZES = {
   sm: {
-    chip: "gap-1 rounded-full py-0.5 pl-0.5 pr-1.5 text-[11px]",
+    chip: "gap-1 rounded-full py-0.5 pl-0.5 pr-1.5 text-2xs",
     tile: "h-4 w-4 rounded-[5px]",
     glyph: "h-2.5 w-2.5",
     dot: "h-1 w-1",

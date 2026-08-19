@@ -977,7 +977,7 @@ export default function WhatsAppTemplateDetailPage() {
                 ) : accessItems.length === 0 ? (
                   <div className="flex flex-col items-center gap-2 rounded-[--radius] border border-dashed border-border bg-muted p-8 text-center">
                     <Buildings
-                      className="h-8 w-8 text-muted-foreground/40"
+                      className="h-8 w-8 text-muted-foreground"
                       weight="fill"
                     />
                     <p className="text-sm text-muted-foreground">
@@ -1008,7 +1008,7 @@ export default function WhatsAppTemplateDetailPage() {
                                     commonT("loading")}
                                 </p>
                                 {workspace?.isDefault && (
-                                  <span className="shrink-0 rounded-[--radius] bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+                                  <span className="shrink-0 rounded-[--radius] bg-muted px-1.5 py-0.5 text-2xs font-medium text-muted-foreground">
                                     default
                                   </span>
                                 )}
@@ -1124,7 +1124,7 @@ export default function WhatsAppTemplateDetailPage() {
                       {template.name}
                     </p>
                     <p className="truncate text-xs text-muted-foreground">
-                      {template.language} • {template.category} • WABA:{" "}
+                      {template.language} • {t(`category.${template.category.toLowerCase()}`)} • WABA:{" "}
                       {template.wabaId}
                     </p>
                   </div>

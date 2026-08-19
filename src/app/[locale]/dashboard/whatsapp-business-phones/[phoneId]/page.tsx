@@ -52,7 +52,7 @@ import {
   getWhatsappCallingStatusAction,
   setWhatsappCallingStatusAction,
 } from "@/app/actions/whatsapp-business-phones";
-import { Switch } from "@/components/ui/switch";
+import { ElevatedSwitch as Switch } from "@/components/elevated-design/elevated-switch";
 import {
   listPhoneAccessAction,
   getMyPhoneAccessAction,
@@ -833,7 +833,7 @@ export default function BusinessPhoneDetailPage() {
               </div>
             ) : (
               <div className="py-8 text-center">
-                <Buildings className="mx-auto mb-3 h-10 w-10 text-muted-foreground/40" />
+                <Buildings className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">
                   {!isConnected
                     ? t("profile.connectFirst")
@@ -916,7 +916,7 @@ export default function BusinessPhoneDetailPage() {
                       <h3 className="text-base font-semibold text-foreground">
                         {t("access.title")}
                       </h3>
-                      <span className="inline-flex items-center rounded-[--radius] border border-border bg-muted px-2 py-0.5 text-[11px] font-semibold text-warning-ink dark:text-warning-ink">
+                      <span className="inline-flex items-center rounded-[--radius] border border-border bg-muted px-2 py-0.5 text-2xs font-semibold text-warning-ink dark:text-warning-ink">
                         {t("access.deprecated")}
                       </span>
                     </div>
@@ -971,7 +971,7 @@ export default function BusinessPhoneDetailPage() {
                   </div>
                 ) : accessItems.length === 0 ? (
                   <div className="flex flex-col items-center gap-2 rounded-[--radius] border border-dashed border-border bg-muted p-8 text-center">
-                    <Buildings className="h-8 w-8 text-muted-foreground/40" weight="fill" />
+                    <Buildings className="h-8 w-8 text-muted-foreground" weight="fill" />
                     <p className="text-sm text-muted-foreground">
                       {t("access.noWorkspaces")}
                     </p>
@@ -997,7 +997,7 @@ export default function BusinessPhoneDetailPage() {
                                     commonT("loading")}
                                 </p>
                                 {workspace?.isDefault && (
-                                  <span className="shrink-0 rounded-[--radius] bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+                                  <span className="shrink-0 rounded-[--radius] bg-muted px-1.5 py-0.5 text-2xs font-medium text-muted-foreground">
                                     default
                                   </span>
                                 )}

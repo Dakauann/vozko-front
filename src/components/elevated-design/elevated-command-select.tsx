@@ -309,7 +309,7 @@ const ElevatedCommandSelect = ({
             "left-5",
             floatingState
               ? cn(
-                  "-ml-1 top-0 -translate-y-1/2 text-[11px] shadow-sm",
+                  "-ml-1 top-0 -translate-y-1/2 text-2xs shadow-sm",
                   disabled
                     ? "bg-muted text-muted-foreground"
                     : "bg-card text-foreground",

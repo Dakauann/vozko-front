@@ -114,7 +114,7 @@ function BalanceRow({
     <div className="flex items-center gap-3 px-4 py-3.5 hover:bg-muted transition-colors">
       <div
         className={cn(
-          "flex h-9 w-9 items-center justify-center rounded-[--radius] text-foreground text-[11px] font-semibold tracking-tight",
+          "flex h-9 w-9 items-center justify-center rounded-[--radius] text-foreground text-2xs font-semibold tracking-tight",
           MONEY_CONFIG.bgColor,
         )}
       >
@@ -363,7 +363,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
               {/* Plan state is a lamp dot plus a word, never colour alone. */}
               {hasPlansPermission && hasVisiblePlan ? (
                 <span
-                  className="rounded-[--radius] hidden max-w-[8rem] items-center gap-1 truncate border border-border px-1 py-px text-[11px] font-medium text-muted-foreground md:inline-flex"
+                  className="rounded-[--radius] hidden max-w-[8rem] items-center gap-1 truncate border border-border px-1 py-px text-2xs font-medium text-muted-foreground md:inline-flex"
                   title={currentPlanName ?? undefined}
                 >
                   <span
@@ -376,7 +376,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                   <span className="truncate">{currentPlanName}</span>
                 </span>
               ) : hasPlansPermission && !hasVisiblePlan ? (
-                <span className="rounded-[--radius] hidden items-center gap-1 border border-border px-1 py-px text-[11px] font-medium text-muted-foreground md:inline-flex">
+                <span className="rounded-[--radius] hidden items-center gap-1 border border-border px-1 py-px text-2xs font-medium text-muted-foreground md:inline-flex">
                   <span
                     aria-hidden="true"
                     className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
@@ -448,7 +448,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
             className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-[--radius] border border-border bg-card shadow-xl"
           >
             {/* Header */}
-            <div className="border-b border-border bg-muted px-4 py-4">
+            <div className="border-b border-border px-4 py-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-semibold text-foreground">
@@ -458,7 +458,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                     {t("description")}
                   </p>
                 </div>
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-muted text-[11px] font-semibold text-foreground">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-muted text-2xs font-semibold text-foreground">
                   VX
                 </div>
               </div>
@@ -471,7 +471,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                         <Package className="h-5 w-5" weight="fill" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[11px] font-semibold text-muted-foreground">
+                        <p className="text-2xs font-semibold text-muted-foreground">
                           {t("workspacePlan.label")}
                         </p>
                         <p className="mt-1 truncate text-sm font-semibold text-foreground">
@@ -487,7 +487,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                     {subscriptionStatusLabel ? (
                       <span
                         className={cn(
-                          "rounded-[--radius] px-2.5 py-1 text-[11px] font-semibold text-white",
+                          "rounded-[--radius] px-2.5 py-1 text-2xs font-semibold text-white",
                           hasRechargeEligiblePlan
                             ? "bg-healthy"
                             : "bg-warning",

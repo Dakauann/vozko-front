@@ -770,8 +770,8 @@ export function AdminPlansManager() {
             ].map((stat) => (
               <div key={stat.key}>
                 <dt className="legend">{stat.label}</dt>
-                <dd className="readout mt-1.5 text-[22px] font-semibold leading-none tracking-[-0.02em] text-foreground">
-                  {String(stat.value).padStart(2, "0")}
+                <dd className="readout mt-1.5 text-2xl font-semibold leading-none tracking-[-0.02em] text-foreground">
+                  {stat.value}
                 </dd>
               </div>
             ))}
@@ -780,7 +780,7 @@ export function AdminPlansManager() {
           <div className="flex flex-wrap items-center gap-2">
             <input
               aria-label={t("filters.search")}
-              className="h-8 w-full rounded-[--radius] border border-border bg-background px-2.5 text-sm text-foreground outline-none transition placeholder:text-muted-foreground/60 focus:border-primary/50 sm:w-60"
+              className="h-8 w-full rounded-[--radius] border border-border bg-background px-2.5 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 sm:w-60"
               onChange={(event) => setSearch(event.target.value)}
               placeholder={t("filters.search")}
               type="search"
@@ -820,8 +820,8 @@ export function AdminPlansManager() {
         <section className="well h-fit overflow-hidden">
           <header className="rule-engraved flex items-center justify-between gap-3 px-4 py-2.5">
             <p className="legend">{t("register")}</p>
-            <span className="readout text-[11px] text-muted-foreground/60">
-              {String(filteredPlans.length).padStart(2, "0")}
+            <span className="readout text-2xs text-muted-foreground">
+              {filteredPlans.length}
             </span>
           </header>
 
@@ -845,9 +845,9 @@ export function AdminPlansManager() {
                     <button
                       aria-current={isSelected ? "true" : undefined}
                       className={cn(
-                        "flex w-full items-center gap-3 border-t border-border/50 px-4 py-3 text-left transition-colors first:border-t-0",
+                        "flex w-full items-center gap-3 border-t border-border px-4 py-3 text-left transition-colors first:border-t-0",
                         isSelected
-                          ? "bg-muted"
+                          ? "bg-primary-subtle text-primary-ink"
                           : "hover:bg-muted/50",
                       )}
                       onClick={() =>
@@ -864,8 +864,8 @@ export function AdminPlansManager() {
                         aria-hidden
                         className={cn("lamp", !isSelected && "opacity-0")}
                       />
-                      <span className="readout w-5 shrink-0 text-[11px] text-muted-foreground/60">
-                        {String(index + 1).padStart(2, "0")}
+                      <span className="readout w-5 shrink-0 text-2xs text-muted-foreground">
+                        {index + 1}
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="flex items-baseline justify-between gap-2">
@@ -889,7 +889,7 @@ export function AdminPlansManager() {
                               ? t("status.archived")
                               : t("status.active")}
                           </span>
-                          <span className="readout truncate text-[11px] text-muted-foreground">
+                          <span className="readout truncate text-2xs text-muted-foreground">
                             {formatDate(item.updatedAt)}
                           </span>
                         </span>
@@ -984,7 +984,7 @@ export function AdminPlansManager() {
                     <p className="text-sm font-semibold text-foreground">
                       {t("editor.archivedTitle")}
                     </p>
-                    <p className="mt-1 text-[12px] text-muted-foreground">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       {t("editor.archivedDescription", {
                         archivedAt: formatDate(selectedPlan.archivedAt),
                       })}
@@ -1074,7 +1074,7 @@ export function AdminPlansManager() {
                     />
                   </div>
 
-                  <p className="mt-4 border-l-2 border-border pl-3 text-[12px] leading-snug text-muted-foreground">
+                  <p className="mt-4 border-l-2 border-border pl-3 text-xs leading-snug text-muted-foreground">
                     <span className="font-semibold text-foreground">
                       {t("form.catalogModeTitle")}
                     </span>{" "}
@@ -1142,7 +1142,7 @@ export function AdminPlansManager() {
                               {allowedWorkspaces.map((ws) => (
                                 <li
                                   key={ws.id}
-                                  className="flex items-center justify-between gap-2 border-b border-border/50 py-2 last:border-b-0"
+                                  className="flex items-center justify-between gap-2 border-b border-border py-2 last:border-b-0"
                                 >
                                   <span className="flex min-w-0 items-center gap-2">
                                     <Buildings
@@ -1152,7 +1152,7 @@ export function AdminPlansManager() {
                                     <span className="truncate text-sm font-medium text-foreground">
                                       {ws.name}
                                     </span>
-                                    <span className="readout truncate text-[11px] text-muted-foreground">
+                                    <span className="readout truncate text-2xs text-muted-foreground">
                                       {ws.id}
                                     </span>
                                   </span>
@@ -1220,7 +1220,7 @@ export function AdminPlansManager() {
                   >
                     {!visibilityGlobal && !exclusiveAffiliate ? (
                       <p
-                        className="mb-3 border-l-2 border-warning bg-muted px-3 py-2 text-[12px] text-foreground"
+                        className="mb-3 border-l-2 border-warning bg-muted px-3 py-2 text-xs text-foreground"
                         role="note"
                       >
                         {t("exclusive.conflictWithRestricted")}
@@ -1228,7 +1228,7 @@ export function AdminPlansManager() {
                     ) : null}
 
                     {exclusiveAffiliate ? (
-                      <div className="flex items-center justify-between gap-2 border-b border-border/50 py-2">
+                      <div className="flex items-center justify-between gap-2 border-b border-border py-2">
                         <span className="flex min-w-0 items-center gap-2">
                           <UserCircle
                             className="h-3.5 w-3.5 shrink-0 text-warning-ink"
@@ -1239,7 +1239,7 @@ export function AdminPlansManager() {
                               t("exclusive.resolving")}
                           </span>
                           {exclusiveAffiliate.code ? (
-                            <span className="readout truncate text-[11px] text-muted-foreground">
+                            <span className="readout truncate text-2xs text-muted-foreground">
                               {exclusiveAffiliate.code}
                             </span>
                           ) : null}
@@ -1406,7 +1406,7 @@ function PricingItemsEditor({
       legend={legend}
       title={t("pricingItems.title")}
     >
-      <p className="text-[12px] text-muted-foreground">
+      <p className="text-xs text-muted-foreground">
         {t("pricingItems.conversionNote")}
       </p>
 
@@ -1457,8 +1457,8 @@ function PricingItemsEditor({
                         <span className="legend text-foreground">
                           {categoryTitle}
                         </span>
-                        <span className="readout text-[11px] text-muted-foreground/60">
-                          {String(rows.length).padStart(2, "0")}
+                        <span className="readout text-2xs text-muted-foreground">
+                          {rows.length}
                         </span>
                         <span
                           aria-hidden
@@ -1496,7 +1496,7 @@ function PricingItemsEditor({
                     return (
                       <tr
                         key={`${item.category}-${item.service}-${item.metric}`}
-                        className="border-b border-border/50 last:border-b-0"
+                        className="border-b border-border last:border-b-0"
                       >
                         <th
                           className="py-2 pr-3 align-top text-sm font-medium text-foreground"
@@ -1511,29 +1511,29 @@ function PricingItemsEditor({
                             ) : null}
                           </span>
                           {priceBelowCost ? (
-                            <span className="mt-1 block text-[11px] font-normal text-warning-ink">
+                            <span className="mt-1 block text-2xs font-normal text-warning-ink">
                               {t("pricingItems.priceBelowCost")}
                             </span>
                           ) : null}
                           {invalidBrl ? (
-                            <span className="mt-1 block text-[11px] font-normal text-destructive-ink">
+                            <span className="mt-1 block text-2xs font-normal text-destructive-ink">
                               {t("pricingItems.invalidAmount")}
                             </span>
                           ) : null}
                         </th>
-                        <td className="px-3 py-2 align-top text-[12px] text-muted-foreground">
+                        <td className="px-3 py-2 align-top text-xs text-muted-foreground">
                           {metricLabel(t, item.metric)}
                         </td>
                         <td className="px-3 py-2 align-top">
                           {percentage ? (
-                            <span className="text-[12px] text-muted-foreground">
+                            <span className="text-xs text-muted-foreground">
                               {t("pricingItems.notApplicable")}
                             </span>
                           ) : (
                             <>
                               <input
                                 aria-label={t("pricingItems.costBrl")}
-                                className="readout w-28 rounded-[--radius] border border-border bg-background px-2 py-1 text-[12px] outline-none transition focus:border-primary/50"
+                                className="readout w-28 rounded-[--radius] border border-border bg-background px-2 py-1 text-xs outline-none transition focus:border-primary/50"
                                 disabled={!!disabled}
                                 inputMode="decimal"
                                 min="0"
@@ -1549,7 +1549,7 @@ function PricingItemsEditor({
                                 type="text"
                                 value={item.costBrl}
                               />
-                              <span className="readout mt-1 block text-[11px] text-muted-foreground">
+                              <span className="readout mt-1 block text-2xs text-muted-foreground">
                                 ≈ {formatUsdCurrency(costUsd ?? 0)}
                               </span>
                             </>
@@ -1557,14 +1557,14 @@ function PricingItemsEditor({
                         </td>
                         <td className="px-3 py-2 align-top">
                           {percentage ? (
-                            <span className="text-[12px] text-muted-foreground">
+                            <span className="text-xs text-muted-foreground">
                               {t("pricingItems.notApplicable")}
                             </span>
                           ) : (
                             <>
                               <input
                                 aria-label={t("pricingItems.priceBrl")}
-                                className="readout w-28 rounded-[--radius] border border-border bg-background px-2 py-1 text-[12px] outline-none transition focus:border-primary/50"
+                                className="readout w-28 rounded-[--radius] border border-border bg-background px-2 py-1 text-xs outline-none transition focus:border-primary/50"
                                 disabled={!!disabled}
                                 inputMode="decimal"
                                 min="0"
@@ -1580,7 +1580,7 @@ function PricingItemsEditor({
                                 type="text"
                                 value={item.priceBrl}
                               />
-                              <span className="readout mt-1 block text-[11px] text-muted-foreground">
+                              <span className="readout mt-1 block text-2xs text-muted-foreground">
                                 ≈ {formatUsdCurrency(priceUsd ?? 0)}
                               </span>
                             </>
@@ -1589,7 +1589,7 @@ function PricingItemsEditor({
                         <td className="px-3 py-2 align-top">
                           <input
                             aria-label={t("pricingItems.markupPct")}
-                            className="readout w-20 rounded-[--radius] border border-border bg-background px-2 py-1 text-[12px] outline-none transition focus:border-primary/50"
+                            className="readout w-20 rounded-[--radius] border border-border bg-background px-2 py-1 text-xs outline-none transition focus:border-primary/50"
                             disabled={!!disabled}
                             min="0"
                             onChange={(e) =>
@@ -1606,7 +1606,7 @@ function PricingItemsEditor({
                               "legend inline-flex items-center gap-1 py-1 transition-colors",
                               customized && !disabled
                                 ? "text-primary-ink hover:text-foreground"
-                                : "cursor-default text-muted-foreground/40",
+                                : "cursor-default text-muted-foreground",
                             )}
                             disabled={!!disabled || !customized}
                             onClick={() => handleResetRow(index)}

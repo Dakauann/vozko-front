@@ -306,7 +306,7 @@ export default function AdminIssueDetailClient({
                 <StatusIcon className="h-3 w-3" weight="bold" />
                 {t(`status.${config.label}` as Parameters<typeof t>[0])}
               </span>
-              <span className="font-mono text-[11px] text-muted-foreground/50">
+              <span className="font-mono text-2xs text-muted-foreground">
                 WS: {issue.workspaceId.slice(0, 8)}…
               </span>
             </div>
@@ -376,7 +376,7 @@ export default function AdminIssueDetailClient({
         <div className="max-h-[500px] overflow-y-auto">
           {responses.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center px-6">
-              <Warning className="h-10 w-10 text-muted-foreground/30 mb-3" />
+              <Warning className="h-10 w-10 text-muted-foreground mb-3" />
               <p className="text-sm text-muted-foreground">
                 {t("admin.noResponses")}
               </p>
@@ -400,7 +400,7 @@ export default function AdminIssueDetailClient({
                       </span>
                       <span>·</span>
                       <span>{formatTimestamp(resp.createdAt)}</span>
-                      <span className="font-mono text-[11px] text-muted-foreground/40">
+                      <span className="font-mono text-2xs text-muted-foreground">
                         {resp.authorId.slice(0, 8)}…
                       </span>
                     </div>
@@ -475,7 +475,7 @@ export default function AdminIssueDetailClient({
                     "disabled:opacity-50 disabled:cursor-not-allowed",
                   )}
                 />
-                <span className="absolute bottom-2 right-2 text-[11px] text-muted-foreground/50">
+                <span className="absolute bottom-2 right-2 text-2xs text-muted-foreground">
                   {responseBody.length}/2000
                 </span>
               </div>

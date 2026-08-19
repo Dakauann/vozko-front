@@ -367,7 +367,7 @@ export default function AgentsPage() {
             : {
                 icon: (
                   <Robot
-                    className="h-7 w-7 text-muted-foreground/40"
+                    className="h-7 w-7 text-muted-foreground"
                     weight="fill"
                   />
                 ),

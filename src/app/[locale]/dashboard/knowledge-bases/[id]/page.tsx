@@ -386,7 +386,7 @@ export default function KnowledgeBaseDetailPage() {
           {documents.length === 0 ? (
             <div className="text-center py-8">
               <FileText
-                className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4"
+                className="h-12 w-12 text-muted-foreground mx-auto mb-4"
                 weight="fill"
               />
               <p className="font-medium text-foreground">
@@ -412,7 +412,7 @@ export default function KnowledgeBaseDetailPage() {
                       <div className="flex items-center gap-2 mt-0.5">
                         <span
                           className={cn(
-                            "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold",
+                            "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-2xs font-semibold",
                             doc.status === "ready" &&
                               "bg-healthy text-healthy-foreground",
                             doc.status === "processing" &&

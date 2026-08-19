@@ -329,13 +329,13 @@ export default function ScheduleMessageDialog({
                             <button
                                 type="button"
                                 onClick={() => fileInputRef.current?.click()}
-                                className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border px-2.5 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border px-2.5 py-1.5 text-2xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                             >
                                 <Paperclip weight="bold" className="h-3.5 w-3.5" />
                                 {t("dialog.attach")}
                             </button>
 
-                            <label className="inline-flex items-center gap-2 text-[11px] font-medium text-muted-foreground">
+                            <label className="inline-flex items-center gap-2 text-2xs font-medium text-muted-foreground">
                                 {t("dialog.sign")}
                                 <ElevatedSwitch checked={signed} onCheckedChange={setSigned} />
                             </label>
@@ -399,7 +399,7 @@ export default function ScheduleMessageDialog({
                         </div>
 
                         {chosen && !clientError && (
-                            <p className="text-[11px] text-muted-foreground">
+                            <p className="text-2xs text-muted-foreground">
                                 {t("dialog.deliverySummary", { when: deliverySummary })}
                                 {margin !== null
                                     ? ` — ${t("dialog.marginSuffix", { margin: formatDuration(margin) })}`
@@ -414,7 +414,7 @@ export default function ScheduleMessageDialog({
                                 weight="fill"
                                 className="mt-0.5 h-4 w-4 flex-shrink-0 text-warning-ink"
                             />
-                            <p className="text-[11px] text-foreground">
+                            <p className="text-2xs text-foreground">
                                 {serverError ?? attachment?.error ?? clientError}
                             </p>
                         </div>
@@ -458,10 +458,10 @@ function AttachmentChip({
         <div className="flex items-center gap-2 rounded-[--radius] border border-border bg-muted px-2.5 py-1.5">
             <Glyph weight="fill" className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
             <div className="min-w-0 flex-1">
-                <p className="truncate text-[11px] font-medium text-foreground">
+                <p className="truncate text-2xs font-medium text-foreground">
                     {attachment.name || attachment.type}
                 </p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-2xs text-muted-foreground">
                     {attachment.uploading
                         ? uploadingLabel
                         : attachment.size > 0

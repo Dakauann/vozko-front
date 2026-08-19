@@ -872,7 +872,7 @@ function ProductSwitcher({
                   className={cn(
                     "flex w-full items-center gap-2 px-2 py-1.5 text-left transition-colors",
                     isSelected
-                      ? "bg-muted text-foreground"
+                      ? "bg-primary-subtle text-primary-ink"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground",
                   )}
                 >
@@ -946,7 +946,7 @@ function ProductSwitcher({
                 className={cn(
                   "flex w-full items-center gap-2 px-2 py-2 text-left transition-colors",
                   isSelected
-                    ? "bg-muted"
+                    ? "bg-primary-subtle"
                     : "hover:bg-muted",
                 )}
               >
@@ -970,7 +970,7 @@ function ProductSwitcher({
                   >
                     {t(product.nameKey)}
                   </span>
-                  <span className="block truncate text-[11px] text-muted-foreground">
+                  <span className="block truncate text-2xs text-muted-foreground">
                     {t(product.descriptionKey)}
                   </span>
                 </span>
@@ -1078,8 +1078,13 @@ function NavItemComponent({
           // accent bar on the leading edge. Three signals at once, so it never
           // rests on colour alone — a grey fill alone (what this used to be)
           // was indistinguishable from hover two rows away.
+          // Selected and hover were BOTH `bg-muted` — the same grey — so the
+          // current page was indistinguishable from whatever row the pointer
+          // happened to rest on. Selected now takes the tinted brand ground
+          // and brand ink the reference system uses, which leaves plain grey
+          // free to mean hover and nothing else.
           isLit
-            ? "bg-muted text-foreground"
+            ? "bg-primary-subtle text-primary-ink"
             : "text-muted-foreground hover:bg-muted hover:text-foreground",
         )}
         onClick={handleClick}
@@ -1097,15 +1102,14 @@ function NavItemComponent({
             >
               {React.createElement(item.icon, {
                 className: cn(
-                  depth === 0 ? "h-[17px] w-[17px]" : "h-4 w-4",
-                  "shrink-0",
+                  "size-4 shrink-0",
                 ),
                 weight: "regular" })}
 
               <span
                 className={cn(
                   "min-w-0 flex-1 truncate leading-tight",
-                  depth > 0 && "text-[12.5px]",
+                  depth > 0 && "text-xs",
                   isLit && "font-semibold",
                 )}
               >
@@ -1137,7 +1141,7 @@ function NavItemComponent({
               aria-hidden="true"
             />
             {React.createElement(item.icon, {
-              className: "h-[17px] w-[17px] shrink-0",
+              className: "size-4 shrink-0",
               weight: "regular" })}
           </span>
         )}
@@ -1328,7 +1332,7 @@ function GroupedNavItems({
                       // hardcoded, or every badge explains the OFFICIAL channel
                       // — which on the unofficial one is exactly backwards.
                       title={t(`${familyBadgeKey[group.family]}Hint`)}
-                      className="rounded-lg shrink-0 border border-border px-1 py-px text-[11px] font-medium normal-case tracking-normal text-muted-foreground"
+                      className="rounded-lg shrink-0 border border-border px-1 py-px text-2xs font-medium normal-case tracking-normal text-muted-foreground"
                     >
                       {t(familyBadgeKey[group.family])}
                     </span>

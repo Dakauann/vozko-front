@@ -188,7 +188,7 @@ export default function InstagramAccountsPage() {
               accountId={row.id}
               username={row.username}
               className="size-7"
-              textClassName="text-[11px]"
+              textClassName="text-2xs"
             />
             <div className="flex flex-col">
               <span className="text-sm font-medium text-foreground">@{row.username}</span>
@@ -406,7 +406,7 @@ export default function InstagramAccountsPage() {
           columns={columns}
           rowKey={(row) => row.id}
           emptyState={{
-            icon: <InstagramLogo className="h-7 w-7 text-muted-foreground/40" weight="duotone" />,
+            icon: <InstagramLogo className="h-7 w-7 text-muted-foreground" weight="duotone" />,
             title: t("page.emptyTitle"),
             description: t("page.emptyDescription"),
             action: canCreate ? (

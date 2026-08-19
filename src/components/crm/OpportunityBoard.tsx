@@ -344,7 +344,7 @@ export default function OpportunityBoard({
                 c.valueTotal > 0 ? (
                   <span
                     className={cn(
-                      "text-[11px] font-semibold tabular-nums",
+                      "text-2xs font-semibold tabular-nums",
                       c.isWon
                         ? "text-healthy-ink"
                         : c.isLost
@@ -457,7 +457,7 @@ function DealCard({
         title={deal.title || "Sem título"}
         subtitle={deal.source || undefined}
         thirdLine={
-          age ? <p className="truncate text-[11px] text-muted-foreground">{age}</p> : undefined
+          age ? <p className="truncate text-2xs text-muted-foreground">{age}</p> : undefined
         }
         rightSlot={
           isMoving ? (
@@ -487,7 +487,7 @@ function DealCard({
               {formatValueCents(deal.valueCents, deal.currency)}
             </p>
           ) : (
-            <p className="text-[11px] italic text-muted-foreground">{t("deals.noValue")}</p>
+            <p className="text-2xs italic text-muted-foreground">{t("deals.noValue")}</p>
           )
         }
         pills={
@@ -525,7 +525,7 @@ function DealCard({
             customChips.map((c) => (
               <span
                 key={c.key}
-                className="inline-flex max-w-full items-center gap-1 truncate rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground"
+                className="inline-flex max-w-full items-center gap-1 truncate rounded-md bg-muted px-1.5 py-0.5 text-2xs font-medium text-muted-foreground"
               >
                 <span className="font-semibold text-foreground/70">{c.label}:</span>
                 <span className="truncate">{c.val}</span>

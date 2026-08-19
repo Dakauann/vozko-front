@@ -140,10 +140,10 @@ function CapabilityChip({ enabled, label }: { enabled: boolean; label: string })
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-[--radius] border px-2 py-0.5 text-[11px]",
+        "inline-flex items-center gap-1.5 rounded-[--radius] border px-2 py-0.5 text-2xs",
         enabled
           ? "border-border bg-muted text-muted-foreground"
-          : "border-dashed border-border bg-transparent text-muted-foreground/60",
+          : "border-dashed border-border bg-transparent text-muted-foreground",
       )}
     >
       <span

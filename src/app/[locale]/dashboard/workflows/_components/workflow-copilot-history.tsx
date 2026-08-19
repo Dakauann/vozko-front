@@ -144,7 +144,7 @@ export function WorkflowCopilotHistory({ workflowId }: WorkflowCopilotHistoryPro
               {s.title || "Conversa sem título"}
             </span>
           </div>
-          <div className="flex items-center gap-2 pl-[18px] text-[11px] text-muted-foreground">
+          <div className="flex items-center gap-2 pl-[18px] text-2xs text-muted-foreground">
             <span>{formatWhen(s.startedAt)}</span>
             <span>·</span>
             <span>{s.messageCount} msg</span>

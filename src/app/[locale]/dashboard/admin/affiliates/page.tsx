@@ -363,12 +363,12 @@ function AdminAffiliatesTable() {
                       </td>
                       <td className="px-3 py-3">
                         {aff.tier === "reseller" ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground shadow-sm">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-2xs font-semibold text-muted-foreground shadow-sm">
                             <Crown className="h-3 w-3" weight="fill" />
                             {t("tier.reseller")}
                           </span>
                         ) : (
-                          <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                          <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-2xs font-semibold text-muted-foreground">
                             {t("tier.affiliate")}
                           </span>
                         )}
@@ -376,7 +376,7 @@ function AdminAffiliatesTable() {
                       <td className="px-3 py-3">
                         <span
                           className={cn(
-                            "rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold",
+                            "rounded-[--radius] px-2 py-0.5 text-2xs font-semibold",
                             aff.active
                               ? "bg-muted text-healthy-ink"
                               : "bg-muted text-warning-ink",
@@ -514,7 +514,7 @@ function Th({
   return (
     <th
       className={cn(
-        "px-3 py-2.5 text-left text-[11px] font-semibold text-muted-foreground",
+        "px-3 py-2.5 text-left text-2xs font-semibold text-muted-foreground",
         className,
       )}
     >

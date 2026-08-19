@@ -315,7 +315,7 @@ function CollectionDialog({
                       <span className="truncate">
                         {b.label || b.displayName}
                       </span>
-                      <span className="ml-auto text-[11px] text-muted-foreground">
+                      <span className="ml-auto text-2xs text-muted-foreground">
                         {t("collections.kind.builtin")}
                       </span>
                     </label>
@@ -334,7 +334,7 @@ function CollectionDialog({
                         onChange={() => toggle(key)}
                       />
                       <span className="truncate">{r.name}</span>
-                      <span className="ml-auto text-[11px] text-muted-foreground">
+                      <span className="ml-auto text-2xs text-muted-foreground">
                         {t("collections.kind.remote")}
                       </span>
                     </label>

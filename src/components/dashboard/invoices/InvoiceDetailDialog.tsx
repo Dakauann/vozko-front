@@ -84,7 +84,7 @@ export function InvoiceDetailDialog({
 
           {hasBreakdown ? (
             <div className="overflow-hidden rounded-[--radius] border border-border">
-              <div className="border-b border-border bg-muted px-3 py-2 text-[11px] font-semibold text-muted-foreground">
+              <div className="border-b border-border px-3 py-2 text-2xs font-semibold text-muted-foreground">
                 {t("detail.breakdown")}
               </div>
               <ul className="divide-y divide-border/40">
@@ -105,7 +105,7 @@ export function InvoiceDetailDialog({
                       <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
                         <span
                           className={cn(
-                            "inline-flex items-center gap-1 rounded-[--radius] px-1.5 py-0.5 text-[11px] font-medium",
+                            "inline-flex items-center gap-1 rounded-[--radius] px-1.5 py-0.5 text-2xs font-medium",
                             item.creditable
                               ? "bg-muted text-healthy-ink"
                               : "bg-muted text-muted-foreground",
@@ -121,7 +121,7 @@ export function InvoiceDetailDialog({
                             : t("detail.passthroughTag")}
                         </span>
                         {item.prorated ? (
-                          <span className="inline-flex items-center rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-medium text-warning-ink">
+                          <span className="inline-flex items-center rounded-full bg-muted px-1.5 py-0.5 text-2xs font-medium text-warning-ink">
                             {t("detail.proratedTag")}
                           </span>
                         ) : null}
@@ -164,7 +164,7 @@ export function InvoiceDetailDialog({
 
           {invoice.purpose === "MONTHLY_BILLING" &&
           lineItems.some((i) => !i.creditable) ? (
-            <p className="text-[11px] leading-relaxed text-muted-foreground">
+            <p className="text-2xs leading-relaxed text-muted-foreground">
               {t("detail.passthroughNote")}
             </p>
           ) : null}

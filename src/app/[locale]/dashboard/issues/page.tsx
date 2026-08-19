@@ -180,7 +180,7 @@ export default function IssuesPage() {
             <span className="text-sm text-muted-foreground whitespace-nowrap">
               {formatDate(row.createdAt)}
             </span>
-            <span className="block text-xs text-muted-foreground/70">
+            <span className="block text-xs text-muted-foreground">
               {formatRelativeTime(row.createdAt)}
             </span>
           </div>
@@ -295,7 +295,7 @@ export default function IssuesPage() {
           items: t("pagination.items"),
         }}
         emptyState={{
-          icon: <Warning className="h-12 w-12 text-muted-foreground/40" />,
+          icon: <Warning className="h-12 w-12 text-muted-foreground" />,
           title: t("empty.title"),
           description: t("empty.description"),
         }}

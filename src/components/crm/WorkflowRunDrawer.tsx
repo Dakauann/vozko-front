@@ -273,7 +273,7 @@ export function WorkflowRunDrawer({
                 {statusMeta && (
                   <span
                     className={cn(
-                      "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[11px] font-medium",
+                      "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-2xs font-medium",
                       statusMeta.className,
                     )}
                   >

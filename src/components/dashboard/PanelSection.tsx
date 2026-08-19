@@ -55,7 +55,7 @@ export function PanelSection({
       >
         <div className="min-w-0">
           {legend ? <p className="legend mb-1">{legend}</p> : null}
-          <h2 className="text-[15px] font-semibold leading-tight tracking-[-0.01em] text-foreground">
+          <h2 className="text-base font-semibold leading-tight tracking-[-0.01em] text-foreground">
             {title}
           </h2>
           {description ? (

@@ -8,7 +8,7 @@ import type { ReactNode } from "react";
 // expression and the node reads as a logic gate, not a message card.
 export function DecisionBlock({ children }: { children: ReactNode }) {
   return (
-    <div className="break-words rounded-md bg-muted px-2 py-1 font-mono text-[11px] leading-snug text-foreground/75">
+    <div className="break-words rounded-md bg-muted px-2 py-1 font-mono text-2xs leading-snug text-foreground/75">
       {children}
     </div>
   );

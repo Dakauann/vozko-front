@@ -144,7 +144,7 @@ function OpsFilterSelect({
           )}
           style={{ boxShadow: softSurfaceWithInset }}
         >
-          <span className="shrink-0 text-[11px] font-semibold text-muted-foreground">
+          <span className="shrink-0 text-2xs font-semibold text-muted-foreground">
             {label}
           </span>
           <span className="min-w-0 truncate text-foreground">
@@ -301,7 +301,7 @@ function CardHead({
           {title}
         </h3>
         {subtitle ? (
-          <p className="truncate text-[11px] leading-snug text-muted-foreground">
+          <p className="truncate text-2xs leading-snug text-muted-foreground">
             {subtitle}
           </p>
         ) : null}
@@ -334,7 +334,7 @@ function Stat({
       className="min-w-0 rounded-lg border border-border bg-muted px-2 py-1.5"
       title={hint}
     >
-      <p className="truncate text-[11px] font-semibold text-muted-foreground">
+      <p className="truncate text-2xs font-semibold text-muted-foreground">
         {label}
       </p>
       <p className="mt-0.5 truncate text-sm font-semibold tabular-nums tracking-tight text-foreground sm:text-base">
@@ -386,7 +386,7 @@ function HourlyChart({
 
   return (
     <div>
-      <div className="mb-1 flex flex-wrap gap-x-3 text-[11px] text-muted-foreground">
+      <div className="mb-1 flex flex-wrap gap-x-3 text-2xs text-muted-foreground">
         <span>
           {tc("total")}:{" "}
           <strong className="tabular-nums text-foreground">{fmt.num(total)}</strong>
@@ -521,7 +521,7 @@ function StatusChart({
       </ChartContainer>
       <div className="min-w-0 space-y-1.5">
         <div className="rounded-lg border border-border bg-muted px-2 py-1.5">
-          <p className="text-[11px] font-semibold text-muted-foreground">
+          <p className="text-2xs font-semibold text-muted-foreground">
             {tl("pctFinished")}
           </p>
           <p className="text-lg font-semibold tabular-nums text-foreground">
@@ -532,7 +532,7 @@ function StatusChart({
           const pct = total > 0 ? (s.value / total) * 100 : 0;
           return (
             <div key={s.key} className="min-w-0">
-              <div className="flex items-center justify-between gap-2 text-[11px]">
+              <div className="flex items-center justify-between gap-2 text-2xs">
                 <span className="inline-flex min-w-0 items-center gap-1 text-muted-foreground">
                   <span
                     className="h-1.5 w-1.5 shrink-0 rounded-full"
@@ -707,7 +707,7 @@ function DirectionMix({
       <div className="min-w-0 space-y-1.5">
         {data.map((s) => (
           <div key={s.key} className="min-w-0">
-            <div className="flex items-center justify-between gap-2 text-[11px]">
+            <div className="flex items-center justify-between gap-2 text-2xs">
               <span className="inline-flex min-w-0 items-center gap-1 text-muted-foreground">
                 <span
                   className="h-1.5 w-1.5 shrink-0 rounded-full"
@@ -778,7 +778,7 @@ function TeamRank({
     <div className="space-y-1.5">
       {data.map((d) => (
         <div key={d.name} className="space-y-0.5">
-          <div className="flex items-center justify-between gap-2 text-[11px]">
+          <div className="flex items-center justify-between gap-2 text-2xs">
             <span className="truncate font-medium text-foreground">{d.name}</span>
             <span className="shrink-0 tabular-nums text-muted-foreground">
               {fmt.num(d.resolved)} {finishedLabel.toLowerCase()}
@@ -844,7 +844,7 @@ function TeamTable({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-[11px]">
+      <table className="w-full text-left text-2xs">
         <thead>
           <tr className="border-b border-border text-muted-foreground">
             <th className="px-1.5 py-1 font-semibold">
@@ -920,7 +920,7 @@ function DeptTable({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-[11px]">
+      <table className="w-full text-left text-2xs">
         <thead>
           <tr className="border-b border-border text-muted-foreground">
             <th className="px-1.5 py-1 font-semibold">{tc("department")}</th>
@@ -1313,7 +1313,7 @@ export default function LiveOpsPanel({
             <p className="truncate text-sm font-semibold text-foreground">
               {t("title")}
             </p>
-            <p className="truncate text-[11px] text-muted-foreground">
+            <p className="truncate text-2xs text-muted-foreground">
               {t(
                 "subtitle",
                 {
@@ -1338,7 +1338,7 @@ export default function LiveOpsPanel({
 
           <div className="ml-auto flex shrink-0 items-center gap-1.5">
             {lastUpdated ? (
-              <span className="hidden text-[11px] text-muted-foreground xl:inline">
+              <span className="hidden text-2xs text-muted-foreground xl:inline">
                 {t("updatedAt", {
                   time: lastUpdated.toLocaleTimeString(undefined, {
                     hour: "2-digit",
@@ -1410,13 +1410,13 @@ export default function LiveOpsPanel({
 
           {live?.has_data ? (
             <div className="flex flex-wrap items-center gap-1.5 sm:ml-auto">
-              <span className="rounded-[--radius] bg-healthy px-2.5 py-0.5 text-[11px] font-semibold text-healthy-foreground">
+              <span className="rounded-[--radius] bg-healthy px-2.5 py-0.5 text-2xs font-semibold text-healthy-foreground">
                 {tc("online")} {fmt.num(live.online)}
               </span>
-              <span className="rounded-[--radius] bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
+              <span className="rounded-[--radius] bg-muted px-2.5 py-0.5 text-2xs font-semibold text-muted-foreground">
                 {tc("onCall")} {fmt.num(live.in_call)}
               </span>
-              <span className="rounded-[--radius] bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
+              <span className="rounded-[--radius] bg-muted px-2.5 py-0.5 text-2xs font-semibold text-muted-foreground">
                 {t("freeAgents")} {fmt.num(live.free)}
               </span>
             </div>
@@ -1468,7 +1468,7 @@ export default function LiveOpsPanel({
                 >
                   <div className="flex items-start justify-between gap-1">
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[11px] font-semibold text-muted-foreground">
+                      <p className="truncate text-2xs font-semibold text-muted-foreground">
                         {c.label}
                       </p>
                       <p
@@ -1500,7 +1500,7 @@ export default function LiveOpsPanel({
           </div>
 
           {(kpis?.shell_backlog ?? 0) > 0 ? (
-            <p className="shrink-0 text-[11px] text-muted-foreground">
+            <p className="shrink-0 text-2xs text-muted-foreground">
               {tk("shellLabel")}: {fmt.num(kpis?.shell_backlog)} ·{" "}
               {tk("entriesCreated", {
                 count: fmt.num(kpis?.entries_created ?? 0),
@@ -1695,7 +1695,7 @@ export default function LiveOpsPanel({
                     ) : (
                       channelMix.map((c) => (
                         <div key={c.channel} className="min-w-0">
-                          <div className="mb-0.5 flex items-center justify-between gap-2 text-[11px]">
+                          <div className="mb-0.5 flex items-center justify-between gap-2 text-2xs">
                             <span className="truncate font-medium text-foreground">
                               {c.channel === "whatsapp"
                                 ? tc("whatsapp")

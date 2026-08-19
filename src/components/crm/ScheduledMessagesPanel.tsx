@@ -69,7 +69,7 @@ export default function ScheduledMessagesPanel({
                     aria-expanded={expanded}
                 >
                     <Clock weight="fill" className="h-3.5 w-3.5 flex-shrink-0 text-primary-ink" />
-                    <span className="flex-1 text-[11px] font-semibold text-foreground">
+                    <span className="flex-1 text-2xs font-semibold text-foreground">
                         {t("panel.title", { count: pendingCount })}
                     </span>
                     <CaretDown
@@ -139,17 +139,17 @@ function ScheduledMessageRow({
                     ) : (
                         <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary" />
                     )}
-                    <span className="text-[11px] font-medium text-foreground">
+                    <span className="text-2xs font-medium text-foreground">
                         {failed ? t("panel.failedAt", { when }) : when}
                     </span>
                 </div>
 
-                <p className="mt-0.5 line-clamp-2 whitespace-pre-wrap text-[11px] text-muted-foreground">
+                <p className="mt-0.5 line-clamp-2 whitespace-pre-wrap text-2xs text-muted-foreground">
                     {message.text || t("panel.mediaOnly")}
                 </p>
 
                 {failureCopy ? (
-                    <p className="mt-1 text-[11px] text-warning-ink">{failureCopy}</p>
+                    <p className="mt-1 text-2xs text-warning-ink">{failureCopy}</p>
                 ) : null}
             </div>
 
@@ -158,7 +158,7 @@ function ScheduledMessageRow({
                     <button
                         type="button"
                         onClick={() => onReuse(message)}
-                        className="flex-shrink-0 rounded-[--radius] px-2 py-1 text-[11px] font-medium text-primary-ink transition-colors hover:bg-muted"
+                        className="flex-shrink-0 rounded-[--radius] px-2 py-1 text-2xs font-medium text-primary-ink transition-colors hover:bg-muted"
                     >
                         {t("panel.reuse")}
                     </button>

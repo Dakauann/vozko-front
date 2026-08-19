@@ -266,7 +266,7 @@ function DraftForm({
 
   return (
     <div className="space-y-4 rounded-[--radius] border border-border bg-card p-4">
-      <p className="text-[11px] font-semibold text-muted-foreground">
+      <p className="text-2xs font-semibold text-muted-foreground">
         {draft.id ? "Editar campo" : "Novo campo"}
       </p>
       <ElevatedInput

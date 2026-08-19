@@ -176,13 +176,13 @@ export default function SimulatorClient({ agent, toolCatalog }: SimulatorClientP
                     <h1 className="truncate text-sm font-semibold tracking-[-0.01em] text-foreground">
                         {t("title", { agent: agent.name })}
                     </h1>
-                    <p className="readout truncate text-[11px] text-muted-foreground">
+                    <p className="readout truncate text-2xs text-muted-foreground">
                         {agent.messagingModel}
                     </p>
                 </div>
 
                 {/* The sandbox promise, always on screen: this page's one claim. */}
-                <span className="ml-2 hidden items-center gap-1.5 rounded-[--radius] border border-border bg-muted px-2.5 py-1 text-[11px] font-medium text-foreground md:inline-flex">
+                <span className="ml-2 hidden items-center gap-1.5 rounded-[--radius] border border-border bg-muted px-2.5 py-1 text-2xs font-medium text-foreground md:inline-flex">
                     <ShieldCheck className="h-3.5 w-3.5 text-healthy-ink" weight="bold" />
                     {t("sandboxBadge")}
                 </span>
@@ -195,7 +195,7 @@ export default function SimulatorClient({ agent, toolCatalog }: SimulatorClientP
                     />
                     {confirmingReset ? (
                         <span className="flex items-center gap-1 rounded-[--radius] border border-border bg-muted px-1 py-0.5">
-                            <span className="px-1.5 text-[11px] font-medium text-foreground">
+                            <span className="px-1.5 text-2xs font-medium text-foreground">
                                 {t("resetConfirm")}
                             </span>
                             <button
@@ -235,7 +235,7 @@ export default function SimulatorClient({ agent, toolCatalog }: SimulatorClientP
                         <Wrench className="h-3.5 w-3.5" weight="bold" />
                         {t("rail.open")}
                         {toolCallCount > 0 && (
-                            <span className="readout rounded-full bg-muted px-1.5 text-[10px] font-semibold text-foreground">
+                            <span className="readout rounded-full bg-muted px-1.5 text-2xs font-semibold text-foreground">
                                 {toolCallCount}
                             </span>
                         )}
@@ -366,7 +366,7 @@ export default function SimulatorClient({ agent, toolCatalog }: SimulatorClientP
                                     <PaperPlaneRight className="h-4 w-4" weight="fill" />
                                 </button>
                             </div>
-                            <p className="mt-1.5 text-center text-[11px] text-muted-foreground">
+                            <p className="mt-1.5 text-center text-2xs text-muted-foreground">
                                 {t("composerHint")}
                             </p>
                         </div>
@@ -406,12 +406,12 @@ function EmptyState({ agentName, leadName }: { agentName: string; leadName: stri
                 {t("empty.description")}
             </p>
             {leadName ? (
-                <p className="flex items-center gap-1.5 rounded-[--radius] border border-border bg-muted px-2.5 py-1 text-[11px] text-foreground">
+                <p className="flex items-center gap-1.5 rounded-[--radius] border border-border bg-muted px-2.5 py-1 text-2xs text-foreground">
                     <UserCircle className="h-3.5 w-3.5 text-info-ink" weight="bold" />
                     {t("empty.asLead", { lead: leadName })}
                 </p>
             ) : null}
-            <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <p className="flex items-center gap-1.5 text-2xs text-muted-foreground">
                 <ShieldCheck className="h-3.5 w-3.5 text-healthy-ink" weight="bold" />
                 {t("empty.sandboxNote")}
             </p>
@@ -514,7 +514,7 @@ function LeadContextPicker({
                         // Clearing the lead destroys the transcript exactly like
                         // Reset does: same inline confirm, same anatomy.
                         <>
-                            <span className="pl-1 text-[11px] font-medium text-foreground">
+                            <span className="pl-1 text-2xs font-medium text-foreground">
                                 {t("resetConfirm")}
                             </span>
                             <button
@@ -571,7 +571,7 @@ function LeadContextPicker({
                         />
                     </div>
                     {hasTranscript && (
-                        <p className="border-b border-border bg-muted px-3 py-1.5 text-[11px] text-muted-foreground">
+                        <p className="border-b border-border px-3 py-1.5 text-2xs text-muted-foreground">
                             {t("leadPicker.resetWarning")}
                         </p>
                     )}
@@ -603,7 +603,7 @@ function LeadContextPicker({
                             ))
                         )}
                     </ul>
-                    <p className="border-t border-border px-3 py-1.5 text-[11px] leading-relaxed text-muted-foreground">
+                    <p className="border-t border-border px-3 py-1.5 text-2xs leading-relaxed text-muted-foreground">
                         {t("leadPicker.hint")}
                     </p>
                 </div>
@@ -634,12 +634,12 @@ function InlineToolRow({
                     weight="bold"
                 />
                 <span className="truncate text-xs font-medium text-foreground">{displayName}</span>
-                <span className="readout hidden truncate text-[10px] text-muted-foreground sm:inline">
+                <span className="readout hidden truncate text-2xs text-muted-foreground sm:inline">
                     {call.name}
                 </span>
                 <span
                     className={cn(
-                        "text-[10px] font-semibold",
+                        "text-2xs font-semibold",
                         call.isError
                             ? "text-destructive-ink"
                             : call.stubbed
@@ -870,7 +870,7 @@ function ToolCallCard({
                 />
                 <span className="min-w-0 flex-1">
                     <span className="block truncate text-xs font-semibold text-foreground">{displayName}</span>
-                    <span className="readout block truncate text-[10px] text-muted-foreground">{call.name}</span>
+                    <span className="readout block truncate text-2xs text-muted-foreground">{call.name}</span>
                 </span>
                 <CaretDown
                     className={cn(
@@ -886,11 +886,11 @@ function ToolCallCard({
                     <div>
                         <h4 className="legend mb-1">{t("rail.arguments")}</h4>
                         {hasArguments ? (
-                            <pre className="readout max-h-48 overflow-auto rounded-[--radius] border border-border bg-muted px-2.5 py-2 font-mono text-[11px] leading-relaxed text-foreground">
+                            <pre className="readout max-h-48 overflow-auto rounded-[--radius] border border-border bg-muted px-2.5 py-2 font-mono text-2xs leading-relaxed text-foreground">
                                 {JSON.stringify(call.arguments, null, 2)}
                             </pre>
                         ) : (
-                            <p className="text-[11px] text-muted-foreground">{t("rail.noArguments")}</p>
+                            <p className="text-2xs text-muted-foreground">{t("rail.noArguments")}</p>
                         )}
                     </div>
                     {call.result && (
@@ -900,7 +900,7 @@ function ToolCallCard({
                             </h4>
                             <p
                                 className={cn(
-                                    "whitespace-pre-wrap break-words rounded-[--radius] border border-border bg-muted px-2.5 py-2 text-[11px] leading-relaxed",
+                                    "whitespace-pre-wrap break-words rounded-[--radius] border border-border bg-muted px-2.5 py-2 text-2xs leading-relaxed",
                                     call.isError ? "text-destructive-ink" : "text-foreground",
                                 )}
                             >
@@ -908,7 +908,7 @@ function ToolCallCard({
                             </p>
                         </div>
                     )}
-                    <p className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <p className="flex items-center gap-1 text-2xs text-muted-foreground">
                         {call.stubbed ? (
                             <ShieldCheck className="h-3 w-3 text-healthy-ink" weight="bold" />
                         ) : (
@@ -980,20 +980,20 @@ function XRayTab({
                         {debug.toolNames.map((name) => (
                             <li
                                 key={name}
-                                className="rounded-[--radius] border border-border bg-muted px-2 py-0.5 text-[11px] text-foreground"
+                                className="rounded-[--radius] border border-border bg-muted px-2 py-0.5 text-2xs text-foreground"
                             >
                                 {displayNames.get(name) ?? name}
                             </li>
                         ))}
                     </ul>
                 ) : (
-                    <p className="text-[11px] text-muted-foreground">{t("rail.noTools")}</p>
+                    <p className="text-2xs text-muted-foreground">{t("rail.noTools")}</p>
                 )}
             </section>
 
             <section>
                 <h3 className="legend mb-1.5">{t("rail.systemPrompt")}</h3>
-                <pre className="readout max-h-96 overflow-auto whitespace-pre-wrap break-words rounded-lg border border-border bg-muted px-3 py-2.5 font-mono text-[11px] leading-relaxed text-foreground">
+                <pre className="readout max-h-96 overflow-auto whitespace-pre-wrap break-words rounded-lg border border-border bg-muted px-3 py-2.5 font-mono text-2xs leading-relaxed text-foreground">
                     {debug.systemPrompt}
                 </pre>
             </section>
@@ -1015,7 +1015,7 @@ function XRayRow({ label, value, mono }: { label: string; value: string; mono?: 
 function ContextChip({ on, label }: { on: boolean; label: string }) {
     const t = useTranslations("agentSimulator");
     return (
-        <span className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-muted px-2 py-0.5 text-[11px] text-foreground">
+        <span className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-muted px-2 py-0.5 text-2xs text-foreground">
             <span className={cn("h-1.5 w-1.5 rounded-full", on ? "bg-healthy" : "bg-border-strong")} />
             {label}
             <span className="text-muted-foreground">{on ? t("rail.injected") : t("rail.notInjected")}</span>

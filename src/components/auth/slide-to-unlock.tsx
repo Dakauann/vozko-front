@@ -189,12 +189,21 @@ export function SlideToUnlock({
         className,
       )}
     >
-      {/* The flood, behind everything. */}
-      <motion.div
-        className="absolute inset-y-0 left-0 bg-primary"
-        style={{ width: fill }}
-        aria-hidden
-      />
+      {/* The flood, behind everything.
+
+          Gated on the same phase as the thumb. `fill` is the thumb's leading
+          edge — x + THUMB + INSET*2 — so at rest it is 40px wide, not zero.
+          With the thumb hidden in the inert phase, that left a 40px block of
+          brand orange sitting at the edge of the track with nothing to explain
+          it: the control's most prominent feature, in its most common state,
+          read as a rendering fault. Colour arrives with the thing pushing it. */}
+      {phase !== "inert" && (
+        <motion.div
+          className="absolute inset-y-0 left-0 bg-primary"
+          style={{ width: fill }}
+          aria-hidden
+        />
+      )}
 
       {/* Label, layer one: on the muted ground ahead of the fill. */}
       <span
@@ -208,18 +217,20 @@ export function SlideToUnlock({
           so the two copies meet exactly at the thumb's leading edge. The inner
           span keeps the full track width, or the text would re-centre inside
           the shrinking clip and slide against itself. */}
-      <motion.span
-        className="pointer-events-none absolute inset-y-0 left-0 overflow-hidden"
-        style={{ width: fill }}
-        aria-hidden
-      >
-        <span
-          className="legend flex h-full items-center justify-center !text-primary-foreground"
-          style={{ width: trackWidth || undefined }}
+      {phase !== "inert" && (
+        <motion.span
+          className="pointer-events-none absolute inset-y-0 left-0 overflow-hidden"
+          style={{ width: fill }}
+          aria-hidden
         >
-          {text}
-        </span>
-      </motion.span>
+          <span
+            className="legend flex h-full items-center justify-center !text-primary-foreground"
+            style={{ width: trackWidth || undefined }}
+          >
+            {text}
+          </span>
+        </motion.span>
+      )}
 
       {/* The thumb. A white disc on both grounds, so it never dissolves into
           the fill it is pushing. */}

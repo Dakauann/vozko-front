@@ -259,7 +259,7 @@ export function DashboardNavbar({
                   <p className="truncate text-sm font-semibold text-foreground">
                     {user?.name || user?.email?.split("@")[0]}
                   </p>
-                  <p className="truncate text-[11px] text-muted-foreground">
+                  <p className="truncate text-2xs text-muted-foreground">
                     {user?.email}
                   </p>
                 </div>

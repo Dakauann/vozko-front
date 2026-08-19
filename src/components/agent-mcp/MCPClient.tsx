@@ -354,7 +354,7 @@ export default function MCPClient() {
             >
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
-                  <p className="text-[11px] font-semibold text-muted-foreground">
+                  <p className="text-2xs font-semibold text-muted-foreground">
                     {stat.label}
                   </p>
                   <p className="mt-2 text-2xl font-semibold text-foreground">
@@ -480,15 +480,15 @@ export default function MCPClient() {
                                 </p>
                                 <StatusChip status={server.status} />
                               </div>
-                              <p className="mt-1 truncate font-mono text-[11px] text-muted-foreground">
+                              <p className="mt-1 truncate font-mono text-2xs text-muted-foreground">
                                 {server.url}
                               </p>
                               <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                                <span className="rounded-[--radius] border border-border px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                                <span className="rounded-[--radius] border border-border px-2 py-0.5 text-2xs font-semibold text-muted-foreground">
                                   {server.transport}
                                 </span>
                                 {server.authMode ? (
-                                  <span className="rounded-[--radius] border border-border px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                                  <span className="rounded-[--radius] border border-border px-2 py-0.5 text-2xs font-semibold text-muted-foreground">
                                     {authBadgeLabel(server.authMode, t)}
                                   </span>
                                 ) : null}
@@ -644,7 +644,7 @@ function RemoteDetail({
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-[--radius] border border-border bg-background p-4">
-          <p className="text-[11px] font-semibold text-muted-foreground">
+          <p className="text-2xs font-semibold text-muted-foreground">
             {t("detail.statusLabel")}
           </p>
           <div className="mt-2">
@@ -652,7 +652,7 @@ function RemoteDetail({
           </div>
         </div>
         <div className="rounded-[--radius] border border-border bg-background p-4">
-          <p className="text-[11px] font-semibold text-muted-foreground">
+          <p className="text-2xs font-semibold text-muted-foreground">
             {t("detail.transportLabel")}
           </p>
           <p className="mt-2 text-sm font-medium text-foreground">
@@ -660,7 +660,7 @@ function RemoteDetail({
           </p>
         </div>
         <div className="rounded-[--radius] border border-border bg-background p-4">
-          <p className="text-[11px] font-semibold text-muted-foreground">
+          <p className="text-2xs font-semibold text-muted-foreground">
             {t("detail.authLabel")}
           </p>
           <p className="mt-2 text-sm font-medium text-foreground">

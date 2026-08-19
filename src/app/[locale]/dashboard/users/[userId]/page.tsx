@@ -96,7 +96,7 @@ function InfoCard({
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-semibold text-muted-foreground">
+        <p className="text-2xs font-semibold text-muted-foreground">
           {label}
         </p>
         <p
@@ -303,7 +303,7 @@ export default function AdminUserDetailPage() {
                 {/* Role badge */}
                 <span
                   className={cn(
-                    "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-semibold",
+                    "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-2xs font-semibold",
                     role.bg,
                     role.text,
                   )}
@@ -313,7 +313,7 @@ export default function AdminUserDetailPage() {
                 </span>
 
                 {/* Customer type badge */}
-                <span className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground">
+                <span className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-2xs font-semibold text-primary-foreground">
                   <Buildings className="h-3.5 w-3.5" weight="fill" />
                   {user.customerType === "company"
                     ? t("customerType.company")
@@ -323,7 +323,7 @@ export default function AdminUserDetailPage() {
                 {/* Email verified badge */}
                 <span
                   className={cn(
-                    "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-semibold",
+                    "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-2xs font-semibold",
                     user.emailVerified
                       ? "bg-healthy text-healthy-foreground"
                       : "bg-destructive text-destructive-foreground",

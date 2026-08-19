@@ -5121,7 +5121,8 @@
     },
     "table": {
       "messageType": "Message type",
-      "dispatches": "Dispatches"
+      "dispatches": "Dispatches",
+      "avoidingSpam": "Spam-avoided"
     },
     "messageType": {
       "marketing": "Marketing",
@@ -5834,7 +5835,8 @@
       "whatsapp_campaign": "WhatsApp Campaign",
       "top_up": "Top Up",
       "manual_adjustment": "Adjustment",
-      "addon": "Addon"
+      "addon": "Addon",
+      "whatsapp_outreach": "Conversation started"
     },
     "resourceType": {
       "whatsappSendings": "WhatsApp",
@@ -8486,42 +8488,154 @@
   "leadsPage": {
     "header": {
       "badge": "Leads",
-      "description": "Complete list of workspace leads with filters by channel, campaign and activity."
+      "description": "Every lead in the workspace, with search, advanced filters and memories."
     },
     "summary": {
-      "total": "Total Leads",
-      "withWhatsApp": "With WhatsApp"
+      "total": "Total leads",
+      "withWhatsApp": "With WhatsApp",
+      "windowOpen": "Window open",
+      "withMemory": "With memories",
+      "blocked": "Blocked"
+    },
+    "search": {
+      "placeholder": "Search by name, phone or memory..."
     },
     "filters": {
       "label": "Filters",
-      "searchNumber": "Search number...",
-      "searchName": "Search name...",
-      "allWhatsApp": "All WhatsApp",
-      "hasWhatsApp": "With WhatsApp",
-      "noWhatsApp": "No WhatsApp",
-      "ageMin": "Min age",
-      "ageMax": "Max age"
+      "advanced": "Filters",
+      "title": "Filter leads",
+      "clearAll": "Clear all",
+      "done": "Done",
+      "any": "Any",
+      "yes": "Yes",
+      "no": "No",
+      "from": "From",
+      "to": "To",
+      "min": "Min",
+      "max": "Max",
+      "search": "Search...",
+      "empty": "No results",
+      "loading": "Loading...",
+      "activeCount": "{count} active filters",
+      "groups": {
+        "identity": "Identity",
+        "engagement": "Activity",
+        "campaigns": "Campaigns",
+        "crm": "CRM",
+        "memories": "Memories"
+      },
+      "fields": {
+        "name": "Name",
+        "number": "Phone",
+        "age": "Age",
+        "blocked": "Blocked",
+        "channel": "Channel",
+        "windowOpen": "24h window",
+        "lastActivityAt": "Last activity",
+        "createdAt": "Created",
+        "updatedAt": "Updated",
+        "campaign": "Campaign",
+        "campaignStatus": "Delivery status",
+        "campaignCount": "Campaign count",
+        "stage": "Stage",
+        "label": "Label",
+        "memoryCategory": "Memory category",
+        "memoryAuthor": "Memory author",
+        "memoryText": "Memory content",
+        "memoryCount": "Memory count",
+        "memoryUpdatedAt": "Memory updated"
+      },
+      "options": {
+        "channel": {
+          "whatsapp": "WhatsApp",
+          "unofficial_whatsapp": "WhatsApp (device)",
+          "telegram": "Telegram",
+          "instagram": "Instagram"
+        },
+        "campaignStatus": {
+          "PENDING": "Pending",
+          "SENT": "Sent",
+          "DELIVERED": "Delivered",
+          "READ": "Read",
+          "FAILED": "Failed"
+        },
+        "memoryCategory": {
+          "personal": "Personal",
+          "preference": "Preference",
+          "deal": "Deal",
+          "objection": "Objection",
+          "commitment": "Commitment",
+          "event": "Event",
+          "other": "Other"
+        },
+        "memoryAuthor": {
+          "ai": "AI",
+          "human": "Operator",
+          "system": "System"
+        },
+        "blocked": {
+          "true": "Blocked",
+          "false": "Active"
+        },
+        "windowOpen": {
+          "true": "Open",
+          "false": "Closed"
+        }
+      },
+      "chips": {
+        "remove": "Remove filter",
+        "contains": "contains",
+        "in": "is",
+        "notIn": "is not",
+        "gte": "from",
+        "lte": "to",
+        "isSet": "has",
+        "isEmpty": "has no",
+        "isTrue": "yes",
+        "isFalse": "no"
+      }
     },
-    "entryType": {
-      "whatsapp": "WhatsApp",
-      "sms": "SMS"
+    "views": {
+      "label": "Views",
+      "save": "Save current view",
+      "namePlaceholder": "View name",
+      "empty": "No saved views",
+      "delete": "Delete",
+      "shared": "Shared",
+      "saved": "View saved",
+      "saveError": "Could not save the view"
+    },
+    "sort": {
+      "label": "Sort",
+      "hint": "Shift + click to sort by several columns"
     },
     "records": {
       "total": "leads",
-      "empty": "No leads found."
+      "empty": "No leads found.",
+      "emptyFiltered": "No leads match these filters.",
+      "clearFilters": "Clear filters",
+      "perPage": "Per page",
+      "showing": "Showing",
+      "of": "of"
     },
     "table": {
       "number": "Phone",
       "name": "Name",
       "age": "Age",
-      "window": "WhatsApp Window",
-      "lastActivity": "Last Activity",
-      "createdAt": "Created on",
-      "campaigns": "Campaigns"
+      "window": "Window",
+      "lastActivity": "Last activity",
+      "createdAt": "Created",
+      "campaigns": "Campaigns",
+      "memories": "Memories",
+      "blocked": "Blocked"
     },
     "window": {
       "open": "Open",
       "closed": "Closed"
+    },
+    "entryType": {
+      "whatsapp": "WhatsApp",
+      "sms": "SMS"
     },
     "campaignHistory": {
       "title": "Campaign History",
@@ -9087,7 +9201,9 @@
       "manageTags": "Manage tags",
       "manageLabels": "Manage labels",
       "startConversation": "New conversation",
-      "startConversationHint": "Send the first message to a new number (unofficial WhatsApp)"
+      "startConversationHint": "Send the first message to a new number (unofficial WhatsApp)",
+      "startOfficial": "Official WhatsApp",
+      "startOfficialHint": "Send a template to a new number on official WhatsApp (uses balance)"
     },
     "deals": {
       "title": "Sales Pipeline",
@@ -9110,7 +9226,7 @@
       "tags": "Tags",
       "manage": "Manage",
       "session": "Session",
-      "outbound": "Contact"
+      "outbound": "Reach out"
     }
   },
   "metricsOps": {
@@ -10354,6 +10470,130 @@
       "account_restricted": "WhatsApp has temporarily restricted this number.",
       "reply_revoked": "This channel's reply permission was revoked by the account owner.",
       "channel_unavailable": "The number for this conversation was removed or is no longer available."
+    }
+  },
+  "whatsappOutreach": {
+    "title": "New conversation on official WhatsApp",
+    "description": "Send an approved template to a number that has never written to you. This send uses your balance.",
+    "fromLabel": "Send from",
+    "templateLabel": "Template",
+    "templateSearch": "Search templates",
+    "templateEmpty": "No templates found for this number.",
+    "phoneLabel": "Recipient number",
+    "phoneHint": "Country code and area code, digits only. E.g. 5511999999999",
+    "phoneInvalid": "Incomplete or invalid number. Include the country and area code.",
+    "resolved": "will be the recipient",
+    "nameLabel": "Name (optional)",
+    "namePlaceholder": "How to identify this contact",
+    "variablesLabel": "Template variables",
+    "bodyVariable": "Variable {name}",
+    "headerVariable": "Header: variable {name}",
+    "previewLabel": "What the customer will receive",
+    "mediaHeaderMissing": "This template has a media header with no file uploaded. Configure the media before using it.",
+    "noNumbers": "No connected business numbers. Connect one to start conversations.",
+    "submit": "Send and open conversation",
+    "submitWithPrice": "Send for {price}",
+    "sending": "Sending...",
+    "cancel": "Cancel",
+    "cost": {
+      "label": "Cost of this send",
+      "insufficient": "Not enough balance for this send. Add credits to continue."
+    },
+    "risk": "You are starting a conversation with someone who did not contact you. The template is charged on send, even if they never reply.",
+    "usability": {
+      "ready": "Ready",
+      "not_approved": "Awaiting approval",
+      "missing_header_media": "Header media missing"
+    },
+    "empty": {
+      "title": "No template is ready to send",
+      "pending": "{count, plural, =1 {1 template is awaiting Meta approval. You can send it as soon as it is approved.} other {# templates are awaiting Meta approval. You can send them as soon as they are approved.}}",
+      "none": "This number has no templates available to your workspace yet."
+    },
+    "errors": {
+      "window_already_open": "This conversation is already open. Reply from the chat, at no cost.",
+      "send_in_progress": "This send is already in progress. Wait for confirmation.",
+      "within_spam_window": "This contact was messaged from this number recently. Wait for the interval your workspace set.",
+      "rate_limited": "Too many conversations started in a short time. Try again shortly.",
+      "insufficient_balance": "Not enough balance to send this template.",
+      "pricing_unavailable": "No price is configured for this template category. Contact your workspace administrator.",
+      "template_not_sendable": "This template is not ready to send.",
+      "template_phone_mismatch": "This template does not belong to the selected number's account.",
+      "invalid_phone": "Invalid recipient number.",
+      "lead_blocked": "This contact is blocked.",
+      "forbidden": "You do not have access to this number or template.",
+      "phone_not_connected": "This number is not connected.",
+      "not_found": "Number or template not found.",
+      "idempotency_key_required": "The send could not be confirmed. Close and reopen the dialog to try again.",
+      "billing_unavailable": "Billing is unavailable right now. The send was refused as a precaution.",
+      "send_failed": "The template could not be sent."
+    },
+    "create": {
+      "open": "Create a template",
+      "title": "Create a utility template",
+      "description": "Utility templates fit any context: resuming a conversation, confirming something, reporting progress. Meta has to approve one before its first send.",
+      "startersLabel": "Start from a ready-made template",
+      "starters": {
+        "followUp": {
+          "title": "Resume a conversation",
+          "body": "Hello, '{{1}}'! We are picking your case back up. Reply here whenever you can."
+        },
+        "confirmation": {
+          "title": "Confirm an appointment",
+          "body": "Hello, '{{1}}'! Confirming your appointment for '{{2}}'. Reply to this message if you need to reschedule."
+        },
+        "update": {
+          "title": "Report progress",
+          "body": "Hello, '{{1}}'! Your request has an update: '{{2}}'. Reply here with any questions."
+        },
+        "documentReady": {
+          "title": "Say a document is ready",
+          "body": "Hello, '{{1}}'! The document you requested is ready. Reply to this message to receive it."
+        }
+      },
+      "utilityNote": "All of these are the utility category, which costs about a quarter of a marketing message and may not contain an offer or promotion.",
+      "nameLabel": "Template name",
+      "nameInvalid": "Use lowercase letters, digits and underscores only, starting with a letter.",
+      "bodyLabel": "Message text",
+      "examplesLabel": "Variable examples",
+      "examplesHint": "Meta requires an example of each variable to review the template. They are never sent to the customer.",
+      "exampleFor": "Example for {name}",
+      "submit": "Submit for approval",
+      "submitting": "Submitting...",
+      "back": "Back",
+      "backToSend": "Back to sending",
+      "failed": "The template could not be created.",
+      "rejected": "Meta rejected this template. Review the text and try again.",
+      "submitted": {
+        "title": "Template {name} submitted for approval",
+        "description": "Meta reviews every template before it can be sent, which usually takes 24 to 48 hours. Once approved it appears in the template list and can be sent — nothing here needs redoing."
+      },
+      "phoneLabel": "Create on the account of",
+      "phoneHint": "The template belongs to the WhatsApp Business Account behind the chosen number, and can only be sent from it.",
+      "previewLabel": "Preview in a conversation",
+      "previewHint": "This is how the message arrives for someone who has not written to you yet. The examples stand in for the variables.",
+      "previewEmpty": "Write the text to see the message here.",
+      "fullBuilder": {
+        "title": "Need media, buttons or a footer?",
+        "description": "Open the full drag-and-drop builder. It opens in another tab, so what you have filled in here stays."
+      }
+    },
+    "pickPhoneFirst": "Choose the sending number to see its templates.",
+    "today": "Today",
+    "previewEmpty": "Choose a template to see the message here."
+  },
+  "crmConversation": {
+    "deliveryError": {
+      "title": "Not delivered",
+      "unknown": "WhatsApp did not say why. This send has been refunded.",
+      "code": "code {code}",
+      "notOnWhatsApp": "This number has no WhatsApp account. Check the number and try again.",
+      "billingIssue": "The business account has an outstanding payment with Meta. An admin has to resolve it before sending resumes.",
+      "windowClosed": "The 24h window was closed. Send an approved template to reopen the conversation.",
+      "qualityLimit": "The number hit Meta's sending limit for quality or volume. Wait and try later.",
+      "userStoppedMarketing": "This person opted out of marketing messages from this number.",
+      "templateProblem": "The template was refused on send: it may be paused, rejected, or its variables may not match.",
+      "experimentHoldout": "Meta withheld this message for a delivery experiment."
     }
   }
 }

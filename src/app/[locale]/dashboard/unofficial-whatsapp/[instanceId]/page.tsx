@@ -26,7 +26,7 @@ import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader"
 import { DepartmentAssignmentCard } from "@/components/dashboard/DepartmentAssignmentCard";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
-import { Switch } from "@/components/ui/switch";
+import { ElevatedSwitch as Switch } from "@/components/elevated-design/elevated-switch";
 import { UnofficialWhatsAppAutomationPanel } from "@/components/unofficial-whatsapp/automation-panel";
 import { WhatsAppLogoColor } from "@/components/icons/channel-logos";
 import { cn } from "@/lib/utils";

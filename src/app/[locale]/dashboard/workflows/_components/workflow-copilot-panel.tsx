@@ -231,7 +231,7 @@ export function WorkflowCopilotPanel({
                       : "Conectando…"
               }
               className={cn(
-                "inline-flex items-center gap-1 rounded-full px-1 text-[11px] font-medium",
+                "inline-flex items-center gap-1 rounded-full px-1 text-2xs font-medium",
                 connection === "online"
                   ? "cursor-default text-muted-foreground"
                   : connection === "offline"
@@ -379,7 +379,7 @@ export function WorkflowCopilotPanel({
               bloqueante(s)
             </div>
             {blocking.map((iss, i) => (
-              <div key={i} className="text-[11px] text-muted-foreground">
+              <div key={i} className="text-2xs text-muted-foreground">
                 • {iss.message}
                 {iss.nodeId ? ` (${iss.nodeId})` : ""}
               </div>
@@ -402,7 +402,7 @@ export function WorkflowCopilotPanel({
             {advisoryOpen && (
               <div className="mt-1 space-y-1">
                 {advisory.map((iss, i) => (
-                  <div key={i} className="text-[11px] text-muted-foreground">
+                  <div key={i} className="text-2xs text-muted-foreground">
                     • {iss.message}
                   </div>
                 ))}
@@ -414,7 +414,7 @@ export function WorkflowCopilotPanel({
 
       {/* Live "working" indicator, shows the agent is actively thinking/doing */}
       {isBusy && (
-        <div className="flex items-center gap-2 px-3 py-1.5 border-t border-border text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-2 px-3 py-1.5 border-t border-border text-2xs text-muted-foreground">
           <span className="flex gap-0.5">
             <span className="w-1 h-1 rounded-full bg-primary animate-dot-pulse [animation-delay:-0.2s]" />
             <span className="w-1 h-1 rounded-full bg-primary animate-dot-pulse [animation-delay:-0.1s]" />

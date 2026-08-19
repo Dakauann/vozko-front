@@ -198,7 +198,7 @@ export function WhatsAppMessagePreview({
               )}
             >
               <ListIcon size={12} weight="bold" className={WA_ACTION_TEXT} />
-              <span className={cn("truncate text-[11px] font-medium", WA_ACTION_TEXT)}>
+              <span className={cn("truncate text-2xs font-medium", WA_ACTION_TEXT)}>
                 {parsed.listButton.trim() || "Ver opções"}
               </span>
             </div>
@@ -228,7 +228,7 @@ function EmptyOptions({
         className,
       )}
     >
-      <span className="text-[11px] italic text-black/40 dark:text-white/40">
+      <span className="text-2xs italic text-black/40 dark:text-white/40">
         {label}
       </span>
     </div>

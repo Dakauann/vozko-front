@@ -110,12 +110,12 @@ export function ElevatedStepper({
                       {step.title}
                     </p>
                     {step.description ? (
-                      <p className="mt-0.5 hidden text-[11px] text-muted-foreground md:block">
+                      <p className="mt-0.5 hidden text-2xs text-muted-foreground md:block">
                         {step.description}
                       </p>
                     ) : null}
                     {step.optional ? (
-                      <span className="mt-1 inline-block rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                      <span className="mt-1 inline-block rounded-[--radius] bg-muted px-2 py-0.5 text-2xs font-medium text-muted-foreground">
                         opcional
                       </span>
                     ) : null}
@@ -141,7 +141,7 @@ export function ElevatedStepper({
       {/* ── Mobile compact header ── */}
       {compactOnMobile && activeStep ? (
         <div className="sm:hidden px-5 pt-5 pb-0">
-          <p className="text-[11px] font-semibold text-primary-ink">
+          <p className="text-2xs font-semibold text-primary-ink">
             Etapa {safeIndex + 1} de {total}
           </p>
           <h2 className="mt-1 text-lg font-semibold text-foreground">

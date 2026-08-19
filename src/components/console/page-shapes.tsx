@@ -121,7 +121,7 @@ export function ReadoutBar({
             <span className="legend">{r.label}</span>
             <span
               className={cn(
-                "readout whitespace-nowrap text-[15px] font-semibold",
+                "readout whitespace-nowrap text-base font-semibold",
                 TONE_TEXT[r.tone ?? "default"],
               )}
             >
@@ -219,12 +219,12 @@ export function InstrumentStrip({
           </div>
 
           {loading ? (
-            <span className="mt-0.5 block h-6 w-28 animate-pulse bg-border" />
+            <span className="mt-0.5 block h-6 w-28 animate-pulse rounded-md bg-border" />
           ) : (
             <span
               className={cn(
                 "readout font-semibold leading-tight",
-                compact ? "text-[17px]" : "text-[19px]",
+                compact ? "text-lg" : "text-xl",
                 TONE_TEXT[inst.tone ?? "default"],
               )}
             >
@@ -253,7 +253,7 @@ function InfoGlyph() {
     <button
       type="button"
       aria-label="?"
-      className="peer relative flex h-3 w-3 items-center justify-center border border-border text-[11px] font-bold leading-none text-muted-foreground before:absolute before:-inset-[11px] before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:before:hidden"
+      className="peer relative flex h-3 w-3 items-center justify-center border border-border text-2xs font-bold leading-none text-muted-foreground before:absolute before:-inset-[11px] before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:before:hidden"
     >
       ?
     </button>
@@ -328,7 +328,7 @@ export function StatusRail({
               "group relative min-w-[7rem] flex-1 border-l border-border px-3 pb-2.5 pt-2 text-left transition-colors duration-DEFAULT first:border-l-0",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               selected
-                ? "bg-muted"
+                ? "bg-primary-subtle text-primary-ink"
                 : "hover:bg-muted",
             )}
           >
@@ -342,7 +342,7 @@ export function StatusRail({
             </span>
             <span
               className={cn(
-                "readout mt-0.5 block text-[17px] leading-none",
+                "readout mt-0.5 block text-lg leading-none",
                 selected ? "font-semibold" : "font-medium",
                 TONE_TEXT[bank.tone ?? "default"],
               )}
@@ -355,7 +355,7 @@ export function StatusRail({
                 only the selection reports as lit. */}
             <span
               aria-hidden
-              className="absolute inset-x-0 bottom-0 block h-[3px] bg-border"
+              className="absolute inset-x-0 bottom-0 block h-0.5 rounded-full bg-border"
             >
               <span
                 className={cn(

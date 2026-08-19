@@ -160,7 +160,7 @@ export default function ElevatedRichTextEditor({
   return (
     <div className={`${className} relative flex flex-col`}>
       {}
-      <div className="flex flex-wrap items-center gap-1 p-2 bg-muted border border-border rounded-t-2xl border-b-0">
+      <div className="flex flex-wrap items-center gap-1 p-2 border border-border rounded-t-2xl border-b-0">
         <div className="flex items-center gap-1 border-r border-foreground/20 pr-2 mr-1">
           <MenuButton
             onClick={() => editor.chain().focus().toggleBold().run()}

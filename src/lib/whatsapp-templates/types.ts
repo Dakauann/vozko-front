@@ -122,14 +122,6 @@ export interface UpdateHeaderMediaPayload {
     headerMediaUrl: string | null;
 }
 
-export interface SendTemplatePayload {
-    businessPhoneId: string;
-    to: string;
-    template: string;
-    language?: string;
-    parameters?: string[];
-    headerParameters?: string[];
-}
 
 export interface TemplateListParams {
     wabaId?: string;

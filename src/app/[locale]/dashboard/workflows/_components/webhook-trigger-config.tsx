@@ -267,7 +267,7 @@ export function WebhookTriggerConfig({
       <div className="flex items-center justify-between rounded-lg border border-border bg-mist px-3 py-2">
         <div>
           <p className="text-xs font-medium text-foreground">Webhook ativo</p>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-2xs text-muted-foreground">
             Quando inativo, as chamadas recebidas retornam 404.
           </p>
         </div>
@@ -360,7 +360,7 @@ function ConfigShell({
           <div className="flex items-center gap-2">
             <p className="text-sm font-semibold text-foreground">Gatilho de Webhook</p>
             {active === false && (
-              <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+              <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-2xs font-medium text-muted-foreground">
                 inativo
               </span>
             )}
@@ -392,7 +392,7 @@ function PayloadReference() {
         <Info className="h-3.5 w-3.5 text-primary-ink" weight="bold" />
         Variáveis disponíveis no fluxo
       </div>
-      <ul className="space-y-1 text-[11px] text-muted-foreground">
+      <ul className="space-y-1 text-2xs text-muted-foreground">
         <li>
           <code className="rounded bg-background px-1 py-0.5 font-mono text-foreground">
             {"{{var.webhook.body.<campo>}}"}

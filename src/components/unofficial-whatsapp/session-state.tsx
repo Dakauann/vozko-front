@@ -81,7 +81,7 @@ export function SessionState({ instance, compact = false, className }: SessionSt
     <span
       className={cn(
         "inline-flex items-center gap-1.5 rounded-[--radius] bg-muted px-2 py-1",
-        "text-[11px] font-semibold leading-none",
+        "text-2xs font-semibold leading-none",
         ink,
         className,
       )}

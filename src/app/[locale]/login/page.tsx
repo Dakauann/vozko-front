@@ -225,12 +225,12 @@ function LoginContent() {
     <main className="flex min-h-[calc(100vh-3rem)] items-center justify-center bg-background px-4 py-10 sm:py-16">
       <div className="w-full max-w-[400px]">
         <div className="well overflow-hidden">
-          <div className="rule-engraved flex items-center gap-2.5 bg-muted px-5 py-3.5">
+          <div className="rule-engraved flex items-center gap-2.5 px-5 py-3.5">
             <BrandLogo size="sm" />
           </div>
 
           <div className="px-5 py-6 sm:px-6">
-            <h1 className="text-[19px] font-semibold leading-tight tracking-[-0.01em] text-foreground">
+            <h1 className="text-xl font-semibold leading-tight tracking-[-0.01em] text-foreground">
               {t("header.title")}
             </h1>
             <p className="mt-1.5 max-w-[46ch] text-sm leading-snug text-muted-foreground">

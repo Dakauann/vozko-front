@@ -297,7 +297,7 @@ const ElevatedInput = forwardRef<HTMLInputElement, ElevatedInputProps>(
           className={cn(
             "peer block w-full font-medium transition-all duration-200 ease-out focus-visible:outline-none",
             visibleLabel
-              ? "placeholder:text-transparent focus:placeholder:text-muted-foreground/70"
+              ? "placeholder:text-transparent focus:placeholder:text-muted-foreground"
               : "placeholder:text-muted-foreground",
             resolvedVariant === "ghost"
               ? "rounded-[--radius]"

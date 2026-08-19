@@ -64,7 +64,7 @@ export function KnowledgeBaseSelector({
       <ElevatedContainer className="p-4">
         <div className="text-center space-y-3">
           <Files
-            className="h-8 w-8 text-muted-foreground/50 mx-auto"
+            className="h-8 w-8 text-muted-foreground mx-auto"
             weight="fill"
           />
           <p className="text-sm text-muted-foreground">

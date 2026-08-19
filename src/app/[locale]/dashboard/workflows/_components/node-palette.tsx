@@ -127,7 +127,7 @@ export function NodePalette({ definitions }: NodePaletteProps) {
             <div key={category}>
               <p
                 className={cn(
-                  "text-[11px] font-semibold px-1 mb-1.5 text-muted-black",
+                  "text-2xs font-semibold px-1 mb-1.5 text-muted-black",
                 )}
               >
                 {CATEGORY_LABEL[category]}
@@ -157,7 +157,7 @@ export function NodePalette({ definitions }: NodePaletteProps) {
                           {def.label}
                         </p>
                         {def.description && (
-                          <p className="text-[11px] leading-tight text-muted-foreground line-clamp-2 mt-0.5">
+                          <p className="text-2xs leading-tight text-muted-foreground line-clamp-2 mt-0.5">
                             {def.description}
                           </p>
                         )}

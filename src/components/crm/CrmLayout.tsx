@@ -105,6 +105,7 @@ import { ChannelAvatar } from "@/components/channels/channel-avatar";
 import { cn } from "@/lib/utils";
 import { useCrmNotifications } from "@/hooks/use-crm-notifications";
 import { useCrm } from "@/contexts/crm-context";
+import { StartOfficialConversationDialog } from "@/components/whatsapp/start-official-conversation-dialog";
 import { StartConversationDialog } from "@/components/unofficial-whatsapp/start-conversation-dialog";
 import { useWorkspace } from "@/contexts/workspace-context";
 import {
@@ -925,7 +926,13 @@ export default function CrmLayout({
   // stranger is the action that gets an unofficial number banned, so an
   // attendant with full attendance rights does not get it by default.
   const canStartConversation = can("unofficial_whatsapp_instances", "send");
+  // A SECOND, independent gate. Folding the two would hand whoever may start an
+  // unofficial conversation the ability to spend the workspace's balance on an
+  // official one, and vice versa — they are different privileges because they
+  // are different risks.
+  const canStartOfficial = can("whatsapp_templates", "send");
   const [startConversationOpen, setStartConversationOpen] = useState(false);
+  const [startOfficialOpen, setStartOfficialOpen] = useState(false);
 
   const handleConversationStarted = useCallback(
     (entryId: string, entryType: string) => {
@@ -1576,7 +1583,7 @@ export default function CrmLayout({
                   setStatusMenuOpen((open) => !open);
                 }}
                 className={cn(
-                  "flex items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-[11px] font-semibold text-foreground transition-colors",
+                  "flex items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-2xs font-semibold text-foreground transition-colors",
                   can("conversations", "send") && "hover:bg-muted",
                   !can("conversations", "send") && "cursor-default opacity-90",
                 )}
@@ -1599,7 +1606,7 @@ export default function CrmLayout({
             {statusMenuOpen && can("conversations", "send") && (
               <div className="absolute right-0 top-full mt-1 z-50 w-64 rounded-[--radius] border border-border bg-card shadow-lg py-1 animate-in fade-in slide-in-from-top-1 duration-150">
                 <div className="border-b border-border px-3 py-2">
-                  <div className="text-[11px] font-semibold text-muted-foreground">
+                  <div className="text-2xs font-semibold text-muted-foreground">
                     Status atual
                   </div>
                   <div
@@ -1612,20 +1619,20 @@ export default function CrmLayout({
                   </div>
                   {currentConversationStatusMeta.provenance ? (
                     <div className="mt-1.5 space-y-0.5 rounded-lg bg-muted px-2.5 py-2">
-                      <div className="text-[11px] text-muted-foreground">
+                      <div className="text-2xs text-muted-foreground">
                         Encerrada por{" "}
                         <span className="font-medium text-foreground">
                           {currentConversationStatusMeta.provenance.by}
                         </span>
                       </div>
-                      <div className="text-[11px] text-muted-foreground">
+                      <div className="text-2xs text-muted-foreground">
                         Motivo:{" "}
                         <span className="font-medium text-foreground">
                           {currentConversationStatusMeta.provenance.reasonLabel}
                         </span>
                       </div>
                       {currentConversationStatusMeta.provenance.isSilence ? (
-                        <div className="text-[11px] font-medium text-warning-ink">
+                        <div className="text-2xs font-medium text-warning-ink">
                           Encerrada automaticamente por silêncio
                         </div>
                       ) : null}
@@ -1756,7 +1763,7 @@ export default function CrmLayout({
                         <span className="truncate">
                           {t.conversation.callViaWhatsapp ?? "WhatsApp"}
                         </span>
-                        <span className="ml-auto text-[11px] font-semibold text-muted-foreground">
+                        <span className="ml-auto text-2xs font-semibold text-muted-foreground">
                           {callPermissionLoading
                             ? "Verificando…"
                             : "Permissão necessária"}
@@ -1783,7 +1790,7 @@ export default function CrmLayout({
                         {t.conversation.callViaWhatsapp ?? "WhatsApp"}
                       </span>
                       {resolvedPhone && (
-                        <span className="ml-auto text-[11px] text-muted-foreground truncate">
+                        <span className="ml-auto text-2xs text-muted-foreground truncate">
                           {resolvedPhone.displayPhoneNumber}
                         </span>
                       )}
@@ -1801,7 +1808,7 @@ export default function CrmLayout({
                       <span>
                         {t.conversation.callViaWhatsapp ?? "WhatsApp"}
                       </span>
-                      <span className="ml-auto text-[11px] font-semibold text-muted-foreground">
+                      <span className="ml-auto text-2xs font-semibold text-muted-foreground">
                         Indisponível
                       </span>
                     </button>
@@ -1810,7 +1817,7 @@ export default function CrmLayout({
 
                 return (
                   <>
-                    <div className="px-3 py-1.5 text-[11px] font-semibold text-muted-foreground">
+                    <div className="px-3 py-1.5 text-2xs font-semibold text-muted-foreground">
                       {t.conversation.callViaWhatsapp ?? "WhatsApp"}
                     </div>
                     {whatsappPhones.map((phone) => (
@@ -1832,7 +1839,7 @@ export default function CrmLayout({
                           {phone.verifiedName || phone.displayPhoneNumber}
                         </span>
                         {phone.verifiedName && (
-                          <span className="ml-auto text-[11px] text-muted-foreground truncate">
+                          <span className="ml-auto text-2xs text-muted-foreground truncate">
                             {phone.displayPhoneNumber}
                           </span>
                         )}
@@ -1962,8 +1969,26 @@ export default function CrmLayout({
           </div>
 
           <div className="flex min-w-0 shrink-0 items-stretch border-t border-border sm:border-l sm:border-t-0">
-            {canStartConversation && (
+            {(canStartConversation || canStartOfficial) && (
               <ConsoleBank legend={tBoard("bank.outbound")}>
+                {canStartOfficial && (
+                  <TooltipWrapper content={tBoard("toolbar.startOfficialHint")}>
+                    {/* The official channel's own mark, because the two buttons
+                        differ only in which channel they reach — and one of them
+                        spends money. A shared glyph would make that a guess. */}
+                    <ElevatedButton
+                      variant="outline-subtle"
+                      size="sm"
+                      onClick={() => setStartOfficialOpen(true)}
+                      title={tBoard("toolbar.startOfficial")}
+                      titleClassName="hidden sm:inline"
+                      icon={<WhatsappLogo size={16} weight="bold" />}
+                      iconVisible
+                      iconSide="left"
+                    />
+                  </TooltipWrapper>
+                )}
+                {canStartConversation && (
                 <TooltipWrapper
                   content={tBoard("toolbar.startConversationHint")}
                 >
@@ -1982,6 +2007,7 @@ export default function CrmLayout({
                     iconSide="left"
                   />
                 </TooltipWrapper>
+                )}
               </ConsoleBank>
             )}
 
@@ -2432,6 +2458,14 @@ export default function CrmLayout({
         <StartConversationDialog
           open={startConversationOpen}
           onOpenChange={setStartConversationOpen}
+          onStarted={handleConversationStarted}
+        />
+      )}
+
+      {canStartOfficial && (
+        <StartOfficialConversationDialog
+          open={startOfficialOpen}
+          onOpenChange={setStartOfficialOpen}
           onStarted={handleConversationStarted}
         />
       )}

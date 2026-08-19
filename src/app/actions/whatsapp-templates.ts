@@ -1,6 +1,5 @@
 import type {
   CreateTemplatePayload,
-  SendTemplatePayload,
   TemplateListMeta,
   TemplateListParams,
   TemplateListResponse,
@@ -104,8 +103,6 @@ export async function createWhatsAppTemplateAction(payload: CreateTemplatePayloa
     body: JSON.stringify(payload),
   });
 
-  console.log("Creating template: ", payload, " Response: ", response);
-
   if (response.error) {
     return { template: null, error: response.error.message };
   }
@@ -142,39 +139,11 @@ export async function syncWhatsAppTemplateByIdAction(templateId: string) {
   return { success: true, template: response.data ?? null, error: null };
 }
 
-interface SendTemplateResponse {
-  message: string;
-  messageId?: string;
-  requestPayload?: Record<string, unknown>;
-  responsePayload?: Record<string, unknown>;
-  responseStatus?: number;
-}
 
-export async function sendWhatsAppTemplateMessageAction(payload: SendTemplatePayload) {
-  const response = await apiClient<SendTemplateResponse>('/whatsapp/templates/send', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  });
-
-  const debugInfo = response.data ? {
-    requestPayload: response.data.requestPayload ?? null,
-    responsePayload: response.data.responsePayload ?? null,
-    responseStatus: response.data.responseStatus ?? null,
-    serverMessage: response.data.message ?? null,
-  } : null;
-
-  if (response.error) {
-    return { success: false, messageId: null, error: response.error.message, debugInfo };
-  }
-
-  const hasError = response.data?.message?.startsWith('Failed');
-  return {
-    success: !hasError,
-    messageId: response.data?.messageId ?? null,
-    error: hasError ? response.data?.message ?? null : null,
-    debugInfo,
-  };
-}
+// sendWhatsAppTemplateMessageAction is gone. It posted to an ADMIN-only route
+// whose billing depended on a workspace happening to resolve from the request,
+// and which created no conversation and recorded no message. Paid sending now
+// has one door: startOfficialConversationAction in actions/whatsapp-outreach.ts.
 
 export async function updateWhatsAppTemplateHeaderMediaAction(
   templateId: string,

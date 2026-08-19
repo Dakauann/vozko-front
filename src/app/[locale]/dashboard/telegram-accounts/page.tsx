@@ -478,7 +478,7 @@ function Chip({ label, tone }: { label: string; tone: "emerald" | "sky" }) {
     sky: "bg-muted text-muted-foreground",
   } as const;
   return (
-    <span className={cn("rounded-[--radius] px-2 py-0.5 text-[11px] font-medium", tones[tone])}>
+    <span className={cn("rounded-[--radius] px-2 py-0.5 text-2xs font-medium", tones[tone])}>
       {label}
     </span>
   );

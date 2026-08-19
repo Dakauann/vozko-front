@@ -92,7 +92,7 @@ export function ElevatedPillToggle<T extends string = string>({
               // needs 34px, and the icon-only collapse below md makes the keys
               // narrow at exactly the width where that matters most.
               "min-h-[34px] sm:min-h-0",
-              size === "sm" && "gap-1 px-2 py-1 text-[11px] max-sm:px-3",
+              size === "sm" && "gap-1 px-2 py-1 text-2xs max-sm:px-3",
               size === "md" && "gap-1.5 px-2.5 py-1.5 text-xs max-sm:px-3",
               collapseLabels === "sm" && "max-sm:px-2",
               collapseLabels === "md" && "max-md:px-2",

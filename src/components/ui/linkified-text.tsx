@@ -74,11 +74,11 @@ export function LinkPreview({ url }: { url: string }) {
             <p className="text-xs font-semibold text-foreground">
               {t("title")}
             </p>
-            <p className="text-[11px] leading-relaxed text-muted-foreground">
+            <p className="text-2xs leading-relaxed text-muted-foreground">
               {t("description")}
             </p>
             <p
-              className="truncate text-[11px] font-mono text-muted-foreground/60"
+              className="truncate text-2xs font-mono text-muted-foreground"
               title={href !== "#" ? href : url}
             >
               {href !== "#" ? href : url}

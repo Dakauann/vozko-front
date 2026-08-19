@@ -346,7 +346,7 @@ function EventSection({
 }) {
   return (
     <div>
-      <h3 className="mb-2.5 text-[11px] font-semibold text-muted-foreground">
+      <h3 className="mb-2.5 text-2xs font-semibold text-muted-foreground">
         {label}
       </h3>
       <div className="divide-y divide-border/40">
@@ -414,7 +414,7 @@ function EventCard({
           </span>
         </div>
         {event.location && (
-          <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground/70">
+          <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
             <MapPin className="h-3 w-3 shrink-0" weight="fill" />
             <span className="truncate">{event.location}</span>
           </div>
@@ -443,13 +443,13 @@ function EventCard({
                   weight="duotone"
                   className="text-muted-foreground shrink-0"
                 />
-                <span className="text-[11px] text-muted-foreground truncate max-w-[80px]">
+                <span className="text-2xs text-muted-foreground truncate max-w-[80px]">
                   {a.email}
                 </span>
               </div>
             ))}
             {event.attendees.length > 3 && (
-              <span className="text-[11px] text-muted-foreground/60">
+              <span className="text-2xs text-muted-foreground">
                 +{event.attendees.length - 3}
               </span>
             )}
@@ -581,7 +581,7 @@ function EventForm({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder={t("form.titlePlaceholder")}
-          className="w-full text-lg font-semibold bg-transparent border-0 border-b-2 border-border focus:border-primary outline-none pb-2 placeholder:text-muted-foreground/40 transition-colors"
+          className="w-full text-lg font-semibold bg-transparent border-0 border-b-2 border-border focus:border-primary outline-none pb-2 placeholder:text-muted-foreground transition-colors"
           autoFocus
           required
         />
@@ -685,7 +685,7 @@ function EventForm({
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder={t("form.locationPlaceholder")}
-            className="flex-1 bg-transparent border-0 outline-none text-sm placeholder:text-muted-foreground/40"
+            className="flex-1 bg-transparent border-0 outline-none text-sm placeholder:text-muted-foreground"
           />
         </div>
 
@@ -703,14 +703,14 @@ function EventForm({
               t("form.guestsPlaceholder") ||
               "email1@example.com, email2@example.com"
             }
-            className="flex-1 bg-transparent border-0 outline-none text-sm placeholder:text-muted-foreground/40"
+            className="flex-1 bg-transparent border-0 outline-none text-sm placeholder:text-muted-foreground"
           />
         </div>
 
         {/* Guest permissions */}
         {attendees.trim() && (
           <div className="ml-[30px] space-y-1.5 py-2 pl-1">
-            <p className="text-[11px] font-semibold text-muted-foreground">
+            <p className="text-2xs font-semibold text-muted-foreground">
               {t("form.guestPermissions") || "Guest Permissions"}
             </p>
             {[
@@ -758,7 +758,7 @@ function EventForm({
             onChange={(e) => setDescription(e.target.value)}
             placeholder={t("form.descriptionPlaceholder")}
             rows={2}
-            className="flex-1 bg-transparent border-0 outline-none text-sm resize-none placeholder:text-muted-foreground/40"
+            className="flex-1 bg-transparent border-0 outline-none text-sm resize-none placeholder:text-muted-foreground"
           />
         </div>
 

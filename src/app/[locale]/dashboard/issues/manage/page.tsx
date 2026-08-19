@@ -169,7 +169,7 @@ export default function AdminIssuesPage() {
               </span>
             )}
             {row.imageUrls && row.imageUrls.length > 0 && (
-              <span className="text-[11px] text-muted-foreground/60 mt-0.5">
+              <span className="text-2xs text-muted-foreground mt-0.5">
                 📎 {row.imageUrls.length} {t("admin.images")}
               </span>
             )}
@@ -255,7 +255,7 @@ export default function AdminIssuesPage() {
             <span className="text-sm text-muted-foreground whitespace-nowrap">
               {formatDate(row.createdAt)}
             </span>
-            <span className="block text-xs text-muted-foreground/70">
+            <span className="block text-xs text-muted-foreground">
               {formatRelativeTime(row.createdAt)}
             </span>
           </div>
@@ -348,7 +348,7 @@ export default function AdminIssuesPage() {
           items: t("pagination.items"),
         }}
         emptyState={{
-          icon: <Warning className="h-12 w-12 text-muted-foreground/40" />,
+          icon: <Warning className="h-12 w-12 text-muted-foreground" />,
           title: t("admin.empty.title"),
           description: t("admin.empty.description"),
         }}

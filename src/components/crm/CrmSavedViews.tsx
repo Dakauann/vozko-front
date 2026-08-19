@@ -157,7 +157,7 @@ export default function CrmSavedViews({
             sideOffset={6}
             className="w-72 rounded-[--radius] border border-border bg-card p-3 shadow-2xl"
           >
-            <p className="mb-2 text-[11px] font-semibold text-muted-foreground">
+            <p className="mb-2 text-2xs font-semibold text-muted-foreground">
               Salvar visão atual
             </p>
             <ElevatedInput

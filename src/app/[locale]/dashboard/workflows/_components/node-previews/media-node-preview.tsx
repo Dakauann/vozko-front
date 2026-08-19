@@ -87,7 +87,7 @@ export function MediaNodePreview({
         <div className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-2">
           {/* eslint-disable-next-line jsx-a11y/alt-text */}
           <Image size={16} weight="duotone" className="shrink-0 text-info-ink" />
-          <span className="truncate text-[11px] text-foreground/70">
+          <span className="truncate text-2xs text-foreground/70">
             {name || "Imagem"}
           </span>
         </div>
@@ -103,7 +103,7 @@ export function MediaNodePreview({
               (e.target as HTMLVideoElement).style.display = "none";
             }}
           />
-          <span className="absolute bottom-1 right-1.5 rounded bg-background px-1 text-[11px] text-muted-foreground">
+          <span className="absolute bottom-1 right-1.5 rounded bg-background px-1 text-2xs text-muted-foreground">
             Vídeo
           </span>
         </div>
@@ -111,7 +111,7 @@ export function MediaNodePreview({
       {isVideo && !url && (
         <div className="relative flex h-16 items-center justify-center overflow-hidden rounded-md bg-muted">
           <VideoCamera size={24} weight="duotone" className="text-info-ink" />
-          <span className="absolute bottom-1 right-1.5 rounded bg-background px-1 text-[11px] text-muted-foreground">
+          <span className="absolute bottom-1 right-1.5 rounded bg-background px-1 text-2xs text-muted-foreground">
             Vídeo
           </span>
         </div>
@@ -129,7 +129,7 @@ export function MediaNodePreview({
       {isAudio && !url && (
         <div className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-2">
           <SpeakerHigh size={16} weight="duotone" className="shrink-0 text-info-ink" />
-          <span className="truncate text-[11px] text-foreground/70">
+          <span className="truncate text-2xs text-foreground/70">
             {name || "Áudio"}
           </span>
         </div>
@@ -138,7 +138,7 @@ export function MediaNodePreview({
         <div className="overflow-hidden rounded-md border border-border">
           <span className="flex items-center gap-2 bg-muted px-2 py-1.5">
             <FileText size={16} weight="duotone" className="text-info-ink" />
-            <span className="truncate text-[11px] text-foreground/70">
+            <span className="truncate text-2xs text-foreground/70">
               {name || "Documento"}
             </span>
           </span>
@@ -147,7 +147,7 @@ export function MediaNodePreview({
       {!isImage && !isVideo && !isAudio && !isPdf && (
         <div className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-2">
           <FileText size={16} weight="duotone" className="shrink-0 text-info-ink" />
-          <span className="truncate text-[11px] text-foreground/70">
+          <span className="truncate text-2xs text-foreground/70">
             {name || "Documento"}
           </span>
         </div>

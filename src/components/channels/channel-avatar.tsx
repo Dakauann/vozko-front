@@ -53,7 +53,7 @@ function tintFor(seed: string): string {
 }
 
 const SIZES = {
-  sm: { circle: "size-8", badge: "size-3.5", text: "text-[11px]" },
+  sm: { circle: "size-8", badge: "size-3.5", text: "text-2xs" },
   md: { circle: "size-10", badge: "size-4", text: "text-xs" },
   lg: { circle: "size-12", badge: "size-5", text: "text-sm" },
 } as const;

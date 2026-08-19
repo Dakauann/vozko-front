@@ -164,7 +164,7 @@ export function ReleasePhoneDialog({
                 <ol className="space-y-2.5 text-sm text-muted-foreground">
                   {["step1", "step2", "step3", "step4"].map((key, idx) => (
                     <li key={key} className="flex items-start gap-2.5">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-semibold text-foreground">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-2xs font-semibold text-foreground">
                         {idx + 1}
                       </span>
                       <span>{t(`release.${key}`)}</span>

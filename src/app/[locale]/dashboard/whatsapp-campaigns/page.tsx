@@ -197,7 +197,7 @@ export default function WhatsAppCampaignsPage() {
               {row.name}
             </span>
             {row.templateName ? (
-              <span className="block text-[11px] text-muted-foreground truncate">
+              <span className="block text-2xs text-muted-foreground truncate">
                 {row.templateName}
               </span>
             ) : null}
@@ -231,7 +231,7 @@ export default function WhatsAppCampaignsPage() {
           return (
             <span
               className={cn(
-                "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold tracking-wide",
+                "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-2xs font-semibold tracking-wide",
                 CATEGORY_TONE[cat] ?? "bg-muted text-muted-foreground",
               )}
             >
@@ -282,6 +282,15 @@ export default function WhatsAppCampaignsPage() {
         render: (row) => (
           <span className="text-sm font-semibold tabular-nums text-destructive-ink">
             {row.metrics?.failed ?? 0}
+          </span>
+        ),
+      },
+      {
+        key: "avoidingSpam",
+        header: t("table.avoidingSpam"),
+        render: (row) => (
+          <span className="text-sm font-semibold tabular-nums text-warning-ink">
+            {row.metrics?.notEligiblePossibleSpam ?? 0}
           </span>
         ),
       },
@@ -473,7 +482,7 @@ export default function WhatsAppCampaignsPage() {
             : {
                 icon: (
                   <WhatsappLogo
-                    className="h-7 w-7 text-muted-foreground/40"
+                    className="h-7 w-7 text-muted-foreground"
                     weight="fill"
                   />
                 ),

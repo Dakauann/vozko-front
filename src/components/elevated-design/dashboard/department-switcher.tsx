@@ -214,7 +214,7 @@ function DepartmentItem({
       onClick={onSelect}
       className={cn(
         "flex w-full items-center gap-3 rounded-[--radius] p-2.5 text-left transition-all",
-        isSelected ? "bg-muted" : "hover:bg-muted",
+        isSelected ? "bg-primary-subtle text-primary-ink" : "hover:bg-muted",
       )}
     >
       <div
@@ -236,7 +236,7 @@ function DepartmentItem({
           {name}
         </p>
         {description && (
-          <p className="truncate text-[11px] text-muted-foreground">
+          <p className="truncate text-2xs text-muted-foreground">
             {description}
           </p>
         )}

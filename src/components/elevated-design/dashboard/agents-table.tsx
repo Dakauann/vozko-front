@@ -37,7 +37,7 @@ function formatDate(value: string) {
 function InfoItem({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="rounded-[--radius] border border-border bg-muted px-4 py-3">
-      <p className="text-[11px] font-semibold text-muted-foreground">
+      <p className="text-2xs font-semibold text-muted-foreground">
         {label}
       </p>
       <div className="mt-1 text-sm font-medium text-foreground">{value}</div>
@@ -187,7 +187,7 @@ export function AgentsTable({ agents, meta }: AgentsTableProps) {
                     iconSide="left"
                     link={`/dashboard/agents/${agent.id}/simulator`}
                     newTab={false}
-                    className="text-[11px] font-semibold"
+                    className="text-2xs font-semibold"
                   />
                   <Button
                     variant="outline"
@@ -197,7 +197,7 @@ export function AgentsTable({ agents, meta }: AgentsTableProps) {
                     iconSide="left"
                     link={`/dashboard/agents/${agent.id}/edit`}
                     newTab={false}
-                    className="text-[11px] font-semibold"
+                    className="text-2xs font-semibold"
                   />
                   <Button
                     variant="ghost"
@@ -207,7 +207,7 @@ export function AgentsTable({ agents, meta }: AgentsTableProps) {
                     iconSide="left"
                     link={`/dashboard/agents/${agent.id}/delete`}
                     newTab={false}
-                    className="text-[11px] font-semibold text-destructive-ink hover:bg-muted"
+                    className="text-2xs font-semibold text-destructive-ink hover:bg-muted"
                   />
                 </div>
               </div>

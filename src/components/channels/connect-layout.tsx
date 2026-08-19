@@ -474,7 +474,7 @@ export function ConnectResult({
                   <div key={d.label} className="min-w-0">
                     {/* Foreground, not muted: at 11px on the notice's own
                         tinted surface the muted token falls under 4.5:1. */}
-                    <dt className="text-[11px] font-medium text-foreground/80">
+                    <dt className="text-2xs font-medium text-foreground/80">
                       {d.label}
                     </dt>
                     <dd className="truncate font-mono text-xs text-foreground">

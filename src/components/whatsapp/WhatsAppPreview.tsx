@@ -61,7 +61,7 @@ export default function WhatsAppPreview({
       >
         <div className="mb-3 text-center">
           <div className="inline-block bg-card px-3 py-1.5 rounded-full">
-            <p className="text-[11px] text-muted-foreground font-medium">
+            <p className="text-2xs text-muted-foreground font-medium">
               Template: {templateName} ({language.toUpperCase()})
             </p>
           </div>
@@ -116,7 +116,7 @@ export default function WhatsAppPreview({
             </div>
 
             <div className="flex justify-end mt-1 px-1">
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-2xs text-muted-foreground">
                 {new Date().toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",

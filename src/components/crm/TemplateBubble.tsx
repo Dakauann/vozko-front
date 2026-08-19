@@ -60,7 +60,7 @@ export default function TemplateBubble({
               ) : (
                 <div className="flex flex-col items-center gap-1 text-muted-foreground">
                   <Video className="h-8 w-8" />
-                  <span className="text-[11px]">Vídeo</span>
+                  <span className="text-2xs">Vídeo</span>
                 </div>
               )}
             </div>
@@ -68,7 +68,7 @@ export default function TemplateBubble({
           {header.format === "DOCUMENT" && (
             <div className="flex items-center gap-2 rounded-md bg-muted px-3 py-2.5 mb-1">
               <FileIcon className="h-5 w-5 text-muted-foreground" />
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-2xs text-muted-foreground">
                 Documento
               </span>
             </div>
@@ -88,7 +88,7 @@ export default function TemplateBubble({
       {/* Footer */}
       {footer?.text && (
         <div className="px-3 pb-1.5">
-          <p className="text-[11px] text-muted-foreground leading-snug">
+          <p className="text-2xs text-muted-foreground leading-snug">
             {footer.text}
           </p>
         </div>
@@ -100,7 +100,7 @@ export default function TemplateBubble({
           {buttonsComp.buttons.map((btn, idx) => (
             <div
               key={idx}
-              className="flex items-center justify-center gap-1.5 px-3 py-2 text-[12px] font-medium text-primary-ink border-b border-border last:border-b-0 hover:bg-muted transition-colors"
+              className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-primary-ink border-b border-border last:border-b-0 hover:bg-muted transition-colors"
             >
               {btn.type === "URL" && <ArrowSquareOut className="h-3.5 w-3.5" />}
               {btn.type === "PHONE_NUMBER" && <Phone className="h-3.5 w-3.5" />}
@@ -118,7 +118,7 @@ export default function TemplateBubble({
 
       {/* Template badge */}
       <div className="px-3 py-1 bg-muted border-t border-border">
-        <span className="text-[11px] text-muted-foreground font-medium">
+        <span className="text-2xs text-muted-foreground font-medium">
           Template: {metadata.template_name}
         </span>
       </div>

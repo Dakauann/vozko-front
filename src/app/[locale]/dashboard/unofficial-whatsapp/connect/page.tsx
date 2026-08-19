@@ -582,7 +582,7 @@ function LinkingStep({
               : ["qrStep1", "qrStep2", "qrStep3"]
             ).map((key, index) => (
               <li key={key} className="flex gap-3">
-                <span className="readout mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-semibold text-muted-foreground">
+                <span className="readout mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-2xs font-semibold text-muted-foreground">
                   {index + 1}
                 </span>
                 <p className="text-sm leading-relaxed text-foreground">{t(`connect.${key}`)}</p>

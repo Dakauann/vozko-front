@@ -147,7 +147,7 @@ export default function KanbanColumnShell({
         >
           {name}
         </span>
-        <span className="readout ml-auto text-[11px] font-semibold text-muted-foreground">
+        <span className="readout ml-auto text-2xs font-semibold text-muted-foreground">
           {count}
         </span>
       </div>

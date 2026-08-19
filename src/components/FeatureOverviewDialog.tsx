@@ -141,7 +141,7 @@ export default function FeatureOverviewDialog({
             <div className="absolute bottom-1/2 left-1/2 top-1/2 z-10 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap">
               <span
                 className={cn(
-                  "text-2xl font-semibold tracking-tight sm:text-[26px]",
+                  "text-2xl font-semibold tracking-tight sm:text-2xl",
                   mediaSrc
                     ? "text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.25)]"
                     : "text-foreground",
@@ -152,7 +152,7 @@ export default function FeatureOverviewDialog({
               {badge && (
                 <span
                   className={cn(
-                    "rounded-[--radius] border px-2 py-[3px] text-[11px] font-medium tracking-wide sm:px-2.5 sm:py-1 sm:text-xs",
+                    "rounded-[--radius] border px-2 py-[3px] text-2xs font-medium tracking-wide sm:px-2.5 sm:py-1 sm:text-xs",
                     mediaSrc
                       ? "border-white/40 bg-white/25 text-white"
                       : "border-border text-muted-foreground",
@@ -166,7 +166,7 @@ export default function FeatureOverviewDialog({
 
           <div className="px-5 sm:px-6 pt-4 sm:pt-[18px] pb-5 sm:pb-6 space-y-3 sm:space-y-4">
             <div>
-              <h2 className="text-xl sm:text-[22px] font-semibold text-foreground tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">
                 {resolvedTitle}
               </h2>
               {description && (
@@ -187,7 +187,7 @@ export default function FeatureOverviewDialog({
                     <span className="shrink-0 text-muted-foreground">
                       <Icon size={20} weight="regular" />
                     </span>
-                    <p className="text-sm sm:text-[15px] leading-[1.6] text-foreground/80 m-0">
+                    <p className="text-sm sm:text-base leading-[1.6] text-foreground/80 m-0">
                       {f.text}
                     </p>
                   </li>

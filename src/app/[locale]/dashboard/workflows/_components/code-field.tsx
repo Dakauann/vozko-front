@@ -207,7 +207,7 @@ export function CodeField({
           {field.label}
           {field.required ? <span className="text-destructive-ink"> *</span> : null}
         </label>
-        <span className="text-[11px] font-medium text-muted-foreground">
+        <span className="text-2xs font-medium text-muted-foreground">
           JavaScript · sandbox
         </span>
       </div>
@@ -230,7 +230,7 @@ export function CodeField({
           options={options}
         />
       </div>
-      <p className="text-[11px] leading-relaxed text-muted-foreground">
+      <p className="text-2xs leading-relaxed text-muted-foreground">
         Tem acesso a <code>input</code>, <code>state</code>, <code>log</code>,{" "}
         <code>fetch</code>, <code>secrets</code>, <code>json</code>,{" "}
         <code>b64</code>, <code>crypto</code>, <code>sleep</code>,{" "}

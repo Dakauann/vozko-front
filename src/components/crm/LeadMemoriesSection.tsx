@@ -134,7 +134,7 @@ export default function LeadMemoriesSection({ leadId, canManage }: LeadMemoriesS
             )}
 
             {total > memories.length ? (
-                <p className="text-center text-[11px] text-muted-foreground">
+                <p className="text-center text-2xs text-muted-foreground">
                     {t("showing", { shown: memories.length, total })}
                 </p>
             ) : null}
@@ -156,7 +156,7 @@ function CategoryPill({
             type="button"
             onClick={onClick}
             className={cn(
-                "rounded-[--radius] border px-2 py-0.5 text-[11px] font-medium transition-colors max-sm:min-h-[34px]",
+                "rounded-[--radius] border px-2 py-0.5 text-2xs font-medium transition-colors max-sm:min-h-[34px]",
                 active
                     ? "border-primary bg-primary-subtle font-semibold text-primary-ink"
                     : "border-border text-muted-foreground hover:text-foreground",
@@ -232,11 +232,11 @@ function MemoryRow({
         <li className="rounded-[--radius] border border-border bg-card px-3 py-2">
             <div className="flex items-start gap-2">
                 <div className="min-w-0 flex-1">
-                    <span className="inline-block rounded-full bg-muted px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                    <span className="inline-block rounded-full bg-muted px-1.5 py-px text-2xs font-medium uppercase tracking-wide text-muted-foreground">
                         {t(`categories.${memory.category}`)}
                     </span>
                     <p className="mt-1 whitespace-pre-wrap text-xs text-foreground">{memory.content}</p>
-                    <p className="mt-1 text-[11px] text-muted-foreground">
+                    <p className="mt-1 text-2xs text-muted-foreground">
                         {t("attribution", { who: byLine, when })}
                     </p>
                 </div>
@@ -335,7 +335,7 @@ function MemoryForm({
                     value={category}
                     onChange={(event) => setCategory(event.target.value as LeadMemoryCategory)}
                     aria-label={t("categoryLabel")}
-                    className="min-w-0 flex-1 rounded-[--radius] border border-border bg-background px-2 py-1 text-[11px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="min-w-0 flex-1 rounded-[--radius] border border-border bg-background px-2 py-1 text-2xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                 >
                     {LEAD_MEMORY_CATEGORIES.map((value) => (
                         <option key={value} value={value}>
@@ -343,13 +343,13 @@ function MemoryForm({
                         </option>
                     ))}
                 </select>
-                <span className="flex-shrink-0 text-[10px] tabular-nums text-muted-foreground">
+                <span className="flex-shrink-0 text-2xs tabular-nums text-muted-foreground">
                     {trimmed.length}/{LEAD_MEMORY_MAX_CONTENT_LENGTH}
                 </span>
                 <button
                     type="button"
                     onClick={onCancel}
-                    className="flex-shrink-0 rounded-[--radius] px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted"
+                    className="flex-shrink-0 rounded-[--radius] px-2 py-1 text-2xs font-medium text-muted-foreground transition-colors hover:bg-muted"
                 >
                     {t("cancelButton")}
                 </button>
@@ -357,7 +357,7 @@ function MemoryForm({
                     type="button"
                     onClick={handleSubmit}
                     disabled={!valid || saving}
-                    className="flex-shrink-0 rounded-[--radius] bg-primary px-2.5 py-1 text-[11px] font-semibold text-primary-foreground transition-opacity disabled:opacity-40"
+                    className="flex-shrink-0 rounded-[--radius] bg-primary px-2.5 py-1 text-2xs font-semibold text-primary-foreground transition-opacity disabled:opacity-40"
                 >
                     {t("saveButton")}
                 </button>

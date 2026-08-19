@@ -250,7 +250,7 @@ export function ConversationSearchExample({
       {/* ── Left Panel: Inbox with Search ─────────────────────────── */}
       <div className="w-1/3 border-r flex flex-col">
         {/* Connection Status */}
-        <div className="p-4 border-b bg-muted bg-muted">
+        <div className="p-4 border-b">
           <div className="flex items-center gap-2">
             <div
               className={`w-2 h-2 rounded-full ${

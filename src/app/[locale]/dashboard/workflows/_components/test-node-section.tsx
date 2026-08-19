@@ -121,13 +121,13 @@ function OutputEntry({
   return (
     <div className="flex items-start justify-between gap-2 py-1.5 border-b border-border last:border-0">
       <div className="flex items-center gap-1.5 min-w-0">
-        <span className="text-[11px] text-muted-foreground shrink-0">
+        <span className="text-2xs text-muted-foreground shrink-0">
           {label}
         </span>
         {badge && (
           <span
             className={cn(
-              "shrink-0 rounded px-1.5 py-0.5 text-[11px] font-semibold",
+              "shrink-0 rounded px-1.5 py-0.5 text-2xs font-semibold",
               badgeColor ?? "bg-muted text-muted-foreground",
             )}
           >
@@ -138,7 +138,7 @@ function OutputEntry({
       <div className="flex items-center gap-1 min-w-0">
         <span
           className={cn(
-            "text-[11px] text-foreground truncate max-w-[200px]",
+            "text-2xs text-foreground truncate max-w-[200px]",
             mono && "font-mono",
           )}
           title={value}
@@ -209,7 +209,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
             {result.success ? "Teste bem-sucedido" : "Teste falhou"}
           </span>
         </div>
-        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-1.5 text-2xs text-muted-foreground">
           <Clock size={11} />
           <span>{result.execution_duration_ms}ms</span>
         </div>
@@ -226,12 +226,12 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
         {/* HTTP status (for HTTP nodes) */}
         {httpStatusCode != null && (
           <div className="flex items-center gap-2">
-            <span className="text-[11px] text-muted-foreground">
+            <span className="text-2xs text-muted-foreground">
               HTTP
             </span>
             <span
               className={cn(
-                "rounded px-1.5 py-0.5 text-[11px] font-semibold",
+                "rounded px-1.5 py-0.5 text-2xs font-semibold",
                 httpSuccess
                   ? "bg-healthy/60 text-healthy-foreground"
                   : "bg-destructive/60 text-destructive-foreground",
@@ -242,7 +242,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
             {nextEdge && (
               <>
                 <ArrowRight size={10} className="text-muted-foreground" />
-                <span className="text-[11px] text-muted-foreground">
+                <span className="text-2xs text-muted-foreground">
                   {nextEdge}
                 </span>
               </>
@@ -253,7 +253,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
         {/* Key output entries */}
         {outputEntries.length > 0 && (
           <div className="rounded-lg border border-border bg-background p-2">
-            <p className="text-[11px] text-muted-foreground mb-1">
+            <p className="text-2xs text-muted-foreground mb-1">
               Saída do nó
             </p>
             {outputEntries.map(([key, val]) => (
@@ -275,7 +275,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
             <button
               type="button"
               onClick={() => setShowRawOutput(!showRawOutput)}
-              className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1 text-2xs text-muted-foreground hover:text-foreground transition-colors"
             >
               {showRawOutput ? (
                 <CaretDown size={10} />
@@ -286,7 +286,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
               <CopyButton text={responseBody} />
             </button>
             {showRawOutput && (
-              <pre className="text-[11px] bg-background rounded-lg border border-border p-2.5 overflow-x-auto max-h-48 overflow-y-auto font-mono text-foreground/80">
+              <pre className="text-2xs bg-background rounded-lg border border-border p-2.5 overflow-x-auto max-h-48 overflow-y-auto font-mono text-foreground/80">
                 {(() => {
                   try {
                     return JSON.stringify(JSON.parse(responseBody), null, 2);
@@ -305,7 +305,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
             <button
               type="button"
               onClick={() => setShowRawConfig(!showRawConfig)}
-              className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1 text-2xs text-muted-foreground hover:text-foreground transition-colors"
             >
               {showRawConfig ? (
                 <CaretDown size={10} />
@@ -315,7 +315,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
               <span>Config interpolado</span>
             </button>
             {showRawConfig && (
-              <pre className="text-[11px] bg-background rounded-lg border border-border p-2.5 overflow-x-auto max-h-48 overflow-y-auto font-mono text-foreground/80">
+              <pre className="text-2xs bg-background rounded-lg border border-border p-2.5 overflow-x-auto max-h-48 overflow-y-auto font-mono text-foreground/80">
                 {JSON.stringify(result.interpolated_config, null, 2)}
               </pre>
             )}
@@ -328,7 +328,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
             <button
               type="button"
               onClick={() => setShowStateAfter(!showStateAfter)}
-              className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1 text-2xs text-muted-foreground hover:text-foreground transition-colors"
             >
               {showStateAfter ? (
                 <CaretDown size={10} />
@@ -336,7 +336,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
                 <CaretRight size={10} />
               )}
               <span>Estado após execução</span>
-              <span className="text-[11px] bg-muted rounded-[--radius] px-1.5 py-0.5">
+              <span className="text-2xs bg-muted rounded-[--radius] px-1.5 py-0.5">
                 {stateEntries.length}
               </span>
             </button>
@@ -497,7 +497,7 @@ export function TestNodeSection({
                   <p className="font-medium">
                     {getModeLabel(analysis.test_mode, analysis.has_ai_deps)}
                   </p>
-                  <p className="text-[11px] opacity-80 mt-0.5">
+                  <p className="text-2xs opacity-80 mt-0.5">
                     {analysis.message ||
                       getModeDescription(
                         analysis.test_mode,
@@ -523,14 +523,14 @@ export function TestNodeSection({
                           <p className="text-sm font-semibold text-foreground break-all">
                             {field.display_name}
                           </p>
-                          <p className="mt-1 text-[11px] tracking-[0.18em] text-muted-foreground">
+                          <p className="mt-1 text-2xs tracking-[0.18em] text-muted-foreground">
                             Variavel esperada
                           </p>
-                          <div className="mt-1 rounded-lg border border-border bg-background px-2.5 py-2 font-mono text-[11px] text-muted-foreground break-all">
+                          <div className="mt-1 rounded-lg border border-border bg-background px-2.5 py-2 font-mono text-2xs text-muted-foreground break-all">
                             {getMockTemplate(field)}
                           </div>
                         </div>
-                        <span className="shrink-0 rounded-[--radius] bg-muted px-2 py-1 text-[11px] font-medium text-muted-foreground">
+                        <span className="shrink-0 rounded-[--radius] bg-muted px-2 py-1 text-2xs font-medium text-muted-foreground">
                           {getSourceLabel(field.source)}
                         </span>
                       </div>
@@ -599,7 +599,7 @@ export function TestNodeSection({
               </div>
 
               {missingMocksMessage && (
-                <p className="text-[11px] text-warning-ink">
+                <p className="text-2xs text-warning-ink">
                   {missingMocksMessage}
                 </p>
               )}

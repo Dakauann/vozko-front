@@ -6,12 +6,12 @@ import {
     updateSavedView,
     type SavedView,
     type SavedViewInput,
+    type SavedViewObjectType,
 } from '@/lib/crm/saved-views';
-import type { PipelineObjectType } from '@/lib/crm/pipelines';
 
 
 export async function listSavedViewsAction(
-    objectType: PipelineObjectType = 'conversation',
+    objectType: SavedViewObjectType = 'conversation',
 ): Promise<{ views: SavedView[]; error?: string }> {
     const response = await listSavedViews(objectType);
 

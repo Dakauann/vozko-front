@@ -394,7 +394,7 @@ export function AIChatClient() {
           <button
             type="button"
             onClick={newChat}
-            className="rounded-[--radius] inline-flex items-center gap-1.5 border border-border bg-muted px-2 py-1 text-[11px] font-semibold text-foreground transition-colors duration-DEFAULT hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="rounded-[--radius] inline-flex items-center gap-1.5 border border-border bg-muted px-2 py-1 text-2xs font-semibold text-foreground transition-colors duration-DEFAULT hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Plus weight="bold" className="h-3 w-3" />
             {t("newChat")}
@@ -465,7 +465,7 @@ export function AIChatClient() {
           )}
         >
           {isEmpty ? (
-            <h1 className="mx-auto w-full max-w-3xl text-balance text-center text-[22px] font-semibold tracking-[-0.01em] text-foreground">
+            <h1 className="mx-auto w-full max-w-3xl text-balance text-center text-2xl font-semibold tracking-[-0.01em] text-foreground">
               {t("greeting")}
             </h1>
           ) : (
@@ -786,7 +786,7 @@ function ThinkingBlock({
         />
       </button>
       {open ? (
-        <div className="ml-2 whitespace-pre-wrap border-l-2 border-border px-2.5 pb-2 pl-3 text-xs italic leading-relaxed text-muted-foreground/80">
+        <div className="ml-2 whitespace-pre-wrap border-l-2 border-border px-2.5 pb-2 pl-3 text-xs italic leading-relaxed text-muted-foreground">
           {text}
           {streaming ? <Cursor /> : null}
         </div>

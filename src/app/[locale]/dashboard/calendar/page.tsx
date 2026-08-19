@@ -398,7 +398,7 @@ export default function CalendarPage() {
             {dayNames.map((day) => (
               <div
                 key={day}
-                className="py-2 text-center text-[11px] font-semibold text-muted-foreground/70"
+                className="py-2 text-center text-2xs font-semibold text-muted-foreground"
               >
                 {day}
               </div>
@@ -439,7 +439,7 @@ export default function CalendarPage() {
                         <div className="flex items-center justify-between px-0.5">
                           <div
                             className={cn(
-                              "inline-flex items-center justify-center w-6 h-6 rounded-full text-[11px] font-medium transition-colors",
+                              "inline-flex items-center justify-center w-6 h-6 rounded-full text-2xs font-medium transition-colors",
                               tod &&
                                 "bg-primary text-primary-foreground font-semibold",
                               sel &&
@@ -468,7 +468,7 @@ export default function CalendarPage() {
                           {dayEvents.slice(0, 2).map((evt) => (
                             <button
                               key={evt.id}
-                              className="w-full text-left flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[11px] leading-tight truncate transition-colors hover:opacity-80"
+                              className="w-full text-left flex items-center gap-1 px-1.5 py-0.5 rounded-md text-2xs leading-tight truncate transition-colors hover:opacity-80"
                               style={{
                                 backgroundColor: `${evt.color || EVENT_COLORS[0]}12`,
                                 color: evt.color || EVENT_COLORS[0],
@@ -492,7 +492,7 @@ export default function CalendarPage() {
                             </button>
                           ))}
                           {dayEvents.length > 2 && (
-                            <p className="text-[11px] text-muted-foreground/60 px-1.5 font-medium">
+                            <p className="text-2xs text-muted-foreground px-1.5 font-medium">
                               +{dayEvents.length - 2}
                             </p>
                           )}
@@ -540,7 +540,7 @@ export default function CalendarPage() {
               className="max-h-[calc(100vh-320px)] overflow-y-auto"
             >
               {selectedDayEvents.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/60">
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                   <CalendarBlank size={32} weight="duotone" className="mb-2" />
                   <p className="text-xs font-medium">{t("noEvents")}</p>
                   {connected !== false && (
@@ -582,7 +582,7 @@ export default function CalendarPage() {
               value={formTitle}
               onChange={(e) => setFormTitle(e.target.value)}
               placeholder={t("titlePlaceholder")}
-              className="w-full text-lg font-semibold bg-transparent border-0 border-b-2 border-border focus:border-primary outline-none pb-2 placeholder:text-muted-foreground/40 transition-colors"
+              className="w-full text-lg font-semibold bg-transparent border-0 border-b-2 border-border focus:border-primary outline-none pb-2 placeholder:text-muted-foreground transition-colors"
               autoFocus
             />
           </div>
@@ -702,7 +702,7 @@ export default function CalendarPage() {
             {/* Guest permissions */}
             {formAttendees.trim() && (
               <div className="ml-[30px] space-y-1.5 py-2 pl-1">
-                <p className="text-[11px] font-semibold text-muted-foreground">
+                <p className="text-2xs font-semibold text-muted-foreground">
                   {t("guestPermissions")}
                 </p>
                 {[
@@ -750,7 +750,7 @@ export default function CalendarPage() {
                 onChange={(e) => setFormDescription(e.target.value)}
                 placeholder={t("descriptionPlaceholder")}
                 rows={2}
-                className="flex-1 bg-transparent border-0 outline-none text-sm resize-none placeholder:text-muted-foreground/40"
+                className="flex-1 bg-transparent border-0 outline-none text-sm resize-none placeholder:text-muted-foreground"
               />
             </div>
 
@@ -844,7 +844,7 @@ export default function CalendarPage() {
               onChange={(e) => setRescheduleStart(e.target.value)}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-ring"
             />
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-2xs text-muted-foreground">
               A duração da reunião é mantida.
             </p>
           </div>
@@ -909,7 +909,7 @@ function AgendaEventCard({
             : `${formatTimeShort(start)} – ${formatTimeShort(end)}`}
         </p>
         {event.location && (
-          <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground/70">
+          <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
             <MapPin size={11} weight="fill" />
             <span className="truncate">{event.location}</span>
           </div>
@@ -938,13 +938,13 @@ function AgendaEventCard({
                   weight="duotone"
                   className="text-muted-foreground shrink-0"
                 />
-                <span className="text-[11px] text-muted-foreground truncate max-w-[80px]">
+                <span className="text-2xs text-muted-foreground truncate max-w-[80px]">
                   {a.email}
                 </span>
               </div>
             ))}
             {event.attendees.length > 3 && (
-              <span className="text-[11px] text-muted-foreground/60">
+              <span className="text-2xs text-muted-foreground">
                 +{event.attendees.length - 3}
               </span>
             )}

@@ -80,7 +80,7 @@ import { KnowledgeBaseSelector } from "@/components/agents/KnowledgeBaseSelector
 import { apiClient } from "@/lib/api/browser-client";
 import type { Media } from "@/lib/medias/types";
 import { extractAgentVariableNames } from "@/lib/agents/extract-variable-names";
-import { Switch } from "@/components/ui/switch";
+import { ElevatedSwitch as Switch } from "@/components/elevated-design/elevated-switch";
 import TemplateEditModal from "@/components/whatsapp/TemplateEditModal";
 import ToolConfigDialog from "./ToolConfigDialog";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
@@ -352,7 +352,7 @@ const SelectedToolItem = ({
                   {name}
                 </span>
                 {requiresConfig && (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-medium text-primary-ink">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-2xs font-medium text-primary-ink">
                     <Gear weight="fill" className="h-3 w-3" />
                     {t("tools.configurable")}
                   </span>
@@ -382,7 +382,7 @@ const SelectedToolItem = ({
               through untouched on save. */}
           {toolDefaultVisibility.includes("messaging") && (
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[11px] font-medium text-muted-foreground">
+              <span className="text-2xs font-medium text-muted-foreground">
                 {t("tools.availability")}
               </span>
               <button
@@ -443,7 +443,7 @@ const SelectedToolItem = ({
                 type="button"
                 onClick={() => setShowParameters((v) => !v)}
                 aria-expanded={showParameters}
-                className="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+                className="inline-flex items-center gap-1.5 text-2xs font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 <Info weight="fill" className="h-3.5 w-3.5" />
                 {t("tools.expectedParameters")} ({parameterEntries.length})
@@ -461,11 +461,11 @@ const SelectedToolItem = ({
                         <span className="font-medium text-foreground">
                           {parameter?.displayName || key}
                         </span>
-                        <span className="rounded bg-border px-1.5 py-0.5 text-[11px] text-muted-foreground">
+                        <span className="rounded bg-border px-1.5 py-0.5 text-2xs text-muted-foreground">
                           {parameter?.type ?? "string"}
                         </span>
                         {requiredParameters.has(key) && (
-                          <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] font-medium text-warning-ink">
+                          <span className="rounded bg-muted px-1.5 py-0.5 text-2xs font-medium text-warning-ink">
                             {t("tools.required")}
                           </span>
                         )}
@@ -1962,7 +1962,7 @@ onStep={(_index, step) => {
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 {/* Available, left on desktop, below on mobile */}
                 <div className="order-2 flex flex-col overflow-hidden rounded-[--radius] border border-border bg-card lg:order-1">
-                  <div className="flex items-center justify-between gap-3 border-b border-border bg-muted px-4 py-3">
+                  <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
                     <h3 className="text-sm font-semibold text-foreground">
                       {t("tools.available")}
                     </h3>
@@ -2029,7 +2029,7 @@ onStep={(_index, step) => {
 
                 {/* Selected, right on desktop, top on mobile */}
                 <div className="order-1 flex flex-col overflow-hidden rounded-[--radius] border border-border bg-card lg:order-2">
-                  <div className="flex items-center justify-between gap-3 border-b border-border bg-muted px-4 py-3">
+                  <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
                     <h3 className="text-sm font-semibold text-foreground">
                       {t("tools.selected")}
                     </h3>

@@ -317,7 +317,7 @@ export default function AnalysisStatsPanel({
                 {t("title")}
               </h2>
             </div>
-            <span className="flex items-center gap-1.5 rounded-[--radius] bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+            <span className="flex items-center gap-1.5 rounded-[--radius] bg-muted px-2.5 py-1 text-2xs font-semibold text-muted-foreground">
               <Brain weight="fill" className="h-3.5 w-3.5" />
               {stats.totalAnalyses}
             </span>
@@ -328,7 +328,7 @@ export default function AnalysisStatsPanel({
             <div className="flex items-center gap-2 p-2.5 rounded-lg bg-muted border border-border">
               <TrendUp weight="fill" className="h-4 w-4 text-healthy-ink" />
               <div>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-2xs text-muted-foreground">
                   {t("avgQuality")}
                 </p>
                 <p className="text-sm font-semibold text-foreground">
@@ -339,7 +339,7 @@ export default function AnalysisStatsPanel({
             <div className="flex items-center gap-2 p-2.5 rounded-lg bg-muted border border-border">
               <ChatCircle weight="fill" className="h-4 w-4 text-primary-ink" />
               <div>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-2xs text-muted-foreground">
                   {t("totalMessages")}
                 </p>
                 <p className="text-sm font-semibold text-foreground">
@@ -351,7 +351,7 @@ export default function AnalysisStatsPanel({
 
           {/* Compact Sentiment Row */}
           <div className="mb-4">
-            <p className="text-[11px] text-muted-foreground mb-2">
+            <p className="text-2xs text-muted-foreground mb-2">
               {t("sentiment.title")}
             </p>
             <div className="flex gap-2">
@@ -381,7 +381,7 @@ export default function AnalysisStatsPanel({
 
           {/* Compact Lead Qualification */}
           <div className="mb-4">
-            <p className="text-[11px] text-muted-foreground mb-2">
+            <p className="text-2xs text-muted-foreground mb-2">
               {t("qualification.title")}
             </p>
             <div className="space-y-1.5">
@@ -417,7 +417,7 @@ export default function AnalysisStatsPanel({
 
           {/* Compact Interest */}
           <div>
-            <p className="text-[11px] text-muted-foreground mb-2">
+            <p className="text-2xs text-muted-foreground mb-2">
               {t("interest.title")}
             </p>
             <div className="space-y-1.5">

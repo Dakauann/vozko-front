@@ -69,7 +69,7 @@ export function InstagramCommentThread({
       <div className="flex flex-col items-center gap-2 p-6 text-center">
         <p className="text-sm text-muted-foreground">{t("comments.empty")}</p>
         {hidden && (
-          <p className="max-w-sm text-xs leading-relaxed text-muted-foreground/70">
+          <p className="max-w-sm text-xs leading-relaxed text-muted-foreground">
             {t("comments.countMismatch", { count: totalCount ?? 0 })}
           </p>
         )}
@@ -98,7 +98,7 @@ export function InstagramCommentThread({
       ) : (
         // Instagram caps this edge at 50 per page, so the count is worth showing
         // once the list is exhausted.
-        <p className="p-3 text-center text-[11px] text-muted-foreground/60">
+        <p className="p-3 text-center text-2xs text-muted-foreground">
           {t("comments.allLoaded", { count: comments.length })}
         </p>
       )}
@@ -205,12 +205,12 @@ function CommentRow({
               @{comment.fromUsername || t("comments.unknownUser")}
             </span>
             {comment.isOurs && (
-              <span className="ml-1.5 rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground">
+              <span className="ml-1.5 rounded bg-muted px-1.5 py-0.5 text-2xs text-muted-foreground">
                 {t("comments.you")}
               </span>
             )}
             {comment.hidden && (
-              <span className="ml-1.5 rounded bg-muted px-1.5 py-0.5 text-[11px] text-warning-ink dark:text-warning-ink">
+              <span className="ml-1.5 rounded bg-muted px-1.5 py-0.5 text-2xs text-warning-ink dark:text-warning-ink">
                 {t("comments.hidden")}
               </span>
             )}
@@ -218,7 +218,7 @@ function CommentRow({
           <p className="mt-0.5 whitespace-pre-wrap break-words text-sm text-foreground">
             {comment.text}
           </p>
-          <div className="mt-1 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
+          <div className="mt-1 flex flex-wrap items-center gap-3 text-2xs text-muted-foreground">
             {comment.timestamp && <span>{new Date(comment.timestamp).toLocaleString()}</span>}
             <span>{t("comments.likes", { count: comment.likeCount })}</span>
 
@@ -309,12 +309,12 @@ function CommentRow({
             </button>
           </div>
           {mode === "private" && (
-            <p className="text-[11px] text-muted-foreground">{t("comments.privateReplyHint")}</p>
+            <p className="text-2xs text-muted-foreground">{t("comments.privateReplyHint")}</p>
           )}
         </div>
       )}
 
-      {error && <p className="mt-1.5 text-[11px] text-destructive-ink">{error}</p>}
+      {error && <p className="mt-1.5 text-2xs text-destructive-ink">{error}</p>}
 
       {comment.replies?.map((reply) => (
         <CommentRow

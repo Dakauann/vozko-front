@@ -47,7 +47,7 @@ export function InstagramPostGrid({
   if (posts.length === 0) {
     return (
       <ElevatedContainer className="flex flex-col items-center gap-2 px-6 py-16 text-center">
-        <ImageBroken className="h-8 w-8 text-muted-foreground/40" weight="duotone" />
+        <ImageBroken className="h-8 w-8 text-muted-foreground" weight="duotone" />
         <p className="text-sm text-muted-foreground">{t("posts.empty")}</p>
       </ElevatedContainer>
     );
@@ -79,7 +79,7 @@ export function InstagramPostGrid({
             disabled={loadingMore}
           />
         ) : (
-          <p className="text-[11px] text-muted-foreground/60">
+          <p className="text-2xs text-muted-foreground">
             {t("posts.allLoaded", { count: posts.length })}
           </p>
         )}
@@ -127,7 +127,7 @@ function PostTile({
       ) : (
         // media_url is OMITTED (not null) for copyrighted content, so a missing
         // asset is an expected state rather than an error.
-        <div className="grid size-full place-items-center text-muted-foreground/50">
+        <div className="grid size-full place-items-center text-muted-foreground">
           <ImageBroken className="h-6 w-6" weight="duotone" />
         </div>
       )}

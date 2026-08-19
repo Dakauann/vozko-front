@@ -936,11 +936,11 @@ export default function NewWhatsAppTemplatePage() {
                   {t("new.guidelines.title")}
                 </h2>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] text-muted-foreground">
+                  <span className="text-2xs text-muted-foreground">
                     {t("new.guidelines.formatLabel")}
                   </span>
                   <span
-                    className={`inline-flex items-center rounded-[--radius] border px-2 py-0.5 text-[11px] font-medium ${formatBadge.cls}`}
+                    className={`inline-flex items-center rounded-[--radius] border px-2 py-0.5 text-2xs font-medium ${formatBadge.cls}`}
                   >
                     {formatBadge.label}
                   </span>
@@ -1004,7 +1004,7 @@ export default function NewWhatsAppTemplatePage() {
                   <h4 className="text-xs font-semibold text-warning-ink mb-0.5">
                     {t("new.approvalRequired.title")}
                   </h4>
-                  <p className="text-[11px] text-warning-ink leading-relaxed">
+                  <p className="text-2xs text-warning-ink leading-relaxed">
                     {t("new.approvalRequired.description")}
                   </p>
                 </div>

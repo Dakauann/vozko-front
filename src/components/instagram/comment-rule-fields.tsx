@@ -4,7 +4,7 @@ import { ChatCircleDots, EyeSlash, PaperPlaneTilt } from "@/components/icons";
 
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSegmentedControl } from "@/components/elevated-design/elevated-segmented-control";
-import { Textarea } from "@/components/ui/textarea";
+import Textarea from "@/components/elevated-design/elevated-textarea";
 import type { CommentRuleAction, CommentRuleMatch } from "@/lib/instagram/types";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
@@ -142,7 +142,7 @@ export function CommentRuleFields({
                     "flex w-full items-start gap-2.5 rounded-lg border p-3 text-left transition-colors",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     "disabled:cursor-not-allowed disabled:opacity-60",
-                    selected ? "border-border bg-muted" : "border-border hover:bg-muted",
+                    selected ? "border-border bg-primary-subtle text-primary-ink" : "border-border hover:bg-muted",
                   )}
                 >
                   <Icon

@@ -106,7 +106,7 @@ export function WorkflowAlerts({
           {total > 0 && (
             <span
               className={cn(
-                "grid h-[18px] min-w-[18px] place-items-center rounded-full px-1 text-[11px] font-semibold text-white",
+                "grid h-[18px] min-w-[18px] place-items-center rounded-full px-1 text-2xs font-semibold text-white",
                 tone === "blocking" ? "bg-destructive" : "bg-warning",
               )}
             >
@@ -183,11 +183,11 @@ export function WorkflowAlerts({
                       )}
                       {chip && (
                         <div className="mt-1.5 flex items-center gap-1.5">
-                          <span className="inline-flex max-w-full items-center gap-1 truncate rounded-md bg-muted px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">
+                          <span className="inline-flex max-w-full items-center gap-1 truncate rounded-md bg-muted px-1.5 py-0.5 font-mono text-2xs text-muted-foreground">
                             {chip}
                           </span>
                           {clickable && (
-                            <span className="inline-flex items-center gap-0.5 text-[11px] font-medium text-primary-ink opacity-0 transition-opacity group-hover:opacity-100">
+                            <span className="inline-flex items-center gap-0.5 text-2xs font-medium text-primary-ink opacity-0 transition-opacity group-hover:opacity-100">
                               Ver no fluxo
                               <ArrowRight size={11} weight="bold" />
                             </span>

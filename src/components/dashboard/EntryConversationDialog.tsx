@@ -232,7 +232,7 @@ function AnalysisPanel({
 
       <div className="grid grid-cols-2 gap-2 mb-3">
         <div className="rounded-lg bg-card p-2 border border-border">
-          <p className="text-[11px] font-semibold text-muted-foreground mb-0.5">
+          <p className="text-2xs font-semibold text-muted-foreground mb-0.5">
             {t.interest ?? ti("interest")}
           </p>
           <p className="text-xs font-medium text-foreground">
@@ -240,7 +240,7 @@ function AnalysisPanel({
           </p>
         </div>
         <div className="rounded-lg bg-card p-2 border border-border">
-          <p className="text-[11px] font-semibold text-muted-foreground mb-0.5">
+          <p className="text-2xs font-semibold text-muted-foreground mb-0.5">
             {t.disposition ?? ti("disposition")}
           </p>
           <p className="text-xs font-medium text-foreground">
@@ -250,12 +250,12 @@ function AnalysisPanel({
           </p>
         </div>
         <div className="rounded-lg bg-card p-2 border border-border">
-          <p className="text-[11px] font-semibold text-muted-foreground mb-0.5">
+          <p className="text-2xs font-semibold text-muted-foreground mb-0.5">
             {t.sentiment ?? ti("sentiment")}
           </p>
           <span
             className={cn(
-              "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold",
+              "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-2xs font-semibold",
               sentimentStyle.bg,
               sentimentStyle.text,
             )}
@@ -264,12 +264,12 @@ function AnalysisPanel({
           </span>
         </div>
         <div className="rounded-lg bg-card p-2 border border-border">
-          <p className="text-[11px] font-semibold text-muted-foreground mb-0.5">
+          <p className="text-2xs font-semibold text-muted-foreground mb-0.5">
             {t.qualification ?? ti("qualification")}
           </p>
           <span
             className={cn(
-              "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold",
+              "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-2xs font-semibold",
               qualificationStyle.bg,
               qualificationStyle.text,
             )}
@@ -280,7 +280,7 @@ function AnalysisPanel({
           </span>
         </div>
         <div className="rounded-lg bg-card p-2 border border-border">
-          <p className="text-[11px] font-semibold text-muted-foreground mb-0.5">
+          <p className="text-2xs font-semibold text-muted-foreground mb-0.5">
             {t.nextAction ?? ti("nextAction")}
           </p>
           <p className="text-xs font-medium text-foreground">
@@ -290,7 +290,7 @@ function AnalysisPanel({
           </p>
         </div>
         <div className="rounded-lg bg-card p-2 border border-border">
-          <p className="text-[11px] font-semibold text-muted-foreground mb-0.5">
+          <p className="text-2xs font-semibold text-muted-foreground mb-0.5">
             {t.quality ?? ti("quality")}
           </p>
           <div className="flex items-center gap-1.5">
@@ -316,7 +316,7 @@ function AnalysisPanel({
 
       {analysis.summary && (
         <div className="rounded-lg bg-card p-2 border border-border">
-          <p className="text-[11px] font-semibold text-muted-foreground mb-1">
+          <p className="text-2xs font-semibold text-muted-foreground mb-1">
             {t.summary ?? ti("summary")}
           </p>
           <p className="text-xs text-muted-foreground leading-relaxed">
@@ -405,7 +405,7 @@ function MessageBubble({
         <button
           type="button"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-muted px-2.5 py-1 text-[11px] transition-colors cursor-pointer hover:bg-muted"
+          className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-muted px-2.5 py-1 text-2xs transition-colors cursor-pointer hover:bg-muted"
         >
           <Wrench weight="fill" className="h-3 w-3 text-muted-foreground" />
           <span className="font-medium text-muted-foreground max-w-[150px] truncate">
@@ -434,7 +434,7 @@ function MessageBubble({
             exit={{ opacity: 0, height: 0 }}
             className="w-full max-w-[90%] rounded-lg border border-border bg-muted p-2 overflow-x-auto"
           >
-            <pre className="text-[11px] font-mono text-muted-foreground whitespace-pre-wrap break-all">
+            <pre className="text-2xs font-mono text-muted-foreground whitespace-pre-wrap break-all">
               {message.text}
             </pre>
           </motion.div>
@@ -453,7 +453,7 @@ function MessageBubble({
         <div className="inline-flex items-center gap-1.5 rounded-[--radius] bg-muted border border-border px-3 py-1.5">
           <Info weight="fill" className="h-3.5 w-3.5 text-muted-foreground" />
           <span className="text-xs text-muted-foreground">{message.text}</span>
-          <span className="text-[11px] text-muted-foreground ml-1">
+          <span className="text-2xs text-muted-foreground ml-1">
             {formatMessageTime(message.createdAt, locale)}
           </span>
         </div>
@@ -486,7 +486,7 @@ function MessageBubble({
         >
           <div className="flex items-center gap-1.5 mb-1">
             {getChannelIcon()}
-            <span className="text-[11px] font-medium text-muted-foreground">
+            <span className="text-2xs font-medium text-muted-foreground">
               {isVoice
                 ? (translations?.channels?.voice ?? tc("voice"))
                 : (translations?.channels?.whatsapp ?? tc("whatsapp"))}
@@ -500,7 +500,7 @@ function MessageBubble({
               {message.text || "Audio message"}
             </span>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1 text-right">
+          <p className="text-2xs text-muted-foreground mt-1 text-right">
             {formatMessageTime(message.createdAt, locale)}
           </p>
         </div>
@@ -532,7 +532,7 @@ function MessageBubble({
       >
         <div className="flex items-center gap-1.5 mb-1">
           {getChannelIcon()}
-          <span className="text-[11px] font-medium text-muted-foreground">
+          <span className="text-2xs font-medium text-muted-foreground">
             {isVoice
               ? (translations?.channels?.voice ?? tc("voice"))
               : (translations?.channels?.whatsapp ?? tc("whatsapp"))}
@@ -541,7 +541,7 @@ function MessageBubble({
         <p className="text-sm leading-relaxed whitespace-pre-wrap break-words text-foreground">
           {message.text}
         </p>
-        <p className="text-[11px] text-muted-foreground mt-1 text-right">
+        <p className="text-2xs text-muted-foreground mt-1 text-right">
           {formatMessageTime(message.createdAt, locale)}
         </p>
       </div>

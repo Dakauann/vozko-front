@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Switch } from "@/components/ui/switch";
+import { ElevatedSwitch as Switch } from "@/components/elevated-design/elevated-switch";
 import type {
   CommentRuleAction,
   CommentRulePayload,
@@ -184,7 +184,7 @@ export function InstagramCommentRulesPanel({
                 )}
               >
                 {/* Evaluation order is visible: the first match wins. */}
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-muted text-[11px] font-semibold tabular-nums text-muted-foreground">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-muted text-2xs font-semibold tabular-nums text-muted-foreground">
                   {index + 1}
                 </span>
 
@@ -194,11 +194,11 @@ export function InstagramCommentRulesPanel({
                       {rule.name}
                     </span>
                     {rule.igMediaId ? (
-                      <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-medium text-chart-4-ink dark:text-chart-4">
+                      <span className="rounded-full bg-muted px-1.5 py-0.5 text-2xs font-medium text-chart-4-ink dark:text-chart-4">
                         {t("scopePost")}
                       </span>
                     ) : (
-                      <span className="rounded-[--radius] bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+                      <span className="rounded-[--radius] bg-muted px-1.5 py-0.5 text-2xs font-medium text-muted-foreground">
                         {t("scopeAccount")}
                       </span>
                     )}
@@ -288,7 +288,7 @@ function ActionChip({ action, label }: { action: CommentRuleAction; label: strin
   return (
     <span
       className={cn(
-        "flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[11px] font-medium",
+        "flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-2xs font-medium",
         action === "hide"
           ? "bg-muted text-warning-ink dark:text-warning-ink"
           : "bg-muted text-primary-ink",

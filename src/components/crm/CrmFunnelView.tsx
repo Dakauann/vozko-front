@@ -121,19 +121,19 @@ function FunnelCardBody({ entry }: { entry: InboxEntry }) {
       title={entry.lead_name || entry.lead_number}
       subtitle={entry.campaign_name || undefined}
       thirdLine={
-        <p className="truncate text-[11px] text-muted-foreground">
+        <p className="truncate text-2xs text-muted-foreground">
           {relativeTime(entry.last_message_at)}
         </p>
       }
       rightSlot={
         hasUnread ? (
-          <span className="flex h-5 min-w-5 items-center justify-center rounded-[--radius] bg-healthy px-1 text-[11px] font-semibold text-healthy-foreground">
+          <span className="flex h-5 min-w-5 items-center justify-center rounded-[--radius] bg-healthy px-1 text-2xs font-semibold text-healthy-foreground">
             {entry.unread_count > 99 ? "99+" : entry.unread_count}
           </span>
         ) : undefined
       }
       body={
-        <p className="text-[11px] leading-relaxed text-muted-foreground">
+        <p className="text-2xs leading-relaxed text-muted-foreground">
           {truncate(entry.last_message_preview, 80)}
         </p>
       }
@@ -175,7 +175,7 @@ function FunnelCardBody({ entry }: { entry: InboxEntry }) {
               <CardLabelChip key={label.label_id} name={label.name} color={label.color} />
             ))}
             {labels.length > 3 ? (
-              <span className="inline-flex items-center rounded-[--radius] bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground shadow-sm">
+              <span className="inline-flex items-center rounded-[--radius] bg-muted px-1.5 py-0.5 text-2xs font-semibold text-muted-foreground shadow-sm">
                 +{labels.length - 3}
               </span>
             ) : null}
@@ -293,7 +293,7 @@ function FunnelCard({
             }}
           />
           <div className="absolute right-2 top-10 z-50 w-48 rounded-[--radius] border border-border bg-card shadow-xl py-1 animate-in fade-in slide-in-from-top-1 duration-150">
-            <div className="px-3 py-1.5 text-[11px] font-semibold text-muted-foreground">
+            <div className="px-3 py-1.5 text-2xs font-semibold text-muted-foreground">
               Labels
             </div>
             <div className="max-h-44 overflow-y-auto">
@@ -321,7 +321,7 @@ function FunnelCard({
                       }
                       onLabelMenuToggle?.();
                     }}
-                    className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[11px] transition-colors hover:bg-muted"
+                    className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-2xs transition-colors hover:bg-muted"
                   >
                     <span
                       className="h-2.5 w-2.5 rounded-full ring-1 ring-black/5 flex-shrink-0"
@@ -463,7 +463,7 @@ function FunnelColumn({
             exit={{ opacity: 0 }}
             className="flex items-center justify-center py-8"
           >
-            <p className="text-[11px] text-muted-foreground italic">
+            <p className="text-2xs text-muted-foreground italic">
               Nenhuma conversa
             </p>
           </motion.div>
@@ -502,7 +502,7 @@ function FunnelColumn({
       {/* Sentinel for infinite scroll */}
       {hasMore && !isLoading && (
         <div ref={sentinelRef} className="h-8 flex items-center justify-center">
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-2xs text-muted-foreground">
             {entries.length} de {totalItems}
           </span>
         </div>
@@ -1031,7 +1031,7 @@ export default function CrmFunnelView({
             exit={{ opacity: 0, height: 0 }}
             className="flex items-center justify-center py-1 overflow-hidden"
           >
-            <span className="text-[11px] text-muted-foreground animate-pulse">
+            <span className="text-2xs text-muted-foreground animate-pulse">
               Salvando ordem...
             </span>
           </motion.div>
@@ -1184,7 +1184,7 @@ export default function CrmFunnelView({
                                   funnelColumns?.get("__unstaged__")?.page ?? 1;
                                 onRequestColumn("__unstaged__", page + 1, 20);
                               }}
-                              className="w-full py-2 text-[11px] font-medium text-muted-foreground hover:text-healthy-ink hover:bg-muted rounded-lg transition-colors"
+                              className="w-full py-2 text-2xs font-medium text-muted-foreground hover:text-healthy-ink hover:bg-muted rounded-lg transition-colors"
                             >
                               Carregar mais ({unstagedEntries.length} de{" "}
                               {unstagedTotal})

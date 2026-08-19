@@ -492,7 +492,7 @@ export default function TagGroupsPage() {
             >
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
-                  <p className="text-[11px] font-semibold text-muted-foreground">
+                  <p className="text-2xs font-semibold text-muted-foreground">
                     {stat.label}
                   </p>
                   <p className="mt-2 text-2xl font-semibold text-foreground">
@@ -631,7 +631,7 @@ export default function TagGroupsPage() {
                                   })}
                                 </p>
                               </div>
-                              <span className="rounded-[--radius] border border-border px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+                              <span className="rounded-[--radius] border border-border px-2.5 py-1 text-2xs font-semibold text-muted-foreground">
                                 {group.items.length}
                               </span>
                             </div>
@@ -640,14 +640,14 @@ export default function TagGroupsPage() {
                               {previewItems.map((item) => (
                                 <span
                                   key={item.id}
-                                  className="rounded-[--radius] px-2.5 py-1 text-[11px] font-semibold text-white"
+                                  className="rounded-[--radius] px-2.5 py-1 text-2xs font-semibold text-white"
                                   style={{ backgroundColor: item.color }}
                                 >
                                   {item.name}
                                 </span>
                               ))}
                               {remainingCount > 0 ? (
-                                <span className="rounded-[--radius] border border-border px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+                                <span className="rounded-[--radius] border border-border px-2.5 py-1 text-2xs font-semibold text-muted-foreground">
                                   +{remainingCount}
                                 </span>
                               ) : null}
@@ -715,7 +715,7 @@ export default function TagGroupsPage() {
 
                   <div className="grid gap-4 md:grid-cols-3">
                     <div className="rounded-[--radius] border border-border bg-background p-4">
-                      <p className="text-[11px] font-semibold text-muted-foreground">
+                      <p className="text-2xs font-semibold text-muted-foreground">
                         {t("detail.countLabel")}
                       </p>
                       <p className="mt-2 text-sm font-medium text-foreground">
@@ -725,7 +725,7 @@ export default function TagGroupsPage() {
                       </p>
                     </div>
                     <div className="rounded-[--radius] border border-border bg-background p-4">
-                      <p className="text-[11px] font-semibold text-muted-foreground">
+                      <p className="text-2xs font-semibold text-muted-foreground">
                         {t("detail.firstStageLabel")}
                       </p>
                       <p className="mt-2 text-sm font-medium text-foreground">
@@ -733,7 +733,7 @@ export default function TagGroupsPage() {
                       </p>
                     </div>
                     <div className="rounded-[--radius] border border-border bg-background p-4">
-                      <p className="text-[11px] font-semibold text-muted-foreground">
+                      <p className="text-2xs font-semibold text-muted-foreground">
                         {t("detail.lastStageLabel")}
                       </p>
                       <p className="mt-2 text-sm font-medium text-foreground">
@@ -824,10 +824,10 @@ export default function TagGroupsPage() {
             <div className="space-y-5">
               <div className="rounded-[--radius] border border-border bg-background p-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-[--radius] bg-primary px-3 py-1 text-[11px] font-semibold text-primary-foreground">
+                  <span className="rounded-[--radius] bg-primary px-3 py-1 text-2xs font-semibold text-primary-foreground">
                     {groupName || t("modal.namePlaceholder")}
                   </span>
-                  <span className="rounded-[--radius] border border-border px-3 py-1 text-[11px] font-semibold text-muted-foreground">
+                  <span className="rounded-[--radius] border border-border px-3 py-1 text-2xs font-semibold text-muted-foreground">
                     {t("card.itemCount", { count: draftPreviewItems.length })}
                   </span>
                 </div>
@@ -836,7 +836,7 @@ export default function TagGroupsPage() {
                     draftPreviewItems.slice(0, 4).map((item) => (
                       <span
                         key={item.id}
-                        className="rounded-[--radius] px-2.5 py-1 text-[11px] font-semibold text-white"
+                        className="rounded-[--radius] px-2.5 py-1 text-2xs font-semibold text-white"
                         style={{ backgroundColor: item.color }}
                       >
                         {item.name}
@@ -880,7 +880,7 @@ export default function TagGroupsPage() {
                     icon={<Plus weight="bold" className="h-3.5 w-3.5" />}
                     iconVisible
                     onClick={addDraftItem}
-                    className="text-[11px] font-semibold"
+                    className="text-2xs font-semibold"
                   />
                 </div>
 

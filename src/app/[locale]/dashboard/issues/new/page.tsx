@@ -221,7 +221,7 @@ export default function NewIssuePage() {
               ) : (
                 <span />
               )}
-              <span className="text-[11px] text-muted-foreground/50">
+              <span className="text-2xs text-muted-foreground">
                 {title.length}/{TITLE_MAX}
               </span>
             </div>
@@ -268,7 +268,7 @@ export default function NewIssuePage() {
               ) : (
                 <span />
               )}
-              <span className="text-[11px] text-muted-foreground/50">
+              <span className="text-2xs text-muted-foreground">
                 {description.length}/{DESCRIPTION_MAX}
               </span>
             </div>
@@ -329,7 +329,7 @@ export default function NewIssuePage() {
                 />
               </label>
             )}
-            <p className="text-[11px] text-muted-foreground/60">
+            <p className="text-2xs text-muted-foreground">
               {t("form.imageHint", { max: MAX_IMAGES, current: images.length })}
             </p>
           </div>

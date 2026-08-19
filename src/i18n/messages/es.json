@@ -4461,7 +4461,8 @@
     },
     "table": {
       "messageType": "Tipo de mensaje",
-      "dispatches": "Envíos"
+      "dispatches": "Envíos",
+      "avoidingSpam": "Evitando spam"
     },
     "messageType": {
       "marketing": "Marketing",
@@ -6928,46 +6929,158 @@
   "leadsPage": {
     "header": {
       "badge": "Leads",
-      "description": "Lista completa de leads del workspace con filtros por canal, campaña y actividad."
+      "description": "Base completa de leads del workspace, con búsqueda, filtros avanzados y memorias."
     },
     "summary": {
-      "total": "Total de Leads",
-      "withWhatsApp": "Con WhatsApp"
+      "total": "Total de leads",
+      "withWhatsApp": "Con WhatsApp",
+      "windowOpen": "Ventana abierta",
+      "withMemory": "Con memorias",
+      "blocked": "Bloqueados"
+    },
+    "search": {
+      "placeholder": "Buscar por nombre, teléfono o memoria..."
     },
     "filters": {
       "label": "Filtros",
-      "searchNumber": "Buscar número...",
-      "searchName": "Buscar nombre...",
-      "allWhatsApp": "Todos WhatsApp",
-      "hasWhatsApp": "Con WhatsApp",
-      "noWhatsApp": "Sin WhatsApp",
-      "ageMin": "Edad mín",
-      "ageMax": "Edad máx"
+      "advanced": "Filtros",
+      "title": "Filtrar leads",
+      "clearAll": "Limpiar todo",
+      "done": "Listo",
+      "any": "Todos",
+      "yes": "Sí",
+      "no": "No",
+      "from": "Desde",
+      "to": "Hasta",
+      "min": "Mín",
+      "max": "Máx",
+      "search": "Buscar...",
+      "empty": "Sin resultados",
+      "loading": "Cargando...",
+      "activeCount": "{count} filtros activos",
+      "groups": {
+        "identity": "Identificación",
+        "engagement": "Actividad",
+        "campaigns": "Campañas",
+        "crm": "CRM",
+        "memories": "Memorias"
+      },
+      "fields": {
+        "name": "Nombre",
+        "number": "Teléfono",
+        "age": "Edad",
+        "blocked": "Bloqueo",
+        "channel": "Canal",
+        "windowOpen": "Ventana de 24h",
+        "lastActivityAt": "Última actividad",
+        "createdAt": "Creado el",
+        "updatedAt": "Actualizado el",
+        "campaign": "Campaña",
+        "campaignStatus": "Estado de envío",
+        "campaignCount": "N.º de campañas",
+        "stage": "Etapa",
+        "label": "Etiqueta",
+        "memoryCategory": "Categoría de la memoria",
+        "memoryAuthor": "Autor de la memoria",
+        "memoryText": "Contenido de la memoria",
+        "memoryCount": "N.º de memorias",
+        "memoryUpdatedAt": "Memoria actualizada el"
+      },
+      "options": {
+        "channel": {
+          "whatsapp": "WhatsApp",
+          "unofficial_whatsapp": "WhatsApp (dispositivo)",
+          "telegram": "Telegram",
+          "instagram": "Instagram"
+        },
+        "campaignStatus": {
+          "PENDING": "Pendiente",
+          "SENT": "Enviada",
+          "DELIVERED": "Entregada",
+          "READ": "Leída",
+          "FAILED": "Falló"
+        },
+        "memoryCategory": {
+          "personal": "Personal",
+          "preference": "Preferencia",
+          "deal": "Negociación",
+          "objection": "Objeción",
+          "commitment": "Compromiso",
+          "event": "Evento",
+          "other": "Otros"
+        },
+        "memoryAuthor": {
+          "ai": "IA",
+          "human": "Operador",
+          "system": "Sistema"
+        },
+        "blocked": {
+          "true": "Bloqueado",
+          "false": "Activo"
+        },
+        "windowOpen": {
+          "true": "Abierta",
+          "false": "Cerrada"
+        }
+      },
+      "chips": {
+        "remove": "Quitar filtro",
+        "contains": "contiene",
+        "in": "es",
+        "notIn": "no es",
+        "gte": "desde",
+        "lte": "hasta",
+        "isSet": "tiene",
+        "isEmpty": "no tiene",
+        "isTrue": "sí",
+        "isFalse": "no"
+      }
     },
-    "entryType": {
-      "whatsapp": "WhatsApp",
-      "sms": "SMS"
+    "views": {
+      "label": "Vistas",
+      "save": "Guardar vista actual",
+      "namePlaceholder": "Nombre de la vista",
+      "empty": "Sin vistas guardadas",
+      "delete": "Eliminar",
+      "shared": "Compartida",
+      "saved": "Vista guardada",
+      "saveError": "No se pudo guardar la vista"
+    },
+    "sort": {
+      "label": "Ordenar",
+      "hint": "Shift + clic para ordenar por varias columnas"
     },
     "records": {
       "total": "leads",
-      "empty": "No se encontraron leads."
+      "empty": "No se encontraron leads.",
+      "emptyFiltered": "Ningún lead coincide con los filtros.",
+      "clearFilters": "Limpiar filtros",
+      "perPage": "Por página",
+      "showing": "Mostrando",
+      "of": "de"
     },
     "table": {
       "number": "Teléfono",
       "name": "Nombre",
       "age": "Edad",
-      "window": "Ventana WhatsApp",
-      "lastActivity": "Última Actividad",
+      "window": "Ventana",
+      "lastActivity": "Última actividad",
       "createdAt": "Creado el",
-      "campaigns": "Campañas"
+      "campaigns": "Campañas",
+      "memories": "Memorias",
+      "blocked": "Bloqueado"
     },
     "window": {
       "open": "Abierta",
       "closed": "Cerrada"
     },
+    "entryType": {
+      "whatsapp": "WhatsApp",
+      "sms": "SMS"
+    },
     "campaignHistory": {
-      "title": "Historial de Campañas",
-      "noCampaigns": "Este lead no tiene participación en campañas.",
+      "title": "Historial de campañas",
+      "noCampaigns": "Este lead no participa en campañas.",
       "entries": "entradas",
       "status": "Estado",
       "date": "Fecha"
@@ -6977,7 +7090,7 @@
       "of": "de"
     },
     "error": {
-      "title": "Error al cargar leads"
+      "title": "Error al cargar los leads"
     }
   },
   "featurePages": {
@@ -7525,7 +7638,9 @@
       "manageTags": "Gestionar tags",
       "manageLabels": "Gestionar etiquetas",
       "startConversation": "Nueva conversación",
-      "startConversationHint": "Enviar el primer mensaje a un número nuevo (WhatsApp no oficial)"
+      "startConversationHint": "Enviar el primer mensaje a un número nuevo (WhatsApp no oficial)",
+      "startOfficial": "WhatsApp oficial",
+      "startOfficialHint": "Enviar una plantilla a un número nuevo por WhatsApp oficial (consume saldo)"
     },
     "deals": {
       "title": "Embudo de Ventas",
@@ -7548,7 +7663,7 @@
       "tags": "Etiquetas",
       "manage": "Gestionar",
       "session": "Sesión",
-      "outbound": "Contacto"
+      "outbound": "Contactar"
     }
   },
   "metricsOps": {
@@ -8866,6 +8981,130 @@
       "account_restricted": "WhatsApp restringió temporalmente este número.",
       "reply_revoked": "El propietario de la cuenta revocó el permiso de respuesta de este canal.",
       "channel_unavailable": "El número de esta conversación fue eliminado o ya no está disponible."
+    }
+  },
+  "whatsappOutreach": {
+    "title": "Nueva conversación en WhatsApp oficial",
+    "description": "Envía una plantilla aprobada a un número que nunca te ha escrito. Este envío consume saldo.",
+    "fromLabel": "Enviar desde",
+    "templateLabel": "Plantilla",
+    "templateSearch": "Buscar plantillas",
+    "templateEmpty": "No se encontraron plantillas para este número.",
+    "phoneLabel": "Número de destino",
+    "phoneHint": "Con código de país y de área, solo dígitos. Ej.: 5511999999999",
+    "phoneInvalid": "Número incompleto o inválido. Incluye el código de país y de área.",
+    "resolved": "será el destinatario",
+    "nameLabel": "Nombre (opcional)",
+    "namePlaceholder": "Cómo identificar este contacto",
+    "variablesLabel": "Variables de la plantilla",
+    "bodyVariable": "Variable {name}",
+    "headerVariable": "Encabezado: variable {name}",
+    "previewLabel": "Cómo lo recibirá el cliente",
+    "mediaHeaderMissing": "Esta plantilla tiene un encabezado multimedia sin archivo cargado. Configura el archivo antes de usarla.",
+    "noNumbers": "No hay números comerciales conectados. Conecta uno para iniciar conversaciones.",
+    "submit": "Enviar y abrir conversación",
+    "submitWithPrice": "Enviar por {price}",
+    "sending": "Enviando...",
+    "cancel": "Cancelar",
+    "cost": {
+      "label": "Costo de este envío",
+      "insufficient": "Saldo insuficiente para este envío. Agrega créditos para continuar."
+    },
+    "risk": "Estás iniciando una conversación con alguien que no te contactó. La plantilla se cobra al enviarla, aunque no responda.",
+    "usability": {
+      "ready": "Lista",
+      "not_approved": "Esperando aprobación",
+      "missing_header_media": "Falta el archivo del encabezado"
+    },
+    "empty": {
+      "title": "Ninguna plantilla está lista para enviar",
+      "pending": "{count, plural, =1 {Hay 1 plantilla esperando la aprobación de Meta. Podrás enviarla en cuanto se apruebe.} other {Hay # plantillas esperando la aprobación de Meta. Podrás enviarlas en cuanto se aprueben.}}",
+      "none": "Este número aún no tiene plantillas disponibles para tu espacio de trabajo."
+    },
+    "errors": {
+      "window_already_open": "Esta conversación ya está abierta. Responde por el chat, sin costo.",
+      "send_in_progress": "Este envío ya está en curso. Espera la confirmación.",
+      "within_spam_window": "Este contacto recibió un mensaje de este número hace poco. Espera el intervalo definido por tu espacio de trabajo.",
+      "rate_limited": "Demasiadas conversaciones iniciadas en poco tiempo. Inténtalo de nuevo en unos instantes.",
+      "insufficient_balance": "Saldo insuficiente para enviar esta plantilla.",
+      "pricing_unavailable": "No hay precio configurado para esta categoría de plantilla. Habla con quien administra el espacio de trabajo.",
+      "template_not_sendable": "Esta plantilla no está lista para enviarse.",
+      "template_phone_mismatch": "Esta plantilla no pertenece a la cuenta del número seleccionado.",
+      "invalid_phone": "Número de destino inválido.",
+      "lead_blocked": "Este contacto está bloqueado.",
+      "forbidden": "No tienes acceso a este número o plantilla.",
+      "phone_not_connected": "Este número no está conectado.",
+      "not_found": "Número o plantilla no encontrados.",
+      "idempotency_key_required": "No se pudo confirmar el envío. Cierra y abre la ventana para intentarlo de nuevo.",
+      "billing_unavailable": "El cobro no está disponible en este momento. El envío se rechazó por precaución.",
+      "send_failed": "No se pudo enviar la plantilla."
+    },
+    "create": {
+      "open": "Crear una plantilla",
+      "title": "Crear una plantilla de utilidad",
+      "description": "Las plantillas de utilidad sirven para cualquier contexto: retomar una conversación, confirmar algo, avisar de un avance. Meta debe aprobarla antes del primer envío.",
+      "startersLabel": "Empieza con una plantilla lista",
+      "starters": {
+        "followUp": {
+          "title": "Retomar una conversación",
+          "body": "¡Hola, '{{1}}'! Estamos retomando tu caso. Respóndenos por aquí cuando puedas."
+        },
+        "confirmation": {
+          "title": "Confirmar una cita",
+          "body": "¡Hola, '{{1}}'! Confirmamos tu cita para '{{2}}'. Responde este mensaje si necesitas reprogramar."
+        },
+        "update": {
+          "title": "Avisar de un avance",
+          "body": "¡Hola, '{{1}}'! Tu solicitud tuvo una actualización: '{{2}}'. Cualquier duda, responde por aquí."
+        },
+        "documentReady": {
+          "title": "Avisar que un documento está listo",
+          "body": "¡Hola, '{{1}}'! El documento que solicitaste ya está listo. Responde este mensaje para recibirlo."
+        }
+      },
+      "utilityNote": "Todas son de la categoría utilidad, que cuesta cerca de un cuarto de un mensaje de marketing y no puede incluir ofertas ni promociones.",
+      "nameLabel": "Nombre de la plantilla",
+      "nameInvalid": "Usa solo minúsculas, dígitos y guiones bajos, empezando por una letra.",
+      "bodyLabel": "Texto del mensaje",
+      "examplesLabel": "Ejemplos de las variables",
+      "examplesHint": "Meta exige un ejemplo de cada variable para revisar la plantilla. Nunca se envían al cliente.",
+      "exampleFor": "Ejemplo para {name}",
+      "submit": "Enviar a aprobación",
+      "submitting": "Enviando...",
+      "back": "Volver",
+      "backToSend": "Volver al envío",
+      "failed": "No se pudo crear la plantilla.",
+      "rejected": "Meta rechazó esta plantilla. Revisa el texto e inténtalo de nuevo.",
+      "submitted": {
+        "title": "Plantilla {name} enviada a aprobación",
+        "description": "Meta revisa cada plantilla antes de habilitar el envío, lo que suele tardar de 24 a 48 horas. Una vez aprobada aparece en la lista de plantillas y puede enviarse: no hace falta rehacer nada aquí."
+      },
+      "phoneLabel": "Crear en la cuenta de",
+      "phoneHint": "La plantilla pertenece a la cuenta de WhatsApp Business del número elegido y solo puede enviarse desde él.",
+      "previewLabel": "Vista previa en la conversación",
+      "previewHint": "Así llega el mensaje a alguien que aún no te ha escrito. Los ejemplos ocupan el lugar de las variables.",
+      "previewEmpty": "Escribe el texto para ver el mensaje aquí.",
+      "fullBuilder": {
+        "title": "¿Necesitas multimedia, botones o pie?",
+        "description": "Abre el constructor completo, con arrastrar y soltar. Se abre en otra pestaña, así que lo que ya escribiste aquí se mantiene."
+      }
+    },
+    "pickPhoneFirst": "Elige el número de origen para ver sus plantillas.",
+    "today": "Hoy",
+    "previewEmpty": "Elige una plantilla para ver el mensaje aquí."
+  },
+  "crmConversation": {
+    "deliveryError": {
+      "title": "No entregado",
+      "unknown": "WhatsApp no indicó el motivo. Este envío fue reembolsado.",
+      "code": "código {code}",
+      "notOnWhatsApp": "Este número no tiene WhatsApp. Revisa el número e inténtalo de nuevo.",
+      "billingIssue": "La cuenta comercial tiene un pago pendiente con Meta. Alguien con permisos de administración debe resolverlo para volver a enviar.",
+      "windowClosed": "La ventana de 24h estaba cerrada. Envía una plantilla aprobada para reabrir la conversación.",
+      "qualityLimit": "El número alcanzó el límite de envíos de Meta por calidad o volumen. Espera e inténtalo más tarde.",
+      "userStoppedMarketing": "Esta persona optó por no recibir mensajes de marketing de este número.",
+      "templateProblem": "La plantilla fue rechazada al enviar: puede estar pausada, rechazada o con variables que no coinciden.",
+      "experimentHoldout": "Meta retuvo este mensaje por un experimento de entrega."
     }
   }
 }

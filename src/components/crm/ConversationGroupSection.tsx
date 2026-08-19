@@ -262,7 +262,7 @@ export default function ConversationGroupSection({
   if (!group) {
     return (
       <div className="flex flex-col items-center gap-3 px-6 py-10 text-center">
-        <UsersThree weight="thin" className="h-10 w-10 text-muted-foreground/50" />
+        <UsersThree weight="thin" className="h-10 w-10 text-muted-foreground" />
         <p className="text-xs text-muted-foreground">
           {(state.status === "error" && state.message) || t("unavailable")}
         </p>
@@ -308,7 +308,7 @@ export default function ConversationGroupSection({
                 {group.subject || t("unnamed")}
               </h4>
             )}
-            <p className="mt-0.5 text-[11px] text-muted-foreground">
+            <p className="mt-0.5 text-2xs text-muted-foreground">
               {t("memberCount", { count: group.participantCount })}
             </p>
           </div>
@@ -360,7 +360,7 @@ export default function ConversationGroupSection({
               aria-label={t("description")}
             />
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[10px] tabular-nums text-muted-foreground">
+              <span className="text-2xs tabular-nums text-muted-foreground">
                 {editing.subject.length}/{MAX_GROUP_NAME_LENGTH}
               </span>
               <div className="flex gap-2">
@@ -431,7 +431,7 @@ export default function ConversationGroupSection({
             {inviteCopied ? t("inviteCopied") : t("inviteLink")}
           </button>
           {inviteLink && (
-            <p className="mt-1.5 break-all rounded-md bg-muted px-2 py-1.5 text-[10px] text-muted-foreground">
+            <p className="mt-1.5 break-all rounded-md bg-muted px-2 py-1.5 text-2xs text-muted-foreground">
               {inviteLink}
             </p>
           )}
@@ -462,7 +462,7 @@ export default function ConversationGroupSection({
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-medium text-foreground">{p.name}</p>
                   {p.phoneNumber && p.phoneNumber !== p.name.replace("+", "") && (
-                    <p className="truncate text-[10px] text-muted-foreground">
+                    <p className="truncate text-2xs text-muted-foreground">
                       +{p.phoneNumber}
                     </p>
                   )}
@@ -522,7 +522,7 @@ export default function ConversationGroupSection({
       <section className="border-t border-border pt-3">
         {confirmingLeave ? (
           <div className="flex flex-col gap-2">
-            <p className="text-[11px] leading-relaxed text-muted-foreground">
+            <p className="text-2xs leading-relaxed text-muted-foreground">
               {t("confirmLeave")}
             </p>
             <div className="flex gap-2">
@@ -582,7 +582,7 @@ function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-[--radius] border px-2 py-0.5 text-[11px] font-semibold",
+        "inline-flex items-center gap-1 rounded-[--radius] border px-2 py-0.5 text-2xs font-semibold",
         TONES[tone],
       )}
     >

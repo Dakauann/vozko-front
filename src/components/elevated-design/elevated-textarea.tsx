@@ -59,7 +59,7 @@ const variantAlias: Record<TextareaVariant, BaseVariant> = {
 const sizeClasses: Record<ElevatedTextareaSize, string> = {
   sm: "text-sm py-2.5",
   default: "text-sm py-3.5",
-  lg: "text-[15px] py-4",
+  lg: "text-base py-4",
 };
 
 const basePadding: Record<ElevatedTextareaSize, string> = {

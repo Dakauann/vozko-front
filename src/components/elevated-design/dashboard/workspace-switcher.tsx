@@ -351,7 +351,7 @@ export function WorkspaceSwitcher({
                         }}
                         className={cn(
                           "flex w-full items-center gap-3 rounded-[--radius] p-2.5 transition-all",
-                          isSelected ? "bg-muted" : "hover:bg-muted",
+                          isSelected ? "bg-primary-subtle text-primary-ink" : "hover:bg-muted",
                         )}
                       >
                         <div
@@ -372,7 +372,7 @@ export function WorkspaceSwitcher({
                             {ws.name}
                           </p>
                           {ws.isDefault && (
-                            <p className="text-[11px] text-muted-foreground">
+                            <p className="text-2xs text-muted-foreground">
                               {t("default")}
                             </p>
                           )}

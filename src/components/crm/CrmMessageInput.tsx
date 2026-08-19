@@ -619,7 +619,7 @@ export default function CrmMessageInput({
               weight="fill"
               className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground"
             />
-            <p className="truncate text-[11px] font-medium text-foreground">
+            <p className="truncate text-2xs font-medium text-foreground">
               {disabledReason}
             </p>
           </div>
@@ -634,10 +634,10 @@ export default function CrmMessageInput({
               className="h-4 w-4 flex-shrink-0 text-warning-ink"
             />
             <div className="min-w-0">
-              <p className="text-[11px] font-semibold text-foreground">
+              <p className="text-2xs font-semibold text-foreground">
                 {t.windowClosed}
               </p>
-              <p className="truncate text-[11px] text-muted-foreground">
+              <p className="truncate text-2xs text-muted-foreground">
                 {/* An expiry means a clock that reopens on its own; its absence
                     means a structural block. The backend distinguishes them
                     deliberately (nil expiry == "not a clock") and showing the
@@ -657,7 +657,7 @@ export default function CrmMessageInput({
         <div className="flex justify-center px-4 pt-2">
           <div className="flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1 shadow-sm">
             <span className="h-1.5 w-1.5 rounded-full bg-healthy animate-pulse" />
-            <span className="text-[11px] font-medium text-foreground">
+            <span className="text-2xs font-medium text-foreground">
               {t.windowExpires}: {windowRemaining}
             </span>
           </div>
@@ -711,10 +711,10 @@ export default function CrmMessageInput({
               </div>
 
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[11px] sm:text-xs font-medium text-foreground">
+                <p className="truncate text-2xs sm:text-xs font-medium text-foreground">
                   {pendingMedia.file.name}
                 </p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-2xs text-muted-foreground">
                   {pendingMedia.uploading
                     ? t.uploading
                     : pendingMedia.error
@@ -784,7 +784,7 @@ export default function CrmMessageInput({
               </div>
 
               {/* Timer */}
-              <span className="flex-shrink-0 font-mono text-[11px] sm:text-xs font-semibold text-primary-ink tabular-nums">
+              <span className="flex-shrink-0 font-mono text-2xs sm:text-xs font-semibold text-primary-ink tabular-nums">
                 {formatDuration(recordingDuration)}
               </span>
             </div>
@@ -821,10 +821,10 @@ export default function CrmMessageInput({
                     className="h-4 w-4 text-primary-ink flex-shrink-0"
                   />
                   <div className="min-w-0 flex-1 rounded-md bg-card border-l-[3px] border-info px-2.5 py-1.5">
-                    <p className="text-[11px] font-semibold text-primary-ink truncate">
+                    <p className="text-2xs font-semibold text-primary-ink truncate">
                       {replyToMessage.sender_name || replyToMessage.from}
                     </p>
-                    <p className="text-[11px] text-muted-foreground truncate">
+                    <p className="text-2xs text-muted-foreground truncate">
                       {replyToMessage.media_type
                         ? `📎 ${replyToMessage.media_type === "image" ? "Imagem" : replyToMessage.media_type === "video" ? "Vídeo" : replyToMessage.media_type === "audio" ? "Áudio" : "Documento"}`
                         : replyToMessage.text || "..."}
@@ -938,7 +938,7 @@ export default function CrmMessageInput({
 
               {/* sign-with-name toggle */}
               <div className="flex flex-shrink-0 items-center gap-1 self-center pl-1 pr-0.5">
-                <span className="hidden text-[11px] font-medium text-muted-foreground sm:inline">
+                <span className="hidden text-2xs font-medium text-muted-foreground sm:inline">
                   Assinar
                 </span>
                 <ElevatedSwitch

@@ -75,7 +75,7 @@ function DropdownLink({
           className={cn(
             "flex h-9 w-9 items-center justify-center rounded-lg transition-colors",
             isDark
-              ? "bg-white/10 text-muted-foreground/60 group-hover:bg-card group-hover:text-foreground"
+              ? "bg-white/10 text-muted-foreground group-hover:bg-card group-hover:text-foreground"
               : "bg-muted text-muted-foreground group-hover:bg-foreground group-hover:text-white",
           )}
         >
@@ -243,7 +243,7 @@ export function UserDropdown({
               className={cn(
                 "truncate text-xs",
                 tone === "dark"
-                  ? "text-muted-foreground/60"
+                  ? "text-muted-foreground"
                   : "text-muted-foreground",
               )}
             >
@@ -255,7 +255,7 @@ export function UserDropdown({
             className={cn(
               "hidden h-4 w-4 transition-transform duration-200 lg:block",
               tone === "dark"
-                ? "text-muted-foreground/60"
+                ? "text-muted-foreground"
                 : "text-muted-foreground",
               open ? "rotate-180" : "",
             )}
@@ -314,7 +314,7 @@ export function UserDropdown({
                       className={cn(
                         "text-xs",
                         tone === "dark"
-                          ? "text-muted-foreground/60"
+                          ? "text-muted-foreground"
                           : "text-muted-foreground",
                       )}
                     >
@@ -322,7 +322,7 @@ export function UserDropdown({
                     </p>
                     <span
                       className={cn(
-                        "mt-2 inline-flex items-center gap-2 rounded-[--radius] px-2.5 py-1 text-[11px] font-medium",
+                        "mt-2 inline-flex items-center gap-2 rounded-[--radius] px-2.5 py-1 text-2xs font-medium",
                         tone === "dark"
                           ? "bg-white/10 text-gray-200"
                           : "bg-card text-muted-foreground",
@@ -333,7 +333,7 @@ export function UserDropdown({
                     {user.role === "admin" ? (
                       <span
                         className={cn(
-                          "ml-2 inline-flex items-center gap-1 rounded-[--radius] px-2 py-1 text-[11px] font-semibold",
+                          "ml-2 inline-flex items-center gap-1 rounded-[--radius] px-2 py-1 text-2xs font-semibold",
                           tone === "dark"
                             ? "bg-card text-foreground"
                             : "bg-foreground text-white",

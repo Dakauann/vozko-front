@@ -23,6 +23,108 @@ export interface CrmFilter {
 
 export const emptyCrmFilter: CrmFilter = { groups: [] };
 
+// ── Predicate helpers ────────────────────────────────────────────────────────
+// A filter bar is a set of controls that each own one (field, operator) pair,
+// and every one of them needs to read its current values, replace them, or drop
+// them. These live here rather than inside a bar component because there is now
+// more than one bar (conversations, opportunities, leads) and three private
+// copies of "how do I find my predicate" is three chances for them to disagree
+// about what an empty value means.
+
+/** Every predicate across every group, flattened. */
+export function filterPredicates(
+    filter: CrmFilter | null | undefined,
+): CrmFilterPredicate[] {
+    if (!filter) return [];
+    return filter.groups.flatMap((g) => g.predicates ?? []);
+}
+
+/**
+ * Rebuild a filter from a flat predicate list.
+ *
+ * Every predicate lands in ONE `and` group, which is the semantics a bar of
+ * independent controls implies: each control narrows the result further. A
+ * control that needs OR (several values of the same field) expresses it with an
+ * `in` predicate, not with a second group.
+ */
+export function filterFromPredicates(list: CrmFilterPredicate[]): CrmFilter {
+    if (list.length === 0) return emptyCrmFilter;
+    return { groups: [{ conjunction: 'and', predicates: list }] };
+}
+
+/** The values currently held by one (field, operator) pair, or []. */
+export function readFilterValues(
+    filter: CrmFilter | null | undefined,
+    field: string,
+    operator: string,
+): string[] {
+    return (
+        filterPredicates(filter).find(
+            (p) => p.field === field && p.operator === operator,
+        )?.values ?? []
+    );
+}
+
+/** True when a (field, operator) pair is present, regardless of its values. */
+export function hasFilterPredicate(
+    filter: CrmFilter | null | undefined,
+    field: string,
+    operator: string,
+): boolean {
+    return filterPredicates(filter).some(
+        (p) => p.field === field && p.operator === operator,
+    );
+}
+
+/**
+ * Replace — or, when `values` is empty and the operator takes values, clear —
+ * the predicate for a (field, operator) pair.
+ *
+ * Value-less operators (`is_set`, `is_empty`, `is_true`, `is_false`) are set by
+ * passing an empty array with `valueless: true`; that distinction is why this
+ * cannot just test `values.length`.
+ */
+export function withFilterPredicate(
+    filter: CrmFilter | null | undefined,
+    field: string,
+    operator: string,
+    values: string[],
+    options?: { valueless?: boolean; key?: string },
+): CrmFilter {
+    const next = filterPredicates(filter).filter(
+        (p) => !(p.field === field && p.operator === operator),
+    );
+    if (options?.valueless || values.length > 0) {
+        next.push({
+            field,
+            operator,
+            values,
+            ...(options?.key ? { key: options.key } : {}),
+        });
+    }
+    return filterFromPredicates(next);
+}
+
+/** Drop one (field, operator) pair, or every predicate on a field. */
+export function removeFilterPredicate(
+    filter: CrmFilter | null | undefined,
+    field: string,
+    operator?: string,
+): CrmFilter {
+    return filterFromPredicates(
+        filterPredicates(filter).filter(
+            (p) => !(p.field === field && (operator === undefined || p.operator === operator)),
+        ),
+    );
+}
+
+/** How many constraints are active — the number on the "filters" badge. */
+export function countFilterPredicates(
+    filter: CrmFilter | null | undefined,
+): number {
+    return filterPredicates(filter).length;
+}
+
 // The board axis. `none` collapses into a single "Todos" column.
 export type CrmGroupBy = 'stage' | 'label' | 'owner' | 'none';
 

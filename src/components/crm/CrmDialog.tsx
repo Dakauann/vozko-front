@@ -91,7 +91,7 @@ export default function CrmDialog({
                     <h2 className="text-sm font-semibold text-foreground">
                       {t.dialogTitle}
                     </h2>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-2xs text-muted-foreground">
                       {t.dialogDescription}
                     </p>
                   </div>

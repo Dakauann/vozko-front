@@ -88,7 +88,7 @@ export default function EntryStageBadge({
     if (!currentStage) return null;
     return (
       <span
-        className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[11px] font-semibold"
+        className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-2xs font-semibold"
         style={{
           backgroundColor: `${currentStage.stageColor}18`,
           color: currentStage.stageColor,
@@ -111,7 +111,7 @@ export default function EntryStageBadge({
             type="button"
             className={cn(
               "inline-flex items-center gap-1 rounded-lg border border-dashed border-foreground/20 px-2 py-1",
-              "text-[11px] font-semibold text-muted-foreground",
+              "text-2xs font-semibold text-muted-foreground",
               "transition-all hover:border-slate-400 hover:text-muted-foreground hover:bg-muted",
               loading && "opacity-50 pointer-events-none",
             )}
@@ -139,7 +139,7 @@ export default function EntryStageBadge({
         <button
           type="button"
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[11px] font-semibold",
+            "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-2xs font-semibold",
             "transition-all hover:opacity-80 cursor-pointer",
             loading && "opacity-50 pointer-events-none",
           )}
@@ -215,7 +215,7 @@ function StagePickerContent({
                 }}
                 className={cn(
                   "flex w-full items-center gap-2.5 rounded-[--radius] px-3 py-2 text-left text-sm transition-colors",
-                  isActive ? "bg-muted font-medium" : "hover:bg-muted",
+                  isActive ? "bg-primary-subtle font-medium text-primary-ink" : "hover:bg-muted",
                   loading && "opacity-50 pointer-events-none",
                 )}
                 initial={{ opacity: 0, y: -4 }}

@@ -114,7 +114,7 @@ export default function ForgotPasswordPage() {
                   <h1 className="text-3xl font-semibold text-foreground tracking-tight">
                     {t("title")}
                   </h1>
-                  <p className="mt-3 text-muted-foreground text-[15px]">
+                  <p className="mt-3 text-muted-foreground text-base">
                     {t("description")}
                   </p>
                 </div>
@@ -168,7 +168,7 @@ export default function ForgotPasswordPage() {
                   <h1 className="text-3xl font-semibold text-foreground tracking-tight">
                     {t("reset.title")}
                   </h1>
-                  <p className="mt-3 text-muted-foreground text-[15px]">
+                  <p className="mt-3 text-muted-foreground text-base">
                     {t("reset.description")} <strong>{email}</strong>
                   </p>
                 </div>
@@ -258,7 +258,7 @@ export default function ForgotPasswordPage() {
                 <h2 className="text-2xl font-semibold text-foreground mb-2">
                   {t("success.title")}
                 </h2>
-                <p className="text-muted-foreground mb-6 text-[15px]">
+                <p className="text-muted-foreground mb-6 text-base">
                   {t("success.description")}
                 </p>
                 <Button

@@ -266,7 +266,7 @@ export default function TourGuide({
               className,
             )}
           >
-            <div className="rule-engraved relative flex h-9 w-full items-center bg-muted px-3">
+            <div className="rule-engraved relative flex h-9 w-full items-center px-3">
               <button
                 type="button"
                 onClick={handleSkip}
@@ -341,7 +341,7 @@ function TourTooltip({
       )}
     >
       <TooltipArrow placement={placement} />
-        <div className="rule-engraved relative w-full bg-muted px-4 py-2.5">
+        <div className="rule-engraved relative w-full px-4 py-2.5">
           <button
             {...closeProps}
             className="absolute right-2 top-2 z-10 rounded-[--radius] p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -351,7 +351,7 @@ function TourTooltip({
           </button>
           <div className="flex flex-col gap-1 pr-8">
             {badge && <span className="legend">{badge}</span>}
-            <span className="text-[15px] font-semibold leading-tight tracking-tight text-foreground">
+            <span className="text-base font-semibold leading-tight tracking-tight text-foreground">
               {title}
             </span>
           </div>
@@ -421,7 +421,7 @@ function TourTooltip({
           </div>
 
           <div className="flex justify-center">
-            <span className="text-[11px] text-muted-foreground/60">
+            <span className="text-2xs text-muted-foreground">
               {index + 1} / {size}
             </span>
           </div>

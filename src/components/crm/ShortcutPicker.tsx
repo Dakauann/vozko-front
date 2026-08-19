@@ -188,7 +188,7 @@ export default function ShortcutPicker({
           <div ref={listRef} className="py-1">
             <div className="flex items-center gap-1.5 px-3 py-1.5 border-b border-border">
               <Lightning weight="fill" className="h-3 w-3 text-warning-ink" />
-              <span className="text-[11px] font-semibold text-muted-foreground">
+              <span className="text-2xs font-semibold text-muted-foreground">
                 {t("header")}
               </span>
             </div>
@@ -213,15 +213,15 @@ export default function ShortcutPicker({
                     <span className="text-xs font-semibold text-foreground">
                       /{shortcut.shortcut}
                     </span>
-                    <span className="text-[11px] text-muted-foreground truncate">
+                    <span className="text-2xs text-muted-foreground truncate">
                       {shortcut.name}
                     </span>
                   </div>
-                  <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                  <p className="text-2xs text-muted-foreground truncate mt-0.5">
                     {shortcut.content.text || shortcut.content.headerText || ""}
                   </p>
                 </div>
-                <span className="flex-shrink-0 rounded bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+                <span className="flex-shrink-0 rounded bg-muted px-1.5 py-0.5 text-2xs font-medium text-muted-foreground">
                   {shortcut.messageType}
                 </span>
               </button>

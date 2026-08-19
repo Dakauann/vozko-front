@@ -337,7 +337,7 @@ export default function AdminUserBalancePage() {
                   />
                 </div>
                 <div>
-                  <p className="text-[11px] text-muted-foreground font-medium">
+                  <p className="text-2xs text-muted-foreground font-medium">
                     {t("resource.money")}
                   </p>
                   <p className="text-2xl font-semibold text-foreground">
@@ -354,7 +354,7 @@ export default function AdminUserBalancePage() {
               {!loadingSummary && moneyBalance && (
                 <div className="grid grid-cols-2 gap-2">
                   <div className="rounded-[--radius] bg-muted px-3 py-2 text-center">
-                    <p className="text-[11px] text-muted-foreground font-medium">
+                    <p className="text-2xs text-muted-foreground font-medium">
                       {t("card.credited")}
                     </p>
                     <p className="text-sm font-semibold text-foreground">
@@ -365,7 +365,7 @@ export default function AdminUserBalancePage() {
                     </p>
                   </div>
                   <div className="rounded-[--radius] bg-muted px-3 py-2 text-center">
-                    <p className="text-[11px] text-muted-foreground font-medium">
+                    <p className="text-2xs text-muted-foreground font-medium">
                       {t("card.debited")}
                     </p>
                     <p className="text-sm font-semibold text-foreground">

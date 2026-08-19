@@ -1,6 +1,14 @@
 "use client";
 
-import { CaretLeft, CaretRight, Check, Minus } from "@/components/icons";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowsDownUp,
+  CaretLeft,
+  CaretRight,
+  Check,
+  Minus,
+} from "@/components/icons";
 import { Fragment, ReactNode, useCallback } from "react";
 
 import { cn } from "@/lib/utils";
@@ -12,6 +20,29 @@ export interface DashboardTableColumn<T> {
   className?: string;
   render?: (row: T, rowIndex: number) => ReactNode;
   accessor?: (row: T) => ReactNode;
+  /**
+   * Server-side sort key for this column. Present means the header is a
+   * control; absent means the column is not orderable, and says so by not
+   * looking clickable.
+   */
+  sortKey?: string;
+}
+
+export type DashboardTableSortDirection = "asc" | "desc";
+
+export interface DashboardTableSort {
+  key: string;
+  direction: DashboardTableSortDirection;
+}
+
+export interface DashboardTableSorting {
+  /** Active sorts, in priority order. */
+  sorts: DashboardTableSort[];
+  /**
+   * Cycle a column. `additive` (shift-click) appends the column as a secondary
+   * key instead of replacing the current one.
+   */
+  onToggle: (key: string, options: { additive: boolean }) => void;
 }
 
 export interface DashboardTablePagination {
@@ -20,6 +51,9 @@ export interface DashboardTablePagination {
   pageSize: number;
   totalItems: number;
   onPageChange: (page: number) => void;
+  /** Offering page sizes turns the footer into a density control too. */
+  pageSizeOptions?: readonly number[];
+  onPageSizeChange?: (pageSize: number) => void;
 }
 
 export interface DashboardTableEmptyState {
@@ -59,6 +93,8 @@ export interface DashboardTableProps<T> {
 
   toolbar?: ReactNode;
 
+  sorting?: DashboardTableSorting;
+
   selection?: DashboardTableSelection<T>;
 
   pagination?: DashboardTablePagination;
@@ -66,6 +102,7 @@ export interface DashboardTableProps<T> {
     showing?: string;
     of?: string;
     items?: string;
+    perPage?: string;
   };
 
   loading?: boolean;
@@ -88,6 +125,7 @@ export function DashboardTable<T>({
   headerLeft,
   headerRight,
   toolbar,
+  sorting,
   selection,
   pagination,
   paginationText,
@@ -218,7 +256,7 @@ export function DashboardTable<T>({
 
       {/* ── Selection bar ── */}
       {hasSelection && selectedCount > 0 && (
-        <div className="flex items-center gap-3 border-b border-border bg-muted px-5 py-2">
+        <div className="flex items-center gap-3 border-b border-border px-5 py-2">
           <span className="text-sm font-medium text-primary-ink">
             {selection!.label
               ? selection!.label(selectedCount)
@@ -268,18 +306,74 @@ export function DashboardTable<T>({
                   </button>
                 </th>
               )}
-              {columns.map((column) => (
-                <th
-                  key={column.key}
-                  className={cn(
-                    "px-6 py-3 text-[11px] font-semibold text-muted-foreground",
-                    column.className,
-                  )}
-                  scope="col"
-                >
-                  {column.header}
-                </th>
-              ))}
+              {columns.map((column) => {
+                const sortable = !!(sorting && column.sortKey);
+                const activeIndex = sortable
+                  ? sorting!.sorts.findIndex((s) => s.key === column.sortKey)
+                  : -1;
+                const active = activeIndex >= 0 ? sorting!.sorts[activeIndex] : undefined;
+
+                return (
+                  <th
+                    key={column.key}
+                    className={cn(
+                      "px-6 py-3 text-2xs font-semibold text-muted-foreground",
+                      column.className,
+                    )}
+                    scope="col"
+                    aria-sort={
+                      active
+                        ? active.direction === "asc"
+                          ? "ascending"
+                          : "descending"
+                        : sortable
+                          ? "none"
+                          : undefined
+                    }
+                  >
+                    {sortable ? (
+                      <button
+                        type="button"
+                        onClick={(e) =>
+                          sorting!.onToggle(column.sortKey!, {
+                            additive: e.shiftKey,
+                          })
+                        }
+                        className={cn(
+                          "group/sort -mx-1 inline-flex items-center gap-1.5 rounded px-1 py-0.5 transition-colors",
+                          "hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary",
+                          active && "text-foreground",
+                        )}
+                      >
+                        <span>{column.header}</span>
+                        {/* The neutral glyph shows only on hover: a column that
+                            is not sorted must not look like it is. */}
+                        {active ? (
+                          active.direction === "asc" ? (
+                            <ArrowUp weight="bold" className="h-3 w-3" />
+                          ) : (
+                            <ArrowDown weight="bold" className="h-3 w-3" />
+                          )
+                        ) : (
+                          <ArrowsDownUp
+                            weight="bold"
+                            className="h-3 w-3 opacity-0 transition-opacity group-hover/sort:opacity-60"
+                          />
+                        )}
+                        {/* Rank, only while several keys are active, so a
+                            multi-key order is readable rather than implied. */}
+                        {active && sorting!.sorts.length > 1 ? (
+                          <span className="text-2xs tabular-nums text-muted-foreground">
+                            {activeIndex + 1}
+                          </span>
+                        ) : null}
+                      </button>
+                    ) : (
+                      column.header
+                    )}
+                  </th>
+                );
+              })}
               {renderRowActions ? (
                 <th
                   className="px-6 py-3 text-xs font-semibold text-muted-foreground text-right"
@@ -465,18 +559,41 @@ export function DashboardTable<T>({
       {/* ── Pagination footer ── */}
       {hasPagination && (
         <div className="flex items-center justify-between border-t border-border bg-muted px-5 py-2.5">
-          <p className="text-xs text-muted-foreground">
-            {paginationText?.showing ?? "Mostrando"}{" "}
-            <span className="font-semibold text-foreground">
-              {from}–{to}
-            </span>{" "}
-            {paginationText?.of ?? "de"}{" "}
-            <span className="font-semibold text-foreground">
-              {pagination.totalItems}
-            </span>{" "}
-            {paginationText?.items ?? "itens"}
-          </p>
-          <div className="flex gap-1">
+          <div className="flex items-center gap-4">
+            <p className="text-xs text-muted-foreground">
+              {paginationText?.showing ?? "Mostrando"}{" "}
+              <span className="font-semibold text-foreground">
+                {from}–{to}
+              </span>{" "}
+              {paginationText?.of ?? "de"}{" "}
+              <span className="font-semibold text-foreground">
+                {pagination.totalItems}
+              </span>{" "}
+              {paginationText?.items ?? "itens"}
+            </p>
+
+            {pagination.pageSizeOptions && pagination.onPageSizeChange ? (
+              <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <span>{paginationText?.perPage ?? "Por página"}</span>
+                <select
+                  value={pagination.pageSize}
+                  onChange={(e) =>
+                    pagination.onPageSizeChange?.(Number(e.target.value))
+                  }
+                  className="h-7 rounded border border-border bg-card px-1.5 text-xs font-medium text-foreground tabular-nums outline-none transition-colors hover:bg-muted focus-visible:ring-1 focus-visible:ring-primary"
+                >
+                  {pagination.pageSizeOptions.map((size) => (
+                    <option key={size} value={size}>
+                      {size}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+          </div>
+          {/* The page buttons go when there is one page; the footer stays,
+              because it still carries the count and the density control. */}
+          <div className={cn("flex gap-1", pagination.totalPages <= 1 && "hidden")}>
             <button
               onClick={() =>
                 pagination.onPageChange(pagination.currentPage - 1)

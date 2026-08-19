@@ -387,7 +387,7 @@ function KpiStrip({
           className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-[--radius] border border-dashed border-border bg-muted px-3 py-2 text-xs text-muted-foreground"
           title={t("shellHint")}
         >
-          <span className="font-semibold text-muted-foreground/90">
+          <span className="font-semibold text-muted-foreground">
             {t("shellLabel")}
           </span>
           <span className="tabular-nums text-foreground">
@@ -434,14 +434,14 @@ function StatBlock({
       )}
       title={hint}
     >
-      <p className="text-[11px] font-semibold text-muted-foreground">
+      <p className="text-2xs font-semibold text-muted-foreground">
         {label}
       </p>
       <p className="mt-1 text-lg font-semibold tabular-nums tracking-tight text-foreground">
         {value}
       </p>
       {hint ? (
-        <p className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">
+        <p className="mt-0.5 line-clamp-2 text-2xs text-muted-foreground">
           {hint}
         </p>
       ) : null}
@@ -552,7 +552,7 @@ function ChannelMixChart({
                     <p className="text-sm font-semibold text-foreground">
                       {d.name}
                     </p>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-2xs text-muted-foreground">
                       {fmt.pct(d.pct)} {tl("ofPeriodConversations")}
                     </p>
                   </div>
@@ -689,7 +689,7 @@ function ExtendedOpsPanels({
                 msg.conversations_with_messages > 0 &&
                 msg.avg_messages_all_scoped !==
                   msg.avg_messages_per_conversation ? (
-                  <p className="px-1 text-[11px] text-muted-foreground">
+                  <p className="px-1 text-2xs text-muted-foreground">
                     {tl("avgIncludingShells", {
                       avg: fmt.num(msg.avg_messages_all_scoped),
                     })}
@@ -1027,11 +1027,11 @@ function CloseOriginCell({
         <span className="mx-0.5 font-normal text-muted-foreground">/</span>
         {fmt.num(s)}
       </span>
-      <span className="text-[11px] leading-none text-muted-foreground">
+      <span className="text-2xs leading-none text-muted-foreground">
         {tl("closeOriginHint")}
       </span>
       {a > 0 ? (
-        <span className="text-[11px] leading-none text-muted-foreground">
+        <span className="text-2xs leading-none text-muted-foreground">
           {tl("closeOriginAi", { count: fmt.num(a) })}
         </span>
       ) : null}
@@ -1141,13 +1141,13 @@ function StatusCompositionChart({
 
       <div className="space-y-2.5">
         <div className="rounded-[--radius] border border-border bg-background px-3 py-2">
-          <p className="text-[11px] font-semibold text-muted-foreground">
+          <p className="text-2xs font-semibold text-muted-foreground">
             {tl("pctFinished")}
           </p>
           <p className="mt-0.5 text-2xl font-semibold tabular-nums text-foreground">
             {fmt.pct(resolutionRate)}
           </p>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-2xs text-muted-foreground">
             {tl("ofConversations", {
               finished: fmt.num(dist?.finished),
               total: fmt.num(total),
@@ -1177,7 +1177,7 @@ function StatusCompositionChart({
                     style={{ width: `${pct}%`, backgroundColor: s.color }}
                   />
                 </div>
-                <p className="mt-0.5 text-right text-[11px] tabular-nums text-muted-foreground">
+                <p className="mt-0.5 text-right text-2xs tabular-nums text-muted-foreground">
                   {tl("pctOfTotal", { pct: pct.toFixed(1) })}
                 </p>
               </li>
@@ -1211,7 +1211,7 @@ function OverallCloseOriginNote({
       : "0%";
   return (
     <div className="mt-3 rounded-[--radius] border border-border bg-background px-3 py-2.5">
-      <p className="text-[11px] font-semibold text-muted-foreground">
+      <p className="text-2xs font-semibold text-muted-foreground">
         {tl("closeOriginCol")}
       </p>
       <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
@@ -1245,7 +1245,7 @@ function OverallCloseOriginNote({
           </span>
         ) : null}
       </div>
-      <p className="mt-1 text-[11px] text-muted-foreground">
+      <p className="mt-1 text-2xs text-muted-foreground">
         {tl("closeOriginOverallHint")}
       </p>
     </div>
@@ -1374,7 +1374,7 @@ function DepartmentStackedChart({
             iconSize={8}
             wrapperStyle={{ paddingBottom: 4, display: "flex", gap: 12 }}
             formatter={(v) => (
-              <span className="mr-4 text-[11px] text-muted-foreground">{v}</span>
+              <span className="mr-4 text-2xs text-muted-foreground">{v}</span>
             )}
           />
           <Bar
@@ -1536,7 +1536,7 @@ function TeamResolutionChart({
             iconSize={8}
             wrapperStyle={{ paddingBottom: 4, display: "flex", gap: 12 }}
             formatter={(v) => (
-              <span className="mr-4 text-[11px] text-muted-foreground">{v}</span>
+              <span className="mr-4 text-2xs text-muted-foreground">{v}</span>
             )}
           />
           <Bar
@@ -1570,7 +1570,7 @@ function TeamResolutionChart({
         {data.map((d, i) => (
           <div
             key={`total-${d.fullName}`}
-            className="flex items-center justify-end pr-1 text-[11px] font-semibold tabular-nums text-foreground"
+            className="flex items-center justify-end pr-1 text-2xs font-semibold tabular-nums text-foreground"
             style={{ height: slotH }}
           >
             {fmt.num(d.total)}
@@ -1615,7 +1615,7 @@ function DepartmentDetailTable({
     <div className="overflow-x-auto">
       <table className="w-full min-w-[520px] text-left text-sm">
         <thead>
-          <tr className="border-b border-border text-[11px] font-semibold text-muted-foreground">
+          <tr className="border-b border-border text-2xs font-semibold text-muted-foreground">
             <th className="px-2 py-2">{tc("department")}</th>
             <th className="px-2 py-2 text-right" title={tl("waitColTitle")}>
               {tc("wait")}
@@ -1710,7 +1710,7 @@ function TeamDetailTable({
     <div className="overflow-x-auto">
       <table className="w-full min-w-[680px] text-left text-sm">
         <thead>
-          <tr className="border-b border-border text-[11px] font-semibold text-muted-foreground">
+          <tr className="border-b border-border text-2xs font-semibold text-muted-foreground">
             <th className="px-2 py-2">{tl("agentCol")}</th>
             <th className="px-2 py-2">{tc("type")}</th>
             <th className="px-2 py-2">{tc("status")}</th>
@@ -1763,7 +1763,7 @@ function TeamDetailTable({
                       {m.display_name}
                     </p>
                     {m.email ? (
-                      <p className="truncate text-[11px] text-muted-foreground">
+                      <p className="truncate text-2xs text-muted-foreground">
                         {m.email}
                       </p>
                     ) : null}
@@ -1773,7 +1773,7 @@ function TeamDetailTable({
               <td className="px-2 py-2.5">
                 <span
                   className={cn(
-                    "inline-flex rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold text-white",
+                    "inline-flex rounded-[--radius] px-2 py-0.5 text-2xs font-semibold text-white",
                     m.actor_kind === "ai" ? "bg-warning" : "bg-primary",
                   )}
                 >
@@ -2081,7 +2081,7 @@ export default function AttendanceOpsPage() {
           {/* Compact filter bar */}
           <div className="mt-4 flex flex-col gap-3 rounded-[--radius] border border-border bg-background p-3 lg:flex-row lg:items-end lg:gap-3">
             <div className="min-w-0 flex-1">
-              <p className="mb-1.5 text-[11px] font-semibold text-muted-foreground">
+              <p className="mb-1.5 text-2xs font-semibold text-muted-foreground">
                 {tc("period")}
               </p>
               <ElevatedPillToggle
@@ -2364,7 +2364,7 @@ export default function AttendanceOpsPage() {
 
           <motion.div variants={itemVariants}>
             <Surface className="!py-3">
-              <p className="mb-2 text-[11px] font-semibold text-muted-foreground">
+              <p className="mb-2 text-2xs font-semibold text-muted-foreground">
                 {tc("glossaryTitle")}
               </p>
               <div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2 lg:grid-cols-3">

@@ -14,7 +14,7 @@ import {
 import LeadMemoriesSection from "@/components/crm/LeadMemoriesSection"
 import { useWorkspace } from "@/contexts/workspace-context"
 import React, { useCallback, useEffect, useRef, useState } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/elevated-design/elevated-tabs"
 import { useTranslations, useLocale } from "next-intl"
 import Link from "next/link"
 import { motion } from "framer-motion"
@@ -83,13 +83,13 @@ function channelBadge(type: string) {
   switch (type) {
     case "voice":
       return (
-        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-medium text-healthy-ink dark:text-healthy-ink">
+        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-2xs font-medium text-healthy-ink dark:text-healthy-ink">
           <Phone weight="fill" size={12} /> Voz
         </span>
       )
     case "whatsapp":
       return (
-        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-medium text-healthy-ink dark:text-healthy-ink">
+        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-2xs font-medium text-healthy-ink dark:text-healthy-ink">
           <WhatsappLogo weight="fill" size={12} /> WhatsApp
         </span>
       )
@@ -153,7 +153,7 @@ function CampaignCard({ campaign, locale, t }: { campaign: CampaignHistoryItem; 
                   {campaign.entries.map((entry) => (
                     <tr key={entry.id} className="border-b last:border-0 hover:bg-muted">
                       <td className="py-1.5 pr-3">
-                        <span className={`inline-block rounded-[--radius] px-2 py-0.5 text-[11px] font-medium ${statusBadgeClass(entry.status)}`}>
+                        <span className={`inline-block rounded-[--radius] px-2 py-0.5 text-2xs font-medium ${statusBadgeClass(entry.status)}`}>
                           {entry.status}
                         </span>
                       </td>
@@ -220,7 +220,7 @@ export default function LeadDetailClient({
           <Users weight="fill" className="mx-auto mb-4 h-12 w-12 text-warning-ink" />
           <h2 className="text-xl font-semibold text-foreground">{t("error.title")}</h2>
           <p className="mt-2 text-sm text-muted-foreground">{error || t("records.empty")}</p>
-          <Button variant="outline" title="Voltar" link="/dashboard/leads" newTab={false} className="mt-4 text-[11px] font-semibold" />
+          <Button variant="outline" title="Voltar" link="/dashboard/leads" newTab={false} className="mt-4 text-2xs font-semibold" />
         </ElevatedContainer>
       </div>
     )
@@ -266,11 +266,11 @@ export default function LeadDetailClient({
       <motion.div variants={itemVariants}>
         <div className="rounded-[--radius] border border-border bg-card p-5" style={{ boxShadow: softSurfaceShadow }}>
           <div className="flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-muted px-3 py-1.5 text-[11px] font-semibold text-healthy-ink dark:text-healthy-ink">
+            <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-muted px-3 py-1.5 text-2xs font-semibold text-healthy-ink dark:text-healthy-ink">
               <WhatsappLogo weight="fill" className="h-3.5 w-3.5" />
               {lead.whatsappWindowOpen ? t("window.open") : t("window.closed")}
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-semibold text-muted-foreground dark:bg-muted dark:text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-2xs font-semibold text-muted-foreground dark:bg-muted dark:text-muted-foreground">
               <WhatsappLogo weight="fill" className="h-3.5 w-3.5" />
               {lead.whatsappCampaigns} whatsapp
             </span>

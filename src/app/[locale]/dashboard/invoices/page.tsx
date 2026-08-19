@@ -232,7 +232,7 @@ export default function InvoicesPage() {
               {row.purpose && (
                 <span
                   className={cn(
-                    "rounded-[--radius] px-1.5 py-0.5 text-[11px] font-medium",
+                    "rounded-[--radius] px-1.5 py-0.5 text-2xs font-medium",
                     row.purpose === "MONTHLY_BILLING"
                       ? "bg-muted text-primary-ink"
                       : "bg-muted text-muted-foreground",
@@ -556,7 +556,7 @@ export default function InvoicesPage() {
             : {
                 icon: (
                   <Receipt
-                    className="h-7 w-7 text-muted-foreground/40"
+                    className="h-7 w-7 text-muted-foreground"
                     weight="duotone"
                   />
                 ),
@@ -609,7 +609,7 @@ export default function InvoicesPage() {
                 <div className="rounded-[--radius] border border-border bg-background p-4">
                   <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                     <div>
-                      <p className="text-[11px] font-semibold text-muted-foreground">
+                      <p className="text-2xs font-semibold text-muted-foreground">
                         {gateT("currentPlanTitle")}
                       </p>
                       <p className="mt-2 text-lg font-semibold text-foreground">

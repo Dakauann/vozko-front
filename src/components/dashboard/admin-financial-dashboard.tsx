@@ -759,7 +759,7 @@ export default function AdminFinancialDashboard() {
 
           <div className="mt-5 grid gap-3 md:grid-cols-2 2xl:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))]">
             <div className="rounded-[--radius] border border-border bg-background px-4 py-4">
-              <p className="text-[11px] font-semibold text-primary-ink">
+              <p className="text-2xs font-semibold text-primary-ink">
                 Período analisado
               </p>
               <p className="mt-2 text-xl font-semibold text-foreground">
@@ -771,7 +771,7 @@ export default function AdminFinancialDashboard() {
             </div>
 
             <div className="rounded-[--radius] border border-border bg-background px-4 py-4">
-              <p className="text-[11px] font-semibold text-muted-foreground">
+              <p className="text-2xs font-semibold text-muted-foreground">
                 Granularidade
               </p>
               <p className="mt-2 text-lg font-semibold text-foreground">
@@ -784,7 +784,7 @@ export default function AdminFinancialDashboard() {
             </div>
 
             <div className="rounded-[--radius] border border-border bg-background px-4 py-4">
-              <p className="text-[11px] font-semibold text-muted-foreground">
+              <p className="text-2xs font-semibold text-muted-foreground">
                 Áreas de Trabalho
               </p>
               <p className="mt-2 text-lg font-semibold text-foreground">
@@ -793,7 +793,7 @@ export default function AdminFinancialDashboard() {
             </div>
 
             <div className="rounded-[--radius] border border-border bg-background px-4 py-4">
-              <p className="text-[11px] font-semibold text-muted-foreground">
+              <p className="text-2xs font-semibold text-muted-foreground">
                 Transações
               </p>
               <p className="mt-2 text-lg font-semibold text-foreground">
@@ -1227,7 +1227,7 @@ export default function AdminFinancialDashboard() {
                         currency: "BRL",
                       }).format(item.value)}
                     </span>
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-2xs text-muted-foreground">
                       ({formatPercent(pct)})
                     </span>
                   </div>
@@ -1345,7 +1345,7 @@ export default function AdminFinancialDashboard() {
                         currency: "BRL",
                       }).format(item.value)}
                     </span>
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-2xs text-muted-foreground">
                       ({formatPercent(pct)})
                     </span>
                   </div>

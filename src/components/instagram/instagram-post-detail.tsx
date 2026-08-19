@@ -162,7 +162,7 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
             />
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-foreground">@{account.username}</p>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-2xs text-muted-foreground">
                 {media.mediaProductType}
                 {media.timestamp ? ` · ${new Date(media.timestamp).toLocaleString()}` : ""}
               </p>
@@ -209,7 +209,7 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
                   type="button"
                   onClick={() => void toggleComments()}
                   disabled={togglingComments}
-                  className="ml-auto rounded-md border border-border bg-card px-2 py-1 text-[11px] text-foreground transition-colors hover:bg-muted disabled:opacity-50"
+                  className="ml-auto rounded-md border border-border bg-card px-2 py-1 text-2xs text-foreground transition-colors hover:bg-muted disabled:opacity-50"
                 >
                   {(media.isCommentEnabled ?? true)
                     ? t("posts.disableComments")
@@ -219,7 +219,7 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
             </div>
 
             {error && (
-              <p className="border-b border-border bg-muted px-4 py-2 text-xs text-destructive-ink">
+              <p className="border-b border-border px-4 py-2 text-xs text-destructive-ink">
                 {error}
               </p>
             )}

@@ -179,7 +179,7 @@ function ChooserCard({
       className="group relative flex h-full flex-col rounded-[--radius] border border-border bg-card p-7 text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-lg max-w-xl"
     >
       {recommended && recommendedLabel ? (
-        <span className="absolute right-5 top-5 inline-flex items-center gap-1 rounded-[--radius] bg-primary px-3 py-1 text-[11px] font-semibold text-primary-foreground shadow">
+        <span className="absolute right-5 top-5 inline-flex items-center gap-1 rounded-[--radius] bg-primary px-3 py-1 text-2xs font-semibold text-primary-foreground shadow">
           <Sparkle className="h-3 w-3" weight="fill" />
           {recommendedLabel}
         </span>

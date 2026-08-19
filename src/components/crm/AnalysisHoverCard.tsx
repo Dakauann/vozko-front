@@ -155,7 +155,7 @@ export default function AnalysisHoverCard({
                   style={{ width: `${analysis.attendanceQuality}%` }}
                 />
               </div>
-              <span className="w-6 text-right text-[11px] font-semibold tabular-nums text-muted-foreground">
+              <span className="w-6 text-right text-2xs font-semibold tabular-nums text-muted-foreground">
                 {analysis.attendanceQuality}
               </span>
             </div>
@@ -184,25 +184,25 @@ export default function AnalysisHoverCard({
           <div className="mb-1.5 flex flex-wrap items-center gap-1">
             <span
               className={cn(
-                "inline-flex items-center gap-0.5 rounded-[--radius] px-1.5 py-0.5 text-[11px] font-semibold text-white",
+                "inline-flex items-center gap-0.5 rounded-[--radius] px-1.5 py-0.5 text-2xs font-semibold text-white",
                 interest.tile,
               )}
             >
               {interest.label}
             </span>
 
-            <span className="inline-flex items-center rounded-[--radius] bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
+            <span className="inline-flex items-center rounded-[--radius] bg-muted px-1.5 py-0.5 text-2xs font-semibold text-muted-foreground">
               {DISPOSITION_MAP[analysis.disposition] || analysis.disposition}
             </span>
 
-            <span className="inline-flex items-center gap-0.5 rounded-[--radius] bg-primary px-1.5 py-0.5 text-[11px] font-semibold text-primary-foreground">
+            <span className="inline-flex items-center gap-0.5 rounded-[--radius] bg-primary px-1.5 py-0.5 text-2xs font-semibold text-primary-foreground">
               <Sparkle weight="fill" className="h-2 w-2" />
               {NEXT_ACTION_MAP[analysis.nextAction] || analysis.nextAction}
             </span>
           </div>
 
           {analysis.summary && (
-            <p className="line-clamp-2 text-[11px] leading-relaxed text-muted-foreground">
+            <p className="line-clamp-2 text-2xs leading-relaxed text-muted-foreground">
               {analysis.summary}
             </p>
           )}

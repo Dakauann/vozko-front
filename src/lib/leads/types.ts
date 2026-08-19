@@ -1,3 +1,5 @@
+import type { CrmFilter as LeadFilter } from '@/lib/crm/board';
+
 export type LeadEntryType = 'voice' | 'whatsapp';
 
 export type VoiceEntryStatus =
@@ -50,7 +52,10 @@ export interface LeadListItem {
     workspaceId: string;
     number: string;
     name?: string | null;
+    profilePictureUrl?: string | null;
     age?: number | null;
+    blocked: boolean;
+    blockedAt?: string | null;
     createdAt: string;
     updatedAt: string;
     whatsappCampaigns: number;
@@ -58,7 +63,57 @@ export interface LeadListItem {
     lastActivityAt?: string | null;
     whatsappWindowOpen: boolean;
     windowExpiresAt?: string | null;
+    /** Active memories about this lead, and when we last learned something. */
+    memories: number;
+    lastMemoryAt?: string | null;
 }
+
+/**
+ * Aggregate counts over the SAME filtered set the list returns (GET
+ * /leads/facets). They back the counts next to each filter option, so a badge
+ * always means "how many of the leads you are currently looking at", never "how
+ * many are on this page".
+ */
+export interface LeadFacets {
+    total: number;
+    blocked: number;
+    active: number;
+    windowOpen: number;
+    windowClosed: number;
+    withCampaign: number;
+    withoutCampaign: number;
+    withMemory: number;
+    withoutMemory: number;
+    named: number;
+    unnamed: number;
+    memoryCategories: Record<string, number>;
+    channels: Record<string, number>;
+    campaignStatuses: Record<string, number>;
+}
+
+/** Sort keys accepted by GET /leads, mirroring domain/lead.SortKey. */
+export const LEAD_SORT_KEYS = [
+    'createdAt',
+    'updatedAt',
+    'lastActivityAt',
+    'name',
+    'number',
+    'age',
+    'campaigns',
+    'memories',
+    'lastMemoryAt',
+] as const;
+
+export type LeadSortKey = (typeof LEAD_SORT_KEYS)[number];
+export type LeadSortDirection = 'asc' | 'desc';
+
+export interface LeadSort {
+    key: LeadSortKey;
+    direction: LeadSortDirection;
+}
+
+/** Page sizes offered by the list footer. */
+export const LEAD_PAGE_SIZES = [20, 50, 100, 200] as const;
 
 export interface OldLeadsListParams {
     number?: string;
@@ -70,18 +125,18 @@ export interface OldLeadsListParams {
     order?: 'asc' | 'desc';
 }
 
-export interface LeadsListParams {
-    number?: string;
-    name?: string;
-    createdFrom?: string;
-    createdTo?: string;
-    ageFrom?: number;
-    ageTo?: number;
-    hasWhatsAppCampaign?: boolean;
+/**
+ * The advanced read query: a structured crmfilter expression plus sorting and
+ * paging. `filter` is serialized into the same base64 `filter` parameter the
+ * CRM board uses; `q` stays a plain parameter because a search box is not a
+ * predicate the operator built, it is one we build for them.
+ */
+export interface LeadsQueryParams {
+    filter?: LeadFilter;
+    q?: string;
+    sorts?: LeadSort[];
     page?: number;
     pageSize?: number;
-    sort?: string;
-    order?: 'asc' | 'desc';
 }
 
 export interface LeadsListMeta {
@@ -89,18 +144,6 @@ export interface LeadsListMeta {
     pageSize: number;
     totalPages: number;
     totalItems: number;
-}
-
-export interface LeadsListResponse {
-    success: boolean;
-    data: {
-        items: Lead[];
-        page: number;
-        pageSize: number;
-        totalPages: number;
-        totalItems: number;
-    };
-    error?: string | null;
 }
 
 export interface CampaignEntryItem {

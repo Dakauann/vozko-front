@@ -63,6 +63,10 @@ import DocumentPreview from "./DocumentPreview";
 import FormattedMessageText from "@/components/ui/formatted-message-text";
 import TemplateBubble from "@/components/crm/TemplateBubble";
 import TooltipWrapper from "@/components/ui/tooltip-wrapper";
+import {
+  deliveryErrorFrom,
+  deliveryErrorKey,
+} from "@/lib/conversations/delivery-errors";
 import { cn } from "@/lib/utils";
 import { getAgentToolsAction } from "@/app/actions/agents";
 import { getConversationMediaAction } from "@/app/actions/conversations";
@@ -430,7 +434,7 @@ function CollapsibleMessageText({ text }: { text: string }) {
           e.stopPropagation();
           setIsExpanded(!isExpanded);
         }}
-        className="mt-1 text-[12px] font-medium text-primary-ink hover:text-primary-ink hover:underline transition-colors"
+        className="mt-1 text-xs font-medium text-primary-ink hover:text-primary-ink hover:underline transition-colors"
       >
         {isExpanded ? "Ler menos" : "Ler mais"}
       </button>
@@ -622,13 +626,13 @@ function AudioPlayer({ url }: { url: string }) {
           ))}
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-medium tabular-nums text-muted-foreground">
+          <span className="text-2xs font-medium tabular-nums text-muted-foreground">
             {formatTime(isPlaying || currentTime ? currentTime : duration)}
           </span>
           <button
             type="button"
             onClick={cycleSpeed}
-            className="rounded-[--radius] bg-card px-1.5 py-0.5 text-[11px] font-semibold tabular-nums text-muted-foreground shadow-sm transition-colors hover:text-foreground"
+            className="rounded-[--radius] bg-card px-1.5 py-0.5 text-2xs font-semibold tabular-nums text-muted-foreground shadow-sm transition-colors hover:text-foreground"
             aria-label="Velocidade de reprodução"
           >
             {speed}×
@@ -841,7 +845,7 @@ function MediaBubble({
             <p className="truncate text-xs font-semibold text-foreground">
               {fileName}
             </p>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-2xs text-muted-foreground">
               {ext ? `${ext} · ` : ""}Toque para abrir
             </p>
           </div>
@@ -877,22 +881,63 @@ function MediaBubble({
 }
 
 
+/**
+ * The failure mark, and why.
+ *
+ * Hover and focus both open it: this is the only explanation of a failed send in
+ * the thread, and putting it behind a pointer alone would make it unreachable
+ * for anyone using a keyboard.
+ */
+function FailedReceipt({ metadata }: { metadata?: unknown }) {
+  const t = useTranslations("crmConversation");
+  const failure = deliveryErrorFrom(metadata);
+  const key = deliveryErrorKey(failure?.code);
+
+  const reason = key
+    ? t(`deliveryError.${key}`)
+    : failure?.message || t("deliveryError.unknown");
+
+  // One sentence rather than a formatted block: the tooltip takes a string, and
+  // a single clear line is what an operator reads mid-queue anyway. The code
+  // trails it for anyone escalating to support, who will be asked for it.
+  const tooltip = failure?.code
+    ? `${t("deliveryError.title")}: ${reason} (${t("deliveryError.code", { code: failure.code })})`
+    : `${t("deliveryError.title")}: ${reason}`;
+
+  return (
+    <TooltipWrapper content={tooltip}>
+      <span
+        tabIndex={0}
+        role="img"
+        aria-label={reason}
+        className="inline-flex cursor-help rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+      >
+        <WarningIcon
+          weight="fill"
+          className="h-3.5 w-3.5 flex-shrink-0 text-destructive-ink"
+        />
+      </span>
+    </TooltipWrapper>
+  );
+}
+
 function ReadReceipt({
   read,
   deliveryStatus,
+  metadata,
 }: {
   read: boolean;
   deliveryStatus?: string;
+  metadata?: unknown;
 }) {
   if (deliveryStatus) {
     switch (deliveryStatus) {
       case "failed":
-        return (
-          <WarningIcon
-            weight="fill"
-            className="h-3.5 w-3.5 flex-shrink-0 text-destructive-ink"
-          />
-        );
+        // A bare triangle told an operator only that something went wrong, which
+        // is the one thing they had already worked out. The provider's reason is
+        // what separates "retype the number" from "someone has to fix billing",
+        // so it is on the mark itself rather than a click away.
+        return <FailedReceipt metadata={metadata} />;
       case "read":
         return (
           <Checks
@@ -1069,17 +1114,17 @@ function ToolEventRow({
             <Wrench weight="bold" className="h-2.5 w-2.5" />
           )}
         </span>
-        <span className="min-w-0 max-w-[220px] truncate text-[11px] font-medium leading-none text-foreground">
+        <span className="min-w-0 max-w-[220px] truncate text-2xs font-medium leading-none text-foreground">
           {info.title}
         </span>
-        <span className="shrink-0 text-[11px] tabular-nums leading-none text-muted-foreground/70">
+        <span className="shrink-0 text-2xs tabular-nums leading-none text-muted-foreground">
           {formatMessageTime(createdAt)}
         </span>
         {hasDetail && (
           <CaretDown
             weight="bold"
             className={cn(
-              "h-2.5 w-2.5 shrink-0 text-muted-foreground/70 transition-transform",
+              "h-2.5 w-2.5 shrink-0 text-muted-foreground transition-transform",
               expanded && "rotate-180",
             )}
           />
@@ -1096,7 +1141,7 @@ function ToolEventRow({
             className="mt-1 w-full max-w-[80%] overflow-hidden"
           >
             <div className="rounded-md border border-border bg-muted px-2.5 py-1.5">
-              <p className="whitespace-pre-wrap break-words text-[11px] leading-snug text-muted-foreground">
+              <p className="whitespace-pre-wrap break-words text-2xs leading-snug text-muted-foreground">
                 {info.detail}
               </p>
             </div>
@@ -1152,7 +1197,7 @@ function EntryMetadataPanel({
         >
           <div className="flex items-center gap-2">
             <Info weight="fill" className="h-4 w-4 text-primary-ink" />
-            <span className="text-[12px] font-semibold text-foreground">
+            <span className="text-xs font-semibold text-foreground">
               Detalhes do contato
             </span>
           </div>
@@ -1186,10 +1231,10 @@ function EntryMetadataPanel({
                     />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] font-medium  text-muted-foreground">
+                    <p className="text-2xs font-medium  text-muted-foreground">
                       Nome
                     </p>
-                    <p className="text-[12px] font-semibold text-foreground truncate">
+                    <p className="text-xs font-semibold text-foreground truncate">
                       {conversation.lead_name || "—"}
                     </p>
                   </div>
@@ -1203,10 +1248,10 @@ function EntryMetadataPanel({
                     />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] font-medium  text-muted-foreground">
+                    <p className="text-2xs font-medium  text-muted-foreground">
                       Telefone
                     </p>
-                    <p className="text-[12px] font-semibold text-foreground truncate">
+                    <p className="text-xs font-semibold text-foreground truncate">
                       {conversation.lead_number || "—"}
                     </p>
                   </div>
@@ -1216,14 +1261,14 @@ function EntryMetadataPanel({
                 {hasVariables && (
                   <>
                     <div className="border-t border-border pt-2">
-                      <p className="text-[11px] font-medium  text-muted-foreground mb-1.5">
+                      <p className="text-2xs font-medium  text-muted-foreground mb-1.5">
                         Variáveis
                       </p>
                       <div className="flex flex-wrap gap-1.5">
                         {variables.map((v, i) => (
                           <span
                             key={`${i}-${v}`}
-                            className="inline-flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-[11px] font-medium text-primary-foreground"
+                            className="inline-flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-2xs font-medium text-primary-foreground"
                           >
                             <Hash
                               weight="bold"
@@ -1250,7 +1295,7 @@ function EntryMetadataPanel({
                           weight="fill"
                           className="h-4 w-4 text-healthy-ink"
                         />
-                        <span className="text-[11px] font-semibold text-healthy-ink">
+                        <span className="text-2xs font-semibold text-healthy-ink">
                           Template enviado: {templateInfo.template_name}
                         </span>
                       </div>
@@ -1285,7 +1330,7 @@ function EntryMetadataPanel({
 
                 {/* Entry ID (subtle) */}
                 <div className="border-t border-border pt-2">
-                  <p className="text-[11px] text-muted-foreground font-mono truncate">
+                  <p className="text-2xs text-muted-foreground font-mono truncate">
                     ID: {conversation.entry_id}
                   </p>
                 </div>
@@ -1750,7 +1795,7 @@ export default function CrmConversationView({
                     transition={{ duration: 0.15 }}
                     className="absolute left-0 top-full z-40 mt-2 w-48 rounded-[--radius] border border-border bg-card shadow-xl py-1.5 overflow-hidden"
                   >
-                    <div className="px-3 py-1.5 text-[11px] font-semibold text-muted-foreground ">
+                    <div className="px-3 py-1.5 text-2xs font-semibold text-muted-foreground ">
                       {tags.length > 0 ? "Mover para" : "Etapas"}
                     </div>
                     <div className="max-h-64 overflow-y-auto">
@@ -1787,7 +1832,7 @@ export default function CrmConversationView({
                                   {tag.name}
                                 </span>
                                 {isCurrentTag && (
-                                  <span className="text-[11px] text-muted-foreground flex-shrink-0">
+                                  <span className="text-2xs text-muted-foreground flex-shrink-0">
                                     atual
                                   </span>
                                 )}
@@ -1826,7 +1871,7 @@ export default function CrmConversationView({
                                   {tag.name}
                                 </span>
                                 {isAssigned && (
-                                  <span className="text-[11px] text-healthy-ink flex-shrink-0">
+                                  <span className="text-2xs text-healthy-ink flex-shrink-0">
                                     ✓
                                   </span>
                                 )}
@@ -1893,7 +1938,7 @@ export default function CrmConversationView({
                     transition={{ duration: 0.15 }}
                     className="absolute left-0 top-full z-40 mt-2 w-48 rounded-[--radius] border border-border bg-card shadow-xl py-1.5 overflow-hidden"
                   >
-                    <div className="px-3 py-1.5 text-[11px] font-semibold text-muted-foreground ">
+                    <div className="px-3 py-1.5 text-2xs font-semibold text-muted-foreground ">
                       Etiquetas
                     </div>
                     <div className="max-h-64 overflow-y-auto">
@@ -1931,7 +1976,7 @@ export default function CrmConversationView({
                               {label.name}
                             </span>
                             {isAssigned && (
-                              <span className="text-[11px] text-chart-4 flex-shrink-0">
+                              <span className="text-2xs text-chart-4 flex-shrink-0">
                                 ✓
                               </span>
                             )}
@@ -1997,7 +2042,7 @@ export default function CrmConversationView({
               {/* Result count + navigation arrows */}
               {searchInput.trim().length >= 2 && !searchingMessages && (
                 <div className="flex items-center gap-1 flex-shrink-0">
-                  <span className="text-[11px] font-medium text-muted-foreground tabular-nums">
+                  <span className="text-2xs font-medium text-muted-foreground tabular-nums">
                     {messageSearchTotalItems > 0
                       ? `${currentMatchIdx + 1}/${messageSearchTotalItems}`
                       : "0 resultados"}
@@ -2086,7 +2131,7 @@ export default function CrmConversationView({
                     ease: "linear",
                   }}
                 />
-                <span className="text-[11px] font-medium text-muted-foreground">
+                <span className="text-2xs font-medium text-muted-foreground">
                   {t.loadingMore}
                 </span>
               </div>
@@ -2096,7 +2141,7 @@ export default function CrmConversationView({
             <div key={`${group.date}-${groupIndex}`}>
               {/* Date separator */}
               <div className="flex items-center justify-center py-3">
-                <span className="rounded-lg bg-card px-3 py-1 text-[11px] font-medium text-muted-foreground shadow-sm">
+                <span className="rounded-lg bg-card px-3 py-1 text-2xs font-medium text-muted-foreground shadow-sm">
                   {formatDateGroup(group.date)}
                 </span>
               </div>
@@ -2109,7 +2154,7 @@ export default function CrmConversationView({
                   if (run.channel === "__system__") {
                     return run.messages.map((msg) => (
                       <div key={msg.id} className="flex justify-center py-1">
-                        <span className="rounded-lg bg-warning px-3 py-1.5 text-[11px] text-warning-foreground shadow-sm max-w-[80%] text-center">
+                        <span className="rounded-lg bg-warning px-3 py-1.5 text-2xs text-warning-foreground shadow-sm max-w-[80%] text-center">
                           {msg.text}
                         </span>
                       </div>
@@ -2162,7 +2207,7 @@ export default function CrmConversationView({
                             >
                               <div
                                 className={cn(
-                                  "flex items-center gap-1.5 rounded-[--radius] px-3 py-1.5 text-[11px] font-medium",
+                                  "flex items-center gap-1.5 rounded-[--radius] px-3 py-1.5 text-2xs font-medium",
                                   missed
                                     ? "bg-muted text-destructive-ink dark:text-destructive-ink"
                                     : "bg-muted text-muted-foreground",
@@ -2208,7 +2253,7 @@ export default function CrmConversationView({
                               className="flex justify-start my-1"
                             >
                               <div className="max-w-[75%] rounded-lg border border-border bg-muted p-2">
-                                <div className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold  text-chart-4">
+                                <div className="mb-1 flex items-center gap-1.5 text-2xs font-semibold  text-chart-4">
                                   <InstagramLogo className="h-3 w-3" />
                                   <span>
                                     {isMention
@@ -2240,7 +2285,7 @@ export default function CrmConversationView({
                               key={msg.id ?? `${runIdx}-${msgIdx}`}
                               className="flex justify-center my-2"
                             >
-                              <div className="rounded-[--radius] bg-muted px-3 py-1.5 text-[11px] text-muted-foreground">
+                              <div className="rounded-[--radius] bg-muted px-3 py-1.5 text-2xs text-muted-foreground">
                                 {msg.text || "Mensagem não suportada"}
                               </div>
                             </div>
@@ -2263,7 +2308,7 @@ export default function CrmConversationView({
                             >
                               <div
                                 className={cn(
-                                  "flex items-center gap-1.5 rounded-[--radius] px-3 py-1.5 text-[11px] font-medium text-white",
+                                  "flex items-center gap-1.5 rounded-[--radius] px-3 py-1.5 text-2xs font-medium text-white",
                                   granted
                                     ? "bg-healthy"
                                     : rejected
@@ -2498,7 +2543,7 @@ export default function CrmConversationView({
                                         weight="fill"
                                         className="h-2.5 w-2.5 text-healthy-ink/60"
                                       />
-                                      <span className="text-[11px] font-semibold text-healthy-ink/50">
+                                      <span className="text-2xs font-semibold text-healthy-ink/50">
                                         WhatsApp
                                       </span>
                                     </>
@@ -2509,7 +2554,7 @@ export default function CrmConversationView({
                                         weight="fill"
                                         className="h-2.5 w-2.5 text-info-ink/60"
                                       />
-                                      <span className="text-[11px] font-semibold  text-primary-ink/50">
+                                      <span className="text-2xs font-semibold  text-primary-ink/50">
                                         Voz
                                       </span>
                                     </>
@@ -2521,7 +2566,7 @@ export default function CrmConversationView({
                               {showSenderName && (
                                 <p
                                   className={cn(
-                                    "text-[11px] font-semibold mb-0.5",
+                                    "text-2xs font-semibold mb-0.5",
                                     isVoiceRun
                                       ? "text-primary-ink"
                                       : "text-healthy-ink",
@@ -2566,11 +2611,11 @@ export default function CrmConversationView({
                                       }}
                                       className="mb-1 w-full rounded-lg bg-black/5 px-2.5 py-1.5 text-left border-l-[3px] border-info hover:bg-black/[0.08] transition-colors"
                                     >
-                                      <p className="text-[11px] font-semibold text-primary-ink truncate">
+                                      <p className="text-2xs font-semibold text-primary-ink truncate">
                                         {repliedMsg.sender_name ||
                                           repliedMsg.from}
                                       </p>
-                                      <p className="text-[11px] text-muted-foreground truncate">
+                                      <p className="text-2xs text-muted-foreground truncate">
                                         {repliedMsg.media_type
                                           ? `📎 ${repliedMsg.media_type === "image" ? "Imagem" : repliedMsg.media_type === "video" ? "Vídeo" : repliedMsg.media_type === "audio" ? "Áudio" : "Documento"}`
                                           : repliedMsg.text || "..."}
@@ -2578,7 +2623,7 @@ export default function CrmConversationView({
                                     </button>
                                   ) : (
                                     <div className="mb-1 rounded-lg bg-black/5 px-2.5 py-1.5 border-l-[3px] border-foreground/20">
-                                      <p className="text-[11px] text-muted-foreground italic">
+                                      <p className="text-2xs text-muted-foreground italic">
                                         Mensagem original não disponível
                                       </p>
                                     </div>
@@ -2622,27 +2667,28 @@ export default function CrmConversationView({
                                 )}
                               >
                                 {isAgentMessage && (
-                                  <span className="rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-semibold  text-muted-foreground">
+                                  <span className="rounded-md bg-muted px-1.5 py-0.5 text-2xs font-semibold  text-muted-foreground">
                                     AI
                                   </span>
                                 )}
                                 {isOperatorMessage && (
-                                  <span className="rounded-md bg-primary px-1.5 py-0.5 text-[11px] font-semibold  text-primary-foreground">
+                                  <span className="rounded-md bg-primary px-1.5 py-0.5 text-2xs font-semibold  text-primary-foreground">
                                     Operador
                                   </span>
                                 )}
                                 {isTemplateMessage && (
-                                  <span className="rounded-md bg-healthy px-1.5 py-0.5 text-[11px] font-semibold  text-healthy-foreground">
+                                  <span className="rounded-md bg-healthy px-1.5 py-0.5 text-2xs font-semibold  text-healthy-foreground">
                                     Template
                                   </span>
                                 )}
-                                <span className="text-[11px] text-muted-foreground">
+                                <span className="text-2xs text-muted-foreground">
                                   {formatMessageTime(createdAt)}
                                 </span>
                                 {isOutgoing && (
                                   <ReadReceipt
                                     read={msg.read}
                                     deliveryStatus={msg.delivery_status}
+                                    metadata={msg.metadata}
                                   />
                                 )}
                               </div>

@@ -109,7 +109,7 @@ function StatusBadge({ status }: { status: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-[--radius] px-2.5 py-1 text-[11px] font-semibold",
+        "inline-flex items-center gap-1.5 rounded-[--radius] px-2.5 py-1 text-2xs font-semibold",
         style.bg,
         style.text,
       )}
@@ -182,7 +182,7 @@ function WsStatusIndicator({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-[--radius] border px-2 py-0.5 text-[11px] font-semibold transition-colors",
+        "inline-flex items-center gap-1.5 rounded-[--radius] border px-2 py-0.5 text-2xs font-semibold transition-colors",
         className,
       )}
       title={label}
@@ -285,7 +285,7 @@ function ActionsDropdown({
 
             <div className="my-1 border-t border-border" />
 
-            <p className="px-3 py-1 text-[11px] font-semibold text-muted-foreground">
+            <p className="px-3 py-1 text-2xs font-semibold text-muted-foreground">
               {t.dangerZone}
             </p>
 
@@ -386,7 +386,7 @@ export default function CampaignHeader({
           <div className="flex items-center gap-2 flex-wrap">
             <p
               className={cn(
-                "text-[11px] font-semibold",
+                "text-2xs font-semibold",
                 badgeColor,
               )}
             >

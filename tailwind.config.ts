@@ -153,6 +153,31 @@ export default {
 				a recess on purpose — a progress track, a scrub bar — rather
 				than as the resting state of every surface in the product.
 			*/
+			/*
+				The type ramp.
+
+				906 sites had escaped to `text-[Npx]` literals, 836 of them to the
+				same 11px micro-label, because the ramp had no step there. Tailwind's
+				defaults start at 12px, so every caption, chip and metadata line in
+				the product wrote its own size. `2xs` gives them one to land on.
+
+				Steps run 11/12/14/16/18/20/24/30/36 — a ~1.15 ratio through the UI
+				range, which is the tighter progression a dense operator tool wants;
+				a brand-surface ratio would put visible noise between a label and the
+				value beside it. Line heights are set with the size so a caption never
+				inherits a body leading meant for prose.
+			*/
+			fontSize: {
+				'2xs': ['0.6875rem', { lineHeight: '0.9375rem' }],
+				xs: ['0.75rem', { lineHeight: '1rem' }],
+				sm: ['0.875rem', { lineHeight: '1.25rem' }],
+				base: ['1rem', { lineHeight: '1.5rem' }],
+				lg: ['1.125rem', { lineHeight: '1.5rem' }],
+				xl: ['1.25rem', { lineHeight: '1.75rem' }],
+				'2xl': ['1.5rem', { lineHeight: '2rem' }],
+				'3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+				'4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+			},
 			boxShadow: {
 				none: 'none',
 				sm: 'var(--elev-1)',

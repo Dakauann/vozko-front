@@ -430,7 +430,7 @@ function renderNodeContent(
   switch (nodeType) {
     case "trigger_first_message":
       return (
-        <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-2 text-2xs text-muted-foreground">
           <PreviewIcon
             icon={Lightning}
             gradient="tile-2"
@@ -440,7 +440,7 @@ function renderNodeContent(
       );
     case "trigger_message_received":
       return (
-        <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-2 text-2xs text-muted-foreground">
           <PreviewIcon
             icon={ChatCircleDots}
             gradient="tile-2"
@@ -471,7 +471,7 @@ function renderNodeContent(
               weight="bold"
               className="text-primary-ink shrink-0"
             />
-            <span className="text-[11px] font-semibold text-primary-ink">
+            <span className="text-2xs font-semibold text-primary-ink">
               Execução inline
             </span>
           </div>
@@ -488,12 +488,12 @@ function renderNodeContent(
                 icon={Robot}
                 gradient="tile-4"
               />
-              <span className="text-[11px] text-foreground/70 truncate">
+              <span className="text-2xs text-foreground/70 truncate">
                 {model || "Modelo IA"}
               </span>
             </div>
             {instructionsPreview ? (
-              <p className="text-[11px] text-muted-foreground/80 leading-relaxed line-clamp-2">
+              <p className="text-2xs text-muted-foreground leading-relaxed line-clamp-2">
                 {instructionsPreview.slice(0, 120)}
                 {instructionsPreview.length > 120 ? "…" : ""}
               </p>
@@ -510,7 +510,7 @@ function renderNodeContent(
               icon={Robot}
               gradient="tile-4"
             />
-            <span className="text-[11px] font-medium text-foreground/70 truncate">
+            <span className="text-2xs font-medium text-foreground/70 truncate">
               {agentName}
             </span>
           </div>
@@ -525,7 +525,7 @@ function renderNodeContent(
       if (!variable) return <EmptyPreview label="Nenhuma variável" />;
       return (
         <div className="rounded-lg bg-muted px-2.5 py-1.5">
-          <code className="text-[11px] text-foreground/70">
+          <code className="text-2xs text-foreground/70">
             {variable} = {val ?? ""}
           </code>
         </div>
@@ -540,15 +540,15 @@ function renderNodeContent(
       return (
         <div className="min-w-0 rounded-lg bg-muted px-2.5 py-2">
           <div className="flex items-center gap-1.5 min-w-0">
-            <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[11px] font-semibold tracking-[0.18em] text-muted-foreground">
+            <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-2xs font-semibold tracking-[0.18em] text-muted-foreground">
               {method}
             </span>
-            <code className="min-w-0 flex-1 truncate text-[11px] text-foreground/60">
+            <code className="min-w-0 flex-1 truncate text-2xs text-foreground/60">
               {url}
             </code>
           </div>
           {captureVariable ? (
-            <div className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground min-w-0">
+            <div className="mt-1 flex items-center gap-1 text-2xs text-muted-foreground min-w-0">
               <span className="shrink-0">captura</span>
               <code className="min-w-0 truncate">{`{{${captureVariable}}}`}</code>
             </div>
@@ -570,7 +570,7 @@ function renderNodeContent(
       return (
         <div className="flex items-center gap-2">
           <PreviewIcon icon={Timer} gradient="tile-3" />
-          <span className="text-[11px] font-medium text-foreground/70">
+          <span className="text-2xs font-medium text-foreground/70">
             {display}
           </span>
         </div>
@@ -594,7 +594,7 @@ function renderNodeContent(
             icon={ChatTeardropDots}
             gradient="tile-3"
           />
-          <span className="text-[11px] text-foreground/70">
+          <span className="text-2xs text-foreground/70">
             {timeDisplay ? `Tempo limite: ${timeDisplay}` : "Aguardar resposta"}
           </span>
         </div>
@@ -609,7 +609,7 @@ function renderNodeContent(
             icon={Lightning}
             gradient="tile-3"
           />
-          <span className="text-[11px] text-foreground/70">
+          <span className="text-2xs text-foreground/70">
             {event || "Aguardar evento"}
           </span>
         </div>
@@ -626,7 +626,7 @@ function renderNodeContent(
             icon={FlagCheckered}
             gradient="tile-5"
           />
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-2xs text-muted-foreground">
             Fim do fluxo
           </span>
         </div>
@@ -642,7 +642,7 @@ function renderNodeContent(
             icon={CalendarBlank}
             gradient="tile-1"
           />
-          <span className="text-[11px] text-foreground/70 truncate">
+          <span className="text-2xs text-foreground/70 truncate">
             {input || "now"} → {format || "YYYY-MM-DD"}
             {operation && operation !== "none" ? ` (${operation})` : ""}
           </span>
@@ -658,7 +658,7 @@ function renderNodeContent(
       return (
         <div className="flex items-center gap-2">
           <PreviewIcon icon={Code} gradient="tile-1" />
-          <span className="text-[11px] text-foreground/70">
+          <span className="text-2xs text-foreground/70">
             JavaScript · {lines} linha{lines > 1 ? "s" : ""}
           </span>
         </div>
@@ -672,7 +672,7 @@ function renderNodeContent(
       return (
         <div className="flex items-center gap-2">
           <PreviewIcon icon={GitMerge} gradient="tile-1" />
-          <span className="text-[11px] text-foreground/70 truncate">
+          <span className="text-2xs text-foreground/70 truncate">
             {wfName || "Sub-fluxo"}
           </span>
         </div>
@@ -689,7 +689,7 @@ function renderNodeContent(
             icon={ArrowsClockwise}
             gradient="tile-1"
           />
-          <span className="text-[11px] text-foreground/70 truncate">
+          <span className="text-2xs text-foreground/70 truncate">
             {listVar} → {itemVar || "item"}
           </span>
         </div>
@@ -701,7 +701,7 @@ function renderNodeContent(
       return (
         <div className="flex items-center gap-2">
           <PreviewIcon icon={Clock} gradient="tile-1" />
-          <span className="text-[11px] text-foreground/70">{tz || "UTC"}</span>
+          <span className="text-2xs text-foreground/70">{tz || "UTC"}</span>
         </div>
       );
     }
@@ -722,7 +722,7 @@ function renderNodeContent(
             icon={CalendarCheck}
             gradient="tile-3"
           />
-          <span className="text-[11px] text-foreground/70 truncate">
+          <span className="text-2xs text-foreground/70 truncate">
             {label}
           </span>
         </div>
@@ -816,7 +816,7 @@ function GroupNodeComponent({ data, selected }: NodeProps) {
       />
       {label && (
         <div className="px-3 py-1.5">
-          <span className="text-[11px] font-semibold text-muted-foreground">
+          <span className="text-2xs font-semibold text-muted-foreground">
             {label}
           </span>
         </div>

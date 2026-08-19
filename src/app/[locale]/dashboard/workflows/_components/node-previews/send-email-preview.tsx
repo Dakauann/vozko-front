@@ -28,20 +28,20 @@ export function SendEmailPreview({
   return (
     <div className="px-2 py-2">
       <div className="overflow-hidden rounded-lg border border-border bg-background">
-        <div className="flex items-center gap-1.5 border-b border-border bg-muted px-2 py-1">
+        <div className="flex items-center gap-1.5 border-b border-border px-2 py-1">
           <EnvelopeSimple size={12} weight="fill" className="text-primary-ink" />
-          <span className="min-w-0 flex-1 truncate text-[11px] font-medium text-foreground/70">
+          <span className="min-w-0 flex-1 truncate text-2xs font-medium text-foreground/70">
             {from.trim() || "Remetente"}
           </span>
         </div>
         <div className="px-2 py-1.5">
-          <p className="truncate text-[11px] font-semibold text-foreground/80">
+          <p className="truncate text-2xs font-semibold text-foreground/80">
             {subject.trim() || "(sem assunto)"}
           </p>
           {to.trim() && (
-            <p className="truncate text-[11px] text-muted-foreground">Para: {to}</p>
+            <p className="truncate text-2xs text-muted-foreground">Para: {to}</p>
           )}
-          <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-foreground/60">
+          <p className="mt-0.5 line-clamp-2 text-2xs leading-snug text-foreground/60">
             {snippet.trim() || "E-mail sem conteúdo"}
           </p>
         </div>

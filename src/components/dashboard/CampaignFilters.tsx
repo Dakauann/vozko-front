@@ -321,14 +321,14 @@ export default function CampaignFilters({
                 {modeTranslations.title}
               </h3>
               {hasActiveFilters && (
-                <span className="inline-flex items-center justify-center rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                <span className="inline-flex items-center justify-center rounded-[--radius] bg-muted px-2 py-0.5 text-2xs font-semibold text-muted-foreground">
                   {activeFilterCount}
                 </span>
               )}
             </div>
             {hasActiveFilters && !isExpanded ? (
               <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                <span className="text-[11px] font-medium text-primary-ink">
+                <span className="text-2xs font-medium text-primary-ink">
                   {values.mode === "analysis"
                     ? modeTranslations.analysisMode
                     : modeTranslations.conversationMode}
@@ -337,13 +337,13 @@ export default function CampaignFilters({
                 {activeFilterLabels.slice(0, 3).map((label, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center rounded-md bg-primary px-1.5 py-0.5 text-[11px] font-medium text-primary-foreground border border-primary"
+                    className="inline-flex items-center rounded-md bg-primary px-1.5 py-0.5 text-2xs font-medium text-primary-foreground border border-primary"
                   >
                     {label}
                   </span>
                 ))}
                 {activeFilterLabels.length > 3 && (
-                  <span className="text-[11px] text-muted-foreground">
+                  <span className="text-2xs text-muted-foreground">
                     +{activeFilterLabels.length - 3} mais
                   </span>
                 )}

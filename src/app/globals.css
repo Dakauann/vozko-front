@@ -376,6 +376,40 @@ input:-webkit-autofill:active {
     select:not([data-dense]) {
       min-height: 34px;
     }
+
+    /*
+      ...except the controls whose mark is a fixed square.
+
+      Radix renders checkbox, radio and switch as <button>, so the floor above
+      caught all three and stretched a 16px box to 34px tall while leaving it
+      16px wide. Every checkbox in the product rendered as a tall bar on a
+      phone. The floor is a TOUCH TARGET rule, not a size rule, so these keep
+      their geometry and take the target from an invisible centred hit box
+      instead — which is how the platform guidelines actually specify it.
+
+      The selectors are qualified with `button` and `:not([data-dense])` on
+      purpose: the floor above is `button:not([data-dense])` at specificity
+      (0,1,1), so a bare `[role="checkbox"]` at (0,1,0) loses to it no matter
+      where it sits in the file. Do not simplify these back.
+    */
+    button[role="checkbox"]:not([data-dense]),
+    button[role="radio"]:not([data-dense]),
+    button[role="switch"]:not([data-dense]) {
+      min-height: 0;
+      position: relative;
+    }
+
+    button[role="checkbox"]::after,
+    button[role="radio"]::after,
+    button[role="switch"]::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 34px;
+      height: 34px;
+      transform: translate(-50%, -50%);
+    }
   }
 
   /*
@@ -399,10 +433,20 @@ input:-webkit-autofill:active {
   */
   .well {
     background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
     border-radius: 8px;
-    box-shadow: var(--elev-1);
+    box-shadow: var(--elev-2);
   }
+
+  /*
+    The border is gone, and that is the point.
+
+    A sheet was drawing a hairline AND a shadow — two depth cues for one step,
+    which is the single most reliable tell of a pre-2015 admin panel. It was
+    only ever needed because the canvas sat 2 points off the sheet; with the
+    canvas at 96% the elevation separates on its own, which is how Fluent 2's
+    card works. Where a genuine division is needed inside a sheet, use a
+    hairline rule between regions, not a second edge around the whole thing.
+  */
 
   /*
     Focus, part one: the halo.
@@ -482,8 +526,16 @@ input:-webkit-autofill:active {
 */
 @layer base {
   :root {
-    /* Canvas → sheet → subtle fill */
-    --background: 210 38% 98%;
+    /* Canvas → sheet → subtle fill.
+
+       The canvas sits 4 points below the sheet, not 2. At 98% a white card was
+       within 2% of the ground it sat on, so every card had to draw a border AND
+       a shadow just to be visible — which is the doubled depth that reads as
+       old software. Fluent 2 runs its canvas at ~96% against white layers for
+       exactly this reason: the sheet separates on elevation alone. Saturation
+       drops 38→22 at the same time; a near-white that saturated reads as a blue
+       cast rather than a neutral ground. */
+    --background: 214 22% 96%;
     --foreground: 227 37% 16%;
     --card: 0 0% 100%;
     --card-foreground: 227 37% 16%;
@@ -524,7 +576,7 @@ input:-webkit-autofill:active {
     --accent-foreground: 227 37% 16%;
     --accent-hover: 214 30% 93%;
 
-    --muted: 214 32% 96%;
+    --muted: 214 26% 93%;
     /* 5.7:1 on a white sheet, 5.5:1 on the canvas. Secondary text sits on both,
        so it is measured against the worse of the two. */
     --muted-foreground: 220 14% 42%;
@@ -620,14 +672,8 @@ input:-webkit-autofill:active {
       draws its border AS the first shadow layer (`0 0 0 1px`) so the border and
       the elevation compose instead of fighting.
     */
-    --elev-button:
-      0 1px 1px 0 hsl(228 40% 28% / 0.11),
-      0 1px 2px 0 hsl(0 0% 0% / 0.08),
-      inset 0 -1px 0 0 hsl(0 0% 0% / 0.12);
-    --elev-button-hover:
-      0 2px 4px -1px hsl(228 40% 28% / 0.16),
-      0 3px 8px -2px hsl(0 0% 0% / 0.10),
-      inset 0 -1px 0 0 hsl(0 0% 0% / 0.12);
+    --elev-button: 0 1px 2px 0 hsl(228 40% 28% / 0.07);
+    --elev-button-hover: 0 1px 3px 0 hsl(228 40% 28% / 0.11);
     --elev-button-quiet:
       0 0 0 1px hsl(214 26% 88%),
       0 1px 1px 0 hsl(228 40% 28% / 0.05),
@@ -760,14 +806,8 @@ input:-webkit-autofill:active {
       0 16px 52px -8px hsl(0 0% 0% / 0.64),
       0 8px 18px -8px hsl(0 0% 0% / 0.42);
 
-    --elev-button:
-      0 1px 2px 0 hsl(0 0% 0% / 0.40),
-      0 1px 3px 0 hsl(0 0% 0% / 0.28),
-      inset 0 -1px 0 0 hsl(0 0% 0% / 0.22);
-    --elev-button-hover:
-      0 2px 6px -1px hsl(0 0% 0% / 0.48),
-      0 3px 10px -2px hsl(0 0% 0% / 0.34),
-      inset 0 -1px 0 0 hsl(0 0% 0% / 0.22);
+    --elev-button: 0 1px 2px 0 hsl(0 0% 0% / 0.34);
+    --elev-button-hover: 0 1px 3px 0 hsl(0 0% 0% / 0.44);
     --elev-button-quiet:
       0 0 0 1px hsl(220 14% 24%),
       0 1px 2px 0 hsl(0 0% 0% / 0.30);

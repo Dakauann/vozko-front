@@ -50,6 +50,9 @@ export default function TemplateEditModal({
   isSaving = false,
 }: TemplateEditModalProps) {
   const t = useTranslations("whatsappTemplates.editModal");
+  // Status and category labels live at the namespace root, shared with the list
+  // and detail pages, so the same enum never renders two different ways.
+  const tTemplates = useTranslations("whatsappTemplates");
   const [headerMediaUrl, setHeaderMediaUrl] = useState(
     template.headerMediaUrl || "",
   );
@@ -167,7 +170,7 @@ export default function TemplateEditModal({
         >
           <ElevatedContainer className="bg-card rounded-[--radius] shadow-2xl overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-muted">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
               <div className="flex items-center gap-3">
                 <IconBox color="green" size="sm">
                   <WhatsappLogo weight="fill" />
@@ -403,7 +406,7 @@ export default function TemplateEditModal({
                                 : "bg-muted text-foreground",
                         )}
                       >
-                        {template.status}
+                        {tTemplates(`status.${template.status.toLowerCase()}`)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-xs">
@@ -411,7 +414,7 @@ export default function TemplateEditModal({
                         {t("category")}
                       </span>
                       <span className="font-medium text-foreground">
-                        {template.category}
+                        {tTemplates(`category.${template.category.toLowerCase()}`)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-xs">
@@ -509,7 +512,7 @@ function TemplatePreview({ template, headerMediaUrl }: TemplatePreviewProps) {
       >
         <div className="mb-3 text-center">
           <div className="inline-block bg-card px-3 py-1.5 rounded-full">
-            <p className="text-[11px] text-muted-foreground font-medium">
+            <p className="text-2xs text-muted-foreground font-medium">
               Template: {template.name} ({template.language.toUpperCase()})
             </p>
           </div>
@@ -547,7 +550,7 @@ function TemplatePreview({ template, headerMediaUrl }: TemplatePreviewProps) {
           </div>
 
           <div className="flex justify-end mt-1 px-1">
-            <span className="text-[11px] text-muted-foreground">
+            <span className="text-2xs text-muted-foreground">
               {new Date().toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",

@@ -295,7 +295,7 @@ export default function TelegramAccountPage() {
                   <p className="truncate text-sm font-medium text-foreground">
                     {link.label || t("links.untitled")}
                   </p>
-                  <p className="truncate font-mono text-[11px] text-muted-foreground">{url}</p>
+                  <p className="truncate font-mono text-2xs text-muted-foreground">{url}</p>
                 </div>
                 <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
                   {t("links.uses", { count: link.useCount })}

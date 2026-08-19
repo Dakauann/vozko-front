@@ -213,7 +213,7 @@ export default function ConversationAnalysisPanel({
               {/* Attendance Quality Progress Bar */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[11px] font-semibold text-muted-foreground">
+                  <span className="text-2xs font-semibold text-muted-foreground">
                     Qualidade do atendimento
                   </span>
                   <span className="text-xs font-semibold text-foreground">
@@ -241,7 +241,7 @@ export default function ConversationAnalysisPanel({
               <div className="flex flex-wrap gap-1.5">
                 <span
                   className={cn(
-                    "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold text-white",
+                    "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-2xs font-semibold text-white",
                     sentiment.tile,
                   )}
                 >
@@ -251,7 +251,7 @@ export default function ConversationAnalysisPanel({
 
                 <span
                   className={cn(
-                    "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold text-white",
+                    "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-2xs font-semibold text-white",
                     interest.tile,
                   )}
                 >
@@ -260,7 +260,7 @@ export default function ConversationAnalysisPanel({
 
                 <span
                   className={cn(
-                    "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold text-white",
+                    "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-2xs font-semibold text-white",
                     qualification.tile,
                   )}
                 >
@@ -268,12 +268,12 @@ export default function ConversationAnalysisPanel({
                   {qualification.label}
                 </span>
 
-                <span className="inline-flex items-center rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                <span className="inline-flex items-center rounded-[--radius] bg-muted px-2 py-0.5 text-2xs font-semibold text-muted-foreground">
                   {DISPOSITION_LABELS[analysis.disposition] ??
                     analysis.disposition}
                 </span>
 
-                <span className="inline-flex items-center rounded-[--radius] bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">
+                <span className="inline-flex items-center rounded-[--radius] bg-primary px-2 py-0.5 text-2xs font-semibold text-primary-foreground">
                   {NEXT_ACTION_LABELS[analysis.nextAction] ??
                     analysis.nextAction}
                 </span>
@@ -282,10 +282,10 @@ export default function ConversationAnalysisPanel({
               {/* Summary */}
               {analysis.summary && (
                 <div className="rounded-lg bg-muted p-2.5">
-                  <p className="text-[11px] font-semibold text-muted-foreground mb-1">
+                  <p className="text-2xs font-semibold text-muted-foreground mb-1">
                     Resumo
                   </p>
-                  <p className="text-[11px] leading-relaxed text-foreground">
+                  <p className="text-2xs leading-relaxed text-foreground">
                     {analysis.summary}
                   </p>
                 </div>
@@ -293,11 +293,11 @@ export default function ConversationAnalysisPanel({
 
               {/* Footer meta */}
               <div className="flex items-center justify-between pt-1 border-t border-border">
-                <span className="text-[11px] text-muted-foreground">
+                <span className="text-2xs text-muted-foreground">
                   {analysis.messageCount} mensagens analisadas
                 </span>
                 {analysis.productInterest && (
-                  <span className="text-[11px] font-medium text-muted-foreground truncate max-w-[50%]">
+                  <span className="text-2xs font-medium text-muted-foreground truncate max-w-[50%]">
                     Produto: {analysis.productInterest}
                   </span>
                 )}

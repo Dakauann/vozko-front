@@ -45,7 +45,7 @@ export default function CrmStageFilter({
       <button
         onClick={() => setOpen((o) => !o)}
         className={cn(
-          "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-medium transition-all duration-150",
+          "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-2xs font-medium transition-all duration-150",
           hasSelection
             ? "border-healthy bg-healthy text-healthy-foreground"
             : "border-border bg-card text-muted-foreground hover:bg-muted",
@@ -83,13 +83,13 @@ export default function CrmStageFilter({
             >
               {/* Header */}
               <div className="flex items-center justify-between border-b border-border px-3 py-2">
-                <span className="text-[11px] font-semibold text-muted-foreground">
+                <span className="text-2xs font-semibold text-muted-foreground">
                   Tags
                 </span>
                 {hasSelection && (
                   <button
                     onClick={clearAll}
-                    className="text-[11px] font-medium text-healthy-ink hover:text-healthy-ink transition-colors"
+                    className="text-2xs font-medium text-healthy-ink hover:text-healthy-ink transition-colors"
                   >
                     Limpar
                   </button>
@@ -113,7 +113,7 @@ export default function CrmStageFilter({
                           onClick={() => toggle(stage.id)}
                           className={cn(
                             "flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors duration-100",
-                            isSelected ? "bg-muted" : "hover:bg-muted",
+                            isSelected ? "bg-primary-subtle text-primary-ink" : "hover:bg-muted",
                           )}
                         >
                           {/* Color dot */}

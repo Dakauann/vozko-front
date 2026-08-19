@@ -17,11 +17,11 @@ import {
   WhatsappLogo,
   XCircle,
 } from "@/components/icons";
-import {
-  getWhatsAppTemplateByIdAction,
-  sendWhatsAppTemplateMessageAction,
-} from "@/app/actions/whatsapp-templates";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { extractPlaceholders } from "@/lib/whatsapp-templates/params";
+import { getWhatsAppTemplateByIdAction } from "@/app/actions/whatsapp-templates";
+import { startOfficialConversationAction } from "@/app/actions/whatsapp-outreach";
+import { useWorkspace } from "@/contexts/workspace-context";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 import Button from "@/components/elevated-design/button";
@@ -59,17 +59,6 @@ const itemVariants = {
   },
 };
 
-function extractParamsFromText(text: string | undefined): string[] {
-  if (!text) return [];
-  const params: string[] = [];
-  const regex = /\{\{([^}]+)\}\}/g;
-  let match;
-  while ((match = regex.exec(text)) !== null) {
-    params.push(match[1].trim());
-  }
-  return params;
-}
-
 interface DebugInfo {
   requestPayload: Record<string, unknown> | null;
   responsePayload: Record<string, unknown> | null;
@@ -100,6 +89,19 @@ export default function SendWhatsAppTemplatePage() {
 
   const [selectedBusinessPhoneId, setSelectedBusinessPhoneId] =
     useState<string>("");
+
+  const { can } = useWorkspace();
+  // The page has its own gate. The route it posts to is gated too — this only
+  // stops an operator filling in a form they were never allowed to submit.
+  const canSend = can("whatsapp_templates", "send");
+
+  // One key for the life of this page. A double-submit or a retry after a
+  // dropped connection costs one message; a deliberate resend is a reload.
+  const idempotencyKey = useRef<string>(
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random()}`,
+  );
 
   const businessPhoneSelect = usePaginatedSelect<WhatsAppBusinessPhone>({
     fetchFn: useCallback(async (page: number, search: string) => {
@@ -132,13 +134,13 @@ export default function SendWhatsAppTemplatePage() {
   );
 
   const bodyParamNames = useMemo(
-    () => extractParamsFromText(bodyComponent?.text),
+    () => extractPlaceholders(bodyComponent?.text),
     [bodyComponent],
   );
   const headerParamNames = useMemo(
     () =>
       headerComponent?.format === "TEXT"
-        ? extractParamsFromText(headerComponent?.text)
+        ? extractPlaceholders(headerComponent?.text)
         : [],
     [headerComponent],
   );
@@ -163,14 +165,14 @@ export default function SendWhatsAppTemplatePage() {
           const body = result.template.components.find(
             (c) => c.type === "BODY",
           );
-          const bodyExtracted = extractParamsFromText(body?.text);
+          const bodyExtracted = extractPlaceholders(body?.text);
           setBodyParams(new Array(bodyExtracted.length).fill(""));
 
           const header = result.template.components.find(
             (c) => c.type === "HEADER",
           );
           if (header?.format === "TEXT") {
-            const headerExtracted = extractParamsFromText(header?.text);
+            const headerExtracted = extractPlaceholders(header?.text);
             setHeaderTextParams(new Array(headerExtracted.length).fill(""));
           }
         }
@@ -232,33 +234,49 @@ export default function SendWhatsAppTemplatePage() {
     setSendSuccess(false);
 
     try {
-      const result = await sendWhatsAppTemplateMessageAction({
-        businessPhoneId: selectedBusinessPhoneId,
-        to: phoneNumber.replace(/\D/g, ""),
-        template: template.name,
-        language: template.language,
-        parameters: bodyParams.length > 0 ? bodyParams : undefined,
-        headerParameters:
-          headerTextParams.length > 0 ? headerTextParams : undefined,
-      });
+      // The same endpoint the CRM dialog uses. There is exactly one door to a
+      // paid template send, so this page cannot drift into billing, gating or
+      // recording the message differently from the dialog.
+      const { conversation, error: sendError } = await startOfficialConversationAction(
+        {
+          businessPhoneId: selectedBusinessPhoneId,
+          templateId,
+          phoneNumber: phoneNumber.replace(/\D/g, ""),
+          parameters: bodyParams.length > 0 ? bodyParams : undefined,
+          headerParameters:
+            headerTextParams.length > 0 ? headerTextParams : undefined,
+        },
+        idempotencyKey.current,
+      );
 
-      if (result.debugInfo) {
-        setDebugInfo(result.debugInfo);
-      }
-
-      if (result.error) {
-        setSendError(result.error);
+      if (sendError) {
+        setSendError(sendError.message);
+        setDebugInfo({
+          requestPayload: null,
+          responsePayload: null,
+          responseStatus: null,
+          serverMessage: sendError.code,
+        });
         toast({
           title: t("toast.sendError"),
-          description: result.error,
+          description: sendError.message,
           variant: "destructive",
         });
-      } else {
+      } else if (conversation) {
         setSendSuccess(true);
+        setDebugInfo({
+          requestPayload: null,
+          responsePayload: null,
+          responseStatus: null,
+          serverMessage: conversation.messageId ?? null,
+        });
         toast({
           title: t("toast.sendSuccess"),
           description: t("toast.sendSuccessDesc"),
         });
+        // A send that opened a conversation belongs in the inbox, not on a
+        // confirmation screen the operator has to navigate away from.
+        router.push(`/dashboard/crm?entryId=${conversation.entryId}&entryType=${conversation.entryType}`);
       }
     } catch {
       toast({
@@ -612,7 +630,7 @@ export default function SendWhatsAppTemplatePage() {
                   }
                   iconVisible
                   iconSide="left"
-                  disabled={sending}
+                  disabled={sending || !canSend}
                   className="flex-1"
                 />
               </div>
@@ -733,7 +751,7 @@ export default function SendWhatsAppTemplatePage() {
                 <div className="max-w-[280px] bg-card rounded-lg shadow-sm overflow-hidden">
                   {/* Header - Media */}
                   {hasMediaHeader && (
-                    <div className="bg-muted border-b border-border p-3 flex items-center justify-center min-h-[80px]">
+                    <div className="border-b border-border p-3 flex items-center justify-center min-h-[80px]">
                       {headerComponent?.format === "VIDEO" ? (
                         <VideoCamera
                           className="h-10 w-10 text-muted-foreground"
@@ -756,7 +774,7 @@ export default function SendWhatsAppTemplatePage() {
                   {/* Header - Text */}
                   {headerComponent?.format === "TEXT" &&
                     headerComponent?.text && (
-                      <div className="px-3 py-2 bg-muted border-b border-border">
+                      <div className="px-3 py-2 border-b border-border">
                         <p className="text-sm font-semibold text-foreground">
                           {getHeaderPreviewText()}
                         </p>
@@ -785,7 +803,7 @@ export default function SendWhatsAppTemplatePage() {
 
                   {/* Timestamp */}
                   <div className="px-3 py-1 text-right">
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-2xs text-muted-foreground">
                       {new Date().toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",

@@ -63,20 +63,20 @@ const variantAlias: Record<ButtonVariant, BaseVariant> = {
 // a screen with several accent buttons has no primary action left on it.
 const variantClasses: Record<BaseVariant, string> = {
   primary:
-    "bg-primary text-primary-foreground shadow-button hover:-translate-y-px hover:bg-[hsl(var(--primary-hover))] hover:shadow-button-hover active:translate-y-0 active:bg-[hsl(var(--primary-active))] active:shadow-button",
+    "bg-primary text-primary-foreground shadow-button hover:bg-[hsl(var(--primary-hover))] hover:shadow-button-hover active:bg-[hsl(var(--primary-active))] active:shadow-button",
   // The quiet button: its 1px edge IS the first layer of --elev-button-quiet,
   // so border and elevation compose instead of double-drawing an outline.
   secondary:
-    "bg-card text-foreground shadow-quiet hover:-translate-y-px hover:shadow-quiet-hover active:translate-y-0 active:bg-muted active:shadow-quiet",
+    "bg-card text-foreground shadow-quiet hover:shadow-quiet-hover active:bg-muted active:shadow-quiet",
   outline:
     "group border border-border-strong bg-transparent text-foreground hover:bg-muted active:bg-[hsl(var(--accent-hover))]",
   "outline-subtle":
     "border border-border bg-transparent text-foreground hover:bg-muted active:bg-[hsl(var(--accent-hover))]",
   ghost:
     "bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground active:bg-[hsl(var(--accent-hover))]",
-  vsl: "bg-primary text-primary-foreground shadow-button hover:-translate-y-px hover:bg-[hsl(var(--primary-hover))] hover:shadow-button-hover active:translate-y-0 active:shadow-button",
+  vsl: "bg-primary text-primary-foreground shadow-button hover:bg-[hsl(var(--primary-hover))] hover:shadow-button-hover active:shadow-button",
   action:
-    "bg-primary text-primary-foreground shadow-button min-h-[32px] px-3 gap-1.5 hover:-translate-y-px hover:bg-[hsl(var(--primary-hover))] hover:shadow-button-hover active:translate-y-0 active:bg-[hsl(var(--primary-active))] active:shadow-button disabled:cursor-not-allowed",
+    "bg-primary text-primary-foreground shadow-button min-h-[32px] px-3 gap-1.5 hover:bg-[hsl(var(--primary-hover))] hover:shadow-button-hover active:bg-[hsl(var(--primary-active))] active:shadow-button disabled:cursor-not-allowed",
 };
 
 // The sm: prefixes are the touch floor, not a design step — below sm every
@@ -136,7 +136,7 @@ const Button = ({
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
     // Flat neutral chip when disabled: no fill, no elevation, no lift. Leaving
     // the shadow on is what keeps a disabled button looking pressable.
-    "disabled:pointer-events-none disabled:translate-y-0 disabled:border disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none",
+    "disabled:pointer-events-none disabled:border disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none",
     effectiveSize !== "icon" && "min-w-16",
     sizeClasses[effectiveSize],
     variantClasses[resolvedVariant],

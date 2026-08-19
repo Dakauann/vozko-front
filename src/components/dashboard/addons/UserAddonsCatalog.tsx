@@ -335,7 +335,7 @@ export default function UserAddonsCatalog() {
             >
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
-                  <p className="text-[11px] font-semibold text-muted-foreground">
+                  <p className="text-2xs font-semibold text-muted-foreground">
                     {stat.label}
                   </p>
                   <p className="mt-2 truncate text-2xl font-semibold text-foreground">
@@ -420,7 +420,7 @@ export default function UserAddonsCatalog() {
                       <span className="text-xl font-semibold text-foreground">
                         {formatBRL(priceMicros(addon, cycle), rate)}
                       </span>
-                      <span className="ml-1 text-[11px] text-muted-foreground">
+                      <span className="ml-1 text-2xs text-muted-foreground">
                         /{cycle === "annual" ? t("catalog.perYear") : t("catalog.perMonth")}
                       </span>
                     </div>
@@ -463,7 +463,7 @@ export default function UserAddonsCatalog() {
                     </div>
                   </div>
                   {sub.cancelledAt ? (
-                    <span className="rounded-full bg-warning px-2.5 py-1 text-[11px] font-semibold text-warning-foreground">
+                    <span className="rounded-full bg-warning px-2.5 py-1 text-2xs font-semibold text-warning-foreground">
                       {t("active.cancelled")}
                     </span>
                   ) : (
@@ -545,7 +545,7 @@ export default function UserAddonsCatalog() {
                   </span>
                 </div>
                 {preview?.prorated && (
-                  <p className="text-[11px] leading-relaxed text-muted-foreground">
+                  <p className="text-2xs leading-relaxed text-muted-foreground">
                     {t("purchase.proratedNote", { days: preview.proratedDays })}
                   </p>
                 )}

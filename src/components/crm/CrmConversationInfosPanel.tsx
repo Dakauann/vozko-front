@@ -313,7 +313,7 @@ export default function CrmConversationInfosPanel({
         <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
           <UserCircle
             weight="thin"
-            className="h-12 w-12 text-muted-foreground/50"
+            className="h-12 w-12 text-muted-foreground"
           />
           <p className="text-xs text-muted-foreground">{t("emptyState")}</p>
         </div>
@@ -325,8 +325,8 @@ export default function CrmConversationInfosPanel({
               <div className="mb-2.5 flex items-start gap-2 rounded-lg border border-border bg-muted px-2.5 py-2 text-destructive-ink">
                 <Prohibit weight="fill" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 <div className="min-w-0">
-                  <p className="text-[11px] font-semibold">{t("blockedTitle")}</p>
-                  <p className="mt-0.5 text-[11px] leading-snug text-destructive-ink/90">
+                  <p className="text-2xs font-semibold">{t("blockedTitle")}</p>
+                  <p className="mt-0.5 text-2xs leading-snug text-destructive-ink/90">
                     {t("blockedDescription")}
                   </p>
                 </div>
@@ -388,7 +388,7 @@ export default function CrmConversationInfosPanel({
                       Instagram, Telegram or unofficial-WhatsApp conversation was
                       labelled "Voz" — a voice call it never was. The lookup
                       lives beside the channel marks so every surface agrees. */}
-                  <span className="inline-flex items-center gap-1 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-[11px] font-semibold text-foreground">
+                  <span className="inline-flex items-center gap-1 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-2xs font-semibold text-foreground">
                     {channelName ? (
                       <ChannelLogo
                         channel={conversation.entry_type}
@@ -400,7 +400,7 @@ export default function CrmConversationInfosPanel({
                     {channelName ?? t("channelVoice")}
                   </span>
                   {assignedUsername ? (
-                    <span className="inline-flex max-w-[10rem] truncate rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                    <span className="inline-flex max-w-[10rem] truncate rounded-[--radius] bg-muted px-2 py-0.5 text-2xs font-medium text-muted-foreground">
                       {assignedUsername}
                     </span>
                   ) : null}
@@ -474,7 +474,7 @@ export default function CrmConversationInfosPanel({
                   {assignedUsername ? (
                     <span className="text-foreground">{assignedUsername}</span>
                   ) : (
-                    <span className="text-muted-foreground/70">
+                    <span className="text-muted-foreground">
                       {t("unassigned")}
                     </span>
                   )}
@@ -483,7 +483,7 @@ export default function CrmConversationInfosPanel({
                 {stage && (
                   <InfoRow label={t("stage")}>
                     <span
-                      className="inline-flex items-center gap-1.5 rounded-[--radius] px-2 py-0.5 text-[11px] font-medium"
+                      className="inline-flex items-center gap-1.5 rounded-[--radius] px-2 py-0.5 text-2xs font-medium"
                       style={{
                         backgroundColor: `${stage.color}1a`,
                         color: stage.color,
@@ -504,7 +504,7 @@ export default function CrmConversationInfosPanel({
                       {labels.map((label) => (
                         <span
                           key={label.label_id}
-                          className="inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[11px] font-medium"
+                          className="inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-2xs font-medium"
                           style={{
                             backgroundColor: `${label.color}1a`,
                             color: label.color,
@@ -621,7 +621,7 @@ export default function CrmConversationInfosPanel({
                               {o.title || t("untitledDeal")}
                             </span>
                             {o.valueCents > 0 && (
-                              <span className="shrink-0 text-[11px] font-semibold tabular-nums text-muted-foreground">
+                              <span className="shrink-0 text-2xs font-semibold tabular-nums text-muted-foreground">
                                 {formatValueCents(o.valueCents, o.currency)}
                               </span>
                             )}
@@ -665,7 +665,7 @@ export default function CrmConversationInfosPanel({
             </button>
           ) : confirmingBlock ? (
             <div className="flex flex-col gap-2">
-              <p className="text-[11px] leading-relaxed text-muted-foreground">
+              <p className="text-2xs leading-relaxed text-muted-foreground">
                 {isWhatsApp ? t("confirmBlockWhatsapp") : t("confirmBlock")}
               </p>
               <div className="flex gap-2">

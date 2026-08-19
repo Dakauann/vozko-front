@@ -200,10 +200,10 @@ export default function MessageShortcutSheet({
           <div className="space-y-5">
             <div className="rounded-[--radius] border border-border bg-background p-4">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-[--radius] bg-primary px-3 py-1 text-[11px] font-semibold text-primary-foreground">
+                <span className="rounded-[--radius] bg-primary px-3 py-1 text-2xs font-semibold text-primary-foreground">
                   /{shortcut || t("modal.shortcutPlaceholder")}
                 </span>
-                <span className="rounded-[--radius] border border-border px-3 py-1 text-[11px] font-semibold text-muted-foreground">
+                <span className="rounded-[--radius] border border-border px-3 py-1 text-2xs font-semibold text-muted-foreground">
                   {messageType === "button"
                     ? t("modal.typeButton")
                     : t("modal.typeText")}

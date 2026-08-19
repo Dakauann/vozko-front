@@ -577,7 +577,7 @@ export default function ConversationAttendanceSection({
             <h3 className="text-xs font-semibold tracking-tight text-foreground">
               {tSummary("title")}
             </h3>
-            <p className="truncate text-[11px] text-muted-foreground">
+            <p className="truncate text-2xs text-muted-foreground">
               {ownerText}
             </p>
           </div>
@@ -592,7 +592,7 @@ export default function ConversationAttendanceSection({
                 row.muted && "opacity-70",
               )}
             >
-              <p className="text-[11px] font-medium text-muted-foreground">
+              <p className="text-2xs font-medium text-muted-foreground">
                 {row.label}
               </p>
               <p className="mt-0.5 text-xs font-semibold tabular-nums text-foreground">
@@ -628,7 +628,7 @@ export default function ConversationAttendanceSection({
               <h3 className="text-xs font-semibold tracking-tight text-foreground">
                 {t("title")}
               </h3>
-              <p className="text-[11px] text-muted-foreground">{t("subtitle")}</p>
+              <p className="text-2xs text-muted-foreground">{t("subtitle")}</p>
             </div>
           </div>
           <button
@@ -653,7 +653,7 @@ export default function ConversationAttendanceSection({
               type="button"
               onClick={() => setFilter(f.id)}
               className={cn(
-                "rounded-[--radius] px-2 py-0.5 text-[11px] font-medium transition-colors",
+                "rounded-[--radius] px-2 py-0.5 text-2xs font-medium transition-colors",
                 filter === f.id
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted text-muted-foreground hover:bg-muted",
@@ -687,7 +687,7 @@ export default function ConversationAttendanceSection({
         ) : filtered.length === 0 ? (
           <div className="rounded-[--radius] border border-border bg-background px-3 py-6 text-center">
             <ClockCounterClockwise
-              className="mx-auto mb-2 h-7 w-7 text-muted-foreground/40"
+              className="mx-auto mb-2 h-7 w-7 text-muted-foreground"
               weight="duotone"
             />
             <p className="text-xs text-muted-foreground">
@@ -698,7 +698,7 @@ export default function ConversationAttendanceSection({
           <div className="space-y-4">
             {groups.map(([day, dayEvents]) => (
               <div key={day}>
-                <p className="mb-1.5 text-[11px] font-semibold text-muted-foreground">
+                <p className="mb-1.5 text-2xs font-semibold text-muted-foreground">
                   {day}
                 </p>
                 <ul className="space-y-1.5">
@@ -740,13 +740,13 @@ export default function ConversationAttendanceSection({
                               {title}
                             </p>
                             <time
-                              className="shrink-0 text-[11px] tabular-nums text-muted-foreground"
+                              className="shrink-0 text-2xs tabular-nums text-muted-foreground"
                               dateTime={ev.created_at}
                             >
                               {formatWhen(ev.created_at, localeTag)}
                             </time>
                           </div>
-                          <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-muted-foreground">
+                          <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-2xs text-muted-foreground">
                             <span
                               className={cn(
                                 "inline-flex rounded-full px-1.5 py-px font-semibold text-white",
@@ -768,7 +768,7 @@ export default function ConversationAttendanceSection({
                             ) : null}
                           </div>
                           {sub ? (
-                            <p className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">
+                            <p className="mt-0.5 line-clamp-2 text-2xs text-muted-foreground">
                               {sub}
                             </p>
                           ) : null}
@@ -781,7 +781,7 @@ export default function ConversationAttendanceSection({
             ))}
 
             {totalItems > 0 ? (
-              <p className="text-center text-[11px] text-muted-foreground">
+              <p className="text-center text-2xs text-muted-foreground">
                 {t("count", {
                   shown: filtered.length,
                   total: totalItems,
@@ -834,7 +834,7 @@ export function AttendanceOwnerBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold text-white",
+        "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-2xs font-semibold text-white",
         isAi
           ? "bg-warning"
           : kind === "unassigned"

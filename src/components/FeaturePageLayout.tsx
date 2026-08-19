@@ -103,13 +103,13 @@ export default function FeaturePageLayout({
               a silkscreen legend on an engraved rule. It states which feature
               you are being introduced to, and hands the room to the content.
             */}
-            <div className="rule-engraved bg-muted px-5 py-3">
+            <div className="rule-engraved px-5 py-3">
               <span className="legend">{badge}</span>
             </div>
 
             <div className="px-5 sm:px-6 pt-4 sm:pt-[18px] pb-5 sm:pb-6 space-y-3 sm:space-y-4">
               <div>
-                <h2 className="text-xl sm:text-[22px] font-semibold text-foreground tracking-tight leading-tight">
+                <h2 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight leading-tight">
                   {title}
                 </h2>
                 <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">
@@ -128,7 +128,7 @@ export default function FeaturePageLayout({
                       <span className="shrink-0 text-muted-foreground">
                         <Icon size={20} weight="regular" />
                       </span>
-                      <p className="text-sm sm:text-[15px] leading-[1.6] text-foreground/80 m-0">
+                      <p className="text-sm sm:text-base leading-[1.6] text-foreground/80 m-0">
                         {t(`${effectiveKey}.features.${i}`)}
                       </p>
                     </li>

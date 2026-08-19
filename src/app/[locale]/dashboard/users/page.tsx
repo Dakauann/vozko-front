@@ -205,7 +205,7 @@ export default function UsersPage() {
           return (
             <span
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-semibold",
+                "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-2xs font-semibold",
                 roleConfig[user.role]?.bgColor ?? "bg-muted",
                 roleConfig[user.role]?.color ?? "text-muted-foreground",
               )}
@@ -221,12 +221,12 @@ export default function UsersPage() {
         key: "status",
         render: (user) =>
           user.emailVerified ? (
-            <span className="inline-flex items-center gap-1.5 rounded-lg bg-healthy px-3 py-1.5 text-[11px] font-semibold text-healthy-foreground">
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-healthy px-3 py-1.5 text-2xs font-semibold text-healthy-foreground">
               <CheckCircle className="h-3.5 w-3.5" weight="fill" />
               {t("status.verified")}
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5 text-[11px] font-semibold text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5 text-2xs font-semibold text-muted-foreground">
               <XCircle className="h-3.5 w-3.5" weight="fill" />
               {t("status.unverified")}
             </span>

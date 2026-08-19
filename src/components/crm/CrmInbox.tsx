@@ -631,7 +631,7 @@ export default function CrmInbox({
             />
             <span className="legend">{statusLabel}</span>
             {entries.length > 0 && !isServerSearchActive && (
-              <span className="readout ml-1 text-[11px] font-semibold text-foreground">
+              <span className="readout ml-1 text-2xs font-semibold text-foreground">
                 {inboxTotalItems != null && inboxTotalItems > 0
                   ? inboxTotalItems
                   : entries.length}
@@ -695,7 +695,7 @@ export default function CrmInbox({
               className="h-3.5 w-3.5"
             />
             {activeFilterCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-[--radius] bg-healthy/100 px-0.5 text-[11px] font-semibold text-healthy-foreground">
+              <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-[--radius] bg-healthy/100 px-0.5 text-2xs font-semibold text-healthy-foreground">
                 {activeFilterCount}
               </span>
             )}
@@ -730,7 +730,7 @@ export default function CrmInbox({
               key={item.key}
               onClick={() => handleStateFilterChange(item.key)}
               className={cn(
-                "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium whitespace-nowrap transition-all duration-150",
+                "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-2xs font-medium whitespace-nowrap transition-all duration-150",
                 stateFilter === item.key
                   ? "bg-healthy/100 text-healthy-foreground shadow-sm"
                   : "bg-muted text-muted-foreground hover:bg-border",
@@ -739,7 +739,7 @@ export default function CrmInbox({
               {item.label}
               <span
                 className={cn(
-                  "flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[11px] font-semibold",
+                  "flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-2xs font-semibold",
                   stateFilter === item.key
                     ? "bg-white/25 text-white"
                     : "bg-border text-muted-foreground",
@@ -762,14 +762,14 @@ export default function CrmInbox({
               />
             )}
             {isServerSearchActive && !searching && (
-              <span className="text-[11px] font-medium text-muted-foreground">
+              <span className="text-2xs font-medium text-muted-foreground">
                 {searchTotalItems} resultado{searchTotalItems !== 1 ? "s" : ""}
               </span>
             )}
             {hasAnyFilter && (
               <button
                 onClick={handleClearAll}
-                className="ml-auto text-[11px] font-semibold text-muted-foreground transition-colors hover:text-foreground"
+                className="ml-auto text-2xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
               >
                 Limpar busca
               </button>
@@ -794,7 +794,7 @@ export default function CrmInbox({
               <div className="flex gap-2">
                 {/* Tag filter */}
                 <div className="flex-1 min-w-0">
-                  <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">
+                  <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
                     Tag
                   </label>
                   <select
@@ -809,7 +809,7 @@ export default function CrmInbox({
                         stageName: tag?.name ?? "",
                       }));
                     }}
-                    className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-[11px] text-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
+                    className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-2xs text-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
                   >
                     <option value="">Todas</option>
                     {availableTags.map((tag) => (
@@ -822,7 +822,7 @@ export default function CrmInbox({
 
                 {/* Channel filter */}
                 <div className="flex-1 min-w-0">
-                  <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">
+                  <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
                     Canal
                   </label>
                   <select
@@ -833,7 +833,7 @@ export default function CrmInbox({
                         channel: e.target.value as FilterState["channel"],
                       }))
                     }
-                    className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-[11px] text-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
+                    className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-2xs text-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
                   >
                     <option value="">Todos</option>
                     {FILTERABLE_MESSAGE_CHANNELS.filter(
@@ -851,7 +851,7 @@ export default function CrmInbox({
               {/* Row: Responsible */}
               <div className="flex gap-2">
                 <div className="flex-1 min-w-0">
-                  <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">
+                  <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
                     Responsável
                   </label>
                   <select
@@ -862,7 +862,7 @@ export default function CrmInbox({
                         responsibleUserId: e.target.value,
                       }))
                     }
-                    className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-[11px] text-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
+                    className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-2xs text-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
                   >
                     <option value="">Todos os responsáveis</option>
                     <option value={RESPONSIBLE_UNASSIGNED}>
@@ -880,7 +880,7 @@ export default function CrmInbox({
               {/* Row 2: Date range */}
               <div className="flex gap-2">
                 <div className="flex-1 min-w-0">
-                  <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">
+                  <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
                     De
                   </label>
                   <div className="relative">
@@ -894,12 +894,12 @@ export default function CrmInbox({
                       onChange={(e) =>
                         setFilters((f) => ({ ...f, dateFrom: e.target.value }))
                       }
-                      className="w-full rounded-lg border border-border bg-card pl-7 pr-2 py-1.5 text-[11px] text-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
+                      className="w-full rounded-lg border border-border bg-card pl-7 pr-2 py-1.5 text-2xs text-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
                     />
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">
+                  <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
                     Até
                   </label>
                   <div className="relative">
@@ -913,7 +913,7 @@ export default function CrmInbox({
                       onChange={(e) =>
                         setFilters((f) => ({ ...f, dateTo: e.target.value }))
                       }
-                      className="w-full rounded-lg border border-border bg-card pl-7 pr-2 py-1.5 text-[11px] text-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
+                      className="w-full rounded-lg border border-border bg-card pl-7 pr-2 py-1.5 text-2xs text-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
                     />
                   </div>
                 </div>
@@ -922,7 +922,7 @@ export default function CrmInbox({
               {/* Row 3: Window + Unread */}
               <div className="flex gap-2">
                 <div className="flex-1 min-w-0">
-                  <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">
+                  <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
                     Janela 24h
                   </label>
                   <select
@@ -933,7 +933,7 @@ export default function CrmInbox({
                         windowOpen: e.target.value as FilterState["windowOpen"],
                       }))
                     }
-                    className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-[11px] text-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
+                    className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-2xs text-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
                   >
                     <option value="">Todas</option>
                     <option value="true">Aberta</option>
@@ -941,7 +941,7 @@ export default function CrmInbox({
                   </select>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">
+                  <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
                     Não lidas
                   </label>
                   <select
@@ -952,7 +952,7 @@ export default function CrmInbox({
                         hasUnread: e.target.value as FilterState["hasUnread"],
                       }))
                     }
-                    className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-[11px] text-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
+                    className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-2xs text-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
                   >
                     <option value="">Todas</option>
                     <option value="true">Com não lidas</option>
@@ -964,7 +964,7 @@ export default function CrmInbox({
               {/* Row 4: Message count range */}
               <div className="flex gap-2">
                 <div className="flex-1 min-w-0">
-                  <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">
+                  <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
                     Mín. msgs
                   </label>
                   <input
@@ -978,11 +978,11 @@ export default function CrmInbox({
                         minMessageCount: e.target.value,
                       }))
                     }
-                    className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-[11px] text-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
+                    className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-2xs text-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">
+                  <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
                     Máx. msgs
                   </label>
                   <input
@@ -996,14 +996,14 @@ export default function CrmInbox({
                         maxMessageCount: e.target.value,
                       }))
                     }
-                    className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-[11px] text-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
+                    className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-2xs text-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
                   />
                 </div>
               </div>
 
               {/* Row 5: Dedicated message search */}
               <div>
-                <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">
+                <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
                   Busca no conteúdo das mensagens
                 </label>
                 <input
@@ -1013,7 +1013,7 @@ export default function CrmInbox({
                   onChange={(e) =>
                     setFilters((f) => ({ ...f, messageSearch: e.target.value }))
                   }
-                  className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-[11px] text-foreground placeholder:text-muted-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
+                  className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-2xs text-foreground placeholder:text-muted-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
                 />
               </div>
 
@@ -1021,14 +1021,14 @@ export default function CrmInbox({
               <div className="flex items-center gap-2 pt-1">
                 <button
                   onClick={handleApplyFilters}
-                  className="flex-1 rounded-lg bg-healthy/100 px-3 py-1.5 text-[11px] font-semibold text-healthy-foreground hover:bg-healthy transition-colors"
+                  className="flex-1 rounded-lg bg-healthy/100 px-3 py-1.5 text-2xs font-semibold text-healthy-foreground hover:bg-healthy transition-colors"
                 >
                   Aplicar filtros
                 </button>
                 {activeFilterCount > 0 && (
                   <button
                     onClick={handleClearFilters}
-                    className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/20 transition-colors"
+                    className="rounded-lg border border-border px-3 py-1.5 text-2xs font-medium text-muted-foreground hover:text-foreground hover:border-foreground/20 transition-colors"
                   >
                     Limpar
                   </button>
@@ -1054,11 +1054,11 @@ export default function CrmInbox({
                   weight="bold"
                   className="h-3.5 w-3.5 text-warning-ink"
                 />
-                <span className="text-[11px] font-semibold text-warning-ink">
+                <span className="text-2xs font-semibold text-warning-ink">
                   Mensagens encontradas
                 </span>
               </div>
-              <span className="text-[11px] text-warning-ink font-medium tabular-nums">
+              <span className="text-2xs text-warning-ink font-medium tabular-nums">
                 {searchTotalItems} conversa{searchTotalItems !== 1 ? "s" : ""}
               </span>
             </div>
@@ -1078,10 +1078,10 @@ export default function CrmInbox({
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5 mb-0.5">
-                        <span className="text-[11px] font-semibold text-muted-foreground truncate">
+                        <span className="text-2xs font-semibold text-muted-foreground truncate">
                           {leadName}
                         </span>
-                        <span className="text-[11px] text-muted-foreground tabular-nums flex-shrink-0">
+                        <span className="text-2xs text-muted-foreground tabular-nums flex-shrink-0">
                           {formatMatchTime(match.created_at)}
                         </span>
                         {match.channel === "voice" ? (
@@ -1096,7 +1096,7 @@ export default function CrmInbox({
                           />
                         )}
                       </div>
-                      <p className="text-[11px] text-foreground leading-snug break-words">
+                      <p className="text-2xs text-foreground leading-snug break-words">
                         <HighlightedText
                           text={
                             match.text.length > 120
@@ -1250,7 +1250,7 @@ export default function CrmInbox({
                         </span>
                         <span
                           className={cn(
-                            "flex-shrink-0 text-[11px] font-medium",
+                            "flex-shrink-0 text-2xs font-medium",
                             hasUnread ? "text-primary-ink" : "text-muted-foreground",
                           )}
                         >
@@ -1270,7 +1270,7 @@ export default function CrmInbox({
                           {truncate(entry.last_message_preview, 60)}
                         </p>
                         {hasUnread && (
-                          <span className="flex h-[18px] min-w-[18px] flex-shrink-0 items-center justify-center rounded-[--radius] bg-healthy px-1 text-[11px] font-semibold text-healthy-foreground">
+                          <span className="flex h-[18px] min-w-[18px] flex-shrink-0 items-center justify-center rounded-[--radius] bg-healthy px-1 text-2xs font-semibold text-healthy-foreground">
                             {entry.unread_count > 99
                               ? "99+"
                               : entry.unread_count}
@@ -1287,7 +1287,7 @@ export default function CrmInbox({
                           {/* status: lifecycle + close provenance when finished */}
                           <span
                             className={cn(
-                              "inline-flex max-w-full items-center gap-1 text-[11px] font-medium",
+                              "inline-flex max-w-full items-center gap-1 text-2xs font-medium",
                               conversationStatusMeta.isSilence
                                 ? "text-warning-ink"
                                 : "text-muted-foreground",
@@ -1316,7 +1316,7 @@ export default function CrmInbox({
                           />
                           {/* stage: pipeline position, refined outlined bubble + color dot */}
                           {entry.stage && (
-                            <span className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-[11px] font-medium text-foreground shadow-sm">
+                            <span className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-2xs font-medium text-foreground shadow-sm">
                               <span
                                 className="h-1.5 w-1.5 flex-shrink-0 rounded-full"
                                 style={{ backgroundColor: entry.stage.color }}
@@ -1327,7 +1327,7 @@ export default function CrmInbox({
                           {entry.labels?.slice(0, 2).map((label) => (
                             <span
                               key={label.label_id}
-                              className="inline-flex items-center rounded-[--radius] px-1.5 py-0.5 text-[11px] font-semibold text-white"
+                              className="inline-flex items-center rounded-[--radius] px-1.5 py-0.5 text-2xs font-semibold text-white"
                               style={{ backgroundColor: label.color }}
                             >
                               {label.name}
@@ -1343,7 +1343,7 @@ export default function CrmInbox({
                                     expandedLabelsEntryId === key ? null : key,
                                   );
                                 }}
-                                className="inline-flex items-center rounded-[--radius] bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground hover:bg-border transition-colors"
+                                className="inline-flex items-center rounded-[--radius] bg-muted px-1.5 py-0.5 text-2xs font-semibold text-muted-foreground hover:bg-border transition-colors"
                               >
                                 +{entry.labels.length - 2}
                               </button>
@@ -1358,14 +1358,14 @@ export default function CrmInbox({
                                     }}
                                   />
                                   <div className="absolute left-0 top-full z-50 mt-1 w-48 rounded-lg border border-border bg-card shadow-lg py-1.5 px-2">
-                                    <div className="px-1 pb-1 text-[11px] font-semibold text-muted-foreground">
+                                    <div className="px-1 pb-1 text-2xs font-semibold text-muted-foreground">
                                       Todos os labels
                                     </div>
                                     <div className="flex flex-wrap gap-1">
                                       {entry.labels.map((label) => (
                                         <span
                                           key={label.label_id}
-                                          className="inline-flex items-center rounded-[--radius] px-1.5 py-0.5 text-[11px] font-semibold text-white"
+                                          className="inline-flex items-center rounded-[--radius] px-1.5 py-0.5 text-2xs font-semibold text-white"
                                           style={{ backgroundColor: label.color }}
                                         >
                                           {label.name}
@@ -1409,7 +1409,7 @@ export default function CrmInbox({
                                       }}
                                     />
                                     <div className="absolute right-0 top-full z-50 mt-1 w-40 rounded-lg border border-border bg-card shadow-lg py-1">
-                                      <div className="px-2 py-1 text-[11px] font-semibold text-muted-foreground">
+                                      <div className="px-2 py-1 text-2xs font-semibold text-muted-foreground">
                                         Mover para
                                       </div>
                                       {availableTags.map((tag) => {
@@ -1434,7 +1434,7 @@ export default function CrmInbox({
                                             }}
                                             disabled={isCurrentTag}
                                             className={cn(
-                                              "flex w-full items-center gap-2 px-2 py-1.5 text-left text-[11px] transition-colors",
+                                              "flex w-full items-center gap-2 px-2 py-1.5 text-left text-2xs transition-colors",
                                               isCurrentTag
                                                 ? "text-muted-foreground cursor-not-allowed"
                                                 : "text-foreground hover:bg-muted",
@@ -1450,7 +1450,7 @@ export default function CrmInbox({
                                               {tag.name}
                                             </span>
                                             {isCurrentTag && (
-                                              <span className="ml-auto text-[11px] text-muted-foreground">
+                                              <span className="ml-auto text-2xs text-muted-foreground">
                                                 atual
                                               </span>
                                             )}
@@ -1484,7 +1484,7 @@ export default function CrmInbox({
 
                       {/* Row 4: who's responsible (+ campaign), explicit and legible, one muted line */}
                       {(entry.assigned_username || entry.campaign_name) && (
-                        <div className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                        <div className="mt-1 flex items-center gap-1.5 text-2xs text-muted-foreground">
                           {entry.assigned_username ? (
                             <span className="inline-flex min-w-0 max-w-[60%] items-center gap-1">
                               <User weight="bold" className="h-3 w-3 flex-shrink-0" />
@@ -1494,7 +1494,7 @@ export default function CrmInbox({
                             </span>
                           ) : null}
                           {entry.assigned_username && entry.campaign_name ? (
-                            <span className="text-muted-foreground/50">·</span>
+                            <span className="text-muted-foreground">·</span>
                           ) : null}
                           {entry.campaign_name ? (
                             <span className="min-w-0 truncate">{entry.campaign_name}</span>
@@ -1514,7 +1514,7 @@ export default function CrmInbox({
                             }}
                           />
                           <div className="absolute right-4 top-10 z-50 w-52 rounded-[--radius] border border-border bg-card shadow-xl py-1 animate-in fade-in slide-in-from-top-1 duration-150">
-                            <div className="px-3 py-1.5 text-[11px] font-semibold text-muted-foreground">
+                            <div className="px-3 py-1.5 text-2xs font-semibold text-muted-foreground">
                               Labels
                             </div>
                             <div className="max-h-52 overflow-y-auto">
@@ -1542,7 +1542,7 @@ export default function CrmInbox({
                                       }
                                       setLabelMenuEntryId(null);
                                     }}
-                                    className="flex w-full items-center gap-2.5 px-3 py-1.5 text-left text-[11px] transition-colors hover:bg-muted"
+                                    className="flex w-full items-center gap-2.5 px-3 py-1.5 text-left text-2xs transition-colors hover:bg-muted"
                                   >
                                     <span
                                       className="h-2.5 w-2.5 rounded-full ring-1 ring-black/5 flex-shrink-0"
@@ -1582,7 +1582,7 @@ export default function CrmInbox({
               animate={{ rotate: 360 }}
               transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
             />
-            <span className="ml-2 text-[11px] text-muted-foreground">
+            <span className="ml-2 text-2xs text-muted-foreground">
               {t.loadingMore}
             </span>
           </div>
@@ -1596,7 +1596,7 @@ export default function CrmInbox({
               animate={{ rotate: 360 }}
               transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
             />
-            <span className="ml-2 text-[11px] text-muted-foreground">
+            <span className="ml-2 text-2xs text-muted-foreground">
               {t.loadingMore}
             </span>
           </div>

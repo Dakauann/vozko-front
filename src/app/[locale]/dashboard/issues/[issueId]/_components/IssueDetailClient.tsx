@@ -355,7 +355,7 @@ export default function IssueDetailClient({ issueId }: IssueDetailClientProps) {
         <div className="max-h-[500px] overflow-y-auto">
           {responses.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center px-6">
-              <Warning className="h-10 w-10 text-muted-foreground/30 mb-3" />
+              <Warning className="h-10 w-10 text-muted-foreground mb-3" />
               <p className="text-sm text-muted-foreground">
                 {t("detail.noResponses")}
               </p>
@@ -437,7 +437,7 @@ export default function IssueDetailClient({ issueId }: IssueDetailClientProps) {
                     "disabled:opacity-50 disabled:cursor-not-allowed",
                   )}
                 />
-                <span className="absolute bottom-2 right-2 text-[11px] text-muted-foreground/50">
+                <span className="absolute bottom-2 right-2 text-2xs text-muted-foreground">
                   {responseBody.length}/2000
                 </span>
               </div>

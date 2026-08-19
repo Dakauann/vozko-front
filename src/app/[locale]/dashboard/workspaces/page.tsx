@@ -122,16 +122,16 @@ function MembersPanel({ workspaceId }: { workspaceId: string }) {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="pb-2 text-[11px] font-semibold text-muted-foreground">
+                  <th className="pb-2 text-2xs font-semibold text-muted-foreground">
                     {t("members.username")}
                   </th>
-                  <th className="pb-2 text-[11px] font-semibold text-muted-foreground">
+                  <th className="pb-2 text-2xs font-semibold text-muted-foreground">
                     {t("members.email")}
                   </th>
-                  <th className="pb-2 text-[11px] font-semibold text-muted-foreground">
+                  <th className="pb-2 text-2xs font-semibold text-muted-foreground">
                     {t("members.role")}
                   </th>
-                  <th className="pb-2 text-[11px] font-semibold text-muted-foreground">
+                  <th className="pb-2 text-2xs font-semibold text-muted-foreground">
                     {t("members.joined")}
                   </th>
                 </tr>
@@ -154,7 +154,7 @@ function MembersPanel({ workspaceId }: { workspaceId: string }) {
                     <td className="py-2">
                       <span
                         className={cn(
-                          "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold",
+                          "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-2xs font-semibold",
                           member.role === "owner"
                             ? "bg-muted text-muted-foreground"
                             : member.role === "admin"
@@ -332,7 +332,7 @@ export default function AdminWorkspacesPage() {
                   ws.ownerId.slice(0, 8) + "..."}
               </p>
               {owners[ws.ownerId]?.email && (
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-2xs text-muted-foreground">
                   {owners[ws.ownerId].email}
                 </p>
               )}
@@ -374,12 +374,12 @@ export default function AdminWorkspacesPage() {
         key: "type",
         render: (ws) =>
           ws.isDefault ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-warning px-2 py-0.5 text-[11px] font-semibold text-warning-foreground">
+            <span className="inline-flex items-center gap-1 rounded-full bg-warning px-2 py-0.5 text-2xs font-semibold text-warning-foreground">
               <Star className="h-3 w-3" weight="fill" />
               {t("badge.default")}
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+            <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-2xs font-semibold text-muted-foreground">
               {t("badge.custom")}
             </span>
           ),
@@ -407,7 +407,7 @@ export default function AdminWorkspacesPage() {
                 </p>
                 <span
                   className={cn(
-                    "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-[11px] font-semibold",
+                    "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-2xs font-semibold",
                     isActive
                       ? "bg-healthy text-healthy-foreground"
                       : ws.subscriptionStatus === "cancelled"

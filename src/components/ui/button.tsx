@@ -37,7 +37,7 @@ const buttonVariants = cva(
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
     // Disabled is a flat neutral chip: no fill, no elevation, no lift. Leaving
     // the shadow on a disabled button is what keeps it looking pressable.
-    "disabled:pointer-events-none disabled:translate-y-0 disabled:border disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none",
+    "disabled:pointer-events-none disabled:border disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none",
     "[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   ),
   {
@@ -45,18 +45,18 @@ const buttonVariants = cva(
       variant: {
         primary: cn(
           "bg-primary text-primary-foreground shadow-button",
-          "hover:-translate-y-px hover:bg-[hsl(var(--primary-hover))] hover:shadow-button-hover",
-          "active:translate-y-0 active:bg-[hsl(var(--primary-active))] active:shadow-button",
+          "hover:bg-[hsl(var(--primary-hover))] hover:shadow-button-hover",
+          "active:bg-[hsl(var(--primary-active))] active:shadow-button",
         ),
         destructive: cn(
           "bg-destructive text-destructive-foreground shadow-button",
-          "hover:-translate-y-px hover:brightness-95 hover:shadow-button-hover",
-          "active:translate-y-0 active:brightness-90 active:shadow-button",
+          "hover:brightness-95 hover:shadow-button-hover",
+          "active:brightness-90 active:shadow-button",
         ),
         secondary: cn(
           "bg-card text-foreground shadow-quiet",
-          "hover:-translate-y-px hover:shadow-quiet-hover",
-          "active:translate-y-0 active:bg-muted active:shadow-quiet",
+          "hover:shadow-quiet-hover",
+          "active:bg-muted active:shadow-quiet",
         ),
         outline: cn(
           "border border-border-strong bg-transparent text-foreground",

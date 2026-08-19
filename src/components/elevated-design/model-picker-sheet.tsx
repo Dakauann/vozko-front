@@ -259,7 +259,7 @@ function ModelRow({
             {formatPrice(model.promptPrice)}
             <span className="ml-1 font-normal text-muted-foreground">/M in</span>
           </p>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-2xs text-muted-foreground">
             {formatPrice(model.completionPrice)} /M out
           </p>
         </div>
@@ -282,7 +282,7 @@ function ModelRow({
 
 function NewBadge(): ReactNode {
   return (
-    <span className="flex-shrink-0 rounded-[--radius] bg-muted px-1.5 py-0.5 text-[11px] font-semibold leading-none text-primary-ink">
+    <span className="flex-shrink-0 rounded-[--radius] bg-muted px-1.5 py-0.5 text-2xs font-semibold leading-none text-primary-ink">
       Novo
     </span>
   );

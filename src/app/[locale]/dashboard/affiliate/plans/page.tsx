@@ -215,7 +215,7 @@ export default function AffiliatePlansPage() {
             <section className="space-y-6 rounded-[--radius] border border-border bg-card p-5 sm:p-6">
               <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-[11px] font-semibold text-primary-ink">
+                  <p className="text-2xs font-semibold text-primary-ink">
                     {plansT("subscription.availableBadge")}
                   </p>
                   <h2 className="mt-1 text-xl font-semibold text-foreground">

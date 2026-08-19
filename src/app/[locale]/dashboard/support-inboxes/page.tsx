@@ -237,7 +237,7 @@ export default function SupportInboxesPage() {
             : {
                 icon: (
                   <Headset
-                    className="h-7 w-7 text-muted-foreground/40"
+                    className="h-7 w-7 text-muted-foreground"
                     weight="fill"
                   />
                 ),

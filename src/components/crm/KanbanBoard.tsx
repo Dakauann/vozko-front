@@ -261,7 +261,7 @@ export default function KanbanBoard<T>({
                   <button
                     type="button"
                     onClick={() => onAddCard(col.id)}
-                    className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-border py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary-ink"
+                    className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-border py-1.5 text-2xs font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary-ink"
                   >
                     <Plus weight="bold" className="h-3 w-3" />
                     {addLabel}
@@ -328,7 +328,7 @@ export default function KanbanBoard<T>({
                     exit={{ opacity: 0 }}
                     className="flex items-center justify-center py-8"
                   >
-                    <span className="text-[11px] italic text-muted-foreground">{emptyLabel}</span>
+                    <span className="text-2xs italic text-muted-foreground">{emptyLabel}</span>
                   </motion.div>
                 ) : null}
               </AnimatePresence>

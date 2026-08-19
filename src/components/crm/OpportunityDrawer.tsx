@@ -378,7 +378,7 @@ export default function OpportunityDrawer({
               <div>
                 <label className="pl-1 text-sm font-medium text-foreground">Responsável</label>
                 <div className="mt-1.5 flex items-center gap-2 rounded-lg border border-border bg-muted px-3 py-2 text-sm text-muted-foreground">
-                  <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-semibold uppercase text-foreground">
+                  <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-muted text-2xs font-semibold uppercase text-foreground">
                     {(memberOptions.find((m) => m.value === ownerId)?.label ?? "?").charAt(0)}
                   </span>
                   <span className="truncate">
@@ -408,7 +408,7 @@ export default function OpportunityDrawer({
 
           {customFields.length > 0 ? (
             <div className="space-y-4 border-t border-border pt-4">
-              <p className="text-[11px] font-semibold text-muted-foreground">
+              <p className="text-2xs font-semibold text-muted-foreground">
                 Campos personalizados
               </p>
               {customFields.map((f) => (
@@ -485,7 +485,7 @@ function LinkedConversations({
 
   return (
     <div className="space-y-2 border-t border-border pt-4">
-      <p className="text-[11px] font-semibold text-muted-foreground">
+      <p className="text-2xs font-semibold text-muted-foreground">
         Conversas vinculadas
       </p>
       {links.length === 0 ? (
@@ -505,7 +505,7 @@ function LinkedConversations({
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-medium text-foreground">{m.label}</p>
-                <p className="truncate font-mono text-[11px] text-muted-foreground">{l.entryId}</p>
+                <p className="truncate font-mono text-2xs text-muted-foreground">{l.entryId}</p>
               </div>
               <a
                 href={`/dashboard/live-chat?entry=${encodeURIComponent(l.entryId)}`}

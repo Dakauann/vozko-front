@@ -7,13 +7,20 @@ import { apiClient } from '@/lib/api/browser-client';
 // preset: a filter + groupBy (+ sort/columns/visibility) that the workspace can
 // switch between. `filter` is the crmfilter JSON object (not base64) since it
 // travels in the request body, not the query string.
+/**
+ * What a view targets. Wider than PipelineObjectType because a lead list has no
+ * pipeline: `lead` views are named segments (a filter + sort + columns), which
+ * is exactly what a saved view already is minus the board axis.
+ */
+export type SavedViewObjectType = PipelineObjectType | 'lead';
+
 export type SavedViewVisibility = 'private' | 'shared' | 'workspace';
 export type SavedViewSortDir = 'asc' | 'desc';
 
 export interface SavedView {
     id: string;
     name: string;
-    objectType: PipelineObjectType;
+    objectType: SavedViewObjectType;
     pipelineId?: string;
     filter: CrmFilter;
     groupBy: string;
@@ -29,7 +36,7 @@ export interface SavedView {
 // owns id/isDefault/position.
 export interface SavedViewInput {
     name: string;
-    objectType: PipelineObjectType;
+    objectType: SavedViewObjectType;
     pipelineId?: string;
     filter: CrmFilter;
     groupBy: string;
@@ -40,7 +47,7 @@ export interface SavedViewInput {
 }
 
 export function listSavedViews(
-    objectType: PipelineObjectType = 'conversation',
+    objectType: SavedViewObjectType = 'conversation',
 ) {
     const qs = objectType ? `?objectType=${encodeURIComponent(objectType)}` : '';
     return apiClient<SavedView[]>(`/saved-views${qs}`, { method: 'GET' });

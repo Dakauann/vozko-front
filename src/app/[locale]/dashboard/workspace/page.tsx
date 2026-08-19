@@ -297,7 +297,7 @@ export default function WorkspaceSettingsPage() {
             <TabsTrigger value="members" className="gap-2">
               <Users className="h-4 w-4" weight="fill" />
               <span className="hidden sm:inline">{t("tabs.members")}</span>
-              <span className="ml-1 rounded-[--radius] bg-primary px-1.5 py-0.5 text-[11px] font-semibold text-primary-foreground">
+              <span className="ml-1 rounded-[--radius] bg-primary px-1.5 py-0.5 text-2xs font-semibold text-primary-foreground">
                 {members.length}
               </span>
             </TabsTrigger>
@@ -305,7 +305,7 @@ export default function WorkspaceSettingsPage() {
               <Envelope className="h-4 w-4" weight="fill" />
               <span className="hidden sm:inline">{t("tabs.invites")}</span>
               {pendingInvitesCount > 0 && (
-                <span className="ml-1 rounded-full bg-warning px-1.5 py-0.5 text-[11px] font-semibold text-warning-foreground">
+                <span className="ml-1 rounded-full bg-warning px-1.5 py-0.5 text-2xs font-semibold text-warning-foreground">
                   {pendingInvitesCount}
                 </span>
               )}
@@ -318,7 +318,7 @@ export default function WorkspaceSettingsPage() {
               <UserGear className="h-4 w-4" weight="fill" />
               <span className="hidden sm:inline">{t("tabs.roles")}</span>
               {customRoles.length > 0 && (
-                <span className="ml-1 rounded-[--radius] bg-healthy px-1.5 py-0.5 text-[11px] font-semibold text-healthy-foreground">
+                <span className="ml-1 rounded-[--radius] bg-healthy px-1.5 py-0.5 text-2xs font-semibold text-healthy-foreground">
                   {customRoles.length}
                 </span>
               )}
@@ -567,7 +567,7 @@ function MembersTab({
       {filteredMembers.length === 0 ? (
         <ElevatedContainer className="!border-dashed !bg-muted !p-10 text-center">
           <Users
-            className="mx-auto h-10 w-10 text-muted-foreground/30"
+            className="mx-auto h-10 w-10 text-muted-foreground"
             weight="fill"
           />
           <p className="mt-3 text-sm text-muted-foreground">
@@ -611,7 +611,7 @@ function MembersTab({
                           {member.username || member.email}
                         </p>
                         {isCurrentUser && (
-                          <span className="rounded-[--radius] bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">
+                          <span className="rounded-[--radius] bg-primary px-2 py-0.5 text-2xs font-semibold text-primary-foreground">
                             {t("you", { fallback: "You" })}
                           </span>
                         )}
@@ -989,7 +989,7 @@ function InvitesTab({
                         className="h-4 w-4 text-primary-ink mt-0.5 flex-shrink-0"
                         weight="fill"
                       />
-                      <p className="text-[11px] text-primary-ink leading-relaxed">
+                      <p className="text-2xs text-primary-ink leading-relaxed">
                         {t("adminRoleHint")}
                       </p>
                     </div>
@@ -1014,7 +1014,7 @@ function InvitesTab({
                               <h4 className="text-sm font-semibold text-foreground">
                                 {t("customRoles.createRole")}
                               </h4>
-                              <p className="text-[11px] text-muted-foreground">
+                              <p className="text-2xs text-muted-foreground">
                                 {t("customRoles.description")}
                               </p>
                             </div>
@@ -1106,7 +1106,7 @@ function InvitesTab({
                             />
                             <div className="flex items-center gap-2">
                               {hasAnyPermissions && (
-                                <span className="text-[11px] text-muted-foreground">
+                                <span className="text-2xs text-muted-foreground">
                                   {t("customRoles.permissionCount", {
                                     count: getPermissionEntries().length,
                                   })}
@@ -1237,7 +1237,7 @@ function InvitesTab({
       {pendingInvites.length === 0 ? (
         <ElevatedContainer className="!border-dashed !bg-muted !p-10 text-center">
           <Envelope
-            className="mx-auto h-10 w-10 text-muted-foreground/30"
+            className="mx-auto h-10 w-10 text-muted-foreground"
             weight="fill"
           />
           <p className="mt-3 text-sm text-muted-foreground">
@@ -1278,7 +1278,7 @@ function InvitesTab({
                         onClick={() =>
                           setExpandedInvite(isExpanded ? null : invite.id)
                         }
-                        className="inline-flex items-center gap-1 rounded-[--radius] bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground hover:bg-primary/80 transition-colors"
+                        className="inline-flex items-center gap-1 rounded-[--radius] bg-primary px-2 py-0.5 text-2xs font-semibold text-primary-foreground hover:bg-primary/80 transition-colors"
                       >
                         <ShieldCheck className="h-3 w-3" weight="fill" />
                         {permCount} {t("permissionsLabel").toLowerCase()}
@@ -1331,19 +1331,19 @@ function InvitesTab({
                         className="overflow-hidden"
                       >
                         <div className="border-t border-border bg-muted px-4 py-3">
-                          <p className="text-[11px] font-semibold text-muted-foreground mb-2">
+                          <p className="text-2xs font-semibold text-muted-foreground mb-2">
                             {t("preConfiguredPermissions")}
                           </p>
                           <div className="flex flex-wrap gap-1.5">
                             {invite.permissions.map((p, idx) => (
                               <span
                                 key={`${p.resource}-${p.action}-${idx}`}
-                                className="inline-flex items-center gap-1 rounded-lg bg-card border border-border px-2 py-1 text-[11px] font-medium text-muted-foreground"
+                                className="inline-flex items-center gap-1 rounded-lg bg-card border border-border px-2 py-1 text-2xs font-medium text-muted-foreground"
                               >
                                 <span className="text-primary-ink font-semibold">
                                   {t(`resources.${p.resource}`)}
                                 </span>
-                                <span className="text-muted-foreground/50">
+                                <span className="text-muted-foreground">
                                   &middot;
                                 </span>
                                 <span>{t(`actions.${p.action}`)}</span>
@@ -1542,7 +1542,7 @@ function PermissionsTab({
     return (
       <ElevatedContainer className="!border-dashed !bg-muted !p-10 text-center">
         <Shield
-          className="mx-auto h-10 w-10 text-muted-foreground/30"
+          className="mx-auto h-10 w-10 text-muted-foreground"
           weight="fill"
         />
         <p className="mt-3 text-sm text-muted-foreground">
@@ -1560,7 +1560,7 @@ function PermissionsTab({
     return (
       <ElevatedContainer className="!border-dashed !bg-muted !p-10 text-center">
         <Users
-          className="mx-auto h-10 w-10 text-muted-foreground/30"
+          className="mx-auto h-10 w-10 text-muted-foreground"
           weight="fill"
         />
         <p className="mt-3 text-sm text-muted-foreground">{t("noEmployees")}</p>
@@ -1972,7 +1972,7 @@ function PermissionsTab({
         memberSearch && (
           <ElevatedContainer className="!border-dashed !bg-muted !p-10 text-center">
             <Users
-              className="mx-auto h-10 w-10 text-muted-foreground/30"
+              className="mx-auto h-10 w-10 text-muted-foreground"
               weight="fill"
             />
             <p className="mt-3 text-sm text-muted-foreground">
@@ -1986,7 +1986,7 @@ function PermissionsTab({
         !memberSearch && (
           <ElevatedContainer className="!border-dashed !bg-muted !p-8 text-center">
             <Users
-              className="mx-auto h-8 w-8 text-muted-foreground/30"
+              className="mx-auto h-8 w-8 text-muted-foreground"
               weight="fill"
             />
             <p className="mt-2 text-xs text-muted-foreground">
@@ -2223,7 +2223,7 @@ function RolesTab({
               />
               <div className="flex items-center gap-2">
                 {hasAnyPermissions && (
-                  <span className="text-[11px] text-muted-foreground">
+                  <span className="text-2xs text-muted-foreground">
                     {t("customRoles.permissionCount", {
                       count: getPermissionEntries().length,
                     })}
@@ -2262,7 +2262,7 @@ function RolesTab({
       {customRoles.length === 0 ? (
         <ElevatedContainer className="!border-dashed !bg-muted !p-10 text-center">
           <UserGear
-            className="mx-auto h-10 w-10 text-muted-foreground/30"
+            className="mx-auto h-10 w-10 text-muted-foreground"
             weight="fill"
           />
           <p className="mt-3 text-sm font-medium text-muted-foreground">
@@ -2296,7 +2296,7 @@ function RolesTab({
                       </p>
                     )}
                     <div className="flex items-center gap-3 mt-1">
-                      <span className="text-[11px] text-muted-foreground">
+                      <span className="text-2xs text-muted-foreground">
                         {t("customRoles.permissionCount", {
                           count: role.permissions.length,
                         })}
@@ -2666,7 +2666,7 @@ function DepartmentsTab({
       {departments.length === 0 ? (
         <ElevatedContainer className="!border-dashed !bg-muted !p-10 text-center">
           <TreeStructure
-            className="mx-auto h-10 w-10 text-muted-foreground/30"
+            className="mx-auto h-10 w-10 text-muted-foreground"
             weight="fill"
           />
           <p className="mt-3 text-sm font-medium text-muted-foreground">
@@ -2764,7 +2764,7 @@ function DepartmentsTab({
                               {dept.description}
                             </p>
                           )}
-                          <span className="text-[11px] text-muted-foreground">
+                          <span className="text-2xs text-muted-foreground">
                             {t("departments.memberCount", {
                               count: dept.memberCount ?? 0,
                             })}
@@ -2886,7 +2886,7 @@ function DepartmentsTab({
                                           <span className="flex-1 truncate">
                                             {m.username || m.email}
                                           </span>
-                                          <span className="text-[11px] text-muted-foreground">
+                                          <span className="text-2xs text-muted-foreground">
                                             {m.email}
                                           </span>
                                           <Plus
@@ -2957,7 +2957,7 @@ function DepartmentsTab({
                                           dm.memberId}
                                       </p>
                                       {wsMember?.email && (
-                                        <p className="text-[11px] text-muted-foreground truncate">
+                                        <p className="text-2xs text-muted-foreground truncate">
                                           {wsMember.email}
                                         </p>
                                       )}

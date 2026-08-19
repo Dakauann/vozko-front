@@ -282,7 +282,7 @@ function MetricCard({
     >
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold text-muted-foreground">
+          <p className="text-2xs font-semibold text-muted-foreground">
             {label}
           </p>
           <div className="mt-2 min-w-0 text-base font-semibold text-foreground">
@@ -517,7 +517,7 @@ function ToolCard({
         </span>
         <span className="flex shrink-0 items-center gap-2">
           {hasConfig ? (
-            <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-healthy px-2.5 py-1 text-[11px] font-semibold text-healthy-foreground">
+            <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-healthy px-2.5 py-1 text-2xs font-semibold text-healthy-foreground">
               <Gear weight="fill" className="h-3 w-3" />
               Configurado
             </span>

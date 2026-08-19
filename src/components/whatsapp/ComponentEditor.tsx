@@ -404,7 +404,7 @@ function BodyEditor({
       {variables.length > 0 && (
         <div className="bg-muted border border-border rounded-lg p-3"data-tour="wt-body-variables">
           <h4 className="text-xs font-semibold text-warning-ink mb-2 flex items-center gap-1">
-            <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-muted text-[11px] font-semibold text-warning-ink">
+            <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-muted text-2xs font-semibold text-warning-ink">
               !
             </span>
             {t("body.examplesRequired.title")}

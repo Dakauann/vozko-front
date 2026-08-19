@@ -444,7 +444,7 @@ export default function WorkflowsPage() {
             <GitBranch
               size={48}
               weight="duotone"
-              className="text-muted-foreground/50"
+              className="text-muted-foreground"
             />
           ),
           title: t("empty.title"),

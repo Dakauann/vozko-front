@@ -1,3 +1,4 @@
+import { humanizeMessageKey, reportMessageError } from './fallback';
 import { getRequestConfig } from 'next-intl/server';
 import { routing } from './routing';
 import { getBrand } from '@/config/brand';
@@ -41,18 +42,12 @@ export default getRequestConfig(async ({ requestLocale }) => {
     return {
         locale,
         messages: applyBrand(messages),
-        onError(error) {
-            // Missing/invalid messages must never crash a page; log outside prod.
-            if (process.env.NODE_ENV !== 'production') {
-                console.error(error);
-            }
-        },
+        onError: reportMessageError,
+        // Shared with the CLIENT provider. Having two copies is how the client
+        // ended up with none, which is why operators saw dotted key paths in the
+        // parts of the app that are almost entirely client components.
         getMessageFallback({ key }) {
-            // Never render dotted key paths in the UI: fall back to a humanized
-            // last segment (e.g. "sidebar.families.campaigns" -> "Campaigns").
-            const last = key.split('.').pop() ?? key;
-            const spaced = last.replace(/([a-z0-9])([A-Z])/g, '$1 $2');
-            return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+            return humanizeMessageKey(key);
         },
     };
 });

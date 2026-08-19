@@ -70,14 +70,14 @@ export function TelegramBusinessPanel({ account }: { account: TelegramAccount })
           <ol className="space-y-2.5">
             {[t("step1"), t("step2"), t("step3"), t("step4")].map((step, i) => (
               <li key={i} className="flex gap-2.5 text-xs leading-relaxed text-muted-foreground">
-                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-semibold text-foreground">
+                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-muted text-2xs font-semibold text-foreground">
                   {i + 1}
                 </span>
                 <span className="pt-0.5">
                   {i === 2 && account.botUsername ? (
                     <>
                       {step}{" "}
-                      <code className="rounded bg-muted px-1 py-0.5 font-mono text-[11px] text-foreground">
+                      <code className="rounded bg-muted px-1 py-0.5 font-mono text-2xs text-foreground">
                         @{account.botUsername}
                       </code>
                     </>

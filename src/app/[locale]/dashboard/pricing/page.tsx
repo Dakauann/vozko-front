@@ -330,7 +330,7 @@ export default function AdminPricingPage() {
                       <Scales className="h-5 w-5" weight="fill" />
                     </div>
                     <div>
-                      <p className="text-[11px] font-medium text-muted-foreground">
+                      <p className="text-2xs font-medium text-muted-foreground">
                         {t("defaults.rateBannerLabel")}
                       </p>
                       <p className="text-sm font-semibold tabular-nums text-foreground">
@@ -381,13 +381,13 @@ export default function AdminPricingPage() {
                       <table className="w-full text-left">
                         <thead>
                           <tr className="border-b border-border">
-                            <th className="px-6 py-3 text-[11px] font-semibold text-muted-foreground">
+                            <th className="px-6 py-3 text-2xs font-semibold text-muted-foreground">
                               {t("table.service")}
                             </th>
-                            <th className="px-6 py-3 text-[11px] font-semibold text-muted-foreground">
+                            <th className="px-6 py-3 text-2xs font-semibold text-muted-foreground">
                               {t("table.metric")}
                             </th>
-                            <th className="px-6 py-3 text-[11px] font-semibold text-muted-foreground text-right">
+                            <th className="px-6 py-3 text-2xs font-semibold text-muted-foreground text-right">
                               {t("table.priceBrl")}
                             </th>
                             <th className="px-4 py-3 w-12" />
@@ -477,7 +477,7 @@ export default function AdminPricingPage() {
                                       </div>
                                       {rateNumber != null &&
                                       parseAmount(editValueBrl) != null ? (
-                                        <p className="text-[11px] tabular-nums text-muted-foreground">
+                                        <p className="text-2xs tabular-nums text-muted-foreground">
                                           ≈{" "}
                                           {formatUsdCurrency(
                                             microsToUsdNumber(
@@ -497,7 +497,7 @@ export default function AdminPricingPage() {
                                         {brlDisplay ?? usdDisplay}
                                       </span>
                                       {brlDisplay ? (
-                                        <p className="text-[11px] tabular-nums text-muted-foreground">
+                                        <p className="text-2xs tabular-nums text-muted-foreground">
                                           ≈ {usdDisplay}
                                         </p>
                                       ) : null}
@@ -563,7 +563,7 @@ export default function AdminPricingPage() {
               {exchangeRate ? (
                 <div className="space-y-4">
                   <div>
-                    <p className="text-[11px] text-muted-foreground font-medium">
+                    <p className="text-2xs text-muted-foreground font-medium">
                       {t("exchangeRate.currentRate")}
                     </p>
                     <p className="text-2xl font-semibold text-foreground tabular-nums">
@@ -572,7 +572,7 @@ export default function AdminPricingPage() {
                   </div>
 
                   <div className="pt-2 border-t border-border">
-                    <p className="text-[11px] text-muted-foreground font-medium">
+                    <p className="text-2xs text-muted-foreground font-medium">
                       {t("exchangeRate.updatedAt")}
                     </p>
                     <p className="text-xs text-muted-foreground">
@@ -755,7 +755,7 @@ export default function AdminPricingPage() {
                                           ),
                                         )}
                                       </p>
-                                      <p className="text-[11px]">
+                                      <p className="text-2xs">
                                         ≈{" "}
                                         {formatUsdCurrency(
                                           microsToUsdNumber(
@@ -787,7 +787,7 @@ export default function AdminPricingPage() {
                                           ),
                                         )}
                                       </p>
-                                      <p className="text-[11px] font-normal text-muted-foreground">
+                                      <p className="text-2xs font-normal text-muted-foreground">
                                         ≈{" "}
                                         {formatUsdCurrency(
                                           microsToUsdNumber(

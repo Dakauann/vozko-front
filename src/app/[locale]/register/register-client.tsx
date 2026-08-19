@@ -410,7 +410,7 @@ export default function RegisterClient() {
               <h1 className="text-3xl font-semibold text-foreground tracking-tight">
                 {t("header.title")}
               </h1>
-              <p className="mt-3 text-muted-foreground text-[15px]">
+              <p className="mt-3 text-muted-foreground text-base">
                 {t("header.description")}
               </p>
             </div>

@@ -146,6 +146,26 @@ interface NormalizedTransaction {
   created_at: string;
 }
 
+/**
+ * Which label a charge should carry.
+ *
+ * Single-target template sends share the `whatsapp_campaign` service type on
+ * purpose — the WhatsApp charge rollup keys on it, and splitting the type would
+ * silently drop those charges out of every existing report. But an operator
+ * reading their statement is not being told about a campaign they never ran, so
+ * the label is refined by the reference instead.
+ *
+ * The `waba:` prefix is what makes that safe: it is server-minted for exactly
+ * this purpose and provably cannot collide with a campaign id.
+ */
+function serviceLabelKeyFor(row: { service_type: string; reference_id?: string }): string {
+  const reference = row.reference_id ?? "";
+  if (reference.startsWith("waba:") || reference.startsWith("refund:waba:")) {
+    return "whatsapp_outreach";
+  }
+  return row.service_type;
+}
+
 
 export default function BalancePage() {
   const t = useTranslations("balancePage");
@@ -318,7 +338,7 @@ export default function BalancePage() {
               )}
             >
               <Icon className="h-3.5 w-3.5" weight="bold" />
-              {t(`serviceType.${row.service_type}`, {
+              {t(`serviceType.${serviceLabelKeyFor(row)}`, {
                 defaultValue: row.service_type.replace(/_/g, " "),
               } as never)}
             </span>
@@ -659,7 +679,7 @@ export default function BalancePage() {
               : {
                   icon: (
                     <Wallet
-                      className="h-7 w-7 text-muted-foreground/40"
+                      className="h-7 w-7 text-muted-foreground"
                       weight="duotone"
                     />
                   ),
