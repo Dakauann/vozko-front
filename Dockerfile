@@ -73,8 +73,11 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Create non-root user for security
 RUN adduser --system --uid 1001 nextjs
 
-# Copy public assets
+# Copy public assets. Normalize modes: COPY preserves the build context's
+# permission bits, so a restrictive host umask (e.g. 0027) would otherwise ship
+# root-owned 0750 dirs that the non-root runtime user cannot scandir at startup.
 COPY --from=builder /app/public ./public
+RUN chmod -R a+rX ./public
 
 # Set correct permissions for prerender cache and image cache
 RUN mkdir -p .next/cache/images && chown -R nextjs:bun .next
