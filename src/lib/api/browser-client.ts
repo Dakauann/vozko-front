@@ -45,6 +45,23 @@ export interface ApiResult<T> {
  */
 const AUTH_TIMEOUT_MS = 10_000;
 
+/**
+ * Uploads get their own budget, because the reasoning above does not apply to
+ * them.
+ *
+ * AUTH_TIMEOUT_MS exists to stop a stalled *auth* call from wedging the UI, and
+ * it was being applied to every apiClient call uniformly, including multipart
+ * uploads. The knowledge-base endpoint accepts up to 200MB across up to 120
+ * files, and the uploader puts every selected file into ONE request, so a
+ * perfectly healthy upload of a couple of megabytes on a domestic uplink
+ * routinely needs more than ten seconds. It was aborted client-side, before
+ * anything reached the API, and surfaced only as a bare "Failed to fetch".
+ *
+ * Still bounded, not unlimited: a genuinely dead connection must not pin
+ * isLoading forever, which is the whole point of the timeout.
+ */
+const UPLOAD_TIMEOUT_MS = 10 * 60_000;
+
 function timeoutSignal(ms: number): { signal: AbortSignal; clear: () => void } {
   const controller = new AbortController();
   const id = setTimeout(
@@ -247,7 +264,7 @@ export async function apiClient<T>(
     // Bound the request so a stalled connection can't pin isLoading forever.
     // A caller-supplied signal (e.g. an SSE stream that owns its own lifetime)
     // takes precedence over the default timeout.
-    const t = timeoutSignal(AUTH_TIMEOUT_MS);
+    const t = timeoutSignal(isFormData ? UPLOAD_TIMEOUT_MS : AUTH_TIMEOUT_MS);
     return fetch(url, {
       ...options,
       credentials: "include",
