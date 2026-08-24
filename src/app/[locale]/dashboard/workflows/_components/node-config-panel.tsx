@@ -4019,6 +4019,11 @@ function buildAvailableVariables(
     label: "Sistema",
     vars: [
       { template: "{{message}}", description: "Texto da mensagem recebida" },
+      {
+        template: "{{contact_number}}",
+        description:
+          "Telefone do contato (WhatsApp) ou ID do chat (Telegram/Instagram)",
+      },
       { template: "{{sys.date}}", description: "Data atual (YYYY-MM-DD)" },
       { template: "{{sys.time}}", description: "Hora atual (HH:MM:SS)" },
       { template: "{{sys.timestamp}}", description: "Timestamp Unix" },
