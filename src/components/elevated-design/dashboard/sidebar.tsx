@@ -435,7 +435,10 @@ export const campanhasNavItems: NavItem[] = [
         icon: LinkSimple,
         labelKey: "nav.connectInstagram",
         href: "/dashboard/instagram-accounts/connect",
-        requiredPermission: { resource: "instagram_accounts", action: "create" },
+        requiredPermission: {
+          resource: "instagram_accounts",
+          action: "create",
+        },
       },
     ],
   },
@@ -478,13 +481,19 @@ export const campanhasNavItems: NavItem[] = [
         icon: ClipboardText,
         labelKey: "nav.unofficialWhatsappNumbers",
         href: "/dashboard/unofficial-whatsapp",
-        requiredPermission: { resource: "unofficial_whatsapp_instances", action: "read" },
+        requiredPermission: {
+          resource: "unofficial_whatsapp_instances",
+          action: "read",
+        },
       },
       {
         icon: LinkSimple,
         labelKey: "nav.connectUnofficialWhatsapp",
         href: "/dashboard/unofficial-whatsapp/connect",
-        requiredPermission: { resource: "unofficial_whatsapp_instances", action: "create" },
+        requiredPermission: {
+          resource: "unofficial_whatsapp_instances",
+          action: "create",
+        },
       },
     ],
   },
@@ -764,7 +773,8 @@ function ProductSwitcher({
   onProductChange,
   isExpanded,
   t,
-  products }: {
+  products,
+}: {
   currentProduct: Product;
   onProductChange: (product: Product) => void;
   isExpanded: boolean;
@@ -900,7 +910,7 @@ function ProductSwitcher({
                 </button>
               );
             })}
-          </>
+          </>,
         )}
       </div>
     );
@@ -950,9 +960,7 @@ function ProductSwitcher({
                 }}
                 className={cn(
                   "flex w-full items-center gap-2 px-2 py-2 text-left transition-colors",
-                  isSelected
-                    ? "bg-primary-subtle"
-                    : "hover:bg-muted",
+                  isSelected ? "bg-primary-subtle" : "hover:bg-muted",
                 )}
               >
                 <span
@@ -988,7 +996,7 @@ function ProductSwitcher({
               </button>
             );
           })}
-        </>
+        </>,
       )}
     </div>
   );
@@ -1004,10 +1012,13 @@ const mobileContainerVariants: Variants = {
   hidden: { x: "-100%" },
   visible: {
     x: 0,
-    transition: { duration: 0.16, ease: [0.2, 0, 0, 1] } },
+    transition: { duration: 0.16, ease: [0.2, 0, 0, 1] },
+  },
   exit: {
     x: "-100%",
-    transition: { duration: 0.12, ease: [0.2, 0, 0, 1] } } };
+    transition: { duration: 0.12, ease: [0.2, 0, 0, 1] },
+  },
+};
 
 function NavItemComponent({
   item,
@@ -1020,7 +1031,8 @@ function NavItemComponent({
   isAdmin = false,
   can,
   canAny,
-  parentFamily }: {
+  parentFamily,
+}: {
   item: NavItem;
   isExpanded: boolean;
   depth?: number;
@@ -1060,18 +1072,18 @@ function NavItemComponent({
   */
 
   const handleClick = (e: React.MouseEvent) => {
-    if (item.children) {
+    if (item.children && isExpanded) {
       e.preventDefault();
       onToggle(item.href);
     }
   };
-
   const effectiveFamily = item.family ?? parentFamily;
   const isLit = Boolean(isActive || hasActiveChild);
 
   return (
     <div className="w-full">
       <Link
+        // gets the first clickable item, normally list
         href={item.href}
         prefetch={false}
         aria-current={isActive ? "page" : undefined}
@@ -1103,13 +1115,13 @@ function NavItemComponent({
             <span
               className="flex min-w-0 flex-1 items-center gap-2"
               style={{
-                paddingLeft: depth > 0 ? `${depth * 0.625}rem` : undefined }}
+                paddingLeft: depth > 0 ? `${depth * 0.625}rem` : undefined,
+              }}
             >
               {React.createElement(item.icon, {
-                className: cn(
-                  "size-4 shrink-0",
-                ),
-                weight: "regular" })}
+                className: cn("size-4 shrink-0"),
+                weight: "regular",
+              })}
 
               <span
                 className={cn(
@@ -1147,7 +1159,8 @@ function NavItemComponent({
             />
             {React.createElement(item.icon, {
               className: "size-4 shrink-0",
-              weight: "regular" })}
+              weight: "regular",
+            })}
           </span>
         )}
       </Link>
@@ -1160,7 +1173,8 @@ function NavItemComponent({
             exit={{ height: 0, opacity: 0 }}
             transition={{
               duration: motionEnabled ? 0.2 : 0,
-              ease: [0.1, 0.9, 0.2, 1] }}
+              ease: [0.1, 0.9, 0.2, 1],
+            }}
             className="overflow-hidden"
           >
             {/* An engraved runner, not a coloured rail: children hang off the
@@ -1266,7 +1280,8 @@ function GroupedNavItems({
   t,
   isAdmin,
   can,
-  canAny }: {
+  canAny,
+}: {
   items: NavItem[];
   isExpanded: boolean;
   onToggle: (href: string) => void;
@@ -1323,7 +1338,8 @@ function GroupedNavItems({
                 >
                   {familyBrandIcon[group.family] &&
                     React.createElement(familyBrandIcon[group.family], {
-                      className: "h-3 w-3 flex-shrink-0" })}
+                      className: "h-3 w-3 flex-shrink-0",
+                    })}
                   {/* min-w-0 is what makes `truncate` actually shrink inside a
                       flex row. Without it the name holds its full width and a
                       longer badge than "Oficial" — "Não oficial", "Inoffiziell" —
@@ -1369,7 +1385,8 @@ function GroupedNavItems({
                   exit={{ height: 0, opacity: 0 }}
                   transition={{
                     duration: motionEnabled ? 0.2 : 0,
-                    ease: [0.1, 0.9, 0.2, 1] }}
+                    ease: [0.1, 0.9, 0.2, 1],
+                  }}
                   className="overflow-hidden"
                 >
                   <div className="space-y-px">
@@ -1402,7 +1419,8 @@ export function DashboardSidebar({
   products,
   adminNavItems: adminItems = [],
   translationsNamespace = "sidebar",
-  className }: DashboardSidebarProps) {
+  className,
+}: DashboardSidebarProps) {
   const t = useTranslations(translationsNamespace);
   const pathname = usePathname();
   const { user } = useAuth();
@@ -1446,7 +1464,9 @@ export function DashboardSidebar({
 
   React.useEffect(() => {
     if (!pendingRestoreId.current) return;
-    const saved = visibleProducts.find((p) => p.id === pendingRestoreId.current);
+    const saved = visibleProducts.find(
+      (p) => p.id === pendingRestoreId.current,
+    );
     if (saved) {
       setCurrentProduct(saved);
       pendingRestoreId.current = null;
@@ -1475,8 +1495,6 @@ export function DashboardSidebar({
     const id = requestAnimationFrame(() => setMotionEnabled(true));
     return () => cancelAnimationFrame(id);
   }, []);
-
-
 
   const handleProductSwitch = (product: Product) => {
     setCurrentProduct(product);
