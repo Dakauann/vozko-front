@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Configurações">
+  <title>Configurações</title>
+  <path d="M10.08 4.85 L10.48 2.42 L13.52 2.42 L13.92 4.85 L15.70 5.59 L17.70 4.15 L19.85 6.30 L18.41 8.30 L19.15 10.08 L21.58 10.48 L21.58 13.52 L19.15 13.92 L18.41 15.70 L19.85 17.70 L17.70 19.85 L15.70 18.41 L13.92 19.15 L13.52 21.58 L10.48 21.58 L10.08 19.15 L8.30 18.41 L6.30 19.85 L4.15 17.70 L5.59 15.70 L4.85 13.92 L2.42 13.52 L2.42 10.48 L4.85 10.08 L5.59 8.30 L4.15 6.30 L6.30 4.15 L8.30 5.59 Z"/>
+  <circle stroke="var(--icon-accent, currentColor)" cx="12" cy="12" r="3.2"/>
+</svg>

@@ -41,7 +41,6 @@ import {
   ArrowClockwise,
   TestTube,
   Upload,
-  Sparkle,
   TreeStructure,
   DotsThreeVertical,
   MagnifyingGlass,
@@ -100,7 +99,7 @@ import { SmartBezierEdge, SmartConnectionLine } from "./smart-edge";
 import { useUndoRedo } from "./use-undo-redo";
 import { CanvasContextMenu } from "./canvas-context-menu";
 import { WorkflowTestPanel } from "./workflow-test-panel";
-import { WorkflowCopilotPanel } from "./workflow-copilot-panel";
+import { WorkflowCopilotPanel, WorkflowCopilotFab } from "./workflow-copilot-panel";
 import { layoutCopilotSubgraph, layoutWholeFlow } from "./copilot-layout";
 import { WorkflowAlerts } from "./workflow-alerts";
 import { useWorkflowLint } from "./use-workflow-lint";
@@ -1726,18 +1725,6 @@ export function WorkflowEditor({
 
         <div className="flex-1" />
 
-        <ElevatedButton
-          variant={showCopilot ? "primary" : "outline-subtle"}
-          size="sm"
-          title="Copiloto de IA"
-          icon={<Sparkle size={14} weight="fill" />}
-          iconVisible
-          onClick={() => {
-            setCopilotMounted(true);
-            setShowCopilot((v) => !v);
-          }}
-        />
-
         {workflowState?.id && (
           <ElevatedButton
             variant={showTestPanel ? "primary" : "outline-subtle"}
@@ -1878,7 +1865,7 @@ export function WorkflowEditor({
             maxZoom={1.75}
             elevateNodesOnSelect={false}
             deleteKeyCode={["Backspace", "Delete"]}
-            className="bg-card"
+            className="bg-background"
             defaultEdgeOptions={{
               type: "smartBezier",
               animated: false,
@@ -1888,8 +1875,8 @@ export function WorkflowEditor({
                 height: 16,
               },
               style: {
-                strokeWidth: 1.5,
-                stroke: "hsl(var(--muted-foreground)/0.5)",
+                strokeWidth: 2,
+                stroke: "hsl(var(--border-strong))",
               },
             }}
           >
@@ -1897,7 +1884,7 @@ export function WorkflowEditor({
               variant={BackgroundVariant.Dots}
               gap={20}
               size={1}
-              color={resolvedTheme === "dark" ? "white" : "black"}
+              color="hsl(var(--border-strong))"
             />
             <Controls className="!bg-background !border-border !shadow-md [&>button]:!bg-background [&>button]:!border-border [&>button]:!fill-foreground">
               <ControlButton onClick={tidyUpGraph} title={t("tidyUp")}>
@@ -1907,8 +1894,9 @@ export function WorkflowEditor({
                 <MagnifyingGlass />
               </ControlButton>
             </Controls>
+            {/* Lifted clear of the copilot FAB, which owns the corner. */}
             <MiniMap
-              className="!bg-background !border-border border-black border rounded"
+              className="!bg-background !border-border border rounded !mb-20"
               nodeColor="hsl(var(--primary))"
               maskColor="hsl(var(--muted) / 0.7)"
             />
@@ -1988,6 +1976,35 @@ export function WorkflowEditor({
           )}
         </div>
 
+        {/* Side sheets (z-40) render before the dialogs (z-[70]) so the
+            stacking order is unambiguous: sheets sit on the page layer, the
+            dialogs float above everything with their own scrim. */}
+        {/* Floating assistant: before the first open the editor renders just
+            the FAB (keeps the copilot lazy-mounted); after that the panel owns
+            both states — expanded card, or the same FAB while collapsed. */}
+        {!copilotMounted && (
+          <WorkflowCopilotFab
+            onClick={() => {
+              setCopilotMounted(true);
+              setShowCopilot(true);
+            }}
+          />
+        )}
+        {copilotMounted && (
+          <WorkflowCopilotPanel
+            visible={showCopilot}
+            workflowId={workflowState?.id ?? ""}
+            workflowType={workflowType}
+            onGraph={applyCopilotGraph}
+            onMeta={applyCopilotMeta}
+            getGraph={getCopilotGraph}
+            onClose={() => setShowCopilot(false)}
+            onOpen={() => setShowCopilot(true)}
+          />
+        )}
+
+        {/* Centered dialogs, fixed-position: they take no flex width, so the
+            canvas stays full-bleed behind the scrim. */}
         {selectedNode && (
           <NodeConfigPanel
             node={selectedNode}
@@ -2010,18 +2027,6 @@ export function WorkflowEditor({
               simulation.cancel();
               setShowTestPanel(false);
             }}
-          />
-        )}
-
-        {copilotMounted && (
-          <WorkflowCopilotPanel
-            visible={showCopilot}
-            workflowId={workflowState?.id ?? ""}
-            workflowType={workflowType}
-            onGraph={applyCopilotGraph}
-            onMeta={applyCopilotMeta}
-            getGraph={getCopilotGraph}
-            onClose={() => setShowCopilot(false)}
           />
         )}
       </div>

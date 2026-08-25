@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
-import { motion, type Variants } from "framer-motion";
 import {
   Phone,
   ArrowLeft,
@@ -73,20 +72,6 @@ import { VerificationDialog } from "@/app/[locale]/dashboard/whatsapp-business-p
 import { RegisterPhoneDialog } from "@/app/[locale]/dashboard/whatsapp-business-phones/_components/RegisterPhoneDialog";
 import { ReleasePhoneDialog } from "@/app/[locale]/dashboard/whatsapp-business-phones/_components/ReleasePhoneDialog";
 import { ConfirmActionDialog } from "@/app/[locale]/dashboard/whatsapp-business-phones/_components/ConfirmActionDialog";
-
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.07 } },
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 12 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.35, ease: [0.4, 0, 0.2, 1] },
-  },
-};
 
 /** Quiet, tinted status treatment (not bright solid fills), on brand. */
 function statusTone(status: BusinessPhoneStatus): string {
@@ -467,14 +452,9 @@ export default function BusinessPhoneDetailPage() {
 
   return (
     <div className="mx-auto max-w-5xl p-6">
-      <motion.div
-        className="space-y-6"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
+      <div className="space-y-6">
         {/* Back link */}
-        <motion.div variants={itemVariants}>
+        <div>
           <button
             type="button"
             onClick={() =>
@@ -485,10 +465,10 @@ export default function BusinessPhoneDetailPage() {
             <ArrowLeft className="h-4 w-4" weight="bold" />
             {t("detail.backToList")}
           </button>
-        </motion.div>
+        </div>
 
         {/* Identity + actions header */}
-        <motion.div variants={itemVariants}>
+        <div>
           <ElevatedContainer className="p-6">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex items-start gap-4">
@@ -497,7 +477,7 @@ export default function BusinessPhoneDetailPage() {
                 </div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="text-xl font-semibold text-foreground">
+                    <h1 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground">
                       {phoneLabel}
                     </h1>
                     {phone.isOfficialBusiness && (
@@ -636,10 +616,10 @@ export default function BusinessPhoneDetailPage() {
               )}
             </div>
           </ElevatedContainer>
-        </motion.div>
+        </div>
 
         {/* Details grid */}
-        <motion.div variants={itemVariants}>
+        <div>
           <ElevatedContainer className="p-6">
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
               {/* Status details */}
@@ -748,15 +728,15 @@ export default function BusinessPhoneDetailPage() {
               </div>
             </div>
           </ElevatedContainer>
-        </motion.div>
+        </div>
 
         {/* Business profile */}
-        <motion.div variants={itemVariants}>
+        <div>
           <ElevatedContainer className="p-6">
             <div className="mb-5 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Buildings className="h-5 w-5 text-muted-foreground" />
-                <h3 className="text-base font-semibold text-foreground">
+                <h3 className="font-display text-base font-semibold tracking-[0.01em] text-foreground">
                   {t("profile.title")}
                 </h3>
               </div>
@@ -842,11 +822,11 @@ export default function BusinessPhoneDetailPage() {
               </div>
             )}
           </ElevatedContainer>
-        </motion.div>
+        </div>
 
         {/* WhatsApp calling toggle */}
         {isConnected && (
-          <motion.div variants={itemVariants}>
+          <div>
             <ElevatedContainer className="p-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3">
@@ -854,7 +834,7 @@ export default function BusinessPhoneDetailPage() {
                     <Phone className="h-5 w-5" weight="fill" />
                   </div>
                   <div>
-                    <h3 className="text-base font-semibold text-foreground">
+                    <h3 className="font-display text-base font-semibold tracking-[0.01em] text-foreground">
                       {t("calling.title")}
                     </h3>
                     <p className="mt-0.5 max-w-md text-sm text-muted-foreground">
@@ -873,12 +853,12 @@ export default function BusinessPhoneDetailPage() {
                 )}
               </div>
             </ElevatedContainer>
-          </motion.div>
+          </div>
         )}
 
         {/* Access granted-by (non-admin) */}
         {!isSystemAdmin && myAccess?.grantor && (
-          <motion.div variants={itemVariants}>
+          <div>
             <ElevatedContainer className="p-6">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-primary-ink">
@@ -899,12 +879,12 @@ export default function BusinessPhoneDetailPage() {
                 </div>
               </div>
             </ElevatedContainer>
-          </motion.div>
+          </div>
         )}
 
         {/* Workspace access (system admin, deprecated/read-only) */}
         {isSystemAdmin && (
-          <motion.div variants={itemVariants}>
+          <div>
             <ElevatedContainer className="p-6">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
@@ -913,7 +893,7 @@ export default function BusinessPhoneDetailPage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-base font-semibold text-foreground">
+                      <h3 className="font-display text-base font-semibold tracking-[0.01em] text-foreground">
                         {t("access.title")}
                       </h3>
                       <span className="inline-flex items-center rounded-[--radius] border border-border bg-muted px-2 py-0.5 text-2xs font-semibold text-warning-ink dark:text-warning-ink">
@@ -1024,9 +1004,9 @@ export default function BusinessPhoneDetailPage() {
                 )}
               </div>
             </ElevatedContainer>
-          </motion.div>
+          </div>
         )}
-      </motion.div>
+      </div>
 
       {/* Dialogs */}
       <EditProfileDialog

@@ -150,7 +150,7 @@ export function PlanCatalogRail({
             </p>
 
             <div className="mt-4 flex items-baseline gap-1">
-              <span className="text-2xl font-semibold text-foreground">
+              <span className="font-display text-2xl font-semibold text-foreground">
                 {formatBRLFromCents(item.plan.basePriceBRLCents, locale)}
               </span>
               <span className="text-xs text-muted-foreground">

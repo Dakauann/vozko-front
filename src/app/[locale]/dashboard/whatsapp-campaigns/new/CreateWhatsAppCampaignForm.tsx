@@ -1726,7 +1726,7 @@ export default function CreateWhatsAppCampaignForm({
         )}
       >
         <ElevatedContainer className="rounded-lg border border-border bg-card p-6" data-tour="wc-basic-info">
-          <h2 className="mb-4 text-xl font-semibold text-foreground">
+          <h2 className="mb-4 font-display text-xl font-semibold tracking-[0.01em] text-foreground">
             {t("basicInfo.title")}
           </h2>
 
@@ -2303,7 +2303,7 @@ export default function CreateWhatsAppCampaignForm({
       {!organic && (
         <ElevatedContainer className="rounded-lg border border-border bg-card p-6" data-tour="wc-contacts">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-foreground">
+            <h2 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground">
               {t("contacts.title")}
             </h2>
             <div className="flex items-center gap-2" data-tour="wc-csv-buttons">

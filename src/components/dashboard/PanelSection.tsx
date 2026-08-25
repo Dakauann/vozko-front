@@ -54,8 +54,7 @@ export function PanelSection({
         )}
       >
         <div className="min-w-0">
-          {legend ? <p className="legend mb-1">{legend}</p> : null}
-          <h2 className="text-base font-semibold leading-tight tracking-[-0.01em] text-foreground">
+          <h2 className="font-display text-base font-semibold leading-tight tracking-[-0.01em] text-foreground">
             {title}
           </h2>
           {description ? (
@@ -64,8 +63,15 @@ export function PanelSection({
             </p>
           ) : null}
         </div>
-        {actions ? (
-          <div className="flex shrink-0 items-center gap-1.5">{actions}</div>
+        {/* Group naming rides as right-aligned meta, never as an eyebrow above
+            the heading — the heading carries its own weight. */}
+        {legend || actions ? (
+          <div className="flex shrink-0 items-center gap-3">
+            {legend ? <p className="legend">{legend}</p> : null}
+            {actions ? (
+              <div className="flex shrink-0 items-center gap-1.5">{actions}</div>
+            ) : null}
+          </div>
         ) : null}
       </header>
 

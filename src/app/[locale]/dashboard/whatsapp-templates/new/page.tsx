@@ -4,7 +4,6 @@ import { useCallback, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/use-toast";
-import { motion } from "framer-motion";
 import {
   Check,
   CheckCircle,
@@ -50,28 +49,6 @@ import {
   whatsappTemplatesTourPalette,
   whatsappTemplatesTourSeed,
 } from "@/data/tour-whatsapp-templates";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.4,
-      ease: [0.25, 0.1, 0.25, 1] as const,
-    },
-  },
-};
 
 const categories: TemplateCategory[] = [
   "MARKETING",
@@ -677,11 +654,11 @@ export default function NewWhatsAppTemplatePage() {
   const formatBadge = {
     named: {
       label: t("new.guidelines.formatNamed"),
-      cls: "bg-[#2463eb]/10 text-[#2463eb] border-[#2463eb]/20",
+      cls: "bg-info text-info-foreground border-transparent",
     },
     positional: {
       label: t("new.guidelines.formatPositional"),
-      cls: "bg-[#2463eb]/10 text-[#2463eb] border-[#2463eb]/20",
+      cls: "bg-info text-info-foreground border-transparent",
     },
     none: {
       label: t("new.guidelines.formatNone"),
@@ -711,14 +688,9 @@ export default function NewWhatsAppTemplatePage() {
         introSeed={whatsappTemplatesTourSeed}
         onStep={handleTourStep}
       />
-    <motion.main
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="w-full space-y-5"
-    >
+    <main className="w-full space-y-5">
       {/* Header */}
-      <motion.div variants={itemVariants}>
+      <div>
         <DashboardPageHeader
           back={{
             onClick: () => router.push("/dashboard/whatsapp-templates"),
@@ -758,18 +730,18 @@ export default function NewWhatsAppTemplatePage() {
             </div>
           }
         />
-      </motion.div>
+      </div>
 
       <form onSubmit={handleSubmit} className="flex gap-5 items-start">
         {/* Left column: Form + Builder */}
         <div className="flex-1 min-w-0 space-y-5">
           {/* Template Basic Info */}
-          <motion.div variants={itemVariants} data-tour="wt-template-info">
+          <div data-tour="wt-template-info">
             <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
               <h2 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
                 <div className="flex h-6 w-6 items-center justify-center rounded-md bg-healthy">
                   <WhatsappLogo
-                    className="h-3.5 w-3.5 text-white"
+                    className="h-3.5 w-3.5 text-healthy-foreground"
                     weight="fill"
                   />
                 </div>
@@ -855,10 +827,10 @@ export default function NewWhatsAppTemplatePage() {
                 </ElevatedSelect>
               </div>
             </ElevatedContainer>
-          </motion.div>
+          </div>
 
           {/* Template Builder */}
-          <motion.div variants={itemVariants}>
+          <div>
             <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -923,10 +895,10 @@ export default function NewWhatsAppTemplatePage() {
                 </div>
               )}
             </ElevatedContainer>
-          </motion.div>
+          </div>
 
           {/* Guidelines */}
-          <motion.div variants={itemVariants}>
+          <div>
             <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
               <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
                 <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -956,7 +928,7 @@ export default function NewWhatsAppTemplatePage() {
                     className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed"
                   >
                     <Check
-                      className="h-3.5 w-3.5 text-[#2463eb] flex-shrink-0 mt-0.5"
+                      className="h-3.5 w-3.5 text-info-ink flex-shrink-0 mt-0.5"
                       weight="bold"
                     />
                     <span>{t(`new.guidelines.${key}`)}</span>
@@ -964,12 +936,11 @@ export default function NewWhatsAppTemplatePage() {
                 ))}
               </ul>
             </ElevatedContainer>
-          </motion.div>
+          </div>
         </div>
 
         {/* Right column: Sticky Preview */}
-        <motion.div
-          variants={itemVariants}
+        <div
           className="hidden xl:block w-[340px] flex-shrink-0 sticky top-6"
           data-tour="wt-preview"
         >
@@ -1011,9 +982,9 @@ export default function NewWhatsAppTemplatePage() {
               </div>
             </div>
           </ElevatedContainer>
-        </motion.div>
+        </div>
       </form>
-    </motion.main>
+    </main>
     </>
   );
 }

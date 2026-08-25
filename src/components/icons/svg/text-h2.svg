@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Título 2">
+  <title>Título 2</title>
+  <path d="M3.5 5.5v13M3.5 12h7.25M10.75 5.5v13"/>
+  <path stroke="var(--icon-accent, currentColor)" d="M14.9 10.15a2.6 2.6 0 1 1 4.5 2.2l-4.5 6.15h5"/>
+</svg>

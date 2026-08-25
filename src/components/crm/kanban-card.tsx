@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import type { TargetAndTransition, Transition, Variants } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { cn, readableInkFor } from "@/lib/utils";
 
 // --- shared card motion ------------------------------------------------------
 // The ONE motion spec both boards animate with, lifted from the original
@@ -81,14 +81,19 @@ export function kanbanCardClass(
   extra?: string,
 ) {
   return cn(
-    "group relative rounded-[--radius] border bg-card p-3 transition-all",
+    // The card is a small sheet ON the tray: panel corner, hairline, first
+    // elevation step at rest so it separates from the muted column ground —
+    // the flat rest state left card and column as two greys.
+    "group relative rounded-lg border bg-card p-3 shadow-sm transition-all",
     state?.won
-      ? "border-border bg-muted hover:border-healthy hover:shadow-sm"
+      ? "border-border bg-muted hover:border-healthy hover:shadow"
       : state?.lost
-        ? "border-border opacity-75 hover:opacity-100 hover:border-foreground/20 hover:shadow-sm"
+        ? "border-border opacity-75 hover:opacity-100 hover:border-foreground/20 hover:shadow"
         : state?.selected
-          ? "border-healthy/30 shadow-md ring-1 ring-healthy/30"
-          : "border-border hover:border-foreground/20 hover:shadow-sm",
+          ? // Selected is a BRAND state, like every other selected surface in
+            // the product; healthy stays reserved for "won".
+            "border-primary/40 shadow-md ring-1 ring-primary/30"
+          : "border-border hover:border-foreground/20 hover:shadow",
     extra,
   );
 }
@@ -270,10 +275,14 @@ export function CardPill({
       title={title}
       className={cn(
         "inline-flex max-w-full items-center gap-1 truncate rounded-[--radius] px-1.5 py-0.5 text-2xs font-semibold",
-        color ? "text-white" : PILL_TONE[tone],
+        !color && PILL_TONE[tone],
         className,
       )}
-      style={color ? { backgroundColor: color } : undefined}
+      style={
+        color
+          ? { backgroundColor: color, color: readableInkFor(color) }
+          : undefined
+      }
     >
       {icon}
       <span className="truncate">{children}</span>
@@ -288,8 +297,8 @@ export function CardPill({
 export function CardLabelChip({ name, color }: { name: string; color: string }) {
   return (
     <span
-      className="inline-flex items-center gap-1 truncate rounded-[--radius] px-2 py-0.5 text-2xs font-semibold text-white shadow-sm"
-      style={{ backgroundColor: color }}
+      className="inline-flex items-center gap-1 truncate rounded-[--radius] px-2 py-0.5 text-2xs font-semibold shadow-sm"
+      style={{ backgroundColor: color, color: readableInkFor(color) }}
     >
       <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-white/40" />
       <span className="truncate">{name}</span>

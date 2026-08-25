@@ -75,7 +75,7 @@ function resolveEdgeLabel(
     return {
       text: output?.label ?? rawLabel,
       className:
-        "border-slate-200/70 bg-background text-muted-foreground dark:border-slate-500/20 dark:bg-background dark:text-muted-foreground",
+        "border-border bg-background text-muted-foreground",
     };
   }
 
@@ -325,6 +325,7 @@ export function SmartBezierEdge({
   label,
   markerEnd,
   style,
+  selected,
   data,
 }: EdgeProps) {
   const { getNodes } = useReactFlow();
@@ -363,16 +364,30 @@ export function SmartBezierEdge({
     return resolveEdgeLabel(sourceNode, label);
   }, [label, sourceNode]);
 
+  // The edge's own stroke logic: resting edges ride the strong hairline so the
+  // graph reads at a glance; a selected/active edge is the one moment an edge
+  // spends the brand green. Other passed style props (opacity, …) flow through.
+  const edgeStyle = {
+    ...style,
+    stroke: selected ? "hsl(var(--primary))" : "hsl(var(--border-strong))",
+    strokeWidth: selected ? 2.5 : 2,
+  };
+
   return (
     <>
       <g style={appearStyle}>
-        <BaseEdge id={id} path={path} markerEnd={markerEnd} style={style} />
-        {/* Flowing dot animation overlay */}
+        <BaseEdge id={id} path={path} markerEnd={markerEnd} style={edgeStyle} />
+        {/* Flowing dot animation overlay. On a selected (green) edge the dash
+            switches to the on-primary ink so the motion stays visible. */}
         <path
           d={path}
           fill="none"
           strokeWidth={1.5}
-          stroke="hsl(var(--muted-foreground)/0.35)"
+          stroke={
+            selected
+              ? "hsl(var(--primary-foreground)/0.4)"
+              : "hsl(var(--muted-foreground)/0.35)"
+          }
           strokeDasharray="6 14"
           className="react-flow__edge-interaction"
           style={{
@@ -422,16 +437,28 @@ export function SmartConnectionLine({
     "__drag_target__",
   );
 
+  // Drawing a connection is a commit gesture, so the in-progress trace is
+  // brand green, and its cursor terminal is a SQUARE trace pad (the same 9px
+  // pad the node handles wear), not a dot.
   return (
     <g>
       <path
         d={d}
         fill="none"
-        stroke="hsl(var(--muted-foreground)/0.5)"
-        strokeWidth={1.5}
+        stroke="hsl(var(--primary))"
+        strokeWidth={2}
         strokeDasharray="6 3"
       />
-      <circle cx={toX} cy={toY} r={4} fill="hsl(var(--muted-foreground)/0.5)" />
+      <rect
+        x={toX - 4.5}
+        y={toY - 4.5}
+        width={9}
+        height={9}
+        rx={2}
+        fill="hsl(var(--card))"
+        stroke="hsl(var(--primary))"
+        strokeWidth={2}
+      />
     </g>
   );
 }

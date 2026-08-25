@@ -37,7 +37,7 @@ import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader"
 import ElevatedButton from "@/components/elevated-design/button";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
-import { cn } from "@/lib/utils";
+import { cn, readableInkFor } from "@/lib/utils";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -375,7 +375,7 @@ export default function CalendarPage() {
               >
                 <CaretLeft size={16} weight="bold" />
               </button>
-              <h2 className="text-base font-semibold min-w-[160px] text-center">
+              <h2 className="font-display text-base font-semibold tracking-[0.01em] min-w-[160px] text-center">
                 {monthNames[month]} {year}
               </h2>
               <button
@@ -468,10 +468,13 @@ export default function CalendarPage() {
                           {dayEvents.slice(0, 2).map((evt) => (
                             <button
                               key={evt.id}
-                              className="w-full text-left flex items-center gap-1 px-1.5 py-0.5 rounded-md text-2xs leading-tight truncate transition-colors hover:opacity-80"
+                              className="w-full text-left flex items-center gap-1 px-1.5 py-0.5 rounded-md text-2xs leading-tight truncate transition-colors hover:opacity-85"
                               style={{
-                                backgroundColor: `${evt.color || EVENT_COLORS[0]}12`,
-                                color: evt.color || EVENT_COLORS[0],
+                                // Solid event chip with computed ink — the
+                                // Azure-calendar look. The 7% same-hue wash it
+                                // replaces is the banned pattern.
+                                backgroundColor: evt.color || EVENT_COLORS[0],
+                                color: readableInkFor(evt.color || EVENT_COLORS[0]),
                               }}
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -481,7 +484,9 @@ export default function CalendarPage() {
                               <span
                                 className="w-1 h-1 rounded-full shrink-0"
                                 style={{
-                                  backgroundColor: evt.color || EVENT_COLORS[0],
+                                  backgroundColor: readableInkFor(
+                                    evt.color || EVENT_COLORS[0],
+                                  ),
                                 }}
                               />
                               <span className="truncate font-medium">
@@ -518,7 +523,7 @@ export default function CalendarPage() {
                       weekday: "long",
                     })}
                   </p>
-                  <p className="text-2xl font-semibold tabular-nums">
+                  <p className="font-display text-2xl font-semibold tabular-nums">
                     {selectedDate.getDate()}
                   </p>
                 </div>
@@ -821,7 +826,7 @@ export default function CalendarPage() {
         <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden">
           <div className="flex items-center gap-2.5 border-b border-border px-5 py-4">
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary">
-              <ArrowsClockwise size={16} weight="fill" className="text-white" />
+              <ArrowsClockwise size={16} weight="fill" className="text-primary-foreground" />
             </span>
             <div className="min-w-0">
               <h2 className="text-sm font-semibold text-foreground">Reagendar</h2>

@@ -147,7 +147,7 @@ export function ConfirmDialog({
 
         <div className="space-y-4 p-6">
           <div className="space-y-1.5 text-center">
-            <AlertDialogTitle className="text-lg font-semibold tracking-tight">
+            <AlertDialogTitle className="text-lg font-semibold">
               {title}
             </AlertDialogTitle>
             {description && (

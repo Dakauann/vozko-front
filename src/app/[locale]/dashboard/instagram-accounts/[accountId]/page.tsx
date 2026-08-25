@@ -14,7 +14,6 @@ import Button from "@/components/elevated-design/button";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import { accentColorMap } from "@/components/elevated-design/listing-card";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { InstagramAutomationPanel } from "@/components/instagram/instagram-automation-panel";
 import { InstagramCommentRulesPanel } from "@/components/instagram/instagram-comment-rules-panel";
 import { InstagramPostComposer } from "@/components/instagram/instagram-post-composer";
@@ -113,12 +112,7 @@ export default function InstagramAccountProfilePage({
     // Instagram's own ~935px profile column, so the grid reads as a profile rather
     // than stretching tiles across an ultrawide monitor.
     <div className="mx-auto w-full max-w-5xl">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4 }}
-        className="space-y-6"
-      >
+      <div className="space-y-6">
         <DashboardPageHeader
           icon={<InstagramLogo className="h-5 w-5" weight="fill" />}
           colorClass="text-chart-4"
@@ -250,7 +244,7 @@ export default function InstagramAccountProfilePage({
             </>
           )
         )}
-      </motion.div>
+      </div>
     </div>
   );
 }

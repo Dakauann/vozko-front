@@ -19,7 +19,6 @@ import {
 } from "@/components/elevated-design/table/dashboard-table";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
@@ -108,12 +107,7 @@ export default function ArchivedAgentsPage() {
   );
 
   return (
-    <motion.main
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="w-full space-y-4"
-    >
+    <main className="w-full space-y-4">
       <DashboardPageHeader
         icon={<Robot className="h-6 w-6" weight="fill" />}
         badge={tSidebar("nav.archivedAgents")}
@@ -176,6 +170,6 @@ export default function ArchivedAgentsPage() {
               }
         }
       />
-    </motion.main>
+    </main>
   );
 }

@@ -475,11 +475,11 @@ function LinkedConversations({
       case "whatsapp":
         return { label: "WhatsApp", icon: <WhatsappLogo weight="fill" className="h-3.5 w-3.5 text-white" />, tile: "bg-[#25d366] text-white" };
       case "voice":
-        return { label: "Voz", icon: <Phone weight="fill" className="h-3.5 w-3.5 text-white" />, tile: "bg-foreground/80 text-background" };
+        return { label: "Voz", icon: <Phone weight="fill" className="h-3.5 w-3.5 text-background" />, tile: "bg-foreground/80 text-background" };
       case "support":
-        return { label: "Suporte", icon: <Headset weight="fill" className="h-3.5 w-3.5 text-white" />, tile: "bg-foreground/80 text-background" };
+        return { label: "Suporte", icon: <Headset weight="fill" className="h-3.5 w-3.5 text-background" />, tile: "bg-foreground/80 text-background" };
       default:
-        return { label: entryType, icon: <ChatCircleDots weight="fill" className="h-3.5 w-3.5 text-white" />, tile: "bg-foreground/80 text-background" };
+        return { label: entryType, icon: <ChatCircleDots weight="fill" className="h-3.5 w-3.5 text-background" />, tile: "bg-foreground/80 text-background" };
     }
   }
 
@@ -576,8 +576,8 @@ function CustomFieldInput({
         >
           <span
             className={cn(
-              "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform",
-              checked ? "translate-x-4" : "translate-x-0.5",
+              "absolute top-0.5 h-4 w-4 rounded-full shadow-sm transition-transform",
+              checked ? "translate-x-4 bg-primary-foreground" : "translate-x-0.5 bg-foreground",
             )}
           />
         </button>

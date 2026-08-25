@@ -72,14 +72,19 @@ export default function InvitesPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-[--radius] bg-muted text-muted-foreground shadow-lg shadow-warning/10">
-          <Envelope className="h-6 w-6" weight="fill" />
+      <div className="border-b border-border pb-3">
+        <div className="flex items-center gap-2">
+          <Envelope
+            className="h-[18px] w-[18px] text-muted-foreground"
+            weight="fill"
+          />
+          <h1 className="font-display text-xl font-semibold leading-tight tracking-[0.01em] text-foreground">
+            {t("title")}
+          </h1>
         </div>
-        <div>
-          <h1 className="text-2xl font-semibold text-foreground">{t("title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
-        </div>
+        <p className="mt-0.5 text-sm leading-snug text-muted-foreground">
+          {t("subtitle")}
+        </p>
       </div>
 
       {error && (
@@ -89,7 +94,7 @@ export default function InvitesPage() {
       )}
 
       {invites.length === 0 ? (
-        <div className="rounded-[--radius] border border-dashed border-border bg-muted p-12 text-center">
+        <div className="rounded-[--radius] border border-dashed border-border bg-muted px-6 py-10 text-center">
           <Envelope
             className="mx-auto h-10 w-10 text-muted-foreground"
             weight="fill"

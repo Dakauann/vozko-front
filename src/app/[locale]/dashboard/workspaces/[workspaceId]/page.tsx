@@ -2,7 +2,6 @@
 
 import * as React from "react";
 
-import { motion } from "framer-motion";
 import {
   ArrowLeft,
   Buildings,
@@ -515,12 +514,7 @@ export default function AdminWorkspaceDetailPage() {
   }
 
   return (
-    <motion.main
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="w-full space-y-4"
-    >
+    <main className="w-full space-y-4">
       {/* Back link */}
       <Link
         href="/dashboard/workspaces"
@@ -531,11 +525,7 @@ export default function AdminWorkspaceDetailPage() {
       </Link>
 
       {/* Page Header */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4 }}
-      >
+      <div>
         <DashboardPageHeader
           icon={<Buildings className="h-6 w-6" weight="fill" />}
           badge={workspace.name}
@@ -561,14 +551,10 @@ export default function AdminWorkspaceDetailPage() {
             </>
           }
         />
-      </motion.div>
+      </div>
 
       {/* Tabs */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-      >
+      <div>
         <Tabs defaultValue="overview">
           <TabsList>
             <TabsTrigger value="overview" className="gap-2">
@@ -1299,7 +1285,7 @@ export default function AdminWorkspaceDetailPage() {
             />
           </TabsContent>
         </Tabs>
-      </motion.div>
-    </motion.main>
+      </div>
+    </main>
   );
 }

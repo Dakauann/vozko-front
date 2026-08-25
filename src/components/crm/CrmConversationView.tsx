@@ -12,6 +12,7 @@ import type {
   TemplateMessageMetadata,
 } from "@/lib/conversations/types";
 import { AnimatePresence, motion } from "framer-motion";
+import { CircuitTraces } from "@/components/brand/circuit";
 import {
   ArrowBendUpLeft,
   ArrowDown,
@@ -942,7 +943,7 @@ function ReadReceipt({
         return (
           <Checks
             weight="bold"
-            className="h-3.5 w-3.5 flex-shrink-0 text-[#53bdeb]"
+            className="h-3.5 w-3.5 flex-shrink-0 text-info-ink"
           />
         );
       case "delivered":
@@ -974,7 +975,7 @@ function ReadReceipt({
       weight="bold"
       className={cn(
         "h-3.5 w-3.5 flex-shrink-0",
-        read ? "text-[#53bdeb]" : "text-muted-foreground",
+        read ? "text-info-ink" : "text-muted-foreground",
       )}
     />
   );
@@ -1707,15 +1708,18 @@ export default function CrmConversationView({
 
   if (!conversation) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-4 bg-muted px-8 text-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-[--radius] bg-muted">
+      <div className="relative flex h-full flex-col items-center justify-center gap-4 overflow-hidden bg-background px-8 text-center">
+        {/* The brand's trace lines — this panel is an identity surface, the
+            one place in the inbox where ornament sits behind no data. */}
+        <CircuitTraces tone="quiet" className="pointer-events-none absolute bottom-6 right-4 h-64 w-64 xl:h-80 xl:w-80" />
+        <div className="relative flex h-20 w-20 items-center justify-center rounded-[--radius] bg-muted">
           <ImageIcon
             weight="duotone"
             className="h-10 w-10 text-muted-foreground"
           />
         </div>
-        <div>
-          <h3 className="text-lg font-semibold text-foreground">
+        <div className="relative">
+          <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
             {t.noConversationSelected}
           </h3>
           <p className="text-sm text-muted-foreground mt-1">
@@ -1749,7 +1753,7 @@ export default function CrmConversationView({
                 className={cn(
                   "flex h-10 w-10 items-center justify-center rounded-full shadow-lg transition-colors",
                   stageSelectorOpen
-                    ? "bg-healthy/100 text-healthy-foreground"
+                    ? "bg-healthy text-healthy-foreground"
                     : "bg-card text-muted-foreground hover:bg-muted",
                 )}
                 whileHover={{ scale: 1.05 }}
@@ -1969,7 +1973,7 @@ export default function CrmConversationView({
                             <span
                               className="h-3 w-3 rounded-full ring-1 ring-black/10 flex-shrink-0"
                               style={{
-                                backgroundColor: label.color || "#8B5CF6",
+                                backgroundColor: label.color || "hsl(var(--plate-5))",
                               }}
                             />
                             <span className="text-xs font-medium truncate flex-1">
@@ -2308,12 +2312,12 @@ export default function CrmConversationView({
                             >
                               <div
                                 className={cn(
-                                  "flex items-center gap-1.5 rounded-[--radius] px-3 py-1.5 text-2xs font-medium text-white",
+                                  "flex items-center gap-1.5 rounded-[--radius] px-3 py-1.5 text-2xs font-medium",
                                   granted
-                                    ? "bg-healthy"
+                                    ? "bg-healthy text-healthy-foreground"
                                     : rejected
-                                      ? "bg-destructive"
-                                      : "bg-warning",
+                                      ? "bg-destructive text-destructive-foreground"
+                                      : "bg-warning text-warning-foreground",
                                 )}
                               >
                                 <PhoneCall
@@ -2514,10 +2518,10 @@ export default function CrmConversationView({
                                 isOutgoing
                                   ? isVoiceRun
                                     ? "bg-muted text-foreground rounded-tr-sm"
-                                    : "bg-[#d9fdd3] dark:bg-[#005c4b] text-foreground dark:text-slate-100 rounded-tr-sm"
+                                    : "bg-[#d9fdd3] text-[#111b21] dark:bg-[#005c4b] dark:text-[#e9edef] rounded-tr-sm"
                                   : isVoiceRun
                                     ? "bg-muted text-foreground rounded-tl-sm"
-                                    : "bg-card dark:bg-[#202c33] text-foreground dark:text-slate-100 rounded-tl-sm",
+                                    : "bg-card text-foreground rounded-tl-sm",
                                 isOutgoing
                                   ? cn("border-r-[3px]", channelColor)
                                   : cn("border-l-[3px]", channelColor),

@@ -105,19 +105,6 @@ import { useDepartment } from "@/contexts/department-context";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
-};
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] as const },
-  },
-};
-
 export default function WorkspaceSettingsPage() {
   const t = useTranslations("workspaceSettings");
   const { user } = useAuth();
@@ -203,14 +190,9 @@ export default function WorkspaceSettingsPage() {
   }
 
   return (
-    <motion.main
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="w-full space-y-4"
-    >
+    <main className="w-full space-y-4">
       {/* ─── HEADER ─── */}
-      <motion.div variants={itemVariants}>
+      <div>
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
@@ -263,7 +245,7 @@ export default function WorkspaceSettingsPage() {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-semibold text-foreground md:text-3xl">
+                <h1 className="font-display text-2xl font-semibold tracking-[0.01em] text-foreground md:text-3xl">
                   {currentWorkspace.name}
                 </h1>
                 {isOwnerOrAdmin && (
@@ -282,10 +264,10 @@ export default function WorkspaceSettingsPage() {
             </p>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* ─── TABS (config first for owners; people/org after) ─── */}
-      <motion.div variants={itemVariants}>
+      <div>
         <Tabs defaultValue={isOwner ? "config" : "members"}>
           <TabsList>
             {isOwner && (
@@ -391,8 +373,8 @@ export default function WorkspaceSettingsPage() {
             </>
           )}
         </Tabs>
-      </motion.div>
-    </motion.main>
+      </div>
+    </main>
   );
 }
 
@@ -577,12 +559,7 @@ function MembersTab({
           </p>
         </ElevatedContainer>
       ) : (
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="space-y-2"
-        >
+        <div className="space-y-2">
           {filteredMembers.map((member) => {
             const isCurrentUser = member.userId === currentUserId;
             const currentUserMember = members.find(
@@ -601,7 +578,7 @@ function MembersTab({
               (isOwner || member.role !== "admin");
 
             return (
-              <motion.div key={member.id} variants={itemVariants}>
+              <div key={member.id}>
                 <ElevatedContainer className="!p-4 transition-all hover:!border-border">
                   <div className="flex items-center gap-4">
                     <MemberAvatar member={member} />
@@ -682,10 +659,10 @@ function MembersTab({
                     )}
                   </div>
                 </ElevatedContainer>
-              </motion.div>
+              </div>
             );
           })}
-        </motion.div>
+        </div>
       )}
 
       <ElevatedDialog
@@ -1570,13 +1547,8 @@ function PermissionsTab({
 
   if (selectedMember) {
     return (
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="space-y-4"
-      >
-        <motion.div variants={itemVariants}>
+      <div className="space-y-4">
+        <div>
           <ElevatedContainer className="!p-4">
             <div className="flex items-center gap-3">
               <button
@@ -1590,7 +1562,7 @@ function PermissionsTab({
               </button>
               <MemberAvatar member={selectedMember} />
               <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-semibold text-foreground truncate">
+                <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground truncate">
                   {selectedMember.username || selectedMember.email}
                 </h3>
                 <p className="text-xs text-muted-foreground">
@@ -1604,9 +1576,9 @@ function PermissionsTab({
               />
             </div>
           </ElevatedContainer>
-        </motion.div>
+        </div>
 
-        <motion.div variants={itemVariants}>
+        <div>
           <div className="flex gap-2">
             {(canViewPermissions || canEditPermissions) && (
               <ElevatedButton
@@ -1627,7 +1599,7 @@ function PermissionsTab({
               />
             )}
           </div>
-        </motion.div>
+        </div>
 
         {error && (
           <ElevatedContainer className="!bg-muted !border-border !p-3">
@@ -1639,7 +1611,7 @@ function PermissionsTab({
           <>
             {selectedMember.role === "owner" ||
             selectedMember.role === "admin" ? (
-              <motion.div variants={itemVariants} className="space-y-4">
+              <div className="space-y-4">
                 <ElevatedContainer className="!bg-muted !border-border !p-4">
                   <div className="flex items-start gap-3">
                     <Shield
@@ -1676,7 +1648,7 @@ function PermissionsTab({
                     t={(key: string) => t(key)}
                   />
                 )}
-              </motion.div>
+              </div>
             ) : isLoadingPerms ? (
               <div className="flex h-32 items-center justify-center">
                 <CircleNotch
@@ -1685,7 +1657,7 @@ function PermissionsTab({
                 />
               </div>
             ) : (
-              <motion.div variants={itemVariants} className="space-y-4">
+              <div className="space-y-4">
                 <PermissionsEditor
                   availablePermissions={availablePerms}
                   permMap={permMap}
@@ -1715,11 +1687,11 @@ function PermissionsTab({
                     className="w-full"
                   />
                 )}
-              </motion.div>
+              </div>
             )}
           </>
         ) : (
-          <motion.div variants={itemVariants} className="space-y-4">
+          <div className="space-y-4">
             <ElevatedContainer className="!p-4 space-y-3">
               <h4 className="text-sm font-semibold text-foreground">
                 {t("lookupAssignments")}
@@ -1847,9 +1819,9 @@ function PermissionsTab({
                 </div>
               </ElevatedContainer>
             )}
-          </motion.div>
+          </div>
         )}
-      </motion.div>
+      </div>
     );
   }
 
@@ -1882,14 +1854,9 @@ function PermissionsTab({
           <p className="text-xs font-semibold text-muted-foreground">
             {t("privilegedMembersLabel")}
           </p>
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="space-y-2"
-          >
+          <div className="space-y-2">
             {filteredPrivileged.map((member) => (
-              <motion.div key={member.id} variants={itemVariants}>
+              <div key={member.id}>
                 <ElevatedContainer
                   as="button"
                   onClick={() => loadPermissions(member)}
@@ -1916,9 +1883,9 @@ function PermissionsTab({
                     />
                   </div>
                 </ElevatedContainer>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       )}
 
@@ -1927,14 +1894,9 @@ function PermissionsTab({
           <p className="text-xs font-semibold text-muted-foreground">
             {t("employeeMembersLabel")}
           </p>
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="space-y-2"
-          >
+          <div className="space-y-2">
             {filteredEmployees.map((member) => (
-              <motion.div key={member.id} variants={itemVariants}>
+              <div key={member.id}>
                 <ElevatedContainer
                   as="button"
                   onClick={() => loadPermissions(member)}
@@ -1961,9 +1923,9 @@ function PermissionsTab({
                     />
                   </div>
                 </ElevatedContainer>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       )}
 
@@ -2119,13 +2081,8 @@ function RolesTab({
 
   if (creating) {
     return (
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="space-y-4"
-      >
-        <motion.div variants={itemVariants}>
+      <div className="space-y-4">
+        <div>
           <ElevatedContainer className="!p-4">
             <div className="flex items-center gap-3">
               <button
@@ -2141,7 +2098,7 @@ function RolesTab({
                 <UserGear className="h-5 w-5" weight="fill" />
               </IconBox>
               <div>
-                <h3 className="text-lg font-semibold text-foreground">
+                <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                   {editingRole
                     ? t("customRoles.editRole")
                     : t("customRoles.createRole")}
@@ -2152,9 +2109,9 @@ function RolesTab({
               </div>
             </div>
           </ElevatedContainer>
-        </motion.div>
+        </div>
 
-        <motion.div variants={itemVariants}>
+        <div>
           <ElevatedContainer className="!p-5 space-y-4">
             <div className="space-y-3">
               <ElevatedInput
@@ -2242,8 +2199,8 @@ function RolesTab({
               </div>
             </div>
           </ElevatedContainer>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     );
   }
 
@@ -2273,14 +2230,9 @@ function RolesTab({
           </p>
         </ElevatedContainer>
       ) : (
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="space-y-2"
-        >
+        <div className="space-y-2">
           {customRoles.map((role) => (
-            <motion.div key={role.id} variants={itemVariants}>
+            <div key={role.id}>
               <ElevatedContainer className="!p-4 transition-all hover:!border-border">
                 <div className="flex items-center gap-4">
                   <IconBox color="emerald" size="sm">
@@ -2351,9 +2303,9 @@ function RolesTab({
                   </div>
                 </div>
               </ElevatedContainer>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       )}
 
       {error && (
@@ -2677,12 +2629,7 @@ function DepartmentsTab({
           </p>
         </ElevatedContainer>
       ) : (
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="space-y-2"
-        >
+        <div className="space-y-2">
           {departments.map((dept) => {
             const isExpanded = expanded === dept.id;
             const isEditing = editing === dept.id;
@@ -2690,7 +2637,7 @@ function DepartmentsTab({
             const isLoadingMembers = loadingMembers === dept.id;
 
             return (
-              <motion.div key={dept.id} variants={itemVariants}>
+              <div key={dept.id}>
                 <ElevatedContainer
                   className={cn(
                     "!p-0 transition-all overflow-hidden",
@@ -2996,10 +2943,10 @@ function DepartmentsTab({
                     )}
                   </AnimatePresence>
                 </ElevatedContainer>
-              </motion.div>
+              </div>
             );
           })}
-        </motion.div>
+        </div>
       )}
 
       {error && (

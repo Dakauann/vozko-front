@@ -38,7 +38,7 @@ export function PricingSection({
           className="w-[1000px] h-[600px] rounded-full opacity-15"
           style={{
             background:
-              "radial-gradient(ellipse, rgba(59,130,246,0.2) 0%, rgba(16,185,129,0.06) 50%, transparent 70%)",
+              "radial-gradient(ellipse, rgba(59,130,246,0.2) 0%, hsl(var(--primary) / 0.06) 50%, transparent 70%)",
             filter: "blur(100px)",
           }}
         />
@@ -50,7 +50,7 @@ export function PricingSection({
           <span className="text-xs font-semibold text-muted-foreground dark:text-info-ink">
             {t("badge")}
           </span>
-          <h2 className="mt-4 text-3xl font-semibold md:text-5xl text-foreground">
+          <h2 className="mt-4 font-display text-3xl font-semibold tracking-[0.01em] md:text-5xl text-foreground">
             {t("title")}
           </h2>
           <p className="mt-4 text-sm text-muted-foreground md:text-base max-w-2xl mx-auto">

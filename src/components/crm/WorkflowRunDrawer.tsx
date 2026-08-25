@@ -80,10 +80,10 @@ const RUN_STATUS_META: Record<string, { label: string; className: string }> = {
 };
 
 const CATEGORY_COLOR: Record<string, string> = {
-  trigger_: "#10b981",
-  wait_: "#f59e0b",
-  condition_: "#a855f7",
-  end: "#f43f5e",
+  trigger_: "hsl(var(--chart-1))",
+  wait_: "hsl(var(--warning))",
+  condition_: "hsl(var(--chart-5))",
+  end: "hsl(var(--destructive))",
 };
 
 function miniMapColor(node: Node): string {
@@ -92,7 +92,7 @@ function miniMapColor(node: Node): string {
   if (t.startsWith("wait_")) return CATEGORY_COLOR.wait_;
   if (t.startsWith("condition_")) return CATEGORY_COLOR.condition_;
   if (t === "end") return CATEGORY_COLOR.end;
-  return "#2463eb";
+  return "hsl(var(--chart-2))";
 }
 
 export function WorkflowRunDrawer({
@@ -225,9 +225,13 @@ export function WorkflowRunDrawer({
         label: e.label ?? undefined,
         animated: onPath,
         markerEnd: { type: MarkerType.ArrowClosed, width: 16, height: 16 },
+        // Same vivid strokes as the editor: rest on the strong hairline at 2,
+        // the on-path (brand green) edge at 2.5.
         style: {
-          strokeWidth: onPath ? 2 : 1.5,
-          stroke: onPath ? "#2463eb" : "#94a3b8",
+          strokeWidth: onPath ? 2.5 : 2,
+          stroke: onPath
+            ? "hsl(var(--primary))"
+            : "hsl(var(--border-strong))",
         },
       };
     });
@@ -262,7 +266,7 @@ export function WorkflowRunDrawer({
         <ElevatedSheetHeader className="shrink-0 space-y-0 border-b border-border px-6 py-4 text-left">
           <div className="flex items-center gap-3 pr-8">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary">
-              <FlowArrow className="h-5 w-5 text-white" weight="fill" />
+              <FlowArrow className="h-5 w-5 text-primary-foreground" weight="fill" />
             </span>
             <div className="min-w-0">
               <ElevatedSheetTitle className="truncate text-base font-semibold text-foreground">
@@ -285,7 +289,7 @@ export function WorkflowRunDrawer({
           </div>
         </ElevatedSheetHeader>
 
-        <div className="relative min-h-0 flex-1 bg-muted">
+        <div className="relative min-h-0 flex-1 bg-background">
           <div className="absolute inset-0">
             {ready && (
               <ReactFlowProvider>
@@ -311,7 +315,7 @@ export function WorkflowRunDrawer({
                     variant={BackgroundVariant.Dots}
                     gap={18}
                     size={1}
-                    color="var(--border)"
+                    color="hsl(var(--border))"
                   />
                   <Controls
                     showInteractive={false}
@@ -323,7 +327,7 @@ export function WorkflowRunDrawer({
                     zoomable
                     nodeColor={miniMapColor}
                     nodeStrokeWidth={2}
-                    maskColor="rgba(0,0,0,0.06)"
+                    maskColor="hsl(var(--foreground) / 0.06)"
                     className="!bottom-3 !right-3 rounded-lg border border-border !bg-card"
                   />
                 </ReactFlow>

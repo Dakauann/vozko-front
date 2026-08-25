@@ -35,7 +35,6 @@ import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -312,12 +311,7 @@ export default function TelegramAccountsPage() {
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="w-full space-y-6"
-    >
+    <div className="w-full space-y-6">
       <DashboardPageHeader
         badge={t("page.title")}
         description={t("page.description")}
@@ -457,7 +451,7 @@ export default function TelegramAccountsPage() {
           )}
         </div>
       )}
-    </motion.div>
+    </div>
   );
 }
 

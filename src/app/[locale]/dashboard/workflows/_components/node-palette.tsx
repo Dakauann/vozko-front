@@ -93,7 +93,7 @@ export function NodePalette({ definitions }: NodePaletteProps) {
   };
 
   return (
-    <div className="w-64 border-r border-border bg-card overflow-y-auto flex-shrink-0">
+    <div className="relative z-40 w-64 h-full border-r border-border bg-card shadow-xl overflow-y-auto flex-shrink-0">
       <div className="p-3 border-b border-border space-y-2">
         <h3 className="text-xs font-semibold text-muted-foreground">
           {t("palette.title")}
@@ -148,7 +148,7 @@ export function NodePalette({ definitions }: NodePaletteProps) {
                     >
                       <div
                         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg shadow-sm"
-                        style={{ backgroundColor: styles.color }}
+                        style={{ backgroundColor: styles.color, color: styles.ink }}
                       >
                         {IconComp && <IconComp size={18} weight="fill" />}
                       </div>

@@ -50,7 +50,6 @@ import type { Workspace } from "@/lib/workspace/types";
 import { cn } from "@/lib/utils";
 import { fetchWorkspaces } from "@/lib/workspace/client";
 import { formatPricingServiceFallback } from "@/lib/branding/ai-models";
-import { motion } from "framer-motion";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import { useToast } from "@/hooks/use-toast";
@@ -710,17 +709,8 @@ export function AdminPlansManager() {
   }
 
   return (
-    <motion.main
-      animate={{ opacity: 1 }}
-      className="w-full space-y-4"
-      initial={{ opacity: 0 }}
-      transition={{ duration: 0.4 }}
-    >
-      <motion.div
-        animate={{ opacity: 1 }}
-        initial={{ opacity: 0 }}
-        transition={{ duration: 0.4 }}
-      >
+    <main className="w-full space-y-4">
+      <div>
         <DashboardPageHeader
           actions={
             <>
@@ -745,7 +735,7 @@ export function AdminPlansManager() {
           description={t("header.description")}
           icon={<Package className="h-6 w-6" weight="fill" />}
         />
-      </motion.div>
+      </div>
 
       {/*
         CONSOLE BAR.
@@ -994,7 +984,6 @@ export function AdminPlansManager() {
 
                 <PanelSection
                   description={t("sections.identityDescription")}
-                  legend="01"
                   title={t("sections.identity")}
                 >
                   <div className="space-y-4">
@@ -1030,7 +1019,6 @@ export function AdminPlansManager() {
 
                 <PanelSection
                   description={t("sections.capacityDescription")}
-                  legend="02"
                   title={t("sections.capacity")}
                 >
                   <div className="grid gap-4 sm:grid-cols-3">
@@ -1107,7 +1095,6 @@ export function AdminPlansManager() {
                       </button>
                     }
                     description={t("visibility.description")}
-                    legend="03"
                     title={t("visibility.title")}
                   >
                     {visibilityGlobal ? (
@@ -1215,7 +1202,6 @@ export function AdminPlansManager() {
                       </span>
                     }
                     description={t("exclusive.description")}
-                    legend="04"
                     title={t("exclusive.title")}
                   >
                     {!visibilityGlobal && !exclusiveAffiliate ? (
@@ -1302,7 +1288,6 @@ export function AdminPlansManager() {
                   disabled={selectedPlan?.archivedAt != null}
                   exchangeRate={exchangeRate}
                   items={draft.pricingItems}
-                  legend={selectedPlan && !selectedPlan.archivedAt ? "05" : "03"}
                   onChange={(items) =>
                     setDraft((current) =>
                       current ? { ...current, pricingItems: items } : current,
@@ -1314,7 +1299,7 @@ export function AdminPlansManager() {
           )}
         </section>
       </div>
-    </motion.main>
+    </main>
   );
 }
 
@@ -1340,13 +1325,11 @@ function PricingItemsEditor({
   onChange,
   disabled,
   exchangeRate,
-  legend,
 }: {
   items: PricingItemDraft[];
   onChange: (items: PricingItemDraft[]) => void;
   disabled?: boolean | null;
   exchangeRate: number | null;
-  legend?: string;
 }) {
   const t = useTranslations("adminPlans");
   const rate = resolveExchangeRate(exchangeRate);
@@ -1380,7 +1363,7 @@ function PricingItemsEditor({
 
   if (rate == null) {
     return (
-      <PanelSection legend={legend} title={t("pricingItems.title")}>
+      <PanelSection title={t("pricingItems.title")}>
         <p className="text-sm text-muted-foreground">
           {t("pricingItems.rateRequired")}
         </p>
@@ -1403,7 +1386,7 @@ function PricingItemsEditor({
         </span>
       }
       description={t("pricingItems.description")}
-      legend={legend}
+     
       title={t("pricingItems.title")}
     >
       <p className="text-xs text-muted-foreground">

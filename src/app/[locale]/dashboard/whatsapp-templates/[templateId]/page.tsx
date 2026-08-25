@@ -63,27 +63,12 @@ import WhatsAppPreview from "@/components/whatsapp/WhatsAppPreview";
 import type { Workspace } from "@/lib/workspace/types";
 import { cn } from "@/lib/utils";
 import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones";
-import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/auth-context";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import { useParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.07 } },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 12 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.35, ease: [0.4, 0, 0.2, 1] as const },
-  },
-};
 
 /** Quiet, tinted status treatment (not bright solid fills), on brand. */
 function statusTone(status: TemplateStatus): {
@@ -610,14 +595,9 @@ export default function WhatsAppTemplateDetailPage() {
 
   return (
     <div className="mx-auto max-w-5xl p-6">
-      <motion.div
-        className="space-y-6"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
+      <div className="space-y-6">
         {/* Back link */}
-        <motion.div variants={itemVariants}>
+        <div>
           <Link
             href="/dashboard/whatsapp-templates"
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -625,10 +605,10 @@ export default function WhatsAppTemplateDetailPage() {
             <ArrowLeft className="h-4 w-4" weight="bold" />
             {t("detail.back")}
           </Link>
-        </motion.div>
+        </div>
 
         {/* Identity + actions header */}
-        <motion.div variants={itemVariants}>
+        <div>
           <ElevatedContainer className="p-6">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex items-start gap-4">
@@ -636,7 +616,7 @@ export default function WhatsAppTemplateDetailPage() {
                   <WhatsappLogo className="h-6 w-6" weight="fill" />
                 </div>
                 <div className="min-w-0">
-                  <h1 className="break-words text-xl font-semibold text-foreground">
+                  <h1 className="break-words font-display text-xl font-semibold tracking-[0.01em] text-foreground">
                     {template.name}
                   </h1>
                   <p className="mt-0.5 text-sm text-muted-foreground">
@@ -728,12 +708,12 @@ export default function WhatsAppTemplateDetailPage() {
               )}
             </div>
           </ElevatedContainer>
-        </motion.div>
+        </div>
 
         {/* Template preview */}
-        <motion.div variants={itemVariants}>
+        <div>
           <ElevatedContainer className="p-6">
-            <h2 className="mb-5 text-base font-semibold text-foreground">
+            <h2 className="mb-5 font-display text-base font-semibold tracking-[0.01em] text-foreground">
               {t("detail.templatePreview")}
             </h2>
             <div className="mx-auto max-w-sm overflow-hidden rounded-[--radius] border border-border shadow-md">
@@ -747,10 +727,10 @@ export default function WhatsAppTemplateDetailPage() {
               />
             </div>
           </ElevatedContainer>
-        </motion.div>
+        </div>
 
         {/* Details */}
-        <motion.div variants={itemVariants}>
+        <div>
           <ElevatedContainer className="p-6">
             <h2 className="mb-5 text-xs font-semibold text-muted-foreground">
               {t("detail.details")}
@@ -816,11 +796,11 @@ export default function WhatsAppTemplateDetailPage() {
               </p>
             )}
           </ElevatedContainer>
-        </motion.div>
+        </div>
 
         {/* Header media */}
         {hasMediaHeader && (
-          <motion.div variants={itemVariants}>
+          <div>
             <ElevatedContainer className="p-6">
               <div className="mb-4 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
@@ -828,7 +808,7 @@ export default function WhatsAppTemplateDetailPage() {
                     <ImageIcon className="h-5 w-5" weight="fill" />
                   </div>
                   <div>
-                    <h2 className="text-base font-semibold text-foreground">
+                    <h2 className="font-display text-base font-semibold tracking-[0.01em] text-foreground">
                       {t("detail.headerMedia.title")}
                     </h2>
                     <p className="text-xs text-muted-foreground">
@@ -864,12 +844,12 @@ export default function WhatsAppTemplateDetailPage() {
                 </div>
               )}
             </ElevatedContainer>
-          </motion.div>
+          </div>
         )}
 
         {/* Access granted-by (non-admin) */}
         {!isSystemAdmin && myAccess?.grantor && (
-          <motion.div variants={itemVariants}>
+          <div>
             <ElevatedContainer className="p-6">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-primary-ink">
@@ -890,12 +870,12 @@ export default function WhatsAppTemplateDetailPage() {
                 </div>
               </div>
             </ElevatedContainer>
-          </motion.div>
+          </div>
         )}
 
         {/* Workspace access management (system admin) */}
         {isSystemAdmin && (
-          <motion.div variants={itemVariants}>
+          <div>
             <ElevatedContainer className="p-6">
               <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
@@ -903,7 +883,7 @@ export default function WhatsAppTemplateDetailPage() {
                     <Buildings className="h-5 w-5" weight="fill" />
                   </div>
                   <div>
-                    <h2 className="text-base font-semibold text-foreground">
+                    <h2 className="font-display text-base font-semibold tracking-[0.01em] text-foreground">
                       {t("access.title")}
                     </h2>
                     <p className="text-xs text-muted-foreground">
@@ -1045,16 +1025,16 @@ export default function WhatsAppTemplateDetailPage() {
                 )}
               </div>
             </ElevatedContainer>
-          </motion.div>
+          </div>
         )}
 
         {/* Raw JSON (system admin) */}
         {isSystemAdmin && (
-          <motion.div variants={itemVariants}>
+          <div>
             <ElevatedContainer className="p-6">
               <div className="mb-4 flex items-center gap-2">
                 <Code className="h-5 w-5 text-muted-foreground" weight="bold" />
-                <h2 className="text-base font-semibold text-foreground">
+                <h2 className="font-display text-base font-semibold tracking-[0.01em] text-foreground">
                   {t("detail.jsonPreview")}
                 </h2>
               </div>
@@ -1064,9 +1044,9 @@ export default function WhatsAppTemplateDetailPage() {
                 </pre>
               </div>
             </ElevatedContainer>
-          </motion.div>
+          </div>
         )}
-      </motion.div>
+      </div>
 
       {/* Edit Media Modal */}
       <TemplateEditModal
@@ -1084,19 +1064,14 @@ export default function WhatsAppTemplateDetailPage() {
             className="absolute inset-0 bg-black/50"
             onClick={() => !replicating && setReplicateOpen(false)}
           />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.97, y: 8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
-            className="relative z-10 mx-4 w-full max-w-lg rounded-[--radius] border border-border bg-card shadow-2xl"
-          >
+          <div className="relative z-10 mx-4 w-full max-w-lg rounded-[--radius] border border-border bg-card shadow-2xl">
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-healthy-ink">
                   <Copy className="h-5 w-5" weight="fill" />
                 </div>
                 <div>
-                  <h2 className="text-base font-semibold text-foreground">
+                  <h2 className="font-display text-base font-semibold tracking-[0.01em] text-foreground">
                     {t("replicate.title")}
                   </h2>
                   <p className="text-xs text-muted-foreground">
@@ -1225,7 +1200,7 @@ export default function WhatsAppTemplateDetailPage() {
                 disabled={!replicateTarget || replicating}
               />
             </div>
-          </motion.div>
+          </div>
         </div>
       )}
     </div>

@@ -176,7 +176,7 @@ export default function TemplateEditModal({
                   <WhatsappLogo weight="fill" />
                 </IconBox>
                 <div>
-                  <h2 className="text-lg font-semibold text-foreground">
+                  <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                     {t("title")}
                   </h2>
                   <p className="text-xs text-muted-foreground">
@@ -495,7 +495,7 @@ function TemplatePreview({ template, headerMediaUrl }: TemplatePreviewProps) {
             <span className="text-sm font-semibold text-muted-foreground">V</span>
           </div>
           <div className="flex-1">
-            <h3 className="text-white font-semibold text-sm">{getBrand().name}</h3>
+            <h3 className="text-foreground font-semibold text-sm">{getBrand().name}</h3>
             <p className="text-healthy-ink text-xs">
               Typically replies instantly
             </p>

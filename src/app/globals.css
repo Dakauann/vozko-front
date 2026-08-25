@@ -207,7 +207,7 @@ input:-webkit-autofill:active {
   .ink-plate {
     background: hsl(var(--muted));
     border: 1px solid hsl(var(--border) / 0.7);
-    border-radius: 8px;
+    border-radius: 6px;
   }
 
   /*
@@ -248,7 +248,7 @@ input:-webkit-autofill:active {
     background: var(--tile-plate);
     color: var(--tile-glyph);
     border: 1px solid transparent;
-    border-radius: 8px;
+    border-radius: 6px;
   }
 
   /*
@@ -296,30 +296,24 @@ input:-webkit-autofill:active {
     Category plates. The five chart series, so a category reads the same in a
     tile as it does in the graph beside it.
 
-    The glyph is picked per plate from a measured ratio, not by rule. A chart
-    series is tuned to be told apart from four neighbours on a white canvas,
-    which puts three of the five at a lightness where white sits under 4:1 —
-    chart-2 measured 3.85:1 in light and 2.18:1 in dark against white. Where
-    white loses, the glyph takes --warning-foreground, which is the near-black
-    both themes already define for exactly this case.
+    Category tiles ride the PLATE tokens, not the chart series. The plates
+    are the same hues re-tuned so a WHITE glyph clears ≥3:1 in both themes —
+    which retires the old per-tile ink table and, with it, every dark-glyph-
+    on-dark-plate combination. One rule now: category plate, white mark.
 
-           light          dark
-    1      white 5.39     ink 5.86
-    2      ink   4.86     ink 8.57
-    3      ink   8.12     ink 11.04
-    4      ink   5.12     ink 8.20
-    5      white 4.67     ink 6.68
+    Measured 2026-08-19 (white on each plate):
+           light   dark
+    1      5.39    4.72
+    2      3.85    3.31
+    3      3.40    3.22
+    4      3.66    3.53
+    5      5.51    4.83
   */
-  .tile-1 { --tile-plate: hsl(var(--chart-1)); --tile-glyph: hsl(var(--primary-foreground)); }
-  .tile-2 { --tile-plate: hsl(var(--chart-2)); --tile-glyph: hsl(var(--warning-foreground)); }
-  .tile-3 { --tile-plate: hsl(var(--chart-3)); --tile-glyph: hsl(var(--warning-foreground)); }
-  .tile-4 { --tile-plate: hsl(var(--chart-4)); --tile-glyph: hsl(var(--warning-foreground)); }
-  .tile-5 { --tile-plate: hsl(var(--chart-5)); --tile-glyph: hsl(var(--primary-foreground)); }
-
-  /* Dark lifts every series toward the canvas, so the two that carried white
-     in light lose it here. */
-  .dark .tile-1,
-  .dark .tile-5 { --tile-glyph: hsl(var(--warning-foreground)); }
+  .tile-1 { --tile-plate: hsl(var(--plate-1)); --tile-glyph: #ffffff; }
+  .tile-2 { --tile-plate: hsl(var(--plate-2)); --tile-glyph: #ffffff; }
+  .tile-3 { --tile-plate: hsl(var(--plate-3)); --tile-glyph: #ffffff; }
+  .tile-4 { --tile-plate: hsl(var(--plate-4)); --tile-glyph: #ffffff; }
+  .tile-5 { --tile-plate: hsl(var(--plate-5)); --tile-glyph: #ffffff; }
 
   /*
     Status notices — the same rule as the tiles, at banner scale.
@@ -347,7 +341,7 @@ input:-webkit-autofill:active {
     --notice-ink: hsl(var(--muted-foreground));
     background: hsl(var(--muted));
     border: 1px solid hsl(var(--border));
-    border-radius: 8px;
+    border-radius: 6px;
     color: hsl(var(--muted-foreground));
   }
   .notice-brand   { --notice-ink: hsl(var(--primary-ink)); }
@@ -433,7 +427,7 @@ input:-webkit-autofill:active {
   */
   .well {
     background: hsl(var(--card));
-    border-radius: 8px;
+    border-radius: 6px;
     box-shadow: var(--elev-2);
   }
 
@@ -479,6 +473,75 @@ input:-webkit-autofill:active {
       inset 0 -2px 0 0 hsl(var(--primary)),
       0 0 0 3px hsl(var(--primary) / 0.16);
   }
+
+  /*
+    BRAND GRAPHICS — the board's two ornaments, and the only ones.
+
+    The Vozko board decorates with exactly two devices: a dot matrix that
+    fades out along one diagonal, and circuit traces (45° bends terminating in
+    square pads — see components/brand/circuit.tsx for the drawn version).
+    They are IDENTITY, not information, so they obey the periphery rule:
+    static, low-alpha, aria-hidden, and never behind text an operator has to
+    read for a shift. Legitimate homes: the login plate, empty states,
+    marketing surfaces. Not queue rows, not toolbars.
+
+    Both ride tokens, so they recolour with the theme instead of shipping a
+    dark-only PNG.
+  */
+  .bg-dot-matrix {
+    background-image: radial-gradient(
+      circle,
+      hsl(var(--ornament) / 0.5) 1px,
+      transparent 1.5px
+    );
+    background-size: 14px 14px;
+  }
+
+  /* The board's treatment: the matrix dissolves toward one corner. Mask, not
+     opacity, so whatever sits on top keeps its own alpha. */
+  .bg-dot-matrix-fade {
+    -webkit-mask-image: linear-gradient(
+      135deg,
+      hsl(0 0% 0%) 0%,
+      transparent 70%
+    );
+    mask-image: linear-gradient(135deg, hsl(0 0% 0%) 0%, transparent 70%);
+  }
+
+  /*
+    The pulse in the traces.
+
+    A user-directed exception (2026-08-24) to "nothing in the periphery
+    loops": the trace ornament carries a slow current — a short bright dash
+    travelling the line's own geometry, the way signal moves through a
+    circuit. It stays an exception, not a precedent: only the ornament may
+    loop, it is slow (8s per circuit), and it disappears entirely under
+    prefers-reduced-motion, leaving the static art.
+
+    Mechanics: the pulse is an overlay of the same path with pathLength=100
+    normalised, dashed 16/84, and its offset swept by -200 per cycle — a
+    multiple of the dash period, so the loop has no visible seam.
+  */
+  @keyframes vz-trace-pulse {
+    from {
+      stroke-dashoffset: 0;
+    }
+    to {
+      stroke-dashoffset: -200;
+    }
+  }
+
+  .vz-trace-pulse {
+    stroke-dasharray: 16 84;
+    animation: vz-trace-pulse 8s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vz-trace-pulse {
+      animation: none;
+      opacity: 0;
+    }
+  }
 }
 
 /* Workflow edge flowing animation */
@@ -505,132 +568,178 @@ input:-webkit-autofill:active {
 
 
 /*
-  SURFACE — the sheet palette.
+  VOZKO — the circuit palette.
 
-  Content sits ON a soft cool canvas as clean white sheets, layered by
-  elevation. That is the inverse of the outgoing model (content cut INTO an
-  enamel panel, depth sold by an engraved hairline and a darker top edge, no
-  shadow anywhere), and the inversion is the identity: depth here is a stack of
-  slate-tinted micro-shadows, and a border is a boundary rather than a groove.
+  The brand board (2026-08-23) pins this identity: signal-green #00D09A on
+  graphite, a squared techno display face over Inter, circuit traces and dot
+  matrices as the only ornament. Dark is the brand-canonical scene — the board
+  is shot on #0D0F10 — and light is its daylight counterpart, not an
+  afterthought: same hue family (the 200-213 graphite band), same green, white
+  sheets on a cool near-white canvas. Light stays the product DEFAULT (user
+  decision 2026-08-23): attendants on Brazilian ops floors under fluorescent
+  light read text-dense queues for full shifts.
 
-  The neutrals carry a deliberate cool cast. The outgoing ground was hue 40 at
-  87% lightness — a warm putty beige, and the single strongest reason the
-  interface read as old software. Every neutral here sits in the 210-227 band
-  instead, so white sheets read as white against it.
+  The material model is inherited from Surface because it was right: content
+  sits ON the canvas as sheets layered by elevation, borders are boundaries,
+  depth is a two-layer micro-shadow stack. What changed is the world on top of
+  it — hue-17 orange retires, and the green is spent exactly where the orange
+  was: commit, selection, and focus. Never decoration.
 
-  The accent hue is unchanged, by decision: hue 17 is the brand. What changed is
-  its shape. It was a lamp — a lit indicator pip on a panel — and it is now what
-  both reference systems spend their brand colour on: commit, selection, and
-  focus. --primary is a fill; accent TEXT uses --primary-ink, darkened until it
-  clears AA on white.
+  THE GREEN RULE: #00D09A carries DARK ink, never white. The board's own
+  primary button is dark-on-green, and it measures: green vs #0D0F10 = 9.6:1;
+  green vs white = 2.0:1. Every --primary-foreground below is near-black in
+  both themes for this reason. In light the fill sits at L38 — a user call
+  (2026-08-24, "L32 reads too dark"): the label keeps 8.2:1, the fill edge on
+  white measures 2.3:1, which is the trade every vivid-green brand makes on a
+  white ground. Dark runs the board hex exactly.
+
+  All pairs measured, not assumed — 36 pairs × both themes, ALL PASS
+  (scratchpad/vozko-contrast.mjs, 2026-08-23). The tightest are quoted inline.
 */
 @layer base {
   :root {
-    /* Canvas → sheet → subtle fill.
-
-       The canvas sits 4 points below the sheet, not 2. At 98% a white card was
-       within 2% of the ground it sat on, so every card had to draw a border AND
-       a shadow just to be visible — which is the doubled depth that reads as
-       old software. Fluent 2 runs its canvas at ~96% against white layers for
-       exactly this reason: the sheet separates on elevation alone. Saturation
-       drops 38→22 at the same time; a near-white that saturated reads as a blue
-       cast rather than a neutral ground. */
-    --background: 214 22% 96%;
-    --foreground: 227 37% 16%;
+    /* Canvas → sheet. The canvas keeps the 4-point step below the white sheet
+       (elevation separates on its own; no doubled border+shadow), recast from
+       the blue 214 band into the brand's graphite 200-206 band so both themes
+       read as one family. */
+    --background: 200 24% 97%;
+    --foreground: 206 15% 9%;
     --card: 0 0% 100%;
-    --card-foreground: 227 37% 16%;
+    --card-foreground: 206 15% 9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 227 37% 16%;
+    --popover-foreground: 206 15% 9%;
 
-    /* The brand. Hue unchanged; L42 measures 4.6:1 against white, so a 14px
-       button label on a filled primary clears AA with headroom. */
-    --primary: 17 100% 42%;
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 17 100% 37%;
-    --primary-active: 17 100% 32%;
+    /* The brand green in daylight: L38, close to the board hex, carrying its
+       dark label at 8.2:1. Hover and pressed step DARKER here (a light ground
+       reads darker as closer), the inverse of the dark theme's ramp. */
+    --primary: 164 100% 38%;
+    --primary-foreground: 200 10% 6%;
+    --primary-hover: 164 100% 33%;
+    --primary-active: 164 100% 29%;
 
     /* The tinted ground under a selected row, a soft badge, an active tab. */
-    --primary-subtle: 20 100% 96%;
-    --primary-subtle-hover: 20 100% 93%;
+    --primary-subtle: 163 60% 94%;
+    --primary-subtle-hover: 163 55% 90%;
 
-    /* Accent TEXT. --primary at L42 is 4.6:1 on white, which is fine for a
-       label on a filled button but leaves nothing for 12px secondary text on a
-       sheet; this is the same hue darkened until it has real margin (6.0:1). */
-    --primary-ink: 15 88% 36%;
+    /* Accent TEXT. The fill at L32 is fine under a label but thin for 12px
+       text on a sheet; the ink darkens to L24 → 5.31:1 on white, 4.86:1 on
+       the selected-row tint. */
+    --primary-ink: 165 100% 24%;
 
-    --primary-50: 20 100% 97%;
-    --primary-100: 19 100% 93%;
-    --primary-200: 19 100% 86%;
-    --primary-300: 18 100% 74%;
-    --primary-400: 18 100% 60%;
-    --primary-500: 17 100% 50%;
-    --primary-600: 17 100% 42%;
-    --primary-700: 16 96% 35%;
-    --primary-800: 15 90% 28%;
-    --primary-900: 14 84% 22%;
+    /* Icon accent + stroke scale.
+       The own icon set paints its base stroke with currentColor and its
+       highlight with --icon-accent.
 
-    --secondary: 214 32% 96%;
-    --secondary-foreground: 227 37% 16%;
+       This is its OWN value, not --primary-ink. The ink is tuned for 12px
+       TEXT (5.31:1); an icon highlight is a graphic, where the bar is 3:1
+       (WCAG 1.4.11). Spending that headroom on chroma instead of luminance
+       is what keeps the green recognisably the brand's in daylight: L30
+       measures 3.63:1 on white and 3.40:1 on the canvas, and carries 20%
+       more chroma than the ink did. Against the dark theme's value the
+       chroma gap is 13% — it was 39% while both borrowed the ink, which is
+       why the green read as a different colour between themes.
 
-    --accent: 214 32% 96%;
-    --accent-foreground: 227 37% 16%;
-    --accent-hover: 214 30% 93%;
+       --icon-stroke-scale exists because equal contrast is not equal weight.
+       A light stroke on a dark ground blooms; the same stroke in dark on
+       white thins out (irradiation). Base contrast already matches almost
+       exactly — 6.23:1 light vs 7.04:1 dark — yet light looked washed. So
+       daylight gets 10% more stroke to land at the same apparent weight. */
+    --icon-accent: hsl(164 100% 30%);
+    --icon-stroke-scale: 1.1;
 
-    --muted: 214 26% 93%;
-    /* 5.7:1 on a white sheet, 5.5:1 on the canvas. Secondary text sits on both,
-       so it is measured against the worse of the two. */
-    --muted-foreground: 220 14% 42%;
+    --primary-50: 163 70% 96%;
+    --primary-100: 163 65% 91%;
+    --primary-200: 163 60% 83%;
+    --primary-300: 163 65% 70%;
+    --primary-400: 164 70% 54%;
+    --primary-500: 164 100% 41%;
+    --primary-600: 164 100% 38%;
+    --primary-700: 164 100% 26%;
+    --primary-800: 165 95% 20%;
+    --primary-900: 166 90% 15%;
+
+    --secondary: 204 20% 95%;
+    --secondary-foreground: 206 15% 9%;
+
+    --accent: 204 20% 95%;
+    --accent-foreground: 206 15% 9%;
+    --accent-hover: 204 18% 91%;
+
+    --muted: 204 16% 93%;
+    /* 6.2:1 on a white sheet, 5.8:1 on the canvas, 5.3:1 on --muted itself.
+       Secondary text sits on all three, so it is measured against the worst. */
+    --muted-foreground: 206 9% 38%;
 
     /* Status.
 
-       With an orange brand, warning is the colour most at risk of collapsing
-       into the accent, so it is pushed to a true amber at hue 45 rather than
-       the hue 42 the outgoing palette used, and status never rests on colour
-       alone — every one of these ships with a glyph and a label. Destructive
-       sits at 346, far enough from 17 that a delete button and a commit button
-       are never the same colour. */
-    --healthy: 160 84% 26%;
+       With a GREEN brand, healthy is the colour most at risk of collapsing
+       into the accent. It is pulled to 152 — yellower, deeper — and status
+       never rests on colour alone: every one of these ships with a glyph and
+       a label. The board's own "Sucesso" mark is brand green; the family
+       resemblance is the board's language, the hue step keeps a success chip
+       and a commit button from being the same value. */
+    --healthy: 152 90% 27%;
     --healthy-foreground: 0 0% 100%;
     --warning: 42 96% 45%;
-    --warning-foreground: 24 90% 14%;
-    --destructive: 352 74% 45%;
+    --warning-foreground: 26 90% 12%;
+    --destructive: 352 74% 44%;
     --destructive-foreground: 0 0% 100%;
-    /* Informational. The blue the palette otherwise gives up by keeping orange
-       as the brand — banners, hints, neutral callouts. */
-    --info: 212 92% 43%;
+    --info: 210 90% 42%;
     --info-foreground: 0 0% 100%;
 
-    /* Status INK: the text value, for a label sitting on a tint of its own hue.
-       A status colour tuned to be legible as a fill is not legible as 11px text
-       on a 10-15% wash of itself — amber is the worst offender and was the one
-       that failed first. Same split as --primary / --primary-ink. */
-    --healthy-ink: 160 84% 22%;
-    --warning-ink: 32 94% 30%;
-    --destructive-ink: 352 76% 40%;
-    --info-ink: 212 92% 36%;
+    /* Status INK: the text value, for a label on a neutral ground. Same
+       fill/ink split as --primary / --primary-ink; all four measure ≥5.4:1
+       on --muted. */
+    --healthy-ink: 152 95% 22%;
+    --warning-ink: 32 94% 29%;
+    --destructive-ink: 352 78% 38%;
+    --info-ink: 211 92% 34%;
 
     /* Hairlines. --border is a boundary; --border-strong is the deliberate
        step up for a field edge, a resting control, a table head rule. */
-    --border: 214 26% 90%;
-    --border-strong: 214 20% 80%;
-    --input: 214 26% 90%;
+    --border: 204 14% 88%;
+    --border-strong: 205 12% 76%;
+    --input: 204 14% 88%;
 
-    /* Focus may own the brand hue now. The outgoing identity had to give focus
-       its own hue (192) because a lit accent pip already meant "current" and a
-       keyboard user could not tell the two apart. The pip is retired, so focus
-       takes the brand back — which is what both reference systems do. */
-    --ring: 17 100% 42%;
+    /* Focus owns the brand green — commit, selection and focus are the three
+       jobs the accent has. */
+    --ring: 164 100% 38%;
 
-    /* Series colour, deliberately clear of the brand hue: a chart series that
-       matches the accent makes a graph look like it is reporting state. */
-    --chart-1: 231 60% 56%;
-    --chart-2: 160 70% 34%;
+    /* The ornament's own green. The brand fill is tuned to carry a label;
+       the trace lines carry only themselves, and an alpha-faded L38 green
+       dissolves into a white canvas. So the ornament runs DEEPER in light
+       (L30 survives the blend to white) and the board hex in dark. Consumed
+       as text-ornament/NN — one class, themed by the var. */
+    --ornament: 164 100% 30%;
+
+    /* Series colour. Green leads — a green-brand product charts its own
+       revenue in its own colour (the board's dashboard does exactly this) —
+       then the four validated non-brand hues from the previous pass, whose
+       pairwise CVD distances were measured 2026-08-19. Amber (chart-3) sits
+       below 3:1 on white by nature of yellow — every chart that uses it must
+       carry direct labels or a legend, which ours do. */
+    --chart-1: 164 100% 32%;
+    --chart-2: 231 60% 56%;
     --chart-3: 43 92% 45%;
     --chart-4: 199 89% 42%;
-    --chart-5: 280 52% 55%;
+    --chart-5: 321 50% 46%;
+
+    /* PLATES — the fills behind a white glyph (tiles, node chips, KPI marks).
+       Decoupled from the series on purpose: a chart mark is tuned to be told
+       apart from its neighbours, a plate is tuned to carry WHITE ink — one
+       value cannot serve both masters. Every plate holds white at ≥3:1 in its
+       own theme (green measured 3.6, amber deepened until white passes). */
+    --plate-1: 164 100% 30%;
+    --plate-2: 231 60% 56%;
+    --plate-3: 36 95% 40%;
+    --plate-4: 199 89% 42%;
+    --plate-5: 321 50% 46%;
+    --plate-neutral: 206 9% 38%;
 
     /* The control radius. The scale itself is remapped in tailwind.config.ts,
-       so this is the value ~1,000 `rounded-[--radius]` call sites resolve to. */
+       so this is the value ~1,000 `rounded-[--radius]` call sites resolve to.
+       6px is the board's control corner — its buttons and chips sit visibly
+       rounder than the Fluent 4px this replaces, without going pill. */
     --radius: 6px;
 
     /*
@@ -643,23 +752,23 @@ input:-webkit-autofill:active {
       the tint is what makes the stack read as considered rather than default.
     */
     --elev-1:
-      0 1px 1px 0 hsl(228 40% 28% / 0.06),
-      0 1px 2px 0 hsl(228 40% 28% / 0.04);
+      0 1px 1px 0 hsl(206 30% 22% / 0.06),
+      0 1px 2px 0 hsl(206 30% 22% / 0.04);
     --elev-2:
-      0 1px 1px 0 hsl(228 40% 28% / 0.07),
-      0 2px 5px -1px hsl(228 40% 28% / 0.07),
+      0 1px 1px 0 hsl(206 30% 22% / 0.07),
+      0 2px 5px -1px hsl(206 30% 22% / 0.07),
       0 1px 2px 0 hsl(0 0% 0% / 0.04);
     --elev-3:
-      0 2px 5px -1px hsl(228 40% 28% / 0.10),
+      0 2px 5px -1px hsl(206 30% 22% / 0.10),
       0 1px 3px -1px hsl(0 0% 0% / 0.06);
     --elev-4:
-      0 4px 12px -2px hsl(228 40% 28% / 0.12),
+      0 4px 12px -2px hsl(206 30% 22% / 0.12),
       0 2px 6px -2px hsl(0 0% 0% / 0.06);
     --elev-5:
-      0 8px 24px -4px hsl(228 40% 28% / 0.16),
+      0 8px 24px -4px hsl(206 30% 22% / 0.16),
       0 4px 10px -4px hsl(0 0% 0% / 0.08);
     --elev-6:
-      0 16px 48px -8px hsl(228 40% 28% / 0.22),
+      0 16px 48px -8px hsl(206 30% 22% / 0.22),
       0 8px 16px -8px hsl(0 0% 0% / 0.10);
 
     /*
@@ -672,15 +781,15 @@ input:-webkit-autofill:active {
       draws its border AS the first shadow layer (`0 0 0 1px`) so the border and
       the elevation compose instead of fighting.
     */
-    --elev-button: 0 1px 2px 0 hsl(228 40% 28% / 0.07);
-    --elev-button-hover: 0 1px 3px 0 hsl(228 40% 28% / 0.11);
+    --elev-button: 0 1px 2px 0 hsl(206 30% 22% / 0.07);
+    --elev-button-hover: 0 1px 3px 0 hsl(206 30% 22% / 0.11);
     --elev-button-quiet:
-      0 0 0 1px hsl(214 26% 88%),
-      0 1px 1px 0 hsl(228 40% 28% / 0.05),
-      0 2px 5px -1px hsl(228 40% 28% / 0.06);
+      0 0 0 1px hsl(204 14% 88%),
+      0 1px 1px 0 hsl(206 30% 22% / 0.05),
+      0 2px 5px -1px hsl(206 30% 22% / 0.06);
     --elev-button-quiet-hover:
-      0 0 0 1px hsl(214 22% 80%),
-      0 2px 5px -1px hsl(228 40% 28% / 0.12),
+      0 0 0 1px hsl(205 12% 78%),
+      0 2px 5px -1px hsl(206 30% 22% / 0.12),
       0 3px 8px -2px hsl(0 0% 0% / 0.06);
 
     /*
@@ -694,95 +803,118 @@ input:-webkit-autofill:active {
       hand-written box-shadow strings interpolate them, and an undefined var
       invalidates the whole declaration.
     */
-    --rule-strong: 214 20% 80%;
-    --lamp: 17 100% 42%;
-    --lamp-ink: 15 88% 36%;
+    --rule-strong: 205 12% 76%;
+    --lamp: 164 100% 38%;
+    --lamp-ink: 165 100% 24%;
     --shadow-highlight: transparent;
     --shadow-highlight-strong: transparent;
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 227 37% 16%;
-    --sidebar-primary: 17 100% 42%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 214 32% 96%;
-    --sidebar-accent-foreground: 227 37% 16%;
-    --sidebar-border: 214 26% 90%;
-    --sidebar-ring: 17 100% 42%;
+    --sidebar-foreground: 206 15% 9%;
+    --sidebar-primary: 164 100% 38%;
+    --sidebar-primary-foreground: 200 10% 6%;
+    --sidebar-accent: 204 20% 95%;
+    --sidebar-accent-foreground: 206 15% 9%;
+    --sidebar-border: 204 14% 88%;
+    --sidebar-ring: 164 100% 38%;
   }
 
   .dark {
     /*
-      Dark is a first-class scene, not an inversion: a cool near-black slate
-      that keeps the same hue family as the light canvas, so the product reads
-      as one design in either theme. Sheets step UP in lightness here rather
-      than staying white, because on a dark ground elevation is carried by
-      lightness first and shadow second.
+      The brand-canonical scene, tuned darker by user direction (2026-08-24,
+      "the pages read grayish"): canvas AND app chrome share the board's
+      deepest black #0D0F10 (200 10% 6%); sheets sit just one step up at
+      #14181B (210 12% 9%) so a card-heavy page still reads BLACK; the quiet
+      fill (--muted) lands on the board's #1A1D20 chip; hairlines #2C3136.
+      Elevation is carried by the lightness step plus shadow.
     */
-    --background: 224 24% 8%;
-    --foreground: 210 24% 96%;
-    --card: 224 21% 11%;
-    --card-foreground: 210 24% 96%;
-    --popover: 224 20% 13%;
-    --popover-foreground: 210 24% 96%;
+    --background: 200 10% 6%;
+    --foreground: 210 15% 96%;
+    --card: 210 12% 9%;
+    --card-foreground: 210 15% 96%;
+    --popover: 210 10% 12%;
+    --popover-foreground: 210 15% 96%;
 
-    /* Held at L42 rather than brightened: a lighter fill looks better in
-       isolation but white on it drops under AA, and the label has to be
-       readable before the fill is pretty. */
-    --primary: 17 100% 42%;
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 17 100% 47%;
-    --primary-active: 17 100% 36%;
-    --primary-subtle: 17 55% 15%;
-    --primary-subtle-hover: 17 55% 19%;
-    --primary-ink: 20 100% 68%;
+    /* The board hex exactly — #00D09A. Its label is DARK, not white: white on
+       this green measures 2.0:1 and fails outright; the board's canvas ink
+       measures 9.64:1 on it. Hover steps brighter (dark ground reads brighter
+       as closer), pressed steps deeper. */
+    --primary: 164 100% 41%;
+    --primary-foreground: 200 10% 6%;
+    --primary-hover: 164 100% 46%;
+    --primary-active: 164 100% 35%;
+    --primary-subtle: 166 45% 12%;
+    --primary-subtle-hover: 166 42% 16%;
+    /* Green as TEXT on graphite has headroom to spare (10.5:1 on the sheet at
+       L48); brighter than the light ink because dark inks go lighter. */
+    --primary-ink: 163 88% 48%;
 
-    --primary-50: 14 60% 11%;
-    --primary-100: 15 60% 15%;
-    --primary-200: 16 62% 21%;
-    --primary-300: 16 72% 30%;
-    --primary-400: 17 88% 40%;
-    --primary-500: 17 100% 47%;
-    --primary-600: 17 100% 54%;
-    --primary-700: 18 100% 63%;
-    --primary-800: 19 100% 74%;
-    --primary-900: 20 100% 86%;
+    /* Tempered off the ink so the two themes read as one green: at the ink's
+       own 88%/48% the dark highlight carried 39% more chroma than daylight
+       could ever reach. 8.16:1 on the card — far above the 3:1 a graphic
+       needs. Stroke scale stays 1: dark is the ground that blooms. */
+    --icon-accent: hsl(163 72% 45%);
+    --icon-stroke-scale: 1;
 
-    --secondary: 223 18% 16%;
-    --secondary-foreground: 210 24% 96%;
-    --muted: 223 18% 16%;
-    --muted-foreground: 218 14% 66%;
-    --accent: 223 18% 16%;
-    --accent-foreground: 210 24% 96%;
-    --accent-hover: 223 16% 21%;
+    --primary-50: 166 45% 10%;
+    --primary-100: 166 45% 14%;
+    --primary-200: 165 55% 19%;
+    --primary-300: 165 70% 26%;
+    --primary-400: 164 85% 33%;
+    --primary-500: 164 100% 41%;
+    --primary-600: 164 100% 47%;
+    --primary-700: 163 95% 57%;
+    --primary-800: 162 85% 70%;
+    --primary-900: 160 80% 85%;
 
-    --healthy: 158 62% 42%;
-    --healthy-foreground: 224 24% 8%;
+    --secondary: 210 10% 12%;
+    --secondary-foreground: 210 15% 96%;
+    --muted: 210 10% 12%;
+    /* The board's own secondary ink #8B9096 sits at L57 (5.26:1 on the sheet);
+       lifted to L64 so 12px metadata clears AA on every ground it sits on
+       (6.7:1 sheet, 7.5:1 canvas, 5.7:1 muted). */
+    --muted-foreground: 213 7% 64%;
+    --accent: 210 10% 12%;
+    --accent-foreground: 210 15% 96%;
+    --accent-hover: 210 9% 16%;
+
+    --healthy: 152 65% 44%;
+    --healthy-foreground: 200 10% 6%;
     --warning: 42 94% 55%;
-    --warning-foreground: 224 24% 8%;
-    --destructive: 352 78% 48%;
+    --warning-foreground: 200 10% 6%;
+    --destructive: 352 78% 52%;
     --destructive-foreground: 0 0% 100%;
-    --info: 210 92% 62%;
-    --info-foreground: 224 24% 8%;
+    --info: 206 90% 60%;
+    --info-foreground: 200 10% 6%;
 
     /* On a dark ground the ink goes lighter than the fill, not darker. */
-    --healthy-ink: 158 62% 58%;
+    --healthy-ink: 152 60% 55%;
     --warning-ink: 42 96% 62%;
-    --destructive-ink: 352 88% 70%;
-    --info-ink: 210 92% 70%;
+    --destructive-ink: 353 90% 72%;
+    --info-ink: 206 92% 70%;
 
-    --border: 220 14% 21%;
-    --border-strong: 220 12% 31%;
-    --input: 220 14% 21%;
+    --border: 210 10% 19%;
+    --border-strong: 211 8% 30%;
+    --input: 210 10% 19%;
 
     /* Brighter than the fill: the halo has to register against a near-black
        ground, where the fill value disappears into it. */
-    --ring: 17 100% 54%;
+    --ring: 164 100% 46%;
 
-    --chart-1: 231 78% 70%;
-    --chart-2: 158 62% 48%;
-    --chart-3: 43 92% 58%;
-    --chart-4: 199 89% 58%;
-    --chart-5: 280 68% 70%;
+    /* On graphite the board hex needs no deepening. */
+    --ornament: 164 100% 41%;
+
+    /* Series-1 is the brand green at the board hex — 8.4:1 on the sheet, and
+       the board's own dashboard charts its numbers in this colour. Series 2–5
+       are the four non-brand hues from the 2026-08-19 validation pass
+       (re-stepped inside the dark band, saturation pushed so they read VIVID
+       on graphite; adjacent pairs cleared CVD ΔE 8 then). Green replacing the
+       old green-at-158 keeps the pairwise geometry intact. */
+    --chart-1: 164 100% 41%;
+    --chart-2: 229 75% 60%;
+    --chart-3: 44 92% 37%;
+    --chart-4: 200 95% 43%;
+    --chart-5: 320 66% 49%;
 
     /* On a dark ground a tinted shadow does nothing — there is no lightness
        left to remove — so these go to plain black at higher alpha and let the
@@ -809,26 +941,40 @@ input:-webkit-autofill:active {
     --elev-button: 0 1px 2px 0 hsl(0 0% 0% / 0.34);
     --elev-button-hover: 0 1px 3px 0 hsl(0 0% 0% / 0.44);
     --elev-button-quiet:
-      0 0 0 1px hsl(220 14% 24%),
+      0 0 0 1px hsl(210 10% 24%),
       0 1px 2px 0 hsl(0 0% 0% / 0.30);
     --elev-button-quiet-hover:
-      0 0 0 1px hsl(220 12% 34%),
+      0 0 0 1px hsl(210 8% 34%),
       0 2px 6px -1px hsl(0 0% 0% / 0.40);
 
-    --rule-strong: 220 12% 31%;
-    --lamp: 17 100% 54%;
-    --lamp-ink: 20 100% 68%;
+    /* Dark plates: deep enough that white ink holds ≥3:1, saturated enough
+       to read vivid on graphite. Distinct from the (brighter) dark series.
+       Green (plate-1) sits at L33 — white on it measures 3.1:1; the vivid
+       brand fill itself is a button colour, never a glyph plate. */
+    --plate-1: 164 85% 33%;
+    --plate-2: 229 67% 59%;
+    --plate-3: 44 81% 39%;
+    --plate-4: 200 86% 44%;
+    --plate-5: 318 58% 49%;
+    --plate-neutral: 212 8% 46%;
+
+    --rule-strong: 211 8% 30%;
+    --lamp: 164 100% 41%;
+    --lamp-ink: 163 88% 48%;
     --shadow-highlight: transparent;
     --shadow-highlight-strong: transparent;
 
-    --sidebar-background: 224 21% 11%;
-    --sidebar-foreground: 210 24% 96%;
-    --sidebar-primary: 17 100% 42%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 223 18% 16%;
-    --sidebar-accent-foreground: 210 24% 96%;
-    --sidebar-border: 220 14% 21%;
-    --sidebar-ring: 17 100% 54%;
+    /* The chrome layer: bar and spine wear the board's deepest black, so the
+       shell frames a lighter canvas exactly as the board's interface mock
+       does. */
+    --sidebar-background: 200 10% 6%;
+    --sidebar-foreground: 210 15% 96%;
+    --sidebar-primary: 164 100% 41%;
+    --sidebar-primary-foreground: 200 10% 6%;
+    --sidebar-accent: 210 9% 14%;
+    --sidebar-accent-foreground: 210 15% 96%;
+    --sidebar-border: 210 10% 17%;
+    --sidebar-ring: 164 100% 46%;
   }
 }
 

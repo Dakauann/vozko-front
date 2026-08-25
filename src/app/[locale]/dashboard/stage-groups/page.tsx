@@ -46,8 +46,7 @@ import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader"
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { IconBox } from "@/components/elevated-design/listing-card";
 import type { StageGroup } from "@/lib/stage-groups/types";
-import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { cn, readableInkFor } from "@/lib/utils";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
@@ -446,12 +445,7 @@ export default function TagGroupsPage() {
 
   return (
     <>
-      <motion.main
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.35 }}
-        className="w-full space-y-4"
-      >
+      <main className="w-full space-y-4">
         <DashboardPageHeader
           icon={<Tag className="h-6 w-6" weight="fill" />}
           badge={t("header.badge")}
@@ -495,7 +489,7 @@ export default function TagGroupsPage() {
                   <p className="text-2xs font-semibold text-muted-foreground">
                     {stat.label}
                   </p>
-                  <p className="mt-2 text-2xl font-semibold text-foreground">
+                  <p className="mt-2 font-display text-2xl font-semibold text-foreground">
                     {stat.value}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
@@ -535,7 +529,7 @@ export default function TagGroupsPage() {
             >
               <Tag weight="fill" />
             </IconBox>
-            <h2 className="mt-4 text-lg font-semibold text-foreground">
+            <h2 className="mt-4 font-display text-lg font-semibold tracking-[0.01em] text-foreground">
               {t("empty.title")}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -640,8 +634,11 @@ export default function TagGroupsPage() {
                               {previewItems.map((item) => (
                                 <span
                                   key={item.id}
-                                  className="rounded-[--radius] px-2.5 py-1 text-2xs font-semibold text-white"
-                                  style={{ backgroundColor: item.color }}
+                                  className="rounded-[--radius] px-2.5 py-1 text-2xs font-semibold"
+                                  style={{
+                                    backgroundColor: item.color,
+                                    color: readableInkFor(item.color),
+                                  }}
                                 >
                                   {item.name}
                                 </span>
@@ -677,7 +674,7 @@ export default function TagGroupsPage() {
                           <p className="text-xs font-semibold text-primary-ink">
                             {t("detail.badge")}
                           </p>
-                          <h2 className="mt-2 text-2xl font-semibold text-foreground">
+                          <h2 className="mt-2 font-display text-2xl font-semibold tracking-[0.01em] text-foreground">
                             {selectedGroup.name}
                           </h2>
                           <p className="mt-1 text-sm text-muted-foreground">
@@ -755,7 +752,10 @@ export default function TagGroupsPage() {
                           <div className="flex items-start gap-4">
                             <div
                               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[--radius] text-sm font-semibold"
-                              style={{ backgroundColor: item.color }}
+                              style={{
+                                backgroundColor: item.color,
+                                color: readableInkFor(item.color),
+                              }}
                             >
                               {index + 1}
                             </div>
@@ -785,7 +785,7 @@ export default function TagGroupsPage() {
                   <IconBox color="slate" size="lg" animated={false}>
                     <Tag weight="fill" />
                   </IconBox>
-                  <h2 className="mt-4 text-lg font-semibold text-foreground">
+                  <h2 className="mt-4 font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                     {t("detail.noSelectionTitle")}
                   </h2>
                   <p className="mt-1 max-w-md text-sm text-muted-foreground">
@@ -796,7 +796,7 @@ export default function TagGroupsPage() {
             </section>
           </div>
         )}
-      </motion.main>
+      </main>
 
       <ElevatedSheet open={sheetOpen} onOpenChange={handleSheetChange}>
         <ElevatedSheetContent side="right" className="w-full sm:max-w-[560px]">
@@ -836,8 +836,11 @@ export default function TagGroupsPage() {
                     draftPreviewItems.slice(0, 4).map((item) => (
                       <span
                         key={item.id}
-                        className="rounded-[--radius] px-2.5 py-1 text-2xs font-semibold text-white"
-                        style={{ backgroundColor: item.color }}
+                        className="rounded-[--radius] px-2.5 py-1 text-2xs font-semibold"
+                        style={{
+                          backgroundColor: item.color,
+                          color: readableInkFor(item.color),
+                        }}
                       >
                         {item.name}
                       </span>
@@ -900,7 +903,8 @@ export default function TagGroupsPage() {
                           >
                             <PaintBrush
                               weight="bold"
-                              className="h-3.5 w-3.5 text-white drop-shadow-sm"
+                              className="h-3.5 w-3.5"
+                              style={{ color: readableInkFor(item.color) }}
                             />
                           </button>
                           <div className="absolute left-0 top-full z-10 mt-1 hidden w-40 grid-cols-4 gap-1 rounded-[--radius] border border-border bg-card p-2 shadow-lg group-focus-within:grid group-hover:grid">

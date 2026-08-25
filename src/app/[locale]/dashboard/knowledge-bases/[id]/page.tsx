@@ -21,32 +21,9 @@ import { apiClient } from "@/lib/api/browser-client";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import { IconBox } from "@/components/elevated-design/listing-card";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useDropzone } from "react-dropzone";
 import { useTranslations } from "next-intl";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.4,
-      ease: [0.25, 0.1, 0.25, 1] as const,
-    },
-  },
-};
 
 export default function KnowledgeBaseDetailPage() {
   const router = useRouter();
@@ -259,13 +236,8 @@ export default function KnowledgeBaseDetailPage() {
   );
 
   return (
-    <motion.main
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="w-full space-y-6"
-    >
-      <motion.div variants={itemVariants}>
+    <main className="w-full space-y-6">
+      <div>
         <DashboardPageHeader
           back={{
             onClick: () => router.push("/dashboard/knowledge-bases"),
@@ -288,47 +260,44 @@ export default function KnowledgeBaseDetailPage() {
             />
           }
         />
-      </motion.div>
+      </div>
 
-      <motion.div
-        variants={containerVariants}
-        className="grid gap-4 sm:grid-cols-3"
-      >
-        <motion.div variants={itemVariants}>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div>
           <ElevatedContainer className="p-4 text-center">
-            <p className="text-2xl font-semibold text-foreground">
+            <p className="font-display text-2xl font-semibold text-foreground">
               {documents.length}
             </p>
             <p className="text-sm text-muted-foreground">
               {t("detail.documents")}
             </p>
           </ElevatedContainer>
-        </motion.div>
-        <motion.div variants={itemVariants}>
+        </div>
+        <div>
           <ElevatedContainer className="p-4 text-center">
-            <p className="text-2xl font-semibold text-foreground">{totalChunks}</p>
+            <p className="font-display text-2xl font-semibold text-foreground">{totalChunks}</p>
             <p className="text-sm text-muted-foreground">
               {t("detail.chunks")}
             </p>
           </ElevatedContainer>
-        </motion.div>
-        <motion.div variants={itemVariants}>
+        </div>
+        <div>
           <ElevatedContainer className="p-4 text-center">
-            <p className="text-2xl font-semibold text-foreground">
+            <p className="font-display text-2xl font-semibold text-foreground">
               {new Date(knowledgeBase.createdAt).toLocaleDateString()}
             </p>
             <p className="text-sm text-muted-foreground">
               {t("detail.createdAt")}
             </p>
           </ElevatedContainer>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
-      <motion.div variants={itemVariants}>
+      <div>
         <ElevatedContainer className="p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-lg font-semibold text-foreground">
+              <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                 {t("documents.title")}
               </h3>
               <p className="text-sm text-muted-foreground">
@@ -459,7 +428,7 @@ export default function KnowledgeBaseDetailPage() {
             </div>
           )}
         </ElevatedContainer>
-      </motion.div>
-    </motion.main>
+      </div>
+    </main>
   );
 }

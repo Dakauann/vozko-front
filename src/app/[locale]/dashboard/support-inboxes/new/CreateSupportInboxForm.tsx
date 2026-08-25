@@ -180,7 +180,7 @@ export default function CreateSupportInboxForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Basic Info */}
       <ElevatedContainer className="space-y-6">
-        <h3 className="text-lg font-semibold text-foreground">
+        <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
           {t("basicInfoTitle")}
         </h3>
 
@@ -206,7 +206,7 @@ export default function CreateSupportInboxForm() {
 
       {/* Widget Color */}
       <ElevatedContainer className="space-y-4">
-        <h3 className="text-lg font-semibold text-foreground">
+        <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
           {t("widgetColorTitle")}
         </h3>
         <p className="text-sm text-muted-foreground">
@@ -241,7 +241,7 @@ export default function CreateSupportInboxForm() {
 
       {/* AI Agent */}
       <ElevatedContainer className="space-y-4">
-        <h3 className="text-lg font-semibold text-foreground">
+        <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
           {t("aiAgentTitle")}
         </h3>
 
@@ -287,7 +287,7 @@ export default function CreateSupportInboxForm() {
       <ElevatedContainer className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-foreground">
+            <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
               {t("originsTitle")}
             </h3>
             <p className="text-sm text-muted-foreground">
@@ -346,7 +346,7 @@ export default function CreateSupportInboxForm() {
       <ElevatedContainer className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-foreground">
+            <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
               {t("preChatTitle")}
             </h3>
             <p className="text-sm text-muted-foreground">

@@ -402,7 +402,7 @@ export default function CampaignHeader({
               }}
             />
           </div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-foreground truncate mt-0.5">
+          <h1 className="font-display text-xl sm:text-2xl font-semibold tracking-[0.01em] text-foreground truncate mt-0.5">
             {name}
           </h1>
         </div>
@@ -513,7 +513,9 @@ export default function CampaignHeader({
                 icon={<PlayCircle weight="fill" className="h-4 w-4" />}
                 iconVisible
                 iconColor={
-                  canStart && hasPermissionStart ? "#10b981" : undefined
+                  canStart && hasPermissionStart
+                    ? "hsl(var(--healthy))"
+                    : undefined
                 }
                 size="icon"
               />

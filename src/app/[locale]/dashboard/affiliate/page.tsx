@@ -21,7 +21,6 @@ import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { cn } from "@/lib/utils";
 import { getMyAffiliateAction } from "@/app/actions/affiliate";
-import { motion } from "framer-motion";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
@@ -166,12 +165,7 @@ function AffiliateLanding({ onCta }: { onCta: () => void }) {
   ];
 
   return (
-    <motion.main
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="w-full space-y-6"
-    >
+    <main className="w-full space-y-6">
       <DashboardPageHeader
         icon={<Handshake className="h-5 w-5" weight="fill" />}
         badge={t("header.badge")}
@@ -183,22 +177,13 @@ function AffiliateLanding({ onCta }: { onCta: () => void }) {
         className="relative overflow-hidden rounded-[--radius] border border-border bg-card p-6 sm:p-10"
         style={{ boxShadow: softSurfaceShadow }}
       >
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-muted blur-3xl"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -left-16 bottom-0 h-56 w-56 rounded-full bg-muted blur-3xl"
-        />
-
         <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-xl space-y-4">
             <span className="inline-flex items-center gap-2 rounded-[--radius] bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow-sm">
               <Sparkle className="h-3.5 w-3.5" weight="fill" />
               {t("landing.tagline")}
             </span>
-            <h1 className="text-3xl font-semibold leading-tight text-foreground sm:text-4xl">
+            <h1 className="font-display text-3xl font-semibold leading-tight tracking-[0.01em] text-foreground sm:text-4xl">
               {t("landing.title")}
             </h1>
             <p className="text-base text-muted-foreground">
@@ -221,18 +206,12 @@ function AffiliateLanding({ onCta }: { onCta: () => void }) {
 
           <ol className="grid w-full max-w-md gap-3 lg:w-auto">
             {steps.map((step, i) => (
-              <motion.li
-                key={step}
-                initial={{ opacity: 0, x: 12 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: i * 0.08 }}
-                className="flex items-start gap-3 rounded-[--radius] border border-border bg-background p-3"
-              >
+              <li key={step} className="flex items-start gap-3 rounded-[--radius] border border-border bg-background p-3">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground shadow-sm">
                   {i + 1}
                 </span>
                 <p className="pt-1 text-sm text-foreground">{step}</p>
-              </motion.li>
+              </li>
             ))}
           </ol>
         </div>
@@ -240,17 +219,10 @@ function AffiliateLanding({ onCta }: { onCta: () => void }) {
 
       {/* Perks grid */}
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {perks.map((perk, i) => {
+        {perks.map((perk) => {
           const Icon = perk.icon;
           return (
-            <motion.div
-              key={perk.title}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: i * 0.05 }}
-              className="rounded-[--radius] border border-border bg-card p-5"
-              style={{ boxShadow: softSurfaceShadow }}
-            >
+            <div key={perk.title} className="rounded-[--radius] border border-border bg-card p-5" style={{ boxShadow: softSurfaceShadow }}>
               <span className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground shadow-md">
                 <Icon className="h-5 w-5" weight="fill" />
               </span>
@@ -260,11 +232,11 @@ function AffiliateLanding({ onCta }: { onCta: () => void }) {
               <p className="mt-1 text-xs text-muted-foreground">
                 {perk.description}
               </p>
-            </motion.div>
+            </div>
           );
         })}
       </section>
-    </motion.main>
+    </main>
   );
 }
 
@@ -315,12 +287,7 @@ function AffiliateDashboard({
   ];
 
   return (
-    <motion.main
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="w-full space-y-6"
-    >
+    <main className="w-full space-y-6">
       <DashboardPageHeader
         icon={<Handshake className="h-5 w-5" weight="fill" />}
         badge={t("header.badge")}
@@ -331,17 +298,10 @@ function AffiliateDashboard({
 
       {/* Stats grid */}
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {cards.map((card, i) => {
+        {cards.map((card) => {
           const Icon = card.icon;
           return (
-            <motion.div
-              key={card.label}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: i * 0.05 }}
-              className="rounded-[--radius] border border-border bg-card p-5"
-              style={{ boxShadow: softSurfaceShadow }}
-            >
+            <div key={card.label} className="rounded-[--radius] border border-border bg-card p-5" style={{ boxShadow: softSurfaceShadow }}>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-muted-foreground">
                   {card.label}
@@ -350,10 +310,10 @@ function AffiliateDashboard({
                   <Icon className="h-4 w-4" weight="fill" />
                 </span>
               </div>
-              <p className="mt-3 text-2xl font-semibold tabular-nums text-foreground">
+              <p className="mt-3 font-display text-2xl font-semibold tabular-nums text-foreground">
                 {card.value}
               </p>
-            </motion.div>
+            </div>
           );
         })}
       </section>
@@ -369,7 +329,7 @@ function AffiliateDashboard({
               <LinkSimple className="h-3.5 w-3.5" weight="bold" />
               {t("dashboard.referralLink.badge")}
             </span>
-            <h3 className="mt-1 text-lg font-semibold text-foreground">
+            <h3 className="mt-1 font-display text-lg font-semibold tracking-[0.01em] text-foreground">
               {t("dashboard.referralLink.title")}
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -433,7 +393,7 @@ function AffiliateDashboard({
           description={t("dashboard.quickLinks.earnings.description")}
         />
       </section>
-    </motion.main>
+    </main>
   );
 }
 

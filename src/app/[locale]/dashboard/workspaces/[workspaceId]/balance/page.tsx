@@ -118,7 +118,7 @@ const INVOICE_STATUS_CONFIG: Record<
   },
   CANCELLED: {
     icon: XCircle,
-    className: "text-white bg-gray-500 border-gray-600",
+    className: "text-white bg-[hsl(var(--plate-neutral))] border-transparent",
   },
   REFUNDED: {
     icon: ArrowDown,
@@ -126,7 +126,7 @@ const INVOICE_STATUS_CONFIG: Record<
   },
   EXPIRED: {
     icon: XCircle,
-    className: "text-white bg-gray-500 border-gray-600",
+    className: "text-white bg-[hsl(var(--plate-neutral))] border-transparent",
   },
 };
 
@@ -599,18 +599,9 @@ export default function AdminWorkspaceBalancePage() {
   );
 
   return (
-    <motion.main
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="w-full space-y-4"
-    >
+    <main className="w-full space-y-4">
       {/* ── Header ── */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
+      <div>
         <DashboardPageHeader
           back={{
             onClick: () => router.push("/dashboard/workspaces"),
@@ -647,7 +638,7 @@ export default function AdminWorkspaceBalancePage() {
             </>
           }
         />
-      </motion.div>
+      </div>
 
       {/* ── Invoice / Debit Form ── */}
       <AnimatePresence>
@@ -667,7 +658,7 @@ export default function AdminWorkspaceBalancePage() {
                   : "border-border bg-muted",
               )}
             >
-              <h3 className="text-lg font-semibold text-foreground mb-4">
+              <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground mb-4">
                 {showForm === "invoice"
                   ? t("form.titleInvoice")
                   : t("form.titleDebit")}
@@ -782,10 +773,10 @@ export default function AdminWorkspaceBalancePage() {
                     type="submit"
                     disabled={submitting || !formAmount}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-[--radius] px-4 py-2 text-sm font-medium text-white transition-colors disabled:opacity-50",
+                      "inline-flex items-center gap-1.5 rounded-[--radius] px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50",
                       showForm === "invoice"
-                        ? "bg-healthy hover:bg-healthy"
-                        : "bg-destructive hover:bg-destructive",
+                        ? "bg-healthy text-healthy-foreground hover:bg-healthy"
+                        : "bg-destructive text-destructive-foreground hover:bg-destructive",
                     )}
                   >
                     {submitting ? (
@@ -808,11 +799,7 @@ export default function AdminWorkspaceBalancePage() {
       </AnimatePresence>
 
       {/* ── Transaction History ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-      >
+      <div>
         <DashboardTable<NormalizedTransaction>
           stats={[
             {
@@ -928,17 +915,13 @@ export default function AdminWorkspaceBalancePage() {
                 }
           }
         />
-      </motion.div>
+      </div>
 
       {/* ── Invoices ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
-      >
+      <div>
         <div className="flex items-center gap-2 mb-3">
           <InvoiceIcon className="h-5 w-5 text-primary-ink" weight="bold" />
-          <h2 className="text-lg font-semibold text-foreground">
+          <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
             {t("invoices.title")}
           </h2>
         </div>
@@ -973,7 +956,7 @@ export default function AdminWorkspaceBalancePage() {
             title: t("invoices.empty"),
           }}
         />
-      </motion.div>
+      </div>
 
       {/* ── Invoice Detail Dialog ── */}
       <ElevatedDialog
@@ -1012,7 +995,7 @@ export default function AdminWorkspaceBalancePage() {
                 <Check className="h-8 w-8 text-healthy-ink" weight="bold" />
               </div>
               <div className="flex flex-col items-center gap-1">
-                <p className="text-lg font-semibold text-foreground">
+                <p className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                   {t("invoiceDialog.confirmed")}
                 </p>
                 <p className="text-sm text-muted-foreground">
@@ -1152,6 +1135,6 @@ export default function AdminWorkspaceBalancePage() {
           )}
         </ElevatedDialogContent>
       </ElevatedDialog>
-    </motion.main>
+    </main>
   );
 }

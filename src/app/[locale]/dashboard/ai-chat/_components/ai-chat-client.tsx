@@ -465,7 +465,7 @@ export function AIChatClient() {
           )}
         >
           {isEmpty ? (
-            <h1 className="mx-auto w-full max-w-3xl text-balance text-center text-2xl font-semibold tracking-[-0.01em] text-foreground">
+            <h1 className="mx-auto w-full max-w-3xl text-balance text-center font-display text-2xl font-semibold tracking-[0.01em] text-foreground">
               {t("greeting")}
             </h1>
           ) : (

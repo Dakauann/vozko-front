@@ -9,7 +9,6 @@ import {
   Tag,
   Wallet,
 } from "@/components/icons";
-import { motion } from "framer-motion";
 import { useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState, useTransition } from "react";
@@ -271,12 +270,7 @@ export function BecomeAffiliateForm() {
   return (
     <div className="space-y-4">
       {submitError ? (
-        <motion.div
-          role="alert"
-          initial={{ opacity: 0, y: -6 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-start gap-3 rounded-[--radius] border border-border bg-muted p-4 text-sm text-destructive-ink"
-        >
+        <div role="alert" className="flex items-start gap-3 rounded-[--radius] border border-border bg-muted p-4 text-sm text-destructive-ink">
           <Info className="mt-0.5 h-4 w-4 shrink-0" weight="bold" />
           <div className="min-w-0 flex-1">
             <p className="font-semibold">{t("toast.errorTitle")}</p>
@@ -289,7 +283,7 @@ export function BecomeAffiliateForm() {
           >
             {t("buttons.dismiss")}
           </button>
-        </motion.div>
+        </div>
       ) : null}
 
       <ElevatedStepper
@@ -437,7 +431,7 @@ function WelcomeStep({ t }: { t: ReturnType<typeof useTranslations> }) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
+        <h2 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground sm:text-2xl">
           {t("steps.welcome.heading")}
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
@@ -448,13 +442,7 @@ function WelcomeStep({ t }: { t: ReturnType<typeof useTranslations> }) {
         {perks.map((perk) => {
           const Icon = perk.icon;
           return (
-            <motion.div
-              key={perk.title}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="rounded-[--radius] border border-border bg-background p-4"
-            >
+            <div key={perk.title} className="rounded-[--radius] border border-border bg-background p-4">
               <span className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground shadow-md">
                 <Icon className="h-5 w-5" weight="fill" />
               </span>
@@ -464,7 +452,7 @@ function WelcomeStep({ t }: { t: ReturnType<typeof useTranslations> }) {
               <p className="mt-1 text-xs text-muted-foreground">
                 {perk.description}
               </p>
-            </motion.div>
+            </div>
           );
         })}
       </div>
@@ -507,7 +495,7 @@ function ReviewStep({
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
+        <h2 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground sm:text-2xl">
           {t("steps.review.heading")}
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">

@@ -11,13 +11,24 @@ import { Link, useRouter } from "@/i18n/routing";
 import { forgotPassword, resetPassword } from "@/lib/auth/auth-api";
 import { useState, useTransition } from "react";
 
+import { AuthFormAlert } from "@/components/auth/auth-form-alert";
+import { CircuitTraces, DotMatrix } from "@/components/brand/circuit";
+import { BrandLogo } from "@/components/brand-logo";
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
-import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
 type Step = "email" | "token" | "success";
 
+/**
+ * Password recovery, on login's plate.
+ *
+ * This page was shipped as a marketing card from a different visual world —
+ * viewport noise texture, glow shadow, eyebrow badge, 3xl hero, a card that
+ * slid in on mount — sitting one navigation away from the redesigned login.
+ * It is now the same object as login: one quiet sheet, the brand at its head,
+ * fields in order, one commit. The three-step flow is untouched.
+ */
 export default function ForgotPasswordPage() {
   const t = useTranslations("forgotPassword");
   const router = useRouter();
@@ -70,83 +81,62 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen pt-0 bg-muted overflow-y-auto">
-      <div className="flex items-center justify-center px-4 py-8 sm:py-12 relative min-h-[calc(100vh-3rem)] sm:min-h-[calc(100vh-3rem)]">
-        <div
-          className="fixed inset-0 opacity-[0.015] pointer-events-none"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}
-        />
+    <main className="relative flex min-h-[calc(100vh-3rem)] items-center justify-center overflow-hidden bg-background px-4 py-10 sm:py-16">
+      {/* The brand's trace lines, same register as the login plate —
+          token-coloured, pulse honours prefers-reduced-motion. */}
+      <CircuitTraces className="pointer-events-none absolute -right-12 -top-12 hidden h-80 w-80 sm:block lg:-right-16 lg:-top-16 lg:h-[30rem] lg:w-[30rem]" />
+      <DotMatrix className="pointer-events-none absolute bottom-10 left-8 hidden h-24 w-36 sm:block" />
+      <div className="relative w-full max-w-[400px]">
+        <div className="well overflow-hidden">
+          <div className="rule-engraved flex items-center gap-2.5 px-5 py-3.5">
+            <BrandLogo size="sm" />
+          </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-full max-w-[520px] relative"
-        >
-          <div
-            className="rounded-[--radius] sm:rounded-[--radius] bg-card p-6 sm:p-8 border border-border"
-            style={{
-              boxShadow:
-                "0 4px 40px -12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.02)",
-            }}
-          >
+          <div className="px-5 py-6 sm:px-6">
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground mb-6 transition-colors"
+              className="mb-4 inline-flex items-center gap-1.5 rounded-[--radius] text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <ArrowLeft weight="bold" className="w-4 h-4" />
+              <ArrowLeft weight="bold" className="h-4 w-4" />
               {t("backLink")}
             </Link>
 
             {step === "email" && (
               <>
-                <div className="mb-6">
-                  <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.1 }}
-                    className="inline-flex items-center rounded-[--radius] bg-muted border border-border px-4 py-1.5 text-xs font-semibold text-muted-foreground mb-4"
-                  >
-                    {t("badge")}
-                  </motion.div>
-                  <h1 className="text-3xl font-semibold text-foreground tracking-tight">
-                    {t("title")}
-                  </h1>
-                  <p className="mt-3 text-muted-foreground text-base">
-                    {t("description")}
-                  </p>
-                </div>
+                <h1 className="font-display text-xl font-semibold leading-tight tracking-[0.01em] text-foreground">
+                  {t("title")}
+                </h1>
+                <p className="mt-1.5 max-w-[46ch] text-sm leading-snug text-muted-foreground">
+                  {t("description")}
+                </p>
 
                 {error && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mb-6 p-4 bg-muted border border-border rounded-[--radius]"
-                  >
-                    <p className="text-sm text-destructive-ink font-medium">{error}</p>
-                  </motion.div>
+                  <div className="mt-4">
+                    <AuthFormAlert message={error} />
+                  </div>
                 )}
 
-                <form onSubmit={handleEmailSubmit} className="space-y-5">
+                <form onSubmit={handleEmailSubmit} className="mt-6 space-y-6">
                   <ElevatedInput
                     type="email"
                     label={t("form.email")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    icon={<Envelope weight="fill" className="w-5 h-5" />}
+                    icon={<Envelope className="h-4 w-4" />}
+                    autoComplete="email"
+                    autoFocus
                     required
+                    disabled={isPending}
                   />
 
                   <Button
-                    variant="main-cta"
+                    variant="primary"
                     size="lg"
                     type="submit"
                     className="w-full"
                     title={isPending ? "..." : t("form.submit")}
                     disabled={isPending}
-                    icon={<ArrowRight weight="bold" className="w-5 h-5" />}
+                    icon={<ArrowRight weight="bold" className="h-4 w-4" />}
                     iconVisible
                     iconSide="right"
                   />
@@ -156,40 +146,26 @@ export default function ForgotPasswordPage() {
 
             {step === "token" && (
               <>
-                <div className="mb-6">
-                  <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.1 }}
-                    className="inline-flex items-center rounded-[--radius] bg-muted border border-border px-4 py-1.5 text-xs font-semibold text-muted-foreground mb-4"
-                  >
-                    {t("reset.badge")}
-                  </motion.div>
-                  <h1 className="text-3xl font-semibold text-foreground tracking-tight">
-                    {t("reset.title")}
-                  </h1>
-                  <p className="mt-3 text-muted-foreground text-base">
-                    {t("reset.description")} <strong>{email}</strong>
-                  </p>
-                </div>
+                <h1 className="font-display text-xl font-semibold leading-tight tracking-[0.01em] text-foreground">
+                  {t("reset.title")}
+                </h1>
+                <p className="mt-1.5 text-sm leading-snug text-muted-foreground">
+                  {t("reset.description")} <strong>{email}</strong>
+                </p>
 
                 {error && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mb-6 p-4 bg-muted border border-border rounded-[--radius]"
-                  >
-                    <p className="text-sm text-destructive-ink font-medium">{error}</p>
-                  </motion.div>
+                  <div className="mt-4">
+                    <AuthFormAlert message={error} />
+                  </div>
                 )}
 
-                <form onSubmit={handlePasswordReset} className="space-y-4">
+                <form onSubmit={handlePasswordReset} className="mt-6 space-y-4">
                   <ElevatedInput
                     type="text"
                     label={t("reset.form.token")}
                     value={token}
                     onChange={(e) => setToken(e.target.value)}
-                    icon={<Lock weight="fill" className="w-5 h-5" />}
+                    icon={<Lock className="h-4 w-4" />}
                     required
                     maxLength={6}
                     inputMode="numeric"
@@ -200,7 +176,7 @@ export default function ForgotPasswordPage() {
                     label={t("reset.form.newPassword")}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    icon={<Lock weight="fill" className="w-5 h-5" />}
+                    icon={<Lock className="h-4 w-4" />}
                     required
                   />
 
@@ -209,18 +185,18 @@ export default function ForgotPasswordPage() {
                     label={t("reset.form.confirmPassword")}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    icon={<Lock weight="fill" className="w-5 h-5" />}
+                    icon={<Lock className="h-4 w-4" />}
                     required
                   />
 
                   <Button
-                    variant="main-cta"
+                    variant="primary"
                     size="lg"
                     type="submit"
                     className="w-full"
                     title={isPending ? "..." : t("reset.form.submit")}
                     disabled={isPending}
-                    icon={<ArrowRight weight="bold" className="w-5 h-5" />}
+                    icon={<ArrowRight weight="bold" className="h-4 w-4" />}
                     iconVisible
                     iconSide="right"
                   />
@@ -235,7 +211,7 @@ export default function ForgotPasswordPage() {
                     setConfirmPassword("");
                     setError("");
                   }}
-                  className="w-full mt-4 text-sm text-muted-foreground hover:text-foreground font-medium transition-colors"
+                  className="mt-4 w-full rounded-[--radius] text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   {t("reset.backToEmail")}
                 </button>
@@ -243,48 +219,40 @@ export default function ForgotPasswordPage() {
             )}
 
             {step === "success" && (
-              <div className="text-center py-6">
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.1 }}
-                  className="w-16 h-16 mx-auto mb-6 rounded-full tile-healthy flex items-center justify-center"
-                >
-                  <CheckCircle
-                    weight="fill"
-                    className="w-10 h-10 text-healthy-ink"
-                  />
-                </motion.div>
-                <h2 className="text-2xl font-semibold text-foreground mb-2">
+              <div className="py-4 text-center">
+                <div className="tile-healthy mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full">
+                  <CheckCircle weight="fill" className="h-8 w-8" />
+                </div>
+                <h2 className="text-xl font-semibold tracking-[-0.01em] text-foreground">
                   {t("success.title")}
                 </h2>
-                <p className="text-muted-foreground mb-6 text-base">
+                <p className="mt-1.5 text-sm leading-snug text-muted-foreground">
                   {t("success.description")}
                 </p>
                 <Button
-                  variant="main-cta"
+                  variant="primary"
                   size="lg"
                   onClick={() => router.push("/login")}
-                  className="w-full"
+                  className="mt-6 w-full"
                   title={t("success.button")}
-                  icon={<ArrowRight weight="bold" className="w-5 h-5" />}
+                  icon={<ArrowRight weight="bold" className="h-4 w-4" />}
                   iconVisible
                   iconSide="right"
                 />
               </div>
             )}
           </div>
+        </div>
 
-          <p className="mt-4 text-center text-xs text-muted-foreground">
-            <Link
-              href="/terms-of-service"
-              className="hover:text-muted-foreground transition-colors"
-            >
-              {t("termsLink")}
-            </Link>
-          </p>
-        </motion.div>
+        <p className="mt-3 text-center">
+          <Link
+            href="/terms-of-service"
+            className="legend rounded-[--radius] transition-colors hover:!text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {t("termsLink")}
+          </Link>
+        </p>
       </div>
-    </div>
+    </main>
   );
 }

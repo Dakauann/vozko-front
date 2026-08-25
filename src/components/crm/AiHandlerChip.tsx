@@ -123,10 +123,12 @@ export function AiHandlerChip({
         className={cn(
           "flex flex-shrink-0 items-center justify-center",
           s.tile,
-          paused ? "bg-muted dark:bg-muted" : "bg-primary",
+          paused
+            ? "bg-muted text-muted-foreground dark:bg-muted"
+            : "bg-primary text-primary-foreground",
         )}
       >
-        <Glyph className={cn(s.glyph, "text-white")} weight="fill" />
+        <Glyph className={s.glyph} weight="fill" />
       </span>
       <span className="min-w-0 truncate">
         <span className={cn(!paused && "text-muted-foreground")}>{prefix} · </span>

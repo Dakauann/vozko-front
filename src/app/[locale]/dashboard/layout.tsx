@@ -18,16 +18,17 @@ import { Suspense } from "react";
 import { WorkspaceProvider } from "@/contexts/workspace-context";
 
 // Both fallbacks must match the real chrome's geometry exactly, or the content
-// jumps when the real one resolves.
+// jumps when the real one resolves. Azure topology: the bar is full-width and
+// owns the corner; the rail starts below it.
 function SidebarFallback() {
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden h-screen w-[208px] border-r border-border bg-card md:block" />
+    <aside className="fixed bottom-0 left-0 top-12 z-30 hidden w-[208px] border-r border-border bg-card md:block" />
   );
 }
 
 function NavbarFallback() {
   return (
-    <div className="fixed right-0 top-0 z-30 h-12 border-b border-border bg-card left-0 md:left-[208px]" />
+    <div className="fixed inset-x-0 top-0 z-40 h-12 border-b border-border bg-card" />
   );
 }
 

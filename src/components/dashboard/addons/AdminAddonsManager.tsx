@@ -32,7 +32,6 @@ import ElevatedSelect, {
   ElevatedSelectItem,
 } from "@/components/elevated-design/elevated-select";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { useToast } from "@/hooks/use-toast";
 
@@ -208,12 +207,7 @@ export function AdminAddonsManager() {
   const margin = (addon: AddonDefinition) => addon.monthlyPriceMicros - (addon.monthlyCostMicros ?? 0);
 
   return (
-    <motion.main
-      animate={{ opacity: 1 }}
-      className="w-full space-y-4"
-      initial={{ opacity: 0 }}
-      transition={{ duration: 0.4 }}
-    >
+    <main className="w-full space-y-4">
       <DashboardPageHeader
         icon={<PuzzlePiece className="h-6 w-6" weight="fill" />}
         badge="Gerenciar Addons"
@@ -429,7 +423,7 @@ export function AdminAddonsManager() {
           </div>
         </section>
       </div>
-    </motion.main>
+    </main>
   );
 }
 

@@ -29,7 +29,7 @@ import { useTranslations } from "next-intl";
  * surfaces these sit on; a solid tone holds its contrast anywhere.
  */
 const TINTS = [
-  "bg-chart-4 text-white",
+  "tile-4",
   "bg-muted text-muted-foreground",
   "bg-muted text-muted-foreground",
   "bg-healthy text-healthy-foreground",

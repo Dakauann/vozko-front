@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Global">
+  <title>Global</title>
+  <circle cx="12" cy="12" r="8.75"/>
+  <ellipse cx="12" cy="12" rx="4" ry="8.75"/>
+  <path stroke="var(--icon-accent, currentColor)" d="M3.6 9.25h16.8M3.6 14.75h16.8"/>
+</svg>

@@ -242,7 +242,7 @@ export function CampaignsSummaryBar({
           />
           <span
             className={cn(
-              "text-3xl font-semibold tabular-nums text-foreground",
+              "font-display text-3xl font-semibold tabular-nums text-foreground",
               loading && "animate-pulse opacity-40",
             )}
           >
@@ -255,7 +255,7 @@ export function CampaignsSummaryBar({
             <TileLabel label={tile.label} help={tile.help} />
             <span
               className={cn(
-                "text-xl font-semibold tabular-nums",
+                "font-display text-xl font-semibold tabular-nums",
                 toneClass[tile.tone ?? "default"],
                 loading && "animate-pulse opacity-40",
               )}
@@ -269,7 +269,7 @@ export function CampaignsSummaryBar({
           <TileLabel label={t("totalEntries")} help={t("totalEntriesHelp")} />
           <span
             className={cn(
-              "text-xl font-semibold tabular-nums text-foreground",
+              "font-display text-xl font-semibold tabular-nums text-foreground",
               loading && "animate-pulse opacity-40",
             )}
           >

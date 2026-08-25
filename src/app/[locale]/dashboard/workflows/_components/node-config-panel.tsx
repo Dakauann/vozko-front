@@ -9,7 +9,6 @@ import {
   useRef,
   useState,
   type ChangeEvent,
-  type MouseEvent as ReactMouseEvent,
 } from "react";
 import type { Node, Edge } from "@xyflow/react";
 import { useTranslations } from "next-intl";
@@ -254,58 +253,42 @@ export function NodeConfigPanel({
     [config.interactive_type, def?.channelLimits, isInteractivePromptNode],
   );
 
-  const MIN_PANEL_WIDTH = 380;
-  const DEFAULT_PANEL_WIDTH = 440;
-  const WIDE_PANEL_WIDTH = 760;
-  const isCodeNode = nodeType === "action_code";
-  const [panelWidth, setPanelWidth] = useState(
-    isCodeNode ? WIDE_PANEL_WIDTH : DEFAULT_PANEL_WIDTH,
-  );
+  // Dialog card width, observed so the wide-layout sections keep responding
+  // to the real geometry (min(680px, 92vw), 760px at xl) now that the shell is
+  // the center card of the three-pane NDV composition.
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [cardWidth, setCardWidth] = useState(680);
   useEffect(() => {
-    if (isCodeNode) {
-      setPanelWidth((current) =>
-        current < WIDE_PANEL_WIDTH ? WIDE_PANEL_WIDTH : current,
-      );
-    }
-  }, [isCodeNode, node.id]);
-  const isResizingRef = useRef(false);
-  const startXRef = useRef(0);
-  const startWidthRef = useRef(DEFAULT_PANEL_WIDTH);
-  const isWidePanel = panelWidth >= 560;
-  const isExtraWidePanel = panelWidth >= 920;
+    const el = cardRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      const width = entries[0]?.contentRect.width;
+      if (width) setCardWidth(width);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  const isWidePanel = cardWidth >= 560;
+  const isExtraWidePanel = cardWidth >= 920;
 
-  const handleResizeStart = useCallback(
-    (e: ReactMouseEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      isResizingRef.current = true;
-      startXRef.current = e.clientX;
-      startWidthRef.current = panelWidth;
-      document.body.style.cursor = "ew-resize";
-      document.body.style.userSelect = "none";
-
-      const handleMouseMove = (moveEvent: MouseEvent) => {
-        if (!isResizingRef.current) return;
-        const delta = startXRef.current - moveEvent.clientX;
-        const newWidth = Math.max(
-          MIN_PANEL_WIDTH,
-          startWidthRef.current + delta,
-        );
-        setPanelWidth(newWidth);
-      };
-
-      const handleMouseUp = () => {
-        isResizingRef.current = false;
-        document.body.style.cursor = "";
-        document.body.style.userSelect = "";
-        document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
-      };
-
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-    },
-    [panelWidth],
-  );
+  // ESC closes the dialog, unless another layer (an open select/dropdown, the
+  // canvas search) already handled the key.
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" || e.defaultPrevented) return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target?.closest(
+          '[data-radix-popper-content-wrapper], [role="listbox"], [role="menu"], [aria-expanded="true"]',
+        )
+      ) {
+        return;
+      }
+      onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
 
   const [googleCalendarStatus, setGoogleCalendarStatus] = useState<{
     loading: boolean;
@@ -416,25 +399,108 @@ export function NodeConfigPanel({
     [node.id, allNodes, allEdges, definitions],
   );
 
+  // Upstream connections feeding this node, one row per incoming edge (the
+  // left "Entrada" pane of the NDV composition).
+  const inputConnections = useMemo(
+    () =>
+      allEdges
+        .filter((e) => e.target === node.id)
+        .flatMap((edge) => {
+          const source = allNodes.find((n) => n.id === edge.source);
+          return source ? [{ edge, source }] : [];
+        }),
+    [allEdges, allNodes, node.id],
+  );
+
+  // Output branches for the right "Saída" pane: the node's handle definitions
+  // (resolved dynamic handles from node data, else the static definition list),
+  // each with the downstream node(s) connected via matching sourceHandle.
+  // Edges on handles we don't know about (stale dynamic sets) still surface as
+  // their own branch rather than disappearing.
+  const outputBranches = useMemo(() => {
+    const branches = new Map<
+      string,
+      { label: string; targets: Array<{ edgeId: string; node: Node }> }
+    >();
+    for (const handle of data.outputs ?? def?.outputs ?? []) {
+      branches.set(handle.id, { label: handle.label || handle.id, targets: [] });
+    }
+    for (const edge of allEdges) {
+      if (edge.source !== node.id) continue;
+      const key = (edge.sourceHandle as string) || "";
+      if (!branches.has(key)) {
+        branches.set(key, {
+          label: key || (edge.label as string) || "Saída",
+          targets: [],
+        });
+      }
+      const target = allNodes.find((n) => n.id === edge.target);
+      if (target) {
+        branches.get(key)!.targets.push({ edgeId: edge.id, node: target });
+      }
+    }
+    return Array.from(branches.entries()).map(([id, branch]) => ({
+      id,
+      ...branch,
+    }));
+  }, [allEdges, allNodes, data.outputs, def?.outputs, node.id]);
+
   return (
-    <div
-      className="border-l border-border bg-card flex-shrink-0 relative flex flex-col"
-      style={{ width: panelWidth }}
-    >
-      {/* Resize handle - outside scroll container for consistent behavior */}
+    <div className="fixed inset-0 z-[70] flex items-center justify-center">
+      {/* Scrim, dims the canvas behind the dialog and closes on click */}
       <div
-        className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-muted active:bg-primary/50 transition-colors z-20"
-        onMouseDown={handleResizeStart}
+        className="absolute inset-0 bg-black/50"
+        onClick={onClose}
+        aria-hidden="true"
       />
+      {/* n8n-style NDV composition: input pane · config card · output pane.
+          The side panes are recessed (shorter, lighter shadow) and their inner
+          edges tuck under the center card via its negative margins. */}
+      <div className="relative flex items-center justify-center">
+        {/* LEFT — upstream nodes feeding this node */}
+        <aside className="hidden lg:flex w-[280px] h-[min(78vh,800px)] flex-col overflow-hidden rounded-l-2xl border border-r-0 border-border bg-card shadow-lg">
+          <div className="shrink-0 border-b border-border px-3 py-2.5 pr-6">
+            <p className="text-xs font-semibold text-muted-foreground">
+              Entrada
+            </p>
+          </div>
+          <div className="flex-1 space-y-1.5 overflow-y-auto p-3 pr-6">
+            {inputConnections.length === 0 ? (
+              <div className="flex h-full items-center justify-center px-2 text-center text-xs text-muted-foreground">
+                Nenhuma conexão de entrada
+              </div>
+            ) : (
+              inputConnections.map(({ edge, source }) => (
+                <ConnectionNodeRow
+                  key={edge.id}
+                  node={source}
+                  definitions={definitions}
+                  sublabel={
+                    (edge.sourceHandle as string) ||
+                    (edge.label as string) ||
+                    undefined
+                  }
+                />
+              ))
+            )}
+          </div>
+        </aside>
+
+        {/* CENTER — the config card, layered in front of both panes */}
+      <div
+        ref={cardRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={label}
+        className="relative z-10 -mx-3 w-[min(680px,92vw)] xl:w-[min(760px,92vw)] h-[min(88vh,900px)] rounded-2xl border border-border bg-card shadow-2xl overflow-hidden flex flex-col"
+      >
       <div className="p-3 border-b border-border flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
           <div
             className="flex h-7 w-7 items-center justify-center rounded-lg shadow-sm"
-            style={{ backgroundColor: styles.color }}
+            style={{ backgroundColor: styles.color, color: styles.ink }}
           >
-            {IconComp && (
-              <IconComp size={15} weight="fill" className="text-white" />
-            )}
+            {IconComp && <IconComp size={15} weight="fill" />}
           </div>
           <span className="text-sm font-semibold">{label}</span>
         </div>
@@ -700,6 +766,84 @@ export function NodeConfigPanel({
             onRename={onRenameNode}
           />
         )}
+      </div>
+      </div>
+
+        {/* RIGHT — output branches and their downstream nodes */}
+        <aside className="hidden lg:flex w-[280px] h-[min(78vh,800px)] flex-col overflow-hidden rounded-r-2xl border border-l-0 border-border bg-card shadow-lg">
+          <div className="shrink-0 border-b border-border px-3 py-2.5 pl-6">
+            <p className="text-xs font-semibold text-muted-foreground">
+              Saída
+            </p>
+          </div>
+          <div className="flex-1 space-y-3 overflow-y-auto p-3 pl-6">
+            {outputBranches.length === 0 ? (
+              <div className="flex h-full items-center justify-center px-2 text-center text-xs text-muted-foreground">
+                Nó final — sem saídas
+              </div>
+            ) : (
+              outputBranches.map((branch) => (
+                <div key={branch.id || "default"} className="space-y-1.5">
+                  <p className="truncate text-2xs font-semibold text-muted-foreground">
+                    {branch.label}
+                  </p>
+                  {branch.targets.length === 0 ? (
+                    <p className="text-2xs italic text-muted-foreground">
+                      não conectado
+                    </p>
+                  ) : (
+                    branch.targets.map(({ edgeId, node: targetNode }) => (
+                      <ConnectionNodeRow
+                        key={edgeId}
+                        node={targetNode}
+                        definitions={definitions}
+                      />
+                    ))
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+/** One upstream/downstream node row in the NDV side panes: the node's category
+ *  glyph on its plate color, its label, and (optionally) the branch label of
+ *  the edge that connects it. */
+function ConnectionNodeRow({
+  node,
+  definitions,
+  sublabel,
+}: {
+  node: Node;
+  definitions: NodeDefinition[];
+  sublabel?: string;
+}) {
+  const data = node.data as unknown as WorkflowNodeData;
+  const def = definitions.find((d) => d.type === data.nodeType);
+  const styles = CATEGORY_STYLES[getCategory(data.nodeType)];
+  const IconComp = ICON_MAP[def?.icon ?? data.icon ?? "GitBranch"];
+  const label =
+    ((data.config?.display_name as string) || "").trim() ||
+    def?.label ||
+    data.label ||
+    data.nodeType;
+  return (
+    <div className="flex items-center gap-2 rounded-lg border border-border bg-mist px-2 py-1.5">
+      <div
+        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md shadow-sm"
+        style={{ backgroundColor: styles.color, color: styles.ink }}
+      >
+        {IconComp && <IconComp size={13} weight="fill" />}
+      </div>
+      <div className="min-w-0">
+        <p className="truncate text-xs font-medium text-foreground">{label}</p>
+        {sublabel ? (
+          <p className="truncate text-2xs text-muted-foreground">{sublabel}</p>
+        ) : null}
       </div>
     </div>
   );

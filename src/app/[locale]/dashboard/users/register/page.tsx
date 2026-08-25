@@ -21,7 +21,6 @@ import Button from "@/components/elevated-design/button";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
-import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 
@@ -236,10 +235,7 @@ export default function AdminRegisterUserPage() {
 
       {/* Success banner */}
       {success && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+        <div>
           <ElevatedContainer className="rounded-lg border border-border bg-muted p-4">
             <div className="flex items-center gap-3">
               <CheckCircle
@@ -249,18 +245,14 @@ export default function AdminRegisterUserPage() {
               <p className="text-sm text-healthy-ink font-medium">{success}</p>
             </div>
           </ElevatedContainer>
-        </motion.div>
+        </div>
       )}
 
       {/* Error banner */}
       {error && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-4 bg-muted border border-border rounded-[--radius]"
-        >
+        <div className="p-4 bg-muted border border-border rounded-[--radius]">
           <p className="text-sm text-destructive-ink font-medium">{error}</p>
-        </motion.div>
+        </div>
       )}
 
       {/* Form */}
@@ -281,13 +273,13 @@ export default function AdminRegisterUserPage() {
                 }}
                 className={`flex flex-col items-center justify-center gap-2 p-4 rounded-[--radius] border transition-all ${
                   accountType === "individual"
-                    ? "border-slate-900 border border-border bg-muted text-foreground shadow-lg"
+                    ? "border-primary bg-card text-foreground shadow-sm"
                     : "border-border text-muted-foreground hover:border-foreground/20 hover:bg-muted"
                 }`}
               >
                 <User
                   weight={accountType === "individual" ? "fill" : "regular"}
-                  className={`w-6 h-6 ${accountType === "individual" ? "text-white" : "text-muted-foreground"}`}
+                  className={`w-6 h-6 ${accountType === "individual" ? "text-primary-ink" : "text-muted-foreground"}`}
                 />
                 <span className="text-sm font-semibold">Pessoa Física</span>
               </button>
@@ -300,13 +292,13 @@ export default function AdminRegisterUserPage() {
                 }}
                 className={`flex flex-col items-center justify-center gap-2 p-4 rounded-[--radius] border transition-all ${
                   accountType === "company"
-                    ? "border-slate-900 border border-border bg-muted text-foreground shadow-lg"
+                    ? "border-primary bg-card text-foreground shadow-sm"
                     : "border-border text-muted-foreground hover:border-foreground/20 hover:bg-muted"
                 }`}
               >
                 <Buildings
                   weight={accountType === "company" ? "fill" : "regular"}
-                  className={`w-6 h-6 ${accountType === "company" ? "text-white" : "text-muted-foreground"}`}
+                  className={`w-6 h-6 ${accountType === "company" ? "text-primary-ink" : "text-muted-foreground"}`}
                 />
                 <span className="text-sm font-semibold">Pessoa Jurídica</span>
               </button>

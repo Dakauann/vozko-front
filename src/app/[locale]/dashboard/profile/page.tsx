@@ -14,6 +14,7 @@ import {
   Lock,
   MapPin,
   PaperPlaneTilt,
+  PencilSimple,
   ShieldCheck,
   SignOut,
   Trash,
@@ -22,56 +23,42 @@ import {
   X,
 } from "@/components/icons";
 import type { UserPlan, User as UserType } from "@/lib/auth/types";
+import { forgotPassword, resetPassword } from "@/lib/auth/auth-api";
 import {
   getCurrentUserAction,
   getUserMeAction,
   listSessionsAction,
   revokeSessionAction,
   updateUserDocumentAction,
+  updateUserNameAction,
   updateUserPictureAction,
 } from "@/app/actions/auth";
-import { forgotPassword, resetPassword } from "@/lib/auth/auth-api";
 import { useEffect, useRef, useState } from "react";
 
 import type { ActiveSession } from "@/app/actions/auth";
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
-import { PanelSection } from "@/components/dashboard/PanelSection";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { IconBox } from "@/components/elevated-design/listing-card";
 import Image from "next/image";
+import { PanelSection } from "@/components/dashboard/PanelSection";
 import { uploadMediaAction } from "@/app/actions/medias";
+import { useAuth } from "@/contexts/auth-context";
 import { useTranslations } from "next-intl";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.4,
-      ease: [0.25, 0.1, 0.25, 1] as const,
-    },
-  },
-};
 
 const isRateLimitError = (message?: string | null) =>
   message?.toLowerCase().includes("rate limit") ?? false;
 
 type PasswordResetStep = "idle" | "sending" | "code" | "resetting" | "success";
 
+const NAME_MIN_LENGTH = 2;
+const NAME_MAX_LENGTH = 60;
+
 export default function ProfilePage() {
   const t = useTranslations("profilePage");
   const tCommon = useTranslations("common");
+  const { refreshUser } = useAuth();
 
   const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
@@ -97,10 +84,73 @@ export default function ProfilePage() {
     null,
   );
 
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+  const [savingName, setSavingName] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [nameSaved, setNameSaved] = useState(false);
+
   const [documentInput, setDocumentInput] = useState("");
   const [savingDocument, setSavingDocument] = useState(false);
   const [documentError, setDocumentError] = useState<string | null>(null);
   const [documentSaved, setDocumentSaved] = useState(false);
+
+  const startEditingName = () => {
+    setNameInput(user?.name ?? "");
+    setNameError(null);
+    setNameSaved(false);
+    setEditingName(true);
+  };
+
+  const cancelEditingName = () => {
+    setEditingName(false);
+    setNameInput("");
+    setNameError(null);
+  };
+
+  const handleSaveName = async () => {
+    const value = nameInput.trim();
+    if (value.length < NAME_MIN_LENGTH) {
+      setNameError(t("info.nameTooShort"));
+      return;
+    }
+    if (value.length > NAME_MAX_LENGTH) {
+      setNameError(t("info.nameTooLong"));
+      return;
+    }
+    if (value === user?.name) {
+      cancelEditingName();
+      return;
+    }
+
+    setSavingName(true);
+    setNameError(null);
+    try {
+      const result = await updateUserNameAction(value);
+      if (result.error || !result.user) {
+        setNameError(result.error || t("info.nameSaveError"));
+        return;
+      }
+      setUser(result.user);
+      setEditingName(false);
+      setNameInput("");
+      setNameSaved(true);
+      // The spine and navbar read the name off AuthContext, not this page's copy.
+      void refreshUser(true);
+    } catch {
+      setNameError(t("info.nameSaveError"));
+    } finally {
+      setSavingName(false);
+    }
+  };
+
+  // The name row is permanent, unlike the document form that disappears on save, so the
+  // confirmation tick has to retire itself rather than sit there for the rest of the session.
+  useEffect(() => {
+    if (!nameSaved) return;
+    const timer = setTimeout(() => setNameSaved(false), 3000);
+    return () => clearTimeout(timer);
+  }, [nameSaved]);
 
   const handleSaveDocument = async () => {
     const value = documentInput.trim();
@@ -154,6 +204,7 @@ export default function ProfilePage() {
       }
     }
     fetchUser();
+    // eslint-disable-next-line react-hooks/immutability
     fetchSessions();
   }, []);
 
@@ -226,7 +277,11 @@ export default function ProfilePage() {
     setPasswordResetError(null);
 
     try {
-      const result = await resetPassword(user?.email || "", resetCode, newPassword);
+      const result = await resetPassword(
+        user?.email || "",
+        resetCode,
+        newPassword,
+      );
       if (result.error) {
         if (result.statusCode === 429 || isRateLimitError(result.error)) {
           setPasswordResetError(tCommon("rateLimit"));
@@ -260,7 +315,7 @@ export default function ProfilePage() {
     "image/webp",
     "image/gif",
   ];
-  const MAX_FILE_SIZE = 5 * 1024 * 1024; 
+  const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -289,7 +344,6 @@ export default function ProfilePage() {
         // setImagePreview(null);
         // setImageUrl(null);
       } else {
-
         const updateResult = await updateUserPictureAction(result.mediaUrl);
         if (updateResult.success) {
           setPicture(result.mediaUrl);
@@ -396,13 +450,8 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <motion.main
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="w-full space-y-6"
-      >
-        <motion.div variants={itemVariants}>
+      <main className="w-full space-y-6">
+        <div>
           <ElevatedContainer className="flex items-center justify-center py-20 border border-border bg-card">
             <div className="flex flex-col items-center gap-4">
               <CircleNotch
@@ -412,8 +461,8 @@ export default function ProfilePage() {
               <p className="text-sm text-muted-foreground">{t("loading")}</p>
             </div>
           </ElevatedContainer>
-        </motion.div>
-      </motion.main>
+        </div>
+      </main>
     );
   }
 
@@ -427,28 +476,22 @@ export default function ProfilePage() {
     .toUpperCase();
 
   return (
-    <motion.main
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="w-full space-y-6"
-    >
+    <main className="w-full space-y-6">
       {/* Page header */}
-      <motion.div variants={itemVariants}>
+      <div>
         <DashboardPageHeader
           icon={<UserCircle className="h-5 w-5" weight="fill" />}
           badge={t("badge")}
           description={t("description")}
         />
-      </motion.div>
+      </div>
 
       {/* Avatar & Profile section */}
-      <motion.div variants={itemVariants}>
+      <div>
         <PanelSection
           title={t("avatar.title")}
           description={t("avatar.subtitle")}
         >
-
           <div className="flex items-center gap-6">
             {/* Avatar preview */}
             <div className="relative shrink-0">
@@ -517,24 +560,99 @@ export default function ProfilePage() {
             </div>
           </div>
         </PanelSection>
-      </motion.div>
+      </div>
 
       {/* Profile information */}
-      <motion.div variants={itemVariants}>
+      <div>
         <PanelSection
           title={t("info.title")}
           description={t("info.subtitle")}
+          actions={
+            !editingName ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                title={t("info.edit")}
+                icon={<PencilSimple className="h-4 w-4" weight="fill" />}
+                iconVisible
+                iconSide="left"
+                onClick={startEditingName}
+              />
+            ) : null
+          }
         >
-
           <div className="rounded-[--radius] border border-border bg-muted p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground">
-                {t("info.name")}
-              </span>
-              <span className="text-sm font-medium text-foreground">
-                {user?.name || "—"}
-              </span>
-            </div>
+            <AnimatePresence mode="wait" initial={false}>
+              {editingName ? (
+                <motion.div
+                  key="name-edit"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="space-y-2"
+                >
+                  <ElevatedInput
+                    label={t("info.name")}
+                    value={nameInput}
+                    onChange={(e) => setNameInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleSaveName();
+                      if (e.key === "Escape") cancelEditingName();
+                    }}
+                    placeholder={t("info.namePlaceholder")}
+                    maxLength={NAME_MAX_LENGTH}
+                    disabled={savingName}
+                    error={nameError ?? undefined}
+                    controlSize="sm"
+                    autoFocus
+                  />
+                  {nameError && (
+                    <p className="text-xs text-destructive-ink">{nameError}</p>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      disabled={!nameInput.trim() || savingName}
+                      onClick={handleSaveName}
+                    >
+                      {savingName ? t("info.saving") : t("info.save")}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={savingName}
+                      onClick={cancelEditingName}
+                    >
+                      {t("info.cancel")}
+                    </Button>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="name-read"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="flex items-center justify-between"
+                >
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {t("info.name")}
+                  </span>
+                  <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                    {nameSaved && (
+                      <CheckCircle
+                        className="h-3.5 w-3.5 text-healthy-ink"
+                        weight="fill"
+                      />
+                    )}
+                    {user?.name || "—"}
+                  </span>
+                </motion.div>
+              )}
+            </AnimatePresence>
             <div className="h-px bg-border" />
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-muted-foreground">
@@ -601,9 +719,7 @@ export default function ProfilePage() {
           {plan && (
             <div className="well mt-4 bg-muted p-4">
               <div className="flex items-center justify-between">
-                <span className="legend">
-                  {t("info.plan")}
-                </span>
+                <span className="legend">{t("info.plan")}</span>
                 <span className="readout text-sm font-semibold text-foreground">
                   {plan.name}
                 </span>
@@ -611,15 +727,14 @@ export default function ProfilePage() {
             </div>
           )}
         </PanelSection>
-      </motion.div>
+      </div>
 
       {/* Document (CPF/CNPJ), required for billing */}
-      <motion.div variants={itemVariants}>
+      <div>
         <PanelSection
           title={t("document.title")}
           description={t("document.subtitle")}
         >
-
           {user?.hasDocument ? (
             <div className="rounded-[--radius] border border-border bg-muted p-4">
               <div className="flex items-center justify-between">
@@ -666,15 +781,14 @@ export default function ProfilePage() {
             </div>
           )}
         </PanelSection>
-      </motion.div>
+      </div>
 
       {/* Security */}
-      <motion.div variants={itemVariants}>
+      <div>
         <PanelSection
           title={t("security.title")}
           description={t("security.subtitle")}
         >
-
           <div className="space-y-4">
             {/* Password reset card */}
             <div className="rounded-[--radius] border border-border bg-muted p-4">
@@ -914,7 +1028,7 @@ export default function ProfilePage() {
                         className="w-8 h-8 text-healthy-ink"
                       />
                     </div>
-                    <h3 className="text-lg font-semibold text-foreground mb-1">
+                    <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground mb-1">
                       {t("security.passwordChanged")}
                     </h3>
                     <p className="text-sm text-muted-foreground mb-4">
@@ -936,7 +1050,10 @@ export default function ProfilePage() {
             {/* 2FA placeholder */}
             <div className="rounded-[--radius] border border-border bg-muted p-4">
               <div className="flex items-start gap-3">
-                <Lock className="h-5 w-5 text-primary-ink mt-0.5" weight="fill" />
+                <Lock
+                  className="h-5 w-5 text-primary-ink mt-0.5"
+                  weight="fill"
+                />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-foreground">
                     {t("security.twoFactor")}
@@ -952,10 +1069,10 @@ export default function ProfilePage() {
             </div>
           </div>
         </PanelSection>
-      </motion.div>
+      </div>
 
       {/* Active Sessions */}
-      <motion.div variants={itemVariants}>
+      <div>
         <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
@@ -963,7 +1080,7 @@ export default function ProfilePage() {
                 <Globe weight="fill" />
               </IconBox>
               <div>
-                <h3 className="text-base font-semibold text-foreground">
+                <h3 className="font-display text-base font-semibold tracking-[0.01em] text-foreground">
                   {t("sessions.title")}
                 </h3>
                 <p className="text-xs text-muted-foreground">
@@ -1057,7 +1174,7 @@ export default function ProfilePage() {
             </div>
           )}
         </ElevatedContainer>
-      </motion.div>
-    </motion.main>
+      </div>
+    </main>
   );
 }

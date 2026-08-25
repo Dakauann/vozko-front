@@ -13,7 +13,6 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import type { KnowledgeBase } from "@/lib/knowledge-base/types";
 import { apiClient } from "@/lib/api/browser-client";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -122,7 +121,7 @@ export default function KnowledgeBasesPage() {
           <span
             className={cn(
               "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
-              statusColor[row.status] ?? "bg-gray-500 text-white",
+              statusColor[row.status] ?? "bg-[hsl(var(--plate-neutral))] text-white",
             )}
           >
             {row.status}
@@ -170,12 +169,7 @@ export default function KnowledgeBasesPage() {
   );
 
   return (
-    <motion.main
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="w-full space-y-4"
-    >
+    <main className="w-full space-y-4">
       <DashboardPageHeader
         icon={<Files className="h-5 w-5" weight="fill" />}
         badge={t("header.badge")}
@@ -276,6 +270,6 @@ export default function KnowledgeBasesPage() {
               }
         }
       />
-    </motion.main>
+    </main>
   );
 }

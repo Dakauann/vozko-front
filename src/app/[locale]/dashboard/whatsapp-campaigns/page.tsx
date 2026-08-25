@@ -34,7 +34,6 @@ import {
 } from "@/components/elevated-design/table/dashboard-table";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -211,7 +210,7 @@ export default function WhatsAppCampaignsPage() {
           <span
             className={cn(
               "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
-              statusColor[row.status] ?? "bg-gray-500 text-white",
+              statusColor[row.status] ?? "bg-[hsl(var(--plate-neutral))] text-white",
             )}
           >
             {t(`status.${row.status.toLowerCase()}` as Parameters<typeof t>[0])}
@@ -319,12 +318,7 @@ export default function WhatsAppCampaignsPage() {
   );
 
   return (
-    <motion.main
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="w-full space-y-4"
-    >
+    <main className="w-full space-y-4">
       <DashboardPageHeader
         icon={<WhatsappLogo className="h-6 w-6" weight="fill" />}
         badge={t("header.badge")}
@@ -502,6 +496,6 @@ export default function WhatsAppCampaignsPage() {
               }
         }
       />
-    </motion.main>
+    </main>
   );
 }

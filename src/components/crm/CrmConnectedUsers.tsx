@@ -187,7 +187,7 @@ export default function CrmConnectedUsers({
                           </p>
                         </div>
                         <span className="flex items-center gap-1 rounded-[--radius] bg-healthy px-2 py-0.5 text-2xs font-semibold text-healthy-foreground">
-                          <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                          <span className="h-1.5 w-1.5 rounded-full bg-healthy-foreground animate-pulse" />
                           Online
                         </span>
                       </div>

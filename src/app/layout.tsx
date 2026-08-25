@@ -1,29 +1,34 @@
 import "./globals.css";
 import "highlight.js/styles/github.css";
 
-import { Inter } from "next/font/google";
+import { Inter, Oxanium } from "next/font/google";
 
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { getBrand } from "@/config/brand";
 
 /**
- * Inter is the single UI face (Surface identity).
+ * Two faces, two jobs (Vozko identity, from the brand board).
  *
- * Neither reference face can ship here — one is a system font, the other is
- * proprietary — and Inter is the closest honest stand-in for both: it is
- * effectively the register one of them sets its dashboard in, and a clean
- * substitute for the other. It replaces a grotesque with a squarer, more
- * mechanical skeleton that was chosen to serve the retired panel identity, and
- * whose small tracked caps that design depended on are gone with it.
- *
- * One family, per product-UI practice — no display/body pairing. Weight and
- * size carry the hierarchy.
- *
+ * Inter carries everything read at length — body, tables, controls — exactly
+ * as the board specifies ("INTER / REGULAR: textos / informações").
  * `latin-ext` is required, not optional: pt-BR, de and es all need it.
+ *
+ * Oxanium is the display voice for "Títulos / Destaques": page titles, KPI
+ * numerals, brand moments. It stands in for the board's literal wordmark face
+ * (Orbitron), which ships no latin-ext subset and could drop to a fallback
+ * mid-word in an accented title; Oxanium keeps the squared techno skeleton
+ * with full locale coverage and a variable 200–800 weight range. Loaded as a
+ * variable font so the weight steps cost no extra requests.
  */
 const inter = Inter({
   variable: "--font-inter",
+  subsets: ["latin", "latin-ext"],
+  display: "swap",
+});
+
+const oxanium = Oxanium({
+  variable: "--font-oxanium",
   subsets: ["latin", "latin-ext"],
   display: "swap",
 });
@@ -57,7 +62,7 @@ export default function RootLayout({
       style={{ colorScheme: "light" }}
     >
       <body
-        className={`${inter.variable} font-sans antialiased bg-background text-foreground`}
+        className={`${inter.variable} ${oxanium.variable} font-sans antialiased bg-background text-foreground`}
       >
         {/* The direction contract, emitted as a real HTML comment so it
             survives the production build and stays auditable. A JSX comment
@@ -66,25 +71,28 @@ export default function RootLayout({
           hidden
           dangerouslySetInnerHTML={{
             __html: `<!--
-  THESIS: An operator tool that looks like the software this business runs its
-  money through. This surface refuses the machined control panel it replaces -
-  the engraved groove, the single flat 2px corner, the putty-beige ground and
-  the stencilled caps legend - and refuses equally the soft pill-and-gradient
-  shell that came before it.
-  OWN-WORLD: Content sits ON a cool near-white canvas as clean white sheets,
-  layered by a slate-tinted micro-shadow stack; a real corner ramp of 4/6/8/10/
-  12/16px; hairline borders that compose with elevation instead of cutting into
-  it; Inter at 14px; tabular figures on every number; and hue-17 orange spent
-  only on commit, selection and focus.
+  THESIS: The CRM that wears its own circuitry. Signal-green on graphite, a
+  squared techno display voice over a workhorse body face - the Vozko brand
+  board executed as a token system, not a coat of paint. It refuses the
+  borrowed-cloud look it replaces (hue-17 orange on Fluent chrome) and refuses
+  equally the neon-cyberpunk reading of its own board: glow is not a material
+  here, contrast is.
+  OWN-WORLD: #00D09A spent only on commit, selection and focus, always under
+  DARK ink (9.6:1), held vivid at L38 in daylight (user call); graphite neutrals in the
+  200-213 band both themes share (#0D0F10/#1A1D20/#2C3136 verbatim in dark);
+  Oxanium for titles and KPI numerals, Inter at 14px for everything an
+  operator reads at length; corner ramp 6/8/10/12/16; dot-matrix and circuit
+  traces as the only ornament, periphery-only, token-recoloured.
   STORY: An attendant reads queue depth per channel in one glance, finds any
-  conversation without hunting, and acts without leaving the strip - now in an
-  interface a manager is willing to show a client.
-  FIRST VIEWPORT: 208px full-height spine owns the top-left corner and carries
-  the workspace selector at its head; a 48px header bar starts to the right of
-  it with scope route left and readouts right; content sits on the canvas below.
-  Topology is inherited unchanged - the layout was never the problem.
-  FORM: Fluent 2 x Stripe, the category canon executed at full fidelity, pinned
-  by the user rather than rolled. Seed key 7fb31c40.
+  conversation without hunting, and acts without leaving the strip - in an
+  interface that is unmistakably this product's own.
+  FIRST VIEWPORT: a full-width 48px app bar owns the top edge (brand and
+  workspace at its left); the 208px nav rail starts below it; content sits on
+  the canvas beside the rail. Topology is inherited unchanged from the Azure
+  layout pass - the layout was never the problem.
+  FORM: The user's own brand board, pinned 2026-08-23 and executed at full
+  fidelity in both themes; light default is a product-truth call, dark is the
+  brand-canonical scene. Seed key 00d09a7f.
   FINISH: unreviewed and undocumented is unfinished; this build ends with the
   finish review, the verdict, and DESIGN.md.
 -->`,

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Tabela">
+  <title>Tabela</title>
+  <rect x="3.25" y="4.25" width="17.5" height="15.5" rx="2.5"/>
+  <path stroke="var(--icon-accent, currentColor)" d="M3.25 9.5h17.5"/>
+  <path d="M3.25 14.75h17.5M9.75 9.5v10.25M15.5 9.5v10.25"/>
+</svg>

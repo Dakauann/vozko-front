@@ -3,6 +3,7 @@
 import { ArrowLeft, Info, ShieldWarning } from "@/components/icons";
 
 import { Button } from "@/components/ui/button";
+import { CircuitTraces } from "@/components/brand/circuit";
 import { IconBox } from "@/components/elevated-design/listing-card";
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
@@ -15,8 +16,9 @@ export function AccessDenied({ backHref }: AccessDeniedProps) {
   const t = useTranslations("errors.accessDenied");
 
   return (
-    <div className="flex min-h-[60vh] w-full items-center justify-center px-4 py-12">
-      <div className="w-full max-w-lg text-center">
+    <div className="relative flex min-h-[60vh] w-full items-center justify-center overflow-hidden px-4 py-12">
+      <CircuitTraces className="pointer-events-none absolute -right-10 -top-10 hidden h-64 w-64 sm:block" />
+      <div className="relative w-full max-w-lg text-center">
         {/* Icon */}
         <div className="mx-auto mb-6">
           <IconBox color="amber" size="lg" className="mx-auto h-20 w-20 rounded-full ring-8 ring-warning/50">
@@ -28,7 +30,7 @@ export function AccessDenied({ backHref }: AccessDeniedProps) {
         </div>
 
         {/* Title */}
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+        <h1 className="font-display text-2xl font-semibold tracking-[0.01em] text-foreground">
           {t("title")}
         </h1>
 

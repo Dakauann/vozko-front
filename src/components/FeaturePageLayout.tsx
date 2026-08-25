@@ -109,7 +109,7 @@ export default function FeaturePageLayout({
 
             <div className="px-5 sm:px-6 pt-4 sm:pt-[18px] pb-5 sm:pb-6 space-y-3 sm:space-y-4">
               <div>
-                <h2 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight leading-tight">
+                <h2 className="font-display text-xl sm:text-2xl font-semibold text-foreground tracking-[0.01em] leading-tight">
                   {title}
                 </h2>
                 <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">

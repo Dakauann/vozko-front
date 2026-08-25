@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Subconjunto">
+  <title>Subconjunto</title>
+  <path d="M17.75 5.75h-5.25a6.25 6.25 0 0 0 0 12.5h5.25"/>
+  <path stroke="var(--icon-accent, currentColor)" d="M11.25 21h6.5"/>
+</svg>

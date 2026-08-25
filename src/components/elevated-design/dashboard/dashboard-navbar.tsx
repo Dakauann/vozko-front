@@ -7,17 +7,19 @@ import {
   CalendarBlank,
   CaretDown,
   Gear,
+  List as ListIcon,
   SignOut,
-  User,
 } from "@/components/icons";
-import { Link, usePathname } from "@/i18n/routing";
+import { Link } from "@/i18n/routing";
 
 import { BalanceIndicator } from "@/components/elevated-design/dashboard/balance-indicator";
+import { BrandLogo } from "@/components/brand-logo";
 import { CalendarSheet } from "@/components/elevated-design/dashboard/calendar-sheet";
 import { DepartmentSwitcher } from "@/components/elevated-design/dashboard/department-switcher";
 import Image from "next/image";
 import LanguageSwitcher from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { WorkspaceSwitcher } from "@/components/elevated-design/dashboard/workspace-switcher";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
 import { useSidebar } from "@/contexts/sidebar-context";
@@ -32,67 +34,32 @@ export interface DashboardNavbarProps {
   className?: string;
 }
 
+/**
+ * The app bar — the Azure-shell topology.
+ *
+ * Full width, owning the top-left corner; the nav rail starts BELOW it. The
+ * far-left group is the shell's identity line, read exactly the way the
+ * reference reads "Azure Data Explorer | All dashboards": hamburger, brand
+ * mark, a hairline divider, then the workspace the whole shell is scoped to.
+ * The right side is the readout rack: balance, department, calendar, theme,
+ * locale, account.
+ *
+ * Breadcrumbs no longer live here — the reference keeps the trail with the
+ * page it describes, so it moved into the page header (ScopeBreadcrumb),
+ * directly above the title it leads to.
+ */
 export function DashboardNavbar({
   translationsNamespace = "dashboardNavbar",
   settingsLink = "/dashboard/profile",
   className,
 }: DashboardNavbarProps = {}) {
   const t = useTranslations(translationsNamespace);
+  const tSidebar = useTranslations("sidebar");
   const { user, logout } = useAuth();
-  const pathname = usePathname();
-  const { isCollapsed } = useSidebar();
+  const { isCollapsed, toggleCollapsed, setMobileOpen } = useSidebar();
   const [showUserMenu, setShowUserMenu] = React.useState(false);
   const [showCalendar, setShowCalendar] = React.useState(false);
   const userMenuRef = React.useRef<HTMLDivElement>(null);
-
-  const labelMap: Record<string, string> = {
-    dashboard: t("breadcrumbs.dashboard"),
-    agents: t("breadcrumbs.agents"),
-    new: t("breadcrumbs.new"),
-    campaigns: t("breadcrumbs.campaigns"),
-    configuracoes: t("breadcrumbs.settings"),
-    profile: t("breadcrumbs.profile"),
-    // Without a mapping the segment is titleised into "Unofficial Whatsapp",
-    // which is wrong in every locale including English.
-    "unofficial-whatsapp": t("breadcrumbs.unofficial-whatsapp"),
-    broadcasts: t("breadcrumbs.broadcasts"),
-    connect: t("breadcrumbs.connect"),
-  };
-
-  const getBreadcrumbSegments = (pathname: string) => {
-    const segments = pathname.split("/").filter(Boolean);
-
-    const locales = ["pt", "en", "de", "es"];
-    const filteredSegments = segments.filter((seg) => !locales.includes(seg));
-
-    const breadcrumbs: { label: string; href: string }[] = [];
-
-    let currentPath = "";
-    filteredSegments.forEach((segment) => {
-      currentPath += `/${segment}`;
-
-      let label = segment
-        .replace(/-/g, " ")
-        .replace(/\b\w/g, (char) => char.toUpperCase());
-
-      if (labelMap[segment]) {
-        label = labelMap[segment];
-      }
-
-      if (!segment.startsWith("[") && !segment.match(/^[a-f0-9-]{36}$/i)) {
-        breadcrumbs.push({ label, href: currentPath });
-      } else {
-        breadcrumbs.push({
-          label: t("breadcrumbs.details"),
-          href: currentPath,
-        });
-      }
-    });
-
-    return breadcrumbs;
-  };
-
-  const breadcrumbs = getBreadcrumbSegments(pathname);
 
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -119,56 +86,54 @@ export function DashboardNavbar({
   return (
     <header
       className={cn(
-        // Starts to the RIGHT of the spine, which owns the top-left corner.
-        // The offset is animated by the same easing the spine uses so the two
-        // edges stay joined while it collapses.
-        "fixed right-0 top-0 z-30 flex h-12 items-center gap-3",
-        "border-b border-border bg-card px-3 shadow-sm transition-[left] duration-150",
-        "left-0",
-        isCollapsed ? "md:left-[52px]" : "md:left-[208px]",
+        // Full width and above the rail: the bar owns the corner now, which is
+        // the Azure shell's defining move. z-40 keeps it over the rail (z-30);
+        // the mobile drawer and its veil still cover both.
+        "fixed inset-x-0 top-0 z-40 flex h-12 items-center gap-2",
+        "border-b border-sidebar-border bg-sidebar pl-1.5 pr-3 shadow-sm",
         className,
       )}
     >
-      {/*
-        The scope route. Where the previous bar carried a logo, two selectors
-        and a breadcrumb, this carries only where you are: the spine now owns
-        brand and workspace, so the bar can be a legend line and a readout rack.
-      */}
-      <nav
-        aria-label={t("breadcrumbs.dashboard")}
-        className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden"
+      {/* The hamburger. One affordance, two behaviours by viewport: on the
+          desktop shell it collapses the rail to its 52px icon strip; below md
+          it opens the drawer. Split into two buttons so each carries the right
+          accessible name. */}
+      <button
+        type="button"
+        onClick={toggleCollapsed}
+        aria-label={isCollapsed ? tSidebar("expand") : tSidebar("collapse")}
+        title={isCollapsed ? tSidebar("expand") : tSidebar("collapse")}
+        className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-[--radius] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground md:flex"
       >
-        {breadcrumbs.map((crumb, index) => (
-          <React.Fragment key={crumb.href}>
-            {/* The separator hides with the crumb it separates. Below sm the
-                intermediate crumbs are hidden, and a bare leading "›" pointing
-                at nothing was rendering on every mobile screen. */}
-            {index > 0 && (
-              <span
-                aria-hidden="true"
-                className="legend hidden shrink-0 opacity-50 sm:inline"
-              >
-                ›
-              </span>
-            )}
-            {index === breadcrumbs.length - 1 ? (
-              <span
-                aria-current="page"
-                className="legend truncate !text-foreground"
-              >
-                {crumb.label}
-              </span>
-            ) : (
-              <Link
-                href={crumb.href}
-                className="legend hidden shrink-0 transition-colors hover:!text-foreground sm:block"
-              >
-                {crumb.label}
-              </Link>
-            )}
-          </React.Fragment>
-        ))}
-      </nav>
+        <ListIcon className="h-[18px] w-[18px]" weight="regular" />
+      </button>
+      <button
+        type="button"
+        onClick={() => setMobileOpen(true)}
+        aria-label={tSidebar("openMenu")}
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground md:hidden"
+      >
+        <ListIcon className="h-[18px] w-[18px]" weight="regular" />
+      </button>
+
+      <Link
+        href="/dashboard"
+        className="flex shrink-0 items-center rounded-[--radius] px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <BrandLogo size="sm" />
+      </Link>
+
+      {/* The identity divider — the literal "|" of "Product | Scope". */}
+      <div
+        aria-hidden="true"
+        className="hidden h-5 w-px shrink-0 bg-border-strong md:block"
+      />
+
+      <div className="hidden min-w-0 md:block">
+        <WorkspaceSwitcher />
+      </div>
+
+      <div className="min-w-0 flex-1" />
 
       <div className="flex shrink-0 items-center gap-1">
         <div className="hidden md:block">
@@ -253,7 +218,7 @@ export function DashboardNavbar({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
                 transition={{ duration: 0.12, ease: [0.2, 0, 0, 1] }}
-                className="absolute right-0 top-full mt-1 w-56 overflow-hidden border border-border bg-popover shadow-xl"
+                className="absolute right-0 top-full mt-1 w-56 overflow-hidden rounded-lg border border-border bg-popover shadow-xl"
               >
                 <div className="border-b border-border px-3 py-2.5">
                   <p className="truncate text-sm font-semibold text-foreground">

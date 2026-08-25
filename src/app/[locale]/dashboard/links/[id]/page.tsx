@@ -32,6 +32,13 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import {
+  VozAreaGradient,
+  vozGrid,
+  vozLineMark,
+  vozXAxis,
+  vozYAxis,
+} from "@/components/charts/vozko";
+import {
   downloadQr,
   getLink,
   getLinkAnalytics,
@@ -48,7 +55,7 @@ import { useWorkspace } from "@/contexts/workspace-context";
 
 import { CopyButton } from "../_components/CopyButton";
 
-const ACCENT = "#2463eb";
+const ACCENT = "hsl(var(--chart-1))";
 
 function DistributionCard({
   title,
@@ -299,17 +306,19 @@ export default function LinkAnalyticsPage() {
         {analytics && analytics.timeSeries.length > 0 ? (
           <ChartContainer config={chartConfig} className="h-[240px] w-full">
             <AreaChart data={analytics.timeSeries} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e1e7ef" />
-              <XAxis dataKey="date" tickLine={false} axisLine={false} fontSize={10} />
-              <YAxis tickLine={false} axisLine={false} fontSize={10} allowDecimals={false} width={32} />
+              <defs>
+                <VozAreaGradient id="link-clicks" color={ACCENT} />
+              </defs>
+              <CartesianGrid {...vozGrid} />
+              <XAxis {...vozXAxis} dataKey="date" />
+              <YAxis {...vozYAxis} allowDecimals={false} width={32} />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Area
+                {...vozLineMark}
                 dataKey="clicks"
                 type="monotone"
                 stroke={ACCENT}
-                fill={ACCENT}
-                fillOpacity={0.12}
-                strokeWidth={2}
+                fill="url(#voz-fill-link-clicks)"
               />
             </AreaChart>
           </ChartContainer>
@@ -382,7 +391,7 @@ function StatTile({
       </span>
       <div className="min-w-0">
         <p className="truncate text-xs text-muted-foreground">{label}</p>
-        <p className="truncate text-lg font-semibold text-foreground">{value}</p>
+        <p className="truncate font-display text-lg font-semibold text-foreground">{value}</p>
       </div>
     </div>
   );

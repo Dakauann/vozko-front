@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Negociação">
+  <title>Negociação</title>
+  <path d="M3.5 3.75 2.5 13.9l6.15 6.15a1.1 1.1 0 0 0 1.55-1.55"/>
+  <path d="M3.5 4.6h7.25"/>
+  <path d="M20.5 3.75l1 10.15h-1.9"/>
+  <path d="m11.15 17.1 1.9 1.9a1.1 1.1 0 0 0 1.55-1.55"/>
+  <path stroke="var(--icon-accent, currentColor)" d="m14.05 14.2 2.4 2.4a1.1 1.1 0 0 0 1.55-1.55l-3.75-3.75a2.85 2.85 0 0 0-4.03 0l-.8.8a1.1 1.1 0 0 1-1.55-1.55l2.7-2.7a5.6 5.6 0 0 1 6.83-.84l.45.27a2 2 0 0 0 1.4.25"/>
+</svg>

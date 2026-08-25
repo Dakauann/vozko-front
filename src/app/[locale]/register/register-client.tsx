@@ -19,6 +19,7 @@ import { useCallback, useEffect, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { AuthFormAlert } from "@/components/auth/auth-form-alert";
+import { CircuitTraces, DotMatrix } from "@/components/brand/circuit";
 import Button from "@/components/elevated-design/button";
 import { Checkbox } from "@/components/elevated-design/elevated-checkbox";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
@@ -378,6 +379,8 @@ export default function RegisterClient() {
   return (
     <div className="min-h-screen pt-0 bg-muted overflow-y-auto">
       <div className="flex items-center justify-center px-4 py-8 sm:py-12 relative min-h-[calc(100vh-3rem)] sm:min-h-[calc(100vh-3rem)]">
+        <CircuitTraces className="pointer-events-none absolute -right-12 -top-10 hidden h-80 w-80 lg:block xl:h-96 xl:w-96" />
+        <DotMatrix className="pointer-events-none absolute bottom-12 left-6 hidden h-20 w-28 lg:block" />
         <div
           className="fixed inset-0 opacity-[0.015] pointer-events-none"
           style={{
@@ -407,7 +410,7 @@ export default function RegisterClient() {
               >
                 {t("header.badge")}
               </motion.div>
-              <h1 className="text-3xl font-semibold text-foreground tracking-tight">
+              <h1 className="font-display text-3xl font-semibold text-foreground tracking-[0.01em]">
                 {t("header.title")}
               </h1>
               <p className="mt-3 text-muted-foreground text-base">
@@ -429,7 +432,7 @@ export default function RegisterClient() {
                     onClick={() => handleAccountTypeChange("individual")}
                     className={`relative flex flex-col items-center justify-center gap-2 p-4 rounded-[--radius] border transition-all duration-200 ${
                       accountType === "individual"
-                        ? "border-slate-900 border border-border bg-muted text-foreground shadow-lg"
+                        ? "border border-border bg-muted text-foreground shadow-lg"
                         : "border-border bg-transparent text-muted-foreground hover:border-foreground/20 hover:bg-muted"
                     }`}
                   >
@@ -437,7 +440,7 @@ export default function RegisterClient() {
                       weight={accountType === "individual" ? "fill" : "regular"}
                       className={`w-6 h-6 ${
                         accountType === "individual"
-                          ? "text-white"
+                          ? "text-foreground"
                           : "text-muted-foreground"
                       }`}
                     />
@@ -450,7 +453,7 @@ export default function RegisterClient() {
                     onClick={() => handleAccountTypeChange("company")}
                     className={`relative flex flex-col items-center justify-center gap-2 p-4 rounded-[--radius] border transition-all duration-200 ${
                       accountType === "company"
-                        ? "border-slate-900 border border-border bg-muted text-foreground shadow-lg"
+                        ? "border border-border bg-muted text-foreground shadow-lg"
                         : "border-border bg-transparent text-muted-foreground hover:border-foreground/20 hover:bg-muted"
                     }`}
                   >
@@ -458,7 +461,7 @@ export default function RegisterClient() {
                       weight={accountType === "company" ? "fill" : "regular"}
                       className={`w-6 h-6 ${
                         accountType === "company"
-                          ? "text-white"
+                          ? "text-foreground"
                           : "text-muted-foreground"
                       }`}
                     />
@@ -616,10 +619,10 @@ export default function RegisterClient() {
                         }`}
                       >
                         <span
-                          className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full text-white ${
+                          className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-muted ${
                             ok
-                              ? "bg-muted"
-                              : "bg-muted"
+                              ? "text-healthy-ink"
+                              : "text-destructive-ink"
                           }`}
                         >
                           {ok ? (

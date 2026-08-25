@@ -487,10 +487,10 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                     {subscriptionStatusLabel ? (
                       <span
                         className={cn(
-                          "rounded-[--radius] px-2.5 py-1 text-2xs font-semibold text-white",
+                          "rounded-[--radius] px-2.5 py-1 text-2xs font-semibold",
                           hasRechargeEligiblePlan
-                            ? "bg-healthy"
-                            : "bg-warning",
+                            ? "bg-healthy text-healthy-foreground"
+                            : "bg-warning text-warning-foreground",
                         )}
                       >
                         {subscriptionStatusLabel}

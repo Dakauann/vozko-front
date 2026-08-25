@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Conexão">
+  <title>Conexão</title>
+  <path stroke="var(--icon-accent, currentColor)" d="M12 8.25H8.25a3.75 3.75 0 0 0 0 7.5H12v-7.5Z"/>
+  <path d="M12 10.5h3.5M12 13.5h3.5"/>
+  <path d="M15.5 7.5h.9a4.25 4.25 0 0 1 0 8.5h-.9v-8.5Z"/>
+</svg>

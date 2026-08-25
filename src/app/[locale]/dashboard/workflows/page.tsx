@@ -50,7 +50,7 @@ import {
 import { useDepartment } from "@/contexts/department-context";
 
 const STATUS_COLORS: Record<WorkflowStatus, string> = {
-  draft: "bg-zinc-500 text-white",
+  draft: "bg-[hsl(var(--plate-neutral))] text-white",
   active: "bg-healthy text-healthy-foreground",
   paused: "bg-warning text-warning-foreground",
   archived: "bg-destructive text-destructive-foreground",

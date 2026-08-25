@@ -46,7 +46,7 @@ export function InstagramProfileHeader({ account }: { account: InstagramAccount 
 
         <div className="flex min-w-0 flex-1 flex-col gap-4">
           <div className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1.5">
-            <h2 className="truncate text-lg font-semibold text-foreground">@{account.username}</h2>
+            <h2 className="truncate font-display text-lg font-semibold tracking-[0.01em] text-foreground">@{account.username}</h2>
 
             {account.needsReconnect ? (
               <StatusBadge
@@ -121,7 +121,7 @@ export function InstagramProfileHeader({ account }: { account: InstagramAccount 
 function Stat({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex items-baseline gap-1.5">
-      <dd className="text-base font-semibold tabular-nums text-foreground">
+      <dd className="font-display text-base font-semibold tabular-nums text-foreground">
         {value.toLocaleString()}
       </dd>
       <dt className="text-sm text-muted-foreground">{label}</dt>

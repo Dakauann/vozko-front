@@ -26,7 +26,6 @@ import {
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ModelBrandIcon } from "@/components/elevated-design/model-brand-icon";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -264,12 +263,7 @@ export default function AgentsPage() {
   );
 
   return (
-    <motion.main
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="w-full space-y-4"
-    >
+    <main className="w-full space-y-4">
       <DashboardPageHeader
         icon={<Robot className="h-6 w-6" weight="fill" />}
         badge={t("header.badge")}
@@ -386,6 +380,6 @@ export default function AgentsPage() {
               }
         }
       />
-    </motion.main>
+    </main>
   );
 }

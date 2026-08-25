@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Certificado">
+  <title>Certificado</title>
+  <rect x="3.25" y="3.75" width="17.5" height="11.5" rx="2.5"/>
+  <path d="M7 7.75h6.5M7 11.25h4"/>
+  <circle stroke="var(--icon-accent, currentColor)" cx="16.5" cy="15.75" r="3.1"/>
+  <path stroke="var(--icon-accent, currentColor)" d="m14.45 18.05-.7 3.2 2.75-1.45 2.75 1.45-.7-3.2"/>
+</svg>

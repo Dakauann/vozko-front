@@ -124,7 +124,7 @@ const ElevatedDialogTitle = React.forwardRef<
   <DialogPrimitive.Title
     ref={ref}
     className={cn(
-      "text-xl font-semibold text-foreground",
+      "font-display text-xl font-semibold tracking-[0.01em] text-foreground",
       className,
     )}
     {...props}

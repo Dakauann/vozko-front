@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Conector">
+  <title>Conector</title>
+  <path d="M9 3.25v5M15 3.25v5"/>
+  <path stroke="var(--icon-accent, currentColor)" d="M6.25 8.25h11.5v3.5a5.75 5.75 0 0 1-11.5 0v-3.5Z"/>
+  <path d="M12 17.5v3.25"/>
+</svg>

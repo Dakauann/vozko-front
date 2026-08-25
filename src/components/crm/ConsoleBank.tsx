@@ -5,18 +5,15 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * One labelled bank of a console bar.
+ * One group of the CRM command bar.
  *
- * The CRM header used to be a row of bordered control groups — channel chips in
- * a box, campaign chips in a box, view chips in a box, then loose buttons. Four
- * boxes side by side is the toolbar every product ships, and no amount of
- * restyling the chips changes what the row is.
- *
- * A console does not group controls by drawing a box around them. It engraves a
- * legend above them and cuts a hairline between banks: the panel is continuous,
- * the labels do the grouping. That is what this is — a silkscreen legend over
- * its controls, divided from its neighbour by a rule, never by a border of its
- * own.
+ * This used to render a legend line ABOVE its controls — a two-storey bank
+ * that cost the toolbar ~20px of height on a surface where every pixel is
+ * queue. The Azure command bar it now follows is single-line: controls sit
+ * inline, groups are separated by a hairline divider, and the group's name
+ * moves to the accessible layer (`aria-label` + `title`) where assistive
+ * tech and hover still get it. Every control inside already carries its own
+ * tooltip, so nothing is unlabeled — it is just no longer labeled twice.
  */
 export function ConsoleBank({
   legend,
@@ -24,7 +21,7 @@ export function ConsoleBank({
   className,
   grow = false,
 }: {
-  /** Silkscreen label. Names what the bank routes, not what its buttons do. */
+  /** Group name. Read by AT and shown on hover; no longer painted in the bar. */
   legend: string;
   children: ReactNode;
   className?: string;
@@ -33,14 +30,16 @@ export function ConsoleBank({
 }) {
   return (
     <div
+      role="group"
+      aria-label={legend}
+      title={legend}
       className={cn(
-        "flex min-w-0 flex-col justify-center gap-1.5 border-l border-border px-3 py-2 first:border-l-0 first:pl-4",
+        "flex min-w-0 items-center gap-1 border-l border-border px-2 py-1.5 first:border-l-0 first:pl-3",
         grow ? "flex-1" : "shrink-0",
         className,
       )}
     >
-      <span className="legend truncate">{legend}</span>
-      <div className="flex min-w-0 items-center gap-1">{children}</div>
+      {children}
     </div>
   );
 }

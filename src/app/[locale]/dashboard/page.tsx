@@ -4,52 +4,40 @@ import {
   ArrowRight,
   ChartBar,
   ChatCircle,
+  CheckCircle,
+  Clock,
+  Hourglass,
+  Pulse,
   Robot,
   Users,
   Wallet,
   WhatsappLogo,
 } from "@/components/icons";
 import type {
+  AttendanceOverview,
   AttendantStats,
   WindowStats,
 } from "@/lib/attendance/types";
 import {
+  getAttendanceOverviewAction,
   getAttendanceStatsAction,
   getWindowStatsAction,
 } from "@/app/actions/attendance";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+
+import { vozRing } from "@/components/charts/vozko";
+import { format, subDays } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
+import { GLYPH_PLATE } from "@/components/icons/glyph-plates";
 import Link from "next/link";
 import type { WhatsAppCampaign } from "@/lib/whatsapp-campaigns/types";
 import { listWhatsAppCampaignsAction } from "@/app/actions/whatsapp-campaigns";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useLocale, useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.4,
-      ease: "easeOut" as const,
-    },
-  },
-};
 
 
 const STATUS_LABELS: Record<string, string> = {
@@ -138,7 +126,7 @@ function Meter({
             the legend above it, not to the rule below it. */}
         <span
           className={cn(
-            "readout mt-1.5 block text-3xl font-semibold leading-none tracking-[-0.03em]",
+            "readout font-display mt-1.5 block text-3xl font-semibold leading-none tracking-[-0.03em]",
             t.ink,
           )}
         >
@@ -189,6 +177,219 @@ function LogSkeleton() {
   );
 }
 
+/**
+ * The 7-day attendance glance — the metrics page's own KPI vocabulary,
+ * summarised on the landing screen. Reuses the `metricsOps` translations and
+ * the product-wide glyph→plate colours so every figure here reads exactly the
+ * way it reads on the full page it links to. Data is the overview the page
+ * already fetches; nothing new is queried.
+ */
+function AttendanceGlance({
+  overview,
+  loading,
+}: {
+  overview: AttendanceOverview;
+  loading: boolean;
+}) {
+  const t = useTranslations("dashboard");
+  const tk = useTranslations("metricsOps.attendance.kpi");
+  const st = useTranslations("metricsOps.attendance.status");
+  const tl = useTranslations("metricsOps.attendance.labels");
+  const tc = useTranslations("metricsOps.common");
+  const locale = useLocale();
+  const tag = locale === "pt" ? "pt-BR" : locale;
+
+  const kpis = overview.kpis;
+  const dist = overview.status_distribution;
+  const num = (v: number | null | undefined) =>
+    (v ?? 0).toLocaleString(tag);
+  const mins = (v: number | null | undefined) =>
+    v == null
+      ? "—"
+      : v < 1
+        ? `${Math.round(v * 60)}s`
+        : `${v.toLocaleString(tag, { maximumFractionDigits: 1 })} ${tc("minUnit")}`;
+
+  const tiles = [
+    {
+      key: "finished",
+      label: tk("finished"),
+      value: num(kpis?.finished),
+      icon: CheckCircle,
+      plate: GLYPH_PLATE.CheckCircle,
+    },
+    {
+      key: "ongoing",
+      label: tk("ongoing"),
+      value: num(kpis?.ongoing),
+      icon: Pulse,
+      plate: GLYPH_PLATE.Pulse,
+    },
+    {
+      key: "pending",
+      label: tk("pending"),
+      value: num(kpis?.pending),
+      icon: Hourglass,
+      plate: GLYPH_PLATE.Hourglass,
+    },
+    {
+      key: "new",
+      label: tk("newContacts"),
+      value: num(kpis?.new_contacts),
+      icon: Users,
+      plate: GLYPH_PLATE.Users,
+    },
+    {
+      key: "tme",
+      label: tk("avgWait"),
+      value: mins(kpis?.avg_wait_mins ?? null),
+      icon: Clock,
+      plate: GLYPH_PLATE.Clock,
+    },
+  ];
+
+  const total = dist?.total ?? 0;
+  const slices =
+    dist && total > 0
+      ? [
+          {
+            key: "finished",
+            name: st("finished"),
+            value: dist.finished,
+            color: "hsl(var(--healthy))",
+          },
+          {
+            key: "ongoing",
+            name: st("ongoing"),
+            value: dist.ongoing,
+            color: "hsl(var(--info))",
+          },
+          {
+            key: "pending",
+            name: st("pending"),
+            value: dist.pending,
+            color: "hsl(var(--warning))",
+          },
+        ].filter((s) => s.value > 0)
+      : [];
+
+  return (
+    <section className="well overflow-hidden">
+      <header className="rule-engraved flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-5 py-3">
+        <div className="flex min-w-0 items-baseline gap-2.5">
+          <span className="legend">{t("attendanceSection")}</span>
+          <span className="truncate text-sm font-semibold text-foreground">
+            {tl("last7d")}
+          </span>
+        </div>
+        <Link
+          href="/dashboard/attendance"
+          className="legend text-primary-ink transition-colors hover:text-foreground"
+        >
+          {t("viewAll")}
+        </Link>
+      </header>
+
+      <div
+        className={cn(
+          "grid gap-4 px-5 py-4",
+          slices.length > 0 && "lg:grid-cols-[minmax(0,1fr)_240px]",
+        )}
+      >
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-5">
+          {tiles.map((tile) => (
+            <div
+              key={tile.key}
+              className="rounded-lg border border-border bg-card p-3 shadow-sm"
+            >
+              <div className="flex items-center gap-2">
+                <span
+                  className={cn(
+                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-[--radius]",
+                    tile.plate,
+                  )}
+                >
+                  <tile.icon className="h-4 w-4" weight="fill" />
+                </span>
+                <p className="truncate text-2xs font-semibold text-muted-foreground">
+                  {tile.label}
+                </p>
+              </div>
+              <p className="readout font-display mt-2 truncate text-2xl font-semibold tracking-tight text-foreground">
+                {loading ? "…" : tile.value}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {slices.length > 0 ? (
+          <div className="flex items-center gap-3">
+            <div className="relative h-[132px] w-[132px] shrink-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={slices}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    {...vozRing(62, 50)}
+                  >
+                    {slices.map((s) => (
+                      <Cell key={s.key} fill={s.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    cursor={false}
+                    content={({ active, payload }) => {
+                      if (!active || !payload?.length) return null;
+                      const p = payload[0];
+                      return (
+                        <div className="rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs shadow-md">
+                          <span className="text-muted-foreground">
+                            {String(p.name)}:{" "}
+                          </span>
+                          <span className="readout font-semibold text-foreground">
+                            {num(Number(p.value))}
+                          </span>
+                        </div>
+                      );
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                <span className="readout font-display text-lg font-semibold leading-none text-foreground">
+                  {num(total)}
+                </span>
+              </div>
+            </div>
+            <ul className="min-w-0 flex-1 space-y-1.5">
+              {slices.map((s) => (
+                <li
+                  key={s.key}
+                  className="flex items-center justify-between gap-2 text-xs"
+                >
+                  <span className="inline-flex min-w-0 items-center gap-1.5 text-muted-foreground">
+                    <span
+                      className="h-2 w-2 shrink-0 rounded-full"
+                      style={{ backgroundColor: s.color }}
+                    />
+                    <span className="truncate">{s.name}</span>
+                  </span>
+                  <span className="readout font-semibold text-foreground">
+                    {num(s.value)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+      </div>
+    </section>
+  );
+}
+
 function UserDashboard() {
   const t = useTranslations("dashboard");
   const locale = useLocale();
@@ -197,6 +398,7 @@ function UserDashboard() {
   const [waCampaigns, setWaCampaigns] = useState<WhatsAppCampaign[]>([]);
   const [attendants, setAttendants] = useState<AttendantStats[]>([]);
   const [windowStats, setWindowStats] = useState<WindowStats | null>(null);
+  const [overview, setOverview] = useState<AttendanceOverview | null>(null);
   const [loading, setLoading] = useState(true);
 
   const canReadWaCampaigns =
@@ -204,6 +406,7 @@ function UserDashboard() {
   const canReadMembers = !permissionsLoading && can("members", "read");
   const canReadConversations = !permissionsLoading && canAny("conversations");
   const canReadPlans = !permissionsLoading && canAny("balance");
+  const canReadAttendance = !permissionsLoading && can("attendance", "read");
 
   useEffect(() => {
     if (permissionsLoading) return;
@@ -232,6 +435,19 @@ function UserDashboard() {
           }),
         );
       }
+      // The same 7-day overview the metrics page reads — the dashboard shows
+      // the workspace's attendance shape out of the box instead of sending the
+      // operator to a second screen for their first read of the day.
+      if (canReadAttendance) {
+        promises.push(
+          getAttendanceOverviewAction({
+            dateFrom: format(subDays(new Date(), 6), "yyyy-MM-dd"),
+            dateTo: format(new Date(), "yyyy-MM-dd"),
+          }).then((r) => {
+            if (!cancelled && !r.error) setOverview(r.overview);
+          }),
+        );
+      }
 
       await Promise.allSettled(promises);
       if (!cancelled) setLoading(false);
@@ -244,6 +460,7 @@ function UserDashboard() {
     permissionsLoading,
     canReadWaCampaigns,
     canReadMembers,
+    canReadAttendance,
   ]);
 
   const runningWa = useMemo(
@@ -411,13 +628,8 @@ function UserDashboard() {
   }
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="space-y-4"
-    >
-      <motion.div variants={itemVariants}>
+    <div className="space-y-4">
+      <div>
         <DashboardPageHeader
           actions={
             <>
@@ -450,7 +662,7 @@ function UserDashboard() {
           }
           icon={<ChartBar className="h-6 w-6" weight="fill" />}
         />
-      </motion.div>
+      </div>
 
       {/*
         THE METER BRIDGE.
@@ -460,7 +672,7 @@ function UserDashboard() {
         them nested three levels of border inside a fourth.
       */}
       {meters.length > 0 ? (
-        <motion.section variants={itemVariants} className="well overflow-hidden">
+        <section className="well overflow-hidden">
           <header className="rule-engraved flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-5 py-3">
             <div className="flex min-w-0 items-baseline gap-2.5">
               <span className="legend">{t("workspaceLegend")}</span>
@@ -478,13 +690,23 @@ function UserDashboard() {
               </div>
             ))}
           </dl>
-        </motion.section>
+        </section>
       ) : null}
 
-      <motion.div
-        variants={itemVariants}
-        className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_296px]"
-      >
+      {/*
+        ATTENDANCE, OUT OF THE BOX.
+
+        The same 7-day overview the metrics page charts, summarised where the
+        operator lands: five colourful KPI tiles (the product-wide glyph→plate
+        colours, so green means done here exactly as it does there) and the
+        status donut with the slice total in its hole. The full page is one
+        click away on the section header.
+      */}
+      {canReadAttendance && overview?.kpis ? (
+        <AttendanceGlance overview={overview} loading={loading} />
+      ) : null}
+
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_296px]">
         {/*
           THE LOG.
 
@@ -685,8 +907,8 @@ function UserDashboard() {
             </div>
           </section>
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }
 

@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowClockwise,
   ArrowLeft,
@@ -268,12 +267,7 @@ export default function AdminIssueDetailClient({
   const StatusIcon = config.icon;
 
   return (
-    <motion.main
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="w-full max-w-4xl mx-auto space-y-6 py-2"
-    >
+    <main className="w-full max-w-4xl mx-auto space-y-6 py-2">
       {/* Back */}
       <button
         type="button"
@@ -288,7 +282,7 @@ export default function AdminIssueDetailClient({
       <div className="rounded-[--radius] border border-border bg-card p-6 space-y-4">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <h1 className="text-xl font-semibold text-foreground break-words">
+            <h1 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground break-words">
               {issue.title}
             </h1>
             <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
@@ -383,15 +377,8 @@ export default function AdminIssueDetailClient({
             </div>
           ) : (
             <div className="divide-y divide-border">
-              <AnimatePresence mode="popLayout">
                 {responses.map((resp) => (
-                  <motion.div
-                    key={resp.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    className="px-6 py-4 space-y-2"
-                  >
+                  <div key={resp.id} className="px-6 py-4 space-y-2">
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <span className="font-medium text-foreground">
                         {resp.authorId === user?.id
@@ -423,9 +410,8 @@ export default function AdminIssueDetailClient({
                         </a>
                       </div>
                     )}
-                  </motion.div>
+                  </div>
                 ))}
-              </AnimatePresence>
               <div ref={messagesEndRef} />
             </div>
           )}
@@ -534,6 +520,6 @@ export default function AdminIssueDetailClient({
           </div>
         )}
       </div>
-    </motion.main>
+    </main>
   );
 }

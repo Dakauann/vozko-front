@@ -93,7 +93,7 @@ export function MediaNodePreview({
         </div>
       )}
       {isVideo && url && (
-        <div className="relative overflow-hidden rounded-md bg-black/5 dark:bg-white/5">
+        <div className="relative overflow-hidden rounded-md bg-muted">
           <video
             src={url}
             className="max-h-20 w-full rounded-md object-cover"

@@ -122,7 +122,7 @@ export default function LegalDocument({
             {t("backHome")}
           </Link>
 
-          <h1 className="mt-5 text-3xl font-semibold leading-[1.1] tracking-[-0.02em] text-foreground sm:text-4xl">
+          <h1 className="mt-5 font-display text-3xl font-semibold leading-[1.1] tracking-[0.01em] text-foreground sm:text-4xl">
             {t("title")}
           </h1>
 
@@ -205,7 +205,7 @@ export default function LegalDocument({
                     headingRefs.current[c.key] = el;
                   }}
                   id={c.key}
-                  className="flex items-baseline gap-3 text-xl font-semibold leading-snug tracking-[-0.01em] text-foreground"
+                  className="flex items-baseline gap-3 font-display text-xl font-semibold leading-snug tracking-[0.01em] text-foreground"
                 >
                   <span className="readout shrink-0 text-base tabular-nums text-muted-foreground">
                     {c.number}

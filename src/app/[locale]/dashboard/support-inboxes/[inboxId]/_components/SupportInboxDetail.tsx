@@ -16,26 +16,9 @@ import Button from "@/components/elevated-design/button";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import type { SupportInbox } from "@/lib/support-inboxes/types";
 import { getBrand } from "@/config/brand";
-import { motion } from "framer-motion";
+import { readableInkFor } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.1 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { type: "spring" as const, stiffness: 100, damping: 15 },
-  },
-};
 
 interface SupportInboxDetailProps {
   inbox: SupportInbox;
@@ -76,14 +59,9 @@ export default function SupportInboxDetail({
   const widgetColor = inbox.widgetColor || "#7c3aed";
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="w-full space-y-6"
-    >
+    <div className="w-full space-y-6">
       {/* Back button */}
-      <motion.div variants={itemVariants}>
+      <div>
         <Button
           variant="ghost"
           title={t("back")}
@@ -92,19 +70,19 @@ export default function SupportInboxDetail({
           iconSide="left"
           onClick={() => router.push("/dashboard/support-inboxes")}
         />
-      </motion.div>
+      </div>
 
       {/* Header */}
-      <motion.header variants={itemVariants} className="space-y-2">
+      <header className="space-y-2">
         <div className="flex items-center gap-4">
           <div
-            className="flex h-14 w-14 items-center justify-center rounded-[--radius] shadow-lg"
-            style={{ backgroundColor: widgetColor }}
+            className="flex h-11 w-11 items-center justify-center rounded-lg shadow-sm"
+            style={{ backgroundColor: widgetColor, color: readableInkFor(widgetColor) }}
           >
-            <Headset weight="fill" className="h-7 w-7" />
+            <Headset weight="fill" className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">{inbox.name}</h1>
+            <h1 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground">{inbox.name}</h1>
             <p className="text-sm text-muted-foreground">
               {t("createdAt", {
                 date: new Date(inbox.createdAt).toLocaleDateString(),
@@ -112,15 +90,15 @@ export default function SupportInboxDetail({
             </p>
           </div>
         </div>
-      </motion.header>
+      </header>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Left column: Settings summary + embed code */}
         <div className="space-y-6">
           {/* Settings Summary */}
-          <motion.div variants={itemVariants}>
+          <div>
             <ElevatedContainer className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground">
+              <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                 {t("settingsTitle")}
               </h3>
 
@@ -202,14 +180,14 @@ export default function SupportInboxDetail({
                 )}
               </div>
             </ElevatedContainer>
-          </motion.div>
+          </div>
 
           {/* Embed Code */}
-          <motion.div variants={itemVariants}>
+          <div>
             <ElevatedContainer className="space-y-4">
               <div className="flex items-center gap-2">
                 <Code className="h-5 w-5 text-chart-4" weight="bold" />
-                <h3 className="text-lg font-semibold text-foreground">
+                <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                   {t("embedTitle")}
                 </h3>
               </div>
@@ -231,13 +209,13 @@ export default function SupportInboxDetail({
                 </button>
               </div>
             </ElevatedContainer>
-          </motion.div>
+          </div>
         </div>
 
         {/* Right column: Widget Preview */}
-        <motion.div variants={itemVariants}>
+        <div>
           <ElevatedContainer className="space-y-4">
-            <h3 className="text-lg font-semibold text-foreground">
+            <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
               {t("previewTitle")}
             </h3>
             <p className="text-sm text-muted-foreground">
@@ -245,7 +223,7 @@ export default function SupportInboxDetail({
             </p>
 
             {/* Mock website background */}
-            <div className="relative min-h-[500px] overflow-hidden rounded-[--radius] border border-border bg-muted dark:from-slate-900 dark:to-slate-800">
+            <div className="relative min-h-[500px] overflow-hidden rounded-[--radius] border border-border bg-muted">
               {/* Fake website content */}
               <div className="p-6 space-y-4">
                 <div className="h-4 w-48 rounded-full bg-muted dark:bg-muted" />
@@ -259,32 +237,26 @@ export default function SupportInboxDetail({
 
               {/* Chat widget - Floating Bubble */}
               {!widgetOpen && (
-                <motion.button
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", delay: 0.3 }}
+                <button
                   type="button"
                   onClick={() => setWidgetOpen(true)}
                   className="absolute bottom-5 right-5 flex h-14 w-14 items-center justify-center rounded-full shadow-xl transition-transform hover:scale-110"
-                  style={{ backgroundColor: widgetColor }}
+                  style={{ backgroundColor: widgetColor, color: readableInkFor(widgetColor) }}
                 >
                   <ChatCircleDots className="h-7 w-7" weight="fill" />
-                </motion.button>
+                </button>
               )}
 
               {/* Chat widget - Open Panel */}
               {widgetOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                <div
                   className="absolute bottom-5 right-5 flex w-80 flex-col overflow-hidden rounded-[--radius] border border-border bg-card shadow-2xl"
                   style={{ maxHeight: "440px" }}
                 >
                   {/* Chat Header */}
                   <div
-                    className="flex items-center justify-between px-4 py-3 text-white"
-                    style={{ backgroundColor: widgetColor }}
+                    className="flex items-center justify-between px-4 py-3"
+                    style={{ backgroundColor: widgetColor, color: readableInkFor(widgetColor) }}
                   >
                     <div className="flex items-center gap-2">
                       <Headset className="h-5 w-5" weight="fill" />
@@ -335,8 +307,8 @@ export default function SupportInboxDetail({
                       ))}
                       <button
                         type="button"
-                        className="mt-2 w-full rounded-lg py-2 text-sm font-medium text-white transition-colors"
-                        style={{ backgroundColor: widgetColor }}
+                        className="mt-2 w-full rounded-lg py-2 text-sm font-medium transition-colors"
+                        style={{ backgroundColor: widgetColor, color: readableInkFor(widgetColor) }}
                       >
                         {t("previewStart")}
                       </button>
@@ -377,13 +349,13 @@ export default function SupportInboxDetail({
                       </div>
                     </>
                   )}
-                </motion.div>
+                </div>
               )}
             </div>
           </ElevatedContainer>
-        </motion.div>
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 

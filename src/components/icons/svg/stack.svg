@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Empilhar">
+  <title>Empilhar</title>
+  <path stroke="var(--icon-accent, currentColor)" d="m12 3.25 8.75 4.5L12 12.25 3.25 7.75 12 3.25Z"/>
+  <path d="m3.25 12 8.75 4.5 8.75-4.5M3.25 16.25 12 20.75l8.75-4.5"/>
+</svg>

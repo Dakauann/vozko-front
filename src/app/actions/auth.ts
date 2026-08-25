@@ -85,6 +85,23 @@ export async function updateUserDocumentAction(
   return { user: data ? mapUserMe(data) : null, error: undefined, errorCode: null };
 }
 
+/**
+ * Renames the authenticated user. `username` is a display name only — login is by email and the
+ * value is not unique-constrained — so this is a plain overwrite, unlike the set-once document.
+ */
+export async function updateUserNameAction(
+  username: string,
+): Promise<{ user: User | null; error?: string }> {
+  const { data, error } = await apiClient<UserMeResponse>("/user/me", {
+    method: "PATCH",
+    body: JSON.stringify({ username }),
+  });
+  if (error) {
+    return { user: null, error: error.message };
+  }
+  return { user: data ? mapUserMe(data) : null };
+}
+
 export interface ActiveSession {
   id: string;
   deviceInfo: string;

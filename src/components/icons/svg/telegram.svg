@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Telegram">
+  <title>Telegram</title>
+  <circle cx="12" cy="12" r="8.75"/>
+  <path d="m6.5 12.1 11-4.35-2.35 9.6-3.35-2.6-1.9 1.85-.4-3.05L6.5 12.1Z"/>
+  <path stroke="var(--icon-accent, currentColor)" d="m17.5 7.75-7.6 5.55"/>
+</svg>

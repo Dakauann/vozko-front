@@ -265,18 +265,9 @@ export default function AdminUserBalancePage() {
   );
 
   return (
-    <motion.main
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="w-full space-y-6"
-    >
+    <main className="w-full space-y-6">
       {/* ── Header ── */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
+      <div>
         <DashboardPageHeader
           back={{
             onClick: () => router.push("/dashboard/users"),
@@ -299,14 +290,10 @@ export default function AdminUserBalancePage() {
             />
           }
         />
-      </motion.div>
+      </div>
 
       {/* ── Resource Cards ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-      >
+      <div>
         <div
           className="rounded-[--radius] border border-border bg-card p-6"
           style={{ boxShadow: softSurfaceShadow }}
@@ -316,7 +303,7 @@ export default function AdminUserBalancePage() {
               <Wallet className="h-5 w-5" weight="fill" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-foreground">
+              <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                 {t("header.title")}
               </h2>
               {summary?.last_updated && (
@@ -340,7 +327,7 @@ export default function AdminUserBalancePage() {
                   <p className="text-2xs text-muted-foreground font-medium">
                     {t("resource.money")}
                   </p>
-                  <p className="text-2xl font-semibold text-foreground">
+                  <p className="font-display text-2xl font-semibold text-foreground">
                     {loadingSummary
                       ? "..."
                       : formatMoneyValue(
@@ -380,7 +367,7 @@ export default function AdminUserBalancePage() {
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* ── Credit / Debit Form ── */}
       <AnimatePresence>
@@ -395,7 +382,7 @@ export default function AdminUserBalancePage() {
               className="rounded-[--radius] border border-border bg-muted p-6"
               style={{ boxShadow: softSurfaceShadow }}
             >
-              <h3 className="text-lg font-semibold text-foreground mb-4">
+              <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground mb-4">
                 {t("form.title")}
               </h3>
               <form onSubmit={handleSubmitOperation} className="space-y-4">
@@ -497,10 +484,10 @@ export default function AdminUserBalancePage() {
                     type="submit"
                     disabled={submitting || !formAmount}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-[--radius] px-4 py-2 text-sm font-medium text-white transition-colors disabled:opacity-50",
+                      "inline-flex items-center gap-1.5 rounded-[--radius] px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50",
                       operationType === "credit"
-                        ? "bg-healthy hover:bg-healthy"
-                        : "bg-destructive hover:bg-destructive",
+                        ? "bg-healthy text-healthy-foreground hover:bg-healthy"
+                        : "bg-destructive text-destructive-foreground hover:bg-destructive",
                     )}
                   >
                     {submitting ? (
@@ -523,11 +510,7 @@ export default function AdminUserBalancePage() {
       </AnimatePresence>
 
       {/* ── Filters ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.15 }}
-      >
+      <div>
         <div
           className="rounded-[--radius] border border-border bg-card p-4"
           style={{ boxShadow: softSurfaceShadow }}
@@ -564,14 +547,10 @@ export default function AdminUserBalancePage() {
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* ── Transaction History ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
-      >
+      <div>
         <div
           className="rounded-[--radius] border border-border bg-card overflow-hidden"
           style={{ boxShadow: softSurfaceShadow }}
@@ -588,7 +567,7 @@ export default function AdminUserBalancePage() {
                 />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-foreground">
+                <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                   {t("transactions.title")}
                 </h2>
                 <p className="text-xs text-muted-foreground">
@@ -600,7 +579,7 @@ export default function AdminUserBalancePage() {
 
           {loadingTx ? (
             <div className="flex flex-col items-center justify-center py-20">
-              <div className="h-6 w-6 animate-spin rounded-full border border-foreground/20 border-t-blue-500" />
+              <div className="h-6 w-6 animate-spin rounded-full border border-foreground/20 border-t-primary" />
               <p className="text-sm text-muted-foreground mt-3">
                 {t("loading")}
               </p>
@@ -708,7 +687,7 @@ export default function AdminUserBalancePage() {
             </div>
           )}
         </div>
-      </motion.div>
-    </motion.main>
+      </div>
+    </main>
   );
 }

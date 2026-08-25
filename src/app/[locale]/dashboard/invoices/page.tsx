@@ -42,7 +42,6 @@ import {
   listInvoicesAction,
 } from "@/app/actions/invoices";
 import { listPublicPlansAction } from "@/app/actions/workspace-plan";
-import { motion } from "framer-motion";
 import {
   getSubscriptionStatusKey,
   isRechargeSubscriptionRequiredError,
@@ -88,7 +87,7 @@ const STATUS_CONFIG: Record<
   CANCELLED: {
     icon: XCircle,
     label: "cancelled",
-    className: "text-white bg-gray-500 border-gray-600",
+    className: "text-white bg-[hsl(var(--plate-neutral))] border-transparent",
   },
   REFUNDED: {
     icon: Clock,
@@ -98,7 +97,7 @@ const STATUS_CONFIG: Record<
   EXPIRED: {
     icon: Clock,
     label: "expired",
-    className: "text-white bg-gray-500 border-gray-600",
+    className: "text-white bg-[hsl(var(--plate-neutral))] border-transparent",
   },
 };
 
@@ -501,12 +500,7 @@ export default function InvoicesPage() {
   }, [createOpen, generatedInvoice, page]);
 
   return (
-    <motion.main
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="w-full space-y-4"
-    >
+    <main className="w-full space-y-4">
       <DashboardPageHeader
         icon={<Receipt className="h-5 w-5" weight="fill" />}
         badge={t("header.badge")}
@@ -590,7 +584,7 @@ export default function InvoicesPage() {
                 <Check className="h-8 w-8 text-healthy-ink" weight="bold" />
               </div>
               <div className="flex flex-col items-center gap-1">
-                <p className="text-lg font-semibold text-foreground">
+                <p className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                   {t("create.confirmed")}
                 </p>
                 <p className="text-sm text-muted-foreground">
@@ -622,10 +616,10 @@ export default function InvoicesPage() {
                     {subscriptionStatusLabel ? (
                       <span
                         className={cn(
-                          "inline-flex w-fit items-center rounded-[--radius] px-3 py-1 text-xs font-semibold text-white",
+                          "inline-flex w-fit items-center rounded-[--radius] px-3 py-1 text-xs font-semibold",
                           hasRechargeEligiblePlan
-                            ? "bg-healthy"
-                            : "bg-warning",
+                            ? "bg-healthy text-healthy-foreground"
+                            : "bg-warning text-warning-foreground",
                         )}
                       >
                         {subscriptionStatusLabel}
@@ -941,6 +935,6 @@ export default function InvoicesPage() {
         open={!!detailInvoice}
         onClose={() => setDetailInvoice(null)}
       />
-    </motion.main>
+    </main>
   );
 }

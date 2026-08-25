@@ -32,32 +32,9 @@ import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader"
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import type { WhatsAppTemplate } from "@/lib/whatsapp-templates/types";
 import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones";
-import { motion } from "framer-motion";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.4,
-      ease: [0.25, 0.1, 0.25, 1] as const,
-    },
-  },
-};
 
 interface DebugInfo {
   requestPayload: Record<string, unknown> | null;
@@ -397,13 +374,8 @@ export default function SendWhatsAppTemplatePage() {
   }
 
   return (
-    <motion.main
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="w-full space-y-6"
-    >
-      <motion.div variants={itemVariants}>
+    <main className="w-full space-y-6">
+      <div>
         <DashboardPageHeader
           back={{
             onClick: () =>
@@ -416,15 +388,15 @@ export default function SendWhatsAppTemplatePage() {
           description={t("send.description", { name: template.name })}
           colorClass="text-healthy-ink"
         />
-      </motion.div>
+      </div>
 
       <form onSubmit={handleSubmit}>
         <div className="grid gap-6 lg:grid-cols-2">
-          <motion.div variants={containerVariants} className="space-y-6">
+          <div className="space-y-6">
             {/* Recipient Section */}
-            <motion.div variants={itemVariants}>
+            <div>
               <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
-                <h2 className="text-lg font-semibold text-foreground mb-4">
+                <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground mb-4">
                   {t("send.sections.recipient")}
                 </h2>
 
@@ -472,13 +444,13 @@ export default function SendWhatsAppTemplatePage() {
                   </div>
                 </div>
               </ElevatedContainer>
-            </motion.div>
+            </div>
 
             {/* Header Info Section (media or text params) */}
             {(hasMediaHeader || headerParamNames.length > 0) && (
-              <motion.div variants={itemVariants}>
+              <div>
                 <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
-                  <h2 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
+                  <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground mb-2 flex items-center gap-2">
                     {hasMediaHeader ? (
                       headerComponent?.format === "VIDEO" ? (
                         <VideoCamera
@@ -562,14 +534,14 @@ export default function SendWhatsAppTemplatePage() {
                     </div>
                   )}
                 </ElevatedContainer>
-              </motion.div>
+              </div>
             )}
 
             {/* Body Parameters Section */}
             {bodyParamNames.length > 0 && (
-              <motion.div variants={itemVariants}>
+              <div>
                 <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
-                  <h2 className="text-lg font-semibold text-foreground mb-4">
+                  <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground mb-4">
                     {t("send.sections.parameters")}
                   </h2>
                   <p className="text-sm text-muted-foreground mb-4">
@@ -604,11 +576,11 @@ export default function SendWhatsAppTemplatePage() {
                     ))}
                   </div>
                 </ElevatedContainer>
-              </motion.div>
+              </div>
             )}
 
             {/* Submit Buttons */}
-            <motion.div variants={itemVariants}>
+            <div>
               <div className="flex gap-3">
                 <Button
                   variant="secondary"
@@ -634,13 +606,13 @@ export default function SendWhatsAppTemplatePage() {
                   className="flex-1"
                 />
               </div>
-            </motion.div>
+            </div>
 
             {/* Debug Payload Section (admin only) */}
             {(debugInfo || sendError || sendSuccess) && (
-              <motion.div variants={itemVariants}>
+              <div>
                 <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
-                  <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground mb-4 flex items-center gap-2">
                     <Code className="h-5 w-5 text-info-ink" weight="fill" />
                     {t("send.debug.title")}
                   </h2>
@@ -702,14 +674,14 @@ export default function SendWhatsAppTemplatePage() {
                     </div>
                   )}
                 </ElevatedContainer>
-              </motion.div>
+              </div>
             )}
-          </motion.div>
+          </div>
 
           {/* Preview Panel */}
-          <motion.div variants={itemVariants}>
+          <div>
             <ElevatedContainer className="rounded-lg border border-border bg-card p-6 sticky top-6">
-              <h2 className="text-lg font-semibold text-foreground mb-4">
+              <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground mb-4">
                 {t("send.preview.title")}
               </h2>
 
@@ -841,9 +813,9 @@ export default function SendWhatsAppTemplatePage() {
                 </div>
               )}
             </ElevatedContainer>
-          </motion.div>
+          </div>
         </div>
       </form>
-    </motion.main>
+    </main>
   );
 }

@@ -3,6 +3,8 @@
 import type { ReactNode } from "react";
 
 import { ArrowLeft } from "@/components/icons";
+import { CircuitTracesWide } from "@/components/brand/circuit";
+import { ScopeBreadcrumb } from "@/components/dashboard/ScopeBreadcrumb";
 
 interface DashboardPageHeaderProps {
   icon: ReactNode;
@@ -19,20 +21,16 @@ interface DashboardPageHeaderProps {
 }
 
 /**
- * The page strip.
+ * The page head, in the Azure register — called from 77 places, so both prop
+ * shapes are preserved exactly; only the render changed.
  *
- * One form for every page, closed by a hairline: the name of the thing on the
- * left, the actions rack on the right, content below. It is called from 77
- * places, so both prop shapes are preserved exactly — only the render changed.
- *
- * Two deliberate departures from the previous header:
- *
- * - The solid accent tile behind the glyph is gone. Accent here means "current"
- *   or "commit"; an accent block on every page title spends the one signal the
- *   interface has on decoration, and it appeared on all 77.
- * - `badge` is no longer set as an uppercase eyebrow above the heading. When
- *   there is no `title`, the badge IS the heading and is rendered as one; a
- *   label stacked above a heading is a kicker, and the heading can carry itself.
+ * The reference stacks it: trail, then title, then the command bar. So this
+ * renders (1) the breadcrumb trail (derived from the pathname — no call site
+ * passes anything) or the explicit `back` affordance when a page provides one,
+ * (2) the title line with its quiet glyph, (3) the description, and (4) the
+ * command bar — the actions rack moved from the far right to the LEFT edge
+ * under the title, which is where the reference puts "New dashboard ▾ …".
+ * A hairline closes the whole block, command bar or not.
  *
  * `colorClass` is accepted for call-site compatibility and intentionally not
  * applied to a fill: pages differentiate by name, not by hue.
@@ -48,42 +46,55 @@ export function DashboardPageHeader({
   const heading = title ?? badge;
 
   return (
-    <div className="rule-engraved pb-3">
-      {back && (
+    <div className="relative overflow-hidden border-b border-border pb-0">
+      {/* The brand's trace lines at the head of every page — the right half
+          of this block is structurally empty (trail, title, description and
+          the command rack all sit left), so the ornament sits behind no
+          text. The WIDE variant self-fits the band: it takes the whole free
+          region and right-anchors inside it (preserveAspectRatio), so no
+          stroke is ever cut mid-line whatever the header's height. */}
+      <CircuitTracesWide tone="quiet" className="pointer-events-none absolute inset-y-2 right-0 hidden w-[min(38%,460px)] lg:block" />
+      {back ? (
         <button
           type="button"
           onClick={back.onClick}
-          className="legend -ml-0.5 mb-1.5 inline-flex items-center gap-1 transition-colors hover:!text-foreground focus-visible:rounded-[--radius] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="legend -ml-0.5 mb-1 inline-flex items-center gap-1 transition-colors hover:!text-foreground focus-visible:rounded-[--radius] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <ArrowLeft className="h-3 w-3" weight="bold" aria-hidden="true" />
           {back.label}
         </button>
+      ) : (
+        <ScopeBreadcrumb className="mb-1" />
       )}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span
-              className="flex shrink-0 items-center text-muted-foreground [&_svg]:h-4 [&_svg]:w-4"
-              aria-hidden="true"
-            >
-              {icon}
-            </span>
-            <h1 className="truncate text-lg font-semibold leading-tight tracking-[-0.015em] text-foreground">
-              {heading}
-            </h1>
-          </div>
-          {description && (
-            <p className="mt-1 max-w-2xl text-sm leading-snug text-muted-foreground">
-              {description}
-            </p>
-          )}
-        </div>
-
-        {actions && (
-          <div className="flex shrink-0 items-center gap-1.5">{actions}</div>
-        )}
+      <div className="flex items-center gap-2">
+        <span
+          className="flex shrink-0 items-center text-muted-foreground [&_svg]:h-[18px] [&_svg]:w-[18px]"
+          aria-hidden="true"
+        >
+          {icon}
+        </span>
+        {/* The one place the display face meets an operator every day —
+            "Títulos/Destaques" from the brand board. Oxanium is semi-wide, so
+            the negative Inter tracking comes off; 600 holds its weight. */}
+        <h1 className="truncate font-display text-xl font-semibold leading-tight tracking-[0.01em] text-foreground">
+          {heading}
+        </h1>
       </div>
+
+      {description && (
+        <p className="mt-0.5 max-w-2xl text-sm leading-snug text-muted-foreground">
+          {description}
+        </p>
+      )}
+
+      {actions ? (
+        <div className="mt-2.5 flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-hide">
+          {actions}
+        </div>
+      ) : (
+        <div className="pb-3" />
+      )}
     </div>
   );
 }

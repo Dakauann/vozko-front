@@ -155,7 +155,7 @@ export function CanvasContextMenu({
                   >
                     <div
                       className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
-                      style={{ backgroundColor: styles.color }}
+                      style={{ backgroundColor: styles.color, color: styles.ink }}
                     >
                       {IconComp && <IconComp size={14} weight="fill" />}
                     </div>

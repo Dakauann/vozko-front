@@ -6,11 +6,9 @@ import {
   useRef,
   useState,
   type KeyboardEvent,
-  type MouseEvent as ReactMouseEvent,
 } from "react";
 import {
   Sparkle,
-  X,
   PaperPlaneRight,
   Stop,
   CircleNotch,
@@ -23,6 +21,7 @@ import {
   NotePencil,
 } from "@/components/icons";
 import { cn } from "@/lib/utils";
+import { CircuitTraces } from "@/components/brand/circuit";
 import ElevatedButton from "@/components/elevated-design/button";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { AIModelSelector } from "@/components/elevated-design/ai-model-selector";
@@ -34,10 +33,6 @@ import { CopilotMessage, CopilotThinking } from "./workflow-copilot-message";
 import { WorkflowCopilotHistory } from "./workflow-copilot-history";
 
 const MODEL_STORAGE_KEY = "wf-copilot:model";
-const WIDTH_STORAGE_KEY = "wf-copilot:width";
-const MIN_WIDTH = 320;
-const MAX_WIDTH = 760;
-const DEFAULT_WIDTH = 384;
 
 interface WorkflowCopilotPanelProps {
   workflowId: string;
@@ -46,9 +41,47 @@ interface WorkflowCopilotPanelProps {
   onMeta?: (meta: { name?: string; description?: string; workflowType?: WorkflowType }) => void;
   /** Snapshot of the canvas graph, used to re-hydrate the session on reconnect. */
   getGraph?: () => WorkflowGraph | null | undefined;
+  /** Collapses the card back to the FAB. The panel stays mounted, so the
+   * session and chat history survive the collapse. */
   onClose: () => void;
-  /** When false the panel stays mounted (session + chat alive) but hidden. */
+  /** Expands the chat card again (wired to the FAB while collapsed). */
+  onOpen: () => void;
+  /** When false the card collapses to the FAB; the panel stays mounted. */
   visible?: boolean;
+}
+
+/**
+ * Round launcher for the copilot — the collapsed state of the floating
+ * assistant. Also rendered by the editor before the panel first mounts, so
+ * the copilot is reachable from the canvas at all times. The busy badge is
+ * the one permitted loop here — like the typing indicator, it reports live
+ * work in progress, so a collapsed copilot still says it is building.
+ */
+export function WorkflowCopilotFab({
+  onClick,
+  busy = false,
+}: {
+  onClick: () => void;
+  busy?: boolean;
+}) {
+  const label = busy ? "Copiloto trabalhando…" : "Copiloto de IA";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+      className="fixed bottom-6 right-6 z-[60] flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-shadow hover:shadow-xl"
+    >
+      <Sparkle size={20} weight="fill" />
+      {busy && (
+        <span
+          aria-hidden="true"
+          className="absolute -right-0.5 -top-0.5 h-3 w-3 animate-dot-pulse rounded-full bg-warning ring-2 ring-background"
+        />
+      )}
+    </button>
+  );
 }
 
 export function WorkflowCopilotPanel({
@@ -58,6 +91,7 @@ export function WorkflowCopilotPanel({
   onMeta,
   getGraph,
   onClose,
+  onOpen,
   visible = true,
 }: WorkflowCopilotPanelProps) {
   const [models, setModels] = useState<string[]>([]);
@@ -109,12 +143,6 @@ export function WorkflowCopilotPanel({
   const [showHistory, setShowHistory] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [advisoryOpen, setAdvisoryOpen] = useState(false);
-  const [width, setWidth] = useState<number>(() => {
-    if (typeof window === "undefined") return DEFAULT_WIDTH;
-    const v = Number(localStorage.getItem(WIDTH_STORAGE_KEY));
-    return v >= MIN_WIDTH && v <= MAX_WIDTH ? v : DEFAULT_WIDTH;
-  });
-  const panelRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   // Whether to keep the view pinned to the bottom. True while the user sits at (or
   // near) the bottom; flips to false the moment they scroll up, so we never yank
@@ -133,33 +161,6 @@ export function WorkflowCopilotPanel({
     const el = scrollRef.current;
     if (el && stickToBottomRef.current) el.scrollTop = el.scrollHeight;
   }, [chat, issues]);
-
-  const startResize = (e: ReactMouseEvent) => {
-    e.preventDefault();
-    const panel = panelRef.current;
-    if (!panel) return;
-    const right = panel.getBoundingClientRect().right;
-    let lastWidth = width;
-    const onMove = (ev: globalThis.MouseEvent) => {
-      lastWidth = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, right - ev.clientX));
-      setWidth(lastWidth);
-    };
-    const onUp = () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-      try {
-        localStorage.setItem(WIDTH_STORAGE_KEY, String(lastWidth));
-      } catch {
-        /* storage unavailable, keep the in-memory width */
-      }
-    };
-    document.body.style.cursor = "col-resize";
-    document.body.style.userSelect = "none";
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
-  };
 
   const isBusy = status === "building" || status === "connecting";
 
@@ -198,20 +199,21 @@ export function WorkflowCopilotPanel({
   })();
 
   return (
+    <>
+      {/* Collapsed: only the launcher shows; the card below stays mounted
+          (hidden) so the session and chat history survive. */}
+      {!visible && <WorkflowCopilotFab onClick={onOpen} busy={isBusy} />}
     <div
-      ref={panelRef}
-      style={{ width }}
       className={cn(
-        "relative border-l border-border bg-card flex flex-col h-full flex-shrink-0",
+        // Floating assistant card, no scrim: bounded footprint so the canvas
+        // stays visible above/around it while chatting. z-[60] sits under the
+        // NDV/simulator dialogs (z-[70]) and above the palette (z-40).
+        // Fixed 420px width on purpose (no resize handle): the card must never
+        // grow to cover the canvas the operator is steering.
+        "fixed bottom-6 right-6 z-[60] flex w-[min(420px,92vw)] h-[min(68vh,620px)] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl",
         !visible && "hidden",
       )}
     >
-      {/* Resize handle, drag the left edge to widen/narrow the panel. */}
-      <div
-        onMouseDown={startResize}
-        className="absolute left-0 top-0 z-20 h-full w-1.5 -translate-x-1/2 cursor-col-resize hover:bg-primary/40"
-        title="Arraste para redimensionar"
-      />
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-border">
         <div className="flex items-center gap-2 text-sm font-medium">
@@ -285,12 +287,14 @@ export function WorkflowCopilotPanel({
               <ClockCounterClockwise size={16} />
             </button>
           )}
+          {/* Minimize, not destroy: collapses to the FAB, history persists. */}
           <button
             onClick={onClose}
             className="text-muted-foreground hover:text-foreground"
-            aria-label="Fechar"
+            aria-label="Minimizar"
+            title="Minimizar"
           >
-            <X size={16} />
+            <CaretDown size={16} />
           </button>
         </div>
       </div>
@@ -347,16 +351,25 @@ export function WorkflowCopilotPanel({
       <div
         ref={scrollRef}
         onScroll={handleChatScroll}
-        className="flex-1 overflow-y-auto px-3 py-2 space-y-2"
+        className="relative flex-1 overflow-y-auto px-3 py-2 space-y-2"
       >
         {chat.length === 0 && status !== "building" && (
-          <div className="flex flex-col items-center justify-center h-full text-center gap-2 text-muted-foreground text-xs">
-            <Sparkle size={28} weight="duotone" className="opacity-50" />
-            <p>
-              Peça em linguagem natural: &quot;crie um fluxo que responde a
-              primeira mensagem com a IA e transfere para vendas&quot;.
-            </p>
-          </div>
+          <>
+            {/* Brand trace lines behind the empty-state hint; anchored fully
+                inside the corner so the ornament never creates scroll. */}
+            <CircuitTraces
+              tone="quiet"
+              aria-hidden
+              className="pointer-events-none absolute bottom-2 right-2 h-40 w-40"
+            />
+            <div className="relative flex flex-col items-center justify-center h-full text-center gap-2 text-muted-foreground text-xs">
+              <Sparkle size={28} weight="duotone" className="opacity-50" />
+              <p>
+                Peça em linguagem natural: &quot;crie um fluxo que responde a
+                primeira mensagem com a IA e transfere para vendas&quot;.
+              </p>
+            </div>
+          </>
         )}
         {chat.map((m, i) =>
           m.role === "thinking" ? (
@@ -471,5 +484,6 @@ export function WorkflowCopilotPanel({
         </>
       )}
     </div>
+    </>
   );
 }

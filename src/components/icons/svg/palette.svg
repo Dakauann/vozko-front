@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Cores">
+  <title>Cores</title>
+  <path d="M12 3.25a8.75 8.75 0 0 0 0 17.5c1.25 0 1.9-.9 1.9-1.85 0-1.5-1.35-1.9-1.35-3.1 0-1 .85-1.8 1.9-1.8h1.9a4.4 4.4 0 0 0 4.4-4.4c0-3.6-4-6.35-8.75-6.35Z"/>
+  <circle fill="var(--icon-accent, currentColor)" stroke="none" cx="8.1" cy="9.25" r="1.35"/>
+  <circle fill="var(--icon-accent, currentColor)" stroke="none" cx="12.4" cy="7.15" r="1.35"/>
+  <circle fill="var(--icon-accent, currentColor)" stroke="none" cx="16.4" cy="9.75" r="1.35"/>
+  <circle fill="var(--icon-accent, currentColor)" stroke="none" cx="7.15" cy="14.25" r="1.35"/>
+</svg>

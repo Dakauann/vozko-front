@@ -4,10 +4,18 @@ import * as React from "react";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 
 import { cn } from "@/lib/utils";
-import { softSurfaceWithInset } from "./shadow-presets";
 
 const ElevatedTabs = TabsPrimitive.Root;
 
+/**
+ * Fluent pivot tabs — the Azure register.
+ *
+ * The previous form was a filled track with raised segment chips. The
+ * reference shell tabs ("Recent (2)  All (2)  Favorites (0)") are a flat row
+ * of labels on a hairline, with the active one carrying a brand underline and
+ * a heavier label. Same Radix API, so every consumer keeps compiling; only
+ * the material changed.
+ */
 const ElevatedTabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
@@ -15,11 +23,10 @@ const ElevatedTabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex h-max items-center justify-start rounded-lg bg-muted p-2 text-muted-foreground overflow-x-auto scrollbar-hide gap-1 min-w-full",
-      className
+      "inline-flex h-max min-w-full items-center justify-start gap-1 overflow-x-auto border-b border-border text-muted-foreground scrollbar-hide",
+      className,
     )}
     style={{
-      boxShadow: softSurfaceWithInset,
       scrollbarWidth: "none",
       msOverflowStyle: "none",
       ...props.style,
@@ -36,13 +43,16 @@ const ElevatedTabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow flex-shrink-0 min-w-fit",
-      className
+      // The underline is a negative-margin border so it sits ON the list's
+      // hairline rather than above it — the pivot detail that makes the
+      // active tab read as connected to its panel.
+      "-mb-px inline-flex min-w-fit flex-shrink-0 items-center justify-center gap-1.5 whitespace-nowrap border-b-2 border-transparent px-3 py-2 text-sm font-medium transition-colors",
+      "hover:text-foreground",
+      "focus-visible:outline-none focus-visible:rounded-[--radius] focus-visible:ring-2 focus-visible:ring-ring",
+      "disabled:pointer-events-none disabled:opacity-50",
+      "data-[state=active]:border-primary data-[state=active]:font-semibold data-[state=active]:text-foreground",
+      className,
     )}
-    style={{
-      boxShadow: softSurfaceWithInset,
-      ...props.style,
-    }}
     {...props}
   />
 ));
@@ -56,7 +66,7 @@ const ElevatedTabsContent = React.forwardRef<
     ref={ref}
     className={cn(
       "mt-4 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-      className
+      className,
     )}
     {...props}
   />

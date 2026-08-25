@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Plano">
+  <title>Plano</title>
+  <path stroke="var(--icon-accent, currentColor)" d="m3.25 7.25 3.4 8.5h10.7l3.4-8.5-4.75 3.4L12 5l-4 5.65L3.25 7.25Z"/>
+  <path d="M6.75 19.25h10.5"/>
+</svg>

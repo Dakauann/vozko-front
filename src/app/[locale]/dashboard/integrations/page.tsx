@@ -113,7 +113,7 @@ export default function IntegrationsPage() {
                     className={`inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-2xs font-medium ${
                       connected
                         ? "bg-healthy text-healthy-foreground"
-                        : "bg-zinc-500 text-white"
+                        : "bg-[hsl(var(--plate-neutral))] text-white"
                     }`}
                   >
                     {connected ? (

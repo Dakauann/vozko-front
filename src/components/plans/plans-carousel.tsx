@@ -301,7 +301,7 @@ function PlanCard({
           </div>
         )}
         <div className="flex items-start justify-between gap-2">
-          <h3 className="text-xl font-semibold text-foreground">
+          <h3 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground">
             {item.plan.name}
           </h3>
           {isCurrent && (
@@ -318,7 +318,7 @@ function PlanCard({
 
       <div className="mt-6">
         <div className="flex items-baseline gap-1.5">
-          <span className="text-4xl font-semibold tracking-tight text-foreground">
+          <span className="font-display text-4xl font-semibold tracking-tight text-foreground">
             {formatBRL(baseCents)}
           </span>
           <span className="text-sm text-muted-foreground">
@@ -546,7 +546,7 @@ export function PlansCarousel({
     <div className={cn("w-full", className)}>
       {showBillingToggle && (
         <div className="flex items-center justify-center mb-8">
-          <div className="inline-flex items-center rounded-full border border-border bg-muted p-1">
+          <div className="inline-flex items-center rounded-lg border border-border bg-muted p-1">
             <button
               type="button"
               onClick={() => setBilling("monthly")}

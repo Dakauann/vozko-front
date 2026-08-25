@@ -39,14 +39,14 @@ export default function WhatsAppPreview({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-shrink-0 bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 rounded-t-3xl">
+      <div className="flex-shrink-0 bg-[#008069] px-4 py-3 rounded-t-3xl">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
             <span className="text-white font-semibold text-sm">V</span>
           </div>
           <div className="flex-1">
             <h3 className="text-white font-semibold text-sm">{getBrand().name}</h3>
-            <p className="text-healthy-ink text-xs">
+            <p className="text-white/70 text-xs">
               Typically replies instantly
             </p>
           </div>
@@ -203,7 +203,7 @@ function HeaderPreview({ component }: { component: DraggableComponent }) {
   if (format === "LOCATION") {
     return (
       <div className="aspect-video bg-muted flex items-center justify-center border-b border-border relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-100 to-teal-100" />
+        <div className="absolute inset-0 bg-muted" />
         <div className="relative text-center">
           <MapPin
             className="h-12 w-12 text-healthy-ink mx-auto mb-2"

@@ -351,7 +351,7 @@ function TourTooltip({
           </button>
           <div className="flex flex-col gap-1 pr-8">
             {badge && <span className="legend">{badge}</span>}
-            <span className="text-base font-semibold leading-tight tracking-tight text-foreground">
+            <span className="font-display text-base font-semibold leading-tight tracking-[0.01em] text-foreground">
               {title}
             </span>
           </div>

@@ -91,7 +91,7 @@ export default function CollectionsTab({
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
-          <h2 className="text-base font-semibold text-foreground">
+          <h2 className="font-display text-base font-semibold tracking-[0.01em] text-foreground">
             {t("collections.title")}
           </h2>
           <p className="text-sm text-muted-foreground">

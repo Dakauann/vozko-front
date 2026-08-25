@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Piscada">
+  <title>Piscada</title>
+  <circle cx="12" cy="12" r="8.75"/>
+  <circle cx="9.1" cy="9.6" r="1.0" fill="currentColor" stroke="none"/>
+  <path d="M13.75 9.6h2.4"/>
+  <path stroke="var(--icon-accent, currentColor)" d="M8.25 14a4.5 4.5 0 0 0 7.5 0"/>
+</svg>

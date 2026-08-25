@@ -106,8 +106,10 @@ export function WorkflowAlerts({
           {total > 0 && (
             <span
               className={cn(
-                "grid h-[18px] min-w-[18px] place-items-center rounded-full px-1 text-2xs font-semibold text-white",
-                tone === "blocking" ? "bg-destructive" : "bg-warning",
+                "grid h-[18px] min-w-[18px] place-items-center rounded-full px-1 text-2xs font-semibold",
+                tone === "blocking"
+                  ? "bg-destructive text-destructive-foreground"
+                  : "bg-warning text-warning-foreground",
               )}
             >
               {total}
@@ -135,7 +137,7 @@ export function WorkflowAlerts({
           {total === 0 ? (
             <div className="flex flex-col items-center gap-2 px-6 py-10 text-center">
               <div className="grid h-10 w-10 place-items-center rounded-[--radius] bg-healthy">
-                <CheckCircle size={22} weight="fill" className="text-white" />
+                <CheckCircle size={22} weight="fill" className="text-healthy-foreground" />
               </div>
               <div className="text-sm font-medium text-foreground">
                 Nenhum alerta
@@ -163,14 +165,12 @@ export function WorkflowAlerts({
                     <div
                       className={cn(
                         "mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-lg",
-                        blockingIssue ? "bg-destructive" : "bg-warning",
+                        blockingIssue
+                          ? "bg-destructive text-destructive-foreground"
+                          : "bg-warning text-warning-foreground",
                       )}
                     >
-                      <SeverityIcon
-                        size={14}
-                        weight="fill"
-                        className="text-white"
-                      />
+                      <SeverityIcon size={14} weight="fill" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-medium leading-snug text-foreground">

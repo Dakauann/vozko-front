@@ -105,12 +105,14 @@ export default function KanbanColumnShell({
       // that head rather than as a dot, so a board of twelve stages reads as
       // one instrument instead of twelve competing bullets.
       className={cn(
-        "relative flex h-full w-72 min-w-[288px] flex-shrink-0 flex-col rounded-[--radius] transition-colors",
+        // A container takes the panel corner (6px), not the control corner:
+        // the board reads as a row of quiet trays with white cards on them.
+        "relative flex h-full w-72 min-w-[288px] flex-shrink-0 flex-col rounded-lg transition-colors",
         dashed
-          ? "border border-dashed border-border bg-muted"
+          ? "border border-dashed border-border bg-muted/70"
           : isDragOver
             ? "border border-dashed border-border-strong bg-muted"
-            : "border border-solid border-border bg-muted",
+            : "border border-solid border-border/70 bg-muted/70",
       )}
       style={{
         willChange: "box-shadow, border-color",
@@ -147,7 +149,9 @@ export default function KanbanColumnShell({
         >
           {name}
         </span>
-        <span className="readout ml-auto text-2xs font-semibold text-muted-foreground">
+        {/* The count as a quiet chip, the way the reference bays badge their
+            depth — a bare grey number at the row's end read as a timestamp. */}
+        <span className="readout ml-auto rounded-full border border-border bg-card px-1.5 py-px text-2xs font-semibold text-muted-foreground">
           {count}
         </span>
       </div>

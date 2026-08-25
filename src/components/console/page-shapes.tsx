@@ -121,7 +121,7 @@ export function ReadoutBar({
             <span className="legend">{r.label}</span>
             <span
               className={cn(
-                "readout whitespace-nowrap text-base font-semibold",
+                "readout font-display whitespace-nowrap text-base font-semibold",
                 TONE_TEXT[r.tone ?? "default"],
               )}
             >
@@ -223,7 +223,7 @@ export function InstrumentStrip({
           ) : (
             <span
               className={cn(
-                "readout font-semibold leading-tight",
+                "readout font-display font-semibold leading-tight",
                 compact ? "text-lg" : "text-xl",
                 TONE_TEXT[inst.tone ?? "default"],
               )}

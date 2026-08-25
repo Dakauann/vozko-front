@@ -22,23 +22,6 @@ import type { SystemConfig } from "@/lib/system-config/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] as const },
-  },
-};
-
 function deepEqual(a: unknown, b: unknown) {
   return JSON.stringify(a) === JSON.stringify(b);
 }
@@ -187,13 +170,8 @@ export default function GeneralSettingsPage() {
   };
 
   return (
-    <motion.main
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="w-full space-y-6"
-    >
-      <motion.div variants={itemVariants}>
+    <main className="w-full space-y-6">
+      <div>
         <DashboardPageHeader
           icon={<GearSix className="h-6 w-6" weight="fill" />}
           badge={t("header.badge")}
@@ -210,23 +188,23 @@ export default function GeneralSettingsPage() {
             />
           }
         />
-      </motion.div>
+      </div>
 
       {isLoading ? (
-        <motion.div variants={itemVariants}>
+        <div>
           <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
             <p className="text-sm text-muted-foreground">
               {t("messages.loading")}
             </p>
           </ElevatedContainer>
-        </motion.div>
+        </div>
       ) : null}
 
-      <motion.section variants={itemVariants}>
+      <section>
         <ElevatedContainer className="rounded-lg border border-border bg-card p-6 space-y-6">
           <div className="flex items-center gap-2">
             <Robot className="h-5 w-5 text-primary-ink" weight="fill" />
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
               {t("sections.ai")}
             </h2>
           </div>
@@ -244,9 +222,9 @@ export default function GeneralSettingsPage() {
             />
           </div>
         </ElevatedContainer>
-      </motion.section>
+      </section>
 
-      <motion.div variants={itemVariants} className="flex justify-end">
+      <div className="flex justify-end">
         <Button
           variant="action"
           title={isSaving ? t("buttons.saving") : t("buttons.save")}
@@ -256,7 +234,7 @@ export default function GeneralSettingsPage() {
           onClick={onSave}
           disabled={!hasChanges || isSaving || isLoading}
         />
-      </motion.div>
-    </motion.main>
+      </div>
+    </main>
   );
 }

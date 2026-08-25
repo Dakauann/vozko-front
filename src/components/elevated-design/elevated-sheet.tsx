@@ -127,7 +127,7 @@ function ElevatedSheetTitle({
   return (
     <SheetPrimitive.Title
       data-slot="elevated-sheet-title"
-      className={cn("text-foreground text-2xl font-semibold", className)}
+      className={cn("font-display text-foreground text-2xl font-semibold tracking-[0.01em]", className)}
       {...props}
     />
   );

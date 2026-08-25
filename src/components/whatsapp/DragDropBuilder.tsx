@@ -264,10 +264,15 @@ export default function DragDropBuilder({
                   }`}
                 >
                   <div className="flex items-start gap-3">
+                    {/* `item.color` is an ink-N class (a text colour), so the
+                        old `bg-gradient-to-br ${item.color}` painted NO fill —
+                        a white glyph on a transparent tile, i.e. invisible.
+                        The ink-plate recipe is the system's glyph tile: quiet
+                        plate, category colour on the mark. */}
                     <div
-                      className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${item.color} opacity-90`}
+                      className={`ink-plate flex h-10 w-10 flex-shrink-0 items-center justify-center ${item.color}`}
                     >
-                      <Icon className="h-5 w-5 text-white" weight="duotone" />
+                      <Icon className="h-5 w-5" weight="duotone" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-medium text-foreground text-sm">

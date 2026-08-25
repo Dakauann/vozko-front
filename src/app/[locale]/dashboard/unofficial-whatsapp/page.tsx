@@ -37,7 +37,6 @@ import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { WhatsAppLogoColor } from "@/components/icons/channel-logos";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
@@ -332,12 +331,7 @@ export default function UnofficialWhatsAppPage() {
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="w-full space-y-6"
-    >
+    <div className="w-full space-y-6">
       <DashboardPageHeader
         icon={<WhatsAppLogoColor className="h-6 w-6" />}
         badge={t("page.badge")}
@@ -526,7 +520,7 @@ export default function UnofficialWhatsAppPage() {
           )}
         </div>
       )}
-    </motion.div>
+    </div>
   );
 }
 

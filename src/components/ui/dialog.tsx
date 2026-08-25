@@ -91,7 +91,9 @@ const DialogTitle = React.forwardRef<
   <DialogPrimitive.Title
     ref={ref}
     className={cn(
-      "text-lg font-semibold leading-none tracking-tight",
+      // Overlay titles speak in the display voice ("Títulos/Destaques").
+      // Oxanium is semi-wide, so the negative tracking comes off.
+      "font-display text-lg font-semibold leading-none tracking-[0.01em]",
       className
     )}
     {...props}

@@ -50,13 +50,13 @@ const ElevatedSwitch = forwardRef<
         >
           <SwitchPrimitive.Thumb
             className={cn(
-              "pointer-events-none block h-5 w-5 rounded-full bg-white ring-0 transition-transform duration-150",
+              "pointer-events-none block h-5 w-5 rounded-full data-[state=checked]:bg-primary-foreground data-[state=unchecked]:bg-foreground ring-0 transition-transform duration-150",
               "data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
             )}
             style={{
               boxShadow: props.disabled
-                ? "0 1px 2px hsl(228 40% 28% / 0.14)"
-                : "0 1px 2px hsl(228 40% 28% / 0.28)",
+                ? "0 1px 2px hsl(206 30% 22% / 0.14)"
+                : "0 1px 2px hsl(206 30% 22% / 0.28)",
             }}
           />
         </SwitchPrimitive.Root>

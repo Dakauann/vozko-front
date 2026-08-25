@@ -41,31 +41,8 @@ import type { ActiveSession } from "@/app/actions/auth";
 import Button from "@/components/elevated-design/button";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
-import GradientText from "@/components/elevated-design/gradient-text";
 import { IconBox } from "@/components/elevated-design/listing-card";
 import { useTranslations } from "next-intl";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.4,
-      ease: [0.25, 0.1, 0.25, 1] as const,
-    },
-  },
-};
 
 const isRateLimitError = (message?: string | null) =>
   message?.toLowerCase().includes("rate limit") ?? false;
@@ -306,15 +283,10 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-muted pt-24 pb-16">
+      <div className="min-h-screen bg-background pt-20 pb-12">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <motion.main
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="w-full space-y-6"
-          >
-            <motion.div variants={itemVariants}>
+          <main className="w-full space-y-6">
+            <div>
               <ElevatedContainer className="flex items-center justify-center py-20 border border-border bg-card">
                 <div className="flex flex-col items-center gap-4">
                   <CircleNotch
@@ -326,8 +298,8 @@ export default function SettingsPage() {
                   </p>
                 </div>
               </ElevatedContainer>
-            </motion.div>
-          </motion.main>
+            </div>
+          </main>
         </div>
       </div>
     );
@@ -339,45 +311,29 @@ export default function SettingsPage() {
     : null;
 
   return (
-    <div className="min-h-screen bg-muted pt-24 pb-16">
+    <div className="min-h-screen bg-background pt-20 pb-12">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <motion.main
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="w-full space-y-6"
-        >
-          <motion.div variants={itemVariants}>
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <GearSix className="h-6 w-6 text-primary-ink" weight="fill" />
-                  <span className="text-xs font-semibold text-primary-ink">
-                    Configurações
-                  </span>
-                </div>
-                <GradientText
-                  as="h1"
-                  alignment="left"
-                  startColor="#64748b"
-                  endColor="#94a3b8"
-                  className="text-2xl font-semibold md:text-3xl"
-                >
+        <main className="w-full space-y-6">
+          <div>
+            <div className="border-b border-border pb-3">
+              <div className="flex items-center gap-2">
+                <GearSix
+                  className="h-[18px] w-[18px] text-muted-foreground"
+                  weight="fill"
+                />
+                <h1 className="font-display text-xl font-semibold leading-tight tracking-[0.01em] text-foreground">
                   Configurações da Conta
-                </GradientText>
-                <p className="text-sm text-muted-foreground max-w-2xl">
-                  Gerencie suas informações pessoais, preferências de
-                  notificação e configurações de segurança da sua conta.
-                </p>
+                </h1>
               </div>
+              <p className="mt-0.5 max-w-2xl text-sm leading-snug text-muted-foreground">
+                Gerencie suas informações pessoais, preferências de notificação
+                e configurações de segurança da sua conta.
+              </p>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            variants={containerVariants}
-            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
-          >
-            <motion.div variants={itemVariants}>
+          <div>
+            <div>
               <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
                 <div className="flex items-center gap-4">
                   <IconBox color="blue" size="md">
@@ -391,9 +347,9 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </ElevatedContainer>
-            </motion.div>
+            </div>
 
-            <motion.div variants={itemVariants}>
+            <div>
               <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
                 <div className="flex items-center gap-4">
                   <IconBox color="emerald" size="md">
@@ -410,9 +366,9 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </ElevatedContainer>
-            </motion.div>
+            </div>
 
-            <motion.div variants={itemVariants}>
+            <div>
               <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
                 <div className="flex items-center gap-4">
                   <IconBox color="purple" size="md">
@@ -430,9 +386,9 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </ElevatedContainer>
-            </motion.div>
+            </div>
 
-            <motion.div variants={itemVariants}>
+            <div>
               <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
                 <div className="flex items-center gap-4">
                   <IconBox color="amber" size="md">
@@ -452,18 +408,18 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </ElevatedContainer>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
 
           {plan && (
-            <motion.div variants={itemVariants}>
+            <div>
               <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
                 <div className="flex items-center gap-3 mb-6">
                   <IconBox color="primary" size="sm">
                     <CrownSimple weight="fill" />
                   </IconBox>
                   <div>
-                    <h2 className="text-lg font-semibold text-foreground">
+                    <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                       Seu Plano
                     </h2>
                     <p className="text-xs text-muted-foreground">
@@ -488,21 +444,18 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </ElevatedContainer>
-            </motion.div>
+            </div>
           )}
 
-          <motion.div
-            variants={containerVariants}
-            className="grid gap-6 lg:grid-cols-2"
-          >
-            <motion.div variants={itemVariants}>
+          <div>
+            <div>
               <ElevatedContainer className="h-full border border-border bg-card p-6">
                 <div className="flex items-center gap-3 mb-6">
                   <IconBox color="blue" size="sm">
                     <IdentificationBadge weight="fill" />
                   </IconBox>
                   <div>
-                    <h2 className="text-lg font-semibold text-foreground">
+                    <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                       Informações do Perfil
                     </h2>
                     <p className="text-xs text-muted-foreground">
@@ -581,16 +534,16 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </ElevatedContainer>
-            </motion.div>
+            </div>
 
-            <motion.div variants={itemVariants}>
+            <div>
               <ElevatedContainer className="h-full border border-border bg-card p-6">
                 <div className="flex items-center gap-3 mb-6">
                   <IconBox color="emerald" size="sm">
                     <Lock weight="fill" />
                   </IconBox>
                   <div>
-                    <h2 className="text-lg font-semibold text-foreground">
+                    <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                       Segurança
                     </h2>
                     <p className="text-xs text-muted-foreground">
@@ -860,7 +813,7 @@ export default function SettingsPage() {
                               className="w-8 h-8 text-healthy-ink"
                             />
                           </div>
-                          <h3 className="text-lg font-semibold text-foreground mb-1">
+                          <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground mb-1">
                             Senha alterada com sucesso!
                           </h3>
                           <p className="text-sm text-muted-foreground mb-4">
@@ -901,11 +854,11 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </ElevatedContainer>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
 
           {/* Active Sessions Section */}
-          <motion.div variants={itemVariants}>
+          <div>
             <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
@@ -913,7 +866,7 @@ export default function SettingsPage() {
                     <Globe weight="fill" />
                   </IconBox>
                   <div>
-                    <h2 className="text-lg font-semibold text-foreground">
+                    <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                       Sessões Ativas
                     </h2>
                     <p className="text-xs text-muted-foreground">
@@ -1007,16 +960,16 @@ export default function SettingsPage() {
                 </div>
               )}
             </ElevatedContainer>
-          </motion.div>
+          </div>
 
-          <motion.div variants={itemVariants}>
+          <div>
             <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
               <div className="flex items-center gap-3 mb-6">
                 <IconBox color="amber" size="sm">
                   <Bell weight="fill" />
                 </IconBox>
                 <div>
-                  <h2 className="text-lg font-semibold text-foreground">
+                  <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                     Alertas e Notificações
                   </h2>
                   <p className="text-xs text-muted-foreground">
@@ -1092,8 +1045,8 @@ export default function SettingsPage() {
                 </label>
               </div>
             </ElevatedContainer>
-          </motion.div>
-        </motion.main>
+          </div>
+        </main>
       </div>
     </div>
   );

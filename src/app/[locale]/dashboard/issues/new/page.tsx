@@ -13,7 +13,6 @@ import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { cn } from "@/lib/utils";
 import { createIssueAction } from "@/app/actions/issues";
-import { motion } from "framer-motion";
 import { uploadMediaAction } from "@/app/actions/medias";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -160,12 +159,7 @@ export default function NewIssuePage() {
   };
 
   return (
-    <motion.main
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="w-full max-w-2xl mx-auto space-y-6 py-2"
-    >
+    <main className="w-full max-w-2xl mx-auto space-y-6 py-2">
       {/* Back button */}
       <button
         type="button"
@@ -179,7 +173,7 @@ export default function NewIssuePage() {
       {/* Form card */}
       <div className="rounded-[--radius] border border-border bg-card p-6 space-y-6">
         <div>
-          <h1 className="text-lg font-semibold text-foreground">
+          <h1 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
             {t("form.title")}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -373,6 +367,6 @@ export default function NewIssuePage() {
           </div>
         </form>
       </div>
-    </motion.main>
+    </main>
   );
 }

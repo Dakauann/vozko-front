@@ -30,12 +30,21 @@ interface SidebarContextType {
   toggleCollapsed: () => void;
   /** False until the stored preference has been read, to keep SSR stable. */
   hasMounted: boolean;
+  /**
+   * The mobile drawer. State lives here rather than inside the sidebar because
+   * the control that opens it — the app bar's hamburger, the Azure-shell
+   * affordance — renders in a different component than the drawer itself.
+   */
+  isMobileOpen: boolean;
+  setMobileOpen: (open: boolean) => void;
 }
 
 const SidebarContext = React.createContext<SidebarContextType>({
   isCollapsed: false,
   toggleCollapsed: () => {},
   hasMounted: false,
+  isMobileOpen: false,
+  setMobileOpen: () => {},
 });
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
@@ -43,6 +52,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   // day; it starts legible and collapses only if they ask for the width back.
   const [isCollapsed, setIsCollapsed] = React.useState(false);
   const [hasMounted, setHasMounted] = React.useState(false);
+  const [isMobileOpen, setMobileOpen] = React.useState(false);
 
   React.useEffect(() => {
     try {
@@ -67,7 +77,13 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarContext.Provider
-      value={{ isCollapsed, toggleCollapsed, hasMounted }}
+      value={{
+        isCollapsed,
+        toggleCollapsed,
+        hasMounted,
+        isMobileOpen,
+        setMobileOpen,
+      }}
     >
       {children}
     </SidebarContext.Provider>

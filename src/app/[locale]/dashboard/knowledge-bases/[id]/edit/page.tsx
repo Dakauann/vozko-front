@@ -9,32 +9,7 @@ import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import type { KnowledgeBase } from "@/lib/knowledge-base/types";
 import KnowledgeBaseForm from "../../KnowledgeBaseForm";
 import { apiClient } from "@/lib/api/browser-client";
-import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: "spring" as const,
-      stiffness: 100,
-      damping: 15,
-    },
-  },
-};
 
 export default function EditKnowledgeBasePage() {
   const router = useRouter();
@@ -87,13 +62,8 @@ export default function EditKnowledgeBasePage() {
   }
 
   return (
-    <motion.main
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="w-full space-y-6"
-    >
-      <motion.div variants={itemVariants}>
+    <main className="w-full space-y-6">
+      <div>
         <DashboardPageHeader
           back={{
             onClick: () => router.push("/dashboard/knowledge-bases"),
@@ -105,9 +75,9 @@ export default function EditKnowledgeBasePage() {
           description={t("description")}
           colorClass="text-info-ink"
         />
-      </motion.div>
+      </div>
 
-      <motion.div variants={itemVariants}>
+      <div>
         <KnowledgeBaseForm
           mode="edit"
           initialData={{
@@ -116,7 +86,7 @@ export default function EditKnowledgeBasePage() {
             description: knowledgeBase.description,
           }}
         />
-      </motion.div>
-    </motion.main>
+      </div>
+    </main>
   );
 }

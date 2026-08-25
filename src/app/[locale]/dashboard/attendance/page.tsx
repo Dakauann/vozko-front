@@ -42,6 +42,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import { vozGrid, vozRing, vozXAxis, vozYAxis } from "@/components/charts/vozko";
 import {
   ElevatedSelect,
   ElevatedSelectItem,
@@ -76,26 +77,30 @@ import { ElevatedDatePicker } from "@/components/elevated-design/elevated-date-p
 import { fetchDepartments } from "@/lib/department/client";
 import type { Department } from "@/lib/department/types";
 import type { WorkspaceMember } from "@/lib/workspace/types";
-import { motion } from "framer-motion";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
-import { InstrumentStrip } from "@/components/console/page-shapes";
 import { cn } from "@/lib/utils";
 import { ChannelTile, channelPlate } from "@/components/channels/channel-tile";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useLocale, useTranslations } from "next-intl";
 
-/* ── Design tokens (Quiet Infrastructure) ─────────────────────────── */
+/* ── Chart colours ────────────────────────────────────────────────── */
 
+/* Token-driven, not hex: the previous values were Tailwind-default hexes that
+   ignored both the design system's validated series palette and dark mode
+   entirely — a green from one system beside an indigo from another. Status
+   encodings (finished / ongoing / pending) take the STATUS tokens, which is
+   what they measure; volume takes the series tokens. Both re-resolve when the
+   theme flips. */
 const COLORS = {
-  signal: "#2463eb",
-  finished: "#22c55e",
-  ongoing: "#2463eb",
-  pending: "#f59e0b",
-  open: "#60a5fa",
-  closeHuman: "#22c55e",
-  closeAI: "#8b5cf6",
-  closeSystem: "#f59e0b",
+  signal: "hsl(var(--chart-1))",
+  finished: "hsl(var(--healthy))",
+  ongoing: "hsl(var(--info))",
+  pending: "hsl(var(--warning))",
+  open: "hsl(var(--chart-4))",
+  closeHuman: "hsl(var(--healthy))",
+  closeAI: "hsl(var(--chart-5))",
+  closeSystem: "hsl(var(--warning))",
 } as const;
 
 const LOCALE_TAG: Record<string, string> = {
@@ -103,20 +108,6 @@ const LOCALE_TAG: Record<string, string> = {
   en: "en-US",
   es: "es-ES",
   de: "de-DE",
-};
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.06 } },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 12 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.35, ease: "easeOut" as const },
-  },
 };
 
 type DatePreset = "7d" | "30d" | "90d" | "custom";
@@ -366,20 +357,39 @@ function KpiStrip({
 
   return (
     <div className="space-y-2.5">
-      {/* Eight operations KPIs as one instrument strip. They were eight
-          separate bordered tiles, each carrying a filled icon tile in a
-          category colour — eight boxes and eight accents to report eight
-          integers, on the page an attendance manager keeps open all shift. */}
-      <InstrumentStrip
-        columns={8}
-        compact
-        instruments={cards.map((c) => ({
-          label: c.label,
-          value: String(c.value),
-          detail: c.short,
-          tooltip: c.hint,
-        }))}
-      />
+      {/* Eight operations KPIs as a colourful tile row. The instrument strip
+          this replaces reported eight integers in one grey band — correct,
+          and invisible. Each KPI now carries its glyph on its OWN plate from
+          the product-wide glyph→plate table, so the colour is a learnable
+          mark (green = done, amber = time, red = fault), the number is the
+          biggest thing on the tile, and the whole row reads at a squint. */}
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 xl:grid-cols-8">
+        {cards.map((c) => (
+          <div
+            key={c.key}
+            title={c.hint}
+            className="rounded-lg border border-border bg-card p-3 shadow-sm"
+          >
+            <div className="flex items-center gap-2">
+              <span
+                className={cn(
+                  "flex h-7 w-7 shrink-0 items-center justify-center rounded-[--radius]",
+                  c.bg,
+                )}
+              >
+                <c.icon className="h-4 w-4" weight="fill" />
+              </span>
+              <p className="truncate text-2xs font-semibold text-muted-foreground">
+                {c.label}
+              </p>
+            </div>
+            <p className="readout mt-2 truncate font-display text-2xl font-semibold tracking-tight text-foreground">
+              {c.value}
+            </p>
+            <p className="truncate text-2xs text-muted-foreground">{c.short}</p>
+          </div>
+        ))}
+      </div>
 
       {/* Campaign shells: not real chats, kept out of primary KPIs */}
       {!loading && shell > 0 ? (
@@ -437,7 +447,7 @@ function StatBlock({
       <p className="text-2xs font-semibold text-muted-foreground">
         {label}
       </p>
-      <p className="mt-1 text-lg font-semibold tabular-nums tracking-tight text-foreground">
+      <p className="mt-1 font-display text-lg font-semibold tabular-nums tracking-tight text-foreground">
         {value}
       </p>
       {hint ? (
@@ -510,7 +520,7 @@ function ChannelMixChart({
       // apart at a glance. The PLATE does not: DESIGN.md §9 keeps one neutral
       // ground and puts the identity in the mark, and the brand marks carry
       // their own real colours.
-      bar: CHANNEL_BAR[c.channel] ?? "#8b5cf6",
+      bar: CHANNEL_BAR[c.channel] ?? "hsl(var(--muted-foreground))",
     }));
   }, [mix, tc]);
   const total = data.reduce((s, d) => s + d.value, 0);
@@ -557,7 +567,7 @@ function ChannelMixChart({
                     </p>
                   </div>
                 </div>
-                <p className="text-2xl font-semibold tabular-nums tracking-tight text-foreground">
+                <p className="font-display text-2xl font-semibold tabular-nums tracking-tight text-foreground">
                   {fmt.num(d.value)}
                 </p>
               </div>
@@ -949,23 +959,18 @@ function HourlyVolumeChart({
       </div>
       <ChartContainer config={config} className="h-[240px] w-full">
         <BarChart data={data} margin={{ top: 4, right: 4, left: -12, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-          <XAxis
-            dataKey="label"
-            tickLine={false}
-            axisLine={false}
-            fontSize={10}
-            interval={2}
-            tick={{ fill: "hsl(var(--muted-foreground))" }}
-          />
-          <YAxis
-            tickLine={false}
-            axisLine={false}
-            fontSize={10}
-            allowDecimals={false}
-            tick={{ fill: "hsl(var(--muted-foreground))" }}
-            width={36}
-          />
+          {/* One hue, faded toward the baseline — sequential stays one hue.
+              The peak hour flips to amber AND is named in the strip above, so
+              the emphasis never rests on colour alone. */}
+          <defs>
+            <linearGradient id="hourlyGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="hsl(var(--chart-1))" />
+              <stop offset="100%" stopColor="hsl(var(--chart-1) / 0.45)" />
+            </linearGradient>
+          </defs>
+          <CartesianGrid {...vozGrid} />
+          <XAxis dataKey="label" interval={2} {...vozXAxis} />
+          <YAxis allowDecimals={false} {...vozYAxis} />
           <ChartTooltip
             content={
               <ChartTooltipContent
@@ -981,12 +986,18 @@ function HourlyVolumeChart({
               />
             }
           />
-          <Bar
-            dataKey="conversas"
-            fill="var(--color-conversas)"
-            radius={[4, 4, 0, 0]}
-            maxBarSize={28}
-          />
+          <Bar dataKey="conversas" radius={[4, 4, 0, 0]} maxBarSize={28}>
+            {data.map((d) => (
+              <Cell
+                key={d.hour}
+                fill={
+                  peak && d.hour === peak.hour
+                    ? "hsl(var(--chart-3))"
+                    : "url(#hourlyGrad)"
+                }
+              />
+            ))}
+          </Bar>
         </BarChart>
       </ChartContainer>
     </div>
@@ -1106,17 +1117,34 @@ function StatusCompositionChart({
             nameKey="name"
             cx="50%"
             cy="50%"
-            innerRadius={54}
-            outerRadius={78}
-            paddingAngle={2}
-            cornerRadius={4}
-            strokeWidth={2}
-            stroke="hsl(var(--background))"
+            {...vozRing(78, 66)}
           >
             {slices.map((s) => (
               <Cell key={s.key} fill={s.color} />
             ))}
           </Pie>
+          {/* The hole earns its keep: the slice total lives in the centre, so
+              the donut reads as "N conversations, composed like this" without
+              a trip to the side panel. */}
+          <text
+            x="50%"
+            y="46%"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            className="fill-foreground font-display text-xl font-semibold"
+            style={{ fontVariantNumeric: "tabular-nums" }}
+          >
+            {fmt.num(total)}
+          </text>
+          <text
+            x="50%"
+            y="57%"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            className="fill-[hsl(var(--muted-foreground))] text-[10px] font-medium"
+          >
+            {tl("conversations")}
+          </text>
           <ChartTooltip
             content={
               <ChartTooltipContent
@@ -1144,7 +1172,7 @@ function StatusCompositionChart({
           <p className="text-2xs font-semibold text-muted-foreground">
             {tl("pctFinished")}
           </p>
-          <p className="mt-0.5 text-2xl font-semibold tabular-nums text-foreground">
+          <p className="mt-0.5 font-display text-2xl font-semibold tabular-nums text-foreground">
             {fmt.pct(resolutionRate)}
           </p>
           <p className="text-2xs text-muted-foreground">
@@ -1310,24 +1338,9 @@ function DepartmentStackedChart({
           margin={{ top: 28, right: 12, left: 4, bottom: 4 }}
           barCategoryGap={8}
         >
-          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" />
-          <XAxis
-            type="number"
-            tickLine={false}
-            axisLine={false}
-            fontSize={10}
-            allowDecimals={false}
-            tick={{ fill: "hsl(var(--muted-foreground))" }}
-          />
-          <YAxis
-            type="category"
-            dataKey="name"
-            width={118}
-            tickLine={false}
-            axisLine={false}
-            fontSize={11}
-            tick={{ fill: "hsl(var(--foreground))" }}
-          />
+          <CartesianGrid {...vozGrid} vertical horizontal={false} />
+          <XAxis type="number" allowDecimals={false} {...vozXAxis} />
+          <YAxis type="category" dataKey="name" {...vozYAxis} width={118} />
           <Tooltip
             cursor={{ fill: "hsl(var(--primary) / 0.08)" }}
             content={({ active, payload }) => {
@@ -1469,24 +1482,9 @@ function TeamResolutionChart({
           margin={{ top: 28, right: 44, left: 4, bottom: 4 }}
           barCategoryGap={6}
         >
-          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" />
-          <XAxis
-            type="number"
-            tickLine={false}
-            axisLine={false}
-            fontSize={10}
-            allowDecimals={false}
-            tick={{ fill: "hsl(var(--muted-foreground))" }}
-          />
-          <YAxis
-            type="category"
-            dataKey="name"
-            width={100}
-            tickLine={false}
-            axisLine={false}
-            fontSize={11}
-            tick={{ fill: "hsl(var(--foreground))" }}
-          />
+          <CartesianGrid {...vozGrid} vertical horizontal={false} />
+          <XAxis type="number" allowDecimals={false} {...vozXAxis} />
+          <YAxis type="category" dataKey="name" {...vozYAxis} width={100} />
           <Tooltip
             cursor={{ fill: "hsl(var(--primary) / 0.08)" }}
             content={({ active, payload }) => {
@@ -1749,7 +1747,10 @@ function TeamDetailTable({
                   <div
                     className={cn(
                       "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg",
-                      m.actor_kind === "ai" ? "bg-warning" : "bg-primary",
+                      // The product-wide plates: AI wears the automation
+                      // series, humans the organisation series — and each
+                      // plate carries its own measured glyph ink.
+                      m.actor_kind === "ai" ? "tile-5" : "tile-2",
                     )}
                   >
                     {m.actor_kind === "ai" ? (
@@ -1771,10 +1772,13 @@ function TeamDetailTable({
                 </div>
               </td>
               <td className="px-2 py-2.5">
+                {/* White-on-amber measured 2.4:1 — the exact pair the token
+                    system exists to prevent. The chip takes the plate recipe:
+                    an opaque fill with its own measured foreground. */}
                 <span
                   className={cn(
-                    "inline-flex rounded-[--radius] px-2 py-0.5 text-2xs font-semibold text-white",
-                    m.actor_kind === "ai" ? "bg-warning" : "bg-primary",
+                    "inline-flex rounded-[--radius] px-2 py-0.5 text-2xs font-semibold",
+                    m.actor_kind === "ai" ? "tile-5" : "tile-2",
                   )}
                 >
                   {actorKindLabel(m.actor_kind)}
@@ -2032,54 +2036,50 @@ export default function AttendanceOpsPage() {
           : tl("last90d");
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="space-y-4"
-    >
-      {/* Header + filters (one surface) */}
-      <motion.div variants={itemVariants}>
-        <Surface>
-          <DashboardPageHeader
-            badge={campaignId ? t("badgeCampaign") : t("badge")}
-            description={
-              currentWorkspace
-                ? campaignId
-                  ? t("descCampaign", { name: currentWorkspace.name })
-                  : t("desc", { name: currentWorkspace.name })
-                : tc("selectWorkspace")
-            }
-            icon={<ChartBar className="h-6 w-6" weight="fill" />}
-            actions={
-              <div className="flex items-center gap-2">
-                {/* Disabled until the overview has actually loaded: exporting
-                    a half-populated dashboard would produce a file of zeros
-                    indistinguishable from a genuinely empty period. */}
-                <Button
-                  icon={<DownloadSimple className="h-4 w-4" weight="bold" />}
-                  iconVisible
-                  title={texp("button")}
-                  variant="outline"
-                  onClick={exportCsv}
-                  disabled={loading || !overview}
-                >
-                  <span className="max-sm:sr-only">{texp("button")}</span>
-                </Button>
-                <Button
-                  icon={<ArrowClockwise className="h-4 w-4" weight="bold" />}
-                  iconVisible
-                  title={tc("refresh")}
-                  variant="outline"
-                  onClick={() => void load()}
-                  disabled={loading}
-                />
-              </div>
-            }
-          />
+    <div className="space-y-4">
+      {/* Page head on the canvas, Azure-style: trail, title, then the command
+          bar carrying export/refresh as flat commands. The filter row sits
+          directly below it, unboxed — a filter bar is chrome, not content,
+          and boxing it made the whole head one heavy card. */}
+      <div>
+        <DashboardPageHeader
+          badge={campaignId ? t("badgeCampaign") : t("badge")}
+          description={
+            currentWorkspace
+              ? campaignId
+                ? t("descCampaign", { name: currentWorkspace.name })
+                : t("desc", { name: currentWorkspace.name })
+              : tc("selectWorkspace")
+          }
+          icon={<ChartBar className="h-6 w-6" weight="fill" />}
+          actions={
+            <>
+              {/* Disabled until the overview has actually loaded: exporting
+                  a half-populated dashboard would produce a file of zeros
+                  indistinguishable from a genuinely empty period. */}
+              <Button
+                icon={<DownloadSimple className="h-4 w-4" weight="bold" />}
+                iconVisible
+                title={texp("button")}
+                variant="command"
+                onClick={exportCsv}
+                disabled={loading || !overview}
+              >
+                <span className="max-sm:sr-only">{texp("button")}</span>
+              </Button>
+              <Button
+                icon={<ArrowClockwise className="h-4 w-4" weight="bold" />}
+                iconVisible
+                title={tc("refresh")}
+                variant="command"
+                onClick={() => void load()}
+                disabled={loading}
+              />
+            </>
+          }
+        />
 
-          {/* Compact filter bar */}
-          <div className="mt-4 flex flex-col gap-3 rounded-[--radius] border border-border bg-background p-3 lg:flex-row lg:items-end lg:gap-3">
+        <div className="mt-3 flex flex-col gap-3 lg:flex-row lg:items-end lg:gap-3">
             <div className="min-w-0 flex-1">
               <p className="mb-1.5 text-2xs font-semibold text-muted-foreground">
                 {tc("period")}
@@ -2241,27 +2241,26 @@ export default function AttendanceOpsPage() {
               {error}
             </div>
           ) : null}
-        </Surface>
-      </motion.div>
+      </div>
 
       {!canRead && !permissionsLoading ? (
-        <motion.div variants={itemVariants}>
+        <div>
           <Surface className="py-12 text-center">
             <Users
               className="mx-auto mb-3 h-10 w-10 text-muted-foreground"
               weight="duotone"
             />
-            <h2 className="text-base font-semibold text-foreground">
+            <h2 className="font-display text-base font-semibold tracking-[0.01em] text-foreground">
               {tc("noPermission")}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
               {tc("noPermissionDesc")}
             </p>
           </Surface>
-        </motion.div>
+        </div>
       ) : (
         <>
-          <motion.div variants={itemVariants}>
+          <div>
             <SectionLabel title={ts("volume")} subtitle={ts("volumeSub")} />
             <div className="grid gap-4 xl:grid-cols-12">
               <Surface className="xl:col-span-7">
@@ -2291,13 +2290,13 @@ export default function AttendanceOpsPage() {
                 />
               </Surface>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div variants={itemVariants}>
+          <div>
             <ExtendedOpsPanels overview={overview} loading={loading} />
-          </motion.div>
+          </div>
 
-          <motion.div variants={itemVariants}>
+          <div>
             <SectionLabel
               title={ts("departments")}
               subtitle={ts("departmentsSub")}
@@ -2329,9 +2328,9 @@ export default function AttendanceOpsPage() {
                 />
               </Surface>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div variants={itemVariants}>
+          <div>
             <SectionLabel title={ts("team")} subtitle={ts("teamSub")} />
             <div className="grid gap-4 xl:grid-cols-12">
               <Surface className="xl:col-span-5">
@@ -2360,9 +2359,9 @@ export default function AttendanceOpsPage() {
                 />
               </Surface>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div variants={itemVariants}>
+          <div>
             <Surface className="!py-3">
               <p className="mb-2 text-2xs font-semibold text-muted-foreground">
                 {tc("glossaryTitle")}
@@ -2406,9 +2405,9 @@ export default function AttendanceOpsPage() {
                 </p>
               </div>
             </Surface>
-          </motion.div>
+          </div>
         </>
       )}
-    </motion.div>
+    </div>
   );
 }

@@ -45,7 +45,6 @@ import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader"
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { IconBox } from "@/components/elevated-design/listing-card";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -316,12 +315,7 @@ export default function MCPClient() {
 
   return (
     <>
-      <motion.main
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.35 }}
-        className="w-full space-y-4"
-      >
+      <main className="w-full space-y-4">
         <DashboardPageHeader
           icon={<PuzzlePiece weight="fill" className="h-6 w-6" />}
           badge={t("header.badge")}
@@ -357,7 +351,7 @@ export default function MCPClient() {
                   <p className="text-2xs font-semibold text-muted-foreground">
                     {stat.label}
                   </p>
-                  <p className="mt-2 text-2xl font-semibold text-foreground">
+                  <p className="mt-2 font-display text-2xl font-semibold text-foreground">
                     {stat.value}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
@@ -413,7 +407,7 @@ export default function MCPClient() {
               >
                 <Globe weight="fill" />
               </IconBox>
-              <h2 className="mt-4 text-lg font-semibold text-foreground">
+              <h2 className="mt-4 font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                 {t("remote.emptyTitle")}
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -518,7 +512,7 @@ export default function MCPClient() {
                     <IconBox color="slate" size="lg" animated={false}>
                       <Globe weight="fill" />
                     </IconBox>
-                    <h2 className="mt-4 text-lg font-semibold text-foreground">
+                    <h2 className="mt-4 font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                       {t("detail.noSelectionTitle")}
                     </h2>
                     <p className="mt-1 max-w-md text-sm text-muted-foreground">
@@ -537,7 +531,7 @@ export default function MCPClient() {
             <CollectionsTab bindings={[]} remotes={remotes} />
           </div>
         )}
-      </motion.main>
+      </main>
 
       <RegisterRemoteDialog
         open={registerOpen}
@@ -609,7 +603,7 @@ function RemoteDetail({
               <p className="text-xs font-semibold text-primary-ink">
                 {t("detail.badge")}
               </p>
-              <h2 className="mt-2 text-2xl font-semibold text-foreground">
+              <h2 className="mt-2 font-display text-2xl font-semibold tracking-[0.01em] text-foreground">
                 {server.name}
               </h2>
               <p className="mt-1 break-all font-mono text-xs text-muted-foreground">

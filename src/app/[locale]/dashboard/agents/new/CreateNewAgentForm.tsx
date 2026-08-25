@@ -1550,7 +1550,7 @@ export default function CreateNewAgentForm({
     <form
       ref={formRef}
       onSubmit={handleSubmit(onSubmit, () => scrollToFirstError())}
-      className="w-full space-y-10 rounded-[--radius] border border-border bg-card p-8 shadow-xl shadow-slate-900/5"
+      className="w-full space-y-8 rounded-lg border border-border bg-card p-6 shadow-sm"
     >
       <TourGuide
         steps={agentsTourSteps}
@@ -1602,7 +1602,7 @@ onStep={(_index, step) => {
       <div className={activeTab === "geral" ? "" : "hidden"}>
       <section className="space-y-6" data-tour="agents-general">
         <div className="space-y-1">
-          <h2 className="text-lg font-semibold text-foreground">
+          <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
             {t("sections.main.title")}
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -1662,7 +1662,7 @@ onStep={(_index, step) => {
       <div className={activeTab === "conversa" ? "" : "hidden"}>
       <section className="space-y-6" data-tour="agents-experience">
         <div className="space-y-1">
-          <h2 className="text-lg font-semibold text-foreground">
+          <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
             {t("sections.experience.title")}
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -1720,7 +1720,7 @@ onStep={(_index, step) => {
       <div className={activeTab === "conversa" ? "" : "hidden"}>
       <section className="space-y-6" data-tour="agents-variables">
         <div className="space-y-1">
-          <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+          <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground flex items-center gap-2">
             <GearSix className="h-5 w-5 text-warning-ink" weight="fill" />
             {t("sections.variables.title")}
           </h2>
@@ -1813,7 +1813,7 @@ onStep={(_index, step) => {
       <div className={activeTab === "whatsapp" ? "" : "hidden"}>
         <section className="space-y-6" data-tour="agents-whatsapp">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+            <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground flex items-center gap-2">
               <WhatsappLogo className="h-5 w-5 text-healthy-ink" weight="fill" />
               {t("sections.whatsapp.title")}
           </h2>
@@ -1923,7 +1923,7 @@ onStep={(_index, step) => {
       <div className={activeTab === "habilidades" ? "" : "hidden"}>
       <section className="space-y-6" data-tour="agents-abilities">
         <div className="space-y-1">
-          <h2 className="text-lg font-semibold text-foreground">
+          <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
             {t("sections.tools.title")}
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -2093,7 +2093,7 @@ onStep={(_index, step) => {
       <div className={activeTab === "conhecimento" ? "" : "hidden"}>
       <section className="space-y-6">
         <div className="space-y-1">
-          <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+          <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground flex items-center gap-2">
             <File className="h-5 w-5 text-primary-ink" weight="fill" />
             {t("sections.media.title")}
           </h2>
@@ -2201,7 +2201,7 @@ onStep={(_index, step) => {
 
       <section className="space-y-6" data-tour="agents-knowledge">
         <div className="space-y-1">
-          <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+          <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground flex items-center gap-2">
             <Files className="h-5 w-5 text-chart-4" weight="fill" />
             {t("sections.knowledgeBases.title")}
           </h2>
@@ -2259,7 +2259,7 @@ onStep={(_index, step) => {
       {mcpCollections.length > 0 && (
         <section className="space-y-4" data-tour="agents-mcp">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+            <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground flex items-center gap-2">
               <svg className="h-5 w-5 text-warning-ink" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z" /></svg>
               {t("sections.mcp.title")}
             </h2>
@@ -2294,7 +2294,7 @@ onStep={(_index, step) => {
       {mcpCollections.length === 0 && !loadingTools && (
         <section className="space-y-2">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
               {t("sections.mcp.title")}
             </h2>
           </div>

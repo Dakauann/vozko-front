@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import {
   ArrowClockwise,
   Buildings,
@@ -408,12 +407,7 @@ export default function WhatsAppTemplatesPage({
   );
 
   return (
-    <motion.main
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="w-full space-y-6"
-    >
+    <main className="w-full space-y-6">
       <DashboardPageHeader
         icon={<WhatsappLogo className="h-6 w-6" weight="fill" />}
         badge={
@@ -630,6 +624,6 @@ export default function WhatsAppTemplatesPage({
           )}
         </div>
       )}
-    </motion.main>
+    </main>
   );
 }

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Em alta">
+  <title>Em alta</title>
+  <path stroke="var(--icon-accent, currentColor)" d="M12 2.75S11 6.4 8.4 8.65C6 10.75 5 12.75 5 14.9a7 7 0 0 0 14 0c0-3.4-2.35-5.5-3.4-8.4-1.4 1.5-1.9 2.5-1.9 2.5S13.4 5.5 12 2.75Z"/>
+  <path d="M12 20.1a3.4 3.4 0 0 1-1.55-6.45c.8 1.4 1.55 1.95 1.55 1.95s.4-1.05 1-2.05c1.3 1 2.4 2.35 2.4 3.65A3.4 3.4 0 0 1 12 20.1Z"/>
+</svg>

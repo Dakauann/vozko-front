@@ -399,7 +399,7 @@ function EmptyState({ agentName, leadName }: { agentName: string; leadName: stri
             <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-muted">
                 <TestTube className="h-6 w-6 text-primary-ink" weight="bold" />
             </span>
-            <h2 className="text-base font-semibold tracking-[-0.01em] text-foreground">
+            <h2 className="font-display text-base font-semibold tracking-[0.01em] text-foreground">
                 {t("empty.title", { agent: agentName })}
             </h2>
             <p className="max-w-md text-sm leading-relaxed text-muted-foreground">

@@ -47,7 +47,6 @@ import {
 import { cn } from "@/lib/utils";
 import { format, startOfMonth, subDays } from "date-fns";
 import { getExchangeRateAction } from "@/app/actions/pricing";
-import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 
 
@@ -114,23 +113,25 @@ function formatDate(value: string, locale: string): string {
   }).format(date);
 }
 
+// One neutral chip ground for every service; the category lives in the
+// ICON's ink (the system rule: colour is a mark, never the container).
 function getServiceMeta(serviceType: string) {
   switch (serviceType) {
     case "voice_call":
     case "voice_campaign":
-      return { icon: Phone, color: "bg-muted text-muted-foreground" };
+      return { icon: Phone, ink: "text-muted-foreground" };
     case "ai":
-      return { icon: Robot, color: "bg-muted text-muted-foreground" };
+      return { icon: Robot, ink: "ink-5" };
     case "whatsapp_campaign":
-      return { icon: WhatsappLogo, color: "bg-healthy text-healthy-foreground" };
+      return { icon: WhatsappLogo, ink: "text-healthy-ink" };
     case "top_up":
-      return { icon: ArrowUp, color: "bg-healthy text-healthy-foreground" };
+      return { icon: ArrowUp, ink: "text-healthy-ink" };
     case "manual_adjustment":
     case "admin_credit":
     case "admin_debit":
-      return { icon: ArrowsLeftRight, color: "bg-warning text-warning-foreground" };
+      return { icon: ArrowsLeftRight, ink: "text-warning-ink" };
     default:
-      return { icon: Lightning, color: "bg-gray-500 text-white" };
+      return { icon: Lightning, ink: "text-muted-foreground" };
   }
 }
 
@@ -331,13 +332,8 @@ export default function BalancePage() {
           const meta = getServiceMeta(row.service_type);
           const Icon = meta.icon;
           return (
-            <span
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
-                meta.color,
-              )}
-            >
-              <Icon className="h-3.5 w-3.5" weight="bold" />
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground">
+              <Icon className={cn("h-4 w-4", meta.ink)} weight="bold" />
               {t(`serviceType.${serviceLabelKeyFor(row)}`, {
                 defaultValue: row.service_type.replace(/_/g, " "),
               } as never)}
@@ -362,7 +358,7 @@ export default function BalancePage() {
           return (
             <span
               className={cn(
-                "inline-flex items-center gap-1 rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
+                "inline-flex items-center gap-1 rounded-[--radius] px-2.5 py-0.5 text-xs font-semibold",
                 isCredit
                   ? "bg-healthy text-healthy-foreground"
                   : "bg-destructive text-destructive-foreground",
@@ -415,31 +411,18 @@ export default function BalancePage() {
   );
 
   return (
-    <motion.main
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="w-full space-y-4"
-    >
+    <main className="w-full space-y-4">
       {/* ── Header ── */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
+      <div>
         <DashboardPageHeader
           icon={<Wallet className="h-6 w-6" weight="fill" />}
           badge={t("header.badge")}
           description={t("header.description")}
         />
-      </motion.div>
+      </div>
 
       {/* ── Transaction History ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-      >
+      <div>
         <DashboardTable<NormalizedTransaction>
           stats={[
             {
@@ -524,10 +507,10 @@ export default function BalancePage() {
                         key={preset}
                         onClick={() => handleDatePreset(preset)}
                         className={cn(
-                          "rounded-lg px-2.5 py-1 text-xs font-medium transition-colors",
+                          "rounded-[--radius] border px-2.5 py-1 text-xs font-medium transition-colors",
                           datePreset === preset
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-muted-foreground hover:bg-muted",
+                            ? "border-border bg-card font-semibold text-foreground shadow-sm"
+                            : "border-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
                         )}
                       >
                         {t(`filter.${preset}`)}
@@ -536,10 +519,10 @@ export default function BalancePage() {
                     <button
                       onClick={() => handleDatePreset("custom")}
                       className={cn(
-                        "rounded-lg px-2.5 py-1 text-xs font-medium transition-colors",
+                        "rounded-[--radius] border px-2.5 py-1 text-xs font-medium transition-colors",
                         datePreset === "custom"
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground hover:bg-muted",
+                          ? "border-border bg-card font-semibold text-foreground shadow-sm"
+                          : "border-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
                       )}
                     >
                       {t("filter.custom")}
@@ -687,7 +670,7 @@ export default function BalancePage() {
                 }
           }
         />
-      </motion.div>
-    </motion.main>
+      </div>
+    </main>
   );
 }

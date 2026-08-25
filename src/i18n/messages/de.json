@@ -1372,6 +1372,7 @@
     "avgResponsePerAttendant": "Durchschnitt pro Person",
     "workspaceLegend": "Workspace",
     "openAttendance": "Postfach öffnen",
+    "attendanceSection": "Leistung",
     "viewAll": "Alle anzeigen",
     "noQuickActionsHint": "Aktionen erscheinen entsprechend den Berechtigungen dieses Workspace.",
     "noWorkspaceDescription": "Wählen Sie einen Workspace, um Kampagnen, Konversationen und Kennzahlen zu sehen.",

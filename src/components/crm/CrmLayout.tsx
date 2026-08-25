@@ -711,7 +711,7 @@ export default function CrmLayout({
       userId: "",
       name: c.name,
       description: "",
-      color: c.color || "#94a3b8",
+      color: c.color || "hsl(var(--plate-neutral))",
       isDefault: false,
       isInitial: false,
       position: i,

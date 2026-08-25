@@ -1299,6 +1299,7 @@
     "avgResponsePerAttendant": "Promedio por agente",
     "workspaceLegend": "Área de trabajo",
     "openAttendance": "Abrir bandeja",
+    "attendanceSection": "Atención",
     "viewAll": "Ver todas",
     "noQuickActionsHint": "Las acciones aparecen según los permisos de esta área de trabajo.",
     "noWorkspaceDescription": "Selecciona un área de trabajo para ver campañas, conversaciones y métricas.",

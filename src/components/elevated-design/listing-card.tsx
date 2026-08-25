@@ -235,7 +235,7 @@ export function StatsCard({
       {/* Background decoration */}
       <div
         className={cn(
-          "absolute -right-4 -top-4 h-24 w-24 rounded-full opacity-5 blur-2xl transition-opacity group-hover:opacity-10",
+          "hidden",
           colorConfig.solid,
         )}
       />
@@ -249,7 +249,7 @@ export function StatsCard({
             <div className="h-8 w-16 animate-pulse rounded-lg bg-border" />
           ) : (
             <div className="flex items-baseline gap-2">
-              <p className="text-2xl font-semibold text-foreground">{value}</p>
+              <p className="font-display text-2xl font-semibold text-foreground">{value}</p>
               {trend && (
                 <span
                   className={cn(
@@ -500,7 +500,7 @@ export function ListingCard({
       {/* Background decoration */}
       <div
         className={cn(
-          "absolute -right-8 -top-8 h-32 w-32 rounded-full opacity-5 blur-3xl transition-opacity group-hover:opacity-10",
+          "hidden",
           colorMap[accentColor].solid,
         )}
       />
@@ -518,7 +518,7 @@ export function ListingCard({
             </IconBox>
           ) : null}
           <div className="min-w-0">
-            <h3 className="font-semibold text-foreground truncate">{title}</h3>
+            <h3 className="font-display font-semibold tracking-[0.01em] text-foreground truncate">{title}</h3>
             {subtitle && (
               <p className="text-xs text-muted-foreground truncate">
                 {subtitle}
@@ -756,7 +756,7 @@ export function AddNewCard({
     >
       
       <motion.div
-        whileHover={{ scale: 1.1, rotate: icon ? 0 : 90 }}
+        whileHover={undefined}
         transition={{ type: "spring", stiffness: 400, damping: 17 }}
       >
         {/* should be relative */}

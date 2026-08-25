@@ -205,39 +205,42 @@ export function WorkspaceSwitcher({
   return (
     <div className={cn("relative", fullWidth && "w-full")} ref={dropdownRef}>
       {/*
-        The desk label. This sits at the head of the spine because the workspace
-        scopes everything below it — every nav row, count and permission — so it
-        belongs above the nav it governs rather than floating in a global bar.
-        A legend over the name, the way a panel names the bank it heads.
+        The scope slot of the app bar's identity line — "Brand | Workspace",
+        the way the reference bar reads "Azure Data Explorer | All dashboards".
+        In the bar it is a quiet single-line trigger: the name IS the label,
+        with the accessible name carrying the legend. The drawer keeps the
+        stacked legend-over-name form (fullWidth), where vertical room is free.
       */}
       <button
         ref={triggerRef}
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="menu"
         aria-expanded={isOpen}
+        title={t("label")}
         className={cn(
-          "flex h-9 items-center gap-2 rounded-[--radius] border px-2 text-left transition-colors",
-          isOpen
-            ? "border-border bg-muted"
-            : "border-border hover:bg-muted",
-          fullWidth && "w-full",
+          "flex items-center gap-2 rounded-[--radius] border text-left transition-colors",
+          fullWidth
+            ? "h-9 w-full border-border px-2"
+            : "h-8 border-transparent px-2",
+          isOpen ? "bg-muted" : "hover:bg-muted",
         )}
       >
         <Buildings
           className="h-4 w-4 shrink-0 text-muted-foreground"
           weight="regular"
         />
-        <span
-          className={cn(
-            "flex min-w-0 flex-col leading-none",
-            fullWidth ? "flex-1" : "hidden md:flex",
-          )}
-        >
-          <span className="legend leading-none">{t("label")}</span>
-          <span className="mt-0.5 max-w-[9rem] truncate text-sm font-semibold leading-none text-foreground">
+        {fullWidth ? (
+          <span className="flex min-w-0 flex-1 flex-col leading-none">
+            <span className="legend leading-none">{t("label")}</span>
+            <span className="mt-0.5 max-w-[9rem] truncate text-sm font-semibold leading-none text-foreground">
+              {currentWorkspace.name}
+            </span>
+          </span>
+        ) : (
+          <span className="max-w-[12rem] truncate text-sm font-semibold leading-none text-foreground">
             {currentWorkspace.name}
           </span>
-        </span>
+        )}
         <CaretDown
           className={cn(
             "h-3 w-3 shrink-0 text-muted-foreground transition-transform",

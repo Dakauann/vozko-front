@@ -42,6 +42,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import { vozGrid, vozRing, vozXAxis, vozYAxis } from "@/components/charts/vozko";
 import {
   useCallback,
   useEffect,
@@ -83,10 +84,10 @@ import {
 
 /** Quiet Infrastructure tokens (product register). */
 const COLORS = {
-  signal: "#2463eb",
-  finished: "#22c55e",
-  ongoing: "#2463eb",
-  pending: "#f59e0b",
+  signal: "hsl(var(--chart-1))",
+  finished: "hsl(var(--healthy))",
+  ongoing: "hsl(var(--info))",
+  pending: "hsl(var(--warning))",
 } as const;
 
 const POLL_MS = 30_000;
@@ -406,27 +407,9 @@ function HourlyChart({
         style={{ height }}
       >
         <BarChart data={data} margin={{ top: 2, right: 2, left: -18, bottom: 0 }}>
-          <CartesianGrid
-            strokeDasharray="3 3"
-            vertical={false}
-            stroke="hsl(var(--border))"
-          />
-          <XAxis
-            dataKey="label"
-            tickLine={false}
-            axisLine={false}
-            fontSize={9}
-            interval={3}
-            tick={{ fill: "hsl(var(--muted-foreground))" }}
-          />
-          <YAxis
-            tickLine={false}
-            axisLine={false}
-            fontSize={9}
-            allowDecimals={false}
-            width={28}
-            tick={{ fill: "hsl(var(--muted-foreground))" }}
-          />
+          <CartesianGrid {...vozGrid} />
+          <XAxis dataKey="label" interval={3} {...vozXAxis} />
+          <YAxis allowDecimals={false} {...vozYAxis} width={28} />
           <ChartTooltip
             content={
               <ChartTooltipContent
@@ -441,7 +424,7 @@ function HourlyChart({
           <Bar
             dataKey="conversas"
             fill="var(--color-conversas)"
-            radius={[3, 3, 0, 0]}
+            radius={[4, 4, 0, 0]}
             maxBarSize={22}
           />
         </BarChart>
@@ -490,7 +473,7 @@ function StatusChart({
 
   const pie = Math.min(128, Math.max(88, height - 8));
   const outer = Math.round(pie * 0.38);
-  const inner = Math.round(pie * 0.27);
+  const inner = outer - 12;
 
   return (
     <div className="grid grid-cols-1 items-center gap-3 sm:grid-cols-[minmax(88px,112px)_minmax(0,1fr)]">
@@ -506,11 +489,7 @@ function StatusChart({
             nameKey="name"
             cx="50%"
             cy="50%"
-            innerRadius={inner}
-            outerRadius={outer}
-            paddingAngle={2}
-            strokeWidth={2}
-            stroke="hsl(var(--background))"
+            {...vozRing(outer, inner)}
           >
             {slices.map((s) => (
               <Cell key={s.key} fill={s.color} />
@@ -524,7 +503,7 @@ function StatusChart({
           <p className="text-2xs font-semibold text-muted-foreground">
             {tl("pctFinished")}
           </p>
-          <p className="text-lg font-semibold tabular-nums text-foreground">
+          <p className="font-display text-lg font-semibold tabular-nums text-foreground">
             {fmt.pct(rate)}
           </p>
         </div>
@@ -606,29 +585,18 @@ function DeptChart({
           margin={{ top: 4, right: 8, left: 0, bottom: 0 }}
           barCategoryGap={6}
         >
-          <CartesianGrid
-            strokeDasharray="3 3"
-            horizontal={false}
-            stroke="hsl(var(--border))"
-          />
+          <CartesianGrid {...vozGrid} vertical horizontal={false} />
           <XAxis type="number" hide />
-          <YAxis
-            type="category"
-            dataKey="name"
-            width={88}
-            tickLine={false}
-            axisLine={false}
-            fontSize={10}
-            tick={{ fill: "hsl(var(--foreground))" }}
-          />
-          <Bar dataKey="concluidas" stackId="a" fill={COLORS.finished} name={st("finished")} />
-          <Bar dataKey="em_andamento" stackId="a" fill={COLORS.ongoing} name={st("ongoing")} />
+          <YAxis type="category" dataKey="name" {...vozYAxis} width={88} />
+          <Bar dataKey="concluidas" stackId="a" fill={COLORS.finished} name={st("finished")} maxBarSize={28} />
+          <Bar dataKey="em_andamento" stackId="a" fill={COLORS.ongoing} name={st("ongoing")} maxBarSize={28} />
           <Bar
             dataKey="aguardando"
             stackId="a"
             fill={COLORS.pending}
             name={st("pending")}
-            radius={[0, 3, 3, 0]}
+            radius={[0, 4, 4, 0]}
+            maxBarSize={28}
           />
         </BarChart>
       </ResponsiveContainer>
@@ -677,6 +645,7 @@ function DirectionMix({
     );
   }
   const pie = Math.min(128, Math.max(88, height - 8));
+  const outer = Math.round(pie * 0.38);
   return (
     <div className="grid grid-cols-1 items-center gap-3 sm:grid-cols-[minmax(88px,112px)_minmax(0,1fr)]">
       <ChartContainer
@@ -691,11 +660,7 @@ function DirectionMix({
             nameKey="name"
             cx="50%"
             cy="50%"
-            innerRadius={Math.round(pie * 0.27)}
-            outerRadius={Math.round(pie * 0.38)}
-            paddingAngle={2}
-            strokeWidth={2}
-            stroke="hsl(var(--background))"
+            {...vozRing(outer, outer - 12)}
           >
             {data.map((s) => (
               <Cell key={s.key} fill={s.color} />

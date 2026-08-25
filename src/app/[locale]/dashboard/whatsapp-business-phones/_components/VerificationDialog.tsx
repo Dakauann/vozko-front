@@ -161,7 +161,7 @@ export function VerificationDialog({
                   className={`p-4 rounded-lg border transition-all ${
                     codeMethod === "SMS"
                       ? "border-primary bg-muted"
-                      : "border-border hover:border-foreground/20 dark:hover:border-slate-600"
+                      : "border-border hover:border-border-strong"
                   }`}
                 >
                   <span className="block text-sm font-medium text-foreground">
@@ -177,7 +177,7 @@ export function VerificationDialog({
                   className={`p-4 rounded-lg border transition-all ${
                     codeMethod === "VOICE"
                       ? "border-primary bg-muted"
-                      : "border-border hover:border-foreground/20 dark:hover:border-slate-600"
+                      : "border-border hover:border-border-strong"
                   }`}
                 >
                   <span className="block text-sm font-medium text-foreground">

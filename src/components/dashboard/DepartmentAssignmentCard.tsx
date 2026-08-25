@@ -178,7 +178,7 @@ export function DepartmentAssignmentCard({
               <p className="text-2xs font-semibold text-warning-ink">
                 {t("scopeLabel")}
               </p>
-              <h3 className="text-base font-semibold text-foreground">
+              <h3 className="font-display text-base font-semibold tracking-[0.01em] text-foreground">
                 {isAssigned ? t("switchTitle") : t("title")}
               </h3>
             </div>

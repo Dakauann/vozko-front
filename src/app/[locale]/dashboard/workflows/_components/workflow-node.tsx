@@ -130,20 +130,24 @@ const ICON_MAP: Record<string, Icon> = {
 };
 
 
-// Each category carries ONE quiet color, expressed two ways: a thin left rail
-// on the card edge, and the solid accent tile behind the node's white glyph
-// (the house "symbol" rule, solid fill + white icon, never a faded same-color
-// wash). Surfaces stay neutral; this single hue is the only category signal.
-const CATEGORY_STYLES: Record<NodeCategory, { color: string }> = {
-  trigger: { color: "#10b981" },
-  action: { color: "#2463eb" },
-  ai: { color: "#8b5cf6" },
-  messaging: { color: "#06b6d4" },
-  wait: { color: "#f59e0b" },
-  condition: { color: "#a855f7" },
-  logic: { color: "#64748b" },
-  end: { color: "#f43f5e" },
-  visual: { color: "#94a3b8" },
+// Each category carries ONE color: the solid tile behind the node's glyph.
+// Values are the design system's PLATE tokens — the hues re-tuned so a WHITE
+// glyph clears ≥3:1 in both themes — so the canvas re-palettes with the theme,
+// a category reads the same here as in a glyph tile elsewhere, and no plate
+// ever carries a dark icon on a dark fill. `ink` stays in the API for the
+// palette/config-panel consumers; it is white across the board now.
+const CATEGORY_STYLES: Record<NodeCategory, { color: string; ink: string }> = {
+  trigger: { color: "hsl(var(--plate-2))", ink: "#ffffff" },
+  action: { color: "hsl(var(--plate-1))", ink: "#ffffff" },
+  ai: { color: "hsl(var(--plate-5))", ink: "#ffffff" },
+  messaging: { color: "hsl(var(--plate-4))", ink: "#ffffff" },
+  wait: { color: "hsl(var(--plate-3))", ink: "#ffffff" },
+  // condition shares the blue family with messaging (info vs plate-4) and is
+  // disambiguated by glyph + label, not by inventing an off-token hue.
+  condition: { color: "hsl(var(--info))", ink: "#ffffff" },
+  logic: { color: "hsl(var(--plate-neutral))", ink: "#ffffff" },
+  end: { color: "hsl(var(--destructive))", ink: "#ffffff" },
+  visual: { color: "hsl(var(--plate-neutral))", ink: "#ffffff" },
 };
 
 
@@ -193,8 +197,8 @@ export interface WorkflowNodeData {
 }
 
 // The interactive prompt node's non-tap outcomes. Options (tapped buttons/rows)
-// come from config; these three are the fixed catch-all branches. Dot colors are
-// derived from the id by branchDotClass (shared with every other node).
+// come from config; these three are the fixed catch-all branches. Handle-pad
+// tones are derived from the id by branchDotClass (shared with every other node).
 const INTERACTIVE_CATCH_ALLS: { id: string; label: string }[] = [
   { id: "no_match", label: "Sem correspondência" },
   { id: "no_reply", label: "Não respondeu" },
@@ -360,6 +364,7 @@ function GenericWorkflowNode({ id, data, selected }: NodeProps) {
       label={label}
       icon={IconComp}
       iconColor={styles.color}
+      iconInk={styles.ink}
       width={GENERIC_NODE_WIDTH}
       branches={branches}
       selected={selected}
@@ -746,7 +751,7 @@ const BORDER_STYLE_MAP: Record<string, string> = {
 };
 
 const GROUP_BG_COLORS: Record<string, string> = {
-  gray: "bg-gray-100/50 dark:bg-gray-800/20",
+  gray: "bg-muted/50",
   blue: "bg-muted",
   green: "bg-muted",
   yellow: "bg-warning/40 dark:bg-muted",
@@ -756,7 +761,7 @@ const GROUP_BG_COLORS: Record<string, string> = {
 };
 
 const GROUP_BG_COLORS_SOLID: Record<string, string> = {
-  gray: "bg-gray-100 dark:bg-gray-800",
+  gray: "bg-muted",
   blue: "bg-muted dark:bg-info",
   green: "bg-muted dark:bg-healthy",
   yellow: "bg-muted dark:bg-warning",
@@ -766,13 +771,13 @@ const GROUP_BG_COLORS_SOLID: Record<string, string> = {
 };
 
 const GROUP_BORDER_COLORS: Record<string, string> = {
-  gray: "border-gray-300 dark:border-gray-600",
+  gray: "border-border-strong",
   blue: "border-info/30",
   green: "border-healthy/30",
   yellow: "border-warning/30",
   red: "border-destructive/30",
   purple: "border-chart-4/30 dark:border-chart-4",
-  transparent: "border-gray-300/50 dark:border-gray-600/50",
+  transparent: "border-border/50",
 };
 
 export interface GroupNodeData {
@@ -799,7 +804,7 @@ function GroupNodeComponent({ data, selected }: NodeProps) {
   return (
     <div
       className={cn(
-        "rounded-[--radius] transition-all w-full h-full min-w-[200px] min-h-[100px]",
+        "rounded-xl transition-all w-full h-full min-w-[200px] min-h-[100px]",
         bgCls,
         borderColorCls,
         borderCls,

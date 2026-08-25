@@ -744,7 +744,7 @@ export default function UserPlansCatalog() {
                 style={lampTone ? { background: `hsl(${lampTone})` } : undefined}
               />
               <div className="min-w-0">
-                <h2 className="truncate text-lg font-semibold tracking-[-0.01em] text-foreground">
+                <h2 className="truncate font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                   {currentPlan?.name ?? t("subscription.noneTitle")}
                 </h2>
                 <p className="mt-1 max-w-[60ch] text-sm leading-snug text-muted-foreground">
@@ -919,7 +919,7 @@ export default function UserPlansCatalog() {
                               <span className="readout text-2xs text-muted-foreground">
                                 {index + 1}
                               </span>
-                              <span className="truncate text-base font-semibold tracking-[-0.01em] text-foreground">
+                              <span className="truncate font-display text-base font-semibold tracking-[0.01em] text-foreground">
                                 {item.plan.name}
                               </span>
                             </span>
@@ -938,7 +938,7 @@ export default function UserPlansCatalog() {
                             </span>
 
                             <span className="mt-3 flex items-baseline gap-1">
-                              <span className="readout text-2xl font-semibold leading-none tracking-[-0.02em] text-foreground">
+                              <span className="readout font-display text-2xl font-semibold leading-none tracking-[-0.02em] text-foreground">
                                 {formatBRLFromCents(item.plan.basePriceBRLCents)}
                               </span>
                               <span className="text-2xs text-muted-foreground">
@@ -1150,7 +1150,7 @@ export default function UserPlansCatalog() {
                   <p className="text-2xs font-semibold text-muted-foreground">
                     {t("dialog.amount")}
                   </p>
-                  <p className="mt-2 text-xl font-semibold text-foreground">
+                  <p className="mt-2 font-display text-xl font-semibold text-foreground">
                     {formatBRLFromCents(
                       Math.round(generatedInvoice.amountBRL * 100),
                     )}
@@ -1310,7 +1310,7 @@ export default function UserPlansCatalog() {
                         </p>
                       </div>
                       <div className="shrink-0 text-right">
-                        <p className="text-lg font-semibold text-foreground tabular-nums">
+                        <p className="font-display text-lg font-semibold text-foreground tabular-nums">
                           {formatBRLFromCents(baseCents)}
                         </p>
                         <p className="text-2xs text-muted-foreground">
@@ -1497,7 +1497,7 @@ export default function UserPlansCatalog() {
                       <span className="text-sm font-semibold text-foreground">
                         {t("dialog.totalLabel")}
                       </span>
-                      <span className="text-lg font-semibold tabular-nums text-foreground">
+                      <span className="font-display text-lg font-semibold tabular-nums text-foreground">
                         {formatBRLFromCents(totalCents)}
                       </span>
                     </div>

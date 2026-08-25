@@ -150,21 +150,21 @@ export function getConversationStatusDisplay(
         label: provenance
           ? `Finalizada · ${provenance.short}`
           : "Finalizada",
-        // Silence/max-age: amber. Workflow: slate. AI: violet. Human: emerald.
+        // Silence/max-age: amber. Workflow: slate. AI: violet. Human: healthy token.
         dotClassName: isSilence || isMaxAge
           ? "bg-amber-500"
           : isWorkflow
             ? "bg-slate-600"
             : isAi
               ? "bg-violet-500"
-              : "bg-emerald-500",
+              : "bg-healthy",
         menuAccentClassName: isSilence || isMaxAge
           ? "text-amber-700 dark:text-amber-400"
           : isWorkflow
             ? "text-slate-700 dark:text-slate-300"
             : isAi
               ? "text-violet-700 dark:text-violet-400"
-              : "text-emerald-700 dark:text-emerald-400",
+              : "text-healthy-ink",
         provenance,
       };
     }

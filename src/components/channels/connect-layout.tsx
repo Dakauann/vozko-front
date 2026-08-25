@@ -132,7 +132,7 @@ export function ConnectIdentity({
       </span>
 
       <div className="min-w-0 flex-1 space-y-1.5 pt-0.5">
-        <h1 className="text-xl font-semibold tracking-[-0.015em] text-foreground sm:text-2xl">
+        <h1 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground sm:text-2xl">
           {title}
         </h1>
         {/* Held to a readable measure rather than the container's full width. */}
@@ -457,7 +457,7 @@ export function ConnectResult({
               <h2
                 ref={headingRef}
                 tabIndex={-1}
-                className="text-lg font-semibold tracking-tight text-foreground outline-none"
+                className="font-display text-lg font-semibold tracking-[0.01em] text-foreground outline-none"
               >
                 {title}
               </h2>

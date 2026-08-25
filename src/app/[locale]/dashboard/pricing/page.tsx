@@ -279,31 +279,18 @@ export default function AdminPricingPage() {
   }
 
   return (
-    <motion.main
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="w-full space-y-4"
-    >
+    <main className="w-full space-y-4">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4 }}
-      >
+      <div>
         <DashboardPageHeader
           icon={<CurrencyDollar className="h-6 w-6" weight="fill" />}
           badge={t("header.badge")}
           description={t("header.title")}
         />
-      </motion.div>
+      </div>
 
       {/* Tabs */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-      >
+      <div>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value="defaults" className="gap-2">
@@ -566,7 +553,7 @@ export default function AdminPricingPage() {
                     <p className="text-2xs text-muted-foreground font-medium">
                       {t("exchangeRate.currentRate")}
                     </p>
-                    <p className="text-2xl font-semibold text-foreground tabular-nums">
+                    <p className="font-display text-2xl font-semibold text-foreground tabular-nums">
                       1 USD = R$ {microsToUsdDisplay(exchangeRate.priceMicros)}
                     </p>
                   </div>
@@ -700,21 +687,11 @@ export default function AdminPricingPage() {
                     </thead>
                     <tbody className="divide-y divide-slate-50">
                       <AnimatePresence mode="popLayout">
-                        {auditLog.map((entry, i) => {
+                        {auditLog.map((entry) => {
                           const Icon =
                             CATEGORY_ICONS[entry.category] ?? Lightning;
                           return (
-                            <motion.tr
-                              key={entry.id}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -10 }}
-                              transition={{
-                                duration: 0.2,
-                                delay: i * 0.02,
-                              }}
-                              className="transition-colors hover:bg-muted"
-                            >
+                            <tr key={entry.id} className="transition-colors hover:bg-muted">
                               <td className="px-6 py-4">
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                   <CalendarCheck
@@ -811,7 +788,7 @@ export default function AdminPricingPage() {
                                   {entry.changedBy.slice(0, 8)}...
                                 </span>
                               </td>
-                            </motion.tr>
+                            </tr>
                           );
                         })}
                       </AnimatePresence>
@@ -849,8 +826,8 @@ export default function AdminPricingPage() {
           </TabsContent>
           {/* ── Calculator Tab ── */}
         </Tabs>
-      </motion.div>
-    </motion.main>
+      </div>
+    </main>
   );
 }
 

@@ -4,7 +4,6 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { Brain, Clock, Prohibit, Users, WhatsappLogo } from "@/components/icons";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
-import { motion } from "framer-motion";
 
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import {
@@ -187,7 +186,7 @@ function LeadsPageContent() {
             {row.blocked ? (
               <span
                 title={t("table.blocked")}
-                className="inline-flex items-center rounded-full bg-destructive/10 px-1.5 py-0.5 text-2xs font-semibold text-destructive-ink"
+                className="inline-flex items-center rounded-[--radius] bg-destructive px-1.5 py-0.5 text-2xs font-semibold text-destructive-foreground"
               >
                 <Prohibit weight="bold" className="h-3 w-3" />
               </span>
@@ -308,29 +307,16 @@ function LeadsPageContent() {
   ];
 
   return (
-    <motion.main
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="w-full space-y-4"
-    >
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
+    <main className="w-full space-y-4">
+      <div>
         <DashboardPageHeader
           icon={<Users className="h-6 w-6" weight="fill" />}
           badge={t("header.badge")}
           description={t("header.description")}
         />
-      </motion.div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-      >
+      <div>
         <DashboardTable<LeadListItem>
           stats={stats}
           data={items}
@@ -402,8 +388,8 @@ function LeadsPageContent() {
                 }
           }
         />
-      </motion.div>
-    </motion.main>
+      </div>
+    </main>
   );
 }
 

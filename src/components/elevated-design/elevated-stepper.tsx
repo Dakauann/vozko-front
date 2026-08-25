@@ -144,7 +144,7 @@ export function ElevatedStepper({
           <p className="text-2xs font-semibold text-primary-ink">
             Etapa {safeIndex + 1} de {total}
           </p>
-          <h2 className="mt-1 text-lg font-semibold text-foreground">
+          <h2 className="mt-1 font-display text-lg font-semibold tracking-[0.01em] text-foreground">
             {activeStep.title}
           </h2>
           {activeStep.description ? (

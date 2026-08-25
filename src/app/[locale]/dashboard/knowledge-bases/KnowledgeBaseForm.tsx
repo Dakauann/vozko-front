@@ -358,7 +358,7 @@ export default function KnowledgeBaseForm({
               <Files className="h-6 w-6 text-primary-ink" weight="fill" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-foreground">
+              <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                 {mode === "create" ? t("new.title") : t("edit.title")}
               </h3>
               <p className="text-sm text-muted-foreground">
@@ -397,7 +397,7 @@ export default function KnowledgeBaseForm({
               <UploadSimple className="h-6 w-6 text-primary-ink" weight="fill" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-foreground">
+              <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                 {t("form.fileUpload.title")}
               </h3>
               <p className="text-sm text-muted-foreground">

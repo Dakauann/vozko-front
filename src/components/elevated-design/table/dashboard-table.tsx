@@ -11,6 +11,7 @@ import {
 } from "@/components/icons";
 import { Fragment, ReactNode, useCallback } from "react";
 
+import { CircuitTraces } from "@/components/brand/circuit";
 import { cn } from "@/lib/utils";
 
 
@@ -222,7 +223,7 @@ export function DashboardTable<T>({
     >
       {/* ── Header: stats + search + actions ── */}
       {hasHeader && (
-        <div className="flex flex-wrap items-center gap-3 border-b border-border px-5 py-3">
+        <div className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-2.5">
           {headerLeft}
 
           {stats && stats.length > 0 && (
@@ -256,7 +257,7 @@ export function DashboardTable<T>({
 
       {/* ── Selection bar ── */}
       {hasSelection && selectedCount > 0 && (
-        <div className="flex items-center gap-3 border-b border-border px-5 py-2">
+        <div className="flex items-center gap-3 border-b border-border px-4 py-2">
           <span className="text-sm font-medium text-primary-ink">
             {selection!.label
               ? selection!.label(selectedCount)
@@ -268,7 +269,7 @@ export function DashboardTable<T>({
 
       {/* ── Toolbar (filters) ── */}
       {hasToolbar && (
-        <div className="flex flex-wrap items-center gap-4 border-b border-border px-5 py-3">
+        <div className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-2.5">
           {toolbar}
         </div>
       )}
@@ -277,7 +278,7 @@ export function DashboardTable<T>({
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           {caption ? (
-            <caption className="px-6 py-4 text-left text-sm text-muted-foreground">
+            <caption className="px-4 py-3 text-left text-sm text-muted-foreground">
               {caption}
             </caption>
           ) : null}
@@ -288,7 +289,7 @@ export function DashboardTable<T>({
                 the body rows are white. */}
             <tr className="bg-muted border-b border-border-strong">
               {hasSelection && (
-                <th className="w-12 px-4 py-3" scope="col">
+                <th className="w-10 px-3 py-2" scope="col">
                   <button
                     type="button"
                     onClick={toggleAll}
@@ -317,7 +318,7 @@ export function DashboardTable<T>({
                   <th
                     key={column.key}
                     className={cn(
-                      "px-6 py-3 text-2xs font-semibold text-muted-foreground",
+                      "px-4 py-2 text-2xs font-semibold text-muted-foreground",
                       column.className,
                     )}
                     scope="col"
@@ -376,7 +377,7 @@ export function DashboardTable<T>({
               })}
               {renderRowActions ? (
                 <th
-                  className="px-6 py-3 text-xs font-semibold text-muted-foreground text-right"
+                  className="px-4 py-2 text-xs font-semibold text-muted-foreground text-right"
                   scope="col"
                 />
               ) : null}
@@ -388,20 +389,20 @@ export function DashboardTable<T>({
               ? Array.from({ length: 5 }).map((_, rowIndex) => (
                   <tr key={`skeleton-${rowIndex}`} className="animate-pulse">
                     {hasSelection && (
-                      <td className="w-12 px-4 py-4">
+                      <td className="w-10 px-3 py-2.5">
                         <div className="h-4 w-4 rounded border border-border bg-muted" />
                       </td>
                     )}
                     {columns.map((column) => (
                       <td
                         key={`skeleton-${rowIndex}-${column.key}`}
-                        className={cn("px-6 py-4", column.className)}
+                        className={cn("px-4 py-2.5", column.className)}
                       >
                         <div className="h-4 bg-border/60 rounded w-3/4" />
                       </td>
                     ))}
                     {renderRowActions ? (
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-4 py-2.5 text-right">
                         <div className="h-4 bg-border/60 rounded w-8 ml-auto" />
                       </td>
                     ) : null}
@@ -446,7 +447,7 @@ export function DashboardTable<T>({
                           )}
                         >
                           {hasSelection && (
-                            <td className="w-12 px-4 py-4">
+                            <td className="w-10 px-3 py-2.5">
                               <button
                                 type="button"
                                 onClick={(e) => {
@@ -476,7 +477,7 @@ export function DashboardTable<T>({
                             return (
                               <td
                                 key={`${key}-${column.key}`}
-                                className={cn("px-6 py-4", column.className)}
+                                className={cn("px-4 py-2.5", column.className)}
                               >
                                 {(value as ReactNode) || null}
                               </td>
@@ -484,7 +485,7 @@ export function DashboardTable<T>({
                           })}
 
                           {renderRowActions ? (
-                            <td className="px-6 py-4 text-right">
+                            <td className="px-4 py-2.5 text-right">
                               <div className="flex items-center justify-end gap-2">
                                 {renderRowActions(row)}
                               </div>
@@ -509,15 +510,22 @@ export function DashboardTable<T>({
 
       {/* ── Empty state ── */}
       {!hasData && !loading && (
-        <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
+        <div className="relative flex flex-col items-center justify-center overflow-hidden px-6 py-16 text-center">
+          {/* The brand's trace lines behind the plate — an empty state is an
+              identity surface, the one place in a table where ornament
+              doesn't sit behind data. */}
+          <CircuitTraces
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-2 h-40 w-40 -translate-x-1/2 sm:h-48 sm:w-48"
+          />
           {isEmptyStateObject(emptyState) ? (
             <>
               {emptyState.icon && (
-                <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-muted mb-3">
+                <div className="relative flex h-14 w-14 items-center justify-center rounded-[--radius] bg-muted mb-3">
                   {emptyState.icon}
                 </div>
               )}
-              <p className="text-base font-semibold text-foreground mb-1">
+              <p className="relative font-display text-base font-semibold tracking-[0.01em] text-foreground mb-1">
                 {emptyState.title}
               </p>
               {emptyState.description && (
@@ -529,7 +537,7 @@ export function DashboardTable<T>({
             </>
           ) : (
             <>
-              <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] bg-muted mb-3">
+              <div className="relative flex h-14 w-14 items-center justify-center rounded-[--radius] bg-muted mb-3">
                 <svg
                   className="h-7 w-7 text-muted-foreground"
                   fill="none"
@@ -544,7 +552,7 @@ export function DashboardTable<T>({
                   />
                 </svg>
               </div>
-              <p className="font-semibold text-foreground mb-1">
+              <p className="relative font-display font-semibold tracking-[0.01em] text-foreground mb-1">
                 Nenhum registro encontrado
               </p>
               <p className="text-sm text-muted-foreground">
@@ -558,7 +566,7 @@ export function DashboardTable<T>({
 
       {/* ── Pagination footer ── */}
       {hasPagination && (
-        <div className="flex items-center justify-between border-t border-border bg-muted px-5 py-2.5">
+        <div className="flex items-center justify-between border-t border-border bg-muted px-4 py-2">
           <div className="flex items-center gap-4">
             <p className="text-xs text-muted-foreground">
               {paginationText?.showing ?? "Mostrando"}{" "}

@@ -2,7 +2,7 @@
 
 /**
  * CRM contact-panel charts (lateral infos rail only).
- * Path uses the same status palette as Metrics (blue / amber / emerald).
+ * Path uses the same status palette as Metrics (--info / --warning / --healthy).
  */
 
 import { useMemo } from "react";
@@ -20,27 +20,28 @@ import {
 
 import type { Analysis } from "@/lib/analysis/types";
 import type { ConversationMessage } from "@/lib/conversations/types";
+import { vozGrid, vozXAxis, vozYAxis } from "@/components/charts/vozko";
 import { cn } from "@/lib/utils";
 
-/* Metrics-aligned status colors (attendance department chart language) */
+/* Metrics-aligned status tokens: --info / --warning / --healthy */
 const STAGE_HUE = {
-  new: "#2463eb", // Signal Blue
-  ongoing: "#f59e0b", // Amber, in progress
-  finished: "#22c55e", // Emerald, done
+  new: "hsl(var(--info))",
+  ongoing: "hsl(var(--warning))",
+  finished: "hsl(var(--healthy))",
 } as const;
 
 const STAGE_MUTED = {
-  new: "#bfdbfe",
-  ongoing: "#fde68a",
-  finished: "#bbf7d0",
+  new: "hsl(var(--info) / 0.25)",
+  ongoing: "hsl(var(--warning) / 0.25)",
+  finished: "hsl(var(--healthy) / 0.35)",
 } as const;
 
 const MIX = {
-  customer: "#25d366", // WhatsApp green for customer channel
-  team: "#2463eb",
-  ai: "#f59e0b",
-  media: "#8b5cf6",
-  tools: "#64748b",
+  customer: "hsl(var(--chart-1))",
+  team: "hsl(var(--chart-4))",
+  ai: "hsl(var(--chart-3))",
+  media: "hsl(var(--chart-5))",
+  tools: "hsl(var(--muted-foreground))",
 } as const;
 
 type CrmStatus = "new" | "ongoing" | "finished";
@@ -234,12 +235,12 @@ export default function ConversationPathChart({
       {
         name: t("channel.whatsapp"),
         count: threadStats.whatsapp,
-        color: "#25d366",
+        color: MIX.customer,
       },
       {
         name: t("channel.voice"),
         count: threadStats.voice,
-        color: "#8b5cf6",
+        color: MIX.media,
       },
     ].filter((r) => r.count > 0);
   }, [threadStats, t]);
@@ -325,31 +326,21 @@ export default function ConversationPathChart({
               margin={{ top: 4, right: 8, left: 4, bottom: 4 }}
               barCategoryGap={8}
             >
-              <CartesianGrid
-                strokeDasharray="3 3"
-                horizontal={false}
-                stroke="#e1e7ef"
-              />
+              <CartesianGrid {...vozGrid} horizontal={false} vertical />
               <XAxis
+                {...vozXAxis}
                 type="number"
                 domain={[0, 3]}
                 ticks={[0, 1, 2, 3]}
-                tickLine={false}
-                axisLine={false}
-                fontSize={10}
-                tick={{ fill: "#65758b" }}
               />
               <YAxis
+                {...vozYAxis}
                 type="category"
                 dataKey="name"
                 width={52}
-                tickLine={false}
-                axisLine={false}
-                fontSize={10}
-                tick={{ fill: "#344256" }}
               />
               <Tooltip
-                cursor={{ fill: "rgba(36,99,235,0.04)" }}
+                cursor={{ fill: "hsl(var(--muted))" }}
                 content={({ active }) => {
                   if (!active) return null;
                   return (
@@ -383,7 +374,8 @@ export default function ConversationPathChart({
                 name={stageByKey.new?.label}
                 stackId="path"
                 fill={stageByKey.new?.color}
-                radius={[4, 0, 0, 4]}
+                stroke="hsl(var(--card))"
+                strokeWidth={1}
                 barSize={18}
               />
               <Bar
@@ -391,6 +383,8 @@ export default function ConversationPathChart({
                 name={stageByKey.ongoing?.label}
                 stackId="path"
                 fill={stageByKey.ongoing?.color}
+                stroke="hsl(var(--card))"
+                strokeWidth={1}
                 barSize={18}
               />
               <Bar
@@ -398,6 +392,8 @@ export default function ConversationPathChart({
                 name={stageByKey.finished?.label}
                 stackId="path"
                 fill={stageByKey.finished?.color}
+                stroke="hsl(var(--card))"
+                strokeWidth={1}
                 radius={[0, 4, 4, 0]}
                 barSize={18}
               />
@@ -544,30 +540,16 @@ function HorizontalBars({
             margin={{ top: 2, right: 12, left: 4, bottom: 0 }}
             barCategoryGap={8}
           >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              horizontal={false}
-              stroke="#e1e7ef"
-            />
-            <XAxis
-              type="number"
-              allowDecimals={false}
-              tickLine={false}
-              axisLine={false}
-              fontSize={10}
-              tick={{ fill: "#65758b" }}
-            />
+            <CartesianGrid {...vozGrid} horizontal={false} vertical />
+            <XAxis {...vozXAxis} type="number" allowDecimals={false} />
             <YAxis
+              {...vozYAxis}
               type="category"
               dataKey="name"
               width={68}
-              tickLine={false}
-              axisLine={false}
-              fontSize={10}
-              tick={{ fill: "#344256" }}
             />
             <Tooltip
-              cursor={{ fill: "rgba(36,99,235,0.04)" }}
+              cursor={{ fill: "hsl(var(--muted))" }}
               content={({ active, payload }) => {
                 if (!active || !payload?.length) return null;
                 const row = payload[0]?.payload as (typeof rows)[0];

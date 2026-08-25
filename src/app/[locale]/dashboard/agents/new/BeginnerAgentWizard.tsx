@@ -153,7 +153,7 @@ function StepHeader({
         <Icon className="h-7 w-7" weight="fill" />
       </div>
       <div>
-        <h2 className="text-xl font-semibold text-foreground">{title}</h2>
+        <h2 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground">{title}</h2>
         <p className="mt-1 text-sm text-muted-foreground">{intro}</p>
       </div>
     </div>

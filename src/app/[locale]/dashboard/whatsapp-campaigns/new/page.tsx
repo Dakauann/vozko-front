@@ -8,7 +8,6 @@ import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader"
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import type { ModelPricingInfo } from "@/lib/agents/types";
 import { getAgentOptionsAction } from "@/app/actions/agents";
-import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import TourGuide from "@/components/TourGuide";
@@ -17,30 +16,6 @@ import {
   whatsappCampaignsTourPalette,
   whatsappCampaignsTourSeed,
 } from "@/data/tour-whatsapp-campaigns";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: "spring" as const,
-      stiffness: 100,
-      damping: 15,
-    },
-  },
-};
 
 export default function NewWhatsAppCampaignPage() {
   const router = useRouter();
@@ -81,13 +56,8 @@ export default function NewWhatsAppCampaignPage() {
       introPalette={whatsappCampaignsTourPalette}
       introSeed={whatsappCampaignsTourSeed}
     />
-    <motion.main
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="w-full space-y-6"
-    >
-      <motion.div variants={itemVariants}>
+    <main className="w-full space-y-6">
+      <div>
         <DashboardPageHeader
           back={{
             onClick: () => router.push("/dashboard/whatsapp-campaigns"),
@@ -99,18 +69,18 @@ export default function NewWhatsAppCampaignPage() {
           description={t("description")}
           colorClass="text-healthy-ink"
         />
-      </motion.div>
+      </div>
 
       {error && (
-        <motion.div variants={itemVariants}>
+        <div>
           <ElevatedContainer className="border-border bg-muted">
             <p className="text-sm text-destructive-ink">{error}</p>
           </ElevatedContainer>
-        </motion.div>
+        </div>
       )}
 
       {loading && (
-        <motion.div variants={itemVariants}>
+        <div>
           <ElevatedContainer className="border-border bg-card">
             <div className="flex items-center justify-center py-12">
               <div className="flex items-center gap-3">
@@ -121,29 +91,19 @@ export default function NewWhatsAppCampaignPage() {
               </div>
             </div>
           </ElevatedContainer>
-        </motion.div>
+        </div>
       )}
 
       {!loading && !error && (
-        <motion.div
-          variants={itemVariants}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            delay: 0.4,
-            type: "spring",
-            stiffness: 100,
-            damping: 20,
-          }}
-        >
+        <div>
           <CreateWhatsAppCampaignForm
             aiModels={aiModels}
             modelPricing={modelPricing}
             mode="create"
           />
-        </motion.div>
+        </div>
       )}
-    </motion.main>
+    </main>
     </>
   );
 }

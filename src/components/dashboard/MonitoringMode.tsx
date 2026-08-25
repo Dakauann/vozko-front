@@ -3,17 +3,13 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { AttendanceOverview } from "@/lib/attendance/types";
 import {
-  Bar,
-  BarChart,
-  CartesianGrid,
   Cell,
   Pie,
   PieChart,
   Tooltip as RechartsTooltip,
   ResponsiveContainer,
-  XAxis,
-  YAxis,
 } from "recharts";
+import { RadialGauge, vozRing } from "@/components/charts/vozko";
 import {
   Brain,
   Broadcast,
@@ -47,6 +43,14 @@ import { cn } from "@/lib/utils";
 import { useCrm } from "@/contexts/crm-context";
 import { useTranslations } from "next-intl";
 
+
+const STAGE_COLORS = {
+  pending: "hsl(var(--plate-neutral))",
+  sent: "hsl(var(--chart-4))",
+  delivered: "hsl(var(--chart-2))",
+  read: "hsl(var(--chart-1))",
+  failed: "hsl(var(--destructive))",
+} as const;
 
 type CampaignType = "voice" | "whatsapp";
 
@@ -185,9 +189,8 @@ function MiniDonutChart({
   centerLabel,
   centerSublabel,
   size = 140,
-  innerRadius = 38,
+  innerRadius = 44,
   outerRadius = 56,
-  id,
 }: {
   data: { name: string; value: number; color: string }[];
   centerLabel?: string;
@@ -195,7 +198,6 @@ function MiniDonutChart({
   size?: number;
   innerRadius?: number;
   outerRadius?: number;
-  id: string;
 }) {
   const hasData = data.some((d) => d.value > 0);
   if (!hasData) {
@@ -212,52 +214,17 @@ function MiniDonutChart({
     <div className="relative" style={{ width: size, height: size }}>
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
-          <defs>
-            {data.map((entry, idx) => (
-              <linearGradient
-                key={`donut-${id}-${idx}`}
-                id={`donut-${id}-${idx}`}
-                x1="0"
-                y1="0"
-                x2="1"
-                y2="1"
-              >
-                <stop offset="0%" stopColor={entry.color} stopOpacity={1} />
-                <stop offset="100%" stopColor={entry.color} stopOpacity={0.7} />
-              </linearGradient>
-            ))}
-            <filter
-              id={`donut-shadow-${id}`}
-              x="-20%"
-              y="-20%"
-              width="140%"
-              height="140%"
-            >
-              <feDropShadow
-                dx="0"
-                dy="1"
-                stdDeviation="2"
-                floodOpacity="0.12"
-              />
-            </filter>
-          </defs>
           <Pie
             data={data}
             cx="50%"
             cy="50%"
-            innerRadius={innerRadius}
-            outerRadius={outerRadius}
-            paddingAngle={3}
+            {...vozRing(outerRadius, innerRadius)}
             dataKey="value"
-            cornerRadius={4}
-            stroke="#fff"
-            strokeWidth={2}
-            filter={`url(#donut-shadow-${id})`}
             animationBegin={0}
             animationDuration={800}
           >
-            {data.map((_entry, idx) => (
-              <Cell key={`cell-${idx}`} fill={`url(#donut-${id}-${idx})`} />
+            {data.map((entry, idx) => (
+              <Cell key={`cell-${idx}`} fill={entry.color} />
             ))}
           </Pie>
           <RechartsTooltip content={<MonitorChartTooltip />} />
@@ -265,7 +232,7 @@ function MiniDonutChart({
       </ResponsiveContainer>
       {centerLabel && (
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-lg font-semibold text-foreground leading-none">
+          <span className="font-display text-lg font-semibold text-foreground leading-none">
             {centerLabel}
           </span>
           {centerSublabel && (
@@ -463,31 +430,31 @@ function StatusGraphPanel({
         {
           label: tStatus("pending"),
           value: m.pending,
-          color: "#64748b",
+          color: STAGE_COLORS.pending,
           active: false,
         },
         {
           label: tStatus("sent"),
           value: m.sent,
-          color: "#3b82f6",
+          color: STAGE_COLORS.sent,
           active: false,
         },
         {
           label: tStatus("delivered"),
           value: m.delivered,
-          color: "#10b981",
+          color: STAGE_COLORS.delivered,
           active: false,
         },
         {
           label: tStatus("read"),
           value: m.read,
-          color: "#8b5cf6",
+          color: STAGE_COLORS.read,
           active: false,
         },
         {
           label: tStatus("failed"),
           value: m.failed,
-          color: "#ef4444",
+          color: STAGE_COLORS.failed,
           active: false,
         },
       ];
@@ -537,9 +504,8 @@ function StatusGraphPanel({
             centerLabel={totalNumbers.toLocaleString()}
             centerSublabel={t("total")}
             size={160}
-            innerRadius={48}
+            innerRadius={60}
             outerRadius={72}
-            id="status-dist"
           />
         </div>
 
@@ -572,7 +538,7 @@ function StatusGraphPanel({
             <p className="text-2xs text-muted-foreground font-semibold">
               {t("rate")}
             </p>
-            <p className="text-lg font-semibold text-healthy-ink">
+            <p className="font-display text-lg font-semibold text-healthy-ink">
               {completionRate.toFixed(1)}%
             </p>
           </div>
@@ -921,17 +887,17 @@ function AnalysisStatsPanelMonitor({
       {
         name: tSentiment("positive"),
         value: analysisStats.sentimentPositive,
-        color: "#10b981",
+        color: "hsl(var(--healthy))",
       },
       {
         name: tSentiment("neutral"),
         value: analysisStats.sentimentNeutral,
-        color: "#94a3b8",
+        color: "hsl(var(--muted-foreground))",
       },
       {
         name: tSentiment("negative"),
         value: analysisStats.sentimentNegative,
-        color: "#ef4444",
+        color: "hsl(var(--destructive))",
       },
     ];
   }, [analysisStats, tSentiment]);
@@ -942,17 +908,17 @@ function AnalysisStatsPanelMonitor({
       {
         name: tQual("hotLead"),
         value: analysisStats.qualificationHotLead,
-        color: "#ef4444",
+        color: "hsl(var(--destructive))",
       },
       {
         name: tQual("warmLead"),
         value: analysisStats.qualificationWarmLead,
-        color: "#f59e0b",
+        color: "hsl(var(--warning))",
       },
       {
         name: tQual("coldLead"),
         value: analysisStats.qualificationColdLead,
-        color: "#64748b",
+        color: "hsl(var(--muted-foreground))",
       },
     ];
   }, [analysisStats, tQual]);
@@ -963,17 +929,17 @@ function AnalysisStatsPanelMonitor({
       {
         name: tInterest("interested"),
         value: analysisStats.interestInterested,
-        color: "#10b981",
+        color: "hsl(var(--healthy))",
       },
       {
         name: tInterest("undecided"),
         value: analysisStats.interestUndecided,
-        color: "#f59e0b",
+        color: "hsl(var(--warning))",
       },
       {
         name: tInterest("notInterested"),
         value: analysisStats.interestNotInterested,
-        color: "#ef4444",
+        color: "hsl(var(--destructive))",
       },
     ];
   }, [analysisStats, tInterest]);
@@ -983,14 +949,11 @@ function AnalysisStatsPanelMonitor({
 
   const qualityValue = analysisStats?.avgAttendanceQuality ?? 0;
   const qualityColor =
-    qualityValue >= 70 ? "#10b981" : qualityValue >= 40 ? "#f59e0b" : "#ef4444";
-  const qualityGaugeData = useMemo(
-    () => [
-      { name: t("quality"), value: qualityValue, color: qualityColor },
-      { name: "", value: Math.max(100 - qualityValue, 0), color: "#f1f5f9" },
-    ],
-    [qualityValue, qualityColor, t],
-  );
+    qualityValue >= 70
+      ? "hsl(var(--healthy))"
+      : qualityValue >= 40
+        ? "hsl(var(--warning))"
+        : "hsl(var(--destructive))";
 
   return (
     <div className="flex flex-col h-full bg-card overflow-hidden">
@@ -1025,63 +988,19 @@ function AnalysisStatsPanelMonitor({
           <div className="px-4 py-3 space-y-4">
             {/* Quality Gauge + Messages */}
             <div className="flex items-center gap-3">
-              <div className="relative" style={{ width: 100, height: 100 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <defs>
-                      <linearGradient
-                        id="gauge-quality-fill"
-                        x1="0"
-                        y1="0"
-                        x2="1"
-                        y2="1"
-                      >
-                        <stop
-                          offset="0%"
-                          stopColor={qualityColor}
-                          stopOpacity={1}
-                        />
-                        <stop
-                          offset="100%"
-                          stopColor={qualityColor}
-                          stopOpacity={0.65}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <Pie
-                      data={qualityGaugeData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={30}
-                      outerRadius={44}
-                      startAngle={225}
-                      endAngle={-45}
-                      paddingAngle={0}
-                      dataKey="value"
-                      cornerRadius={6}
-                      stroke="none"
-                      animationDuration={1000}
-                    >
-                      <Cell fill="url(#gauge-quality-fill)" />
-                      <Cell fill="#f1f5f9" />
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-lg font-semibold text-foreground leading-none">
-                    {qualityValue.toFixed(0)}%
-                  </span>
-                  <span className="text-2xs font-semibold text-muted-foreground">
-                    {t("quality")}
-                  </span>
-                </div>
-              </div>
+              <RadialGauge
+                value={qualityValue}
+                color={qualityColor}
+                label={t("quality")}
+                size={120}
+                strokeWidth={10}
+              />
               <div className="flex-1 space-y-2">
                 <div className="p-2.5 rounded-[--radius] bg-card border border-border">
                   <p className="text-2xs text-muted-foreground font-semibold">
                     {t("messages")}
                   </p>
-                  <p className="text-xl font-semibold text-foreground">
+                  <p className="font-display text-xl font-semibold text-foreground">
                     {analysisStats.totalMessages.toLocaleString()}
                   </p>
                 </div>
@@ -1089,7 +1008,7 @@ function AnalysisStatsPanelMonitor({
                   <p className="text-2xs text-muted-foreground font-semibold">
                     {t("msgsPerAnalysis")}
                   </p>
-                  <p className="text-lg font-semibold text-foreground">
+                  <p className="font-display text-lg font-semibold text-foreground">
                     {analysisStats.avgMessagesPerAnalysis.toFixed(1)}
                   </p>
                 </div>
@@ -1107,9 +1026,8 @@ function AnalysisStatsPanelMonitor({
                   centerLabel={String(totalSentiment)}
                   centerSublabel="total"
                   size={110}
-                  innerRadius={30}
+                  innerRadius={34}
                   outerRadius={46}
-                  id="sentiment"
                 />
                 <div className="flex-1 space-y-1.5">
                   {sentimentData.map((d) => (
@@ -1141,9 +1059,8 @@ function AnalysisStatsPanelMonitor({
                   centerLabel={String(totalQual)}
                   centerSublabel="total"
                   size={110}
-                  innerRadius={30}
+                  innerRadius={34}
                   outerRadius={46}
-                  id="qualification"
                 />
                 <div className="flex-1 space-y-1.5">
                   {qualificationData.map((d) => (
@@ -1177,7 +1094,7 @@ function AnalysisStatsPanelMonitor({
                     whileHover={{ scale: 1.03 }}
                   >
                     <span
-                      className="text-lg font-semibold"
+                      className="font-display text-lg font-semibold"
                       style={{ color: d.color }}
                     >
                       {d.value}
@@ -1275,9 +1192,9 @@ function AttendanceInsightsPanel({
   const statusPie = useMemo(() => {
     if (!status) return [];
     return [
-      { name: "Concluídas", value: status.finished, color: "#22c55e" },
-      { name: "Em andamento", value: status.ongoing, color: "#2463eb" },
-      { name: "Aguardando", value: status.pending, color: "#f59e0b" },
+      { name: "Concluídas", value: status.finished, color: "hsl(var(--healthy))" },
+      { name: "Em andamento", value: status.ongoing, color: "hsl(var(--info))" },
+      { name: "Aguardando", value: status.pending, color: "hsl(var(--warning))" },
     ].filter((r) => r.value > 0);
   }, [status]);
 
@@ -1376,15 +1293,29 @@ function AttendanceInsightsPanel({
                           nameKey="name"
                           cx="50%"
                           cy="50%"
-                          innerRadius={30}
-                          outerRadius={48}
-                          paddingAngle={2}
+                          {...vozRing(48, 36)}
                         >
                           {statusPie.map((d) => (
                             <Cell key={d.name} fill={d.color} />
                           ))}
                         </Pie>
-                        <RechartsTooltip />
+                        <RechartsTooltip
+                          cursor={false}
+                          content={({ active, payload }) => {
+                            if (!active || !payload?.length) return null;
+                            const p = payload[0];
+                            return (
+                              <div className="rounded-lg border border-border bg-popover px-2.5 py-1.5 text-xs shadow-md">
+                                <span className="text-muted-foreground">
+                                  {String(p.name)}:{" "}
+                                </span>
+                                <span className="readout font-semibold text-popover-foreground">
+                                  {fmtMonNum(Number(p.value))}
+                                </span>
+                              </div>
+                            );
+                          }}
+                        />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>

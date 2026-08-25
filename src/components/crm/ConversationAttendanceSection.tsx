@@ -749,12 +749,12 @@ export default function ConversationAttendanceSection({
                           <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-2xs text-muted-foreground">
                             <span
                               className={cn(
-                                "inline-flex rounded-full px-1.5 py-px font-semibold text-white",
+                                "inline-flex rounded-full px-1.5 py-px font-semibold",
                                 kind === "ai"
-                                  ? "bg-warning"
+                                  ? "bg-warning text-warning-foreground"
                                   : kind === "system"
-                                    ? "bg-muted"
-                                    : "bg-primary",
+                                    ? "bg-muted text-muted-foreground"
+                                    : "bg-primary text-primary-foreground",
                               )}
                             >
                               {kind === "ai"
@@ -834,12 +834,12 @@ export function AttendanceOwnerBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-2xs font-semibold text-white",
+        "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-2xs font-semibold",
         isAi
-          ? "bg-warning"
+          ? "bg-warning text-warning-foreground"
           : kind === "unassigned"
-            ? "bg-muted"
-            : "bg-primary",
+            ? "bg-muted text-muted-foreground"
+            : "bg-primary text-primary-foreground",
         className,
       )}
     >

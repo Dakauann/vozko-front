@@ -169,7 +169,7 @@ export default function UsersPage() {
                 alt={user.username}
                 width={40}
                 height={40}
-                className="h-10 w-10 rounded-full object-cover ring-2 ring-slate-100"
+                className="h-10 w-10 rounded-full object-cover ring-2 ring-border"
               />
             ) : (
               <div className="flex h-10 w-10 items-center justify-center rounded-full tile-brand">

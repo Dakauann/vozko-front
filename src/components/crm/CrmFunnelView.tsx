@@ -496,7 +496,7 @@ function FunnelColumn({
       {/* Load More / Loading indicator */}
       {isLoading && (
         <div className="flex items-center justify-center py-2">
-          <div className="h-4 w-4 animate-spin rounded-full border border-foreground/20 border-t-emerald-500" />
+          <div className="h-4 w-4 animate-spin rounded-full border border-foreground/20 border-t-primary" />
         </div>
       )}
       {/* Sentinel for infinite scroll */}
@@ -1162,7 +1162,7 @@ export default function CrmFunnelView({
                       {/* Loading indicator for unstaged column */}
                       {loadingFunnelColumn === "__unstaged__" && (
                         <div className="flex items-center justify-center py-2">
-                          <div className="h-4 w-4 animate-spin rounded-full border border-foreground/20 border-t-emerald-500" />
+                          <div className="h-4 w-4 animate-spin rounded-full border border-foreground/20 border-t-primary" />
                         </div>
                       )}
 

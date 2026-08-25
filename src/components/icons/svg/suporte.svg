@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Suporte">
+  <title>Suporte</title>
+  <path d="M4.75 13.5v-1.75a7.25 7.25 0 0 1 14.5 0v1.75"/>
+  <rect stroke="var(--icon-accent, currentColor)" x="2.5" y="12" width="4.6" height="6.6" rx="2.3"/>
+  <rect stroke="var(--icon-accent, currentColor)" x="16.9" y="12" width="4.6" height="6.6" rx="2.3"/>
+  <path d="M19.2 18.6v.65a2.5 2.5 0 0 1-2.5 2.5H13.5"/>
+</svg>

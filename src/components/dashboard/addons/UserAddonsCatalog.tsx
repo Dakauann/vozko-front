@@ -45,7 +45,6 @@ import type {
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { useToast } from "@/hooks/use-toast";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -291,7 +290,7 @@ export default function UserAddonsCatalog() {
         addonUnits: ent.addonUnits,
       }),
       tile: KIND_TILE[ent.kind],
-      glyph: <KindGlyph kind={ent.kind} className="h-4 w-4 text-white" />,
+      glyph: <KindGlyph kind={ent.kind} className="h-4 w-4" />,
     })),
     {
       key: "active",
@@ -299,18 +298,13 @@ export default function UserAddonsCatalog() {
       value: String(activeCount),
       helper: t("stats.subscriptionCount", { count: activeCount }),
       tile: "tile-warning",
-      glyph: <PuzzlePiece className="h-4 w-4 text-white" weight="fill" />,
+      glyph: <PuzzlePiece className="h-4 w-4" weight="fill" />,
     },
   ];
 
   return (
     <>
-      <motion.main
-        animate={{ opacity: 1 }}
-        className="w-full space-y-4"
-        initial={{ opacity: 0 }}
-        transition={{ duration: 0.4 }}
-      >
+      <main className="w-full space-y-4">
         <DashboardPageHeader
           icon={<PuzzlePiece className="h-6 w-6" weight="fill" />}
           badge={t("header.badge")}
@@ -338,7 +332,7 @@ export default function UserAddonsCatalog() {
                   <p className="text-2xs font-semibold text-muted-foreground">
                     {stat.label}
                   </p>
-                  <p className="mt-2 truncate text-2xl font-semibold text-foreground">
+                  <p className="mt-2 truncate font-display text-2xl font-semibold text-foreground">
                     {stat.value}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">{stat.helper}</p>
@@ -362,7 +356,7 @@ export default function UserAddonsCatalog() {
               <p className="text-sm font-semibold text-foreground">{t("catalog.title")}</p>
               <p className="text-xs text-muted-foreground">{t("catalog.subtitle")}</p>
             </div>
-            <div className="inline-flex rounded-full border border-border bg-background p-1">
+            <div className="inline-flex rounded-lg border border-border bg-background p-1">
               {(["monthly", "annual"] as AddonBillingCycle[]).map((c) => (
                 <button
                   key={c}
@@ -417,7 +411,7 @@ export default function UserAddonsCatalog() {
                   )}
                   <div className="mt-4 flex items-end justify-between gap-2">
                     <div>
-                      <span className="text-xl font-semibold text-foreground">
+                      <span className="font-display text-xl font-semibold text-foreground">
                         {formatBRL(priceMicros(addon, cycle), rate)}
                       </span>
                       <span className="ml-1 text-2xs text-muted-foreground">
@@ -482,7 +476,7 @@ export default function UserAddonsCatalog() {
             </div>
           </section>
         )}
-      </motion.main>
+      </main>
 
       <ElevatedDialog open={selected != null} onOpenChange={(o) => !o && setSelected(null)}>
         <ElevatedDialogContent className="max-w-md">
@@ -538,7 +532,7 @@ export default function UserAddonsCatalog() {
               <div className="space-y-2 rounded-[--radius] border border-border bg-background p-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-foreground">{t("purchase.payNow")}</span>
-                  <span className="text-lg font-semibold text-primary-ink tabular-nums">
+                  <span className="font-display text-lg font-semibold text-primary-ink tabular-nums">
                     {previewLoading || !preview
                       ? formatBRL(selectedUnit * quantity, rate)
                       : formatBRL(preview.chargeNowMicros, rate)}

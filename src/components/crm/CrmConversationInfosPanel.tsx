@@ -480,15 +480,13 @@ export default function CrmConversationInfosPanel({
                   )}
                 </InfoRow>
 
+                {/* Stage and label chips: one neutral ground, the colour in
+                    the DOT. These carried a 10% wash of an arbitrary user-
+                    picked colour with the same colour as 11px text — contrast
+                    unknowable by construction, and the exact banned pattern. */}
                 {stage && (
                   <InfoRow label={t("stage")}>
-                    <span
-                      className="inline-flex items-center gap-1.5 rounded-[--radius] px-2 py-0.5 text-2xs font-medium"
-                      style={{
-                        backgroundColor: `${stage.color}1a`,
-                        color: stage.color,
-                      }}
-                    >
+                    <span className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-muted px-2 py-0.5 text-2xs font-medium text-foreground">
                       <span
                         className="h-1.5 w-1.5 rounded-full"
                         style={{ backgroundColor: stage.color }}
@@ -504,12 +502,12 @@ export default function CrmConversationInfosPanel({
                       {labels.map((label) => (
                         <span
                           key={label.label_id}
-                          className="inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-2xs font-medium"
-                          style={{
-                            backgroundColor: `${label.color}1a`,
-                            color: label.color,
-                          }}
+                          className="inline-flex items-center gap-1 rounded-[--radius] border border-border bg-muted px-2 py-0.5 text-2xs font-medium text-foreground"
                         >
+                          <span
+                            className="h-1.5 w-1.5 shrink-0 rounded-full"
+                            style={{ backgroundColor: label.color }}
+                          />
                           {label.name}
                         </span>
                       ))}
@@ -590,9 +588,12 @@ export default function CrmConversationInfosPanel({
 
                 <div>
                   <div className="mb-2 flex items-center gap-1.5">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary">
-                      <TrendUp weight="bold" className="h-3 w-3 text-white" />
-                    </span>
+                    {/* No accent plate behind a section glyph: accent means
+                        commit/selection, and this is a heading. */}
+                    <TrendUp
+                      weight="bold"
+                      className="h-3.5 w-3.5 text-primary-ink"
+                    />
                     <h4 className="text-xs font-semibold text-foreground">
                       {t("opportunities")}
                     </h4>

@@ -10,17 +10,23 @@ export default {
 	theme: {
 		extend: {
 			/*
-				Inter. Neither reference face is licensable for the web — one is
-				a system font, the other is proprietary — and Inter is the
-				closest honest stand-in for both: it is the register one of them
-				actually ships its dashboard in, and a clean substitute for the
-				other. It replaces a squarer, more mechanical grotesque that was
-				chosen to serve the retired panel identity and carried a lot of
-				its dated character.
+				Two faces, two jobs — the board's own pairing.
 
-				Segoe UI stays high in the stack, not as a fallback formality:
-				on the Windows machines a large share of these operators use, it
-				is the native face of the system this design borrows from.
+				Inter carries everything an operator reads at length: body,
+				tables, controls, nav. It survives the rebrand untouched
+				because the board itself specifies "INTER / REGULAR" for
+				texts and information.
+
+				Oxanium is the display voice — the board's squared techno
+				wordmark register ("Títulos / Destaques"), chosen over
+				Orbitron (the board's literal face) because Orbitron ships no
+				latin-ext subset and one style axis, and this product sets
+				titles in pt-BR, de and es. Oxanium is the closest
+				squared-corner face that is production-safe for all four
+				locales, with a real variable weight range. It is spent on
+				page titles, KPI numerals and brand moments ONLY — a techno
+				face at 14px in a queue an attendant reads for a shift is a
+				legibility tax, so body and controls never take it.
 			*/
 			fontFamily: {
 				sans: [
@@ -33,6 +39,13 @@ export default {
 					'Roboto',
 					'Helvetica',
 					'Arial',
+					'sans-serif',
+				],
+				display: [
+					'var(--font-oxanium)',
+					'var(--font-inter)',
+					'ui-sans-serif',
+					'system-ui',
 					'sans-serif',
 				],
 			},
@@ -96,6 +109,10 @@ export default {
 				/* Accent TEXT that clears AA on a white sheet. --primary is a
 				   fill colour and is not safe at body size. */
 				'primary-ink': 'hsl(var(--primary-ink))',
+				/* The trace-line/dot-matrix ornament colour — deeper than the
+				   brand fill in light so it survives alpha over white, the
+				   board hex in dark. */
+				ornament: 'hsl(var(--ornament) / <alpha-value>)',
 				/* The tinted ground under a selected row or a soft badge. */
 				'primary-subtle': {
 					DEFAULT: 'hsl(var(--primary-subtle))',
@@ -186,7 +203,7 @@ export default {
 				lg: 'var(--elev-4)',
 				xl: 'var(--elev-5)',
 				'2xl': 'var(--elev-6)',
-				inner: 'inset 0 1px 2px 0 hsl(228 40% 28% / 0.08)',
+				inner: 'inset 0 1px 2px 0 hsl(206 30% 22% / 0.08)',
 				/* Named steps for the two controls that own their own depth. */
 				button: 'var(--elev-button)',
 				'button-hover': 'var(--elev-button-hover)',
@@ -203,11 +220,13 @@ export default {
 				button, a card and a modal is not a system, it is the absence of
 				one.
 
-				So the steps are given real, distinct values in the range both
-				reference systems work in: 4px on the smallest chips, 6px on
-				controls, 8px on surfaces, 10-16px on the large containers and
-				overlays. Every existing call site lands somewhere sensible on
-				that ramp without being touched.
+				The ramp is tuned to the Vozko board's register: 6px is THE
+				control corner (buttons, fields, chips — the board's buttons
+				sit visibly rounder than the Fluent 4px this replaces), 8px on
+				panels and bubbles, 10-16px on the large containers and
+				overlays. Still a real ramp — a checkbox and a modal never
+				share a value — and still far from pill. Every existing call
+				site lands somewhere sensible without being touched.
 
 				`full` is kept for things that are genuinely circular — avatars,
 				status dots, spinners, switch and checkbox thumbs, and the

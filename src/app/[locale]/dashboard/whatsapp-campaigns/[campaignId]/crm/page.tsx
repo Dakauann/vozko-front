@@ -83,7 +83,7 @@ export default function WhatsAppCampaignCrmPage({ params }: CrmPageProps) {
         </p>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">
+            <h1 className="font-display text-2xl font-semibold tracking-[0.01em] text-foreground">
               {campaign.name}, {t("header.title")}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">

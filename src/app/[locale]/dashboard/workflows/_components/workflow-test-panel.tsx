@@ -76,8 +76,39 @@ export function WorkflowTestPanel({
     .reverse()
     .find((e): e is Extract<SimEvent, { type: "state" }> => e.type === "state");
 
+  // ESC closes the dialog, unless another layer (an open select/dropdown)
+  // already handled the key.
+  useEffect(() => {
+    const handleKeyDown = (e: globalThis.KeyboardEvent) => {
+      if (e.key !== "Escape" || e.defaultPrevented) return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target?.closest(
+          '[data-radix-popper-content-wrapper], [role="listbox"], [role="menu"], [aria-expanded="true"]',
+        )
+      ) {
+        return;
+      }
+      onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   return (
-    <div className="w-80 border-l border-border bg-card flex flex-col h-full flex-shrink-0">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center">
+      {/* Scrim, dims the canvas behind the dialog and closes on click */}
+      <div
+        className="absolute inset-0 bg-black/50"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Simulação"
+        className="relative w-[min(720px,92vw)] h-[min(84vh,820px)] rounded-2xl border border-border bg-card shadow-2xl overflow-hidden flex flex-col"
+      >
       {/* ─── Header ──────────────────────────────────────── */}
       <div className="flex items-center justify-between px-3 py-2.5 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2">
@@ -221,6 +252,7 @@ export function WorkflowTestPanel({
             className="flex-1 text-destructive-ink border-border hover:bg-muted"
           />
         )}
+      </div>
       </div>
     </div>
   );

@@ -34,7 +34,6 @@ import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
@@ -144,12 +143,7 @@ export default function TelegramAccountPage() {
   const issue = telegramAccountIssue(account);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="w-full space-y-6"
-    >
+    <div className="w-full space-y-6">
       <DashboardPageHeader
         badge={account.displayName}
         description={t("profile.description")}
@@ -317,7 +311,7 @@ export default function TelegramAccountPage() {
           </ul>
         )}
       </ElevatedContainer>
-    </motion.div>
+    </div>
   );
 }
 

@@ -64,6 +64,11 @@ const buttonVariants = cva(
         ),
         ghost:
           "text-muted-foreground hover:bg-muted hover:text-foreground active:bg-[hsl(var(--accent-hover))]",
+        // The board's "Botão de Texto": accent ink, no box. Ink, not fill —
+        // the fill value is tuned for a label to sit ON it, the ink for text
+        // on a sheet. Underline arrives on hover so a row of these doesn't
+        // read as a paragraph of links.
+        link: "text-primary-ink underline-offset-4 hover:underline active:text-primary-active",
       },
       size: {
         // 28 / 32 / 40 — the three heights both references ship.

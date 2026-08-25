@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Notificações">
+  <title>Notificações</title>
+  <path d="M18 9.75a6 6 0 1 0-12 0c0 5.25-2.25 6.9-2.25 6.9h16.5S18 15 18 9.75Z"/>
+  <path d="M13.9 19.75a2.2 2.2 0 0 1-3.8 0"/>
+  <circle fill="var(--icon-accent, currentColor)" stroke="none" cx="18.1" cy="5.6" r="2.8"/>
+</svg>

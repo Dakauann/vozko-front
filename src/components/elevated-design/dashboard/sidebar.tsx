@@ -9,14 +9,12 @@ import {
   Buildings,
   Check,
   CaretDown,
-  CaretLineLeft,
   ChatCircle,
   PlusCircle,
   ClipboardText,
   DeviceMobile,
   Files,
   SquaresFour,
-  List as ListIcon,
   Sparkle,
   Package,
   Phone,
@@ -68,7 +66,6 @@ type NavIcon = Icon | ComponentType<IconProps>;
 
 import { Link, usePathname } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
-import { BrandLogo } from "@/components/brand-logo";
 import { useAuth } from "@/contexts/auth-context";
 import {
   SPINE_WIDTH_OPEN,
@@ -806,10 +803,12 @@ function ProductSwitcher({
   }, [isOpen]);
 
   /** The spine is overflow-hidden; the menu has to live outside it. */
+  const menuRef = React.useRef<HTMLDivElement>(null);
   const renderMenu = (body: React.ReactNode) =>
     typeof document !== "undefined" && isOpen && menuPos
       ? createPortal(
           <div
+            ref={menuRef}
             style={{
               position: "fixed",
               top: menuPos.top,
@@ -826,9 +825,15 @@ function ProductSwitcher({
 
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      // The menu is PORTALED to document.body, so it is never inside
+      // dropdownRef — it must be checked separately or this mousedown
+      // handler unmounts the menu before a row's click can fire, which is
+      // exactly the bug that made product rows unclickable.
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        !dropdownRef.current.contains(target) &&
+        !(menuRef.current && menuRef.current.contains(target))
       ) {
         setIsOpen(false);
       }
@@ -1404,19 +1409,20 @@ export function DashboardSidebar({
   const { can, canAny } = useWorkspace();
   const isAdmin = user?.role === "admin";
 
-  const { isCollapsed, toggleCollapsed } = useSidebar();
+  const { isCollapsed, isMobileOpen, setMobileOpen } = useSidebar();
 
   // Open unless the operator collapsed it. Hover no longer expands anything:
   // navigation that appears on approach cannot be scanned, only hunted, and
-  // this spine is read continuously for a whole shift.
+  // this rail is read continuously for a whole shift. The collapse control is
+  // the app bar's hamburger; the drawer state lives in the sidebar context so
+  // the same hamburger opens it below md.
   const isExpanded = !isCollapsed;
-  const [isMobileOpen, setIsMobileOpen] = React.useState(false);
 
   // Soft navigation must close the mobile drawer; otherwise the veil and drawer
   // panel stay painted over the next route (reported as a blackout).
   React.useEffect(() => {
-    setIsMobileOpen(false);
-  }, [pathname]);
+    setMobileOpen(false);
+  }, [pathname, setMobileOpen]);
 
   const visibleProducts = React.useMemo(() => {
     return products.filter((p) => {
@@ -1476,38 +1482,9 @@ export function DashboardSidebar({
     setCurrentProduct(product);
   };
 
-  /**
-   * The spine head: brand, then the workspace this whole spine is scoped to.
-   *
-   * The workspace selector lives HERE rather than in the header bar because it
-   * scopes everything below it — every nav row, every count, every permission.
-   * Sitting above the nav it governs, it reads as the label on the desk you are
-   * sitting at. The department switcher stays in the header bar, because that
-   * filters the current view rather than scoping the app.
-   */
-  const SpineHead = (
-    <div className="flex-shrink-0 border-b border-border">
-      <div
-        className={cn(
-          "flex h-12 items-center",
-          isExpanded ? "px-3" : "justify-center px-1",
-        )}
-      >
-        <Link
-          href="/dashboard"
-          className="flex min-w-0 max-w-full items-center rounded-[--radius] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <BrandLogo size="sm" square={!isExpanded} />
-        </Link>
-      </div>
-      {isExpanded && (
-        <div className="border-t border-border px-2 py-2">
-          <WorkspaceSwitcher fullWidth />
-        </div>
-      )}
-    </div>
-  );
-
+  // No head anymore: brand and workspace moved into the full-width app bar,
+  // which owns the corner in the Azure topology. The rail starts below the bar
+  // and opens directly with the product switcher and the nav.
   const renderSidebarContent = (mobile = false) => (
     <>
       <div
@@ -1569,33 +1546,9 @@ export function DashboardSidebar({
 
   const MobileSidebar = (
     <div className="md:hidden">
-      {/* Collapsed edge tab (same language as PersistentDialer): slim, out of the way. */}
-      {!isMobileOpen ? (
-        <button
-          type="button"
-          onClick={() => setIsMobileOpen(true)}
-          aria-label={t("openMenu")}
-          className={cn(
-            "fixed left-0 top-1/2 z-50 -translate-y-1/2",
-            "flex flex-col items-center justify-center gap-2 px-1.5 py-3",
-            "border border-l-0 border-border bg-card shadow-lg",
-            "rounded-r-[--radius] transition-colors hover:bg-muted",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-          )}
-        >
-          <ListIcon
-            className="h-3.5 w-3.5 text-muted-foreground"
-            weight="bold"
-          />
-          <span
-            className="legend"
-            style={{ writingMode: "vertical-rl", textOrientation: "mixed" }}
-          >
-            {t("panel")}
-          </span>
-        </button>
-      ) : null}
-
+      {/* The drawer opens from the app bar's hamburger — the same affordance
+          that collapses the rail on desktop. The old mid-screen edge tab is
+          gone: its function relocated to the bar, its floating chrome retired. */}
       <AnimatePresence>
         {isMobileOpen && (
           <>
@@ -1605,7 +1558,7 @@ export function DashboardSidebar({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.12 }}
-              onClick={() => setIsMobileOpen(false)}
+              onClick={() => setMobileOpen(false)}
             />
 
             <motion.div
@@ -1613,7 +1566,7 @@ export function DashboardSidebar({
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="fixed inset-y-0 left-0 z-50 flex w-[min(288px,88vw)] flex-col border-r border-border bg-card shadow-2xl"
+              className="fixed inset-y-0 left-0 z-50 flex w-[min(288px,88vw)] flex-col border-r border-sidebar-border bg-sidebar shadow-2xl"
               role="dialog"
               aria-modal="true"
               aria-label={t("openMenu")}
@@ -1624,7 +1577,7 @@ export function DashboardSidebar({
                 </span>
                 <button
                   type="button"
-                  onClick={() => setIsMobileOpen(false)}
+                  onClick={() => setMobileOpen(false)}
                   className="flex h-8 w-8 items-center justify-center rounded-[--radius] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                   aria-label={t("closeMenu")}
                 >
@@ -1650,10 +1603,10 @@ export function DashboardSidebar({
       {MobileSidebar}
 
       {/*
-        The spine runs floor to ceiling and owns the top-left corner; the header
-        bar starts to its right. That inversion — the previous shell had a
-        full-width bar on top of a shorter rail — is most of what makes this
-        shell read as a different product before a single colour is judged.
+        The rail starts BELOW the full-width app bar — the Azure topology. The
+        bar owns the corner and carries brand + workspace; the rail carries
+        only navigation, so it opens directly with the product switcher. Its
+        collapse control is the bar's hamburger, so the rail needs no footer.
       */}
       <motion.aside
         initial={false}
@@ -1661,38 +1614,13 @@ export function DashboardSidebar({
         transition={{ duration: 0.16, ease: [0.2, 0, 0, 1] }}
         suppressHydrationWarning
         className={cn(
-          "fixed inset-y-0 left-0 z-40 hidden h-screen flex-shrink-0",
-          "overflow-hidden border-r border-border bg-card md:flex",
+          "fixed bottom-0 left-0 top-12 z-30 hidden flex-shrink-0",
+          "overflow-hidden border-r border-sidebar-border bg-sidebar md:flex",
           className,
         )}
       >
         <div className="flex h-full w-full flex-col">
-          {SpineHead}
           {renderSidebarContent()}
-
-          <div className="flex-shrink-0 border-t border-border p-1.5">
-            <button
-              onClick={toggleCollapsed}
-              aria-label={isExpanded ? t("collapse") : t("expand")}
-              title={isExpanded ? t("collapse") : t("expand")}
-              className={cn(
-                "flex h-8 w-full items-center gap-2 rounded-[--radius] px-2 text-sm",
-                "text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
-                !isExpanded && "justify-center px-0",
-              )}
-            >
-              <CaretLineLeft
-                className={cn(
-                  "h-4 w-4 flex-shrink-0 transition-transform",
-                  !isExpanded && "rotate-180",
-                )}
-                weight="bold"
-              />
-              {isExpanded && (
-                <span className="truncate">{t("collapse")}</span>
-              )}
-            </button>
-          </div>
         </div>
       </motion.aside>
     </>

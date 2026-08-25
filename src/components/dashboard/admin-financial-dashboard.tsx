@@ -19,6 +19,14 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import {
+  VozAreaGradient,
+  vozGrid,
+  vozLineMark,
+  vozRing,
+  vozXAxis,
+  vozYAxis,
+} from "@/components/charts/vozko";
+import {
   getAdminOverviewAction,
   getPlanContractionsAction,
   getProfitReportAction,
@@ -49,7 +57,6 @@ import {
   Users,
 } from "@/components/icons";
 import { endOfDay, format, startOfDay, subDays } from "date-fns";
-import { motion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
@@ -79,23 +86,6 @@ type WorkspaceSortKey =
 
 const SEARCH_DEBOUNCE_MS = 300;
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 16 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.35, ease: "easeOut" as const },
-  },
-};
-
 const SORT_OPTIONS: Array<{ key: WorkspaceSortKey; label: string }> = [
   { key: "revenue", label: "Maior gasto" },
   { key: "profit", label: "Maior lucro" },
@@ -120,13 +110,15 @@ const SERVICE_LABELS: Record<string, string> = {
   top_up: "Recarga",
 };
 
+// Validated series tokens, entity-stable in both themes (same mapping the
+// admin metrics dashboard uses: WhatsApp --chart-1, AI --chart-5, calls --chart-4…).
 const SERVICE_COLORS: Record<string, string> = {
-  whatsapp_campaign: "#22c55e",
-  voice_campaign: "#8b5cf6",
-  voice_call: "#3b82f6",
-  ai: "#ec4899",
-  manual_adjustment: "#64748b",
-  top_up: "#06b6d4",
+  whatsapp_campaign: "hsl(var(--chart-1))",
+  voice_campaign: "hsl(var(--chart-5) / 0.7)",
+  voice_call: "hsl(var(--chart-4))",
+  ai: "hsl(var(--chart-5))",
+  manual_adjustment: "hsl(var(--muted-foreground))",
+  top_up: "hsl(var(--chart-3))",
 };
 
 const BILLING_CYCLE_LABELS: Record<string, string> = {
@@ -155,7 +147,13 @@ function billingCycleLabel(key: string) {
 }
 
 function serviceColor(key: string, index: number) {
-  const fallback = ["#6366f1", "#f97316", "#14b8a6", "#e11d48", "#a855f7"];
+  const fallback = [
+    "hsl(var(--chart-2))",
+    "hsl(var(--chart-3))",
+    "hsl(var(--chart-1))",
+    "hsl(var(--chart-5))",
+    "hsl(var(--chart-4))",
+  ];
   return SERVICE_COLORS[key] ?? fallback[index % fallback.length];
 }
 
@@ -476,9 +474,9 @@ export default function AdminFinancialDashboard() {
 
   const profitChartConfig = useMemo<ChartConfig>(
     () => ({
-      receita: { label: "Receita", color: "#16a34a" },
-      custo: { label: "Custo", color: "#ef4444" },
-      lucro: { label: "Lucro", color: "#3b82f6" },
+      receita: { label: "Receita", color: "hsl(var(--healthy))" },
+      custo: { label: "Custo", color: "hsl(var(--destructive))" },
+      lucro: { label: "Lucro", color: "hsl(var(--chart-2))" },
     }),
     [],
   );
@@ -542,7 +540,9 @@ export default function AdminFinancialDashboard() {
   }, [granularity, planContractions]);
 
   const contractionsChartConfig = useMemo<ChartConfig>(
-    () => ({ contratacoes: { label: "Contratações", color: "#2463eb" } }),
+    () => ({
+      contratacoes: { label: "Contratações", color: "hsl(var(--chart-2))" },
+    }),
     [],
   );
 
@@ -731,14 +731,9 @@ export default function AdminFinancialDashboard() {
   }, [recentTransactions, exchangeRate, effectiveRange]);
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="space-y-6"
-    >
+    <div className="space-y-6">
       {/* â”€â”€ Header + Period filters â”€â”€ */}
-      <motion.div variants={itemVariants}>
+      <div>
         <ElevatedContainer
           className="rounded-lg border border-border bg-card p-5 md:p-6"
         >
@@ -787,7 +782,7 @@ export default function AdminFinancialDashboard() {
               <p className="text-2xs font-semibold text-muted-foreground">
                 Áreas de Trabalho
               </p>
-              <p className="mt-2 text-lg font-semibold text-foreground">
+              <p className="mt-2 font-display text-lg font-semibold text-foreground">
                 {workspaceMeta?.total_items?.toLocaleString() ?? "0"}
               </p>
             </div>
@@ -796,7 +791,7 @@ export default function AdminFinancialDashboard() {
               <p className="text-2xs font-semibold text-muted-foreground">
                 Transações
               </p>
-              <p className="mt-2 text-lg font-semibold text-foreground">
+              <p className="mt-2 font-display text-lg font-semibold text-foreground">
                 {(profitReport?.totals.txCount ?? 0).toLocaleString()}
               </p>
             </div>
@@ -860,15 +855,15 @@ export default function AdminFinancialDashboard() {
             </div>
           </div>
         </ElevatedContainer>
-      </motion.div>
+      </div>
 
       {/* Error */}
       {error && (
-        <motion.div variants={itemVariants}>
+        <div>
           <ElevatedContainer className="rounded-lg border border-destructive bg-destructive p-4 text-sm text-destructive-foreground">
             {error}
           </ElevatedContainer>
-        </motion.div>
+        </div>
       )}
 
       {/* The six figures this page exists to report, as one instrument strip.
@@ -876,7 +871,7 @@ export default function AdminFinancialDashboard() {
           filled icon tile and a drop shadow, which put three decorations and a
           lifted surface on every number, and split one reading into two rows
           for no reason the content gave. */}
-      <motion.div variants={itemVariants}>
+      <div>
         <InstrumentStrip
           loading={loading}
           instruments={[
@@ -925,11 +920,11 @@ export default function AdminFinancialDashboard() {
             },
           ]}
         />
-      </motion.div>
+      </div>
 
       {/*  Reembolsos (isolated)  */}
       {!loading && totalPeriodRefundsBRL > 0 && (
-        <motion.div variants={itemVariants}>
+        <div>
           <ElevatedContainer
             className="rounded-lg border border-border border-dashed bg-muted p-4"
           >
@@ -953,12 +948,12 @@ export default function AdminFinancialDashboard() {
               </div>
             </div>
           </ElevatedContainer>
-        </motion.div>
+        </div>
       )}
 
       {/*  Ajuste manual (isolated)  */}
       {!loading && manualAdjustment.txCount > 0 && (
-        <motion.div variants={itemVariants}>
+        <div>
           <ElevatedContainer
             className="rounded-lg border border-border border-dashed bg-muted p-4"
           >
@@ -994,10 +989,10 @@ export default function AdminFinancialDashboard() {
               </div>
             </div>
           </ElevatedContainer>
-        </motion.div>
+        </div>
       )}
       {/* â”€â”€ Revenue vs Cost chart â”€â”€ */}
-      <motion.div variants={itemVariants}>
+      <div>
         <ElevatedContainer
           className="rounded-lg border border-border bg-card p-5"
         >
@@ -1006,7 +1001,7 @@ export default function AdminFinancialDashboard() {
               <p className="text-xs font-semibold text-muted-foreground">
                 Evolução financeira
               </p>
-              <h2 className="text-lg font-semibold text-foreground">
+              <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                 Receita × Custo × Lucro (BRL)
               </h2>
             </div>
@@ -1041,43 +1036,18 @@ export default function AdminFinancialDashboard() {
               >
                 <defs>
                   {(["receita", "custo", "lucro"] as const).map((key) => (
-                    <linearGradient
+                    <VozAreaGradient
                       key={key}
-                      id={`gradient-fin-${key}`}
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
-                      <stop
-                        offset="0%"
-                        stopColor={`var(--color-${key})`}
-                        stopOpacity={0.4}
-                      />
-                      <stop
-                        offset="50%"
-                        stopColor={`var(--color-${key})`}
-                        stopOpacity={0.15}
-                      />
-                      <stop
-                        offset="100%"
-                        stopColor={`var(--color-${key})`}
-                        stopOpacity={0.02}
-                      />
-                    </linearGradient>
+                      id={`fin-${key}`}
+                      color={`var(--color-${key})`}
+                    />
                   ))}
                 </defs>
-                <CartesianGrid strokeDasharray="4 4" vertical={false} />
-                <XAxis
-                  dataKey="formattedTime"
-                  tickLine={false}
-                  axisLine={false}
-                  fontSize={11}
-                />
+                <CartesianGrid {...vozGrid} />
+                <XAxis {...vozXAxis} dataKey="formattedTime" />
                 <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  fontSize={11}
+                  {...vozYAxis}
+                  width={56}
                   tickFormatter={(v) =>
                     new Intl.NumberFormat("pt-BR", {
                       style: "currency",
@@ -1106,36 +1076,33 @@ export default function AdminFinancialDashboard() {
                   }
                 />
                 <Area
+                  {...vozLineMark}
                   type="monotoneX"
                   dataKey="receita"
                   stroke="var(--color-receita)"
-                  strokeWidth={2.5}
-                  fill="url(#gradient-fin-receita)"
-                  dot={false}
+                  fill="url(#voz-fill-fin-receita)"
                 />
                 <Area
+                  {...vozLineMark}
                   type="monotoneX"
                   dataKey="custo"
                   stroke="var(--color-custo)"
-                  strokeWidth={2.5}
-                  fill="url(#gradient-fin-custo)"
-                  dot={false}
+                  fill="url(#voz-fill-fin-custo)"
                 />
                 <Area
+                  {...vozLineMark}
                   type="monotoneX"
                   dataKey="lucro"
                   stroke="var(--color-lucro)"
-                  strokeWidth={2.5}
-                  fill="url(#gradient-fin-lucro)"
-                  dot={false}
+                  fill="url(#voz-fill-fin-lucro)"
                 />
               </AreaChart>
             </ChartContainer>
           )}
         </ElevatedContainer>
-      </motion.div>
+      </div>
       {/*, Revenue by service (Pie) + Profit by service (Bar), */}
-      <motion.div variants={itemVariants} className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         <ElevatedContainer
           className="rounded-lg border border-border bg-card p-5"
         >
@@ -1164,45 +1131,50 @@ export default function AdminFinancialDashboard() {
               <p>Sem dados de receita por serviço</p>
             </div>
           ) : (
-            <ChartContainer
-              config={pieChartConfig}
-              className="h-[280px] w-full"
-            >
-              <PieChart>
-                <Pie
-                  data={serviceRevenuePie}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={55}
-                  outerRadius={95}
-                  paddingAngle={3}
-                  dataKey="value"
-                  nameKey="name"
-                  cornerRadius={6}
-                  strokeWidth={2}
-                  stroke="hsl(var(--background))"
-                >
-                  {serviceRevenuePie.map((entry) => (
-                    <Cell key={entry.name} fill={entry.color} />
-                  ))}
-                </Pie>
-                <ChartTooltip
-                  content={
-                    <ChartTooltipContent
-                      nameKey="name"
-                      formatter={(value) => (
-                        <span className="font-semibold tabular-nums">
-                          {new Intl.NumberFormat("pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
-                          }).format(value as number)}
-                        </span>
-                      )}
-                    />
-                  }
-                />
-              </PieChart>
-            </ChartContainer>
+            <div className="relative">
+              <ChartContainer
+                config={pieChartConfig}
+                className="h-[280px] w-full"
+              >
+                <PieChart>
+                  <Pie
+                    data={serviceRevenuePie}
+                    cx="50%"
+                    cy="50%"
+                    dataKey="value"
+                    nameKey="name"
+                    {...vozRing(95, 83)}
+                  >
+                    {serviceRevenuePie.map((entry) => (
+                      <Cell key={entry.name} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <ChartTooltip
+                    content={
+                      <ChartTooltipContent
+                        nameKey="name"
+                        formatter={(value) => (
+                          <span className="font-semibold tabular-nums">
+                            {new Intl.NumberFormat("pt-BR", {
+                              style: "currency",
+                              currency: "BRL",
+                            }).format(value as number)}
+                          </span>
+                        )}
+                      />
+                    }
+                  />
+                </PieChart>
+              </ChartContainer>
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <span className="readout font-display text-lg font-semibold leading-none text-foreground">
+                  {formatCompactBRLDirect(
+                    serviceRevenuePie.reduce((s, i) => s + i.value, 0) *
+                      1_000_000,
+                  )}
+                </span>
+              </div>
+            </div>
           )}
           {!loading && serviceRevenuePie.length > 0 && (
             <div className="mt-3 flex flex-wrap justify-center gap-3">
@@ -1273,19 +1245,12 @@ export default function AdminFinancialDashboard() {
                 data={serviceProfitBar}
                 margin={{ left: 10, right: 20, top: 10, bottom: 10 }}
               >
-                <CartesianGrid strokeDasharray="4 4" vertical={false} />
-                <XAxis
-                  type="category"
-                  dataKey="name"
-                  tickLine={false}
-                  axisLine={false}
-                  fontSize={11}
-                />
+                <CartesianGrid {...vozGrid} />
+                <XAxis {...vozXAxis} type="category" dataKey="name" />
                 <YAxis
+                  {...vozYAxis}
                   type="number"
-                  tickLine={false}
-                  axisLine={false}
-                  fontSize={11}
+                  width={56}
                   tickFormatter={(v) =>
                     new Intl.NumberFormat("pt-BR", {
                       style: "currency",
@@ -1311,8 +1276,8 @@ export default function AdminFinancialDashboard() {
                 <Bar
                   dataKey="value"
                   name="Lucro"
-                  radius={[8, 8, 0, 0]}
-                  barSize={28}
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={28}
                 >
                   {serviceProfitBar.map((entry) => (
                     <Cell key={entry.name} fill={entry.color} />
@@ -1354,11 +1319,11 @@ export default function AdminFinancialDashboard() {
             </div>
           )}
         </ElevatedContainer>
-      </motion.div>
+      </div>
 
       {/*, Product usage summary, */}
       {!loading && productUsage && productUsage.byService.length > 0 && (
-        <motion.div variants={itemVariants}>
+        <div>
           <ElevatedContainer
             className="rounded-lg border border-border bg-card p-5"
           >
@@ -1391,7 +1356,7 @@ export default function AdminFinancialDashboard() {
                     <p className="truncate text-xs font-medium text-muted-foreground">
                       {serviceLabel(metric.key)}
                     </p>
-                    <p className="text-lg font-semibold text-foreground">
+                    <p className="font-display text-lg font-semibold text-foreground">
                       {metric.count.toLocaleString("pt-BR")}
                     </p>
                     {metric.revenueBRLMicros != null &&
@@ -1405,11 +1370,11 @@ export default function AdminFinancialDashboard() {
               ))}
             </div>
           </ElevatedContainer>
-        </motion.div>
+        </div>
       )}
 
       {/*, Plan contractions, */}
-      <motion.div variants={itemVariants} className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         <ElevatedContainer
           className="rounded-lg border border-border bg-card p-5"
         >
@@ -1457,19 +1422,9 @@ export default function AdminFinancialDashboard() {
                 data={contractionsSeries}
                 margin={{ left: 10, right: 20, top: 10, bottom: 10 }}
               >
-                <CartesianGrid strokeDasharray="4 4" vertical={false} />
-                <XAxis
-                  dataKey="formattedTime"
-                  tickLine={false}
-                  axisLine={false}
-                  fontSize={11}
-                />
-                <YAxis
-                  allowDecimals={false}
-                  tickLine={false}
-                  axisLine={false}
-                  fontSize={11}
-                />
+                <CartesianGrid {...vozGrid} />
+                <XAxis {...vozXAxis} dataKey="formattedTime" />
+                <YAxis {...vozYAxis} allowDecimals={false} />
                 <ChartTooltip
                   content={
                     <ChartTooltipContent
@@ -1486,8 +1441,8 @@ export default function AdminFinancialDashboard() {
                   dataKey="contratacoes"
                   name="Contratações"
                   fill="var(--color-contratacoes)"
-                  radius={[8, 8, 0, 0]}
-                  barSize={28}
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={28}
                 />
               </BarChart>
             </ChartContainer>
@@ -1588,11 +1543,11 @@ export default function AdminFinancialDashboard() {
             </div>
           )}
         </ElevatedContainer>
-      </motion.div>
+      </div>
 
       {/*, Recent transactions (debits & credits), */}
       {!loading && recentTransactions.length > 0 && (
-        <motion.div variants={itemVariants}>
+        <div>
           <ElevatedContainer
             className="rounded-lg border border-border bg-card p-5"
           >
@@ -1656,12 +1611,14 @@ export default function AdminFinancialDashboard() {
                         </p>
                       </td>
                       <td className="py-3 pr-4">
-                        <span
-                          className="inline-flex items-center rounded-[--radius] px-2 py-0.5 text-xs font-semibold text-white"
-                          style={{
-                            backgroundColor: serviceColor(tx.serviceType, 0),
-                          }}
-                        >
+                        <span className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-xs font-semibold text-foreground shadow-sm">
+                          <span
+                            aria-hidden
+                            className="h-2 w-2 rounded-full"
+                            style={{
+                              backgroundColor: serviceColor(tx.serviceType, 0),
+                            }}
+                          />
                           {serviceLabel(tx.serviceType)}
                         </span>
                       </td>
@@ -1714,10 +1671,10 @@ export default function AdminFinancialDashboard() {
               </table>
             </div>
           </ElevatedContainer>
-        </motion.div>
+        </div>
       )}
       {/* â”€â”€ Workspace table â”€â”€ */}
-      <motion.div variants={itemVariants}>
+      <div>
         <DashboardTable
           data={rankingRows}
           columns={workspaceColumns}
@@ -1821,7 +1778,7 @@ export default function AdminFinancialDashboard() {
             items: "áreas de trabalho",
           }}
         />
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }

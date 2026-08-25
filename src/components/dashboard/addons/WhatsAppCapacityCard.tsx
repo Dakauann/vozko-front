@@ -125,7 +125,7 @@ export function CapacityCard({
             <p className="text-sm font-medium text-muted-foreground">
               {t.label}
             </p>
-            <p className="mt-0.5 text-xl font-semibold leading-none tracking-tight text-foreground">
+            <p className="mt-0.5 font-display text-xl font-semibold leading-none tracking-tight text-foreground">
               <span className="tabular-nums">{used}</span>
               {capacity.hasPlan && (
                 <span className="font-normal text-muted-foreground">

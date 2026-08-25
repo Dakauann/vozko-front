@@ -89,19 +89,19 @@ function SentimentBadge({
   const config = {
     positive: {
       icon: <Smiley weight="fill" className="h-5 w-5" />,
-      color: "#22c55e",
+      color: "hsl(var(--healthy))",
       bgColor: "bg-muted",
       borderColor: "border-healthy/20",
     },
     neutral: {
       icon: <SmileyMeh weight="fill" className="h-5 w-5" />,
-      color: "#6b7280",
+      color: "hsl(var(--muted-foreground))",
       bgColor: "bg-muted",
       borderColor: "border-border",
     },
     negative: {
       icon: <SmileySad weight="fill" className="h-5 w-5" />,
-      color: "#ef4444",
+      color: "hsl(var(--destructive))",
       bgColor: "bg-muted",
       borderColor: "border-destructive/30",
     },
@@ -122,7 +122,7 @@ function SentimentBadge({
     >
       <span style={{ color }}>{icon}</span>
       <div className="text-center">
-        <p className="text-lg font-semibold text-foreground">{value}</p>
+        <p className="font-display text-lg font-semibold text-foreground">{value}</p>
         <p className="text-xs text-muted-foreground">
           {percentage.toFixed(1)}%
         </p>
@@ -313,7 +313,7 @@ export default function AnalysisStatsPanel({
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                 <Brain weight="bold" className="h-4 w-4" />
               </div>
-              <h2 className="text-base font-semibold text-foreground">
+              <h2 className="font-display text-base font-semibold tracking-[0.01em] text-foreground">
                 {t("title")}
               </h2>
             </div>
@@ -471,7 +471,7 @@ export default function AnalysisStatsPanel({
               <Brain weight="bold" className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-foreground">
+              <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                 {t("title")}
               </h2>
               <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
@@ -586,7 +586,7 @@ export default function AnalysisStatsPanel({
                 label={t("interest.interested")}
                 value={stats.interestInterested}
                 total={totalInterest}
-                color="#22c55e"
+                color="hsl(var(--healthy))"
                 delay={0}
               />
               <ProgressBar
@@ -617,7 +617,7 @@ export default function AnalysisStatsPanel({
                 <p className="text-xs text-muted-foreground mb-1">
                   {t("quality.min")}
                 </p>
-                <p className="text-xl font-semibold text-foreground">
+                <p className="font-display text-xl font-semibold text-foreground">
                   {stats.minAttendanceQuality}%
                 </p>
               </div>
@@ -625,7 +625,7 @@ export default function AnalysisStatsPanel({
                 <p className="text-xs text-healthy-ink mb-1">
                   {t("quality.avg")}
                 </p>
-                <p className="text-xl font-semibold text-healthy-ink">
+                <p className="font-display text-xl font-semibold text-healthy-ink">
                   {stats.avgAttendanceQuality.toFixed(1)}%
                 </p>
               </div>
@@ -633,7 +633,7 @@ export default function AnalysisStatsPanel({
                 <p className="text-xs text-muted-foreground mb-1">
                   {t("quality.max")}
                 </p>
-                <p className="text-xl font-semibold text-foreground">
+                <p className="font-display text-xl font-semibold text-foreground">
                   {stats.maxAttendanceQuality}%
                 </p>
               </div>

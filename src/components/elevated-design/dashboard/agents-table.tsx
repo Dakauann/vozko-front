@@ -122,7 +122,7 @@ export function AgentsTable({ agents, meta }: AgentsTableProps) {
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1">
-                  <h3 className="text-xl font-semibold text-foreground">
+                  <h3 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground">
                     {agent.name}
                   </h3>
                   <p className="text-sm text-muted-foreground">

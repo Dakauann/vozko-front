@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Alinhar">
+  <title>Alinhar</title>
+  <path d="M3.75 5.75h16.5M3.75 15.25h16.5"/>
+  <path stroke="var(--icon-accent, currentColor)" d="M3.75 10.5h10.5M3.75 20h10.5"/>
+</svg>

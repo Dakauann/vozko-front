@@ -284,7 +284,8 @@ export function WebhookTriggerConfig({
         >
           <span
             className={cn(
-              "absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform",
+              "absolute left-0.5 top-0.5 h-5 w-5 rounded-full shadow transition-transform",
+              draft.active ? "bg-primary-foreground" : "bg-foreground",
               draft.active && "translate-x-5",
             )}
           />
@@ -353,8 +354,8 @@ function ConfigShell({
   return (
     <section className="space-y-4">
       <div className="flex items-start gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary">
-          <WebhooksLogo className="h-5 w-5 text-white" weight="bold" />
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <WebhooksLogo className="h-5 w-5" weight="bold" />
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">

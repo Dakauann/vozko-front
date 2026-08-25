@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Empresas">
+  <title>Empresas</title>
+  <path d="M2.5 20.75h19"/>
+  <path d="M4 20.75V9.9a1.5 1.5 0 0 1 1.5-1.5h5.25a1.5 1.5 0 0 1 1.5 1.5v10.85"/>
+  <path stroke="var(--icon-accent, currentColor)" d="M12.25 20.75V5.25a1.5 1.5 0 0 1 1.5-1.5h4.75a1.5 1.5 0 0 1 1.5 1.5v15.5"/>
+  <path d="M6.5 12.25h3.25M6.5 16h3.25"/>
+  <path stroke="var(--icon-accent, currentColor)" d="M15 7.5h2.5M15 11.5h2.5M15 15.5h2.5"/>
+</svg>

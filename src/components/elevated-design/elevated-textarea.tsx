@@ -109,10 +109,12 @@ const disabledClasses =
 
 const iconColorByVariant: Record<BaseVariant, string> = {
   primary: "text-primary-foreground",
-  secondary: "text-primary-ink/60",
-  outline: "text-primary-ink/60",
+  // A resting field is not commit, selection or focus, so its icon carries no
+  // brand ink — the focus underline is where the green arrives.
+  secondary: "text-muted-foreground",
+  outline: "text-muted-foreground",
   ghost: "text-muted-foreground",
-  vsl: "text-white",
+  vsl: "text-muted-foreground",
   action: "text-primary-foreground",
   search: "text-muted-foreground",
 };
@@ -257,8 +259,8 @@ const ElevatedTextarea = forwardRef<HTMLTextAreaElement, ElevatedTextareaProps>(
             className={cn(
               "pointer-events-none absolute z-[1] flex items-center",
               iconPosition[resolvedSize],
+              iconColorByVariant[resolvedVariant],
             )}
-            style={{ color: iconColorByVariant[resolvedVariant] }}
           >
             {icon}
           </span>

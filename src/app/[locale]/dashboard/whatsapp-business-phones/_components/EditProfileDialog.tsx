@@ -262,7 +262,7 @@ export function EditProfileDialog({
                       )}
                     </div>
                   ) : (
-                    <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center border border-dashed border-foreground/20 dark:border-slate-600">
+                    <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center border border-dashed border-border-strong">
                       <Camera className="w-8 h-8 text-muted-foreground" />
                     </div>
                   )}

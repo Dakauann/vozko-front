@@ -218,7 +218,7 @@ export default function AffiliatePlansPage() {
                   <p className="text-2xs font-semibold text-primary-ink">
                     {plansT("subscription.availableBadge")}
                   </p>
-                  <h2 className="mt-1 text-xl font-semibold text-foreground">
+                  <h2 className="mt-1 font-display text-xl font-semibold tracking-[0.01em] text-foreground">
                     {selectedPlan.plan.name}
                   </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
@@ -231,7 +231,7 @@ export default function AffiliatePlansPage() {
                   <p className="text-xs text-muted-foreground">
                     {plansT("list.basePrice")}
                   </p>
-                  <p className="text-2xl font-semibold tabular-nums text-foreground">
+                  <p className="font-display text-2xl font-semibold tabular-nums text-foreground">
                     {formatBRLFromCents(
                       selectedPlan.plan.basePriceBRLCents,
                       locale,

@@ -1,5 +1,15 @@
 "use client";
 
+/**
+ * Elevated design-system chart primitives.
+ *
+ * Rendering follows the Vozko chart grammar defined in
+ * `@/components/charts/vozko` (recessive grid/axis chrome, 2.5px line
+ * marks with gradient dissolves, segmented-ring pies, rounded bars).
+ * Change the grammar in that kit module, not here; this module only
+ * wraps it behind loading/empty-state conveniences.
+ */
+
 import {
   Area,
   AreaChart,
@@ -16,12 +26,21 @@ import {
   YAxis,
 } from "recharts";
 import { ChartBar, ChartLine, ChartPie, Spinner } from "@/components/icons";
+import {
+  VozAreaGradient,
+  vozGrid,
+  vozLineMark,
+  vozRing,
+  vozXAxis,
+  vozYAxis,
+} from "@/components/charts/vozko";
 
 import React from "react";
 
 export interface ChartDataPoint {
   name: string;
   value: number;
+  /** Series color — pass a token such as `hsl(var(--chart-1))`, not a hex. */
   color: string;
 }
 
@@ -31,6 +50,7 @@ export interface TimeSeriesDataPoint {
 
 export interface AreaSeriesConfig {
   dataKey: string;
+  /** Series color — pass a token such as `hsl(var(--chart-1))`, not a hex. */
   color: string;
   name?: string;
 }
@@ -72,11 +92,11 @@ export const ElevatedChartTooltip: React.FC<ChartTooltipProps> = ({
   })();
 
   return (
-    <div className="bg-card border border-border rounded-[--radius] p-4 shadow-2xl shadow-slate-900/10">
-      <p className="text-sm font-semibold text-foreground mb-3 pb-2 border-b border-border">
+    <div className="rounded-lg border border-border bg-popover px-2.5 py-1.5 text-xs shadow-md">
+      <p className="mb-1 font-medium text-foreground">
         {displayLabel}
       </p>
-      <div className="space-y-2">
+      <div className="space-y-1">
         {payload.map((entry, index) => {
           const [formattedValue, formattedName] = formatter
             ? formatter(entry.value, entry.name)
@@ -86,16 +106,16 @@ export const ElevatedChartTooltip: React.FC<ChartTooltipProps> = ({
               key={index}
               className="flex items-center justify-between gap-4"
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <div
-                  className="w-3 h-3 rounded-full shadow-sm"
+                  className="h-2 w-2 rounded-full"
                   style={{ backgroundColor: entry.color }}
                 />
-                <span className="text-xs text-muted-foreground">
+                <span className="text-muted-foreground">
                   {formattedName}
                 </span>
               </div>
-              <span className="text-sm font-semibold text-foreground">
+              <span className="readout font-semibold text-foreground">
                 {formattedValue}
               </span>
             </div>
@@ -191,50 +211,19 @@ export const ElevatedAreaChart: React.FC<ElevatedAreaChartProps> = ({
       >
         <defs>
           {series.map((s) => (
-            <linearGradient
+            <VozAreaGradient
               key={`gradient-${id}-${s.dataKey}`}
-              id={`gradient-${id}-${s.dataKey}`}
-              x1="0"
-              y1="0"
-              x2="0"
-              y2="1"
-            >
-              <stop offset="0%" stopColor={s.color} stopOpacity={0.4} />
-              <stop offset="50%" stopColor={s.color} stopOpacity={0.15} />
-              <stop offset="100%" stopColor={s.color} stopOpacity={0.02} />
-            </linearGradient>
+              id={`${id}-${s.dataKey}`}
+              color={s.color}
+            />
           ))}
-          <filter id={`glow-${id}`}>
-            <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-            <feMerge>
-              <feMergeNode in="coloredBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
         </defs>
-        <CartesianGrid
-          strokeDasharray="4 4"
-          stroke="#e2e8f0"
-          strokeOpacity={0.6}
-          vertical={false}
-        />
-        <XAxis
-          dataKey={xAxisDataKey}
-          tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 500 }}
-          tickLine={false}
-          axisLine={{ stroke: "#e2e8f0", strokeWidth: 1 }}
-          dy={10}
-        />
-        <YAxis
-          tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 500 }}
-          tickLine={false}
-          axisLine={false}
-          dx={-5}
-          tickFormatter={yAxisFormatter}
-        />
+        <CartesianGrid {...vozGrid} />
+        <XAxis {...vozXAxis} dataKey={xAxisDataKey} />
+        <YAxis {...vozYAxis} tickFormatter={yAxisFormatter} />
         <Tooltip
           content={<ElevatedChartTooltip formatter={tooltipFormatter} />}
-          cursor={{ stroke: "#cbd5e1", strokeWidth: 1, strokeDasharray: "4 4" }}
+          cursor={{ stroke: "hsl(var(--border-strong))", strokeWidth: 1, strokeDasharray: "4 4" }}
         />
         {showLegend && (
           <Legend
@@ -247,20 +236,12 @@ export const ElevatedAreaChart: React.FC<ElevatedAreaChartProps> = ({
         {series.map((s) => (
           <Area
             key={s.dataKey}
+            {...vozLineMark}
             type="monotoneX"
             dataKey={s.dataKey}
             name={s.name || s.dataKey}
             stroke={s.color}
-            strokeWidth={2.5}
-            fill={`url(#gradient-${id}-${s.dataKey})`}
-            dot={false}
-            activeDot={{
-              r: 6,
-              strokeWidth: 3,
-              stroke: "#fff",
-              fill: s.color,
-              filter: `url(#glow-${id})`,
-            }}
+            fill={`url(#voz-fill-${id}-${s.dataKey})`}
           />
         ))}
       </AreaChart>
@@ -284,10 +265,10 @@ export const ElevatedPieChart: React.FC<ElevatedPieChartProps> = ({
   loading = false,
   emptyMessage = "No data available",
   height = 300,
-  innerRadius = 55,
+  /* Thin segmented ring per the voz grammar: inner ≈ outer − 12. */
+  innerRadius = 83,
   outerRadius = 95,
   tooltipFormatter,
-  id = "pie",
 }) => {
   if (loading) {
     return <ChartLoadingState height={height} />;
@@ -299,102 +280,38 @@ export const ElevatedPieChart: React.FC<ElevatedPieChartProps> = ({
     );
   }
 
+  const total = data.reduce((acc, entry) => acc + entry.value, 0);
+
   return (
-    <ResponsiveContainer width="100%" height={height}>
-      <PieChart>
-        <defs>
-          {data.map((entry, index) => {
-            const grainId = `pie-grain-${id}-${index}`;
-            const gradId = `pie-gradient-${id}-${index}`;
-            const patId = `pie-pat-${id}-${index}`;
-            return (
-              <React.Fragment key={`pie-defs-${id}-${index}`}>
-                <filter id={grainId} x="0%" y="0%" width="100%" height="100%">
-                  <feTurbulence
-                    type="fractalNoise"
-                    baseFrequency="0.65"
-                    numOctaves={4}
-                    seed={index * 17 + 3}
-                    stitchTiles="stitch"
-                    result="noise"
-                  />
-                  <feColorMatrix
-                    in="noise"
-                    type="saturate"
-                    values="0"
-                    result="mono"
-                  />
-                  <feBlend
-                    in="SourceGraphic"
-                    in2="mono"
-                    mode="overlay"
-                    result="blended"
-                  />
-                  <feComponentTransfer in="blended">
-                    <feFuncA type="linear" slope="1" />
-                  </feComponentTransfer>
-                </filter>
-                <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor={entry.color} stopOpacity={1} />
-                  <stop
-                    offset="100%"
-                    stopColor={entry.color}
-                    stopOpacity={0.75}
-                  />
-                </linearGradient>
-                <pattern
-                  id={patId}
-                  patternUnits="objectBoundingBox"
-                  width="1"
-                  height="1"
-                >
-                  <rect width="100%" height="100%" fill={`url(#${gradId})`} />
-                  <rect
-                    width="100%"
-                    height="100%"
-                    fill={`url(#${gradId})`}
-                    filter={`url(#${grainId})`}
-                  />
-                </pattern>
-              </React.Fragment>
-            );
-          })}
-          <filter
-            id={`pie-shadow-${id}`}
-            x="-20%"
-            y="-20%"
-            width="140%"
-            height="140%"
+    <div className="relative" style={{ height: `${height}px` }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            {...vozRing(outerRadius, innerRadius)}
+            dataKey="value"
           >
-            <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.15" />
-          </filter>
-        </defs>
-        <Pie
-          data={data}
-          cx="50%"
-          cy="50%"
-          innerRadius={innerRadius}
-          outerRadius={outerRadius}
-          paddingAngle={3}
-          dataKey="value"
-          cornerRadius={6}
-          stroke="#fff"
-          strokeWidth={2}
-          filter={`url(#pie-shadow-${id})`}
-        >
-          {data.map((_entry, index) => (
-            <Cell
-              key={`cell-${index}`}
-              fill={`url(#pie-pat-${id}-${index})`}
-              style={{ cursor: "pointer" }}
-            />
-          ))}
-        </Pie>
-        <Tooltip
-          content={<ElevatedChartTooltip formatter={tooltipFormatter} />}
-        />
-      </PieChart>
-    </ResponsiveContainer>
+            {data.map((entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={entry.color}
+                style={{ cursor: "pointer" }}
+              />
+            ))}
+          </Pie>
+          <Tooltip
+            content={<ElevatedChartTooltip formatter={tooltipFormatter} />}
+          />
+        </PieChart>
+      </ResponsiveContainer>
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        <span className="readout font-display text-lg font-semibold leading-none text-foreground">
+          {total.toLocaleString()}
+        </span>
+      </div>
+    </div>
   );
 };
 
@@ -424,7 +341,6 @@ export const ElevatedBarChart: React.FC<ElevatedBarChartProps> = ({
   xAxisFormatter,
   tooltipFormatter,
   barName = "Valor",
-  id = "bar",
 }) => {
   if (loading) {
     return <ChartLoadingState height={height} />;
@@ -450,127 +366,50 @@ export const ElevatedBarChart: React.FC<ElevatedBarChartProps> = ({
           bottom: 10,
         }}
       >
-        <defs>
-          {data.map((entry, index) => {
-            const grainId = `bar-grain-${id}-${index}`;
-            const gradId = `bar-gradient-${id}-${index}`;
-            const patId = `bar-pat-${id}-${index}`;
-            return (
-              <React.Fragment key={`bar-defs-${id}-${index}`}>
-                <filter id={grainId} x="0%" y="0%" width="100%" height="100%">
-                  <feTurbulence
-                    type="fractalNoise"
-                    baseFrequency="0.6"
-                    numOctaves={4}
-                    seed={index * 13 + 7}
-                    stitchTiles="stitch"
-                    result="noise"
-                  />
-                  <feColorMatrix
-                    in="noise"
-                    type="saturate"
-                    values="0"
-                    result="mono"
-                  />
-                  <feBlend
-                    in="SourceGraphic"
-                    in2="mono"
-                    mode="overlay"
-                    result="blended"
-                  />
-                  <feComponentTransfer in="blended">
-                    <feFuncA type="linear" slope="1" />
-                  </feComponentTransfer>
-                </filter>
-                <linearGradient
-                  id={gradId}
-                  x1="0"
-                  y1="0"
-                  x2={isVertical ? "1" : "0"}
-                  y2={isVertical ? "0" : "1"}
-                >
-                  <stop offset="0%" stopColor={entry.color} stopOpacity={0.9} />
-                  <stop offset="100%" stopColor={entry.color} stopOpacity={1} />
-                </linearGradient>
-                <pattern
-                  id={patId}
-                  patternUnits="objectBoundingBox"
-                  width="1"
-                  height="1"
-                >
-                  <rect width="100%" height="100%" fill={`url(#${gradId})`} />
-                  <rect
-                    width="100%"
-                    height="100%"
-                    fill={`url(#${gradId})`}
-                    filter={`url(#${grainId})`}
-                  />
-                </pattern>
-              </React.Fragment>
-            );
-          })}
-          <filter id={`bar-shadow-${id}`}>
-            <feDropShadow dx="0" dy="1" stdDeviation="2" floodOpacity="0.08" />
-          </filter>
-        </defs>
         <CartesianGrid
-          strokeDasharray="4 4"
-          stroke="#e2e8f0"
-          strokeOpacity={0.5}
+          {...vozGrid}
           horizontal={!isVertical}
-          vertical={isVertical ? false : true}
+          vertical={isVertical}
         />
         {isVertical ? (
           <>
             <XAxis
+              {...vozXAxis}
               type="number"
-              tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 500 }}
-              tickLine={false}
-              axisLine={{ stroke: "#e2e8f0" }}
               tickFormatter={xAxisFormatter}
             />
             <YAxis
+              {...vozYAxis}
               type="category"
               dataKey="name"
-              tick={{ fontSize: 12, fill: "#64748b", fontWeight: 500 }}
-              tickLine={false}
-              axisLine={false}
               width={leftMargin - 5}
             />
           </>
         ) : (
           <>
-            <XAxis
-              type="category"
-              dataKey="name"
-              tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 500 }}
-              tickLine={false}
-              axisLine={{ stroke: "#e2e8f0" }}
-            />
+            <XAxis {...vozXAxis} type="category" dataKey="name" />
             <YAxis
+              {...vozYAxis}
               type="number"
-              tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 500 }}
-              tickLine={false}
-              axisLine={false}
               tickFormatter={xAxisFormatter}
             />
           </>
         )}
         <Tooltip
           content={<ElevatedChartTooltip formatter={tooltipFormatter} />}
-          cursor={{ fill: "#f1f5f9", radius: 8 }}
+          cursor={{ fill: "hsl(var(--muted))", radius: 8 }}
         />
         <Bar
           dataKey="value"
           name={barName}
-          radius={isVertical ? [0, 8, 8, 0] : [8, 8, 0, 0]}
+          radius={isVertical ? [0, 4, 4, 0] : [4, 4, 0, 0]}
           barSize={barSize}
-          filter={`url(#bar-shadow-${id})`}
+          maxBarSize={28}
         >
-          {data.map((_entry, index) => (
+          {data.map((entry, index) => (
             <Cell
               key={`cell-${index}`}
-              fill={`url(#bar-pat-${id}-${index})`}
+              fill={entry.color}
               style={{ cursor: "pointer" }}
             />
           ))}

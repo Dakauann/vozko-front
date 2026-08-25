@@ -13,7 +13,8 @@ type BaseVariant =
   | "outline-subtle"
   | "ghost"
   | "vsl"
-  | "action";
+  | "action"
+  | "command";
 type LegacyVariant =
   | "main-cta"
   | "secondary-cta"
@@ -47,6 +48,7 @@ const variantAlias: Record<ButtonVariant, BaseVariant> = {
   ghost: "ghost",
   vsl: "vsl",
   action: "action",
+  command: "command",
   "main-cta": "primary",
   "main-cta-mobile": "primary",
   "secondary-cta": "secondary",
@@ -77,6 +79,11 @@ const variantClasses: Record<BaseVariant, string> = {
   vsl: "bg-primary text-primary-foreground shadow-button hover:bg-[hsl(var(--primary-hover))] hover:shadow-button-hover active:shadow-button",
   action:
     "bg-primary text-primary-foreground shadow-button min-h-[32px] px-3 gap-1.5 hover:bg-[hsl(var(--primary-hover))] hover:shadow-button-hover active:bg-[hsl(var(--primary-active))] active:shadow-button disabled:cursor-not-allowed",
+  // The Azure command-bar button: flat at rest, label in foreground ink with
+  // the GLYPH carrying the brand — the reference's own signature ("+ New" with
+  // a coloured plus). For the action racks under page titles; never a fill.
+  command:
+    "bg-transparent text-foreground hover:bg-muted active:bg-[hsl(var(--accent-hover))]",
 };
 
 // The sm: prefixes are the touch floor, not a design step — below sm every
@@ -98,6 +105,8 @@ function resolveIconColorClass(variant: BaseVariant) {
     case "outline-subtle":
     case "outline":
       return "text-foreground";
+    case "command":
+      return "text-primary-ink";
     case "ghost":
     default:
       return "text-muted-foreground";

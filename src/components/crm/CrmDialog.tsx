@@ -84,7 +84,7 @@ export default function CrmDialog({
                   <div className="flex h-9 w-9 items-center justify-center rounded-[--radius] bg-healthy/100">
                     <ChatCircleDots
                       weight="fill"
-                      className="h-4.5 w-4.5 text-white"
+                      className="h-4.5 w-4.5 text-healthy-foreground"
                     />
                   </div>
                   <div>

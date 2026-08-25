@@ -443,7 +443,7 @@ export default function ConversationGroupSection({
       <section>
         <div className="mb-2 flex items-center gap-1.5">
           <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary">
-            <UsersThree weight="bold" className="h-3 w-3 text-white" />
+            <UsersThree weight="bold" className="h-3 w-3 text-primary-foreground" />
           </span>
           <h4 className="text-xs font-semibold text-foreground">{t("members")}</h4>
         </div>

@@ -63,7 +63,7 @@ export default function GrainCard(props: GrainCardProps) {
       >
         <Icon className="h-6 w-6 text-white" weight="duotone" />
         <h3
-          className={cn("font-semibold text-white", lg ? "text-lg" : "text-sm")}
+          className={cn("font-semibold text-white", lg ? "font-display text-lg tracking-[0.01em]" : "text-sm")}
         >
           {title}
         </h3>
@@ -92,7 +92,7 @@ export default function GrainCard(props: GrainCardProps) {
           className,
         )}
       >
-        <span className="text-4xl font-semibold text-white md:text-5xl">
+        <span className="font-display text-4xl font-semibold text-white md:text-5xl">
           {value}
         </span>
         <p className="text-xs font-semibold text-white/60">{label}</p>

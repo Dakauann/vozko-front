@@ -26,7 +26,6 @@ import Link from "next/link";
 import type { User as UserType } from "@/lib/users/types";
 import { cn } from "@/lib/utils";
 import { getUserByIdAction } from "@/app/actions/users";
-import { motion } from "framer-motion";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -156,12 +155,7 @@ export default function AdminUserDetailPage() {
 
   if (error || !user) {
     return (
-      <motion.main
-        className="w-full space-y-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4 }}
-      >
+      <main className="w-full space-y-6">
         <div className="flex items-center gap-3">
           <Link href="/dashboard/users">
             <Button
@@ -183,7 +177,7 @@ export default function AdminUserDetailPage() {
             onClick={loadData}
           />
         </div>
-      </motion.main>
+      </main>
     );
   }
 
@@ -213,12 +207,7 @@ export default function AdminUserDetailPage() {
     : null;
 
   return (
-    <motion.main
-      className="w-full space-y-6"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-    >
+    <main className="w-full space-y-6">
       {/* Back button + Header */}
       <div className="flex items-center gap-3">
         <Link href="/dashboard/users">
@@ -248,11 +237,7 @@ export default function AdminUserDetailPage() {
       />
 
       {/* Profile Hero Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-      >
+      <div>
         <div
           className="rounded-[--radius] border border-border bg-card p-6"
           style={{ boxShadow: softSurfaceShadow }}
@@ -282,11 +267,11 @@ export default function AdminUserDetailPage() {
                   "absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border border-card",
                   user.emailVerified
                     ? "bg-healthy"
-                    : "bg-muted-foreground",
+                    : "bg-[hsl(var(--plate-neutral))]",
                 )}
               >
                 {user.emailVerified ? (
-                  <CheckCircle className="h-4 w-4 text-white" weight="fill" />
+                  <CheckCircle className="h-4 w-4 text-healthy-foreground" weight="fill" />
                 ) : (
                   <XCircle className="h-4 w-4 text-white" weight="fill" />
                 )}
@@ -295,7 +280,7 @@ export default function AdminUserDetailPage() {
 
             {/* Name + meta */}
             <div className="flex-1 text-center sm:text-left">
-              <h2 className="text-xl font-semibold text-foreground">
+              <h2 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground">
                 {user.username}
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">{user.email}</p>
@@ -342,14 +327,10 @@ export default function AdminUserDetailPage() {
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Detail Cards Grid */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
-      >
+      <div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {/* Email */}
           <InfoCard
@@ -461,7 +442,7 @@ export default function AdminUserDetailPage() {
             value={formatDateTime(user.updatedAt)}
           />
         </div>
-      </motion.div>
-    </motion.main>
+      </div>
+    </main>
   );
 }

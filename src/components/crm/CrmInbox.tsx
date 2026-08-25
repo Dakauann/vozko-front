@@ -34,7 +34,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import AnalysisHoverCard from "@/components/crm/AnalysisHoverCard";
 import TooltipWrapper from "@/components/ui/tooltip-wrapper";
-import { cn } from "@/lib/utils";
+import { cn, readableInkFor } from "@/lib/utils";
 import { motion as framerMotion } from "framer-motion";
 import { useWorkspace } from "@/contexts/workspace-context";
 import {
@@ -695,7 +695,7 @@ export default function CrmInbox({
               className="h-3.5 w-3.5"
             />
             {activeFilterCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-[--radius] bg-healthy/100 px-0.5 text-2xs font-semibold text-healthy-foreground">
+              <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-[--radius] bg-healthy px-0.5 text-2xs font-semibold text-healthy-foreground">
                 {activeFilterCount}
               </span>
             )}
@@ -732,7 +732,7 @@ export default function CrmInbox({
               className={cn(
                 "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-2xs font-medium whitespace-nowrap transition-all duration-150",
                 stateFilter === item.key
-                  ? "bg-healthy/100 text-healthy-foreground shadow-sm"
+                  ? "bg-healthy text-healthy-foreground shadow-sm"
                   : "bg-muted text-muted-foreground hover:bg-border",
               )}
             >
@@ -741,7 +741,7 @@ export default function CrmInbox({
                 className={cn(
                   "flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-2xs font-semibold",
                   stateFilter === item.key
-                    ? "bg-white/25 text-white"
+                    ? "bg-black/20 text-healthy-foreground"
                     : "bg-border text-muted-foreground",
                 )}
               >
@@ -1021,7 +1021,7 @@ export default function CrmInbox({
               <div className="flex items-center gap-2 pt-1">
                 <button
                   onClick={handleApplyFilters}
-                  className="flex-1 rounded-lg bg-healthy/100 px-3 py-1.5 text-2xs font-semibold text-healthy-foreground hover:bg-healthy transition-colors"
+                  className="flex-1 rounded-lg bg-healthy px-3 py-1.5 text-2xs font-semibold text-healthy-foreground hover:bg-healthy transition-colors"
                 >
                   Aplicar filtros
                 </button>
@@ -1327,8 +1327,11 @@ export default function CrmInbox({
                           {entry.labels?.slice(0, 2).map((label) => (
                             <span
                               key={label.label_id}
-                              className="inline-flex items-center rounded-[--radius] px-1.5 py-0.5 text-2xs font-semibold text-white"
-                              style={{ backgroundColor: label.color }}
+                              className="inline-flex items-center rounded-[--radius] px-1.5 py-0.5 text-2xs font-semibold"
+                              style={{
+                                backgroundColor: label.color,
+                                color: readableInkFor(label.color),
+                              }}
                             >
                               {label.name}
                             </span>
@@ -1365,8 +1368,11 @@ export default function CrmInbox({
                                       {entry.labels.map((label) => (
                                         <span
                                           key={label.label_id}
-                                          className="inline-flex items-center rounded-[--radius] px-1.5 py-0.5 text-2xs font-semibold text-white"
-                                          style={{ backgroundColor: label.color }}
+                                          className="inline-flex items-center rounded-[--radius] px-1.5 py-0.5 text-2xs font-semibold"
+                                          style={{
+                                            backgroundColor: label.color,
+                                            color: readableInkFor(label.color),
+                                          }}
                                         >
                                           {label.name}
                                         </span>

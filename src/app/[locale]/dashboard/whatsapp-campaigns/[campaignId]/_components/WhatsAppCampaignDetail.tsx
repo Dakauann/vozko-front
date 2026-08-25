@@ -292,7 +292,7 @@ function ResetModal({
                     />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-foreground">
+                    <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                       {t("title")}
                     </h3>
                     <p className="text-sm text-muted-foreground">
@@ -302,7 +302,7 @@ function ResetModal({
                 </div>
                 <button
                   onClick={handleClose}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-card text-muted-foreground transition-colors duration-150 hover:bg-black/5 hover:text-foreground"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors duration-150 hover:bg-muted hover:text-foreground"
                   style={{ boxShadow: softSurfaceShadow }}
                 >
                   <X className="h-4 w-4" weight="bold" />
@@ -587,7 +587,7 @@ function ClearHistoryModal({
                     <Trash className="h-5 w-5 text-destructive-ink" weight="bold" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-foreground">
+                    <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                       {t("title")}
                     </h3>
                     <p className="text-sm text-muted-foreground">
@@ -597,7 +597,7 @@ function ClearHistoryModal({
                 </div>
                 <button
                   onClick={handleClose}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-card text-muted-foreground transition-colors duration-150 hover:bg-black/5 hover:text-foreground"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors duration-150 hover:bg-muted hover:text-foreground"
                   style={{ boxShadow: softSurfaceShadow }}
                 >
                   <X className="h-4 w-4" weight="bold" />
@@ -1131,7 +1131,12 @@ function WhatsAppCampaignDetailContent({
     const prev = prevMetricsRef.current;
     if (prev) {
       const stageKeys = ["pending", "sent", "delivered", "read"] as const;
-      const stageColors = ["#64748b", "#3b82f6", "#14b8a6", "#8b5cf6"];
+      const stageColors: Record<(typeof stageKeys)[number], string> = {
+        pending: "hsl(var(--plate-neutral))",
+        sent: "hsl(var(--chart-4))",
+        delivered: "hsl(var(--chart-2))",
+        read: "hsl(var(--chart-1))",
+      };
       const newFloatingMessages: typeof floatingMessages = [];
 
       for (let i = 0; i < stageKeys.length - 1; i++) {
@@ -1153,7 +1158,7 @@ function WhatsAppCampaignDetailContent({
               id: `flow-${animationIdRef.current}-${i}-${j}`,
               fromIndex: i + 1, // +1 because Total card is at index 0
               toIndex: i + 2,
-              color: stageColors[i],
+              color: stageColors[currentKey],
             });
           }
         }
@@ -1322,18 +1327,8 @@ function WhatsAppCampaignDetailContent({
       introPalette={whatsappDetailTourPalette}
       introSeed={whatsappDetailTourSeed}
     />
-    <motion.div
-      className="space-y-4"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-    >
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        data-tour="wd-header"
-      >
+    <div className="space-y-4">
+      <div data-tour="wd-header">
         <CampaignHeader
           name={campaign.name}
           status={status}
@@ -1374,13 +1369,10 @@ function WhatsAppCampaignDetailContent({
             noPermissionUpdate: t("detail.noPermissionUpdate"),
           }}
         />
-      </motion.div>
+      </div>
 
       {/* Dashboard Grid Layout - Campaign Info + AI Analysis */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
+      <div
         className={cn("grid gap-4", canReadAnalysis ? "lg:grid-cols-3" : "")}
       >
         {/* Campaign Info - Takes 2 columns */}
@@ -1398,7 +1390,7 @@ function WhatsAppCampaignDetailContent({
                 <WhatsappLogo className="h-6 w-6" weight="fill" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-foreground">
+                <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                   {campaign.name}
                 </h2>
                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
@@ -1497,7 +1489,7 @@ function WhatsAppCampaignDetailContent({
                   <p className="text-2xs text-muted-foreground font-medium">
                     {t("detail.metrics.total")}
                   </p>
-                  <p className="text-xl font-semibold text-foreground">
+                  <p className="font-display text-xl font-semibold text-foreground">
                     {metrics.totalNumbers.toLocaleString()}
                   </p>
                 </div>
@@ -1512,7 +1504,7 @@ function WhatsAppCampaignDetailContent({
                   <p className="text-2xs text-muted-foreground font-medium">
                     {t("detail.metrics.pending")}
                   </p>
-                  <p className="text-xl font-semibold text-foreground">
+                  <p className="font-display text-xl font-semibold text-foreground">
                     {metrics.pending.toLocaleString()}
                   </p>
                 </div>
@@ -1529,7 +1521,7 @@ function WhatsAppCampaignDetailContent({
                   <p className="text-2xs text-muted-foreground font-medium">
                     {t("detail.metrics.sent")}
                   </p>
-                  <p className="text-xl font-semibold text-foreground">
+                  <p className="font-display text-xl font-semibold text-foreground">
                     {metrics.sent.toLocaleString()}
                   </p>
                   <p className="text-2xs text-muted-foreground font-medium">
@@ -1547,7 +1539,7 @@ function WhatsAppCampaignDetailContent({
                   <p className="text-2xs text-muted-foreground font-medium">
                     {t("detail.metrics.delivered")}
                   </p>
-                  <p className="text-xl font-semibold text-foreground">
+                  <p className="font-display text-xl font-semibold text-foreground">
                     {metrics.delivered.toLocaleString()}
                   </p>
                 </div>
@@ -1562,7 +1554,7 @@ function WhatsAppCampaignDetailContent({
                   <p className="text-2xs text-muted-foreground font-medium">
                     {t("detail.metrics.read")}
                   </p>
-                  <p className="text-xl font-semibold text-foreground">
+                  <p className="font-display text-xl font-semibold text-foreground">
                     {metrics.read.toLocaleString()}
                   </p>
                 </div>
@@ -1577,7 +1569,7 @@ function WhatsAppCampaignDetailContent({
                   <p className="text-2xs text-muted-foreground font-medium">
                     {t("detail.metrics.failed")}
                   </p>
-                  <p className="text-xl font-semibold text-foreground">
+                  <p className="font-display text-xl font-semibold text-foreground">
                     {metrics.failed.toLocaleString()}
                   </p>
                 </div>
@@ -1592,7 +1584,7 @@ function WhatsAppCampaignDetailContent({
                   <p className="text-2xs text-muted-foreground font-medium">
                     {t("detail.metrics.notEligiblePossibleSpam")}
                   </p>
-                  <p className="text-xl font-semibold text-foreground">
+                  <p className="font-display text-xl font-semibold text-foreground">
                     {metrics.notEligiblePossibleSpam.toLocaleString()}
                   </p>
                 </div>
@@ -1743,22 +1735,13 @@ function WhatsAppCampaignDetailContent({
           />
         )}
         {/* AI Analysis Stats - Compact */}
-      </motion.div>
+      </div>
 
       {/* Combined Filters */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.25 }}
-      ></motion.div>
+      <div></div>
 
       {/* Entry Filters Bar */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.28 }}
-        data-tour="wd-entry-filters"
-      >
+      <div data-tour="wd-entry-filters">
         <EntryFiltersBar
           campaignType="whatsapp"
           values={entryFilters}
@@ -1798,14 +1781,9 @@ function WhatsAppCampaignDetailContent({
             ) : undefined
           }
         />
-      </motion.div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.3 }}
-        data-tour="wd-contacts"
-      >
+      <div data-tour="wd-contacts">
         <div
           className="rounded-[--radius] border border-border bg-card p-8"
           style={{ boxShadow: softSurfaceShadow }}
@@ -1816,7 +1794,7 @@ function WhatsAppCampaignDetailContent({
                 <UserCircle weight="bold" className="h-5 w-5" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-foreground">
+                <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                   {t("detail.contactsTitle")}
                 </h2>
                 <p className="text-sm text-muted-foreground">
@@ -1848,14 +1826,14 @@ function WhatsAppCampaignDetailContent({
           {entriesLoading ? (
             <div className="min-h-[400px] flex items-center justify-center rounded-[--radius] border border-border bg-muted px-6 py-8 text-sm text-muted-foreground">
               <div className="flex flex-col items-center gap-3">
-                <div className="h-6 w-6 animate-spin rounded-full border border-foreground/20 border-t-emerald-500" />
+                <div className="h-6 w-6 animate-spin rounded-full border border-foreground/20 border-t-healthy" />
                 <span>{t("detail.loading")}</span>
               </div>
             </div>
           ) : (
             <div className="min-h-[400px]">
               <div className="grid gap-4 lg:grid-cols-2">
-                {displayEntries.map((contact, index) => {
+                {displayEntries.map((contact) => {
                   const statusCode = contact.status ?? "PENDING";
                   const badgeClass =
                     phoneStatusStyles[statusCode] ??
@@ -1874,13 +1852,8 @@ function WhatsAppCampaignDetailContent({
                       : null;
 
                   return (
-                    <motion.div
+                    <div
                       key={contact.id || contact.number}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{
-                        delay: Math.min(0.5 + index * 0.02, 1.5),
-                      }}
                       className="group relative rounded-[--radius] border border-border bg-card p-5 transition-all duration-200 hover:shadow-md hover:border-foreground/20"
                     >
                       {/* Header Row */}
@@ -2051,7 +2024,7 @@ function WhatsAppCampaignDetailContent({
                           {formatDate(campaign.updatedAt)}
                         </span>
                       </div>
-                    </motion.div>
+                    </div>
                   );
                 })}
                 {!displayEntries.length && (
@@ -2104,7 +2077,7 @@ function WhatsAppCampaignDetailContent({
             </div>
           )}
         </div>
-      </motion.div>
+      </div>
 
       <ResetModal
         isOpen={showResetModal}
@@ -2192,7 +2165,7 @@ function WhatsAppCampaignDetailContent({
           />
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
     </>
   );
 }

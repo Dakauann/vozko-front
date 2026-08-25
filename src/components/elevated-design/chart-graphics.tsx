@@ -104,7 +104,7 @@ const ChartGraphicCard: React.FC<ChartGraphicCardProps> = ({
           isMobile ? "gap-1 p-6" : "gap-2 p-8",
         )}
       >
-        <h3 className="text-xl font-semibold text-black text-center leading-tight">
+        <h3 className="font-display text-xl font-semibold tracking-[0.01em] text-black text-center leading-tight">
           {heading}
         </h3>
         <p className="text-sm text-black/80 text-center leading-relaxed">

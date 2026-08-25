@@ -28,8 +28,8 @@ function CodeBlock({ language, children }: { language: string; children: ReactNo
   };
 
   return (
-    <div className="my-3 overflow-hidden rounded-[--radius] border border-border bg-[#f6f8fa] dark:border-white/10 dark:bg-[#0d1117]">
-      <div className="flex items-center justify-between border-b border-border px-3 py-1.5 dark:border-white/10">
+    <div className="my-3 overflow-hidden rounded-[--radius] border border-border bg-muted dark:bg-background">
+      <div className="flex items-center justify-between border-b border-border px-3 py-1.5">
         <span className="font-mono text-xs text-muted-foreground">{language}</span>
         <button
           type="button"

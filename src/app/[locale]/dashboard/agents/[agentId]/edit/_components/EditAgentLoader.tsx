@@ -65,7 +65,7 @@ export default function EditAgentLoader({
                     onClick={() => router.push(`/dashboard/agents/${agentId}`)}
                 />
                 <div className="rounded-[--radius] border border-border bg-card p-6">
-                    <h1 className="text-xl font-semibold text-foreground">
+                    <h1 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground">
                         {tAgents("error.noPermissionTitle")}
                     </h1>
                     <p className="mt-2 text-sm text-muted-foreground">

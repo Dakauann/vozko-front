@@ -19,6 +19,14 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import {
+  VozAreaGradient,
+  vozGrid,
+  vozLineMark,
+  vozRing,
+  vozXAxis,
+  vozYAxis,
+} from "@/components/charts/vozko";
+import {
   ArrowClockwise,
   Calendar,
   ChartBar,
@@ -69,47 +77,32 @@ import { EVENT_TYPES } from "@/lib/business-metrics/types";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import { ElevatedDatePicker } from "@/components/elevated-design/elevated-date-picker";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
-import GradientText from "@/components/elevated-design/gradient-text";
 import { ReadoutBar } from "@/components/console/page-shapes";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4, ease: "easeOut" as const },
-  },
-};
-
+// The design system's validated series tokens, not loose hexes: colour
+// follows the ENTITY (users take --chart-2, WhatsApp takes --chart-1) in both
+// themes, and an event pair shares its entity's hue with the terminal variant
+// stepped down by alpha so "started" and "stopped" read as one family.
 const CHART_COLORS = {
-  users: "#3b82f6", // blue
-  campaigns: "#f59e0b", // amber
-  calls: "#06b6d4", // cyan
-  whatsapp: "#22c55e", // green
-  email: "#ec4899", // pink
+  users: "hsl(var(--chart-2))",
+  campaigns: "hsl(var(--chart-3))",
+  calls: "hsl(var(--chart-4))",
+  whatsapp: "hsl(var(--chart-1))",
+  email: "hsl(var(--chart-5))",
 };
 
 const EVENT_COLORS: Record<string, string> = {
-  user_account_created: "#3b82f6",
-  user_login: "#60a5fa",
-  campaign_started: "#f59e0b",
-  campaign_stopped: "#fbbf24",
-  call_started: "#06b6d4",
-  call_ended: "#22d3ee",
-  whatsapp_message_sent: "#22c55e",
-  whatsapp_template_message_sent: "#4ade80",
-  email_sent: "#ec4899",
+  user_account_created: "hsl(var(--chart-2))",
+  user_login: "hsl(var(--chart-2) / 0.55)",
+  campaign_started: "hsl(var(--chart-3))",
+  campaign_stopped: "hsl(var(--chart-3) / 0.55)",
+  call_started: "hsl(var(--chart-4))",
+  call_ended: "hsl(var(--chart-4) / 0.55)",
+  whatsapp_message_sent: "hsl(var(--chart-1))",
+  whatsapp_template_message_sent: "hsl(var(--chart-1) / 0.55)",
+  email_sent: "hsl(var(--chart-5))",
 };
 
 type DateRangePreset = "24h" | "7d" | "30d" | "90d" | "custom";
@@ -306,7 +299,7 @@ function TimeSeriesChart({
     visibleEventTypes.forEach((eventType) => {
       config[eventType] = {
         label: t(`events.${eventType}` as Parameters<typeof t>[0]),
-        color: EVENT_COLORS[eventType] || "#8884d8",
+        color: EVENT_COLORS[eventType] || "hsl(var(--chart-1))",
       };
     });
     return config;
@@ -340,35 +333,16 @@ function TimeSeriesChart({
       >
         <defs>
           {visibleEventTypes.map((eventType) => (
-            <linearGradient
+            <VozAreaGradient
               key={eventType}
-              id={`gradient-ts-${eventType}`}
-              x1="0"
-              y1="0"
-              x2="0"
-              y2="1"
-            >
-              <stop
-                offset="0%"
-                stopColor={`var(--color-${eventType})`}
-                stopOpacity={0.4}
-              />
-              <stop
-                offset="100%"
-                stopColor={`var(--color-${eventType})`}
-                stopOpacity={0.02}
-              />
-            </linearGradient>
+              id={`ts-${eventType}`}
+              color={`var(--color-${eventType})`}
+            />
           ))}
         </defs>
-        <CartesianGrid strokeDasharray="4 4" vertical={false} />
-        <XAxis
-          dataKey="formattedTime"
-          tickLine={false}
-          axisLine={false}
-          fontSize={11}
-        />
-        <YAxis tickLine={false} axisLine={false} fontSize={11} />
+        <CartesianGrid {...vozGrid} />
+        <XAxis {...vozXAxis} dataKey="formattedTime" />
+        <YAxis {...vozYAxis} />
         <ChartTooltip
           content={
             <ChartTooltipContent
@@ -388,12 +362,11 @@ function TimeSeriesChart({
         {visibleEventTypes.map((eventType) => (
           <Area
             key={eventType}
+            {...vozLineMark}
             type="monotoneX"
             dataKey={eventType}
             stroke={`var(--color-${eventType})`}
-            strokeWidth={2.5}
-            fill={`url(#gradient-ts-${eventType})`}
-            dot={false}
+            fill={`url(#voz-fill-ts-${eventType})`}
           />
         ))}
       </AreaChart>
@@ -434,8 +407,8 @@ function DistributionPieChart({
       .map(([eventType, count]) => ({
         name: eventType,
         value: count,
-        color: EVENT_COLORS[eventType] || "#8884d8",
-        fill: EVENT_COLORS[eventType] || "#8884d8",
+        color: EVENT_COLORS[eventType] || "hsl(var(--chart-1))",
+        fill: EVENT_COLORS[eventType] || "hsl(var(--chart-1))",
       }))
       .sort((a, b) => b.value - a.value);
   }, [stats]);
@@ -472,44 +445,46 @@ function DistributionPieChart({
   }
 
   return (
-    <ChartContainer config={pieConfig} className="h-[300px] w-full">
-      <PieChart>
-        <Pie
-          data={pieData}
-          cx="50%"
-          cy="50%"
-          innerRadius={55}
-          outerRadius={95}
-          paddingAngle={3}
-          dataKey="value"
-          nameKey="name"
-          cornerRadius={6}
-          strokeWidth={2}
-          stroke="hsl(var(--background))"
-        >
-          {pieData.map((entry) => (
-            <Cell key={entry.name} fill={entry.color} />
-          ))}
-        </Pie>
-        <ChartTooltip
-          content={
-            <ChartTooltipContent
-              nameKey="name"
-              formatter={(value, name) => (
-                <div className="flex items-center justify-between gap-4">
-                  <span className="text-muted-foreground">
-                    {pieConfig[name as string]?.label ?? name}
-                  </span>
-                  <span className="font-semibold tabular-nums">
-                    {(value as number).toLocaleString()}
-                  </span>
-                </div>
-              )}
-            />
-          }
-        />
-      </PieChart>
-    </ChartContainer>
+    <div className="relative">
+      <ChartContainer config={pieConfig} className="h-[300px] w-full">
+        <PieChart>
+          <Pie
+            data={pieData}
+            cx="50%"
+            cy="50%"
+            dataKey="value"
+            nameKey="name"
+            {...vozRing(95, 83)}
+          >
+            {pieData.map((entry) => (
+              <Cell key={entry.name} fill={entry.color} />
+            ))}
+          </Pie>
+          <ChartTooltip
+            content={
+              <ChartTooltipContent
+                nameKey="name"
+                formatter={(value, name) => (
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-muted-foreground">
+                      {pieConfig[name as string]?.label ?? name}
+                    </span>
+                    <span className="font-semibold tabular-nums">
+                      {(value as number).toLocaleString()}
+                    </span>
+                  </div>
+                )}
+              />
+            }
+          />
+        </PieChart>
+      </ChartContainer>
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        <span className="readout font-display text-lg font-semibold leading-none text-foreground">
+          {pieData.reduce((s, i) => s + i.value, 0).toLocaleString()}
+        </span>
+      </div>
+    </div>
   );
 }
 
@@ -597,16 +572,9 @@ function CategoryBarChart({
         layout="vertical"
         margin={{ left: 90, right: 20, top: 10, bottom: 10 }}
       >
-        <CartesianGrid strokeDasharray="4 4" horizontal={false} />
-        <XAxis type="number" tickLine={false} axisLine={false} fontSize={11} />
-        <YAxis
-          type="category"
-          dataKey="name"
-          tickLine={false}
-          axisLine={false}
-          fontSize={12}
-          width={85}
-        />
+        <CartesianGrid {...vozGrid} vertical horizontal={false} />
+        <XAxis {...vozXAxis} type="number" />
+        <YAxis {...vozYAxis} type="category" dataKey="name" width={85} />
         <ChartTooltip
           content={
             <ChartTooltipContent
@@ -621,8 +589,8 @@ function CategoryBarChart({
         <Bar
           dataKey="value"
           name={t("events.count")}
-          radius={[0, 8, 8, 0]}
-          barSize={28}
+          radius={[0, 4, 4, 0]}
+          maxBarSize={28}
         >
           {barData.map((entry) => (
             <Cell key={entry.name} fill={entry.color} />
@@ -753,26 +721,22 @@ function EventFilterChips({
     <div className="flex flex-wrap gap-2">
       {eventTypes.map((eventType) => {
         const isSelected = selectedEvents.includes(eventType);
-        const color = EVENT_COLORS[eventType] || "#64748b";
+        const color = EVENT_COLORS[eventType] || "hsl(var(--muted-foreground))";
 
         return (
           <button
             key={eventType}
             onClick={() => onToggle(eventType)}
             className={cn(
-              "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all",
+              "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all",
               isSelected
-                ? "text-white shadow-sm"
-                : "bg-muted text-muted-foreground hover:bg-border",
+                ? "border-border bg-card font-semibold text-foreground shadow-sm"
+                : "border-transparent bg-muted text-muted-foreground hover:bg-border",
             )}
-            style={isSelected ? { backgroundColor: color } : undefined}
           >
             <span
-              className={cn(
-                "h-2 w-2 rounded-full",
-                !isSelected && "opacity-60",
-              )}
-              style={{ backgroundColor: isSelected ? "#fff" : color }}
+              className={cn("h-2 w-2 rounded-full", !isSelected && "opacity-60")}
+              style={{ backgroundColor: color }}
             />
             {t(`events.${eventType}` as Parameters<typeof t>[0])}
           </button>
@@ -1010,24 +974,13 @@ export default function AdminMetricsDashboard() {
   }, [dateRangePreset]);
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="space-y-6"
-    >
-      <motion.div variants={itemVariants} className="flex flex-col gap-4">
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
           <div>
-            <GradientText
-              as="h1"
-              alignment="left"
-              startColor="#6366f1"
-              endColor="#8b5cf6"
-              className="text-2xl font-semibold md:text-3xl"
-            >
+            <h1 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground">
               {t("pageTitle")}
-            </GradientText>
+            </h1>
             <p className="text-sm text-muted-foreground">{t("pageSubtitle")}</p>
           </div>
           {mainSection === "business-metrics" && (
@@ -1060,11 +1013,11 @@ export default function AdminMetricsDashboard() {
             {t("mainTabs.businessMetrics")}
           </button>
         </div>
-      </motion.div>
+      </div>
 
       {mainSection === "business-metrics" && (
         <>
-          <motion.div variants={itemVariants}>
+          <div>
             <ElevatedContainer className="rounded-lg border border-border bg-card p-4">
               <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -1179,13 +1132,13 @@ export default function AdminMetricsDashboard() {
                 />
               </div>
             </ElevatedContainer>
-          </motion.div>
+          </div>
 
-          <motion.div variants={itemVariants}>
+          <div>
             <CategoryStatsGrid stats={stats} loading={loading} t={t} />
-          </motion.div>
+          </div>
 
-          <motion.div variants={itemVariants}>
+          <div>
             <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList
@@ -1221,7 +1174,7 @@ export default function AdminMetricsDashboard() {
                 <TabsContent value="overview">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-foreground">
+                      <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                         {t("charts.timeSeries.title")}
                       </h3>
                       <p className="text-sm text-muted-foreground">
@@ -1241,7 +1194,7 @@ export default function AdminMetricsDashboard() {
                 <TabsContent value="distribution">
                   <div className="grid gap-6 lg:grid-cols-2">
                     <div>
-                      <h3 className="text-lg font-semibold text-foreground mb-4">
+                      <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground mb-4">
                         {t("charts.distribution.title")}
                       </h3>
                       <DistributionPieChart
@@ -1251,7 +1204,7 @@ export default function AdminMetricsDashboard() {
                       />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-foreground mb-4">
+                      <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground mb-4">
                         {t("charts.distribution.legend")}
                       </h3>
                       {stats && (
@@ -1269,7 +1222,7 @@ export default function AdminMetricsDashboard() {
                                     className="h-3 w-3 rounded-full"
                                     style={{
                                       backgroundColor:
-                                        EVENT_COLORS[eventType] || "#64748b",
+                                        EVENT_COLORS[eventType] || "hsl(var(--muted-foreground))",
                                     }}
                                   />
                                   <span className="text-sm text-foreground">
@@ -1294,7 +1247,7 @@ export default function AdminMetricsDashboard() {
                 <TabsContent value="categories">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-foreground">
+                      <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                         {t("charts.categories.title")}
                       </h3>
                       <p className="text-sm text-muted-foreground">
@@ -1306,10 +1259,10 @@ export default function AdminMetricsDashboard() {
                 </TabsContent>
               </Tabs>
             </ElevatedContainer>
-          </motion.div>
+          </div>
 
           {customCharts.length > 0 && (
-            <motion.div variants={itemVariants}>
+            <div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {customCharts.map((chart, index) => (
                   <div
@@ -1330,7 +1283,7 @@ export default function AdminMetricsDashboard() {
                             className="h-5 w-5 text-muted-foreground cursor-grab active:cursor-grabbing"
                             weight="bold"
                           />
-                          <h3 className="text-lg font-semibold text-foreground">
+                          <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                             {chart.name}
                           </h3>
                         </div>
@@ -1383,10 +1336,10 @@ export default function AdminMetricsDashboard() {
                   </div>
                 ))}
               </div>
-            </motion.div>
+            </div>
           )}
 
-          <motion.div variants={itemVariants}>
+          <div>
             <Button
               variant="outline-subtle"
               icon={<Plus className="h-4 w-4" />}
@@ -1396,7 +1349,7 @@ export default function AdminMetricsDashboard() {
               onClick={() => setShowCreateChartDialog(true)}
               className="w-full"
             />
-          </motion.div>
+          </div>
 
           <ElevatedDialog
             open={showCreateChartDialog}
@@ -1478,7 +1431,7 @@ export default function AdminMetricsDashboard() {
                     <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-2 border border-border rounded-lg">
                       {Object.values(EVENT_TYPES).map((eventType) => {
                         const isSelected = newChartEvents.includes(eventType);
-                        const color = EVENT_COLORS[eventType] || "#64748b";
+                        const color = EVENT_COLORS[eventType] || "hsl(var(--muted-foreground))";
 
                         return (
                           <button
@@ -1537,12 +1490,12 @@ export default function AdminMetricsDashboard() {
             </ElevatedDialogContent>
           </ElevatedDialog>
 
-          <motion.div variants={itemVariants}>
+          <div>
             <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Clock className="h-5 w-5 text-primary-ink" weight="fill" />
-                  <h2 className="text-lg font-semibold text-foreground">
+                  <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                     {t("recentActivity.title")}
                   </h2>
                 </div>
@@ -1559,9 +1512,9 @@ export default function AdminMetricsDashboard() {
                 t={t}
               />
             </ElevatedContainer>
-          </motion.div>
+          </div>
         </>
       )}
-    </motion.div>
+    </div>
   );
 }

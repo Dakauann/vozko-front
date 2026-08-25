@@ -1410,7 +1410,16 @@
       "emailStatus": "Status do email",
       "userId": "ID do usuário",
       "plan": "Plano",
-      "callChannels": "Canais de chamada"
+      "callChannels": "Canais de chamada",
+      "edit": "Editar nome",
+      "namePlaceholder": "Seu nome",
+      "save": "Salvar",
+      "saving": "Salvando...",
+      "cancel": "Cancelar",
+      "nameSaved": "Nome atualizado.",
+      "nameTooShort": "O nome deve ter pelo menos 2 caracteres.",
+      "nameTooLong": "O nome deve ter no máximo 60 caracteres.",
+      "nameSaveError": "Não foi possível atualizar seu nome. Tente novamente."
     },
     "security": {
       "title": "Segurança",
@@ -2042,6 +2051,7 @@
     "avgResponsePerAttendant": "Média por atendente",
     "workspaceLegend": "Área de trabalho",
     "openAttendance": "Abrir atendimento",
+    "attendanceSection": "Atendimento",
     "viewAll": "Ver todas",
     "noQuickActionsHint": "As ações aparecem conforme as permissões da área de trabalho.",
     "noWorkspaceDescription": "Selecione uma área de trabalho para ver campanhas, conversas e métricas.",

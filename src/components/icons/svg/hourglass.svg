@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Ampulheta">
+  <title>Ampulheta</title>
+  <path d="M6.5 3.25h11M6.5 20.75h11"/>
+  <path d="M7.75 3.25v3.2a2 2 0 0 0 .62 1.45L12 11.4l3.63-3.5a2 2 0 0 0 .62-1.45v-3.2"/>
+  <path stroke="var(--icon-accent, currentColor)" d="M7.75 20.75v-3.2a2 2 0 0 1 .62-1.45L12 12.6l3.63 3.5a2 2 0 0 1 .62 1.45v3.2"/>
+</svg>

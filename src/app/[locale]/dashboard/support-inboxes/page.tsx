@@ -18,7 +18,6 @@ import {
   type DashboardTableColumn,
 } from "@/components/elevated-design/table/dashboard-table";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
-import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -142,12 +141,7 @@ export default function SupportInboxesPage() {
   );
 
   return (
-    <motion.main
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="w-full space-y-4"
-    >
+    <main className="w-full space-y-4">
       <DashboardPageHeader
         icon={<Headset className="h-6 w-6" weight="fill" />}
         badge={t("header.badge")}
@@ -257,6 +251,6 @@ export default function SupportInboxesPage() {
               }
         }
       />
-    </motion.main>
+    </main>
   );
 }

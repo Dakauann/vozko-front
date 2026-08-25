@@ -260,26 +260,38 @@ export function ActionRowList({
 // bar. Children get a `registerRow` callback to tag the rows that own a handle.
 export interface ShellBranch {
   id: string;
-  /** Tailwind bg class for the handle dot. Defaults to branchDotClass(id). */
+  /** Tailwind border class for the handle pad. Defaults to branchDotClass(id). */
   dot?: string;
   /** Required outputs get a small red marker (they must be connected). */
   required?: boolean;
 }
 
-// branchDotClass is the ONE place branch-handle colors are decided, so every
+// Trace-pad handles — the brand's signature terminal (see components/brand/
+// circuit.tsx: trace runs end in SQUARE pads, not dots). Rest is a card-filled
+// pad on a hairline border; hover and the drag/valid connection states are the
+// brand-green moments. Geometry + interaction states live here once; each
+// handle adds only its position and (for branches) the semantic border tone.
+const HANDLE_PAD_CLASS =
+  "!h-[9px] !w-[9px] !rounded-[2px] !border-2 !bg-card " +
+  "hover:!border-primary [&.connectingfrom]:!border-primary " +
+  "[&.connectingto]:!border-primary [&.valid]:!border-primary [&.valid]:!bg-primary";
+
+// branchDotClass is the ONE place branch-handle tones are decided, so every
 // multi-output node (send-button catch-alls, condition, http, ai_agent, wait…)
-// tones its dots the same way instead of hardcoding per node. Semantic by the
-// branch id: failure → rose, timeout/warning → amber, neutral fallback → gray,
-// positive outcome → emerald, everything else → the Signal Blue accent.
+// tones its pads the same way instead of hardcoding per node. Semantic by the
+// branch id, carried on the pad's BORDER (the fill stays the card surface):
+// failure → destructive, timeout/warning → warning, positive outcome → healthy,
+// neutral fallback and everything else → the strong hairline (brand green is
+// reserved for selection/connection states).
 export function branchDotClass(id: string): string {
   const k = id.trim().toLowerCase();
-  if (/(erro|error|falh|fail|send_failed)/.test(k)) return "!bg-destructive";
-  if (/(timeout|no_reply|tempo|esgotad|expir)/.test(k)) return "!bg-warning";
-  if (/(no_match|^default$|padr)/.test(k)) return "!bg-gray-400";
+  if (/(erro|error|falh|fail|send_failed)/.test(k)) return "!border-destructive";
+  if (/(timeout|no_reply|tempo|esgotad|expir)/.test(k)) return "!border-warning";
+  if (/(no_match|^default$|padr)/.test(k)) return "!border-border-strong";
   if (/(sucesso|success|verdadeiro|^true$|passed|replied|respond)/.test(k))
-    return "!bg-healthy";
-  if (/(^false$|^falso$)/.test(k)) return "!bg-destructive";
-  return "!bg-primary";
+    return "!border-healthy";
+  if (/(^false$|^falso$)/.test(k)) return "!border-destructive";
+  return "!border-border-strong";
 }
 
 // BranchRow is the ONE row style for a node's outgoing branch, used by every
@@ -347,6 +359,10 @@ export interface InteractiveNodeShellProps {
   label: string;
   icon: Icon;
   iconColor: string;
+  /** Glyph color on the category tile; defaults to white. Amber passes the
+   *  near-black its own foreground token defines, because white on amber
+   *  measures under 3:1 in the light theme. */
+  iconInk?: string;
   width: number;
   branches: ShellBranch[];
   selected?: boolean;
@@ -376,6 +392,7 @@ export function InteractiveNodeShell({
   label,
   icon: IconComp,
   iconColor,
+  iconInk = "#ffffff",
   width,
   branches,
   selected,
@@ -456,7 +473,7 @@ export function InteractiveNodeShell({
         <Handle
           type="target"
           position={Position.Left}
-          className="!w-3 !h-3 !border !border-background !-left-[6px] !bg-muted-foreground/60"
+          className={cn(HANDLE_PAD_CLASS, "!-left-[5px] !border-border-strong")}
         />
       )}
 
@@ -469,9 +486,12 @@ export function InteractiveNodeShell({
           ease: "easeOut",
         }}
         className={cn(
-          "relative overflow-hidden rounded-[--radius] border border-border bg-card shadow-md transition-all",
+          "relative overflow-hidden rounded-lg border border-border bg-card shadow-md transition-all",
+          !selected && "hover:border-border-strong",
+          // Selection is a brand state, as everywhere else in the product;
+          // the near-black ring this replaces read as an error outline.
           selected &&
-            "ring-2 ring-foreground/80 ring-offset-2 ring-offset-background shadow-lg",
+            "border-primary ring-2 ring-primary/30 shadow-lg",
           Boolean(isSimulating) &&
             "ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg animate-pulse",
           // Search match wins over the selection ring (ordered last) so a found
@@ -482,24 +502,25 @@ export function InteractiveNodeShell({
       >
         {flashing && (
           <motion.div
-            className="pointer-events-none absolute inset-0 z-10 rounded-[--radius] bg-muted ring-2 ring-inset ring-primary"
+            className="pointer-events-none absolute inset-0 z-10 rounded-lg bg-muted ring-2 ring-inset ring-primary"
             initial={{ opacity: 0 }}
             animate={{ opacity: [0, 1, 1, 0] }}
             transition={{ duration: 2.2, times: [0, 0.08, 0.65, 1], ease: "easeOut" }}
           />
         )}
 
-        {children({ registerRow })}
-
-        {/* Bottom bar: icon + label + node id */}
-        <div className="flex items-center gap-1.5 border-t border-border bg-muted px-2 py-1">
+        {/* HEADER bar — the Azure Logic Apps card anatomy: the coloured
+            category tile and the node's name lead the card, content hangs
+            below. This was a footer, which made every node read as an
+            unlabeled preview until the eye reached its last line. */}
+        <div className="flex items-center gap-1.5 border-b border-border bg-card px-2 py-1.5">
           <div
-            className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-md shadow-sm"
+            className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[--radius] shadow-sm"
             style={{ backgroundColor: iconColor }}
           >
-            <IconComp size={11} weight="fill" className="text-white" />
+            <IconComp size={11} weight="fill" style={{ color: iconInk }} />
           </div>
-          <span className="min-w-0 flex-1 truncate text-2xs font-semibold text-foreground/80">
+          <span className="min-w-0 flex-1 truncate text-2xs font-semibold text-foreground">
             {label}
           </span>
           {Boolean(hasMissingRequired) && (
@@ -509,6 +530,8 @@ export function InteractiveNodeShell({
             {id}
           </span>
         </div>
+
+        {children({ registerRow })}
       </motion.div>
 
       {hasBranches
@@ -523,7 +546,8 @@ export function InteractiveNodeShell({
                 id={b.id}
                 style={{ top }}
                 className={cn(
-                  "!w-3 !h-3 !border !border-background !-right-[6px]",
+                  HANDLE_PAD_CLASS,
+                  "!-right-[5px]",
                   b.dot ?? branchDotClass(b.id),
                 )}
               >
@@ -535,7 +559,7 @@ export function InteractiveNodeShell({
             <Handle
               type="source"
               position={Position.Right}
-              className="!w-3 !h-3 !border !border-background !-right-[6px] !bg-muted-foreground/60"
+              className={cn(HANDLE_PAD_CLASS, "!-right-[5px] !border-border-strong")}
             >
               {defaultOutputRequired && <RequiredHandleMarker />}
             </Handle>

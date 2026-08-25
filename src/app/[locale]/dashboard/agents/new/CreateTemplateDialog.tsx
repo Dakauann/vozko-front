@@ -388,7 +388,7 @@ export default function CreateTemplateDialog({
                       />
                     </div>
                     <div>
-                      <h2 className="text-lg font-semibold text-foreground">
+                      <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
                         {tAgents("dialog.createTemplate.title")}
                       </h2>
                       <p className="text-sm text-muted-foreground">

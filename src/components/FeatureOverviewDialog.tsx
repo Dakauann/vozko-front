@@ -141,7 +141,7 @@ export default function FeatureOverviewDialog({
             <div className="absolute bottom-1/2 left-1/2 top-1/2 z-10 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap">
               <span
                 className={cn(
-                  "text-2xl font-semibold tracking-tight sm:text-2xl",
+                  "font-display text-2xl font-semibold tracking-[0.01em] sm:text-2xl",
                   mediaSrc
                     ? "text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.25)]"
                     : "text-foreground",
@@ -166,7 +166,7 @@ export default function FeatureOverviewDialog({
 
           <div className="px-5 sm:px-6 pt-4 sm:pt-[18px] pb-5 sm:pb-6 space-y-3 sm:space-y-4">
             <div>
-              <h2 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">
+              <h2 className="font-display text-xl sm:text-2xl font-semibold text-foreground tracking-[0.01em]">
                 {resolvedTitle}
               </h2>
               {description && (

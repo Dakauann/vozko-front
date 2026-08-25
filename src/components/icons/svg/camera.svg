@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Câmera">
+  <title>Câmera</title>
+  <path d="M3.25 9a2.5 2.5 0 0 1 2.5-2.5h1.4a2 2 0 0 0 1.7-.95l.6-1a2 2 0 0 1 1.7-.95h1.7a2 2 0 0 1 1.7.95l.6 1a2 2 0 0 0 1.7.95h1.4a2.5 2.5 0 0 1 2.5 2.5v8.25a2.5 2.5 0 0 1-2.5 2.5H5.75a2.5 2.5 0 0 1-2.5-2.5V9Z"/>
+  <circle stroke="var(--icon-accent, currentColor)" cx="12" cy="13" r="3.75"/>
+</svg>

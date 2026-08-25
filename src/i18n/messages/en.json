@@ -1621,6 +1621,7 @@
     "avgResponsePerAttendant": "Average per agent",
     "workspaceLegend": "Workspace",
     "openAttendance": "Open inbox",
+    "attendanceSection": "Service",
     "viewAll": "View all",
     "noQuickActionsHint": "Actions appear according to this workspace's permissions.",
     "noWorkspaceDescription": "Select a workspace to see campaigns, conversations, and metrics.",
@@ -1851,7 +1852,16 @@
       "emailStatus": "Email status",
       "userId": "User ID",
       "plan": "Plan",
-      "callChannels": "Call channels"
+      "callChannels": "Call channels",
+      "edit": "Edit name",
+      "namePlaceholder": "Your name",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "nameSaved": "Name updated.",
+      "nameTooShort": "Name must be at least 2 characters.",
+      "nameTooLong": "Name must be at most 60 characters.",
+      "nameSaveError": "Could not update your name. Please try again."
     },
     "security": {
       "title": "Security",

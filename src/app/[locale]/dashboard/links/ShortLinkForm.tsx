@@ -83,13 +83,13 @@ function RedirectOption({
         "flex items-start gap-3 rounded-[--radius] border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         selected
           ? "border-primary ring-1 ring-primary"
-          : "border-border hover:border-slate-300",
+          : "border-border hover:border-border-strong",
       )}
     >
       <span
         className={cn(
           "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors",
-          selected ? "border-primary" : "border-slate-300",
+          selected ? "border-primary" : "border-border-strong",
         )}
       >
         {selected && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}

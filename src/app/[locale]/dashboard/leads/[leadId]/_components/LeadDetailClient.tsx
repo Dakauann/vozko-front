@@ -25,23 +25,6 @@ import ElevatedContainer from "@/components/elevated-design/elevated-container"
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets"
 import { getLeadCampaignHistoryAction } from "@/app/actions/leads"
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08 },
-  },
-}
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] as const },
-  },
-}
-
 function fmt(value: string | undefined | null, locale: string): string {
   if (!value) return "—"
   const d = new Date(value)
@@ -104,8 +87,8 @@ function statusBadgeClass(status: string): string {
   if (["ONGOING", "RINGING"].includes(s)) return "bg-muted text-muted-foreground dark:bg-muted dark:text-info-ink"
   if (["RECEIVED", "DELIVERED", "SENT"].includes(s)) return "bg-muted text-healthy-ink dark:text-healthy-ink"
   if (["FAILED", "NOT_FOUND", "BUSY", "NO_ANSWER", "CANCELLED"].includes(s)) return "bg-muted text-destructive-ink dark:text-destructive-ink"
-  if (["ENDED", "VOICEMAIL"].includes(s)) return "bg-slate-100 text-muted-foreground dark:bg-muted dark:text-muted-foreground"
-  return "bg-slate-100 text-muted-foreground dark:bg-muted dark:text-muted-foreground"
+  if (["ENDED", "VOICEMAIL"].includes(s)) return "bg-muted text-muted-foreground"
+  return "bg-muted text-muted-foreground"
 }
 
 function CampaignCard({ campaign, locale, t }: { campaign: CampaignHistoryItem; locale: string; t: (key: string) => string }) {
@@ -218,7 +201,7 @@ export default function LeadDetailClient({
       <div className="flex min-h-[400px] items-center justify-center">
         <ElevatedContainer className="max-w-md p-8 text-center">
           <Users weight="fill" className="mx-auto mb-4 h-12 w-12 text-warning-ink" />
-          <h2 className="text-xl font-semibold text-foreground">{t("error.title")}</h2>
+          <h2 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground">{t("error.title")}</h2>
           <p className="mt-2 text-sm text-muted-foreground">{error || t("records.empty")}</p>
           <Button variant="outline" title="Voltar" link="/dashboard/leads" newTab={false} className="mt-4 text-2xs font-semibold" />
         </ElevatedContainer>
@@ -227,14 +210,9 @@ export default function LeadDetailClient({
   }
 
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-      className="space-y-6"
-    >
+    <div className="space-y-6">
       {/* Header */}
-      <motion.div variants={itemVariants} className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
@@ -254,23 +232,29 @@ export default function LeadDetailClient({
               <p className="text-xs font-semibold text-primary-ink">
                 {t("header.badge")}
               </p>
-              <h1 className="text-2xl font-semibold text-foreground">
+              <h1 className="font-display text-2xl font-semibold tracking-[0.01em] text-foreground">
                 {lead.name || lead.number}
               </h1>
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Lead status banner */}
-      <motion.div variants={itemVariants}>
+      <div>
         <div className="rounded-[--radius] border border-border bg-card p-5" style={{ boxShadow: softSurfaceShadow }}>
           <div className="flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-muted px-3 py-1.5 text-2xs font-semibold text-healthy-ink dark:text-healthy-ink">
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-[--radius] px-3 py-1.5 text-2xs font-semibold ${
+                lead.whatsappWindowOpen
+                  ? "bg-healthy text-healthy-foreground"
+                  : "bg-muted text-warning-ink"
+              }`}
+            >
               <WhatsappLogo weight="fill" className="h-3.5 w-3.5" />
               {lead.whatsappWindowOpen ? t("window.open") : t("window.closed")}
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-2xs font-semibold text-muted-foreground dark:bg-muted dark:text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-muted px-3 py-1.5 text-2xs font-semibold text-muted-foreground">
               <WhatsappLogo weight="fill" className="h-3.5 w-3.5" />
               {lead.whatsappCampaigns} whatsapp
             </span>
@@ -281,10 +265,10 @@ export default function LeadDetailClient({
             )}
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Tabbed content */}
-      <motion.div variants={itemVariants}>
+      <div>
         <div className="rounded-[--radius] border border-border bg-card p-6" style={{ boxShadow: softSurfaceShadow }}>
           <Tabs defaultValue="overview" className="w-full">
             <TabsList className="grid w-full grid-cols-3 h-auto gap-1 p-1">
@@ -309,7 +293,7 @@ export default function LeadDetailClient({
                   <Phone weight="fill" className="h-5 w-5" />
                 </span>
                 <div>
-                  <h2 className="text-lg font-semibold text-foreground">{t("header.badge")}</h2>
+                  <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">{t("header.badge")}</h2>
                   <p className="text-sm text-muted-foreground">{t("header.description")}</p>
                 </div>
               </div>
@@ -331,7 +315,7 @@ export default function LeadDetailClient({
                   <Brain weight="fill" className="h-5 w-5" />
                 </span>
                 <div>
-                  <h2 className="text-lg font-semibold text-foreground">{tMemories("title")}</h2>
+                  <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">{tMemories("title")}</h2>
                   <p className="text-sm text-muted-foreground">{tMemories("subtitle")}</p>
                 </div>
               </div>
@@ -345,7 +329,7 @@ export default function LeadDetailClient({
                   <Phone weight="fill" className="h-5 w-5" />
                 </span>
                 <div>
-                  <h2 className="text-lg font-semibold text-foreground">{t("campaignHistory.title")}</h2>
+                  <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">{t("campaignHistory.title")}</h2>
                   <p className="text-sm text-muted-foreground">{lead.whatsappCampaigns} {t("records.total")}</p>
                 </div>
               </div>
@@ -362,7 +346,7 @@ export default function LeadDetailClient({
             </TabsContent>
           </Tabs>
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   )
 }

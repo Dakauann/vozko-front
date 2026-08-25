@@ -62,15 +62,16 @@ const variantAlias: Record<ButtonVariant, BaseVariant> = {
   "vsl-cta": "vsl",
 };
 
-// 36 / 40 / 48. These were 40 / 48 / 56 — a 56px text field is a marketing
-// form, not an operator tool, and it sat beside 32px buttons and a 32px
-// ui/input. The label renders ABOVE the field rather than floating inside it,
-// so the extra height was buying nothing. Padding comes in with it: 16-24px of
-// inset pushed the caret away from the field's own edge.
+// 32 / 36 / 40 — the Azure form density. The reference sets its default text
+// field at 32px against 32px buttons; the label renders ABOVE the field, so
+// height buys nothing but air. `lg` stays for auth/marketing forms where a
+// field is the page's main event. (These were 36/40/48, and before that
+// 40/48/56 — each identity pass has pulled the field closer to the control
+// row it actually sits in.)
 const sizeClasses: Record<ElevatedInputSize, string> = {
-  sm: "h-9 text-sm",
-  default: "h-10 text-sm",
-  lg: "h-12 text-sm",
+  sm: "h-8 text-sm",
+  default: "h-9 text-sm",
+  lg: "h-10 text-sm",
 };
 
 const basePadding: Record<ElevatedInputSize, string> = {
@@ -121,10 +122,12 @@ const disabledClasses =
 
 const iconColorByVariant: Record<BaseVariant, string> = {
   primary: "text-primary-foreground",
-  secondary: "text-primary-ink/60",
-  outline: "text-primary-ink/60",
+  // A resting field is not commit, selection or focus, so its icon carries no
+  // brand ink — the focus underline is where the green arrives.
+  secondary: "text-muted-foreground",
+  outline: "text-muted-foreground",
   ghost: "text-muted-foreground",
-  vsl: "text-white",
+  vsl: "text-muted-foreground",
   action: "text-primary-foreground",
   search: "text-muted-foreground",
 };
@@ -275,8 +278,8 @@ const ElevatedInput = forwardRef<HTMLInputElement, ElevatedInputProps>(
             className={cn(
               "pointer-events-none absolute inset-y-0 z-[1] flex items-center",
               iconPosition[resolvedSize],
+              iconColorByVariant[resolvedVariant],
             )}
-            style={{ color: iconColorByVariant[resolvedVariant] }}
           >
             {icon}
           </span>

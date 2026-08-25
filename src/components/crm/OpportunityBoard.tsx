@@ -277,7 +277,7 @@ export default function OpportunityBoard({
           )}
           <div>
             {!embedded ? (
-              <h1 className="text-base font-semibold leading-tight text-foreground">{t("deals.title")}</h1>
+              <h1 className="font-display text-base font-semibold leading-tight tracking-[0.01em] text-foreground">{t("deals.title")}</h1>
             ) : null}
             <p className="text-xs text-muted-foreground">
               {t("deals.count", { count: boardTotals.count })} ·{" "}
@@ -403,8 +403,8 @@ export default function OpportunityBoard({
 // carries the lead's initial, so the two boards use one card language.
 const STATUS_TILE: Record<string, string | undefined> = {
   open: undefined, // Signal Blue accent (CardTile default)
-  won: "#10b981",
-  lost: "#94a3b8",
+  won: "hsl(var(--healthy))",
+  lost: "hsl(var(--plate-neutral))",
 };
 
 function DealCard({

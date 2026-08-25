@@ -67,14 +67,14 @@ export default function CrmPipelineSelector({
       {
         key: "conversation" as PipelineObjectType,
         label: "Atendimento",
-        icon: <ChatCircle weight="fill" className="h-3.5 w-3.5 text-white" />,
+        icon: <ChatCircle weight="fill" className="h-3.5 w-3.5 text-background" />,
         tile: "bg-foreground/80 text-background",
         pipelines: conversation,
       },
       {
         key: "opportunity" as PipelineObjectType,
         label: "Vendas",
-        icon: <TrendUp weight="bold" className="h-3.5 w-3.5 text-white" />,
+        icon: <TrendUp weight="bold" className="h-3.5 w-3.5 text-primary-foreground" />,
         tile: "tile-brand",
         pipelines: opportunity,
       },
@@ -109,9 +109,9 @@ export default function CrmPipelineSelector({
             )}
           >
             {isAll ? (
-              <Stack weight="fill" className="h-3.5 w-3.5 text-white" />
+              <Stack weight="fill" className="h-3.5 w-3.5 text-background" />
             ) : (
-              activeGroup?.icon ?? <ChatCircle weight="fill" className="h-3.5 w-3.5 text-white" />
+              activeGroup?.icon ?? <ChatCircle weight="fill" className="h-3.5 w-3.5 text-background" />
             )}
           </span>
           <span className="flex min-w-0 flex-col items-start leading-tight">
@@ -147,7 +147,7 @@ export default function CrmPipelineSelector({
           )}
         >
           <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded bg-foreground">
-            <Stack weight="fill" className="h-3 w-3 text-white" />
+            <Stack weight="fill" className="h-3 w-3 text-background" />
           </span>
           <span className="flex-1 truncate">Todos os funis</span>
           {isAll && !disableAllFunnels ? (

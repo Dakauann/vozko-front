@@ -323,8 +323,8 @@ function DraftForm({
         >
           <span
             className={cn(
-              "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform",
-              draft.required ? "translate-x-4" : "translate-x-0.5",
+              "absolute top-0.5 h-4 w-4 rounded-full shadow-sm transition-transform",
+              draft.required ? "translate-x-4 bg-primary-foreground" : "translate-x-0.5 bg-foreground",
             )}
           />
         </button>
