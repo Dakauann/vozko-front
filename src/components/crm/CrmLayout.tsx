@@ -109,9 +109,9 @@ import { StartOfficialConversationDialog } from "@/components/whatsapp/start-off
 import { StartConversationDialog } from "@/components/unofficial-whatsapp/start-conversation-dialog";
 import { useWorkspace } from "@/contexts/workspace-context";
 import {
-  requestDialerCall,
-  useDialerCallActive,
-} from "@/lib/dialer/dialer-control";
+  requestCall,
+  useCallActive,
+} from "@/lib/call-session/call-session-control";
 import {
   channelCapabilities,
   normalizeEntryType,
@@ -382,7 +382,7 @@ export default function CrmLayout({
     setConversationStatus,
   } = useCrm();
 
-  const isDialerBusy = useDialerCallActive();
+  const isCallBusy = useCallActive();
 
   // A campaign is now an OPTIONAL scope, not a hard gate. With no campaign the
   // board runs workspace-global, driven by GET /crm/board; with a campaign the
@@ -1259,7 +1259,7 @@ export default function CrmLayout({
         toast.error("Número comercial do WhatsApp indisponível.");
         return;
       }
-      requestDialerCall({ phoneNumber, whatsAppPhoneId, whatsAppPhoneLabel });
+      requestCall({ phoneNumber, whatsAppPhoneId, whatsAppPhoneLabel });
     },
     [activeConversation?.lead_number, t.conversation.callFailed],
   );
@@ -1682,38 +1682,38 @@ export default function CrmLayout({
 
         {/* Call dropdown */}
         <div className="relative" ref={callDropdownRef}>
-          {/* Outbound calling (SIP + WhatsApp) and the consent request all flow
-            through the dialer, so the whole control is gated on dialer:use.
+          {/* Outbound WhatsApp calling and the consent request all flow through
+            the call session, so the whole control is gated on call_session:use.
             Hiding it avoids a button that silently no-ops for members without
             the permission.
 
             It is also gated on the channel: an Instagram contact has no phone
             number, so offering a call would open a dropdown that can never
             place one. */}
-          {can("dialer", "use") &&
+          {can("call_session", "use") &&
             channelCapabilities.supportsCalling(
               activeConversation.entry_type as EntryType,
             ) && (
               <TooltipWrapper content={t.conversation.startCall ?? "Ligar"}>
                 <button
                   onClick={() => setCallDropdownOpen((v) => !v)}
-                  disabled={isDialerBusy}
+                  disabled={isCallBusy}
                   className={cn(
                     "flex items-center justify-center h-8 w-8 rounded-full transition-all duration-200",
-                    isDialerBusy
+                    isCallBusy
                       ? "bg-healthy text-healthy-foreground cursor-not-allowed"
                       : "bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground",
                   )}
                 >
                   <PhoneCall
-                    weight={isDialerBusy ? "fill" : "regular"}
+                    weight={isCallBusy ? "fill" : "regular"}
                     className="h-4 w-4"
                   />
                 </button>
               </TooltipWrapper>
             )}
 
-          {callDropdownOpen && can("dialer", "use") && (
+          {callDropdownOpen && can("call_session", "use") && (
             <div className="absolute right-0 top-full mt-1 z-50 w-56 rounded-[--radius] border border-border bg-card shadow-lg py-1 animate-in fade-in slide-in-from-top-1 duration-150">
               {/* WhatsApp call. A WhatsApp call is placed FROM one of the
                 workspace's connected numbers to the lead. We resolve the

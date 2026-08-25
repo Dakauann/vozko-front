@@ -27,7 +27,7 @@ export type ResourceType =
     | "roles"
     | "workflows"
     | "departments"
-    | "dialer"
+    | "call_session"
     | "affiliate"
     | "plans"
     | "short_links"
@@ -54,7 +54,6 @@ export type ResourceAction =
     | "view_others"
     | "roulette"
     | "use"
-    | "transfer"
     | "list_members"
     | "block"
     | "call";

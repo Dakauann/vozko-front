@@ -12,7 +12,7 @@ import type {
   TemplateMessageMetadata,
 } from "@/lib/conversations/types";
 import { AnimatePresence, motion } from "framer-motion";
-import { CircuitTraces } from "@/components/brand/circuit";
+import { CircuitBoard } from "@/components/brand/circuit";
 import {
   ArrowBendUpLeft,
   ArrowDown,
@@ -1711,7 +1711,7 @@ export default function CrmConversationView({
       <div className="relative flex h-full flex-col items-center justify-center gap-4 overflow-hidden bg-background px-8 text-center">
         {/* The brand's trace lines — this panel is an identity surface, the
             one place in the inbox where ornament sits behind no data. */}
-        <CircuitTraces tone="quiet" className="pointer-events-none absolute bottom-6 right-4 h-64 w-64 xl:h-80 xl:w-80" />
+        <CircuitBoard tone="quiet" className="pointer-events-none absolute bottom-6 right-4 h-64 w-64 xl:h-80 xl:w-80" />
         <div className="relative flex h-20 w-20 items-center justify-center rounded-[--radius] bg-muted">
           <ImageIcon
             weight="duotone"

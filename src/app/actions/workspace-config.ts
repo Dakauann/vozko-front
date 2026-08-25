@@ -1,6 +1,5 @@
 import type {
-    WorkspaceConfig,
-    QueueOverflowAction
+    WorkspaceConfig
 } from '@/lib/workspace/workspace-config/types';
 import { apiClient } from "@/lib/api/browser-client";
 
@@ -23,11 +22,6 @@ export async function updateWorkspaceConfigAction(
     workspaceId: string,
     data: {
         skipAdminAssignment?: boolean;
-        holdMusicTrack?: string;
-        queueEnabled?: boolean;
-        queueMaxWaitSeconds?: number;
-        queueMaxLength?: number;
-        queueOverflow?: QueueOverflowAction;
         autoCloseEnabled?: boolean;
         autoCloseIdleAfterHours?: number;
         autoCloseMaxAgeEnabled?: boolean;

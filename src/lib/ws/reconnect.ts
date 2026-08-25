@@ -1,5 +1,5 @@
 /**
- * Shared WebSocket reconnection policy for the dialer + conversation hooks.
+ * Shared WebSocket reconnection policy for the call-session + conversation hooks.
  *
  * Goals (production reliability):
  *  - Reconnect FOREVER with exponential backoff capped at maxDelay, never give

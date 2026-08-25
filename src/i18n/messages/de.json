@@ -635,7 +635,6 @@
       "marketing": "WhatsApp Marketing",
       "authentication": "WhatsApp Auth",
       "standard": "SMS",
-      "sip_trunk": "Anrufe (SIP)",
       "whatsapp_calls": "Anrufe (WhatsApp)",
       "scribe_v1v2": "STT (Batch)",
       "scribe_realtime": "STT (Echtzeit)",
@@ -5576,7 +5575,7 @@
       "departments": "Abteilungen"
     },
     "configTab": {
-      "description": "Workspace-Richtlinien: Zuweisung, Gesprächsabschluss, Wartemusik und Sprachanruf-Warteschlange.",
+      "description": "Workspace-Richtlinien: Zuweisung und Gesprächsabschluss.",
       "sections": {
         "attendance": "Betreuung",
         "voice": "Sprache"
@@ -5646,7 +5645,7 @@
       "leads": "Leads",
       "analysis": "Analysen",
       "call_recordings": "Anrufaufzeichnungen",
-      "dialer": "Wählhilfe",
+      "call_session": "Anrufe",
       "members": "Mitglieder",
       "assignments": "Zuweisungen",
       "attendance": "Service- und Telefonie-Metriken",
@@ -5675,7 +5674,6 @@
       "reopen": "Wieder öffnen",
       "use": "Nutzen",
       "call": "Anruf anfordern",
-      "transfer": "Weiterleiten",
       "list_members": "Online-Mitglieder listen",
       "view_others": "Andere anzeigen",
       "block": "Sperren",
@@ -5699,7 +5697,7 @@
       "leads": "Verwalten Sie Leads und potenzielle Kundenkontakte",
       "analysis": "Leistungsberichte und Analysen anzeigen",
       "call_recordings": "Zugriff auf Aufzeichnungen abgeschlossener Anrufe",
-      "dialer": "Anrufe über die Wählhilfe tätigen und weiterleiten (SIP und WhatsApp). Keine Metrik-Dashboards.",
+      "call_session": "WhatsApp-Anrufe aus Unterhaltungen tätigen und annehmen. Keine Metrik-Dashboards.",
       "members": "Verwalten Sie Arbeitsbereichsmitglieder und deren Rollen",
       "assignments": "Steuern Sie, welche Ressourcen welchen Mitgliedern zugewiesen sind",
       "attendance": "Operative Kennzahlen ansehen: Konversationen, Zeiten, Warteschlangen, Auslastung, Kanäle, Team und KI-Bearbeitungen in Nachrichtenkanälen sowie Telefonievolumen",
@@ -5815,7 +5813,7 @@
       "inbound": "Eingehend",
       "outbound": "Ausgehend",
       "callType": "Anruftyp",
-      "typeCrm": "Menschlicher Dialer",
+      "typeCrm": "Menschlicher Agent",
       "typeAi": "Sprach-KI",
       "typeTrunkIn": "Trunk eingehend",
       "typeTrunkOut": "Trunk ausgehend",
@@ -6152,7 +6150,6 @@
         "authentication": "Authentifizierungs-Nachrichten"
       },
       "telephony": {
-        "sip_trunk": "SIP-Trunk",
         "whatsapp_calls": "WhatsApp-Anrufe"
       },
       "sms": {
@@ -6316,7 +6313,6 @@
         "utility": "WhatsApp, Utility-Nachrichten",
         "marketing": "WhatsApp, Marketing-Nachrichten",
         "authentication": "WhatsApp, Authentifizierung",
-        "sip_trunk": "Telefonanrufe (SIP)",
         "whatsapp_calls": "WhatsApp-Anrufe",
         "standard": "SMS-Nachrichten",
         "default_markup": "KI-Modelle (LLM)"
@@ -6579,7 +6575,6 @@
         "scribe_realtime": "Sprache-zu-Text (Echtzeit)",
         "utility": "WhatsApp, Utility-Nachrichten",
         "marketing": "WhatsApp, Marketing-Nachrichten",
-        "sip_trunk": "Telefonanrufe (SIP)",
         "whatsapp_calls": "WhatsApp-Anrufe",
         "standard": "SMS-Nachrichten",
         "default_markup": "KI-Modelle (LLM)"
@@ -7174,7 +7169,6 @@
       "action_set_variable": "Variable setzen",
       "action_http_request": "HTTP-Anfrage",
       "action_transfer_agent": "Agent übertragen",
-      "action_transfer_number": "Nummer übertragen",
       "action_notify_team": "Team benachrichtigen",
       "action_close_conversation": "Konversation schließen",
       "wait_duration": "Wartezeit",

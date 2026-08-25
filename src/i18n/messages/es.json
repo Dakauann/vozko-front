@@ -614,7 +614,6 @@
       "marketing": "WhatsApp Marketing",
       "authentication": "WhatsApp Autenticación",
       "standard": "SMS",
-      "sip_trunk": "Llamadas (SIP)",
       "whatsapp_calls": "Llamadas (WhatsApp)",
       "scribe_v1v2": "STT (Batch)",
       "scribe_realtime": "STT (Tiempo real)",
@@ -5054,7 +5053,7 @@
       "departments": "Departamentos"
     },
     "configTab": {
-      "description": "Políticas del espacio: asignación, cierre de conversaciones, música de espera y cola de voz.",
+      "description": "Políticas del espacio: asignación y cierre de conversaciones.",
       "sections": {
         "attendance": "Atención",
         "voice": "Voz"
@@ -5124,7 +5123,7 @@
       "leads": "Leads",
       "analysis": "Análisis",
       "call_recordings": "Grabaciones de Llamadas",
-      "dialer": "Marcador",
+      "call_session": "Llamadas",
       "members": "Miembros",
       "assignments": "Asignaciones",
       "attendance": "Métricas de atención y telefonía",
@@ -5153,7 +5152,6 @@
       "reopen": "Reabrir",
       "use": "Usar",
       "call": "Pedir llamada",
-      "transfer": "Transferir",
       "list_members": "Listar miembros en línea",
       "view_others": "Ver de otros",
       "block": "Bloquear",
@@ -5177,7 +5175,7 @@
       "leads": "Gestione leads y contactos de clientes potenciales",
       "analysis": "Visualice informes y análisis de rendimiento",
       "call_recordings": "Acceda a grabaciones de llamadas realizadas",
-      "dialer": "Realizar y transferir llamadas desde el marcador (SIP y WhatsApp). No otorga paneles de métricas.",
+      "call_session": "Realizar y recibir llamadas de WhatsApp en las conversaciones. No otorga paneles de métricas.",
       "members": "Gestione los miembros y sus roles en el espacio de trabajo",
       "assignments": "Controle qué recursos están asignados a qué miembros",
       "attendance": "Ver métricas operativas: conversaciones, tiempos, colas, ocupación, canales, equipo y atenciones por IA en los canales de mensajes, además del volumen de telefonía",
@@ -5293,7 +5291,7 @@
       "inbound": "Entrante",
       "outbound": "Saliente",
       "callType": "Tipo de llamada",
-      "typeCrm": "Marcador humano",
+      "typeCrm": "Agente humano",
       "typeAi": "IA de voz",
       "typeTrunkIn": "Troncal entrante",
       "typeTrunkOut": "Troncal saliente",
@@ -5630,7 +5628,6 @@
         "authentication": "Mensajes de Autenticación"
       },
       "telephony": {
-        "sip_trunk": "Troncal SIP",
         "whatsapp_calls": "Llamadas WhatsApp"
       },
       "sms": {
@@ -5794,7 +5791,6 @@
         "utility": "WhatsApp, Mensajes utilitarios",
         "marketing": "WhatsApp, Mensajes de marketing",
         "authentication": "WhatsApp, Mensajes de autenticación",
-        "sip_trunk": "Llamadas telefónicas (SIP)",
         "whatsapp_calls": "Llamadas de WhatsApp",
         "standard": "Mensajes SMS",
         "default_markup": "Modelos de IA (LLM)"
@@ -6057,7 +6053,6 @@
         "scribe_realtime": "Voz a Texto (Tiempo real)",
         "utility": "WhatsApp, Mensajes utilitarios",
         "marketing": "WhatsApp, Mensajes de marketing",
-        "sip_trunk": "Llamadas telefónicas (SIP)",
         "whatsapp_calls": "Llamadas de WhatsApp",
         "standard": "Mensajes SMS",
         "default_markup": "Modelos de IA (LLM)"
@@ -6652,7 +6647,6 @@
       "action_set_variable": "Definir Variable",
       "action_http_request": "Solicitud HTTP",
       "action_transfer_agent": "Transferir Agente",
-      "action_transfer_number": "Transferir Número",
       "action_notify_team": "Notificar Equipo",
       "action_close_conversation": "Cerrar Conversación",
       "wait_duration": "Esperar Duración",

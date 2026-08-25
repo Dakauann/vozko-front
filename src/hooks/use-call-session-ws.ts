@@ -1,46 +1,14 @@
 "use client";
 
 import type {
-    DialerPresencePayload,
-    DialerTransferKind,
-    IncomingTransferOffer,
-    OutgoingTransferState,
-    TransferConsultingPayload,
-    TransferErrorPayload,
-    TransferOfferPayload,
-    TransferStartedPayload,
-    TransferTargetEntry,
-    TransferTargetsPayload,
-    TransferTerminalPayload,
-    TransferTimedOutPayload,
-} from "@/lib/dialer/transfer-types";
-import type {
     IncomingCallOffer,
     IncomingCallPayload,
-} from "@/lib/dialer/inbound-call-types";
+} from "@/lib/call-session/inbound-call-types";
 import {
     WS_EVENT_INCOMING_CALL,
     WS_EVENT_INCOMING_CALL_ACCEPT,
     WS_EVENT_INCOMING_CALL_DECLINE,
-} from "@/lib/dialer/inbound-call-types";
-import {
-    WS_EVENT_DIALER_PRESENCE,
-    WS_EVENT_TRANSFER_ACCEPT,
-    WS_EVENT_TRANSFER_CANCEL,
-    WS_EVENT_TRANSFER_CANCELLED,
-    WS_EVENT_TRANSFER_COMPLETE,
-    WS_EVENT_TRANSFER_COMPLETED,
-    WS_EVENT_TRANSFER_CONSULTING,
-    WS_EVENT_TRANSFER_DECLINE,
-    WS_EVENT_TRANSFER_DECLINED,
-    WS_EVENT_TRANSFER_ERROR,
-    WS_EVENT_TRANSFER_INITIATE,
-    WS_EVENT_TRANSFER_LIST_TARGETS,
-    WS_EVENT_TRANSFER_OFFER,
-    WS_EVENT_TRANSFER_STARTED,
-    WS_EVENT_TRANSFER_TARGETS,
-    WS_EVENT_TRANSFER_TIMED_OUT,
-} from "@/lib/dialer/transfer-types";
+} from "@/lib/call-session/inbound-call-types";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { ConnectionStatus } from "@/lib/conversations/types";
@@ -57,43 +25,51 @@ const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:4000";
 const RECONNECT_BASE_DELAY = 1000;
 const RECONNECT_MAX_DELAY = 30000;
 
-export type DialerCallStatus = "ringing" | "answered" | "waiting_slot" | "ended";
+const WS_EVENT_CALL_SESSION_PRESENCE = "call-session:presence" as const;
+
+export type CallSessionStatus = "ringing" | "answered" | "waiting_slot" | "ended";
 
 export interface StartCallOptions {
-    sipTrunkId?: string;
     whatsAppPhoneId?: string;
 }
 
-export interface DialerCallState {
+export interface CallSessionState {
     callId?: string;
     phoneNumber: string;
-    status: DialerCallStatus;
+    status: CallSessionStatus;
     reason?: string;
     durationSeconds?: number;
     requestId?: string;
     answeredAt?: number;
 }
 
-// Live presence of a workspace member on the dialer. `busy` reflects an active
-// call (or busy-while-ringing reservation); the endpoint flags say HOW they are
-// reachable: the web dialer (browser), a registered SIP extension (ramal), or
-// both. Members with no active session are absent from the roster (offline).
-export interface DialerPresenceEntry {
+interface CallSessionPresenceUser {
+    user_id: string;
+    username?: string;
+    busy: boolean;
+}
+
+interface CallSessionPresencePayload {
+    users: CallSessionPresenceUser[];
+}
+
+// Live presence of a workspace member on the call session. `busy` reflects an
+// active call (or a busy-while-ringing reservation); members with no active
+// session are absent from the roster (offline).
+export interface CallSessionPresenceEntry {
     userId: string;
     username?: string;
     busy: boolean;
-    hasBrowser: boolean;
-    hasBranch: boolean;
 }
 
-interface UseDialerWsOptions {
+interface UseCallSessionWsOptions {
     token: string | null;
     enabled?: boolean;
 }
 
-interface UseDialerWsReturn {
+interface UseCallSessionWsReturn {
     status: ConnectionStatus;
-    callState: DialerCallState | null;
+    callState: CallSessionState | null;
     lastError: string | null;
     startCall: (phoneNumber: string, options?: StartCallOptions) => void;
     endCall: () => void;
@@ -106,7 +82,7 @@ interface UseDialerWsReturn {
     selfUserId: string;
 }
 
-type DialerServerEvent =
+type CallSessionServerEvent =
     | { type: "conversation:connected"; payload: Record<string, unknown> }
     | {
         type: "call:waiting_slot";
@@ -148,24 +124,15 @@ type DialerServerEvent =
             message?: string;
         };
     }
-    | { type: typeof WS_EVENT_TRANSFER_OFFER; payload: TransferOfferPayload }
-    | { type: typeof WS_EVENT_TRANSFER_STARTED; payload: TransferStartedPayload }
-    | { type: typeof WS_EVENT_TRANSFER_COMPLETED; payload: TransferTerminalPayload }
-    | { type: typeof WS_EVENT_TRANSFER_DECLINED; payload: TransferTerminalPayload }
-    | { type: typeof WS_EVENT_TRANSFER_CANCELLED; payload: TransferTerminalPayload }
-    | { type: typeof WS_EVENT_TRANSFER_CONSULTING; payload: TransferConsultingPayload }
-    | { type: typeof WS_EVENT_TRANSFER_TIMED_OUT; payload: TransferTimedOutPayload }
-    | { type: typeof WS_EVENT_TRANSFER_ERROR; payload: TransferErrorPayload }
-    | { type: typeof WS_EVENT_TRANSFER_TARGETS; payload: TransferTargetsPayload }
     | { type: typeof WS_EVENT_INCOMING_CALL; payload: IncomingCallPayload }
-    | { type: typeof WS_EVENT_DIALER_PRESENCE; payload: DialerPresencePayload };
+    | { type: typeof WS_EVENT_CALL_SESSION_PRESENCE; payload: CallSessionPresencePayload };
 
-const SIP_SAMPLE_RATE = 8000;
+const CALL_SAMPLE_RATE = 8000;
 
-export function useDialerWs({
+export function useCallSessionWs({
     token,
     enabled = true,
-}: UseDialerWsOptions): UseDialerWsReturn {
+}: UseCallSessionWsOptions): UseCallSessionWsReturn {
     const { currentWorkspace } = useWorkspace();
     const { currentDepartment } = useDepartment();
 
@@ -174,14 +141,11 @@ export function useDialerWs({
     const scopeKey = `${workspaceId}:${departmentId}`;
 
     const [status, setStatus] = useState<ConnectionStatus>("disconnected");
-    const [callState, setCallState] = useState<DialerCallState | null>(null);
+    const [callState, setCallState] = useState<CallSessionState | null>(null);
     const [lastError, setLastError] = useState<string | null>(null);
 
-    const [outgoingTransfer, setOutgoingTransfer] = useState<OutgoingTransferState | null>(null);
-    const [incomingOffer, setIncomingOffer] = useState<IncomingTransferOffer | null>(null);
     const [incomingCall, setIncomingCall] = useState<IncomingCallOffer | null>(null);
-    const [transferTargets, setTransferTargets] = useState<TransferTargetEntry[]>([]);
-    const [presence, setPresence] = useState<DialerPresenceEntry[]>([]);
+    const [presence, setPresence] = useState<CallSessionPresenceEntry[]>([]);
     const [selfUserId, setSelfUserId] = useState<string>("");
 
     const selfUserIdRef = useRef<string>("");
@@ -295,7 +259,7 @@ export function useDialerWs({
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
                 audio: {
-                    sampleRate: SIP_SAMPLE_RATE,
+                    sampleRate: CALL_SAMPLE_RATE,
                     channelCount: 1,
                     echoCancellation: true,
                     noiseSuppression: true,
@@ -304,10 +268,10 @@ export function useDialerWs({
             });
             micStreamRef.current = stream;
 
-            const ctx = new AudioContext({ sampleRate: SIP_SAMPLE_RATE });
+            const ctx = new AudioContext({ sampleRate: CALL_SAMPLE_RATE });
             captureContextRef.current = ctx;
-            if (ctx.sampleRate !== SIP_SAMPLE_RATE) {
-                const message = `Dialer audio must run at ${SIP_SAMPLE_RATE} Hz PCM16, but the browser opened ${ctx.sampleRate} Hz.`;
+            if (ctx.sampleRate !== CALL_SAMPLE_RATE) {
+                const message = `Call audio must run at ${CALL_SAMPLE_RATE} Hz PCM16, but the browser opened ${ctx.sampleRate} Hz.`;
                 setLastError(message);
                 toast.error(message);
                 stopAudioPipeline();
@@ -340,7 +304,7 @@ export function useDialerWs({
             micStartedRef.current = true;
             return true;
         } catch (err) {
-            console.error("[DialerWS] Microphone access error:", err);
+            console.error("[CallSessionWS] Microphone access error:", err);
             const message =
                 err instanceof Error && err.name === "NotAllowedError"
                     ? "Microphone permission denied. Allow access to make calls."
@@ -365,7 +329,7 @@ export function useDialerWs({
     }, []);
 
     const handleServerEvent = useCallback(
-        (event: DialerServerEvent) => {
+        (event: CallSessionServerEvent) => {
             if (event.type === "conversation:connected") {
                 setStatus("connected");
                 const uid = event.payload?.user_id;
@@ -376,21 +340,13 @@ export function useDialerWs({
                 return;
             }
 
-            if (event.type === WS_EVENT_DIALER_PRESENCE) {
-                const self = selfUserIdRef.current;
-                const roster: DialerPresenceEntry[] = event.payload.users.map((u) => ({
-                    userId: u.user_id,
-                    username: u.username,
-                    busy: u.busy,
-                    hasBrowser: u.has_browser ?? false,
-                    hasBranch: u.has_branch ?? false,
-                }));
-                setPresence(roster);
-                // Transfer targets are the same roster minus self and anyone busy.
-                setTransferTargets(
-                    roster
-                        .filter((u) => !u.busy && u.userId !== self)
-                        .map((u) => ({ userId: u.userId, username: u.username })),
+            if (event.type === WS_EVENT_CALL_SESSION_PRESENCE) {
+                setPresence(
+                    event.payload.users.map((u) => ({
+                        userId: u.user_id,
+                        username: u.username,
+                        busy: u.busy,
+                    })),
                 );
                 return;
             }
@@ -420,13 +376,13 @@ export function useDialerWs({
                 }
 
                 setCallState((prev) => {
-                    const base: DialerCallState =
+                    const base: CallSessionState =
                         prev ??
                         ({
                             phoneNumber: event.payload.phone_number ?? "",
                             status: wsStatus,
                             requestId: event.payload.request_id,
-                        } as DialerCallState);
+                        } as CallSessionState);
 
                     return {
                         ...base,
@@ -445,7 +401,7 @@ export function useDialerWs({
                 const { audio, sample_rate } = event.payload;
                 if (!audio) return;
                 try {
-                    const sampleRate = sample_rate || SIP_SAMPLE_RATE;
+                    const sampleRate = sample_rate || CALL_SAMPLE_RATE;
                     if (
                         !playbackContextRef.current ||
                         playbackContextRef.current.state === "closed"
@@ -472,21 +428,13 @@ export function useDialerWs({
                     source.start(startTime);
                     nextPlayTimeRef.current = startTime + buffer.duration;
                 } catch (err) {
-                    console.error("[DialerWS] Audio playback error:", err);
+                    console.error("[CallSessionWS] Audio playback error:", err);
                 }
                 return;
             }
 
             if (event.type === "call:ended") {
                 stopAudioPipeline();
-                // A blind transfer parks the customer at initiate and frees this
-                // agent: their call view ends with reason "transferred" while the
-                // customer waits in hold music for the target (or a recall).
-                if (event.payload.reason === "transferred") {
-                    toast.success(
-                        "Chamada transferida. O cliente está em espera até o destino atender.",
-                    );
-                }
                 setCallState((prev) => ({
                     callId: event.payload.call_id ?? prev?.callId,
                     phoneNumber: event.payload.phone_number ?? prev?.phoneNumber ?? "",
@@ -504,13 +452,11 @@ export function useDialerWs({
             }
 
             if (event.type === "conversation:error") {
-                const message = event.payload.message || "Dialer connection error.";
+                const message = event.payload.message || "Call connection error.";
                 setLastError(message);
                 toast.error(message);
                 stopAudioPipeline();
                 setCallState(null);
-                setOutgoingTransfer(null);
-                setIncomingOffer(null);
                 setIncomingCall(null);
                 return;
             }
@@ -520,7 +466,6 @@ export function useDialerWs({
                     offerId: event.payload.offer_id,
                     callId: event.payload.call_id,
                     workspaceId: event.payload.workspace_id,
-                    trunkId: event.payload.trunk_id,
                     fromNumber: event.payload.from_number,
                     toNumber: event.payload.to_number,
                     channel: event.payload.channel,
@@ -529,164 +474,8 @@ export function useDialerWs({
                 });
                 return;
             }
-
-            if (event.type === WS_EVENT_TRANSFER_TARGETS) {
-                setTransferTargets(
-                    event.payload.users.map((u) => ({
-                        userId: u.user_id,
-                        username: u.username,
-                    })),
-                );
-                return;
-            }
-
-            if (event.type === WS_EVENT_TRANSFER_OFFER) {
-                const offer: IncomingTransferOffer = {
-                    transferId: event.payload.transfer_id,
-                    callId: event.payload.call_id,
-                    initiatorId: event.payload.initiator_id,
-                    kind: event.payload.kind,
-                    note: event.payload.note,
-                    phoneNumber: event.payload.phone_number,
-                    receivedAt: Date.now(),
-                    recall: event.payload.recall === true,
-                };
-                setIncomingOffer(offer);
-                return;
-            }
-
-            if (event.type === WS_EVENT_TRANSFER_STARTED) {
-                const p = event.payload;
-                const weAreInitiator = !!(p.target_user_id && p.target_user_id !== "");
-                if (weAreInitiator) {
-                    setOutgoingTransfer((prev) => {
-                        if (prev?.transferId === p.transfer_id) return prev;
-                        return {
-                            transferId: p.transfer_id,
-                            callId: p.call_id,
-                            targetUserId: p.target_user_id ?? "",
-                            kind: p.kind,
-                            stage: p.stage ?? "pending_offer",
-                            startedAt: Date.now(),
-                        };
-                    });
-                    return;
-                }
-                // We received the leg: as the transfer target, or as the initiator
-                // taking a recalled call back. Either way the call view opens live.
-                if (p.recall === true) {
-                    setOutgoingTransfer(null);
-                    toast.info("A chamada retornou para você.");
-                }
-                setIncomingOffer(null);
-                setCallState({
-                    callId: p.call_id,
-                    phoneNumber: p.phone_number ?? "",
-                    status: "answered",
-                    answeredAt: Date.now(),
-                });
-                void startMicCapture();
-                return;
-            }
-
-            if (event.type === WS_EVENT_TRANSFER_CONSULTING) {
-                if (event.payload.role === "initiator") {
-                    setOutgoingTransfer((prev) =>
-                        prev?.transferId === event.payload.transfer_id
-                            ? { ...prev, stage: "consulting" }
-                            : prev ?? {
-                                transferId: event.payload.transfer_id,
-                                callId: event.payload.call_id,
-                                targetUserId: event.payload.target_user_id,
-                                kind: "attended",
-                                stage: "consulting",
-                                startedAt: Date.now(),
-                            },
-                    );
-                }
-                return;
-            }
-
-            if (event.type === WS_EVENT_TRANSFER_COMPLETED) {
-                stopAudioPipeline();
-                setCallState(null);
-                setOutgoingTransfer(null);
-                setIncomingOffer(null);
-                toast.success("Transferência concluída.");
-                return;
-            }
-
-            if (event.type === WS_EVENT_TRANSFER_DECLINED) {
-                const reason = event.payload.reason;
-                setOutgoingTransfer(null);
-                // A declined PARKED (cega) transfer is not final: the engine holds
-                // the customer in música de espera and recalls this agent.
-                if (event.payload.stage === "recalling") {
-                    toast.warning(
-                        "O destino recusou. O cliente segue em espera e a chamada retornará para você.",
-                    );
-                } else {
-                    toast.error(
-                        reason
-                            ? `Transferência recusada: ${reason}`
-                            : "O destinatário recusou a transferência.",
-                    );
-                }
-                return;
-            }
-
-            if (event.type === WS_EVENT_TRANSFER_CANCELLED) {
-                setOutgoingTransfer(null);
-                setIncomingOffer(null);
-                const reason = event.payload.reason;
-                if (reason === "customer_hangup") {
-                    toast.warning("O cliente desligou durante a transferência.");
-                } else if (
-                    reason === "recall_exhausted" ||
-                    reason === "recall_declined" ||
-                    reason === "park_deadline" ||
-                    reason === "executor_wedged"
-                ) {
-                    toast.error(
-                        "Não foi possível completar a transferência e a chamada foi encerrada.",
-                    );
-                }
-                return;
-            }
-
-            if (event.type === WS_EVENT_TRANSFER_TIMED_OUT) {
-                setOutgoingTransfer(null);
-                setIncomingOffer((prev) =>
-                    prev?.transferId === event.payload.transfer_id ? null : prev,
-                );
-                toast.warning("A oferta de transferência expirou.");
-                return;
-            }
-
-            if (event.type === WS_EVENT_TRANSFER_ERROR) {
-                const { code, message } = event.payload;
-                const terminalCodes = new Set([
-                    "target_offline",
-                    "target_busy",
-                    "self_transfer",
-                    "call_not_found",
-                    "not_owner",
-                    "transfer_not_found",
-                    "already_in_flight",
-                    "invalid_kind",
-                    "invalid_stage",
-                    "timed_out",
-                    "transfer_failed",
-                    "unauthorized",
-                ]);
-                if (terminalCodes.has(code)) {
-                    setOutgoingTransfer(null);
-                }
-                toast.error(message || `Falha na transferência (${code})`);
-                return;
-            }
         },
-        [clearEndedCallAfterDelay, startMicCapture, stopAudioPipeline],
+        [clearEndedCallAfterDelay, stopAudioPipeline],
     );
 
     const connect = useCallback(async () => {
@@ -743,7 +532,7 @@ export function useDialerWs({
             params.set("departmentId", current.departmentId);
         }
 
-        const ws = new WebSocket(`${WS_BASE_URL}/ws/dialer?${params.toString()}`);
+        const ws = new WebSocket(`${WS_BASE_URL}/ws/call-session?${params.toString()}`);
         wsRef.current = ws;
 
         ws.onopen = () => {
@@ -764,10 +553,10 @@ export function useDialerWs({
 
             for (const chunk of chunks) {
                 try {
-                    const payload = JSON.parse(chunk) as DialerServerEvent;
+                    const payload = JSON.parse(chunk) as CallSessionServerEvent;
                     handleServerEvent(payload);
                 } catch (err) {
-                    console.error("[DialerWS] Parse error:", err);
+                    console.error("[CallSessionWS] Parse error:", err);
                 }
             }
         };
@@ -827,11 +616,11 @@ export function useDialerWs({
     // and changes `token`; if the socket were torn down on every refresh, the old
     // session's Shutdown would HANG UP the agent's live call and the reconnect would
     // create a fresh session that owns nothing (the frontend then shows a call the
-    // backend no longer has: "call no longer exists" on end/transfer, and the agent
-    // still gets rung while "busy"). So we key the effect on a stable presence
-    // boolean that flips only on login/logout, and read the freshest token from
-    // paramsRef inside connect(). This is why the conversation socket stays up and
-    // the dialer socket used to churn.
+    // backend no longer has: "call no longer exists" on end, and the agent still
+    // gets rung while "busy"). So we key the effect on a stable presence boolean
+    // that flips only on login/logout, and read the freshest token from paramsRef
+    // inside connect(). This is why the conversation socket stays up and the call
+    // socket used to churn.
     const hasToken = !!token;
     useEffect(() => {
         if (enabled && hasToken && workspaceId) {
@@ -864,7 +653,7 @@ export function useDialerWs({
 
     const startCall = useCallback(
         (phoneNumber: string, options?: StartCallOptions) => {
-            const { sipTrunkId, whatsAppPhoneId } = options ?? {};
+            const { whatsAppPhoneId } = options ?? {};
             const target = phoneNumber.trim();
             if (!target) {
                 const message = "Phone number is required.";
@@ -874,7 +663,7 @@ export function useDialerWs({
             }
 
             if (wsRef.current?.readyState !== WebSocket.OPEN) {
-                const message = "Dialer is offline. Reconnecting...";
+                const message = "Calling is offline. Reconnecting...";
                 setLastError(message);
                 toast.error(message);
                 return;
@@ -899,7 +688,6 @@ export function useDialerWs({
             send("start_call", {
                 phone_number: target,
                 request_id: requestId,
-                ...(sipTrunkId ? { sip_trunk_id: sipTrunkId } : {}),
                 ...(whatsAppPhoneId ? { whatsapp_phone_id: whatsAppPhoneId } : {}),
             });
 
@@ -919,63 +707,6 @@ export function useDialerWs({
         }
         send("end_call", { request_id: crypto.randomUUID() });
     }, [send, stopAudioPipeline]);
-
-
-    const refreshTransferTargets = useCallback(() => {
-        if (wsRef.current?.readyState !== WebSocket.OPEN) return;
-        send(WS_EVENT_TRANSFER_LIST_TARGETS, {});
-    }, [send]);
-
-    const initiateTransfer = useCallback(
-        (targetUserId: string, kind: DialerTransferKind, note?: string) => {
-            const target = targetUserId.trim();
-            if (!target) {
-                toast.error("Selecione um destinatário para a transferência.");
-                return;
-            }
-            if (wsRef.current?.readyState !== WebSocket.OPEN) {
-                toast.error("Discador offline. Aguarde a reconexão.");
-                return;
-            }
-            const callId = callState?.callId;
-            if (!callId || callState?.status !== "answered") {
-                toast.error("Só é possível transferir uma chamada já atendida.");
-                return;
-            }
-            if (outgoingTransfer) {
-                toast.error("Já existe uma transferência em andamento.");
-                return;
-            }
-            send(WS_EVENT_TRANSFER_INITIATE, {
-                call_id: callId,
-                target_user_id: target,
-                kind,
-                ...(note ? { note } : {}),
-            });
-        },
-        [callState, outgoingTransfer, send],
-    );
-
-    const acceptTransfer = useCallback(
-        (transferId: string) => {
-            if (wsRef.current?.readyState !== WebSocket.OPEN) return;
-            send(WS_EVENT_TRANSFER_ACCEPT, { transfer_id: transferId });
-            setIncomingOffer((prev) => (prev?.transferId === transferId ? null : prev));
-        },
-        [send],
-    );
-
-    const declineTransfer = useCallback(
-        (transferId: string, reason?: string) => {
-            if (wsRef.current?.readyState !== WebSocket.OPEN) return;
-            send(WS_EVENT_TRANSFER_DECLINE, {
-                transfer_id: transferId,
-                ...(reason ? { reason } : {}),
-            });
-            setIncomingOffer((prev) => (prev?.transferId === transferId ? null : prev));
-        },
-        [send],
-    );
 
     const acceptIncomingCall = useCallback(
         (offerId: string) => {
@@ -1020,29 +751,6 @@ export function useDialerWs({
         [send],
     );
 
-    const completeAttended = useCallback(
-        (transferId: string) => {
-            if (wsRef.current?.readyState !== WebSocket.OPEN) return;
-            send(WS_EVENT_TRANSFER_COMPLETE, { transfer_id: transferId });
-        },
-        [send],
-    );
-
-    const cancelAttended = useCallback(
-        (transferId: string, reason?: string) => {
-            if (wsRef.current?.readyState !== WebSocket.OPEN) return;
-            send(WS_EVENT_TRANSFER_CANCEL, {
-                transfer_id: transferId,
-                ...(reason ? { reason } : {}),
-            });
-        },
-        [send],
-    );
-
-    const clearOutgoingTransfer = useCallback(() => {
-        setOutgoingTransfer(null);
-    }, []);
-
     return useMemo(
         () => ({
             status,
@@ -1053,19 +761,9 @@ export function useDialerWs({
             clearError,
             presence,
             selfUserId,
-            outgoingTransfer,
-            incomingOffer,
             incomingCall,
-            transferTargets,
-            refreshTransferTargets,
-            initiateTransfer,
-            acceptTransfer,
-            declineTransfer,
             acceptIncomingCall,
             declineIncomingCall,
-            completeAttended,
-            cancelAttended,
-            clearOutgoingTransfer,
         }),
         [
             status,
@@ -1076,19 +774,9 @@ export function useDialerWs({
             clearError,
             presence,
             selfUserId,
-            outgoingTransfer,
-            incomingOffer,
             incomingCall,
-            transferTargets,
-            refreshTransferTargets,
-            initiateTransfer,
-            acceptTransfer,
-            declineTransfer,
             acceptIncomingCall,
             declineIncomingCall,
-            completeAttended,
-            cancelAttended,
-            clearOutgoingTransfer,
         ],
     );
 }

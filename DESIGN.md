@@ -402,16 +402,21 @@ lines** — a bundle of parallel 45° rising runs, the lead line stepping once
 mid-climb, a dotted diagonal tail past its end, small square pads on the
 faint runs (`CircuitTraces`, plus `CircuitTracesWide` recomposed on a
 460×150 canvas with `preserveAspectRatio="xMaxYMid meet"` so it self-fits
-wide short bands without clipping a stroke; all in
-`src/components/brand/circuit.tsx`). They are identity, not information:
+wide short bands without clipping a stroke), and its SECOND type,
+**circuit-board routing** (`CircuitBoard`): long orthogonal runs joined by
+45° chamfered bends, a branch off the main route, square vias at junctions
+and pads at ends — the board's identity-tile grammar. All in
+`src/components/brand/circuit.tsx`, same tone/pulse API. They are identity, not information:
 `aria-hidden`, `pointer-events-none`, coloured by `currentColor` through the
 dedicated `--ornament` token (`text-ornament/NN`) — DEEPER than the brand
 fill in light (164 100% 30%, because an alpha-faded L38 dissolves into
 white) and the board hex in dark; the working register is /40–/60 in light,
 /25–/45 in dark — and never behind text an operator reads for a shift. Homes today: the login/register/forgot-password/invite plates, the
 page header's empty right band (`CircuitTracesWide` in
-`DashboardPageHeader`, hidden below `lg`), the table empty state and the
-CRM no-conversation panel — not queue rows, not toolbars.
+`DashboardPageHeader`, hidden below `lg`), the table empty state
+(`CircuitTraces`), the CRM no-conversation panel and the AI-chat empty
+greeting (both `CircuitBoard`, the routing type) — not queue rows, not
+toolbars.
 
 **The pulse exception.** The traces carry a slow current — a bright dash
 sweeping the lead lines' own geometry (`.vz-trace-pulse`, 8s linear, dash

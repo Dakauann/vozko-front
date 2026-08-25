@@ -634,7 +634,6 @@
       "marketing": "WhatsApp Marketing",
       "authentication": "WhatsApp Auth",
       "standard": "SMS",
-      "sip_trunk": "Phone calls (SIP)",
       "whatsapp_calls": "Calls (WhatsApp)",
       "scribe_v1v2": "STT (Batch)",
       "scribe_realtime": "STT (Realtime)",
@@ -6429,7 +6428,7 @@
       "departments": "Departments"
     },
     "configTab": {
-      "description": "Workspace policies: assignment, conversation closure, hold music, and voice queue.",
+      "description": "Workspace policies: assignment and conversation closure.",
       "sections": {
         "attendance": "Attendance",
         "voice": "Voice"
@@ -6499,7 +6498,7 @@
       "leads": "Leads",
       "analysis": "Analysis",
       "call_recordings": "Call Recordings",
-      "dialer": "Dialer",
+      "call_session": "Calls",
       "members": "Members",
       "assignments": "Assignments",
       "attendance": "Service & telephony metrics",
@@ -6529,7 +6528,6 @@
       "reopen": "Reopen",
       "use": "Use",
       "call": "Request call",
-      "transfer": "Transfer",
       "list_members": "List online members",
       "view_others": "View others",
       "block": "Block",
@@ -6552,7 +6550,7 @@
       "leads": "Manage leads and potential customer contacts",
       "analysis": "View performance reports and analytics",
       "call_recordings": "Access recordings of completed calls",
-      "dialer": "Make and transfer calls from the built-in dialer (SIP and WhatsApp calling). Does not grant metrics dashboards.",
+      "call_session": "Make and receive WhatsApp calls from conversations. Does not grant metrics dashboards.",
       "members": "Manage workspace members and their roles",
       "assignments": "Control which resources are assigned to which members",
       "attendance": "View operational metrics: conversations, times, queues, occupancy, channels, team and AI-handled attendance on messaging channels, plus telephony volume",
@@ -6669,7 +6667,7 @@
       "inbound": "Inbound",
       "outbound": "Outbound",
       "callType": "Call type",
-      "typeCrm": "Human dialer",
+      "typeCrm": "Human agent",
       "typeAi": "Voice AI",
       "typeTrunkIn": "Inbound trunk",
       "typeTrunkOut": "Outbound trunk",
@@ -6971,7 +6969,6 @@
         "authentication": "Authentication Messages"
       },
       "telephony": {
-        "sip_trunk": "SIP Trunk",
         "whatsapp_calls": "WhatsApp Calls"
       },
       "sms": {
@@ -7135,7 +7132,6 @@
         "utility": "WhatsApp, Utility messages",
         "marketing": "WhatsApp, Marketing messages",
         "authentication": "WhatsApp, Authentication messages",
-        "sip_trunk": "Phone calls (SIP)",
         "whatsapp_calls": "WhatsApp calls",
         "standard": "SMS messages",
         "default_markup": "AI models (LLM)"
@@ -7462,7 +7458,6 @@
         "scribe_realtime": "Speech-to-Text (Realtime)",
         "utility": "WhatsApp, Utility messages",
         "marketing": "WhatsApp, Marketing messages",
-        "sip_trunk": "Phone calls (SIP)",
         "whatsapp_calls": "WhatsApp calls",
         "standard": "SMS messages",
         "default_markup": "AI models (LLM)"
@@ -7992,7 +7987,6 @@
       "action_set_variable": "Set Variable",
       "action_http_request": "HTTP Request",
       "action_transfer_agent": "Transfer Agent",
-      "action_transfer_number": "Transfer Number",
       "action_notify_team": "Notify Team",
       "action_close_conversation": "Close Conversation",
       "wait_duration": "Wait Duration",

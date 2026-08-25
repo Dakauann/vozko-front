@@ -379,7 +379,7 @@ export function useWorkflowAIBuilder({
         setConnection("offline");
         return;
       }
-      // Unexpected drop → self-heal with capped backoff (the dialer/conversation
+      // Unexpected drop → self-heal with capped backoff (the call-session/conversation
       // sockets do the same). The local transcript is kept; the server starts a
       // fresh builder session on reconnect.
       setConnection("reconnecting");

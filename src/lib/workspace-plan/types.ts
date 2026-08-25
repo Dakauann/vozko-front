@@ -37,7 +37,6 @@ export interface PlanDefinition {
   maxTtsConcurrency?: number;
   includedWhatsAppBusinessPhones?: number;
   maxBranches?: number;
-  maxHoldMusicTracks?: number;
   isGloballyVisible: boolean;
   exclusiveAffiliateId?: string | null;
   pricingItems?: PlanPricingItem[];
@@ -65,7 +64,6 @@ export interface PlanMutationInput {
   maxTtsConcurrency?: number;
   includedWhatsAppBusinessPhones?: number;
   maxBranches?: number;
-  maxHoldMusicTracks?: number;
   isGloballyVisible?: boolean;
   pricingItems?: PlanPricingItemInput[];
 }

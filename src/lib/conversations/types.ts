@@ -143,8 +143,8 @@ export const channelCapabilities = {
     supportsCalling(entryType: EntryType): boolean {
         const t = normalizeEntryType(entryType);
         // The unofficial transport's contact IS an E.164 number, unlike an
-        // IGSID or a Telegram user id, so the dialer can reach it. This gates
-        // the DIALER only; the WhatsApp call-permission flow is a Cloud API
+        // IGSID or a Telegram user id, so a call session can reach it. This
+        // gates CALLING only; the WhatsApp call-permission flow is a Cloud API
         // feature and stays gated on 'whatsapp' where it is used.
         return t === 'whatsapp' || t === 'voice' || t === 'unofficial_whatsapp';
     },
@@ -473,7 +473,6 @@ export interface WsSearchMessagesPayload {
 export interface WsStartCallPayload {
     entry_id: string;
     entry_type: EntryType;
-    sip_trunk_id?: string;
     request_id?: string;
 }
 

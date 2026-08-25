@@ -129,6 +129,84 @@ export function CircuitTraces({
 }
 
 /**
+ * The board's SECOND trace type: circuit-board routing. Where CircuitTraces
+ * is the rising "results" bundle, this is the identity tile's PCB grammar —
+ * long orthogonal runs connected by 45° chamfered bends, a branch splitting
+ * off the main route, small square vias at the junctions and pads at the
+ * ends. Same material rules: currentColor, tone prop, sanctioned pulse.
+ * ViewBox 220×220.
+ */
+export function CircuitBoard({
+  className,
+  pulse = true,
+  tone = "bold",
+}: OrnamentProps) {
+  return (
+    <svg
+      viewBox="0 0 220 220"
+      fill="none"
+      aria-hidden="true"
+      className={cn(TONE[tone], className)}
+      style={{ pointerEvents: "none" }}
+    >
+      {/* Main route: up, chamfer, up, chamfer, out — PCB routing. */}
+      <path
+        d="M28 214 V158 L56 130 V86 L92 50 H150 L178 22 H214"
+        stroke="currentColor"
+        strokeWidth="3"
+      />
+      {pulse && (
+        <path
+          d="M28 214 V158 L56 130 V86 L92 50 H150 L178 22 H214"
+          stroke="currentColor"
+          strokeWidth="3.5"
+          pathLength={100}
+          className="vz-trace-pulse"
+          style={{ filter: "brightness(1.5)" }}
+        />
+      )}
+
+      {/* Branch splitting off the main route at the second chamfer. */}
+      <path
+        d="M56 108 H104 L132 80 V44"
+        stroke="currentColor"
+        strokeWidth="2"
+        opacity="0.5"
+      />
+      {/* Parallel support routes, PCB-spaced. */}
+      <path
+        d="M8 214 V166 L36 138 V94 L72 58 H142"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        opacity="0.3"
+      />
+      <path
+        d="M48 214 V170 L76 142 V110 H120 L148 82 H196"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        opacity="0.22"
+      />
+      <path
+        d="M96 214 V182 L124 154 H168"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        opacity="0.16"
+      />
+
+      {/* Vias at the junctions of the main route. */}
+      <rect x="53" y="127" width="6" height="6" fill="currentColor" opacity="0.85" />
+      <rect x="89" y="47" width="6" height="6" fill="currentColor" opacity="0.85" />
+
+      {/* Pads terminating the runs. */}
+      <rect x="128" y="38" width="7" height="7" fill="currentColor" opacity="0.6" />
+      <rect x="140" y="54" width="6" height="6" fill="currentColor" opacity="0.35" />
+      <rect x="166" y="150" width="6" height="6" fill="currentColor" opacity="0.3" />
+      <rect x="194" y="78" width="6" height="6" fill="currentColor" opacity="0.3" />
+    </svg>
+  );
+}
+
+/**
  * The trace bundle for WIDE, SHORT bands — page headers, strips, footers.
  * Same grammar as CircuitTraces (horizontal run → 45° climb → step → climb,
  * dotted trail, faint flankers) recomposed on a 460×150 canvas so nothing

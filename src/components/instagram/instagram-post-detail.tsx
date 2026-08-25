@@ -114,7 +114,7 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
   };
 
   /* Portaled to <body> and stacked above every chrome layer (navbar z-40,
-     dialer tab and dropdowns z-50): rendered inline, those elements painted
+     call strip and dropdowns z-50): rendered inline, those elements painted
      over the scrim as bright patches. */
   return createPortal(
     <div

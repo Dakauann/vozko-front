@@ -1,6 +1,10 @@
 "use client";
 
-import type { ComponentType } from "react";
+import {
+  ChatSurface,
+  WA_BUBBLE_MUTED,
+  WA_BUBBLE_TEXT,
+} from "../message-node-primitives";
 import {
   DownloadSimple,
   FileText,
@@ -9,13 +13,10 @@ import {
   Play,
   VideoCamera,
 } from "@/components/icons";
+
+import type { ComponentType } from "react";
 import type { IconProps } from "@/components/icons";
 import { cn } from "@/lib/utils";
-import {
-  ChatSurface,
-  WA_BUBBLE_MUTED,
-  WA_BUBBLE_TEXT,
-} from "../message-node-primitives";
 import { useResolvedMedia } from "./media-node-preview";
 
 // Outgoing green bubble (a media message is a message the business sends).
@@ -91,7 +92,7 @@ export function SendMediaPreview({
         {caption.trim() && (
           <p
             className={cn(
-              "line-clamp-2 px-1.5 pb-0.5 pt-1 text-2xs leading-snug",
+              "line-clamp-2 whitespace-pre px-1.5 pb-0.5 pt-1 text-2xs leading-snug",
               WA_BUBBLE_TEXT,
             )}
           >
@@ -218,7 +219,11 @@ function MediaPlaceholder({
 }) {
   return (
     <div className="flex h-24 w-full items-center justify-center gap-1.5 bg-black/10 dark:bg-white/10">
-      <Icon size={18} weight="duotone" className="text-black/30 dark:text-white/40" />
+      <Icon
+        size={18}
+        weight="duotone"
+        className="text-black/30 dark:text-white/40"
+      />
       <span className="text-2xs text-black/40 dark:text-white/40">{label}</span>
     </div>
   );

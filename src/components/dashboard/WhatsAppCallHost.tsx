@@ -4,28 +4,28 @@ import { PhoneCall, PhoneDisconnect, SpinnerGap } from "@/components/icons";
 import { useCallback, useEffect, useState } from "react";
 
 import {
-  setDialerCallActive,
-  subscribeDialerCallRequest,
-} from "@/lib/dialer/dialer-control";
+  setCallActive,
+  subscribeCallRequest,
+} from "@/lib/call-session/call-session-control";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
-import { useDialerWs } from "@/hooks/use-dialer-ws";
+import { useCallSessionWs } from "@/hooks/use-call-session-ws";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
 /**
  * WhatsApp call host.
  *
- * This replaced the persistent dialer. VoIP was removed from the product —
- * SIP trunks, ramais, transfers, presence, the keypad and the docked right-edge
- * panel are all gone — but WhatsApp calling stayed, and a WhatsApp call still
- * has to be placed by something and shown while it runs.
+ * This replaced the persistent call panel. VoIP was removed from the product —
+ * SIP trunks, ramais, transfers, the keypad and the docked right-edge panel are
+ * all gone — but WhatsApp calling stayed, and a WhatsApp call still has to be
+ * placed by something and shown while it runs.
  *
  * So this component is deliberately headless until it has work to do:
  *
  *   - it renders NOTHING at rest (no edge tab, no panel, no launcher);
  *   - a call starts only when a conversation asks for one via
- *     `requestDialerCall({ phoneNumber, whatsAppPhoneId })`, which is what the
+ *     `requestCall({ phoneNumber, whatsAppPhoneId })`, which is what the
  *     "Ligar" action in the CRM does;
  *   - while a call is live it shows one compact status strip with the number,
  *     the state and hang up.
@@ -47,19 +47,19 @@ export default function WhatsAppCallHost() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [activeLabel, setActiveLabel] = useState<string | null>(null);
 
-  const canUseDialer = can("dialer", "use");
+  const canUseCalling = can("call_session", "use");
 
-  const { callState, startCall, endCall } = useDialerWs({
+  const { callState, startCall, endCall } = useCallSessionWs({
     // Session-presence signal for the call socket (auth rides the cookie).
     token: user?.id ?? "",
-    enabled: !!currentWorkspace?.id && canUseDialer,
+    enabled: !!currentWorkspace?.id && canUseCalling,
   });
 
   // A conversation asked to place a call. WhatsApp only: a request without a
   // business phone has nowhere to go now that trunks are gone, so it is ignored
   // rather than silently dialled over a channel that no longer exists.
   useEffect(() => {
-    return subscribeDialerCallRequest(
+    return subscribeCallRequest(
       ({ phoneNumber, whatsAppPhoneId, whatsAppPhoneLabel }) => {
         if (!whatsAppPhoneId) return;
         const clean = phoneNumber.replace(/[^\d+]/g, "");
@@ -73,8 +73,8 @@ export default function WhatsAppCallHost() {
   const hasActiveCall = callState != null && callState.status !== "ended";
 
   useEffect(() => {
-    setDialerCallActive(hasActiveCall);
-    return () => setDialerCallActive(false);
+    setCallActive(hasActiveCall);
+    return () => setCallActive(false);
   }, [hasActiveCall]);
 
   useEffect(() => {
@@ -95,7 +95,7 @@ export default function WhatsAppCallHost() {
     setActiveLabel(null);
   }, [endCall]);
 
-  if (!canUseDialer || !hasActiveCall || !callState) return null;
+  if (!canUseCalling || !hasActiveCall || !callState) return null;
 
   const ringing = callState.status === "ringing";
   const waiting = callState.status === "waiting_slot";

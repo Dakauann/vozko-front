@@ -7,7 +7,6 @@ export interface IncomingCallPayload {
     offer_id: string;
     call_id: string;
     workspace_id: string;
-    trunk_id: string;
     from_number: string;
     to_number?: string;
     channel?: string;
@@ -18,7 +17,6 @@ export interface IncomingCallOffer {
     offerId: string;
     callId: string;
     workspaceId: string;
-    trunkId: string;
     fromNumber: string;
     toNumber?: string;
     channel?: string;

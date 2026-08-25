@@ -79,7 +79,6 @@ type PlanDraft = {
   maxTtsConcurrency: string;
   includedWhatsAppBusinessPhones: string;
   maxBranches: string;
-  maxHoldMusicTracks: string;
   pricingItems: PricingItemDraft[];
 };
 
@@ -137,7 +136,6 @@ function buildDraft(
       plan?.includedWhatsAppBusinessPhones ?? 0,
     ),
     maxBranches: String(plan?.maxBranches ?? 1),
-    maxHoldMusicTracks: String(plan?.maxHoldMusicTracks ?? 0),
     pricingItems: sortDraftsByCatalog(
       mergePlanPricingDrafts(plan?.pricingItems, defaults, rate),
     ),
@@ -157,8 +155,6 @@ function toMutationInput(draft: PlanDraft, rate: number): PlanMutationInput {
       Number.parseInt(draft.includedWhatsAppBusinessPhones, 10) || 0,
     // Ramais were a SIP concept; no longer configurable, key kept for the API.
     maxBranches: 1,
-    // Hold music was a SIP concept; no longer configurable, key kept for the API.
-    maxHoldMusicTracks: 0,
     pricingItems: draftsToMutationInputs(draft.pricingItems, rate),
   };
 }

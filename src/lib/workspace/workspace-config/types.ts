@@ -10,21 +10,6 @@ export type WorkspaceConfig = {
      */
     includedUnofficialWhatsAppInstances?: number;
     skipAdminAssignment: boolean;
-    /** O que o cliente ouve em espera durante transferências:
-     *  "" (padrão do sistema), "builtin:<key>" (faixa inclusa) ou o id de uma
-     *  música enviada pelo workspace (media hold_music). */
-    holdMusicTrack: string;
-    /** Fila de espera (ACD): quando o destino de uma transferência (ou o
-     *  departamento) está ocupado, o cliente aguarda em fila em vez de ouvir
-     *  ocupado. Os limites garantem que ninguém espera para sempre. */
-    queueEnabled: boolean;
-    /** Tempo máximo de espera em segundos (0 = padrão do servidor). */
-    queueMaxWaitSeconds: number;
-    /** Máximo de chamadas simultâneas na fila (0 = padrão do servidor). */
-    queueMaxLength: number;
-    /** Ação ao esgotar o tempo: "hangup" (aviso + encerrar) ou "recall"
-     *  (retornar ao atendente que iniciou). */
-    queueOverflow: QueueOverflowAction;
     /** Encerrar conversas automaticamente após silêncio do cliente. Padrão: true. */
     autoCloseEnabled: boolean;
     /** Horas de silêncio após a última mensagem do atendente/IA (1..168). Padrão: 24. */
@@ -38,9 +23,3 @@ export type WorkspaceConfig = {
     createdAt: string;
 }
 
-export type QueueOverflowAction = "hangup" | "recall";
-
-export type BuiltinHoldTrack = {
-    key: string;
-    label: string;
-}

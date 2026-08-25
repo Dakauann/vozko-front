@@ -46,6 +46,7 @@ import { ChatMarkdown } from "@/components/elevated-design/chat-markdown";
 import { ModelBrandIcon } from "@/components/elevated-design/model-brand-icon";
 import type { ModelPricingInfo } from "@/lib/agents/types";
 import { cn } from "@/lib/utils";
+import { CircuitBoard, DotMatrix } from "@/components/brand/circuit";
 import { getAgentOptionsAction } from "@/app/actions/agents";
 import { useChatStream } from "@/hooks/use-chat-stream";
 
@@ -453,7 +454,18 @@ export function AIChatClient() {
           what moves it is the spacer below. Empty → spacer grows and the
           composer centres; first message → spacer unmounts and it docks. It is
           never remounted, so a half-typed prompt and the caret survive the move. */}
-      <section className="relative flex min-w-0 flex-1 flex-col bg-card">
+      <section className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-card">
+        {/* The brand's circuit routing behind the empty-chat greeting — an
+            identity surface until the first message lands. */}
+        {isEmpty && (
+          <>
+            <CircuitBoard className="pointer-events-none absolute -right-8 -top-8 hidden h-72 w-72 sm:block xl:h-96 xl:w-96" />
+            <DotMatrix
+              tone="quiet"
+              className="pointer-events-none absolute bottom-28 left-8 hidden h-20 w-32 lg:block"
+            />
+          </>
+        )}
         <div
           ref={scrollRef}
           onScroll={handleScroll}
