@@ -208,6 +208,7 @@ export function CrmProvider({
       campaignType,
       viewMode: ws.viewMode,
       switchView: ws.switchView,
+      applyLeadRename: ws.applyLeadRename,
     }),
     [ws, tags, reloadStages, labels, reloadLabels, campaignId, campaignType],
   );

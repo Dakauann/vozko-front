@@ -176,6 +176,7 @@ interface UseConversationWsReturn {
     entryType: string,
     status: string,
   ) => void;
+  applyLeadRename: (leadId: string, name: string) => void;
 }
 
 export type CallStatus = "waiting_slot" | "ringing" | "answered" | "ended";
@@ -2103,9 +2104,6 @@ export function useConversationWs({
         entry.lead_id === leadId ? { ...entry, lead_name: name } : entry,
       );
 
-    setInbox(rename);
-    setSearchResults((prev) => (prev ? rename(prev) : prev));
-
     // The open conversation carries no lead_id of its own, so it is matched
     // through the refs rather than through the updaters above — a Set filled
     // inside one setState updater is not reliably readable from another.
@@ -2114,6 +2112,34 @@ export function useConversationWs({
         .filter((entry) => entry.lead_id === leadId)
         .map((entry) => `${entry.entry_type}-${entry.entry_id}`),
     );
+
+    setInbox((prev) => {
+      const updated = rename(prev);
+      inboxRef.current = updated;
+      return updated;
+    });
+    setSearchResults((prev) => {
+      if (!prev) return prev;
+      const updated = rename(prev);
+      searchResultsRef.current = updated;
+      return updated;
+    });
+    setFunnelColumns((prev) => {
+      let changed = false;
+      const updated = new Map(prev);
+      for (const [stageId, column] of prev) {
+        let columnChanged = false;
+        const entries = column.entries.map((entry) => {
+          if (entry.lead_id !== leadId) return entry;
+          columnChanged = true;
+          changed = true;
+          return { ...entry, lead_name: name };
+        });
+        if (columnChanged) updated.set(stageId, { ...column, entries });
+      }
+      return changed ? updated : prev;
+    });
+
     setActiveConversation((prev) =>
       prev && owned.has(`${prev.entry_type}-${prev.entry_id}`)
         ? { ...prev, lead_name: name }
