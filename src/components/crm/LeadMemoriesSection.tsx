@@ -157,8 +157,10 @@ function CategoryPill({
             onClick={onClick}
             className={cn(
                 "rounded-[--radius] border px-2 py-0.5 text-2xs font-medium transition-colors max-sm:min-h-[34px]",
+                // A toggle chip is small enough to go solid, which is what the
+                // system does with any pair whose foreground is token-known.
                 active
-                    ? "border-primary bg-primary-subtle font-semibold text-primary-ink"
+                    ? "border-primary-edge bg-primary font-semibold text-primary-foreground"
                     : "border-border text-muted-foreground hover:text-foreground",
             )}
         >

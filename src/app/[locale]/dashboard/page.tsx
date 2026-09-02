@@ -234,8 +234,8 @@ function AttendanceGlance({
     },
     {
       key: "new",
-      label: tk("newContacts"),
-      value: num(kpis?.new_contacts),
+      label: tk("newLeads"),
+      value: num(kpis?.new_leads),
       icon: Users,
       plate: GLYPH_PLATE.Users,
     },

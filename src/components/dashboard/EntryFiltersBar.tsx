@@ -22,7 +22,19 @@ export interface EntryFilterValues {
   errorCode?: string;
 }
 
-type CampaignType = "voice" | "whatsapp";
+/**
+ * The channels this bar filters for.
+ *
+ * Widened from "voice" | "whatsapp" when the unofficial WhatsApp campaign
+ * arrived: it stores a provider error code on its entries exactly as the Cloud
+ * API campaign does, so it needs the same filter. Voice does not.
+ */
+type CampaignType = "voice" | "whatsapp" | "unofficial_whatsapp";
+
+/** Whether this channel records a provider error code worth filtering on. */
+function hasErrorCodes(campaignType: CampaignType): boolean {
+  return campaignType === "whatsapp" || campaignType === "unofficial_whatsapp";
+}
 
 interface StatusOption {
   value: string;
@@ -238,8 +250,8 @@ export default function EntryFiltersBar({
         {/* Optional actions slot (e.g. manage tags button) */}
         {renderActions}
 
-        {/* Error code filter – WhatsApp campaigns only */}
-        {campaignType === "whatsapp" && (
+        {/* Error code filter – channels whose entries carry one */}
+        {hasErrorCodes(campaignType) && (
           <div className="min-w-[130px]">
             <ElevatedInput
               placeholder={t.errorCodePlaceholder ?? "Error code"}

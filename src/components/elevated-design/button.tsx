@@ -4,6 +4,13 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 import { Link } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
+import {
+  BUTTON_GHOST,
+  BUTTON_OUTLINE,
+  BUTTON_OUTLINE_SUBTLE,
+  BUTTON_PRIMARY,
+  BUTTON_SECONDARY,
+} from "@/components/ui/button-surfaces";
 import { motion } from "framer-motion";
 
 type BaseVariant =
@@ -56,29 +63,29 @@ const variantAlias: Record<ButtonVariant, BaseVariant> = {
   "vsl-cta": "vsl",
 };
 
-// This is the app's de-facto button (136 consumers), so it carries exactly the
-// grammar in ui/button.tsx rather than a second dialect of it: a discrete
-// rest/hover/pressed colour ramp from one reference system, and the layered
-// shadow plus one-pixel lift from the other.
+// This is the app.s de-facto button (129 consumers). The neutral surfaces it
+// shares with ui/button.tsx come from button-surfaces.ts rather than being
+// spelled out again here — they were character-identical in both files until
+// `outline` quietly went a half pixel heavier than every field on the screen,
+// which is what two copies of a class string buys you.
+//
+// The variants below are the ones only this component has.
 //
 // Only `primary`, `vsl` and `action` carry a fill. Everything else is neutral —
 // a screen with several accent buttons has no primary action left on it.
 const variantClasses: Record<BaseVariant, string> = {
-  primary:
-    "bg-primary text-primary-foreground shadow-button hover:bg-[hsl(var(--primary-hover))] hover:shadow-button-hover active:bg-[hsl(var(--primary-active))] active:shadow-button",
-  // The quiet button: its 1px edge IS the first layer of --elev-button-quiet,
-  // so border and elevation compose instead of double-drawing an outline.
-  secondary:
-    "bg-card text-foreground shadow-quiet hover:shadow-quiet-hover active:bg-muted active:shadow-quiet",
-  outline:
-    "group border border-border-strong bg-transparent text-foreground hover:bg-muted active:bg-[hsl(var(--accent-hover))]",
-  "outline-subtle":
-    "border border-border bg-transparent text-foreground hover:bg-muted active:bg-[hsl(var(--accent-hover))]",
-  ghost:
-    "bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground active:bg-[hsl(var(--accent-hover))]",
-  vsl: "bg-primary text-primary-foreground shadow-button hover:bg-[hsl(var(--primary-hover))] hover:shadow-button-hover active:shadow-button",
-  action:
-    "bg-primary text-primary-foreground shadow-button min-h-[32px] px-3 gap-1.5 hover:bg-[hsl(var(--primary-hover))] hover:shadow-button-hover active:bg-[hsl(var(--primary-active))] active:shadow-button disabled:cursor-not-allowed",
+  primary: BUTTON_PRIMARY,
+  secondary: BUTTON_SECONDARY,
+  // `group` is this component only: its icon slot styles off the parent state.
+  outline: cn("group", BUTTON_OUTLINE),
+  "outline-subtle": BUTTON_OUTLINE_SUBTLE,
+  ghost: BUTTON_GHOST,
+  // NOT BUTTON_PRIMARY: this one has never changed fill on press, only its
+  // shadow. Left as-is rather than folded in, because giving it the pressed
+  // colour is a visual change to the landing-page CTA, not a refactor.
+  vsl: "bg-primary text-primary-foreground shadow-button-primary hover:bg-[hsl(var(--primary-hover))] hover:shadow-button-primary-hover active:shadow-button-primary",
+  // The primary surface plus its own metrics — same fill, same ramp.
+  action: cn(BUTTON_PRIMARY, "min-h-[32px] px-3 gap-1.5 disabled:cursor-not-allowed"),
   // The Azure command-bar button: flat at rest, label in foreground ink with
   // the GLYPH carrying the brand — the reference's own signature ("+ New" with
   // a coloured plus). For the action racks under page titles; never a fill.

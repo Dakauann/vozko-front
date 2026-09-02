@@ -32,6 +32,7 @@ import {
   ElevatedSelectItem,
 } from "@/components/elevated-design/elevated-select";
 import { createWhatsAppTemplateAction } from "@/app/actions/whatsapp-templates";
+import { templateErrorMessage } from "@/lib/whatsapp-templates/errors";
 import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones";
 import { useAuth } from "@/contexts/auth-context";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
@@ -90,6 +91,9 @@ export default function NewWhatsAppTemplatePage() {
   const { toast } = useToast();
   const router = useRouter();
   const t = useTranslations("whatsappTemplates");
+  // Scoped at the root because templateErrorMessage builds full keys
+  // ("whatsappTemplates.errors.<code>") and must stay usable from any surface.
+  const tRoot = useTranslations();
   const { user } = useAuth();
   const { can } = useWorkspace();
   const canCreate = can("whatsapp_templates", "create");
@@ -174,7 +178,47 @@ export default function NewWhatsAppTemplatePage() {
     return /\{\{[^}]+\}\}\s*\{\{[^}]+\}\}/.test(text);
   };
 
-  const validateForm = (): boolean => {
+  /**
+   * Takes the operator to the first thing that is wrong.
+   *
+   * A toast alone still leaves them hunting: the name field and the builder are
+   * far apart on this page, and a body/header/footer/button problem renders
+   * inside the builder column. Scrolling is what turns "something is wrong"
+   * into "this is wrong", which is the difference between a message and help.
+   *
+   * The field errors and the builder errors are two different anchors, so the
+   * lookup runs in the order the page is laid out rather than in the order the
+   * validator happened to find them.
+   */
+  const scrollToFirstError = (problemKeys: string[]) => {
+    const anchors: Record<string, string> = {
+      name: "template-error-anchor-name",
+      businessPhone: "template-error-anchor-phone",
+    };
+    const inBuilder = ["header", "body", "footer", "buttons", "format"];
+
+    const key =
+      ["name", "businessPhone"].find((k) => problemKeys.includes(k)) ??
+      (problemKeys.some((k) => inBuilder.includes(k)) ? "builder" : undefined);
+    if (!key) return;
+
+    const id = anchors[key] ?? "template-error-anchor-builder";
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    // Focus only where focus means something. Moving it onto a container would
+    // take the ring off whatever the operator was editing for no gain.
+    if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+      el.focus({ preventScroll: true });
+    }
+  };
+
+  // Returns the errors it found, rather than a bare boolean: the caller needs
+  // the list to say what is wrong and which field to jump to, and reading the
+  // `errors` state straight after setErrors would read the PREVIOUS render's
+  // value.
+  const validateForm = (): Record<string, string> => {
     const newErrors: Record<string, string> = {};
 
     if (!name.trim()) {
@@ -412,7 +456,7 @@ export default function NewWhatsAppTemplatePage() {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return newErrors;
   };
 
   const convertToTemplateComponents = (
@@ -520,7 +564,28 @@ export default function NewWhatsAppTemplatePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    // This early return used to be silent.
+    //
+    // validateForm sets per-field errors and they DO render — but this form is
+    // a drag-and-drop builder with a preview column, and the field that failed
+    // is routinely off-screen, or inside a component editor that is not the
+    // open one. So the operator pressed "Criar", the page did not move, nothing
+    // appeared near the button, and the only honest reading was that the button
+    // was broken.
+    //
+    // Say something, then take them to it.
+    const problems = validateForm();
+    const problemKeys = Object.keys(problems);
+    if (problemKeys.length > 0) {
+      toast({
+        title: t("toast.validationTitle"),
+        description:
+          problemKeys.length > 1
+            ? t("toast.validationCount", { count: String(problemKeys.length) })
+            : problems[problemKeys[0]],
+        variant: "destructive",
+      });
+      scrollToFirstError(problemKeys);
       return;
     }
 
@@ -553,9 +618,17 @@ export default function NewWhatsAppTemplatePage() {
       const result = await createWhatsAppTemplateAction(payload);
 
       if (result.error) {
+        // The server's message is the FALLBACK, not the message. Codes we know
+        // are rendered in the operator's language; a Meta rejection keeps
+        // Meta's own sentence, which Meta already localised; anything
+        // unrecognised still shows the server text rather than nothing.
         toast({
           title: t("toast.createError"),
-          description: result.error,
+          description: templateErrorMessage(
+            tRoot,
+            result.errorCode,
+            result.error,
+          ),
           variant: "destructive",
         });
       } else if (result.template?.status === "REJECTED") {
@@ -762,6 +835,7 @@ export default function NewWhatsAppTemplatePage() {
                           .replace(/[^a-z0-9_]/g, "_"),
                       )
                     }
+                    id="template-error-anchor-name"
                     className={errors.name ? "border-destructive/30" : ""}
                   />
                   {errors.name ? (
@@ -775,7 +849,7 @@ export default function NewWhatsAppTemplatePage() {
                   )}
                 </div>
 
-                <div>
+                <div id="template-error-anchor-phone">
                   <ElevatedCommandSelect
                     value={businessPhoneId}
                     onValueChange={setBusinessPhoneId}
@@ -866,6 +940,7 @@ export default function NewWhatsAppTemplatePage() {
               </div>
 
               {/* Inline validation errors */}
+              <span id="template-error-anchor-builder" aria-hidden />
               {(errors.body ||
                 errors.header ||
                 errors.footer ||

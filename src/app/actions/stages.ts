@@ -14,11 +14,20 @@ import {
 import { apiClient } from "@/lib/api/browser-client";
 
 
-export async function listStagesAction(workspaceId?: string, campaignId?: string, campaignType?: string): Promise<{ stages: Stage[]; error?: string }> {
+/**
+ * Stages of ONE funnel.
+ *
+ * `pipelineId` names it directly and wins on the server. Without it the backend
+ * resolves through the campaign and, with no campaign, lands on the workspace
+ * default — which is why every stage list in the CRM used to show the default
+ * funnel's stages no matter which funnel was on screen.
+ */
+export async function listStagesAction(workspaceId?: string, campaignId?: string, campaignType?: string, pipelineId?: string): Promise<{ stages: Stage[]; error?: string }> {
     const wsHeaders: Record<string, string> = workspaceId ? { 'X-Workspace-ID': workspaceId } : {};
     const params = new URLSearchParams();
     if (campaignId) params.set('campaignId', campaignId);
     if (campaignType) params.set('campaignType', campaignType);
+    if (pipelineId) params.set('pipelineId', pipelineId);
     const qs = params.toString();
     const response = await apiClient<Stage[]>(`/stages${qs ? `?${qs}` : ''}`, { method: 'GET', headers: wsHeaders });
 
@@ -35,8 +44,9 @@ export async function createStageAction(
     description: string,
     campaignId?: string,
     campaignType?: string,
+    pipelineId?: string,
 ): Promise<{ stage: Stage | null; error?: string }> {
-    const response = await createStage(name, color, description, campaignId, campaignType);
+    const response = await createStage(name, color, description, campaignId, campaignType, pipelineId);
 
     if (response.error) {
         return { stage: null, error: response.error.message };

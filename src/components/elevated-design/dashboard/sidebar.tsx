@@ -43,6 +43,7 @@ import {
   Lightning,
   GearSix,
   ChartBar,
+  UsersThree,
   X,
 } from "@/components/icons";
 import type { Icon, IconProps } from "@/components/icons";
@@ -228,13 +229,23 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.metrics",
     href: "/dashboard/attendance",
     family: "crm",
-    requiredPermission: { resource: "attendance", action: "read" },
+    // Métricas opens for whoever can read either dashboard under it.
+    requiredAnyOf: [
+      { resource: "attendance", action: "read" },
+      { resource: "comment_analysis", action: "read" },
+    ],
     children: [
       {
         icon: ChartBar,
         labelKey: "nav.attendanceOps",
         href: "/dashboard/attendance",
         requiredPermission: { resource: "attendance", action: "read" },
+      },
+      {
+        icon: UsersThree,
+        labelKey: "nav.audience",
+        href: "/dashboard/audience",
+        requiredPermission: { resource: "comment_analysis", action: "read" },
       },
     ],
   },
@@ -498,6 +509,46 @@ export const campanhasNavItems: NavItem[] = [
     ],
   },
   {
+    // Megaphone, echoing the official campaigns entry, and deliberately NOT the
+    // channel logo: the comment on the numbers group above already explains why
+    // two identical marks in one spine is how an operator picks the wrong
+    // number to send from.
+    icon: Megaphone,
+    labelKey: "nav.unofficialWhatsappCampaigns",
+    href: "/dashboard/unofficial-whatsapp-campaigns",
+    family: "unofficial-whatsapp",
+    requiredPermission: { resource: "unofficial_whatsapp_campaigns" },
+    children: [
+      {
+        icon: ClipboardText,
+        labelKey: "nav.unofficialWhatsappCampaignsList",
+        href: "/dashboard/unofficial-whatsapp-campaigns",
+        requiredPermission: {
+          resource: "unofficial_whatsapp_campaigns",
+          action: "read",
+        },
+      },
+      {
+        icon: PlusCircle,
+        labelKey: "nav.createUnofficialWhatsappCampaign",
+        href: "/dashboard/unofficial-whatsapp-campaigns/new",
+        requiredPermission: {
+          resource: "unofficial_whatsapp_campaigns",
+          action: "create",
+        },
+      },
+      {
+        icon: Archive,
+        labelKey: "nav.archivedUnofficialWhatsappCampaigns",
+        href: "/dashboard/unofficial-whatsapp-campaigns/archived",
+        requiredPermission: {
+          resource: "unofficial_whatsapp_campaigns",
+          action: "read",
+        },
+      },
+    ],
+  },
+  {
     icon: Phone,
     labelKey: "nav.whatsappBusinessPhones",
     href: "/dashboard/whatsapp-business-phones",
@@ -551,13 +602,6 @@ export const campanhasNavItems: NavItem[] = [
         admin: true,
       },
     ],
-  },
-  {
-    icon: Tag,
-    labelKey: "nav.stageGroups",
-    href: "/dashboard/stage-groups",
-    family: "management",
-    requiredPermission: { resource: "stage_groups", action: "read" },
   },
   {
     icon: UsersFour,
@@ -886,8 +930,13 @@ function ProductSwitcher({
                   }}
                   className={cn(
                     "flex w-full items-center gap-2 px-2 py-1.5 text-left transition-colors",
+                    // A menu row keeps a NEUTRAL opaque ground and spends the
+                    // green on the mark — the lamp and the check. A solid
+                    // brand block per selected row inside a popover is more
+                    // signal than the choice is worth, and the row already
+                    // carries two affordances.
                     isSelected
-                      ? "bg-primary-subtle text-primary-ink"
+                      ? "bg-muted text-foreground"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground",
                   )}
                 >
@@ -905,7 +954,10 @@ function ProductSwitcher({
                     {t(product.nameKey)}
                   </span>
                   {isSelected && (
-                    <Check className="h-3.5 w-3.5 shrink-0" weight="bold" />
+                    <Check
+                      className="h-3.5 w-3.5 shrink-0 text-primary-ink"
+                      weight="bold"
+                    />
                   )}
                 </button>
               );
@@ -960,7 +1012,8 @@ function ProductSwitcher({
                 }}
                 className={cn(
                   "flex w-full items-center gap-2 px-2 py-2 text-left transition-colors",
-                  isSelected ? "bg-primary-subtle" : "hover:bg-muted",
+                  // Neutral ground, green in the mark — same rule as above.
+                  isSelected ? "bg-muted" : "hover:bg-muted",
                 )}
               >
                 <span
@@ -989,7 +1042,7 @@ function ProductSwitcher({
                 </span>
                 {isSelected && (
                   <Check
-                    className="h-3.5 w-3.5 shrink-0 text-foreground"
+                    className="h-3.5 w-3.5 shrink-0 text-primary-ink"
                     weight="bold"
                   />
                 )}
@@ -1090,18 +1143,19 @@ function NavItemComponent({
         className={cn(
           "sidebar-item group relative flex items-center rounded-[--radius] text-sm transition-colors",
           isExpanded ? "h-8 w-full pr-2" : "h-8 w-full justify-center",
-          // The selected-item treatment from the reference system: a tinted
-          // ground in the brand hue, the label in brand ink, and the rounded
-          // accent bar on the leading edge. Three signals at once, so it never
-          // rests on colour alone — a grey fill alone (what this used to be)
-          // was indistinguishable from hover two rows away.
-          // Selected and hover were BOTH `bg-muted` — the same grey — so the
-          // current page was indistinguishable from whatever row the pointer
-          // happened to rest on. Selected now takes the tinted brand ground
-          // and brand ink the reference system uses, which leaves plain grey
-          // free to mean hover and nothing else.
+          // Selection is SOLID — the brand fill under its dark ink, the same
+          // grammar as the primary button. DESIGN.md names selection as one of
+          // the green's three sanctioned jobs, so this is the system asserting
+          // itself, not a new idea.
+          //
+          // What it replaces was measured and did not work. The tinted ground
+          // sat at 1.09:1 against the sidebar in light (APCA Lc 0.0) while the
+          // hover grey measured 1.17:1 — the selected row read FAINTER than the
+          // same row under the pointer, which is the exact failure the tint was
+          // adopted to fix. In dark both grounds measured Lc 0.0. Green ink on
+          // a green wash is also the one pattern this system bans outright.
           isLit
-            ? "bg-primary-subtle text-primary-ink"
+            ? "bg-primary text-primary-foreground shadow-button-primary hover:bg-[hsl(var(--primary-hover))]"
             : "text-muted-foreground hover:bg-muted hover:text-foreground",
         )}
         onClick={handleClick}
@@ -1109,7 +1163,10 @@ function NavItemComponent({
         {isExpanded ? (
           <>
             <span
-              className={cn("lamp ml-1 mr-1.5", !isLit && "opacity-0")}
+              className={cn(
+                "lamp ml-1 mr-1.5",
+                isLit ? "lamp-on-fill" : "opacity-0",
+              )}
               aria-hidden="true"
             />
             <span
@@ -1153,7 +1210,7 @@ function NavItemComponent({
               className={cn(
                 "absolute left-0 top-1/2 -translate-y-1/2",
                 "lamp",
-                !isLit && "opacity-0",
+                isLit ? "lamp-on-fill" : "opacity-0",
               )}
               aria-hidden="true"
             />

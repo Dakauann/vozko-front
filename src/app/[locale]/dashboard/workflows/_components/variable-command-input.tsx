@@ -385,7 +385,20 @@ export function VariableCommandInput({
         <PopoverContent
           align="start"
           side="bottom"
-          className="w-[420px] p-0 shadow-2xl border-border"
+          // z-[200] matches ElevatedSelect's overlay layer, which is what any
+          // portalled content needs to clear a modal.
+          //
+          // PopoverContent's base is z-50, and Radix portals it to <body> — so
+          // it became a sibling of the node config panel, which is z-[70], and
+          // lost. The picker opened *behind* the panel that triggered it. The
+          // selects in the same panel never showed the bug because they already
+          // sit at 200; this just stops the variable picker being the one
+          // overlay that forgot.
+          //
+          // collisionPadding keeps it inside the viewport when the field it is
+          // attached to is near the panel's bottom edge, instead of clipping.
+          collisionPadding={12}
+          className="z-[200] w-[420px] p-0 shadow-2xl border-border"
           onOpenAutoFocus={(e) => {
             e.preventDefault();
             setTimeout(() => searchInputRef.current?.focus(), 0);
@@ -493,17 +506,26 @@ export function VariableCommandInput({
                           key={v.template}
                           value={`${v.key} ${v.template} ${v.description}`}
                           onSelect={() => handleSelectVariable(v.template)}
-                          className="flex items-start gap-3 px-3 py-2.5 cursor-pointer rounded-lg mx-1 data-[selected=true]:bg-muted"
+                          // The selection ground is NOT overridden here.
+                          //
+                          // It used to be `data-[selected=true]:bg-muted`, which
+                          // is invisible: --muted IS --popover in dark, so the
+                          // highlight measured 1.00:1 against the very panel it
+                          // was drawn on, and arrowing through the list moved
+                          // nothing on screen. CommandItem's own base already
+                          // carries --accent-hover, the ground the select items
+                          // moved to for exactly this reason; letting it through
+                          // is the whole fix.
+                          className="mx-1 flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5"
                         >
-                          <div
-                            className={cn(
-                              "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
-                              category === "last" && "bg-muted",
-                              category === "custom" && "bg-muted",
-                              category === "system" && "bg-muted",
-                              category === "node" && "bg-muted",
-                            )}
-                          >
+                          {/*
+                            The tile was `bg-muted` for all four categories —
+                            the same invisible ground, and branching four ways to
+                            reach one value. An outlined plate reads on the
+                            popover AND on the selected row, where a filled one
+                            would vanish into the highlight.
+                          */}
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border-strong">
                             <VarIcon
                               size={14}
                               weight="duotone"

@@ -4168,6 +4168,11 @@ function buildAvailableVariables(
         description:
           "Telefone do contato (WhatsApp) ou ID do chat (Telegram/Instagram)",
       },
+      {
+        template: "{{channel}}",
+        description:
+          "Canal da execução: whatsapp, unofficial_whatsapp, instagram, telegram, support, voice",
+      },
       { template: "{{sys.date}}", description: "Data atual (YYYY-MM-DD)" },
       { template: "{{sys.time}}", description: "Hora atual (HH:MM:SS)" },
       { template: "{{sys.timestamp}}", description: "Timestamp Unix" },

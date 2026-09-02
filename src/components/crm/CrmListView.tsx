@@ -293,6 +293,67 @@ function BulkActionsBar({
   );
 }
 
+/**
+ * The selection count, plus the escape hatch out of "this page only".
+ *
+ * Selecting the header checkbox picks the twenty rows that happen to be
+ * rendered, which is almost never what someone means when they filter to a
+ * stage and reach for a bulk action. So once the page IS fully picked and more
+ * rows match, the count offers the whole set — the pattern every mail client and
+ * CRM uses, in the one place the operator is already looking.
+ */
+function SelectionCount({
+  count,
+  total,
+  pageSize,
+  allMatching,
+  onSelectAllMatching,
+  onClear,
+}: {
+  count: number;
+  total: number;
+  pageSize: number;
+  allMatching: boolean;
+  onSelectAllMatching: () => void;
+  onClear: () => void;
+}) {
+  if (allMatching) {
+    return (
+      <span className="inline-flex flex-wrap items-center gap-2">
+        <span className="font-medium text-foreground">
+          Todas as {total} conversas do filtro selecionadas
+        </span>
+        <button
+          type="button"
+          onClick={onClear}
+          className="font-medium text-primary-ink underline-offset-2 hover:underline"
+        >
+          Limpar seleção
+        </button>
+      </span>
+    );
+  }
+
+  // Only worth offering once the page is exhausted and there is genuinely more
+  // behind it; otherwise the count says what it always said.
+  const canOfferAll = count > 0 && count >= Math.min(pageSize, total) && total > count;
+
+  return (
+    <span className="inline-flex flex-wrap items-center gap-2">
+      <span>{count} selecionada(s)</span>
+      {canOfferAll ? (
+        <button
+          type="button"
+          onClick={onSelectAllMatching}
+          className="font-medium text-primary-ink underline-offset-2 hover:underline"
+        >
+          Selecionar todas as {total} do filtro
+        </button>
+      ) : null}
+    </span>
+  );
+}
+
 export interface CrmListViewProps {
   // The SAME CrmFilter that drives the board; the list shares it verbatim.
   filter: CrmFilter;
@@ -326,6 +387,10 @@ export default function CrmListView({
   const [stageByEntry, setStageByEntry] = useState<Record<string, EntryStage | null>>({});
   const [bulkBusy, setBulkBusy] = useState(false);
   const [members, setMembers] = useState<AssignableMember[]>([]);
+  // "Every conversation this filter matches", not just the page. Kept separate
+  // from selectedKeys because the set it names is not enumerable on the client —
+  // the server re-runs the filter. See selectAllMatching / runBulk.
+  const [allMatching, setAllMatching] = useState(false);
 
   const reqRef = useRef(0);
 
@@ -363,6 +428,9 @@ export default function CrmListView({
     setScope(currentScope);
     setPage(1);
     if (selectedKeys.size > 0) setSelectedKeys(new Set());
+    // A different filter is a different set. Carrying "all matching" across the
+    // change would silently re-aim the action at rows the operator never saw.
+    if (allMatching) setAllMatching(false);
   }
 
   // Enrich the page with each entry's current stage. The entries payload omits
@@ -428,15 +496,49 @@ export default function CrmListView({
     [entries, selectedKeys],
   );
 
+  // Any hand edit to the selection cancels "all matching": the operator is back
+  // to naming rows, and the two modes must never both look active.
+  const changeSelection = useCallback((keys: Set<string>) => {
+    setSelectedKeys(keys);
+    setAllMatching(false);
+  }, []);
+
+  const clearSelection = useCallback(() => {
+    setSelectedKeys(new Set());
+    setAllMatching(false);
+  }, []);
+
   const runBulk = useCallback(
     async (action: CrmBulkActionType, value: string) => {
-      const targets = selectedEntries.map((e) => ({
-        entryId: e.EntryID,
-        entryType: e.EntryType,
-      }));
-      if (targets.length === 0 || !value) return;
+      if (!value) return;
+
+      // Two targeting modes, one request shape. Naming the filter instead of the
+      // ids is what lets "everyone in stage X" mean all of them rather than the
+      // twenty that happened to fit on this page.
+      const targets = allMatching
+        ? []
+        : selectedEntries.map((e) => ({
+            entryId: e.EntryID,
+            entryType: e.EntryType,
+          }));
+      if (!allMatching && targets.length === 0) return;
+
+      if (
+        allMatching &&
+        !window.confirm(
+          `Aplicar esta ação a todas as ${total} conversas do filtro atual?`,
+        )
+      ) {
+        return;
+      }
+
       setBulkBusy(true);
-      const { result, error: err } = await crmBulkAction({ action, targets, value });
+      const { result, error: err } = await crmBulkAction({
+        action,
+        targets,
+        value,
+        ...(allMatching ? { filter } : {}),
+      });
       setBulkBusy(false);
       if (err) {
         toast.error(err);
@@ -444,15 +546,21 @@ export default function CrmListView({
       }
       const ok = result?.succeeded ?? 0;
       const failed = result?.failed?.length ?? 0;
-      if (failed > 0) {
+      if (result?.truncated) {
+        // The server caps one operation. Say so with both numbers, so the
+        // operator knows to repeat rather than assuming the job is done.
+        toast.warning(
+          `${ok} de ${result.matched ?? ok} atualizada(s) — limite por operação. Repita para continuar.`,
+        );
+      } else if (failed > 0) {
         toast.warning(`${ok} atualizada(s), ${failed} falhou(aram)`);
       } else {
         toast.success(`${ok} conversa(s) atualizada(s)`);
       }
-      setSelectedKeys(new Set());
+      clearSelection();
       await load();
     },
-    [selectedEntries, load],
+    [allMatching, selectedEntries, filter, total, clearSelection, load],
   );
 
   const stageOptions = useMemo(
@@ -589,7 +697,7 @@ export default function CrmListView({
         labelOptions={labelOptions}
         bulkBusy={bulkBusy}
         onBulk={runBulk}
-        onClear={() => setSelectedKeys(new Set())}
+        onClear={clearSelection}
       />
     ),
     [
@@ -601,7 +709,22 @@ export default function CrmListView({
       labelOptions,
       bulkBusy,
       runBulk,
+      clearSelection,
     ],
+  );
+
+  const renderSelectionCount = useCallback(
+    (count: number) => (
+      <SelectionCount
+        count={count}
+        total={total}
+        pageSize={PAGE_SIZE}
+        allMatching={allMatching}
+        onSelectAllMatching={() => setAllMatching(true)}
+        onClear={clearSelection}
+      />
+    ),
+    [total, allMatching, clearSelection],
   );
 
   return (
@@ -630,9 +753,11 @@ export default function CrmListView({
         }
         selection={{
           selectedKeys,
-          onSelectionChange: setSelectedKeys,
+          onSelectionChange: changeSelection,
           actions: renderBulkActions,
-          label: (count) => `${count} selecionada(s)`,
+          label: renderSelectionCount,
+          selectAllLabel: "Selecionar todas as conversas desta página",
+          selectRowLabel: "Selecionar conversa",
         }}
         pagination={
           totalPages > 1

@@ -84,7 +84,7 @@ export function AIModelSelector({
         aria-expanded={open}
         className={cn(
           "flex w-full items-center justify-between gap-2 rounded-[--radius] border border-border bg-muted px-2.5 py-1.5 text-left text-sm font-medium text-foreground transition-colors",
-          "hover:border-border-strong",
+          "hover:border-control-edge",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           "disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:opacity-60",
         )}

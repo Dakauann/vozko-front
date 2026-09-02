@@ -1,4 +1,49 @@
 {
+  "workingHours": {
+    "title": "Working hours",
+    "weekLabel": "Week",
+    "applyToWeekdays": "Repeat Mon–Fri",
+    "inactiveNotice": "Working hours only affect the rescue, which acts in \"last seen\" mode with rescue on. That is currently off, so this schedule is saved but changes nothing yet.",
+    "summaryAlwaysOpen": "24 hours",
+    "summaryEveryDay": "Every day, {start}–{end}",
+    "summaryWeekdays": "Mon–Fri, {start}–{end}",
+    "summaryCustom": "{count} open days",
+    "workspaceDescription": "Outside these hours the rescue does not run, and the owner's deadline only counts the minutes you are open.",
+    "workspaceOffHint": "No hours set: the roulette and its rescue run around the clock.",
+    "departmentInherits": "Inherits the workspace hours.",
+    "departmentOwnHours": "This department has its own hours.",
+    "departmentOffHint": "Off: the department follows the workspace hours.",
+    "enableLabel": "Set working hours",
+    "enableHint": "Only the days and ranges marked below count as open.",
+    "timezoneLabel": "Time zone",
+    "timezoneHint": "Hours are evaluated in this zone, not in each agent's browser zone.",
+    "closed": "Closed",
+    "to": "to",
+    "startLabel": "Start",
+    "endLabel": "End",
+    "addWindow": "Add range",
+    "removeWindow": "Remove range",
+    "overnightHint": "An end before the start runs past midnight: 22:00 to 02:00 is a night shift. For a full day use 00:00 to 24:00.",
+    "save": "Save hours",
+    "saveSuccess": "Working hours saved.",
+    "saveError": "Could not save the working hours.",
+    "errors": {
+      "badTime": "Invalid time. Use HH:MM in 24-hour format.",
+      "emptyWindow": "Start and end cannot be the same. For a full day use 00:00 to 24:00.",
+      "overlap": "This range overlaps another one on the same day.",
+      "noOpenTime": "The week needs at least one open range, or no deadline ever advances.",
+      "noTimezone": "Pick a time zone."
+    },
+    "days": {
+      "mon": "Monday",
+      "tue": "Tuesday",
+      "wed": "Wednesday",
+      "thu": "Thursday",
+      "fri": "Friday",
+      "sat": "Saturday",
+      "sun": "Sunday"
+    }
+  },
   "links": {
     "header": {
       "badge": "Links",
@@ -436,6 +481,8 @@
       "actorHuman": "Human",
       "actorAi": "AI",
       "actorSystem": "System",
+      "byActor": "by {name}",
+      "handoffUnassigned": "Unassigned",
       "types": {
         "assigned": "Assigned",
         "auto_assigned": "Auto-assigned",
@@ -1293,8 +1340,8 @@
         "description": "Referral program and commissions"
       },
       "campaigns": {
-        "name": "Campaigns",
-        "description": "CRM and WhatsApp campaigns"
+        "name": "CRM",
+        "description": "Inbox, CRM and campaigns"
       }
     },
     "nav": {
@@ -1401,7 +1448,12 @@
       "telegramChannel": "Telegram",
       "unofficialWhatsapp": "Numbers",
       "unofficialWhatsappNumbers": "Numbers",
-      "connectUnofficialWhatsapp": "Connect number"
+      "connectUnofficialWhatsapp": "Connect number",
+      "unofficialWhatsappCampaigns": "Campaigns",
+      "unofficialWhatsappCampaignsList": "List",
+      "createUnofficialWhatsappCampaign": "New campaign",
+      "archivedUnofficialWhatsappCampaigns": "Archived",
+      "audience": "Audience"
     },
     "badges": {
       "new": "New",
@@ -2187,6 +2239,9 @@
       "chooser": {
         "description": "Choose how you want to create the agent. You can switch at any time.",
         "backToChooser": "Switch mode",
+        "legend": "Creation mode",
+        "lastUsed": "Last used",
+        "suggested": "Suggested to start",
         "refine": {
           "badge": "Refine with AI",
           "title": "Refine prompts",
@@ -2825,6 +2880,55 @@
     }
   },
   "whatsappTemplates": {
+    "errors": {
+      "template_unknown_error": "We couldn't complete that. Please try again.",
+      "template_not_found": "Template not found.",
+      "template_already_exists": "A template with this identifier already exists.",
+      "template_external_id_required": "The external template identifier is required.",
+      "template_category_unavailable": "This template category is unavailable for billing.",
+      "template_header_media_not_applicable": "Header media only applies to templates with an image, video or document header.",
+      "template_name_required": "Give the template a name.",
+      "template_name_invalid_chars": "The name may contain only lowercase letters, numbers and underscores.",
+      "template_name_must_start_letter": "The template name must start with a letter.",
+      "template_name_too_long": "The template name is over 512 characters.",
+      "template_header_text_too_long": "The header is over 60 characters.",
+      "template_header_too_many_variables": "The header takes at most one variable.",
+      "template_header_format_required": "Choose a header format (text, image, video, document, location or GIF).",
+      "template_header_media_needs_handle": "Media headers need an example file.",
+      "template_body_too_long": "The body is over 1024 characters.",
+      "template_body_variable_at_start": "The body can't start with a variable. Add some text before it.",
+      "template_body_variable_at_end": "The body can't end with a variable. Add text or punctuation after it.",
+      "template_body_consecutive_variables": "The body can't have two variables in a row. Add some text between them.",
+      "template_body_needs_example": "Every variable in the body needs an example.",
+      "template_footer_too_long": "The footer is over 60 characters.",
+      "template_footer_has_variables": "The footer doesn't support variables.",
+      "template_too_many_buttons": "A template takes at most 10 buttons.",
+      "template_button_text_too_long": "The button text is over 25 characters.",
+      "template_button_text_required": "Enter the button text.",
+      "template_button_url_required": "A URL button needs an address.",
+      "template_button_phone_required": "A phone button needs a number.",
+      "template_buttons_not_grouped": "Quick reply buttons must be grouped together, with no other types in between.",
+      "template_url_button_variable_not_end": "The URL button's variable must be at the end of the address.",
+      "template_url_button_too_many_variables": "A URL button takes at most one variable.",
+      "template_copy_code_needs_example": "The copy code button needs an example.",
+      "template_call_permission_with_buttons": "A call permission template can't also have buttons: WhatsApp draws them itself.",
+      "template_multiple_call_permission": "A template takes at most one call permission component.",
+      "template_mixed_parameter_styles": "Use a single variable style: numbered or named, never both.",
+      "template_invalid_component_type": "Invalid component in the template.",
+      "template_invalid_header_format": "Invalid header format.",
+      "template_invalid_button_type": "Invalid button type.",
+      "template_invalid_category": "Invalid category. Use marketing, utility or authentication.",
+      "template_send_workspace_required": "Send refused: the workspace could not be identified.",
+      "template_send_idempotency_required": "Send refused: the idempotency key is missing.",
+      "template_send_in_progress": "This send is already in progress.",
+      "template_send_phone_mismatch": "The template doesn't belong to this number's WhatsApp account.",
+      "template_send_pricing_unavailable": "No price is configured for this template category.",
+      "template_send_not_sendable": "The template isn't ready to send yet.",
+      "template_send_billing_not_configured": "Billing isn't configured for this send.",
+      "template_send_attempt_conflict": "This send's status changed. Reload and try again.",
+      "template_provider_rejected": "WhatsApp rejected this template.",
+      "template_provider_unavailable": "WhatsApp is unavailable right now. Please try again shortly."
+    },
     "header": {
       "badge": "WhatsApp Business",
       "adminBadge": "Admin Global View",
@@ -2922,6 +3026,8 @@
       "notFound": "Template not found"
     },
     "toast": {
+      "validationTitle": "Check the form",
+      "validationCount": "{count} fields need attention.",
       "syncSuccess": "Templates synchronized",
       "syncSuccessDescription": "{count} template(s) synchronized from Meta",
       "syncSuccessDesc": "All templates were updated from Meta",
@@ -6391,11 +6497,35 @@
       "active": "Active",
       "inactive": "Inactive"
     },
+    "distribution": {
+      "label": "Conversation distribution",
+      "description": "How the roulette picks who receives each new conversation, and who takes part in it."
+    },
     "skipAdminAssignment": {
       "label": "Admin assignment",
       "description": "Whether admins and owners take part in automatic round-robin inbox assignment.",
       "enableLabel": "Admins receive assignments",
       "enableHint": "When off, admins and owners are skipped in automatic distribution. Only employees get new conversations."
+    },
+    "roulette": {
+      "modeLabel": "Roulette mode",
+      "onlineLabel": "Only agents online now",
+      "onlineHint": "Distributes among agents connected right now. The default behaviour.",
+      "lastSeenLabel": "Agents online recently",
+      "lastSeenHint": "Being connected stops mattering: anyone online within the window joins the roulette, most recent first.",
+      "statusOnline": "Online",
+      "statusLastSeen": "Last seen",
+      "windowLabel": "Last-seen window",
+      "hoursUnit": "hours",
+      "windowHint": "1 to 168 hours. Default 48h. Past that an agent no longer joins the roulette. If nobody was online within the window, the roulette falls back to distributing among agents connected right now.",
+      "rescueLabel": "Rescue unattended conversations",
+      "rescueHint": "If the agent neither opens nor answers in time, the conversation moves to the next agent in the roulette. Once the roulette has been walked, it becomes unassigned and visible to everyone.",
+      "rescueMinutesLabel": "Deadline to open the conversation",
+      "minutesUnit": "minutes",
+      "rescueMinutesHint": "1 to 1440 minutes (up to 24h). Default 15 minutes.",
+      "save": "Save",
+      "saveSuccess": "Roulette updated.",
+      "saveError": "Could not save the roulette settings."
     },
     "autoClose": {
       "title": "Conversation closure",
@@ -6511,6 +6641,7 @@
       "ai_chat": "AI Chat",
       "stages": "Stages",
       "instagram_accounts": "Instagram accounts",
+      "comment_analysis": "Comment analysis",
       "telegram_accounts": "Telegram accounts",
       "unofficial_whatsapp_instances": "WhatsApp numbers (unofficial)",
       "short_links": "Short links"
@@ -6563,6 +6694,7 @@
       "plans": "View available plans, contract plans, and cancel the workspace subscription",
       "ai_chat": "Access and use the workspace AI chat to create and manage conversations",
       "instagram_accounts": "Connect and manage the workspace's Instagram accounts.",
+      "comment_analysis": "View the comment analysis of connected accounts, moderate authors and configure the analysis (which is billed).",
       "telegram_accounts": "Connect and manage the workspace's Telegram bots and accounts.",
       "unofficial_whatsapp_instances": "Connect and manage WhatsApp numbers over a linked device.",
       "short_links": "Create and track short links and their click statistics."
@@ -6740,6 +6872,7 @@
       "windowClosedNoClock": "Cannot send in this conversation. The contact may have blocked you, or the reply permission was revoked."
     },
     "filterInstagram": "Instagram",
+    "filterUnofficialWhatsapp": "WhatsApp (unofficial)",
     "filterTelegram": "Telegram"
   },
   "tagGroupsPage": {
@@ -7937,6 +8070,18 @@
     "palette": {
       "title": "Components",
       "trigger": "Triggers",
+      "ai": "Artificial Intelligence",
+      "messaging": "Messages",
+      "logic": "Logic",
+      "visual": "Visual",
+      "searchPlaceholder": "Search nodes...",
+      "clearSearch": "Clear search",
+      "collapse": "Collapse panel",
+      "expand": "Expand panel",
+      "group": {
+        "label": "Group",
+        "description": "Visual grouping area, with no execution logic"
+      },
       "action": "Actions",
       "wait": "Waits",
       "condition": "Conditions",
@@ -8489,7 +8634,65 @@
       "forbiddenDescription": "Only registered affiliates can view this catalog."
     }
   },
+  "leads": {
+    "rename": {
+      "label": "Contact name",
+      "edit": "Edit name",
+      "save": "Save name",
+      "cancel": "Cancel",
+      "saved": "Name updated",
+      "cleared": "Name removed, the contact shows its number again"
+    }
+  },
   "leadsPage": {
+    "import": {
+      "action": "Import",
+      "title": "Import leads",
+      "description": "Upload a contact spreadsheet. The file is read in your browser. Nothing is sent before you confirm.",
+      "chooseFile": "Choose CSV file",
+      "template": "Download template",
+      "empty": "Choose a CSV or TXT file to start.",
+      "mapping": {
+        "title": "File columns",
+        "detected": "Header detected. Check that each column lands in the right field.",
+        "noHeader": "No header. Columns are in the order they appear in the file.",
+        "column": "Column {index}",
+        "number": "Phone",
+        "name": "Name",
+        "age": "Age",
+        "none": "Do not import",
+        "onlyThese": "A lead holds phone, name and age. Any other column in the file is ignored."
+      },
+      "summary": {
+        "counts": "{valid} valid contacts · {invalid} invalid · {duplicates} repeated in the file",
+        "tooMany": "Limit of {max} contacts per import. Split the file and send it in parts.",
+        "rejectedTitle": "Lines that will be skipped ({count})"
+      },
+      "reasons": {
+        "invalid": "invalid phone",
+        "duplicate": "repeated"
+      },
+      "existing": {
+        "label": "Contacts that already exist",
+        "fillEmpty": "Fill in blank name and age",
+        "skip": "Leave them untouched",
+        "neverOverwrites": "An import never replaces a name that is already set."
+      },
+      "confirm": "Import",
+      "importing": "Importing...",
+      "cancel": "Cancel",
+      "done": "Done",
+      "result": {
+        "created": "Leads created",
+        "matched": "Already existed",
+        "skipped": "{invalid} lines with an invalid phone and {duplicates} repeated lines were skipped.",
+        "blocked": "{count} of the existing contacts are blocked and will not be reached by campaigns."
+      },
+      "error": {
+        "title": "Could not import",
+        "generic": "Please try again in a moment."
+      }
+    },
     "header": {
       "badge": "Leads",
       "description": "Every lead in the workspace, with search, advanced filters and memories."
@@ -9358,7 +9561,7 @@
         "finished": "Finished",
         "ongoing": "Ongoing",
         "pending": "Waiting",
-        "newContacts": "New contacts",
+        "newLeads": "New contacts",
         "unassignedBacklog": "Unassigned",
         "avgWaitMins": "Avg wait (min)",
         "avgHandleMins": "Avg handle (min)",
@@ -9436,6 +9639,7 @@
         "queue": "Queue",
         "occupancy": "Occupancy",
         "channel_mix": "Channel mix",
+        "new_leads": "New contacts (leads)",
         "messaging": "Messaging",
         "reopen": "Reopen",
         "finished_by_source": "Finish source",
@@ -9462,9 +9666,10 @@
         "unassigned": "Conversations unassigned",
         "unassignedShort": "Need an owner",
         "unassignedHint": "Engaged open conversations without an assignee (only threads with messages)",
-        "newContacts": "New contacts",
-        "newContactsShort": "Entered in period",
-        "newContactsHint": "Engaged conversations created in the period (had at least one message)",
+        "newLeads": "New contacts",
+        "newLeadsShort": "Added in the period",
+        "newLeadsUnscoped": "Whole workspace · unfiltered",
+        "newLeadsHint": "Leads created in the period, including imports and contacts created by integrations. Counts the whole workspace and does not respond to the department, member, channel or campaign filters.",
         "avgWait": "Avg wait",
         "avgWaitShort": "Until 1st reply",
         "avgWaitHint": "From first customer message to first team reply",
@@ -9753,7 +9958,8 @@
       "sectionTitle": "Posts",
       "sectionCount": "{count} posts",
       "tabComments": "Comments",
-      "tabAutomation": "Automation"
+      "tabAutomation": "Automation",
+      "tabAnalysis": "Analysis"
     },
     "comments": {
       "empty": "No comments on this post.",
@@ -9962,11 +10168,364 @@
       "upload": "Upload",
       "uploading": "Uploading...",
       "uploadFailed": "Upload failed. Please try again.",
-      "fileTooLarge": "File is too large. The limit is 25 MB."
+      "fileTooLarge": "File is too large. The limit is 25 MB.",
+      "analysisTitle": "Comment analysis for this post",
+      "analysisHint": "Have it ready before the first comment: tell the AI what the post is about, pick its own topics, or switch analysis on or off for it alone. Anything left blank inherits from the account.",
+      "analysisAccountOff": "Analysis is off for the account. Choose \"On\" below to analyse just this post.",
+      "analysisLoading": "Loading the account's settings...",
+      "publishedButAnalysisFailed": "The post was published, but its analysis settings could not be saved: {error}. Adjust them in the post's Analysis tab."
     },
     "tabs": {
       "posts": "Posts",
-      "automation": "Automation"
+      "automation": "Automation",
+      "audience": "Audience"
+    }
+  },
+  "commentAnalysis": {
+    "errorTitle": "Comment analysis could not be loaded",
+    "sectionsLabel": "Audience analysis sections",
+    "sections": {
+      "overview": "Overview",
+      "topics": "Topics",
+      "authors": "Authors",
+      "feed": "Comments",
+      "settings": "Settings"
+    },
+    "disabled": {
+      "title": "Comment analysis is off",
+      "description": "When it is on, every comment on this account's posts is classified by AI (topic, sentiment, stance, intent and severity) and aggregated into a dashboard that shows what the audience says and who writes hostile content. Every analysed comment is billed.",
+      "cta": "Configure and turn on",
+      "noPermission": "Ask a workspace administrator to turn on comment analysis."
+    },
+    "enums": {
+      "stance": {
+        "supporter": "Supporter",
+        "neutral": "Neutral",
+        "critic": "Critic",
+        "hostile": "Hostile"
+      },
+      "sentiment": {
+        "positive": "Positive",
+        "neutral": "Neutral",
+        "negative": "Negative"
+      },
+      "intent": {
+        "praise": "Praise",
+        "question": "Question",
+        "complaint": "Complaint",
+        "support_request": "Support request",
+        "spam": "Spam",
+        "sales_lead": "Purchase intent",
+        "other": "Other"
+      },
+      "moderation": {
+        "none": "No action",
+        "watched": "Watched",
+        "muted": "Muted",
+        "blocked": "Blocked"
+      },
+      "severity": {
+        "none": "no severity",
+        "low": "low",
+        "medium": "moderate",
+        "high": "severe"
+      },
+      "status": {
+        "pending": "Queued",
+        "in_flight": "Analysing",
+        "analyzed": "Analysed",
+        "failed": "Failed",
+        "skipped": "Skipped"
+      },
+      "failureReason": {
+        "missing_ref": "the model gave no answer for this comment",
+        "invalid_labels": "the model answered with values outside the rubric",
+        "unparseable_response": "the model's answer could not be read",
+        "response_truncated": "the model's answer was cut off",
+        "provider_error": "the AI provider did not respond",
+        "dispatch_interrupted": "processing was interrupted",
+        "text_unavailable": "the comment no longer exists",
+        "analysis_disabled": "analysis was turned off"
+      },
+      "vertical": {
+        "gov": "Government and politics",
+        "retail": "Retail and e-commerce",
+        "services": "Services"
+      },
+      "backfillStatus": {
+        "pending": "Waiting",
+        "running": "Running",
+        "done": "Done",
+        "failed": "Failed",
+        "canceled": "Cancelled"
+      }
+    },
+    "overview": {
+      "tiles": {
+        "analyzed": "Analysed",
+        "analyzedDetail": "of {total} received",
+        "requiresAction": "Need a reply",
+        "requiresActionDetail": "questions, complaints and support requests",
+        "highSeverity": "Severe",
+        "highSeverityDetail": "severity {threshold} or above",
+        "flaggedAuthors": "Flagged authors",
+        "flaggedAuthorsDetail": "among {authors} authors"
+      },
+      "score": {
+        "title": "Acceptance",
+        "description": "How the audience receives this account's posts",
+        "label": "acceptance",
+        "explainer": "Computed from each comment's stance (supporter, neutral, critic, hostile), penalised by the share of severe comments. It is not a grade the AI gave: it is the sum of what it classified.",
+        "smallSample": "Small sample ({count} comments analysed): the number is pulled toward 50 until there are 30.",
+        "pending": "{count} comments still queued."
+      },
+      "stance": {
+        "title": "Stance",
+        "description": "Who supports, who criticises and who attacks",
+        "center": "comments"
+      },
+      "empty": {
+        "title": "Nothing analysed yet",
+        "description": "Comments are queued as they arrive and classified in batches."
+      },
+      "sentiment": {
+        "title": "Sentiment",
+        "description": "Prevailing tone of the comments"
+      },
+      "trend": {
+        "title": "Last 30 days",
+        "description": "Comments analysed per day",
+        "series": "Comments",
+        "emptyTitle": "No history yet",
+        "emptyDescription": "The chart fills in from the first daily close.",
+        "tooltipHostile": "{count} hostile",
+        "tooltipScore": "acceptance {score}"
+      }
+    },
+    "topics": {
+      "title": "Topics",
+      "description": "What the audience talks about, by volume",
+      "otherLabel": "Other",
+      "otherPrompt": {
+        "title": "{share}% of comments landed in \"Other\"",
+        "description": "A theme growing inside \"Other\" means a topic is missing from the list. Create one and the next comments are classified into it.",
+        "cta": "Edit topics"
+      },
+      "emptyTitle": "No topics yet",
+      "emptyDescription": "Topics appear as comments are classified.",
+      "mix": "{positive}% positive · {neutral}% neutral · {negative}% negative"
+    },
+    "authors": {
+      "title": "Who comments",
+      "description": "Authors ranked by their pattern of severe comments",
+      "scopeLabel": "Author filter",
+      "scope": {
+        "flagged": "Flagged",
+        "all": "All"
+      },
+      "emptyFlaggedTitle": "No flagged authors",
+      "emptyFlaggedDescription": "An author is flagged when their history is hostile and holds at least three severe comments. One bad day flags nobody.",
+      "emptyTitle": "No authors yet",
+      "emptyDescription": "The author list is rebuilt hourly from the analysed comments.",
+      "columns": {
+        "author": "Author",
+        "comments": "Comments",
+        "worst": "Worst severity",
+        "stance": "Stance",
+        "lastSeen": "Last seen",
+        "moderation": "Moderation"
+      },
+      "flagged": "Flagged",
+      "highCount": "{count, plural, one {# severe} other {# severe}}",
+      "noComments": "No analysed comments from this author.",
+      "actions": {
+        "hide": "Hide",
+        "privateReply": "Reply in DM"
+      },
+      "pagination": "{from} to {to} of {total}",
+      "previous": "Previous",
+      "next": "Next",
+      "privateReply": {
+        "title": "Reply in DM",
+        "placeholder": "Write the private message",
+        "hint": "Instagram allows a single private reply per comment, within 7 days.",
+        "alreadyUsed": "This comment has already received a private reply.",
+        "cancel": "Cancel",
+        "sending": "Sending...",
+        "send": "Send"
+      }
+    },
+    "feed": {
+      "title": "Classified comments",
+      "description": "Each comment with its topic, sentiment, stance, intent and severity",
+      "viewLabel": "Comment view",
+      "views": {
+        "all": "All",
+        "action": "Need a reply",
+        "high": "Severe",
+        "failed": "Failed"
+      },
+      "filters": {
+        "stance": "Stance",
+        "sentiment": "Sentiment",
+        "intent": "Intent",
+        "topic": "Topic",
+        "any": "All"
+      },
+      "emptyTitle": "No comments in this view",
+      "emptyDescription": "Adjust the filters or wait for the next classification.",
+      "truncated": "(cut)",
+      "spam": "spam",
+      "requiresAction": "Needs a reply",
+      "failedReason": "Failed after {attempts, plural, one {# attempt} other {# attempts}}: {reason}.",
+      "retry": "Try again",
+      "retrying": "Reprocessing...",
+      "pagination": "{from} to {to} of {total}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "settings": {
+      "saveFailed": "Could not save.",
+      "saving": "Saving...",
+      "switch": {
+        "title": "Comment analysis",
+        "description": "When on, every new comment is classified and billed. Turning it off stops everything immediately."
+      },
+      "model": {
+        "label": "AI model"
+      },
+      "vertical": {
+        "label": "Segment",
+        "hint": "Only seeds the initial topic list (for example health and public works for government; delivery and price for retail). Changing the vertical replaces the topic list with its default; edit the topics below to adjust."
+      },
+      "threshold": {
+        "label": "Severity threshold for action",
+        "hint": "It only marks; nothing is paused and nobody is blocked. A comment whose severity is at or above this value (0 to 100) shows up in the \"Need a reply\" list, with its text and author, alongside questions, complaints and support requests. Every other comment keeps being analysed as usual."
+      },
+      "dailyCap": {
+        "label": "Maximum comments per day",
+        "hint": "A volume ceiling, not a severity one: it counts how many comments were analysed today, not how bad they are. When the limit is reached, analysis pauses until the next day and you get a notice; whatever arrives after that waits in the queue and is analysed when the day turns. A viral post never produces a bill nobody approved."
+      },
+      "instructions": {
+        "title": "Instructions for the AI",
+        "description": "Free-form context the AI reads before classifying: who the account is, what tends to stir controversy, what to ignore.",
+        "label": "Instructions",
+        "placeholder": "E.g.: Official city hall account. Criticism of public works is common; irony about the mayor counts as criticism, not hostility.",
+        "hint": "Up to {max} characters. Each post can add its own instructions in the post's Analysis tab."
+      },
+      "topics": {
+        "title": "Topics",
+        "description": "The closed list the AI classifies into. Keys are stable; accents and capitals do not create duplicate topics.",
+        "add": "New topic",
+        "save": "Save topics",
+        "labelPlaceholder": "Topic name",
+        "descriptionPlaceholder": "What belongs here (guides the AI)",
+        "remove": "Remove topic",
+        "otherLabel": "Other",
+        "otherHint": "Always present: receives whatever fits no topic.",
+        "limit": "Up to {max} topics."
+      },
+      "spend": {
+        "title": "This month's usage",
+        "description": "What comment analysis has cost since the start of the month",
+        "comments": "Comments",
+        "batches": "Calls",
+        "tokens": "Tokens",
+        "surcharge": "Per-comment fee",
+        "noSurcharge": "Tokens only",
+        "hint": "Tokens are billed to the balance as AI usage. The per-comment fee, when configured, appears as one entry per batch."
+      },
+      "backfill": {
+        "title": "Analyse older comments",
+        "description": "Fetches the comments already on the posts and queues them. Always estimated and confirmed before it runs.",
+        "estimate": "Estimate",
+        "estimating": "Estimating...",
+        "estimateFailed": "Could not estimate.",
+        "estimateStale": "The estimate changed. Estimate again and confirm.",
+        "alreadyActive": "A backfill is already running for this account.",
+        "startFailed": "Could not start.",
+        "disabledHint": "Turn analysis on to backfill older comments.",
+        "progress": "{fetched} of {estimated} comments",
+        "shortfall": "Instagram returned {missing} fewer comments than the post counter. The API omits comments from private accounts and, while the app is in development mode, every comment from an account without a role on the app (admin, developer or tester). Add the commenting accounts as app testers, or take the app live, and run again.",
+        "cancel": "Cancel backfill",
+        "hint": "The backfill respects Instagram's call limit, so it can take hours on large accounts. It resumes where it stopped if interrupted.",
+        "confirmTitle": "Confirm backfill",
+        "confirmDescription": "About {comments} comments across {containers} posts will be queued. Estimated per-comment fee: {price}. Tokens are billed separately as AI usage.",
+        "tokenBillingOnly": "not configured (tokens only)",
+        "confirm": "Confirm and start",
+        "cancelDialog": "Cancel"
+      }
+    },
+    "post": {
+      "errorTitle": "Could not load this post's analysis.",
+      "openAudience": "Open in the audience dashboard",
+      "offTitle": "Analysis is off for this post",
+      "offHint": "The account's analysis is off, or this post was switched off individually.",
+      "offHintConfigure": "Turn analysis on for the account, or switch on just this post in the settings below.",
+      "state": {
+        "on": "Analysis on",
+        "off": "Analysis off",
+        "own": "Own settings",
+        "inherited": "Inheriting from account",
+        "threshold": "Action from {value}"
+      },
+      "override": {
+        "title": "This post's own settings",
+        "description": "When on, what you set here applies to this post only; anything left blank keeps inheriting from the account.",
+        "inheritingHint": "This post uses the account's settings. Turn this on to set instructions, topics or a threshold just for it.",
+        "enabled": {
+          "label": "Analysis",
+          "inherit": "Inherit from account ({value})",
+          "on": "On",
+          "off": "Off"
+        },
+        "threshold": {
+          "label": "Severity threshold for action",
+          "inherit": "Inherit ({value})"
+        },
+        "model": {
+          "label": "AI model",
+          "inherit": "Inherit",
+          "hint": "Blank uses the account's model: {value}.",
+          "default": "platform default"
+        },
+        "instructions": {
+          "label": "Instructions for this post",
+          "placeholder": "E.g.: Post about the Street A works. Noise complaints are expected; delays are the sensitive topic.",
+          "hint": "Added to the account's instructions, not replacing them."
+        },
+        "topics": {
+          "own": "Own topics for this post",
+          "inheritHint": "Inheriting the account's {count} topics."
+        },
+        "save": "Save settings",
+        "saving": "Saving...",
+        "saveFailed": "Could not save.",
+        "reset": "Inherit everything again"
+      }
+    },
+    "audience": {
+      "badge": "Audience",
+      "description": "What the comments say about {name}: support, criticism, topics and who comments.",
+      "noPermissionDesc": "The Comment analysis permission (comment_analysis:read) is required to see this dashboard.",
+      "account": "Account",
+      "post": "Post",
+      "allPosts": "All posts",
+      "untitledPost": "No caption",
+      "enabledMark": "on",
+      "scopedToPost": "This post only",
+      "configureCta": "Configure on the account",
+      "period": {
+        "label": "Period",
+        "days7": "7 days",
+        "days30": "30 days",
+        "days90": "90 days"
+      },
+      "noAccounts": {
+        "title": "No Instagram account connected",
+        "description": "Connect an account and turn on comment analysis in its Audience tab.",
+        "cta": "Go to Instagram accounts"
+      }
     }
   },
   "telegram": {
@@ -10598,6 +11157,267 @@
       "userStoppedMarketing": "This person opted out of marketing messages from this number.",
       "templateProblem": "The template was refused on send: it may be paused, rejected, or its variables may not match.",
       "experimentHoldout": "Meta withheld this message for a delivery experiment."
+    }
+  },
+  "unofficialWhatsappCampaigns": {
+    "page": {
+      "badge": "Unofficial WhatsApp campaigns",
+      "description": "Bulk outreach from your QR-connected numbers.",
+      "newButton": "New campaign",
+      "searchPlaceholder": "Search campaigns"
+    },
+    "archived": {
+      "badge": "Archived campaigns",
+      "description": "Archived campaigns from your QR-connected numbers.",
+      "emptyTitle": "No archived campaigns",
+      "emptyDescription": "Archived campaigns show up here."
+    },
+    "table": {
+      "name": "Campaign",
+      "status": "Status",
+      "total": "Total",
+      "dispatches": "Sends",
+      "avoidingSpam": "Spam-protected",
+      "notOnWhatsapp": "Not on WhatsApp",
+      "successRate": "Success rate",
+      "createdAt": "Created"
+    },
+    "status": {
+      "running": "Running",
+      "paused": "Paused",
+      "stopped": "Stopped",
+      "completed": "Completed",
+      "pending": "Pending",
+      "sent": "Sent",
+      "delivered": "Delivered",
+      "read": "Read",
+      "failed": "Failed",
+      "notEligiblePossibleSpam": "Spam-protected",
+      "skippedNotOnWhatsApp": "Not on WhatsApp"
+    },
+    "filter": {
+      "all": "All statuses"
+    },
+    "stats": {
+      "total": "Total",
+      "active": "Active",
+      "contacts": "Contacts",
+      "paused": "Paused"
+    },
+    "empty": {
+      "title": "No campaigns yet",
+      "description": "Create a campaign to send messages from your connected numbers."
+    },
+    "error": {
+      "title": "Could not load campaigns"
+    },
+    "actions": {
+      "archive": "Archive",
+      "unarchive": "Unarchive",
+      "cancel": "Cancel",
+      "start": "Start",
+      "pause": "Pause",
+      "stop": "Stop",
+      "validate": "Validate list",
+      "failed": "Action failed",
+      "started": "Campaign started",
+      "paused": "Campaign paused",
+      "stopped": "Campaign stopped",
+      "validated": "List validated",
+      "validatedDetail": "{checked} numbers checked, {skipped} not on WhatsApp.",
+      "crm": "Open CRM",
+      "edit": "Edit",
+      "restart": "Restart",
+      "more": "Actions",
+      "noPermissionStart": "You do not have permission to start campaigns.",
+      "noPermissionUpdate": "You do not have permission to edit campaigns."
+    },
+    "messageKind": {
+      "text": "Text",
+      "image": "Image",
+      "video": "Video",
+      "audio": "Audio",
+      "document": "Document",
+      "menu": "Menu"
+    },
+    "numberIssue": {
+      "banned": "WhatsApp disabled this number. It cannot be recovered.",
+      "restricted": "WhatsApp is limiting new conversations from this number.",
+      "disconnected": "This number is disconnected. Reconnect before sending.",
+      "awaiting-scan": "This number is still waiting for the QR code to be scanned.",
+      "provisioning": "This number is still being prepared.",
+      "provision-failed": "This number never finished connecting."
+    },
+    "form": {
+      "back": "Back",
+      "name": "Campaign name",
+      "number": "Sending number",
+      "numberOffline": "disconnected",
+      "messageKind": "Message type",
+      "attachment": "Attachment",
+      "variantsTitle": "Message variants",
+      "variantsHelp": "Identical messages at volume are the strongest automation signal there is. Each recipient gets one variant, picked stably.",
+      "addVariant": "Add variant",
+      "removeVariant": "Remove",
+      "variantLabel": "Variant {index}",
+      "bodyPlaceholder": "Write the message. Use {{1}}, {{2}} for variables.",
+      "variantsMismatch": "Every variant must use exactly the same variables.",
+      "variablesDetected": "{count} variable(s) detected. Every number needs those values.",
+      "menuStyle": "Menu style",
+      "menuStyleButtons": "Buttons (up to 3)",
+      "menuStyleList": "List (up to 10)",
+      "menuFooter": "Footer",
+      "optionId": "Option ID",
+      "optionTitle": "Option label",
+      "removeOption": "Remove option",
+      "addOption": "Add option (up to {max})",
+      "optionCapHelp": "The limit of {max} is WhatsApp's own.",
+      "pacingTitle": "Pacing and daily cap",
+      "pacingHelp": "A constant cadence is the easiest automation signal to spot. Sends are spaced randomly inside this range.",
+      "delayMin": "Minimum delay (ms)",
+      "delayMax": "Maximum delay (ms)",
+      "dailyCap": "Campaign daily cap",
+      "pacingClamped": "This number requires at least {min} ms; a lower value will be clamped.",
+      "effectiveCap": "Effective cap today: {cap} messages.",
+      "effectiveCapWarmup": "Effective cap today: {cap} messages (number warming up).",
+      "recipients": "Numbers",
+      "recipientsPlaceholder": "Paste numbers, one per line",
+      "recipientsSummary": "{valid} valid · {duplicates} duplicates · {invalid} invalid",
+      "recipientsNeedVariables": "This message uses {count} variable(s). Import a spreadsheet to fill them.",
+      "automationTitle": "Automation",
+      "enableAgentResponses": "Reply with AI",
+      "enableWorkflow": "Run workflow",
+      "enableAnalysis": "Analyse conversations",
+      "enableAutoStaging": "Move stages automatically",
+      "enableAutoMemory": "Automatic lead memory",
+      "create": "Create campaign",
+      "save": "Save",
+      "saveFailed": "Could not save",
+      "recipientsUpload": "Upload CSV",
+      "recipientsColumns": "One line per contact: number, name, then one column per variable.",
+      "recipientsSkipped": "Skipped lines",
+      "reasonInvalid": "invalid number",
+      "reasonDuplicate": "duplicate",
+      "reasonMissingVariables": "missing variables",
+      "mediaUpload": "Upload file",
+      "mediaUploading": "Uploading…",
+      "mediaRemove": "Remove file",
+      "mediaFailed": "Could not upload the file",
+      "basicInfoTitle": "Campaign details",
+      "namePlaceholder": "e.g. August collections",
+      "nameRequired": "Give it a name of at least 3 characters.",
+      "numberRequired": "Choose a sending number.",
+      "searchNumber": "Search numbers",
+      "noNumbers": "No connected numbers",
+      "numberDescription": "Messages leave from this number and replies return to the same conversation.",
+      "pipeline": "Conversation funnel",
+      "pipelineDefault": "Workspace default funnel",
+      "searchPipeline": "Search funnels",
+      "noPipelines": "No funnels found",
+      "pipelineDescription": "Which funnel this campaign's conversations enter.",
+      "messageTitle": "Message",
+      "responseMode": "How to reply",
+      "modeAgent": "AI agent",
+      "modeWorkflow": "Workflow",
+      "agent": "Agent",
+      "searchAgent": "Search agents",
+      "noAgents": "No agents found",
+      "preferAudio": "Reply with audio",
+      "preferAudioDescription": "The agent answers with audio where it makes sense.",
+      "workflow": "Workflow",
+      "searchWorkflow": "Search workflows",
+      "noWorkflows": "No workflows found",
+      "loadingWorkflows": "Loading workflows…",
+      "enableAnalysisDescription": "Analyses this campaign's conversations automatically.",
+      "enableAutoStagingDescription": "Moves the contact between stages as the conversation develops.",
+      "enableAutoMemoryDescription": "Automatically stores what matters about the lead.",
+      "aiModel": "AI model",
+      "aiModelDescription": "Model used by analysis, auto-staging and auto-memory.",
+      "scheduleToggle": "Schedule start",
+      "scheduledStart": "Scheduled start",
+      "scheduleDescription": "The campaign starts on its own at the chosen time. At least 5 minutes ahead.",
+      "previewTitle": "Preview",
+      "previewEmpty": "Write the message to see a preview.",
+      "previewVariantsHelp": "{count} variant(s). Each recipient gets one.",
+      "recipientsPaste": "Paste or upload the list",
+      "downloadExample": "Download example",
+      "noTargets": "Add at least one number."
+    },
+    "detail": {
+      "numberOffline": "This number is disconnected. The campaign will not send until it reconnects.",
+      "number": "Number",
+      "messageKind": "Type",
+      "variants": "{count} variants",
+      "agentOn": "Agent on",
+      "workflowOn": "Workflow on",
+      "pacing": "Pacing: {min}s to {max}s",
+      "dailyCap": "Daily cap: {cap}",
+      "badge": "WhatsApp campaigns"
+    },
+    "entries": {
+      "number": "Contact",
+      "status": "Status",
+      "variant": "Variant",
+      "conversation": "Conversation",
+      "open": "Open",
+      "sentAt": "Sent",
+      "emptyTitle": "No numbers",
+      "emptyDescription": "This campaign's numbers show up here.",
+      "searchPlaceholder": "Search contact",
+      "stage": "Stage",
+      "noStage": "No stage",
+      "clearFilters": "Clear filters",
+      "activeFilters": "active filters",
+      "errorCode": "Error code",
+      "title": "Campaign contacts",
+      "description": "Every number in this campaign and the status of each send.",
+      "records": "records",
+      "export": "Export CSV",
+      "exporting": "Exporting…",
+      "loading": "Loading contacts…",
+      "exportError": {
+        "generic": "Could not export.",
+        "noEntries": "Nothing to export with these filters.",
+        "tooLarge": "The range is too large. Narrow the filters.",
+        "busy": "An export is already running. Try again shortly."
+      },
+      "noName": "No name",
+      "variables": "Variables",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "danger": {
+      "title": "Danger zone",
+      "reset": "Reset campaign",
+      "clearHistory": "Clear history",
+      "code": "Confirmation code",
+      "codeMismatch": "The code does not match.",
+      "resetTitle": "Reset this campaign?",
+      "resetDescription": "Every number returns to pending and can be sent to again.",
+      "resetDone": "Campaign reset",
+      "clearTitle": "Clear this campaign's history?",
+      "clearDescription": "The stored conversations for this campaign are deleted permanently.",
+      "clearDone": "History cleared"
+    },
+    "new": {
+      "badge": "New campaign",
+      "title": "Create unofficial campaign",
+      "description": "Bulk outreach from a QR-connected number.",
+      "loading": "Loading the form…"
+    },
+    "edit": {
+      "badge": "Edit campaign",
+      "title": "Edit campaign",
+      "description": "Adjust this campaign's message, automation and pacing."
+    },
+    "ws": {
+      "connected": "Connected",
+      "connecting": "Connecting",
+      "disconnected": "Disconnected"
+    },
+    "crm": {
+      "dialogTitle": "Campaign CRM",
+      "dialogDescription": "Conversations this campaign opened."
     }
   }
 }

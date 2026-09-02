@@ -2,6 +2,21 @@ import type { CrmFilter as LeadFilter } from '@/lib/crm/board';
 
 export type LeadEntryType = 'voice' | 'whatsapp';
 
+/**
+ * The entry types a conversation can be OPENED for.
+ *
+ * Wider than LeadEntryType on purpose. A lead lookup is keyed on the two
+ * channels whose entries are lead-shaped, while reading a transcript is
+ * channel-neutral — every messaging channel stores its messages against
+ * (entry_id, entry_type). Widening LeadEntryType instead would have let a lead
+ * query be called with a channel it cannot answer for.
+ */
+export type ConversationEntryType =
+    | LeadEntryType
+    | 'instagram'
+    | 'telegram'
+    | 'unofficial_whatsapp';
+
 export type VoiceEntryStatus =
     | 'PENDING'
     | 'RINGING'

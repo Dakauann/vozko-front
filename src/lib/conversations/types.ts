@@ -89,6 +89,16 @@ export type EntryType =
 export type CampaignType = 'voice' | 'whatsapp' | 'support' | 'unofficial_whatsapp';
 
 /**
+ * Which container a scoped inbox narrows to.
+ *
+ * Most channels have exactly one — a WhatsApp campaign, or the account row — and
+ * leave this undefined. The unofficial WhatsApp channel has two genuinely
+ * different ones: a conversation belongs to a NUMBER forever, while a campaign
+ * is one run across many numbers.
+ */
+export type ContainerKind = 'campaign' | undefined;
+
+/**
  * The channel a MESSAGE was carried on, which is what the inbox filters by.
  *
  * Distinct from EntryType: 'sip' and 'support' are entry kinds, not message

@@ -500,6 +500,13 @@ function exportQueryString(filters?: Record<string, string | string[] | undefine
  * refresh-on-401. Shared by the per-campaign and workspace-wide exports so the
  * two cannot disagree about how a filename or an error is read.
  */
+export async function fetchCsvExport(
+    path: string,
+    filters?: Record<string, string | string[] | undefined>,
+): Promise<CsvExportResult> {
+    return fetchCsv(path, filters);
+}
+
 async function fetchCsv(path: string, filters?: Record<string, string | string[] | undefined>): Promise<CsvExportResult> {
     const queryString = exportQueryString(filters);
     const url = `${getApiBaseUrl()}${path}${queryString ? `?${queryString}` : ''}`;

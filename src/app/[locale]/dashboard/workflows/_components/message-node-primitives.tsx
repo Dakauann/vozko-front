@@ -287,11 +287,11 @@ export function branchDotClass(id: string): string {
   const k = id.trim().toLowerCase();
   if (/(erro|error|falh|fail|send_failed)/.test(k)) return "!border-destructive";
   if (/(timeout|no_reply|tempo|esgotad|expir)/.test(k)) return "!border-warning";
-  if (/(no_match|^default$|padr)/.test(k)) return "!border-border-strong";
+  if (/(no_match|^default$|padr)/.test(k)) return "!border-control-edge";
   if (/(sucesso|success|verdadeiro|^true$|passed|replied|respond)/.test(k))
     return "!border-healthy";
   if (/(^false$|^falso$)/.test(k)) return "!border-destructive";
-  return "!border-border-strong";
+  return "!border-control-edge";
 }
 
 // BranchRow is the ONE row style for a node's outgoing branch, used by every
@@ -302,10 +302,18 @@ export function branchDotClass(id: string): string {
 export function BranchRow({
   id,
   label,
+  icon,
   registerRow,
 }: {
   id: string;
   label: string;
+  /**
+   * Optional leading mark. The channel branch passes each channel's own logo,
+   * so a glance at the node says which channels the flow handles without
+   * reading five near-identical labels — "WhatsApp oficial" and "WhatsApp não
+   * oficial" are two words apart in text and instantly apart as marks.
+   */
+  icon?: ReactNode;
   registerRow: (el: HTMLElement | null, id: string) => void;
 }) {
   return (
@@ -314,6 +322,11 @@ export function BranchRow({
       ref={(el) => registerRow(el, id)}
       className="flex h-5 items-center justify-end gap-1.5 pr-4"
     >
+      {icon ? (
+        <span aria-hidden className="flex h-3 w-3 shrink-0 items-center justify-center">
+          {icon}
+        </span>
+      ) : null}
       <span className="truncate text-2xs font-semibold tracking-[0.08em] text-muted-foreground">
         {label}
       </span>
@@ -473,7 +486,7 @@ export function InteractiveNodeShell({
         <Handle
           type="target"
           position={Position.Left}
-          className={cn(HANDLE_PAD_CLASS, "!-left-[5px] !border-border-strong")}
+          className={cn(HANDLE_PAD_CLASS, "!-left-[5px] !border-control-edge")}
         />
       )}
 
@@ -487,7 +500,7 @@ export function InteractiveNodeShell({
         }}
         className={cn(
           "relative overflow-hidden rounded-lg border border-border bg-card shadow-md transition-all",
-          !selected && "hover:border-border-strong",
+          !selected && "hover:border-control-edge",
           // Selection is a brand state, as everywhere else in the product;
           // the near-black ring this replaces read as an error outline.
           selected &&
@@ -559,7 +572,7 @@ export function InteractiveNodeShell({
             <Handle
               type="source"
               position={Position.Right}
-              className={cn(HANDLE_PAD_CLASS, "!-right-[5px] !border-border-strong")}
+              className={cn(HANDLE_PAD_CLASS, "!-right-[5px] !border-control-edge")}
             >
               {defaultOutputRequired && <RequiredHandleMarker />}
             </Handle>

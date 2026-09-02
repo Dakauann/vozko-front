@@ -153,7 +153,10 @@ export function ModelPickerSheet({
     <ElevatedSheet open={open} onOpenChange={onOpenChange}>
       <ElevatedSheetContent
         side="right"
-        className="w-full gap-0 p-0 sm:max-w-md motion-reduce:!animate-none motion-reduce:!transition-none"
+        // A row here carries a name, a context size, two prices and a check.
+        // At max-w-md every model name truncated; this gives the name room to
+        // finish before the numbers start.
+        className="w-full gap-0 p-0 sm:max-w-xl lg:max-w-2xl motion-reduce:!animate-none motion-reduce:!transition-none"
       >
         <ElevatedSheetHeader className="gap-3 pr-16">
           <div className="flex items-center gap-3">
@@ -187,7 +190,7 @@ export function ModelPickerSheet({
                 className={cn(
                   "overflow-visible px-1",
                   "[&_[cmdk-group-heading]]:sticky [&_[cmdk-group-heading]]:top-0 [&_[cmdk-group-heading]]:z-10",
-                  "[&_[cmdk-group-heading]]:bg-background [&_[cmdk-group-heading]]:",
+                  "[&_[cmdk-group-heading]]:bg-card [&_[cmdk-group-heading]]:py-1.5",
                   // Normal-case provider names, not an uppercase tracked eyebrow.
                   "[&_[cmdk-group-heading]]:text-sm [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:normal-case [&_[cmdk-group-heading]]:tracking-normal [&_[cmdk-group-heading]]:text-foreground/70",
                 )}
@@ -228,14 +231,17 @@ function ModelRow({
       className={cn(
         "my-0.5 flex items-center gap-3 rounded-[--radius] px-3 py-2.5",
         // Keyboard highlight stays a quiet neutral so it's never mistaken for the
-        // chosen value (which gets the tinted well + ring below). No left-stripe.
-        "data-[selected=true]:bg-muted data-[selected=true]:text-foreground",
+        // chosen value (which gets the ring below). No left-stripe.
+        "data-[selected=true]:bg-[hsl(var(--accent-hover))] data-[selected=true]:text-foreground",
         isSelected &&
-          "bg-muted ring-1 ring-inset ring-primary/25 data-[selected=true]:bg-muted",
+          "bg-[hsl(var(--accent-hover))] ring-1 ring-inset ring-primary/25 data-[selected=true]:bg-[hsl(var(--accent-hover))]",
       )}
     >
       {/* Brand logo on a neutral tile, keeping the provider's own color (DESIGN §5). */}
-      <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[--radius] border border-border bg-muted">
+      {/* Sheet in light, well in dark — the same call the field family made.
+          A column of grey tiles down the side of 344 rows was the loudest grey
+          in the drawer. */}
+      <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[--radius] border border-border bg-card dark:bg-muted">
         <ModelBrandIcon modelId={model.id} size={18} />
       </span>
 

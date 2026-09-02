@@ -7,6 +7,7 @@
 
 import {
   ArrowClockwise,
+  ArrowRight,
   ArrowSquareOut,
   ArrowsLeftRight,
   ChartBar,
@@ -32,8 +33,11 @@ import {
 import type { EntryType } from "@/lib/conversations/types";
 import {
   eventMatchesFilter,
+  isHandoffEvent,
   normalizeActorKind,
   parseEventDetails,
+  resolveEventParticipants,
+  PARTICIPANT_DETAIL_KEYS,
   type ActivityFilter,
   type ConversationEvent,
 } from "@/lib/conversations/events";
@@ -194,27 +198,20 @@ function looksLikeId(value: string): boolean {
 }
 
 /**
- * Human-readable subtitle for a timeline event.
- * Resolves to_user_id via memberNames when possible; never dumps raw IDs.
+ * Human-readable subtitle for a timeline event: what changed, not who changed
+ * it. The people involved are rendered separately by the participant line, so
+ * every from/to key is excluded here rather than showing up twice.
  */
 function detailLine(
   details: Record<string, string>,
-  memberNames?: Record<string, string>,
   tDetails?: (key: string, values?: Record<string, string>) => string,
 ): string | null {
   const preferred = [
     "stage_name",
     "stageName",
+    "to_stage_name",
     "label_name",
     "labelName",
-    "to_username",
-    "toUsername",
-    "to_user",
-    "toUser",
-    "assigned_to_name",
-    "assignedToName",
-    "assigned_to",
-    "assignedTo",
     "outcome",
     "status",
     "reason",
@@ -226,6 +223,15 @@ function detailLine(
   ];
 
   const parts: string[] = [];
+
+  // A stage move reads as the transition it was, not just where it landed:
+  // "recebido → em atendimento". The backend now names both sides, and fills
+  // them in on rows stored back when the event carried only uuids.
+  const fromStage = details.from_stage_name?.trim();
+  const toStage = (details.stage_name ?? details.to_stage_name)?.trim();
+  if (fromStage && toStage && fromStage !== toStage) {
+    return `${fromStage} → ${toStage}`;
+  }
 
   // Prefer explicit human labels first
   for (const key of preferred) {
@@ -245,33 +251,11 @@ function detailLine(
     }
   }
 
-  // Resolve assignee UUID → display name
-  const toId =
-    details.to_user_id ||
-    details.toUserId ||
-    details.assigned_user_id ||
-    details.assignedUserId ||
-    "";
-  if (toId) {
-    const name =
-      memberNames?.[toId] ||
-      details.to_username ||
-      details.toUsername ||
-      details.assigned_to_name;
-    if (name && !looksLikeId(name)) {
-      const label = tDetails
-        ? tDetails("assignedTo", { name })
-        : name;
-      if (!parts.includes(name) && !parts.some((p) => p.includes(name))) {
-        parts.push(label.includes("assignedTo") ? name : label);
-      }
-    }
-  }
-
-  // Friendly leftover keys (no IDs)
+  // Friendly leftover keys (no IDs, no participants)
   if (!parts.length) {
     for (const [key, value] of Object.entries(details)) {
       if (DETAIL_SKIP_KEYS.has(key)) continue;
+      if (PARTICIPANT_DETAIL_KEYS.has(key)) continue;
       if (looksLikeId(value)) continue;
       if (key === "trigger" && tDetails) {
         const mapped = tDetails(`trigger.${value}` as "trigger.open");
@@ -711,12 +695,19 @@ export default function ConversationAttendanceSection({
                       ev.actor_id,
                     );
                     const details = parseEventDetails(ev.details);
-                    const sub = detailLine(
+                    const sub = detailLine(details, (key, values) =>
+                      t(`details.${key}` as "details.assignedTo", values),
+                    );
+                    const who = resolveEventParticipants(
+                      ev,
                       details,
                       memberNames,
-                      (key, values) =>
-                        t(`details.${key}` as "details.assignedTo", values),
                     );
+                    // A handoff with only one side known still says something
+                    // useful ("→ Bruno"), so the line renders on either.
+                    const showHandoff =
+                      isHandoffEvent(ev.event_type) &&
+                      Boolean(who.from || who.to);
                     const title = KNOWN_EVENT_TYPES.has(ev.event_type)
                       ? t(`types.${ev.event_type}` as "types.assigned")
                       : t("types.unknown", { type: ev.event_type });
@@ -763,10 +754,33 @@ export default function ConversationAttendanceSection({
                                   ? t("actorSystem")
                                   : t("actorHuman")}
                             </span>
+                            {who.actor ? (
+                              <span
+                                className="truncate font-medium text-foreground"
+                                title={who.actor}
+                              >
+                                {t("byActor", { name: who.actor })}
+                              </span>
+                            ) : null}
                             {ev.channel ? (
                               <span className="truncate">{ev.channel}</span>
                             ) : null}
                           </div>
+                          {showHandoff ? (
+                            <p className="mt-1 flex items-center gap-1 text-2xs text-foreground">
+                              <span className="truncate" title={who.from ?? ""}>
+                                {who.from ?? t("handoffUnassigned")}
+                              </span>
+                              <ArrowRight
+                                className="h-3 w-3 shrink-0 text-muted-foreground"
+                                weight="bold"
+                                aria-hidden
+                              />
+                              <span className="truncate" title={who.to ?? ""}>
+                                {who.to ?? t("handoffUnassigned")}
+                              </span>
+                            </p>
+                          ) : null}
                           {sub ? (
                             <p className="mt-0.5 line-clamp-2 text-2xs text-muted-foreground">
                               {sub}

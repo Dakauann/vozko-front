@@ -77,6 +77,12 @@ export interface DashboardTableSelection<T> {
   // Localizable label for the selection bar count (defaults to English
   // "N selected"). Lets pt-BR callers render e.g. "3 selecionadas".
   label?: (count: number) => ReactNode;
+  // Accessible names for the selection controls. They are drawn as bare
+  // buttons, so without these a screen reader announces "button" with no name
+  // and no checked state — on the one control that decides what a bulk action
+  // is about to touch. English defaults, overridable per caller like `label`.
+  selectAllLabel?: string;
+  selectRowLabel?: string;
 }
 
 export interface DashboardTableProps<T> {
@@ -292,6 +298,14 @@ export function DashboardTable<T>({
                 <th className="w-10 px-3 py-2" scope="col">
                   <button
                     type="button"
+                    role="checkbox"
+                    // Tri-state: "mixed" is what makes the dash glyph mean
+                    // something to a screen reader instead of reading as
+                    // unchecked while the page shows a partial selection.
+                    aria-checked={
+                      allSelected ? true : someSelected ? "mixed" : false
+                    }
+                    aria-label={selection!.selectAllLabel ?? "Select all rows"}
                     onClick={toggleAll}
                     className={cn(
                       "flex h-4 w-4 items-center justify-center rounded border transition-colors",
@@ -450,6 +464,11 @@ export function DashboardTable<T>({
                             <td className="w-10 px-3 py-2.5">
                               <button
                                 type="button"
+                                role="checkbox"
+                                aria-checked={isSelected}
+                                aria-label={
+                                  selection!.selectRowLabel ?? "Select row"
+                                }
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   toggleRow(key);

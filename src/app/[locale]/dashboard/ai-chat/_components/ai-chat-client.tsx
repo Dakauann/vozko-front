@@ -41,6 +41,7 @@ import {
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AIModelSelector } from "@/components/elevated-design/ai-model-selector";
 import { ChatMarkdown } from "@/components/elevated-design/chat-markdown";
 import { ModelBrandIcon } from "@/components/elevated-design/model-brand-icon";
@@ -395,7 +396,7 @@ export function AIChatClient() {
           <button
             type="button"
             onClick={newChat}
-            className="rounded-[--radius] inline-flex items-center gap-1.5 border border-border bg-muted px-2 py-1 text-2xs font-semibold text-foreground transition-colors duration-DEFAULT hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="rounded-[--radius] inline-flex items-center gap-1.5 border border-control-edge bg-card px-2 py-1 text-2xs font-semibold text-foreground transition-colors duration-DEFAULT hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Plus weight="bold" className="h-3 w-3" />
             {t("newChat")}
@@ -409,9 +410,15 @@ export function AIChatClient() {
                 key={thread.id}
                 className={cn(
                   "group flex items-center gap-2 pr-2 text-sm transition-colors duration-DEFAULT",
+                  // Linha de menu: fundo neutro opaco + marca (a lâmpada
+                  // abaixo). O hover NÃO pode ser --muted, senão ele é o mesmo
+                  // fundo do item atual e a conversa aberta fica idêntica à
+                  // que está só sob o ponteiro — exatamente a falha que a
+                  // regra de 2026-09-01 mediu e removeu. Menu destaca em
+                  // --accent-hover, como dropdown-menu.tsx.
                   current
                     ? "bg-muted font-semibold text-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                    : "text-muted-foreground hover:bg-[hsl(var(--accent-hover))] hover:text-foreground",
                 )}
               >
                 {/* The lamp pip: present on every row, lit only on the current
@@ -545,7 +552,7 @@ export function AIChatClient() {
                     key={s}
                     type="button"
                     onClick={() => setInput(s)}
-                    className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-muted-foreground transition-colors duration-DEFAULT hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="rounded-lg border border-control-edge bg-card px-3 py-1.5 text-sm text-muted-foreground transition-colors duration-DEFAULT hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {s}
                   </button>
@@ -622,7 +629,7 @@ function Composer({
         <button
           type="button"
           onClick={onScrollDown}
-          className="absolute -top-11 left-1/2 z-10 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-lg transition-colors duration-DEFAULT hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="absolute -top-11 left-1/2 z-10 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full border border-control-edge bg-card text-foreground shadow-lg transition-colors duration-DEFAULT hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label={labels.scrollToBottom}
         >
           <CaretDown weight="bold" className="h-4 w-4" />
@@ -633,16 +640,26 @@ function Composer({
         {/* Fault state, stated in words and colour. The previous banner used
             `danger`, a token this project never defined, so an error rendered
             as plain text on the panel and read as prose. */}
+        {/* Agora pela receita `.notice` (Alert), em vez de um banner à mão: o
+            fundo opaco e a tinta medida vêm da receita, e a borda superior
+            `destructive/60` sai junto — era o hue lavado atrás da sua própria
+            tinta, que a regra proíbe justamente por não sobreviver à medição. */}
         {error ? (
-          <p
-            role="alert"
-            className="rounded-lg mb-2 border border-border border-t-destructive/60 bg-muted px-3 py-2 text-sm text-destructive-ink"
-          >
-            {error}
-          </p>
+          <Alert variant="destructive" role="alert" className="mb-2">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         ) : null}
 
-        <div className="rounded-lg border border-border bg-muted focus-within:ring-2 focus-within:ring-ring">
+        {/*
+          O compositor é um CAMPO, e campo é folha no claro / poço no escuro
+          (DESIGN.md, 2026-09-01): --card no claro atrás da aresta
+          --control-edge, --muted só no escuro. Estava --muted nos dois temas, e
+          no claro --muted contra --card mede 1.17:1 (APCA Lc 8) — abaixo do
+          ~Lc 15 que um preenchimento precisa para ler como plano, então não
+          chegava a ser superfície: era mancha. É o cinza que mais aparece na
+          tela, porque é o controle principal dela.
+        */}
+        <div className="rounded-lg border border-control-edge bg-card dark:bg-muted focus-within:ring-2 focus-within:ring-ring">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -668,7 +685,7 @@ function Composer({
               <button
                 type="button"
                 onClick={onStop}
-                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[--radius] border border-border bg-card text-foreground transition-colors duration-DEFAULT hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[--radius] border border-control-edge bg-card text-foreground transition-colors duration-DEFAULT hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label={labels.stop}
               >
                 <Stop weight="fill" className="h-3.5 w-3.5" />
@@ -724,11 +741,11 @@ function MessageBubble({
   return (
     <div className="flex gap-3">
       {message.model ? (
-        <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-[--radius] border border-border bg-muted">
+        <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center ink-plate">
           <ModelBrandIcon modelId={message.model} size={15} />
         </span>
       ) : (
-        <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-[--radius] border border-border bg-muted text-muted-foreground">
+        <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center ink-plate text-muted-foreground">
           <Brain weight="fill" className="h-4 w-4" />
         </span>
       )}
@@ -877,7 +894,7 @@ function ApprovalCard({
               setBusy("reject");
               onReject(pending.id);
             }}
-            className="rounded-[--radius] inline-flex items-center gap-1.5 border border-border bg-card px-3.5 py-2 text-sm font-medium text-foreground transition-colors duration-DEFAULT hover:bg-muted disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="rounded-[--radius] inline-flex items-center gap-1.5 border border-control-edge bg-card px-3.5 py-2 text-sm font-medium text-foreground transition-colors duration-DEFAULT hover:bg-muted disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             {busy === "reject" ? (
               <CircleNotch weight="bold" className="h-3.5 w-3.5 animate-spin" />

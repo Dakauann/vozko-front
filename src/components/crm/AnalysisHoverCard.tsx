@@ -184,7 +184,7 @@ export default function AnalysisHoverCard({
           <div className="mb-1.5 flex flex-wrap items-center gap-1">
             <span
               className={cn(
-                "inline-flex items-center gap-0.5 rounded-[--radius] px-1.5 py-0.5 text-2xs font-semibold text-white",
+                "inline-flex items-center gap-0.5 rounded-[--radius] px-1.5 py-0.5 text-2xs font-semibold",
                 interest.tile,
               )}
             >

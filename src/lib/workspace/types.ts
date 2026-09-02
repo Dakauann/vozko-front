@@ -32,12 +32,13 @@ export type ResourceType =
     | "plans"
     | "short_links"
     | "instagram_accounts"
+    | "comment_analysis"
     | "telegram_accounts"
     // Two resources for one channel, matching the backend: connecting a number
     // and blasting it are different privileges, and an attendant who may reply
     // must not thereby be able to start a forty-thousand-number run.
     | "unofficial_whatsapp_instances"
-    | "unofficial_whatsapp_broadcasts"
+    | "unofficial_whatsapp_campaigns"
     | "mcp";
 
 export type ResourceAction =

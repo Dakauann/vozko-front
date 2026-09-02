@@ -2,15 +2,18 @@
 name: Vozko
 description: Signal-green on graphite — the Vozko brand board executed as a token system over an operator console.
 colors:
-  signal-green: "hsl(164 100% 41%)"
+  signal-green: "hsl(158 55% 55%)"
   signal-green-daylight: "hsl(164 100% 38%)"
+  green-edge: "hsl(164 100% 30%)"
   green-ink: "hsl(165 100% 24%)"
-  green-ink-dark: "hsl(163 88% 48%)"
+  green-ink-dark: "hsl(158 69% 61%)"
+  control-edge: "hsl(205 12% 53%)"
   graphite-canvas: "#0D0F10"
   graphite-sheet: "#1A1D20"
   graphite-hairline: "#2C3136"
   daylight-canvas: "hsl(200 24% 97%)"
   daylight-sheet: "#FFFFFF"
+  daylight-well: "hsl(204 16% 93%)"
   ink: "hsl(206 15% 9%)"
   ink-secondary: "hsl(206 9% 38%)"
   healthy: "hsl(152 90% 27%)"
@@ -44,6 +47,7 @@ rounded:
 components:
   button-primary:
     backgroundColor: "{colors.signal-green-daylight}"
+    borderColor: "{colors.green-edge}"
     textColor: "hsl(200 10% 6%)"
     rounded: "{rounded.md}"
     height: "32px"
@@ -56,10 +60,11 @@ components:
     rounded: "{rounded.md}"
     height: "32px"
   field:
-    backgroundColor: "{colors.daylight-sheet}"
+    backgroundColor: "{colors.daylight-well}"
     textColor: "{colors.ink}"
+    borderColor: "{colors.control-edge}"
     rounded: "{rounded.md}"
-    height: "36px"
+    height: "44px"
 ---
 
 # Design System: Vozko
@@ -107,8 +112,9 @@ config at runtime, so no surface may hardcode "Vozko".
 - Graphite neutrals in one 200–213 hue band shared by both themes.
 - Two faces, two jobs: Oxanium for titles and KPI numerals only, Inter for
   everything read at length.
-- Dense operator registers: 14px body, 32px controls, 36px fields, tabular
-  figures on every number.
+- Dense operator registers: 14px body, 32px controls, tabular figures on every
+  number. Fields run 40/44/48 when they carry a floating label and 32/36/40
+  when they do not.
 - Trace-line/dot-matrix ornament confined to the periphery, token-coloured;
   its slow pulse is the one sanctioned loop and self-removes under
   `prefers-reduced-motion`.
@@ -127,28 +133,68 @@ One graphite family, one green, four statuses — all HSL triples in
 | `--muted` | `204 16% 93%` | `210 10% 12%` (≈ the board's #1A1D20 chip) | Quiet fill / track |
 | `--foreground` | `206 15% 9%` | `210 15% 96%` | Default text |
 | `--muted-foreground` | `206 9% 38%` | `213 7% 64%` | Secondary text |
-| `--border` / `--border-strong` | `204 14% 88%` / `205 12% 76%` | `210 10% 19%` (#2C3136) / `211 8% 30%` | Hairline / field edge |
-| `--primary` (+hover/active) | `164 100% 38%` (33/29) | `164 100% 41%` (46/35) | Brand fill |
+| `--border` / `--border-strong` | `204 14% 88%` / `205 12% 76%` | `210 10% 19%` (#2C3136) / `211 8% 30%` | Hairline / decorative rule |
+| `--control-edge` | `205 12% 53%` | `211 8% 42%` | The edge that **is** the control |
+| `--primary` (+hover/active) | `164 100% 38%` (33/29) | `158 55% 55%` (73%62 / 45%47) | Brand fill |
+| `--primary-edge` | `164 100% 30%` | `= --primary` | Filled-button boundary |
 | `--primary-foreground` | `200 10% 6%` | `200 10% 6%` | **Dark** ink on the green |
-| `--primary-subtle` | `163 60% 94%` | `166 45% 12%` | Selected ground |
-| `--primary-ink` | `165 100% 24%` | `163 88% 48%` | Accent **text** |
+| `--primary-subtle` | `163 60% 94%` | `166 45% 12%` | Quiet brand ground, **non-text only** |
+| `--primary-ink` | `165 100% 24%` | `158 69% 61%` | Accent **text** |
 | `--healthy` / `--healthy-ink` | `152 90% 27%` / `152 95% 22%` | `152 65% 44%` / `152 60% 55%` | Positive |
 | `--warning` / `--warning-ink` | `42 96% 45%` / `32 94% 29%` | `42 94% 55%` / `42 96% 62%` | Caution |
 | `--destructive` / `--destructive-ink` | `352 74% 44%` / `352 78% 38%` | `352 78% 52%` / `353 90% 72%` | Fault |
 | `--info` / `--info-ink` | `210 90% 42%` / `211 92% 34%` | `206 90% 60%` / `206 92% 70%` | Informational |
-| `--ring` | `164 100% 38%` | `164 100% 46%` | Focus |
-| `--chart-1..5` | `164/231/43/199/321` | `164/229/44/200/320` | Data series |
+| `--ring` | `164 100% 30%` | `158 73% 62%` | Focus |
+| `--chart-1..5` | `164/231/43/199/321` | `158/229/44/200/320` | Data series |
 | `--plate-1..5`, `--plate-neutral` | deepened fills | deepened fills | Grounds for a white glyph |
 
 **The Green Rule.** #00D09A carries **dark ink, never white**. The board's own
 primary button is dark-on-green, and it measures: green vs #0D0F10 = 9.6:1;
 green vs white = **2.0:1** — an outright failure. `--primary-foreground` is
-near-black in *both* themes. Dark runs the board hex exactly (its label
-measures 9.64:1); light holds the fill vivid at L38 — a user call
+near-black in *both* themes. Light holds the fill vivid at L38 — a user call
 (2026-08-24, L32 read too dark) — so the dark label carries the contrast
-(8.27:1) and the fill edge on white is accepted at 2.31:1. The rule reaches
-every green surface: button labels, checked switch thumbs
-(`bg-primary-foreground`), the `.tile-brand` glyph.
+(8.27:1). The rule reaches every green surface: button labels, checked switch
+thumbs (`bg-primary-foreground`), the `.tile-brand` glyph.
+
+**The fill's edge is its own token.** The 2.31:1 fill edge this document used
+to record as "accepted" was a WCAG 1.4.11 failure, and it is now fixed rather
+than excused. It could not be fixed by moving the fill: measured across the
+green's whole lightness range, **no single value carries both a readable label
+and a 3:1 boundary** — at L32 the edge clears 3.22:1 but the label drops to
+APCA Lc 44.7; at L44 the label reaches Lc 73.2 and the edge collapses to
+1.71:1. So the fill stays vivid and `--primary-edge` carries the boundary,
+drawn as the first layer of `--elev-button-primary` exactly the way
+`--elev-button-quiet` draws the secondary's border. Its value is
+`164 100% 30%` — the value `--icon-accent` and `--ornament` already used, so
+the system had already solved "green that has to survive as a graphic". On
+graphite the fill is 9.44:1 against the canvas, so `--primary-edge` equals the
+fill there and the ring composes to a no-op.
+
+**Why WCAG alone was not enough here.** WCAG 2.x weights green at 0.7152 in
+its luminance formula, so a vivid green reports as far lighter than it appears
+and its ratios inflate. The primary label measures 8.27:1 light / 9.44:1 dark —
+excellent — while APCA puts the same label at **Lc 58.6 / 64.4**, under the
+Lc 75 body-text floor. WCAG 2.1 AA remains the compliance floor; APCA is read
+alongside it, and where the two disagree the disagreement is recorded rather
+than settled by whichever number flatters the design.
+
+**Dark carries an 18% chroma trim (2026-09-01).** The dark green family no
+longer runs the board hexes verbatim. High-chroma light-on-near-black is the
+classic halation case — worst on thin strokes and small text — and the family
+sat at the sRGB gamut ceiling (OKLCH C 0.159 against a 0.160 maximum). Every
+dark green was trimmed to C ≈ 0.131 **at fixed OKLCH lightness and hue**, so
+perceived lightness and hue are unchanged and only saturation moves:
+`--primary` #00D199 → **#4DCB9D**, `--primary-ink` #0FE6A9 → **#59E1AE**,
+with `--ring`, `--ornament`, `--chart-1`, `--sidebar-primary`,
+`--icon-accent` and the `--primary-50…900` ramp on the same curve.
+`--plate-1` and `--primary-subtle` were already below the target and did not
+move. Measured after: label 9.44:1, ink 10.88:1 on the sheet, `--chart-1`
+worst-case CVD ΔE2000 vs series 2–5 **13.75** (bar: 8). The two themes now sit
+0.2° apart in OKLCH hue with a 13% chroma gap — the same gap this document
+already tolerated for `--icon-accent`.
+
+**The HSL numbers move 164 → 158; the perceptual hue does not.** HSL hue is not
+perceptually uniform. Do not "correct" these back.
 
 **The Two-Greens Rule.** With a green brand, healthy is the colour most at
 risk of collapsing into the accent. It sits at hue **152** — yellower, deeper —
@@ -164,8 +210,11 @@ themes. Warning still never carries white (`--warning-foreground` is
 near-black in light).
 
 **Focus owns the brand.** `--ring` is the green; commit, selection and focus
-are the accent's only three jobs. In dark it runs brighter than the fill (L46)
-because a halo has to register against a near-black ground.
+are the accent's only three jobs. In dark it runs brighter than the fill
+because a halo has to register against a near-black ground. In light it runs
+at L30, not the fill's L38: as the fill value the ring measured **2.17:1**
+against the canvas and failed 1.4.11 / 2.4.11 on every focusable control in
+the app. At L30 it measures 3.40:1.
 
 **Colour is a MARK, never a wash behind its own hue.** Carried intact from the
 previous identity, still the hardest rule in the system: no 10–15% tint of a
@@ -175,6 +224,26 @@ glyph on one known ground; notices (`.notice`) keep one opaque `--muted`
 ground and spend the hue on the mark and title line; status chips whose pair
 is token-known render as solid fills with their measured foregrounds
 (`bg-healthy text-healthy-foreground`).
+
+**Selection is solid; menu rows are neutral-plus-mark (2026-09-01).** The rule
+above used to be contradicted by the system's most-seen component. The
+sidebar's selected row paired `bg-primary-subtle` with `text-primary-ink` —
+green ink on a green wash — and it did not even work as a signal: measured, the
+selected ground sat at **1.09:1 / APCA Lc 0.0** against the sidebar in light
+while the hover grey measured 1.17:1, so **the current page read fainter than
+whatever row the pointer happened to rest on** — the exact failure the tint had
+been adopted to fix. In dark both grounds measured Lc 0.0. Twelve call sites
+across ten files carried the pattern; there are now **zero**. Two lanes replace
+it:
+
+- **Solid** — `bg-primary text-primary-foreground shadow-button-primary`, the
+  same grammar as the primary button. The sidebar nav and small toggle chips
+  take this. The `.lamp` flips to `.lamp-on-fill` so it does not become green
+  on green.
+- **Neutral ground plus mark** — an opaque `--muted` ground with the green
+  spent on the lamp, the check or the glyph. Menu, dropdown and filter rows
+  take this: a solid brand block per selected row inside a popover is more
+  signal than the choice is worth.
 
 **Charts lead with the brand.** A green-brand product charts its own numbers
 in its own colour: `--chart-1` is the brand green (board hex in dark), series
@@ -378,10 +447,18 @@ because a tinted shadow has no lightness left to remove.
 - **inner**: a genuine inset for deliberate recesses (progress tracks), not a
   resting state.
 
-**The Flat-Field Rule.** Fields cast no shadow at rest
-(`elevated-input.tsx` maps every variant's shadow to `none`): a field sits ON
-the sheet and its hairline bounds it — which also leaves the box-shadow slot
-free for the focus underline.
+**The Flat-Field Rule.** Fields cast no shadow at rest: a field is a recess in
+the sheet, not an object on it, so the box-shadow slot stays free for the focus
+underline to occupy.
+
+Until 2026-09-01 the family enforced this with an inline
+`style={{ boxShadow: "none" }}` on every input, textarea and select. Inline
+styles beat classes, and Tailwind is not in `important` mode, so that one
+declaration silently suppressed **both** `focus-visible:shadow-[inset…]` and
+`focus-visible:ring-2` on every field in the product. The signature focus
+detail had never rendered, and no field had a visible focus indicator at all —
+a WCAG 2.4.7 failure hiding behind three characters of CSS. The rule is now
+kept by simply not setting a resting shadow.
 
 ## Shapes
 
@@ -444,13 +521,151 @@ hover, `active:text-primary-active`.
 
 **Fields.** The `elevated-input` / `elevated-textarea` / `elevated-select`
 family IS the field system — there is no `ui/input.tsx`, `ui/textarea.tsx` or
-`ui/select.tsx`. One recipe: white sheet (`bg-card`), `border-border-strong`
-hairline, heights 32/36/40, label rendered above as a `.legend`. Focus is the
-signature: a 2px brand underline drawn as an **inset shadow** (no layout
-shift) plus a soft `ring-primary/15` halo. **Resting icons are
-`text-muted-foreground` — a resting field is not commit, selection or focus,
-so the green arrives only with the focus underline.** The `search` variant
-keeps a quiet `bg-muted` fill for toolbars and whitens on focus.
+`ui/select.tsx`. `ui/command.tsx`'s `CommandInput` runs the same recipe.
+
+**A field is a SHEET in light and a WELL in dark (2026-09-01).** It rests on
+`--card` behind a `--control-edge` hairline in light, and on `--muted` behind
+the same hairline in dark. `search` is no longer a special case either way.
+
+It was a `--muted` well in both themes for half a day, and that was wrong in
+light twice over. Wrong by category: a grey fill on a white card is the 2012
+form input, and it is what every current light-mode field has moved away from.
+And wrong by measurement: `--muted` against `--card` is **1.17:1, APCA Lc 8**,
+below the ~Lc 15 a fill needs before it reads as a plane at all — so it landed
+as a stain on white rather than a surface. Re-hueing could not have fixed that;
+every candidate neutral measured an identical 1.37:1 once lightness was held.
+Light keeps the sheet and lets the 3:1 edge do the bounding, which is what the
+edge is for.
+
+Dark keeps the well. On graphite a raised fill is right, and separation there
+is structurally capped anyway — reaching Lc 18 against the card would mean
+going to mid-grey (#5C5C5C) — so dark leans on the border too.
+
+**The two themes elevate in opposite directions**, which is why one fill value
+could never serve both: in light `--card` (L 1.000) is above `--muted`
+(L 0.946), so a field on the card is the top plane; in dark `--muted`
+(L 0.236) is above `--card` (L 0.203), so the well is raised off the sheet.
+
+**Focus does not move the ground.** In light the field is already the top
+plane, so there is nowhere to lift to. In dark it cannot lift: the old
+`focus-visible:bg-card` was *sinking* the field while the comment claimed it
+raised it, and lifting to `--accent-hover` instead drops `--control-edge` to
+2.71:1, under the 3:1 the boundary owes. The border, the 2px brand underline
+and the ring carry focus — all three of which only began rendering once the
+inline `box-shadow` suppressing them was removed. `ghost` is the one variant
+that still takes a ground on focus, because it has none at rest.
+
+**`--muted` keeps its other 1,600 jobs** — row hover, chips, tracks, quiet
+fills. Only the field family stopped using it as a resting ground in light.
+
+**Labels float.** This **reverses** the static legend the family carried
+before — `elevated-textarea` closed with "a label that animates up through its
+own border belongs to a different system than this one." It is a different
+system, and it is the one this product now wants. The reversal is recorded, not
+quietly applied.
+
+- A field **with a `label`** floats it, rising to 12px `.legend` metrics when
+  the field **has content**. Heights 40/44/48.
+- **An empty control must look as though the floating mechanism were not
+  there.** So the resting label sits dead centre of an input or select
+  (20.0/22.0/24.0 against control centres of 20/22/24) and at the natural top
+  padding of a textarea (25.1 against a natural first-line centre of 25.0 at
+  the default size). Parking it on the VALUE's line instead — which makes the
+  rise a straight vertical lift, and is what Material's filled field does — was
+  built and rejected: the value sits low because the top padding is reserved for
+  the risen label, so the label landed ~8px below centre and an empty field read
+  as broken. Material gets away with it at 56px; this scale does not.
+- **Content lifts the label; focus only tints it** to `--primary-ink`. Rising
+  on focus was built first and was wrong twice: an empty focused field showed
+  the risen label and the native placeholder in the same 8px band, and the
+  `:not()` guard that made it possible pushed the resting rule to (0,4,0),
+  above the focus rule's (0,3,0) — so the label took the focus colour while
+  keeping the resting position. The two geometry states are now mutually
+  exclusive on `:placeholder-shown`, so neither has to out-specify the other.
+- **While a label rests it owns the value slot**, so the native placeholder
+  stays transparent for exactly as long as the field is empty, and a select's
+  trigger placeholder stands down the same way. A `placeholder` passed
+  alongside a `label` therefore never paints — the label is the hint. Pass it
+  as helper text instead if the example matters.
+- A field **without one** keeps 32/36/40 and simply shows its placeholder.
+  Toolbar search, inline filters and table-row editors pass a placeholder and
+  nothing else; there is nothing to float, and 79 of the app's 110 small fields
+  are exactly this.
+- The scale is the **second** answer. The first (44/48/56, straight off
+  Material's filled field) was built and rejected as too heavy for a console.
+  40/44/48 only fits because the value runs on a 16px line box rather than 20px.
+
+**The mechanism is CSS, on `:placeholder-shown`** — which is why a 150ms
+`setInterval` per input instance could be **deleted** rather than replaced.
+Chrome fires no event when it autofills, but an autofilled input is not
+`:placeholder-shown`, so the label is already up before the first frame paints.
+The contract: a floating field always carries a placeholder (`" "` when it has
+no hint). Date-like inputs ignore `placeholder` entirely, so their label is
+pinned up explicitly.
+
+**Focus is the signature**: a 2px brand underline drawn as an **inset shadow**
+(no layout shift) plus a soft `ring-primary/15` halo. It draws in
+`--primary-edge`, not `--primary` — a focus indicator owes 3:1 and the light
+fill measured 1.98:1 against the well. **Resting icons are
+`text-muted-foreground` — a resting field is not commit, selection or focus, so
+the green arrives only with the focus underline.**
+
+**Errors render.** `error` used to be accepted, typed and thrown away: it only
+flipped `aria-invalid`, so a form passing a message showed a sighted user
+nothing. It now recolours the edge and the underline and prints below the field
+in `--destructive-ink`, wired through `aria-describedby`.
+
+**A dropdown is not a modal.** The select's menu sits at `shadow-lg`
+(`--elev-4`), matching the command panel. It was `shadow-2xl` — `--elev-6`, the
+top of the stack — which put a dropdown at the same depth as a dialog and
+flattened the hierarchy between them. **31 `shadow-2xl` call sites remain
+across other popovers and panels; they have not been audited.**
+
+**Floating panels — dropdown, select menu, popover, command, drawer
+(2026-09-01).** One recipe: the panel takes `--popover` (or `--card`), a
+`--border-strong` edge, and `shadow-lg` (`--elev-4`). It used to take
+`--border` and `shadow-2xl`, and both were wrong. The edge measured **Lc 0
+in dark** — a panel with no visible boundary, held together only by a shadow
+that near-black barely renders. And `--elev-6` is the top of the stack, so a
+dropdown sat at the same depth as a modal and flattened the hierarchy between
+them.
+
+**A menu row highlights on `--accent-hover`, never on `--muted`.** This is not
+a preference. In dark, `--muted` and `--popover` are **the same value**
+(`210 10% 12%`), so every hovered and checked row in every dropdown, select and
+command menu measured **1.00:1 against its own panel** — the highlight was not
+faint, it was absent, and dark-mode users could not see which row they were on.
+`--accent-hover` was deepened at the same time (light `204 18% 91%` →
+`204 16% 89%`, dark `210 9% 16%` → `210 9% 18%`) so the row reads as a real
+step: OKLCH ΔL 0.085 in light, 0.063 in dark.
+
+**A menu row's LABEL is `--foreground`; the green is the check.** The rows used
+`hover:text-primary-ink` — the accent on *hover*, which is none of its three
+jobs — and on the deepened ground `--primary-ink` falls to 4.13:1 anyway. Same
+mark-not-wash split the sidebar took. (`hover:text-primary-ink` still appears
+at **25 other call sites** outside the menu components; not yet audited.)
+
+**A drawer is an elevated panel, so it takes `--card`, not `--background`.**
+Setting a sheet to the CANVAS colour made it a flat grey slab lying on the page
+instead of a sheet lifted off it — and it is the reason the drawer read as
+"too grey". `--card` is lighter than the canvas in light and lighter than it in
+dark, so it reads as a lift in both.
+
+**Two dead declarations found in the same pass**, both of the shape this system
+keeps producing — a later property silently replacing an earlier one:
+
+- `elevated-sheet.tsx` followed its six-layer drop shadow with an arbitrary
+  `[box-shadow:inset_0_1px_0_…]` property. That is a plain `box-shadow`
+  declaration, so it **replaced** the elevation rather than adding to it: the
+  drawer had been shipping with a 1px inset line and no shadow at all.
+- The same file's close button carried an inline `style={{boxShadow}}`, which
+  outranks every class and suppressed its focus ring — the third instance of
+  this exact bug, after the three field components.
+
+And two classes that never rendered: `hover:border-l-primary` /
+`data-[state=checked]:border-l-primary` on the select item set a border
+*colour* on an element Tailwind's preflight gives `border-width: 0`. A coloured
+left stripe is a banned device here regardless.
 
 **Switches.** `elevated-switch.tsx`: track `bg-primary` when checked,
 `--muted-foreground`/0.42 when not; the thumb is the Green Rule at 20px —
@@ -461,7 +676,7 @@ this exactly.
 
 **Tables.** `elevated-design/table/dashboard-table.tsx` (29 consumers): quiet
 head fill over a `border-border-strong` rule, hairline row rules,
-`hover:bg-muted`, `bg-primary-subtle` on a selected row, no zebra. There is no
+`hover:bg-muted`, `bg-muted` plus a mark on a selected row, no zebra. There is no
 `ui/table.tsx`.
 
 **Status chips & notices.** No badge primitive in `ui/` — chips are composed
@@ -504,9 +719,14 @@ are gone).
 
 ### Do:
 - **Do** put dark ink on every green fill — `--primary-foreground` in both
-  themes — the light-theme fill sits at L38 by user direction (edge 2.31:1
-  on white, label 8.27:1), so never let the fill carry meaning without its
-  sheet.
+  themes. The light fill sits at L38 by user direction (label 8.27:1) and its
+  boundary is carried by `--primary-edge`, not by the fill.
+- **Do** give a selected state a real ground or a real mark: a solid brand
+  fill, or an opaque neutral ground with the green in the lamp, check or
+  glyph. Never a tint of the hue under ink of the same hue.
+- **Do** put a control's own edge on `--control-edge` (3:1 against the worst
+  ground it sits on, which is `--muted` on hover). `--border-strong` is for
+  rules and table heads, where 3:1 is not required.
 - **Do** spend the green only on commit, selection and focus; everywhere else
   it is a bar, dot, glyph or ink.
 - **Do** measure any new colour pair with `bun scratchpad/contrast.mjs`
@@ -524,8 +744,13 @@ are gone).
   `shadow-button`/`shadow-quiet`.
 
 ### Don't:
-- **Don't** put white on #00D09A — it measures 2.0:1. This includes switch
-  thumbs, tile glyphs and chart labels.
+- **Don't** put white on the brand green — it measures 2.0:1 on the board hex.
+  This includes switch thumbs, tile glyphs and chart labels.
+- **Don't** thicken an edge to fix its visibility. The outline button's edge
+  measured 1.79:1 light and 1.36:1 dark (APCA Lc 0.0 — not there at all), and
+  weight only widens an invisible line. Contrast first, then weight.
+- **Don't** re-trim the dark greens toward the raw board hexes, or "correct"
+  their HSL hue from 158 back to 164 — see the chroma-trim note in Colors.
 - **Don't** let success surfaces borrow the brand green, or the brand borrow
   healthy's 152.
 - **Don't** reach for glow, neon, gradient fills or `backdrop-blur` — the
@@ -560,9 +785,34 @@ Measured against the working tree, not estimated.
 - **CDN brand assets still show the previous logo colours.** `BRAND_LOGO_URL`
   and the favicon come from brand config, out of this repo's control; the UI
   recoloured, the logo did not.
-- **`text-white`: 91 hits remain** (down from 202). Every occurrence on a
-  semantic fill was fixed in the sweeps; what remains sits on imagery, dark
-  chrome or channel-brand surfaces and has not been audited case by case.
+- **`text-white`: 92 hits remain** (re-counted 2026-09-01; was 202 before the
+  sweeps, 91 at the last count — the tree has drifted since). Every occurrence
+  on a semantic fill was fixed in the sweeps; what remains sits on imagery,
+  dark chrome, channel-brand surfaces, or sanctioned pairs such as
+  `bg-healthy`, and has not been audited case by case.
+
+- ~~The workflow canvas keeps `--border-strong` on interactive edges~~ —
+  **closed.** The deferred canvas pass ran: the five interactive sites in
+  `workflows/_components/message-node-primitives.tsx` — both connection handles,
+  the node card's hover edge, and the two neutral branch-dot returns — now take
+  `--control-edge` and clear 3:1 like every other control. The sixth site,
+  `GROUP_BORDER_COLORS.gray` in `workflow-node.tsx`, stays on `--border-strong`
+  **deliberately**: a group frame is a rule around a region of canvas, not a
+  control, and rules are exactly what `--border-strong` is for.
+
+  Two things the same pass found and fixed in the node colours. `condition`
+  painted a hardcoded `#ffffff` on `--info`, whose foreground is white in light
+  but **near-black in dark** (`200 10% 6%`, because dark `--info` is a pale
+  blue) — so every condition node drew white on pale blue in dark mode. It and
+  `end` now take their fill's own measured `-foreground`. The `--plate-1..5`
+  categories keep `#ffffff`, which is what `.tile-1..5` measure and use.
+- **Group node colours do nothing in light mode.** `GROUP_BG_COLORS_SOLID` and
+  `GROUP_BG_COLORS` in `workflow-node.tsx` resolve gray, blue, green, red and
+  purple to the same `bg-muted` in light; only the `dark:` variants carry a hue
+  (yellow is the lone half-exception, tinting in light only). Choosing a colour
+  for a group is therefore a no-op for every light-theme operator. Left as found
+  — giving each a light-theme fill is a colour decision about how loud a canvas
+  region should be, not a token swap.
 - **Slate/emerald residue:** ~29 `slate-*`/`emerald-*` references outside
   `channel-logos`, concentrated in the WhatsApp preview chrome (which
   deliberately imitates WhatsApp, not this product), tests, and dead
@@ -584,10 +834,13 @@ Measured against the working tree, not estimated.
 
 | Check | Result | Provenance |
 |---|---|---|
-| `tsc --noEmit` | clean | re-run while writing this document |
-| Contrast, 18 pairs × 2 themes | **36/36 pass** | `bun scratchpad/contrast.mjs`, re-run while writing this document |
-| Direction contract in built output | **291** hits for seed `00d09a7f` in `.next` | re-counted while writing this document |
-| `next build` | clean, **300** static pages | rebrand verification run, 2026-08-24 |
-| Impeccable detector | **1** finding — false positive (`<img src>` in a doc comment in `app/actions/instagram.ts`) | rebrand verification run, 2026-08-24 |
+| `tsc --noEmit` | clean | re-run 2026-09-01 |
+| Contrast + APCA, 24 pairs × 2 themes | **48/48 pass** | token values parsed out of `globals.css` itself, 2026-09-01 |
+| `next build` | clean, exit 0 | 2026-09-01 |
+| New utilities present in built CSS | `control-edge` 8, `elev-button-primary` 10, `primary-edge` 8, `lamp-on-fill` 1, `border-width:1.5px` present | `.next/static/chunks/*.css`, 2026-09-01 |
+| Wash pattern (`bg-primary-subtle` + `text-primary-ink`) | **0** occurrences, down from 12 across 10 files | re-counted 2026-09-01 |
+| `--chart-1` CVD ΔE2000, worst case vs series 2–5 | **13.75** (bar: 8) | Viénot 1999 + ΔE2000, 2026-09-01 |
+| Direction contract in built output | **294** hits for seed `00d09a7f` in `.next` | re-counted 2026-09-01 |
+| Impeccable detector on `globals.css` | 21 findings, and the tally is **identical before and after** this change (16 colour + 5 radius, all inside the pre-existing highlight.js theme block) | 2026-09-01 |
 | Entity/stage chart mappings | present as documented | read from `admin-metrics-dashboard.tsx`, `admin-financial-dashboard.tsx`, `MonitoringMode.tsx`, `WhatsAppCampaignDetail.tsx` |
-| `backdrop-blur` in `src/` | **0** hits | re-counted while writing this document |
+| `backdrop-blur` in `src/` | **0** hits | re-counted 2026-09-01 |

@@ -16,6 +16,7 @@ import {
   UploadSimple,
 } from "@/components/icons";
 
+import { openScoped } from "@/lib/browser/scoped-download-url";
 import { getApiBaseUrl } from "@/lib/api/browser-client";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { DepartmentRowSwitcher } from "@/components/dashboard/DepartmentRowSwitcher";
@@ -184,10 +185,9 @@ export default function WorkflowsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleExportWorkflow = (id: string) => {
-    window.open(
-      `${getApiBaseUrl()}/workflows/${encodeURIComponent(id)}/export`,
-      "_blank",
-    );
+    // Same workspace-scoping fix as the balance export: a navigation carries no
+    // X-Workspace-ID, so the API resolved the default workspace instead.
+    openScoped(`${getApiBaseUrl()}/workflows/${encodeURIComponent(id)}/export`);
   };
 
   const handleImportWorkflow = useCallback(

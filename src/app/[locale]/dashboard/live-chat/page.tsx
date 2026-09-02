@@ -16,6 +16,7 @@ export default async function LiveChatPage() {
         filterWhatsapp: t("filterWhatsapp"),
         filterInstagram: t("filterInstagram"),
         filterTelegram: t("filterTelegram"),
+        filterUnofficialWhatsapp: t("filterUnofficialWhatsapp"),
         filterVoice: t("filterVoice"),
         filterAllCampaigns: t("filterAllCampaigns"),
         filterStandard: t("filterStandard"),

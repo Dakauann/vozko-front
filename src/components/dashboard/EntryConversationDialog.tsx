@@ -25,7 +25,7 @@ import {
 import type {
   EntryConversationAnalysis,
   EntryConversationMessage,
-  LeadEntryType,
+  ConversationEntryType,
 } from "@/lib/leads/types";
 import { useCallback, useMemo, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
@@ -37,7 +37,7 @@ import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 
 interface EntryConversationDialogProps {
   entryId: string;
-  entryType: LeadEntryType;
+  entryType: ConversationEntryType;
   phoneNumber: string;
   contactName?: string | null;
   trigger?: React.ReactNode;

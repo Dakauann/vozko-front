@@ -156,6 +156,118 @@ input:-webkit-autofill:active {
   }
 
   /*
+    THE FLOATING FIELD LABEL.
+
+    Pinned 2026-09-01, and it reverses an explicit earlier call — the outgoing
+    elevated-textarea closed with "a label that animates up through its own
+    border belongs to a different system than this one." It is a different
+    system, and it is the one this product now wants. Recording the reversal
+    rather than letting it look accidental.
+
+    It is less of an import than it looks. Material's FILLED text field is
+    three things: a recessed well, a label that rises into it, and a 2px accent
+    rule along the bottom edge on focus. This system already shipped two of
+    them — the .search variant was already a --muted well, and .focus-field was
+    already the 2px brand underline. What follows is the third.
+
+    Mechanics are CSS-only, on :placeholder-shown. That is the whole reason the
+    150ms polling interval could be deleted rather than replaced: Chrome fires
+    no event when it autofills, but an autofilled input is not
+    :placeholder-shown, so the label is already up before the first frame
+    paints. No JS, no animationstart hook, no timer.
+
+    CONTRACT: every input using this MUST carry a placeholder — " " when it has
+    no real hint — or :placeholder-shown never turns false and the label never
+    rises.
+
+    Positioning is driven by three variables the field size sets:
+      --field-label-top   where the risen label sits
+      --field-label-left  clears a leading icon
+      --field-label-rest  where the label waits (50% for an input, a fixed
+                          offset for a textarea, whose first line is not
+                          the box's middle)
+  */
+  .field-label {
+    position: absolute;
+    left: var(--field-label-left, 0.75rem);
+    top: var(--field-label-top, 0.4375rem);
+    max-width: calc(100% - var(--field-label-left, 0.75rem) - 1.75rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+    transform-origin: left top;
+    font-size: 12px;
+    line-height: 1.3;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    color: hsl(var(--muted-foreground));
+    transition:
+      top 160ms cubic-bezier(0.16, 1, 0.3, 1),
+      font-size 160ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 160ms cubic-bezier(0.16, 1, 0.3, 1),
+      color 160ms ease-out;
+  }
+
+  /*
+    Resting: the label waits ON the value's own line — same size, same
+    baseline — so typing lifts it out of the way rather than swapping two
+    separate pieces of type.
+
+    CONTENT lifts the label. Focus does not.
+
+    The first cut had it rise on :focus as well, and that was wrong twice
+    over. Wrong by behaviour: an empty focused field showed the risen label
+    AND the native placeholder in the same 8px band, overlapping. And wrong
+    by cascade: adding :not(.field-label-floating) here pushed this rule to
+    (0,4,0), above the (0,3,0) focus rule, so the label took the focus COLOUR
+    while keeping the resting GEOMETRY — green type sitting on the
+    placeholder. The two geometry states are mutually exclusive now
+    (placeholder-shown or not), so nothing has to out-specify anything.
+  */
+  .peer:placeholder-shown ~ .field-label:not(.field-label-floating),
+  .field-label-rest {
+    top: var(--field-label-rest, 50%);
+    transform: var(--field-label-rest-transform, translateY(-50%));
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  /* The forced-up state, for controls whose emptiness CSS cannot see: a date
+     input (which ignores placeholder entirely) and a Radix select trigger. */
+  .field-label-floating {
+    top: var(--field-label-top, 0.4375rem);
+    transform: none;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* Focus tints the label. It never moves it. */
+  .peer:focus ~ .field-label,
+  .field-label-active {
+    color: hsl(var(--primary-ink));
+  }
+
+  .peer[aria-invalid="true"] ~ .field-label,
+  .field-label-invalid {
+    color: hsl(var(--destructive-ink));
+  }
+
+  .peer:disabled ~ .field-label {
+    color: hsl(var(--muted-foreground));
+    opacity: 0.6;
+  }
+
+  /* The rise is the one authored moment in a form. Under reduced motion the
+     label still moves — it has to, or it would sit on top of the value — it
+     just arrives without the travel. */
+  @media (prefers-reduced-motion: reduce) {
+    .field-label {
+      transition: none;
+    }
+  }
+
+  /*
     Anywhere a number lives. Tabular figures keep columns of counts, currency
     and durations from shifting width as they tick. This one is pure function and
     survives the identity change untouched — both reference systems set data in
@@ -184,6 +296,12 @@ input:-webkit-autofill:active {
     border-radius: 9999px;
     background: hsl(var(--primary));
     flex-shrink: 0;
+  }
+
+  /* On a solid brand row the lamp would be green on green. It flips to the
+     label's own ink so the three selection signals stay three. */
+  .lamp-on-fill {
+    background: hsl(var(--primary-foreground));
   }
 
   /*
@@ -453,8 +571,8 @@ input:-webkit-autofill:active {
   .focus-halo:focus-visible {
     outline: none;
     box-shadow:
-      0 0 0 1px hsl(var(--primary)),
-      0 0 0 3px hsl(var(--primary) / 0.2);
+      0 0 0 1px hsl(var(--primary-edge)),
+      0 0 0 3px hsl(var(--primary-edge) / 0.2);
   }
 
   /*
@@ -464,14 +582,21 @@ input:-webkit-autofill:active {
     focused text field — its single most recognisable control detail. Drawing it
     as an inset shadow rather than a border means no layout shift and no extra
     DOM, so it drops into every existing bare <input> and <textarea>.
+
+    It draws in --primary-edge, not --primary. A focus indicator owes 3:1
+    (WCAG 2.4.11) and the light fill at L38 measures 1.98:1 against the field's
+    own well and 2.31:1 against the sheet — it would have been a focus ring you
+    could not see. --primary-edge is the same green at L30: 3.10:1 on the well,
+    3.63:1 on the sheet. On graphite the two tokens are the same value, so dark
+    is untouched. This is the same call --ring made on 2026-09-01.
   */
   .focus-field:focus-visible,
   .focus-field:focus-within {
     outline: none;
-    border-color: hsl(var(--border-strong));
+    border-color: hsl(var(--control-edge));
     box-shadow:
-      inset 0 -2px 0 0 hsl(var(--primary)),
-      0 0 0 3px hsl(var(--primary) / 0.16);
+      inset 0 -2px 0 0 hsl(var(--primary-edge)),
+      0 0 0 3px hsl(var(--primary-edge) / 0.16);
   }
 
   /*
@@ -617,13 +742,40 @@ input:-webkit-autofill:active {
     --primary-hover: 164 100% 33%;
     --primary-active: 164 100% 29%;
 
-    /* The tinted ground under a selected row, a soft badge, an active tab. */
+    /* The fill's own edge.
+
+       Across the green's full lightness range, no single value carries both a
+       readable label and a 3:1 boundary. At L32 the edge clears 3.22:1 but the
+       label falls to APCA Lc 44.7; at L44 the label reaches Lc 73.2 and the
+       edge collapses to 1.71:1. WCAG hides this — it scores the L38 label at
+       8.27:1 because its luminance formula weights green at 0.7152 — but APCA
+       puts that same label at Lc 58.6, under the Lc 75 body-text floor.
+
+       So the fill stays vivid at L38 (the 2026-08-24 call) and the boundary
+       becomes its own token rather than a property of the fill.
+
+       The value is the one --icon-accent and --ornament already use: L30,
+       3.63:1 on white, 3.40:1 on the canvas, 3.10:1 on --muted. The system had
+       already solved "green that has to survive as a graphic". */
+    --primary-edge: 164 100% 30%;
+
+    /* A quiet brand ground for NON-TEXT use — a soft badge field, a chart
+       wash, a progress track.
+
+       It is no longer the selected-row ground, and it must never carry
+       --primary-ink again. Measured, it never worked: against a white sheet it
+       is 1.09:1, APCA Lc 0.0. The hover grey (--muted) is 1.17:1. A selected
+       row wearing this was FAINTER than the same row under the pointer — the
+       opposite of what the comment it replaced claimed it fixed. Selection is
+       solid now (see --primary-edge); menu rows take a neutral ground and
+       spend the green on the mark. */
     --primary-subtle: 163 60% 94%;
     --primary-subtle-hover: 163 55% 90%;
 
-    /* Accent TEXT. The fill at L32 is fine under a label but thin for 12px
-       text on a sheet; the ink darkens to L24 → 5.31:1 on white, 4.86:1 on
-       the selected-row tint. */
+    /* Accent TEXT, on a NEUTRAL ground. The fill is tuned to carry a label
+       sitting on it; the ink is tuned for 12px text on a sheet — L24, 5.31:1
+       on white. Pairing it with --primary-subtle is the wash the system bans,
+       and it is gone from the tree. */
     --primary-ink: 165 100% 24%;
 
     /* Icon accent + stroke scale.
@@ -663,7 +815,14 @@ input:-webkit-autofill:active {
 
     --accent: 204 20% 95%;
     --accent-foreground: 206 15% 9%;
-    --accent-hover: 204 18% 91%;
+    /* The ground under a hovered menu row or a pressed control. Deepened
+       2026-09-01: at 91% it measured APCA Lc 11 on a white popover, and the
+       row it was meant to highlight was barely distinguishable from the panel.
+       Lc 14 is a real step. It stops short of going deeper because the checked
+       row's --primary-ink drops below 4.5:1 past here — which is why a menu
+       row's LABEL is now --foreground and the green lives in the check glyph,
+       the same mark-not-wash split the sidebar took. */
+    --accent-hover: 204 16% 89%;
 
     --muted: 204 16% 93%;
     /* 6.2:1 on a white sheet, 5.8:1 on the canvas, 5.3:1 on --muted itself.
@@ -699,11 +858,16 @@ input:-webkit-autofill:active {
        step up for a field edge, a resting control, a table head rule. */
     --border: 204 14% 88%;
     --border-strong: 205 12% 76%;
+
+    /* Control boundary — the reasoning is in the dark theme. 3.59:1 on a white
+       card, 3.36:1 on the canvas, 3.07:1 on --muted. --border-strong stays at
+       1.79:1 for rules and table heads, where 3:1 is not required. */
+    --control-edge: 205 12% 53%;
     --input: 204 14% 88%;
 
     /* Focus owns the brand green — commit, selection and focus are the three
        jobs the accent has. */
-    --ring: 164 100% 38%;
+    --ring: 164 100% 30%;
 
     /* The ornament's own green. The brand fill is tuned to carry a label;
        the trace lines carry only themselves, and an alpha-faded L38 green
@@ -783,6 +947,15 @@ input:-webkit-autofill:active {
     */
     --elev-button: 0 1px 2px 0 hsl(206 30% 22% / 0.07);
     --elev-button-hover: 0 1px 3px 0 hsl(206 30% 22% / 0.11);
+    /* The filled button's edge, drawn as the first shadow layer exactly the
+       way --elev-button-quiet draws the secondary's border: edge and elevation
+       compose instead of double-drawing, and it costs no layout box. */
+    --elev-button-primary:
+      0 0 0 1px hsl(var(--primary-edge)),
+      0 1px 2px 0 hsl(206 30% 22% / 0.07);
+    --elev-button-primary-hover:
+      0 0 0 1px hsl(var(--primary-edge)),
+      0 1px 3px 0 hsl(206 30% 22% / 0.11);
     --elev-button-quiet:
       0 0 0 1px hsl(204 14% 88%),
       0 1px 1px 0 hsl(206 30% 22% / 0.05),
@@ -835,37 +1008,49 @@ input:-webkit-autofill:active {
     --popover: 210 10% 12%;
     --popover-foreground: 210 15% 96%;
 
-    /* The board hex exactly — #00D09A. Its label is DARK, not white: white on
-       this green measures 2.0:1 and fails outright; the board's canvas ink
-       measures 9.64:1 on it. Hover steps brighter (dark ground reads brighter
-       as closer), pressed steps deeper. */
-    --primary: 164 100% 41%;
+    /* The board hex #00D09A carrying an 18% chroma trim, held at the SAME
+       OKLCH lightness and hue (L 0.763, H 165.5). High-chroma light-on-
+       near-black is the classic halation case — worst on thin strokes and
+       small text — and the whole green family sat at the sRGB gamut ceiling
+       (C 0.159 against a 0.160 maximum), with nowhere to go but out.
+
+       The HSL numbers move 164 -> 158. The perceptual hue does NOT move; HSL
+       hue is simply not perceptually uniform. Do not "correct" these back.
+
+       The label is still DARK, never white: white on this green measures 2.0:1
+       and fails outright; the canvas ink measures 9.52:1 after the trim. Hover
+       steps brighter (a dark ground reads brighter as closer), pressed deeper. */
+    --primary: 158 55% 55%;
     --primary-foreground: 200 10% 6%;
-    --primary-hover: 164 100% 46%;
-    --primary-active: 164 100% 35%;
+    --primary-hover: 158 73% 62%;
+    --primary-active: 158 45% 47%;
+    /* The fill already reads 9.52:1 against the canvas, so the boundary needs
+       no help on graphite. Set to the fill value so the edge ring composes to
+       a no-op and both themes can share one shadow stack. */
+    --primary-edge: 158 55% 55%;
     --primary-subtle: 166 45% 12%;
     --primary-subtle-hover: 166 42% 16%;
     /* Green as TEXT on graphite has headroom to spare (10.5:1 on the sheet at
        L48); brighter than the light ink because dark inks go lighter. */
-    --primary-ink: 163 88% 48%;
+    --primary-ink: 158 69% 61%;
 
     /* Tempered off the ink so the two themes read as one green: at the ink's
        own 88%/48% the dark highlight carried 39% more chroma than daylight
        could ever reach. 8.16:1 on the card — far above the 3:1 a graphic
        needs. Stroke scale stays 1: dark is the ground that blooms. */
-    --icon-accent: hsl(163 72% 45%);
+    --icon-accent: hsl(159 48% 54%);
     --icon-stroke-scale: 1;
 
-    --primary-50: 166 45% 10%;
-    --primary-100: 166 45% 14%;
-    --primary-200: 165 55% 19%;
-    --primary-300: 165 70% 26%;
-    --primary-400: 164 85% 33%;
-    --primary-500: 164 100% 41%;
-    --primary-600: 164 100% 47%;
-    --primary-700: 163 95% 57%;
-    --primary-800: 162 85% 70%;
-    --primary-900: 160 80% 85%;
+    --primary-50: 165 33% 11%;
+    --primary-100: 165 33% 15%;
+    --primary-200: 163 37% 21%;
+    --primary-300: 162 42% 30%;
+    --primary-400: 160 44% 41%;
+    --primary-500: 158 55% 55%;
+    --primary-600: 158 77% 64%;
+    --primary-700: 159 86% 68%;
+    --primary-800: 161 76% 74%;
+    --primary-900: 160 71% 86%;
 
     --secondary: 210 10% 12%;
     --secondary-foreground: 210 15% 96%;
@@ -876,7 +1061,14 @@ input:-webkit-autofill:active {
     --muted-foreground: 213 7% 64%;
     --accent: 210 10% 12%;
     --accent-foreground: 210 15% 96%;
-    --accent-hover: 210 9% 16%;
+    /* Dark had the worse version of the same bug: --muted and --popover are
+       BOTH 210 10% 12%, so a hovered or checked row in every dropdown, select
+       and command menu measured 1.00:1 against its own panel — the highlight
+       was not faint, it was absent. This is the ground those rows use now.
+       (APCA reports Lc 0 across this whole range on near-black; the honest
+       measure here is the WCAG step, 1.00:1 -> 1.21:1, and the OKLCH
+       lightness step, 0.236 -> 0.30.) */
+    --accent-hover: 210 9% 18%;
 
     --healthy: 152 65% 44%;
     --healthy-foreground: 200 10% 6%;
@@ -895,14 +1087,24 @@ input:-webkit-autofill:active {
 
     --border: 210 10% 19%;
     --border-strong: 211 8% 30%;
+
+    /* Control boundary. --border-strong is a hairline for rules and table
+       heads; it measures 2.08:1 on the card — fine for a decorative rule, and
+       a failure of WCAG 1.4.11 for the edge that IS the control. Outline
+       buttons and field edges take this instead. Measured against the WORST of
+       the three grounds a control sits on: 3.52:1 on the sidebar ground,
+       3.32:1 on the card, 3.07:1 on --muted (which is the hover ground, and so
+       the one that binds). Plain --border measured 1.36:1 here — APCA Lc 0.0,
+       an edge that was not there at all. */
+    --control-edge: 211 8% 42%;
     --input: 210 10% 19%;
 
     /* Brighter than the fill: the halo has to register against a near-black
        ground, where the fill value disappears into it. */
-    --ring: 164 100% 46%;
+    --ring: 158 73% 62%;
 
     /* On graphite the board hex needs no deepening. */
-    --ornament: 164 100% 41%;
+    --ornament: 158 55% 55%;
 
     /* Series-1 is the brand green at the board hex — 8.4:1 on the sheet, and
        the board's own dashboard charts its numbers in this colour. Series 2–5
@@ -910,7 +1112,7 @@ input:-webkit-autofill:active {
        (re-stepped inside the dark band, saturation pushed so they read VIVID
        on graphite; adjacent pairs cleared CVD ΔE 8 then). Green replacing the
        old green-at-158 keeps the pairwise geometry intact. */
-    --chart-1: 164 100% 41%;
+    --chart-1: 158 55% 55%;
     --chart-2: 229 75% 60%;
     --chart-3: 44 92% 37%;
     --chart-4: 200 95% 43%;
@@ -940,6 +1142,14 @@ input:-webkit-autofill:active {
 
     --elev-button: 0 1px 2px 0 hsl(0 0% 0% / 0.34);
     --elev-button-hover: 0 1px 3px 0 hsl(0 0% 0% / 0.44);
+    /* --primary-edge equals the fill on graphite, so this ring composes to a
+       no-op and both themes share one stack. */
+    --elev-button-primary:
+      0 0 0 1px hsl(var(--primary-edge)),
+      0 1px 2px 0 hsl(0 0% 0% / 0.34);
+    --elev-button-primary-hover:
+      0 0 0 1px hsl(var(--primary-edge)),
+      0 1px 3px 0 hsl(0 0% 0% / 0.44);
     --elev-button-quiet:
       0 0 0 1px hsl(210 10% 24%),
       0 1px 2px 0 hsl(0 0% 0% / 0.30);
@@ -969,7 +1179,7 @@ input:-webkit-autofill:active {
        does. */
     --sidebar-background: 200 10% 6%;
     --sidebar-foreground: 210 15% 96%;
-    --sidebar-primary: 164 100% 41%;
+    --sidebar-primary: 158 55% 55%;
     --sidebar-primary-foreground: 200 10% 6%;
     --sidebar-accent: 210 9% 14%;
     --sidebar-accent-foreground: 210 15% 96%;

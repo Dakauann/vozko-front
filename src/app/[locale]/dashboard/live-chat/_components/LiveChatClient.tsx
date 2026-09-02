@@ -13,8 +13,6 @@ import {
   Leaf,
   Megaphone,
   Phone,
-  InstagramLogo,
-  TelegramLogo,
   WhatsappLogo,
   X,
 } from "@/components/icons";
@@ -32,6 +30,18 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import type { ResourceAction, ResourceType } from "@/lib/workspace/types";
+import {
+  CHANNEL_FILTERS,
+  campaignTypeFor,
+  entryTypeFor,
+  isCampaignChannel as isCampaignChannelFilter,
+  type ChannelFilter,
+} from "@/lib/live-chat/channel-filter";
+import { ChannelLogo } from "@/components/icons/channel-logos";
+import {
+  ElevatedSelect,
+  ElevatedSelectItem,
+} from "@/components/elevated-design/elevated-select";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import ConsoleBank from "@/components/crm/ConsoleBank";
@@ -47,12 +57,15 @@ import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
 /**
- * Instagram and Telegram have no campaigns, they have accounts, so selecting
- * them narrows the inbox by CHANNEL rather than by campaign type. WhatsApp and
- * voice keep their campaign sub-filters; the other two hide them, because there
- * is nothing to sub-filter.
+ * The channel filter model lives in lib/live-chat/channel-filter — one table,
+ * independently tested, so adding a channel is a row rather than four
+ * coordinated edits across this file.
+ *
+ * Instagram, Telegram and unofficial WhatsApp have no campaigns, they have
+ * accounts, so they narrow the inbox by CHANNEL. WhatsApp Cloud and voice keep
+ * their campaign sub-filters; the others hide them, because there is nothing to
+ * sub-filter.
  */
-type ChannelFilter = "all" | "whatsapp" | "voice" | "instagram" | "telegram";
 
 interface LiveChatTranslations extends CrmTranslations {
   title: string;
@@ -61,6 +74,7 @@ interface LiveChatTranslations extends CrmTranslations {
   filterAll: string;
   filterInstagram: string;
   filterTelegram: string;
+  filterUnofficialWhatsapp: string;
   filterWhatsapp: string;
   filterVoice: string;
   filterAllCampaigns: string;
@@ -77,36 +91,41 @@ interface LiveChatClientProps {
   translations: LiveChatTranslations;
 }
 
-const filterOptions: {
-  value: ChannelFilter;
-  icon: Icon;
-  labelKey: keyof Pick<
-    LiveChatTranslations,
-    "filterAll" | "filterWhatsapp" | "filterVoice" | "filterInstagram" | "filterTelegram"
-  >;
-  permission?: { resource: ResourceType; action: ResourceAction };
-}[] = [
-  { value: "all", icon: ChatCircle, labelKey: "filterAll" },
-  {
-    value: "whatsapp",
-    icon: WhatsappLogo,
-    labelKey: "filterWhatsapp",
-    permission: { resource: "whatsapp_campaigns", action: "read" },
-  },
-  {
-    value: "instagram",
-    icon: InstagramLogo,
-    labelKey: "filterInstagram",
-    permission: { resource: "instagram_accounts", action: "read" },
-  },
-  {
-    value: "telegram",
-    icon: TelegramLogo,
-    labelKey: "filterTelegram",
-    permission: { resource: "telegram_accounts", action: "read" },
-  },
-];
+/**
+ * The mark for a channel option.
+ *
+ * Brand logos come from channel-logos, the one module allowed to carry a
+ * network's own colours. "all" has no network behind it, so it takes a neutral
+ * glyph rather than borrowing one.
+ */
+function channelFilterMark(value: ChannelFilter, size: "trigger" | "row" = "trigger") {
+  // The row is taller than the trigger and its label is a size up, so the mark
+  // grows with it. Same mark, two registers — not two different marks.
+  const box = size === "row" ? "h-[18px] w-[18px]" : "h-4 w-4";
+  if (value === "all") {
+    return (
+      <ChatCircle
+        size={size === "row" ? 18 : 15}
+        className="shrink-0 text-muted-foreground"
+      />
+    );
+  }
+  return <ChannelLogo channel={value} className={`${box} shrink-0`} />;
+}
 
+/**
+ * A dropdown, not a pill row.
+ *
+ * The row was five options wide once unofficial WhatsApp joined it, on a header
+ * that already carries the campaign filter, the stage/label/assignee filters and
+ * the view switcher. A filter that pushes the rest of the toolbar off the line
+ * is costing more space than the one selected value is worth — and only one
+ * value is ever active, which is precisely the shape a select is for.
+ *
+ * Options gated by permission stay VISIBLE and disabled rather than being
+ * dropped: a channel missing from the list reads as "we don't support it", a
+ * disabled one reads as "you can't see it", and those are different facts.
+ */
 function ChannelFilterToggle({
   activeFilter,
   onFilterChange,
@@ -118,37 +137,68 @@ function ChannelFilterToggle({
   translations: LiveChatTranslations;
   canRead: (resource: ResourceType, action: ResourceAction) => boolean;
 }) {
-  const options = useMemo(
-    () =>
-      filterOptions.map(({ value, icon: Icon, labelKey, permission }) => {
-        const disabled =
-          permission != null &&
-          !canRead(permission.resource, permission.action);
-        return {
-          value,
-          label: t[labelKey],
-          disabled,
-          icon: (
-            <Icon
-              size={14}
-              weight={activeFilter === value ? "fill" : "regular"}
-            />
-          ),
-        };
-      }),
-    [activeFilter, canRead, t],
-  );
+  const label = (key: string) =>
+    (t as unknown as Record<string, string>)[key] ?? key;
 
   return (
-    <ElevatedPillToggle
-      bare
-      options={options}
+    <ElevatedSelect
       value={activeFilter}
-      onChange={onFilterChange}
-      size="md"
-      collapseLabels="md"
+      onValueChange={(v) => onFilterChange(v as ChannelFilter)}
       aria-label={t.filterAll}
-    />
+      contentClassName="min-w-[13rem]"
+      trigger={
+        // Geometry copied from the campaign selector standing next to it —
+        // h-8, text-xs, px-2.5, gap-1.5, CaretUpDown at 12/50%. A control that
+        // is one step taller and one size larger than its neighbour reads as a
+        // mistake even when nothing about it is wrong on its own, and this row
+        // is where the two sit side by side.
+        <button
+          type="button"
+          className={cn(
+            "flex h-8 w-auto max-w-[14rem] shrink-0 items-center gap-1.5 rounded-[--radius] border border-control-edge bg-card px-2.5 text-xs font-medium transition-colors",
+            activeFilter === "all"
+              ? "text-muted-foreground hover:text-foreground"
+              : "text-foreground",
+          )}
+        >
+          {channelFilterMark(activeFilter)}
+          <span className="min-w-0 flex-1 truncate text-left">
+            {label(
+              CHANNEL_FILTERS.find((s) => s.value === activeFilter)?.labelKey ??
+                "filterAll",
+            )}
+          </span>
+          <CaretUpDown size={12} className="shrink-0 opacity-50" />
+        </button>
+      }
+    >
+      {CHANNEL_FILTERS.map(({ value, labelKey, permission }) => (
+        <ElevatedSelectItem
+          key={value}
+          value={value}
+          disabled={
+            permission != null &&
+            !canRead(
+              permission.resource as ResourceType,
+              permission.action as ResourceAction,
+            )
+          }
+          icon={channelFilterMark(value, "row")}
+          // iconStyled defaults to TRUE, which puts the mark on a solid
+          // bg-primary plate. That is right for a monochrome glyph meant to be
+          // read as --primary-foreground, and wrong for every mark here:
+          // WhatsApp's logo is green, so it vanished into the green plate, and
+          // Instagram's is a multi-colour gradient sitting on a saturated block
+          // of an unrelated hue — the "prop-coloured block under a coloured
+          // glyph" the design rules single out. Channel marks carry their own
+          // fixed colours and are never recoloured or re-grounded; they belong
+          // on the plain popover surface, the way the inbox rows show them.
+          iconStyled={false}
+        >
+          {label(labelKey)}
+        </ElevatedSelectItem>
+      ))}
+    </ElevatedSelect>
   );
 }
 
@@ -309,7 +359,7 @@ function CampaignSelector({
       <PopoverTrigger asChild>
         <button
           className={cn(
-            "flex h-8 w-auto max-w-[16rem] shrink-0 items-center gap-1.5 rounded-[--radius] border border-border bg-card px-2.5 text-xs font-medium transition-colors",
+            "flex h-8 w-auto max-w-[16rem] shrink-0 items-center gap-1.5 rounded-[--radius] border border-control-edge bg-card px-2.5 text-xs font-medium transition-colors",
             selectedId
               ? "text-foreground"
               : "text-muted-foreground hover:text-foreground",
@@ -426,20 +476,18 @@ function LiveChatContent({
     if (!canUseOpsMetrics && opsOpen) setOpsOpen(false);
   }, [canUseOpsMetrics, opsOpen]);
 
-  // Only whatsapp and voice are campaign types; instagram and telegram select
-  // by channel instead, so they contribute no campaignType at all.
-  const isCampaignChannel = activeFilter === "whatsapp" || activeFilter === "voice";
+  // Both narrowings come from the shared table now. They used to be two inline
+  // ternaries listing channels by hand, which is why adding one meant editing
+  // several expressions and the miss was silent: a channel present in the button
+  // list but absent from the entry-type ternary looks like a working filter and
+  // selects nothing.
+  const isCampaignChannel = isCampaignChannelFilter(activeFilter);
   const campaignType: CampaignType | undefined =
     selectedCampaignId && selectedCampaignType
       ? selectedCampaignType
-      : isCampaignChannel
-        ? activeFilter
-        : undefined;
+      : campaignTypeFor(activeFilter);
 
-  const channelFilter: EntryType | undefined =
-    activeFilter === "instagram" || activeFilter === "telegram"
-      ? activeFilter
-      : undefined;
+  const channelFilter: EntryType | undefined = entryTypeFor(activeFilter);
 
   const whatsappCampaignType: WhatsAppCampaignTypeFilter | undefined =
     waCampaignFilter === "all" ? undefined : waCampaignFilter;

@@ -8,6 +8,7 @@ import type {
     LeadCampaignEntriesResponse,
     LeadConversationsResponse,
     LeadDetailResponse,
+    ConversationEntryType,
     LeadEntryType,
     LeadFacets,
     LeadListItem,
@@ -22,6 +23,7 @@ import { emptyCrmFilter, encodeFilterParam } from '@/lib/crm/board';
 import { withText } from '@/lib/filters/controls';
 
 import { apiClient } from "@/lib/api/browser-client";
+import type { LeadImportRow } from '@/lib/leads/import';
 
 const DEFAULT_LEADS_META: LeadsListMeta = {
     page: 1,
@@ -251,7 +253,7 @@ export async function listAnalysisAction(params: AnalysisListParams = {}) {
 
 export async function getEntryConversationAction(
     entryId: string,
-    entryType: LeadEntryType = 'voice',
+    entryType: ConversationEntryType = 'voice',
 ) {
     const queryParams = new URLSearchParams();
     queryParams.set('entryType', entryType);
@@ -387,4 +389,74 @@ export async function getLeadCampaignHistoryAction(leadId: string) {
     }
 
     return { lead: response.data ?? null, error: null };
+}
+
+/**
+ * Rename a lead.
+ *
+ * `name` is sent even when empty — that is the instruction to CLEAR the name so
+ * the lead shows its number again, the way removing a contact's name works in
+ * WhatsApp. The server distinguishes "field absent" (a malformed request) from
+ * "field empty" (clear it), so the field is always present in the body.
+ */
+export async function renameLeadAction(
+    leadId: string,
+    name: string,
+): Promise<{ lead: Lead | null; error: string | null }> {
+    const response = await apiClient<Lead>(`/leads/${leadId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+    });
+
+    if (response.error) {
+        return { lead: null, error: response.error.message };
+    }
+    return { lead: response.data ?? null, error: null };
+}
+
+/** What an import did, as the operator needs it reported. */
+export interface LeadImportResult {
+    /** Leads the workspace did not have before. */
+    created: number;
+    /** Rows whose number was already known here. */
+    matched: number;
+    /** How many of the matched are blocked, and so unreachable by a campaign. */
+    blocked: number;
+    invalid: number;
+    duplicate: number;
+    rejected: { line: number; number: string; reason: string }[];
+    rejectedTruncated?: number;
+}
+
+/** Row limit the API enforces. Mirrored so the UI can refuse before uploading. */
+export const LEAD_IMPORT_MAX_ROWS = 20000;
+
+/**
+ * Import parsed contact rows as leads.
+ *
+ * The rows are sent as JSON, not as a file: the browser parses the CSV so the
+ * operator can see the outcome before committing, and the contact data never
+ * needs a round trip to be validated. The server re-validates and re-dedupes
+ * regardless, because this endpoint is reachable without the dialog.
+ */
+export async function importLeadsAction(
+    rows: LeadImportRow[],
+    onExisting: 'fill_empty' | 'skip' = 'fill_empty',
+): Promise<{ result: LeadImportResult | null; error: string | null }> {
+    if (rows.length === 0) {
+        return { result: null, error: null };
+    }
+
+    const response = await apiClient<LeadImportResult>('/leads/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rows, onExisting }),
+    });
+
+    if (response.error) {
+        return { result: null, error: response.error.message };
+    }
+
+    return { result: response.data ?? null, error: null };
 }

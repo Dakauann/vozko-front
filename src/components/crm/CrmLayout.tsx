@@ -3,6 +3,7 @@
 import type {
   AIHandler,
   CampaignType,
+  ContainerKind,
   ConversationMessage,
   EntryType,
   MediaType,
@@ -85,7 +86,6 @@ import type { SavedView, SavedViewVisibility } from "@/lib/crm/saved-views";
 import { listAssignableMembersAction } from "@/app/actions/workspace";
 import {
   assignStageToEntryAction,
-  removeStageFromEntryAction,
 } from "@/app/actions/stages";
 import {
   assignLabelToEntryAction,
@@ -186,6 +186,11 @@ interface CrmLayoutProps {
   campaignId?: string;
   campaignType?: CampaignType;
   /**
+   * Narrows campaignId to a CAMPAIGN rather than the channel's primary
+   * container. Only the unofficial WhatsApp channel has both.
+   */
+  containerKind?: ContainerKind;
+  /**
    * Narrows the inbox to one channel, for channels that have no campaigns of
    * their own. Undefined means "every channel".
    */
@@ -276,6 +281,7 @@ function withColumnPredicate(
 export default function CrmLayout({
   campaignId = "",
   campaignType,
+  containerKind,
   channelFilter,
   whatsappCampaignType,
   enabled = true,
@@ -380,6 +386,7 @@ export default function CrmLayout({
     switchView,
     assignTo,
     setConversationStatus,
+    applyLeadRename,
   } = useCrm();
 
   const isCallBusy = useCallActive();
@@ -403,11 +410,31 @@ export default function CrmLayout({
   // Scope breadcrumb copy. A funnel only scopes the Kanban / deal board; Chat and
   // Tabela are inherently cross-funnel, so they always read "Todos os funis".
 
+  // The funnel every stage list in this surface is about.
+  //
+  // Same derivation the board uses for its columns, and that is the point: before
+  // this, the board resolved the selected funnel while "Gerenciar Etapas", the
+  // table's stage filter and the bulk "Mover etapa" menu all read the workspace
+  // default — so the columns on screen and the stage list beside them could
+  // disagree. "Todos os funis" is deliberately undefined: a cross-funnel scope has
+  // no single stage set, so the server's default resolution is the honest answer.
+  const stagePipelineId =
+    activePipelineId && activePipelineId !== ALL_FUNNELS_ID
+      ? activePipelineId
+      : undefined;
+
   useEffect(() => {
     if (!enabled) return;
-    reloadStages(campaignId || undefined, campaignType);
+    reloadStages(campaignId || undefined, campaignType, stagePipelineId);
     reloadLabels();
-  }, [enabled, campaignId, campaignType, reloadStages, reloadLabels]);
+  }, [
+    enabled,
+    campaignId,
+    campaignType,
+    stagePipelineId,
+    reloadStages,
+    reloadLabels,
+  ]);
 
   // Resolve the workspace-global conversation pipeline (default, else first) so
   // the global board scopes to it. An empty id still returns all global stages.
@@ -807,7 +834,13 @@ export default function CrmLayout({
     prevStatusRef.current = status;
     if (justConnected && !campaignId && !campaignType && !whatsappCampaignType)
       return;
-    switchView(campaignId || undefined, campaignType, whatsappCampaignType);
+    switchView(
+      campaignId || undefined,
+      campaignType,
+      whatsappCampaignType,
+      undefined,
+      containerKind,
+    );
   }, [
     enabled,
     status,
@@ -1096,27 +1129,34 @@ export default function CrmLayout({
   }, [activeConversation]);
 
   const handleEntryStageChange = useCallback(
-    async (
-      entryId: string,
-      entryType: EntryType,
-      newStageId: string,
-      oldStageId: string | null,
-    ) => {
-      await assignStageToEntryAction(newStageId, entryId, entryType);
-      if (oldStageId && oldStageId !== "__unstaged__") {
-        await removeStageFromEntryAction(oldStageId, entryId, entryType);
+    async (entryId: string, entryType: EntryType, newStageId: string) => {
+      // Report failures. The server now refuses a move onto a stage from another
+      // funnel (409), and a silently swallowed error left the operator clicking a
+      // card that never moved, with nothing said.
+      const { error } = await assignStageToEntryAction(
+        newStageId,
+        entryId,
+        entryType,
+      );
+      if (error) {
+        toast.error(error);
       }
+      // No companion remove: assigning IS the move. The server deletes the current
+      // row before inserting the new one, so the old "assign then remove the
+      // previous stage" pair was redundant on success — and actively harmful on
+      // failure, because the remove ran anyway and left the lead with no stage at
+      // all. One conversation holds one stage; a move is one call.
     },
     [],
   );
 
   const handleStagesReorder = useCallback(() => {
-    reloadStages(campaignId || undefined, campaignType);
-  }, [reloadStages, campaignId, campaignType]);
+    reloadStages(campaignId || undefined, campaignType, stagePipelineId);
+  }, [reloadStages, campaignId, campaignType, stagePipelineId]);
 
   const handleStagesChange = useCallback(() => {
-    reloadStages(campaignId || undefined, campaignType);
-  }, [reloadStages, campaignId, campaignType]);
+    reloadStages(campaignId || undefined, campaignType, stagePipelineId);
+  }, [reloadStages, campaignId, campaignType, stagePipelineId]);
 
   const handleAssignLabel = useCallback(
     async (labelId: string, entryId: string, entryType: EntryType) => {
@@ -1176,13 +1216,6 @@ export default function CrmLayout({
   const handleAssignStage = useCallback(
     async (stageId: string, entryId: string, entryType: EntryType) => {
       await assignStageToEntryAction(stageId, entryId, entryType);
-    },
-    [],
-  );
-
-  const handleRemoveStage = useCallback(
-    async (stageId: string, entryId: string, entryType: EntryType) => {
-      await removeStageFromEntryAction(stageId, entryId, entryType);
     },
     [],
   );
@@ -1923,6 +1956,7 @@ export default function CrmLayout({
                     value={selectedPipeline}
                     onChange={handleSelectPipeline}
                     disableAllFunnels={groupBy === "stage"}
+                    canCreate={can("stages", "create")}
                   />
                 </ConsoleBank>
               )}
@@ -2019,6 +2053,7 @@ export default function CrmLayout({
                     onStagesChange={handleStagesChange}
                     campaignId={campaignId}
                     campaignType={campaignType}
+                    pipelineId={stagePipelineId}
                   />
                 </TooltipWrapper>
                 {can("labels", "read") && (
@@ -2103,6 +2138,7 @@ export default function CrmLayout({
               value={filter}
               onChange={handleFilterChange}
               labels={labels}
+              stages={tags}
               workspaceId={currentWorkspace?.id}
             />
           </>
@@ -2203,9 +2239,6 @@ export default function CrmLayout({
                       }
                       onAssignStage={
                         can("stages", "assign") ? handleAssignStage : undefined
-                      }
-                      onRemoveStage={
-                        can("stages", "assign") ? handleRemoveStage : undefined
                       }
                       availableLabels={labels}
                       currentEntryLabels={currentEntryLabels}
@@ -2379,9 +2412,6 @@ export default function CrmLayout({
                     onAssignStage={
                       can("stages", "assign") ? handleAssignStage : undefined
                     }
-                    onRemoveStage={
-                      can("stages", "assign") ? handleRemoveStage : undefined
-                    }
                     availableLabels={labels}
                     currentEntryLabels={currentEntryLabels}
                     onAssignLabel={
@@ -2439,6 +2469,8 @@ export default function CrmLayout({
               conversationStatus={currentConversationStatus}
               canBlock={can("leads", "block")}
               canManageMemories={can("leads", "update")}
+              canRenameLead={can("leads", "update")}
+              onLeadRenamed={applyLeadRename}
             />
           )}
           <WorkflowRunDrawer

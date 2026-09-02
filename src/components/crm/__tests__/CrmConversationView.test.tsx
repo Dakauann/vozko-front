@@ -3,9 +3,22 @@ import type {
   ConversationMessage,
 } from "@/lib/conversations/types";
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render as rtlRender, screen } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
 
+import ptMessages from "@/i18n/messages/pt.json";
 import CrmConversationView from "../CrmConversationView";
+
+// The component calls useTranslations, so every render needs the intl provider.
+// Without it all 16 cases below died on "context from NextIntlClientProvider was
+// not found" before asserting anything.
+function render(ui: React.ReactElement) {
+  return rtlRender(
+    <NextIntlClientProvider locale="pt" messages={ptMessages}>
+      {ui}
+    </NextIntlClientProvider>,
+  );
+}
 
 vi.mock("framer-motion", () => {
   const React = require("react");
@@ -467,5 +480,114 @@ describe("CrmConversationView rendering", () => {
       />,
     );
     expect(screen.getByText("Template")).toBeInTheDocument();
+  });
+});
+
+// ── The stage ("Mover para") selector ────────────────────────────────────────
+//
+// A conversation holds exactly one stage, and that stage decides which funnel the
+// conversation is on. So the list has to offer the stages of the conversation's
+// OWN funnel — `entryAvailableTags`, resolved per campaign by the board's read
+// model — and fall back to the surrounding CRM's selected funnel only when the
+// caller supplies no per-entry list.
+
+const ENTRY_FUNNEL = [
+  { stage_id: "ef-1", name: "triagem", color: "#3b82f6" },
+  { stage_id: "ef-2", name: "resolvido", color: "#10b981" },
+];
+
+const DEFAULT_FUNNEL = [
+  { id: "df-1", name: "recebido", color: "#3b82f6", position: 1 },
+  { id: "df-2", name: "finalizado", color: "#10b981", position: 2 },
+];
+
+type ViewProps = React.ComponentProps<typeof CrmConversationView>;
+
+function renderWithStages(props: Partial<ViewProps> = {}) {
+  const conv = makeConversation({
+    messages: [makeMsg({ id: "m1", message_type: "user_message", text: "oi" })],
+  });
+  return render(
+    <CrmConversationView
+      conversation={conv}
+      isTyping={false}
+      translations={defaultTranslations as never}
+      {...props}
+    />,
+  );
+}
+
+describe("CrmConversationView stage selector", () => {
+  it("offers the conversation's own funnel, not the CRM's selected one", () => {
+    const onEntryStageChange = vi.fn();
+    renderWithStages({
+      tags: DEFAULT_FUNNEL as never,
+      entryAvailableTags: ENTRY_FUNNEL,
+      onEntryStageChange,
+    });
+
+    fireEvent.click(screen.getByTitle(/Mover para outra tag|Etapas/i));
+
+    expect(screen.getByText("triagem")).toBeInTheDocument();
+    expect(screen.getByText("resolvido")).toBeInTheDocument();
+    // The default funnel's stages must not leak in: picking one would move the
+    // lead onto a funnel its own board does not render.
+    expect(screen.queryByText("recebido")).toBeNull();
+    expect(screen.queryByText("finalizado")).toBeNull();
+  });
+
+  it("falls back to the CRM's funnel when the entry carries no list", () => {
+    renderWithStages({
+      tags: DEFAULT_FUNNEL as never,
+      entryAvailableTags: [],
+      onEntryStageChange: vi.fn(),
+    });
+
+    fireEvent.click(screen.getByTitle(/Mover para outra tag|Etapas/i));
+    expect(screen.getByText("recebido")).toBeInTheDocument();
+  });
+
+  it("moves the conversation instead of toggling stage membership", () => {
+    const onEntryStageChange = vi.fn();
+    const onAssignStage = vi.fn();
+    renderWithStages({
+      entryAvailableTags: ENTRY_FUNNEL,
+      currentEntryTags: [{ stage_id: "ef-1", name: "triagem", color: "#3b82f6" }],
+      onEntryStageChange,
+      onAssignStage,
+    });
+
+    fireEvent.click(screen.getByTitle(/Mover para outra tag|Etapas/i));
+    fireEvent.click(screen.getByText("resolvido"));
+
+    expect(onEntryStageChange).toHaveBeenCalledWith(
+      "entry-1",
+      "whatsapp",
+      "ef-2",
+      "ef-1",
+    );
+    // One stage per conversation: the add/remove pair belonged to the old
+    // multi-tag model and must not fire.
+    expect(onAssignStage).not.toHaveBeenCalled();
+  });
+
+  it("marks the current stage and refuses to re-pick it", () => {
+    const onEntryStageChange = vi.fn();
+    renderWithStages({
+      entryAvailableTags: ENTRY_FUNNEL,
+      currentEntryTags: [{ stage_id: "ef-1", name: "triagem", color: "#3b82f6" }],
+      onEntryStageChange,
+    });
+
+    fireEvent.click(screen.getByTitle(/Mover para outra tag|Etapas/i));
+    expect(screen.getByText("atual")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("triagem"));
+    expect(onEntryStageChange).not.toHaveBeenCalled();
+  });
+
+  it("hides the selector entirely when there is no funnel to offer", () => {
+    renderWithStages({ tags: [], entryAvailableTags: [], onEntryStageChange: vi.fn() });
+    expect(screen.queryByTitle(/Mover para outra tag|Etapas/i)).toBeNull();
   });
 });

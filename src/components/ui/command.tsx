@@ -15,7 +15,7 @@ const Command = React.forwardRef<
   <CommandPrimitive
     ref={ref}
     className={cn(
-      "flex h-full w-full flex-col overflow-hidden rounded-[--radius] border border-border bg-popover text-popover-foreground shadow-lg",
+      "flex h-full w-full flex-col overflow-hidden rounded-[--radius] border border-border-strong bg-popover text-popover-foreground shadow-lg",
       className,
     )}
     {...props}
@@ -27,7 +27,7 @@ const CommandDialog = ({ children, ...props }: DialogProps) => {
   return (
     <Dialog {...props}>
       <DialogContent className="overflow-hidden p-0">
-        <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
+        <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
           {children}
         </Command>
       </DialogContent>
@@ -39,22 +39,36 @@ const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => (
-  <div
-    className="flex items-center border-b border-border px-4"
-    cmdk-input-wrapper=""
-  >
-    <MagnifyingGlass
-      className="mr-3 h-4 w-4 shrink-0 text-muted-foreground"
-      weight="bold"
-    />
-    <CommandPrimitive.Input
-      ref={ref}
+  <div className="border-b border-border p-2" cmdk-input-wrapper="">
+    {/*
+      The palette's search is a field like every other field in the system: a
+      recessed well that lifts to the sheet and takes the brand underline on
+      focus. It used to be a bare input on a bottom hairline drawn in --border,
+      which measures 1.36:1 against the popover on graphite — so in dark there
+      was no field there at all, just text floating in a panel.
+    */}
+    <div
       className={cn(
-        "flex h-11 w-full bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
-        className,
+        "flex h-9 items-center gap-2 rounded-[--radius] border border-control-edge bg-card px-3 dark:bg-muted",
+        "transition-[background-color,border-color,box-shadow] duration-150",
+        "focus-within:border-control-edge",
+        "focus-within:shadow-[inset_0_-2px_0_0_hsl(var(--primary-edge))]",
+        "focus-within:ring-2 focus-within:ring-primary/15",
       )}
-      {...props}
-    />
+    >
+      <MagnifyingGlass
+        className="h-4 w-4 shrink-0 text-muted-foreground"
+        weight="bold"
+      />
+      <CommandPrimitive.Input
+        ref={ref}
+        className={cn(
+          "flex h-full w-full bg-transparent text-sm font-medium outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+          className,
+        )}
+        {...props}
+      />
+    </div>
   </div>
 ));
 
@@ -122,7 +136,10 @@ const CommandItem = React.forwardRef<
     ref={ref}
     className={cn(
       "relative flex cursor-pointer gap-2 select-none items-center rounded-[--radius] px-3 py-2.5 text-sm outline-none transition-colors",
-      "data-[selected=true]:bg-muted data-[selected=true]:text-primary-ink",
+      // The row ground has to differ from the panel it sits on; --muted IS the
+      // panel in dark. Label stays --foreground — green is commit, selection
+      // and focus, and a keyboard highlight is none of the three.
+      "data-[selected=true]:bg-[hsl(var(--accent-hover))] data-[selected=true]:text-foreground",
       "data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50",
       "[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
       className,

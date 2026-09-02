@@ -354,13 +354,16 @@ export function WorkspaceSwitcher({
                         }}
                         className={cn(
                           "flex w-full items-center gap-3 rounded-[--radius] p-2.5 transition-all",
-                          isSelected ? "bg-primary-subtle text-primary-ink" : "hover:bg-muted",
+                          // Neutral opaque ground; the glyph carries the green.
+                          isSelected ? "bg-muted text-foreground" : "hover:bg-muted",
                         )}
                       >
                         <div
                           className={cn(
                             "flex h-8 w-8 items-center justify-center rounded-lg",
-                            isSelected ? "bg-muted text-foreground" : "bg-muted text-muted-foreground",
+                            // Lifts to --card so the tile still separates from
+                            // the selected row's own --muted ground.
+                            isSelected ? "bg-card text-primary-ink" : "bg-muted text-muted-foreground",
                           )}
                         >
                           <Buildings className="h-4 w-4" weight="fill" />

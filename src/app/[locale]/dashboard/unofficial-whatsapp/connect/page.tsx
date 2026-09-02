@@ -462,7 +462,7 @@ function MethodCard({
         "relative overflow-hidden rounded-lg border p-4 text-left transition",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         selected
-          ? "border-border-strong bg-muted"
+          ? "border-control-edge bg-muted"
           : "border-border bg-card hover:bg-muted",
       )}
     >

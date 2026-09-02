@@ -142,7 +142,8 @@ export function CommentRuleFields({
                     "flex w-full items-start gap-2.5 rounded-lg border p-3 text-left transition-colors",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     "disabled:cursor-not-allowed disabled:opacity-60",
-                    selected ? "border-border bg-primary-subtle text-primary-ink" : "border-border hover:bg-muted",
+                    // Neutral ground, brand edge, green glyph — mark, not wash.
+                    selected ? "border-primary-edge bg-muted text-foreground" : "border-border hover:bg-muted",
                   )}
                 >
                   <Icon

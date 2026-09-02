@@ -9,7 +9,7 @@ import {
     type FetchCrmBoardParams,
     type FetchCrmEntriesParams,
 } from '@/lib/crm/board';
-import { listPipelines, type Pipeline, type PipelineObjectType } from '@/lib/crm/pipelines';
+import { createPipeline, listPipelines, type CreatePipelineInput, type Pipeline, type PipelineObjectType } from '@/lib/crm/pipelines';
 
 function fetchCrmBoard(params: FetchCrmBoardParams) {
     const qs = new URLSearchParams();
@@ -92,4 +92,16 @@ export async function listPipelinesAction(
     }
 
     return { pipelines: response.data ?? [] };
+}
+
+export async function createPipelineAction(
+    input: CreatePipelineInput,
+): Promise<{ pipeline: Pipeline | null; error?: string }> {
+    const response = await createPipeline(input);
+
+    if (response.error) {
+        return { pipeline: null, error: response.error.message };
+    }
+
+    return { pipeline: response.data ?? null };
 }

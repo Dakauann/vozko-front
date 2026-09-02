@@ -1,7 +1,14 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
-import { Brain, Clock, Prohibit, Users, WhatsappLogo } from "@/components/icons";
+import {
+  Brain,
+  Clock,
+  Prohibit,
+  UploadSimple,
+  Users,
+  WhatsappLogo,
+} from "@/components/icons";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 
@@ -10,6 +17,8 @@ import {
   DashboardTable,
   type DashboardTableColumn,
 } from "@/components/elevated-design/table/dashboard-table";
+import Button from "@/components/elevated-design/button";
+import ImportLeadsDialog from "./_components/ImportLeadsDialog";
 import LeadSavedViews from "./_components/LeadSavedViews";
 import LeadsToolbar, {
   type LeadFilterOptionSets,
@@ -29,6 +38,8 @@ import {
   type LeadSortKey,
 } from "@/lib/leads/types";
 import { cn } from "@/lib/utils";
+import { EditableLeadName } from "@/components/leads/EditableLeadName";
+import { useWorkspace } from "@/contexts/workspace-context";
 
 function formatDate(
   value: string | undefined | null,
@@ -61,11 +72,21 @@ function LeadsPageContent() {
     pageSizes: LEAD_PAGE_SIZES,
   });
 
+  const { can } = useWorkspace();
+  const canRenameLead = can("leads", "update");
+  const canImportLeads = can("leads", "create");
+  const [importOpen, setImportOpen] = useState(false);
+
+  // Bumped after an import so the list and its facet counts re-read. An import
+  // is the one action on this page that changes the SET being listed, so
+  // patching rows in place would leave the "Total" tile behind.
+  const [reloadKey, setReloadKey] = useState(0);
   const [items, setItems] = useState<LeadListItem[]>([]);
   const [facets, setFacets] = useState<LeadFacets | null>(null);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [facetsLoading, setFacetsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [options, setOptions] = useState<LeadFilterOptionSets>({
@@ -82,19 +103,19 @@ function LeadsPageContent() {
   const filterKey = JSON.stringify(filter);
   const sortKey = sorts.map((s) => `${s.key}:${s.direction}`).join(",");
 
+  // The rows: re-read whenever anything about the request changes.
   useEffect(() => {
     let cancelled = false;
 
     (async () => {
       setLoading(true);
-      const params = { filter, q: search, sorts, page, pageSize };
-
-      // The rows and their counts describe the same set, so they are asked at
-      // the same moment with the same question.
-      const [list, facetResult] = await Promise.all([
-        listLeadsQueryAction(params),
-        getLeadFacetsAction(params),
-      ]);
+      const list = await listLeadsQueryAction({
+        filter,
+        q: search,
+        sorts,
+        page,
+        pageSize,
+      });
       if (cancelled) return;
 
       if (list.error) {
@@ -109,7 +130,6 @@ function LeadsPageContent() {
         setTotalPages(list.meta.totalPages);
       }
 
-      setFacets(facetResult.error ? null : facetResult.facets);
       setLoading(false);
     })();
 
@@ -117,7 +137,31 @@ function LeadsPageContent() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterKey, search, sortKey, page, pageSize]);
+  }, [filterKey, search, sortKey, page, pageSize, reloadKey]);
+
+  // The counts: a separate effect on purpose, keyed to the FILTER alone.
+  //
+  // Facets describe the whole filtered set, so turning to page 2 or re-sorting
+  // cannot change a single one of them. Asking for them in the same effect as
+  // the rows meant every page turn re-ran four unbounded queries, one of which
+  // evaluates a correlated EXISTS per lead in the workspace, to receive the
+  // numbers already on screen.
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      setFacetsLoading(true);
+      const result = await getLeadFacetsAction({ filter, q: search });
+      if (cancelled) return;
+      setFacets(result.error ? null : result.facets);
+      setFacetsLoading(false);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterKey, search, reloadKey]);
 
   // Option sets for the id-based filters. Loaded once: they change far more
   // slowly than the list, and re-fetching them per keystroke would triple the
@@ -199,7 +243,25 @@ function LeadsPageContent() {
         header: t("table.name"),
         sortKey: "name",
         render: (row) => (
-          <span className="text-sm text-foreground">{row.name || "—"}</span>
+          // Editable in place, the same component the CRM context rail uses, so
+          // renaming works identically wherever an operator meets the name.
+          // The em dash is the fallback here rather than the number: this table
+          // already has a number column beside it, and repeating it would read
+          // as two contacts on one row.
+          <EditableLeadName
+            leadId={row.id}
+            name={row.name}
+            fallback="—"
+            canEdit={canRenameLead}
+            onRenamed={(next) =>
+              setItems((prev) =>
+                prev.map((item) =>
+                  item.id === row.id ? { ...item, name: next } : item,
+                ),
+              )
+            }
+            className="text-sm text-foreground"
+          />
         ),
       },
       {
@@ -276,32 +338,35 @@ function LeadsPageContent() {
         ),
       },
     ],
-    [t, locale],
+    [t, locale, canRenameLead],
   );
 
   const isFiltered = !isEmptyLeadFilter(filter) || search.trim() !== "";
 
-  // Stats read from the facet pass, so they describe the whole filtered set —
-  // not the twenty rows that happen to be on screen.
+  // Stats read from the facet pass, so they describe the whole filtered set,
+  // not the twenty rows that happen to be on screen. They also hold their
+  // values while the ROWS reload: paging cannot change them, so blanking them
+  // to an ellipsis on every page turn would be reporting a recalculation that
+  // is not happening.
   const stats = [
     {
       label: t("summary.total"),
-      value: loading ? "…" : String(facets?.total ?? totalItems),
+      value: facetsLoading ? "…" : String(facets?.total ?? totalItems),
       icon: <Users className="h-4 w-4 text-info-ink" weight="fill" />,
     },
     {
       label: t("summary.windowOpen"),
-      value: loading ? "…" : String(facets?.windowOpen ?? 0),
+      value: facetsLoading ? "…" : String(facets?.windowOpen ?? 0),
       icon: <Clock className="h-4 w-4 text-healthy-ink" weight="fill" />,
     },
     {
       label: t("summary.withMemory"),
-      value: loading ? "…" : String(facets?.withMemory ?? 0),
+      value: facetsLoading ? "…" : String(facets?.withMemory ?? 0),
       icon: <Brain className="h-4 w-4 text-info-ink" weight="fill" />,
     },
     {
       label: t("summary.blocked"),
-      value: loading ? "…" : String(facets?.blocked ?? 0),
+      value: facetsLoading ? "…" : String(facets?.blocked ?? 0),
       icon: <Prohibit className="h-4 w-4 text-destructive-ink" weight="fill" />,
     },
   ];
@@ -313,8 +378,26 @@ function LeadsPageContent() {
           icon={<Users className="h-6 w-6" weight="fill" />}
           badge={t("header.badge")}
           description={t("header.description")}
+          actions={
+            canImportLeads ? (
+              <Button
+                variant="secondary"
+                size="sm"
+                icon={<UploadSimple weight="bold" />}
+                iconVisible
+                title={t("import.action")}
+                onClick={() => setImportOpen(true)}
+              />
+            ) : undefined
+          }
         />
       </div>
+
+      <ImportLeadsDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        onImported={() => setReloadKey((key) => key + 1)}
+      />
 
       <div>
         <DashboardTable<LeadListItem>

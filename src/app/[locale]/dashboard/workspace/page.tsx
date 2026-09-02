@@ -100,6 +100,13 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { IconBox } from "@/components/elevated-design/listing-card";
 import type { WorkspaceConfig } from "@/lib/workspace/workspace-config/types";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { WorkingHoursEditor } from "@/components/dashboard/working-hours/WorkingHoursEditor";
+import {
+  validateWorkingHours,
+  type WorkingHoursSpec,
+} from "@/lib/working-hours/types";
 import { useAuth } from "@/contexts/auth-context";
 import { useDepartment } from "@/contexts/department-context";
 import { useTranslations } from "next-intl";
@@ -2322,6 +2329,102 @@ function RolesTab({
 }
 
 
+/**
+ * Escala própria de um departamento.
+ *
+ * Sobrescreve a do workspace por inteiro em vez de se somar a ela: o caso que
+ * isso existe para resolver é um plantão que trabalha sábado dentro de uma
+ * empresa de segunda a sexta, e uma interseção não conseguiria expressá-lo.
+ * Desligar aqui devolve o departamento à escala do workspace.
+ */
+function DepartmentWorkingHours({
+  department,
+  onSaved,
+}: {
+  department: Department;
+  onSaved: () => Promise<void> | void;
+}) {
+  const tw = useTranslations("workingHours");
+  const [open, setOpen] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
+  const [draft, setDraft] = React.useState<WorkingHoursSpec | null>(
+    department.workingHours ?? null,
+  );
+
+  const saved = department.workingHours ?? null;
+  const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
+  const issues = draft ? validateWorkingHours(draft) : [];
+
+  const handleSave = async () => {
+    setSaving(true);
+    // `null` viaja de propósito — é o que remove a escala própria. Omitir o
+    // campo diria "não mexa", e o botão nunca desligaria nada.
+    const result = await updateDepartment(
+      department.id,
+      department.name,
+      department.description || undefined,
+      draft,
+    );
+    if (result.error) {
+      toast.error(result.error);
+    } else {
+      toast.success(tw("saveSuccess"));
+      await onSaved();
+    }
+    setSaving(false);
+  };
+
+  return (
+    <div className="rounded-[--radius] border border-border">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left"
+      >
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-foreground">{tw("title")}</p>
+          <p className="text-xs text-muted-foreground">
+            {saved ? tw("departmentOwnHours") : tw("departmentInherits")}
+          </p>
+        </div>
+        <CaretDown
+          weight="bold"
+          className={cn(
+            "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+            open && "rotate-180",
+          )}
+        />
+      </button>
+
+      {open && (
+        <div className="space-y-3 border-t border-border p-3">
+          <WorkingHoursEditor
+            value={draft}
+            onChange={setDraft}
+            disabled={saving}
+            offHint={tw("departmentOffHint")}
+          />
+          <div className="flex justify-end">
+            <Button
+              size="sm"
+              onClick={handleSave}
+              disabled={!dirty || saving || issues.length > 0}
+            >
+              {saving ? (
+                <CircleNotch weight="bold" className="mr-1.5 h-4 w-4 animate-spin" />
+              ) : (
+                <Check weight="bold" className="mr-1.5 h-4 w-4" />
+              )}
+              {tw("save")}
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function DepartmentsTab({
   members,
   t,
@@ -2795,6 +2898,19 @@ function DepartmentsTab({
                         className="overflow-hidden"
                       >
                         <div className="border-t border-border px-4 py-3 space-y-3">
+                          {/*
+                            A escala do departamento vive no painel expandido, e
+                            não na linha de edição inline: uma semana inteira não
+                            cabe ao lado do nome, e quem mexe em horário quer ver
+                            os sete dias de uma vez.
+                          */}
+                          {canManage && (
+                            <DepartmentWorkingHours
+                              department={dept}
+                              onSaved={loadDepartments}
+                            />
+                          )}
+
                           {/* Add member row */}
                           {canManage && (
                             <>

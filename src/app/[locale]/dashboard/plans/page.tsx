@@ -832,8 +832,9 @@ export function AdminPlansManager() {
                       aria-current={isSelected ? "true" : undefined}
                       className={cn(
                         "flex w-full items-center gap-3 border-t border-border px-4 py-3 text-left transition-colors first:border-t-0",
+                        // The row already carries a lamp — that is the mark.
                         isSelected
-                          ? "bg-primary-subtle text-primary-ink"
+                          ? "bg-muted text-foreground"
                           : "hover:bg-muted/50",
                       )}
                       onClick={() =>

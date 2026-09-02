@@ -269,9 +269,22 @@ type KpiDef = {
 function KpiStrip({
   kpis,
   loading,
+  scoped,
 }: {
   kpis: OverviewKPIs | undefined;
   loading: boolean;
+  /**
+   * Whether a CONVERSATION-scoped filter (department, member, channel or
+   * campaign) is active.
+   *
+   * Only the new-leads tile reads it. Every other number here narrows with
+   * those filters; that one counts CRM contacts, which carry no department,
+   * assignee or channel until they have a conversation, so it deliberately
+   * answers to the date range alone. Saying so ON the tile matters, because a
+   * number that visibly refuses to move while its seven neighbours drop reads
+   * as a bug, and the explanation was sitting in a hover title nobody opens.
+   */
+  scoped: boolean;
 }) {
   const t = useTranslations("metricsOps.attendance.kpi");
   const tc = useTranslations("metricsOps.common");
@@ -315,10 +328,10 @@ function KpiStrip({
     },
     {
       key: "new",
-      label: t("newContacts"),
-      short: t("newContactsShort"),
-      value: loading ? tc("loading") : fmt.num(kpis?.new_contacts),
-      hint: t("newContactsHint"),
+      label: t("newLeads"),
+      short: scoped ? t("newLeadsUnscoped") : t("newLeadsShort"),
+      value: loading ? tc("loading") : fmt.num(kpis?.new_leads),
+      hint: t("newLeadsHint"),
       icon: Users,
       bg: GLYPH_PLATE.Users,
     },
@@ -2233,7 +2246,16 @@ export default function AttendanceOpsPage() {
           </div>
 
           <div className="mt-4">
-            <KpiStrip kpis={kpis} loading={loading} />
+            <KpiStrip
+              kpis={kpis}
+              loading={loading}
+              scoped={
+                departmentId !== "all" ||
+                memberId !== "all" ||
+                channel !== "all" ||
+                Boolean(campaignId)
+              }
+            />
           </div>
 
           {error ? (

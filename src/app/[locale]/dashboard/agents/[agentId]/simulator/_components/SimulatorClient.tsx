@@ -627,7 +627,7 @@ function InlineToolRow({
             <button
                 type="button"
                 onClick={onInspect}
-                className="group inline-flex max-w-full max-sm:min-h-[34px] items-center gap-2 rounded-[--radius] border border-dashed border-border-strong bg-card px-2.5 py-1.5 text-left transition-colors duration-DEFAULT hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="group inline-flex max-w-full max-sm:min-h-[34px] items-center gap-2 rounded-[--radius] border border-dashed border-control-edge bg-card px-2.5 py-1.5 text-left transition-colors duration-DEFAULT hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
                 <Wrench
                     className={cn("h-3.5 w-3.5 shrink-0", call.isError ? "text-destructive-ink" : "text-info-ink")}

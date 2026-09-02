@@ -321,14 +321,35 @@ export default function KanbanBoard<T>({
                 })}
 
                 {items.length === 0 ? (
+                  // Uma coluna vazia precisa de FIGURA.
+                  //
+                  // A bandeja cinza foi desenhada para ser o fundo de cartões
+                  // brancos ("quiet trays with white cards on them"); sem
+                  // nenhum cartão, o par figura/fundo perde a figura e a tela
+                  // vira um retângulo cinza com uma linha em itálico boiando no
+                  // meio. O alvo tracejado devolve a figura e, de quebra, diz o
+                  // que a coluna aceita — é a mesma forma que o cartão
+                  // fantasma deixa no lugar durante o arraste.
+                  //
+                  // A cor da etapa vai na aresta por style, como o
+                  // KanbanColumnShell já faz no isDragOver: é um valor vindo
+                  // de dados, não um token, então não há classe para ele.
                   <motion.div
                     key="__empty__"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="flex items-center justify-center py-8"
+                    className="flex flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-control-edge px-3 py-8 text-center"
+                    style={col.color ? { borderColor: col.color } : undefined}
                   >
-                    <span className="text-2xs italic text-muted-foreground">{emptyLabel}</span>
+                    <span
+                      aria-hidden
+                      className="h-1.5 w-6 rounded-full bg-control-edge"
+                      style={col.color ? { backgroundColor: col.color } : undefined}
+                    />
+                    <span className="text-2xs font-medium text-muted-foreground">
+                      {emptyLabel}
+                    </span>
                   </motion.div>
                 ) : null}
               </AnimatePresence>

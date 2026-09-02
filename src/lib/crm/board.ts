@@ -220,6 +220,14 @@ export interface CrmBulkInput {
     targets: CrmBulkTarget[];
     // stageId (move_stage), userId (assign) or labelId (add/remove_label).
     value: string;
+    /**
+     * Apply to EVERY entry the filter matches, not just the ones the client can
+     * name. Used when `targets` is empty; the server re-runs this filter under
+     * the caller's own scope rather than trusting a client-supplied id list, so
+     * a view showing 340 rows can be moved in one request without paging through
+     * them to collect ids.
+     */
+    filter?: CrmFilter;
 }
 
 export interface CrmBulkFailure {
@@ -231,6 +239,10 @@ export interface CrmBulkFailure {
 export interface CrmBulkResult {
     succeeded: number;
     failed: CrmBulkFailure[];
+    // Filter-addressed bulk only: how many the filter matched, and whether the
+    // server's per-request cap stopped short of all of them.
+    matched?: number;
+    truncated?: boolean;
 }
 
 // The backend accepts the filter as (optionally base64-encoded) JSON. We base64

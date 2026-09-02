@@ -300,7 +300,15 @@ export function CardLabelChip({ name, color }: { name: string; color: string }) 
       className="inline-flex items-center gap-1 truncate rounded-[--radius] px-2 py-0.5 text-2xs font-semibold shadow-sm"
       style={{ backgroundColor: color, color: readableInkFor(color) }}
     >
-      <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-white/40" />
+      {/*
+        O ponto herda a tinta já calculada para o texto (`currentColor`), em vez
+        de ser branco fixo. A cor da etiqueta é escolhida pelo usuário: em uma
+        etiqueta clara, readableInkFor devolve tinta escura para o texto e o
+        ponto branco simplesmente sumia — justamente na etiqueta em que ele
+        precisa separar dois chips sobrepostos. Uma fonte de verdade para a
+        tinta, e o ponto acompanha qualquer cor que venha do workspace.
+      */}
+      <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-current opacity-40" />
       <span className="truncate">{name}</span>
     </span>
   );

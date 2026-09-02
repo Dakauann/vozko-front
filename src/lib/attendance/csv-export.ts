@@ -151,7 +151,7 @@ function kpiSection(t: CsvTranslate, overview: AttendanceOverview): CsvSection {
         ["kpi.finished", k.finished],
         ["kpi.ongoing", k.ongoing],
         ["kpi.pending", k.pending],
-        ["kpi.newContacts", k.new_contacts],
+        ["kpi.newLeads", k.new_leads],
         ["kpi.unassignedBacklog", k.unassigned_backlog],
         ["kpi.avgWaitMins", k.avg_wait_mins],
         ["kpi.avgHandleMins", k.avg_handle_mins],

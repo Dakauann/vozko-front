@@ -1,6 +1,7 @@
 
 import { apiClient } from "@/lib/api/browser-client";
 import type { Department, DepartmentMember } from "@/lib/department/types";
+import type { WorkingHoursSpec } from "@/lib/working-hours/types";
 
 
 export async function fetchDepartments(): Promise<{
@@ -30,14 +31,25 @@ export async function createDepartment(
 }
 
 
+/**
+ * `workingHours` tem três estados e os três chegam ao servidor:
+ * não passar deixa a escala como está, `null` remove a escala própria (o
+ * departamento volta a herdar a do workspace) e um documento substitui.
+ * Por isso ele só entra no corpo quando o chamador realmente passou algo.
+ */
 export async function updateDepartment(
     id: string,
     name: string,
     description?: string,
+    workingHours?: WorkingHoursSpec | null,
 ): Promise<{ department: Department | null; error?: string }> {
+    const body: Record<string, unknown> = { name, description };
+    if (workingHours !== undefined) {
+        body.workingHours = workingHours;
+    }
     const res = await apiClient<Department>(`/departments/${id}`, {
         method: "PUT",
-        body: JSON.stringify({ name, description }),
+        body: JSON.stringify(body),
     });
     if (res.error) {
         return { department: null, error: res.error.message || "Failed to update department" };

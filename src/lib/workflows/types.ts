@@ -40,6 +40,7 @@ export type WorkflowNodeType =
   | "condition_text_match"
   | "condition_filter"
   | "condition_check_label"
+  | "condition_channel"
   | "end"
   // Visual
   | "group"

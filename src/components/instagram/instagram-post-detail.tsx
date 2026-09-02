@@ -14,6 +14,8 @@ import type { InstagramAccount, InstagramComment, InstagramMedia } from "@/lib/i
 import { InstagramAvatar } from "@/components/instagram/instagram-avatar";
 import { InstagramCommentThread } from "@/components/instagram/instagram-comment-thread";
 import { InstagramCommentRulesPanel } from "@/components/instagram/instagram-comment-rules-panel";
+import { CommentPostAnalysisPanel } from "@/components/instagram/comment-analysis-post";
+import { useWorkspace } from "@/contexts/workspace-context";
 import {
   Tabs,
   TabsContent,
@@ -21,6 +23,7 @@ import {
   TabsTrigger,
 } from "@/components/elevated-design/elevated-tabs";
 import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 
 interface Props {
   accountId: string;
@@ -39,6 +42,15 @@ interface Props {
  */
 export function InstagramPostDetail({ accountId, account, media, onClose, onUpdated }: Props) {
   const t = useTranslations("instagram");
+  const { can } = useWorkspace();
+  // The analysis tab exists only for readers of the feature; the panel
+  // itself gates the override editor on the update permission.
+  const canSeeAnalysis = can("comment_analysis", "read");
+
+  // Controlled so the split can follow the tab: the analysis tab carries
+  // charts and a form, which need the width the picture can spare.
+  const [tab, setTab] = useState<"comments" | "automation" | "analysis">("comments");
+  const wide = tab === "analysis";
 
   const [comments, setComments] = useState<InstagramComment[]>([]);
   const [cursor, setCursor] = useState<string | undefined>();
@@ -128,13 +140,22 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
       onClick={onClose}
     >
       <div
-        className="flex h-[min(88vh,760px)] w-full max-w-6xl flex-col overflow-hidden rounded-[--radius] border border-border bg-card shadow-2xl md:flex-row"
+        className={cn(
+          "flex h-[min(90vh,820px)] w-full flex-col overflow-hidden rounded-[--radius] border border-border bg-card shadow-2xl md:flex-row",
+          wide ? "max-w-7xl" : "max-w-6xl",
+        )}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Asset. object-contain keeps portrait and landscape posts uncropped; the
             panel owns a fixed share of the dialog so letterboxing shows as an even
-            surround rather than shifting the layout per image aspect ratio. */}
-        <div className="relative flex h-[38%] w-full shrink-0 items-center justify-center overflow-hidden bg-black md:h-full md:w-[55%]">
+            surround rather than shifting the layout per image aspect ratio. On the
+            analysis tab the picture yields width to the panels beside it. */}
+        <div
+          className={cn(
+            "relative flex w-full shrink-0 items-center justify-center overflow-hidden bg-black transition-[width] duration-200 md:h-full",
+            wide ? "h-[24%] md:w-[34%]" : "h-[38%] md:w-[55%]",
+          )}
+        >
           {media.hasAsset ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -229,10 +250,11 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
                 tabs, the same split the account page uses. Without this the
                 rule that replies here was configured somewhere the operator
                 could not see from the post. */}
-            <Tabs defaultValue="comments" className="px-4 pb-4">
+            <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="px-4 pb-4">
               <TabsList>
                 <TabsTrigger value="comments">{t("posts.tabComments")}</TabsTrigger>
                 <TabsTrigger value="automation">{t("posts.tabAutomation")}</TabsTrigger>
+                {canSeeAnalysis ? <TabsTrigger value="analysis">{t("posts.tabAnalysis")}</TabsTrigger> : null}
               </TabsList>
 
               <TabsContent value="comments" className="mt-3 -mx-4">
@@ -259,6 +281,15 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
                   className="border-0 !shadow-none"
                 />
               </TabsContent>
+
+              {canSeeAnalysis ? (
+                <TabsContent value="analysis" className="mt-3">
+                  {/* What the classifier does with THIS post's comments: the
+                      account's settings with the post's own layered on, the
+                      post's numbers, and the override editor. */}
+                  <CommentPostAnalysisPanel accountId={accountId} containerId={media.id} />
+                </TabsContent>
+              ) : null}
             </Tabs>
           </div>
         </div>

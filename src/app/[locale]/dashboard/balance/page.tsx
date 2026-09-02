@@ -30,6 +30,7 @@ import {
   getMyBalanceAction,
   listMyTransactionsAction,
 } from "@/app/actions/balance";
+import { openScoped } from "@/lib/browser/scoped-download-url";
 import { getApiBaseUrl } from "@/lib/api/browser-client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -232,10 +233,10 @@ export default function BalancePage() {
         params.set("startDate", dateRange.start.toISOString());
       params.set("endDate", dateRange.end.toISOString());
       const qs = params.toString();
-      window.open(
-        `${getApiBaseUrl()}/user/balance/transactions/export?${qs}`,
-        "_blank",
-      );
+      // openScoped, not window.open: a navigation sends no X-Workspace-ID, and
+      // without it the API falls back to the user's DEFAULT workspace — so this
+      // exported the wrong workspace's transactions while showing the right one.
+      openScoped(`${getApiBaseUrl()}/user/balance/transactions/export?${qs}`);
     },
     [typeFilter, serviceFilter, dateRange],
   );

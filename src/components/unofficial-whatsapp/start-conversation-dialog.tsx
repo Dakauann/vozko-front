@@ -128,7 +128,7 @@ export function StartConversationDialog({
                           "relative overflow-hidden rounded-lg border p-3 text-left transition",
                           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                           instanceId === instance.id
-                            ? "border-border-strong bg-muted"
+                            ? "border-control-edge bg-muted"
                             : "border-border bg-card hover:bg-muted",
                         )}
                       >

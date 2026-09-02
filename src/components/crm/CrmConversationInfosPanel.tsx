@@ -26,6 +26,7 @@ import type {
   InboxEntry,
 } from "@/lib/conversations/types";
 import { blockLeadAction } from "@/app/actions/leads";
+import { EditableLeadName } from "@/components/leads/EditableLeadName";
 import { listOpportunitiesForEntryAction } from "@/app/actions/opportunities";
 import { ChannelLogo, channelLabel } from "@/components/icons/channel-logos";
 import ConversationAttendanceSection from "@/components/crm/ConversationAttendanceSection";
@@ -55,6 +56,15 @@ interface CrmConversationInfosPanelProps {
   canBlock: boolean;
   /** Mirrors `leads:update`; memories render read-only without it. */
   canManageMemories: boolean;
+  /** RBAC leads:update — the same permission memories use, named for this job. */
+  canRenameLead: boolean;
+  /**
+   * Publishes a committed rename to the surrounding lists. The panel can only
+   * fix its own heading; the conversation row behind it, the search results and
+   * this lead's OTHER conversations all show the same name and would otherwise
+   * sit on the old one until a reload.
+   */
+  onLeadRenamed?: (leadId: string, name: string) => void;
 }
 
 /**
@@ -94,6 +104,8 @@ export default function CrmConversationInfosPanel({
   conversationStatus,
   canBlock,
   canManageMemories,
+  canRenameLead,
+  onLeadRenamed,
 }: CrmConversationInfosPanelProps) {
   const t = useTranslations("crmContactPanel");
 
@@ -108,7 +120,12 @@ export default function CrmConversationInfosPanel({
 
   const isWhatsApp = conversation?.entry_type === "whatsapp";
   const leadNumber = conversation?.lead_number ?? "";
-  const leadName = conversation?.lead_name ?? "";
+  const [leadNameOverride, setLeadNameOverride] = useState<string | null>(null);
+  // The conversation object is refreshed by websocket/refetch, which lags a
+  // rename by a beat. The override makes the header show the new name the
+  // instant it is stored, and is dropped as soon as the server value catches up
+  // (or the operator switches conversation).
+  const leadName = leadNameOverride ?? conversation?.lead_name ?? "";
   const leadId = inboxEntry?.lead_id ?? "";
 
   /**
@@ -129,6 +146,7 @@ export default function CrmConversationInfosPanel({
     setConfirmingBlock(false);
     setBlockedOverride(null);
     setTab("contact");
+    setLeadNameOverride(null);
   }, [inboxEntry?.entry_id, inboxEntry?.entry_type]);
 
   // Derived, not synced through an effect. A tab that vanished under the
@@ -352,9 +370,30 @@ export default function CrmConversationInfosPanel({
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold tracking-tight text-foreground">
-                  {leadName || (isGroup ? t("unnamedGroup") : formatPhone(leadNumber))}
-                </p>
+                {/*
+                  A group's name belongs to the group on WhatsApp's side, not to
+                  a lead here — there is no lead row to rename — so groups keep
+                  the plain heading. Everything else is editable in place for
+                  anyone holding leads:update.
+                */}
+                {leadId && !isGroup ? (
+                  <EditableLeadName
+                    leadId={leadId}
+                    name={leadName}
+                    fallback={formatPhone(leadNumber)}
+                    canEdit={canRenameLead}
+                    onRenamed={(next) => {
+                      setLeadNameOverride(next);
+                      onLeadRenamed?.(leadId, next);
+                    }}
+                    size="md"
+                    className="max-w-full text-sm font-semibold tracking-tight text-foreground"
+                  />
+                ) : (
+                  <p className="truncate text-sm font-semibold tracking-tight text-foreground">
+                    {leadName || (isGroup ? t("unnamedGroup") : formatPhone(leadNumber))}
+                  </p>
+                )}
                 {/* A group has no number. Rendering the copy affordance would
                     offer an operator a phone number that cannot be dialled and
                     belongs to nobody. */}

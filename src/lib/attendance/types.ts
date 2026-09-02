@@ -69,7 +69,15 @@ export interface OverviewKPIs {
     finished: number;
     ongoing: number;
     pending: number;
-    new_contacts: number;
+    /**
+     * Leads created in the period.
+     *
+     * The one KPI here that counts CRM contacts rather than conversations, so it
+     * includes people imported or pushed by an integration who have not been
+     * messaged yet. It answers to the date range only, because a lead has no
+     * department, assignee or channel until it has a conversation.
+     */
+    new_leads: number;
     unassigned_backlog: number;
     avg_handle_mins: number | null;
     avg_wait_mins: number | null;
@@ -244,6 +252,7 @@ export interface MetricDefinitions {
     queue?: string;
     occupancy?: string;
     channel_mix?: string;
+    new_leads?: string;
     messaging?: string;
     reopen?: string;
     finished_by_source?: string;

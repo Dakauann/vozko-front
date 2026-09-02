@@ -26,6 +26,7 @@ import {
   Timer,
   ChatTeardropDots,
   Lightning,
+  Broadcast,
   GitBranch,
   Brain,
   FlagCheckered,
@@ -53,6 +54,7 @@ import {
   WebhooksLogo,
 } from "@/components/icons";
 import type { Icon } from "@/components/icons";
+import { ChannelLogo, hasChannelMark } from "@/components/icons/channel-logos";
 import type {
   WorkflowNodeType,
   NodeCategory,
@@ -102,6 +104,7 @@ const ICON_MAP: Record<string, Icon> = {
   Timer,
   ChatTeardropDots,
   Lightning,
+  Broadcast,
   GitBranch,
   Brain,
   FlagCheckered,
@@ -144,12 +147,41 @@ const CATEGORY_STYLES: Record<NodeCategory, { color: string; ink: string }> = {
   wait: { color: "hsl(var(--plate-3))", ink: "#ffffff" },
   // condition shares the blue family with messaging (info vs plate-4) and is
   // disambiguated by glyph + label, not by inventing an off-token hue.
-  condition: { color: "hsl(var(--info))", ink: "#ffffff" },
+  //
+  // The two NON-plate fills take their own measured foreground instead of a
+  // hardcoded white. It matters for --info: its foreground is white in light
+  // but NEAR-BLACK in dark (200 10% 6%), because dark --info is a light blue —
+  // so every condition node was drawing white on pale blue in dark mode.
+  // --destructive-foreground happens to be white in both themes, but naming the
+  // token is what stops it drifting the way --info did.
+  condition: { color: "hsl(var(--info))", ink: "hsl(var(--info-foreground))" },
   logic: { color: "hsl(var(--plate-neutral))", ink: "#ffffff" },
-  end: { color: "hsl(var(--destructive))", ink: "#ffffff" },
+  end: {
+    color: "hsl(var(--destructive))",
+    ink: "hsl(var(--destructive-foreground))",
+  },
   visual: { color: "hsl(var(--plate-neutral))", ink: "#ffffff" },
 };
 
+
+/**
+ * The mark for one handle of the channel branch node.
+ *
+ * Brand marks come from channel-logos, which is the one place allowed to carry
+ * a network's own colours — recolouring them is banned, and they are excluded
+ * from every sweep for that reason. The two handles with no network behind them
+ * get a neutral glyph instead of nothing, so every row keeps the same shape and
+ * the labels stay aligned down the node.
+ */
+function channelBranchMark(handleId: string): ReactNode {
+  if (hasChannelMark(handleId)) {
+    return <ChannelLogo channel={handleId} className="h-3 w-3" />;
+  }
+  if (handleId === "support") {
+    return <Headset className="h-3 w-3 text-muted-foreground" weight="fill" />;
+  }
+  return <Broadcast className="h-3 w-3 text-muted-foreground" weight="fill" />;
+}
 
 function getCategory(type: WorkflowNodeType): NodeCategory {
   if (type.startsWith("trigger_")) return "trigger";
@@ -388,6 +420,11 @@ function GenericWorkflowNode({ id, data, selected }: NodeProps) {
                   key={output.id}
                   id={output.id}
                   label={output.label}
+                  icon={
+                    nodeType === "condition_channel"
+                      ? channelBranchMark(output.id)
+                      : undefined
+                  }
                   registerRow={registerRow}
                 />
               ))}

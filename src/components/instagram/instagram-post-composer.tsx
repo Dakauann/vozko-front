@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ChartLineUp,
   FilmSlate,
   ImageSquare,
   Info,
@@ -9,7 +10,7 @@ import {
   UploadSimple,
   Warning,
 } from "@/components/icons";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
 import {
@@ -32,6 +33,15 @@ import {
 } from "./comment-rule-fields";
 import type { CommentRulePayload, InstagramMedia } from "@/lib/instagram/types";
 import { createCommentRuleAction, createInstagramMediaAction } from "@/app/actions/instagram";
+import {
+  getCommentAnalysisSettingsAction,
+  putCommentContainerSettingsAction,
+} from "@/app/actions/comment-analysis";
+import type { CommentAnalysisSettings } from "@/lib/comment-analysis/types";
+import type { OverrideDraft } from "@/lib/comment-analysis/override";
+import { overrideDraftFrom, overrideDraftToPut } from "@/lib/comment-analysis/override";
+import { OverrideFields } from "@/components/instagram/comment-analysis-override-fields";
+import { useWorkspace } from "@/contexts/workspace-context";
 import { useTranslations } from "next-intl";
 
 /**
@@ -44,6 +54,11 @@ import { useTranslations } from "next-intl";
  * Publishing is asynchronous on Instagram's side (container → poll → publish),
  * so the button stays busy until the backend has actually published and can
  * return the media id the rule needs.
+ *
+ * The comment analysis follows the same logic: a post's own analysis settings
+ * (instructions about what the post is, its own topics, on/off) only make sense
+ * if they are in place before the first comments land, so they are armed here
+ * and written the moment the media id exists.
  */
 
 type PostKind = "feed" | "reels" | "stories";
@@ -61,6 +76,8 @@ export function InstagramPostComposer({
   onPublished: (media: InstagramMedia) => void;
 }) {
   const t = useTranslations("instagram.composer");
+  const { can } = useWorkspace();
+  const canConfigureAnalysis = can("comment_analysis", "update");
 
   const [kind, setKind] = useState<PostKind>("feed");
   const [mediaUrl, setMediaUrl] = useState("");
@@ -76,14 +93,35 @@ export function InstagramPostComposer({
     privateText: "",
   });
 
+  // The post's own analysis settings, armed before it exists. The account's
+  // effective settings are loaded when the block opens, so every "inherit"
+  // placeholder says what it would inherit.
+  const [withAnalysis, setWithAnalysis] = useState(false);
+  const [accountAnalysis, setAccountAnalysis] = useState<CommentAnalysisSettings | null>(null);
+  const [analysisDraft, setAnalysisDraft] = useState<OverrideDraft | null>(null);
+  useEffect(() => {
+    if (!withAnalysis || accountAnalysis) return;
+    let cancelled = false;
+    void getCommentAnalysisSettingsAction("instagram", accountId).then((res) => {
+      if (cancelled || !res.settings) return;
+      setAccountAnalysis(res.settings);
+      setAnalysisDraft(overrideDraftFrom({ override: null, effective: res.settings }));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [withAnalysis, accountAnalysis, accountId]);
+
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
   const [publishing, setPublishing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Set when the post published but its rule did not: the post is live and must
-  // not be re-published, so the dialog switches to reporting that precisely.
+  // Set when the post published but its rule or its analysis settings did not:
+  // the post is live and must not be re-published, so the dialog switches to
+  // reporting that precisely.
   const [ruleWarning, setRuleWarning] = useState<string | null>(null);
+  const [analysisWarning, setAnalysisWarning] = useState<string | null>(null);
 
   // Reels and Stories are video surfaces here; a feed post takes a JPEG.
   const isVideo = kind !== "feed";
@@ -132,6 +170,7 @@ export function InstagramPostComposer({
     setPublishing(true);
     setError(null);
     setRuleWarning(null);
+    setAnalysisWarning(null);
 
     const result = await createInstagramMediaAction(accountId, {
       imageUrl: isVideo ? undefined : mediaUrl.trim(),
@@ -167,6 +206,18 @@ export function InstagramPostComposer({
       }
     }
 
+    // Same rule for the analysis settings: the post is live, so a failure here
+    // is reported as exactly that and never as a publish failure.
+    if (withAnalysis && analysisDraft) {
+      const put = overrideDraftToPut(analysisDraft);
+      const analysisResult = await putCommentContainerSettingsAction("instagram", accountId, result.media.id, put);
+      if (analysisResult.error) {
+        setPublishing(false);
+        setAnalysisWarning(analysisResult.error);
+        return;
+      }
+    }
+
     setPublishing(false);
     onPublished(result.media);
   };
@@ -184,13 +235,13 @@ export function InstagramPostComposer({
           <ElevatedDialogTitle>{t("title")}</ElevatedDialogTitle>
         </ElevatedDialogHeader>
 
-        {ruleWarning ? (
-          // The post published; only the rule failed. Say exactly that, and do
-          // not offer "publish" again.
+        {ruleWarning || analysisWarning ? (
+          // The post published; only the rule or the analysis settings failed.
+          // Say exactly that, and do not offer "publish" again.
           <div className="space-y-4 p-5">
             <p className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-warning-ink dark:text-warning-ink">
               <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" weight="fill" />
-              {t("publishedButRuleFailed", { error: ruleWarning })}
+              {ruleWarning ? t("publishedButRuleFailed", { error: ruleWarning }) : t("publishedButAnalysisFailed", { error: analysisWarning ?? "" })}
             </p>
             <Button title={t("done")} variant="primary" className="w-full" onClick={onClose} />
           </div>
@@ -297,6 +348,44 @@ export function InstagramPostComposer({
                   </div>
                 )}
               </div>
+
+              {canConfigureAnalysis && (
+                <div className="rounded-[--radius] border border-border p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0 space-y-0.5">
+                      <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                        <ChartLineUp className="h-3.5 w-3.5 text-primary-ink" weight="fill" />
+                        {t("analysisTitle")}
+                      </span>
+                      <p className="text-xs text-muted-foreground">{t("analysisHint")}</p>
+                    </div>
+                    <ElevatedSwitch
+                      checked={withAnalysis}
+                      onCheckedChange={setWithAnalysis}
+                      disabled={publishing}
+                      aria-label={t("analysisTitle")}
+                    />
+                  </div>
+
+                  {withAnalysis && (
+                    <div className="mt-4 border-t border-border pt-4">
+                      {accountAnalysis && analysisDraft ? (
+                        <>
+                          {!accountAnalysis.enabled && (
+                            <p className="mb-3 flex items-start gap-1.5 text-xs text-muted-foreground">
+                              <Info className="mt-0.5 h-3 w-3 shrink-0" />
+                              {t("analysisAccountOff")}
+                            </p>
+                          )}
+                          <OverrideFields id="composer" draft={analysisDraft} onChange={setAnalysisDraft} effective={accountAnalysis} disabled={publishing} />
+                        </>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">{t("analysisLoading")}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {error && (
                 <p className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-destructive-ink">

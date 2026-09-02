@@ -23,7 +23,8 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/elevated-design/elevated-tabs";
-import { GridFour, Robot } from "@/components/icons";
+import { GridFour, Robot, UsersThree } from "@/components/icons";
+import { CommentAnalysisTab } from "@/components/instagram/comment-analysis-tab";
 import { InstagramPostDetail } from "@/components/instagram/instagram-post-detail";
 import { InstagramPostGrid } from "@/components/instagram/instagram-post-grid";
 import { InstagramProfileHeader } from "@/components/instagram/instagram-profile-header";
@@ -176,6 +177,10 @@ export default function InstagramAccountProfilePage({
                     <Robot className="h-4 w-4" weight="fill" />
                     {t("tabs.automation")}
                   </TabsTrigger>
+                  <TabsTrigger value="audience" className="gap-1.5">
+                    <UsersThree className="h-4 w-4" weight="fill" />
+                    {t("tabs.audience")}
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="posts" className="mt-4">
@@ -216,6 +221,13 @@ export default function InstagramAccountProfilePage({
                 <TabsContent value="automation" className="mt-4 space-y-6">
                   <InstagramAutomationPanel account={account} onUpdated={setAccount} />
                   <InstagramCommentRulesPanel accountId={accountId} />
+                </TabsContent>
+
+                {/* What the audience says, aggregated: the comment-analysis
+                    engine's dashboard for this account. Off by default; the
+                    tab explains itself when it is. */}
+                <TabsContent value="audience" className="mt-4">
+                  <CommentAnalysisTab accountId={accountId} />
                 </TabsContent>
               </Tabs>
 

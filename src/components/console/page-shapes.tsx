@@ -166,7 +166,10 @@ export interface Instrument {
  * other bank, and nothing is tinted that is not reporting a state.
  */
 /** How many gauges sit across the strip at full width. */
-const STRIP_COLUMNS: Record<3 | 4 | 8, string> = {
+const STRIP_COLUMNS: Record<2 | 3 | 4 | 8, string> = {
+  // Two is for a column that stays narrow on every viewport (a dialog
+  // pane), so it does not widen with the window.
+  2: "grid-cols-2",
   3: "sm:grid-cols-2 xl:grid-cols-3",
   4: "sm:grid-cols-2 lg:grid-cols-4",
   // Eight is an operations readout, not a financial one: the figures are small
@@ -183,7 +186,7 @@ export function InstrumentStrip({
 }: {
   instruments: Instrument[];
   loading?: boolean;
-  columns?: 3 | 4 | 8;
+  columns?: 2 | 3 | 4 | 8;
   /** Operations density: smaller figure, tighter bank. */
   compact?: boolean;
   className?: string;
@@ -327,8 +330,11 @@ export function StatusRail({
             className={cn(
               "group relative min-w-[7rem] flex-1 border-l border-border px-3 pb-2.5 pt-2 text-left transition-colors duration-DEFAULT first:border-l-0",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              // Neutral ground with a 2px brand rule along the bottom edge —
+              // the same inset-shadow idiom .focus-field uses, so the selected
+              // bank is marked rather than washed.
               selected
-                ? "bg-primary-subtle text-primary-ink"
+                ? "bg-muted text-foreground shadow-[inset_0_-2px_0_0_hsl(var(--primary))]"
                 : "hover:bg-muted",
             )}
           >

@@ -3,6 +3,12 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
+import {
+  BUTTON_GHOST,
+  BUTTON_OUTLINE,
+  BUTTON_PRIMARY,
+  BUTTON_SECONDARY,
+} from "@/components/ui/button-surfaces";
 
 /**
  * Buttons.
@@ -22,6 +28,20 @@ import { cn } from "@/lib/utils";
  * one pixel on hover and drops back on press. The quiet variant draws its
  * border AS the first shadow layer (`0 0 0 1px`, inside `--elev-button-quiet`)
  * so border and elevation compose instead of double-drawing an edge.
+ *
+ * The FILLED variant now draws its edge the same way (`--elev-button-primary`).
+ * It has to: across the brand green's whole lightness range no single value
+ * carries both a readable label and a 3:1 boundary — at L38 the label measures
+ * APCA Lc 58.6 and the fill edge only 2.31:1 on white, which fails WCAG 1.4.11.
+ * The fill stays vivid and `--primary-edge` carries the boundary (3.63:1). On
+ * graphite the fill is already 9.52:1 against the canvas, so the same token
+ * equals the fill there and the ring composes to a no-op.
+ *
+ * The neutral surfaces (primary, secondary, outline, ghost) live in
+ * button-surfaces.ts, shared with elevated-design/button.tsx. Two components is
+ * a fair answer to two needs — this one exports `buttonVariants` as a class
+ * string for the shadcn primitives; that one is what people render — but two
+ * copies of the class strings never was, and they had already drifted.
  *
  * Corners are 6px off a real ramp. The outgoing identity squared everything to
  * 2px because the pill it replaced was the loudest tell of the identity BEFORE
@@ -43,27 +63,15 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: cn(
-          "bg-primary text-primary-foreground shadow-button",
-          "hover:bg-[hsl(var(--primary-hover))] hover:shadow-button-hover",
-          "active:bg-[hsl(var(--primary-active))] active:shadow-button",
-        ),
+        primary: BUTTON_PRIMARY,
         destructive: cn(
           "bg-destructive text-destructive-foreground shadow-button",
           "hover:brightness-95 hover:shadow-button-hover",
           "active:brightness-90 active:shadow-button",
         ),
-        secondary: cn(
-          "bg-card text-foreground shadow-quiet",
-          "hover:shadow-quiet-hover",
-          "active:bg-muted active:shadow-quiet",
-        ),
-        outline: cn(
-          "border border-border-strong bg-transparent text-foreground",
-          "hover:bg-muted active:bg-[hsl(var(--accent-hover))]",
-        ),
-        ghost:
-          "text-muted-foreground hover:bg-muted hover:text-foreground active:bg-[hsl(var(--accent-hover))]",
+        secondary: BUTTON_SECONDARY,
+        outline: BUTTON_OUTLINE,
+        ghost: BUTTON_GHOST,
         // The board's "Botão de Texto": accent ink, no box. Ink, not fill —
         // the fill value is tuned for a label to sit ON it, the ink for text
         // on a sheet. Underline arrives on hover so a row of these doesn't

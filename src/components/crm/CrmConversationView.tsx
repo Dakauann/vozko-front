@@ -1383,11 +1383,6 @@ interface CrmConversationViewProps {
     entryId: string,
     entryType: EntryType,
   ) => void;
-  onRemoveStage?: (
-    stageId: string,
-    entryId: string,
-    entryType: EntryType,
-  ) => void;
   availableLabels?: Label[];
   currentEntryLabels?: InboxEntryLabel[];
   onAssignLabel?: (
@@ -1423,7 +1418,6 @@ export default function CrmConversationView({
   entryAvailableTags = [],
   onEntryStageChange,
   onAssignStage,
-  onRemoveStage,
   availableLabels = [],
   currentEntryLabels = [],
   onAssignLabel,
@@ -1734,6 +1728,52 @@ export default function CrmConversationView({
 
   const currentTagId = currentEntryTags?.[0]?.stage_id ?? null;
 
+  /**
+   * The stages this conversation can actually move to.
+   *
+   * `entryAvailableTags` is the entry's OWN funnel, resolved per campaign by the
+   * board's read model. It wins. `tags` is the funnel the surrounding CRM has
+   * selected, and it is only a fallback for callers that pass no per-entry list.
+   *
+   * The precedence used to run the other way, which made this list wrong for every
+   * conversation on a custom funnel: it offered the default funnel's stages, and
+   * picking one moved the lead onto a funnel its own board does not render — so the
+   * lead vanished from the board instead of moving on it.
+   */
+  const stageChoices: { id: string; name: string; color: string }[] =
+    entryAvailableTags.length > 0
+      ? entryAvailableTags.map((t) => ({
+          id: t.stage_id,
+          name: t.name,
+          color: t.color,
+        }))
+      : tags.map((t) => ({ id: t.id, name: t.name, color: t.color }));
+
+  /**
+   * One conversation holds exactly one stage, so this is a MOVE, never a toggle.
+   *
+   * The list used to run two different operations depending on which branch fed
+   * it — move on one, assign/remove on the other — a leftover from when stages
+   * were multi-select tags. `AssignStage` deletes the current row before inserting,
+   * so "add" and "move" were already the same write; only the UI still disagreed.
+   */
+  const moveEntryToStage = (stageId: string) => {
+    if (onEntryStageChange) {
+      onEntryStageChange(
+        conversation.entry_id,
+        conversation.entry_type,
+        stageId,
+        currentTagId,
+      );
+      return;
+    }
+    onAssignStage?.(
+      stageId,
+      conversation.entry_id,
+      conversation.entry_type as EntryType,
+    );
+  };
+
   return (
     <div className="relative flex h-full flex-col">
 
@@ -1744,7 +1784,7 @@ export default function CrmConversationView({
       />
 
       {/* Floating Tag Selector */}
-      {(tags.length > 0 || entryAvailableTags.length > 0) && (
+      {stageChoices.length > 0 && (
         <div className="absolute left-3 top-3 z-30">
           <div className="relative">
             {onEntryStageChange || onAssignStage ? (
@@ -1800,88 +1840,43 @@ export default function CrmConversationView({
                     className="absolute left-0 top-full z-40 mt-2 w-48 rounded-[--radius] border border-border bg-card shadow-xl py-1.5 overflow-hidden"
                   >
                     <div className="px-3 py-1.5 text-2xs font-semibold text-muted-foreground ">
-                      {tags.length > 0 ? "Mover para" : "Etapas"}
+                      Mover para
                     </div>
                     <div className="max-h-64 overflow-y-auto">
-                      {tags.length > 0
-                        ? tags.map((tag) => {
-                            const isCurrentTag = tag.id === currentTagId;
-                            return (
-                              <button
-                                key={tag.id}
-                                onClick={() => {
-                                  if (!isCurrentTag && onEntryStageChange) {
-                                    onEntryStageChange(
-                                      conversation.entry_id,
-                                      conversation.entry_type,
-                                      tag.id,
-                                      currentTagId,
-                                    );
-                                  }
-                                  setTagSelectorOpen(false);
-                                }}
-                                disabled={isCurrentTag}
-                                className={cn(
-                                  "flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors",
-                                  isCurrentTag
-                                    ? "text-muted-foreground cursor-not-allowed bg-muted"
-                                    : "text-foreground hover:bg-muted",
-                                )}
-                              >
-                                <span
-                                  className="h-3 w-3 rounded-full ring-1 ring-black/10 flex-shrink-0"
-                                  style={{ backgroundColor: tag.color }}
-                                />
-                                <span className="text-xs font-medium truncate flex-1">
-                                  {tag.name}
-                                </span>
-                                {isCurrentTag && (
-                                  <span className="text-2xs text-muted-foreground flex-shrink-0">
-                                    atual
-                                  </span>
-                                )}
-                              </button>
-                            );
-                          })
-                        : entryAvailableTags.map((tag) => {
-                            const isAssigned = currentEntryTags.some(
-                              (et) => et.stage_id === tag.stage_id,
-                            );
-                            return (
-                              <button
-                                key={tag.stage_id}
-                                onClick={() => {
-                                  if (isAssigned && onRemoveStage) {
-                                    onRemoveStage(
-                                      tag.stage_id,
-                                      conversation.entry_id,
-                                      conversation.entry_type as EntryType,
-                                    );
-                                  } else if (!isAssigned && onAssignStage) {
-                                    onAssignStage(
-                                      tag.stage_id,
-                                      conversation.entry_id,
-                                      conversation.entry_type as EntryType,
-                                    );
-                                  }
-                                }}
-                                className="flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors text-foreground hover:bg-muted"
-                              >
-                                <span
-                                  className="h-3 w-3 rounded-full ring-1 ring-black/10 flex-shrink-0"
-                                  style={{ backgroundColor: tag.color }}
-                                />
-                                <span className="text-xs font-medium truncate flex-1">
-                                  {tag.name}
-                                </span>
-                                {isAssigned && (
-                                  <span className="text-2xs text-healthy-ink flex-shrink-0">
-                                    ✓
-                                  </span>
-                                )}
-                              </button>
-                            );
-                          })}
+                      {stageChoices.map((stageChoice) => {
+                        const isCurrentStage = stageChoice.id === currentTagId;
+                        return (
+                          <button
+                            key={stageChoice.id}
+                            onClick={() => {
+                              if (!isCurrentStage) {
+                                moveEntryToStage(stageChoice.id);
+                              }
+                              setTagSelectorOpen(false);
+                            }}
+                            disabled={isCurrentStage}
+                            className={cn(
+                              "flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors",
+                              isCurrentStage
+                                ? "text-muted-foreground cursor-not-allowed bg-muted"
+                                : "text-foreground hover:bg-muted",
+                            )}
+                          >
+                            <span
+                              className="h-3 w-3 rounded-full ring-1 ring-black/10 flex-shrink-0"
+                              style={{ backgroundColor: stageChoice.color }}
+                            />
+                            <span className="text-xs font-medium truncate flex-1">
+                              {stageChoice.name}
+                            </span>
+                            {isCurrentStage && (
+                              <span className="text-2xs text-muted-foreground flex-shrink-0">
+                                atual
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
                   </motion.div>
                 </>

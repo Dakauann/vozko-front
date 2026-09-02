@@ -2,10 +2,11 @@
 
 import type {
   ComponentPropsWithoutRef,
+  CSSProperties,
   MutableRefObject,
   ReactNode,
 } from "react";
-import { forwardRef, useCallback, useEffect, useId, useRef, useState } from "react";
+import { forwardRef, useCallback, useEffect, useId, useRef } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -56,10 +57,42 @@ const variantAlias: Record<TextareaVariant, BaseVariant> = {
   "vsl-cta": "vsl",
 };
 
-const sizeClasses: Record<ElevatedTextareaSize, string> = {
+/**
+ * Two sets of padding, for the same reason as the input: a field carrying a
+ * floating label has to leave room for the risen label above the first line of
+ * text. A textarea with no label keeps the tighter block.
+ */
+const floatingSize: Record<ElevatedTextareaSize, string> = {
+  sm: "text-sm leading-5 pt-[19px] pb-2",
+  default: "text-sm leading-5 pt-[21px] pb-2.5",
+  lg: "text-base leading-6 pt-[23px] pb-3",
+};
+
+const compactSize: Record<ElevatedTextareaSize, string> = {
   sm: "text-sm py-2.5",
   default: "text-sm py-3.5",
   lg: "text-base py-4",
+};
+
+/** Risen position, and — unlike an input — where the label WAITS.
+ *
+ *  A textarea is tall, so "centred" would drop the label into the middle of an
+ *  empty box. It rests at the NATURAL top padding instead — where the first
+ *  line would sit in a textarea that reserved no room for a risen label — so an
+ *  empty one reads as an ordinary padded textarea. Parking it on the real first
+ *  line (11px lower, behind the reserved padding) left it visibly floating. */
+const labelTop: Record<ElevatedTextareaSize, string> = {
+  sm: "0.1875rem",
+  default: "0.25rem",
+  lg: "0.375rem",
+};
+
+/** The resting label sits ON the first text line: border + padding-top, plus
+ *  half the difference between the line box and the label's own 18.2px. */
+const labelRest: Record<ElevatedTextareaSize, string> = {
+  sm: "0.75rem",
+  default: "1rem",
+  lg: "1.25rem",
 };
 
 const basePadding: Record<ElevatedTextareaSize, string> = {
@@ -80,37 +113,44 @@ const iconPosition: Record<ElevatedTextareaSize, string> = {
   lg: "left-5 top-4",
 };
 
-
-
-// Every text-entry variant is a white sheet with a hairline, and every one of
-// them focuses the same way: the brand underline drawn as an inset shadow plus
-// a soft halo. The outgoing versions stacked `bg-card` and `bg-muted` on the
-// same element — the later class won, so every field rendered as a grey sunk
-// track regardless of which variant the page asked for.
-const FIELD =
-  "bg-card text-foreground border border-border-strong hover:border-[hsl(var(--muted-foreground)/0.5)] focus-visible:border-border-strong focus-visible:shadow-[inset_0_-2px_0_0_hsl(var(--primary))] focus-visible:ring-2 focus-visible:ring-primary/15";
+/** Sheet in light, well in dark — see elevated-input for the reasoning. */
+const FIELD = cn(
+  "bg-card dark:bg-muted text-foreground border border-control-edge",
+  "hover:border-[hsl(var(--muted-foreground)/0.5)]",
+  "focus-visible:border-control-edge",
+  "focus-visible:shadow-[inset_0_-2px_0_0_hsl(var(--primary-edge))]",
+  "focus-visible:ring-2 focus-visible:ring-primary/15",
+);
 
 const textareaVariantClasses: Record<BaseVariant, string> = {
   primary:
     "bg-primary text-primary-foreground border border-transparent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
   secondary: FIELD,
   outline: FIELD,
-  ghost:
-    "bg-card text-foreground border border-transparent hover:border-border focus-visible:border-border-strong focus-visible:ring-2 focus-visible:ring-primary/15",
+  ghost: cn(
+    "bg-transparent text-foreground border border-transparent hover:bg-muted",
+    "focus-visible:bg-card dark:focus-visible:bg-muted focus-visible:border-control-edge",
+    "focus-visible:shadow-[inset_0_-2px_0_0_hsl(var(--primary-edge))]",
+    "focus-visible:ring-2 focus-visible:ring-primary/15",
+  ),
   vsl: FIELD,
   action:
     "bg-primary text-primary-foreground border border-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-  search:
-    "bg-muted text-foreground border border-transparent hover:border-border focus-visible:bg-card focus-visible:border-border-strong focus-visible:ring-2 focus-visible:ring-primary/15",
+  search: FIELD,
 };
 
+const ERROR_FIELD = cn(
+  "border-destructive hover:border-destructive",
+  "focus-visible:border-destructive",
+  "focus-visible:shadow-[inset_0_-2px_0_0_hsl(var(--destructive))]",
+  "focus-visible:ring-destructive/15",
+);
+
 const disabledClasses =
-  "disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-muted disabled:text-muted-foreground disabled:border-muted";
+  "disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-muted disabled:text-muted-foreground disabled:border-border";
 
 const iconColorByVariant: Record<BaseVariant, string> = {
   primary: "text-primary-foreground",
-  // A resting field is not commit, selection or focus, so its icon carries no
-  // brand ink — the focus underline is where the green arrives.
   secondary: "text-muted-foreground",
   outline: "text-muted-foreground",
   ghost: "text-muted-foreground",
@@ -118,24 +158,6 @@ const iconColorByVariant: Record<BaseVariant, string> = {
   action: "text-primary-foreground",
   search: "text-muted-foreground",
 };
-
-
-
-// A resting field does not float. These were hand-tuned 20-38px blurs that
-// put a soft glow under every field on the page. `none` also leaves the
-// box-shadow slot free for the focus underline to occupy.
-const textareaShadowByVariant: Record<BaseVariant, string> = {
-  primary: "none",
-  secondary: "none",
-  outline: "none",
-  ghost: "none",
-  vsl: "none",
-  action: "none",
-  search: "none",
-};
-
-const disabledShadow =
-  "var(--elev-1)";
 
 const ElevatedTextarea = forwardRef<HTMLTextAreaElement, ElevatedTextareaProps>(
   (
@@ -148,8 +170,12 @@ const ElevatedTextarea = forwardRef<HTMLTextAreaElement, ElevatedTextareaProps>(
       onFocus,
       onBlur,
       onChange,
+      "aria-invalid": ariaInvalid,
+      "aria-describedby": ariaDescribedBy,
       icon,
       disabled,
+      placeholder,
+      error,
       rows = 4,
       variant = "secondary",
       controlSize = "default",
@@ -161,17 +187,14 @@ const ElevatedTextarea = forwardRef<HTMLTextAreaElement, ElevatedTextareaProps>(
   ) => {
     const fallbackId = useId();
     const textareaId = id ?? fallbackId;
-    const [focused, setFocused] = useState(false);
-    const [hasValue, setHasValue] = useState(() => {
-      const hasValueProp =
-        value !== undefined && value !== "" && value !== null;
-      const hasDefault =
-        textareaProps.defaultValue !== undefined &&
-        textareaProps.defaultValue !== "" &&
-        textareaProps.defaultValue !== null;
-      return hasValueProp || hasDefault;
-    });
+    const errorId = `${textareaId}-error`;
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+    const floatingLabel = label?.trim() ? label.trim() : undefined;
+    const isFloating = Boolean(floatingLabel);
+    // See elevated-input: the label rides :placeholder-shown, so a floating
+    // field always carries a placeholder even when it has no hint to give.
+    const nativePlaceholder = isFloating ? (placeholder ?? " ") : placeholder;
 
     const combinedRef = useCallback(
       (el: HTMLTextAreaElement | null) => {
@@ -201,107 +224,104 @@ const ElevatedTextarea = forwardRef<HTMLTextAreaElement, ElevatedTextareaProps>(
       adjustHeight();
     }, [value, adjustHeight]);
 
-    useEffect(() => {
-      const checkValue = () => {
-        if (textareaRef.current) {
-          const currentValue = textareaRef.current.value !== "";
-          const shouldHaveValue =
-            currentValue || (value !== undefined && value !== "");
-
-          setHasValue(Boolean(shouldHaveValue));
-          return;
-        }
-
-        setHasValue(value !== undefined && value !== "" && value !== null);
-      };
-
-      checkValue();
-
-      const interval = setInterval(checkValue, 150);
-
-      return () => clearInterval(interval);
-    }, [value]);
-
-    const handleFocus = (event: React.FocusEvent<HTMLTextAreaElement>) => {
-      setFocused(true);
-      onFocus?.(event);
-    };
-
-    const handleBlur = (event: React.FocusEvent<HTMLTextAreaElement>) => {
-      setFocused(false);
-      setHasValue(event.target.value !== "");
-      onBlur?.(event);
-    };
-
     const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setHasValue(event.target.value !== "");
       onChange?.(event);
       adjustHeight();
     };
 
     const resolvedVariant = variantAlias[variant] ?? "secondary";
     const resolvedSize: ElevatedTextareaSize = controlSize ?? "default";
+    const isField =
+      resolvedVariant !== "primary" && resolvedVariant !== "action";
 
-    const boxShadowValue = disabled
-      ? disabledShadow
-      : textareaShadowByVariant[resolvedVariant];
+    const fieldVars = {
+      "--field-label-top": labelTop[resolvedSize],
+      "--field-label-rest": labelRest[resolvedSize],
+      "--field-label-rest-transform": "none",
+      "--field-label-left": icon ? "3.25rem" : "0.75rem",
+    } as CSSProperties;
 
     return (
-      <div className={cn("w-full", className)}>
-        {label ? (
-          <label htmlFor={textareaId} className="legend mb-1 block max-w-full truncate">
-            {label}
-          </label>
-        ) : null}
+      <div className={cn("w-full", className)} style={fieldVars}>
         <div className="relative w-full">
-        {icon ? (
-          <span
-            className={cn(
-              "pointer-events-none absolute z-[1] flex items-center",
-              iconPosition[resolvedSize],
-              iconColorByVariant[resolvedVariant],
-            )}
-          >
-            {icon}
-          </span>
-        ) : null}
+          {icon ? (
+            <span
+              className={cn(
+                "pointer-events-none absolute z-[1] flex items-center",
+                iconPosition[resolvedSize],
+                iconColorByVariant[resolvedVariant],
+              )}
+            >
+              {icon}
+            </span>
+          ) : null}
 
-        <textarea
-          {...textareaProps}
-          id={textareaId}
-          ref={combinedRef}
-          value={value}
-          rows={autoResize ? 1 : rows}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          onChange={handleChange}
-          disabled={disabled}
-          className={cn(
-            "peer block w-full font-medium transition-all duration-200 ease-out focus-visible:outline-none placeholder:text-transparent",
-            autoResize ? "resize-none" : "resize-y",
-            resolvedVariant === "ghost"
-              ? "rounded-[--radius]"
-              : resolvedVariant === "action" || resolvedVariant === "search"
+          <textarea
+            {...textareaProps}
+            id={textareaId}
+            ref={combinedRef}
+            value={value}
+            rows={autoResize ? 1 : rows}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            onChange={handleChange}
+            disabled={disabled}
+            placeholder={nativePlaceholder}
+            aria-invalid={error ? true : ariaInvalid}
+            aria-describedby={
+              error ? cn(errorId, ariaDescribedBy) : ariaDescribedBy
+            }
+            className={cn(
+              "peer block w-full font-medium transition-[background-color,border-color,box-shadow] duration-150 ease-out focus-visible:outline-none",
+              // See elevated-input: while empty, the label owns the value slot.
+              isFloating
+                ? "placeholder:text-transparent"
+                : "placeholder:text-muted-foreground",
+              autoResize ? "resize-none" : "resize-y",
+              resolvedVariant === "search"
                 ? "rounded-lg"
                 : "rounded-[--radius]",
-            sizeClasses[resolvedSize],
-            icon ? iconPadding[resolvedSize] : basePadding[resolvedSize],
-            textareaVariantClasses[resolvedVariant],
-            disabledClasses,
-            autoResize && "overflow-hidden",
-            textareaClassName,
-          )}
-          style={{
-            boxShadow: boxShadowValue,
-            minHeight: autoResize ? "44px" : undefined,
-            maxHeight: autoResize ? `${maxHeight}px` : undefined,
-          }}
-        />
+              isFloating
+                ? floatingSize[resolvedSize]
+                : compactSize[resolvedSize],
+              icon ? iconPadding[resolvedSize] : basePadding[resolvedSize],
+              textareaVariantClasses[resolvedVariant],
+              error && isField && ERROR_FIELD,
+              disabledClasses,
+              autoResize && "overflow-hidden",
+              textareaClassName,
+            )}
+            style={{
+              minHeight: autoResize
+                ? isFloating
+                  ? "60px"
+                  : "44px"
+                : undefined,
+              maxHeight: autoResize ? `${maxHeight}px` : undefined,
+            }}
+          />
 
-        {/* Static legend above the field — see elevated-input for the reasoning:
-            a label that animates up through its own border belongs to a
-            different system than this one. */}
+          {/* Follows the textarea so `peer ~` can read its state. The label
+              waits on the first text line rather than the middle of the box —
+              a textarea's first line is not its centre. */}
+          {isFloating ? (
+            <label
+              htmlFor={textareaId}
+              className={cn("field-label", error && "field-label-invalid")}
+            >
+              {floatingLabel}
+            </label>
+          ) : null}
         </div>
+
+        {error ? (
+          <p
+            id={errorId}
+            className="mt-1 text-xs font-medium text-destructive-ink"
+          >
+            {error}
+          </p>
+        ) : null}
       </div>
     );
   },

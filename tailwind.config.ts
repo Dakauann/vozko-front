@@ -109,6 +109,11 @@ export default {
 				/* Accent TEXT that clears AA on a white sheet. --primary is a
 				   fill colour and is not safe at body size. */
 				'primary-ink': 'hsl(var(--primary-ink))',
+				/* The filled button's boundary. The fill is tuned to carry a
+				   label; no single green does both, so the edge is its own
+				   value. Consumed through shadow-button-primary, not as a
+				   border — see the elevation stack. */
+				'primary-edge': 'hsl(var(--primary-edge))',
 				/* The trace-line/dot-matrix ornament colour — deeper than the
 				   brand fill in light so it survives alpha over white, the
 				   board hex in dark. */
@@ -133,6 +138,11 @@ export default {
 				/* The deliberate step up from a hairline: field edges, resting
 				   controls, the rule under a table head. */
 				'border-strong': 'hsl(var(--border-strong))',
+				/* The edge that IS the control — outline buttons, field edges.
+				   --border-strong is a hairline for rules and table heads and
+				   measures 1.79:1 light / 2.08:1 dark; this clears 3:1 against
+				   the worst ground a control sits on (--muted, on hover). */
+				'control-edge': 'hsl(var(--control-edge))',
 				'rule-strong': 'hsl(var(--rule-strong))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
@@ -207,6 +217,8 @@ export default {
 				/* Named steps for the two controls that own their own depth. */
 				button: 'var(--elev-button)',
 				'button-hover': 'var(--elev-button-hover)',
+				'button-primary': 'var(--elev-button-primary)',
+				'button-primary-hover': 'var(--elev-button-primary-hover)',
 				quiet: 'var(--elev-button-quiet)',
 				'quiet-hover': 'var(--elev-button-quiet-hover)'
 			},

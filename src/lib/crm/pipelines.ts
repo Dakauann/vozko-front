@@ -20,3 +20,27 @@ export function listPipelines(objectType: PipelineObjectType = 'conversation') {
     const qs = objectType ? `?objectType=${encodeURIComponent(objectType)}` : '';
     return apiClient<Pipeline[]>(`/pipelines${qs}`, { method: 'GET' });
 }
+
+export interface CreatePipelineInput {
+    name: string;
+    objectType?: PipelineObjectType;
+    /**
+     * Duplicate an existing funnel's stages into the new one. Omitted, the server
+     * seeds the product's default stages — either way the funnel arrives with
+     * columns, because an empty one renders a board nobody can add to.
+     */
+    copyStagesFromPipelineId?: string;
+}
+
+export function createPipeline(input: CreatePipelineInput) {
+    return apiClient<Pipeline>('/pipelines', {
+        method: 'POST',
+        body: JSON.stringify({
+            name: input.name,
+            objectType: input.objectType ?? 'conversation',
+            ...(input.copyStagesFromPipelineId
+                ? { copyStagesFromPipelineId: input.copyStagesFromPipelineId }
+                : {}),
+        }),
+    });
+}

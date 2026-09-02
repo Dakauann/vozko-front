@@ -113,7 +113,8 @@ export default function CrmStageFilter({
                           onClick={() => toggle(stage.id)}
                           className={cn(
                             "flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors duration-100",
-                            isSelected ? "bg-primary-subtle text-primary-ink" : "hover:bg-muted",
+                            // Neutral ground; the checkbox is the mark.
+                            isSelected ? "bg-muted" : "hover:bg-muted",
                           )}
                         >
                           {/* Color dot */}

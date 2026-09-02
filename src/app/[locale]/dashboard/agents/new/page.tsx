@@ -1,171 +1,163 @@
 "use client";
 
-import {
-  CaretRight,
-  GraduationCap,
-  Robot,
-  Sparkle,
-  Wrench,
-} from "@/components/icons";
+import { CaretRight, GraduationCap, Robot, Wrench } from "@/components/icons";
+import { type AgentEditMode, recallCreateMode } from "@/lib/agents/edit-mode";
+import { useEffect, useState } from "react";
 
-import BeginnerAgentWizard from "./BeginnerAgentWizard";
-import CreateNewAgentForm from "./CreateNewAgentForm";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-type Mode = "chooser" | "beginner" | "professional";
-
+/**
+ * The create-mode chooser as a page, matching the edit chooser it forks from.
+ *
+ * It used to be two side-by-side marketing cards — a "Recomendado" pill, a
+ * feature bullet list each, a display-size heading and a solid CTA button per
+ * card — inside a single page that swapped the wizard in with useState. Two
+ * things were wrong with that. The pattern was a pricing table, and this is a
+ * fork in an operator's workday: they are picking a door, not evaluating a
+ * purchase, and the bullets sold a decision they make in a second and can undo
+ * at any point. And keeping both editors behind component state meant the mode
+ * was not addressable — no deep link into the wizard, no back button that meant
+ * anything, and a refresh dumped you back at the chooser mid-form.
+ *
+ * Now it mirrors the edit flow exactly: two quiet task-named rows here, and a
+ * real route per editor. The mode the operator used last leads as the marked
+ * row, so the common path is one click and the choice is never re-reasoned.
+ */
 export default function NewAgentPage() {
   const router = useRouter();
   const t = useTranslations("agents.new");
   const tChooser = useTranslations("agents.new.chooser");
-  const [mode, setMode] = useState<Mode>("chooser");
 
   return (
     <main className="w-full space-y-6">
-      <div>
-        <DashboardPageHeader
-          back={{
-            onClick: () => {
-              if (mode === "chooser") {
-                router.push("/dashboard/agents");
-              } else {
-                setMode("chooser");
-              }
-            },
-            label:
-              mode === "chooser" ? t("backButton") : tChooser("backToChooser"),
-          }}
-          icon={<Robot className="h-5 w-5" weight="fill" />}
-          badge={t("badge")}
-          title={t("title")}
-          description={
-            mode === "chooser" ? tChooser("description") : t("description")
-          }
-        />
-      </div>
-
-      {mode === "chooser" && (
-        <div className="flex flex-col gap-4 sm:flex-row sm:justify-center sm:gap-5">
-          <ChooserCard
-            Icon={GraduationCap}
-            iconGradient="tile-info"
-            title={tChooser("beginner.title")}
-            badge={tChooser("beginner.badge")}
-            description={tChooser("beginner.description")}
-            bullets={[
-              tChooser("beginner.bullets.0"),
-              tChooser("beginner.bullets.1"),
-              tChooser("beginner.bullets.2"),
-            ]}
-            cta={tChooser("beginner.cta")}
-            onClick={() => setMode("beginner")}
-            recommended
-            recommendedLabel={tChooser("beginner.recommended")}
-          />
-          <ChooserCard
-            Icon={Wrench}
-            iconGradient="tile-brand"
-            title={tChooser("professional.title")}
-            badge={tChooser("professional.badge")}
-            description={tChooser("professional.description")}
-            bullets={[
-              tChooser("professional.bullets.0"),
-              tChooser("professional.bullets.1"),
-              tChooser("professional.bullets.2"),
-            ]}
-            cta={tChooser("professional.cta")}
-            onClick={() => setMode("professional")}
-          />
-        </div>
-      )}
-
-      {mode === "beginner" && (
-        <div>
-          <BeginnerAgentWizard
-            onSwitchMode={() => setMode("professional")}
-            onSaved={(agent) => {
-              router.push(`/dashboard/agents/${agent.id}`);
-            }}
-          />
-        </div>
-      )}
-
-      {mode === "professional" && (
-        <div>
-          <CreateNewAgentForm />
-        </div>
-      )}
+      <DashboardPageHeader
+        back={{
+          onClick: () => router.push("/dashboard/agents"),
+          label: t("backButton"),
+        }}
+        icon={<Robot className="h-5 w-5" weight="fill" />}
+        badge={t("badge")}
+        title={t("title")}
+        description={tChooser("description")}
+      />
+      <ModeList />
     </main>
   );
 }
 
-interface ChooserCardProps {
-  Icon: typeof Robot;
-  iconGradient: string;
-  title: string;
-  badge: string;
-  description: string;
-  bullets: string[];
-  cta: string;
-  onClick: () => void;
-  recommended?: boolean;
-  recommendedLabel?: string;
-}
+function ModeList() {
+  const tChooser = useTranslations("agents.new.chooser");
 
-function ChooserCard({
-  Icon,
-  iconGradient,
-  title,
-  badge,
-  description,
-  bullets,
-  cta,
-  onClick,
-  recommended,
-  recommendedLabel,
-}: ChooserCardProps) {
+  // Remembered beats the default. Resolved client-side, so the marker appears
+  // after mount — null during SSR keeps the markup stable.
+  const [lead, setLead] = useState<{
+    mode: AgentEditMode;
+    remembered: boolean;
+  } | null>(null);
+
+  useEffect(() => {
+    const remembered = recallCreateMode();
+    setLead(
+      remembered
+        ? { mode: remembered, remembered: true }
+        : // Nothing remembered: the guided door leads. It is the one that
+          // explains itself, which is what a first agent needs.
+          { mode: "beginner", remembered: false },
+    );
+  }, []);
+
+  const modes: {
+    mode: AgentEditMode;
+    title: string;
+    description: string;
+    icon: React.ReactNode;
+    tile: string;
+  }[] = [
+    {
+      mode: "beginner",
+      title: tChooser("beginner.title"),
+      description: tChooser("beginner.description"),
+      icon: <GraduationCap className="h-5 w-5" weight="bold" />,
+      tile: "tile-info",
+    },
+    {
+      mode: "professional",
+      title: tChooser("professional.title"),
+      description: tChooser("professional.description"),
+      icon: <Wrench className="h-5 w-5" weight="bold" />,
+      tile: "tile-brand",
+    },
+  ];
+
+  // The lead mode renders first, so keyboard and reading order agree with the
+  // visual emphasis instead of contradicting it.
+  const ordered = lead
+    ? [...modes].sort((a, b) =>
+        a.mode === lead.mode ? -1 : b.mode === lead.mode ? 1 : 0,
+      )
+    : modes;
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="group relative flex h-full max-w-xl flex-col rounded-lg border border-border bg-card p-6 text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-    >
-      {recommended && recommendedLabel ? (
-        <span className="absolute right-5 top-5 inline-flex items-center gap-1 rounded-[--radius] bg-primary px-3 py-1 text-2xs font-semibold text-primary-foreground shadow">
-          <Sparkle className="h-3 w-3" weight="fill" />
-          {recommendedLabel}
-        </span>
-      ) : null}
-      <div
-        className={`flex h-10 w-10 items-center justify-center rounded-lg ${iconGradient}`}
-      >
-        <Icon className="h-5 w-5" weight="fill" />
-      </div>
-      <p className="mt-5 text-xs font-semibold text-muted-foreground">
-        {badge}
-      </p>
-      <h2 className="mt-1 font-display text-2xl font-semibold tracking-[0.01em] text-foreground">{title}</h2>
-      <p className="mt-2 text-sm text-muted-foreground">{description}</p>
-      <ul className="mt-4 space-y-2">
-        {bullets.map((b, i) => (
-          <li
-            key={i}
-            className="flex items-start gap-2 text-sm text-foreground"
-          >
-            <span className="mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-            <span>{b}</span>
-          </li>
-        ))}
+    <section aria-label={tChooser("legend")} className="mx-auto w-full max-w-2xl">
+      <h2 className="legend mb-2">{tChooser("legend")}</h2>
+      <ul className="flex flex-col gap-3">
+        {ordered.map(({ mode, title, description, icon, tile }) => {
+          const isLead = lead?.mode === mode;
+          return (
+            <li key={mode}>
+              <Link
+                href={`/dashboard/agents/new/${mode}`}
+                className={cn(
+                  "group flex items-center gap-4 rounded-xl border bg-card p-4 shadow-sm transition-all duration-DEFAULT",
+                  "hover:-translate-y-px hover:shadow motion-reduce:transform-none",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                  "max-sm:min-h-[34px] sm:p-5",
+                  isLead ? "border-border-strong" : "border-border",
+                )}
+              >
+                <span
+                  className={cn(
+                    "flex h-11 w-11 shrink-0 items-center justify-center rounded-[--radius] shadow-sm",
+                    tile,
+                  )}
+                >
+                  {icon}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span
+                      className={cn(
+                        "text-sm text-foreground",
+                        isLead ? "font-semibold" : "font-medium",
+                      )}
+                    >
+                      {title}
+                    </span>
+                    {isLead && lead ? (
+                      <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-2xs font-medium text-primary-ink">
+                        {lead.remembered
+                          ? tChooser("lastUsed")
+                          : tChooser("suggested")}
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className="mt-0.5 block text-sm text-muted-foreground">
+                    {description}
+                  </span>
+                </span>
+                <CaretRight
+                  className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-DEFAULT group-hover:translate-x-0.5 motion-reduce:transform-none"
+                  weight="bold"
+                />
+              </Link>
+            </li>
+          );
+        })}
       </ul>
-      <div className="mt-auto flex items-center justify-between pt-6">
-        <span className="text-sm font-semibold text-primary-ink">{cta}</span>
-        <span className="flex h-9 w-9 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground shadow-md transition-transform group-hover:translate-x-1">
-          <CaretRight className="h-4 w-4" weight="bold" />
-        </span>
-      </div>
-    </button>
+    </section>
   );
 }

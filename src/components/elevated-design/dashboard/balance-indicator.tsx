@@ -709,7 +709,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                     className={cn(
                       "flex flex-col items-center gap-2 rounded-[--radius] border p-4 transition-colors",
                       paymentMethod === "pix"
-                        ? "border-border-strong bg-muted text-foreground"
+                        ? "border-control-edge bg-muted text-foreground"
                         : "border-border bg-card text-muted-foreground hover:border-foreground/20",
                     )}
                   >
@@ -724,7 +724,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                     className={cn(
                       "flex flex-col items-center gap-2 rounded-[--radius] border p-4 transition-colors",
                       paymentMethod === "boleto"
-                        ? "border-border-strong bg-muted text-foreground"
+                        ? "border-control-edge bg-muted text-foreground"
                         : "border-border bg-card text-muted-foreground hover:border-foreground/20",
                     )}
                   >

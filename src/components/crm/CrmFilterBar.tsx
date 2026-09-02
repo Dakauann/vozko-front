@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FunnelSimple, Tag, X } from "@/components/icons";
+import { FunnelSimple, Stack, Tag, X } from "@/components/icons";
 
-import type { Label } from "@/lib/conversations/types";
+import type { Label, Stage } from "@/lib/conversations/types";
 import type { CrmFilter } from "@/lib/crm/board";
 import {
   emptyCrmFilter,
@@ -54,6 +54,12 @@ export interface CrmFilterBarProps {
   value: CrmFilter;
   onChange: (filter: CrmFilter) => void;
   labels: Label[];
+  /**
+   * Pipeline stages for the "Etapa" control. Omitted (or empty) hides it — the
+   * opportunity board passes its own axis, and a stage filter on a board that is
+   * already grouped BY stage would just be a column hider.
+   */
+  stages?: Stage[];
   workspaceId?: string;
   // Value min/max only makes sense for the opportunity board; off by default so
   // the conversation board omits it. The bar stays otherwise identical.
@@ -70,6 +76,7 @@ export default function CrmFilterBar({
   value,
   onChange,
   labels,
+  stages = [],
   workspaceId,
   showValue = false,
   showStatus = true,
@@ -98,6 +105,7 @@ export default function CrmFilterBar({
   // Every control derives straight from `value`, so the bar is fully controlled
   // and hydrates from a URL-restored filter with no internal mirror to sync.
   const statuses = readValues(value, "status", "in");
+  const stageIds = readValues(value, "stage", "in");
   const labelIds = readValues(value, "label", "in");
   const ownerId = readValues(value, "owner", "eq")[0] ?? "";
   const ownerUnassigned = predicates(value).some(
@@ -117,6 +125,14 @@ export default function CrmFilterBar({
       onChange(withPredicate(value, field, "in", next));
     },
     [onChange, value],
+  );
+
+  const stageOptions = useMemo(
+    () =>
+      [...stages]
+        .sort((a, b) => a.position - b.position)
+        .map((s) => ({ value: s.id, label: s.name, color: s.color })),
+    [stages],
   );
 
   const labelOptions = useMemo(
@@ -191,6 +207,26 @@ export default function CrmFilterBar({
           onClear={() => onChange(withPredicate(value, "status", "in", []))}
           searchPlaceholder="Buscar status..."
           emptyMessage="Nenhum status"
+        />
+      ) : null}
+
+      {/*
+        Etapa. Rides the same (field, operator) plumbing every other control
+        here uses — `stage in [...]`, which the backend already compiles to the
+        entry_stages membership subquery. Multi-select because "Proposta OR
+        Negociação" is the question people actually ask, and an `in` predicate
+        is how one control expresses OR without a second filter group.
+      */}
+      {stageOptions.length > 0 ? (
+        <FilterMultiSelect
+          triggerLabel="Etapa"
+          icon={<Stack weight="bold" className="h-4 w-4" />}
+          options={stageOptions}
+          selected={stageIds}
+          onToggle={(v) => toggleInValues("stage", stageIds, v)}
+          onClear={() => onChange(withPredicate(value, "stage", "in", []))}
+          searchPlaceholder="Buscar etapa..."
+          emptyMessage="Nenhuma etapa"
         />
       ) : null}
 

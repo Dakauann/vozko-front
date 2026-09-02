@@ -46,7 +46,6 @@ import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
 import Link from "next/link";
-import type { StageGroup } from "@/lib/stage-groups/types";
 import TemplateEditModal from "@/components/whatsapp/TemplateEditModal";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import type { WhatsAppCampaign } from "@/lib/whatsapp-campaigns/types";
@@ -57,7 +56,6 @@ import {
   getBusinessPhoneByIdAction,
   listBusinessPhonesAction,
 } from "@/app/actions/whatsapp-business-phones";
-import { listStageGroupsAction } from "@/app/actions/stage-groups";
 import { listPipelinesAction } from "@/app/actions/crm-board";
 import {
   getWorkflowAction,
@@ -362,8 +360,6 @@ export default function CreateWhatsAppCampaignForm({
   );
   const [loadingModels, setLoadingModels] = useState(false);
   const modelsLoadedRef = useRef(!!aiModelsProp?.length);
-  const [stageGroups, setTagGroups] = useState<StageGroup[]>([]);
-  const [selectedStageGroupId, setSelectedTagGroupId] = useState<string>("");
   // Conversation funnel (pipeline) this campaign routes to; editable in edit mode.
   const [pipelineOptions, setPipelineOptions] = useState<
     { id: string; name: string }[]
@@ -397,16 +393,11 @@ export default function CreateWhatsAppCampaignForm({
     }
   }, [isSubmitting, router]);
 
+  // Load conversation funnels for BOTH modes: a campaign is linked to a funnel
+  // when it is created, not only when it is edited. Creating used to offer stage
+  // groups here instead — a separate vocabulary for the same field, from back when
+  // a group was the only way to get a funnel at all.
   useEffect(() => {
-    if (mode !== "create") return;
-    listStageGroupsAction().then((result) => {
-      if (!result.error) setTagGroups(result.stageGroups);
-    });
-  }, [mode]);
-
-  // Load conversation funnels so an existing campaign can be (re)assigned to one.
-  useEffect(() => {
-    if (mode !== "edit") return;
     let active = true;
     listPipelinesAction("conversation").then(({ pipelines }) => {
       if (active) setPipelineOptions(pipelines ?? []);
@@ -414,7 +405,7 @@ export default function CreateWhatsAppCampaignForm({
     return () => {
       active = false;
     };
-  }, [mode]);
+  }, []);
 
   const campaignSchema = useMemo(
     () =>
@@ -1584,10 +1575,6 @@ export default function CreateWhatsAppCampaignForm({
           businessPhoneId: data.businessPhoneId,
           agentId: agentResponsesEnabled ? data.agentId || null : null,
           workflowId: workflowEnabled ? data.workflowId || null : null,
-          ...(selectedStageGroupId
-            ? { stageGroupId: selectedStageGroupId }
-            : {}),
-          ...(selectedPipelineId ? { pipelineId: selectedPipelineId } : {}),
           enableAgentResponses: agentResponsesEnabled,
           enableWorkflow: workflowEnabled,
           preferAudio: agentResponsesEnabled ? data.preferAudio : false,
@@ -1610,6 +1597,9 @@ export default function CreateWhatsAppCampaignForm({
             !organic && scheduleEnabled && data.scheduledStart
               ? data.scheduledStart
               : undefined,
+          // The funnel this campaign's conversations live on. Omitted means the
+          // workspace default; the server resolves it either way.
+          ...(selectedPipelineId ? { pipelineId: selectedPipelineId } : {}),
           phoneNumbers: organic
             ? []
             : (data.phoneNumbers ?? []).map((pn) => {
@@ -1769,51 +1759,33 @@ export default function CreateWhatsAppCampaignForm({
               </p>
             </div>
 
-            {mode === "create" && stageGroups.length > 0 && (
-              <div>
-                <ElevatedCommandSelect
-                  label={t("basicInfo.StageGroup")}
-                  options={[
-                    { value: "", label: t("basicInfo.defaultTags") },
-                    ...stageGroups.map((tg) => ({
-                      value: tg.id,
-                      label: `${tg.name} (${tg.items.length})`,
-                    })),
-                  ]}
-                  value={selectedStageGroupId}
-                  onValueChange={setSelectedTagGroupId}
-                  searchPlaceholder={t("basicInfo.searchTagGroup")}
-                  emptyMessage={t("basicInfo.noTagGroupFound")}
-                />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {t("basicInfo.tagGroupDescription")}
-                </p>
-              </div>
-            )}
-
-            {/* Funnel (conversation pipeline) for an existing campaign. */}
-            {mode === "edit" && (
-              <div>
-                <ElevatedCommandSelect
-                  label="Funil de atendimento"
-                  options={[
-                    { value: "", label: "Funil padrão do workspace" },
-                    ...pipelineOptions.map((p) => ({
-                      value: p.id,
-                      label: p.name,
-                    })),
-                  ]}
-                  value={selectedPipelineId}
-                  onValueChange={setSelectedPipelineId}
-                  searchPlaceholder="Buscar funil..."
-                  emptyMessage="Nenhum funil encontrado"
-                />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Define em qual funil as conversas desta campanha entram e por
-                  quais etapas passam. Vazio usa o funil padrão do workspace.
-                </p>
-              </div>
-            )}
+            {/*
+              One control, both modes. Creating a campaign used to offer "grupo de
+              etapas" while editing offered "funil" — the same column, campaigns
+              .pipeline_id, under two names on two screens. A stage group now
+              materializes its funnel the moment it is created, so the group list
+              and the funnel list had become the same set.
+            */}
+            <div>
+              <ElevatedCommandSelect
+                label="Funil de atendimento"
+                options={[
+                  { value: "", label: "Funil padrão do workspace" },
+                  ...pipelineOptions.map((p) => ({
+                    value: p.id,
+                    label: p.name,
+                  })),
+                ]}
+                value={selectedPipelineId}
+                onValueChange={setSelectedPipelineId}
+                searchPlaceholder="Buscar funil..."
+                emptyMessage="Nenhum funil encontrado"
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Define em qual funil as conversas desta campanha entram e por
+                quais etapas passam. Vazio usa o funil padrão do workspace.
+              </p>
+            </div>
 
             {!organic && (
               <div>

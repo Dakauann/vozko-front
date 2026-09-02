@@ -3,6 +3,7 @@
 import type {
   ActiveConversation,
   CampaignType,
+  ContainerKind,
   ConnectedUser,
   ConnectionStatus,
   ConversationMessage,
@@ -102,7 +103,11 @@ interface CrmContextValue {
   requestFunnelSummary: (tagIds: string[]) => void;
   clearFunnelColumns: () => void;
   tags: Stage[];
-  reloadStages: (campaignId?: string, campaignType?: string) => Promise<void>;
+  reloadStages: (
+    campaignId?: string,
+    campaignType?: string,
+    pipelineId?: string,
+  ) => Promise<void>;
   labels: Label[];
   reloadLabels: () => Promise<void>;
   campaignId: string;
@@ -113,6 +118,7 @@ interface CrmContextValue {
     campaignType?: CampaignType,
     whatsappCampaignType?: WhatsAppCampaignTypeFilter,
     conversationStatus?: string,
+    containerKind?: ContainerKind,
   ) => void;
   latestAnalysisUpdate: WsAnalysisUpdatePayload | null;
   assignTo: (entryId: string, entryType: string, userId: string) => void;
@@ -121,6 +127,12 @@ interface CrmContextValue {
     entryType: string,
     status: string,
   ) => void;
+  /**
+   * Pushes a lead rename into every list already rendered, across all of that
+   * lead's conversations. The server write has already happened; this is what
+   * makes the change visible without a reload.
+   */
+  applyLeadRename: (leadId: string, name: string) => void;
 }
 
 const CrmContext = createContext<CrmContextValue | null>(null);
@@ -155,14 +167,21 @@ export function CrmProvider({
 
 
   const reloadStages = useCallback(
-    // Stages are workspace-global now (the /stages endpoint ignores the campaign
-    // args after the stage-promotion migration), so we always load them. The
-    // campaign args are kept as an optional scope, not a hard gate.
-    async (cId?: string, cType?: string) => {
+    /**
+     * Loads the stages of ONE funnel into `tags`.
+     *
+     * `tags` is what "Gerenciar Etapas", the table's stage filter and the bulk
+     * "Mover etapa" menu all read, so whichever funnel is passed here is the
+     * funnel the whole CRM shows. Passing none resolves to the campaign's funnel
+     * and then to the workspace default — the behaviour every caller used to get
+     * whether it wanted it or not.
+     */
+    async (cId?: string, cType?: string, pipelineId?: string) => {
       const result = await listStagesAction(
         workspaceId || undefined,
         cId,
         cType,
+        pipelineId,
       );
       if (!result.error) {
         setTags(result.stages);

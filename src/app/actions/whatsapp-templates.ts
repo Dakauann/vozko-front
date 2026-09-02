@@ -104,10 +104,18 @@ export async function createWhatsAppTemplateAction(payload: CreateTemplatePayloa
   });
 
   if (response.error) {
-    return { template: null, error: response.error.message };
+    // The CODE travels with the message. The message alone cannot be
+    // translated — it is an English sentence from a Go sentinel — so a caller
+    // that only forwards it can never show the operator anything in their own
+    // language. See lib/whatsapp-templates/errors.ts.
+    return {
+      template: null,
+      error: response.error.message,
+      errorCode: response.error.code,
+    };
   }
 
-  return { template: response.data ?? null, error: null };
+  return { template: response.data ?? null, error: null, errorCode: undefined };
 }
 
 export async function syncAllWhatsAppTemplatesAction(businessPhoneId: string) {

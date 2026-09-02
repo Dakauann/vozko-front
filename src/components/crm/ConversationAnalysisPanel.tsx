@@ -241,7 +241,7 @@ export default function ConversationAnalysisPanel({
               <div className="flex flex-wrap gap-1.5">
                 <span
                   className={cn(
-                    "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-2xs font-semibold text-white",
+                    "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-2xs font-semibold",
                     sentiment.tile,
                   )}
                 >
@@ -251,7 +251,7 @@ export default function ConversationAnalysisPanel({
 
                 <span
                   className={cn(
-                    "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-2xs font-semibold text-white",
+                    "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-2xs font-semibold",
                     interest.tile,
                   )}
                 >
@@ -260,7 +260,7 @@ export default function ConversationAnalysisPanel({
 
                 <span
                   className={cn(
-                    "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-2xs font-semibold text-white",
+                    "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-2xs font-semibold",
                     qualification.tile,
                   )}
                 >

@@ -1,4 +1,49 @@
 {
+  "workingHours": {
+    "title": "Arbeitszeiten",
+    "weekLabel": "Woche",
+    "applyToWeekdays": "Mo–Fr übernehmen",
+    "inactiveNotice": "Die Arbeitszeiten wirken nur auf die Rückholung, die im Modus „zuletzt online“ mit aktivierter Rückholung greift. Das ist derzeit aus, der Plan wird also gespeichert, ändert aber noch nichts.",
+    "summaryAlwaysOpen": "24 Stunden",
+    "summaryEveryDay": "Täglich, {start}–{end}",
+    "summaryWeekdays": "Mo–Fr, {start}–{end}",
+    "summaryCustom": "{count} geöffnete Tage",
+    "workspaceDescription": "Außerhalb dieser Zeiten läuft die Rückholung nicht, und die Frist zählt nur die Minuten, in denen der Betrieb geöffnet ist.",
+    "workspaceOffHint": "Keine Zeiten gesetzt: Roulette und Rückholung laufen rund um die Uhr.",
+    "departmentInherits": "Übernimmt die Zeiten des Workspace.",
+    "departmentOwnHours": "Diese Abteilung hat eigene Zeiten.",
+    "departmentOffHint": "Aus: Die Abteilung folgt den Zeiten des Workspace.",
+    "enableLabel": "Arbeitszeiten festlegen",
+    "enableHint": "Nur die unten markierten Tage und Zeitfenster gelten als geöffnet.",
+    "timezoneLabel": "Zeitzone",
+    "timezoneHint": "Die Zeiten gelten in dieser Zone, nicht in der Browser-Zone der Mitarbeitenden.",
+    "closed": "Geschlossen",
+    "to": "bis",
+    "startLabel": "Beginn",
+    "endLabel": "Ende",
+    "addWindow": "Zeitfenster hinzufügen",
+    "removeWindow": "Zeitfenster entfernen",
+    "overnightHint": "Ein Ende vor dem Beginn läuft über Mitternacht: 22:00 bis 02:00 ist die Nachtschicht. Für einen ganzen Tag 00:00 bis 24:00 verwenden.",
+    "save": "Zeiten speichern",
+    "saveSuccess": "Arbeitszeiten gespeichert.",
+    "saveError": "Arbeitszeiten konnten nicht gespeichert werden.",
+    "errors": {
+      "badTime": "Ungültige Uhrzeit. HH:MM im 24-Stunden-Format verwenden.",
+      "emptyWindow": "Beginn und Ende dürfen nicht gleich sein. Für einen ganzen Tag 00:00 bis 24:00 verwenden.",
+      "overlap": "Dieses Zeitfenster überschneidet sich mit einem anderen am selben Tag.",
+      "noOpenTime": "Die Woche braucht mindestens ein geöffnetes Zeitfenster, sonst läuft keine Frist weiter.",
+      "noTimezone": "Bitte eine Zeitzone wählen."
+    },
+    "days": {
+      "mon": "Montag",
+      "tue": "Dienstag",
+      "wed": "Mittwoch",
+      "thu": "Donnerstag",
+      "fri": "Freitag",
+      "sat": "Samstag",
+      "sun": "Sonntag"
+    }
+  },
   "links": {
     "header": {
       "badge": "Links",
@@ -436,6 +481,8 @@
       "actorHuman": "Mensch",
       "actorAi": "KI",
       "actorSystem": "System",
+      "byActor": "von {name}",
+      "handoffUnassigned": "Nicht zugewiesen",
       "types": {
         "assigned": "Zugewiesen",
         "auto_assigned": "Automatisch zugewiesen",
@@ -1014,8 +1061,8 @@
         "description": "Empfehlungsprogramm und Provisionen"
       },
       "campaigns": {
-        "name": "Kampagnen",
-        "description": "CRM und WhatsApp-Kampagnen"
+        "name": "CRM",
+        "description": "Postfach, CRM und Kampagnen"
       }
     },
     "nav": {
@@ -1126,7 +1173,12 @@
       "telegramChannel": "Telegram",
       "unofficialWhatsapp": "Nummern",
       "unofficialWhatsappNumbers": "Nummern",
-      "connectUnofficialWhatsapp": "Nummer verbinden"
+      "connectUnofficialWhatsapp": "Nummer verbinden",
+      "unofficialWhatsappCampaigns": "Kampagnen",
+      "unofficialWhatsappCampaignsList": "Liste",
+      "createUnofficialWhatsappCampaign": "Neue Kampagne",
+      "archivedUnofficialWhatsappCampaigns": "Archiviert",
+      "audience": "Publikum"
     },
     "badges": {
       "new": "Neu",
@@ -1910,6 +1962,9 @@
       "chooser": {
         "description": "Wählen Sie, wie Sie den Agenten erstellen möchten. Sie können jederzeit wechseln.",
         "backToChooser": "Modus wechseln",
+        "legend": "Erstellmodus",
+        "lastUsed": "Zuletzt verwendet",
+        "suggested": "Für den Anfang empfohlen",
         "beginner": {
           "badge": "Empfohlen für den Einstieg",
           "recommended": "Empfohlen",
@@ -3076,6 +3131,55 @@
     }
   },
   "whatsappTemplates": {
+    "errors": {
+      "template_unknown_error": "Das hat nicht geklappt. Bitte erneut versuchen.",
+      "template_not_found": "Vorlage nicht gefunden.",
+      "template_already_exists": "Eine Vorlage mit dieser Kennung existiert bereits.",
+      "template_external_id_required": "Die externe Kennung der Vorlage ist erforderlich.",
+      "template_category_unavailable": "Diese Vorlagenkategorie ist für die Abrechnung nicht verfügbar.",
+      "template_header_media_not_applicable": "Kopfzeilen-Medien gelten nur für Vorlagen mit Bild-, Video- oder Dokument-Kopfzeile.",
+      "template_name_required": "Bitte einen Namen für die Vorlage angeben.",
+      "template_name_invalid_chars": "Der Name darf nur Kleinbuchstaben, Ziffern und Unterstriche enthalten.",
+      "template_name_must_start_letter": "Der Vorlagenname muss mit einem Buchstaben beginnen.",
+      "template_name_too_long": "Der Vorlagenname überschreitet 512 Zeichen.",
+      "template_header_text_too_long": "Die Kopfzeile überschreitet 60 Zeichen.",
+      "template_header_too_many_variables": "Die Kopfzeile erlaubt höchstens eine Variable.",
+      "template_header_format_required": "Kopfzeilenformat wählen (Text, Bild, Video, Dokument, Standort oder GIF).",
+      "template_header_media_needs_handle": "Medien-Kopfzeilen brauchen eine Beispieldatei.",
+      "template_body_too_long": "Der Textkörper überschreitet 1024 Zeichen.",
+      "template_body_variable_at_start": "Der Textkörper darf nicht mit einer Variablen beginnen. Davor etwas Text schreiben.",
+      "template_body_variable_at_end": "Der Textkörper darf nicht mit einer Variablen enden. Danach Text oder Satzzeichen schreiben.",
+      "template_body_consecutive_variables": "Zwei Variablen dürfen nicht direkt aufeinander folgen. Text dazwischen schreiben.",
+      "template_body_needs_example": "Jede Variable im Textkörper braucht ein Beispiel.",
+      "template_footer_too_long": "Die Fußzeile überschreitet 60 Zeichen.",
+      "template_footer_has_variables": "Die Fußzeile unterstützt keine Variablen.",
+      "template_too_many_buttons": "Eine Vorlage erlaubt höchstens 10 Schaltflächen.",
+      "template_button_text_too_long": "Der Text der Schaltfläche überschreitet 25 Zeichen.",
+      "template_button_text_required": "Bitte den Text der Schaltfläche angeben.",
+      "template_button_url_required": "Eine URL-Schaltfläche braucht eine Adresse.",
+      "template_button_phone_required": "Eine Telefon-Schaltfläche braucht eine Nummer.",
+      "template_buttons_not_grouped": "Schnellantwort-Schaltflächen müssen zusammenstehen, ohne andere Typen dazwischen.",
+      "template_url_button_variable_not_end": "Die Variable der URL-Schaltfläche muss am Ende der Adresse stehen.",
+      "template_url_button_too_many_variables": "Eine URL-Schaltfläche erlaubt höchstens eine Variable.",
+      "template_copy_code_needs_example": "Die Schaltfläche zum Kopieren des Codes braucht ein Beispiel.",
+      "template_call_permission_with_buttons": "Eine Anrufberechtigungs-Vorlage darf keine Schaltflächen haben: WhatsApp zeichnet sie selbst.",
+      "template_multiple_call_permission": "Eine Vorlage erlaubt höchstens eine Anrufberechtigungs-Komponente.",
+      "template_mixed_parameter_styles": "Nur einen Variablenstil verwenden: nummeriert oder benannt, nie beides.",
+      "template_invalid_component_type": "Ungültige Komponente in der Vorlage.",
+      "template_invalid_header_format": "Ungültiges Kopfzeilenformat.",
+      "template_invalid_button_type": "Ungültiger Schaltflächentyp.",
+      "template_invalid_category": "Ungültige Kategorie. Marketing, Dienstprogramm oder Authentifizierung verwenden.",
+      "template_send_workspace_required": "Senden abgelehnt: Der Workspace konnte nicht ermittelt werden.",
+      "template_send_idempotency_required": "Senden abgelehnt: Der Idempotenzschlüssel fehlt.",
+      "template_send_in_progress": "Dieser Versand läuft bereits.",
+      "template_send_phone_mismatch": "Die Vorlage gehört nicht zum WhatsApp-Konto dieser Nummer.",
+      "template_send_pricing_unavailable": "Für diese Vorlagenkategorie ist kein Preis hinterlegt.",
+      "template_send_not_sendable": "Die Vorlage ist noch nicht versandbereit.",
+      "template_send_billing_not_configured": "Für diesen Versand ist keine Abrechnung konfiguriert.",
+      "template_send_attempt_conflict": "Der Status dieses Versands hat sich geändert. Neu laden und erneut versuchen.",
+      "template_provider_rejected": "WhatsApp hat diese Vorlage abgelehnt.",
+      "template_provider_unavailable": "WhatsApp ist gerade nicht erreichbar. Bitte gleich erneut versuchen."
+    },
     "header": {
       "badge": "WhatsApp Business",
       "adminBadge": "Globale Admin-Ansicht",
@@ -3152,6 +3256,8 @@
       "notFound": "Vorlage nicht gefunden"
     },
     "toast": {
+      "validationTitle": "Formular prüfen",
+      "validationCount": "{count} Felder brauchen Aufmerksamkeit.",
       "syncSuccess": "Vorlagen synchronisiert",
       "syncSuccessDesc": "Alle Vorlagen wurden von Meta aktualisiert",
       "syncError": "Synchronisierungsfehler",
@@ -5538,11 +5644,35 @@
       "active": "Aktiv",
       "inactive": "Inaktiv"
     },
+    "distribution": {
+      "label": "Verteilung der Konversationen",
+      "description": "Wie das Roulette auswählt, wer jede neue Konversation erhält, und wer daran teilnimmt."
+    },
     "skipAdminAssignment": {
       "label": "Admin-Zuweisung",
       "description": "Ob Admins und Eigentümer am automatischen Round-Robin der Inbox teilnehmen.",
       "enableLabel": "Admins erhalten Zuweisungen",
       "enableHint": "Aus: Admins und Eigentümer werden bei der automatischen Verteilung übersprungen. Nur Mitarbeiter erhalten neue Gespräche."
+    },
+    "roulette": {
+      "modeLabel": "Roulette-Modus",
+      "onlineLabel": "Nur aktuell Online",
+      "onlineHint": "Verteilt nur an gerade verbundene Agenten. Standardverhalten.",
+      "lastSeenLabel": "Kürzlich Online gewesen",
+      "lastSeenHint": "Verbunden zu sein spielt keine Rolle mehr: Wer innerhalb des Zeitfensters online war, nimmt am Roulette teil, zuletzt Online zuerst.",
+      "statusOnline": "Online",
+      "statusLastSeen": "Zuletzt online",
+      "windowLabel": "Zeitfenster „zuletzt online“",
+      "hoursUnit": "Stunden",
+      "windowHint": "1 bis 168 Stunden. Standard 48 Std. Danach nimmt der Agent nicht mehr am Roulette teil. War niemand innerhalb des Fensters online, verteilt das Roulette wieder nur an gerade verbundene Agenten.",
+      "rescueLabel": "Unbearbeitete Konversationen weiterreichen",
+      "rescueHint": "Öffnet oder beantwortet der Agent die Konversation nicht rechtzeitig, geht sie an den nächsten im Roulette. Nach einer vollen Runde bleibt sie ohne Zuständigen und für alle sichtbar.",
+      "rescueMinutesLabel": "Frist zum Öffnen der Konversation",
+      "minutesUnit": "Minuten",
+      "rescueMinutesHint": "1 bis 1440 Minuten (bis zu 24 Std.). Standard 15 Minuten.",
+      "save": "Speichern",
+      "saveSuccess": "Roulette aktualisiert.",
+      "saveError": "Roulette-Einstellungen konnten nicht gespeichert werden."
     },
     "autoClose": {
       "title": "Gesprächsabschluss",
@@ -5657,6 +5787,7 @@
       "plans": "Pläne & Abrechnung",
       "ai_chat": "KI-Chat",
       "instagram_accounts": "Instagram-Konten",
+      "comment_analysis": "Kommentaranalyse",
       "telegram_accounts": "Telegram-Konten",
       "unofficial_whatsapp_instances": "WhatsApp-Nummern (inoffiziell)",
       "short_links": "Kurzlinks"
@@ -5709,6 +5840,7 @@
       "plans": "Verfügbare Pläne anzeigen, Pläne buchen und das Workspace-Abo kündigen",
       "ai_chat": "Auf den KI-Chat des Workspace zugreifen und Konversationen erstellen und verwalten",
       "instagram_accounts": "Instagram-Konten des Workspace verbinden und verwalten.",
+      "comment_analysis": "Die Kommentaranalyse verbundener Konten ansehen, Autoren moderieren und die (kostenpflichtige) Analyse konfigurieren.",
       "telegram_accounts": "Telegram-Bots und -Konten des Workspace verbinden und verwalten.",
       "unofficial_whatsapp_instances": "WhatsApp-Nummern über ein verknüpftes Gerät verbinden und verwalten.",
       "short_links": "Kurzlinks erstellen und ihre Klickstatistiken verfolgen."
@@ -5886,6 +6018,7 @@
       "windowClosedNoClock": "In dieser Unterhaltung kann nicht gesendet werden. Der Kontakt hat dich möglicherweise blockiert, oder die Antwortberechtigung wurde entzogen."
     },
     "filterInstagram": "Instagram",
+    "filterUnofficialWhatsapp": "WhatsApp (inoffiziell)",
     "filterTelegram": "Telegram"
   },
   "adminWorkspaces": {
@@ -7119,6 +7252,18 @@
     "palette": {
       "title": "Komponenten",
       "trigger": "Auslöser",
+      "ai": "Künstliche Intelligenz",
+      "messaging": "Nachrichten",
+      "logic": "Logik",
+      "visual": "Visuell",
+      "searchPlaceholder": "Knoten suchen...",
+      "clearSearch": "Suche zurücksetzen",
+      "collapse": "Leiste einklappen",
+      "expand": "Leiste ausklappen",
+      "group": {
+        "label": "Gruppe",
+        "description": "Visueller Gruppierungsbereich, ohne Ausführungslogik"
+      },
       "action": "Aktionen",
       "wait": "Wartezeiten",
       "condition": "Bedingungen",
@@ -7443,7 +7588,65 @@
       "disconnectionError": "Fehler beim Trennen von Google Calendar."
     }
   },
+  "leads": {
+    "rename": {
+      "label": "Kontaktname",
+      "edit": "Namen bearbeiten",
+      "save": "Namen speichern",
+      "cancel": "Abbrechen",
+      "saved": "Name aktualisiert",
+      "cleared": "Name entfernt, der Kontakt erscheint wieder mit seiner Nummer"
+    }
+  },
   "leadsPage": {
+    "import": {
+      "action": "Importieren",
+      "title": "Leads importieren",
+      "description": "Lade eine Kontaktliste hoch. Die Datei wird in deinem Browser gelesen. Vor deiner Bestätigung wird nichts gesendet.",
+      "chooseFile": "CSV-Datei wählen",
+      "template": "Vorlage herunterladen",
+      "empty": "Wähle eine CSV- oder TXT-Datei, um zu starten.",
+      "mapping": {
+        "title": "Spalten der Datei",
+        "detected": "Kopfzeile erkannt. Prüfe, ob jede Spalte im richtigen Feld landet.",
+        "noHeader": "Keine Kopfzeile. Die Spalten stehen in der Reihenfolge der Datei.",
+        "column": "Spalte {index}",
+        "number": "Telefon",
+        "name": "Name",
+        "age": "Alter",
+        "none": "Nicht importieren",
+        "onlyThese": "Ein Lead speichert Telefon, Name und Alter. Alle anderen Spalten werden ignoriert."
+      },
+      "summary": {
+        "counts": "{valid} gültige Kontakte · {invalid} ungültig · {duplicates} in der Datei doppelt",
+        "tooMany": "Maximal {max} Kontakte pro Import. Teile die Datei und sende sie in Teilen.",
+        "rejectedTitle": "Zeilen, die übersprungen werden ({count})"
+      },
+      "reasons": {
+        "invalid": "ungültige Nummer",
+        "duplicate": "doppelt"
+      },
+      "existing": {
+        "label": "Bereits vorhandene Kontakte",
+        "fillEmpty": "Leeren Namen und Alter ergänzen",
+        "skip": "Unverändert lassen",
+        "neverOverwrites": "Ein Import ersetzt niemals einen bereits gesetzten Namen."
+      },
+      "confirm": "Importieren",
+      "importing": "Importiere...",
+      "cancel": "Abbrechen",
+      "done": "Fertig",
+      "result": {
+        "created": "Leads erstellt",
+        "matched": "Bereits vorhanden",
+        "skipped": "{invalid} Zeilen mit ungültiger Nummer und {duplicates} doppelte Zeilen wurden übersprungen.",
+        "blocked": "{count} der vorhandenen Kontakte sind blockiert und werden von Kampagnen nicht erreicht."
+      },
+      "error": {
+        "title": "Import nicht möglich",
+        "generic": "Bitte versuche es gleich noch einmal."
+      }
+    },
     "header": {
       "badge": "Leads",
       "description": "Alle Leads des Workspace – mit Suche, erweiterten Filtern und Memories."
@@ -8283,7 +8486,7 @@
         "finished": "Abgeschlossen",
         "ongoing": "Laufend",
         "pending": "Wartend",
-        "newContacts": "Neue Kontakte",
+        "newLeads": "Neue Kontakte",
         "unassignedBacklog": "Ohne Zuweisung",
         "avgWaitMins": "Ø Wartezeit (Min.)",
         "avgHandleMins": "Ø Bearbeitung (Min.)",
@@ -8361,6 +8564,7 @@
         "queue": "Warteschlange",
         "occupancy": "Auslastung",
         "channel_mix": "Kanalverteilung",
+        "new_leads": "Neue Kontakte (Leads)",
         "messaging": "Nachrichten",
         "reopen": "Wiedereröffnung",
         "finished_by_source": "Abschlussart",
@@ -8387,9 +8591,10 @@
         "unassigned": "Gespräche ohne Bearbeiter",
         "unassignedShort": "Brauchen einen Owner",
         "unassignedHint": "Aktive offene Gespräche ohne Zuständigen (nur mit Nachrichten)",
-        "newContacts": "Neue Kontakte",
-        "newContactsShort": "Im Zeitraum eingegangen",
-        "newContactsHint": "Aktive Gespräche im Zeitraum erstellt (mind. eine Nachricht)",
+        "newLeads": "Neue Kontakte",
+        "newLeadsShort": "Im Zeitraum angelegt",
+        "newLeadsUnscoped": "Ganzer Workspace · ungefiltert",
+        "newLeadsHint": "Im Zeitraum erstellte Leads, einschließlich Importen und über Integrationen angelegter Kontakte. Zählt den gesamten Workspace und reagiert nicht auf die Filter für Abteilung, Mitarbeiter, Kanal oder Kampagne.",
         "avgWait": "Ø Wartezeit",
         "avgWaitShort": "Bis 1. Antwort",
         "avgWaitHint": "Von erster Kundennachricht bis erster Teamantwort",
@@ -8678,7 +8883,8 @@
       "sectionTitle": "Beiträge",
       "sectionCount": "{count} Beiträge",
       "tabComments": "Kommentare",
-      "tabAutomation": "Automatisierung"
+      "tabAutomation": "Automatisierung",
+      "tabAnalysis": "Analyse"
     },
     "comments": {
       "empty": "No comments on this post.",
@@ -8887,11 +9093,364 @@
       "upload": "Hochladen",
       "uploading": "Wird hochgeladen...",
       "uploadFailed": "Upload fehlgeschlagen. Bitte erneut versuchen.",
-      "fileTooLarge": "Datei zu groß. Das Limit beträgt 25 MB."
+      "fileTooLarge": "Datei zu groß. Das Limit beträgt 25 MB.",
+      "analysisTitle": "Kommentaranalyse für diesen Beitrag",
+      "analysisHint": "Vor dem ersten Kommentar bereit haben: Sagen Sie der KI, worum es im Beitrag geht, wählen Sie eigene Themen oder schalten Sie die Analyse nur für ihn ein oder aus. Alles Leere erbt vom Konto.",
+      "analysisAccountOff": "Die Analyse ist im Konto ausgeschaltet. Wählen Sie unten \"An\", um nur diesen Beitrag zu analysieren.",
+      "analysisLoading": "Kontoeinstellungen werden geladen...",
+      "publishedButAnalysisFailed": "Der Beitrag wurde veröffentlicht, aber seine Analyseeinstellungen konnten nicht gespeichert werden: {error}. Passen Sie sie im Tab Analyse des Beitrags an."
     },
     "tabs": {
       "posts": "Beiträge",
-      "automation": "Automatisierung"
+      "automation": "Automatisierung",
+      "audience": "Publikum"
+    }
+  },
+  "commentAnalysis": {
+    "errorTitle": "Die Kommentaranalyse konnte nicht geladen werden",
+    "sectionsLabel": "Bereiche der Publikumsanalyse",
+    "sections": {
+      "overview": "Überblick",
+      "topics": "Themen",
+      "authors": "Autoren",
+      "feed": "Kommentare",
+      "settings": "Einstellungen"
+    },
+    "disabled": {
+      "title": "Kommentaranalyse ist ausgeschaltet",
+      "description": "Eingeschaltet wird jeder Kommentar zu den Beiträgen dieses Kontos per KI klassifiziert (Thema, Stimmung, Haltung, Absicht und Schweregrad) und in einem Dashboard zusammengefasst, das zeigt, was das Publikum sagt und wer feindselige Inhalte schreibt. Jeder analysierte Kommentar wird berechnet.",
+      "cta": "Konfigurieren und einschalten",
+      "noPermission": "Bitten Sie einen Workspace-Administrator, die Kommentaranalyse einzuschalten."
+    },
+    "enums": {
+      "stance": {
+        "supporter": "Unterstützer",
+        "neutral": "Neutral",
+        "critic": "Kritiker",
+        "hostile": "Feindselig"
+      },
+      "sentiment": {
+        "positive": "Positiv",
+        "neutral": "Neutral",
+        "negative": "Negativ"
+      },
+      "intent": {
+        "praise": "Lob",
+        "question": "Frage",
+        "complaint": "Beschwerde",
+        "support_request": "Supportanfrage",
+        "spam": "Spam",
+        "sales_lead": "Kaufabsicht",
+        "other": "Sonstiges"
+      },
+      "moderation": {
+        "none": "Keine Maßnahme",
+        "watched": "Beobachtet",
+        "muted": "Stummgeschaltet",
+        "blocked": "Blockiert"
+      },
+      "severity": {
+        "none": "ohne Schweregrad",
+        "low": "leicht",
+        "medium": "mittel",
+        "high": "schwer"
+      },
+      "status": {
+        "pending": "In der Warteschlange",
+        "in_flight": "Wird analysiert",
+        "analyzed": "Analysiert",
+        "failed": "Fehlgeschlagen",
+        "skipped": "Übersprungen"
+      },
+      "failureReason": {
+        "missing_ref": "das Modell hat für diesen Kommentar keine Antwort gegeben",
+        "invalid_labels": "das Modell hat mit Werten außerhalb der Rubrik geantwortet",
+        "unparseable_response": "die Antwort des Modells konnte nicht gelesen werden",
+        "response_truncated": "die Antwort des Modells wurde abgeschnitten",
+        "provider_error": "der KI-Anbieter hat nicht geantwortet",
+        "dispatch_interrupted": "die Verarbeitung wurde unterbrochen",
+        "text_unavailable": "der Kommentar existiert nicht mehr",
+        "analysis_disabled": "die Analyse wurde ausgeschaltet"
+      },
+      "vertical": {
+        "gov": "Regierung und Politik",
+        "retail": "Handel und E-Commerce",
+        "services": "Dienstleistungen"
+      },
+      "backfillStatus": {
+        "pending": "Wartet",
+        "running": "Läuft",
+        "done": "Abgeschlossen",
+        "failed": "Fehlgeschlagen",
+        "canceled": "Abgebrochen"
+      }
+    },
+    "overview": {
+      "tiles": {
+        "analyzed": "Analysiert",
+        "analyzedDetail": "von {total} empfangenen",
+        "requiresAction": "Antwort nötig",
+        "requiresActionDetail": "Fragen, Beschwerden und Supportanfragen",
+        "highSeverity": "Schwer",
+        "highSeverityDetail": "Schweregrad {threshold} oder höher",
+        "flaggedAuthors": "Markierte Autoren",
+        "flaggedAuthorsDetail": "von {authors} Autoren"
+      },
+      "score": {
+        "title": "Akzeptanz",
+        "description": "Wie das Publikum die Beiträge dieses Kontos aufnimmt",
+        "label": "Akzeptanz",
+        "explainer": "Berechnet aus der Haltung jedes Kommentars (Unterstützer, neutral, Kritiker, feindselig), abzüglich des Anteils schwerer Kommentare. Es ist keine Note der KI, sondern die Summe dessen, was sie klassifiziert hat.",
+        "smallSample": "Kleine Stichprobe ({count} analysierte Kommentare): der Wert wird bis 30 Kommentaren Richtung 50 gezogen.",
+        "pending": "{count} Kommentare noch in der Warteschlange."
+      },
+      "stance": {
+        "title": "Haltung",
+        "description": "Wer unterstützt, wer kritisiert und wer angreift",
+        "center": "Kommentare"
+      },
+      "empty": {
+        "title": "Noch nichts analysiert",
+        "description": "Kommentare kommen bei Eingang in die Warteschlange und werden in Stapeln klassifiziert."
+      },
+      "sentiment": {
+        "title": "Stimmung",
+        "description": "Vorherrschender Ton der Kommentare"
+      },
+      "trend": {
+        "title": "Letzte 30 Tage",
+        "description": "Analysierte Kommentare pro Tag",
+        "series": "Kommentare",
+        "emptyTitle": "Noch kein Verlauf",
+        "emptyDescription": "Das Diagramm füllt sich ab dem ersten Tagesabschluss.",
+        "tooltipHostile": "{count} feindselig",
+        "tooltipScore": "Akzeptanz {score}"
+      }
+    },
+    "topics": {
+      "title": "Themen",
+      "description": "Worüber das Publikum spricht, nach Volumen",
+      "otherLabel": "Sonstiges",
+      "otherPrompt": {
+        "title": "{share}% der Kommentare fielen unter \"Sonstiges\"",
+        "description": "Wenn ein Thema innerhalb von \"Sonstiges\" wächst, fehlt es in der Liste. Legen Sie es an, und die nächsten Kommentare werden dort einsortiert.",
+        "cta": "Themen bearbeiten"
+      },
+      "emptyTitle": "Noch keine Themen",
+      "emptyDescription": "Themen erscheinen, sobald Kommentare klassifiziert werden.",
+      "mix": "{positive}% positiv · {neutral}% neutral · {negative}% negativ"
+    },
+    "authors": {
+      "title": "Wer kommentiert",
+      "description": "Autoren nach ihrem Muster schwerer Kommentare",
+      "scopeLabel": "Autorenfilter",
+      "scope": {
+        "flagged": "Markiert",
+        "all": "Alle"
+      },
+      "emptyFlaggedTitle": "Keine markierten Autoren",
+      "emptyFlaggedDescription": "Ein Autor wird markiert, wenn sein Verlauf feindselig ist und mindestens drei schwere Kommentare enthält. Ein schlechter Tag markiert niemanden.",
+      "emptyTitle": "Noch keine Autoren",
+      "emptyDescription": "Die Autorenliste wird stündlich aus den analysierten Kommentaren neu aufgebaut.",
+      "columns": {
+        "author": "Autor",
+        "comments": "Kommentare",
+        "worst": "Höchster Schweregrad",
+        "stance": "Haltung",
+        "lastSeen": "Zuletzt",
+        "moderation": "Moderation"
+      },
+      "flagged": "Markiert",
+      "highCount": "{count, plural, one {# schwerer} other {# schwere}}",
+      "noComments": "Keine analysierten Kommentare dieses Autors.",
+      "actions": {
+        "hide": "Ausblenden",
+        "privateReply": "Per DM antworten"
+      },
+      "pagination": "{from} bis {to} von {total}",
+      "previous": "Zurück",
+      "next": "Weiter",
+      "privateReply": {
+        "title": "Per DM antworten",
+        "placeholder": "Private Nachricht schreiben",
+        "hint": "Instagram erlaubt genau eine private Antwort pro Kommentar, innerhalb von 7 Tagen.",
+        "alreadyUsed": "Dieser Kommentar hat bereits eine private Antwort erhalten.",
+        "cancel": "Abbrechen",
+        "sending": "Wird gesendet...",
+        "send": "Senden"
+      }
+    },
+    "feed": {
+      "title": "Klassifizierte Kommentare",
+      "description": "Jeder Kommentar mit Thema, Stimmung, Haltung, Absicht und Schweregrad",
+      "viewLabel": "Kommentaransicht",
+      "views": {
+        "all": "Alle",
+        "action": "Antwort nötig",
+        "high": "Schwer",
+        "failed": "Fehlgeschlagen"
+      },
+      "filters": {
+        "stance": "Haltung",
+        "sentiment": "Stimmung",
+        "intent": "Absicht",
+        "topic": "Thema",
+        "any": "Alle"
+      },
+      "emptyTitle": "Keine Kommentare in dieser Ansicht",
+      "emptyDescription": "Passen Sie die Filter an oder warten Sie auf die nächste Klassifizierung.",
+      "truncated": "(gekürzt)",
+      "spam": "Spam",
+      "requiresAction": "Antwort nötig",
+      "failedReason": "Fehlgeschlagen nach {attempts, plural, one {# Versuch} other {# Versuchen}}: {reason}.",
+      "retry": "Erneut versuchen",
+      "retrying": "Wird erneut verarbeitet...",
+      "pagination": "{from} bis {to} von {total}",
+      "previous": "Zurück",
+      "next": "Weiter"
+    },
+    "settings": {
+      "saveFailed": "Speichern nicht möglich.",
+      "saving": "Wird gespeichert...",
+      "switch": {
+        "title": "Kommentaranalyse",
+        "description": "Eingeschaltet wird jeder neue Kommentar klassifiziert und berechnet. Ausschalten stoppt alles sofort."
+      },
+      "model": {
+        "label": "KI-Modell"
+      },
+      "vertical": {
+        "label": "Segment",
+        "hint": "Legt nur die anfängliche Themenliste fest (zum Beispiel Gesundheit und Bauarbeiten für Behörden; Lieferung und Preis für den Handel). Ein Wechsel ersetzt die Themenliste durch die Vorgabe des Segments; passen Sie die Themen unten an."
+      },
+      "threshold": {
+        "label": "Schweregrad-Schwelle für Maßnahmen",
+        "hint": "Markiert nur; nichts wird pausiert und niemand blockiert. Ein Kommentar mit einem Schweregrad ab diesem Wert (0 bis 100) erscheint in der Liste \"Antwort nötig\", mit Text und Autor, neben Fragen, Beschwerden und Support-Anfragen. Alle anderen Kommentare werden ganz normal weiter analysiert."
+      },
+      "dailyCap": {
+        "label": "Maximale Kommentare pro Tag",
+        "hint": "Eine Mengen-, keine Schweregrad-Grenze: zählt, wie viele Kommentare heute analysiert wurden, nicht wie schlimm sie sind. Bei Erreichen pausiert die Analyse bis zum nächsten Tag und Sie erhalten einen Hinweis; was danach eintrifft, wartet in der Warteschlange und wird am nächsten Tag analysiert. So erzeugt ein viraler Beitrag nie eine Rechnung, die niemand genehmigt hat."
+      },
+      "instructions": {
+        "title": "Anweisungen für die KI",
+        "description": "Freier Kontext, den die KI vor der Einordnung liest: wer das Konto ist, was oft Streit auslöst, was zu ignorieren ist.",
+        "label": "Anweisungen",
+        "placeholder": "Z. B.: Offizielles Konto der Stadtverwaltung. Kritik an Bauarbeiten ist häufig; Ironie über den Bürgermeister zählt als Kritik, nicht als Feindseligkeit.",
+        "hint": "Bis zu {max} Zeichen. Jeder Beitrag kann im Tab Analyse eigene Anweisungen ergänzen."
+      },
+      "topics": {
+        "title": "Themen",
+        "description": "Die geschlossene Liste, in die die KI einordnet. Schlüssel sind stabil; Akzente und Großbuchstaben erzeugen keine doppelten Themen.",
+        "add": "Neues Thema",
+        "save": "Themen speichern",
+        "labelPlaceholder": "Themenname",
+        "descriptionPlaceholder": "Was hierher gehört (leitet die KI)",
+        "remove": "Thema entfernen",
+        "otherLabel": "Sonstiges",
+        "otherHint": "Immer vorhanden: nimmt auf, was zu keinem Thema passt.",
+        "limit": "Bis zu {max} Themen."
+      },
+      "spend": {
+        "title": "Verbrauch in diesem Monat",
+        "description": "Was die Kommentaranalyse seit Monatsbeginn gekostet hat",
+        "comments": "Kommentare",
+        "batches": "Aufrufe",
+        "tokens": "Tokens",
+        "surcharge": "Gebühr pro Kommentar",
+        "noSurcharge": "Nur Tokens",
+        "hint": "Tokens werden dem Guthaben als KI-Nutzung belastet. Die Gebühr pro Kommentar erscheint, wenn konfiguriert, als ein Eintrag pro Stapel."
+      },
+      "backfill": {
+        "title": "Ältere Kommentare analysieren",
+        "description": "Holt die bereits vorhandenen Kommentare der Beiträge und stellt sie in die Warteschlange. Immer geschätzt und bestätigt, bevor es läuft.",
+        "estimate": "Schätzen",
+        "estimating": "Wird geschätzt...",
+        "estimateFailed": "Schätzung nicht möglich.",
+        "estimateStale": "Die Schätzung hat sich geändert. Erneut schätzen und bestätigen.",
+        "alreadyActive": "Für dieses Konto läuft bereits eine Nachverarbeitung.",
+        "startFailed": "Start nicht möglich.",
+        "disabledHint": "Schalten Sie die Analyse ein, um ältere Kommentare nachzuverarbeiten.",
+        "progress": "{fetched} von {estimated} Kommentaren",
+        "shortfall": "Instagram hat {missing} Kommentare weniger geliefert, als der Beitragszähler angibt. Die API lässt Kommentare privater Konten weg und, solange die App im Entwicklungsmodus ist, jeden Kommentar eines Kontos ohne Rolle in der App (Administrator, Entwickler oder Tester). Fügen Sie die kommentierenden Konten als App-Tester hinzu oder veröffentlichen Sie die App, und starten Sie erneut.",
+        "cancel": "Nachverarbeitung abbrechen",
+        "hint": "Die Nachverarbeitung hält das Aufruflimit von Instagram ein und kann bei großen Konten Stunden dauern. Bei Unterbrechung macht sie dort weiter, wo sie aufgehört hat.",
+        "confirmTitle": "Nachverarbeitung bestätigen",
+        "confirmDescription": "Etwa {comments} Kommentare in {containers} Beiträgen werden in die Warteschlange gestellt. Geschätzte Gebühr pro Kommentar: {price}. Tokens werden separat als KI-Nutzung berechnet.",
+        "tokenBillingOnly": "nicht konfiguriert (nur Tokens)",
+        "confirm": "Bestätigen und starten",
+        "cancelDialog": "Abbrechen"
+      }
+    },
+    "post": {
+      "errorTitle": "Die Analyse dieses Beitrags konnte nicht geladen werden.",
+      "openAudience": "Im Publikums-Dashboard öffnen",
+      "offTitle": "Analyse für diesen Beitrag ausgeschaltet",
+      "offHint": "Die Analyse des Kontos ist aus, oder dieser Beitrag wurde einzeln ausgeschaltet.",
+      "offHintConfigure": "Schalten Sie die Analyse im Konto ein oder nur für diesen Beitrag in den Einstellungen unten.",
+      "state": {
+        "on": "Analyse an",
+        "off": "Analyse aus",
+        "own": "Eigene Einstellungen",
+        "inherited": "Vom Konto geerbt",
+        "threshold": "Aktion ab {value}"
+      },
+      "override": {
+        "title": "Eigene Einstellungen dieses Beitrags",
+        "description": "Eingeschaltet gilt, was Sie hier festlegen, nur für diesen Beitrag; alles Leere erbt weiter vom Konto.",
+        "inheritingHint": "Dieser Beitrag nutzt die Einstellungen des Kontos. Einschalten, um Anweisungen, Themen oder eine Schwelle nur für ihn festzulegen.",
+        "enabled": {
+          "label": "Analyse",
+          "inherit": "Vom Konto erben ({value})",
+          "on": "An",
+          "off": "Aus"
+        },
+        "threshold": {
+          "label": "Schweregrad-Schwelle für Aktion",
+          "inherit": "Erben ({value})"
+        },
+        "model": {
+          "label": "KI-Modell",
+          "inherit": "Erben",
+          "hint": "Leer nutzt das Modell des Kontos: {value}.",
+          "default": "Plattformstandard"
+        },
+        "instructions": {
+          "label": "Anweisungen für diesen Beitrag",
+          "placeholder": "Z. B.: Beitrag über die Bauarbeiten in Straße A. Lärmbeschwerden sind zu erwarten; Verzögerungen sind das heikle Thema.",
+          "hint": "Werden den Anweisungen des Kontos hinzugefügt, ersetzen sie nicht."
+        },
+        "topics": {
+          "own": "Eigene Themen für diesen Beitrag",
+          "inheritHint": "Erbt die {count} Themen des Kontos."
+        },
+        "save": "Einstellungen speichern",
+        "saving": "Wird gespeichert...",
+        "saveFailed": "Speichern nicht möglich.",
+        "reset": "Wieder alles erben"
+      }
+    },
+    "audience": {
+      "badge": "Publikum",
+      "description": "Was die Kommentare über {name} sagen: Zustimmung, Kritik, Themen und wer kommentiert.",
+      "noPermissionDesc": "Für dieses Dashboard ist die Berechtigung Kommentaranalyse (comment_analysis:read) nötig.",
+      "account": "Konto",
+      "post": "Beitrag",
+      "allPosts": "Alle Beiträge",
+      "untitledPost": "Ohne Bildunterschrift",
+      "enabledMark": "an",
+      "scopedToPost": "Nur dieser Beitrag",
+      "configureCta": "Im Konto konfigurieren",
+      "period": {
+        "label": "Zeitraum",
+        "days7": "7 Tage",
+        "days30": "30 Tage",
+        "days90": "90 Tage"
+      },
+      "noAccounts": {
+        "title": "Kein Instagram-Konto verbunden",
+        "description": "Verbinden Sie ein Konto und schalten Sie die Kommentaranalyse in dessen Tab Publikum ein.",
+        "cta": "Zu den Instagram-Konten"
+      }
     }
   },
   "telegram": {
@@ -9597,6 +10156,267 @@
       "userStoppedMarketing": "Diese Person hat Marketingnachrichten von dieser Nummer abbestellt.",
       "templateProblem": "Die Vorlage wurde beim Senden abgelehnt: Sie kann pausiert oder abgelehnt sein oder ihre Variablen passen nicht.",
       "experimentHoldout": "Meta hat diese Nachricht für ein Zustellexperiment zurückgehalten."
+    }
+  },
+  "unofficialWhatsappCampaigns": {
+    "page": {
+      "badge": "Inoffizielle WhatsApp-Kampagnen",
+      "description": "Massenversand über deine per QR-Code verbundenen Nummern.",
+      "newButton": "Neue Kampagne",
+      "searchPlaceholder": "Kampagnen suchen"
+    },
+    "archived": {
+      "badge": "Archivierte Kampagnen",
+      "description": "Archivierte Kampagnen deiner per QR verbundenen Nummern.",
+      "emptyTitle": "Keine archivierten Kampagnen",
+      "emptyDescription": "Archivierte Kampagnen erscheinen hier."
+    },
+    "table": {
+      "name": "Kampagne",
+      "status": "Status",
+      "total": "Gesamt",
+      "dispatches": "Sendungen",
+      "avoidingSpam": "Spam-Schutz",
+      "notOnWhatsapp": "Nicht bei WhatsApp",
+      "successRate": "Erfolgsquote",
+      "createdAt": "Erstellt"
+    },
+    "status": {
+      "running": "Läuft",
+      "paused": "Pausiert",
+      "stopped": "Gestoppt",
+      "completed": "Abgeschlossen",
+      "pending": "Ausstehend",
+      "sent": "Gesendet",
+      "delivered": "Zugestellt",
+      "read": "Gelesen",
+      "failed": "Fehlgeschlagen",
+      "notEligiblePossibleSpam": "Spam-Schutz",
+      "skippedNotOnWhatsApp": "Nicht bei WhatsApp"
+    },
+    "filter": {
+      "all": "Alle Status"
+    },
+    "stats": {
+      "total": "Gesamt",
+      "active": "Aktiv",
+      "contacts": "Kontakte",
+      "paused": "Pausiert"
+    },
+    "empty": {
+      "title": "Noch keine Kampagnen",
+      "description": "Erstelle eine Kampagne, um Nachrichten über deine verbundenen Nummern zu senden."
+    },
+    "error": {
+      "title": "Kampagnen konnten nicht geladen werden"
+    },
+    "actions": {
+      "archive": "Archivieren",
+      "unarchive": "Wiederherstellen",
+      "cancel": "Abbrechen",
+      "start": "Starten",
+      "pause": "Pausieren",
+      "stop": "Stoppen",
+      "validate": "Liste prüfen",
+      "failed": "Aktion fehlgeschlagen",
+      "started": "Kampagne gestartet",
+      "paused": "Kampagne pausiert",
+      "stopped": "Kampagne gestoppt",
+      "validated": "Liste geprüft",
+      "validatedDetail": "{checked} Nummern geprüft, {skipped} nicht bei WhatsApp.",
+      "crm": "CRM öffnen",
+      "edit": "Bearbeiten",
+      "restart": "Neu starten",
+      "more": "Aktionen",
+      "noPermissionStart": "Du hast keine Berechtigung, Kampagnen zu starten.",
+      "noPermissionUpdate": "Du hast keine Berechtigung, Kampagnen zu bearbeiten."
+    },
+    "messageKind": {
+      "text": "Text",
+      "image": "Bild",
+      "video": "Video",
+      "audio": "Audio",
+      "document": "Dokument",
+      "menu": "Menü"
+    },
+    "numberIssue": {
+      "banned": "WhatsApp hat diese Nummer deaktiviert. Sie lässt sich nicht wiederherstellen.",
+      "restricted": "WhatsApp begrenzt derzeit neue Konversationen von dieser Nummer.",
+      "disconnected": "Diese Nummer ist getrennt. Verbinde sie vor dem Versand neu.",
+      "awaiting-scan": "Diese Nummer wartet noch auf das Scannen des QR-Codes.",
+      "provisioning": "Diese Nummer wird noch eingerichtet.",
+      "provision-failed": "Diese Nummer wurde nie fertig verbunden."
+    },
+    "form": {
+      "back": "Zurück",
+      "name": "Kampagnenname",
+      "number": "Absendernummer",
+      "numberOffline": "getrennt",
+      "messageKind": "Nachrichtentyp",
+      "attachment": "Anhang",
+      "variantsTitle": "Nachrichtenvarianten",
+      "variantsHelp": "Identische Nachrichten in großer Menge sind das stärkste Automatisierungssignal überhaupt. Jeder Empfänger erhält eine Variante, stabil ausgewählt.",
+      "addVariant": "Variante hinzufügen",
+      "removeVariant": "Entfernen",
+      "variantLabel": "Variante {index}",
+      "bodyPlaceholder": "Schreibe die Nachricht. Nutze {{1}}, {{2}} für Variablen.",
+      "variantsMismatch": "Alle Varianten müssen exakt dieselben Variablen verwenden.",
+      "variablesDetected": "{count} Variable(n) erkannt. Jede Nummer braucht diese Werte.",
+      "menuStyle": "Menüstil",
+      "menuStyleButtons": "Buttons (bis 3)",
+      "menuStyleList": "Liste (bis 10)",
+      "menuFooter": "Fußzeile",
+      "optionId": "Options-ID",
+      "optionTitle": "Optionstext",
+      "removeOption": "Option entfernen",
+      "addOption": "Option hinzufügen (bis {max})",
+      "optionCapHelp": "Das Limit von {max} stammt von WhatsApp selbst.",
+      "pacingTitle": "Taktung und Tageslimit",
+      "pacingHelp": "Ein konstanter Takt ist das am leichtesten erkennbare Automatisierungssignal. Sendungen werden zufällig innerhalb dieses Bereichs verteilt.",
+      "delayMin": "Mindestabstand (ms)",
+      "delayMax": "Maximalabstand (ms)",
+      "dailyCap": "Tageslimit der Kampagne",
+      "pacingClamped": "Diese Nummer verlangt mindestens {min} ms; ein kleinerer Wert wird angepasst.",
+      "effectiveCap": "Effektives Limit heute: {cap} Nachrichten.",
+      "effectiveCapWarmup": "Effektives Limit heute: {cap} Nachrichten (Nummer im Aufwärmen).",
+      "recipients": "Nummern",
+      "recipientsPlaceholder": "Nummern einfügen, eine pro Zeile",
+      "recipientsSummary": "{valid} gültig · {duplicates} Duplikate · {invalid} ungültig",
+      "recipientsNeedVariables": "Diese Nachricht nutzt {count} Variable(n). Importiere eine Tabelle, um sie zu füllen.",
+      "automationTitle": "Automatisierung",
+      "enableAgentResponses": "Mit KI antworten",
+      "enableWorkflow": "Workflow ausführen",
+      "enableAnalysis": "Konversationen analysieren",
+      "enableAutoStaging": "Phasen automatisch verschieben",
+      "enableAutoMemory": "Automatisches Lead-Gedächtnis",
+      "create": "Kampagne erstellen",
+      "save": "Speichern",
+      "saveFailed": "Konnte nicht gespeichert werden",
+      "recipientsUpload": "CSV hochladen",
+      "recipientsColumns": "Eine Zeile pro Kontakt: Nummer, Name, dann eine Spalte je Variable.",
+      "recipientsSkipped": "Übersprungene Zeilen",
+      "reasonInvalid": "ungültige Nummer",
+      "reasonDuplicate": "Duplikat",
+      "reasonMissingVariables": "Variablen fehlen",
+      "mediaUpload": "Datei hochladen",
+      "mediaUploading": "Wird hochgeladen…",
+      "mediaRemove": "Datei entfernen",
+      "mediaFailed": "Die Datei konnte nicht hochgeladen werden",
+      "basicInfoTitle": "Kampagnendetails",
+      "namePlaceholder": "z. B. Inkasso August",
+      "nameRequired": "Vergib einen Namen mit mindestens 3 Zeichen.",
+      "numberRequired": "Wähle die Absendernummer.",
+      "searchNumber": "Nummern suchen",
+      "noNumbers": "Keine verbundenen Nummern",
+      "numberDescription": "Nachrichten gehen von dieser Nummer aus, Antworten landen in derselben Konversation.",
+      "pipeline": "Betreuungs-Funnel",
+      "pipelineDefault": "Standard-Funnel des Workspace",
+      "searchPipeline": "Funnel suchen",
+      "noPipelines": "Keine Funnel gefunden",
+      "pipelineDescription": "In welchen Funnel die Konversationen dieser Kampagne einlaufen.",
+      "messageTitle": "Nachricht",
+      "responseMode": "Wie geantwortet wird",
+      "modeAgent": "KI-Agent",
+      "modeWorkflow": "Workflow",
+      "agent": "Agent",
+      "searchAgent": "Agenten suchen",
+      "noAgents": "Keine Agenten gefunden",
+      "preferAudio": "Mit Audio antworten",
+      "preferAudioDescription": "Der Agent antwortet mit Audio, wo es sinnvoll ist.",
+      "workflow": "Workflow",
+      "searchWorkflow": "Workflows suchen",
+      "noWorkflows": "Keine Workflows gefunden",
+      "loadingWorkflows": "Workflows werden geladen…",
+      "enableAnalysisDescription": "Analysiert die Konversationen dieser Kampagne automatisch.",
+      "enableAutoStagingDescription": "Verschiebt den Kontakt zwischen Phasen, während das Gespräch fortschreitet.",
+      "enableAutoMemoryDescription": "Speichert automatisch, was zum Lead relevant ist.",
+      "aiModel": "KI-Modell",
+      "aiModelDescription": "Modell für Analyse, automatische Phasen und Gedächtnis.",
+      "scheduleToggle": "Start planen",
+      "scheduledStart": "Geplanter Start",
+      "scheduleDescription": "Die Kampagne startet von selbst zur gewählten Zeit. Mindestens 5 Minuten im Voraus.",
+      "previewTitle": "Vorschau",
+      "previewEmpty": "Schreibe die Nachricht, um eine Vorschau zu sehen.",
+      "previewVariantsHelp": "{count} Variante(n). Jeder Empfänger erhält eine.",
+      "recipientsPaste": "Liste einfügen oder hochladen",
+      "downloadExample": "Beispiel herunterladen",
+      "noTargets": "Füge mindestens eine Nummer hinzu."
+    },
+    "detail": {
+      "numberOffline": "Diese Nummer ist getrennt. Die Kampagne sendet nichts, bis sie wieder verbunden ist.",
+      "number": "Nummer",
+      "messageKind": "Typ",
+      "variants": "{count} Varianten",
+      "agentOn": "Agent aktiv",
+      "workflowOn": "Workflow aktiv",
+      "pacing": "Taktung: {min}s bis {max}s",
+      "dailyCap": "Tageslimit: {cap}",
+      "badge": "WhatsApp-Kampagnen"
+    },
+    "entries": {
+      "number": "Kontakt",
+      "status": "Status",
+      "variant": "Variante",
+      "conversation": "Konversation",
+      "open": "Öffnen",
+      "sentAt": "Gesendet",
+      "emptyTitle": "Keine Nummern",
+      "emptyDescription": "Die Nummern dieser Kampagne erscheinen hier.",
+      "searchPlaceholder": "Kontakt suchen",
+      "stage": "Phase",
+      "noStage": "Keine Phase",
+      "clearFilters": "Filter zurücksetzen",
+      "activeFilters": "aktive Filter",
+      "errorCode": "Fehlercode",
+      "title": "Kampagnenkontakte",
+      "description": "Alle Nummern dieser Kampagne und der Status jedes Versands.",
+      "records": "Einträge",
+      "export": "CSV exportieren",
+      "exporting": "Wird exportiert…",
+      "loading": "Kontakte werden geladen…",
+      "exportError": {
+        "generic": "Export nicht möglich.",
+        "noEntries": "Mit diesen Filtern gibt es nichts zu exportieren.",
+        "tooLarge": "Der Zeitraum ist zu groß. Grenze die Filter ein.",
+        "busy": "Ein Export läuft bereits. Versuche es gleich noch einmal."
+      },
+      "noName": "Kein Name",
+      "variables": "Variablen",
+      "previous": "Zurück",
+      "next": "Weiter"
+    },
+    "danger": {
+      "title": "Gefahrenzone",
+      "reset": "Kampagne zurücksetzen",
+      "clearHistory": "Verlauf löschen",
+      "code": "Bestätigungscode",
+      "codeMismatch": "Der Code stimmt nicht.",
+      "resetTitle": "Diese Kampagne zurücksetzen?",
+      "resetDescription": "Alle Nummern kehren auf ausstehend zurück und können erneut angeschrieben werden.",
+      "resetDone": "Kampagne zurückgesetzt",
+      "clearTitle": "Verlauf dieser Kampagne löschen?",
+      "clearDescription": "Die gespeicherten Konversationen dieser Kampagne werden dauerhaft gelöscht.",
+      "clearDone": "Verlauf gelöscht"
+    },
+    "new": {
+      "badge": "Neue Kampagne",
+      "title": "Inoffizielle Kampagne erstellen",
+      "description": "Massenversand über eine per QR verbundene Nummer.",
+      "loading": "Formular wird geladen…"
+    },
+    "edit": {
+      "badge": "Kampagne bearbeiten",
+      "title": "Kampagne bearbeiten",
+      "description": "Passe Nachricht, Automatisierung und Taktung dieser Kampagne an."
+    },
+    "ws": {
+      "connected": "Verbunden",
+      "connecting": "Verbindung wird aufgebaut",
+      "disconnected": "Getrennt"
+    },
+    "crm": {
+      "dialogTitle": "Kampagnen-CRM",
+      "dialogDescription": "Von dieser Kampagne eröffnete Konversationen."
     }
   }
 }

@@ -12,10 +12,13 @@ export function listStages(campaignId?: string, campaignType?: string) {
     return apiClient<Stage[]>(`/stages${qs ? `?${qs}` : ''}`, { method: 'GET' });
 }
 
-export function createStage(name: string, color: string, description: string, campaignId?: string, campaignType?: string) {
+// pipelineId puts the stage on a named funnel; without it the server attaches it
+// to the workspace default, which is what made it impossible to add a column to a
+// custom funnel from the CRM.
+export function createStage(name: string, color: string, description: string, campaignId?: string, campaignType?: string, pipelineId?: string) {
     return apiClient<Stage>('/stages', {
         method: 'POST',
-        body: JSON.stringify({ name, color, description, ...(campaignId && { campaignId }), ...(campaignType && { campaignType }) }),
+        body: JSON.stringify({ name, color, description, ...(campaignId && { campaignId }), ...(campaignType && { campaignType }), ...(pipelineId && { pipelineId }) }),
     });
 }
 

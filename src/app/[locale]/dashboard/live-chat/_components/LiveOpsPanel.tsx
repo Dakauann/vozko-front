@@ -1212,8 +1212,8 @@ export default function LiveOpsPanel({
     },
     {
       key: "new",
-      label: tk("newContacts"),
-      value: empty ? "…" : fmt.num(kpis?.new_contacts),
+      label: tk("newLeads"),
+      value: empty ? "…" : fmt.num(kpis?.new_leads),
       icon: Users,
       bg: GLYPH_PLATE.Users,
     },

@@ -108,11 +108,18 @@ export default function KanbanColumnShell({
         // A container takes the panel corner (6px), not the control corner:
         // the board reads as a row of quiet trays with white cards on them.
         "relative flex h-full w-72 min-w-[288px] flex-shrink-0 flex-col rounded-lg transition-colors",
+        // Fundo e aresta OPACOS. Estavam em `bg-muted/70` e `border-border/70`:
+        // um preenchimento translúcido assume a cor do que está atrás dele, e
+        // aqui atrás está a parede do CRM em --background (L 97). O resultado é
+        // que a bandeja renderizava a ~L 94,2 em vez do L 93 que o token
+        // escolheu — mais clara e mais fraca do que o valor decidido, e variável
+        // conforme a parede. A receita de aviso fixa UM fundo opaco exatamente
+        // por isso; a bandeja não tem motivo para ser diferente.
         dashed
-          ? "border border-dashed border-border bg-muted/70"
+          ? "border border-dashed border-border bg-muted"
           : isDragOver
             ? "border border-dashed border-border-strong bg-muted"
-            : "border border-solid border-border/70 bg-muted/70",
+            : "border border-solid border-border bg-muted",
       )}
       style={{
         willChange: "box-shadow, border-color",

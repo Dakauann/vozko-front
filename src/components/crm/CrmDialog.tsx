@@ -4,7 +4,7 @@ import { ChatCircleDots, X } from "@/components/icons";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect } from "react";
 
-import type { CampaignType } from "@/lib/conversations/types";
+import type { CampaignType, ContainerKind } from "@/lib/conversations/types";
 import CrmLayout, { type CrmTranslations } from "./CrmLayout";
 
 
@@ -13,6 +13,13 @@ interface CrmDialogProps {
   onClose: () => void;
   campaignId: string;
   campaignType: CampaignType;
+  /**
+   * Narrows campaignId to a CAMPAIGN rather than the channel's primary
+   * container. Only the unofficial WhatsApp channel has both — a conversation
+   * belongs to a number forever, while a campaign is one run across many — so
+   * everywhere else this stays undefined and nothing changes.
+   */
+  containerKind?: ContainerKind;
   translations: CrmTranslations & {
     dialogTitle: string;
     dialogDescription: string;
@@ -25,6 +32,7 @@ export default function CrmDialog({
   onClose,
   campaignId,
   campaignType,
+  containerKind,
   translations: t,
 }: CrmDialogProps) {
   useEffect(() => {
@@ -109,6 +117,7 @@ export default function CrmDialog({
                 <CrmLayout
                   campaignId={campaignId}
                   campaignType={campaignType}
+                  containerKind={containerKind}
                   enabled={isOpen}
                   embedded
                   translations={t}

@@ -6,7 +6,10 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "clean": "bun -e \"const fs=require('fs');for(const t of ['.next','tsconfig.tsbuildinfo','node_modules/.cache','.turbo'])fs.rmSync(t,{recursive:true,force:true})\"",
+    "dev:clean": "bun run clean && bun run dev",
+    "build:clean": "bun run clean && bun run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

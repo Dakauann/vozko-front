@@ -22,7 +22,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import Button from "@/components/elevated-design/button";
 import TooltipWrapper from "@/components/ui/tooltip-wrapper";
@@ -62,6 +62,15 @@ interface CampaignHeaderProps {
   canStop?: boolean;
   canReset?: boolean;
   hasPermissionStart?: boolean;
+  /**
+   * Whether the viewer may HALT a running campaign.
+   *
+   * Separate from hasPermissionStart because the two are separate RBAC actions:
+   * being able to stop a runaway blast is a safety valve and must not require
+   * the privilege to launch one. Defaults to hasPermissionStart so callers that
+   * do not distinguish them keep their existing behaviour.
+   */
+  hasPermissionStop?: boolean;
   hasPermissionUpdate?: boolean;
   hasActiveSubscription?: boolean;
   plansLink?: string;
@@ -71,6 +80,27 @@ interface CampaignHeaderProps {
   onLifecycle: (action: "start" | "pause" | "stop") => void;
   isMonitoring?: boolean;
   onToggleMonitoring?: () => void;
+  /**
+   * The transport chip shown beside the badge, e.g. "Não oficial".
+   *
+   * The spine already carries this on the family header, and it is the ONLY
+   * thing separating two WhatsApp families at a glance — but an operator who
+   * deep-links straight to a campaign never passes through the spine. Without
+   * it, the two campaign products are indistinguishable on the one screen where
+   * confusing them means sending from the wrong number under the wrong rules.
+   */
+  transportBadge?: { label: string; hint?: string };
+  /**
+   * Channel-specific entries for the actions menu, rendered above Edit.
+   *
+   * A slot rather than another boolean prop per action: what belongs here is
+   * whatever a channel has that the others do not, and the alternative — a row
+   * of buttons under the header — adds a band of vertical space the official
+   * campaign does not have, so the two pages stop lining up.
+   *
+   * Receives `close` so an entry can dismiss the menu after acting.
+   */
+  extraActions?: (close: () => void) => ReactNode;
   translations: CampaignHeaderTranslations;
 }
 
@@ -202,6 +232,8 @@ function WsStatusIndicator({
 
 
 interface ActionsDropdownProps {
+  /** Channel-specific entries, rendered above Edit. Receives a close callback. */
+  extraActions?: (close: () => void) => ReactNode;
   isPending?: boolean;
   canReset?: boolean;
   hasPermissionUpdate?: boolean;
@@ -220,6 +252,7 @@ interface ActionsDropdownProps {
 }
 
 function ActionsDropdown({
+  extraActions,
   isPending,
   canReset,
   hasPermissionUpdate = true,
@@ -263,6 +296,13 @@ function ActionsDropdown({
             transition={{ duration: 0.15 }}
             className="absolute right-0 top-full z-50 mt-1 w-48 rounded-[--radius] border border-border bg-card py-1 shadow-lg"
           >
+            {extraActions ? (
+              <>
+                {extraActions(() => setOpen(false))}
+                <div className="my-1 border-t border-border" />
+              </>
+            ) : null}
+
             <TooltipWrapper
               content={t.noPermissionUpdate || "Sem permissão"}
               enabled={!hasPermissionUpdate}
@@ -350,7 +390,10 @@ export default function CampaignHeader({
   canStop = false,
   canReset = false,
   hasPermissionStart = true,
+  hasPermissionStop,
   hasPermissionUpdate = true,
+  transportBadge,
+  extraActions,
   hasActiveSubscription = true,
   plansLink = "/dashboard/plans",
   onShowCrm,
@@ -364,8 +407,16 @@ export default function CampaignHeader({
   const crmContext = useCrm();
   const wsStatus = crmContext.status;
 
+  // Halting falls back to the start privilege only where the caller does not
+  // distinguish them, so existing callers behave exactly as before.
+  const canHalt = hasPermissionStop ?? hasPermissionStart;
+
   const badgeColor =
-    campaignType === "whatsapp" ? "text-healthy-ink" : "text-primary-ink";
+    campaignType === "whatsapp"
+      ? "text-healthy-ink"
+      : campaignType === "unofficial_whatsapp"
+        ? "text-muted-foreground"
+        : "text-primary-ink";
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -392,6 +443,14 @@ export default function CampaignHeader({
             >
               {t.badge}
             </p>
+            {transportBadge ? (
+              <span
+                title={transportBadge.hint}
+                className="shrink-0 rounded-lg border border-border px-1.5 py-px text-2xs font-medium normal-case tracking-normal text-muted-foreground"
+              >
+                {transportBadge.label}
+              </span>
+            ) : null}
             <StatusBadge status={status} />
             <WsStatusIndicator
               status={wsStatus}
@@ -440,32 +499,32 @@ export default function CampaignHeader({
         <div className="flex items-center gap-0.5">
           <TooltipWrapper
             content={t.noPermissionStart || "Sem permissão"}
-            enabled={!hasPermissionStart}
+            enabled={!canHalt}
           >
             <Button
               variant="outline-subtle"
               onClick={() => onLifecycle("stop")}
-              disabled={isPending || !canStop || !hasPermissionStart}
+              disabled={isPending || !canStop || !canHalt}
               aria-label={t.stop}
               icon={<StopCircle weight="fill" className="h-4 w-4" />}
               iconVisible
-              iconColor={canStop && hasPermissionStart ? "#ef4444" : undefined}
+              iconColor={canStop && canHalt ? "#ef4444" : undefined}
               size="icon"
             />
           </TooltipWrapper>
 
           <TooltipWrapper
             content={t.noPermissionStart || "Sem permissão"}
-            enabled={!hasPermissionStart}
+            enabled={!canHalt}
           >
             <Button
               variant="outline-subtle"
               onClick={() => onLifecycle("pause")}
-              disabled={isPending || !canPause || !hasPermissionStart}
+              disabled={isPending || !canPause || !canHalt}
               aria-label={t.pause}
               icon={<PauseCircle weight="fill" className="h-4 w-4" />}
               iconVisible
-              iconColor={canPause && hasPermissionStart ? "#f59e0b" : undefined}
+              iconColor={canPause && canHalt ? "#f59e0b" : undefined}
               size="icon"
             />
           </TooltipWrapper>
@@ -525,6 +584,7 @@ export default function CampaignHeader({
 
         {/* More actions dropdown */}
         <ActionsDropdown
+          extraActions={extraActions}
           isPending={isPending}
           canReset={canReset}
           hasPermissionUpdate={hasPermissionUpdate}

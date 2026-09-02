@@ -38,6 +38,12 @@ interface CrmStageManagerProps {
   trigger?: ReactNode;
   campaignId?: string;
   campaignType?: string;
+  /**
+   * The funnel these stages belong to. A new stage joins it; without one the
+   * server attaches the stage to the workspace default funnel, which is how a
+   * column added while looking at a custom funnel used to land somewhere else.
+   */
+  pipelineId?: string;
 }
 
 
@@ -47,6 +53,7 @@ export default function CrmStageManager({
   trigger: customTrigger,
   campaignId,
   campaignType,
+  pipelineId,
 }: CrmStageManagerProps) {
   const tCrm = useTranslations("crm");
 
@@ -58,10 +65,11 @@ export default function CrmStageManager({
         description,
         campaignId,
         campaignType,
+        pipelineId,
       );
       return result.stage ?? null;
     },
-    [campaignId, campaignType],
+    [campaignId, campaignType, pipelineId],
   );
 
   const handleUpdate = useCallback(

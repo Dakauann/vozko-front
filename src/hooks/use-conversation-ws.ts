@@ -3,6 +3,7 @@
 import type {
   ActiveConversation,
   CampaignType,
+  ContainerKind,
   ConnectedUser,
   ConnectionStatus,
   ConversationMessage,
@@ -160,6 +161,13 @@ interface UseConversationWsReturn {
     campaignType?: CampaignType,
     whatsappCampaignType?: WhatsAppCampaignTypeFilter,
     conversationStatus?: string,
+    /**
+     * Narrows campaignId to a CAMPAIGN rather than the channel's primary
+     * container. Only the unofficial WhatsApp channel has two — a conversation
+     * belongs to a number forever, while a campaign is one run across many —
+     * so everywhere else this stays undefined and nothing changes.
+     */
+    containerKind?: ContainerKind,
   ) => void;
   latestAnalysisUpdate: WsAnalysisUpdatePayload | null;
   assignTo: (entryId: string, entryType: string, userId: string) => void;
@@ -330,6 +338,7 @@ export function useConversationWs({
     campaignId: string;
     campaignType?: CampaignType;
     whatsAppCampaignType?: WhatsAppCampaignTypeFilter;
+    containerKind?: ContainerKind;
     conversationStatus: string;
   }>({
     campaignId,
@@ -2074,6 +2083,44 @@ export function useConversationWs({
     [send],
   );
 
+  /**
+   * Reflects a lead rename across every list already on screen.
+   *
+   * A lead can own several conversations — an official WhatsApp thread, an
+   * unofficial one, a Telegram chat — and renaming the person means all of them
+   * are now that name. Keyed on lead_id rather than entry_id for exactly that
+   * reason: renaming from one conversation and watching the row above it keep
+   * the old name would read as a failed save.
+   *
+   * Local only. The write already succeeded server-side by the time this runs;
+   * this is what spares the operator a reload.
+   */
+  const applyLeadRename = useCallback((leadId: string, name: string) => {
+    if (!leadId) return;
+
+    const rename = (entries: InboxEntry[]) =>
+      entries.map((entry) =>
+        entry.lead_id === leadId ? { ...entry, lead_name: name } : entry,
+      );
+
+    setInbox(rename);
+    setSearchResults((prev) => (prev ? rename(prev) : prev));
+
+    // The open conversation carries no lead_id of its own, so it is matched
+    // through the refs rather than through the updaters above — a Set filled
+    // inside one setState updater is not reliably readable from another.
+    const owned = new Set(
+      [...inboxRef.current, ...(searchResultsRef.current ?? [])]
+        .filter((entry) => entry.lead_id === leadId)
+        .map((entry) => `${entry.entry_type}-${entry.entry_id}`),
+    );
+    setActiveConversation((prev) =>
+      prev && owned.has(`${prev.entry_type}-${prev.entry_id}`)
+        ? { ...prev, lead_name: name }
+        : prev,
+    );
+  }, []);
+
   const setConversationStatus = useCallback(
     (entryId: string, entryType: string, status: string) => {
       if (wsRef.current?.readyState !== WebSocket.OPEN) {
@@ -2174,6 +2221,7 @@ export function useConversationWs({
       newCampaignType?: CampaignType,
       newWhatsAppCampaignType?: WhatsAppCampaignTypeFilter,
       newConversationStatus?: string,
+      newContainerKind?: ContainerKind,
     ) => {
       const previousView = currentViewRef.current;
       const resolvedConversationStatus =
@@ -2181,17 +2229,23 @@ export function useConversationWs({
       const resolvedCampaignId = newCampaignId ?? "";
       const resolvedCampaignType = newCampaignType ?? "";
       const resolvedWhatsAppCampaignType = newWhatsAppCampaignType ?? "";
+      const resolvedContainerKind = newContainerKind ?? "";
       const onlyStatusChanged =
         previousView.campaignId === resolvedCampaignId &&
         (previousView.campaignType ?? "") === resolvedCampaignType &&
         (previousView.whatsAppCampaignType ?? "") ===
           resolvedWhatsAppCampaignType &&
+        // A container-kind change is a different set of conversations, so it is
+        // never "only the status changed" — treating it as one would keep the
+        // previous scope's inbox on screen.
+        (previousView.containerKind ?? "") === resolvedContainerKind &&
         previousView.conversationStatus !== resolvedConversationStatus;
 
       currentViewRef.current = {
         campaignId: resolvedCampaignId,
         campaignType: newCampaignType,
         whatsAppCampaignType: newWhatsAppCampaignType,
+        containerKind: newContainerKind,
         conversationStatus: resolvedConversationStatus,
       };
 
@@ -2199,6 +2253,7 @@ export function useConversationWs({
         campaign_id: resolvedCampaignId,
         campaign_type: resolvedCampaignType,
         whatsapp_campaign_type: resolvedWhatsAppCampaignType,
+        container_kind: resolvedContainerKind,
         conversation_status: resolvedConversationStatus,
       });
 
@@ -2278,5 +2333,6 @@ export function useConversationWs({
     latestAnalysisUpdate,
     assignTo,
     setConversationStatus,
+    applyLeadRename,
   };
 }

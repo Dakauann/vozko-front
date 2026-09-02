@@ -23,7 +23,7 @@ function overview(partial: Partial<AttendanceOverview> = {}): AttendanceOverview
             finished: 90,
             ongoing: 30,
             pending: 22,
-            new_contacts: 40,
+            new_leads: 40,
             unassigned_backlog: 5,
             avg_handle_mins: 12.345,
             avg_wait_mins: 3.2,

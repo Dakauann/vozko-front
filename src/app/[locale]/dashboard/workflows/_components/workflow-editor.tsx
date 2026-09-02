@@ -48,6 +48,7 @@ import {
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
 import { BrandLogo } from "@/components/brand-logo";
+import { openScoped } from "@/lib/browser/scoped-download-url";
 import { getApiBaseUrl } from "@/lib/api/browser-client";
 import ElevatedButton from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
@@ -1800,9 +1801,10 @@ export function WorkflowEditor({
                   <DropdownMenuItem
                     className="rounded-lg border-l-0"
                     onSelect={() =>
-                      window.open(
+                      // Scoped: a plain navigation carries no X-Workspace-ID,
+                      // so the API resolved the user's default workspace.
+                      openScoped(
                         `${getApiBaseUrl()}/workflows/${encodeURIComponent(workflowState.id)}/export`,
-                        "_blank",
                       )
                     }
                   >
