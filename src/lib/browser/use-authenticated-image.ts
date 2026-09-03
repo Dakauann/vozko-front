@@ -7,7 +7,9 @@ import { fetchWithRefresh, scopeHeaders } from "@/lib/api/browser-client";
 interface ImageState {
   url: string | null;
   src: string | null;
+  contentType: string | null;
   failed: boolean;
+  onError: () => void;
 }
 
 /**
@@ -16,7 +18,13 @@ interface ImageState {
  * remain broken until the page is reloaded.
  */
 export function useAuthenticatedImage(url: string): ImageState {
-  const [state, setState] = useState<ImageState>({ url: null, src: null, failed: false });
+  const [state, setState] = useState<ImageState>({
+    url: null,
+    src: null,
+    contentType: null,
+    failed: false,
+    onError: () => undefined,
+  });
 
   useEffect(() => {
     let mounted = true;
@@ -32,16 +40,29 @@ export function useAuthenticatedImage(url: string): ImageState {
     )
       .then((response) => {
         if (!response.ok) throw new Error(`Image request failed: ${response.status}`);
-        return response.blob();
+        return response.blob().then((blob) => ({
+          blob,
+          contentType: response.headers.get("content-type"),
+        }));
       })
-      .then((blob) => {
+      .then(({ blob, contentType }) => {
         if (!mounted) return;
+        if (blob.size === 0) throw new Error("Image response was empty");
         objectUrl = URL.createObjectURL(blob);
-        setState({ url, src: objectUrl, failed: false });
+        setState({
+          url,
+          src: objectUrl,
+          contentType,
+          failed: false,
+          onError: () => {
+            if (objectUrl) URL.revokeObjectURL(objectUrl);
+            setState({ url, src: null, contentType: null, failed: true, onError: () => undefined });
+          },
+        });
       })
       .catch(() => {
         if (mounted && !controller.signal.aborted) {
-          setState({ url, src: null, failed: true });
+          setState({ url, src: null, contentType: null, failed: true, onError: () => undefined });
         }
       });
 
@@ -52,5 +73,7 @@ export function useAuthenticatedImage(url: string): ImageState {
     };
   }, [url]);
 
-  return state.url === url ? state : { url, src: null, failed: false };
+  return state.url === url
+    ? state
+    : { url, src: null, contentType: null, failed: false, onError: () => undefined };
 }

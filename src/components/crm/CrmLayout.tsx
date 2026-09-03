@@ -92,6 +92,7 @@ import {
   removeLabelFromEntryAction,
 } from "@/app/actions/labels";
 import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones";
+import { listLeadsQueryAction } from "@/app/actions/leads";
 import {
   getCallPermissionStatusAction,
   requestCallPermissionAction,
@@ -325,7 +326,20 @@ export default function CrmLayout({
   const [whatsappPhones, setWhatsappPhones] = useState<WhatsAppBusinessPhone[]>(
     [],
   );
+  const [totalContacts, setTotalContacts] = useState<number | null>(null);
   const { can, currentWorkspace } = useWorkspace();
+
+  useEffect(() => {
+    if (!currentWorkspace?.id) return;
+
+    let cancelled = false;
+    void listLeadsQueryAction({ page: 1, pageSize: 1 }).then((result) => {
+      if (!cancelled && !result.error) setTotalContacts(result.meta.totalItems);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [currentWorkspace?.id]);
 
   const {
     isMuted,
@@ -2324,6 +2338,7 @@ export default function CrmLayout({
                   onLoadMore={handleLoadMoreInbox}
                   hasMore={inboxHasMore}
                   inboxTotalItems={inboxTotalItems}
+                  totalContacts={totalContacts}
                   conversationStatusCounts={conversationStatusCounts}
                   loadingMore={loadingInbox}
                   tags={tags}

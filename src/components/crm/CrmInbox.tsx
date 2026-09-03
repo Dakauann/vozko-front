@@ -99,6 +99,7 @@ interface CrmInboxProps {
   onLoadMore?: () => void;
   hasMore?: boolean;
   inboxTotalItems?: number;
+  totalContacts?: number | null;
   conversationStatusCounts?: Record<string, number>;
   loadingMore?: boolean;
   tags?: Stage[];
@@ -219,6 +220,7 @@ export default function CrmInbox({
   onLoadMore,
   hasMore = false,
   inboxTotalItems,
+  totalContacts,
   conversationStatusCounts,
   loadingMore = false,
   tags: availableTags = [],
@@ -632,9 +634,11 @@ export default function CrmInbox({
             <span className="legend">{statusLabel}</span>
             {entries.length > 0 && !isServerSearchActive && (
               <span className="readout ml-1 text-2xs font-semibold text-foreground">
-                {inboxTotalItems != null && inboxTotalItems > 0
-                  ? inboxTotalItems
-                  : entries.length}
+                {totalContacts != null
+                  ? totalContacts
+                  : inboxTotalItems != null && inboxTotalItems > 0
+                    ? inboxTotalItems
+                    : entries.length}
               </span>
             )}
           </span>

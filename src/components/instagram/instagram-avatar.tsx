@@ -53,7 +53,7 @@ function tintFor(seed: string): string {
  * the page and tell an operator nothing about WHICH account they are looking at.
  */
 export function InstagramAvatar({ accountId, username, className, textClassName }: Props) {
-  const { src, failed } = useAuthenticatedImage(instagramAvatarUrl(accountId));
+  const { src, failed, onError } = useAuthenticatedImage(instagramAvatarUrl(accountId));
 
   if (failed) {
     const handle = username.trim();
@@ -78,6 +78,7 @@ export function InstagramAvatar({ accountId, username, className, textClassName 
     <img
       src={src}
       alt={username}
+      onError={onError}
       className={cn("shrink-0 rounded-full object-cover", className)}
     />
   );

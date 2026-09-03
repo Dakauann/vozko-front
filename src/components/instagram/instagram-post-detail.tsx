@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowSquareOut, Heart, ImageBroken, X } from "@/components/icons";
+import { ArrowSquareOut, CaretLeft, CaretRight, Heart, ImageBroken, X } from "@/components/icons";
 import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -52,9 +52,23 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
   // charts and a form, which need the width the picture can spare.
   const [tab, setTab] = useState<"comments" | "automation" | "analysis">("comments");
   const wide = tab === "analysis";
-  const { src: assetSrc, failed: assetFailed } = useAuthenticatedImage(
-    instagramAssetUrl(accountId, media.id),
+  const carouselItems = media.isCarousel && media.children?.length ? media.children : [media];
+  const [carouselState, setCarouselState] = useState({ mediaId: "", index: 0 });
+  const carouselIndex = carouselState.mediaId === media.id
+    ? Math.min(carouselState.index, carouselItems.length - 1)
+    : 0;
+  const activeMedia = carouselItems[carouselIndex] ?? media;
+  const isVideo = activeMedia.mediaType === "VIDEO" || activeMedia.isReel;
+  const {
+    src: assetSrc,
+    contentType: assetContentType,
+    failed: assetFailed,
+    onError: onAssetError,
+  } = useAuthenticatedImage(
+    instagramAssetUrl(accountId, activeMedia.id),
   );
+  const renderVideo =
+    isVideo || assetContentType?.startsWith("video/") === true;
 
   const [comments, setComments] = useState<InstagramComment[]>([]);
   const [cursor, setCursor] = useState<string | undefined>();
@@ -160,19 +174,61 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
             wide ? "h-[24%] md:w-[34%]" : "h-[38%] md:w-[55%]",
           )}
         >
-          {media.hasAsset && assetSrc ? (
+          {activeMedia.hasAsset && assetSrc ? renderVideo ? (
+            <video
+              src={assetSrc}
+              controls
+              playsInline
+              preload="metadata"
+              onError={onAssetError}
+              className="h-full w-full object-contain"
+            />
+          ) : (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={assetSrc}
-              alt={media.caption?.trim() || ""}
+              alt={activeMedia.caption?.trim() || media.caption?.trim() || ""}
+              onError={onAssetError}
               className="h-full w-full object-contain"
             />
-          ) : !media.hasAsset || assetFailed ? (
+          ) : !activeMedia.hasAsset || assetFailed ? (
             <div className="flex flex-col items-center gap-2 p-10 text-white/60">
               <ImageBroken className="h-8 w-8" weight="duotone" />
               <p className="text-xs">{t("posts.noAsset")}</p>
             </div>
           ) : null}
+
+          {carouselItems.length > 1 && (
+            <>
+              <button
+                type="button"
+                aria-label={`${t("posts.openPost")} ${carouselIndex}`}
+                disabled={carouselIndex === 0}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setCarouselState({ mediaId: media.id, index: carouselIndex - 1 });
+                }}
+                className="absolute left-3 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full bg-black/55 text-white transition hover:bg-black/75 disabled:pointer-events-none disabled:opacity-0"
+              >
+                <CaretLeft className="h-5 w-5" weight="bold" />
+              </button>
+              <button
+                type="button"
+                aria-label={`${t("posts.openPost")} ${carouselIndex + 2}`}
+                disabled={carouselIndex === carouselItems.length - 1}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setCarouselState({ mediaId: media.id, index: carouselIndex + 1 });
+                }}
+                className="absolute right-3 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full bg-black/55 text-white transition hover:bg-black/75 disabled:pointer-events-none disabled:opacity-0"
+              >
+                <CaretRight className="h-5 w-5" weight="bold" />
+              </button>
+              <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium tabular-nums text-white">
+                {carouselIndex + 1}/{carouselItems.length}
+              </span>
+            </>
+          )}
         </div>
 
         {/* Meta + comments. min-h-0 is what allows the inner list to scroll rather

@@ -103,9 +103,12 @@ function PostTile({
   // A reel is a VIDEO with mediaProductType REELS, there is no media_type=REELS,
   // which is why isReel is precomputed server-side rather than derived here.
   const isVideo = media.mediaType === "VIDEO" || media.isReel;
-  const { src, failed } = useAuthenticatedImage(
-    instagramAssetUrl(accountId, media.id, true),
+  const useVideoPreview = isVideo && !media.thumbnailUrl;
+  const { src, contentType, failed, onError } = useAuthenticatedImage(
+    instagramAssetUrl(accountId, media.id, !useVideoPreview),
   );
+  const renderVideo =
+    isVideo && (useVideoPreview || contentType?.startsWith("video/") === true);
 
   return (
     <button
@@ -119,13 +122,26 @@ function PostTile({
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
       )}
     >
-      {media.hasAsset && src ? (
+      {media.hasAsset && src ? renderVideo ? (
+        <video
+          src={src}
+          muted
+          autoPlay
+          loop
+          playsInline
+          preload="metadata"
+          aria-label={media.caption?.trim() || ""}
+          onError={onError}
+          className="size-full object-cover"
+        />
+      ) : (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={src}
           alt={media.caption?.trim() || ""}
           loading="lazy"
           decoding="async"
+          onError={onError}
           className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
         />
       ) : !media.hasAsset || failed ? (

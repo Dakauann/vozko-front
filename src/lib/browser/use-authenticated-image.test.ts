@@ -34,6 +34,7 @@ describe("useAuthenticatedImage", () => {
   it("fetches with credentials and exposes a blob URL", async () => {
     const response = {
       ok: true,
+      headers: new Headers({ "content-type": "image/jpeg" }),
       blob: vi.fn(async () => new Blob(["image"])),
     } as unknown as Response;
     vi.mocked(fetch).mockResolvedValue(response);
@@ -43,6 +44,7 @@ describe("useAuthenticatedImage", () => {
     );
 
     await waitFor(() => expect(result.current.src).toBe("blob:image-1"));
+    expect(result.current.contentType).toBe("image/jpeg");
 
     expect(fetch).toHaveBeenCalledWith(
       "https://api.test/image?workspace_id=workspace-b",
