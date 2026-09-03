@@ -5,6 +5,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { Link } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 import {
+  BUTTON_DESTRUCTIVE,
   BUTTON_GHOST,
   BUTTON_OUTLINE,
   BUTTON_OUTLINE_SUBTLE,
@@ -19,6 +20,7 @@ type BaseVariant =
   | "outline"
   | "outline-subtle"
   | "ghost"
+  | "destructive"
   | "vsl"
   | "action"
   | "command";
@@ -53,6 +55,7 @@ const variantAlias: Record<ButtonVariant, BaseVariant> = {
   outline: "outline",
   "outline-subtle": "outline-subtle",
   ghost: "ghost",
+  destructive: "destructive",
   vsl: "vsl",
   action: "action",
   command: "command",
@@ -80,6 +83,10 @@ const variantClasses: Record<BaseVariant, string> = {
   outline: cn("group", BUTTON_OUTLINE),
   "outline-subtle": BUTTON_OUTLINE_SUBTLE,
   ghost: BUTTON_GHOST,
+  // The irreversible action. Shared with ui/button so "delete" looks the same
+  // wherever it is spelled; before this, danger controls here were the primary
+  // variant with `!important` fill overrides bolted on at the call site.
+  destructive: BUTTON_DESTRUCTIVE,
   // NOT BUTTON_PRIMARY: this one has never changed fill on press, only its
   // shadow. Left as-is rather than folded in, because giving it the pressed
   // colour is a visual change to the landing-page CTA, not a refactor.
@@ -112,6 +119,8 @@ function resolveIconColorClass(variant: BaseVariant) {
     case "outline-subtle":
     case "outline":
       return "text-foreground";
+    case "destructive":
+      return "text-destructive-foreground";
     case "command":
       return "text-primary-ink";
     case "ghost":

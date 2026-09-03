@@ -1178,7 +1178,8 @@
       "unofficialWhatsappCampaignsList": "Liste",
       "createUnofficialWhatsappCampaign": "Neue Kampagne",
       "archivedUnofficialWhatsappCampaigns": "Archiviert",
-      "audience": "Publikum"
+      "audience": "Publikum",
+      "funnels": "Funnels"
     },
     "badges": {
       "new": "Neu",
@@ -10417,6 +10418,127 @@
     "crm": {
       "dialogTitle": "Kampagnen-CRM",
       "dialogDescription": "Von dieser Kampagne eröffnete Konversationen."
+    }
+  },
+  "funnels": {
+    "page": {
+      "badge": "Funnels",
+      "description": "Gestalten Sie die Boards Ihrer Kommunikation: die Phasen, ihre Reihenfolge und wo jede Konversation eintrifft."
+    },
+    "list": {
+      "title": "Funnels des Workspace",
+      "new": "Neuer Funnel",
+      "manage": "Funnels verwalten",
+      "conversation": "Betreuung",
+      "opportunity": "Vertrieb",
+      "emptyConversation": "Noch kein Betreuungs-Funnel.",
+      "emptyOpportunity": "Noch kein Vertriebs-Funnel."
+    },
+    "create": {
+      "title": "Neuer Funnel",
+      "description": "Ein Funnel ist der Prozess, den das Board zeigt. Schreiben Sie Ihre eigenen Phasen, in der Reihenfolge, in der sie ablaufen.",
+      "cancel": "Abbrechen",
+      "confirm": "Funnel erstellen",
+      "creating": "Wird erstellt...",
+      "needsOneStage": "Benennen Sie mindestens eine Phase, um den Funnel zu erstellen."
+    },
+    "detail": {
+      "conversationHint": "Die Konversationen dieses Funnels liegen auf diesen Phasen. Die erste nimmt Eingehende auf.",
+      "opportunityHint": "Die Deals dieses Funnels liegen auf diesen Phasen. Die erste nimmt Eingehende auf.",
+      "isDefault": "Standard-Funnel",
+      "makeDefault": "Als Standard setzen",
+      "duplicate": "Duplizieren",
+      "remove": "Löschen",
+      "unsaved": "Nicht gespeicherte Änderungen in diesem Funnel.",
+      "revert": "Verwerfen",
+      "save": "Änderungen speichern",
+      "saving": "Wird gespeichert..."
+    },
+    "none": {
+      "title": "Noch keine Funnels",
+      "body": "Ein Funnel legt die Spalten des Boards und den Weg einer Konversation fest. Erstellen Sie den ersten und schreiben Sie Ihren Prozess.",
+      "cta": "Ersten Funnel erstellen"
+    },
+    "copyName": "{name} (Kopie)",
+    "toast": {
+      "created": "Funnel \"{name}\" erstellt",
+      "createFailed": "Der Funnel konnte nicht erstellt werden.",
+      "saved": "Funnel aktualisiert",
+      "deleted": "Funnel \"{name}\" gelöscht",
+      "deleteFailed": "Der Funnel konnte nicht gelöscht werden.",
+      "duplicated": "Funnel \"{name}\" aus der Kopie erstellt",
+      "duplicateFailed": "Der Funnel konnte nicht dupliziert werden.",
+      "defaultSet": "\"{name}\" ist jetzt der Standard-Funnel",
+      "renamed": "Funnel umbenannt in \"{name}\""
+    },
+    "composer": {
+      "nameLabel": "Name des Funnels",
+      "nameHint": "Erscheint in der CRM-Auswahl und bei der Funnel-Wahl einer Kampagne.",
+      "nameTooShort": "Verwenden Sie einen Namen mit mindestens 2 Zeichen.",
+      "stagesTitle": "Phasen",
+      "stagesHint": "Die Spalten des Boards, von links nach rechts. Zum Umsortieren ziehen. Die erste ist der Eingang jeder neuen Konversation.",
+      "startFrom": "Starten mit",
+      "useDefaults": "Standardphasen",
+      "copyFrom": "Aus einem Funnel kopieren",
+      "copying": "Wird kopiert...",
+      "replaceWarning": "Dies ersetzt die oben geschriebenen Phasen."
+    },
+    "defaults": {
+      "received": "Eingegangen",
+      "inProgress": "In Bearbeitung",
+      "scheduling": "Terminierung",
+      "finished": "Abgeschlossen"
+    },
+    "stages": {
+      "add": "Phase hinzufügen",
+      "addFirst": "Erste Phase hinzufügen",
+      "count": "{count, plural, one {# Phase} other {# Phasen}}",
+      "capReached": "Grenze von {max} Phasen pro Funnel.",
+      "emptyTitle": "Noch keine Phasen",
+      "emptyBody": "Jede Phase ist eine Spalte des Boards. Schreiben Sie die Ihres Prozesses, etwa Sichtung, Angebot gesendet und Abgeschlossen. Die erste in der Liste nimmt eingehende Konversationen auf.",
+      "dragHandle": "Phase {name} ziehen",
+      "untitled": "ohne Namen",
+      "namePlaceholder": "Name der Phase",
+      "nameLabel": "Name der Phase",
+      "descriptionPlaceholder": "Was in dieser Phase passiert (optional)",
+      "descriptionLabel": "Beschreibung der Phase",
+      "entry": "Eingang",
+      "remove": "Phase entfernen",
+      "removeNamed": "Phase {name} entfernen",
+      "lockedHint": "Diese Phase enthält Konversationen und kann hier nicht entfernt werden.",
+      "colorLabel": "Farbe der Phase",
+      "colorFor": "Farbe der Phase {name}",
+      "viewBoard": "Board",
+      "viewList": "Liste",
+      "viewLabel": "Ansicht der Phasen"
+    },
+    "remove": {
+      "title": "Funnel \"{name}\" löschen?",
+      "loading": "Wird geprüft, was dieser Funnel enthält...",
+      "loadFailed": "Der Inhalt dieses Funnels konnte nicht geprüft werden.",
+      "blockedLead": "Dieser Funnel ist noch in Verwendung und kann jetzt nicht gelöscht werden.",
+      "moveLead": "{count, plural, one {# Konversation liegt auf diesem Funnel und braucht ein Ziel.} other {# Konversationen liegen auf diesem Funnel und brauchen ein Ziel.}}",
+      "emptyLead": "Dieser Funnel enthält keine Konversationen.",
+      "emptyDetail": "Die Phasen des Funnels werden ebenfalls entfernt. Keine Konversation ist betroffen, weil hier keine liegt.",
+      "destinationLabel": "Konversationen verschieben nach",
+      "destinationPlaceholder": "Ziel-Funnel wählen",
+      "destinationHint": "Die Konversationen landen auf der ersten Phase des Ziels.",
+      "destinationChosen": "{count, plural, one {# Konversation geht auf die erste Phase von {name}.} other {# Konversationen gehen auf die erste Phase von {name}.}}",
+      "blockedTitle": "Zeigen weiterhin auf diesen Funnel:",
+      "blockedCampaigns": "{count, plural, one {Kampagne} other {Kampagnen}}",
+      "blockedChannels": "{count, plural, one {verbundener Kanal} other {verbundene Kanäle}}",
+      "blockedOpportunities": "{count, plural, one {Deal} other {Deals}}",
+      "blockedHint": "Richten Sie jeden auf seinem eigenen Bildschirm auf einen anderen Funnel und kommen Sie zurück.",
+      "cancel": "Abbrechen",
+      "close": "Schließen",
+      "confirm": "Funnel löschen",
+      "removing": "Wird gelöscht..."
+    },
+    "rename": {
+      "edit": "Funnel umbenennen",
+      "label": "Name des Funnels",
+      "save": "Namen speichern",
+      "cancel": "Abbrechen"
     }
   }
 }

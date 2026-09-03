@@ -1453,7 +1453,8 @@
       "unofficialWhatsappCampaignsList": "List",
       "createUnofficialWhatsappCampaign": "New campaign",
       "archivedUnofficialWhatsappCampaigns": "Archived",
-      "audience": "Audience"
+      "audience": "Audience",
+      "funnels": "Funnels"
     },
     "badges": {
       "new": "New",
@@ -11418,6 +11419,127 @@
     "crm": {
       "dialogTitle": "Campaign CRM",
       "dialogDescription": "Conversations this campaign opened."
+    }
+  },
+  "funnels": {
+    "page": {
+      "badge": "Funnels",
+      "description": "Design the boards your conversations run on: the stages, the order they appear in, and where each conversation lands."
+    },
+    "list": {
+      "title": "Workspace funnels",
+      "new": "New funnel",
+      "manage": "Manage funnels",
+      "conversation": "Support",
+      "opportunity": "Sales",
+      "emptyConversation": "No support funnel yet.",
+      "emptyOpportunity": "No sales funnel yet."
+    },
+    "create": {
+      "title": "New funnel",
+      "description": "A funnel is the process the board shows. Write your own stages, in the order they happen.",
+      "cancel": "Cancel",
+      "confirm": "Create funnel",
+      "creating": "Creating...",
+      "needsOneStage": "Name at least one stage to create the funnel."
+    },
+    "detail": {
+      "conversationHint": "This funnel's conversations live on these stages. The first one receives arrivals.",
+      "opportunityHint": "This funnel's deals live on these stages. The first one receives arrivals.",
+      "isDefault": "Default funnel",
+      "makeDefault": "Make default",
+      "duplicate": "Duplicate",
+      "remove": "Delete",
+      "unsaved": "Unsaved changes in this funnel.",
+      "revert": "Discard",
+      "save": "Save changes",
+      "saving": "Saving..."
+    },
+    "none": {
+      "title": "No funnels yet",
+      "body": "A funnel defines the board's columns and the path a conversation takes. Create the first one and write your process.",
+      "cta": "Create the first funnel"
+    },
+    "copyName": "{name} (copy)",
+    "toast": {
+      "created": "Funnel \"{name}\" created",
+      "createFailed": "Could not create the funnel.",
+      "saved": "Funnel updated",
+      "deleted": "Funnel \"{name}\" deleted",
+      "deleteFailed": "Could not delete the funnel.",
+      "duplicated": "Funnel \"{name}\" created from the copy",
+      "duplicateFailed": "Could not duplicate the funnel.",
+      "defaultSet": "\"{name}\" is now the default funnel",
+      "renamed": "Funnel renamed to \"{name}\""
+    },
+    "composer": {
+      "nameLabel": "Funnel name",
+      "nameHint": "Shown in the CRM selector and in a campaign's funnel choice.",
+      "nameTooShort": "Use a name with at least 2 characters.",
+      "stagesTitle": "Stages",
+      "stagesHint": "The board's columns, left to right. Drag to reorder. The first one is where every new conversation lands.",
+      "startFrom": "Start from",
+      "useDefaults": "Default stages",
+      "copyFrom": "Copy from a funnel",
+      "copying": "Copying...",
+      "replaceWarning": "This replaces the stages written above."
+    },
+    "defaults": {
+      "received": "Received",
+      "inProgress": "In progress",
+      "scheduling": "Scheduling",
+      "finished": "Finished"
+    },
+    "stages": {
+      "add": "Add stage",
+      "addFirst": "Add the first stage",
+      "count": "{count, plural, one {# stage} other {# stages}}",
+      "capReached": "Limit of {max} stages per funnel.",
+      "emptyTitle": "No stages yet",
+      "emptyBody": "Each stage is a column on the board. Write the ones your process uses, for example Triage, Proposal sent and Closed. The first in the list receives arriving conversations.",
+      "dragHandle": "Drag the {name} stage",
+      "untitled": "untitled",
+      "namePlaceholder": "Stage name",
+      "nameLabel": "Stage name",
+      "descriptionPlaceholder": "What happens at this stage (optional)",
+      "descriptionLabel": "Stage description",
+      "entry": "Entry",
+      "remove": "Remove stage",
+      "removeNamed": "Remove the {name} stage",
+      "lockedHint": "This stage holds conversations and cannot be removed here.",
+      "colorLabel": "Stage colour",
+      "colorFor": "Colour of the {name} stage",
+      "viewBoard": "Board",
+      "viewList": "List",
+      "viewLabel": "How to view the stages"
+    },
+    "remove": {
+      "title": "Delete the \"{name}\" funnel?",
+      "loading": "Checking what this funnel holds...",
+      "loadFailed": "Could not check what this funnel holds.",
+      "blockedLead": "This funnel is still in use and cannot be deleted yet.",
+      "moveLead": "{count, plural, one {# conversation is on this funnel and needs a destination.} other {# conversations are on this funnel and need a destination.}}",
+      "emptyLead": "This funnel holds no conversations.",
+      "emptyDetail": "The funnel's stages are removed too. No conversation is affected, because there are none here.",
+      "destinationLabel": "Move conversations to",
+      "destinationPlaceholder": "Choose the destination funnel",
+      "destinationHint": "Conversations land on the destination's first stage.",
+      "destinationChosen": "{count, plural, one {# conversation moves to the first stage of {name}.} other {# conversations move to the first stage of {name}.}}",
+      "blockedTitle": "Still pointing at this funnel:",
+      "blockedCampaigns": "{count, plural, one {campaign} other {campaigns}}",
+      "blockedChannels": "{count, plural, one {connected channel} other {connected channels}}",
+      "blockedOpportunities": "{count, plural, one {deal} other {deals}}",
+      "blockedHint": "Point each one at another funnel at its own screen, then come back.",
+      "cancel": "Cancel",
+      "close": "Close",
+      "confirm": "Delete funnel",
+      "removing": "Deleting..."
+    },
+    "rename": {
+      "edit": "Rename funnel",
+      "label": "Funnel name",
+      "save": "Save name",
+      "cancel": "Cancel"
     }
   }
 }

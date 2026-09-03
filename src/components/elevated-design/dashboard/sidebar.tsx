@@ -42,6 +42,7 @@ import {
   CalendarBlank,
   Lightning,
   GearSix,
+  Kanban,
   ChartBar,
   UsersThree,
   X,
@@ -223,6 +224,17 @@ export const campanhasNavItems: NavItem[] = [
     href: "/dashboard/live-chat",
     family: "crm",
     requiredPermission: { resource: "conversations", action: "read" },
+  },
+  {
+    // Where a workspace designs its boards. It sits directly under Atendimento
+    // because that is the surface it configures, and it inherits the slot the
+    // retired "Grupos de etapas" entry used to hold — people had it bookmarked
+    // and went looking for it there.
+    icon: Kanban,
+    labelKey: "nav.funnels",
+    href: "/dashboard/funnels",
+    family: "crm",
+    requiredPermission: { resource: "stages", action: "read" },
   },
   {
     icon: ChartBar,

@@ -1143,7 +1143,8 @@
       "unofficialWhatsappCampaignsList": "Lista",
       "createUnofficialWhatsappCampaign": "Nuevo envío",
       "archivedUnofficialWhatsappCampaigns": "Archivados",
-      "audience": "Audiencia"
+      "audience": "Audiencia",
+      "funnels": "Embudos"
     },
     "badges": {
       "new": "Nuevo",
@@ -9920,6 +9921,127 @@
     "crm": {
       "dialogTitle": "CRM de la campaña",
       "dialogDescription": "Conversaciones abiertas por esta campaña."
+    }
+  },
+  "funnels": {
+    "page": {
+      "badge": "Embudos",
+      "description": "Diseñe los tableros de atención: las etapas, el orden en que aparecen y dónde entra cada conversación."
+    },
+    "list": {
+      "title": "Embudos del workspace",
+      "new": "Nuevo embudo",
+      "manage": "Gestionar embudos",
+      "conversation": "Atención",
+      "opportunity": "Ventas",
+      "emptyConversation": "Todavía no hay embudos de atención.",
+      "emptyOpportunity": "Todavía no hay embudos de ventas."
+    },
+    "create": {
+      "title": "Nuevo embudo",
+      "description": "Un embudo es el proceso que muestra el tablero. Escriba sus etapas, en el orden en que ocurren.",
+      "cancel": "Cancelar",
+      "confirm": "Crear embudo",
+      "creating": "Creando...",
+      "needsOneStage": "Nombre al menos una etapa para crear el embudo."
+    },
+    "detail": {
+      "conversationHint": "Las conversaciones de este embudo viven en estas etapas. La primera recibe a quien llega.",
+      "opportunityHint": "Las oportunidades de este embudo viven en estas etapas. La primera recibe a quien llega.",
+      "isDefault": "Embudo predeterminado",
+      "makeDefault": "Hacer predeterminado",
+      "duplicate": "Duplicar",
+      "remove": "Eliminar",
+      "unsaved": "Cambios sin guardar en este embudo.",
+      "revert": "Descartar",
+      "save": "Guardar cambios",
+      "saving": "Guardando..."
+    },
+    "none": {
+      "title": "Todavía no hay embudos",
+      "body": "Un embudo define las columnas del tablero y el recorrido de una conversación. Cree el primero y escriba su proceso.",
+      "cta": "Crear el primer embudo"
+    },
+    "copyName": "{name} (copia)",
+    "toast": {
+      "created": "Embudo \"{name}\" creado",
+      "createFailed": "No se pudo crear el embudo.",
+      "saved": "Embudo actualizado",
+      "deleted": "Embudo \"{name}\" eliminado",
+      "deleteFailed": "No se pudo eliminar el embudo.",
+      "duplicated": "Embudo \"{name}\" creado a partir de la copia",
+      "duplicateFailed": "No se pudo duplicar el embudo.",
+      "defaultSet": "\"{name}\" ahora es el embudo predeterminado",
+      "renamed": "Embudo renombrado a \"{name}\""
+    },
+    "composer": {
+      "nameLabel": "Nombre del embudo",
+      "nameHint": "Aparece en el selector del CRM y en la elección de embudo de las campañas.",
+      "nameTooShort": "Use un nombre con al menos 2 caracteres.",
+      "stagesTitle": "Etapas",
+      "stagesHint": "Las columnas del tablero, de izquierda a derecha. Arrastre para reordenar. La primera es donde entra cada conversación nueva.",
+      "startFrom": "Empezar desde",
+      "useDefaults": "Etapas predeterminadas",
+      "copyFrom": "Copiar de un embudo",
+      "copying": "Copiando...",
+      "replaceWarning": "Esto reemplaza las etapas escritas arriba."
+    },
+    "defaults": {
+      "received": "Recibido",
+      "inProgress": "En atención",
+      "scheduling": "Agendamiento",
+      "finished": "Finalizado"
+    },
+    "stages": {
+      "add": "Agregar etapa",
+      "addFirst": "Agregar la primera etapa",
+      "count": "{count, plural, one {# etapa} other {# etapas}}",
+      "capReached": "Límite de {max} etapas por embudo.",
+      "emptyTitle": "Todavía no hay etapas",
+      "emptyBody": "Cada etapa es una columna del tablero. Escriba las de su proceso, por ejemplo Triaje, Propuesta enviada y Cerrado. La primera de la lista recibe las conversaciones que llegan.",
+      "dragHandle": "Arrastrar la etapa {name}",
+      "untitled": "sin nombre",
+      "namePlaceholder": "Nombre de la etapa",
+      "nameLabel": "Nombre de la etapa",
+      "descriptionPlaceholder": "Qué ocurre en esta etapa (opcional)",
+      "descriptionLabel": "Descripción de la etapa",
+      "entry": "Entrada",
+      "remove": "Quitar etapa",
+      "removeNamed": "Quitar la etapa {name}",
+      "lockedHint": "Esta etapa tiene conversaciones y no se puede quitar aquí.",
+      "colorLabel": "Color de la etapa",
+      "colorFor": "Color de la etapa {name}",
+      "viewBoard": "Tablero",
+      "viewList": "Lista",
+      "viewLabel": "Cómo ver las etapas"
+    },
+    "remove": {
+      "title": "¿Eliminar el embudo \"{name}\"?",
+      "loading": "Verificando qué contiene este embudo...",
+      "loadFailed": "No se pudo verificar el contenido de este embudo.",
+      "blockedLead": "Este embudo todavía está en uso y no se puede eliminar ahora.",
+      "moveLead": "{count, plural, one {# conversación está en este embudo y necesita un destino.} other {# conversaciones están en este embudo y necesitan un destino.}}",
+      "emptyLead": "Este embudo no tiene conversaciones.",
+      "emptyDetail": "Las etapas del embudo también se eliminan. Ninguna conversación se ve afectada, porque no hay ninguna aquí.",
+      "destinationLabel": "Mover las conversaciones a",
+      "destinationPlaceholder": "Elija el embudo de destino",
+      "destinationHint": "Las conversaciones entran en la primera etapa del embudo elegido.",
+      "destinationChosen": "{count, plural, one {# conversación pasa a la primera etapa de {name}.} other {# conversaciones pasan a la primera etapa de {name}.}}",
+      "blockedTitle": "Todavía apuntan a este embudo:",
+      "blockedCampaigns": "{count, plural, one {campaña} other {campañas}}",
+      "blockedChannels": "{count, plural, one {canal conectado} other {canales conectados}}",
+      "blockedOpportunities": "{count, plural, one {oportunidad} other {oportunidades}}",
+      "blockedHint": "Apunte cada uno a otro embudo en su propia pantalla y vuelva aquí.",
+      "cancel": "Cancelar",
+      "close": "Cerrar",
+      "confirm": "Eliminar embudo",
+      "removing": "Eliminando..."
+    },
+    "rename": {
+      "edit": "Renombrar embudo",
+      "label": "Nombre del embudo",
+      "save": "Guardar nombre",
+      "cancel": "Cancelar"
     }
   }
 }

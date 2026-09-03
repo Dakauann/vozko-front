@@ -11,6 +11,7 @@ import type {
 } from '@/lib/instagram/types';
 
 import { apiClient, getApiBaseUrl } from '@/lib/api/browser-client';
+import { withWorkspaceScope } from '@/lib/browser/scoped-download-url';
 
 const DEFAULT_META: InstagramAccountListMeta = {
     page: 1,
@@ -152,7 +153,9 @@ export async function setInstagramCommentEnabledAction(
  */
 export function instagramAssetUrl(accountId: string, mediaId: string, thumb = false): string {
     const suffix = thumb ? '?thumb=1' : '';
-    return `${getApiBaseUrl()}/instagram/accounts/${accountId}/media/${mediaId}/asset${suffix}`;
+    return withWorkspaceScope(
+        `${getApiBaseUrl()}/instagram/accounts/${accountId}/media/${mediaId}/asset${suffix}`,
+    );
 }
 
 /**
@@ -164,7 +167,7 @@ export function instagramAssetUrl(accountId: string, mediaId: string, thumb = fa
  * callers must handle a failed load rather than assume an image exists.
  */
 export function instagramAvatarUrl(accountId: string): string {
-    return `${getApiBaseUrl()}/instagram/accounts/${accountId}/avatar`;
+    return withWorkspaceScope(`${getApiBaseUrl()}/instagram/accounts/${accountId}/avatar`);
 }
 
 // ---------------------------------------------------------------- comments

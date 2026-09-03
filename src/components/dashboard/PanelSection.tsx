@@ -24,7 +24,13 @@ import { cn } from "@/lib/utils";
 export interface PanelSectionProps {
   /** Silkscreen legend above the title. Names the group, not the action. */
   legend?: string;
-  title: string;
+  /**
+   * ReactNode, not string: a panel whose subject can be renamed puts the rename
+   * on the heading rather than repeating the name in a field below it. The h2
+   * already rendered whatever it was given; only the type was narrower than the
+   * markup.
+   */
+  title: ReactNode;
   description?: string;
   /** Controls that act on this section, right-aligned in the head. */
   actions?: ReactNode;

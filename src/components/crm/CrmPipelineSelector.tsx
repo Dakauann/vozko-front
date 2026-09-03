@@ -2,7 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { CaretUpDown, ChatCircle, Check, Plus, Stack, TrendUp } from "@/components/icons";
+import { useTranslations } from "next-intl";
+import {
+  CaretUpDown,
+  ChatCircle,
+  Check,
+  Kanban,
+  Plus,
+  Stack,
+  TrendUp,
+} from "@/components/icons";
 
 import {
   Popover,
@@ -17,14 +26,16 @@ import {
   ElevatedDialogHeader,
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
-import ElevatedInput from "@/components/elevated-design/elevated-input";
-import ElevatedSelect, {
-  ElevatedSelectItem,
-} from "@/components/elevated-design/elevated-select";
 import {
   createPipelineAction,
   listPipelinesAction,
 } from "@/app/actions/crm-board";
+import {
+  FunnelComposer,
+  type FunnelDraft,
+} from "@/components/crm/funnels/FunnelComposer";
+import { newDraftStage } from "@/components/crm/funnels/FunnelStageComposer";
+import { Link } from "@/i18n/routing";
 import type { Pipeline, PipelineObjectType } from "@/lib/crm/pipelines";
 import { cn } from "@/lib/utils";
 
@@ -38,11 +49,6 @@ export interface SelectedPipeline {
 // etiqueta are global attributes, so the board can group by them across EVERY pipeline
 // (HubSpot's "All Pipelines"). The backend reads an empty pipelineId as this scope.
 export const ALL_FUNNELS_ID = "__all__";
-
-// Sentinel for "seed the product's default stages" in the new-funnel dialog. The
-// server reads an absent copy-from as exactly this, so the sentinel never leaves
-// the client.
-const DEFAULT_STAGES_ID = "__defaults__";
 
 interface CrmPipelineSelectorProps {
   value: SelectedPipeline | null;
@@ -69,6 +75,7 @@ export default function CrmPipelineSelector({
 }: CrmPipelineSelectorProps) {
   const [open, setOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const tFunnels = useTranslations("funnels");
   const [creating, setCreating] = useState(false);
   const [conversation, setConversation] = useState<Pipeline[]>([]);
   const [opportunity, setOpportunity] = useState<Pipeline[]>([]);
@@ -95,17 +102,22 @@ export default function CrmPipelineSelector({
   // Creating a funnel selects it. Anything else would leave the operator looking
   // at the funnel they were already on, wondering whether it worked.
   const handleCreate = useCallback(
-    async (name: string, copyFromId: string) => {
+    async (draft: FunnelDraft) => {
       setCreating(true);
       const { pipeline, error } = await createPipelineAction({
-        name,
+        name: draft.name.trim(),
         objectType: "conversation",
-        copyStagesFromPipelineId:
-          copyFromId === DEFAULT_STAGES_ID ? undefined : copyFromId,
+        stages: draft.stages
+          .filter((s) => s.name.trim().length > 0)
+          .map((s) => ({
+            name: s.name.trim(),
+            description: s.description.trim(),
+            color: s.color,
+          })),
       });
       setCreating(false);
       if (error || !pipeline) {
-        toast.error(error ?? "Não foi possível criar o funil");
+        toast.error(error ?? tFunnels("toast.createFailed"));
         return;
       }
       setCreateOpen(false);
@@ -115,9 +127,9 @@ export default function CrmPipelineSelector({
         objectType: "conversation",
         name: pipeline.name,
       });
-      toast.success(`Funil "${pipeline.name}" criado`);
+      toast.success(tFunnels("toast.created", { name: pipeline.name }));
     },
-    [onChange],
+    [onChange, tFunnels],
   );
 
   const groups = useMemo(
@@ -273,23 +285,32 @@ export default function CrmPipelineSelector({
           creating a campaign, which stamped one as a side effect. POST /pipelines
           existed all along with nothing wired to it.
         */}
+        <div className="my-1 h-px bg-border" />
         {canCreate ? (
-          <>
-            <div className="my-1 h-px bg-border" />
-            <button
-              type="button"
-              disabled={creating}
-              onClick={() => {
-                setOpen(false);
-                setCreateOpen(true);
-              }}
-              className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Plus weight="bold" className="h-3.5 w-3.5 flex-shrink-0 text-primary-ink" />
-              <span className="flex-1 truncate">Novo funil</span>
-            </button>
-          </>
+          <button
+            type="button"
+            disabled={creating}
+            onClick={() => {
+              setOpen(false);
+              setCreateOpen(true);
+            }}
+            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-foreground transition-colors hover:bg-[hsl(var(--accent-hover))] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Plus weight="bold" className="h-3.5 w-3.5 flex-shrink-0 text-primary-ink" />
+            <span className="flex-1 truncate">{tFunnels("list.new")}</span>
+          </button>
         ) : null}
+        {/* The way out to the full surface. Creating from the board is the quick
+            path; renaming, reordering, the default and deletion live on the page,
+            and without this row the only route there is the nav. */}
+        <Link
+          href="/dashboard/funnels"
+          onClick={() => setOpen(false)}
+          className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-foreground transition-colors hover:bg-[hsl(var(--accent-hover))]"
+        >
+          <Kanban weight="bold" className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
+          <span className="flex-1 truncate">{tFunnels("list.manage")}</span>
+        </Link>
       </PopoverContent>
     </Popover>
 
@@ -308,12 +329,15 @@ export default function CrmPipelineSelector({
 }
 
 /**
- * Name it, and choose what it starts with.
+ * Name it, then draw it — the same composer the Funis page uses, in a dialog.
  *
- * The seed choice is the whole reason this is a dialog rather than an inline
- * "add": a funnel with no columns renders an empty board and offers no way to add
- * the first one, so every funnel has to arrive seeded. Duplicating an existing
- * funnel is the common case once a workspace has one it likes.
+ * It used to be a name and a "which funnel do you want a copy of" select, which
+ * meant a funnel could only ever be somebody else's process with a new label on
+ * it. The columns are now written here, and the templates that were the whole
+ * flow are one row inside the composer that fills the editor.
+ *
+ * Sharing the component with the page is the point: the board's shortcut and the
+ * management surface cannot drift into two different ideas of what a funnel is.
  */
 function NewFunnelDialog({
   open,
@@ -326,70 +350,58 @@ function NewFunnelDialog({
   onOpenChange: (open: boolean) => void;
   busy: boolean;
   sources: Pipeline[];
-  onCreate: (name: string, copyFromId: string) => void;
+  onCreate: (draft: FunnelDraft) => void;
 }) {
+  const t = useTranslations("funnels");
   // Fresh state per open, so a cancelled attempt does not prefill the next one.
   // The caller keys this component on `open`, which remounts it — cheaper and
   // more honest than resetting from an effect, which fires a second render just
   // to undo the first.
-  const [name, setName] = useState("");
-  const [copyFrom, setCopyFrom] = useState(DEFAULT_STAGES_ID);
+  const [draft, setDraft] = useState<FunnelDraft>(() => ({
+    name: "",
+    stages: [newDraftStage([])],
+  }));
 
-  const trimmed = name.trim();
+  const ready =
+    draft.name.trim().length >= 2 &&
+    draft.stages.some((s) => s.name.trim().length > 0);
 
   return (
     <ElevatedDialog open={open} onOpenChange={onOpenChange}>
-      <ElevatedDialogContent className="max-w-md">
+      {/* Wider than the selector's other overlays and scrollable, because it
+          holds a real editor rather than two fields. The board stays visible
+          behind it, which is the reason this is a dialog here at all instead of
+          a trip to the Funis page mid-conversation. */}
+      <ElevatedDialogContent className="max-h-[86vh] max-w-2xl overflow-y-auto">
         <ElevatedDialogHeader>
-          <ElevatedDialogTitle>Novo funil</ElevatedDialogTitle>
+          <ElevatedDialogTitle>{t("create.title")}</ElevatedDialogTitle>
           <ElevatedDialogDescription>
-            Um funil é um conjunto ordenado de etapas. As conversas dele vivem
-            nessas etapas.
+            {t("create.description")}
           </ElevatedDialogDescription>
         </ElevatedDialogHeader>
 
-        <div className="flex flex-col gap-4 pt-1">
-          <ElevatedInput
-            label="Nome do funil"
-            value={name}
-            autoFocus
-            onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && trimmed && !busy) {
-                onCreate(trimmed, copyFrom);
-              }
-            }}
+        <div className="flex flex-col gap-5 pt-1">
+          <FunnelComposer
+            draft={draft}
+            onChange={setDraft}
+            sources={sources}
+            busy={busy}
           />
 
-          <ElevatedSelect
-            label="Etapas iniciais"
-            value={copyFrom}
-            onValueChange={setCopyFrom}
-          >
-            <ElevatedSelectItem value={DEFAULT_STAGES_ID}>
-              Etapas padrão
-            </ElevatedSelectItem>
-            {sources.map((p) => (
-              <ElevatedSelectItem key={p.id} value={p.id}>
-                Copiar de: {p.name}
-              </ElevatedSelectItem>
-            ))}
-          </ElevatedSelect>
-
-          <div className="flex items-center justify-end gap-2 pt-1">
+          <div className="flex items-center justify-end gap-2 border-t border-border pt-4">
             <ElevatedButton
-              title="Cancelar"
+              title={t("create.cancel")}
               variant="ghost"
               size="sm"
               disabled={busy}
               onClick={() => onOpenChange(false)}
             />
             <ElevatedButton
-              title={busy ? "Criando..." : "Criar funil"}
+              title={busy ? t("create.creating") : t("create.confirm")}
               variant="primary"
               size="sm"
-              disabled={!trimmed || busy}
-              onClick={() => onCreate(trimmed, copyFrom)}
+              disabled={!ready || busy}
+              onClick={() => onCreate(draft)}
             />
           </div>
         </div>

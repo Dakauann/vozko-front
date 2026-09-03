@@ -4,6 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 import {
+  BUTTON_DESTRUCTIVE,
   BUTTON_GHOST,
   BUTTON_OUTLINE,
   BUTTON_PRIMARY,
@@ -64,11 +65,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary: BUTTON_PRIMARY,
-        destructive: cn(
-          "bg-destructive text-destructive-foreground shadow-button",
-          "hover:brightness-95 hover:shadow-button-hover",
-          "active:brightness-90 active:shadow-button",
-        ),
+        destructive: BUTTON_DESTRUCTIVE,
         secondary: BUTTON_SECONDARY,
         outline: BUTTON_OUTLINE,
         ghost: BUTTON_GHOST,

@@ -1854,7 +1854,8 @@
       "unofficialWhatsappCampaignsList": "Lista",
       "createUnofficialWhatsappCampaign": "Novo Disparo",
       "archivedUnofficialWhatsappCampaigns": "Arquivados",
-      "audience": "Audiência"
+      "audience": "Audiência",
+      "funnels": "Funis"
     },
     "badges": {
       "new": "Novo",
@@ -11469,6 +11470,127 @@
     "crm": {
       "dialogTitle": "CRM da campanha",
       "dialogDescription": "Conversas abertas por esta campanha."
+    }
+  },
+  "funnels": {
+    "page": {
+      "badge": "Funis",
+      "description": "Desenhe os quadros do atendimento: as etapas, a ordem em que aparecem e onde cada conversa entra."
+    },
+    "list": {
+      "title": "Funis do workspace",
+      "new": "Novo funil",
+      "manage": "Gerenciar funis",
+      "conversation": "Atendimento",
+      "opportunity": "Vendas",
+      "emptyConversation": "Nenhum funil de atendimento ainda.",
+      "emptyOpportunity": "Nenhum funil de vendas ainda."
+    },
+    "create": {
+      "title": "Novo funil",
+      "description": "Um funil é o processo que o quadro mostra. Escreva as etapas do seu, na ordem em que acontecem.",
+      "cancel": "Cancelar",
+      "confirm": "Criar funil",
+      "creating": "Criando...",
+      "needsOneStage": "Dê nome a pelo menos uma etapa para criar o funil."
+    },
+    "detail": {
+      "conversationHint": "As conversas deste funil vivem nestas etapas. A primeira recebe quem chega.",
+      "opportunityHint": "As oportunidades deste funil vivem nestas etapas. A primeira recebe quem chega.",
+      "isDefault": "Funil padrão",
+      "makeDefault": "Tornar padrão",
+      "duplicate": "Duplicar",
+      "remove": "Excluir",
+      "unsaved": "Alterações não salvas neste funil.",
+      "revert": "Descartar",
+      "save": "Salvar alterações",
+      "saving": "Salvando..."
+    },
+    "none": {
+      "title": "Nenhum funil ainda",
+      "body": "Um funil define as colunas do quadro e por onde uma conversa passa. Crie o primeiro e escreva as etapas do seu processo.",
+      "cta": "Criar o primeiro funil"
+    },
+    "copyName": "{name} (cópia)",
+    "toast": {
+      "created": "Funil \"{name}\" criado",
+      "createFailed": "Não foi possível criar o funil.",
+      "saved": "Funil atualizado",
+      "deleted": "Funil \"{name}\" excluído",
+      "deleteFailed": "Não foi possível excluir o funil.",
+      "duplicated": "Funil \"{name}\" criado a partir da cópia",
+      "duplicateFailed": "Não foi possível duplicar o funil.",
+      "defaultSet": "\"{name}\" agora é o funil padrão",
+      "renamed": "Funil renomeado para \"{name}\""
+    },
+    "composer": {
+      "nameLabel": "Nome do funil",
+      "nameHint": "Aparece no seletor do CRM e na escolha de funil das campanhas.",
+      "nameTooShort": "Dê um nome com pelo menos 2 caracteres.",
+      "stagesTitle": "Etapas",
+      "stagesHint": "As colunas do quadro, da esquerda para a direita. Arraste para mudar a ordem. A primeira é onde cada conversa nova entra.",
+      "startFrom": "Começar de",
+      "useDefaults": "Etapas padrão",
+      "copyFrom": "Copiar de um funil",
+      "copying": "Copiando...",
+      "replaceWarning": "Isso substitui as etapas escritas acima."
+    },
+    "defaults": {
+      "received": "Recebido",
+      "inProgress": "Em atendimento",
+      "scheduling": "Agendamento",
+      "finished": "Finalizado"
+    },
+    "stages": {
+      "add": "Adicionar etapa",
+      "addFirst": "Adicionar a primeira etapa",
+      "count": "{count, plural, one {# etapa} other {# etapas}}",
+      "capReached": "Limite de {max} etapas por funil.",
+      "emptyTitle": "Sem etapas ainda",
+      "emptyBody": "Cada etapa é uma coluna do quadro. Escreva as do seu processo, por exemplo Triagem, Proposta enviada e Fechado. A primeira da lista recebe as conversas que chegam.",
+      "dragHandle": "Arrastar a etapa {name}",
+      "untitled": "sem nome",
+      "namePlaceholder": "Nome da etapa",
+      "nameLabel": "Nome da etapa",
+      "descriptionPlaceholder": "O que acontece nesta etapa (opcional)",
+      "descriptionLabel": "Descrição da etapa",
+      "entry": "Entrada",
+      "remove": "Remover etapa",
+      "removeNamed": "Remover a etapa {name}",
+      "lockedHint": "Esta etapa tem conversas e não pode ser removida aqui.",
+      "colorLabel": "Cor da etapa",
+      "colorFor": "Cor da etapa {name}",
+      "viewBoard": "Quadro",
+      "viewList": "Lista",
+      "viewLabel": "Como ver as etapas"
+    },
+    "remove": {
+      "title": "Excluir o funil \"{name}\"?",
+      "loading": "Verificando o que este funil contém...",
+      "loadFailed": "Não foi possível verificar o conteúdo deste funil.",
+      "blockedLead": "Este funil ainda está em uso e não pode ser excluído agora.",
+      "moveLead": "{count, plural, one {# conversa está neste funil e precisa de um destino.} other {# conversas estão neste funil e precisam de um destino.}}",
+      "emptyLead": "Este funil não tem conversas.",
+      "emptyDetail": "As etapas do funil também são removidas. As conversas não são afetadas porque não há nenhuma aqui.",
+      "destinationLabel": "Mover as conversas para",
+      "destinationPlaceholder": "Escolha o funil de destino",
+      "destinationHint": "As conversas entram na primeira etapa do funil escolhido.",
+      "destinationChosen": "{count, plural, one {# conversa vai para a primeira etapa de {name}.} other {# conversas vão para a primeira etapa de {name}.}}",
+      "blockedTitle": "Ainda apontam para este funil:",
+      "blockedCampaigns": "{count, plural, one {campanha} other {campanhas}}",
+      "blockedChannels": "{count, plural, one {canal conectado} other {canais conectados}}",
+      "blockedOpportunities": "{count, plural, one {oportunidade} other {oportunidades}}",
+      "blockedHint": "Aponte cada um para outro funil na tela de origem e volte aqui.",
+      "cancel": "Cancelar",
+      "close": "Fechar",
+      "confirm": "Excluir funil",
+      "removing": "Excluindo..."
+    },
+    "rename": {
+      "edit": "Renomear funil",
+      "label": "Nome do funil",
+      "save": "Salvar nome",
+      "cancel": "Cancelar"
     }
   }
 }

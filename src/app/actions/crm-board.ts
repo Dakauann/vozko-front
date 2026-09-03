@@ -9,7 +9,20 @@ import {
     type FetchCrmBoardParams,
     type FetchCrmEntriesParams,
 } from '@/lib/crm/board';
-import { createPipeline, listPipelines, type CreatePipelineInput, type Pipeline, type PipelineObjectType } from '@/lib/crm/pipelines';
+import {
+    createPipeline,
+    deletePipeline,
+    getPipelineUsage,
+    listPipelines,
+    refusalFromMessage,
+    updatePipeline,
+    type CreatePipelineInput,
+    type PipelineDeleteRefusal,
+    type Pipeline,
+    type PipelineObjectType,
+    type PipelineUsage,
+    type UpdatePipelineInput,
+} from '@/lib/crm/pipelines';
 
 function fetchCrmBoard(params: FetchCrmBoardParams) {
     const qs = new URLSearchParams();
@@ -105,3 +118,54 @@ export async function createPipelineAction(
 
     return { pipeline: response.data ?? null };
 }
+
+export async function updatePipelineAction(
+    id: string,
+    input: UpdatePipelineInput,
+): Promise<{ pipeline: Pipeline | null; error?: string }> {
+    const response = await updatePipeline(id, input);
+
+    if (response.error) {
+        return { pipeline: null, error: response.error.message };
+    }
+
+    return { pipeline: response.data ?? null };
+}
+
+export async function getPipelineUsageAction(
+    id: string,
+): Promise<{ usage: PipelineUsage | null; error?: string }> {
+    const response = await getPipelineUsage(id);
+
+    if (response.error) {
+        return { usage: null, error: response.error.message };
+    }
+
+    return { usage: response.data ?? null };
+}
+
+/**
+ * Delete a funnel.
+ *
+ * `code` is the server's refusal, surfaced separately from `error` so the dialog
+ * can say which guard fired — the funnel is the default, something still routes
+ * into it, the destination is missing or impossible — instead of printing an
+ * English sentence from the domain into a Portuguese screen.
+ */
+export async function deletePipelineAction(
+    id: string,
+    moveEntriesTo?: string,
+): Promise<{ success: boolean; error?: string; code?: PipelineDeleteRefusal }> {
+    const response = await deletePipeline(id, moveEntriesTo);
+
+    if (response.error) {
+        return {
+            success: false,
+            error: response.error.message,
+            code: refusalFromMessage(response.error.message),
+        };
+    }
+
+    return { success: true };
+}
+

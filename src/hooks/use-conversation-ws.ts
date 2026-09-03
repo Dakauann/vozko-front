@@ -2087,11 +2087,12 @@ export function useConversationWs({
   /**
    * Reflects a lead rename across every list already on screen.
    *
-   * A lead can own several conversations — an official WhatsApp thread, an
-   * unofficial one, a Telegram chat — and renaming the person means all of them
-   * are now that name. Keyed on lead_id rather than entry_id for exactly that
-   * reason: renaming from one conversation and watching the row above it keep
-   * the old name would read as a failed save.
+   * A lead can own several conversations — official WhatsApp entries across
+   * campaigns and an unofficial WhatsApp conversation — and renaming the
+   * person means all of those lead-backed rows are now that name. Keyed on
+   * lead_id rather than entry_id for exactly that reason: renaming from one
+   * conversation and watching the row above it keep the old name would read as
+   * a failed save.
    *
    * Local only. The write already succeeded server-side by the time this runs;
    * this is what spares the operator a reload.

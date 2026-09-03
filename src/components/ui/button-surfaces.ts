@@ -73,6 +73,24 @@ export const BUTTON_OUTLINE_SUBTLE = cn(
 );
 
 /** No box at all until you touch it. */
+/**
+ * The irreversible action, and the one variant this file was missing.
+ *
+ * It lived only in `ui/button.tsx`, so `elevated-design/button` — the one 133
+ * files reach for — had no way to spell "delete" and every danger control was
+ * hand-rolled with `!important` overrides on the primary. That is the exact
+ * drift this module exists to prevent, one variant later.
+ *
+ * Brightness rather than a second fill token: `--destructive` has no hover value
+ * in the token set, and inventing one would need the same measured pass every
+ * other pair here has had. The steps stay discrete and named.
+ */
+export const BUTTON_DESTRUCTIVE = cn(
+  "bg-destructive text-destructive-foreground shadow-button",
+  "hover:brightness-95 hover:shadow-button-hover",
+  "active:brightness-90 active:shadow-button",
+);
+
 export const BUTTON_GHOST = cn(
   "bg-transparent text-muted-foreground",
   "hover:bg-muted hover:text-foreground",
