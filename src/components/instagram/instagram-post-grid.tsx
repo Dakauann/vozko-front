@@ -8,6 +8,7 @@ import Button from "@/components/elevated-design/button";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import { cn } from "@/lib/utils";
 import { instagramAssetUrl } from "@/app/actions/instagram";
+import { useAuthenticatedImage } from "@/lib/browser/use-authenticated-image";
 import { useTranslations } from "next-intl";
 
 interface Props {
@@ -102,6 +103,9 @@ function PostTile({
   // A reel is a VIDEO with mediaProductType REELS, there is no media_type=REELS,
   // which is why isReel is precomputed server-side rather than derived here.
   const isVideo = media.mediaType === "VIDEO" || media.isReel;
+  const { src, failed } = useAuthenticatedImage(
+    instagramAssetUrl(accountId, media.id, true),
+  );
 
   return (
     <button
@@ -115,22 +119,22 @@ function PostTile({
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
       )}
     >
-      {media.hasAsset ? (
+      {media.hasAsset && src ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={instagramAssetUrl(accountId, media.id, true)}
+          src={src}
           alt={media.caption?.trim() || ""}
           loading="lazy"
           decoding="async"
           className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
         />
-      ) : (
+      ) : !media.hasAsset || failed ? (
         // media_url is OMITTED (not null) for copyrighted content, so a missing
         // asset is an expected state rather than an error.
         <div className="grid size-full place-items-center text-muted-foreground">
           <ImageBroken className="h-6 w-6" weight="duotone" />
         </div>
-      )}
+      ) : null}
 
       {/* Type markers, top-right like Instagram's own grid. */}
       <div className="absolute right-2 top-2 flex gap-1">

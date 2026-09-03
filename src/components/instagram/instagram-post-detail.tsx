@@ -24,6 +24,7 @@ import {
 } from "@/components/elevated-design/elevated-tabs";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { useAuthenticatedImage } from "@/lib/browser/use-authenticated-image";
 
 interface Props {
   accountId: string;
@@ -51,6 +52,9 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
   // charts and a form, which need the width the picture can spare.
   const [tab, setTab] = useState<"comments" | "automation" | "analysis">("comments");
   const wide = tab === "analysis";
+  const { src: assetSrc, failed: assetFailed } = useAuthenticatedImage(
+    instagramAssetUrl(accountId, media.id),
+  );
 
   const [comments, setComments] = useState<InstagramComment[]>([]);
   const [cursor, setCursor] = useState<string | undefined>();
@@ -156,19 +160,19 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
             wide ? "h-[24%] md:w-[34%]" : "h-[38%] md:w-[55%]",
           )}
         >
-          {media.hasAsset ? (
+          {media.hasAsset && assetSrc ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={instagramAssetUrl(accountId, media.id)}
+              src={assetSrc}
               alt={media.caption?.trim() || ""}
               className="h-full w-full object-contain"
             />
-          ) : (
+          ) : !media.hasAsset || assetFailed ? (
             <div className="flex flex-col items-center gap-2 p-10 text-white/60">
               <ImageBroken className="h-8 w-8" weight="duotone" />
               <p className="text-xs">{t("posts.noAsset")}</p>
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Meta + comments. min-h-0 is what allows the inner list to scroll rather

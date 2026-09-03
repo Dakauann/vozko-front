@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
-
 import { cn } from "@/lib/utils";
 import { instagramAvatarUrl } from "@/app/actions/instagram";
+import { useAuthenticatedImage } from "@/lib/browser/use-authenticated-image";
 
 interface Props {
   accountId: string;
@@ -54,13 +53,9 @@ function tintFor(seed: string): string {
  * the page and tell an operator nothing about WHICH account they are looking at.
  */
 export function InstagramAvatar({ accountId, username, className, textClassName }: Props) {
-  // The failure is remembered against the account it belongs to, rather than as a
-  // bare boolean reset by an effect. A table row gets recycled for a different
-  // account on pagination, and a plain boolean would carry one account's missing
-  // photo over to the next, showing a placeholder for an account that has one.
-  const [failedFor, setFailedFor] = useState<string | null>(null);
+  const { src, failed } = useAuthenticatedImage(instagramAvatarUrl(accountId));
 
-  if (failedFor === accountId) {
+  if (failed) {
     const handle = username.trim();
     return (
       <span
@@ -76,12 +71,13 @@ export function InstagramAvatar({ accountId, username, className, textClassName 
     );
   }
 
+  if (!src) return null;
+
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={instagramAvatarUrl(accountId)}
+      src={src}
       alt={username}
-      onError={() => setFailedFor(accountId)}
       className={cn("shrink-0 rounded-full object-cover", className)}
     />
   );
