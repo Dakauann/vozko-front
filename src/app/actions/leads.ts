@@ -430,7 +430,7 @@ export interface LeadImportResult {
 }
 
 /** Row limit the API enforces. Mirrored so the UI can refuse before uploading. */
-export const LEAD_IMPORT_MAX_ROWS = 20000;
+export const LEAD_IMPORT_MAX_ROWS = 100000;
 
 /**
  * Import parsed contact rows as leads.
