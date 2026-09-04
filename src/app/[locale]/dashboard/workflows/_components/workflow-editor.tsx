@@ -26,8 +26,11 @@ import {
   MarkerType,
   Panel,
   Position,
+  ViewportPortal,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+
+import { LightPool } from "@/components/brand/light-pool";
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -484,6 +487,7 @@ export function WorkflowEditor({
     workflowId: workflowState?.id ?? "",
   });
   const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
+
   const { resolvedTheme } = useTheme();
   const activeSimulation = simulation;
 
@@ -554,6 +558,30 @@ export function WorkflowEditor({
     [workflowState?.graph, defMap, outputLabels, initialHandles],
   );
   const [nodes, setNodes, onNodesChange] = useNodesState(initial.nodes);
+
+  /**
+   * The graph's own extent, padded, so the room light pools around the work
+   * instead of around the origin. Falls back to a box at the origin for an
+   * empty canvas, and to a typical node size for one not yet measured.
+   */
+  const graphBounds = useMemo(() => {
+    const pad = 520;
+    if (nodes.length === 0) return { x: -900, y: -650, width: 1800, height: 1300 };
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (const node of nodes) {
+      const measured = node.measured as { width?: number; height?: number } | undefined;
+      const width = measured?.width ?? (node as { width?: number }).width ?? 320;
+      const height = measured?.height ?? (node as { height?: number }).height ?? 140;
+      minX = Math.min(minX, node.position.x);
+      minY = Math.min(minY, node.position.y);
+      maxX = Math.max(maxX, node.position.x + width);
+      maxY = Math.max(maxY, node.position.y + height);
+    }
+    return { x: minX - pad, y: minY - pad, width: maxX - minX + pad * 2, height: maxY - minY + pad * 2 };
+  }, [nodes]);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
 
   // Backend-resolved output handles, keyed by node id. The backend is the single
@@ -1839,9 +1867,12 @@ export function WorkflowEditor({
       <div className="flex flex-1 overflow-hidden">
         <NodePalette definitions={availableDefinitions} />
 
+        {/* The canvas ground moved here from ReactFlow so the room light can
+            sit on it: a pane painting its own background would swallow the pool.
+            Quiet tone, because the operator's graph is the subject. */}
         <div
           ref={reactFlowWrapper}
-          className="flex-1"
+          className="relative flex-1 bg-background"
           onDragOver={onDragOver}
           onDrop={onDrop}
           onMouseMove={onMouseMove}
@@ -1867,7 +1898,6 @@ export function WorkflowEditor({
             maxZoom={1.75}
             elevateNodesOnSelect={false}
             deleteKeyCode={["Backspace", "Delete"]}
-            className="bg-background"
             defaultEdgeOptions={{
               type: "smartBezier",
               animated: false,
@@ -1888,6 +1918,25 @@ export function WorkflowEditor({
               size={1}
               color="hsl(var(--border-strong))"
             />
+            {/* The room light belongs to the BOARD, not to the screen: pinned to
+                the pane it slides across the graph as you pan, which reads as a
+                bug. Rendered into the viewport it pans and zooms with the nodes,
+                and a negative z-index keeps it under the edges and the nodes. */}
+            <ViewportPortal>
+              <div
+                style={{
+                  position: "absolute",
+                  left: graphBounds.x,
+                  top: graphBounds.y,
+                  width: graphBounds.width,
+                  height: graphBounds.height,
+                  zIndex: -1,
+                  pointerEvents: "none",
+                }}
+              >
+                <LightPool tone="quiet" />
+              </div>
+            </ViewportPortal>
             <Controls className="!bg-background !border-border !shadow-md [&>button]:!bg-background [&>button]:!border-border [&>button]:!fill-foreground">
               <ControlButton onClick={tidyUpGraph} title={t("tidyUp")}>
                 <TreeStructure />

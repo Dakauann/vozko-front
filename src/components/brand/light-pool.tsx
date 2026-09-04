@@ -19,15 +19,27 @@ import { cn } from "@/lib/utils";
  * `relative`, exactly like `CircuitBoard`. It deliberately does not use a
  * negative z-index: a host that paints its own background would swallow it.
  */
-export function LightPool({ className }: { className?: string }) {
+export function LightPool({
+  className,
+  tone = "ambient",
+}: {
+  className?: string;
+  /**
+   * `ambient` is the full pool, for a surface that carries no data.
+   * `quiet` halves it for a working canvas, where the light is the room and
+   * the operator's own content is the subject.
+   */
+  tone?: "ambient" | "quiet";
+}) {
+  const scale = tone === "quiet" ? 0.5 : 1;
   return (
     <div
       aria-hidden="true"
       className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}
       style={{
         background: [
-          "radial-gradient(58% 46% at 62% 48%, hsl(var(--primary) / var(--pool-brand)), transparent 72%)",
-          "radial-gradient(38% 34% at 12% 78%, hsl(var(--info) / var(--pool-cool)), transparent 74%)",
+          `radial-gradient(58% 46% at 62% 48%, hsl(var(--primary) / calc(var(--pool-brand) * ${scale})), transparent 72%)`,
+          `radial-gradient(38% 34% at 12% 78%, hsl(var(--info) / calc(var(--pool-cool) * ${scale})), transparent 74%)`,
         ].join(", "),
       }}
     />
