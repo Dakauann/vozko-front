@@ -10,6 +10,7 @@ import {
   R,
   Slab,
   StageLights,
+  Surface,
   sheet,
   sheetChip,
   arc,
@@ -290,16 +291,16 @@ export function RouletteScene({
 
   return (
     <>
-      <StageLights palette={palette} />
+      <StageLights reduced={reduced} palette={palette} />
       <group ref={ring} scale={ringScale} rotation={[-0.12, 0.08, 0]}>
         <group position={[layout.ringAt[0], layout.ringAt[1], 0]}>
           <mesh position={[0, 0, -0.12]} receiveShadow>
             <circleGeometry args={[table, 96]} />
-            <meshStandardMaterial color={palette.well} roughness={0.9} />
+            <Surface color={palette.well} roughness={0.9} />
           </mesh>
           <mesh position={[0, 0, -0.05]}>
             <ringGeometry args={[table - 0.16, table, 96]} />
-            <meshStandardMaterial color={palette.edge} roughness={0.85} metalness={0.05} />
+            <Surface color={palette.edge} roughness={0.85} metalness={0.05} />
           </mesh>
           {/* The pointer is a marking ON the table, so it passes UNDER the
               conversations resting on it rather than across them. */}

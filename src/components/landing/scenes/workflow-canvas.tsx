@@ -301,7 +301,7 @@ export function WorkflowScene({
 
   return (
     <>
-      <StageLights palette={palette} cool={palette.accent.tag} />
+      <StageLights reduced={reduced} palette={palette} cool={palette.accent.tag} />
       <group ref={board} scale={boardScale} rotation={[-0.1, 0.06, 0]}>
         <Slab
           size={layout.canvas}

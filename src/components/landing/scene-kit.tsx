@@ -4,7 +4,7 @@ import { Html, RoundedBox } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import type { MotionValue } from "framer-motion";
 import { useRef, type CSSProperties, type ReactNode } from "react";
-import { MathUtils } from "three";
+import { MathUtils, type DirectionalLight, type MeshStandardMaterial } from "three";
 
 /**
  * Shared material vocabulary for every landing scene. The kanban board set the
@@ -235,16 +235,45 @@ export function useDampedProgress(
   });
 }
 
+/**
+ * The travelling light: an unseen source circling the stage like a planet,
+ * carried far enough out that only its effect is visible. It never casts
+ * shadows — the fixed key owns those, so the scene's own depth never swings
+ * around — and it dips below the horizon on the far side, which is what makes
+ * a band sweep across the objects instead of a highlight sitting still.
+ */
+const ORBIT_RADIUS = 11;
+/** One lap in a minute and a half: a car circling the object, not a strobe. */
+const ORBIT_SECONDS = 90;
+/** A level orbit, so the light behaves like something driving around the stage. */
+const ORBIT_HEIGHT = 3.2;
+/** White: the travelling light is a light, not a second accent. */
+const ORBIT_COLOR = "#FFFFFF";
+
+function OrbitingLight({ intensity, phase = 0, reduced }: { intensity: number; phase?: number; reduced: boolean }) {
+  const light = useRef<DirectionalLight>(null);
+  useFrame((state) => {
+    if (!light.current) return;
+    // Reduced motion keeps the light, and parks it where the scene reads best.
+    const t = reduced ? 0.9 : (state.clock.elapsedTime / ORBIT_SECONDS) * Math.PI * 2;
+    const angle = t + phase;
+    light.current.position.set(Math.cos(angle) * ORBIT_RADIUS, ORBIT_HEIGHT, Math.sin(angle) * ORBIT_RADIUS);
+  });
+  return <directionalLight ref={light} intensity={intensity} color={ORBIT_COLOR} />;
+}
+
 export function StageLights({
   palette,
   accent,
   cool,
   warm,
+  reduced = false,
 }: {
   palette: ScenePalette;
   accent?: string;
   cool?: string;
   warm?: string;
+  reduced?: boolean;
 }) {
   const { ambient, key, fill, cool: coolIntensity, point } = palette.light;
   return (
@@ -256,7 +285,34 @@ export function StageLights({
       <directionalLight position={[-5, -2, 4]} intensity={fill} color={accent ?? palette.accent.ai} />
       <directionalLight position={[5, 1, 3]} intensity={coolIntensity} color={cool ?? palette.accent.team} />
       <pointLight position={[0, -3, 4]} intensity={point} distance={8} decay={2} color={warm ?? palette.accent.wait} />
+      <OrbitingLight intensity={key * 0.5} reduced={reduced} />
+      <OrbitingLight intensity={key * 0.22} phase={Math.PI} reduced={reduced} />
     </>
+  );
+}
+
+/**
+ * The material every lit surface in the scenes uses. One place, so the whole
+ * page changes together. Physical, not stylised: a banded toon ramp was tried
+ * here and rejected — the travelling light reads better against a real falloff.
+ */
+export function Surface({
+  color,
+  roughness = 0.6,
+  metalness = 0.04,
+  transparent,
+  opacity,
+  materialRef,
+}: {
+  color: string;
+  roughness?: number;
+  metalness?: number;
+  transparent?: boolean;
+  opacity?: number;
+  materialRef?: (node: MeshStandardMaterial | null) => void;
+}) {
+  return (
+    <meshStandardMaterial ref={materialRef} color={color} roughness={roughness} metalness={metalness} transparent={transparent} opacity={opacity} />
   );
 }
 
@@ -274,7 +330,7 @@ type SlabProps = {
 export function Slab({ size, color, radius = R.card, roughness = 0.6, metalness = 0.04, castShadow = true, receiveShadow = false, position }: SlabProps) {
   return (
     <RoundedBox args={size} radius={radius} smoothness={3} castShadow={castShadow} receiveShadow={receiveShadow} position={position}>
-      <meshStandardMaterial color={color} roughness={roughness} metalness={metalness} />
+      <Surface color={color} roughness={roughness} metalness={metalness} />
     </RoundedBox>
   );
 }
@@ -298,7 +354,7 @@ export function Disc({
   return (
     <mesh position={position} rotation={[Math.PI / 2, 0, 0]} castShadow={castShadow}>
       <cylinderGeometry args={[radius, radius, depth, 48]} />
-      <meshStandardMaterial color={color} roughness={roughness} metalness={0.04} />
+      <Surface color={color} roughness={roughness} />
     </mesh>
   );
 }

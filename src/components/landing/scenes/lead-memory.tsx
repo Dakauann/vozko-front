@@ -305,7 +305,7 @@ export function MemoryScene({
 
   return (
     <>
-      <StageLights palette={palette} accent={CHANNEL.whatsapp} cool={CHANNEL.instagram} />
+      <StageLights reduced={reduced} palette={palette} accent={CHANNEL.whatsapp} cool={CHANNEL.instagram} />
       <group ref={stage} scale={stageScale} rotation={[-0.1, 0.07, 0]}>
         {/* WhatsApp conversation */}
         <group position={[layout.wa[0], layout.wa[1], 0]}>

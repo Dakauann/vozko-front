@@ -10,6 +10,7 @@ import {
   Label,
   R,
   StageLights,
+  Surface,
   sheet,
   sheetChip,
   sheetWell,
@@ -151,7 +152,7 @@ function BoardCard({
   return (
     <group ref={cardRef}>
       <RoundedBox args={layout.card} radius={R.card} smoothness={3} castShadow>
-        <meshStandardMaterial color={sheet(palette)} roughness={0.58} metalness={0.02} />
+        <Surface color={sheet(palette)} roughness={0.58} metalness={0.02} />
       </RoundedBox>
       {/* The stage bar the product draws on the leading edge of a card. It
           repaints as the card changes column, so its colour is never a promise
@@ -291,12 +292,12 @@ export function KanbanBoardScene({
 
   return (
     <>
-      <StageLights palette={palette} />
+      <StageLights reduced={reduced} palette={palette} />
       <group ref={board} scale={boardScale} rotation={[-0.105, 0.075, 0]}>
         {layout.columnX.map((x, index) => (
           <group key={x} position={[x, -0.15, 0]}>
             <RoundedBox args={layout.column} radius={R.board} smoothness={3} receiveShadow>
-              <meshStandardMaterial color={sheetWell(palette)} roughness={0.72} metalness={0.06} />
+              <Surface color={sheetWell(palette)} roughness={0.72} metalness={0.06} />
             </RoundedBox>
             <mesh position={[0, colH / 2 - HEADER_BAR, 0.13]}>
               <boxGeometry args={[colW - 0.44, 0.025, 0.025]} />
@@ -338,7 +339,7 @@ export function KanbanBoardScene({
           </mesh>
           <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
             <cylinderGeometry args={[agentR, agentR, 0.24, 6]} />
-            <meshStandardMaterial color={sheet(palette)} roughness={0.6} />
+            <Surface color={sheet(palette)} roughness={0.6} />
           </mesh>
           {/* The mark, not the word: a name floating on a token reads as a
               placeholder, and the product already has an icon for this. */}

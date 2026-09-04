@@ -174,7 +174,7 @@ export function CampaignScene({
 
   return (
     <>
-      <StageLights palette={palette} />
+      <StageLights reduced={reduced} palette={palette} />
       <group ref={stage} scale={scale} rotation={[-0.12, 0.09, 0]}>
         {/* The approved template the campaign sends. */}
         <group position={[layout.plateAt[0], layout.plateAt[1], 0]}>

@@ -154,7 +154,7 @@ export function KnowledgeScene({
 
   return (
     <>
-      <StageLights palette={palette} cool={palette.accent.tag} />
+      <StageLights reduced={reduced} palette={palette} cool={palette.accent.tag} />
       <group ref={stage} scale={scale} rotation={[-0.1, 0.14, 0]}>
         {/* The spine: one index, with a row per document rather than a pile. */}
         <Slab

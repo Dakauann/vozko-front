@@ -166,7 +166,7 @@ export function AgentScene({
 
   return (
     <>
-      <StageLights palette={palette} cool={palette.accent.tag} />
+      <StageLights reduced={reduced} palette={palette} cool={palette.accent.tag} />
       <group ref={stage} scale={scale} rotation={[-0.14, 0.1, 0]}>
         {/* The bench the agent is assembled on. */}
         <Hex radius={layout.orbit + 1.15} depth={0.14} color={sheetWell(palette)} position={[0, 0, -0.32]} />
