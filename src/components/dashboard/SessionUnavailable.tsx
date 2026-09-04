@@ -2,6 +2,7 @@
 
 import { WarningCircle } from "@/components/icons";
 import { CircuitTraces } from "@/components/brand/circuit";
+import { LightPool } from "@/components/brand/light-pool";
 import { logout as logoutRequest } from "@/lib/auth/auth-api";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
@@ -20,6 +21,7 @@ export default function SessionUnavailable() {
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center gap-5 overflow-hidden bg-background p-6 text-center">
+      <LightPool />
       <CircuitTraces className="pointer-events-none absolute -right-10 -top-10 hidden h-64 w-64 sm:block" />
       <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] tile-warning ring-1 ring-warning/20">
         <WarningCircle className="h-7 w-7 text-warning-ink" weight="fill" />

@@ -12,6 +12,7 @@ import {
 
 import { AuthFormAlert } from "@/components/auth/auth-form-alert";
 import { CircuitTraces, DotMatrix } from "@/components/brand/circuit";
+import { LightPool } from "@/components/brand/light-pool";
 import { BrandLogo } from "@/components/brand-logo";
 import Button from "@/components/elevated-design/button";
 import { Checkbox } from "@/components/elevated-design/elevated-checkbox";
@@ -213,6 +214,7 @@ function LoginContent() {
       email field already under the cursor, not wait for a card to settle.
     */
     <main className="relative flex min-h-[calc(100vh-3rem)] items-center justify-center overflow-hidden bg-background px-4 py-10 sm:py-16">
+      <LightPool />
       {/* The brand's trace lines at the plate's edges — identity surface.
           Token-coloured for both themes; the slow pulse removes itself under
           prefers-reduced-motion. */}

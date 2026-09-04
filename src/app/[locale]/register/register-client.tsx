@@ -20,6 +20,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { AuthFormAlert } from "@/components/auth/auth-form-alert";
 import { CircuitTraces, DotMatrix } from "@/components/brand/circuit";
+import { LightPool } from "@/components/brand/light-pool";
 import Button from "@/components/elevated-design/button";
 import { Checkbox } from "@/components/elevated-design/elevated-checkbox";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
@@ -379,6 +380,7 @@ export default function RegisterClient() {
   return (
     <div className="min-h-screen pt-0 bg-muted overflow-y-auto">
       <div className="flex items-center justify-center px-4 py-8 sm:py-12 relative min-h-[calc(100vh-3rem)] sm:min-h-[calc(100vh-3rem)]">
+        <LightPool />
         <CircuitTraces className="pointer-events-none absolute -right-12 -top-10 hidden h-80 w-80 lg:block xl:h-96 xl:w-96" />
         <DotMatrix className="pointer-events-none absolute bottom-12 left-6 hidden h-20 w-28 lg:block" />
         <div

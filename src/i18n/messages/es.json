@@ -10078,7 +10078,7 @@
       "eyebrow": "El principio",
       "titleLine1": "El canal cambia.",
       "titleLine2": "El sistema no.",
-      "body": "En lugar de apilar herramientas, {brandName} mantiene conversación, decisión e ingresos en el mismo flujo operativo."
+      "body": "{brandName} mantiene conversación, decisión e ingresos en el mismo flujo operativo."
     },
     "stages": {
       "scroll": "Desplázate para mover",
@@ -10145,7 +10145,7 @@
         "context": "En el contexto del agente",
         "steps": [
           { "number": "01", "title": "El agente anota lo que importa", "body": "Preferencia, objeción, compromiso. Datos pequeños guardados como entradas separadas, cada una con autor y fecha." },
-          { "number": "02", "title": "El equipo ve y edita la misma lista", "body": "Las mismas memorias aparecen en el panel de la bandeja y en la página del lead. Nada de lo que sabe la IA queda oculto a las personas." },
+          { "number": "02", "title": "El equipo ve y edita la misma lista", "body": "Las mismas memorias aparecen en el panel de la bandeja y en la página del lead, con autor y fecha." },
           { "number": "03", "title": "La memoria sigue a la persona, no al canal", "body": "El lead escribe por Instagram semanas después. El agente ya lo sabe, porque la memoria pertenece a la persona." }
         ]
       },
@@ -10175,8 +10175,8 @@
         "replied": "respondió",
         "steps": [
           { "number": "01", "title": "Un mensaje aprobado, muchos destinos", "body": "La plantilla sale del CRM ya segmentada, con las variables de cada contacto completadas." },
-          { "number": "02", "title": "El envío tiene ritmo y variación", "body": "Lotes, pausas y versiones distintas del mensaje, para que la campaña no parezca un robot." },
-          { "number": "03", "title": "La respuesta vuelve a la cola, no a una hoja de cálculo", "body": "Quien responde se convierte en conversación asignada, con el historial de la campaña en el mismo lead." }
+          { "number": "02", "title": "El envío tiene ritmo y variación", "body": "Lotes, pausas y versiones distintas del mensaje, definidos por ti." },
+          { "number": "03", "title": "La respuesta vuelve a la cola", "body": "Quien responde se convierte en conversación asignada, con el historial de la campaña en el mismo lead." }
         ]
       },
       "knowledge": {
@@ -10189,15 +10189,15 @@
         "source": "fuente",
         "steps": [
           { "number": "01", "title": "Lo que la empresa sabe se vuelve índice", "body": "PDFs, textos y páginas se dividen en fragmentos y se indexan. El agente los consulta antes de responder." },
-          { "number": "02", "title": "La respuesta señala de dónde salió", "body": "Cada respuesta lleva el documento que la sostiene, así el equipo verifica en vez de confiar en una suposición." },
+          { "number": "02", "title": "La respuesta señala de dónde salió", "body": "Cada respuesta lleva el documento que la sostiene, y el equipo verifica la fuente." },
           { "number": "03", "title": "Cambia el documento, cambia la respuesta", "body": "Actualizas la política y el agente ya responde con la nueva. Sin reentrenar ni esperar." }
         ]
       }
     },
     "atlas": {
-      "eyebrow": "Mapa de la plataforma / SaaS",
-      "title": "Toda la plataforma, sin ocultar los detalles.",
-      "body": "Cada capacidad pertenece al mismo modelo de datos y a la misma operación. El resultado es profundidad sin la fragmentación de una pila de herramientas.",
+      "eyebrow": "Mapa de la plataforma",
+      "title": "La plataforma entera, recurso por recurso.",
+      "body": "Cada recurso pertenece al mismo modelo de datos y a la misma operación, así la profundidad no cuesta una integración.",
       "groups": [
         {
           "title": "Atención y CRM",

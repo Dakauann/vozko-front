@@ -4,6 +4,7 @@ import { ArrowLeft, Info, ShieldWarning } from "@/components/icons";
 
 import { Button } from "@/components/ui/button";
 import { CircuitTraces } from "@/components/brand/circuit";
+import { LightPool } from "@/components/brand/light-pool";
 import { IconBox } from "@/components/elevated-design/listing-card";
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
@@ -17,6 +18,7 @@ export function AccessDenied({ backHref }: AccessDeniedProps) {
 
   return (
     <div className="relative flex min-h-[60vh] w-full items-center justify-center overflow-hidden px-4 py-12">
+      <LightPool />
       <CircuitTraces className="pointer-events-none absolute -right-10 -top-10 hidden h-64 w-64 sm:block" />
       <div className="relative w-full max-w-lg text-center">
         {/* Icon */}

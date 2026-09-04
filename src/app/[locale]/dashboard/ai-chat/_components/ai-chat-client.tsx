@@ -48,6 +48,7 @@ import { ModelBrandIcon } from "@/components/elevated-design/model-brand-icon";
 import type { ModelPricingInfo } from "@/lib/agents/types";
 import { cn } from "@/lib/utils";
 import { CircuitBoard, DotMatrix } from "@/components/brand/circuit";
+import { LightPool } from "@/components/brand/light-pool";
 import { getAgentOptionsAction } from "@/app/actions/agents";
 import { useChatStream } from "@/hooks/use-chat-stream";
 
@@ -466,6 +467,7 @@ export function AIChatClient() {
             identity surface until the first message lands. */}
         {isEmpty && (
           <>
+            <LightPool />
             <CircuitBoard className="pointer-events-none absolute -right-8 -top-8 hidden h-72 w-72 sm:block xl:h-96 xl:w-96" />
             <DotMatrix
               tone="quiet"

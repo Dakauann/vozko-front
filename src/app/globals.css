@@ -876,6 +876,13 @@ input:-webkit-autofill:active {
        as text-ornament/NN — one class, themed by the var. */
     --ornament: 164 100% 30%;
 
+    /* Ambient light behind an identity surface (see brand/light-pool.tsx). The
+       alpha, not the hue, is what keeps this ambient rather than a glow: on a
+       near-white canvas 5% of a vivid green is a tint you feel, and 8% is a
+       stain you see. Dark can afford more because it starts from graphite. */
+    --pool-brand: 0.05;
+    --pool-cool: 0.035;
+
     /* Series colour. Green leads — a green-brand product charts its own
        revenue in its own colour (the board's dashboard does exactly this) —
        then the four validated non-brand hues from the previous pass, whose
@@ -1105,6 +1112,9 @@ input:-webkit-autofill:active {
 
     /* On graphite the board hex needs no deepening. */
     --ornament: 158 55% 55%;
+
+    --pool-brand: 0.08;
+    --pool-cool: 0.05;
 
     /* Series-1 is the brand green at the board hex — 8.4:1 on the sheet, and
        the board's own dashboard charts its numbers in this colour. Series 2–5

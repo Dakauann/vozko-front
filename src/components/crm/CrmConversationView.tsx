@@ -13,6 +13,7 @@ import type {
 } from "@/lib/conversations/types";
 import { AnimatePresence, motion } from "framer-motion";
 import { CircuitBoard } from "@/components/brand/circuit";
+import { LightPool } from "@/components/brand/light-pool";
 import {
   ArrowBendUpLeft,
   ArrowDown,
@@ -1703,6 +1704,7 @@ export default function CrmConversationView({
   if (!conversation) {
     return (
       <div className="relative flex h-full flex-col items-center justify-center gap-4 overflow-hidden bg-background px-8 text-center">
+        <LightPool />
         {/* The brand's trace lines — this panel is an identity surface, the
             one place in the inbox where ornament sits behind no data. */}
         <CircuitBoard tone="quiet" className="pointer-events-none absolute bottom-6 right-4 h-64 w-64 xl:h-80 xl:w-80" />

@@ -12,6 +12,7 @@ import {
 import { Fragment, ReactNode, useCallback } from "react";
 
 import { CircuitTraces } from "@/components/brand/circuit";
+import { LightPool } from "@/components/brand/light-pool";
 import { cn } from "@/lib/utils";
 
 
@@ -530,6 +531,7 @@ export function DashboardTable<T>({
       {/* ── Empty state ── */}
       {!hasData && !loading && (
         <div className="relative flex flex-col items-center justify-center overflow-hidden px-6 py-16 text-center">
+          <LightPool />
           {/* The brand's trace lines behind the plate — an empty state is an
               identity surface, the one place in a table where ornament
               doesn't sit behind data. */}

@@ -19,6 +19,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { acceptInviteAction } from "@/app/actions/workspace";
 import { CircuitTraces } from "@/components/brand/circuit";
+import { LightPool } from "@/components/brand/light-pool";
 import { useAuth } from "@/contexts/auth-context";
 import { useTranslations } from "next-intl";
 
@@ -100,6 +101,7 @@ function InviteContent() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-muted px-4">
+      <LightPool />
       <CircuitTraces className="pointer-events-none absolute -right-12 -top-10 hidden h-80 w-80 sm:block xl:h-96 xl:w-96" />
       <div
         className="relative w-full max-w-md"

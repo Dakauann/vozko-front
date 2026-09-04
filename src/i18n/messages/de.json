@@ -10575,7 +10575,7 @@
       "eyebrow": "Das Prinzip",
       "titleLine1": "Der Kanal wechselt.",
       "titleLine2": "Das System nicht.",
-      "body": "Statt Werkzeuge zu stapeln, hält {brandName} Unterhaltung, Entscheidung und Umsatz im selben Betriebsablauf."
+      "body": "{brandName} hält Unterhaltung, Entscheidung und Umsatz im selben operativen Fluss."
     },
     "stages": {
       "scroll": "Scrollen zum Bewegen",
@@ -10642,7 +10642,7 @@
         "context": "Im Kontext des Agenten",
         "steps": [
           { "number": "01", "title": "Der Agent notiert, was zählt", "body": "Vorliebe, Einwand, Zusage. Kleine Fakten als einzelne Einträge gespeichert, jeder mit Autor und Datum." },
-          { "number": "02", "title": "Das Team sieht und bearbeitet dieselbe Liste", "body": "Dieselben Erinnerungen erscheinen im Posteingangs-Panel und auf der Lead-Seite. Nichts, was die KI weiß, bleibt vor Menschen verborgen." },
+          { "number": "02", "title": "Das Team sieht und bearbeitet dieselbe Liste", "body": "Dieselben Erinnerungen erscheinen im Posteingangs-Panel und auf der Lead-Seite, mit Autor und Datum." },
           { "number": "03", "title": "Das Gedächtnis folgt der Person, nicht dem Kanal", "body": "Wochen später schreibt der Lead auf Instagram. Der Agent weiß es bereits, denn das Gedächtnis hängt an der Person." }
         ]
       },
@@ -10672,8 +10672,8 @@
         "replied": "hat geantwortet",
         "steps": [
           { "number": "01", "title": "Eine genehmigte Nachricht, viele Ziele", "body": "Die Vorlage verlässt das CRM bereits segmentiert, mit den Variablen jedes Kontakts gefüllt." },
-          { "number": "02", "title": "Der Versand hat Takt und Variation", "body": "Stapel, Pausen und verschiedene Fassungen der Nachricht, damit die Kampagne nicht nach Roboter klingt." },
-          { "number": "03", "title": "Die Antwort kehrt in die Warteschlange zurück, nicht in eine Tabelle", "body": "Wer antwortet, wird zur zugewiesenen Unterhaltung, mit der Kampagnenhistorie am selben Lead." }
+          { "number": "02", "title": "Der Versand hat Takt und Variation", "body": "Stapel, Pausen und verschiedene Fassungen der Nachricht, von Ihnen festgelegt." },
+          { "number": "03", "title": "Die Antwort kehrt in die Warteschlange zurück", "body": "Wer antwortet, wird zur zugewiesenen Unterhaltung, mit der Kampagnenhistorie am selben Lead." }
         ]
       },
       "knowledge": {
@@ -10686,15 +10686,15 @@
         "source": "Quelle",
         "steps": [
           { "number": "01", "title": "Was das Unternehmen weiß, wird zum Index", "body": "PDFs, Texte und Seiten werden in Passagen zerlegt und indexiert. Der Agent schlägt nach, bevor er antwortet." },
-          { "number": "02", "title": "Die Antwort zeigt, woher sie kommt", "body": "Jede Antwort trägt das Dokument mit sich, auf dem sie beruht, damit das Team prüft statt zu raten." },
+          { "number": "02", "title": "Die Antwort zeigt, woher sie kommt", "body": "Jede Antwort trägt das Dokument mit sich, auf dem sie beruht, und das Team prüft die Quelle." },
           { "number": "03", "title": "Dokument getauscht, Antwort geändert", "body": "Richtlinie aktualisiert, und der Agent antwortet nach der neuen. Kein Neutraining, kein Warten." }
         ]
       }
     },
     "atlas": {
-      "eyebrow": "Plattformkarte / SaaS",
-      "title": "Die gesamte Plattform, ohne Details zu verstecken.",
-      "body": "Jede Funktion gehört zum selben Datenmodell und Betrieb. Das Ergebnis ist Tiefe ohne die Fragmentierung eines Werkzeugstapels.",
+      "eyebrow": "Plattformübersicht",
+      "title": "Die ganze Plattform, Funktion für Funktion.",
+      "body": "Jede Funktion gehört zum selben Datenmodell und zum selben Betrieb, also kostet Tiefe keine Integration.",
       "groups": [
         {
           "title": "Service und CRM",

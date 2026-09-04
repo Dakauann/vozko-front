@@ -11576,7 +11576,7 @@
       "eyebrow": "The principle",
       "titleLine1": "The channel changes.",
       "titleLine2": "The system does not.",
-      "body": "Instead of stacking tools, {brandName} keeps conversation, decision and revenue in the same operational flow."
+      "body": "{brandName} keeps conversation, decision and revenue in the same operational flow."
     },
     "stages": {
       "scroll": "Scroll to move",
@@ -11643,7 +11643,7 @@
         "context": "In the agent's context",
         "steps": [
           { "number": "01", "title": "The agent writes down what matters", "body": "Preference, objection, commitment. Small facts saved as separate entries, each with its author and date." },
-          { "number": "02", "title": "The team sees and edits the same list", "body": "The same memories appear in the inbox panel and on the lead page. Nothing the AI knows is hidden from people." },
+          { "number": "02", "title": "The team sees and edits the same list", "body": "The same memories appear in the inbox panel and on the lead page, with author and date." },
           { "number": "03", "title": "Memory follows the person, not the channel", "body": "The lead writes on Instagram weeks later. The agent already knows, because memory belongs to the person." }
         ]
       },
@@ -11673,8 +11673,8 @@
         "replied": "replied",
         "steps": [
           { "number": "01", "title": "One approved message, many destinations", "body": "The template leaves the CRM already segmented, with each contact's variables filled in." },
-          { "number": "02", "title": "Sending has pacing and variation", "body": "Batches, pauses and different versions of the message, so the campaign does not read as a robot." },
-          { "number": "03", "title": "The reply returns to the queue, not to a spreadsheet", "body": "Whoever answers becomes an assigned conversation, with the campaign history attached to the same lead." }
+          { "number": "02", "title": "Sending has pacing and variation", "body": "Batches, pauses and different versions of the message, set by you." },
+          { "number": "03", "title": "The reply returns to the queue", "body": "Whoever answers becomes an assigned conversation, with the campaign history on the same lead." }
         ]
       },
       "knowledge": {
@@ -11687,15 +11687,15 @@
         "source": "source",
         "steps": [
           { "number": "01", "title": "What the company knows becomes an index", "body": "PDFs, text and pages are split into passages and indexed. The agent looks them up before answering." },
-          { "number": "02", "title": "The answer points at where it came from", "body": "Every answer carries the document behind it, so the team checks rather than trusting a guess." },
+          { "number": "02", "title": "The answer points at where it came from", "body": "Every answer carries the document behind it, and the team checks the source." },
           { "number": "03", "title": "Change the document, change the answer", "body": "Update the policy and the agent answers from the new one. No retraining, no waiting." }
         ]
       }
     },
     "atlas": {
-      "eyebrow": "Platform map / SaaS",
-      "title": "The whole platform, without hiding the details.",
-      "body": "Every capability belongs to the same data model and operation. The result is depth without the fragmentation of a tool stack.",
+      "eyebrow": "Platform map",
+      "title": "The whole platform, capability by capability.",
+      "body": "Every capability belongs to the same data model and the same operation, so depth does not cost an integration.",
       "groups": [
         {
           "title": "Service and CRM",
