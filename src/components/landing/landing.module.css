@@ -1,0 +1,299 @@
+.root {
+  --landing-gutter: clamp(1.25rem, 5vw, 5rem);
+  /* One canvas for the whole page, in both themes: the product's own
+     background token, which is the graphite board in dark and the operations
+     floor's daylight in light. */
+  --landing-stage: hsl(var(--background));
+  --landing-stage-ink: hsl(var(--foreground));
+  --landing-stage-muted: hsl(var(--muted-foreground));
+  --landing-mono: ui-monospace, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+  position: relative;
+  width: 100%;
+  overflow: clip;
+  background: hsl(var(--background));
+}
+
+/* Hero: type on the left, the board's trace bundle climbing on the right. */
+
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: max(42rem, calc(100svh - 3rem));
+  padding: clamp(3rem, 8vh, 6rem) var(--landing-gutter) clamp(3rem, 6vh, 5rem);
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 80rem);
+  margin: 0 auto;
+}
+
+.heroOrnament {
+  position: absolute;
+  inset: 8% 0 0 40%;
+  pointer-events: none;
+  background-image: radial-gradient(circle, hsl(var(--ornament) / 0.3) 1px, transparent 1.2px);
+  background-size: 28px 28px;
+  mask-image: linear-gradient(110deg, transparent 3%, #000 45%, transparent 92%);
+}
+
+.heroGrid {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(20rem, 0.56fr) minmax(0, 0.44fr);
+  grid-template-areas:
+    "title trails"
+    "footer trails";
+  align-content: center;
+  align-items: center;
+  column-gap: clamp(1.5rem, 4vw, 4rem);
+  row-gap: clamp(2rem, 5vh, 3.5rem);
+}
+
+.heroTitle {
+  grid-area: title;
+  position: relative;
+  z-index: 2;
+  align-self: end;
+  max-width: 11ch;
+  font-family: var(--font-oxanium), sans-serif;
+  font-size: clamp(3.5rem, 8vw, 7.5rem);
+  font-weight: 600;
+  line-height: 0.86;
+  letter-spacing: -0.055em;
+  color: hsl(var(--foreground));
+}
+
+.heroTitle span { display: block; }
+
+.heroTrails {
+  grid-area: trails;
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  height: clamp(18rem, 46vh, 30rem);
+  justify-self: end;
+  width: 100%;
+}
+
+.heroFooter {
+  grid-area: footer;
+  position: relative;
+  z-index: 2;
+  align-self: start;
+  max-width: 38rem;
+}
+
+.heroBody {
+  font-size: clamp(1rem, 1.35vw, 1.15rem);
+  line-height: 1.7;
+  color: hsl(var(--muted-foreground));
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  margin-top: clamp(1.5rem, 3.5vh, 2.25rem);
+}
+
+.button {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.15rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 650;
+  transition:
+    transform 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.button:active { transform: scale(0.97); }
+
+.buttonPrimary {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  box-shadow: var(--shadow-button-primary);
+}
+
+.buttonSecondary {
+  border: 1px solid hsl(var(--control-edge));
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  box-shadow: var(--shadow-quiet);
+}
+
+/* Pinned stages: the kanban set the grammar, every 3D chapter reuses it. */
+
+.stage {
+  position: relative;
+  height: var(--stage-height, 280svh);
+  background: var(--landing-stage);
+}
+
+.stageSticky {
+  position: sticky;
+  top: 3rem;
+  height: calc(100svh - 3rem);
+  overflow: hidden;
+  color: var(--landing-stage-ink);
+  background: var(--landing-stage);
+}
+
+/* With the frame gone, the room the scene sits in is drawn by light, not by a
+   border: one soft pool under the object and a cool wash at the far edge. */
+.stageSticky::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(58% 46% at 62% 48%, hsl(var(--primary) / 0.07), transparent 72%),
+    radial-gradient(38% 34% at 12% 78%, hsl(var(--info) / 0.05), transparent 74%);
+}
+
+.stageSticky > * {
+  position: relative;
+  z-index: 1;
+}
+
+.manifesto {
+  padding: clamp(6rem, 13vw, 12rem) var(--landing-gutter);
+  border-top: 1px solid hsl(var(--border));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.manifestoGrid {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.25fr) minmax(18rem, 1fr) minmax(16rem, 0.48fr);
+  gap: 2rem clamp(2rem, 6vw, 6rem);
+  align-items: start;
+  width: min(100%, 80rem);
+  margin: 0 auto;
+}
+
+.manifestoLabel,
+.finalIndex {
+  font-family: var(--landing-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+.manifesto h2 {
+  font-family: var(--font-oxanium), sans-serif;
+  font-size: clamp(3.25rem, 7vw, 7rem);
+  font-weight: 600;
+  line-height: 0.88;
+  letter-spacing: -0.055em;
+}
+
+.manifestoGrid > p:last-child {
+  padding-top: 0.35rem;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: hsl(var(--muted-foreground));
+}
+
+.finalCta {
+  padding: clamp(6rem, 11vw, 10rem) var(--landing-gutter);
+  border-top: 1px solid hsl(var(--border));
+  color: var(--landing-stage-ink);
+  background: var(--landing-stage);
+}
+
+.finalCtaInner {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.22fr) minmax(18rem, 1fr) minmax(16rem, 0.42fr);
+  gap: 2rem clamp(2rem, 6vw, 6rem);
+  align-items: end;
+  width: min(100%, 80rem);
+  margin: 0 auto;
+}
+
+.finalIndex { color: var(--landing-stage-muted); }
+
+.finalCta h2 {
+  font-family: var(--font-oxanium), sans-serif;
+  font-size: clamp(2.9rem, 6vw, 6.2rem);
+  font-weight: 600;
+  line-height: 0.92;
+  letter-spacing: -0.05em;
+}
+
+.finalCtaInner > div:last-child p {
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--landing-stage-muted);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button:hover { transform: translateY(-2px); }
+}
+
+@media (max-width: 1000px) {
+  .hero {
+    align-items: flex-start;
+    padding-top: 5.5rem;
+  }
+
+  .heroGrid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "title"
+      "trails"
+      "footer";
+    row-gap: 1.75rem;
+  }
+
+  .heroTitle { max-width: 12ch; }
+
+  .heroTrails {
+    height: clamp(12rem, 26vh, 18rem);
+    justify-self: stretch;
+  }
+
+  .heroOrnament { inset: 30% 0 20% 0; }
+
+  .manifestoGrid,
+  .finalCtaInner { grid-template-columns: minmax(0, 1fr); }
+
+  .manifestoGrid > p:last-child,
+  .finalCtaInner > div:last-child { max-width: 38rem; }
+}
+
+@media (max-width: 700px) {
+  .hero {
+    min-height: auto;
+    padding-bottom: 3rem;
+  }
+
+  .heroTitle {
+    font-size: clamp(3rem, 14vw, 4.75rem);
+    line-height: 0.9;
+  }
+
+  .heroActions { flex-direction: column; align-items: stretch; }
+
+  .manifesto,
+  .finalCta { padding-block: 6rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage { height: 115svh; }
+  .button { transition: none; }
+  .button:hover,
+  .button:active { transform: none; }
+}

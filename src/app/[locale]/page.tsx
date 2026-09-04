@@ -1,10 +1,12 @@
-import { redirect } from "next/navigation";
+import { LandingPage } from "@/components/landing/landing-page";
+import { getBrand } from "@/config/brand";
 
 type HomePageProps = {
   params: Promise<{ locale: string }>;
 };
 
 export default async function HomePage({ params }: HomePageProps) {
-  const { locale } = await params;
-  redirect(`/${locale}/login`);
+  await params;
+  const brand = getBrand();
+  return <LandingPage brandName={brand.name} />;
 }

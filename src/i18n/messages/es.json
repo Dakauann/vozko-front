@@ -10043,5 +10043,200 @@
       "save": "Guardar nombre",
       "cancel": "Cancelar"
     }
+  },
+  "landing": {
+    "skip": "Saltar al contenido",
+    "hero": {
+      "titleLine1": "Todos los canales.",
+      "titleLine2": "Una operación.",
+      "body": "WhatsApp, CRM, agentes de IA y automatizaciones dejan de competir por el contexto. La conversación entra una vez y recorre toda la operación.",
+      "primaryCta": "Empezar ahora",
+      "secondaryCta": "Ver el flujo"
+    },
+    "kanban": {
+      "aria": "Un embudo de prospección tridimensional mueve tarjetas de nuevos leads hasta ganado a medida que avanza la página.",
+      "rail": "Flujo activo",
+      "scroll": "Desplázate para mover",
+      "columns": ["Nuevos leads", "En contacto", "Propuesta", "Ganado"],
+      "cards": [
+        { "title": "Marina Alves", "meta": "Presupuesto de 12 unidades", "channel": "whatsapp", "owner": "AN" },
+        { "title": "Mayorista Nordeste", "meta": "Pedido recurrente", "channel": "whatsapp", "owner": "DA" },
+        { "title": "Tienda Horizonte", "meta": "Vino del anuncio", "channel": "instagram", "owner": "BI" },
+        { "title": "Renovación anual", "meta": "Propuesta enviada", "channel": "whatsapp", "owner": "RU" },
+        { "title": "Clínica Vida", "meta": "Pidió una llamada hoy", "channel": "instagram", "owner": "AN" },
+        { "title": "Constructora Pilar", "meta": "Negociando el plazo", "channel": "telegram", "owner": "DA" }
+      ],
+      "steps": [
+        { "number": "01", "title": "Todo entra por la misma puerta", "body": "WhatsApp, Instagram, Telegram y chat en vivo caen en la misma cola, con el mismo registro y las mismas etapas." },
+        { "number": "02", "title": "La IA organiza el primer movimiento", "body": "Clasificación, resumen y etiquetas automáticas llegan antes de que el equipo toque la tarjeta." },
+        { "number": "03", "title": "Una persona asume sin volver a empezar", "body": "Historial, intención y responsable permanecen en el mismo registro, en cualquier canal." },
+        { "number": "04", "title": "La conversación se vuelve oportunidad", "body": "Valor, etapa y seguimiento siguen conectados hasta el cierre." }
+      ],
+      "agent": "IA"
+    },
+    "manifesto": {
+      "eyebrow": "El principio",
+      "titleLine1": "El canal cambia.",
+      "titleLine2": "El sistema no.",
+      "body": "En lugar de apilar herramientas, {brandName} mantiene conversación, decisión e ingresos en el mismo flujo operativo."
+    },
+    "stages": {
+      "scroll": "Desplázate para mover",
+      "workflow": {
+        "rail": "Workflow",
+        "aria": "Un mensaje recorre disparador, agente de IA, decisión y traspaso humano en un lienzo de workflow tridimensional.",
+        "kinds": { "trigger": "Disparador", "ai": "IA", "condition": "Condición", "action": "Acción", "human": "Humano" },
+        "nodes": {
+          "trigger": "Llega un mensaje",
+          "agent": "Agente de IA",
+          "condition": "¿Respondió?",
+          "yes": "Sí",
+          "no": "No",
+          "assign": "Asignar miembro",
+          "schedule": "Programar mensaje",
+          "human": "Un humano asume"
+        },
+        "steps": [
+          { "number": "01", "title": "Un disparador inicia el recorrido", "body": "Primer mensaje, webhook o una respuesta. El workflow empieza en el mismo registro que la bandeja ya conoce." },
+          { "number": "02", "title": "La IA decide con contexto", "body": "El agente lee la conversación, extrae lo que importa y enruta por condición, sin salir del lienzo." },
+          { "number": "03", "title": "Una persona lo recibe sin volver a empezar", "body": "Asignación, programación y traspaso actúan sobre el mismo historial. El equipo ve cada paso que no tuvo que dar." }
+        ]
+      },
+      "roulette": {
+        "rail": "Ruleta",
+        "aria": "Las conversaciones entrantes se reparten por turnos a un anillo de agentes; los miembros ausentes se saltan y las conversaciones no abiertas se reasignan.",
+        "incoming": "Entrada",
+        "unopened": "Sin abrir",
+        "rescue": "Reasignada",
+        "members": [
+          { "name": "Ana", "presence": "en línea" },
+          { "name": "Davi", "presence": "en línea" },
+          { "name": "Lia", "presence": "desconectada · 3 días" },
+          { "name": "Rui", "presence": "visto hace 2 h" },
+          { "name": "Bia", "presence": "en línea" }
+        ],
+        "conversations": [
+          { "title": "Marina Alves", "meta": "WhatsApp" },
+          { "title": "Tienda Horizonte", "meta": "Instagram" },
+          { "title": "Mayorista Nordeste", "meta": "WhatsApp" }
+        ],
+        "steps": [
+          { "number": "01", "title": "Cada conversación se reparte por turno", "body": "Round robin por departamento y número. El siguiente agente del anillo recibe la siguiente conversación, en cualquier canal." },
+          { "number": "02", "title": "Solo entra al anillo quien está de verdad", "body": "Por defecto, agentes conectados. Opcionalmente, quien estuvo en línea dentro de una ventana que tú defines. Pasada esa ventana, sale del anillo." },
+          { "number": "03", "title": "Nadie espera a un responsable ausente", "body": "Una conversación que nadie abrió a tiempo pasa al siguiente agente. El historial sigue entero." }
+        ]
+      },
+      "memory": {
+        "rail": "Memoria",
+        "aria": "Los datos anotados durante una conversación de WhatsApp quedan en el lead y reaparecen cuando la misma persona escribe por Instagram.",
+        "lead": "Lead",
+        "name": "Marina Alves",
+        "memories": "Memorias",
+        "whatsapp": "WhatsApp",
+        "instagram": "Instagram",
+        "customer": "¿Puede llegar por la mañana? Trabajo por la tarde.",
+        "ai": "Anotado. Entrega por la mañana, entonces.",
+        "later": "Hola, soy Marina. El mismo pedido de la última vez.",
+        "items": [
+          { "text": "Prefiere entrega por la mañana", "by": "Agente de IA" },
+          { "text": "Paga con boleto", "by": "Operador" },
+          { "text": "Rechazó el plan anual dos veces", "by": "Agente de IA" }
+        ],
+        "context": "En el contexto del agente",
+        "steps": [
+          { "number": "01", "title": "El agente anota lo que importa", "body": "Preferencia, objeción, compromiso. Datos pequeños guardados como entradas separadas, cada una con autor y fecha." },
+          { "number": "02", "title": "El equipo ve y edita la misma lista", "body": "Las mismas memorias aparecen en el panel de la bandeja y en la página del lead. Nada de lo que sabe la IA queda oculto a las personas." },
+          { "number": "03", "title": "La memoria sigue a la persona, no al canal", "body": "El lead escribe por Instagram semanas después. El agente ya lo sabe, porque la memoria pertenece a la persona." }
+        ]
+      },
+      "agent": {
+        "rail": "Agentes",
+        "aria": "Un agente de IA se monta pieza por pieza: instrucciones, herramientas, base de conocimiento y canal encajan en un núcleo que se enciende.",
+        "core": "Agente",
+        "ready": "listo para atender",
+        "modules": [
+          { "title": "Instrucciones", "meta": "tono y límites" },
+          { "title": "Herramientas", "meta": "acciones en el CRM" },
+          { "title": "Conocimiento", "meta": "bases con RAG" },
+          { "title": "Canal", "meta": "dónde atiende" }
+        ],
+        "steps": [
+          { "number": "01", "title": "Un agente se monta, no se improvisa", "body": "Instrucciones, tono y límites quedan explícitos. Puedes leer lo que el agente puede y no puede hacer." },
+          { "number": "02", "title": "Herramientas y conocimiento encajan como piezas", "body": "Bases con RAG y acciones en el CRM se añaden una a una, y se quitan igual." },
+          { "number": "03", "title": "Entra en la cola junto al equipo", "body": "El agente atiende en la misma bandeja y el mismo registro, y devuelve la conversación a una persona cuando toca." }
+        ]
+      },
+      "campaign": {
+        "rail": "Campañas",
+        "aria": "Una plantilla aprobada sale hacia un público del CRM y las respuestas vuelven a la cola de atención.",
+        "template": "Plantilla aprobada",
+        "audience": "Público del CRM",
+        "queue": "Respuestas en la cola",
+        "replied": "respondió",
+        "steps": [
+          { "number": "01", "title": "Un mensaje aprobado, muchos destinos", "body": "La plantilla sale del CRM ya segmentada, con las variables de cada contacto completadas." },
+          { "number": "02", "title": "El envío tiene ritmo y variación", "body": "Lotes, pausas y versiones distintas del mensaje, para que la campaña no parezca un robot." },
+          { "number": "03", "title": "La respuesta vuelve a la cola, no a una hoja de cálculo", "body": "Quien responde se convierte en conversación asignada, con el historial de la campaña en el mismo lead." }
+        ]
+      },
+      "knowledge": {
+        "rail": "Conocimiento",
+        "aria": "Los documentos de la empresa se convierten en un índice; una pregunta entra, enciende el fragmento que responde y sale con la fuente citada.",
+        "title": "Base de conocimiento",
+        "docs": ["Política comercial", "Plazos de entrega", "Formas de pago", "Preguntas frecuentes", "Lista de precios"],
+        "question": "¿Cuál es el plazo para el Nordeste?",
+        "answer": "De 4 a 7 días hábiles en esa modalidad.",
+        "source": "fuente",
+        "steps": [
+          { "number": "01", "title": "Lo que la empresa sabe se vuelve índice", "body": "PDFs, textos y páginas se dividen en fragmentos y se indexan. El agente los consulta antes de responder." },
+          { "number": "02", "title": "La respuesta señala de dónde salió", "body": "Cada respuesta lleva el documento que la sostiene, así el equipo verifica en vez de confiar en una suposición." },
+          { "number": "03", "title": "Cambia el documento, cambia la respuesta", "body": "Actualizas la política y el agente ya responde con la nueva. Sin reentrenar ni esperar." }
+        ]
+      }
+    },
+    "atlas": {
+      "eyebrow": "Mapa de la plataforma / SaaS",
+      "title": "Toda la plataforma, sin ocultar los detalles.",
+      "body": "Cada capacidad pertenece al mismo modelo de datos y a la misma operación. El resultado es profundidad sin la fragmentación de una pila de herramientas.",
+      "groups": [
+        {
+          "title": "Atención y CRM",
+          "description": "La primera línea y el proceso comercial comparten el mismo contexto.",
+          "items": ["Bandeja de entrada omnicanal", "Atención humana y por IA", "Embudos y etapas configurables", "Leads, oportunidades y ventas", "Asignación, colas y responsables", "Métricas de atención y audiencia"]
+        },
+        {
+          "title": "Inteligencia aplicada",
+          "description": "IA útil antes, durante y después de cada conversación.",
+          "items": ["Agentes de IA configurables", "Bases de conocimiento con RAG", "Memorias duraderas del lead", "Análisis automático de conversaciones", "Auto tag y avance de etapa", "Copiloto y refinador de texto", "Transcripción de mensajes de audio", "Chat y simulador de agentes"]
+        },
+        {
+          "title": "Automatización",
+          "description": "Orquestación visual que conserva espacio para la intervención humana.",
+          "items": ["Editor visual de workflows", "Disparadores, condiciones y ramas", "Mensajes programados", "Transferencia a atención humana", "Automatización por canal", "Atajos de mensajes"]
+        },
+        {
+          "title": "Canales",
+          "description": "Una columna operativa para cada punto de contacto.",
+          "items": ["WhatsApp Business API", "Varios números por workspace", "Plantillas y WhatsApp Flows", "Telegram", "Chat en vivo", "Instagram: directos, publicaciones y comentarios", "WhatsApp por conexión QR", "Llamadas humanas por WhatsApp"]
+        },
+        {
+          "title": "Campañas y cobros",
+          "description": "Captación, respuestas y cobros siguen conectados a la conversación.",
+          "items": ["Campañas oficiales y orgánicas", "Segmentación desde el CRM", "Programación, cadencia y variantes", "CRM propio por campaña", "Documentos de cobro y facturas", "Saldo e integración de pagos"]
+        },
+        {
+          "title": "Administración",
+          "description": "Control para operaciones con distintos equipos, sucursales y responsabilidades.",
+          "items": ["Workspaces y sucursales", "Usuarios, invitaciones y calendario", "Roles y permisos granulares", "Acceso por número y plantilla", "Planes, add-ons y facturación", "Integraciones y servidores MCP"]
+        }
+      ]
+    },
+    "final": {
+      "eyebrow": "Siguiente paso / 01",
+      "titleLine1": "Menos transferencias.",
+      "titleLine2": "Más trabajo terminado.",
+      "body": "Descubre cómo tu operación puede funcionar como un solo sistema.",
+      "cta": "Conocer la plataforma"
+    }
   }
 }
