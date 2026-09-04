@@ -303,6 +303,11 @@ export function Disc({
   );
 }
 
+/** A chat-bubble style block: size, ink and ground in one place. */
+export function labelStyle(fontSize: number, color: string, backgroundColor: string): CSSProperties {
+  return { fontSize, color, backgroundColor };
+}
+
 /** The coloured edge a kanban card carries: a flat bar sitting on a slab face. */
 export function Bar({ position, size, color }: { position: Vec3; size: Vec3; color: string }) {
   return (

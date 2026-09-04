@@ -3,10 +3,13 @@
 import type { MotionValue } from "framer-motion";
 import { useRef } from "react";
 import { MathUtils, type Group, type Mesh, type MeshStandardMaterial } from "three";
+import { FileText, MagnifyingGlass } from "@/components/icons";
 import {
-  Disc,
   Label,
+  R,
+  Slab,
   StageLights,
+  labelStyle,
   sheet,
   sheetWell,
   smoothWindow,
@@ -14,6 +17,7 @@ import {
   useCompact,
   useDampedProgress,
   useFitScale,
+  useLabelPx,
   type ScenePalette,
   type Window,
 } from "../scene-kit";
@@ -27,43 +31,46 @@ export type KnowledgeSceneLabels = {
 };
 
 type Layout = {
-  disc: number;
-  depth: number;
+  /** The spine the index is built on. */
+  railX: number;
+  shelf: number;
+  thickness: number;
   gap: number;
-  /** Where the question enters and the answer leaves, relative to the stack. */
   askAt: [number, number];
   answerAt: [number, number];
-  labelWidth: number;
+  bubbleWidth: number;
   extent: [number, number];
 };
 
 const WIDE: Layout = {
-  disc: 1.45,
-  depth: 0.3,
-  gap: 0.46,
-  askAt: [-4.3, 0.9],
-  answerAt: [4.2, -0.9],
-  labelWidth: 170,
-  extent: [9.8, 6.0],
+  railX: -2.7,
+  shelf: 2.9,
+  thickness: 0.34,
+  gap: 0.86,
+  askAt: [-2.7, 2.95],
+  answerAt: [1.5, -3.0],
+  bubbleWidth: 190,
+  extent: [8.4, 7.2],
 };
 
 const COMPACT: Layout = {
-  disc: 1.2,
-  depth: 0.26,
-  gap: 0.4,
-  askAt: [0, 2.9],
-  answerAt: [0, -2.9],
-  labelWidth: 132,
-  extent: [4.6, 7.0],
+  railX: -2.0,
+  shelf: 2.2,
+  thickness: 0.3,
+  gap: 0.74,
+  askAt: [-1.4, 2.6],
+  answerAt: [0.6, -2.7],
+  bubbleWidth: 140,
+  extent: [5.0, 7.0],
 };
 
 /** The passage that answers the question. */
 const MATCH = 1;
-const ASK: Window = [0.06, 0.24];
-const SEEK: Window = [0.26, 0.46];
-const LIFT: Window = [0.44, 0.6];
-const ANSWER: Window = [0.62, 0.82];
-const CITE: Window = [0.8, 0.94];
+const ASK: Window = [0.05, 0.22];
+const SEEK: Window = [0.24, 0.46];
+const LIFT: Window = [0.46, 0.62];
+const ANSWER: Window = [0.64, 0.84];
+const CITE: Window = [0.82, 0.95];
 
 export function KnowledgeScene({
   progress,
@@ -77,22 +84,24 @@ export function KnowledgeScene({
   palette: ScenePalette;
 }) {
   const stage = useRef<Group>(null);
-  const stack = useRef<Group>(null);
-  const discs = useRef<Array<Group | null>>([]);
-  const rims = useRef<Array<MeshStandardMaterial | null>>([]);
+  const shelves = useRef<Array<Group | null>>([]);
+  const caps = useRef<Array<MeshStandardMaterial | null>>([]);
+  const rowLabels = useRef<Array<HTMLDivElement | null>>([]);
   const query = useRef<Mesh>(null);
   const reply = useRef<Mesh>(null);
   const askLabel = useRef<HTMLDivElement | null>(null);
   const answerLabel = useRef<HTMLDivElement | null>(null);
   const citeLabel = useRef<HTMLDivElement | null>(null);
-  const matchLabel = useRef<HTMLDivElement | null>(null);
   const compact = useCompact();
   const layout = compact ? COMPACT : WIDE;
   const font = (n: number) => (compact ? Math.max(Math.round(n * 0.82 * 10) / 10, 8.7) : n);
   const scale = useFitScale(layout.extent[0], layout.extent[1]);
+  const px = useLabelPx(scale);
   const docs = labels.docs.slice(0, 5);
   const top = ((docs.length - 1) / 2) * layout.gap;
-  const discY = (index: number) => top - index * layout.gap;
+  const rowY = (index: number) => top - index * layout.gap;
+  const shelfEnd = layout.railX + layout.shelf;
+  const railH = docs.length * layout.gap + 0.5;
 
   useDampedProgress(progress, reduced, (t, delta) => {
     const asked = smoothWindow(t, ASK);
@@ -100,140 +109,155 @@ export function KnowledgeScene({
     const lifted = smoothWindow(t, LIFT);
     const answered = smoothWindow(t, ANSWER);
 
-    // The question travels in, dives through the stack, and leaves as an answer.
+    // The question runs down the spine, stops at the row that answers it.
     if (query.current) {
-      const x = MathUtils.lerp(layout.askAt[0], 0, seeking);
-      const y = MathUtils.lerp(layout.askAt[1], discY(MATCH), seeking);
-      query.current.position.set(x, y, 0.9 - seeking * 0.55);
-      query.current.scale.setScalar(Math.max(asked * (1 - smoothstep((seeking - 0.85) * 6)), 0.001));
+      const y = MathUtils.lerp(top + 0.55, rowY(MATCH), seeking);
+      query.current.position.set(layout.railX, y, 0.42);
+      query.current.scale.setScalar(Math.max(asked * (1 - smoothstep((answered - 0.1) * 4)), 0.001));
     }
     if (reply.current) {
       const eased = smoothstep(answered);
       reply.current.position.set(
-        MathUtils.lerp(0, layout.answerAt[0], eased),
-        MathUtils.lerp(discY(MATCH), layout.answerAt[1], eased),
-        0.35 + Math.sin(eased * Math.PI) * 0.5,
+        MathUtils.lerp(shelfEnd, layout.answerAt[0], eased),
+        MathUtils.lerp(rowY(MATCH), layout.answerAt[1] + 0.55, eased),
+        0.42 + Math.sin(eased * Math.PI) * 0.45,
       );
       reply.current.scale.setScalar(Math.max(smoothstep(Math.min(answered, 1 - answered) * 4), 0.001));
     }
 
     docs.forEach((_, index) => {
-      const group = discs.current[index];
       const isMatch = index === MATCH;
-      if (group) {
-        // The matching passage pulls out of the index, the way a drawer opens.
-        group.position.set(isMatch ? lifted * 0.85 : 0, discY(index), isMatch ? lifted * 0.5 : 0);
+      const group = shelves.current[index];
+      // The row the answer came from pulls out of the index, like a drawer.
+      if (group) group.position.set(isMatch ? lifted * 0.5 : 0, rowY(index), isMatch ? lifted * 0.28 : 0);
+      const cap = caps.current[index];
+      if (cap) {
+        // The search sweeps the index on its way down, then holds on the match.
+        const sweep = Math.max(0, 1 - Math.abs(seeking * (docs.length - 1) - index) * 1.6);
+        cap.emissiveIntensity = (isMatch ? Math.max(sweep, lifted) : sweep * 0.45) * (palette.dark ? 0.95 : 0.55);
       }
-      const rim = rims.current[index];
-      if (rim) {
-        const sweep = Math.max(0, 1 - Math.abs(seeking * (docs.length - 1) - index) * 1.4);
-        rim.emissiveIntensity = (isMatch ? Math.max(sweep, lifted) : sweep * 0.5) * (palette.dark ? 0.9 : 0.55);
-      }
+      const row = rowLabels.current[index];
+      if (row) row.style.opacity = String(isMatch ? 0.55 + 0.45 * lifted : 0.55);
     });
 
-    if (askLabel.current) askLabel.current.style.opacity = String(asked * (1 - seeking));
-    if (matchLabel.current) matchLabel.current.style.opacity = String(lifted);
-    if (answerLabel.current) answerLabel.current.style.opacity = String(smoothWindow(t, [ANSWER[1] - 0.06, ANSWER[1] + 0.04]));
+    if (askLabel.current) askLabel.current.style.opacity = String(asked);
+    if (answerLabel.current) answerLabel.current.style.opacity = String(smoothWindow(t, [ANSWER[1] - 0.06, ANSWER[1] + 0.03]));
     if (citeLabel.current) citeLabel.current.style.opacity = String(smoothWindow(t, CITE));
 
-    if (stack.current) {
-      stack.current.rotation.z = MathUtils.damp(stack.current.rotation.z, -0.05 + t * 0.1, 4, delta);
-    }
     if (stage.current) {
-      stage.current.rotation.x = MathUtils.damp(stage.current.rotation.x, -0.34 + t * 0.06, 5, delta);
-      stage.current.rotation.y = MathUtils.damp(stage.current.rotation.y, 0.12 - t * 0.2, 5, delta);
+      stage.current.rotation.x = MathUtils.damp(stage.current.rotation.x, -0.1 + t * 0.03, 5, delta);
+      stage.current.rotation.y = MathUtils.damp(stage.current.rotation.y, 0.14 - t * 0.22, 5, delta);
     }
   });
+
+  const icon = font(12);
 
   return (
     <>
       <StageLights palette={palette} cool={palette.accent.tag} />
-      <group ref={stage} scale={scale} rotation={[-0.34, 0.12, 0]}>
-        {/* The index: one disc per indexed passage, stacked into a single body. */}
-        <group ref={stack}>
-          {docs.map((doc, index) => (
-            <group
-              key={doc}
-              ref={(node) => {
-                discs.current[index] = node;
-              }}
-              position={[0, discY(index), 0]}
-            >
-              <mesh rotation={[Math.PI / 2, 0, 0]}>
-                <cylinderGeometry args={[layout.disc + 0.07, layout.disc + 0.07, layout.depth - 0.08, 56]} />
-                <meshStandardMaterial
-                  ref={(node) => {
-                    rims.current[index] = node;
-                  }}
-                  color={palette.accent.ai}
-                  emissive={palette.accent.ai}
-                  emissiveIntensity={0}
-                  roughness={0.5}
-                />
-              </mesh>
-              <Disc radius={layout.disc} depth={layout.depth} color={sheet(palette)} roughness={0.65} />
-            </group>
-          ))}
-        </group>
+      <group ref={stage} scale={scale} rotation={[-0.1, 0.14, 0]}>
+        {/* The spine: one index, with a row per document rather than a pile. */}
+        <Slab
+          size={[0.3, railH, 0.4]}
+          color={sheetWell(palette)}
+          position={[layout.railX, 0, -0.05]}
+          radius={R.chip}
+          roughness={0.82}
+          receiveShadow
+        />
 
-        <Label position={[0, top + 0.95, 0.3]} width={layout.labelWidth} className="select-none text-center">
-          <p className="font-mono font-semibold uppercase tracking-[0.15em]" style={{ fontSize: font(9), color: palette.ink.ai }}>
+        <Label position={[layout.railX + 0.1, top + 1.15, 0.3]} width={px(layout.shelf)} className="flex select-none items-center gap-1.5 text-left">
+          <MagnifyingGlass size={icon} color={palette.ink.ai} style={{ ["--icon-accent" as string]: palette.ink.ai }} />
+          <span className="font-mono font-semibold uppercase tracking-[0.15em]" style={{ fontSize: font(9), color: palette.ink.ai }}>
             {labels.title}
-          </p>
+          </span>
         </Label>
 
-        {/* The passage that answered, named only once it is pulled out. */}
-        <Label position={[layout.disc + 1.35, discY(MATCH) + 0.1, 0.5]} width={layout.labelWidth} className="select-none text-left">
-          <div ref={matchLabel} style={{ opacity: 0 }}>
-            <p className="truncate font-semibold leading-none" style={{ fontSize: font(11.5), color: palette.panelInk }}>
-              {docs[MATCH]}
-            </p>
-            <p className="mt-1 font-mono uppercase leading-none tracking-[0.14em]" style={{ fontSize: font(8.5), color: palette.ink.ai }}>
-              {labels.source}
-            </p>
-          </div>
-        </Label>
+        {docs.map((doc, index) => (
+          <group
+            key={doc}
+            ref={(node) => {
+              shelves.current[index] = node;
+            }}
+            position={[0, rowY(index), 0]}
+          >
+            <Slab
+              size={[layout.shelf, layout.thickness, 0.36]}
+              color={sheet(palette)}
+              position={[layout.railX + layout.shelf / 2, 0, 0]}
+              radius={R.chip}
+              roughness={0.62}
+              receiveShadow
+            />
+            {/* The lit end-cap: which row the search is touching. */}
+            <mesh position={[shelfEnd - 0.07, 0, 0.02]}>
+              <boxGeometry args={[0.14, layout.thickness + 0.04, 0.4]} />
+              <meshStandardMaterial
+                ref={(node) => {
+                  caps.current[index] = node;
+                }}
+                color={palette.accent.ai}
+                emissive={palette.accent.ai}
+                emissiveIntensity={0}
+                roughness={0.5}
+              />
+            </mesh>
+            <Label
+              position={[layout.railX + layout.shelf / 2 + 0.08, 0, 0.24]}
+              width={px(layout.shelf - 0.5)}
+              className="flex select-none items-center gap-1.5 text-left"
+            >
+              <div
+                ref={(node) => {
+                  rowLabels.current[index] = node;
+                }}
+                className="flex min-w-0 items-center gap-1.5"
+                style={{ opacity: 0.55 }}
+              >
+                <FileText size={icon} color={palette.panelMuted} style={{ ["--icon-accent" as string]: palette.accent.ai }} />
+                <span className="truncate font-semibold leading-none" style={{ fontSize: font(11), color: palette.panelInk }}>
+                  {doc}
+                </span>
+              </div>
+            </Label>
+          </group>
+        ))}
 
         <mesh ref={query} scale={0.001}>
-          <sphereGeometry args={[0.16, 20, 20]} />
+          <sphereGeometry args={[0.15, 20, 20]} />
           <meshStandardMaterial color={palette.accent.team} emissive={palette.accent.team} emissiveIntensity={0.7} roughness={0.35} />
         </mesh>
         <mesh ref={reply} scale={0.001}>
-          <sphereGeometry args={[0.17, 20, 20]} />
-          <meshStandardMaterial color={palette.accent.ai} emissive={palette.accent.ai} emissiveIntensity={0.8} roughness={0.35} />
+          <sphereGeometry args={[0.16, 20, 20]} />
+          <meshStandardMaterial color={palette.accent.ai} emissive={palette.accent.ai} emissiveIntensity={0.85} roughness={0.35} />
         </mesh>
 
         {/* The question going in. */}
-        <Label position={[layout.askAt[0], layout.askAt[1] + 0.5, 0.4]} width={layout.labelWidth + 20} className="select-none text-left">
+        <Label position={[layout.askAt[0] + 1.1, layout.askAt[1], 0.4]} width={layout.bubbleWidth} className="select-none text-left">
           <div ref={askLabel} style={{ opacity: 0 }}>
-            <p
-              className="rounded-lg rounded-bl-sm px-2 py-1.5 leading-snug"
-              style={{ fontSize: font(10), color: palette.panelInk, backgroundColor: palette.bubble }}
-            >
+            <p className="rounded-lg rounded-bl-sm px-2 py-1.5 leading-snug" style={labelStyle(font(10), palette.panelInk, palette.bubble)}>
               {labels.question}
             </p>
           </div>
         </Label>
 
-        {/* The answer coming out, with the document it stands on. */}
-        <Label position={[layout.answerAt[0], layout.answerAt[1] - 0.5, 0.4]} width={layout.labelWidth + 20} className="select-none text-left">
+        {/* The answer coming out, and the row it stands on. */}
+        <Label position={[layout.answerAt[0], layout.answerAt[1], 0.4]} width={layout.bubbleWidth} className="select-none text-left">
           <div ref={answerLabel} style={{ opacity: 0 }}>
             <p
               className="rounded-lg rounded-br-sm px-2 py-1.5 leading-snug"
-              style={{ fontSize: font(10), color: palette.dark ? palette.panelInk : palette.cardInk, backgroundColor: palette.wash }}
+              style={labelStyle(font(10), palette.dark ? palette.panelInk : palette.cardInk, palette.wash)}
             >
               {labels.answer}
             </p>
           </div>
-          <div ref={citeLabel} style={{ opacity: 0 }}>
-            <p className="mt-1.5 truncate font-mono leading-none" style={{ fontSize: font(8.5), color: palette.ink.ai }}>
+          <div ref={citeLabel} className="mt-1.5 flex items-center gap-1.5" style={{ opacity: 0 }}>
+            <FileText size={font(10)} color={palette.ink.ai} style={{ ["--icon-accent" as string]: palette.ink.ai }} />
+            <span className="truncate font-mono leading-none" style={{ fontSize: font(8.5), color: palette.ink.ai }}>
               {labels.source}: {docs[MATCH]}
-            </p>
+            </span>
           </div>
         </Label>
-
-        {/* The bench the index sits on. */}
-        <Disc radius={layout.disc + 1.4} depth={0.12} color={sheetWell(palette)} position={[0, -top - 0.75, 0]} castShadow={false} />
       </group>
     </>
   );

@@ -4,6 +4,7 @@ import { RoundedBox } from "@react-three/drei";
 import type { MotionValue } from "framer-motion";
 import { useRef } from "react";
 import { MathUtils, type Group, type Mesh, type MeshBasicMaterial, type MeshStandardMaterial } from "three";
+import { Sparkle } from "@/components/icons";
 import { InstagramLogoColor, TelegramLogoColor, WhatsAppLogoColor } from "@/components/icons/channel-logos";
 import {
   Label,
@@ -78,12 +79,14 @@ const SLOT = [1.45, 0.25, -0.95, -2.15] as const;
 const HEADER_BAR = 0.34;
 const HEADER_TEXT = 0.16;
 
-// Six leads working their way down a prospection funnel while the page scrolls.
+// Six leads on the board. The windows never overlap: exactly one card is in
+// the air at a time, because the agent can only carry one, and two cards
+// crossing at once read as the board moving itself.
 const ROUTES: Route[] = [
-  { stops: [0, 1, 2], windows: [[0.1, 0.3], [0.55, 0.75]], y: SLOT[0] },
-  { stops: [0, 1], windows: [[0.28, 0.48]], y: SLOT[1] },
-  { stops: [1, 2], windows: [[0.42, 0.62]], y: SLOT[2] },
-  { stops: [2, 3], windows: [[0.62, 0.84]], y: SLOT[3] },
+  { stops: [0, 1, 2], windows: [[0.04, 0.17], [0.80, 0.93]], y: SLOT[0] },
+  { stops: [0, 1], windows: [[0.23, 0.36]], y: SLOT[1] },
+  { stops: [1, 2], windows: [[0.42, 0.55]], y: SLOT[2] },
+  { stops: [2, 3], windows: [[0.61, 0.74]], y: SLOT[3] },
   { stops: [0], windows: [], y: SLOT[2] },
   { stops: [1], windows: [], y: SLOT[3] },
 ];
@@ -337,10 +340,11 @@ export function KanbanBoardScene({
             <cylinderGeometry args={[agentR, agentR, 0.24, 6]} />
             <meshStandardMaterial color={sheet(palette)} roughness={0.6} />
           </mesh>
-          <Label position={[0, 0, 0.18]} width={px(agentR * 2)} className="select-none text-center">
-            <p className="font-mono font-semibold uppercase tracking-[0.1em]" style={{ fontSize: font(9), color: palette.panelInk }}>
-              {labels.agent}
-            </p>
+          {/* The mark, not the word: a name floating on a token reads as a
+              placeholder, and the product already has an icon for this. */}
+          <Label position={[0, 0, 0.18]} width={px(agentR * 1.7)} className="flex select-none items-center justify-center">
+            <Sparkle size={font(16)} color={palette.ink.ai} style={{ ["--icon-accent" as string]: palette.ink.ai }} />
+            <span className="sr-only">{labels.agent}</span>
           </Label>
           <mesh ref={grip} position={[0, -0.2, 0]} scale={[1, 0.001, 1]}>
             <boxGeometry args={[0.035, 1, 0.035]} />
