@@ -40,7 +40,7 @@ function ElevatedSheetOverlay({
     <SheetPrimitive.Overlay
       data-slot="elevated-sheet-overlay"
       className={cn(
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/30",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-[80] bg-black/30",
         className
       )}
       {...props}
@@ -66,7 +66,7 @@ function ElevatedSheetContent({
           // to the CANVAS colour made it a flat grey slab sitting on the page
           // instead of a sheet lifted off it. Card is lighter than the canvas in
           // light and lighter than it in dark, so this reads as a lift in both.
-          "bg-card data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4 transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
+          "bg-card data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-[81] flex flex-col gap-4 transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
 
           // One shadow declaration, not two. The line below this used to be an
           // arbitrary `[box-shadow:inset...]` property, which is a plain
