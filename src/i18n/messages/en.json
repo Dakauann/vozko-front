@@ -11804,9 +11804,9 @@
       }
     },
     "atlas": {
-      "eyebrow": "Platform map",
+      "eyebrow": "Platform features",
       "title": "The whole platform, capability by capability.",
-      "body": "Every capability belongs to the same data model and the same operation, so depth does not cost an integration.",
+      "body": "Service, intelligence, automation, channels, campaigns and administration in one system, with no integrations between the parts.",
       "groups": [
         {
           "title": "Service and CRM",
@@ -11829,9 +11829,9 @@
           "items": ["WhatsApp Business API", "Multiple numbers per workspace", "Templates and WhatsApp Flows", "Telegram", "Live chat", "Instagram DMs, posts and comments", "QR-connected WhatsApp", "Human WhatsApp calls"]
         },
         {
-          "title": "Campaigns and collections",
-          "description": "Acquisition, replies and receivables remain connected to the conversation.",
-          "items": ["Official and organic campaigns", "CRM-based segmentation", "Scheduling, pacing and variants", "Dedicated campaign CRM", "Payment slips and invoices", "Balance and payment integration"]
+          "title": "Campaigns",
+          "description": "Acquisition and replies remain connected to the conversation.",
+          "items": ["Official and organic campaigns", "CRM-based segmentation", "Scheduling, pacing and variants", "Dedicated campaign CRM"]
         },
         {
           "title": "Administration",

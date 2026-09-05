@@ -11855,9 +11855,9 @@
       }
     },
     "atlas": {
-      "eyebrow": "Mapa da plataforma",
+      "eyebrow": "Recursos da plataforma",
       "title": "A plataforma inteira, recurso por recurso.",
-      "body": "Cada recurso pertence ao mesmo modelo de dados e à mesma operação, então a profundidade não custa uma integração.",
+      "body": "Atendimento, inteligência, automação, canais, campanhas e administração no mesmo sistema, sem integrações entre as partes.",
       "groups": [
         {
           "title": "Atendimento e CRM",
@@ -11880,9 +11880,9 @@
           "items": ["WhatsApp Business API", "Múltiplos números por workspace", "Templates e WhatsApp Flows", "Telegram", "Chat ao vivo", "Instagram: directs, posts e comentários", "WhatsApp por conexão QR", "Chamadas humanas pelo WhatsApp"]
         },
         {
-          "title": "Campanhas e cobrança",
-          "description": "Aquisição, retorno e recebimento continuam conectados à conversa.",
-          "items": ["Campanhas oficiais e orgânicas", "Segmentação a partir do CRM", "Agendamento, cadência e variantes", "CRM próprio por campanha", "Boletos e faturas", "Saldo e integração de pagamento"]
+          "title": "Campanhas",
+          "description": "Aquisição e retorno continuam conectados à conversa.",
+          "items": ["Campanhas oficiais e orgânicas", "Segmentação a partir do CRM", "Agendamento, cadência e variantes", "CRM próprio por campanha"]
         },
         {
           "title": "Administração",

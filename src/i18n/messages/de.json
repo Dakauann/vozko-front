@@ -10802,9 +10802,9 @@
       }
     },
     "atlas": {
-      "eyebrow": "Plattformübersicht",
+      "eyebrow": "Plattform-Funktionen",
       "title": "Die ganze Plattform, Funktion für Funktion.",
-      "body": "Jede Funktion gehört zum selben Datenmodell und zum selben Betrieb, also kostet Tiefe keine Integration.",
+      "body": "Service, Intelligenz, Automatisierung, Kanäle, Kampagnen und Verwaltung in einem System, ohne Integrationen zwischen den Teilen.",
       "groups": [
         {
           "title": "Service und CRM",
@@ -10827,9 +10827,9 @@
           "items": ["WhatsApp Business API", "Mehrere Nummern pro Workspace", "Vorlagen und WhatsApp Flows", "Telegram", "Live-Chat", "Instagram: Direktnachrichten, Beiträge und Kommentare", "WhatsApp per QR-Verbindung", "Menschliche WhatsApp-Anrufe"]
         },
         {
-          "title": "Kampagnen und Inkasso",
-          "description": "Akquise, Antworten und Forderungen bleiben mit der Unterhaltung verbunden.",
-          "items": ["Offizielle und organische Kampagnen", "CRM-basierte Segmentierung", "Planung, Taktung und Varianten", "Eigenes Kampagnen-CRM", "Zahlungsbelege und Rechnungen", "Saldo und Zahlungsintegration"]
+          "title": "Kampagnen",
+          "description": "Akquise und Antworten bleiben mit der Unterhaltung verbunden.",
+          "items": ["Offizielle und organische Kampagnen", "CRM-basierte Segmentierung", "Planung, Taktung und Varianten", "Eigenes Kampagnen-CRM"]
         },
         {
           "title": "Verwaltung",
