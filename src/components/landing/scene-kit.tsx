@@ -71,7 +71,7 @@ const DARK: ScenePalette = {
   bubble: "#2A3034",
   wash: "#173A30",
   ghost: "#2A3034",
-  light: { ambient: 1.35, key: 3.2, fill: 0.8, cool: 0.55, point: 10 },
+  light: { ambient: 1.0, key: 3.9, fill: 0.75, cool: 0.5, point: 9 },
   accent: { ai: "#00C28A", wait: "#FFB020", team: "#47A3FF", tag: "#8B7CF6" },
   ink: { ai: "#4DCB9D", wait: "#FFC559", team: "#7CC0FF", tag: "#A99BF9" },
 };
@@ -98,7 +98,7 @@ const LIGHT: ScenePalette = {
   ghost: "#D6DEE3",
   // Less ambient than dark so the key light's cast shadows survive; the
   // product's own rule is that depth is carried by real shadow, not by fill.
-  light: { ambient: 1.5, key: 3.0, fill: 0.35, cool: 0.25, point: 4 },
+  light: { ambient: 1.15, key: 3.7, fill: 0.32, cool: 0.22, point: 4 },
   accent: { ai: "#00A57A", wait: "#E1A70B", team: "#1877D4", tag: "#6D5AE0" },
   ink: { ai: "#007A5C", wait: "#8F4C06", team: "#0A4FA6", tag: "#4B35B8" },
 };
@@ -146,9 +146,16 @@ export const R = {
   chip: 0.04,
 } as const;
 
+/**
+ * A wider lens, closer in. At 38° from eleven units the projection was nearly
+ * orthographic: a card lifted off its board barely changed size, so nothing
+ * read as being in front of anything. At 50° from under nine, the same lift
+ * produces real convergence, and `useFitScale` reframes every scene for the
+ * new viewport on its own.
+ */
 export const STAGE_CAMERA = {
-  position: [0, 0.2, 11.5] as [number, number, number],
-  fov: 38,
+  position: [0, 0.2, 8.8] as [number, number, number],
+  fov: 50,
   near: 0.1,
   far: 40,
 };
@@ -281,7 +288,24 @@ export function StageLights({
       {/* No background colour: the canvas is transparent so the scene sits on
           the section itself rather than inside a lighter rectangle. */}
       <ambientLight intensity={ambient} />
-      <directionalLight position={[3, 6, 7]} intensity={key} castShadow shadow-mapSize={[1024, 1024]} shadow-bias={-0.0006} />
+      {/* A directional light's shadow camera defaults to a ±5 box, and these
+          scenes are about ten units across, so most of the cast shadow was
+          being clipped away and the stage read flat. The frustum now covers
+          the whole stage, at a map fine enough for a card's edge. */}
+      <directionalLight
+        position={[4.5, 7, 8]}
+        intensity={key}
+        castShadow
+        shadow-mapSize={[2048, 2048]}
+        shadow-bias={-0.0004}
+        shadow-normalBias={0.02}
+        shadow-camera-left={-10}
+        shadow-camera-right={10}
+        shadow-camera-top={10}
+        shadow-camera-bottom={-10}
+        shadow-camera-near={1}
+        shadow-camera-far={34}
+      />
       <directionalLight position={[-5, -2, 4]} intensity={fill} color={accent ?? palette.accent.ai} />
       <directionalLight position={[5, 1, 3]} intensity={coolIntensity} color={cool ?? palette.accent.team} />
       <pointLight position={[0, -3, 4]} intensity={point} distance={8} decay={2} color={warm ?? palette.accent.wait} />

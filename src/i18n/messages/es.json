@@ -10082,6 +10082,35 @@
     },
     "stages": {
       "scroll": "Desplázate para mover",
+      "crm": {
+        "rail": "Atención",
+        "aria": "Los mensajes de WhatsApp, Instagram, Telegram y chat en vivo llegan a una sola bandeja; una conversación se abre, la responde la IA, se clasifica y se asigna a una persona.",
+        "inbox": "Bandeja de entrada",
+        "rows": [
+          { "name": "Marina Alves", "preview": "¿Puede llegar por la mañana?", "channel": "whatsapp" },
+          { "name": "Tienda Horizonte", "preview": "Vi su anuncio", "channel": "instagram" },
+          { "name": "Mayorista Nordeste", "preview": "Necesito repetir el pedido", "channel": "whatsapp" },
+          { "name": "Rafael Dias", "preview": "¿Cuál es el plazo de entrega?", "channel": "telegram" },
+          { "name": "Clínica Vida", "preview": "¿Podemos hablar hoy?", "channel": "livechat" }
+        ],
+        "thread": { "customer": "¿Puede llegar por la mañana? Trabajo por la tarde.", "ai": "Sí. Lo dejo para la mañana.", "human": "Marina, confirmé tu entrega para el jueves." },
+        "details": "Detalles del contacto",
+        "stageLabel": "Etapa",
+        "stage": "En curso",
+        "tagsLabel": "Etiquetas",
+        "tags": ["Propuesta", "Alta intención"],
+        "ownerLabel": "Responsable",
+        "owner": "Ana Ribeiro",
+        "byAi": "IA atendiendo",
+        "byHuman": "Ana asumió",
+        "steps": [
+          { "number": "01", "title": "Todo canal cae en la misma bandeja", "body": "WhatsApp, Instagram, Telegram y chat en vivo entran en la misma cola, con el canal marcado en cada conversación." },
+          { "number": "02", "title": "Abrir una conversación es abrir todo el historial", "body": "El hilo trae los mensajes, los archivos y lo que ya pasó con ese contacto, sin cambiar de pestaña." },
+          { "number": "03", "title": "La IA responde en el mismo hilo", "body": "El agente atiende dentro de la conversación, y cada respuesta queda visible para quien asuma después." },
+          { "number": "04", "title": "La conversación se clasifica mientras ocurre", "body": "Etiquetas, etapa del embudo y análisis llegan al registro sin que nadie llene un formulario." },
+          { "number": "05", "title": "Una persona asume sin volver a empezar", "body": "La asignación cambia el responsable, no el historial. Quien entra lee todo lo ya dicho." }
+        ]
+      },
       "workflow": {
         "rail": "Workflow",
         "aria": "Un mensaje recorre disparador, agente de IA, decisión y traspaso humano en un lienzo de workflow tridimensional.",

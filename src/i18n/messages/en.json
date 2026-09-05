@@ -11580,6 +11580,39 @@
     },
     "stages": {
       "scroll": "Scroll to move",
+      "crm": {
+        "rail": "Service",
+        "aria": "Messages from WhatsApp, Instagram, Telegram and live chat arrive in one inbox; a conversation is opened, answered by the AI, classified and assigned to a person.",
+        "inbox": "Inbox",
+        "rows": [
+          { "name": "Marina Alves", "preview": "Can it arrive in the morning?", "channel": "whatsapp" },
+          { "name": "Horizonte Store", "preview": "I saw your ad", "channel": "instagram" },
+          { "name": "Northeast Wholesale", "preview": "I need the same order again", "channel": "whatsapp" },
+          { "name": "Rafael Dias", "preview": "What is the delivery time?", "channel": "telegram" },
+          { "name": "Vida Clinic", "preview": "Can we talk today?", "channel": "livechat" }
+        ],
+        "thread": {
+          "customer": "Can it arrive in the morning? I work afternoons.",
+          "ai": "Yes. I will set it for the morning.",
+          "human": "Marina, your delivery is confirmed for Thursday."
+        },
+        "details": "Contact details",
+        "stageLabel": "Stage",
+        "stage": "In progress",
+        "tagsLabel": "Tags",
+        "tags": ["Proposal", "High intent"],
+        "ownerLabel": "Owner",
+        "owner": "Ana Ribeiro",
+        "byAi": "AI answering",
+        "byHuman": "Ana took over",
+        "steps": [
+          { "number": "01", "title": "Every channel lands in one inbox", "body": "WhatsApp, Instagram, Telegram and live chat enter the same queue, with the channel marked on each conversation." },
+          { "number": "02", "title": "Opening a conversation opens the whole history", "body": "The thread carries the messages, the media and what already happened with this contact, without switching tabs." },
+          { "number": "03", "title": "The AI answers in the same thread", "body": "The agent works inside the conversation, and every reply stays visible to whoever takes over next." },
+          { "number": "04", "title": "The conversation classifies itself as it happens", "body": "Tags, funnel stage and analysis reach the record without anyone stopping to fill in a form." },
+          { "number": "05", "title": "A person takes over without restarting", "body": "Assignment changes the owner, not the history. Whoever steps in reads everything already said." }
+        ]
+      },
       "workflow": {
         "rail": "Workflow",
         "aria": "A message travels through a trigger, an AI agent, a decision and a human handoff on a three-dimensional workflow canvas.",

@@ -7,6 +7,7 @@ import styles from "./landing.module.css";
 import { Hero, type HeroLabels } from "./hero";
 import { StageSection, type StageLabels } from "./stage";
 import { FeatureAtlas, type FeatureGroup } from "./feature-atlas";
+import { CrmScene, type CrmSceneLabels } from "./scenes/crm-console";
 import { KanbanBoardScene, type KanbanSceneLabels } from "./scenes/kanban-board";
 import { WorkflowScene, type WorkflowSceneLabels } from "./scenes/workflow-canvas";
 import { RouletteScene, type RouletteSceneLabels } from "./scenes/roulette-ring";
@@ -17,6 +18,7 @@ import { KnowledgeScene, type KnowledgeSceneLabels } from "./scenes/knowledge-in
 
 type StageCopy = {
   scroll: string;
+  crm: StageLabels & CrmSceneLabels;
   workflow: StageLabels & WorkflowSceneLabels;
   roulette: StageLabels & RouletteSceneLabels;
   memory: StageLabels & MemorySceneLabels;
@@ -44,6 +46,14 @@ export function LandingPage({ brandName }: { brandName: string }) {
       <Hero labels={hero} />
 
       <div id="conteudo">
+        <StageSection
+          id="atendimento"
+          labels={stages.crm}
+          scroll={stages.scroll}
+          height={430}
+          scene={(progress, reduced, palette) => <CrmScene progress={progress} reduced={reduced} labels={stages.crm} palette={palette} />}
+        />
+
         <StageSection
           id="fluxo"
           labels={kanban}

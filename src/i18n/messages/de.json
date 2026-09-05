@@ -10579,6 +10579,39 @@
     },
     "stages": {
       "scroll": "Scrollen zum Bewegen",
+      "crm": {
+        "rail": "Betreuung",
+        "aria": "Nachrichten aus WhatsApp, Instagram, Telegram und Live-Chat landen in einem Posteingang; eine Unterhaltung wird geöffnet, von der KI beantwortet, klassifiziert und einer Person zugewiesen.",
+        "inbox": "Posteingang",
+        "rows": [
+          { "name": "Marina Alves", "preview": "Geht Lieferung am Vormittag?", "channel": "whatsapp" },
+          { "name": "Loja Horizonte", "preview": "Ich habe Ihre Anzeige gesehen", "channel": "instagram" },
+          { "name": "Großhandel Nordost", "preview": "Ich brauche dieselbe Bestellung", "channel": "whatsapp" },
+          { "name": "Rafael Dias", "preview": "Wie lang ist die Lieferzeit?", "channel": "telegram" },
+          { "name": "Klinik Vida", "preview": "Können wir heute sprechen?", "channel": "livechat" }
+        ],
+        "thread": {
+          "customer": "Geht Lieferung am Vormittag? Nachmittags arbeite ich.",
+          "ai": "Ja. Ich lege es auf den Vormittag.",
+          "human": "Marina, Ihre Lieferung ist für Donnerstag bestätigt."
+        },
+        "details": "Kontaktdetails",
+        "stageLabel": "Phase",
+        "stage": "In Bearbeitung",
+        "tagsLabel": "Tags",
+        "tags": ["Angebot", "Hohe Kaufabsicht"],
+        "ownerLabel": "Zuständig",
+        "owner": "Ana Ribeiro",
+        "byAi": "KI antwortet",
+        "byHuman": "Ana übernahm",
+        "steps": [
+          { "number": "01", "title": "Jeder Kanal landet im selben Posteingang", "body": "WhatsApp, Instagram, Telegram und Live-Chat kommen in dieselbe Warteschlange, mit dem Kanal an jeder Unterhaltung." },
+          { "number": "02", "title": "Eine Unterhaltung öffnen heißt die ganze Historie öffnen", "body": "Der Verlauf bringt Nachrichten, Medien und alles Bisherige zu diesem Kontakt mit, ohne Tabwechsel." },
+          { "number": "03", "title": "Die KI antwortet im selben Verlauf", "body": "Der Agent arbeitet in der Unterhaltung, und jede Antwort bleibt für den nächsten Bearbeiter sichtbar." },
+          { "number": "04", "title": "Die Unterhaltung klassifiziert sich im Lauf", "body": "Tags, Funnel-Phase und Analyse erreichen den Datensatz, ohne dass jemand ein Formular ausfüllt." },
+          { "number": "05", "title": "Ein Mensch übernimmt ohne Neuanfang", "body": "Die Zuweisung wechselt den Besitzer, nicht die Historie. Wer einsteigt, liest alles Gesagte." }
+        ]
+      },
       "workflow": {
         "rail": "Workflow",
         "aria": "Eine Nachricht durchläuft Auslöser, KI-Agent, Entscheidung und menschliche Übergabe auf einer dreidimensionalen Workflow-Fläche.",

@@ -11631,6 +11631,35 @@
     },
     "stages": {
       "scroll": "Role para mover",
+      "crm": {
+        "rail": "Atendimento",
+        "aria": "Mensagens de WhatsApp, Instagram, Telegram e chat ao vivo chegam à mesma caixa de entrada; uma conversa é aberta, respondida pela IA, classificada e atribuída a uma pessoa.",
+        "inbox": "Caixa de entrada",
+        "rows": [
+          { "name": "Marina Alves", "preview": "Pode chegar de manhã?", "channel": "whatsapp" },
+          { "name": "Loja Horizonte", "preview": "Vi o anúncio de vocês", "channel": "instagram" },
+          { "name": "Atacado Nordeste", "preview": "Preciso repetir o pedido", "channel": "whatsapp" },
+          { "name": "Rafael Dias", "preview": "Qual o prazo de entrega?", "channel": "telegram" },
+          { "name": "Clínica Vida", "preview": "Podemos falar hoje?", "channel": "livechat" }
+        ],
+        "thread": { "customer": "Pode chegar de manhã? Trabalho à tarde.", "ai": "Posso sim. Deixo para o período da manhã.", "human": "Marina, confirmei a entrega para quinta." },
+        "details": "Detalhes do contato",
+        "stageLabel": "Etapa",
+        "stage": "Em andamento",
+        "tagsLabel": "Tags",
+        "tags": ["Proposta", "Alta intenção"],
+        "ownerLabel": "Responsável",
+        "owner": "Ana Ribeiro",
+        "byAi": "IA atendendo",
+        "byHuman": "Ana assumiu",
+        "steps": [
+          { "number": "01", "title": "Todo canal cai na mesma caixa", "body": "WhatsApp, Instagram, Telegram e chat ao vivo entram na mesma fila, com o canal marcado em cada conversa." },
+          { "number": "02", "title": "Abrir uma conversa é abrir o histórico inteiro", "body": "A thread traz as mensagens, as mídias e o que já aconteceu com esse contato, sem trocar de aba." },
+          { "number": "03", "title": "A IA responde no mesmo fio", "body": "O agente atende dentro da conversa, e cada resposta fica visível para quem for assumir depois." },
+          { "number": "04", "title": "A conversa se classifica enquanto acontece", "body": "Tags, etapa do funil e análise entram no cadastro sem ninguém parar para preencher formulário." },
+          { "number": "05", "title": "Uma pessoa assume sem recomeçar", "body": "A atribuição troca o dono, não o histórico. Quem entra lê tudo o que já foi dito." }
+        ]
+      },
       "workflow": {
         "rail": "Workflow",
         "aria": "Uma mensagem percorre gatilho, agente de IA, decisão e passagem humana em um canvas de workflow tridimensional.",
