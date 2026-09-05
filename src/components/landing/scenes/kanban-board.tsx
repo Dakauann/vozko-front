@@ -7,7 +7,7 @@ import { MathUtils, type Group, type Mesh, type MeshBasicMaterial, type MeshStan
 import { Sparkle } from "@/components/icons";
 import { InstagramLogoColor, TelegramLogoColor, WhatsAppLogoColor } from "@/components/icons/channel-logos";
 import {
-  Label,
+  PanelLabel as Label,
   R,
   StageLights,
   Surface,
@@ -19,7 +19,7 @@ import {
   useCompact,
   useDampedProgress,
   useFitScale,
-  useLabelPx,
+  usePanelType,
   type ScenePalette,
   type Vec3,
   type Window,
@@ -47,7 +47,8 @@ type Route = {
 };
 
 type Layout = {
-  columnX: readonly [number, number, number, number];
+  columns: readonly [number, number][];
+  slots: readonly number[];
   column: Vec3;
   card: Vec3;
   extent: [number, number];
@@ -59,19 +60,20 @@ const BAR_WIDTH = 0.07;
 const TEXT_GUTTER = 0.12;
 
 const WIDE: Layout = {
-  columnX: [-4.05, -1.35, 1.35, 4.05],
+  columns: [[-4.05, -0.15], [-1.35, -0.15], [1.35, -0.15], [4.05, -0.15]],
+  slots: [1.6, 0.4, -0.8, -2.0],
   column: [2.55, 5.5, 0.22],
   card: [2.36, 1.05, 0.16],
   extent: [10.7, 6.4],
 };
 
-// Portrait: four narrower columns, taller, so a phone still shows the whole
-// funnel rather than a cropped board.
+// Two rows preserve the four stages and leave enough card width for names.
 const COMPACT: Layout = {
-  columnX: [-2.55, -0.85, 0.85, 2.55],
-  column: [1.62, 5.9, 0.18],
-  card: [1.5, 0.92, 0.14],
-  extent: [5.75, 6.6],
+  columns: [[-1.85, 2.2], [1.85, 2.2], [-1.85, -2.2], [1.85, -2.2]],
+  slots: [1.05, 0.2, -0.65, -1.5],
+  column: [3.4, 4.1, 0.18],
+  card: [3.12, 0.76, 0.14],
+  extent: [7.6, 9.4],
 };
 
 /** Card rows, starting clear of the column header rather than under it. */
@@ -100,14 +102,19 @@ const MOVES = ROUTES.flatMap((route, cardIndex) =>
 const APPROACH = 0.08;
 
 /** Places the card and reports which stage it currently belongs to. */
-function placeCard(group: Group, route: Route, columnX: Layout["columnX"], progress: number) {
-  let x = columnX[route.stops[0]];
+function placeCard(group: Group, route: Route, layout: Layout, progress: number) {
+  const slot = layout.slots[SLOT.indexOf(route.y as typeof SLOT[number])];
+  let [x, y] = layout.columns[route.stops[0]];
   let lift = 0;
   let tilt = 0;
   let stage = route.stops[0];
   route.windows.forEach((window, index) => {
+    if (progress < window[0]) return;
     const t = smoothWindow(progress, window);
-    x = MathUtils.lerp(columnX[route.stops[index]], columnX[route.stops[index + 1]], t);
+    const from = layout.columns[route.stops[index]];
+    const to = layout.columns[route.stops[index + 1]];
+    x = MathUtils.lerp(from[0], to[0], t);
+    y = MathUtils.lerp(from[1], to[1], t);
     if (t > 0 && t < 1) {
       lift += arc(t) * 0.75;
       tilt += arc(t) * -0.05;
@@ -116,7 +123,7 @@ function placeCard(group: Group, route: Route, columnX: Layout["columnX"], progr
     // dropped in a column immediately reads as that column's.
     if (t >= 0.5) stage = route.stops[index + 1];
   });
-  group.position.set(x, route.y, 0.26 + lift);
+  group.position.set(x, y + slot, 0.26 + lift);
   group.rotation.z = tilt;
   return stage;
 }
@@ -147,8 +154,8 @@ function BoardCard({
   const mark = font(11);
   // The text block starts where the colour bar ends, and stops short of the
   // card's right edge, so it can never ride over either.
-  const textLeft = -w / 2.8 + BAR_INSET + BAR_WIDTH / 2 + TEXT_GUTTER;
-  const textRight = w / 2.8 - 0.1;
+  const textLeft = -w / 2 + BAR_INSET + BAR_WIDTH / 2 + TEXT_GUTTER;
+  const textRight = w / 2 - 0.16;
   return (
     <group ref={cardRef}>
       <RoundedBox args={layout.card} radius={R.card} smoothness={3} castShadow>
@@ -167,7 +174,7 @@ function BoardCard({
         className="select-none text-left"
         style={{ color: palette.panelInk }}
       >
-        <p className="truncate font-semibold leading-none" style={{ fontSize: font(12) }}>
+        <p className="truncate font-semibold leading-tight" style={{ fontSize: font(12) }}>
           {card.title}
         </p>
         {!compact && (
@@ -178,15 +185,15 @@ function BoardCard({
         {/* The row an operator actually scans: which channel, and who owns it.
             The mark keeps its real brand colours, so it is sized by its box
             rather than by a class the brand component would override. */}
-        <span className="mt-2 flex items-center justify-between gap-2">
+        <span className="flex min-w-0 items-center justify-between gap-2" style={{ marginTop: font(compact ? 2 : 5) }}>
           <span className="inline-flex shrink-0" style={{ width: mark, height: mark }}>
             <Mark className="h-full w-full" />
           </span>
           <span
             className="grid shrink-0 place-items-center rounded-full font-semibold"
             style={{
-              width: mark * 1.5,
-              height: mark * 1.5,
+              width: mark * 1.25,
+              height: mark * 1.25,
               fontSize: font(7.5),
               backgroundColor: sheetChip(palette),
               color: palette.panelMuted,
@@ -220,9 +227,8 @@ export function KanbanBoardScene({
   const grip = useRef<Mesh>(null);
   const compact = useCompact();
   const layout = compact ? COMPACT : WIDE;
-  const font = (n: number) => (compact ? Math.max(Math.round(n * 0.82 * 10) / 10, 8.7) : n);
   const boardScale = useFitScale(layout.extent[0], layout.extent[1]);
-  const px = useLabelPx(boardScale);
+  const { font, px } = usePanelType(boardScale);
   // New → contact → proposal → won: the funnel's own progression, cool to warm
   // to committed, with the closed column on the brand green.
   const columnTone = [palette.accent.team, palette.accent.tag, palette.accent.wait, palette.accent.ai];
@@ -234,12 +240,12 @@ export function KanbanBoardScene({
   /** How far above a card the agent holds it. */
   const reach = 0.42;
   /** Where the agent waits between moves: above the first column, clear of the cards. */
-  const home: [number, number] = [layout.columnX[0], SLOT[0] + cardH / 2 + 1.05];
+  const home: [number, number] = compact ? [0, 0] : [layout.columns[0][0], SLOT[0] + cardH / 2 + 1.05];
 
   useDampedProgress(progress, reduced, (current, delta) => {
     cards.current.forEach((card, index) => {
       if (!card || !ROUTES[index]) return;
-      const stage = placeCard(card, ROUTES[index], layout.columnX, current);
+      const stage = placeCard(card, ROUTES[index], layout, current);
       const bar = bars.current[index];
       if (bar && stages.current[index] !== stage) {
         bar.color.set(columnTone[stage]);
@@ -294,8 +300,8 @@ export function KanbanBoardScene({
     <>
       <StageLights reduced={reduced} palette={palette} />
       <group ref={board} scale={boardScale} rotation={[-0.105, 0.075, 0]}>
-        {layout.columnX.map((x, index) => (
-          <group key={x} position={[x, -0.15, 0]}>
+        {layout.columns.map(([x, y], index) => (
+          <group key={index} position={[x, y, 0]}>
             <RoundedBox args={layout.column} radius={R.board} smoothness={3} receiveShadow>
               <Surface color={sheetWell(palette)} roughness={0.72} metalness={0.06} />
             </RoundedBox>
@@ -304,7 +310,7 @@ export function KanbanBoardScene({
               <meshBasicMaterial color={columnTone[index]} />
             </mesh>
             <Label position={[0, colH / 2 - HEADER_TEXT, 0.2]} width={px(colW - 0.3)} className="select-none text-left">
-              <p className="truncate font-mono font-semibold uppercase tracking-[0.14em]" style={{ fontSize: font(9), color: columnInk[index] }}>
+              <p className="truncate font-semibold" style={{ fontSize: font(10), color: columnInk[index] }}>
                 {labels.columns[index]}
               </p>
             </Label>

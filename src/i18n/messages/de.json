@@ -10577,18 +10577,43 @@
       "titleLine2": "Das System nicht.",
       "body": "{brandName} hält Unterhaltung, Entscheidung und Umsatz im selben operativen Fluss."
     },
+    "trust": {
+      "title": "Von Meta validierte Technologie.",
+      "body": "Verbinden Sie Ihr Unternehmen über einen validierten Technologieanbieter mit der offiziellen WhatsApp Business Platform. Kanäle, Team und Automatisierung in einem Arbeitsbereich."
+    },
     "stages": {
+      "loading": "Die Demo wird vorbereitet…",
       "scroll": "Scrollen zum Bewegen",
       "crm": {
         "rail": "Betreuung",
-        "aria": "Nachrichten aus WhatsApp, Instagram, Telegram und Live-Chat landen in einem Posteingang; eine Unterhaltung wird geöffnet, von der KI beantwortet, klassifiziert und einer Person zugewiesen.",
+        "aria": "Ein Omnichannel-CRM verbindet WhatsApp, Instagram, Telegram und Livechat. Mehrere Mitarbeitende und KI-Agenten bearbeiten gleichzeitig Gespräche in Team-Postfächern. Berechtigungen regeln den Zugriff auf jedes Gespräch. Die KI antwortet, ordnet den Kontakt ein und übergibt mit dem vollständigen Verlauf an einen Menschen.",
         "inbox": "Posteingang",
         "rows": [
-          { "name": "Marina Alves", "preview": "Geht Lieferung am Vormittag?", "channel": "whatsapp" },
-          { "name": "Loja Horizonte", "preview": "Ich habe Ihre Anzeige gesehen", "channel": "instagram" },
-          { "name": "Großhandel Nordost", "preview": "Ich brauche dieselbe Bestellung", "channel": "whatsapp" },
-          { "name": "Rafael Dias", "preview": "Wie lang ist die Lieferzeit?", "channel": "telegram" },
-          { "name": "Klinik Vida", "preview": "Können wir heute sprechen?", "channel": "livechat" }
+          {
+            "name": "Marina Alves",
+            "preview": "Geht Lieferung am Vormittag?",
+            "channel": "whatsapp"
+          },
+          {
+            "name": "Loja Horizonte",
+            "preview": "Ich habe Ihre Anzeige gesehen",
+            "channel": "instagram"
+          },
+          {
+            "name": "Großhandel Nordost",
+            "preview": "Ich brauche dieselbe Bestellung",
+            "channel": "whatsapp"
+          },
+          {
+            "name": "Rafael Dias",
+            "preview": "Wie lang ist die Lieferzeit?",
+            "channel": "telegram"
+          },
+          {
+            "name": "Klinik Vida",
+            "preview": "Können wir heute sprechen?",
+            "channel": "livechat"
+          }
         ],
         "thread": {
           "customer": "Geht Lieferung am Vormittag? Nachmittags arbeite ich.",
@@ -10599,18 +10624,70 @@
         "stageLabel": "Phase",
         "stage": "In Bearbeitung",
         "tagsLabel": "Tags",
-        "tags": ["Angebot", "Hohe Kaufabsicht"],
+        "tags": [
+          "Angebot",
+          "Hohe Kaufabsicht"
+        ],
         "ownerLabel": "Zuständig",
         "owner": "Ana Ribeiro",
         "byAi": "KI antwortet",
         "byHuman": "Ana übernahm",
         "steps": [
-          { "number": "01", "title": "Jeder Kanal landet im selben Posteingang", "body": "WhatsApp, Instagram, Telegram und Live-Chat kommen in dieselbe Warteschlange, mit dem Kanal an jeder Unterhaltung." },
-          { "number": "02", "title": "Eine Unterhaltung öffnen heißt die ganze Historie öffnen", "body": "Der Verlauf bringt Nachrichten, Medien und alles Bisherige zu diesem Kontakt mit, ohne Tabwechsel." },
-          { "number": "03", "title": "Die KI antwortet im selben Verlauf", "body": "Der Agent arbeitet in der Unterhaltung, und jede Antwort bleibt für den nächsten Bearbeiter sichtbar." },
-          { "number": "04", "title": "Die Unterhaltung klassifiziert sich im Lauf", "body": "Tags, Funnel-Phase und Analyse erreichen den Datensatz, ohne dass jemand ein Formular ausfüllt." },
-          { "number": "05", "title": "Ein Mensch übernimmt ohne Neuanfang", "body": "Die Zuweisung wechselt den Besitzer, nicht die Historie. Wer einsteigt, liest alles Gesagte." }
-        ]
+          {
+            "number": "01",
+            "title": "Alle Kanäle. Ein Arbeitsbereich.",
+            "body": "WhatsApp, Instagram, Telegram und Livechat im selben CRM. Nachrichten, Medien und Gesprächsverlauf bleiben zusammen, ohne zwischen Apps zu wechseln."
+          },
+          {
+            "number": "02",
+            "title": "Eigene Postfächer. Teams parallel.",
+            "body": "Vertrieb, Support und Kundenbetreuung arbeiten gleichzeitig, jeweils mit eigenem Postfach und Zuständigen. Verteilen Sie Gespräche nach Abteilung und sehen Sie, wer sie bearbeitet."
+          },
+          {
+            "number": "03",
+            "title": "Ihr Team und KI, Seite an Seite.",
+            "body": "KI-Agenten antworten, während Mitarbeitende andere Gespräche betreuen. Bei der Übernahme stehen alle Nachrichten und der Kontext bereit, damit Menschen direkt weiterhelfen können."
+          },
+          {
+            "number": "04",
+            "title": "Jedes Gespräch ergänzt Ihr CRM.",
+            "body": "Tags, Funnel-Phase und Kontaktdaten begleiten das Gespräch. Lesen Sie den Verlauf, ergänzen Sie interne Notizen und planen Sie den nächsten Schritt am selben Ort."
+          },
+          {
+            "number": "05",
+            "title": "Passender Zugriff für jede Person.",
+            "body": "Legen Sie fest, wer welche Gespräche sehen darf. Postfächer anderer Teams bleiben ohne Freigabe verborgen. Bei einer Übergabe erhält die neue zuständige Person den vollständigen Verlauf."
+          }
+        ],
+        "team": {
+          "title": "Ihr Team im Einsatz",
+          "status": "Gleichzeitig",
+          "human": "Mensch",
+          "ai": "KI",
+          "members": [
+            {
+              "name": "Ana Ribeiro",
+              "inbox": "Vertriebspostfach",
+              "kind": "human"
+            },
+            {
+              "name": "Davi Costa",
+              "inbox": "Supportpostfach",
+              "kind": "human"
+            },
+            {
+              "name": "Lia Santos",
+              "inbox": "Kundenbetreuung",
+              "kind": "human"
+            },
+            {
+              "name": "Virtueller Assistent",
+              "inbox": "Anfragenpostfach",
+              "kind": "ai"
+            }
+          ],
+          "privacy": "Jede Person sieht nur die für sie freigegebenen Gespräche."
+        }
       },
       "workflow": {
         "rail": "Workflow",

@@ -1,9 +1,11 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
+import { Html } from "@react-three/drei";
 import { motion, type MotionValue, useInView, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { useTheme } from "next-themes";
-import { useRef, type CSSProperties, type ReactNode } from "react";
+import { Suspense, useEffect, useRef, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { CircuitTracesWide } from "@/components/brand/circuit";
 import { STAGE_CAMERA, scenePalette, type ScenePalette } from "./scene-kit";
 import styles from "./landing.module.css";
@@ -21,10 +23,29 @@ type StageSectionProps = {
   side?: "left" | "right";
   /** Scroll length of the pinned section, in svh. */
   height?: number;
+  overview?: ReactNode;
 };
 
 /** Each step owns an equal slice of the scroll; one fades fully out before the next fades in. */
 const FADE = 0.045;
+
+const subscribeVisibility = (callback: () => void) => {
+  document.addEventListener("visibilitychange", callback);
+  return () => document.removeEventListener("visibilitychange", callback);
+};
+const isPageVisible = () => !document.hidden;
+const serverVisible = () => true;
+
+/** Html mounts separate React roots; give reduced-motion scenes time to settle. */
+function SettleScene() {
+  const invalidate = useThree(state => state.invalidate);
+  useEffect(() => {
+    const interval = window.setInterval(invalidate, 80);
+    const timeout = window.setTimeout(() => window.clearInterval(interval), 800);
+    return () => { window.clearInterval(interval); window.clearTimeout(timeout); };
+  }, [invalidate]);
+  return null;
+}
 
 /** 0 below `from`, 1 above `to`, linear between. */
 function ramp(value: number, from: number, to: number) {
@@ -67,14 +88,14 @@ function Step({
   return (
     <motion.div
       style={{ opacity: reduced ? (last ? 1 : 0) : opacity, y: reduced ? 0 : y }}
-      className="absolute inset-x-0 bottom-0"
+      className="col-start-1 row-start-1 min-w-0 self-end"
       aria-hidden={reduced && !last}
     >
       <p className="font-mono text-[11px] text-primary-ink sm:text-xs">{counter}</p>
-      <h3 className="mt-2 max-w-[22ch] font-display text-xl font-semibold leading-tight text-foreground sm:mt-3 sm:max-w-[18ch] sm:text-[1.7rem] lg:text-[2rem] lg:leading-[1.1]">
+      <h3 className="mt-2 max-w-[24ch] font-display text-[1.65rem] font-semibold leading-[1.12] tracking-[-0.025em] text-foreground sm:mt-3 sm:max-w-[20ch] sm:text-[2rem] lg:text-[clamp(2.1rem,2.7vw,3.25rem)]">
         {step.title}
       </h3>
-      <p className="mt-2.5 max-w-[46ch] text-[15px] leading-6 text-muted-foreground sm:mt-4 sm:max-w-[38ch] sm:text-base sm:leading-7">{step.body}</p>
+      <p className="mt-2.5 max-w-[46ch] text-sm leading-[1.55] text-muted-foreground sm:mt-4 sm:max-w-[38ch] sm:text-base sm:leading-7">{step.body}</p>
     </motion.div>
   );
 }
@@ -85,10 +106,12 @@ function Step({
  * copy that crossfades as the scene advances. The board's trace ornament runs
  * in behind the object, so the scene reads as the end of the circuit.
  */
-export function StageSection({ id, labels, scroll, scene, side = "left", height = 280 }: StageSectionProps) {
+export function StageSection({ id, labels, scroll, scene, side = "left", height = 280, overview }: StageSectionProps) {
+  const t = useTranslations("landing");
   const section = useRef<HTMLElement>(null);
   const host = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion() ?? false;
+  const pageVisible = useSyncExternalStore(subscribeVisibility, isPageVisible, serverVisible);
   const { resolvedTheme } = useTheme();
   const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
   const inView = useInView(host, { margin: "30% 0px 30% 0px" });
@@ -101,8 +124,8 @@ export function StageSection({ id, labels, scroll, scene, side = "left", height 
       <div className={styles.stageSticky}>
         <div
           ref={host}
-          className={`grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_12rem] gap-3 px-4 py-4 sm:gap-4 sm:px-8 sm:py-6 lg:grid-rows-[auto_minmax(0,1fr)] lg:gap-x-8 lg:px-10 lg:py-8 ${
-            copyRight ? "lg:grid-cols-[minmax(0,1fr)_minmax(15rem,0.3fr)]" : "lg:grid-cols-[minmax(15rem,0.3fr)_minmax(0,1fr)]"
+          className={`grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-3 px-4 py-4 sm:gap-4 sm:px-8 sm:py-6 lg:grid-rows-[auto_minmax(0,1fr)] lg:gap-x-8 lg:px-10 lg:py-8 ${
+            copyRight ? "lg:grid-cols-[minmax(0,1fr)_minmax(15rem,0.38fr)]" : "lg:grid-cols-[minmax(15rem,0.38fr)_minmax(0,1fr)]"
           }`}
         >
           <div className="flex items-center gap-4 lg:col-span-2">
@@ -118,24 +141,34 @@ export function StageSection({ id, labels, scroll, scene, side = "left", height 
           <div className={`relative order-2 min-h-0 ${copyRight ? "lg:order-1" : "lg:order-2"}`}>
             <CircuitTracesWide
               tone="quiet"
+              dynamic
+              seed={Array.from(id).reduce((seed, letter) => seed * 31 + letter.charCodeAt(0), 7) >>> 0}
+              branches={5}
+              pulse={inView && pageVisible && !reduced}
               className={`pointer-events-none absolute bottom-0 h-1/2 w-4/5 opacity-70 ${copyRight ? "right-0 -scale-x-100" : "left-0"}`}
             />
-            <Canvas
+            {inView && <Canvas
               shadows="percentage"
               camera={STAGE_CAMERA}
               dpr={[1, 1.5]}
-              frameloop={inView && !reduced ? "always" : "demand"}
+              frameloop={reduced || !pageVisible ? "demand" : "always"}
               gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
             >
-              {scene(scrollYProgress, reduced, palette)}
-            </Canvas>
+              <Suspense fallback={<Html center><p role="status" className="whitespace-nowrap text-sm text-muted-foreground">{t("stages.loading")}</p></Html>}>
+                <SettleScene />
+                {scene(scrollYProgress, reduced, palette)}
+              </Suspense>
+            </Canvas>}
             <p className="sr-only">{labels.aria}</p>
           </div>
 
-          <div className={`relative order-3 lg:min-h-[16rem] lg:self-center ${copyRight ? "lg:order-2" : "lg:order-1"}`}>
+          <div className={`relative order-3 min-w-0 lg:self-center ${copyRight ? "lg:order-2" : "lg:order-1"}`}>
+            {overview}
+            <div className="grid min-h-[11.5rem] lg:min-h-[16rem]">
             {labels.steps.map((step, index) => (
               <Step key={step.number} progress={scrollYProgress} step={step} index={index} total={labels.steps.length} reduced={reduced} />
             ))}
+            </div>
           </div>
         </div>
       </div>

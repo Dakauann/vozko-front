@@ -5,7 +5,7 @@ import { useRef } from "react";
 import { MathUtils, type Group, type Mesh, type MeshStandardMaterial } from "three";
 import { FileText, MagnifyingGlass } from "@/components/icons";
 import {
-  Label,
+  PanelLabel as Label,
   R,
   Slab,
   StageLights,
@@ -17,7 +17,7 @@ import {
   useCompact,
   useDampedProgress,
   useFitScale,
-  useLabelPx,
+  usePanelType,
   type ScenePalette,
   type Window,
 } from "../scene-kit";
@@ -49,19 +49,19 @@ const WIDE: Layout = {
   gap: 0.86,
   askAt: [-2.7, 2.95],
   answerAt: [1.5, -3.0],
-  bubbleWidth: 190,
+  bubbleWidth: 330,
   extent: [8.4, 7.2],
 };
 
 const COMPACT: Layout = {
   railX: -2.0,
-  shelf: 2.2,
-  thickness: 0.3,
+  shelf: 3.4,
+  thickness: 0.38,
   gap: 0.74,
-  askAt: [-1.4, 2.6],
-  answerAt: [0.6, -2.7],
-  bubbleWidth: 140,
-  extent: [5.0, 7.0],
+  askAt: [-1.1, 3.55],
+  answerAt: [0, -2.7],
+  bubbleWidth: 400,
+  extent: [5.4, 8.6],
 };
 
 /** The passage that answers the question. */
@@ -94,9 +94,8 @@ export function KnowledgeScene({
   const citeLabel = useRef<HTMLDivElement | null>(null);
   const compact = useCompact();
   const layout = compact ? COMPACT : WIDE;
-  const font = (n: number) => (compact ? Math.max(Math.round(n * 0.82 * 10) / 10, 8.7) : n);
   const scale = useFitScale(layout.extent[0], layout.extent[1]);
-  const px = useLabelPx(scale);
+  const { font, px } = usePanelType(scale);
   const docs = labels.docs.slice(0, 5);
   const top = ((docs.length - 1) / 2) * layout.gap;
   const rowY = (index: number) => top - index * layout.gap;
@@ -137,7 +136,7 @@ export function KnowledgeScene({
         cap.emissiveIntensity = (isMatch ? Math.max(sweep, lifted) : sweep * 0.45) * (palette.dark ? 0.95 : 0.55);
       }
       const row = rowLabels.current[index];
-      if (row) row.style.opacity = String(isMatch ? 0.55 + 0.45 * lifted : 0.55);
+      if (row) row.style.opacity = String(isMatch ? 0.85 + 0.15 * lifted : 0.85);
     });
 
     if (askLabel.current) askLabel.current.style.opacity = String(asked);
@@ -166,9 +165,9 @@ export function KnowledgeScene({
           receiveShadow
         />
 
-        <Label position={[layout.railX + 0.1, top + 1.15, 0.3]} width={px(layout.shelf)} className="flex select-none items-center gap-1.5 text-left">
+        <Label position={[layout.railX + layout.shelf / 2, top + 0.75, 0.3]} width={px(layout.shelf)} className="flex min-w-0 select-none items-center gap-1.5 text-left">
           <MagnifyingGlass size={icon} color={palette.ink.ai} style={{ ["--icon-accent" as string]: palette.ink.ai }} />
-          <span className="font-mono font-semibold uppercase tracking-[0.15em]" style={{ fontSize: font(9), color: palette.ink.ai }}>
+          <span className="min-w-0 font-semibold leading-tight" style={{ fontSize: font(10), color: palette.panelInk }}>
             {labels.title}
           </span>
         </Label>
@@ -212,7 +211,7 @@ export function KnowledgeScene({
                   rowLabels.current[index] = node;
                 }}
                 className="flex min-w-0 items-center gap-1.5"
-                style={{ opacity: 0.55 }}
+                style={{ opacity: 0.85 }}
               >
                 <FileText size={icon} color={palette.panelMuted} style={{ ["--icon-accent" as string]: palette.accent.ai }} />
                 <span className="truncate font-semibold leading-none" style={{ fontSize: font(11), color: palette.panelInk }}>
@@ -235,7 +234,7 @@ export function KnowledgeScene({
         {/* The question going in. */}
         <Label position={[layout.askAt[0] + 1.1, layout.askAt[1], 0.4]} width={layout.bubbleWidth} className="select-none text-left">
           <div ref={askLabel} style={{ opacity: 0 }}>
-            <p className="rounded-lg rounded-bl-sm px-2 py-1.5 leading-snug" style={labelStyle(font(10), palette.panelInk, palette.bubble)}>
+            <p className="rounded-lg rounded-bl-sm px-2 py-1.5 leading-snug [overflow-wrap:anywhere]" style={labelStyle(font(10), palette.panelInk, palette.bubble)}>
               {labels.question}
             </p>
           </div>
@@ -245,7 +244,7 @@ export function KnowledgeScene({
         <Label position={[layout.answerAt[0], layout.answerAt[1], 0.4]} width={layout.bubbleWidth} className="select-none text-left">
           <div ref={answerLabel} style={{ opacity: 0 }}>
             <p
-              className="rounded-lg rounded-br-sm px-2 py-1.5 leading-snug"
+              className="rounded-lg rounded-br-sm px-2 py-1.5 leading-snug [overflow-wrap:anywhere]"
               style={labelStyle(font(10), palette.dark ? palette.panelInk : palette.cardInk, palette.wash)}
             >
               {labels.answer}

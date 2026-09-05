@@ -1,20 +1,33 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { lazy } from "react";
 import { ArrowRight } from "@/components/icons";
 import { Link } from "@/i18n/routing";
 import styles from "./landing.module.css";
 import { Hero, type HeroLabels } from "./hero";
 import { StageSection, type StageLabels } from "./stage";
 import { FeatureAtlas, type FeatureGroup } from "./feature-atlas";
-import { CrmScene, type CrmSceneLabels } from "./scenes/crm-console";
-import { KanbanBoardScene, type KanbanSceneLabels } from "./scenes/kanban-board";
-import { WorkflowScene, type WorkflowSceneLabels } from "./scenes/workflow-canvas";
-import { RouletteScene, type RouletteSceneLabels } from "./scenes/roulette-ring";
-import { MemoryScene, type MemorySceneLabels } from "./scenes/lead-memory";
-import { AgentScene, type AgentSceneLabels } from "./scenes/agent-forge";
-import { CampaignScene, type CampaignSceneLabels } from "./scenes/campaign-fan";
-import { KnowledgeScene, type KnowledgeSceneLabels } from "./scenes/knowledge-index";
+import type { CrmSceneLabels } from "./scenes/crm-console";
+import { CrmTeam } from "./crm-team";
+import type { KanbanSceneLabels } from "./scenes/kanban-board";
+import type { WorkflowSceneLabels } from "./scenes/workflow-canvas";
+import type { RouletteSceneLabels } from "./scenes/roulette-ring";
+import type { MemorySceneLabels } from "./scenes/lead-memory";
+import type { AgentSceneLabels } from "./scenes/agent-forge";
+import type { CampaignSceneLabels } from "./scenes/campaign-fan";
+import type { KnowledgeSceneLabels } from "./scenes/knowledge-index";
+import { CircuitBackground } from "./circuit-background";
+import { ProviderTrust } from "./provider-trust";
+
+const CrmScene = lazy(() => import("./scenes/crm-console").then(m => ({ default: m.CrmScene })));
+const KanbanBoardScene = lazy(() => import("./scenes/kanban-board").then(m => ({ default: m.KanbanBoardScene })));
+const WorkflowScene = lazy(() => import("./scenes/workflow-canvas").then(m => ({ default: m.WorkflowScene })));
+const RouletteScene = lazy(() => import("./scenes/roulette-ring").then(m => ({ default: m.RouletteScene })));
+const MemoryScene = lazy(() => import("./scenes/lead-memory").then(m => ({ default: m.MemoryScene })));
+const AgentScene = lazy(() => import("./scenes/agent-forge").then(m => ({ default: m.AgentScene })));
+const CampaignScene = lazy(() => import("./scenes/campaign-fan").then(m => ({ default: m.CampaignScene })));
+const KnowledgeScene = lazy(() => import("./scenes/knowledge-index").then(m => ({ default: m.KnowledgeScene })));
 
 type StageCopy = {
   scroll: string;
@@ -36,6 +49,7 @@ export function LandingPage({ brandName }: { brandName: string }) {
 
   return (
     <main className={styles.root}>
+      <CircuitBackground />
       <a
         href="#conteudo"
         className="sr-only z-[60] bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:fixed focus:left-3 focus:top-3"
@@ -51,6 +65,7 @@ export function LandingPage({ brandName }: { brandName: string }) {
           labels={stages.crm}
           scroll={stages.scroll}
           height={430}
+          overview={<CrmTeam labels={stages.crm.team} />}
           scene={(progress, reduced, palette) => <CrmScene progress={progress} reduced={reduced} labels={stages.crm} palette={palette} />}
         />
 
@@ -118,6 +133,8 @@ export function LandingPage({ brandName }: { brandName: string }) {
         />
 
         <FeatureAtlas eyebrow={t("atlas.eyebrow")} title={t("atlas.title")} body={t("atlas.body")} groups={featureGroups} />
+
+        <ProviderTrust title={t("trust.title")} body={t("trust.body")} />
 
         <section className={styles.finalCta}>
           <div className={styles.finalCtaInner}>

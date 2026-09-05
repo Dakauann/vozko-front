@@ -11542,6 +11542,7 @@
       "finished": "Finalizado"
     },
     "stages": {
+      "loading": "Preparando a demonstração…",
       "add": "Adicionar etapa",
       "addFirst": "Adicionar a primeira etapa",
       "count": "{count, plural, one {# etapa} other {# etapas}}",
@@ -11629,36 +11630,117 @@
       "titleLine2": "O sistema não.",
       "body": "A {brandName} mantém conversa, decisão e receita no mesmo fluxo operacional."
     },
+    "trust": {
+      "title": "Tecnologia validada pela Meta.",
+      "body": "Conecte sua empresa à plataforma oficial do WhatsApp Business com um provedor de tecnologia validado. Seus canais, sua equipe e suas automações na mesma operação."
+    },
     "stages": {
+      "loading": "Preparando a demonstração…",
       "scroll": "Role para mover",
       "crm": {
         "rail": "Atendimento",
-        "aria": "Mensagens de WhatsApp, Instagram, Telegram e chat ao vivo chegam à mesma caixa de entrada; uma conversa é aberta, respondida pela IA, classificada e atribuída a uma pessoa.",
+        "aria": "CRM multicanal com WhatsApp, Instagram, Telegram e chat ao vivo. Vários atendentes e agentes de IA trabalham ao mesmo tempo em caixas de entrada por equipe. Permissões controlam quem vê cada conversa. A IA responde, organiza o contato e passa o atendimento para uma pessoa com o histórico completo.",
         "inbox": "Caixa de entrada",
         "rows": [
-          { "name": "Marina Alves", "preview": "Pode chegar de manhã?", "channel": "whatsapp" },
-          { "name": "Loja Horizonte", "preview": "Vi o anúncio de vocês", "channel": "instagram" },
-          { "name": "Atacado Nordeste", "preview": "Preciso repetir o pedido", "channel": "whatsapp" },
-          { "name": "Rafael Dias", "preview": "Qual o prazo de entrega?", "channel": "telegram" },
-          { "name": "Clínica Vida", "preview": "Podemos falar hoje?", "channel": "livechat" }
+          {
+            "name": "Marina Alves",
+            "preview": "Pode chegar de manhã?",
+            "channel": "whatsapp"
+          },
+          {
+            "name": "Loja Horizonte",
+            "preview": "Vi o anúncio de vocês",
+            "channel": "instagram"
+          },
+          {
+            "name": "Atacado Nordeste",
+            "preview": "Preciso repetir o pedido",
+            "channel": "whatsapp"
+          },
+          {
+            "name": "Rafael Dias",
+            "preview": "Qual o prazo de entrega?",
+            "channel": "telegram"
+          },
+          {
+            "name": "Clínica Vida",
+            "preview": "Podemos falar hoje?",
+            "channel": "livechat"
+          }
         ],
-        "thread": { "customer": "Pode chegar de manhã? Trabalho à tarde.", "ai": "Posso sim. Deixo para o período da manhã.", "human": "Marina, confirmei a entrega para quinta." },
+        "thread": {
+          "customer": "Pode chegar de manhã? Trabalho à tarde.",
+          "ai": "Posso sim. Deixo para o período da manhã.",
+          "human": "Marina, confirmei a entrega para quinta."
+        },
         "details": "Detalhes do contato",
         "stageLabel": "Etapa",
         "stage": "Em andamento",
         "tagsLabel": "Tags",
-        "tags": ["Proposta", "Alta intenção"],
+        "tags": [
+          "Proposta",
+          "Alta intenção"
+        ],
         "ownerLabel": "Responsável",
         "owner": "Ana Ribeiro",
         "byAi": "IA atendendo",
         "byHuman": "Ana assumiu",
         "steps": [
-          { "number": "01", "title": "Todo canal cai na mesma caixa", "body": "WhatsApp, Instagram, Telegram e chat ao vivo entram na mesma fila, com o canal marcado em cada conversa." },
-          { "number": "02", "title": "Abrir uma conversa é abrir o histórico inteiro", "body": "A thread traz as mensagens, as mídias e o que já aconteceu com esse contato, sem trocar de aba." },
-          { "number": "03", "title": "A IA responde no mesmo fio", "body": "O agente atende dentro da conversa, e cada resposta fica visível para quem for assumir depois." },
-          { "number": "04", "title": "A conversa se classifica enquanto acontece", "body": "Tags, etapa do funil e análise entram no cadastro sem ninguém parar para preencher formulário." },
-          { "number": "05", "title": "Uma pessoa assume sem recomeçar", "body": "A atribuição troca o dono, não o histórico. Quem entra lê tudo o que já foi dito." }
-        ]
+          {
+            "number": "01",
+            "title": "Todos os canais. Uma operação.",
+            "body": "WhatsApp, Instagram, Telegram e chat ao vivo no mesmo CRM. Organize mensagens, mídias e histórico sem alternar entre aplicativos."
+          },
+          {
+            "number": "02",
+            "title": "Várias caixas. Equipes em paralelo.",
+            "body": "Vendas, suporte e pós-venda atendem ao mesmo tempo, cada equipe com sua caixa e seus responsáveis. Distribua as conversas por departamento e acompanhe quem está atendendo."
+          },
+          {
+            "number": "03",
+            "title": "Sua equipe e a IA, lado a lado.",
+            "body": "Agentes de IA respondem enquanto seus atendentes cuidam de outras conversas. Quando uma pessoa assume, recebe as mensagens e o contexto para continuar de onde a IA parou."
+          },
+          {
+            "number": "04",
+            "title": "Cada conversa alimenta o CRM.",
+            "body": "Tags, etapa do funil e informações do contato acompanham o atendimento. Consulte o histórico, registre notas internas e organize o próximo passo no mesmo lugar."
+          },
+          {
+            "number": "05",
+            "title": "Acesso certo para cada atendente.",
+            "body": "Defina permissões para que cada pessoa veja apenas as conversas autorizadas, sem acessar as de outras equipes. Ao transferir um atendimento, o histórico completo acompanha o novo responsável."
+          }
+        ],
+        "team": {
+          "title": "Equipe em atendimento",
+          "status": "Em paralelo",
+          "human": "Humano",
+          "ai": "IA",
+          "members": [
+            {
+              "name": "Ana Ribeiro",
+              "inbox": "Caixa de vendas",
+              "kind": "human"
+            },
+            {
+              "name": "Davi Costa",
+              "inbox": "Caixa de suporte",
+              "kind": "human"
+            },
+            {
+              "name": "Lia Santos",
+              "inbox": "Caixa de pós-venda",
+              "kind": "human"
+            },
+            {
+              "name": "Assistente virtual",
+              "inbox": "Caixa de pré-vendas",
+              "kind": "ai"
+            }
+          ],
+          "privacy": "Cada atendente acessa apenas as conversas permitidas."
+        }
       },
       "workflow": {
         "rail": "Workflow",

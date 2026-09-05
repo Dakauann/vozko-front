@@ -10080,36 +10080,117 @@
       "titleLine2": "El sistema no.",
       "body": "{brandName} mantiene conversación, decisión e ingresos en el mismo flujo operativo."
     },
+    "trust": {
+      "title": "Tecnología validada por Meta.",
+      "body": "Conecta tu empresa a la plataforma oficial de WhatsApp Business con un proveedor de tecnología validado. Tus canales, tu equipo y tus automatizaciones en una misma operación."
+    },
     "stages": {
+      "loading": "Preparando la demostración…",
       "scroll": "Desplázate para mover",
       "crm": {
         "rail": "Atención",
-        "aria": "Los mensajes de WhatsApp, Instagram, Telegram y chat en vivo llegan a una sola bandeja; una conversación se abre, la responde la IA, se clasifica y se asigna a una persona.",
+        "aria": "CRM multicanal con WhatsApp, Instagram, Telegram y chat en vivo. Varios agentes humanos y de IA atienden al mismo tiempo en bandejas por equipo. Los permisos controlan quién ve cada conversación. La IA responde, organiza el contacto y transfiere la atención a una persona con el historial completo.",
         "inbox": "Bandeja de entrada",
         "rows": [
-          { "name": "Marina Alves", "preview": "¿Puede llegar por la mañana?", "channel": "whatsapp" },
-          { "name": "Tienda Horizonte", "preview": "Vi su anuncio", "channel": "instagram" },
-          { "name": "Mayorista Nordeste", "preview": "Necesito repetir el pedido", "channel": "whatsapp" },
-          { "name": "Rafael Dias", "preview": "¿Cuál es el plazo de entrega?", "channel": "telegram" },
-          { "name": "Clínica Vida", "preview": "¿Podemos hablar hoy?", "channel": "livechat" }
+          {
+            "name": "Marina Alves",
+            "preview": "¿Puede llegar por la mañana?",
+            "channel": "whatsapp"
+          },
+          {
+            "name": "Tienda Horizonte",
+            "preview": "Vi su anuncio",
+            "channel": "instagram"
+          },
+          {
+            "name": "Mayorista Nordeste",
+            "preview": "Necesito repetir el pedido",
+            "channel": "whatsapp"
+          },
+          {
+            "name": "Rafael Dias",
+            "preview": "¿Cuál es el plazo de entrega?",
+            "channel": "telegram"
+          },
+          {
+            "name": "Clínica Vida",
+            "preview": "¿Podemos hablar hoy?",
+            "channel": "livechat"
+          }
         ],
-        "thread": { "customer": "¿Puede llegar por la mañana? Trabajo por la tarde.", "ai": "Sí. Lo dejo para la mañana.", "human": "Marina, confirmé tu entrega para el jueves." },
+        "thread": {
+          "customer": "¿Puede llegar por la mañana? Trabajo por la tarde.",
+          "ai": "Sí. Lo dejo para la mañana.",
+          "human": "Marina, confirmé tu entrega para el jueves."
+        },
         "details": "Detalles del contacto",
         "stageLabel": "Etapa",
         "stage": "En curso",
         "tagsLabel": "Etiquetas",
-        "tags": ["Propuesta", "Alta intención"],
+        "tags": [
+          "Propuesta",
+          "Alta intención"
+        ],
         "ownerLabel": "Responsable",
         "owner": "Ana Ribeiro",
         "byAi": "IA atendiendo",
         "byHuman": "Ana asumió",
         "steps": [
-          { "number": "01", "title": "Todo canal cae en la misma bandeja", "body": "WhatsApp, Instagram, Telegram y chat en vivo entran en la misma cola, con el canal marcado en cada conversación." },
-          { "number": "02", "title": "Abrir una conversación es abrir todo el historial", "body": "El hilo trae los mensajes, los archivos y lo que ya pasó con ese contacto, sin cambiar de pestaña." },
-          { "number": "03", "title": "La IA responde en el mismo hilo", "body": "El agente atiende dentro de la conversación, y cada respuesta queda visible para quien asuma después." },
-          { "number": "04", "title": "La conversación se clasifica mientras ocurre", "body": "Etiquetas, etapa del embudo y análisis llegan al registro sin que nadie llene un formulario." },
-          { "number": "05", "title": "Una persona asume sin volver a empezar", "body": "La asignación cambia el responsable, no el historial. Quien entra lee todo lo ya dicho." }
-        ]
+          {
+            "number": "01",
+            "title": "Todos los canales. Una operación.",
+            "body": "WhatsApp, Instagram, Telegram y chat en vivo en el mismo CRM. Organiza mensajes, archivos e historial sin cambiar de aplicación."
+          },
+          {
+            "number": "02",
+            "title": "Varias bandejas. Equipos en paralelo.",
+            "body": "Ventas, soporte y posventa atienden al mismo tiempo, cada equipo con su bandeja y sus responsables. Distribuye las conversaciones por departamento y consulta quién atiende cada una."
+          },
+          {
+            "number": "03",
+            "title": "Tu equipo y la IA, lado a lado.",
+            "body": "Los agentes de IA responden mientras las personas atienden otras conversaciones. Cuando alguien toma el relevo, recibe los mensajes y el contexto para continuar donde quedó la IA."
+          },
+          {
+            "number": "04",
+            "title": "Cada conversación alimenta tu CRM.",
+            "body": "Las etiquetas, la etapa del embudo y los datos del contacto acompañan la atención. Consulta el historial, añade notas internas y organiza el siguiente paso en el mismo lugar."
+          },
+          {
+            "number": "05",
+            "title": "El acceso adecuado para cada agente.",
+            "body": "Configura permisos para que cada persona vea solo las conversaciones autorizadas, sin acceder a las de otros equipos. Al transferir una conversación, el historial completo acompaña al nuevo responsable."
+          }
+        ],
+        "team": {
+          "title": "Tu equipo atendiendo",
+          "status": "En paralelo",
+          "human": "Humano",
+          "ai": "IA",
+          "members": [
+            {
+              "name": "Ana Ribeiro",
+              "inbox": "Bandeja de ventas",
+              "kind": "human"
+            },
+            {
+              "name": "Davi Costa",
+              "inbox": "Bandeja de soporte",
+              "kind": "human"
+            },
+            {
+              "name": "Lia Santos",
+              "inbox": "Bandeja de posventa",
+              "kind": "human"
+            },
+            {
+              "name": "Asistente virtual",
+              "inbox": "Bandeja de preventa",
+              "kind": "ai"
+            }
+          ],
+          "privacy": "Cada agente solo accede a las conversaciones autorizadas."
+        }
       },
       "workflow": {
         "rail": "Workflow",

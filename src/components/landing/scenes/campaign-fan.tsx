@@ -5,7 +5,7 @@ import { useRef } from "react";
 import { MathUtils, type Group, type Mesh, type MeshStandardMaterial } from "three";
 import {
   Bar,
-  Label,
+  PanelLabel as Label,
   R,
   Slab,
   StageLights,
@@ -16,6 +16,7 @@ import {
   useCompact,
   useDampedProgress,
   useFitScale,
+  usePanelType,
   type ScenePalette,
   type Vec3,
   type Window,
@@ -67,7 +68,7 @@ const COMPACT: Layout = {
   queueAt: [0, -2.9],
   queue: [3.2, 0.46, 0.14],
   labelWidth: 118,
-  extent: [4.6, 7.2],
+  extent: [4.6, 8.4],
 };
 
 /** Which contacts answer. Fixed, so the story is the same on every scroll. */
@@ -106,8 +107,8 @@ export function CampaignScene({
   const queueLabel = useRef<HTMLDivElement | null>(null);
   const compact = useCompact();
   const layout = compact ? COMPACT : WIDE;
-  const font = (n: number) => (compact ? Math.max(Math.round(n * 0.82 * 10) / 10, 8.7) : n);
   const scale = useFitScale(layout.extent[0], layout.extent[1]);
+  const { font, px } = usePanelType(scale);
   const total = layout.cols * layout.rows;
   const plateEdge: Vec3 = [layout.plateAt[0], layout.plateAt[1] - layout.plate[1] / 2 + 0.2, 0.2];
   const queueEdge: Vec3 = [layout.queueAt[0] - layout.queue[0] / 2 + 0.3, layout.queueAt[1], 0.2];
@@ -191,15 +192,15 @@ export function CampaignScene({
               <meshBasicMaterial color={palette.panelMuted} />
             </mesh>
           ))}
-          <Label position={[0, layout.plate[1] / 2 - 0.12, 0.2]} width={layout.labelWidth} className="select-none text-center">
-            <p className="font-mono font-semibold uppercase tracking-[0.15em]" style={{ fontSize: font(9), color: palette.ink.ai }}>
+          <Label position={[0, layout.plate[1] / 2 + 0.3, 0.2]} width={px(3.3)} className="select-none text-center">
+            <p className="font-semibold leading-tight" style={{ fontSize: font(10), color: palette.panelInk }}>
               {labels.template}
             </p>
           </Label>
         </group>
 
         {/* The audience: one dot per contact, lighting as the message lands. */}
-        <Label position={[layout.gridAt[0], layout.gridAt[1] + ((layout.rows - 1) / 2) * layout.step + 0.62, 0.2]} width={layout.labelWidth} className="select-none text-center">
+        <Label position={[layout.gridAt[0], layout.gridAt[1] + ((layout.rows - 1) / 2) * layout.step + 0.62, 0.2]} width={px(3.3)} className="select-none text-center">
           <p className="font-mono font-semibold uppercase tracking-[0.15em]" style={{ fontSize: font(9), color: palette.panelMuted }}>
             {labels.audience}
           </p>
@@ -252,7 +253,7 @@ export function CampaignScene({
           <boxGeometry args={[1, layout.queue[1] - 0.2, 0.04]} />
           <meshBasicMaterial color={palette.accent.ai} />
         </mesh>
-        <Label position={[layout.queueAt[0], layout.queueAt[1] - layout.queue[1] / 2 - 0.28, 0.2]} width={layout.labelWidth + 40} className="select-none text-center">
+        <Label position={[layout.queueAt[0], layout.queueAt[1] - layout.queue[1] / 2 - 0.3, 0.2]} width={px(layout.queue[0])} className="select-none text-center">
           <div ref={queueLabel} style={{ opacity: 0 }}>
             <p className="font-mono font-semibold uppercase tracking-[0.15em]" style={{ fontSize: font(9), color: palette.ink.ai }}>
               {labels.queue}

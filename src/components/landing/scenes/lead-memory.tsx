@@ -7,10 +7,12 @@ import { MathUtils, type Group, type MeshBasicMaterial, type MeshStandardMateria
 import {
   Bar,
   CHANNEL,
-  Label,
+  PanelLabel as Label,
   R,
   Slab,
   StageLights,
+  sheet,
+  sheetChip,
   arc,
   lerp3,
   smoothWindow,
@@ -18,6 +20,7 @@ import {
   useCompact,
   useDampedProgress,
   useFitScale,
+  usePanelType,
   type ScenePalette,
   type Vec3,
   type Window,
@@ -71,22 +74,21 @@ const WIDE: Layout = {
   extent: [10.6, 5.2],
 };
 
-// Portrait: the same three objects read as a cascade down the screen, which is
-// also the order of the story, instead of three panels squeezed side by side.
+// Both channels share a full-width memory record below them on small screens.
 const COMPACT: Layout = {
-  wa: [-1.3, 2.35],
-  record: [0.3, -0.15],
-  ig: [-1.15, -2.8],
-  panel: [2.0, 2.4, 0.16],
-  card: [2.2, 2.6, 0.16],
-  chip: [1.8, 0.36, 0.09],
-  rows: { title: 0.4, first: 1.05, second: 1.65, composer: 0.32 },
+  wa: [-1.75, 1.5],
+  record: [0, -2.6],
+  ig: [1.75, 1.5],
+  panel: [3.2, 4.4, 0.16],
+  card: [6.7, 2.8, 0.16],
+  chip: [6.1, 0.46, 0.09],
+  rows: { title: 0.4, first: 1.4, second: 2.4, composer: 0.36 },
   cardRows: { lead: 0.4, memories: 0.85 },
-  slotY: [0.05, -0.35, -0.75],
-  context: { at: [0, -0.6], size: [1.75, 1.0], titleY: -0.12 },
-  ghost: { from: -0.35, step: 0.3, size: [1.6, 0.26] },
-  labelWidth: 122,
-  extent: [4.7, 7.5],
+  slotY: [0.05, -0.5, -1.05],
+  context: { at: [0, -1.05], size: [2.9, 1.85], titleY: -0.32 },
+  ghost: { from: -0.75, step: 0.48, size: [2.8, 0.42] },
+  labelWidth: 280,
+  extent: [7.3, 8.6],
 };
 
 type ChipFlight = { fromPanel: "wa" | "below"; dy: number; window: Window; tone: "ai" | "team" };
@@ -130,14 +132,15 @@ function Bubble({
 }) {
   const outgoing = tone === "ai";
   return (
-    <div ref={nodeRef} className={`flex ${outgoing ? "justify-end" : "justify-start"}`} style={{ opacity: 0 }}>
+    <div ref={nodeRef} className={`flex min-w-0 ${outgoing ? "justify-end" : "justify-start"}`} style={{ opacity: 0 }}>
       <span
-        className={`inline-block max-w-[86%] rounded-lg px-2 py-1.5 leading-snug ${outgoing ? "rounded-br-sm" : "rounded-bl-sm"}`}
+        className={`inline-block min-w-0 max-w-[94%] whitespace-normal rounded-lg leading-snug [overflow-wrap:anywhere] ${outgoing ? "rounded-br-sm" : "rounded-bl-sm"}`}
         style={{
+          padding: `${size * 0.5}px ${size * 0.65}px`,
           fontSize: size,
           // The outgoing tint is dark green on graphite and pale green in
           // daylight, so its ink has to follow the theme rather than assume paper.
-          color: outgoing && !palette.dark ? palette.cardInk : palette.panelInk,
+          color: outgoing && !palette.dark ? palette.panelInk : palette.panelInk,
           backgroundColor: outgoing ? palette.wash : palette.bubble,
         }}
       >
@@ -153,9 +156,9 @@ function Bubble({
 /** The composer that closes every chat panel: a field and a send key. */
 function Composer({ palette, size, tone }: { palette: ScenePalette; size: number; tone: string }) {
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex min-w-0 items-center gap-1.5">
       <span
-        className="flex flex-1 items-center rounded-full px-2"
+        className="flex min-w-0 flex-1 items-center rounded-full px-2"
         // `chip` is paper: on the dark chat panel it rendered as a white bar.
         // The composer sits on the panel, so it takes the panel's own fill.
         style={{ height: size * 2.1, backgroundColor: palette.bubble, border: `1px solid ${palette.edge}` }}
@@ -201,7 +204,7 @@ function ChatHeader({
     <div ref={nodeRef} className="flex items-center gap-2">
       <span
         className="grid shrink-0 place-items-center rounded-full font-semibold"
-        style={{ width: size * 2.2, height: size * 2.2, backgroundColor: tone, color: "#0D0F10", fontSize: size * 0.8 }}
+        style={{ width: size * 2.2, height: size * 2.2, backgroundColor: sheetChip(palette), color: palette.panelInk, fontSize: size * 0.8, borderBottom: `2px solid ${tone}` }}
       >
         {initials}
       </span>
@@ -209,7 +212,7 @@ function ChatHeader({
         <p className="truncate font-semibold leading-none" style={{ fontSize: size, color: palette.panelInk }}>
           {name}
         </p>
-        <p className="mt-1 truncate font-mono uppercase leading-none tracking-[0.14em]" style={{ fontSize: size * 0.78, color: tone }}>
+        <p className="mt-1 truncate leading-none" style={{ fontSize: size * 0.85, color: palette.panelMuted }}>
           {channel}
         </p>
       </span>
@@ -244,8 +247,8 @@ export function MemoryScene({
   const contextTitle = useRef<HTMLDivElement | null>(null);
   const compact = useCompact();
   const layout = compact ? COMPACT : WIDE;
-  const font = (n: number) => (compact ? Math.max(Math.round(n * 0.82 * 10) / 10, 8.7) : n);
   const stageScale = useFitScale(layout.extent[0], layout.extent[1]);
+  const { font, px } = usePanelType(stageScale);
   const items = labels.items.slice(0, CHIP_FLIGHTS.length);
 
   const panelHalf = layout.panel[1] / 2;
@@ -291,7 +294,7 @@ export function MemoryScene({
       const position = lerp3(slotAt(index), contextRowAt(index), u);
       const reveal = smoothstep(u * 5);
       ghost.position.set(position[0], position[1], position[2] + arc(u) * 0.5);
-      ghost.scale.setScalar(Math.max(reveal * 0.85, 0.001));
+      ghost.scale.setScalar(Math.max(reveal, 0.001));
       const material = ghostMaterials.current[index];
       if (material) material.opacity = reveal * 0.95;
       setOpacity(ghostLabels.current[index], u);
@@ -311,7 +314,7 @@ export function MemoryScene({
         <group position={[layout.wa[0], layout.wa[1], 0]}>
           <Slab size={layout.panel} color={palette.board} radius={R.board} roughness={0.72} receiveShadow />
           <Bar position={[0, panelHalf - layout.rows.title - 0.3, 0.11]} size={[layout.panel[0] - 0.16, 0.02, 0.02]} color={palette.edge} />
-          <Label position={[0, panelHalf - layout.rows.title, 0.2]} width={layout.labelWidth} className="select-none text-left">
+          <Label position={[0, panelHalf - layout.rows.title, 0.2]} width={px(layout.panel[0] - 0.4)} className="select-none text-left">
             <ChatHeader
               name={labels.name}
               channel={labels.whatsapp}
@@ -321,7 +324,7 @@ export function MemoryScene({
               initials={labels.name.slice(0, 2).toUpperCase()}
             />
           </Label>
-          <Label position={[0, panelHalf - layout.rows.first, 0.14]} width={layout.labelWidth} className="select-none">
+          <Label position={[0, panelHalf - layout.rows.first, 0.14]} width={px(layout.panel[0] - 0.4)} className="select-none">
             <Bubble
               tone="customer"
               palette={palette}
@@ -334,7 +337,7 @@ export function MemoryScene({
               {labels.customer}
             </Bubble>
           </Label>
-          <Label position={[0, panelHalf - layout.rows.second, 0.14]} width={layout.labelWidth} className="select-none">
+          <Label position={[0, panelHalf - layout.rows.second, 0.14]} width={px(layout.panel[0] - 0.4)} className="select-none">
             <Bubble
               tone="ai"
               palette={palette}
@@ -347,26 +350,26 @@ export function MemoryScene({
               {labels.ai}
             </Bubble>
           </Label>
-          <Label position={[0, -panelHalf + layout.rows.composer, 0.14]} width={layout.labelWidth} className="select-none">
+          <Label position={[0, -panelHalf + layout.rows.composer, 0.14]} width={px(layout.panel[0] - 0.4)} className="select-none">
             <Composer palette={palette} size={font(10)} tone={CHANNEL.whatsapp} />
           </Label>
         </group>
 
         {/* The lead record */}
         <group position={[layout.record[0], layout.record[1], 0.12]}>
-          <Slab size={layout.card} color={palette.card} roughness={0.58} receiveShadow />
-          <Label position={[0, cardHalf - layout.cardRows.lead, 0.22]} width={layout.labelWidth + 14} className="select-none text-left">
-            <p className="font-mono uppercase tracking-[0.15em]" style={{ fontSize: font(9), color: palette.cardInkMuted }}>
+          <Slab size={layout.card} color={sheet(palette)} roughness={0.58} receiveShadow />
+          <Label position={[0, cardHalf - layout.cardRows.lead, 0.22]} width={px(layout.card[0] - 0.4)} className="select-none text-left">
+            <p className="font-mono uppercase tracking-[0.15em]" style={{ fontSize: font(9), color: palette.panelMuted }}>
               {labels.lead}
             </p>
-            <p className="mt-1 font-semibold leading-none" style={{ fontSize: font(13), color: palette.cardInk }}>
+            <p className="mt-1 font-semibold leading-none" style={{ fontSize: font(13), color: palette.panelInk }}>
               {labels.name}
             </p>
           </Label>
-          <Label position={[0, cardHalf - layout.cardRows.memories, 0.22]} width={layout.labelWidth + 14} className="select-none text-left">
+          <Label position={[0, cardHalf - layout.cardRows.memories, 0.22]} width={px(layout.card[0] - 0.4)} className="select-none text-left">
             <p
               className="border-t pt-1.5 font-mono uppercase tracking-[0.15em]"
-              style={{ fontSize: font(9), color: palette.cardInkMuted, borderColor: palette.dark ? "#D5DCE0" : "#CBD3D8" }}
+              style={{ fontSize: font(9), color: palette.panelMuted, borderColor: palette.edge }}
             >
               {labels.memories}
             </p>
@@ -380,23 +383,23 @@ export function MemoryScene({
               chips.current[index] = node;
             }}
           >
-            <Slab size={layout.chip} color={palette.chip} radius={R.chip} roughness={0.7} />
+            <Slab size={layout.chip} color={sheetChip(palette)} radius={R.chip} roughness={0.7} />
             <Bar
               position={[-layout.chip[0] / 2 + 0.08, 0, layout.chip[2] / 2 + 0.01]}
               size={[0.06, layout.chip[1] * 0.65, 0.02]}
               color={palette.accent[CHIP_FLIGHTS[index].tone]}
             />
-            <Label position={[0.06, 0, layout.chip[2] / 2 + 0.02]} width={layout.labelWidth - 20} className="select-none text-left">
+            <Label position={[0.06, 0, layout.chip[2] / 2 + 0.02]} width={px(layout.chip[0] - 0.4)} className="select-none text-left">
               <div
                 ref={(node) => {
                   chipLabels.current[index] = node;
                 }}
                 style={{ opacity: 0 }}
               >
-                <p className="truncate font-semibold leading-none" style={{ fontSize: font(10), color: palette.cardInk }}>
+                <p className="truncate font-semibold leading-none" style={{ fontSize: font(10), color: palette.panelInk }}>
                   {item.text}
                 </p>
-                <p className="mt-1 truncate font-mono leading-none" style={{ fontSize: font(8.5), color: palette.cardInkMuted }}>
+                <p className="mt-1 truncate font-mono leading-none" style={{ fontSize: font(8.5), color: palette.panelMuted }}>
                   {item.by}
                 </p>
               </div>
@@ -413,7 +416,7 @@ export function MemoryScene({
             <boxGeometry args={[layout.panel[0] - 0.16, 0.02, 0.02]} />
             <meshBasicMaterial ref={igBarMaterial} color={palette.edge} transparent opacity={0.35} />
           </mesh>
-          <Label position={[0, panelHalf - layout.rows.title, 0.2]} width={layout.labelWidth} className="select-none text-left">
+          <Label position={[0, panelHalf - layout.rows.title, 0.2]} width={px(layout.panel[0] - 0.4)} className="select-none text-left">
             <ChatHeader
               name={labels.name}
               channel={labels.instagram}
@@ -426,7 +429,7 @@ export function MemoryScene({
               }}
             />
           </Label>
-          <Label position={[0, panelHalf - layout.rows.first, 0.14]} width={layout.labelWidth} className="select-none">
+          <Label position={[0, panelHalf - layout.rows.first, 0.14]} width={px(layout.panel[0] - 0.4)} className="select-none">
             <Bubble
               tone="customer"
               palette={palette}
@@ -448,14 +451,14 @@ export function MemoryScene({
           >
             <meshStandardMaterial ref={contextMaterial} color={palette.wash} roughness={0.8} transparent opacity={0} />
           </RoundedBox>
-          <Label position={[0, layout.context.titleY, 0.2]} width={layout.labelWidth} className="select-none text-left">
+          <Label position={[0, layout.context.titleY, 0.2]} width={px(layout.panel[0] - 0.4)} className="select-none text-left">
             <div
               ref={(node) => {
                 contextTitle.current = node;
               }}
               style={{ opacity: 0 }}
             >
-              <p className="font-mono font-semibold uppercase tracking-[0.15em]" style={{ fontSize: font(9), color: palette.ink.ai }}>
+              <p className="font-mono font-semibold uppercase tracking-[0.15em]" style={{ fontSize: font(9), color: palette.panelInk }}>
                 {labels.context}
               </p>
             </div>
@@ -480,14 +483,14 @@ export function MemoryScene({
                 opacity={0}
               />
             </RoundedBox>
-            <Label position={[0.04, 0, 0.06]} width={layout.labelWidth - 40} className="select-none text-left">
+            <Label position={[0.04, 0, 0.06]} width={px(layout.ghost.size[0] - 0.25)} className="select-none text-left">
               <div
                 ref={(node) => {
                   ghostLabels.current[index] = node;
                 }}
                 style={{ opacity: 0 }}
               >
-                <p className="truncate font-semibold leading-none" style={{ fontSize: font(9.5), color: palette.panelInk }}>
+                <p className="line-clamp-2 font-semibold leading-tight [overflow-wrap:anywhere]" style={{ fontSize: font(9.5), color: palette.panelInk }}>
                   {item.text}
                 </p>
               </div>

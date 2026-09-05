@@ -8,7 +8,7 @@ import { InstagramLogoColor, TelegramLogoColor, WhatsAppLogoColor } from "@/comp
 import {
   Bar,
   CHANNEL,
-  Label,
+  PanelLabel as Label,
   R,
   Slab,
   StageLights,
@@ -21,11 +21,21 @@ import {
   useCompact,
   useDampedProgress,
   useFitScale,
-  useLabelPx,
+  usePanelType,
   type ScenePalette,
-  type Vec3,
   type Window,
 } from "../scene-kit";
+import {
+  CRM_COMPACT,
+  CRM_WIDE,
+  detailY,
+  ownerY,
+  rowAt,
+  rowEntryX,
+  tagAt,
+  tagFrom,
+  type CrmLayout,
+} from "./crm-layout";
 
 export type CrmChannel = "whatsapp" | "instagram" | "telegram" | "livechat";
 export type CrmSceneLabels = {
@@ -41,6 +51,14 @@ export type CrmSceneLabels = {
   owner: string;
   byAi: string;
   byHuman: string;
+  team: {
+    title: string;
+    status: string;
+    human: string;
+    ai: string;
+    members: Array<{ name: string; inbox: string; kind: "human" | "ai" }>;
+    privacy: string;
+  };
 };
 
 /** The conversation the scene follows all the way through. */
@@ -55,42 +73,6 @@ const CHANNEL_MARK = {
 function channelTone(channel: CrmChannel, palette: ScenePalette) {
   return channel === "livechat" ? palette.accent.team : CHANNEL[channel];
 }
-
-type Panel = { at: [number, number]; size: Vec3 };
-type Layout = {
-  inbox: Panel;
-  thread: Panel;
-  details: Panel;
-  row: Vec3;
-  rowGap: number;
-  rowTop: number;
-  visibleRows: number;
-  extent: [number, number];
-};
-
-const WIDE: Layout = {
-  inbox: { at: [-3.95, 0], size: [3.0, 5.6, 0.26] },
-  thread: { at: [-0.3, 0], size: [3.7, 5.6, 0.3] },
-  details: { at: [3.5, 0], size: [2.5, 5.6, 0.26] },
-  row: [2.7, 0.8, 0.16],
-  rowGap: 0.94,
-  rowTop: 1.72,
-  visibleRows: 5,
-  extent: [10.4, 6.4],
-};
-
-// Portrait: the three panes become a column, which is how the product itself
-// behaves on a phone. Two rows are enough to say "a queue".
-const COMPACT: Layout = {
-  inbox: { at: [0, 2.55], size: [3.5, 2.5, 0.22] },
-  thread: { at: [0, -0.5], size: [3.5, 3.0, 0.26] },
-  details: { at: [0, -3.35], size: [3.5, 2.0, 0.22] },
-  row: [3.2, 0.72, 0.14],
-  rowGap: 0.84,
-  rowTop: 0.6,
-  visibleRows: 2,
-  extent: [4.0, 8.4],
-};
 
 const ARRIVE: Window = [0.0, 0.17];
 const OPEN: Window = [0.2, 0.35];
@@ -144,43 +126,41 @@ export function CrmScene({
   const ownerBadge = useRef<Mesh>(null);
 
   const compact = useCompact();
-  const layout = compact ? COMPACT : WIDE;
-  const font = (n: number) => (compact ? Math.max(Math.round(n * 0.82 * 10) / 10, 8.7) : n);
+  const layout: CrmLayout = compact ? CRM_COMPACT : CRM_WIDE;
   const scale = useFitScale(layout.extent[0], layout.extent[1]);
-  const px = useLabelPx(scale);
+  const { font, px } = usePanelType(scale);
   const visible = labels.rows.slice(0, layout.visibleRows);
   const tags = labels.tags.slice(0, 2);
 
   const [rowW, rowH, rowD] = layout.row;
-  const rowY = (index: number) => layout.rowTop - index * layout.rowGap;
-  const threadHalf = layout.thread.size[1] / 2;
-  const detailsHalf = layout.details.size[1] / 2;
-  /** Where a tag starts life: on the open conversation, before it is filed. */
-  const tagFrom: Vec3 = [layout.thread.at[0], layout.thread.at[1] - 0.4, 0.7];
-  const tagTo = (index: number): Vec3 => [layout.details.at[0], layout.details.at[1] + detailsHalf - 2.0 - index * 0.5, 0.3];
+  const [inboxW, inboxH, inboxD] = layout.inbox.size;
+  const [threadW, threadH, threadD] = layout.thread.size;
+  const [detailsW, , detailsD] = layout.details.size;
 
   useDampedProgress(progress, reduced, (t, delta) => {
     // 1 — the queue fills, one channel at a time.
     visible.forEach((_, index) => {
       const u = smoothWindow(t, rowWindow(index, visible.length));
+      const [restX, y] = rowAt(layout, index);
       const group = rows.current[index];
       if (group) {
+        // Rows slide in from OUTSIDE THE INBOX, not from the stage origin: an
+        // absolute target here sent every row onto the thread panel.
         group.position.set(
-          MathUtils.lerp(-2.2, 0, u),
-          rowY(index),
-          // The opened row lifts off the list and stays lifted.
+          MathUtils.lerp(rowEntryX(layout), restX, u),
+          y,
           index === OPEN_ROW ? 0.18 + smoothWindow(t, OPEN) * 0.3 : 0.18,
         );
         group.scale.setScalar(Math.max(u, 0.001));
       }
       const select = rowSelects.current[index];
-      if (select) select.opacity = index === OPEN_ROW ? smoothWindow(t, OPEN) : 0;
+      if (select) select.opacity = index === OPEN_ROW ? smoothWindow(t, OPEN) * 0.9 : 0;
     });
 
     // 2 — the thread opens.
     const opened = smoothWindow(t, OPEN);
     if (thread.current) {
-      thread.current.scale.setScalar(Math.max(0.86 + opened * 0.14, 0.001));
+      thread.current.scale.setScalar(Math.max(0.88 + opened * 0.12, 0.001));
       thread.current.position.z = opened * 0.24;
     }
     if (threadFace.current) threadFace.current.opacity = 0.25 + opened * 0.75;
@@ -201,11 +181,12 @@ export function CrmScene({
       const u = smoothWindow(t, [CLASSIFY[0] + index * 0.06, CLASSIFY[1] - 0.06 + index * 0.06]);
       const chip = tagChips.current[index];
       if (chip) {
-        const to = tagTo(index);
+        const from = tagFrom(layout);
+        const to = tagAt(layout, index, tags.length);
         chip.position.set(
-          MathUtils.lerp(tagFrom[0], to[0], u),
-          MathUtils.lerp(tagFrom[1], to[1], u),
-          MathUtils.lerp(tagFrom[2], to[2], u) + arc(u) * 0.5,
+          MathUtils.lerp(from[0], to[0], u),
+          MathUtils.lerp(from[1], to[1], u),
+          MathUtils.lerp(threadD / 2 + 0.3, detailsD / 2 + 0.06, u) + arc(u) * 0.5,
         );
         chip.scale.setScalar(Math.max(smoothstep(u * 4), 0.001));
       }
@@ -229,6 +210,7 @@ export function CrmScene({
   });
 
   const icon = font(11);
+  const bubbleFace = palette.dark ? palette.panelInk : palette.cardInk;
 
   return (
     <>
@@ -237,215 +219,222 @@ export function CrmScene({
         {/* ── The inbox: every channel, one queue ───────────────────────── */}
         <group position={[layout.inbox.at[0], layout.inbox.at[1], 0]}>
           <Slab size={layout.inbox.size} color={sheetWell(palette)} radius={R.board} roughness={0.8} receiveShadow />
-          <Bar
-            position={[0, layout.inbox.size[1] / 2 - 0.5, layout.inbox.size[2] / 2 + 0.02]}
-            size={[layout.inbox.size[0] - 0.5, 0.03, 0.03]}
-            color={palette.accent.ai}
-          />
-          <Label
-            position={[0, layout.inbox.size[1] / 2 - 0.28, 0.24]}
-            width={px(layout.inbox.size[0] - 0.4)}
-            className="flex select-none items-center gap-1.5 text-left"
-          >
+          <Bar position={[0, inboxH / 2 - 0.5, inboxD / 2 + 0.02]} size={[inboxW - 0.5, 0.03, 0.03]} color={palette.accent.ai} />
+          <Label position={[0, inboxH / 2 - 0.28, 0.24]} width={px(inboxW - 0.4)} className="flex select-none items-center gap-1.5 text-left">
             <ChatCircle size={icon} color={palette.ink.ai} style={{ ["--icon-accent" as string]: palette.ink.ai }} />
-            <span className="font-mono font-semibold uppercase tracking-[0.15em]" style={{ fontSize: font(9), color: palette.ink.ai }}>
+            <span className="min-w-0 truncate font-semibold" style={{ fontSize: font(10), color: palette.ink.ai }}>
               {labels.inbox}
             </span>
           </Label>
         </group>
 
-        {visible.map((row, index) => (
-          <group
-            key={row.name}
-            ref={(node) => {
-              rows.current[index] = node;
-            }}
-            position={[layout.inbox.at[0], rowY(index), 0.18]}
-          >
-            <Slab size={layout.row} color={sheet(palette)} roughness={0.58} castShadow />
-            <Bar position={[-rowW / 2 + 0.12, 0, rowD / 2 + 0.015]} size={[0.06, rowH * 0.66, 0.02]} color={channelTone(row.channel, palette)} />
-            {/* The selection ring the inbox draws on the open conversation. */}
-            <mesh position={[0, 0, -0.02]}>
-              <boxGeometry args={[rowW + 0.1, rowH + 0.1, 0.1]} />
-              <meshBasicMaterial
-                ref={(node) => {
-                  rowSelects.current[index] = node;
-                }}
-                color={palette.accent.ai}
-                transparent
-                opacity={0}
-              />
-            </mesh>
-            <Label position={[0.14, 0, rowD / 2 + 0.03]} width={px(rowW - 0.55)} className="select-none text-left">
-              <span className="flex items-center gap-1.5">
-                <ChannelMark channel={row.channel} size={font(10)} palette={palette} />
-                <span className="truncate font-semibold leading-none" style={{ fontSize: font(11.5), color: palette.panelInk }}>
-                  {row.name}
+        {visible.map((row, index) => {
+          const [x, y] = rowAt(layout, index);
+          return (
+            <group
+              key={row.name}
+              ref={(node) => {
+                rows.current[index] = node;
+              }}
+              position={[x, y, 0.18]}
+            >
+              <Slab size={layout.row} color={sheet(palette)} roughness={0.58} castShadow />
+              <Bar position={[-rowW / 2 + 0.12, 0, rowD / 2 + 0.015]} size={[0.06, rowH * 0.66, 0.02]} color={channelTone(row.channel, palette)} />
+              {/* The selection ring, set BEHIND the row's own slab so its edge
+                  shows rather than being buried inside it. */}
+              <mesh position={[0, 0, -rowD / 2 - 0.03]}>
+                <boxGeometry args={[rowW + 0.14, rowH + 0.14, 0.04]} />
+                <meshBasicMaterial
+                  ref={(node) => {
+                    rowSelects.current[index] = node;
+                  }}
+                  color={palette.accent.ai}
+                  transparent
+                  opacity={0}
+                />
+              </mesh>
+              <Label position={[0.12, 0, rowD / 2 + 0.02]} width={px(rowW - 0.66)} className="min-w-0 select-none overflow-hidden text-left">
+                <span className="flex min-w-0 items-center" style={{ gap: font(5) }}>
+                  <ChannelMark channel={row.channel} size={font(10)} palette={palette} />
+                  <span className="min-w-0 flex-1 truncate font-semibold leading-tight" style={{ fontSize: font(11.5), color: palette.panelInk }}>
+                    {row.name}
+                  </span>
                 </span>
-              </span>
-              <p className="mt-1.5 truncate leading-none" style={{ fontSize: font(9.5), color: palette.panelMuted }}>
-                {row.preview}
-              </p>
-            </Label>
-            {index === OPEN_ROW && (
-              <>
-                <mesh ref={ownerBadge} position={[rowW / 2 - 0.3, -rowH / 2 + 0.22, rowD / 2 + 0.04]} scale={0.001}>
+                <p className="truncate leading-tight" style={{ marginTop: font(4), fontSize: font(9.5), color: palette.panelMuted }}>
+                  {row.preview}
+                </p>
+              </Label>
+              {index === OPEN_ROW && (
+                <mesh ref={ownerBadge} position={[rowW / 2 - 0.28, -rowH / 2 + 0.2, rowD / 2 + 0.04]} scale={0.001}>
                   <sphereGeometry args={[0.11, 20, 20]} />
                   <meshStandardMaterial color={palette.accent.team} roughness={0.45} />
                 </mesh>
-              </>
-            )}
-          </group>
-        ))}
+              )}
+            </group>
+          );
+        })}
 
         {/* ── The thread: the conversation itself ───────────────────────── */}
         <group ref={thread} position={[layout.thread.at[0], layout.thread.at[1], 0]}>
           <Slab size={layout.thread.size} color={palette.board} radius={R.board} roughness={0.74} receiveShadow />
           {/* The wallpaper the real thread carries, as a face on the panel. */}
-          <mesh position={[0, -0.2, layout.thread.size[2] / 2 + 0.01]}>
-            <planeGeometry args={[layout.thread.size[0] - 0.24, layout.thread.size[1] - 1.5]} />
+          <mesh position={[0, -0.2, threadD / 2 + 0.01]}>
+            <planeGeometry args={[threadW - 0.24, layout.thread.size[1] - 1.5]} />
             <meshStandardMaterial ref={threadFace} color={sheetWell(palette)} transparent opacity={0.25} roughness={0.9} />
           </mesh>
           <Bar
-            position={[0, threadHalf - 0.72, layout.thread.size[2] / 2 + 0.02]}
-            size={[layout.thread.size[0] - 0.24, 0.025, 0.025]}
+            position={[0, layout.thread.size[1] / 2 - layout.threadRows.header - 0.3, threadD / 2 + 0.02]}
+            size={[threadW - 0.24, 0.025, 0.025]}
             color={palette.edge}
           />
-
-          <Label position={[0, threadHalf - 0.44, 0.28]} width={px(layout.thread.size[0] - 0.4)} className="flex select-none items-center gap-2 text-left">
+        {/* One bounded layout owns the entire thread. Messages wrap in normal
+            flow, and the text travels with the panel while it opens. */}
+        <Label
+          position={[0, 0, threadD / 2 + 0.025]}
+          width={px(threadW - 0.44)}
+          className="flex min-w-0 select-none flex-col overflow-hidden text-left"
+          style={{ height: px(threadH - 0.36), gap: font(8), color: palette.panelInk }}
+        >
+        <div className="flex min-w-0 shrink-0 items-center" style={{ gap: font(7), minHeight: px(0.52), borderBottom: `1px solid ${palette.edge}`, paddingBottom: font(6) }}>
+          <span
+            className="grid shrink-0 place-items-center rounded-full font-semibold"
+            style={{ width: font(22), height: font(22), backgroundColor: sheetChip(palette), color: palette.panelMuted, fontSize: font(9) }}
+          >
+            {labels.rows[OPEN_ROW]?.name.slice(0, 2).toUpperCase()}
+          </span>
+          <span className="min-w-0 flex-1">
+            <p className="truncate font-semibold leading-none" style={{ fontSize: font(12), color: palette.panelInk }}>
+              {labels.rows[OPEN_ROW]?.name}
+            </p>
+            <span className="mt-1 flex min-w-0 items-center gap-1">
+              <Sparkle size={font(9)} color={palette.ink.ai} style={{ ["--icon-accent" as string]: palette.ink.ai }} />
+              <span
+                ref={handler}
+                className="min-w-0 truncate leading-tight"
+                style={{ fontSize: font(8.5), color: palette.ink.ai, opacity: 0 }}
+              />
+            </span>
+          </span>
+        </div>
+        <div className="flex min-h-0 flex-1 flex-col justify-center" style={{ gap: font(compact ? 6 : 14) }}>
+        {(
+          [
+            [labels.thread.customer, "left", customerBubble, palette.bubble],
+            [labels.thread.ai, "right", aiBubble, palette.wash],
+            [labels.thread.human, "right", humanBubble, sheetChip(palette)],
+          ] as const
+        ).map(([text, side, ref, backgroundColor]) => (
+          <div
+            key={text}
+            ref={ref}
+            className={`flex min-w-0 shrink-0 ${side === "right" ? "justify-end" : "justify-start"}`}
+            style={{ opacity: 0 }}
+          >
+              <span
+                className={`block min-w-0 max-w-[92%] whitespace-normal leading-snug [overflow-wrap:anywhere] ${side === "right" ? "rounded-br-sm" : "rounded-bl-sm"}`}
+                style={{
+                  fontSize: font(10),
+                  color: bubbleFace,
+                  backgroundColor,
+                  padding: `${font(5)}px ${font(7)}px`,
+                  borderRadius: font(6),
+                }}
+              >
+                {text}
+              </span>
+          </div>
+        ))}
+        </div>
+          <div className="flex min-w-0 shrink-0 items-center" style={{ gap: font(6) }}>
             <span
-              className="grid shrink-0 place-items-center rounded-full font-semibold"
-              style={{ width: font(22), height: font(22), backgroundColor: sheetChip(palette), color: palette.panelMuted, fontSize: font(9) }}
+              className="flex min-w-0 flex-1 items-center rounded-full px-2"
+              style={{ height: font(21), backgroundColor: palette.bubble, border: `1px solid ${palette.edge}` }}
             >
-              {labels.rows[OPEN_ROW]?.name.slice(0, 2).toUpperCase()}
+              <span className="block rounded" style={{ width: "56%", height: 2, backgroundColor: palette.panelMuted, opacity: 0.5 }} />
             </span>
-            <span className="min-w-0 flex-1">
-              <p className="truncate font-semibold leading-none" style={{ fontSize: font(12), color: palette.panelInk }}>
-                {labels.rows[OPEN_ROW]?.name}
-              </p>
-              <span className="mt-1 flex items-center gap-1">
-                <Sparkle size={font(9)} color={palette.ink.ai} style={{ ["--icon-accent" as string]: palette.ink.ai }} />
-                <span
-                  ref={handler}
-                  className="truncate font-mono uppercase leading-none tracking-[0.14em]"
-                  style={{ fontSize: font(8.5), color: palette.ink.ai, opacity: 0 }}
-                />
-              </span>
+            <span className="grid shrink-0 place-items-center rounded-full" style={{ width: font(21), height: font(21), backgroundColor: palette.accent.ai }}>
+              <span
+                className="block"
+                style={{
+                  width: 0,
+                  height: 0,
+                  borderTop: `${font(4)}px solid transparent`,
+                  borderBottom: `${font(4)}px solid transparent`,
+                  borderLeft: `${font(7)}px solid #0D0F10`,
+                  marginLeft: 2,
+                }}
+              />
             </span>
-          </Label>
-
-          <Label position={[0, threadHalf - 1.5, 0.3]} width={px(layout.thread.size[0] - 0.5)} className="select-none">
-            <div ref={customerBubble} className="flex justify-start" style={{ opacity: 0 }}>
-              <span
-                className="inline-block max-w-[88%] rounded-lg rounded-bl-sm px-2 py-1.5 leading-snug"
-                style={{ fontSize: font(10), color: palette.panelInk, backgroundColor: palette.bubble }}
-              >
-                {labels.thread.customer}
-              </span>
-            </div>
-          </Label>
-          <Label position={[0, threadHalf - 2.5, 0.3]} width={px(layout.thread.size[0] - 0.5)} className="select-none">
-            <div ref={aiBubble} className="flex justify-end" style={{ opacity: 0 }}>
-              <span
-                className="inline-block max-w-[88%] rounded-lg rounded-br-sm px-2 py-1.5 leading-snug"
-                style={{ fontSize: font(10), color: palette.dark ? palette.panelInk : palette.cardInk, backgroundColor: palette.wash }}
-              >
-                {labels.thread.ai}
-              </span>
-            </div>
-          </Label>
-          <Label position={[0, threadHalf - 3.5, 0.3]} width={px(layout.thread.size[0] - 0.5)} className="select-none">
-            <div ref={humanBubble} className="flex justify-end" style={{ opacity: 0 }}>
-              <span
-                className="inline-block max-w-[88%] rounded-lg rounded-br-sm px-2 py-1.5 leading-snug"
-                style={{ fontSize: font(10), color: palette.dark ? palette.panelInk : palette.cardInk, backgroundColor: palette.wash }}
-              >
-                {labels.thread.human}
-              </span>
-            </div>
-          </Label>
-
-          {/* The composer, so the panel reads as a place you type. */}
-          <Label position={[0, -threadHalf + 0.42, 0.3]} width={px(layout.thread.size[0] - 0.4)} className="select-none">
-            <div className="flex items-center gap-1.5">
-              <span
-                className="flex flex-1 items-center rounded-full px-2"
-                style={{ height: font(21), backgroundColor: palette.bubble, border: `1px solid ${palette.edge}` }}
-              >
-                <span className="block rounded" style={{ width: "56%", height: 2, backgroundColor: palette.panelMuted, opacity: 0.5 }} />
-              </span>
-              <span
-                className="grid shrink-0 place-items-center rounded-full"
-                style={{ width: font(21), height: font(21), backgroundColor: palette.accent.ai }}
-              >
-                <span
-                  className="block"
-                  style={{
-                    width: 0,
-                    height: 0,
-                    borderTop: `${font(4)}px solid transparent`,
-                    borderBottom: `${font(4)}px solid transparent`,
-                    borderLeft: `${font(7)}px solid #0D0F10`,
-                    marginLeft: 2,
-                  }}
-                />
-              </span>
-            </div>
-          </Label>
+          </div>
+        </Label>
         </group>
 
         {/* ── The record: what the conversation writes down ─────────────── */}
         <group position={[layout.details.at[0], layout.details.at[1], 0]}>
           <Slab size={layout.details.size} color={sheetWell(palette)} radius={R.board} roughness={0.8} receiveShadow />
-          <Label
-            position={[0, detailsHalf - 0.34, 0.24]}
-            width={px(layout.details.size[0] - 0.3)}
-            className="flex select-none items-center gap-1.5 text-left"
-          >
-            <UserCircle size={icon} color={palette.panelMuted} style={{ ["--icon-accent" as string]: palette.accent.team }} />
-            <span className="truncate font-mono font-semibold uppercase tracking-[0.14em]" style={{ fontSize: font(9), color: palette.panelMuted }}>
-              {labels.details}
-            </span>
-          </Label>
-
-          <Label position={[0, detailsHalf - 1.05, 0.24]} width={px(layout.details.size[0] - 0.3)} className="select-none text-left">
-            <p className="font-mono uppercase leading-none tracking-[0.14em]" style={{ fontSize: font(8.5), color: palette.panelMuted }}>
-              {labels.stageLabel}
-            </p>
-            <div ref={stageChip} className="mt-1.5 flex items-center gap-1.5" style={{ opacity: 0 }}>
-              <Target size={font(10)} color={palette.ink.wait} style={{ ["--icon-accent" as string]: palette.accent.wait }} />
-              <span
-                className="inline-block truncate px-1.5 py-1 font-mono font-semibold uppercase tracking-[0.12em]"
-                style={{ fontSize: font(8.5), backgroundColor: palette.accent.wait, color: "#0D0F10" }}
-              >
-                {labels.stage}
-              </span>
-            </div>
-          </Label>
-
-          <Label position={[0, detailsHalf - 1.72, 0.24]} width={px(layout.details.size[0] - 0.3)} className="select-none text-left">
-            <p className="font-mono uppercase leading-none tracking-[0.14em]" style={{ fontSize: font(8.5), color: palette.panelMuted }}>
-              {labels.tagsLabel}
-            </p>
-          </Label>
-
-          <Label position={[0, -detailsHalf + 0.72, 0.24]} width={px(layout.details.size[0] - 0.3)} className="select-none text-left">
-            <p className="font-mono uppercase leading-none tracking-[0.14em]" style={{ fontSize: font(8.5), color: palette.panelMuted }}>
-              {labels.ownerLabel}
-            </p>
-            <div ref={ownerRow} className="mt-1.5 flex items-center gap-1.5" style={{ opacity: 0 }}>
-              <span
-                className="grid shrink-0 place-items-center rounded-full font-semibold"
-                style={{ width: font(18), height: font(18), backgroundColor: palette.accent.team, color: "#0D0F10", fontSize: font(8) }}
-              >
-                {labels.owner.slice(0, 2).toUpperCase()}
-              </span>
-              <span className="truncate font-semibold leading-none" style={{ fontSize: font(10.5), color: palette.panelInk }}>
-                {labels.owner}
-              </span>
-            </div>
-          </Label>
         </group>
+
+        <Label
+          position={[layout.details.at[0], detailY(layout, layout.detailRows.title), detailsD / 2 + 0.24]}
+          width={px(detailsW - 0.3)}
+          className="flex select-none items-center gap-1.5 text-left"
+        >
+          <UserCircle size={icon} color={palette.panelMuted} style={{ ["--icon-accent" as string]: palette.accent.team }} />
+          <span className="truncate font-mono font-semibold uppercase tracking-[0.14em]" style={{ fontSize: font(9), color: palette.panelMuted }}>
+            {labels.details}
+          </span>
+        </Label>
+
+        <Label
+          position={[layout.details.at[0], detailY(layout, layout.detailRows.stage), detailsD / 2 + 0.24]}
+          width={px(detailsW - 0.3)}
+          className="select-none text-left"
+        >
+          <p className="font-mono uppercase leading-none tracking-[0.14em]" style={{ fontSize: font(8.5), color: palette.panelMuted }}>
+            {labels.stageLabel}
+          </p>
+          <div ref={stageChip} className="mt-1.5 flex items-center gap-1.5" style={{ opacity: 0 }}>
+            <Target size={font(10)} color={palette.ink.wait} style={{ ["--icon-accent" as string]: palette.accent.wait }} />
+            <span
+              className="inline-block truncate px-1.5 py-1 font-mono font-semibold uppercase tracking-[0.12em]"
+              style={{ fontSize: font(8.5), backgroundColor: palette.accent.wait, color: "#0D0F10" }}
+            >
+              {labels.stage}
+            </span>
+          </div>
+        </Label>
+
+        <Label
+          position={[layout.details.at[0], detailY(layout, layout.detailRows.tags), detailsD / 2 + 0.24]}
+          width={px(detailsW - 0.3)}
+          className="flex select-none items-center gap-1.5 text-left"
+        >
+          <Bookmark size={font(10)} color={palette.panelMuted} style={{ ["--icon-accent" as string]: palette.accent.tag }} />
+          <span className="font-mono uppercase leading-none tracking-[0.14em]" style={{ fontSize: font(8.5), color: palette.panelMuted }}>
+            {labels.tagsLabel}
+          </span>
+        </Label>
+
+        <Label
+          position={[layout.details.at[0], ownerY(layout), detailsD / 2 + 0.24]}
+          width={px(detailsW - 0.3)}
+          className="select-none text-left"
+        >
+          <p className="font-mono uppercase leading-none tracking-[0.14em]" style={{ fontSize: font(8.5), color: palette.panelMuted }}>
+            {labels.ownerLabel}
+          </p>
+          <div ref={ownerRow} className="mt-1.5 flex items-center gap-1.5" style={{ opacity: 0 }}>
+            <span
+              className="grid shrink-0 place-items-center rounded-full font-semibold"
+              style={{ width: font(18), height: font(18), backgroundColor: palette.accent.team, color: "#0D0F10", fontSize: font(8) }}
+            >
+              {labels.owner.slice(0, 2).toUpperCase()}
+            </span>
+            <span className="truncate font-semibold leading-none" style={{ fontSize: font(10.5), color: palette.panelInk }}>
+              {labels.owner}
+            </span>
+          </div>
+        </Label>
 
         {/* The tags themselves, which fly from the conversation to the record. */}
         {tags.map((tag, index) => (
@@ -456,8 +445,8 @@ export function CrmScene({
             }}
             scale={0.001}
           >
-            <Slab size={[1.5, 0.34, 0.1]} color={sheetChip(palette)} radius={R.chip} roughness={0.7} />
-            <Label position={[0.04, 0, 0.1]} width={px(1.25)} className="flex select-none items-center gap-1.5 text-left">
+            <Slab size={layout.tag} color={sheetChip(palette)} radius={R.chip} roughness={0.7} castShadow />
+            <Label position={[0.04, 0, layout.tag[2] / 2 + 0.05]} width={px(layout.tag[0] - 0.25)} className="flex select-none items-center gap-1.5 text-left">
               <div
                 ref={(node) => {
                   tagLabels.current[index] = node;

@@ -6,7 +6,7 @@ import { MathUtils, type Group, type Mesh } from "three";
 import {
   Bar,
   CHANNEL,
-  Label,
+  PanelLabel as Label,
   R,
   Slab,
   StageLights,
@@ -20,6 +20,7 @@ import {
   useCompact,
   useDampedProgress,
   useFitScale,
+  usePanelType,
   type ScenePalette,
   type Vec3,
   type Window,
@@ -57,21 +58,21 @@ const WIDE: Layout = {
   trayAt: [-4.3, -0.2],
   trayHorizontal: false,
   slot: 0.86,
-  labelWidth: 122,
-  extent: [10.2, 7.2],
+  labelWidth: 144,
+  extent: [10.8, 8.2],
 };
 
 const COMPACT: Layout = {
-  ringAt: [0, -1.45],
-  radius: 1.74,
-  token: [1.52, 0.6, 0.13],
-  card: [1.44, 0.54, 0.13],
-  tray: [4.6, 0.92, 0.18],
+  ringAt: [0, -0.7],
+  radius: 2.0,
+  token: [1.8, 0.72, 0.13],
+  card: [1.8, 0.7, 0.13],
+  tray: [5.8, 1.05, 0.18],
   trayAt: [0, 2.6],
   trayHorizontal: true,
-  slot: 1.48,
-  labelWidth: 84,
-  extent: [5.0, 7.1],
+  slot: 1.92,
+  labelWidth: 152,
+  extent: [6.4, 8.4],
 };
 
 const ANGLES = [90, 18, -54, -126, 162].map((deg) => (deg * Math.PI) / 180);
@@ -201,8 +202,8 @@ function ConversationCard({
     <group ref={groupRef}>
       <Slab size={layout.card} color={sheet(palette)} roughness={0.58} />
       <Bar position={[-w / 2 + 0.12, 0, d / 2 + 0.015]} size={[0.06, h * 0.68, 0.02]} color={tone} />
-      <Label position={[0.2, 0, d / 2 + 0.02]} width={layout.labelWidth - 14} className="select-none text-left">
-        <p className="truncate font-semibold leading-none" style={{ fontSize: font(11), color: palette.panelInk }}>
+      <Label position={[0.12, 0, d / 2 + 0.02]} width={(w - 0.5) * 100} className="min-w-0 select-none overflow-hidden text-left">
+        <p className="line-clamp-2 font-semibold leading-tight [overflow-wrap:anywhere]" style={{ fontSize: font(10), color: palette.panelInk }}>
           {card.title}
         </p>
         <p className="mt-1 truncate font-mono leading-none" style={{ fontSize: font(8.5), color: palette.panelMuted }}>
@@ -212,10 +213,10 @@ function ConversationCard({
       {statusRef && (
         // Below the card, not above it: above, it landed on the attendant token
         // the card had just been dealt to.
-        <Label position={[0.2, -h / 2 - 0.22, d / 2 + 0.04]} width={layout.labelWidth} className="select-none text-right">
+        <Label position={[0, -h / 2 - 0.25, d / 2 + 0.04]} width={w * 100} className="select-none text-center">
           <span
             ref={statusRef}
-            className="inline-block px-1.5 py-1 font-mono font-semibold uppercase tracking-[0.12em]"
+            className="inline-block max-w-full rounded-sm px-1.5 py-1 text-center font-semibold leading-tight [overflow-wrap:anywhere]"
             style={{ opacity: 0, fontSize: font(8.5), backgroundColor: palette.accent.wait, color: "#0D0F10" }}
           />
         </Label>
@@ -242,8 +243,8 @@ export function RouletteScene({
   const statusText = useRef("");
   const compact = useCompact();
   const layout = compact ? COMPACT : WIDE;
-  const font = (n: number) => (compact ? Math.max(Math.round(n * 0.82 * 10) / 10, 8.7) : n);
   const ringScale = useFitScale(layout.extent[0], layout.extent[1]);
+  const { font } = usePanelType(ringScale);
   const cardTone = [CHANNEL.whatsapp, CHANNEL.instagram, CHANNEL.whatsapp];
   const conversations = labels.conversations.slice(0, cardTone.length);
   const members = labels.members.slice(0, ANGLES.length);
@@ -334,11 +335,11 @@ export function RouletteScene({
         />
         <Label
           position={[
-            layout.trayHorizontal ? layout.trayAt[0] - trayW / 2 + 0.5 : layout.trayAt[0],
+            layout.trayAt[0],
             layout.trayAt[1] + trayH / 2 + (layout.trayHorizontal ? 0.22 : -0.2),
             0.2,
           ]}
-          width={layout.labelWidth}
+          width={(trayW - 0.4) * 100}
           className="select-none text-left"
         >
           <p className="font-mono font-semibold uppercase tracking-[0.15em]" style={{ fontSize: font(9), color: palette.ink.ai }}>

@@ -11,6 +11,46 @@
   width: 100%;
   overflow: clip;
   background: hsl(var(--background));
+  isolation: isolate;
+}
+
+.root > header,
+.root > div[id="conteudo"] {
+  position: relative;
+  z-index: 1;
+}
+
+.circuitBackground {
+  position: fixed;
+  inset: 3rem 0 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.55;
+  mask-image: linear-gradient(90deg, #000, transparent 42%, transparent 65%, #000);
+  contain: strict;
+}
+
+.circuitFallback {
+  position: absolute;
+  right: -6%;
+  bottom: -12%;
+  width: min(60vw, 52rem);
+  height: 100%;
+  opacity: 0.35;
+}
+
+.providerTrust {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: 3rem;
+  padding: clamp(4rem, 8vw, 8rem) var(--landing-gutter);
+  border-bottom: 1px solid hsl(var(--border));
+  background: hsl(var(--background) / 0.8);
+}
+
+@media (min-width: 1024px) {
+  .providerTrust { grid-template-columns: 1fr minmax(15rem, 0.55fr); gap: 5rem; }
 }
 
 /* Hero: type on the left, the board's trace bundle climbing on the right. */
@@ -136,7 +176,7 @@
 .stage {
   position: relative;
   height: var(--stage-height, 280svh);
-  background: var(--landing-stage);
+  background: transparent;
 }
 
 .stageSticky {
@@ -145,7 +185,7 @@
   height: calc(100svh - 3rem);
   overflow: hidden;
   color: var(--landing-stage-ink);
-  background: var(--landing-stage);
+  background: hsl(var(--background) / 0.82);
 }
 
 /* With the frame gone, the room the scene sits in is drawn by light, not by a
@@ -164,6 +204,20 @@
 .stageSticky > * {
   position: relative;
   z-index: 1;
+}
+
+.crmTeam {
+  display: none;
+}
+
+@media (min-width: 1280px) and (min-height: 820px) {
+  .crmTeam {
+    display: block;
+    max-width: 24rem;
+    margin-bottom: 1.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid hsl(var(--border-strong));
+  }
 }
 
 .manifesto {

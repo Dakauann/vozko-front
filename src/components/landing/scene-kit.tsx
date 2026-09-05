@@ -183,6 +183,26 @@ export function useLabelPx(sceneScale: number) {
   return (units: number) => Math.max(20, Math.round((units * pxPerUnit) / LABEL_SCREEN_RATIO));
 }
 
+/** World-sized HTML for content printed on a moving panel (100 CSS px/unit). */
+export function usePanelType(sceneScale: number) {
+  const { size, viewport } = useThree();
+  const pixelsPerUnit = (size.height / viewport.height) * sceneScale;
+  return {
+    px: (units: number) => units * 100,
+    font: (size: number) => Math.min(size * 2.1, (size * LABEL_SCREEN_RATIO * 100) / pixelsPerUnit),
+  };
+}
+
+export function PanelLabel({ position, width, className, style, children }: LabelProps) {
+  return (
+    <Html transform position={position} distanceFactor={4} zIndexRange={[40, 0]} pointerEvents="none">
+      <div className={className} style={{ width, minWidth: 0, ...style }} aria-hidden="true" data-scene-label="panel">
+        {children}
+      </div>
+    </Html>
+  );
+}
+
 export type Vec3 = [number, number, number];
 export type Window = readonly [number, number];
 
@@ -234,7 +254,7 @@ export function useDampedProgress(
   reduced: boolean,
   onFrame: (value: number, delta: number, elapsed: number) => void,
 ) {
-  const smoothed = useRef(reduced ? 1 : 0);
+  const smoothed = useRef(reduced ? 1 : progress.get());
   useFrame((state, delta) => {
     const target = reduced ? 1 : progress.get();
     smoothed.current = MathUtils.damp(smoothed.current, target, 8, delta);
@@ -282,6 +302,8 @@ export function StageLights({
   warm?: string;
   reduced?: boolean;
 }) {
+  const { size } = useThree();
+  const shadowSize = size.width < 700 ? 1024 : 2048;
   const { ambient, key, fill, cool: coolIntensity, point } = palette.light;
   return (
     <>
@@ -296,7 +318,7 @@ export function StageLights({
         position={[4.5, 7, 8]}
         intensity={key}
         castShadow
-        shadow-mapSize={[2048, 2048]}
+        shadow-mapSize={[shadowSize, shadowSize]}
         shadow-bias={-0.0004}
         shadow-normalBias={0.02}
         shadow-camera-left={-10}
@@ -413,7 +435,7 @@ export function Label({ position, width, distanceFactor, className, style, child
   const factor = distanceFactor ?? size.height * LABEL_FACTOR_PER_PX;
   return (
     <Html center position={position} distanceFactor={factor} zIndexRange={[40, 0]} style={{ pointerEvents: "none" }}>
-      <div className={className} style={{ width, ...style }}>
+      <div className={className} style={{ width, minWidth: 0, overflowWrap: "anywhere", ...style }} data-scene-label="floating">
         {children}
       </div>
     </Html>
