@@ -16,6 +16,7 @@ import {
   smoothstep,
   useCompact,
   useDampedProgress,
+  PanelScale,
   useFitScale,
   usePanelType,
   type ScenePalette,
@@ -153,7 +154,7 @@ export function KnowledgeScene({
   const icon = font(12);
 
   return (
-    <>
+    <PanelScale scale={scale}>
       <StageLights reduced={reduced} palette={palette} cool={palette.accent.tag} />
       <group ref={stage} scale={scale} rotation={[-0.1, 0.14, 0]}>
         {/* The spine: one index, with a row per document rather than a pile. */}
@@ -259,6 +260,6 @@ export function KnowledgeScene({
           </div>
         </Label>
       </group>
-    </>
+    </PanelScale>
   );
 }

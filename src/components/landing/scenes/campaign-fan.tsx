@@ -15,6 +15,7 @@ import {
   smoothstep,
   useCompact,
   useDampedProgress,
+  PanelScale,
   useFitScale,
   usePanelType,
   type ScenePalette,
@@ -174,7 +175,7 @@ export function CampaignScene({
   });
 
   return (
-    <>
+    <PanelScale scale={scale}>
       <StageLights reduced={reduced} palette={palette} />
       <group ref={stage} scale={scale} rotation={[-0.12, 0.09, 0]}>
         {/* The approved template the campaign sends. */}
@@ -261,6 +262,6 @@ export function CampaignScene({
           </div>
         </Label>
       </group>
-    </>
+    </PanelScale>
   );
 }

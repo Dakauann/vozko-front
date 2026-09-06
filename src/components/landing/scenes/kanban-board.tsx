@@ -18,6 +18,7 @@ import {
   smoothWindow,
   useCompact,
   useDampedProgress,
+  PanelScale,
   useFitScale,
   usePanelType,
   type ScenePalette,
@@ -301,7 +302,7 @@ export function KanbanBoardScene({
   });
 
   return (
-    <>
+    <PanelScale scale={boardScale}>
       <StageLights reduced={reduced} palette={palette} />
       <group ref={board} scale={boardScale} rotation={[-0.105, 0.075, 0]}>
         {layout.columns.map(([x, y], index) => (
@@ -363,6 +364,6 @@ export function KanbanBoardScene({
           </mesh>
         </group>
       </group>
-    </>
+    </PanelScale>
   );
 }

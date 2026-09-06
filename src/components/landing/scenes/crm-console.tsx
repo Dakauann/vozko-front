@@ -20,6 +20,7 @@ import {
   smoothstep,
   useCompact,
   useDampedProgress,
+  PanelScale,
   useFitScale,
   usePanelType,
   type ScenePalette,
@@ -213,7 +214,7 @@ export function CrmScene({
   const bubbleFace = palette.dark ? palette.panelInk : palette.cardInk;
 
   return (
-    <>
+    <PanelScale scale={scale}>
       <StageLights reduced={reduced} palette={palette} />
       <group ref={stage} scale={scale} rotation={[-0.08, 0.16, 0]}>
         {/* ── The inbox: every channel, one queue ───────────────────────── */}
@@ -463,6 +464,6 @@ export function CrmScene({
           </group>
         ))}
       </group>
-    </>
+    </PanelScale>
   );
 }

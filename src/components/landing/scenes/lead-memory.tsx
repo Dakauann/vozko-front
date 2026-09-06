@@ -19,6 +19,7 @@ import {
   smoothstep,
   useCompact,
   useDampedProgress,
+  PanelScale,
   useFitScale,
   usePanelType,
   type ScenePalette,
@@ -307,7 +308,7 @@ export function MemoryScene({
   });
 
   return (
-    <>
+    <PanelScale scale={stageScale}>
       <StageLights reduced={reduced} palette={palette} accent={CHANNEL.whatsapp} cool={CHANNEL.instagram} />
       <group ref={stage} scale={stageScale} rotation={[-0.1, 0.07, 0]}>
         {/* WhatsApp conversation */}
@@ -498,6 +499,6 @@ export function MemoryScene({
           </group>
         ))}
       </group>
-    </>
+    </PanelScale>
   );
 }

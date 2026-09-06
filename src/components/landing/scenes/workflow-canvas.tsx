@@ -14,6 +14,7 @@ import {
   smoothstep,
   useCompact,
   useDampedProgress,
+  PanelScale,
   useFitScale,
   usePanelType,
   type ScenePalette,
@@ -301,7 +302,7 @@ export function WorkflowScene({
   const packetSize = compact ? 0.14 : 0.17;
 
   return (
-    <>
+    <PanelScale scale={boardScale}>
       <StageLights reduced={reduced} palette={palette} cool={palette.accent.tag} />
       <group ref={board} scale={boardScale} rotation={[-0.1, 0.06, 0]}>
         <Slab
@@ -362,6 +363,6 @@ export function WorkflowScene({
           <meshBasicMaterial ref={ghostMaterial} color={palette.rim} transparent opacity={0.5} />
         </mesh>
       </group>
-    </>
+    </PanelScale>
   );
 }

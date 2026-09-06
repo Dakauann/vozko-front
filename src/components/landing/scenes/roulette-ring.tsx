@@ -19,6 +19,7 @@ import {
   smoothstep,
   useCompact,
   useDampedProgress,
+  PanelScale,
   useFitScale,
   usePanelType,
   type ScenePalette,
@@ -291,7 +292,7 @@ export function RouletteScene({
   });
 
   return (
-    <>
+    <PanelScale scale={ringScale}>
       <StageLights reduced={reduced} palette={palette} />
       <group ref={ring} scale={ringScale} rotation={[-0.12, 0.08, 0]}>
         <group position={[layout.ringAt[0], layout.ringAt[1], 0]}>
@@ -368,6 +369,6 @@ export function RouletteScene({
           />
         ))}
       </group>
-    </>
+    </PanelScale>
   );
 }

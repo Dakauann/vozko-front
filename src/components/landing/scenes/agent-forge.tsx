@@ -12,6 +12,7 @@ import {
   smoothWindow,
   useCompact,
   useDampedProgress,
+  PanelScale,
   useFitScale,
   usePanelType,
   type ScenePalette,
@@ -166,7 +167,7 @@ export function AgentScene({
   });
 
   return (
-    <>
+    <PanelScale scale={scale}>
       <StageLights reduced={reduced} palette={palette} cool={palette.accent.tag} />
       <group ref={stage} scale={scale} rotation={[-0.14, 0.1, 0]}>
         {/* The bench the agent is assembled on. */}
@@ -240,6 +241,6 @@ export function AgentScene({
           );
         })}
       </group>
-    </>
+    </PanelScale>
   );
 }

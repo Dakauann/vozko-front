@@ -3,7 +3,7 @@
 import { Html, RoundedBox } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import type { MotionValue } from "framer-motion";
-import { useRef, type CSSProperties, type ReactNode } from "react";
+import { createContext, useContext, useRef, type CSSProperties, type ReactNode } from "react";
 import { MathUtils, type DirectionalLight, type MeshStandardMaterial } from "three";
 
 /**
@@ -160,17 +160,26 @@ export const STAGE_CAMERA = {
   far: 40,
 };
 
-/**
- * drei sizes a `distanceFactor` label against the canvas, not against the
- * geometry, so a fixed factor renders text at wildly different sizes on a
- * desktop frame and a phone one (measured: 8px vs 16px for the same source).
- * Deriving the factor from the canvas height instead keeps in-scene text at a
- * predictable on-screen size everywhere, and each scene then picks its CSS
- * sizes for its own composition.
- */
-const LABEL_FACTOR_PER_PX = 0.0167;
 /** Measured screen px per CSS px at that factor, constant across viewports. */
 const LABEL_SCREEN_RATIO = 1.152;
+
+/**
+ * Panel text used to be printed into the scene with drei's `transform` mode,
+ * which projects the DOM through a CSS 3D matrix. WebKit does not carry the
+ * perspective across that preserve-3d chain: on iOS every label collapsed to
+ * no height and drifted off the plate it belonged to, while Chromium was fine.
+ * Labels are placed in screen space now, which every engine agrees on, and the
+ * scene's own fit scale is what sizes them.
+ *
+ * drei scales a screen-space label by `distanceFactor / viewport.height`, so
+ * this factor is exactly what keeps "100 CSS px is one world unit" true on
+ * screen, which is the convention every scene's widths are written in.
+ */
+const PanelScaleContext = createContext(1);
+
+export function PanelScale({ scale, children }: { scale: number; children: ReactNode }) {
+  return <PanelScaleContext.Provider value={scale}>{children}</PanelScaleContext.Provider>;
+}
 
 /**
  * On a small canvas the on-screen target would demand a font several times the
@@ -184,17 +193,6 @@ const LABEL_SCREEN_RATIO = 1.152;
  */
 const FONT_CEILING = 1.85;
 
-/**
- * The CSS width a label needs to cover a given span of the scene. Hand-picked
- * widths cannot track a scene that rescales itself, which is how text ended up
- * over the colour bar it was supposed to sit beside.
- */
-export function useLabelPx(sceneScale: number) {
-  const { size, viewport } = useThree();
-  const pxPerUnit = (size.height / viewport.height) * sceneScale;
-  return (units: number) => Math.max(20, Math.round((units * pxPerUnit) / LABEL_SCREEN_RATIO));
-}
-
 /** World-sized HTML for content printed on a moving panel (100 CSS px/unit). */
 export function usePanelType(sceneScale: number) {
   const { size, viewport } = useThree();
@@ -206,8 +204,16 @@ export function usePanelType(sceneScale: number) {
 }
 
 export function PanelLabel({ position, width, className, style, children }: LabelProps) {
+  const sceneScale = useContext(PanelScaleContext);
+  const height = useThree(state => state.size.height);
   return (
-    <Html transform position={position} distanceFactor={4} zIndexRange={[40, 0]} pointerEvents="none">
+    <Html
+      center
+      position={position}
+      distanceFactor={(height * sceneScale) / 100}
+      zIndexRange={[40, 0]}
+      style={{ pointerEvents: "none" }}
+    >
       <div className={className} style={{ width, minWidth: 0, ...style }} aria-hidden="true" data-scene-label="panel">
         {children}
       </div>
@@ -448,21 +454,7 @@ export function Bar({ position, size, color }: { position: Vec3; size: Vec3; col
 type LabelProps = {
   position: Vec3;
   width: number;
-  distanceFactor?: number;
   className?: string;
   style?: CSSProperties;
   children: ReactNode;
 };
-
-/** DOM text pinned to a point in the scene. Never interactive: the stage is a picture. */
-export function Label({ position, width, distanceFactor, className, style, children }: LabelProps) {
-  const { size } = useThree();
-  const factor = distanceFactor ?? size.height * LABEL_FACTOR_PER_PX;
-  return (
-    <Html center position={position} distanceFactor={factor} zIndexRange={[40, 0]} style={{ pointerEvents: "none" }}>
-      <div className={className} style={{ width, minWidth: 0, overflowWrap: "anywhere", ...style }} data-scene-label="floating">
-        {children}
-      </div>
-    </Html>
-  );
-}
