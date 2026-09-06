@@ -5,7 +5,7 @@ import type { MotionValue } from "framer-motion";
 import { useRef } from "react";
 import { MathUtils, type Group, type Mesh, type MeshBasicMaterial, type MeshStandardMaterial } from "three";
 import {
-  Label,
+  PanelLabel as Label,
   R,
   Slab,
   StageLights,
@@ -15,6 +15,7 @@ import {
   useCompact,
   useDampedProgress,
   useFitScale,
+  usePanelType,
   type ScenePalette,
   type Vec3,
   type Window,
@@ -64,7 +65,7 @@ const WIDE: Layout = {
   node: [1.95, 0.8, 0.18],
   canvas: [10.4, 4.9, 0.12],
   canvasAt: [0, -0.15],
-  labelWidth: 150,
+  labelWidth: 165,
   yesAt: [2.62, 1.29],
   noAt: [1.02, -0.15],
   extent: [10.4, 5.0],
@@ -81,10 +82,10 @@ const COMPACT: Layout = {
     schedule: [-1.25, -1.5],
     human: [1.25, -2.85],
   },
-  node: [2.2, 0.72, 0.16],
+  node: [2.2, 0.92, 0.16],
   canvas: [4.9, 6.5, 0.12],
   canvasAt: [0, -0.1],
-  labelWidth: 132,
+  labelWidth: 188,
   yesAt: [0.95, -0.72],
   noAt: [-0.95, -0.72],
   extent: [4.9, 6.6],
@@ -94,12 +95,12 @@ const COMPACT: Layout = {
 // handoff. The packet follows the "yes" branch; the "no" branch is shown taken
 // at half light so the decision reads as a real fork.
 const NODES: NodeSpec[] = [
-  { key: "trigger", tone: "neutral", kind: "trigger", window: [0.0, 0.1] },
-  { key: "agent", tone: "ai", kind: "ai", window: [0.18, 0.3] },
-  { key: "condition", tone: "wait", kind: "condition", window: [0.38, 0.5] },
-  { key: "assign", tone: "team", kind: "action", window: [0.62, 0.72] },
-  { key: "schedule", tone: "neutral", kind: "action", window: [0.62, 0.72], dim: true },
-  { key: "human", tone: "team", kind: "human", window: [0.82, 0.95], hold: true },
+  { key: "trigger", tone: "neutral", kind: "trigger", window: [0.02, 0.12] },
+  { key: "agent", tone: "ai", kind: "ai", window: [0.28, 0.4] },
+  { key: "condition", tone: "wait", kind: "condition", window: [0.52, 0.62] },
+  { key: "assign", tone: "team", kind: "action", window: [0.64, 0.73] },
+  { key: "schedule", tone: "neutral", kind: "action", window: [0.64, 0.73], dim: true },
+  { key: "human", tone: "team", kind: "human", window: [0.84, 0.95], hold: true },
 ];
 
 function toneColor(tone: Tone, palette: ScenePalette) {
@@ -126,11 +127,11 @@ function makeEdges(l: Layout): EdgeSpec[] {
     dim,
   });
   return [
-    link("trigger", "agent", [0.06, 0.2], "neutral"),
-    link("agent", "condition", [0.24, 0.4], "ai"),
-    link("condition", "assign", [0.48, 0.64], "wait"),
-    link("assign", "human", [0.68, 0.84], "team"),
-    link("condition", "schedule", [0.48, 0.64], "neutral", true),
+    link("trigger", "agent", [0.14, 0.27], "neutral"),
+    link("agent", "condition", [0.42, 0.52], "ai"),
+    link("condition", "assign", [0.6, 0.7], "wait"),
+    link("assign", "human", [0.76, 0.86], "team"),
+    link("condition", "schedule", [0.6, 0.7], "neutral", true),
   ];
 }
 const PACKET_EDGES = [0, 1, 2, 3];
@@ -195,10 +196,10 @@ function NodeSlab({
           colour and in the dark scene the panel colour. */}
       <Slab size={layout.node} color={palette.dark ? palette.board : palette.card} roughness={0.7} />
       <Label position={[0.04, 0, d / 2 + 0.02]} width={layout.labelWidth} className="select-none text-left">
-        <p className="truncate font-semibold leading-none" style={{ fontSize: font(12), color: palette.panelInk, opacity: spec.dim ? 0.6 : 1 }}>
+        <p className="line-clamp-2 font-semibold leading-tight [overflow-wrap:anywhere]" style={{ fontSize: font(10), color: palette.panelInk, opacity: spec.dim ? 0.6 : 1 }}>
           {labels.nodes[spec.key]}
         </p>
-        <p className="mt-1.5 truncate font-mono uppercase leading-none tracking-[0.15em]" style={{ fontSize: font(8.5), color: palette.panelMuted }}>
+        <p className="mt-1 truncate font-mono uppercase leading-tight tracking-[0.1em]" style={{ fontSize: font(7), color: palette.panelMuted }}>
           {labels.kinds[spec.kind]}
         </p>
       </Label>
@@ -228,8 +229,8 @@ export function WorkflowScene({
   const ghostMaterial = useRef<MeshBasicMaterial>(null);
   const compact = useCompact();
   const layout = compact ? COMPACT : WIDE;
-  const font = (n: number) => (compact ? Math.max(Math.round(n * 0.82 * 10) / 10, 8.7) : n);
   const boardScale = useFitScale(layout.extent[0], layout.extent[1]);
+  const { font } = usePanelType(boardScale);
   const edges = makeEdges(layout);
 
   useDampedProgress(progress, reduced, (t, delta) => {

@@ -66,11 +66,11 @@ const COMPACT: Layout = {
 
 /** The passage that answers the question. */
 const MATCH = 1;
-const ASK: Window = [0.05, 0.22];
-const SEEK: Window = [0.24, 0.46];
-const LIFT: Window = [0.46, 0.62];
-const ANSWER: Window = [0.64, 0.84];
-const CITE: Window = [0.82, 0.95];
+const ASK: Window = [0.04, 0.18];
+const SEEK: Window = [0.28, 0.46];
+const LIFT: Window = [0.54, 0.7];
+const ANSWER: Window = [0.78, 0.9];
+const CITE: Window = [0.88, 0.97];
 
 export function KnowledgeScene({
   progress,

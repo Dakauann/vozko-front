@@ -74,12 +74,12 @@ function channelTone(channel: CrmChannel, palette: ScenePalette) {
   return channel === "livechat" ? palette.accent.team : CHANNEL[channel];
 }
 
-const ARRIVE: Window = [0.0, 0.17];
-const OPEN: Window = [0.2, 0.35];
-const CUSTOMER: Window = [0.38, 0.46];
-const AI_REPLY: Window = [0.5, 0.6];
-const CLASSIFY: Window = [0.62, 0.76];
-const ASSIGN: Window = [0.8, 0.93];
+const ARRIVE: Window = [0.0, 0.16];
+const OPEN: Window = [0.22, 0.36];
+const CUSTOMER: Window = [0.42, 0.5];
+const AI_REPLY: Window = [0.52, 0.6];
+const CLASSIFY: Window = [0.64, 0.78];
+const ASSIGN: Window = [0.84, 0.95];
 
 /** Each row drops in on its own beat, so the queue fills rather than appears. */
 const rowWindow = (index: number, total: number): Window => {

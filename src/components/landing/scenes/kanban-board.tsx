@@ -82,19 +82,21 @@ const SLOT = [1.45, 0.25, -0.95, -2.15] as const;
 const HEADER_BAR = 0.34;
 const HEADER_TEXT = 0.16;
 
-// Six leads on the board. The windows never overlap: exactly one card is in
-// the air at a time, because the agent can only carry one, and two cards
-// crossing at once read as the board moving itself.
+// Six leads on the board, moving in the four quarters the copy steps own: one
+// card arrives, the AI sorts the next, the team pushes two along, and the last
+// move is the one that reaches Won. The windows never overlap: exactly one
+// card is in the air at a time, because the agent can only carry one, and two
+// cards crossing at once read as the board moving itself.
 const ROUTES: Route[] = [
-  { stops: [0, 1, 2], windows: [[0.04, 0.17], [0.80, 0.93]], y: SLOT[0] },
-  { stops: [0, 1], windows: [[0.23, 0.36]], y: SLOT[1] },
-  { stops: [1, 2], windows: [[0.42, 0.55]], y: SLOT[2] },
-  { stops: [2, 3], windows: [[0.61, 0.74]], y: SLOT[3] },
+  { stops: [0, 1, 2], windows: [[0.05, 0.17], [0.53, 0.64]], y: SLOT[0] },
+  { stops: [0, 1], windows: [[0.30, 0.42]], y: SLOT[1] },
+  { stops: [1, 2], windows: [[0.65, 0.74]], y: SLOT[2] },
+  { stops: [2, 3], windows: [[0.80, 0.92]], y: SLOT[3] },
   { stops: [0], windows: [], y: SLOT[2] },
   { stops: [1], windows: [], y: SLOT[3] },
 ];
 
-/** Every move on the board, in the order the scroll performs them. */
+/** Every move on the board, in the order the loop performs them. */
 const MOVES = ROUTES.flatMap((route, cardIndex) =>
   route.windows.map((window) => ({ cardIndex, window })),
 ).sort((a, b) => a.window[0] - b.window[0]);
@@ -174,7 +176,7 @@ function BoardCard({
         className="select-none text-left"
         style={{ color: palette.panelInk }}
       >
-        <p className="truncate font-semibold leading-tight" style={{ fontSize: font(12) }}>
+        <p className="truncate font-semibold leading-tight" style={{ fontSize: font(11.5) }}>
           {card.title}
         </p>
         {!compact && (

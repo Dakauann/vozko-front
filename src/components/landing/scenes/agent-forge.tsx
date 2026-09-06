@@ -4,7 +4,7 @@ import type { MotionValue } from "framer-motion";
 import { useRef } from "react";
 import { MathUtils, type Group, type Mesh, type MeshStandardMaterial } from "three";
 import {
-  Label,
+  PanelLabel as Label,
   StageLights,
   arc,
   sheet,
@@ -13,6 +13,7 @@ import {
   useCompact,
   useDampedProgress,
   useFitScale,
+  usePanelType,
   type ScenePalette,
   type Vec3,
   type Window,
@@ -40,34 +41,34 @@ const WIDE: Layout = {
   core: 1.15,
   module: 0.62,
   orbit: 2.75,
-  labelWidth: 150,
+  labelWidth: 220,
   labelDrop: 1.05,
-  extent: [9.2, 6.6],
+  extent: [9.2, 8.0],
 };
 
 const COMPACT: Layout = {
   core: 0.95,
   module: 0.55,
   orbit: 2.15,
-  labelWidth: 106,
+  labelWidth: 200,
   labelDrop: 0.9,
-  extent: [5.6, 6.6],
+  extent: [6.8, 7.2],
 };
 
 // The four things an agent is actually made of, each entering from its own
 // quarter and locking into the core.
 const MODULES: ModuleSpec[] = [
-  { angle: 135, tone: "tag", window: [0.06, 0.24] },
-  { angle: 45, tone: "team", window: [0.26, 0.44] },
-  { angle: -45, tone: "ai", window: [0.46, 0.64] },
-  { angle: -135, tone: "wait", window: [0.66, 0.84] },
+  { angle: 135, tone: "tag", window: [0.05, 0.2] },
+  { angle: 45, tone: "team", window: [0.3, 0.45] },
+  { angle: -45, tone: "ai", window: [0.55, 0.7] },
+  { angle: -135, tone: "wait", window: [0.78, 0.9] },
 ];
-const READY: Window = [0.86, 0.98];
+const READY: Window = [0.92, 0.99];
 
 const rad = (deg: number) => (deg * Math.PI) / 180;
 const dockAt = (spec: ModuleSpec, l: Layout): Vec3 => [l.orbit * Math.cos(rad(spec.angle)), l.orbit * Math.sin(rad(spec.angle)), 0];
-/** Modules arrive from far outside, along their own axis. */
-const startAt = (spec: ModuleSpec, l: Layout): Vec3 => [(l.orbit + 4.2) * Math.cos(rad(spec.angle)), (l.orbit + 4.2) * Math.sin(rad(spec.angle)), -1.2];
+/** Keep the entire assembly path inside the bench's framing. */
+const startAt = (spec: ModuleSpec, l: Layout): Vec3 => [(l.orbit + 0.6) * Math.cos(rad(spec.angle)), (l.orbit + 0.6) * Math.sin(rad(spec.angle)), -1.2];
 
 /** A six-sided prism. The workflow editor already speaks in hexagons for the agent. */
 function Hex({
@@ -114,8 +115,8 @@ export function AgentScene({
   const readyLabel = useRef<HTMLDivElement | null>(null);
   const compact = useCompact();
   const layout = compact ? COMPACT : WIDE;
-  const font = (n: number) => (compact ? Math.max(Math.round(n * 0.82 * 10) / 10, 8.7) : n);
   const scale = useFitScale(layout.extent[0], layout.extent[1]);
+  const { font } = usePanelType(scale);
   const items = labels.modules.slice(0, MODULES.length);
   const beamLength = layout.orbit - layout.core - layout.module + 0.1;
 
@@ -190,7 +191,7 @@ export function AgentScene({
           <Hex radius={layout.core + 0.09} depth={0.42} color={palette.accent.ai} materialRef={(node) => (coreRim.current = node)} />
           <Hex radius={layout.core} depth={0.5} color={sheet(palette)} />
         </group>
-        <Label position={[0, 0, 0.34]} width={layout.labelWidth} className="select-none text-center">
+        <Label position={[0, 0, 0.34]} width={layout.core * 170} className="select-none text-center">
           <p className="font-display font-semibold leading-none" style={{ fontSize: font(15), color: palette.panelInk }}>
             {labels.core}
           </p>

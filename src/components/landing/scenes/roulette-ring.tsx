@@ -53,11 +53,11 @@ const WIDE: Layout = {
   ringAt: [0.55, -0.1],
   radius: 2.7,
   token: [1.72, 0.66, 0.14],
-  card: [1.7, 0.62, 0.14],
+  card: [1.7, 0.94, 0.14],
   tray: [1.95, 5.0, 0.2],
   trayAt: [-4.3, -0.2],
   trayHorizontal: false,
-  slot: 0.86,
+  slot: 1.08,
   labelWidth: 144,
   extent: [10.8, 8.2],
 };
@@ -66,8 +66,8 @@ const COMPACT: Layout = {
   ringAt: [0, -0.7],
   radius: 2.0,
   token: [1.8, 0.72, 0.13],
-  card: [1.8, 0.7, 0.13],
-  tray: [5.8, 1.05, 0.18],
+  card: [1.8, 0.94, 0.13],
+  tray: [5.8, 1.3, 0.18],
   trayAt: [0, 2.6],
   trayHorizontal: true,
   slot: 1.92,
@@ -102,10 +102,10 @@ type Flight = { card: number; seat: number; window: Window };
 // skipped). The rescue sweep then moves the conversation Ana never opened on
 // to Bia, the next member of the ring.
 const FLIGHTS: Flight[] = [
-  { card: 0, seat: 0, window: [0.05, 0.24] },
-  { card: 1, seat: 1, window: [0.32, 0.5] },
-  { card: 2, seat: 3, window: [0.58, 0.74] },
-  { card: 0, seat: 4, window: [0.8, 0.94] },
+  { card: 0, seat: 0, window: [0.04, 0.22] },
+  { card: 1, seat: 1, window: [0.28, 0.46] },
+  { card: 2, seat: 3, window: [0.54, 0.72] },
+  { card: 0, seat: 4, window: [0.82, 0.95] },
 ];
 /** (progress, degrees) keyframes for the dealer arc; it only ever moves clockwise. */
 const ARC_KEYS: Array<[number, number]> = [
@@ -118,7 +118,7 @@ const ARC_KEYS: Array<[number, number]> = [
   [0.88, -198],
   [1, -198],
 ];
-const UNOPENED_WINDOW: Window = [0.7, 0.76];
+const UNOPENED_WINDOW: Window = [0.76, 0.82];
 const RESCUE_AT = 0.84;
 
 function arcAngle(t: number) {
@@ -168,9 +168,9 @@ function Token({
           <p className="truncate font-semibold leading-none" style={{ fontSize: font(11), color: offline ? palette.offlineInk : palette.panelInk }}>
             {member.name}
           </p>
-          <span className="mt-1 flex items-center gap-1">
+          <span className="mt-1 flex items-start gap-1">
             <i className="block shrink-0 rounded-full" style={{ width: badge * 0.55, height: badge * 0.55, backgroundColor: dot }} />
-            <span className="truncate font-mono leading-none" style={{ fontSize: font(8.5), color: offline ? palette.offlineInk : palette.panelMuted }}>
+            <span className="min-w-0 whitespace-normal font-mono leading-tight [overflow-wrap:anywhere]" style={{ fontSize: font(7), color: offline ? palette.offlineInk : palette.panelMuted }}>
               {member.presence}
             </span>
           </span>

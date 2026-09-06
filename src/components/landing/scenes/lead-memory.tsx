@@ -64,47 +64,47 @@ const WIDE: Layout = {
   ig: [3.75, -0.05],
   panel: [3.0, 4.9, 0.2],
   card: [2.9, 4.0, 0.18],
-  chip: [2.4, 0.42, 0.1],
+  chip: [2.4, 0.56, 0.1],
   rows: { title: 0.45, first: 1.45, second: 2.25, composer: 0.4 },
   cardRows: { lead: 0.55, memories: 1.12 },
-  slotY: [0.4, -0.1, -0.6],
-  context: { at: [0, -1.05], size: [2.6, 1.85], titleY: -0.3 },
-  ghost: { from: -0.72, step: 0.42, size: [2.4, 0.36] },
+  slotY: [0.35, -0.3, -0.95],
+  context: { at: [0, -1.05], size: [2.6, 2.4], titleY: 0 },
+  ghost: { from: -0.65, step: 0.63, size: [2.4, 0.58] },
   labelWidth: 190,
-  extent: [10.6, 5.2],
+  extent: [10.8, 6.2],
 };
 
 // Both channels share a full-width memory record below them on small screens.
 const COMPACT: Layout = {
-  wa: [-1.75, 1.5],
+  wa: [-1.75, 1.75],
   record: [0, -2.6],
-  ig: [1.75, 1.5],
-  panel: [3.2, 4.4, 0.16],
-  card: [6.7, 2.8, 0.16],
-  chip: [6.1, 0.46, 0.09],
+  ig: [1.75, 1.75],
+  panel: [3.2, 4.9, 0.16],
+  card: [6.7, 3.2, 0.16],
+  chip: [6.1, 0.56, 0.09],
   rows: { title: 0.4, first: 1.4, second: 2.4, composer: 0.36 },
-  cardRows: { lead: 0.4, memories: 0.85 },
-  slotY: [0.05, -0.5, -1.05],
-  context: { at: [0, -1.05], size: [2.9, 1.85], titleY: -0.32 },
-  ghost: { from: -0.75, step: 0.48, size: [2.8, 0.42] },
+  cardRows: { lead: 0.45, memories: 1.05 },
+  slotY: [0, -0.65, -1.3],
+  context: { at: [0, -1.05], size: [2.9, 2.4], titleY: 0 },
+  ghost: { from: -0.65, step: 0.63, size: [2.8, 0.58] },
   labelWidth: 280,
-  extent: [7.3, 8.6],
+  extent: [7.6, 9.2],
 };
 
 type ChipFlight = { fromPanel: "wa" | "below"; dy: number; window: Window; tone: "ai" | "team" };
 // Two facts come from the AI mid-conversation, one is typed by an operator from
 // the inbox panel below the record. All three land on the same list.
 const CHIP_FLIGHTS: ChipFlight[] = [
-  { fromPanel: "wa", dy: 0.45, window: [0.16, 0.32], tone: "ai" },
-  { fromPanel: "below", dy: -2.6, window: [0.38, 0.52], tone: "team" },
-  { fromPanel: "wa", dy: -0.6, window: [0.5, 0.64], tone: "ai" },
+  { fromPanel: "wa", dy: 0.45, window: [0.14, 0.28], tone: "ai" },
+  { fromPanel: "below", dy: -2.6, window: [0.36, 0.5], tone: "team" },
+  { fromPanel: "wa", dy: -0.6, window: [0.52, 0.64], tone: "ai" },
 ];
-const ghostWindow = (index: number): Window => [0.74 + index * 0.03, 0.88 + index * 0.03];
+const ghostWindow = (index: number): Window => [0.82 + index * 0.03, 0.93 + index * 0.03];
 const WA_CUSTOMER: Window = [0.02, 0.1];
 const WA_AI: Window = [0.1, 0.18];
-const IG_LIT: Window = [0.62, 0.72];
-const IG_BUBBLE: Window = [0.68, 0.76];
-const CONTEXT_BLOCK: Window = [0.72, 0.84];
+const IG_LIT: Window = [0.7, 0.8];
+const IG_BUBBLE: Window = [0.76, 0.84];
+const CONTEXT_BLOCK: Window = [0.8, 0.9];
 
 function setOpacity(node: HTMLElement | null, value: number) {
   if (node) node.style.opacity = String(value);
@@ -256,7 +256,7 @@ export function MemoryScene({
   const slotAt = (index: number): Vec3 => [layout.record[0], layout.record[1] + layout.slotY[index], layout.card[2] / 2 + 0.14];
   const contextRowAt = (index: number): Vec3 => [layout.ig[0], layout.ig[1] + layout.ghost.from - index * layout.ghost.step, 0.34];
   const chipFrom = (flight: ChipFlight): Vec3 =>
-    flight.fromPanel === "wa" ? [layout.wa[0], layout.wa[1] + flight.dy, 0.6] : [layout.record[0], layout.record[1] + flight.dy, 0.7];
+    flight.fromPanel === "wa" ? [layout.wa[0], layout.wa[1] + flight.dy, 0.6] : [layout.record[0], layout.record[1] - 1.4, 0.7];
 
   useDampedProgress(progress, reduced, (t, delta) => {
     setOpacity(waCustomer.current, smoothWindow(t, WA_CUSTOMER));
@@ -362,7 +362,7 @@ export function MemoryScene({
             <p className="font-mono uppercase tracking-[0.15em]" style={{ fontSize: font(9), color: palette.panelMuted }}>
               {labels.lead}
             </p>
-            <p className="mt-1 font-semibold leading-none" style={{ fontSize: font(13), color: palette.panelInk }}>
+            <p className="mt-1 font-semibold leading-tight" style={{ fontSize: font(13), color: palette.panelInk }}>
               {labels.name}
             </p>
           </Label>

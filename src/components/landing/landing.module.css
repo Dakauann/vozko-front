@@ -12,6 +12,7 @@
   overflow: clip;
   background: hsl(var(--background));
   isolation: isolate;
+  overflow-wrap: anywhere;
 }
 
 .root > header,
@@ -171,46 +172,244 @@
   box-shadow: var(--shadow-quiet);
 }
 
-/* Pinned stages: the kanban set the grammar, every 3D chapter reuses it. */
+/* Chapters: each one is a self-playing panel, and the kanban set the grammar. */
 
 .stage {
   position: relative;
-  height: var(--stage-height, 280svh);
-  background: transparent;
-}
-
-.stageSticky {
-  position: sticky;
-  top: 3rem;
-  height: calc(100svh - 3rem);
-  overflow: hidden;
+  padding: clamp(3.5rem, 6vw, 6rem) var(--landing-gutter);
+  border-top: 1px solid hsl(var(--border));
   color: var(--landing-stage-ink);
   background: hsl(var(--background) / 0.82);
 }
 
-/* With the frame gone, the room the scene sits in is drawn by light, not by a
-   border: one soft pool under the object and a cool wash at the far edge. */
-.stageSticky::before {
+/* The room the scene sits in is drawn by light, not by a border: one soft pool
+   under the object and a cool wash at the far edge. */
+.stage::before {
   content: "";
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(58% 46% at 62% 48%, hsl(var(--primary) / 0.07), transparent 72%),
-    radial-gradient(38% 34% at 12% 78%, hsl(var(--info) / 0.05), transparent 74%);
+    radial-gradient(58% 46% at 62% 58%, hsl(var(--primary) / 0.07), transparent 72%),
+    radial-gradient(38% 34% at 12% 82%, hsl(var(--info) / 0.05), transparent 74%);
 }
 
-.stageSticky > * {
+.stageInner {
   position: relative;
   z-index: 1;
+  width: min(100%, 80rem);
+  margin: 0 auto;
+}
+
+/* The chapter names itself, then hands straight over to the demonstration:
+   only the eyebrow and the headline stand above the rail, so the title is
+   never more than the rail's height away from the thing it is naming. */
+
+.stageEyebrow {
+  font-family: var(--landing-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: hsl(var(--primary));
+}
+
+.stageTitle {
+  max-width: 20ch;
+  margin-top: 0.8rem;
+  font-family: var(--font-oxanium), sans-serif;
+  font-size: clamp(2.35rem, 5.2vw, 4.5rem);
+  font-weight: 600;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+  color: hsl(var(--foreground));
+}
+
+/* The loop's own instrument: one segment per step, filling as it plays. */
+
+.stageRail {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  margin-top: clamp(1.75rem, 3vw, 2.5rem);
+}
+
+.stageTicks {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  gap: 0.5rem;
+}
+
+.stageTick {
+  flex: 1;
+  min-width: 0;
+  padding-block: 0.6rem;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.stageTickTrack {
+  display: block;
+  position: relative;
+  height: 2px;
+  overflow: hidden;
+  background: hsl(var(--border-strong));
+}
+
+.stageTick[data-active] .stageTickTrack { background: hsl(var(--primary) / 0.28); }
+
+.stageTickFill {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  background: hsl(var(--primary));
+}
+
+.stagePlay {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid hsl(var(--border-strong));
+  border-radius: var(--radius);
+  font-family: var(--landing-mono);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  transition: color 160ms, border-color 160ms;
+}
+
+/* Stacked, the sentence that frames the chapter comes before the animation and
+   the stepping caption after it, which is the order they are read in. */
+.stageBody {
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 2rem);
+  margin-top: clamp(1rem, 2vw, 1.5rem);
+}
+
+.stageLede {
+  max-width: 52ch;
+  font-size: clamp(1rem, 1.2vw, 1.15rem);
+  line-height: 1.6;
+  color: hsl(var(--muted-foreground));
+}
+
+.stageScene {
+  position: relative;
+  min-width: 0;
+  height: clamp(22rem, 92vw, 34rem);
+}
+
+.stageCanvas {
+  position: absolute;
+  inset: 0;
+}
+
+.stageCopy { min-width: 0; }
+
+/* Every step occupies the same cell, so the panel never resizes under a swap. */
+.stageSteps {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 13rem;
+}
+
+.stageStep {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: start;
+  min-width: 0;
+}
+
+.stageStepIndex {
+  font-family: var(--landing-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: hsl(var(--primary));
+}
+
+.stageStepTitle {
+  margin-top: 0.6rem;
+  max-width: 22ch;
+  font-family: var(--font-oxanium), sans-serif;
+  font-size: clamp(1.45rem, 1.9vw, 1.95rem);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+  color: hsl(var(--foreground));
+}
+
+.stageStepBody {
+  max-width: 44ch;
+  margin-top: 0.8rem;
+  font-size: clamp(0.95rem, 1.05vw, 1.02rem);
+  line-height: 1.65;
+  color: hsl(var(--muted-foreground));
+}
+
+@media (min-width: 1024px) {
+  /* Beside the scene, the framing sentence and the stepping caption become one
+     column that starts at the top of the animation, so the headline, the
+     sentence under it and the step being played all read in a single sweep. */
+  .stageBody {
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: clamp(1rem, 1.6vw, 1.35rem) clamp(1.5rem, 2.2vw, 2rem);
+  }
+
+  .stage[data-side="left"] .stageBody {
+    grid-template-columns: minmax(16rem, 0.38fr) minmax(0, 1fr);
+    grid-template-areas: "lede scene" "copy scene";
+  }
+
+  .stage[data-side="right"] .stageBody {
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.38fr);
+    grid-template-areas: "scene lede" "scene copy";
+  }
+
+  .stageLede { grid-area: lede; max-width: none; }
+  .stageCopy {
+    grid-area: copy;
+    position: sticky;
+    top: 7rem;
+    align-self: start;
+  }
+
+  /* The size the pinned stage used to hand it: the viewport less its chrome,
+     and a reach back out to the page's edge. Only the scene reaches; the type
+     keeps the measure it shares with the hero and the manifesto. */
+  .stageScene {
+    grid-area: scene;
+    height: max(26rem, 85svh);
+    margin-inline-end: min(0px, calc(2.5rem - max(var(--landing-gutter), 50vw - 40rem)));
+  }
+
+  .stage[data-side="right"] .stageScene {
+    margin-inline: min(0px, calc(2.5rem - max(var(--landing-gutter), 50vw - 40rem))) 0;
+  }
+
+  .stageSteps { min-height: 14rem; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .stagePlay:hover { color: hsl(var(--foreground)); border-color: hsl(var(--foreground) / 0.4); }
+  .stageTick:hover .stageTickTrack { background: hsl(var(--primary) / 0.35); }
 }
 
 .crmTeam {
   display: none;
 }
 
-@media (min-width: 1280px) and (min-height: 820px) {
+@media (min-width: 1280px) {
   .crmTeam {
     display: block;
     max-width: 24rem;
@@ -228,7 +427,7 @@
 
 .manifestoGrid {
   display: grid;
-  grid-template-columns: minmax(8rem, 0.25fr) minmax(18rem, 1fr) minmax(16rem, 0.48fr);
+  grid-template-columns: minmax(0, 0.25fr) minmax(0, 1fr) minmax(0, 0.48fr);
   gap: 2rem clamp(2rem, 6vw, 6rem);
   align-items: start;
   width: min(100%, 80rem);
@@ -269,7 +468,7 @@
 
 .finalCtaInner {
   display: grid;
-  grid-template-columns: minmax(8rem, 0.22fr) minmax(18rem, 1fr) minmax(16rem, 0.42fr);
+  grid-template-columns: minmax(0, 0.22fr) minmax(0, 1fr) minmax(0, 0.42fr);
   gap: 2rem clamp(2rem, 6vw, 6rem);
   align-items: end;
   width: min(100%, 80rem);
@@ -277,6 +476,10 @@
 }
 
 .finalIndex { color: var(--landing-stage-muted); }
+
+.heroGrid > *,
+.manifestoGrid > *,
+.finalCtaInner > * { min-width: 0; }
 
 .finalCta h2 {
   font-family: var(--font-oxanium), sans-serif;
@@ -346,7 +549,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .stage { height: 115svh; }
+  /* Nothing plays itself, so every step is on the page at once. */
+  .stageSteps { min-height: 0; gap: clamp(1.75rem, 3vw, 2.5rem); }
+  .stageStep { grid-row: auto; }
+  .stagePlay { display: none; }
   .button { transition: none; }
   .button:hover,
   .button:active { transform: none; }

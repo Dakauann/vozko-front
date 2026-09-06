@@ -6,7 +6,7 @@ import { ArrowRight } from "@/components/icons";
 import { Link } from "@/i18n/routing";
 import styles from "./landing.module.css";
 import { Hero, type HeroLabels } from "./hero";
-import { StageSection, type StageLabels } from "./stage";
+import { StageSection, type StageControlLabels, type StageLabels } from "./stage";
 import { FeatureAtlas, type FeatureGroup } from "./feature-atlas";
 import type { CrmSceneLabels } from "./scenes/crm-console";
 import { CrmTeam } from "./crm-team";
@@ -30,7 +30,7 @@ const CampaignScene = lazy(() => import("./scenes/campaign-fan").then(m => ({ de
 const KnowledgeScene = lazy(() => import("./scenes/knowledge-index").then(m => ({ default: m.KnowledgeScene })));
 
 type StageCopy = {
-  scroll: string;
+  controls: StageControlLabels;
   crm: StageLabels & CrmSceneLabels;
   workflow: StageLabels & WorkflowSceneLabels;
   roulette: StageLabels & RouletteSceneLabels;
@@ -43,7 +43,7 @@ type StageCopy = {
 export function LandingPage({ brandName }: { brandName: string }) {
   const t = useTranslations("landing");
   const hero = t.raw("hero") as HeroLabels;
-  const kanban = t.raw("kanban") as StageLabels & KanbanSceneLabels & { scroll: string };
+  const kanban = t.raw("kanban") as StageLabels & KanbanSceneLabels;
   const stages = t.raw("stages") as StageCopy;
   const featureGroups = t.raw("atlas.groups") as FeatureGroup[];
 
@@ -63,8 +63,7 @@ export function LandingPage({ brandName }: { brandName: string }) {
         <StageSection
           id="atendimento"
           labels={stages.crm}
-          scroll={stages.scroll}
-          height={430}
+          controls={stages.controls}
           overview={<CrmTeam labels={stages.crm.team} />}
           scene={(progress, reduced, palette) => <CrmScene progress={progress} reduced={reduced} labels={stages.crm} palette={palette} />}
         />
@@ -72,8 +71,7 @@ export function LandingPage({ brandName }: { brandName: string }) {
         <StageSection
           id="fluxo"
           labels={kanban}
-          scroll={kanban.scroll}
-          height={365}
+          controls={stages.controls}
           scene={(progress, reduced, palette) => <KanbanBoardScene progress={progress} reduced={reduced} labels={kanban} palette={palette} />}
         />
 
@@ -93,42 +91,39 @@ export function LandingPage({ brandName }: { brandName: string }) {
           id="workflows"
           side="right"
           labels={stages.workflow}
-          scroll={stages.scroll}
+          controls={stages.controls}
           scene={(progress, reduced, palette) => <WorkflowScene progress={progress} reduced={reduced} labels={stages.workflow} palette={palette} />}
         />
         <StageSection
           id="roulette"
           labels={stages.roulette}
-          scroll={stages.scroll}
+          controls={stages.controls}
           scene={(progress, reduced, palette) => <RouletteScene progress={progress} reduced={reduced} labels={stages.roulette} palette={palette} />}
         />
         <StageSection
           id="memory"
           side="right"
           labels={stages.memory}
-          scroll={stages.scroll}
+          controls={stages.controls}
           scene={(progress, reduced, palette) => <MemoryScene progress={progress} reduced={reduced} labels={stages.memory} palette={palette} />}
         />
         <StageSection
           id="agentes"
           labels={stages.agent}
-          scroll={stages.scroll}
-          height={250}
+          controls={stages.controls}
           scene={(progress, reduced, palette) => <AgentScene progress={progress} reduced={reduced} labels={stages.agent} palette={palette} />}
         />
         <StageSection
           id="campanhas"
           side="right"
           labels={stages.campaign}
-          scroll={stages.scroll}
-          height={250}
+          controls={stages.controls}
           scene={(progress, reduced, palette) => <CampaignScene progress={progress} reduced={reduced} labels={stages.campaign} palette={palette} />}
         />
         <StageSection
           id="conhecimento"
           labels={stages.knowledge}
-          scroll={stages.scroll}
-          height={250}
+          controls={stages.controls}
           scene={(progress, reduced, palette) => <KnowledgeScene progress={progress} reduced={reduced} labels={stages.knowledge} palette={palette} />}
         />
 

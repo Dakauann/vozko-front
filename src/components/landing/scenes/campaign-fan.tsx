@@ -54,7 +54,7 @@ const WIDE: Layout = {
   queueAt: [1.5, -2.5],
   queue: [4.0, 0.5, 0.16],
   labelWidth: 150,
-  extent: [9.6, 6.4],
+  extent: [11.4, 6.6],
 };
 
 const COMPACT: Layout = {
@@ -71,10 +71,10 @@ const COMPACT: Layout = {
   extent: [4.6, 8.4],
 };
 
-/** Which contacts answer. Fixed, so the story is the same on every scroll. */
+/** Which contacts answer. Fixed, so the story is the same on every loop. */
 const REPLIES = [2, 5, 9, 14, 18];
-const SEND: Window = [0.06, 0.6];
-const REPLY: Window = [0.58, 0.94];
+const SEND: Window = [0.05, 0.55];
+const REPLY: Window = [0.7, 0.95];
 const SEND_TRAVEL = 0.16;
 const REPLY_TRAVEL = 0.2;
 

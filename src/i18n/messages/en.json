@@ -11553,25 +11553,77 @@
       "secondaryCta": "See the flow"
     },
     "kanban": {
-      "aria": "A three-dimensional prospection funnel moves cards from new leads to won as the page advances.",
-      "rail": "Live flow",
-      "scroll": "Scroll to move",
-      "columns": ["New leads", "In contact", "Proposal", "Won"],
+      "rail": "Sales funnel",
+      "title": "Watch a chat turn into a sale.",
+      "lede": "Every conversation becomes a card on your funnel. The AI sorts it, your team moves it, and the whole pipeline stays in one place.",
+      "aria": "A three-dimensional sales funnel moves cards from new leads through to won while the demo plays.",
+      "columns": [
+        "New leads",
+        "In contact",
+        "Proposal",
+        "Won"
+      ],
       "cards": [
-        { "title": "Marina Alves", "meta": "Quote for 12 units", "channel": "whatsapp", "owner": "AN" },
-        { "title": "Northeast Wholesale", "meta": "Recurring order", "channel": "whatsapp", "owner": "DA" },
-        { "title": "Horizonte Store", "meta": "Came from the ad", "channel": "instagram", "owner": "BI" },
-        { "title": "Annual renewal", "meta": "Proposal sent", "channel": "whatsapp", "owner": "RU" },
-        { "title": "Vida Clinic", "meta": "Asked for a call today", "channel": "instagram", "owner": "AN" },
-        { "title": "Pilar Construction", "meta": "Negotiating the deadline", "channel": "telegram", "owner": "DA" }
+        {
+          "title": "Marina Alves",
+          "meta": "Quote for 12 units",
+          "channel": "whatsapp",
+          "owner": "AN"
+        },
+        {
+          "title": "Northeast Wholesale",
+          "meta": "Recurring order",
+          "channel": "whatsapp",
+          "owner": "DA"
+        },
+        {
+          "title": "Horizonte Store",
+          "meta": "Came from the ad",
+          "channel": "instagram",
+          "owner": "BI"
+        },
+        {
+          "title": "Annual renewal",
+          "meta": "Proposal sent",
+          "channel": "whatsapp",
+          "owner": "RU"
+        },
+        {
+          "title": "Vida Clinic",
+          "meta": "Asked for a call today",
+          "channel": "instagram",
+          "owner": "AN"
+        },
+        {
+          "title": "Pilar Construction",
+          "meta": "Negotiating the deadline",
+          "channel": "telegram",
+          "owner": "DA"
+        }
       ],
+      "agent": "AI",
       "steps": [
-        { "number": "01", "title": "Everything enters through one door", "body": "WhatsApp, Instagram, Telegram and live chat land in the same queue, on the same record and the same stages." },
-        { "number": "02", "title": "AI organizes the first move", "body": "Classification, summary and automatic tags arrive before the team touches the card." },
-        { "number": "03", "title": "A person takes over without restarting", "body": "History, intent and ownership stay on the same record, on any channel." },
-        { "number": "04", "title": "The conversation becomes an opportunity", "body": "Value, stage and follow-up stay connected through to the close." }
-      ],
-      "agent": "AI"
+        {
+          "number": "01",
+          "title": "A new conversation becomes a lead",
+          "body": "Whoever writes you gets a card on the same board, whichever channel they came from."
+        },
+        {
+          "number": "02",
+          "title": "AI sorts it before anyone reads it",
+          "body": "It summarises the chat, adds tags and drops the card into the right column."
+        },
+        {
+          "number": "03",
+          "title": "Your team moves the deal along",
+          "body": "Drag a card or let a rule do it. The full chat history travels with it."
+        },
+        {
+          "number": "04",
+          "title": "The deal closes on the same board",
+          "body": "Value, stage and the next follow-up stay on the card, right through to won."
+        }
+      ]
     },
     "manifesto": {
       "eyebrow": "The principle",
@@ -11585,10 +11637,11 @@
     },
     "stages": {
       "loading": "Preparing the demo…",
-      "scroll": "Scroll to move",
       "crm": {
-        "rail": "Service",
-        "aria": "An omnichannel CRM brings WhatsApp, Instagram, Telegram and live chat together. Multiple human attendants and AI agents work simultaneously in team inboxes. Permissions control who can see each conversation. AI answers, organizes the contact and hands off to a person with the full history.",
+        "rail": "Shared inbox",
+        "title": "All your customer chats in one inbox.",
+        "lede": "WhatsApp, Instagram, Telegram and your website chat arrive in the same place, so nobody switches apps to answer one person.",
+        "aria": "An omnichannel inbox receives a conversation, a person opens it, an AI agent replies, the record is tagged and a human attendant takes over.",
         "inbox": "Inbox",
         "rows": [
           {
@@ -11634,33 +11687,6 @@
         "owner": "Ana Ribeiro",
         "byAi": "AI answering",
         "byHuman": "Ana took over",
-        "steps": [
-          {
-            "number": "01",
-            "title": "Every channel. One operation.",
-            "body": "WhatsApp, Instagram, Telegram and live chat in the same CRM. Keep messages, media and conversation history together without switching apps."
-          },
-          {
-            "number": "02",
-            "title": "Separate inboxes. Teams in parallel.",
-            "body": "Sales, support and customer success serve customers at the same time, each with their own inbox and owners. Route conversations by department and see who is handling each one."
-          },
-          {
-            "number": "03",
-            "title": "Your people and AI, side by side.",
-            "body": "AI agents reply while human attendants work on other conversations. When a person takes over, the messages and context come with them, so service continues where AI left off."
-          },
-          {
-            "number": "04",
-            "title": "Every conversation builds your CRM.",
-            "body": "Tags, funnel stage and contact details stay with the conversation. Read the history, add internal notes and organize the next step in one place."
-          },
-          {
-            "number": "05",
-            "title": "The right access for every attendant.",
-            "body": "Set permissions so each person sees only authorized conversations, keeping other teams’ inboxes private. When you transfer a conversation, its full history follows the new owner."
-          }
-        ],
         "team": {
           "title": "Your team at work",
           "status": "In parallel",
@@ -11689,12 +11715,47 @@
             }
           ],
           "privacy": "Each attendant sees only the conversations they can access."
-        }
+        },
+        "steps": [
+          {
+            "number": "01",
+            "title": "Every channel lands in one inbox",
+            "body": "WhatsApp, Instagram, Telegram and live chat queue up together, each with its history attached."
+          },
+          {
+            "number": "02",
+            "title": "Your teams work side by side",
+            "body": "Sales, support and success each get their own inbox, and you can see who owns every conversation."
+          },
+          {
+            "number": "03",
+            "title": "AI answers while your team works",
+            "body": "An AI agent handles the easy questions in parallel with your people, inside the same conversation."
+          },
+          {
+            "number": "04",
+            "title": "Every chat updates the customer record",
+            "body": "Tags, funnel stage and contact details are saved as you talk, with no separate CRM to fill in."
+          },
+          {
+            "number": "05",
+            "title": "A person takes over without a restart",
+            "body": "The messages and context follow the handoff, and permissions decide who can open which conversation."
+          }
+        ]
       },
       "workflow": {
-        "rail": "Workflow",
-        "aria": "A message travels through a trigger, an AI agent, a decision and a human handoff on a three-dimensional workflow canvas.",
-        "kinds": { "trigger": "Trigger", "ai": "AI", "condition": "Condition", "action": "Action", "human": "Human" },
+        "rail": "Automations",
+        "title": "Build the follow-up once. It runs every time.",
+        "lede": "Drag steps onto a canvas to say what happens after a message arrives: who answers, what gets checked, and when a person should step in.",
+        "aria": "On a three-dimensional canvas a message passes through a trigger, an AI agent, a branching condition and a handoff to a person.",
+        "kinds": {
+          "trigger": "Trigger",
+          "ai": "AI",
+          "condition": "Condition",
+          "action": "Action",
+          "human": "Human"
+        },
         "nodes": {
           "trigger": "Message arrives",
           "agent": "AI agent",
@@ -11706,38 +11767,100 @@
           "human": "Human takes over"
         },
         "steps": [
-          { "number": "01", "title": "A trigger starts the journey", "body": "First message, webhook or a reply. The workflow begins on the same record the inbox already knows." },
-          { "number": "02", "title": "The AI decides with context", "body": "The agent reads the conversation, extracts what matters and routes by condition, without leaving the canvas." },
-          { "number": "03", "title": "A person receives it without a restart", "body": "Assignment, scheduling and handoff act on the same history. The team sees every step it did not have to take." }
+          {
+            "number": "01",
+            "title": "It starts when a message arrives",
+            "body": "A first contact, a reply or a webhook sets the flow running on that customer's record."
+          },
+          {
+            "number": "02",
+            "title": "The AI reads and decides",
+            "body": "It goes through the conversation, pulls out what matters and picks the next step."
+          },
+          {
+            "number": "03",
+            "title": "The flow branches on what it found",
+            "body": "Each path can assign an owner, schedule a message or wait, without you touching it."
+          },
+          {
+            "number": "04",
+            "title": "A person picks it up fully briefed",
+            "body": "The handoff carries the whole history, so your team sees every step it did not have to take."
+          }
         ]
       },
       "roulette": {
-        "rail": "Roulette",
-        "aria": "Incoming conversations are dealt in turn to a ring of attendants; absent members are skipped and unopened conversations are reassigned.",
+        "rail": "Chat distribution",
+        "title": "New chats go to whoever is actually free.",
+        "lede": "Instead of everyone racing for the same conversation, each new one is handed to the next attendant in line, and anybody absent is skipped.",
+        "aria": "Incoming conversations are dealt in turn around a ring of attendants; an offline member is skipped and a conversation nobody opened is passed on.",
         "incoming": "Incoming",
         "unopened": "Not opened",
         "rescue": "Reassigned",
         "members": [
-          { "name": "Ana", "presence": "online" },
-          { "name": "Davi", "presence": "online" },
-          { "name": "Lia", "presence": "offline · 3 days" },
-          { "name": "Rui", "presence": "seen 2 h ago" },
-          { "name": "Bia", "presence": "online" }
+          {
+            "name": "Ana",
+            "presence": "online"
+          },
+          {
+            "name": "Davi",
+            "presence": "online"
+          },
+          {
+            "name": "Lia",
+            "presence": "offline · 3 days"
+          },
+          {
+            "name": "Rui",
+            "presence": "seen 2 h ago"
+          },
+          {
+            "name": "Bia",
+            "presence": "online"
+          }
         ],
         "conversations": [
-          { "title": "Marina Alves", "meta": "WhatsApp" },
-          { "title": "Horizonte Store", "meta": "Instagram" },
-          { "title": "Northeast Wholesale", "meta": "WhatsApp" }
+          {
+            "title": "Marina Alves",
+            "meta": "WhatsApp"
+          },
+          {
+            "title": "Horizonte Store",
+            "meta": "Instagram"
+          },
+          {
+            "title": "Northeast Wholesale",
+            "meta": "WhatsApp"
+          }
         ],
         "steps": [
-          { "number": "01", "title": "Each conversation is dealt in turn", "body": "Round robin per department and number. The next attendant in the ring receives the next conversation, on every channel." },
-          { "number": "02", "title": "Only who is really there enters the ring", "body": "By default, connected attendants. Optionally, anyone seen online inside a window you set. Past it, they leave the ring." },
-          { "number": "03", "title": "Nobody waits on an absent owner", "body": "A conversation nobody opened in time moves on to the next attendant. The history stays whole." }
+          {
+            "number": "01",
+            "title": "Each new chat goes to the next in line",
+            "body": "A plain rotation, per team and per number, across every channel you run."
+          },
+          {
+            "number": "02",
+            "title": "Then the next one, and the next",
+            "body": "Nobody collects three conversations while a colleague beside them sits empty."
+          },
+          {
+            "number": "03",
+            "title": "Anyone who is away is skipped",
+            "body": "Only attendants who are connected stay in the rotation, or anyone seen inside a window you set."
+          },
+          {
+            "number": "04",
+            "title": "A chat nobody opened moves on",
+            "body": "If the assigned attendant does not open it in time, it passes to the next person with its history intact."
+          }
         ]
       },
       "memory": {
-        "rail": "Memory",
-        "aria": "Facts noted during a WhatsApp conversation attach to the lead and reappear when the same person writes on Instagram.",
+        "rail": "Customer memory",
+        "title": "Your customers never repeat themselves.",
+        "lede": "A delivery preference, an objection, a promise you made: the facts worth keeping are saved on the person, and whoever opens that chat later already knows.",
+        "aria": "Facts noted during a WhatsApp conversation attach to the customer and reappear in the agent's context when the same person writes on Instagram.",
         "lead": "Lead",
         "name": "Marina Alves",
         "memories": "Memories",
@@ -11747,60 +11870,156 @@
         "ai": "Noted. Morning delivery it is.",
         "later": "Hi, it's Marina. Same order as last time.",
         "items": [
-          { "text": "Prefers morning delivery", "by": "AI agent" },
-          { "text": "Pays by bank slip", "by": "Operator" },
-          { "text": "Refused the annual plan twice", "by": "AI agent" }
+          {
+            "text": "Prefers morning delivery",
+            "by": "AI agent"
+          },
+          {
+            "text": "Pays by bank slip",
+            "by": "Operator"
+          },
+          {
+            "text": "Refused the annual plan twice",
+            "by": "AI agent"
+          }
         ],
         "context": "In the agent's context",
         "steps": [
-          { "number": "01", "title": "The agent writes down what matters", "body": "Preference, objection, commitment. Small facts saved as separate entries, each with its author and date." },
-          { "number": "02", "title": "The team sees and edits the same list", "body": "The same memories appear in the inbox panel and on the lead page, with author and date." },
-          { "number": "03", "title": "Memory follows the person, not the channel", "body": "The lead writes on Instagram weeks later. The agent already knows, because memory belongs to the person." }
+          {
+            "number": "01",
+            "title": "The AI writes down what matters",
+            "body": "A preference, an objection, a commitment. Each saved as its own note, with who added it and when."
+          },
+          {
+            "number": "02",
+            "title": "Your team reads and edits the same notes",
+            "body": "The list shows in the inbox and on the customer's page. Correct it, add to it, remove what is stale."
+          },
+          {
+            "number": "03",
+            "title": "The memory follows the person, not the channel",
+            "body": "They write on Instagram weeks later and the agent already knows, because the notes belong to them."
+          }
         ]
       },
       "agent": {
-        "rail": "Agents",
-        "aria": "An AI agent is assembled piece by piece: instructions, tools, knowledge base and channel lock into a core that lights up.",
+        "rail": "AI agents",
+        "title": "You decide exactly how your AI answers.",
+        "lede": "An agent is assembled from parts you choose: what it should say, what it is allowed to do, what it can look up and where it works.",
+        "aria": "An AI agent is assembled piece by piece: instructions, tools, knowledge and channel lock into a core that lights up when it is ready.",
         "core": "Agent",
         "ready": "ready to work",
         "modules": [
-          { "title": "Instructions", "meta": "tone and limits" },
-          { "title": "Tools", "meta": "actions in the CRM" },
-          { "title": "Knowledge", "meta": "bases with RAG" },
-          { "title": "Channel", "meta": "where it answers" }
+          {
+            "title": "Instructions",
+            "meta": "tone and limits"
+          },
+          {
+            "title": "Tools",
+            "meta": "actions in the CRM"
+          },
+          {
+            "title": "Knowledge",
+            "meta": "bases with RAG"
+          },
+          {
+            "title": "Channel",
+            "meta": "where it answers"
+          }
         ],
         "steps": [
-          { "number": "01", "title": "An agent is assembled, not improvised", "body": "Instructions, tone and limits are explicit. You can read what the agent may and may not do." },
-          { "number": "02", "title": "Tools and knowledge lock in as parts", "body": "RAG knowledge bases and CRM actions are added one at a time, and can be removed the same way." },
-          { "number": "03", "title": "It joins the queue alongside the team", "body": "The agent works the same inbox and the same record, and hands the conversation to a person when it should." }
+          {
+            "number": "01",
+            "title": "Write the rules it has to follow",
+            "body": "Its tone, what it should offer and what it must never say, in plain language you can read back."
+          },
+          {
+            "number": "02",
+            "title": "Give it actions it is allowed to take",
+            "body": "Tag a contact, move a funnel stage, hand over to a person. It can only do what you switch on."
+          },
+          {
+            "number": "03",
+            "title": "Connect what your company knows",
+            "body": "Point it at your own documents and it answers from them instead of improvising."
+          },
+          {
+            "number": "04",
+            "title": "Put it on a channel and it starts",
+            "body": "It joins the same inbox as your team, on the number you choose, and hands over when it should."
+          }
         ]
       },
       "campaign": {
         "rail": "Campaigns",
-        "aria": "An approved template goes out to a CRM audience and the replies come back into the service queue.",
+        "title": "Send to thousands. Reply to each one.",
+        "lede": "Pick an audience from your CRM, send an approved template, and every answer comes back as a real conversation in the inbox.",
+        "aria": "An approved template goes out to an audience drawn from the CRM, and the replies come back into the service queue.",
         "template": "Approved template",
         "audience": "CRM audience",
         "queue": "Replies in the queue",
         "replied": "replied",
         "steps": [
-          { "number": "01", "title": "One approved message, many destinations", "body": "The template leaves the CRM already segmented, with each contact's variables filled in." },
-          { "number": "02", "title": "Sending has pacing and variation", "body": "Batches, pauses and different versions of the message, set by you." },
-          { "number": "03", "title": "The reply returns to the queue", "body": "Whoever answers becomes an assigned conversation, with the campaign history on the same lead." }
+          {
+            "number": "01",
+            "title": "One approved message, a chosen audience",
+            "body": "Filter contacts by what the CRM already knows, and each message goes out with that person's details filled in."
+          },
+          {
+            "number": "02",
+            "title": "It goes out at a pace you set",
+            "body": "Batches, pauses and different wordings, so the send behaves like a person rather than a blast."
+          },
+          {
+            "number": "03",
+            "title": "Answers land back in the inbox",
+            "body": "Whoever replies becomes an assigned conversation, with the campaign recorded on their contact."
+          }
         ]
       },
       "knowledge": {
-        "rail": "Knowledge",
-        "aria": "Company documents become an index; a question goes in, lights the passage that answers it and comes out with the source cited.",
-        "title": "Knowledge base",
-        "docs": ["Commercial policy", "Delivery times", "Payment methods", "Frequently asked questions", "Price list"],
+        "rail": "Knowledge base",
+        "title": "Answers come from your documents, not guesswork.",
+        "lede": "Upload your policies, prices and FAQs. The agent looks up the passage that answers the question and shows which document it came from.",
+        "aria": "Company documents become an index; a question lights the passage that answers it, and the answer comes out with its source cited.",
+        "docs": [
+          "Commercial policy",
+          "Delivery times",
+          "Payment methods",
+          "Frequently asked questions",
+          "Price list"
+        ],
         "question": "What is the delivery time for the Northeast?",
         "answer": "Four to seven business days on that method.",
         "source": "source",
         "steps": [
-          { "number": "01", "title": "What the company knows becomes an index", "body": "PDFs, text and pages are split into passages and indexed. The agent looks them up before answering." },
-          { "number": "02", "title": "The answer points at where it came from", "body": "Every answer carries the document behind it, and the team checks the source." },
-          { "number": "03", "title": "Change the document, change the answer", "body": "Update the policy and the agent answers from the new one. No retraining, no waiting." }
+          {
+            "number": "01",
+            "title": "A customer asks something specific",
+            "body": "Delivery times, payment methods, what the policy actually says."
+          },
+          {
+            "number": "02",
+            "title": "It searches your own documents",
+            "body": "Your PDFs, pages and notes are split into passages and indexed, ready to be looked up."
+          },
+          {
+            "number": "03",
+            "title": "It lifts out the passage that answers",
+            "body": "Not the whole file. The lines that address the question the customer asked."
+          },
+          {
+            "number": "04",
+            "title": "The answer shows where it came from",
+            "body": "Your team can check the source, and updating the document updates the answer. No retraining."
+          }
         ]
+      },
+      "controls": {
+        "play": "Play",
+        "pause": "Pause",
+        "steps": "Steps in this chapter",
+        "step": "Step"
       }
     },
     "atlas": {
@@ -11811,32 +12030,76 @@
         {
           "title": "Service and CRM",
           "description": "Frontline work and the sales process share the same context.",
-          "items": ["Omnichannel inbox", "Human and AI service", "Configurable funnels and stages", "Leads, opportunities and sales", "Assignment, queues and ownership", "Service and audience metrics"]
+          "items": [
+            "Omnichannel inbox",
+            "Human and AI service",
+            "Configurable funnels and stages",
+            "Leads, opportunities and sales",
+            "Assignment, queues and ownership",
+            "Service and audience metrics"
+          ]
         },
         {
           "title": "Applied intelligence",
           "description": "Useful AI before, during and after every conversation.",
-          "items": ["Configurable AI agents", "RAG knowledge bases", "Durable lead memories", "Automatic conversation analysis", "Auto tag and stage progression", "Copilot and text refiner", "Audio message transcription", "Agent chat and simulator"]
+          "items": [
+            "Configurable AI agents",
+            "RAG knowledge bases",
+            "Durable lead memories",
+            "Automatic conversation analysis",
+            "Auto tag and stage progression",
+            "Copilot and text refiner",
+            "Audio message transcription",
+            "Agent chat and simulator"
+          ]
         },
         {
           "title": "Automation",
           "description": "Visual orchestration that preserves room for human intervention.",
-          "items": ["Visual workflow editor", "Triggers, conditions and branches", "Scheduled messages", "Human service handoff", "Automation by channel", "Message shortcuts"]
+          "items": [
+            "Visual workflow editor",
+            "Triggers, conditions and branches",
+            "Scheduled messages",
+            "Human service handoff",
+            "Automation by channel",
+            "Message shortcuts"
+          ]
         },
         {
           "title": "Channels",
           "description": "One operational spine for every point of contact.",
-          "items": ["WhatsApp Business API", "Multiple numbers per workspace", "Templates and WhatsApp Flows", "Telegram", "Live chat", "Instagram DMs, posts and comments", "QR-connected WhatsApp", "Human WhatsApp calls"]
+          "items": [
+            "WhatsApp Business API",
+            "Multiple numbers per workspace",
+            "Templates and WhatsApp Flows",
+            "Telegram",
+            "Live chat",
+            "Instagram DMs, posts and comments",
+            "QR-connected WhatsApp",
+            "Human WhatsApp calls"
+          ]
         },
         {
           "title": "Campaigns",
           "description": "Acquisition and replies remain connected to the conversation.",
-          "items": ["Official and organic campaigns", "CRM-based segmentation", "Scheduling, pacing and variants", "Dedicated campaign CRM"]
+          "items": [
+            "Official and organic campaigns",
+            "CRM-based segmentation",
+            "Scheduling, pacing and variants",
+            "Dedicated campaign CRM"
+          ]
         },
         {
           "title": "Administration",
           "description": "Control for operations with different teams, branches and responsibilities.",
-          "items": ["Workspaces and branches", "Users, invitations and calendar", "Granular roles and permissions", "Access by number and template", "Plans, add-ons and billing", "Integrations and MCP servers"]
+          "items": [
+            "Workspaces and branches",
+            "Users, invitations and calendar",
+            "Granular roles and permissions",
+            "Access by number and template",
+            "Plans, add-ons and billing",
+            "Integrations and MCP servers"
+          ]
         }
       ]
     },

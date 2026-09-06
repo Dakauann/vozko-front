@@ -154,7 +154,7 @@ export const R = {
  * new viewport on its own.
  */
 export const STAGE_CAMERA = {
-  position: [0, 0.2, 8.8] as [number, number, number],
+  position: [0, 0, 8.8] as [number, number, number],
   fov: 50,
   near: 0.1,
   far: 40,
@@ -240,14 +240,25 @@ export function useCompact() {
  * whichever axis binds. The scene is the subject, so it grows to the space it
  * has instead of sitting small inside it; `margin` keeps its labels off the edge.
  */
-export function useFitScale(width: number, height: number, margin = 0.94) {
+export function useFitScale(width: number, height: number, margin = 0.9) {
   const { viewport } = useThree();
-  return Math.min((viewport.width * margin) / width, (viewport.height * margin) / height);
+  // Lifted cards move towards the camera. Fitting only the z=0 plane crops
+  // their projected edges, especially when the canvas is short and wide.
+  const depth = 1.8;
+  const distance = STAGE_CAMERA.position[2];
+  const fit = (span: number, extent: number) => (span * margin) / (extent + span * margin * depth / distance);
+  return Math.min(fit(viewport.width, width), fit(viewport.height, height));
 }
 
+/** Anything larger than this backwards is the loop restarting, not the story. */
+const REWIND = 0.5;
+
 /**
- * Damps the scroll progress every frame so scroll jitter never reaches the
- * scene. Reduced motion pins the scene at its final state.
+ * Damps the chapter progress every frame, so a jump between steps arrives as a
+ * move rather than a cut. The one jump it must not smooth is the loop wrapping
+ * from its last frame back to its first: damping that plays the whole scene
+ * backwards, so a rewind snaps instead, hidden under the stage's fade.
+ * Reduced motion pins the scene at its final state.
  */
 export function useDampedProgress(
   progress: MotionValue<number>,
@@ -257,7 +268,9 @@ export function useDampedProgress(
   const smoothed = useRef(reduced ? 1 : progress.get());
   useFrame((state, delta) => {
     const target = reduced ? 1 : progress.get();
-    smoothed.current = MathUtils.damp(smoothed.current, target, 8, delta);
+    smoothed.current = reduced || target - smoothed.current < -REWIND
+      ? target
+      : MathUtils.damp(smoothed.current, target, 8, delta);
     onFrame(smoothed.current, delta, state.clock.elapsedTime);
   });
 }

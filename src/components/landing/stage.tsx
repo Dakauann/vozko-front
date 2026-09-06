@@ -2,32 +2,76 @@
 
 import { Canvas, useThree } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
-import { motion, type MotionValue, useInView, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { motion, useMotionValue, useReducedMotion, useTransform, useInView, type MotionValue } from "framer-motion";
 import { useTheme } from "next-themes";
-import { Suspense, useEffect, useRef, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { Pause, Play } from "@/components/icons";
 import { CircuitTracesWide } from "@/components/brand/circuit";
 import { STAGE_CAMERA, scenePalette, type ScenePalette } from "./scene-kit";
 import styles from "./landing.module.css";
 
 export type StageStep = { number: string; title: string; body: string };
-export type StageLabels = { rail: string; aria: string; steps: StageStep[] };
+export type StageLabels = {
+  /** Short mono tag over the chapter title. */
+  rail: string;
+  /** The chapter's own headline: the largest type in the section. */
+  title: string;
+  /** One sentence under the headline, before the animation starts talking. */
+  lede: string;
+  aria: string;
+  steps: StageStep[];
+};
+export type StageControlLabels = { play: string; pause: string; steps: string; step: string };
 export type SceneRenderer = (progress: MotionValue<number>, reduced: boolean, palette: ScenePalette) => ReactNode;
 
 type StageSectionProps = {
   id: string;
   labels: StageLabels;
-  scroll: string;
+  controls: StageControlLabels;
   scene: SceneRenderer;
   /** Which side the copy sits on at desktop widths. */
   side?: "left" | "right";
-  /** Scroll length of the pinned section, in svh. */
-  height?: number;
   overview?: ReactNode;
 };
 
-/** Each step owns an equal slice of the scroll; one fades fully out before the next fades in. */
-const FADE = 0.045;
+/**
+ * A step is a move and then a pause, not one long slide. The move runs at the
+ * speed the thing would really move — a card crosses a column in about a
+ * second — and the reading time is spent standing still afterwards, so a
+ * scene never plays in slow motion just because its copy is long.
+ */
+const ACTION_SECONDS = 2.1;
+/** A move can never eat more than this share of its step. */
+const ACTION_SHARE = 0.45;
+
+/**
+ * How long a step holds, derived from its own copy rather than guessed.
+ * Brysbaert's 2019 meta-analysis (190 studies, 18,573 participants) puts
+ * silent reading of English non-fiction at a mean of 238 wpm; 250 with a short
+ * orienting beat lands close to that once the move at the head of the step is
+ * counted too. Every step in a section runs at the pace of its longest one,
+ * because the scenes divide their timeline into equal slices.
+ */
+const WORDS_PER_MINUTE = 250;
+const ORIENT_SECONDS = 0.6;
+/** Nothing flashes past, and nothing outstays a reader who is already done. */
+const STEP_BOUNDS = [4.2, 7] as const;
+/** The end state is the payoff; it holds before the loop starts over. */
+const HOLD_SECONDS = 1.4;
+/** The scene dips out rather than snapping, so the restart reads as a replay. */
+const FADE_OUT_SECONDS = 0.45;
+const FADE_IN_SECONDS = 0.5;
+
+function countWords(text: string) {
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
+function stepSeconds(steps: StageStep[]) {
+  const longest = Math.max(...steps.map(step => countWords(step.title) + countWords(step.body)));
+  const reading = ORIENT_SECONDS + (longest / WORDS_PER_MINUTE) * 60;
+  return Math.min(STEP_BOUNDS[1], Math.max(STEP_BOUNDS[0], reading));
+}
 
 const subscribeVisibility = (callback: () => void) => {
   document.addEventListener("visibilitychange", callback);
@@ -38,6 +82,10 @@ const serverVisible = () => true;
 
 /** Html mounts separate React roots; give reduced-motion scenes time to settle. */
 function SettleScene() {
+  const sceneState = useThree();
+  useEffect(() => {
+    Object.assign(sceneState.gl.domElement, { __landingScene: sceneState });
+  }, [sceneState]);
   const invalidate = useThree(state => state.invalidate);
   useEffect(() => {
     const interval = window.setInterval(invalidate, 80);
@@ -47,127 +95,200 @@ function SettleScene() {
   return null;
 }
 
-/** 0 below `from`, 1 above `to`, linear between. */
-function ramp(value: number, from: number, to: number) {
-  return Math.min(1, Math.max(0, (value - from) / (to - from)));
+type Loop = {
+  progress: MotionValue<number>;
+  /** Scene opacity: dips at the wrap so the reset is never seen unwinding. */
+  fade: MotionValue<number>;
+  index: number;
+  playing: boolean;
+  toggle: () => void;
+  jump: (step: number) => void;
+};
+
+/**
+ * The chapter plays itself: a step moves, a step waits, the next step moves.
+ * One cycle walks the scene through its steps, holds on the finished state,
+ * dips out and starts again. It only advances while the section is on screen
+ * and the tab is in front, and it restarts from the first step whenever it
+ * comes back into view, so a reader always meets the story at its beginning.
+ */
+function useStageLoop(steps: StageStep[], active: boolean, reduced: boolean): Loop {
+  const progress = useMotionValue(reduced ? 1 : 0);
+  const fade = useMotionValue(1);
+  const [index, setIndex] = useState(reduced ? steps.length - 1 : 0);
+  const [playing, setPlaying] = useState(true);
+  const clock = useRef(0);
+  const entered = useRef(false);
+  const total = steps.length;
+  const block = stepSeconds(steps);
+  const action = Math.min(ACTION_SECONDS, block * ACTION_SHARE);
+  const run = block * total;
+  const cycle = run + HOLD_SECONDS + FADE_OUT_SECONDS;
+
+  const apply = useCallback((elapsed: number) => {
+    // Progress advances only over the move at the head of each step; the rest
+    // of the step stands still on what just happened, so the reading time
+    // never stretches the motion.
+    const step = Math.min(total - 1, Math.floor(elapsed / block));
+    const moved = Math.min(1, Math.max(0, (elapsed - step * block) / action));
+    progress.set(elapsed >= run ? 1 : (step + moved) / total);
+    fade.set(elapsed > run + HOLD_SECONDS
+      ? Math.max(0, 1 - (elapsed - run - HOLD_SECONDS) / FADE_OUT_SECONDS)
+      : Math.min(1, elapsed / FADE_IN_SECONDS));
+    setIndex(step);
+  }, [action, block, fade, progress, run, total]);
+
+  useEffect(() => {
+    if (reduced || !active) { entered.current = false; return; }
+    // Coming back into view rewinds: nobody should arrive at step 04.
+    if (!entered.current) { entered.current = true; clock.current = 0; }
+    let frame = 0;
+    let last = 0;
+    const tick = (now: number) => {
+      // The opening frame only paints; a tab restored after minutes away must
+      // not fast-forward the story on the frame it comes back.
+      if (last) clock.current = (clock.current + Math.min(0.05, (now - last) / 1000)) % cycle;
+      last = now;
+      apply(clock.current);
+      // Paused, the chapter still paints once so a jump between steps lands.
+      if (playing) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [active, apply, cycle, playing, reduced]);
+
+  const jump = useCallback((step: number) => {
+    clock.current = step * block;
+    apply(clock.current);
+  }, [apply, block]);
+
+  const toggle = useCallback(() => setPlaying(value => !value), []);
+
+  return { progress, fade, index, playing, toggle, jump };
 }
 
-function Step({
-  progress,
-  step,
-  index,
-  total,
-  reduced,
-}: {
-  progress: MotionValue<number>;
-  step: StageStep;
-  index: number;
-  total: number;
-  reduced: boolean;
-}) {
-  const first = index === 0;
-  const last = index === total - 1;
-  const start = index / total;
-  const end = (index + 1) / total;
-  // Computed, not interpolated across a keyframe range: a range whose leading
-  // outputs repeat does not clamp past its last key, which left the opening
-  // step fading back in under the others for the rest of the section.
-  const cover = (v: number) => {
-    const entering = first ? 1 : ramp(v, start, start + FADE);
-    const leaving = last ? 1 : 1 - ramp(v, end - FADE, end);
-    return Math.min(entering, leaving);
-  };
-  const opacity = useTransform(progress, (v) => cover(v));
-  const y = useTransform(progress, (v) => {
-    const entering = first ? 1 : ramp(v, start, start + FADE);
-    const leaving = last ? 1 : 1 - ramp(v, end - FADE, end);
-    return (1 - entering) * 12 - (1 - leaving) * 8;
-  });
-  const counter = `${step.number} / ${String(total).padStart(2, "0")}`;
-
+/** One segment of the chapter's progress bar, filling across its own step. */
+function Tick({ progress, index, total, reduced }: { progress: MotionValue<number>; index: number; total: number; reduced: boolean }) {
+  const scaleX = useTransform(progress, value => Math.min(1, Math.max(0, value * total - index)));
   return (
-    <motion.div
-      style={{ opacity: reduced ? (last ? 1 : 0) : opacity, y: reduced ? 0 : y }}
-      className="col-start-1 row-start-1 min-w-0 self-end"
-      aria-hidden={reduced && !last}
-    >
-      <p className="font-mono text-[11px] text-primary-ink sm:text-xs">{counter}</p>
-      <h3 className="mt-2 max-w-[24ch] font-display text-[1.65rem] font-semibold leading-[1.12] tracking-[-0.025em] text-foreground sm:mt-3 sm:max-w-[20ch] sm:text-[2rem] lg:text-[clamp(2.1rem,2.7vw,3.25rem)]">
-        {step.title}
-      </h3>
-      <p className="mt-2.5 max-w-[46ch] text-sm leading-[1.55] text-muted-foreground sm:mt-4 sm:max-w-[38ch] sm:text-base sm:leading-7">{step.body}</p>
-    </motion.div>
+    <span className={styles.stageTickTrack}>
+      <motion.span className={styles.stageTickFill} style={{ scaleX: reduced ? 1 : scaleX }} />
+    </span>
   );
 }
 
 /**
- * The pinned stage every 3D chapter shares: an instrument rail carrying the
- * scroll progress, the scene itself standing free on the section, and step
- * copy that crossfades as the scene advances. The board's trace ornament runs
- * in behind the object, so the scene reads as the end of the circuit.
+ * The stage every 3D chapter shares: a headline that says plainly what the
+ * chapter is, a progress bar that runs the loop and can be steered, the scene
+ * standing free on the section, and step copy that crossfades under it. The
+ * board's trace ornament runs in behind the object, so the scene reads as the
+ * end of the circuit.
  */
-export function StageSection({ id, labels, scroll, scene, side = "left", height = 280, overview }: StageSectionProps) {
+export function StageSection({ id, labels, controls, scene, side = "left", overview }: StageSectionProps) {
   const t = useTranslations("landing");
-  const section = useRef<HTMLElement>(null);
   const host = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion() ?? false;
   const pageVisible = useSyncExternalStore(subscribeVisibility, isPageVisible, serverVisible);
   const { resolvedTheme } = useTheme();
-  const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
-  const inView = useInView(host, { margin: "30% 0px 30% 0px" });
-  const line = useTransform(scrollYProgress, [0, 1], ["scaleX(0)", "scaleX(1)"]);
+  // Mounted early so the canvas is warm before it is read; played only once the
+  // section is genuinely on screen.
+  const mounted = useInView(host, { margin: "40% 0px 40% 0px" });
+  const onScreen = useInView(host, { amount: 0.3 });
+  const active = onScreen && pageVisible;
+  const loop = useStageLoop(labels.steps, active, reduced);
   const copyRight = side === "right";
   const palette = scenePalette(resolvedTheme === "dark");
+  const total = labels.steps.length;
 
   return (
-    <section ref={section} id={id} className={styles.stage} style={{ "--stage-height": `${height}svh` } as CSSProperties}>
-      <div className={styles.stageSticky}>
-        <div
-          ref={host}
-          className={`grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-3 px-4 py-4 sm:gap-4 sm:px-8 sm:py-6 lg:grid-rows-[auto_minmax(0,1fr)] lg:gap-x-8 lg:px-10 lg:py-8 ${
-            copyRight ? "lg:grid-cols-[minmax(0,1fr)_minmax(15rem,0.38fr)]" : "lg:grid-cols-[minmax(15rem,0.38fr)_minmax(0,1fr)]"
-          }`}
-        >
-          <div className="flex items-center gap-4 lg:col-span-2">
-            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">{labels.rail}</span>
-            <div className="relative h-px flex-1 bg-border-strong">
-              <motion.div className="absolute inset-0 origin-left bg-primary" style={{ transform: reduced ? "scaleX(1)" : line }} />
-            </div>
-            <span className="font-mono text-[10px] text-muted-foreground">{scroll}</span>
+    <section id={id} className={styles.stage} data-side={side}>
+      <div className={styles.stageInner}>
+        <header>
+          <p className={styles.stageEyebrow}>{labels.rail}</p>
+          <h2 className={styles.stageTitle}>{labels.title}</h2>
+        </header>
+
+        <div className={styles.stageRail}>
+          <div className={styles.stageTicks} role="group" aria-label={controls.steps}>
+            {labels.steps.map((step, index) => (
+              <button
+                key={step.number}
+                type="button"
+                aria-current={index === loop.index || undefined}
+                aria-label={`${controls.step} ${step.number}: ${step.title}`}
+                className={styles.stageTick}
+                data-active={index === loop.index || undefined}
+                onClick={() => loop.jump(index)}
+              >
+                <Tick progress={loop.progress} index={index} total={total} reduced={reduced} />
+              </button>
+            ))}
           </div>
+          {!reduced && (
+            <button
+              type="button"
+              className={styles.stagePlay}
+              onClick={loop.toggle}
+              aria-pressed={!loop.playing}
+              aria-label={loop.playing ? controls.pause : controls.play}
+            >
+              {loop.playing ? <Pause className="h-3.5 w-3.5" aria-hidden /> : <Play className="h-3.5 w-3.5" aria-hidden />}
+              <span>{loop.playing ? controls.pause : controls.play}</span>
+            </button>
+          )}
+        </div>
+
+        <div ref={host} className={styles.stageBody}>
+          <p className={styles.stageLede}>{labels.lede}</p>
 
           {/* The scene sits directly on the stage: no frame, no panel, so the
               animation itself is the object on the page. */}
-          <div className={`relative order-2 min-h-0 ${copyRight ? "lg:order-1" : "lg:order-2"}`}>
+          <div className={styles.stageScene}>
             <CircuitTracesWide
               tone="quiet"
               dynamic
               seed={Array.from(id).reduce((seed, letter) => seed * 31 + letter.charCodeAt(0), 7) >>> 0}
               branches={5}
-              pulse={inView && pageVisible && !reduced}
+              pulse={active && !reduced}
               className={`pointer-events-none absolute bottom-0 h-1/2 w-4/5 opacity-70 ${copyRight ? "right-0 -scale-x-100" : "left-0"}`}
             />
-            {inView && <Canvas
-              shadows="percentage"
-              camera={STAGE_CAMERA}
-              dpr={[1, 1.5]}
-              frameloop={reduced || !pageVisible ? "demand" : "always"}
-              gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-            >
-              <Suspense fallback={<Html center><p role="status" className="whitespace-nowrap text-sm text-muted-foreground">{t("stages.loading")}</p></Html>}>
-                <SettleScene />
-                {scene(scrollYProgress, reduced, palette)}
-              </Suspense>
-            </Canvas>}
+            <motion.div className={styles.stageCanvas} style={{ opacity: reduced ? 1 : loop.fade }}>
+              {mounted && <Canvas
+                style={{ contain: "layout paint" }}
+                shadows="percentage"
+                camera={STAGE_CAMERA}
+                dpr={[1, 1.5]}
+                frameloop={reduced || !active ? "demand" : "always"}
+                gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+              >
+                <Suspense fallback={<Html center><p role="status" className="whitespace-nowrap text-sm text-muted-foreground">{t("stages.loading")}</p></Html>}>
+                  <SettleScene />
+                  {scene(loop.progress, reduced, palette)}
+                </Suspense>
+              </Canvas>}
+            </motion.div>
             <p className="sr-only">{labels.aria}</p>
           </div>
 
-          <div className={`relative order-3 min-w-0 lg:self-center ${copyRight ? "lg:order-2" : "lg:order-1"}`}>
+          <div className={styles.stageCopy}>
             {overview}
-            <div className="grid min-h-[11.5rem] lg:min-h-[16rem]">
-            {labels.steps.map((step, index) => (
-              <Step key={step.number} progress={scrollYProgress} step={step} index={index} total={labels.steps.length} reduced={reduced} />
-            ))}
+            <div className={styles.stageSteps}>
+              {labels.steps.map((step, index) => {
+                const shown = reduced || index === loop.index;
+                return (
+                  <motion.div
+                    key={step.number}
+                    className={styles.stageStep}
+                    initial={false}
+                    animate={{ opacity: shown ? 1 : 0, y: shown ? 0 : 10 }}
+                    transition={{ duration: reduced ? 0 : 0.45, ease: [0.23, 1, 0.32, 1] }}
+                  >
+                    <p className={styles.stageStepIndex}>{step.number} / {String(total).padStart(2, "0")}</p>
+                    <h3 className={styles.stageStepTitle}>{step.title}</h3>
+                    <p className={styles.stageStepBody}>{step.body}</p>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </div>
