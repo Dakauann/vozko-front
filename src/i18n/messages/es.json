@@ -10483,6 +10483,7 @@
         "title": "Las respuestas salen de tus documentos, no de suposiciones.",
         "lede": "Sube tus políticas, precios y preguntas frecuentes. El agente busca el pasaje que responde y muestra de qué documento salió.",
         "aria": "Los documentos de la empresa se vuelven un índice; una pregunta enciende el pasaje que la responde, y la respuesta sale con su fuente citada.",
+        "shelf": "Base de conocimiento",
         "docs": [
           "Política comercial",
           "Plazos de entrega",

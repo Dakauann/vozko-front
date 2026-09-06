@@ -78,9 +78,11 @@ const COMPACT: Layout = {
 
 /** Card rows, starting clear of the column header rather than under it. */
 const SLOT = [1.45, 0.25, -0.95, -2.15] as const;
-/** Header bar and title, measured down from the column's top edge. */
-const HEADER_BAR = 0.34;
-const HEADER_TEXT = 0.16;
+/** Header bar and title, measured down from the column's top edge. The title
+ *  is centred on HEADER_TEXT, so that distance has to clear half a label at
+ *  the largest font the ceiling allows, or the text rides over the column. */
+const HEADER_BAR = 0.5;
+const HEADER_TEXT = 0.26;
 
 // Six leads on the board, moving in the four quarters the copy steps own: one
 // card arrives, the AI sorts the next, the team pushes two along, and the last

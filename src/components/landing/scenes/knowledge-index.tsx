@@ -23,7 +23,8 @@ import {
 } from "../scene-kit";
 
 export type KnowledgeSceneLabels = {
-  title: string;
+  /** The label on the index shelf itself, not the chapter's headline. */
+  shelf: string;
   docs: string[];
   question: string;
   answer: string;
@@ -168,7 +169,7 @@ export function KnowledgeScene({
         <Label position={[layout.railX + layout.shelf / 2, top + 0.75, 0.3]} width={px(layout.shelf)} className="flex min-w-0 select-none items-center gap-1.5 text-left">
           <MagnifyingGlass size={icon} color={palette.ink.ai} style={{ ["--icon-accent" as string]: palette.ink.ai }} />
           <span className="min-w-0 font-semibold leading-tight" style={{ fontSize: font(10), color: palette.panelInk }}>
-            {labels.title}
+            {labels.shelf}
           </span>
         </Label>
 

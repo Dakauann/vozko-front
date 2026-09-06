@@ -12033,6 +12033,7 @@
         "title": "A resposta vem dos seus documentos, não de achismo.",
         "lede": "Suba suas políticas, preços e perguntas frequentes. O agente busca o trecho que responde à pergunta e mostra de qual documento ele saiu.",
         "aria": "Documentos da empresa viram um índice; uma pergunta acende o trecho que a responde, e a resposta sai com a fonte citada.",
+        "shelf": "Base de conhecimento",
         "docs": [
           "Política comercial",
           "Prazos de entrega",

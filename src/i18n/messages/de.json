@@ -10980,6 +10980,7 @@
         "title": "Antworten kommen aus Ihren Dokumenten, nicht aus Vermutungen.",
         "lede": "Laden Sie Richtlinien, Preise und häufige Fragen hoch. Der Agent sucht die Passage, die antwortet, und zeigt, aus welchem Dokument sie stammt.",
         "aria": "Firmendokumente werden zu einem Index; eine Frage lässt die passende Passage aufleuchten, und die Antwort kommt mit genannter Quelle heraus.",
+        "shelf": "Wissensbasis",
         "docs": [
           "Vertriebsrichtlinie",
           "Lieferzeiten",

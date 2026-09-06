@@ -11982,6 +11982,7 @@
         "title": "Answers come from your documents, not guesswork.",
         "lede": "Upload your policies, prices and FAQs. The agent looks up the passage that answers the question and shows which document it came from.",
         "aria": "Company documents become an index; a question lights the passage that answers it, and the answer comes out with its source cited.",
+        "shelf": "Knowledge base",
         "docs": [
           "Commercial policy",
           "Delivery times",

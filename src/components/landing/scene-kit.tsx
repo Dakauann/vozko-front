@@ -173,6 +173,18 @@ const LABEL_FACTOR_PER_PX = 0.0167;
 const LABEL_SCREEN_RATIO = 1.152;
 
 /**
+ * On a small canvas the on-screen target would demand a font several times the
+ * design size, and since a label's box is measured in world units, that is the
+ * text growing against the plate it sits on rather than the plate growing with
+ * it. This ceiling is what stops it, so it is set by the tightest plate in any
+ * scene: at 2.1 the kanban column header stood exactly on the column's top
+ * edge, and the cards filled 83% of their own height. Measured in world units
+ * (a label's box is its CSS pixels over 100), 1.85 leaves every label at least
+ * 0.07 units of air.
+ */
+const FONT_CEILING = 1.85;
+
+/**
  * The CSS width a label needs to cover a given span of the scene. Hand-picked
  * widths cannot track a scene that rescales itself, which is how text ended up
  * over the colour bar it was supposed to sit beside.
@@ -189,7 +201,7 @@ export function usePanelType(sceneScale: number) {
   const pixelsPerUnit = (size.height / viewport.height) * sceneScale;
   return {
     px: (units: number) => units * 100,
-    font: (size: number) => Math.min(size * 2.1, (size * LABEL_SCREEN_RATIO * 100) / pixelsPerUnit),
+    font: (size: number) => Math.min(size * FONT_CEILING, (size * LABEL_SCREEN_RATIO * 100) / pixelsPerUnit),
   };
 }
 
