@@ -6020,7 +6020,21 @@
     },
     "filterInstagram": "Instagram",
     "filterUnofficialWhatsapp": "WhatsApp (inoffiziell)",
-    "filterTelegram": "Telegram"
+    "filterTelegram": "Telegram",
+    "conversationWindow": {
+      "openInWindow": "In einem Fenster öffnen",
+      "minimize": "Minimieren",
+      "restore": "Wiederherstellen",
+      "maximize": "Maximieren",
+      "close": "Fenster schließen",
+      "dragHint": "Zum Verschieben ziehen",
+      "actions": "Aktionen für das Gespräch",
+      "statusHeading": "Status",
+      "markOngoing": "Als laufend markieren",
+      "markFinished": "Als abgeschlossen markieren",
+      "automationOn": "KI antwortet",
+      "automationOff": "KI pausiert"
+    }
   },
   "adminWorkspaces": {
     "search": {
@@ -10546,7 +10560,8 @@
     "hero": {
       "titleLine1": "Jeder Kanal.",
       "titleLine2": "Ein Betrieb.",
-      "body": "WhatsApp, CRM, KI-Agenten und Automatisierungen konkurrieren nicht länger um Kontext. Eine Unterhaltung kommt einmal an und durchläuft den gesamten Betrieb.",
+      "lead": "Machen Sie aus Kontakten Ergebnisse.",
+      "body": "WhatsApp, CRM, KI-Agenten und Automatisierungen konkurrieren nicht mehr um Kontext: Eine Unterhaltung kommt einmal an und durchläuft den gesamten Betrieb.",
       "primaryCta": "Jetzt starten",
       "secondaryCta": "Ablauf ansehen"
     },

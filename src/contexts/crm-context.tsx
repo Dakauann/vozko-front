@@ -32,6 +32,10 @@ import {
   type SendButtonWsInput,
   useConversationWs,
 } from "@/hooks/use-conversation-ws";
+import type {
+  OpenWindowConversationInput,
+  WindowConversations,
+} from "@/lib/conversations/windowed-conversations";
 import { listStagesAction } from "@/app/actions/stages";
 import { listLabelsAction } from "@/app/actions/labels";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -133,6 +137,49 @@ interface CrmContextValue {
    * makes the change visible without a reload.
    */
   applyLeadRename: (leadId: string, name: string) => void;
+
+  /**
+   * Conversations open in floating windows, alongside the one the centre pane
+   * shows. Everything here is addressed by entry rather than by "the current
+   * conversation", which is what allows several at once.
+   */
+  windowConversations: WindowConversations;
+  windowFocusRequest: { key: string; nonce: number } | null;
+  openConversationWindow: (input: OpenWindowConversationInput) => void;
+  closeConversationWindow: (entryId: string, entryType: EntryType) => void;
+  setConversationWindowVisible: (
+    entryId: string,
+    entryType: EntryType,
+    visible: boolean,
+  ) => void;
+  windowSendMessage: (
+    entryId: string,
+    entryType: EntryType,
+    text: string,
+    signed: boolean,
+    replyToMessageId?: string,
+  ) => void;
+  windowSendMedia: (
+    entryId: string,
+    entryType: EntryType,
+    text: string,
+    mediaId: string,
+    mediaType: MediaType,
+    signed: boolean,
+    replyToMessageId?: string,
+  ) => void;
+  windowSendButton: (
+    entryId: string,
+    entryType: EntryType,
+    input: SendButtonWsInput,
+    replyToMessageId?: string,
+  ) => void;
+  windowSendTyping: (
+    entryId: string,
+    entryType: EntryType,
+    isTyping: boolean,
+  ) => void;
+  windowLoadHistory: (entryId: string, entryType: EntryType) => void;
 }
 
 const CrmContext = createContext<CrmContextValue | null>(null);

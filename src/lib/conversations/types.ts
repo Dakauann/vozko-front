@@ -547,6 +547,13 @@ export interface WsSubscribedPayload {
     entry_type: EntryType;
     lead_name: string;
     lead_number: string;
+    /**
+     * The contact's picture. Sent by the server on every subscribe; the type
+     * omitted it, so anything reading the conversation rather than the cached
+     * inbox row (a floating window, for one) had no face to show and fell back
+     * to an initial while the inbox beside it showed the photo.
+     */
+    lead_picture?: string;
     lead_metadata?: EntryMetadata;
     unread_count: number;
     window_open?: boolean;
@@ -822,6 +829,15 @@ export interface ActiveConversation {
     entry_type: EntryType;
     campaign_id?: string;
     lead_name: string;
+    /**
+     * The contact's picture, carried on the conversation itself.
+     *
+     * The centre pane can read this off the cached inbox row because it always
+     * has one; a floating conversation may outlive its row (a filter change, a
+     * page of the inbox that never loaded), so it carries its own copy and
+     * shows the same face the list does.
+     */
+    lead_picture?: string;
     lead_number: string;
     lead_metadata?: EntryMetadata;
     entry_variables?: string[];

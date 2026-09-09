@@ -5498,7 +5498,21 @@
     },
     "filterInstagram": "Instagram",
     "filterUnofficialWhatsapp": "WhatsApp no oficial",
-    "filterTelegram": "Telegram"
+    "filterTelegram": "Telegram",
+    "conversationWindow": {
+      "openInWindow": "Abrir en una ventana",
+      "minimize": "Minimizar",
+      "restore": "Restaurar",
+      "maximize": "Maximizar",
+      "close": "Cerrar ventana",
+      "dragHint": "Arrastra para mover",
+      "actions": "Acciones de la conversación",
+      "statusHeading": "Estado",
+      "markOngoing": "Marcar en curso",
+      "markFinished": "Marcar como finalizada",
+      "automationOn": "La IA responde",
+      "automationOff": "IA en pausa"
+    }
   },
   "adminWorkspaces": {
     "search": {
@@ -10049,7 +10063,8 @@
     "hero": {
       "titleLine1": "Todos los canales.",
       "titleLine2": "Una operación.",
-      "body": "WhatsApp, CRM, agentes de IA y automatizaciones dejan de competir por el contexto. La conversación entra una vez y recorre toda la operación.",
+      "lead": "Convierte tus contactos en resultados.",
+      "body": "WhatsApp, CRM, agentes de IA y automatizaciones dejan de disputarse el contexto: la conversación entra una vez y recorre toda la operación.",
       "primaryCta": "Empezar ahora",
       "secondaryCta": "Ver el flujo"
     },

@@ -9,6 +9,7 @@ import styles from "./landing.module.css";
 export type HeroLabels = {
   titleLine1: string;
   titleLine2: string;
+  lead: string;
   body: string;
   primaryCta: string;
   secondaryCta: string;
@@ -42,6 +43,7 @@ export function Hero({ labels }: { labels: HeroLabels }) {
           </div>
 
           <motion.div {...reveal(0.1)} className={styles.heroFooter}>
+            <p className={styles.heroLead}>{labels.lead}</p>
             <p className={styles.heroBody}>{labels.body}</p>
             <div className={styles.heroActions}>
               <Link href="/register" className={`${styles.button} ${styles.buttonPrimary}`}>

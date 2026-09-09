@@ -8,6 +8,7 @@ import {
   type MessageChannel,
 } from "@/lib/conversations/types";
 import {
+  ArrowSquareOut,
   CalendarBlank,
   ChatCircleDots,
   Check,
@@ -95,6 +96,13 @@ interface CrmInboxProps {
   entries: InboxEntry[];
   selectedEntryId: string | null;
   onSelect: (entryId: string, entryType: EntryType) => void;
+  /**
+   * Opens the conversation in its own floating window, beside whatever the
+   * centre pane is showing. Optional: where it is not wired the affordance is
+   * not rendered at all, rather than offered and inert.
+   */
+  onOpenInWindow?: (entry: InboxEntry) => void;
+  openInWindowLabel?: string;
   connectionStatus: ConnectionStatus;
   onLoadMore?: () => void;
   hasMore?: boolean;
@@ -216,6 +224,8 @@ export default function CrmInbox({
   entries,
   selectedEntryId,
   onSelect,
+  onOpenInWindow,
+  openInWindowLabel,
   connectionStatus,
   onLoadMore,
   hasMore = false,
@@ -1260,6 +1270,25 @@ export default function CrmInbox({
                         >
                           {relativeTime(entry.last_message_at)}
                         </span>
+                        {/* Appears on hover, and stays reachable by keyboard:
+                            a control that only exists under a pointer is not
+                            available to anyone tabbing the list. */}
+                        {onOpenInWindow && (
+                          <button
+                            type="button"
+                            aria-label={openInWindowLabel ?? "Open in a window"}
+                            title={openInWindowLabel ?? "Open in a window"}
+                            onClick={(e) => {
+                              // The row itself opens the conversation in the
+                              // centre pane; this must not also do that.
+                              e.stopPropagation();
+                              onOpenInWindow(entry);
+                            }}
+                            className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-[--radius] text-muted-foreground opacity-0 transition-opacity hover:bg-muted hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100"
+                          >
+                            <ArrowSquareOut size={12} weight="bold" />
+                          </button>
+                        )}
                       </div>
                       {/* Row 2: full-width last-message preview + unread */}
                       <div className="mt-0.5 flex items-center gap-2">

@@ -128,7 +128,23 @@
   max-width: 38rem;
 }
 
+/* The promise leads and the mechanism follows, so the footer carries two
+   voices instead of one paragraph. The green is --primary-ink, not the fill:
+   the fill is tuned to hold a dark label, and as text on daylight it lands
+   near 2.3:1. The ink token is the one the system already reserves for green
+   that has to be read. */
+.heroLead {
+  font-family: var(--font-oxanium), sans-serif;
+  font-size: clamp(1.2rem, 1.9vw, 1.6rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  color: hsl(var(--primary-ink));
+}
+
 .heroBody {
+  margin-top: 0.85rem;
   font-size: clamp(1rem, 1.35vw, 1.15rem);
   line-height: 1.7;
   color: hsl(var(--muted-foreground));

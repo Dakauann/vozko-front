@@ -6,6 +6,7 @@ import type {
   ContainerKind,
   ConversationMessage,
   EntryType,
+  InboxEntry,
   MediaType,
   Stage,
   WhatsAppCampaignTypeFilter,
@@ -16,6 +17,7 @@ import type {
   SendButtonWsInput,
 } from "@/hooks/use-conversation-ws";
 import {
+  ArrowSquareOut,
   Bell,
   BellSlash,
   CaretDown,
@@ -39,6 +41,7 @@ import ScheduledMessagesPanel from "./ScheduledMessagesPanel";
 import type { ScheduledMessage } from "@/lib/scheduled-messages/types";
 import { listScheduledMessagesAction } from "@/app/actions/scheduled-messages";
 import CrmWallpaper from "./CrmWallpaper";
+import ConversationWindowDeck from "./ConversationWindowDeck";
 import CrmInbox from "./CrmInbox";
 import { AiHandlerChip } from "./AiHandlerChip";
 import { WorkflowRunDrawer } from "./WorkflowRunDrawer";
@@ -292,6 +295,7 @@ export default function CrmLayout({
   toolbarBeforeUsers,
 }: CrmLayoutProps) {
   const tContactPanel = useTranslations("crmContactPanel");
+  const tWindow = useTranslations("liveChat.conversationWindow");
   const tBoard = useTranslations("crmBoard");
   const [mobileShowConversation, setMobileShowConversation] = useState(false);
   // Closed by default; opened on demand via the info button in the header.
@@ -401,6 +405,16 @@ export default function CrmLayout({
     assignTo,
     setConversationStatus,
     applyLeadRename,
+    windowConversations,
+    windowFocusRequest,
+    openConversationWindow,
+    closeConversationWindow,
+    setConversationWindowVisible,
+    windowSendMessage,
+    windowSendMedia,
+    windowSendButton,
+    windowSendTyping,
+    windowLoadHistory,
   } = useCrm();
 
   const isCallBusy = useCallActive();
@@ -968,6 +982,55 @@ export default function CrmLayout({
     [subscribe],
   );
 
+  /**
+   * Opens a conversation in its own window, without disturbing the centre pane.
+   *
+   * The inbox entry is passed through so the window has a name and a reply
+   * window to show immediately, rather than an empty title bar until the
+   * server's `subscribed` frame lands.
+   */
+  const handleOpenInWindow = useCallback(
+    (entry: InboxEntry) => {
+      openConversationWindow({
+        entryId: entry.entry_id,
+        entryType: entry.entry_type,
+        leadName: entry.lead_name,
+        leadNumber: entry.lead_number,
+        leadPicture: entry.lead_picture,
+        windowOpen: entry.window_open,
+        windowExpiresAt: entry.window_expires_at,
+        conversationStatus: entry.conversation_status,
+        isGroup: entry.is_group,
+      });
+    },
+    [openConversationWindow],
+  );
+
+  /**
+   * Room reserved at the bottom for parked conversations.
+   *
+   * The dock is fixed to the viewport, so without this it would sit on top of
+   * the centre pane's composer — the one control an operator needs most.
+   */
+  const [dockHeightPx, setDockHeightPx] = useState(0);
+
+  /** The centre pane's own conversation, moved out into a window. */
+  const handlePopOutActive = useCallback(() => {
+    if (!activeConversation) return;
+    openConversationWindow({
+      entryId: activeConversation.entry_id,
+      entryType: activeConversation.entry_type,
+      leadName: activeConversation.lead_name,
+      leadNumber: activeConversation.lead_number,
+      leadPicture:
+        activeConversation.lead_picture ?? currentInboxEntry?.lead_picture,
+      windowOpen: activeConversation.window_open,
+      windowExpiresAt: activeConversation.window_expires_at,
+      conversationStatus: activeConversation.conversation_status,
+      isGroup: activeConversation.is_group,
+    });
+  }, [activeConversation, openConversationWindow]);
+
   // Cold outbound on the unofficial WhatsApp channel. Gated on the SEND
   // permission rather than on update: replying is attendance, but messaging a
   // stranger is the action that gets an unofficial number banned, so an
@@ -1483,6 +1546,93 @@ export default function CrmLayout({
     !!activeConversation &&
     channelCapabilities.supportsAiHandling(activeConversation.entry_type);
 
+  /**
+   * Toggling the agent on a WINDOWED conversation.
+   *
+   * The centre pane's own toggle is addressed at `activeConversation`; this one
+   * takes the entry, because four windows can each be flipping their own.
+   */
+  const [togglingWindowAutomation, setTogglingWindowAutomation] =
+    useState(false);
+  const handleWindowToggleAutomation = useCallback(
+    async (entryId: string, entryType: EntryType) => {
+      if (togglingWindowAutomation) return;
+      const current = windowConversations.get(
+        `${entryType}-${entryId}`,
+      )?.conversation.automation_enabled;
+      setTogglingWindowAutomation(true);
+      try {
+        await setConversationAutomationAction(
+          entryType,
+          entryId,
+          current === false,
+        );
+        // The entry_update frame syncs every view that shows this conversation.
+      } finally {
+        setTogglingWindowAutomation(false);
+      }
+    },
+    [togglingWindowAutomation, windowConversations],
+  );
+
+  /**
+   * What a floating conversation can be worked with.
+   *
+   * Every permission, list and handler here is the SAME one the centre pane
+   * uses — a window is another view of the conversation, not a lesser one, so
+   * it must not develop its own idea of who may assign or which stages exist.
+   */
+  const windowActions = useMemo(
+    () => ({
+      workspaceId: currentWorkspace?.id,
+      onlineUserIds: onlineUserIdSet,
+      canAssign: can("conversations", "assign"),
+      canSetStatus: can("conversations", "send"),
+      canToggleAutomation: can("conversations", "update"),
+      canAssignStage: can("stages", "assign"),
+      canAssignLabel: can("labels", "assign"),
+      togglingAutomation: togglingWindowAutomation,
+      stages: tags,
+      labels,
+      // Resolved per conversation: one bundle serves every open window, so the
+      // owner and the stages have to be looked up rather than baked in.
+      resolve: (entryId: string, entryType: EntryType) => {
+        const entry = inbox.find(
+          (e) => e.entry_id === entryId && e.entry_type === entryType,
+        );
+        return {
+          assignedUserId: entry?.assigned_user_id ?? null,
+          currentStages: entry?.stage ? [entry.stage] : [],
+          availableStages: entry?.available_stages ?? [],
+          currentLabels: entry?.labels ?? [],
+        };
+      },
+      onAssign: assignTo,
+      onSetStatus: setConversationStatus,
+      onToggleAutomation: handleWindowToggleAutomation,
+      onEntryStageChange: handleEntryStageChange,
+      onAssignStage: handleAssignStage,
+      onAssignLabel: handleAssignLabel,
+      onRemoveLabel: handleRemoveLabel,
+    }),
+    [
+      currentWorkspace?.id,
+      onlineUserIdSet,
+      can,
+      togglingWindowAutomation,
+      tags,
+      labels,
+      inbox,
+      assignTo,
+      setConversationStatus,
+      handleWindowToggleAutomation,
+      handleEntryStageChange,
+      handleAssignStage,
+      handleAssignLabel,
+      handleRemoveLabel,
+    ],
+  );
+
   const conversationHeader = activeConversation ? (
     <div className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1.5 border-b border-border bg-card px-3 py-2.5 sm:px-4">
       {/* Back button (mobile) */}
@@ -1567,6 +1717,19 @@ export default function CrmLayout({
             workspaceId={currentWorkspace?.id}
           />
         )}
+
+        {/* Move this conversation into its own window, so the centre pane is
+            free for the next one. */}
+        <TooltipWrapper content={tWindow("openInWindow")}>
+          <button
+            type="button"
+            onClick={handlePopOutActive}
+            aria-label={tWindow("openInWindow")}
+            className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <ArrowSquareOut className="h-4 w-4" />
+          </button>
+        </TooltipWrapper>
 
         {/* Contact info panel toggle, only in classic mode, where the panel renders */}
         {viewMode !== "funnel" && (
@@ -2158,7 +2321,13 @@ export default function CrmLayout({
           </>
         )}
 
-        <div className="relative flex flex-1 min-h-0 overflow-hidden">
+        {/* The parked-conversation dock is fixed to the viewport, so the board
+            gives up the strip it occupies rather than being covered by it. The
+            composer and the inbox's last rows move up with it. */}
+        <div
+          className="relative flex flex-1 min-h-0 overflow-hidden transition-[padding] duration-150"
+          style={dockHeightPx > 0 ? { paddingBottom: dockHeightPx } : undefined}
+        >
           {showOpportunityBoard ? (
             /* Same surface, deal object: the selector above flips the board to the
              vendas funnel. OpportunityBoard owns its own filter bar + drawer. */
@@ -2334,6 +2503,8 @@ export default function CrmLayout({
                   entries={filteredInbox}
                   selectedEntryId={activeConversation?.entry_id ?? null}
                   onSelect={handleSelect}
+                  onOpenInWindow={handleOpenInWindow}
+                  openInWindowLabel={tWindow("openInWindow")}
                   connectionStatus={status}
                   onLoadMore={handleLoadMoreInbox}
                   hasMore={inboxHasMore}
@@ -2537,6 +2708,41 @@ export default function CrmLayout({
           onScheduled={handleScheduled}
         />
       )}
+
+      {/* The floating conversations. Renders nothing until one is opened, so
+          an operator who never uses them pays nothing for them. */}
+      <ConversationWindowDeck
+        conversations={windowConversations}
+        focusRequest={windowFocusRequest}
+        actions={windowActions}
+        canSend={can("conversations", "send")}
+        noPermissionSend={t.input.noPermissionSend}
+        translations={{
+          conversation: t.conversation,
+          input: t.input,
+          minimize: tWindow("minimize"),
+          restore: tWindow("restore"),
+          maximize: tWindow("maximize"),
+          close: tWindow("close"),
+          dragHint: tWindow("dragHint"),
+          actions: {
+            actions: tWindow("actions"),
+            statusHeading: tWindow("statusHeading"),
+            markOngoing: tWindow("markOngoing"),
+            markFinished: tWindow("markFinished"),
+            automationOn: tWindow("automationOn"),
+            automationOff: tWindow("automationOff"),
+          },
+        }}
+        onClose={closeConversationWindow}
+        onVisibilityChange={setConversationWindowVisible}
+        onDockHeightChange={setDockHeightPx}
+        onLoadHistory={windowLoadHistory}
+        onSend={windowSendMessage}
+        onSendMedia={windowSendMedia}
+        onSendButton={windowSendButton}
+        onTyping={windowSendTyping}
+      />
     </>
   );
 }

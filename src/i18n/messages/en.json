@@ -6874,7 +6874,21 @@
     },
     "filterInstagram": "Instagram",
     "filterUnofficialWhatsapp": "WhatsApp (unofficial)",
-    "filterTelegram": "Telegram"
+    "filterTelegram": "Telegram",
+    "conversationWindow": {
+      "openInWindow": "Open in a window",
+      "minimize": "Minimize",
+      "restore": "Restore",
+      "maximize": "Maximize",
+      "close": "Close window",
+      "dragHint": "Drag to move",
+      "actions": "Conversation actions",
+      "statusHeading": "Status",
+      "markOngoing": "Mark as ongoing",
+      "markFinished": "Mark as finished",
+      "automationOn": "AI is answering",
+      "automationOff": "AI is paused"
+    }
   },
   "tagGroupsPage": {
     "header": {
@@ -11548,7 +11562,8 @@
     "hero": {
       "titleLine1": "Every channel.",
       "titleLine2": "One operation.",
-      "body": "WhatsApp, CRM, AI agents and automations stop competing for context. A conversation enters once and moves through the entire operation.",
+      "lead": "Turn your contacts into results.",
+      "body": "WhatsApp, CRM, AI agents and automations stop fighting over context: a conversation enters once and moves through the entire operation.",
       "primaryCta": "Get started",
       "secondaryCta": "See the flow"
     },

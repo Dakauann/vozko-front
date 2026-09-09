@@ -22,6 +22,20 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { hasUserDataCookie } from "@/lib/auth/client-cookies";
 import { resolveAutomationEnabled } from "@/lib/conversations/automation";
 import {
+  applyWindowEvent,
+  closeWindowConversation,
+  clearWindowLoading,
+  emptyWindowConversations,
+  incomingUnreadIds,
+  markWindowLoadingMore,
+  openWindowConversation,
+  setWindowVisibility,
+  unreadIdsIn,
+  type OpenWindowConversationInput,
+  type WindowConversations,
+} from "@/lib/conversations/windowed-conversations";
+import { MAX_OPEN_WINDOWS, windowKey } from "@/lib/conversations/window-deck";
+import {
   createReconnectController,
   type ReconnectController,
 } from "@/lib/ws/reconnect";
@@ -177,6 +191,52 @@ interface UseConversationWsReturn {
     status: string,
   ) => void;
   applyLeadRename: (leadId: string, name: string) => void;
+
+  /**
+   * The conversations open in floating windows, keyed by entry.
+   *
+   * Separate from `activeConversation`, which stays what the centre pane
+   * shows. Both ride this one socket and are fed by the same frames.
+   */
+  windowConversations: WindowConversations;
+  /** Bumped on every open, so the deck can raise an already-open window. */
+  windowFocusRequest: { key: string; nonce: number } | null;
+  openConversationWindow: (input: OpenWindowConversationInput) => void;
+  closeConversationWindow: (entryId: string, entryType: EntryType) => void;
+  /** Parks or restores a window, which is what decides read vs unread. */
+  setConversationWindowVisible: (
+    entryId: string,
+    entryType: EntryType,
+    visible: boolean,
+  ) => void;
+  windowSendMessage: (
+    entryId: string,
+    entryType: EntryType,
+    text: string,
+    signed: boolean,
+    replyToMessageId?: string,
+  ) => void;
+  windowSendMedia: (
+    entryId: string,
+    entryType: EntryType,
+    text: string,
+    mediaId: string,
+    mediaType: MediaType,
+    signed: boolean,
+    replyToMessageId?: string,
+  ) => void;
+  windowSendButton: (
+    entryId: string,
+    entryType: EntryType,
+    input: SendButtonWsInput,
+    replyToMessageId?: string,
+  ) => void;
+  windowSendTyping: (
+    entryId: string,
+    entryType: EntryType,
+    isTyping: boolean,
+  ) => void;
+  windowLoadHistory: (entryId: string, entryType: EntryType) => void;
 }
 
 export type CallStatus = "waiting_slot" | "ringing" | "answered" | "ended";
@@ -291,6 +351,23 @@ export function useConversationWs({
 
   const [latestAnalysisUpdate, setLatestAnalysisUpdate] =
     useState<WsAnalysisUpdatePayload | null>(null);
+
+  // Conversations open in floating windows, beside the one the centre pane
+  // shows. Their thread semantics live in lib/conversations/windowed-
+  // conversations, which is pure and tested without a socket; this hook only
+  // feeds it frames and owns the wire.
+  const [windowConversations, setWindowConversations] =
+    useState<WindowConversations>(emptyWindowConversations);
+  const windowConversationsRef = useRef<WindowConversations>(
+    windowConversations,
+  );
+  // Lets the deck raise a window for a conversation opened again, which changes
+  // no conversation state and would otherwise be invisible.
+  const [windowFocusRequest, setWindowFocusRequest] = useState<{
+    key: string;
+    nonce: number;
+  } | null>(null);
+  const windowFocusNonceRef = useRef(0);
 
   const wsRef = useRef<WebSocket | null>(null);
   const controllerRef = useRef<ReconnectController | null>(null);
@@ -470,6 +547,60 @@ export function useConversationWs({
     }
   }, []);
 
+  /**
+   * Which VIEWS are holding each open conversation.
+   *
+   * Views are named — "pane" for the centre pane, "window" for a floating one —
+   * rather than counted. A count is wrong here because subscribing is not a
+   * balanced operation: `subscribe()` is called again every time an operator
+   * clicks the conversation they are already in, and each of those would raise
+   * a counter that only ONE later switch decrements. The conversation then
+   * never reaches zero, `unsubscribe` is never sent, and it keeps streaming
+   * long after the operator has moved on — which is how a conversation nobody
+   * was looking at was still being marked read.
+   *
+   * A set of names makes re-subscribing idempotent, which is exactly what the
+   * caller means by it.
+   */
+  type SubscriptionHolder = "pane" | "window";
+  const subscriptionHoldersRef = useRef<
+    Map<
+      string,
+      { entryId: string; entryType: EntryType; holders: Set<SubscriptionHolder> }
+    >
+  >(new Map());
+
+  const retainSubscription = useCallback(
+    (entryId: string, entryType: EntryType, holder: SubscriptionHolder) => {
+      const key = windowKey(entryId, entryType);
+      const current = subscriptionHoldersRef.current.get(key);
+      const holders = current?.holders ?? new Set<SubscriptionHolder>();
+      holders.add(holder);
+      subscriptionHoldersRef.current.set(key, { entryId, entryType, holders });
+
+      // Sent on every retain, not only the first. Re-subscribing is cheap and
+      // idempotent server-side, and it is what delivers the `subscribed` frame
+      // the newly attached view needs to render.
+      send("subscribe", { entry_id: entryId, entry_type: entryType });
+    },
+    [send],
+  );
+
+  const releaseSubscription = useCallback(
+    (entryId: string, entryType: EntryType, holder: SubscriptionHolder) => {
+      const key = windowKey(entryId, entryType);
+      const current = subscriptionHoldersRef.current.get(key);
+      if (!current) return;
+
+      current.holders.delete(holder);
+      if (current.holders.size > 0) return;
+
+      subscriptionHoldersRef.current.delete(key);
+      send("unsubscribe", { entry_id: entryId, entry_type: entryType });
+    },
+    [send],
+  );
+
 
   const normalizeMessage = useCallback(
     (message: ConversationMessage | Record<string, unknown>) => {
@@ -643,8 +774,95 @@ export function useConversationWs({
     [],
   );
 
+  /**
+   * Feeds one frame to the floating windows, in addition to whatever the
+   * centre pane does with it below.
+   *
+   * Messages are normalized first so the pure reducer never sees wire shapes,
+   * and inbound messages a window is showing get their read receipt here — a
+   * conversation is read when the operator can SEE it, which a window is just
+   * as much as the centre pane.
+   */
+  const routeEventToWindows = useCallback(
+    (event: WsServerEvent) => {
+      if (windowConversationsRef.current.size === 0) return;
+
+      let framed = event;
+      let unreadIds: string[] = [];
+
+      switch (event.type) {
+        case "conversation:history": {
+          const messages = (event.payload.messages ?? []).map(normalizeMessage);
+          framed = {
+            ...event,
+            payload: { ...event.payload, messages },
+          };
+          unreadIds = incomingUnreadIds(messages);
+          break;
+        }
+        case "conversation:message":
+        case "conversation:message_sent": {
+          const message = normalizeMessage(event.payload.message);
+          framed = { ...event, payload: { ...event.payload, message } };
+          if (event.type === "conversation:message") {
+            unreadIds = incomingUnreadIds([message]);
+          }
+          break;
+        }
+      }
+
+      const before = windowConversationsRef.current;
+      const next = applyWindowEvent(before, framed);
+      if (next !== before) {
+        windowConversationsRef.current = next;
+        setWindowConversations(next);
+
+        // A frame can CLOSE a window — the conversation was assigned to
+        // someone else and left this operator's scope, or the server
+        // unsubscribed it. The subscription that window was holding has to go
+        // with it, or the socket keeps streaming a thread nothing is showing.
+        if (next.size < before.size) {
+          for (const [key, state] of before) {
+            if (next.has(key)) continue;
+            releaseSubscription(
+              state.conversation.entry_id,
+              state.conversation.entry_type,
+              "window",
+            );
+          }
+        }
+      }
+
+      if (unreadIds.length === 0) return;
+      const payload = event.payload as { entry_id: string; entry_type: EntryType };
+
+      /**
+       * A receipt means "the operator has SEEN this", so only a window that is
+       * actually on screen may send one.
+       *
+       * Holding the subscription is not the same as reading it. A window
+       * parked in the dock still receives everything, and receipting there
+       * marked conversations read that nobody had looked at — including,
+       * confusingly, while the operator was working a different conversation
+       * in the centre pane entirely. Those messages raise the window's unread
+       * badge instead, and the receipts go out when it is restored.
+       */
+      const holder = next.get(windowKey(payload.entry_id, payload.entry_type));
+      if (!holder?.visible) return;
+
+      send("mark_read", {
+        entry_id: payload.entry_id,
+        entry_type: payload.entry_type,
+        message_ids: unreadIds,
+      });
+    },
+    [normalizeMessage, releaseSubscription, send],
+  );
+
   const handleServerEvent = useCallback(
     (event: WsServerEvent) => {
+      routeEventToWindows(event);
+
       switch (event.type) {
         case "conversation:connected_users":
           const { users } = event.payload;
@@ -1571,7 +1789,7 @@ export function useConversationWs({
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [send],
+    [send, routeEventToWindows],
   );
 
 
@@ -1673,14 +1891,18 @@ export function useConversationWs({
         }),
       );
 
-      if (wasReconnect && activeSubscriptionRef.current) {
-        const { entry_id, entry_type } = activeSubscriptionRef.current;
-        ws.send(
-          JSON.stringify({
-            type: "subscribe",
-            payload: { entry_id, entry_type },
-          }),
-        );
+      // EVERY conversation still on screen comes back, not just the centre
+      // pane's: a dropped socket must not leave three open windows dead while
+      // the fourth one recovers.
+      if (wasReconnect) {
+        for (const { entryId, entryType } of subscriptionHoldersRef.current.values()) {
+          ws.send(
+            JSON.stringify({
+              type: "subscribe",
+              payload: { entry_id: entryId, entry_type: entryType },
+            }),
+          );
+        }
       }
     };
 
@@ -1720,6 +1942,15 @@ export function useConversationWs({
         loadingConversationTimerRef.current = null;
       }
       setLoadingConversation(false);
+
+      // Same for the floating windows: a dropped socket must not leave four
+      // spinners turning forever. Their subscriptions are kept, so the
+      // reconnect above brings every one of them back.
+      const settled = clearWindowLoading(windowConversationsRef.current);
+      if (settled !== windowConversationsRef.current) {
+        windowConversationsRef.current = settled;
+        setWindowConversations(settled);
+      }
 
       // The controller decides whether/when to retry (infinite capped backoff,
       // gated by shouldReconnect).
@@ -1799,20 +2030,23 @@ export function useConversationWs({
         );
         return;
       }
-      if (
-        activeSubscriptionRef.current &&
-        (activeSubscriptionRef.current.entry_id !== entryId ||
-          activeSubscriptionRef.current.entry_type !== entryType)
-      ) {
-        send("unsubscribe", {
-          entry_id: activeSubscriptionRef.current.entry_id,
-          entry_type: activeSubscriptionRef.current.entry_type,
-        });
-      }
+      const previous = activeSubscriptionRef.current;
+      const isSwitch =
+        previous &&
+        (previous.entry_id !== entryId || previous.entry_type !== entryType);
+
       activeSubscriptionRef.current = {
         entry_id: entryId,
         entry_type: entryType,
       };
+
+      // Retain BEFORE releasing the previous one: if both views were showing
+      // the same entry the count never touches zero, so no `unsubscribe` is
+      // sent for a conversation still on screen.
+      retainSubscription(entryId, entryType, "pane");
+      if (isSwitch) {
+        releaseSubscription(previous.entry_id, previous.entry_type, "pane");
+      }
 
       // Show the thread skeleton while the first history batch loads, but not
       // when re-opening a conversation we already have cached in memory.
@@ -1834,22 +2068,23 @@ export function useConversationWs({
         }, 12000);
       }
 
-      send("subscribe", { entry_id: entryId, entry_type: entryType });
+      // `subscribe` itself is sent by retainSubscription above.
     },
-    [send],
+    [retainSubscription, releaseSubscription],
   );
 
   const unsubscribe = useCallback(() => {
     if (activeSubscriptionRef.current) {
-      send("unsubscribe", {
-        entry_id: activeSubscriptionRef.current.entry_id,
-        entry_type: activeSubscriptionRef.current.entry_type,
-      });
+      releaseSubscription(
+        activeSubscriptionRef.current.entry_id,
+        activeSubscriptionRef.current.entry_type,
+        "pane",
+      );
       setActiveConversation(null);
       activeSubscriptionRef.current = null;
     }
     stopLoadingConversation();
-  }, [send, stopLoadingConversation]);
+  }, [releaseSubscription, stopLoadingConversation]);
 
   const sendMessage = useCallback(
     (text: string, signed: boolean, replyToMessageId?: string) => {
@@ -1963,6 +2198,217 @@ export function useConversationWs({
       });
     },
     [send],
+  );
+
+  // --- Conversations open in floating windows ---------------------------
+  //
+  // Every one of these is addressed by entry rather than by "whatever is
+  // current", which is what lets several be open and worked at once.
+
+  const applyWindows = useCallback(
+    (next: WindowConversations) => {
+      if (next === windowConversationsRef.current) return;
+      windowConversationsRef.current = next;
+      setWindowConversations(next);
+    },
+    [],
+  );
+
+  const openConversationWindow = useCallback(
+    (input: OpenWindowConversationInput) => {
+      if (!input.entryId || !input.entryType) return;
+      const key = windowKey(input.entryId, input.entryType);
+      const current = windowConversationsRef.current;
+      const alreadyOpen = current.has(key);
+
+      // The cap lives here because this map is the list a window is derived
+      // from. A Map iterates in insertion order, so the first key is the one
+      // opened longest ago — the one that gives way.
+      let next = current;
+      let retired: { entryId: string; entryType: EntryType } | null = null;
+      if (!alreadyOpen && current.size >= MAX_OPEN_WINDOWS) {
+        const oldestKey = current.keys().next().value as string | undefined;
+        const oldest = oldestKey ? current.get(oldestKey) : undefined;
+        if (oldest && oldestKey) {
+          retired = {
+            entryId: oldest.conversation.entry_id,
+            entryType: oldest.conversation.entry_type,
+          };
+          next = closeWindowConversation(next, oldestKey);
+        }
+      }
+
+      applyWindows(openWindowConversation(next, input));
+
+      if (retired) releaseSubscription(retired.entryId, retired.entryType, "window");
+      // A window already open is being re-focused, and it is already holding
+      // its subscription; retaining again would leak a holder that no close
+      // will ever release.
+      if (!alreadyOpen) {
+        retainSubscription(input.entryId, input.entryType, "window");
+
+        // Ask for the transcript explicitly rather than relying on the one
+        // that rides the subscribe reply.
+        //
+        // The server remembers which messages it has already sent each
+        // CONNECTION per entry, and filters them out of a subscribe's history.
+        // That is right when one socket shows one conversation — a re-subscribe
+        // then means "I still have these" — but a window is a SECOND view on
+        // the same socket, and it starts empty. Without this it opens blank for
+        // any conversation the centre pane has already shown.
+        //
+        // `load_history` is not filtered, and asking for what came before NOW
+        // is how you ask for the newest page. The reducer merges by message id,
+        // so this frame and the subscribe's own history can arrive in either
+        // order, or both, without duplicating a line.
+        send("load_history", {
+          entry_id: input.entryId,
+          entry_type: input.entryType,
+          before: new Date().toISOString(),
+        });
+      }
+
+      // Bumped even for a window already open, so picking that conversation
+      // again brings its window forward rather than appearing to do nothing.
+      windowFocusNonceRef.current += 1;
+      setWindowFocusRequest({ key, nonce: windowFocusNonceRef.current });
+    },
+    [applyWindows, releaseSubscription, retainSubscription, send],
+  );
+
+  const closeConversationWindow = useCallback(
+    (entryId: string, entryType: EntryType) => {
+      const key = windowKey(entryId, entryType);
+      if (!windowConversationsRef.current.has(key)) return;
+      applyWindows(closeWindowConversation(windowConversationsRef.current, key));
+      releaseSubscription(entryId, entryType, "window");
+    },
+    [applyWindows, releaseSubscription],
+  );
+
+  /**
+   * Parks or restores a window, as far as READING is concerned.
+   *
+   * The deck owns whether a window is minimized; this is that fact reaching the
+   * socket, because it decides whether arriving messages are receipted as read
+   * or counted as unread. Restoring one sends the receipts that were held back
+   * while it sat in the dock.
+   */
+  const setConversationWindowVisible = useCallback(
+    (entryId: string, entryType: EntryType, visible: boolean) => {
+      const key = windowKey(entryId, entryType);
+      const current = windowConversationsRef.current.get(key);
+      if (!current || current.visible === visible) return;
+
+      if (visible) {
+        const unreadIds = unreadIdsIn(current);
+        if (unreadIds.length > 0) {
+          send("mark_read", {
+            entry_id: entryId,
+            entry_type: entryType,
+            message_ids: unreadIds,
+          });
+        }
+      }
+
+      applyWindows(
+        setWindowVisibility(windowConversationsRef.current, key, visible),
+      );
+    },
+    [applyWindows, send],
+  );
+
+  const windowSendMessage = useCallback(
+    (
+      entryId: string,
+      entryType: EntryType,
+      text: string,
+      signed: boolean,
+      replyToMessageId?: string,
+    ) => {
+      send("send", {
+        entry_id: entryId,
+        entry_type: entryType,
+        signed,
+        text,
+        ...(replyToMessageId ? { reply_to_message_id: replyToMessageId } : {}),
+      });
+    },
+    [send],
+  );
+
+  const windowSendMedia = useCallback(
+    (
+      entryId: string,
+      entryType: EntryType,
+      text: string,
+      mediaId: string,
+      mediaType: MediaType,
+      signed: boolean,
+      replyToMessageId?: string,
+    ) => {
+      send("send", {
+        entry_id: entryId,
+        entry_type: entryType,
+        text,
+        media_id: mediaId,
+        media_type: mediaType,
+        signed,
+        ...(replyToMessageId ? { reply_to_message_id: replyToMessageId } : {}),
+      });
+    },
+    [send],
+  );
+
+  const windowSendButton = useCallback(
+    (
+      entryId: string,
+      entryType: EntryType,
+      input: SendButtonWsInput,
+      replyToMessageId?: string,
+    ) => {
+      send("send_button", {
+        entry_id: entryId,
+        entry_type: entryType,
+        header_type: input.headerType || "",
+        header_text: input.headerText || "",
+        body_text: input.bodyText,
+        footer_text: input.footerText || "",
+        buttons: input.buttons,
+        ...(replyToMessageId ? { reply_to_message_id: replyToMessageId } : {}),
+      });
+    },
+    [send],
+  );
+
+  const windowSendTyping = useCallback(
+    (entryId: string, entryType: EntryType, isTyping: boolean) => {
+      send("typing", {
+        entry_id: entryId,
+        entry_type: entryType,
+        is_typing: isTyping,
+      });
+    },
+    [send],
+  );
+
+  const windowLoadHistory = useCallback(
+    (entryId: string, entryType: EntryType) => {
+      const key = windowKey(entryId, entryType);
+      const state = windowConversationsRef.current.get(key);
+      if (!state || state.loadingHistory) return;
+
+      const { messages, has_more } = state.conversation;
+      if (messages.length === 0 || !has_more) return;
+
+      applyWindows(markWindowLoadingMore(windowConversationsRef.current, key));
+      send("load_history", {
+        entry_id: entryId,
+        entry_type: entryType,
+        before: messages[0].created_at,
+      });
+    },
+    [applyWindows, send],
   );
 
   const requestInboxPage = useCallback(
@@ -2361,5 +2807,15 @@ export function useConversationWs({
     assignTo,
     setConversationStatus,
     applyLeadRename,
+    windowConversations,
+    windowFocusRequest,
+    openConversationWindow,
+    closeConversationWindow,
+    setConversationWindowVisible,
+    windowSendMessage,
+    windowSendMedia,
+    windowSendButton,
+    windowSendTyping,
+    windowLoadHistory,
   };
 }
