@@ -626,9 +626,38 @@ export interface AlertLimits {
     templateParamCount: number;
 }
 
+/** One number a channel can send an alert from. */
+export interface AlertSender {
+    id: string;
+    /** What the operator recognises. Never an internal id. */
+    label: string;
+}
+
+/**
+ * Whether THIS workspace can use a channel right now.
+ *
+ * `channels` above is the product vocabulary and says nothing about the tenant.
+ * Serving only that was the bug: a workspace with no connected number was
+ * offered the unofficial channel, accepted it, and armed a rule that could
+ * never fire.
+ */
+export interface AlertChannelStatus {
+    channel: AlertChannel;
+    available: boolean;
+    /** Stable key to translate: "no_sender" or "not_enabled". */
+    reason?: string;
+    senders: AlertSender[];
+}
+
 export interface AlertVocabulary {
     metrics: AlertMetricOption[];
     channels: AlertChannel[];
+    /**
+     * Narrows `channels` to what this workspace can actually do. Empty when the
+     * deployment wired no directory, in which case the picker falls back to
+     * `channels` exactly as it did before.
+     */
+    channelStatus?: AlertChannelStatus[];
     limits: AlertLimits;
     /**
      * What an alert can put into a template's variables, in the order a

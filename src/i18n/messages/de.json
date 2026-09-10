@@ -8427,7 +8427,8 @@
       "duration": "Dauer",
       "unofficialWhatsapp": "WhatsApp (inoffiziell)",
       "instagram": "Instagram",
-      "telegram": "Telegram"
+      "telegram": "Telegram",
+      "dayUnit": " T."
     },
     "export": {
       "button": "CSV exportieren",
@@ -8450,7 +8451,9 @@
         "messaging": "Nachrichten pro Konversation",
         "reopen": "Wiedereröffnungen",
         "finishedBySource": "Art des Abschlusses",
-        "definitions": "Definitionen der Kennzahlen"
+        "definitions": "Definitionen der Kennzahlen",
+        "stages": "Nach Funnel-Phase",
+        "stagesTotals": "Phasenabdeckung"
       },
       "columns": {
         "filter": "Filter",
@@ -8481,7 +8484,17 @@
         "finishedAi": "Abgeschlossen (KI)",
         "finishedSystem": "Abgeschlossen (System)",
         "ongoing": "Laufend",
-        "definition": "Definition"
+        "definition": "Definition",
+        "funnel": "Funnel",
+        "stage": "Phase",
+        "engaged": "Aktive Konversationen",
+        "shell": "Ohne Nachricht",
+        "pctOfFunnel": "% des Funnels",
+        "pctOfStaged": "% aller Phasen",
+        "avgDaysInStage": "Tage stehend (Durchschnitt)",
+        "oldestDaysInStage": "Tage stehend (älteste)",
+        "stuck": "Festgefahren",
+        "stuckAfterDays": "Schwelle (Tage)"
       },
       "filters": {
         "generatedAt": "Erstellt am",
@@ -8592,8 +8605,17 @@
         "finished_by_source": "Abschlussart",
         "unassigned": "Ohne Zuweisung",
         "csat": "Zufriedenheit (CSAT)",
-        "sla": "SLA"
-      }
+        "sla": "SLA",
+        "stages": "Funnel-Phasen"
+      },
+      "stages": {
+        "stagedEngaged": "Konversationen in Phasen",
+        "stagedShell": "Ohne Nachricht, in Phasen",
+        "unstagedEngaged": "Konversationen ohne Phase",
+        "unstagedShell": "Ohne Nachricht und ohne Phase",
+        "stuck": "Festgefahrene Konversationen"
+      },
+      "noFunnel": "Ohne Funnel"
     },
     "attendance": {
       "badge": "Metriken · Service",
@@ -8674,7 +8696,17 @@
         "templates": "WhatsApp-Templates",
         "templatesSub": "Template-(HSM)-Volumen in Unterhaltungen im Zeitraum · operative Zählung, ohne Preis",
         "templatesTitle": "Gesendete Templates",
-        "templatesTitleSub": "Template-Nachrichten in Unterhaltungen (Kampagnen, CRM und Automatisierungen)"
+        "templatesTitleSub": "Template-Nachrichten in Unterhaltungen (Kampagnen, CRM und Automatisierungen)",
+        "stages": "Funnel und Phasen",
+        "stagesSub": "Wo die Leads gerade stehen, nach Funnel",
+        "stageChart": "Verteilung nach Phase",
+        "stageChartSub": "Aktive Konversationen in jeder Funnel-Phase",
+        "stageTable": "Phasen im Detail",
+        "stageTableSub": "Volumen, Standzeit und festgefahrene Konversationen",
+        "stageCoverage": "Abdeckung nach Funnel",
+        "stageCoverageSub": "Wie viel des Zeitraums in einer Phase steht, und in welchem Funnel",
+        "stageMosaic": "Blockkarte",
+        "stageMosaicSub": "Alle Funnel auf einmal, jeder Block so groß wie sein Volumen"
       },
       "status": {
         "finished": "Abgeschlossene Gespräche",
@@ -8699,7 +8731,11 @@
         "engaged": "Aktiv (mit Nachrichten)",
         "engagedDesc": "Einträge mit mind. einer Nachricht, echte Gespräche der KPIs",
         "shell": "Shell",
-        "shellDesc": "Kampagnen-Einträge ohne Nachrichten; separat angezeigt, nicht als unbeantworteter Chat"
+        "shellDesc": "Kampagnen-Einträge ohne Nachrichten; separat angezeigt, nicht als unbeantworteter Chat",
+        "stageStuck": "Festgefahren",
+        "stageStuckDesc": "Offene Konversationen, die länger als die Schwelle der Phase (oder 7 Tage, wenn keine gesetzt ist) in derselben Phase stehen.",
+        "stageParked": "Steht seit",
+        "stageParkedDesc": "Durchschnittliche Tage, die noch offene Konversationen in ihrer aktuellen Phase stehen, bis jetzt gezählt."
       },
       "labels": {
         "overallAvg": "Gesamtdurchschnitt",
@@ -8782,7 +8818,44 @@
         "shellChip": "{count} Shells (ohne Nachrichten)",
         "shellChipHint": "Kampagnen-Einträge ohne Nachrichten, zählen nicht als Service",
         "avgIncludingShells": "Inkl. Shells: {avg} Msgs/Eintrag",
-        "finishedEventsTelemetry": "{count} Abschluss-Events (Telemetrie; kann alte Shells enthalten)"
+        "finishedEventsTelemetry": "{count} Abschluss-Events (Telemetrie; kann alte Shells enthalten)",
+        "noFunnel": "Ohne Funnel",
+        "noFunnelHint": "Phasen, die zu keinem Funnel gehören",
+        "defaultFunnel": "Standard",
+        "noStageData": "In diesem Zeitraum steht keine Konversation in einer Phase",
+        "noStageDataHint": "Der Zeitraum enthält Konversationen, aber keine davon steht in einer Funnel-Phase.",
+        "stageCol": "Phase",
+        "funnelCol": "Funnel",
+        "engagedCol": "Konversationen",
+        "engagedColTitle": "Konversationen mit mindestens einer Nachricht",
+        "shellCol": "Ohne Nachricht",
+        "shellColTitle": "Kampagnen- oder Import-Einträge in der Phase, die nie eine Nachricht erhalten haben",
+        "shareCol": "Vom Funnel",
+        "shareColTitle": "Anteil der Phase am aktiven Gesamtwert ihres eigenen Funnels",
+        "parkedCol": "Steht seit",
+        "parkedColTitle": "Durchschnittliche Tage, die offene Konversationen in dieser Phase stehen, jetzt gemessen",
+        "stuckCol": "Festgefahren",
+        "stuckColTitle": "Offene Konversationen über der Schwelle der Phase",
+        "stageEngaged": "{count} Konversationen",
+        "stageShell": "+{count} ohne Nachricht",
+        "stageStuck": "{count} festgefahren",
+        "stuckAfter": "über {days} T.",
+        "stuckAfterDefault": "über {days} T., Standard",
+        "oldestInStage": "älteste: {days}",
+        "funnelSummary": "{engaged} Konversationen · {pct} aller Phasen",
+        "funnelStuck": "{count} festgefahren",
+        "unstagedHint": "Konversationen des Zeitraums ohne Funnel-Phase",
+        "peakStage": "Größter Stau",
+        "wonStage": "Gewonnen",
+        "lostStage": "Verloren",
+        "stageMeasuredNow": "Standzeit und festgefahrene Fälle werden jetzt gemessen, nicht zum Periodenende",
+        "unstagedCol": "Ohne Phase",
+        "coverageRing": "in Phasen",
+        "stagedCol": "In Phasen",
+        "aiAbandoned": "Abgebrochen",
+        "mosaicHint": "Funnel-Höhe = Anteil an allen Phasen. Blockbreite = Anteil am Funnel. Das bernsteinfarbene Band am Fuß ist der festgefahrene Teil.",
+        "aiContainmentRate": "KI-Lösungsquote",
+        "aiHandoffRate": "Übergabequote"
       }
     }
   },
@@ -9636,11 +9709,18 @@
         "cooldown": "Abstand zwischen Warnungen (Min.)",
         "maxPerDay": "Maximum pro Tag",
         "enabled": "Regel aktiv",
-        "brief": "KI-Einschätzung einbeziehen"
+        "brief": "KI-Einschätzung einbeziehen",
+        "instance": "Absendernummer"
       },
       "templateVariables": "Erkannte Namen, falls Ihre Vorlage benannte Variablen nutzt: {facts}",
       "briefHint": "Die KI ergänzt einen Satz dazu, was passiert, und einen dazu, wie zu reagieren ist. Das ist ein abgerechneter KI-Aufruf pro Auslösung; die Benachrichtigung wird auch gesendet, wenn die KI nicht antwortet.",
-      "briefChip": "mit KI-Einschätzung"
+      "briefChip": "mit KI-Einschätzung",
+      "channelUnavailable": {
+        "no_sender": "Auf diesem Kanal ist keine Nummer verbunden. Verbinden Sie eine, bevor Sie die Regel scharf schalten, sonst löst sie nie aus.",
+        "not_enabled": "Dieser Kanal ist in dieser Installation nicht aktiviert."
+      },
+      "cannotArmHint": "Eine Regel kann auf einem Kanal ohne verbundene Nummer nicht scharf geschaltet werden.",
+      "channelGoneChip": "Keine Nummer"
     }
   },
   "telegram": {

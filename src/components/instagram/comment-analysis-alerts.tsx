@@ -13,6 +13,7 @@ import {
 } from "@/app/actions/comment-analysis";
 import type {
   AlertChannel,
+  AlertChannelStatus,
   AlertMetric,
   AlertRule,
   AlertRuleDraft,
@@ -156,6 +157,19 @@ export function CommentAnalysisAlerts({ accountId }: { accountId: string }) {
     setError(result.error ?? null);
   };
 
+  // Channels this workspace cannot currently send on. Empty when the backend
+  // sent no status list, so a deployment that cannot answer flags nothing
+  // rather than flagging everything.
+  const blockedChannels = useMemo(
+    () =>
+      new Set(
+        (options?.channelStatus ?? [])
+          .filter((s) => !s.available)
+          .map((s) => s.channel),
+      ),
+    [options?.channelStatus],
+  );
+
   return (
     <Panel
       title={t("title")}
@@ -197,6 +211,15 @@ export function CommentAnalysisAlerts({ accountId }: { accountId: string }) {
                   </p>
                   <div className="mt-2 flex flex-wrap items-center gap-1.5">
                     <Chip>{t(`channels.${rule.channel}`)}</Chip>
+                    {/* A rule armed on a channel the workspace can no longer
+                        send on. Said on the row, because the alternative is
+                        finding out from LastError after it failed to fire. */}
+                    {rule.enabled && blockedChannels.has(rule.channel) ? (
+                      <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-1.5 py-0.5 text-2xs font-semibold text-warning-ink">
+                        <Warning className="h-3 w-3" weight="fill" />
+                        {t("channelGoneChip")}
+                      </span>
+                    ) : null}
                     <Chip>{rule.recipient}</Chip>
                     <Chip>{t("cooldownChip", { minutes: rule.cooldownMinutes })}</Chip>
                     <Chip>{t("capChip", { count: rule.maxPerDay })}</Chip>
@@ -290,6 +313,25 @@ function AlertRuleDialog({
   const [templates, setTemplates] = useState<WhatsAppTemplate[]>([]);
   const official = draft.channel === "official";
 
+  /*
+   * What this workspace can actually send on.
+   *
+   * The picker used to offer both channels from a hardcoded list while only the
+   * OFFICIAL one was validated at save, so a workspace with no connected number
+   * could arm an unofficial rule that showed "Regra ativa" and died silently at
+   * the first firing. Both halves now read the same source the backend
+   * validates against, so the form and the save cannot disagree.
+   */
+  const channelStatus = options?.channelStatus;
+  const statusFor = (c: AlertChannel): AlertChannelStatus | undefined =>
+    channelStatus?.find((s) => s.channel === c);
+  const currentStatus = statusFor(draft.channel);
+  // No status list at all means the deployment could not answer, and the form
+  // behaves exactly as it did before rather than blocking every channel.
+  const channelBlocked = Boolean(channelStatus?.length) && currentStatus?.available === false;
+  const senders = currentStatus?.senders ?? [];
+  const unofficialSenders = draft.channel === "unofficial" ? senders : [];
+
   useEffect(() => {
     if (!official) return;
     let cancelled = false;
@@ -377,11 +419,28 @@ function AlertRuleDialog({
               value={draft.channel}
               onValueChange={(v) => set("channel", v as AlertChannel)}
             >
-              {(options?.channels ?? ["unofficial", "official"]).map((c) => (
-                <ElevatedSelectItem key={c} value={c}>
-                  {t(`channels.${c}`)}
-                </ElevatedSelectItem>
-              ))}
+              {(options?.channels ?? ["unofficial", "official"]).map((c) => {
+                const s = statusFor(c);
+                // Offered but disabled, with the reason on the row. Removing it
+                // silently would read as a missing feature; a greyed control
+                // with no explanation sends people to support instead of to
+                // the connect screen.
+                const blocked = Boolean(channelStatus?.length) && s?.available === false;
+                return (
+                  <ElevatedSelectItem
+                    key={c}
+                    value={c}
+                    disabled={blocked}
+                    description={
+                      blocked
+                        ? t(`channelUnavailable.${s?.reason ?? "no_sender"}`)
+                        : undefined
+                    }
+                  >
+                    {t(`channels.${c}`)}
+                  </ElevatedSelectItem>
+                );
+              })}
             </ElevatedSelect>
             <ElevatedInput
               label={t("fields.recipient")}
@@ -390,6 +449,32 @@ function AlertRuleDialog({
               placeholder="5511999999999"
             />
           </div>
+
+          {/* The channel cannot send. Said here, once, in words, next to the
+              control that caused it — not discovered days later in LastError. */}
+          {channelBlocked ? (
+            <p className="flex items-start gap-2 rounded-[--radius] bg-muted px-3 py-2 text-2xs text-warning-ink">
+              <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" weight="fill" />
+              <span>{t(`channelUnavailable.${currentStatus?.reason ?? "no_sender"}`)}</span>
+            </p>
+          ) : null}
+
+          {/* The unofficial channel had no sender picker at all, which is half
+              the bug: with several numbers connected, "whichever one this
+              workspace has" picked for the operator, silently. */}
+          {!official && unofficialSenders.length > 0 ? (
+            <ElevatedSelect
+              label={t("fields.instance")}
+              value={draft.instanceId ?? (unofficialSenders.length === 1 ? unofficialSenders[0].id : "")}
+              onValueChange={(v) => set("instanceId", v)}
+            >
+              {unofficialSenders.map((s) => (
+                <ElevatedSelectItem key={s.id} value={s.id}>
+                  {s.label}
+                </ElevatedSelectItem>
+              ))}
+            </ElevatedSelect>
+          ) : null}
 
           {official ? (
             <div className="space-y-3">
@@ -463,10 +548,20 @@ function AlertRuleDialog({
           </label>
           <p className="text-2xs text-muted-foreground">{t("briefHint")}</p>
 
+          {/* Arming is blocked, turning it OFF never is. Mirrors the backend
+              rule exactly: refusing the off switch would trap an operator with
+              an alert they cannot disable, which is worse than the bug. */}
           <label className={cn("flex items-center justify-between gap-3 rounded-[--radius] border border-border px-3 py-2")}>
             <span className="text-sm text-foreground">{t("fields.enabled")}</span>
-            <ElevatedSwitch checked={draft.enabled} onCheckedChange={(checked: boolean) => set("enabled", checked)} />
+            <ElevatedSwitch
+              checked={draft.enabled}
+              disabled={channelBlocked && !draft.enabled}
+              onCheckedChange={(checked: boolean) => set("enabled", checked)}
+            />
           </label>
+          {channelBlocked && !draft.enabled ? (
+            <p className="text-2xs text-muted-foreground">{t("cannotArmHint")}</p>
+          ) : null}
 
           {error ? (
             <p className="flex items-center gap-2 text-xs text-destructive-ink">

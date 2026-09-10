@@ -9553,7 +9553,8 @@
       "duration": "Duração",
       "unofficialWhatsapp": "WhatsApp (não oficial)",
       "instagram": "Instagram",
-      "telegram": "Telegram"
+      "telegram": "Telegram",
+      "dayUnit": "d"
     },
     "export": {
       "button": "Exportar CSV",
@@ -9576,7 +9577,9 @@
         "messaging": "Mensagens por conversa",
         "reopen": "Reaberturas",
         "finishedBySource": "Como foram finalizadas",
-        "definitions": "Definições dos indicadores"
+        "definitions": "Definições dos indicadores",
+        "stages": "Por etapa do funil",
+        "stagesTotals": "Cobertura de etapas"
       },
       "columns": {
         "filter": "Filtro",
@@ -9607,7 +9610,17 @@
         "finishedAi": "Finalizadas (IA)",
         "finishedSystem": "Finalizadas (sistema)",
         "ongoing": "Em andamento",
-        "definition": "Definição"
+        "definition": "Definição",
+        "funnel": "Funil",
+        "stage": "Etapa",
+        "engaged": "Conversas engajadas",
+        "shell": "Sem mensagem",
+        "pctOfFunnel": "% do funil",
+        "pctOfStaged": "% do total em etapas",
+        "avgDaysInStage": "Dias parado (média)",
+        "oldestDaysInStage": "Dias parado (mais antiga)",
+        "stuck": "Travadas",
+        "stuckAfterDays": "Limite (dias)"
       },
       "filters": {
         "generatedAt": "Gerado em",
@@ -9718,8 +9731,17 @@
         "finished_by_source": "Origem da finalização",
         "unassigned": "Sem atendente",
         "csat": "Satisfação (CSAT)",
-        "sla": "SLA"
-      }
+        "sla": "SLA",
+        "stages": "Etapas do funil"
+      },
+      "stages": {
+        "stagedEngaged": "Conversas em etapas",
+        "stagedShell": "Sem mensagem em etapas",
+        "unstagedEngaged": "Conversas sem etapa",
+        "unstagedShell": "Sem mensagem e sem etapa",
+        "stuck": "Conversas travadas"
+      },
+      "noFunnel": "Sem funil"
     },
     "attendance": {
       "badge": "Métricas · Atendimento",
@@ -9762,7 +9784,7 @@
         "volume": "Volume e situação",
         "volumeSub": "Quando as conversas acontecem e em que estágio estão",
         "hourly": "Conversas por hora",
-        "hourlySub": "Horários com mais movimento no período",
+        "hourlySub": "Horários de maior movimento no período",
         "status": "Situação das conversas",
         "statusSub": "Concluídas, em andamento e aguardando",
         "times": "Tempos de resposta",
@@ -9800,7 +9822,17 @@
         "templates": "Templates WhatsApp",
         "templatesSub": "Volume de templates (HSM) nas conversas do período · contagem operacional, sem preço",
         "templatesTitle": "Templates enviados",
-        "templatesTitleSub": "Mensagens de template registradas nas conversas (campanhas, CRM e fluxos)"
+        "templatesTitleSub": "Mensagens de template registradas nas conversas (campanhas, CRM e fluxos)",
+        "stages": "Funis e etapas",
+        "stagesSub": "Onde os leads estão parados agora, por funil",
+        "stageChart": "Distribuição por etapa",
+        "stageChartSub": "Conversas engajadas em cada etapa do funil",
+        "stageTable": "Etapas em detalhe",
+        "stageTableSub": "Volume, tempo parado e conversas travadas",
+        "stageCoverage": "Cobertura por funil",
+        "stageCoverageSub": "Quanto do período está em etapa, e em qual funil",
+        "stageMosaic": "Mapa de blocos",
+        "stageMosaicSub": "Todos os funis de uma vez, cada bloco no tamanho do seu volume"
       },
       "status": {
         "finished": "Conversas concluídas",
@@ -9825,7 +9857,11 @@
         "engaged": "Engajada",
         "engagedDesc": "Entradas com pelo menos uma mensagem, conversas reais dos KPIs",
         "shell": "Shell",
-        "shellDesc": "Entradas de campanha sem mensagens; exibidas à parte, não como chat sem resposta"
+        "shellDesc": "Entradas de campanha sem mensagens; exibidas à parte, não como chat sem resposta",
+        "stageStuck": "Travadas",
+        "stageStuckDesc": "Conversas abertas paradas na mesma etapa além do limite da etapa (ou 7 dias, quando a etapa não define um).",
+        "stageParked": "Parado há",
+        "stageParkedDesc": "Média de dias que as conversas ainda abertas estão na etapa atual, contada até agora."
       },
       "labels": {
         "overallAvg": "Média geral",
@@ -9908,7 +9944,44 @@
         "shellChip": "{count} shells (sem mensagens)",
         "shellChipHint": "Entradas de campanha sem mensagens, não contam como atendimento",
         "avgIncludingShells": "Incluindo shells: {avg} msgs/entrada",
-        "finishedEventsTelemetry": "{count} eventos de conclusão (telemetria; pode incluir shells antigos)"
+        "finishedEventsTelemetry": "{count} eventos de conclusão (telemetria; pode incluir shells antigos)",
+        "noFunnel": "Sem funil",
+        "noFunnelHint": "Etapas que não pertencem a nenhum funil",
+        "defaultFunnel": "Padrão",
+        "noStageData": "Nenhuma conversa em etapa neste período",
+        "noStageDataHint": "As conversas do período existem, mas nenhuma delas está em uma etapa de funil.",
+        "stageCol": "Etapa",
+        "funnelCol": "Funil",
+        "engagedCol": "Conversas",
+        "engagedColTitle": "Conversas com pelo menos uma mensagem",
+        "shellCol": "Sem mensagem",
+        "shellColTitle": "Entradas de campanha ou importação paradas na etapa que nunca receberam mensagem",
+        "shareCol": "Do funil",
+        "shareColTitle": "Participação da etapa no total engajado do próprio funil",
+        "parkedCol": "Parado há",
+        "parkedColTitle": "Média de dias que as conversas abertas estão nesta etapa, medida agora",
+        "stuckCol": "Travadas",
+        "stuckColTitle": "Conversas abertas paradas além do limite da etapa",
+        "stageEngaged": "{count} conversas",
+        "stageShell": "+{count} sem mensagem",
+        "stageStuck": "{count} travadas",
+        "stuckAfter": "acima de {days}d",
+        "stuckAfterDefault": "acima de {days}d, padrão",
+        "oldestInStage": "mais antiga: {days}",
+        "funnelSummary": "{engaged} conversas · {pct} do total em etapas",
+        "funnelStuck": "{count} travadas",
+        "unstagedHint": "Conversas do período que não estão em nenhuma etapa de funil",
+        "peakStage": "Maior acúmulo",
+        "wonStage": "Ganho",
+        "lostStage": "Perdido",
+        "stageMeasuredNow": "Tempo parado e travadas são medidos agora, não no fim do período",
+        "unstagedCol": "Sem etapa",
+        "coverageRing": "em etapas",
+        "stagedCol": "Em etapas",
+        "aiAbandoned": "Abandonadas",
+        "mosaicHint": "Altura do funil = participação no total em etapas. Largura do bloco = participação na etapa. A faixa âmbar na base é a parte travada.",
+        "aiContainmentRate": "Taxa de resolução pela IA",
+        "aiHandoffRate": "Taxa de transferência"
       }
     }
   },
@@ -10762,11 +10835,18 @@
         "cooldown": "Intervalo entre avisos (min)",
         "maxPerDay": "Máximo por dia",
         "enabled": "Regra ativa",
-        "brief": "Incluir leitura da IA"
+        "brief": "Incluir leitura da IA",
+        "instance": "Número que envia"
       },
       "templateVariables": "Nomes reconhecidos, se o seu modelo usar variáveis com nome: {facts}",
       "briefHint": "A IA acrescenta uma frase sobre o que está acontecendo e outra sobre como responder. É uma chamada de IA por disparo, cobrada, e o alerta é enviado normalmente se a IA não responder.",
-      "briefChip": "com leitura da IA"
+      "briefChip": "com leitura da IA",
+      "channelUnavailable": {
+        "no_sender": "Nenhum número conectado neste canal. Conecte um número antes de ativar a regra, senão ela nunca dispara.",
+        "not_enabled": "Este canal não está habilitado nesta instalação."
+      },
+      "cannotArmHint": "Não é possível ativar uma regra em um canal sem número conectado.",
+      "channelGoneChip": "Sem número"
     }
   },
   "telegram": {

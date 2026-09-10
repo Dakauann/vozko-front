@@ -9502,7 +9502,8 @@
       "duration": "Duration",
       "unofficialWhatsapp": "WhatsApp (unofficial)",
       "instagram": "Instagram",
-      "telegram": "Telegram"
+      "telegram": "Telegram",
+      "dayUnit": "d"
     },
     "export": {
       "button": "Export CSV",
@@ -9525,7 +9526,9 @@
         "messaging": "Messages per conversation",
         "reopen": "Reopens",
         "finishedBySource": "How they were finished",
-        "definitions": "Metric definitions"
+        "definitions": "Metric definitions",
+        "stages": "By funnel stage",
+        "stagesTotals": "Stage coverage"
       },
       "columns": {
         "filter": "Filter",
@@ -9556,7 +9559,17 @@
         "finishedAi": "Finished (AI)",
         "finishedSystem": "Finished (system)",
         "ongoing": "Ongoing",
-        "definition": "Definition"
+        "definition": "Definition",
+        "funnel": "Funnel",
+        "stage": "Stage",
+        "engaged": "Engaged conversations",
+        "shell": "No message",
+        "pctOfFunnel": "% of funnel",
+        "pctOfStaged": "% of everything staged",
+        "avgDaysInStage": "Days parked (avg)",
+        "oldestDaysInStage": "Days parked (oldest)",
+        "stuck": "Stalled",
+        "stuckAfterDays": "Threshold (days)"
       },
       "filters": {
         "generatedAt": "Generated at",
@@ -9667,8 +9680,17 @@
         "finished_by_source": "Finish source",
         "unassigned": "Unassigned",
         "csat": "Satisfaction (CSAT)",
-        "sla": "SLA"
-      }
+        "sla": "SLA",
+        "stages": "Funnel stages"
+      },
+      "stages": {
+        "stagedEngaged": "Conversations in stages",
+        "stagedShell": "No message, in stages",
+        "unstagedEngaged": "Conversations with no stage",
+        "unstagedShell": "No message and no stage",
+        "stuck": "Stalled conversations"
+      },
+      "noFunnel": "No funnel"
     },
     "attendance": {
       "badge": "Metrics · Service",
@@ -9749,7 +9771,17 @@
         "templates": "WhatsApp templates",
         "templatesSub": "Template (HSM) volume on conversations in the period · operational count, no pricing",
         "templatesTitle": "Templates sent",
-        "templatesTitleSub": "Template messages recorded on conversations (campaigns, CRM and automations)"
+        "templatesTitleSub": "Template messages recorded on conversations (campaigns, CRM and automations)",
+        "stages": "Funnels and stages",
+        "stagesSub": "Where leads are sitting right now, by funnel",
+        "stageChart": "Distribution by stage",
+        "stageChartSub": "Engaged conversations at each step of the funnel",
+        "stageTable": "Stages in detail",
+        "stageTableSub": "Volume, time parked and stalled conversations",
+        "stageCoverage": "Coverage by funnel",
+        "stageCoverageSub": "How much of the period sits in a stage, and in which funnel",
+        "stageMosaic": "Block map",
+        "stageMosaicSub": "Every funnel at once, each block sized by its volume"
       },
       "status": {
         "finished": "Conversations finished",
@@ -9774,7 +9806,11 @@
         "engaged": "Engaged",
         "engagedDesc": "Entries with at least one message, real conversations used in KPIs",
         "shell": "Shell",
-        "shellDesc": "Campaign entries with zero messages; shown separately, not as unanswered chats"
+        "shellDesc": "Campaign entries with zero messages; shown separately, not as unanswered chats",
+        "stageStuck": "Stalled",
+        "stageStuckDesc": "Open conversations sitting in the same stage past that stage's threshold (or 7 days when it defines none).",
+        "stageParked": "Parked for",
+        "stageParkedDesc": "Average days the still-open conversations have been in their current stage, counted up to now."
       },
       "labels": {
         "overallAvg": "Overall average",
@@ -9857,7 +9893,44 @@
         "shellChip": "{count} shells (no messages)",
         "shellChipHint": "Campaign entries with no messages, not counted as attendance conversations",
         "avgIncludingShells": "Including shells: {avg} msgs/entry",
-        "finishedEventsTelemetry": "{count} finish events logged (telemetry, may include old shells)"
+        "finishedEventsTelemetry": "{count} finish events logged (telemetry, may include old shells)",
+        "noFunnel": "No funnel",
+        "noFunnelHint": "Stages that belong to no funnel",
+        "defaultFunnel": "Default",
+        "noStageData": "No conversation is in a stage in this period",
+        "noStageDataHint": "The period has conversations, but none of them sits in a funnel stage.",
+        "stageCol": "Stage",
+        "funnelCol": "Funnel",
+        "engagedCol": "Conversations",
+        "engagedColTitle": "Conversations with at least one message",
+        "shellCol": "No message",
+        "shellColTitle": "Campaign or import entries parked in the stage that were never messaged",
+        "shareCol": "Of funnel",
+        "shareColTitle": "The stage's share of its own funnel's engaged total",
+        "parkedCol": "Parked for",
+        "parkedColTitle": "Average days the open conversations have been in this stage, measured now",
+        "stuckCol": "Stalled",
+        "stuckColTitle": "Open conversations sitting past the stage's threshold",
+        "stageEngaged": "{count} conversations",
+        "stageShell": "+{count} with no message",
+        "stageStuck": "{count} stalled",
+        "stuckAfter": "over {days}d",
+        "stuckAfterDefault": "over {days}d, default",
+        "oldestInStage": "oldest: {days}",
+        "funnelSummary": "{engaged} conversations · {pct} of everything staged",
+        "funnelStuck": "{count} stalled",
+        "unstagedHint": "Conversations in the period that sit in no funnel stage",
+        "peakStage": "Biggest pile-up",
+        "wonStage": "Won",
+        "lostStage": "Lost",
+        "stageMeasuredNow": "Time parked and stalled are measured now, not at the period end",
+        "unstagedCol": "No stage",
+        "coverageRing": "in stages",
+        "stagedCol": "In stages",
+        "aiAbandoned": "Abandoned",
+        "mosaicHint": "Funnel height = share of everything staged. Block width = share of the funnel. The amber band at the foot is the stalled part.",
+        "aiContainmentRate": "AI resolution rate",
+        "aiHandoffRate": "Handoff rate"
       }
     }
   },
@@ -10711,11 +10784,18 @@
         "cooldown": "Interval between warnings (min)",
         "maxPerDay": "Maximum per day",
         "enabled": "Rule active",
-        "brief": "Include the AI reading"
+        "brief": "Include the AI reading",
+        "instance": "Sending number"
       },
       "templateVariables": "Recognised names, if your template uses named variables: {facts}",
       "briefHint": "The AI adds one sentence on what is happening and one on how to respond. That is one billed AI call per firing, and the alert is sent as usual if the AI does not answer.",
-      "briefChip": "with AI reading"
+      "briefChip": "with AI reading",
+      "channelUnavailable": {
+        "no_sender": "No number is connected on this channel. Connect one before arming the rule, or it can never fire.",
+        "not_enabled": "This channel is not enabled in this deployment."
+      },
+      "cannotArmHint": "A rule cannot be armed on a channel with no connected number.",
+      "channelGoneChip": "No number"
     }
   },
   "telegram": {

@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import type { AttendanceOverview } from "@/lib/attendance/types";
+import type {
+    AttendanceOverview,
+    OverviewStages,
+    StageRow,
+} from "@/lib/attendance/types";
 import { buildAttendanceOverviewCsv, type AttendanceCsvFilters } from "./csv-export";
 
 /** Identity translator: assertions read against stable keys, not copy. */
@@ -62,12 +66,53 @@ function overview(partial: Partial<AttendanceOverview> = {}): AttendanceOverview
         },
         reopen: { reopened_count: 0, finished_event_count: 0, reopen_rate: null, available: false },
         finished_by_source: { human: 0, ai: 0, system: 0, total: 0, available: false },
+        stages: {
+            funnels: [],
+            staged_engaged: 0, staged_shell: 0,
+            unstaged_engaged: 0, unstaged_shell: 0,
+            stuck: 0, available: false,
+        },
         definitions: {
             period_scope: "", status_mapping: "", wait_time: "", handle_time: "",
             resolution: "", csat: "", sla: "",
         },
         ...partial,
     } as AttendanceOverview;
+}
+
+function stageRow(partial: Partial<StageRow> = {}): StageRow {
+    return {
+        stage_id: "s1", stage_name: "Inscrição", color: "#00D09A", position: 1,
+        is_won: false, is_lost: false,
+        engaged: 600, shell: 40, total: 640,
+        finished: 100, ongoing: 400, pending: 100,
+        pct_of_funnel: 75, pct_of_staged: 60,
+        avg_days_in_stage: 3.2, oldest_days_in_stage: 41,
+        stuck: 87, stuck_after_days: 12, rot_days_set: true,
+        ...partial,
+    };
+}
+
+/** Two funnels owning a stage of the same name: the collision the block exists
+ * to keep apart. */
+function stageBlock(stages: StageRow[] = [stageRow()]): OverviewStages {
+    return {
+        funnels: [
+            {
+                funnel_id: "f1", funnel_name: "FUNIL UNIFECAF", is_default: true,
+                engaged: 800, shell: 40, total: 840, stuck: 87, pct_of_staged: 80,
+                stages,
+            },
+            {
+                funnel_id: "f2", funnel_name: "NÃO USAR", is_default: false,
+                engaged: 200, shell: 0, total: 200, stuck: 0, pct_of_staged: 20,
+                stages: [stageRow({ stage_id: "s2", engaged: 200, shell: 0, total: 200 })],
+            },
+        ],
+        staged_engaged: 1000, staged_shell: 40,
+        unstaged_engaged: 120, unstaged_shell: 10,
+        stuck: 87, available: true,
+    };
 }
 
 /** Stands in for the dashboard's label functions. */
@@ -244,6 +289,49 @@ describe("buildAttendanceOverviewCsv", () => {
 
     it("starts with a BOM so Excel reads the accents", () => {
         expect(build().csvText.charCodeAt(0)).toBe(0xfeff);
+    });
+
+    // The panel's whole point is that "Agendamento" in one funnel is not
+    // "Agendamento" in another. A file that printed only stage names would
+    // reintroduce exactly the collision the grouping exists to prevent.
+    it("names the funnel on every stage row", () => {
+        const { csvText } = build(overview({ stages: stageBlock() }));
+        expect(csvText).toContain("FUNIL UNIFECAF;Inscrição");
+        expect(csvText).toContain("NÃO USAR;Inscrição");
+    });
+
+    it("keeps shells in their own column instead of the headline count", () => {
+        const { csvText } = build(overview({ stages: stageBlock() }));
+        const row = csvText.split("\n").find((l) => l.startsWith("FUNIL UNIFECAF;Inscrição"));
+        expect(row).toBeDefined();
+        // engaged;shell, in that order, and the shells are not folded in.
+        expect(row).toContain(";600;40;");
+    });
+
+    it("exports what is not staged at all, so the rows can be reconciled", () => {
+        const { csvText } = build(overview({ stages: stageBlock() }));
+        expect(csvText).toContain("stages.unstagedEngaged;120");
+        expect(csvText).toContain("stages.unstagedShell;10");
+    });
+
+    it("omits the stage sections when nothing in the period is staged", () => {
+        const { csvText } = build();
+        expect(csvText).not.toContain("sections.stages");
+    });
+
+    // A stage name is operator input reaching a spreadsheet, same as a
+    // department name.
+    it("defuses a formula injected through a stage name", () => {
+        const { csvText } = build(
+            overview({
+                stages: stageBlock([{
+                    ...stageRow(),
+                    stage_name: "=HYPERLINK(\"http://x\")",
+                }]),
+            }),
+        );
+        expect(csvText).toContain("'=HYPERLINK");
+        expect(csvText).not.toMatch(/;=HYPERLINK/);
     });
 
     it("carries the campaign scope when the page is deep-linked", () => {

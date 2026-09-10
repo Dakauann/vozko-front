@@ -27,6 +27,7 @@ import type {
     ChannelSlice,
     DepartmentRow,
     MemberRow,
+    OverviewStages,
 } from "@/lib/attendance/types";
 import { buildCsvDocument, csvFilename, type CsvSection } from "@/lib/csv/csv";
 
@@ -386,7 +387,71 @@ function detailSections(t: CsvTranslate, o: AttendanceOverview): CsvSection[] {
             ["finishedBySource.total", o.finished_by_source.total],
         ]);
     }
+    if (o.stages?.available) {
+        add("sections.stagesTotals", [
+            ["stages.stagedEngaged", o.stages.staged_engaged],
+            ["stages.stagedShell", o.stages.staged_shell],
+            ["stages.unstagedEngaged", o.stages.unstaged_engaged],
+            ["stages.unstagedShell", o.stages.unstaged_shell],
+            ["stages.stuck", o.stages.stuck],
+        ]);
+    }
     return sections;
+}
+
+/**
+ * One row per stage, with its funnel named on every row.
+ *
+ * The funnel column is not redundancy. Duplicate stage names across funnels are
+ * the normal case in this product, so a file keyed on stage name alone would
+ * merge two different populations into one row and lose the very distinction the
+ * panel exists to draw.
+ */
+function stageSection(t: CsvTranslate, stages: OverviewStages | undefined): CsvSection | null {
+    if (!stages?.available || !stages.funnels?.length) return null;
+
+    const rows: (string | number | null)[][] = [];
+    for (const f of stages.funnels) {
+        const funnelLabel = f.funnel_name || t("noFunnel");
+        for (const s of f.stages) {
+            rows.push([
+                funnelLabel,
+                s.stage_name,
+                s.engaged,
+                s.shell,
+                s.finished,
+                s.ongoing,
+                s.pending,
+                s.pct_of_funnel,
+                s.pct_of_staged,
+                s.avg_days_in_stage,
+                s.oldest_days_in_stage,
+                s.stuck,
+                s.stuck_after_days,
+            ]);
+        }
+    }
+    if (!rows.length) return null;
+
+    return {
+        title: t("sections.stages"),
+        header: [
+            t("columns.funnel"),
+            t("columns.stage"),
+            t("columns.engaged"),
+            t("columns.shell"),
+            t("columns.finished"),
+            t("columns.ongoing"),
+            t("columns.pending"),
+            t("columns.pctOfFunnel"),
+            t("columns.pctOfStaged"),
+            t("columns.avgDaysInStage"),
+            t("columns.oldestDaysInStage"),
+            t("columns.stuck"),
+            t("columns.stuckAfterDays"),
+        ],
+        rows,
+    };
 }
 
 export interface AttendanceCsvOutput {
@@ -413,6 +478,7 @@ export function buildAttendanceOverviewCsv({
         departmentSection(t, overview.by_department),
         memberSection(t, display, overview.by_member),
         channelSection(t, display, overview.channel_mix),
+        stageSection(t, overview.stages),
     ]) {
         if (section) sections.push(section);
     }

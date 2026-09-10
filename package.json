@@ -60,6 +60,7 @@
     "cmdk": "1.0.0",
     "currency-formatter": "^1.5.9",
     "date-fns": "^4.1.0",
+    "echarts": "^6.1.0",
     "elkjs": "^0.10.0",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",

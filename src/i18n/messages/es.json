@@ -7930,7 +7930,8 @@
       "duration": "Duración",
       "unofficialWhatsapp": "WhatsApp (no oficial)",
       "instagram": "Instagram",
-      "telegram": "Telegram"
+      "telegram": "Telegram",
+      "dayUnit": "d"
     },
     "export": {
       "button": "Exportar CSV",
@@ -7953,7 +7954,9 @@
         "messaging": "Mensajes por conversación",
         "reopen": "Reaperturas",
         "finishedBySource": "Cómo se finalizaron",
-        "definitions": "Definiciones de los indicadores"
+        "definitions": "Definiciones de los indicadores",
+        "stages": "Por etapa del embudo",
+        "stagesTotals": "Cobertura de etapas"
       },
       "columns": {
         "filter": "Filtro",
@@ -7984,7 +7987,17 @@
         "finishedAi": "Finalizadas (IA)",
         "finishedSystem": "Finalizadas (sistema)",
         "ongoing": "En curso",
-        "definition": "Definición"
+        "definition": "Definición",
+        "funnel": "Embudo",
+        "stage": "Etapa",
+        "engaged": "Conversaciones con actividad",
+        "shell": "Sin mensaje",
+        "pctOfFunnel": "% del embudo",
+        "pctOfStaged": "% del total en etapas",
+        "avgDaysInStage": "Días detenido (promedio)",
+        "oldestDaysInStage": "Días detenido (más antigua)",
+        "stuck": "Estancadas",
+        "stuckAfterDays": "Límite (días)"
       },
       "filters": {
         "generatedAt": "Generado el",
@@ -8095,8 +8108,17 @@
         "finished_by_source": "Origen de la finalización",
         "unassigned": "Sin agente",
         "csat": "Satisfacción (CSAT)",
-        "sla": "SLA"
-      }
+        "sla": "SLA",
+        "stages": "Etapas del embudo"
+      },
+      "stages": {
+        "stagedEngaged": "Conversaciones en etapas",
+        "stagedShell": "Sin mensaje, en etapas",
+        "unstagedEngaged": "Conversaciones sin etapa",
+        "unstagedShell": "Sin mensaje y sin etapa",
+        "stuck": "Conversaciones estancadas"
+      },
+      "noFunnel": "Sin embudo"
     },
     "attendance": {
       "badge": "Métricas · Atención",
@@ -8139,7 +8161,7 @@
         "volume": "Volumen y situación",
         "volumeSub": "Cuándo ocurren las conversaciones y en qué etapa están",
         "hourly": "Conversaciones por hora",
-        "hourlySub": "Horas con más movimiento en el período",
+        "hourlySub": "Horarios de mayor movimiento en el período",
         "status": "Estado de las conversaciones",
         "statusSub": "Finalizadas, en curso y en espera",
         "times": "Tiempos de respuesta",
@@ -8177,7 +8199,17 @@
         "templates": "Plantillas WhatsApp",
         "templatesSub": "Volumen de plantillas (HSM) en conversaciones del período · conteo operativo, sin precio",
         "templatesTitle": "Plantillas enviadas",
-        "templatesTitleSub": "Mensajes de plantilla registrados en conversaciones (campañas, CRM y flujos)"
+        "templatesTitleSub": "Mensajes de plantilla registrados en conversaciones (campañas, CRM y flujos)",
+        "stages": "Embudos y etapas",
+        "stagesSub": "Dónde están los leads ahora mismo, por embudo",
+        "stageChart": "Distribución por etapa",
+        "stageChartSub": "Conversaciones con actividad en cada etapa del embudo",
+        "stageTable": "Etapas en detalle",
+        "stageTableSub": "Volumen, tiempo detenido y conversaciones estancadas",
+        "stageCoverage": "Cobertura por embudo",
+        "stageCoverageSub": "Cuánto del período está en una etapa, y en qué embudo",
+        "stageMosaic": "Mapa de bloques",
+        "stageMosaicSub": "Todos los embudos a la vez, cada bloque del tamaño de su volumen"
       },
       "status": {
         "finished": "Conversaciones finalizadas",
@@ -8202,7 +8234,11 @@
         "engaged": "Engajada",
         "engagedDesc": "Entradas con al menos un mensaje, conversaciones reales de los KPIs",
         "shell": "Shell",
-        "shellDesc": "Entradas de campaña sin mensajes; se muestran aparte, no como chat sin respuesta"
+        "shellDesc": "Entradas de campaña sin mensajes; se muestran aparte, no como chat sin respuesta",
+        "stageStuck": "Estancadas",
+        "stageStuckDesc": "Conversaciones abiertas detenidas en la misma etapa más allá del límite de esa etapa (o 7 días si no define ninguno).",
+        "stageParked": "Detenido",
+        "stageParkedDesc": "Promedio de días que las conversaciones aún abiertas llevan en su etapa actual, contado hasta ahora."
       },
       "labels": {
         "overallAvg": "Media general",
@@ -8285,7 +8321,44 @@
         "shellChip": "{count} shells (sin mensajes)",
         "shellChipHint": "Entradas de campaña sin mensajes, no cuentan como atención",
         "avgIncludingShells": "Incluyendo shells: {avg} msgs/entrada",
-        "finishedEventsTelemetry": "{count} eventos de cierre (telemetría; puede incluir shells antiguos)"
+        "finishedEventsTelemetry": "{count} eventos de cierre (telemetría; puede incluir shells antiguos)",
+        "noFunnel": "Sin embudo",
+        "noFunnelHint": "Etapas que no pertenecen a ningún embudo",
+        "defaultFunnel": "Predeterminado",
+        "noStageData": "Ninguna conversación está en una etapa en este período",
+        "noStageDataHint": "El período tiene conversaciones, pero ninguna está en una etapa del embudo.",
+        "stageCol": "Etapa",
+        "funnelCol": "Embudo",
+        "engagedCol": "Conversaciones",
+        "engagedColTitle": "Conversaciones con al menos un mensaje",
+        "shellCol": "Sin mensaje",
+        "shellColTitle": "Entradas de campaña o importación detenidas en la etapa que nunca recibieron mensaje",
+        "shareCol": "Del embudo",
+        "shareColTitle": "Participación de la etapa en el total con actividad de su embudo",
+        "parkedCol": "Detenido",
+        "parkedColTitle": "Promedio de días que las conversaciones abiertas llevan en esta etapa, medido ahora",
+        "stuckCol": "Estancadas",
+        "stuckColTitle": "Conversaciones abiertas detenidas más allá del límite de la etapa",
+        "stageEngaged": "{count} conversaciones",
+        "stageShell": "+{count} sin mensaje",
+        "stageStuck": "{count} estancadas",
+        "stuckAfter": "más de {days}d",
+        "stuckAfterDefault": "más de {days}d, predeterminado",
+        "oldestInStage": "más antigua: {days}",
+        "funnelSummary": "{engaged} conversaciones · {pct} del total en etapas",
+        "funnelStuck": "{count} estancadas",
+        "unstagedHint": "Conversaciones del período que no están en ninguna etapa",
+        "peakStage": "Mayor acumulación",
+        "wonStage": "Ganado",
+        "lostStage": "Perdido",
+        "stageMeasuredNow": "El tiempo detenido y las estancadas se miden ahora, no al final del período",
+        "unstagedCol": "Sin etapa",
+        "coverageRing": "en etapas",
+        "stagedCol": "En etapas",
+        "aiAbandoned": "Abandonadas",
+        "mosaicHint": "Alto del embudo = participación en el total en etapas. Ancho del bloque = participación en el embudo. La franja ámbar al pie es la parte estancada.",
+        "aiContainmentRate": "Tasa de resolución por IA",
+        "aiHandoffRate": "Tasa de transferencia"
       }
     }
   },
@@ -9139,11 +9212,18 @@
         "cooldown": "Intervalo entre avisos (min)",
         "maxPerDay": "Máximo por día",
         "enabled": "Regla activa",
-        "brief": "Incluir la lectura de la IA"
+        "brief": "Incluir la lectura de la IA",
+        "instance": "Número que envía"
       },
       "templateVariables": "Nombres reconocidos, si tu plantilla usa variables con nombre: {facts}",
       "briefHint": "La IA añade una frase sobre lo que está pasando y otra sobre cómo responder. Es una llamada de IA por disparo, con cargo, y la alerta se envía igual si la IA no responde.",
-      "briefChip": "con lectura de la IA"
+      "briefChip": "con lectura de la IA",
+      "channelUnavailable": {
+        "no_sender": "Ningún número conectado en este canal. Conecte uno antes de activar la regla, o nunca se disparará.",
+        "not_enabled": "Este canal no está habilitado en esta instalación."
+      },
+      "cannotArmHint": "No se puede activar una regla en un canal sin número conectado.",
+      "channelGoneChip": "Sin número"
     }
   },
   "telegram": {

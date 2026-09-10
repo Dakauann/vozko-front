@@ -239,6 +239,71 @@ export interface OverviewFinishedBySource {
     available: boolean;
 }
 
+/**
+ * One stage's share of the period.
+ *
+ * `engaged` is the headline everywhere on this page; `shell` is campaign and
+ * import rows parked in the stage that were never messaged, reported beside it
+ * and never summed into it.
+ */
+export interface StageRow {
+    stage_id: string;
+    stage_name: string;
+    /** The stage's own kanban colour, when the workspace picked one. */
+    color?: string;
+    position: number;
+    is_won: boolean;
+    is_lost: boolean;
+    engaged: number;
+    shell: number;
+    total: number;
+    finished: number;
+    ongoing: number;
+    pending: number;
+    /** Share of this funnel's engaged conversations. */
+    pct_of_funnel: number;
+    /** Share of every staged engaged conversation in scope. */
+    pct_of_staged: number;
+    /**
+     * Days the OPEN conversations here have been sitting, measured against now
+     * rather than the period end. Null when nothing here is open: 0 would read
+     * as "everyone arrived today".
+     */
+    avg_days_in_stage: number | null;
+    oldest_days_in_stage: number | null;
+    /** Open conversations past `stuck_after_days`. */
+    stuck: number;
+    stuck_after_days: number;
+    /** True when the threshold is the stage's own, false when it is the default. */
+    rot_days_set: boolean;
+}
+
+/** One funnel (pipeline) and the stages it owns. `funnel_id` is empty for the
+ * single bucket of stages belonging to no funnel, which always sorts last. */
+export interface StageFunnelGroup {
+    funnel_id: string;
+    funnel_name: string;
+    is_default: boolean;
+    engaged: number;
+    shell: number;
+    total: number;
+    stuck: number;
+    pct_of_staged: number;
+    stages: StageRow[];
+}
+
+/** Where the period's conversations are sitting, grouped by owning funnel. */
+export interface OverviewStages {
+    funnels: StageFunnelGroup[];
+    staged_engaged: number;
+    staged_shell: number;
+    /** Scoped minus staged: conversations carrying no stage at all. */
+    unstaged_engaged: number;
+    unstaged_shell: number;
+    stuck: number;
+    available: boolean;
+}
+
 export interface MetricDefinitions {
     period_scope: string;
     engaged?: string;
@@ -256,6 +321,7 @@ export interface MetricDefinitions {
     messaging?: string;
     reopen?: string;
     finished_by_source?: string;
+    stages?: string;
     unassigned?: string;
     csat: string;
     sla: string;
@@ -277,5 +343,7 @@ export interface AttendanceOverview {
     messaging: OverviewMessaging;
     reopen: OverviewReopen;
     finished_by_source: OverviewFinishedBySource;
+    /** Where the scoped conversations are sitting, grouped by funnel. */
+    stages: OverviewStages;
     definitions: MetricDefinitions;
 }

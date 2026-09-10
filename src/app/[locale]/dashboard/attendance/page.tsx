@@ -8,15 +8,19 @@ import {
   CheckCircle,
   Clock,
   DownloadSimple,
+  FlowArrow,
   Headset,
   Hourglass,
   Info,
+  Kanban,
   Lightning,
   Phone,
   PhoneIncoming,
   Pulse,
   Robot,
+  Stack,
   Timer,
+  TrendUp,
   UserCircle,
   UserMinus,
   Users,
@@ -42,13 +46,30 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { vozGrid, vozRing, vozXAxis, vozYAxis } from "@/components/charts/vozko";
+import {
+  CompareBars,
+  Meter,
+  ProgressRing,
+  SegmentBar,
+  SplitFlow,
+  vozGrid,
+  vozRing,
+  vozXAxis,
+  vozYAxis,
+} from "@/components/charts/vozko";
 import {
   ElevatedSelect,
   ElevatedSelectItem,
 } from "@/components/elevated-design/elevated-select";
 import { format, subDays } from "date-fns";
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { useSearchParams } from "next/navigation";
 
 import type {
@@ -65,6 +86,8 @@ import type {
   OverviewOccupancy,
   OverviewQueue,
   OverviewReopen,
+  OverviewStages,
+  StageFunnelGroup,
   StatusDistribution,
 } from "@/lib/attendance/types";
 import { getAttendanceOverviewAction } from "@/app/actions/attendance";
@@ -120,6 +143,7 @@ function useMetricsFmt() {
   const tag = LOCALE_TAG[locale] ?? "en-US";
   const na = tc("na");
   const minUnit = tc("minUnit");
+  const dayUnit = tc("dayUnit");
   return useMemo(
     () => ({
       na,
@@ -132,12 +156,19 @@ function useMetricsFmt() {
         if (v < 1) return `${Math.round(v * 60)}s`;
         return `${v.toLocaleString(tag, { maximumFractionDigits: 1 })} ${minUnit}`;
       },
+      // Whole days below one, so "0,3d in this stage" reads as "arrived today"
+      // rather than as a suspiciously precise fraction of a day.
+      days: (v: number | null | undefined) => {
+        if (v === null || v === undefined) return na;
+        const digits = v < 10 ? 1 : 0;
+        return `${v.toLocaleString(tag, { maximumFractionDigits: digits })}${dayUnit}`;
+      },
       pct: (v: number | null | undefined) => {
         if (v === null || v === undefined) return na;
         return `${v.toLocaleString(tag, { maximumFractionDigits: 1 })}%`;
       },
     }),
-    [tag, na, minUnit],
+    [tag, na, minUnit, dayUnit],
   );
 }
 
@@ -173,7 +204,7 @@ function Surface({
   return (
     <section
       className={cn(
-        "rounded-[--radius] border border-border bg-card p-4 md:p-5",
+        "rounded-[--radius] border border-border bg-card p-3 md:p-4",
         className,
       )}
       style={{ boxShadow: softSurfaceShadow }}
@@ -197,7 +228,7 @@ function SectionTitle({
   action?: ReactNode;
 }) {
   return (
-    <div className="mb-3 flex items-start justify-between gap-3">
+    <div className="mb-2.5 flex items-start justify-between gap-3">
       <div className="flex min-w-0 items-start gap-2.5">
         <div
           className={cn(
@@ -438,40 +469,6 @@ function KpiStrip({
   );
 }
 
-function StatBlock({
-  label,
-  value,
-  hint,
-  muted,
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-  muted?: boolean;
-}) {
-  return (
-    <div
-      className={cn(
-        "rounded-[--radius] border border-border bg-background px-3 py-2.5",
-        muted && "opacity-70",
-      )}
-      title={hint}
-    >
-      <p className="text-2xs font-semibold text-muted-foreground">
-        {label}
-      </p>
-      <p className="mt-1 font-display text-lg font-semibold tabular-nums tracking-tight text-foreground">
-        {value}
-      </p>
-      {hint ? (
-        <p className="mt-0.5 line-clamp-2 text-2xs text-muted-foreground">
-          {hint}
-        </p>
-      ) : null}
-    </div>
-  );
-}
-
 /**
  * Brand colour per channel, for the share bar only.
  *
@@ -509,6 +506,20 @@ function channelLabel(channel: string, tc: (key: string) => string): string {
   }
 }
 
+/**
+ * Channel mix, as rows on one shared scale.
+ *
+ * This was a grid of bordered cards inside a bordered panel, each card holding
+ * one number and a bar at p-4. Nested cards are the lazy container, they cost
+ * a whole screenful of vertical space for four values, and the outer panel was
+ * already the box. The rows below carry the same four facts in a third of the
+ * height, and because every bar now runs on ONE scale the channels are
+ * comparable by eye instead of by reading four percentages.
+ *
+ * The bars keep each channel's real brand colour: that is what makes two rows
+ * tellable apart at a glance, and it is data, not decoration. The plate behind
+ * the glyph stays neutral, per the system's mark-not-wash rule.
+ */
 function ChannelMixChart({
   mix,
   loading,
@@ -521,89 +532,81 @@ function ChannelMixChart({
   const fmt = useMetricsFmt();
   const data = useMemo(() => {
     if (!mix?.length) return [];
-    return mix.map((c) => ({
-      key: c.channel,
-      // A ternary chain that ended in the RAW KEY, so every channel added after
-      // WhatsApp and voice rendered "telegram" and "unofficial_whatsapp"
-      // verbatim to the operator, on a muted tile carrying a telephone glyph.
-      name: channelLabel(c.channel, tc),
-      value: c.count,
-      pct: c.pct,
-      // The bar keeps the brand colour, which is what makes two rows tellable
-      // apart at a glance. The PLATE does not: DESIGN.md §9 keeps one neutral
-      // ground and puts the identity in the mark, and the brand marks carry
-      // their own real colours.
-      bar: CHANNEL_BAR[c.channel] ?? "hsl(var(--muted-foreground))",
-    }));
+    return [...mix]
+      .sort((a, b) => b.count - a.count)
+      .map((c) => ({
+        key: c.channel,
+        // A ternary chain that ended in the RAW KEY, so every channel added
+        // after WhatsApp and voice rendered "telegram" verbatim to the
+        // operator on a muted tile carrying a telephone glyph.
+        name: channelLabel(c.channel, tc),
+        value: c.count,
+        pct: c.pct,
+        bar: CHANNEL_BAR[c.channel] ?? "hsl(var(--muted-foreground))",
+      }));
   }, [mix, tc]);
   const total = data.reduce((s, d) => s + d.value, 0);
+  const max = data.reduce((m, d) => Math.max(m, d.value), 0);
 
-  if (loading) return <ChartSkeleton height={160} />;
+  if (loading) return <ChartSkeleton height={140} />;
   if (!data.length) {
     return (
       <EmptyChart
         icon={<ChartPie className="h-8 w-8" weight="fill" />}
         message={tl("noChannelMix")}
-        height={160}
+        height={140}
       />
     );
   }
 
-  // Horizontal comparison cards beat a pie for two channels: exact counts and
-  // share read faster, and the bars scale cleanly when one channel dominates.
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       <div className="flex items-baseline justify-between gap-2">
-        <p className="text-xs font-medium text-muted-foreground">
+        <p className="text-2xs font-semibold text-muted-foreground">
           {tl("channelTotalConversations")}
         </p>
-        <p className="text-sm font-semibold tabular-nums text-foreground">
+        <p className="readout text-sm font-semibold tabular-nums text-foreground">
           {fmt.num(total)}
         </p>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2">
-        {data.map((d) => {
-          return (
-            <div
-              key={d.key}
-              className="rounded-[--radius] border border-border bg-background p-4"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex min-w-0 items-center gap-2.5">
-                  <ChannelTile channel={d.key} size="md" />
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-foreground">
-                      {d.name}
-                    </p>
-                    <p className="text-2xs text-muted-foreground">
-                      {fmt.pct(d.pct)} {tl("ofPeriodConversations")}
-                    </p>
-                  </div>
-                </div>
-                <p className="font-display text-2xl font-semibold tabular-nums tracking-tight text-foreground">
-                  {fmt.num(d.value)}
-                </p>
+      <ul className="grid gap-x-6 gap-y-2.5 sm:grid-cols-2">
+        {data.map((d) => (
+          <li key={d.key} className="flex min-w-0 items-center gap-2.5">
+            <ChannelTile channel={d.key} size="sm" />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="truncate text-xs font-medium text-foreground">{d.name}</span>
+                <span className="flex shrink-0 items-baseline gap-2">
+                  <span className="readout text-sm font-semibold tabular-nums text-foreground">
+                    {fmt.num(d.value)}
+                  </span>
+                  <span className="w-11 text-right text-2xs tabular-nums text-muted-foreground">
+                    {fmt.pct(d.pct)}
+                  </span>
+                </span>
               </div>
-              <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
+              {/* One shared maximum, so the rows compare. Percent-of-self bars
+                  made every channel look equally busy. */}
+              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                 <div
                   className="h-full rounded-full transition-[width] duration-300"
                   style={{
-                    width: `${Math.min(100, Math.max(0, d.pct))}%`,
+                    width: `${max > 0 ? (d.value / max) * 100 : 0}%`,
                     backgroundColor: d.bar,
                   }}
                 />
               </div>
             </div>
-          );
-        })}
-      </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
 
 function SectionLabel({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <div className="mb-3 flex items-end justify-between gap-3">
+    <div className="mb-2 flex items-end justify-between gap-3">
       <div>
         <h2 className="text-sm font-semibold tracking-tight text-foreground">
           {title}
@@ -616,6 +619,24 @@ function SectionLabel({ title, subtitle }: { title: string; subtitle?: string })
   );
 }
 
+/**
+ * The operational blocks.
+ *
+ * These were fourteen bordered boxes each holding one number. That is not a
+ * dashboard, it is a spreadsheet with rounded corners, and it broke the page
+ * shapes rule this product already wrote down for itself: none of them draws a
+ * box around a number. Four numbers in four boxes also cannot be COMPARED
+ * without the reader doing the arithmetic, which is the one job a chart exists
+ * to do for them.
+ *
+ * Every block below now picks its form from the job its data does:
+ *
+ *   first response   four magnitudes on one scale     -> CompareBars
+ *   messages         two directions of one exchange   -> SplitFlow
+ *   reopen           one ratio against its whole      -> Meter
+ *   templates        one share, plus raw volume       -> Meter + readouts
+ *   AI               one population split by outcome  -> SegmentBar
+ */
 function ExtendedOpsPanels({
   overview,
   loading,
@@ -632,11 +653,18 @@ function ExtendedOpsPanels({
   const msg: OverviewMessaging | undefined = overview?.messaging;
   const reopen: OverviewReopen | undefined = overview?.reopen;
 
+  const templateShare = (() => {
+    const templates = msg?.template_messages ?? 0;
+    const outboundTotal = (msg?.avg_outbound ?? 0) * (msg?.conversations_with_messages ?? 0);
+    if (!outboundTotal || !msg?.available) return null;
+    return Math.min(100, (templates / outboundTotal) * 100);
+  })();
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div>
         <SectionLabel title={ts("times")} subtitle={ts("timesSub")} />
-        <div className="grid gap-4 xl:grid-cols-12">
+        <div className="grid gap-3 xl:grid-cols-12">
           <Surface className="xl:col-span-6">
             <SectionTitle
               icon={<Lightning className="h-4 w-4" weight="fill" />}
@@ -645,43 +673,51 @@ function ExtendedOpsPanels({
               subtitle={ts("frtSub")}
             />
             {loading ? (
-              <ChartSkeleton height={140} />
+              <ChartSkeleton height={150} />
+            ) : !frt?.available ? (
+              <EmptyChart
+                icon={<Lightning className="h-8 w-8" weight="fill" />}
+                message={tl("noDataPeriod")}
+                height={150}
+              />
             ) : (
-              <div className="grid grid-cols-2 gap-2">
-                <StatBlock
-                  label={tl("overallAvg")}
-                  value={fmt.mins(frt?.avg_mins ?? null)}
-                  hint={
-                    frt?.available
-                      ? tl("basedOnSessions", {
-                          count: fmt.num(frt.sample_count),
-                        })
-                      : tl("noDataPeriod")
-                  }
-                  muted={!frt?.available}
-                />
-                <StatBlock
-                  label={tl("median")}
-                  value={fmt.mins(frt?.median_mins ?? null)}
-                  muted={!frt?.available}
-                />
-                <StatBlock
-                  label={tl("people")}
-                  value={fmt.mins(frt?.human_avg_mins ?? null)}
-                  hint={tl("sessionsCount", {
-                    count: fmt.num(frt?.human_samples),
-                  })}
-                  muted={!frt?.human_samples}
-                />
-                <StatBlock
-                  label={tc("ai")}
-                  value={fmt.mins(frt?.ai_avg_mins ?? null)}
-                  hint={tl("sessionsCount", {
-                    count: fmt.num(frt?.ai_samples),
-                  })}
-                  muted={!frt?.ai_samples}
-                />
-              </div>
+              /* Minutes on one shared scale, so "the AI answers in seconds and
+                 people in minutes" is a shape rather than a subtraction. The
+                 overall average is the emphasis; the rest is context. */
+              <CompareBars
+                emphasisKey="avg"
+                rows={[
+                  {
+                    key: "avg",
+                    label: tl("overallAvg"),
+                    value: frt.avg_mins,
+                    display: fmt.mins(frt.avg_mins),
+                    hint: tl("basedOnSessions", { count: fmt.num(frt.sample_count) }),
+                  },
+                  {
+                    key: "median",
+                    label: tl("median"),
+                    value: frt.median_mins,
+                    display: fmt.mins(frt.median_mins),
+                  },
+                  {
+                    key: "human",
+                    label: tl("people"),
+                    value: frt.human_avg_mins,
+                    display: fmt.mins(frt.human_avg_mins),
+                    hint: tl("sessionsCount", { count: fmt.num(frt.human_samples) }),
+                    color: "hsl(var(--chart-2))",
+                  },
+                  {
+                    key: "ai",
+                    label: tc("ai"),
+                    value: frt.ai_avg_mins,
+                    display: fmt.mins(frt.ai_avg_mins),
+                    hint: tl("sessionsCount", { count: fmt.num(frt.ai_samples) }),
+                    color: "hsl(var(--chart-5))",
+                  },
+                ]}
+              />
             )}
           </Surface>
 
@@ -693,47 +729,49 @@ function ExtendedOpsPanels({
               subtitle={ts("messagesSub")}
             />
             {loading ? (
-              <ChartSkeleton height={120} />
+              <ChartSkeleton height={130} />
+            ) : !msg?.available ? (
+              <EmptyChart
+                icon={<ChartBar className="h-8 w-8" weight="fill" />}
+                message={tl("noDataPeriod")}
+                height={130}
+              />
             ) : (
-              <div className="grid grid-cols-1 gap-2">
-                <StatBlock
-                  label={tl("avgPerConversation")}
-                  value={
-                    msg?.available
-                      ? fmt.num(msg.avg_messages_per_conversation ?? 0)
-                      : fmt.na
-                  }
-                  hint={tl("conversationsWithMessages", {
-                    count: fmt.num(msg?.conversations_with_messages),
-                  })}
-                  muted={!msg?.available}
-                />
-                {msg?.avg_messages_all_scoped != null &&
-                msg.conversations_with_messages > 0 &&
-                msg.avg_messages_all_scoped !==
-                  msg.avg_messages_per_conversation ? (
-                  <p className="px-1 text-2xs text-muted-foreground">
-                    {tl("avgIncludingShells", {
-                      avg: fmt.num(msg.avg_messages_all_scoped),
-                    })}
-                  </p>
-                ) : null}
-                <div className="grid grid-cols-2 gap-2">
-                  <StatBlock
-                    label={tl("fromCustomer")}
-                    value={
-                      msg?.available ? fmt.num(msg.avg_inbound ?? 0) : fmt.na
-                    }
-                    muted={!msg?.available}
-                  />
-                  <StatBlock
-                    label={tl("fromTeam")}
-                    value={
-                      msg?.available ? fmt.num(msg.avg_outbound ?? 0) : fmt.na
-                    }
-                    muted={!msg?.available}
-                  />
+              <div className="space-y-3">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="text-2xs font-semibold text-muted-foreground">
+                    {tl("avgPerConversation")}
+                  </span>
+                  <span className="readout font-display text-xl font-semibold text-foreground">
+                    {fmt.num(msg.avg_messages_per_conversation ?? 0)}
+                  </span>
                 </div>
+                {/* Inbound and outbound are one exchange with a direction, so
+                    they grow from a shared middle. Which way it leans is the
+                    finding; two separate numbers hid it. */}
+                <SplitFlow
+                  left={{
+                    label: tl("fromCustomer"),
+                    value: msg.avg_inbound ?? 0,
+                    display: fmt.num(msg.avg_inbound ?? 0),
+                  }}
+                  right={{
+                    label: tl("fromTeam"),
+                    value: msg.avg_outbound ?? 0,
+                    display: fmt.num(msg.avg_outbound ?? 0),
+                  }}
+                />
+                <p className="text-2xs text-muted-foreground">
+                  {tl("conversationsWithMessages", {
+                    count: fmt.num(msg.conversations_with_messages),
+                  })}
+                  {msg.avg_messages_all_scoped != null &&
+                  msg.avg_messages_all_scoped !== msg.avg_messages_per_conversation
+                    ? ` · ${tl("avgIncludingShells", {
+                        avg: fmt.num(msg.avg_messages_all_scoped),
+                      })}`
+                    : ""}
+                </p>
               </div>
             )}
           </Surface>
@@ -746,43 +784,48 @@ function ExtendedOpsPanels({
               subtitle={ts("reopenSub")}
             />
             {loading ? (
-              <ChartSkeleton height={120} />
+              <ChartSkeleton height={130} />
+            ) : !reopen?.available ? (
+              <EmptyChart
+                icon={<Pulse className="h-8 w-8" weight="fill" />}
+                message={tl("noReopenHistory")}
+                height={130}
+              />
             ) : (
-              <div className="grid grid-cols-1 gap-2">
-                <StatBlock
+              <div className="space-y-3">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="text-2xs font-semibold text-muted-foreground">
+                    {tl("reopenPct")}
+                  </span>
+                  <span
+                    className={cn(
+                      "readout font-display text-xl font-semibold",
+                      (reopen.reopen_rate ?? 0) >= 15
+                        ? "text-warning-ink"
+                        : "text-foreground",
+                    )}
+                  >
+                    {reopen.reopen_rate != null ? fmt.pct(reopen.reopen_rate) : fmt.na}
+                  </span>
+                </div>
+                {/* A ratio against its whole is a track, so the unreopened
+                    remainder is visible rather than implied. */}
+                <Meter
+                  value={reopen.reopen_rate ?? 0}
+                  color={
+                    (reopen.reopen_rate ?? 0) >= 15
+                      ? "hsl(var(--warning))"
+                      : "hsl(var(--chart-1))"
+                  }
+                  size="lg"
                   label={tl("reopenPct")}
-                  value={
-                    reopen?.available && reopen.reopen_rate != null
-                      ? fmt.pct(reopen.reopen_rate)
-                      : fmt.na
-                  }
-                  hint={
-                    reopen?.available
-                      ? tl("reopenedOfFinished", {
-                          reopened: fmt.num(reopen.reopened_count),
-                          finished: fmt.num(
-                            reopen.finished_count ??
-                              reopen.finished_event_count,
-                          ),
-                        })
-                      : tl("noReopenHistory")
-                  }
-                  muted={!reopen?.available}
                 />
-                <StatBlock
-                  label={tc("quantity")}
-                  value={fmt.num(reopen?.reopened_count)}
-                  hint={
-                    (reopen?.finished_event_count ?? 0) > 0 &&
-                    reopen?.finished_count != null &&
-                    reopen.finished_event_count !== reopen.finished_count
-                      ? tl("finishedEventsTelemetry", {
-                          count: fmt.num(reopen.finished_event_count),
-                        })
-                      : undefined
-                  }
-                  muted={!reopen?.available}
-                />
+                <p className="text-2xs text-muted-foreground">
+                  {tl("reopenedOfFinished", {
+                    reopened: fmt.num(reopen.reopened_count),
+                    finished: fmt.num(reopen.finished_count ?? reopen.finished_event_count),
+                  })}
+                </p>
               </div>
             )}
           </Surface>
@@ -791,10 +834,7 @@ function ExtendedOpsPanels({
 
       {/* Dedicated template volume block: was easy to miss inside Messages. */}
       <div>
-        <SectionLabel
-          title={ts("templates")}
-          subtitle={ts("templatesSub")}
-        />
+        <SectionLabel title={ts("templates")} subtitle={ts("templatesSub")} />
         <Surface>
           <SectionTitle
             icon={<WhatsappLogo className="h-4 w-4" weight="fill" />}
@@ -803,46 +843,57 @@ function ExtendedOpsPanels({
             subtitle={ts("templatesTitleSub")}
           />
           {loading ? (
-            <ChartSkeleton height={100} />
+            <ChartSkeleton height={110} />
           ) : (
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <StatBlock
-                label={tl("templatesSent")}
-                value={fmt.num(msg?.template_messages ?? 0)}
-                hint={tl("templatesSentHint")}
-                muted={!(msg?.template_messages ?? 0)}
-              />
-              <StatBlock
-                label={tl("conversationsWithTemplateLabel")}
-                value={fmt.num(msg?.conversations_with_template ?? 0)}
-                hint={tl("conversationsWithTemplate", {
-                  count: fmt.num(msg?.conversations_with_template ?? 0),
-                })}
-                muted={!(msg?.conversations_with_template ?? 0)}
-              />
-              <StatBlock
-                label={tl("avgTemplate")}
-                value={
-                  msg?.avg_template != null
-                    ? fmt.num(msg.avg_template)
-                    : fmt.na
-                }
-                hint={tl("avgTemplateHint")}
-                muted={msg?.avg_template == null || msg.avg_template === 0}
-              />
-              <StatBlock
-                label={tl("templateShareOfOutbound")}
-                value={(() => {
-                  const templates = msg?.template_messages ?? 0;
-                  const outboundAvg = msg?.avg_outbound ?? 0;
-                  const withMsgs = msg?.conversations_with_messages ?? 0;
-                  const outboundTotal = outboundAvg * withMsgs;
-                  if (!outboundTotal || !msg?.available) return fmt.na;
-                  return fmt.pct((templates / outboundTotal) * 100);
-                })()}
-                hint={tl("templateShareHint")}
-                muted={!(msg?.template_messages ?? 0)}
-              />
+            <div className="grid gap-4 md:grid-cols-12">
+              <div className="md:col-span-5">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="text-2xs font-semibold text-muted-foreground">
+                    {tl("templateShareOfOutbound")}
+                  </span>
+                  <span className="readout font-display text-xl font-semibold text-foreground">
+                    {templateShare != null ? fmt.pct(templateShare) : fmt.na}
+                  </span>
+                </div>
+                <Meter
+                  value={templateShare ?? 0}
+                  color="hsl(var(--chart-4))"
+                  size="lg"
+                  className="mt-2"
+                  label={tl("templateShareOfOutbound")}
+                />
+                <p className="mt-1.5 text-2xs text-muted-foreground">
+                  {tl("templateShareHint")}
+                </p>
+              </div>
+              <div className="md:col-span-7">
+                <CompareBars
+                  rows={[
+                    {
+                      key: "sent",
+                      label: tl("templatesSent"),
+                      value: msg?.template_messages ?? 0,
+                      display: fmt.num(msg?.template_messages ?? 0),
+                      hint: tl("templatesSentHint"),
+                      color: "hsl(var(--chart-4))",
+                    },
+                    {
+                      key: "convs",
+                      label: tl("conversationsWithTemplateLabel"),
+                      value: msg?.conversations_with_template ?? 0,
+                      display: fmt.num(msg?.conversations_with_template ?? 0),
+                      color: "hsl(var(--chart-2))",
+                    },
+                  ]}
+                />
+                <p className="mt-2 text-2xs text-muted-foreground">
+                  {tl("avgTemplate")}:{" "}
+                  <strong className="readout tabular-nums text-foreground">
+                    {msg?.avg_template != null ? fmt.num(msg.avg_template) : fmt.na}
+                  </strong>{" "}
+                  · {tl("avgTemplateHint")}
+                </p>
+              </div>
             </div>
           )}
         </Surface>
@@ -871,35 +922,80 @@ function ExtendedOpsPanels({
             subtitle={ts("aiTitleSub")}
           />
           {loading ? (
-            <ChartSkeleton height={120} />
+            <ChartSkeleton height={110} />
+          ) : !ai?.available ? (
+            <EmptyChart
+              icon={<Robot className="h-8 w-8" weight="fill" />}
+              message={tl("noDataPeriod")}
+              height={110}
+            />
           ) : (
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <StatBlock
-                label={tl("aiSessions")}
-                value={fmt.num(ai?.sessions)}
-                muted={!ai?.available}
-              />
-              <StatBlock
-                label={tl("stillActive")}
-                value={fmt.num(ai?.open_sessions)}
-                muted={!ai?.available}
-              />
-              <StatBlock
-                label={tl("resolvedByAi")}
-                value={ai?.available ? fmt.pct(ai.containment_rate) : fmt.na}
-                hint={tl("withoutHuman", {
-                  count: fmt.num(ai?.contained),
-                })}
-                muted={!ai?.available}
-              />
-              <StatBlock
-                label={tl("handedToHuman")}
-                value={ai?.available ? fmt.pct(ai.handoff_rate) : fmt.na}
-                hint={tl("transfers", {
-                  count: fmt.num(ai?.handed_off),
-                })}
-                muted={!ai?.available}
-              />
+            <div className="grid gap-4 md:grid-cols-12">
+              {/* One population of sessions split by how it ended: a single
+                  bar, named in its own legend. Four boxes reporting counts
+                  and rates made the reader rebuild that whole themselves. */}
+              <div className="md:col-span-7">
+                <SegmentBar
+                  segments={[
+                    {
+                      key: "contained",
+                      label: tl("resolvedByAi"),
+                      value: ai.contained,
+                      color: "hsl(var(--healthy))",
+                    },
+                    {
+                      key: "handed",
+                      label: tl("handedToHuman"),
+                      value: ai.handed_off,
+                      color: "hsl(var(--chart-2))",
+                    },
+                    {
+                      key: "abandoned",
+                      label: tl("aiAbandoned"),
+                      value: ai.abandoned,
+                      color: "hsl(var(--warning))",
+                    },
+                    {
+                      key: "open",
+                      label: tl("stillActive"),
+                      value: ai.open_sessions,
+                      color: "hsl(var(--muted-foreground) / 0.55)",
+                    },
+                  ]}
+                  formatValue={(v) => fmt.num(v)}
+                />
+                <p className="mt-2 text-2xs text-muted-foreground">
+                  {tl("aiSessions")}:{" "}
+                  <strong className="readout tabular-nums text-foreground">
+                    {fmt.num(ai.sessions)}
+                  </strong>
+                </p>
+              </div>
+              {/* The bar beside this one already names the counts, so these
+                  rows are titled as RATES. Repeating the same two labels made
+                  the panel look like it had rendered twice. */}
+              <div className="md:col-span-5">
+                <CompareBars
+                  rows={[
+                    {
+                      key: "containment",
+                      label: tl("aiContainmentRate"),
+                      value: ai.containment_rate,
+                      display: fmt.pct(ai.containment_rate),
+                      hint: tl("withoutHuman", { count: fmt.num(ai.contained) }),
+                      color: "hsl(var(--healthy))",
+                    },
+                    {
+                      key: "handoff",
+                      label: tl("aiHandoffRate"),
+                      value: ai.handoff_rate,
+                      display: fmt.pct(ai.handoff_rate),
+                      hint: tl("transfers", { count: fmt.num(ai.handed_off) }),
+                      color: "hsl(var(--chart-2))",
+                    },
+                  ]}
+                />
+              </div>
             </div>
           )}
         </Surface>
@@ -1866,6 +1962,865 @@ function TeamDetailTable({
   );
 }
 
+/* ── Funnels and stages ───────────────────────────────────────────────
+   Where the period's conversations are sitting, and how long they have been
+   sitting there.
+
+   Grouped by funnel, never flat. Duplicate stage names across funnels are the
+   normal case in this product (five production workspaces carry more than one
+   conversation funnel), so a flat list would add "Agendamento" from a dead
+   funnel to "Agendamento" from the live one and show a number belonging to
+   neither.
+
+   Colour carries exactly one meaning each, and nothing here is decoration:
+     chart-1                volume of engaged conversations (charts lead with
+                            the brand)
+     warning                the stalled share of that volume, the actionable
+                            part, and the only thing amber ever means here
+     chart-2                a funnel's share of the workspace: a different
+                            entity from a stage, so a different series slot
+     healthy / destructive  the funnel's own won and lost outcomes
+     the stage's own hex    as a square mark only, so the operator reads the
+                            chips they already know from the kanban without
+                            arbitrary user colour driving the chart
+─────────────────────────────────────────────────────────────────────── */
+
+/**
+ * The bar palette, and it reads as one sentence down the funnel: brand green
+ * while a lead is in flight, amber for the part of that volume which has
+ * stalled, then the outcome's own token at the two stages a funnel ends in.
+ *
+ * A won stage rendered in the in-flight colour made the end of the path look
+ * like more of the middle of it, and a lost stage looked like healthy volume.
+ * Amber stays unambiguous because it is only ever the trailing segment of a
+ * bar, and it is always labelled beneath it.
+ */
+const STAGE_BAR = "hsl(var(--chart-1))";
+const STAGE_BAR_WON = "hsl(var(--healthy))";
+const STAGE_BAR_LOST = "hsl(var(--destructive))";
+const STAGE_BAR_STALLED = "hsl(var(--warning))";
+const FUNNEL_BAR = "hsl(var(--chart-2))";
+
+function stageBarColor(isWon: boolean, isLost: boolean): string {
+  if (isWon) return STAGE_BAR_WON;
+  if (isLost) return STAGE_BAR_LOST;
+  return STAGE_BAR;
+}
+
+const HEX = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
+
+/** The stage's own kanban colour as a small square: the board's trace-pad
+ * shape, and the one place arbitrary user colour is allowed in this panel.
+ * Won and lost override it, because an outcome outranks a decoration. */
+function StageMark({
+  color,
+  isWon,
+  isLost,
+}: {
+  color?: string;
+  isWon: boolean;
+  isLost: boolean;
+}) {
+  const fill = isWon
+    ? "hsl(var(--healthy))"
+    : isLost
+      ? "hsl(var(--destructive))"
+      : color && HEX.test(color.trim())
+        ? color.trim()
+        : "hsl(var(--muted-foreground))";
+  return (
+    <span
+      aria-hidden
+      className="mt-[5px] h-2.5 w-2.5 shrink-0 rounded-[2px]"
+      style={{ backgroundColor: fill }}
+    />
+  );
+}
+
+/** One legend/readout pair engraved on the panel. No box: a number in this
+ * product does not get a card drawn around it. */
+function StageReadout({
+  label,
+  value,
+  tone = "default",
+  title,
+}: {
+  label: string;
+  value: string;
+  tone?: "default" | "warning" | "muted";
+  title?: string;
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-3 py-1.5" title={title}>
+      <span className="text-2xs font-semibold text-muted-foreground">{label}</span>
+      <span
+        className={cn(
+          "readout text-sm font-semibold tabular-nums",
+          tone === "warning"
+            ? "text-warning-ink"
+            : tone === "muted"
+              ? "text-muted-foreground"
+              : "text-foreground",
+        )}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
+
+/**
+ * Coverage, then the funnel league — and the league IS the picker.
+ *
+ * A separate control for choosing a funnel would have been a second thing to
+ * read carrying none of its own information. Selecting a row here drives the
+ * ladder beside it, and the row still shows everything it showed before.
+ */
+function StageCoveragePanel({
+  stages,
+  loading,
+  activeFunnelId,
+  onSelectFunnel,
+}: {
+  stages: OverviewStages | undefined;
+  loading: boolean;
+  activeFunnelId: string | null;
+  onSelectFunnel: (id: string) => void;
+}) {
+  const tl = useTranslations("metricsOps.attendance.labels");
+  const fmt = useMetricsFmt();
+
+  if (loading) return <ChartSkeleton height={300} />;
+  if (!stages?.available) {
+    return (
+      <EmptyChart
+        icon={<Kanban className="h-9 w-9" weight="fill" />}
+        message={tl("noStageData")}
+        height={300}
+      />
+    );
+  }
+
+  const inScope = stages.staged_engaged + stages.unstaged_engaged;
+  const coveragePct = inScope > 0 ? (stages.staged_engaged / inScope) * 100 : 0;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-4">
+        <ProgressRing
+          value={coveragePct}
+          label={tl("coverageRing")}
+          size={96}
+          strokeWidth={9}
+          color={STAGE_BAR}
+        />
+        <div className="min-w-0 flex-1 divide-y divide-border">
+          <StageReadout
+            label={tl("stagedCol")}
+            value={fmt.num(stages.staged_engaged)}
+            title={tl("engagedColTitle")}
+          />
+          <StageReadout
+            label={tl("unstagedCol")}
+            value={fmt.num(stages.unstaged_engaged)}
+            tone="muted"
+            title={tl("unstagedHint")}
+          />
+          <StageReadout
+            label={tl("stuckCol")}
+            value={fmt.num(stages.stuck)}
+            tone={stages.stuck > 0 ? "warning" : "muted"}
+            title={tl("stuckColTitle")}
+          />
+        </div>
+      </div>
+
+      <ul className="-mx-1.5 space-y-0.5">
+        {stages.funnels.map((f) => {
+          const active = f.funnel_id === activeFunnelId;
+          const name = f.funnel_name || tl("noFunnel");
+          return (
+            <li key={f.funnel_id || "__none"}>
+              {/* Selection is a real ground plus a mark, never a tint of the
+                  brand hue under ink of the same hue. */}
+              <button
+                type="button"
+                onClick={() => onSelectFunnel(f.funnel_id)}
+                aria-pressed={active}
+                title={f.funnel_id ? undefined : tl("noFunnelHint")}
+                className={cn(
+                  "flex w-full items-center gap-2 rounded-[--radius] px-1.5 py-2 text-left transition-colors",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  active ? "bg-muted" : "hover:bg-accent-hover",
+                )}
+              >
+                <span className={cn("lamp", !active && "opacity-0")} aria-hidden />
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-baseline justify-between gap-2">
+                    <span
+                      className={cn(
+                        "truncate text-xs text-foreground",
+                        active ? "font-semibold" : "font-medium",
+                      )}
+                    >
+                      {name}
+                    </span>
+                    <span className="readout shrink-0 text-xs font-semibold tabular-nums text-foreground">
+                      {fmt.num(f.engaged)}
+                    </span>
+                  </span>
+                  <span className="mt-1.5 flex items-center gap-2">
+                    <span className="h-1 flex-1 overflow-hidden rounded-full bg-muted">
+                      <span
+                        className="block h-full rounded-full"
+                        style={{
+                          width: `${Math.min(100, Math.max(0, f.pct_of_staged))}%`,
+                          backgroundColor: FUNNEL_BAR,
+                        }}
+                      />
+                    </span>
+                    <span className="w-10 shrink-0 text-right text-2xs tabular-nums text-muted-foreground">
+                      {fmt.pct(f.pct_of_staged)}
+                    </span>
+                    {f.stuck > 0 ? (
+                      <span
+                        className="inline-flex shrink-0 items-center gap-1 text-2xs font-semibold tabular-nums text-warning-ink"
+                        title={tl("stuckColTitle")}
+                      >
+                        <Hourglass className="h-3 w-3" weight="fill" aria-hidden />
+                        {fmt.num(f.stuck)}
+                      </span>
+                    ) : null}
+                  </span>
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+/**
+ * The selected funnel, read in its own order.
+ *
+ * Position ascending, not volume descending: a funnel sorted by size stops
+ * being a path, and "where do they stop moving" is only answerable when the
+ * stages sit in the order leads actually travel them. The longest bar still
+ * says which stage holds the most.
+ */
+function StageLadder({
+  funnel,
+  loading,
+}: {
+  funnel: StageFunnelGroup | undefined;
+  loading: boolean;
+}) {
+  const tl = useTranslations("metricsOps.attendance.labels");
+  const fmt = useMetricsFmt();
+
+  if (loading) return <ChartSkeleton height={300} />;
+  if (!funnel?.stages?.length) {
+    return (
+      <EmptyChart
+        icon={<FlowArrow className="h-9 w-9" weight="fill" />}
+        message={tl("noStageData")}
+        height={300}
+      />
+    );
+  }
+
+  // Bars compare engaged against engaged. Shells are a chip on the row rather
+  // than an extension of the bar: one 3.000-contact import would otherwise
+  // flatten every real stage beside it into a hairline.
+  const maxEngaged = funnel.stages.reduce((m, s) => Math.max(m, s.engaged), 0);
+  const peakId =
+    funnel.stages.length >= 3 && maxEngaged > 0
+      ? funnel.stages.reduce((a, b) => (b.engaged > a.engaged ? b : a)).stage_id
+      : null;
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <p className="text-xs text-muted-foreground">
+          {tl("funnelSummary", {
+            engaged: fmt.num(funnel.engaged),
+            pct: fmt.pct(funnel.pct_of_staged),
+          })}
+        </p>
+        {funnel.stuck > 0 ? (
+          <p className="readout text-xs font-semibold tabular-nums text-warning-ink">
+            {tl("funnelStuck", { count: fmt.num(funnel.stuck) })}
+          </p>
+        ) : null}
+      </div>
+
+      <ul className="space-y-3.5">
+        {funnel.stages.map((s) => {
+          const width = maxEngaged > 0 ? (s.engaged / maxEngaged) * 100 : 0;
+          // The stalled share sits INSIDE the same bar, at its trailing end:
+          // stalled conversations are part of the volume, and a second bar
+          // beside it would invite reading them as extra.
+          const stalled = Math.min(s.stuck, s.engaged);
+          const stalledPct = s.engaged > 0 ? (stalled / s.engaged) * 100 : 0;
+          const showOldest =
+            s.avg_days_in_stage !== null &&
+            s.oldest_days_in_stage !== null &&
+            s.oldest_days_in_stage > s.avg_days_in_stage + 1;
+          return (
+            <li key={s.stage_id} className="flex items-start gap-2">
+              <StageMark color={s.color} isWon={s.is_won} isLost={s.is_lost} />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-baseline justify-between gap-2">
+                  <div className="flex min-w-0 items-baseline gap-1.5">
+                    <span className="truncate text-sm font-medium text-foreground">
+                      {s.stage_name}
+                    </span>
+                    {s.is_won ? (
+                      <span className="shrink-0 text-2xs font-semibold text-healthy-ink">
+                        {tl("wonStage")}
+                      </span>
+                    ) : null}
+                    {s.is_lost ? (
+                      <span className="shrink-0 text-2xs font-semibold text-destructive-ink">
+                        {tl("lostStage")}
+                      </span>
+                    ) : null}
+                    {s.stage_id === peakId ? (
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-[--radius] bg-muted px-1.5 py-0.5 text-2xs font-semibold text-foreground">
+                        <TrendUp className="h-3 w-3" weight="bold" aria-hidden />
+                        {tl("peakStage")}
+                      </span>
+                    ) : null}
+                  </div>
+                  <div className="flex shrink-0 items-baseline gap-2">
+                    <span className="readout text-sm font-semibold tabular-nums text-foreground">
+                      {fmt.num(s.engaged)}
+                    </span>
+                    <span className="w-11 text-right text-2xs tabular-nums text-muted-foreground">
+                      {fmt.pct(s.pct_of_funnel)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="flex h-full overflow-hidden rounded-full transition-[width] duration-300"
+                    style={{ width: `${Math.min(100, Math.max(0, width))}%` }}
+                  >
+                    <span
+                      className="h-full"
+                      style={{
+                        width: `${100 - stalledPct}%`,
+                        backgroundColor: stageBarColor(s.is_won, s.is_lost),
+                      }}
+                    />
+                    {stalled > 0 ? (
+                      <span
+                        className="h-full"
+                        style={{
+                          width: `${stalledPct}%`,
+                          backgroundColor: STAGE_BAR_STALLED,
+                          borderLeft:
+                            stalledPct < 100 ? "1px solid hsl(var(--card))" : undefined,
+                        }}
+                      />
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-2xs text-muted-foreground">
+                  {s.avg_days_in_stage !== null ? (
+                    <span
+                      className="inline-flex items-center gap-1 tabular-nums"
+                      title={tl("parkedColTitle")}
+                    >
+                      <Timer className="h-3 w-3" weight="fill" aria-hidden />
+                      {tl("parkedCol")} {fmt.days(s.avg_days_in_stage)}
+                      {showOldest
+                        ? ` · ${tl("oldestInStage", { days: fmt.days(s.oldest_days_in_stage) })}`
+                        : ""}
+                    </span>
+                  ) : null}
+                  {stalled > 0 ? (
+                    <span
+                      className="inline-flex items-center gap-1 font-semibold tabular-nums text-warning-ink"
+                      title={tl("stuckColTitle")}
+                    >
+                      <Hourglass className="h-3 w-3" weight="fill" aria-hidden />
+                      {tl("stageStuck", { count: fmt.num(stalled) })}
+                      {/* The parentheses are drawn here, once. Carrying a pair
+                          inside the string too printed "(over 7d (default))". */}
+                      <span className="font-normal">
+                        {`(${
+                          s.rot_days_set
+                            ? tl("stuckAfter", { days: s.stuck_after_days })
+                            : tl("stuckAfterDefault", { days: s.stuck_after_days })
+                        })`}
+                      </span>
+                    </span>
+                  ) : null}
+                  {s.shell > 0 ? (
+                    <span className="tabular-nums" title={tl("shellColTitle")}>
+                      {tl("stageShell", { count: fmt.num(s.shell) })}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+
+      <p className="pt-0.5 text-2xs text-muted-foreground">{tl("stageMeasuredNow")}</p>
+    </div>
+  );
+}
+/**
+ * The block view: every funnel and every stage at once, as area.
+ *
+ * This is a mosaic (Marimekko), not a treemap, and the difference is the whole
+ * point. A treemap squarifies by size, which scrambles the stages into
+ * whatever packs best and destroys the one thing a funnel IS: an order. Here
+ * a funnel is a band whose HEIGHT is its share of the workspace, and inside it
+ * each stage is a block whose WIDTH is its share of that funnel — so both
+ * groupings survive, and the reader still gets true two-dimensional area.
+ *
+ * The ladder beside it reads ONE funnel in depth. This reads all of them at
+ * once, which is the question "where is everything" and the one the ladder
+ * structurally cannot answer.
+ *
+ * Colour: hue by funnel (identity, fixed by index so a filter that drops a
+ * funnel never repaints the survivors), lightness by stage POSITION. Stages
+ * are ordered, so an ordinal ramp is the legal encoding here — and it is not
+ * double-encoding volume, because volume is already the block's area.
+ *
+ * The fill stays a tint and the full-strength hue is spent on a 3px edge. A
+ * large saturated slab is banned in this system, and dark's brand green is
+ * only allowed as a large fill at low alpha.
+ */
+const MOSAIC_HUES = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+  "var(--chart-3)",
+] as const;
+
+/** Alpha by stage position: the head of the funnel is boldest. Floors well
+ * short of a saturated block, so `--foreground` stays readable on it in both
+ * themes. */
+function mosaicAlpha(index: number, count: number): number {
+  if (count <= 1) return 0.3;
+  return 0.3 - (index / (count - 1)) * 0.18;
+}
+
+function StageMosaic({
+  stages,
+  loading,
+  activeFunnelId,
+  onSelectFunnel,
+}: {
+  stages: OverviewStages | undefined;
+  loading: boolean;
+  activeFunnelId: string | null;
+  onSelectFunnel: (id: string) => void;
+}) {
+  const tl = useTranslations("metricsOps.attendance.labels");
+  const fmt = useMetricsFmt();
+
+  if (loading) return <ChartSkeleton height={220} />;
+  if (!stages?.available || !stages.funnels.length) {
+    return (
+      <EmptyChart
+        icon={<Stack className="h-9 w-9" weight="fill" />}
+        message={tl("noStageData")}
+        height={220}
+      />
+    );
+  }
+
+  const withVolume = stages.funnels.filter((f) => f.engaged > 0);
+  const rows = withVolume.length ? withVolume : stages.funnels;
+  const totalEngaged = rows.reduce((s, f) => s + f.engaged, 0);
+
+  return (
+    <div className="space-y-2">
+      <div className="space-y-1">
+        {rows.map((f, fi) => {
+          const hue = MOSAIC_HUES[fi % MOSAIC_HUES.length];
+          const share = totalEngaged > 0 ? f.engaged / totalEngaged : 1 / rows.length;
+          // A floor, because a funnel holding 2% of the workspace is still a
+          // funnel and must stay clickable and labelled rather than collapsing
+          // into a hairline.
+          const height = Math.max(46, Math.round(share * 260));
+          const active = f.funnel_id === activeFunnelId;
+          const cells = f.stages.filter((s) => s.engaged > 0);
+          const rowTotal = cells.reduce((s, c) => s + c.engaged, 0);
+
+          return (
+            <button
+              key={f.funnel_id || "__none"}
+              type="button"
+              onClick={() => onSelectFunnel(f.funnel_id)}
+              aria-pressed={active}
+              className={cn(
+                "block w-full rounded-[--radius] text-left transition-shadow",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                active && "ring-1 ring-primary-edge",
+              )}
+              title={`${f.funnel_name || tl("noFunnel")} · ${fmt.num(f.engaged)}`}
+            >
+              <div className="mb-1 flex items-baseline justify-between gap-2 px-0.5">
+                <span
+                  className={cn(
+                    "truncate text-2xs text-foreground",
+                    active ? "font-semibold" : "font-medium",
+                  )}
+                >
+                  {f.funnel_name || tl("noFunnel")}
+                </span>
+                <span className="readout shrink-0 text-2xs font-semibold tabular-nums text-muted-foreground">
+                  {fmt.num(f.engaged)} · {fmt.pct(f.pct_of_staged)}
+                </span>
+              </div>
+              <div className="flex gap-0.5 overflow-hidden rounded-[--radius]" style={{ height }}>
+                {cells.length === 0 ? (
+                  <div className="h-full w-full rounded-[--radius] bg-muted" />
+                ) : (
+                  cells.map((s, si) => {
+                    const w = rowTotal > 0 ? (s.engaged / rowTotal) * 100 : 0;
+                    const alpha = mosaicAlpha(si, cells.length);
+                    const edge = s.is_won
+                      ? "hsl(var(--healthy))"
+                      : s.is_lost
+                        ? "hsl(var(--destructive))"
+                        : `hsl(${hue})`;
+                    // Only label a block that can actually hold the label.
+                    // A name clipped to "Docu…" in a 30px cell is noise, and
+                    // the value is one hover and one table row away.
+                    const roomy = w >= 14 && height >= 56;
+                    const semiRoomy = w >= 9;
+                    return (
+                      <div
+                        key={s.stage_id}
+                        className="relative h-full min-w-0 overflow-hidden rounded-[3px]"
+                        style={{
+                          width: `${w}%`,
+                          backgroundColor: s.is_won
+                            ? `hsl(var(--healthy) / ${alpha})`
+                            : s.is_lost
+                              ? `hsl(var(--destructive) / ${alpha})`
+                              : `hsl(${hue} / ${alpha})`,
+                        }}
+                        title={`${s.stage_name}: ${fmt.num(s.engaged)} (${fmt.pct(
+                          s.pct_of_funnel,
+                        )})${s.stuck > 0 ? ` · ${tl("stageStuck", { count: fmt.num(s.stuck) })}` : ""}`}
+                      >
+                        {/* Full-strength hue as a 3px edge: identity lives in
+                            the mark, not in a saturated slab. */}
+                        <span
+                          aria-hidden
+                          className="absolute inset-x-0 top-0 h-[3px]"
+                          style={{ backgroundColor: edge }}
+                        />
+                        {/* Stalled work rises from the block's own floor, so
+                            the amber is a share of THIS stage, not a separate
+                            quantity floating beside it. */}
+                        {s.stuck > 0 && s.engaged > 0 ? (
+                          <span
+                            aria-hidden
+                            className="absolute inset-x-0 bottom-0"
+                            style={{
+                              height: `${Math.min(100, (s.stuck / s.engaged) * 100)}%`,
+                              backgroundColor: "hsl(var(--warning) / 0.55)",
+                            }}
+                          />
+                        ) : null}
+                        {roomy ? (
+                          <span className="absolute inset-x-1.5 top-2 block">
+                            {/* The name only appears where it can be read. On a
+                                phone a 14% block is ~50px, which crops
+                                "Documentação pendente" to "Docu…" — noise, and
+                                the name is a hover and a table row away. */}
+                            <span className="hidden truncate text-2xs font-medium text-foreground sm:block">
+                              {s.stage_name}
+                            </span>
+                            <span className="readout block truncate text-2xs font-semibold tabular-nums text-foreground sm:mt-0.5">
+                              {fmt.num(s.engaged)}
+                            </span>
+                          </span>
+                        ) : semiRoomy ? (
+                          <span className="readout absolute inset-x-1 top-2 block truncate text-center text-2xs font-semibold tabular-nums text-foreground">
+                            {fmt.num(s.engaged)}
+                          </span>
+                        ) : null}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      <p className="text-2xs text-muted-foreground">{tl("mosaicHint")}</p>
+    </div>
+  );
+}
+
+/**
+ * Every funnel and every stage, as one reconcilable ledger.
+ *
+ * The funnel is a group header rather than a repeated cell — the same optgroup
+ * shape the inbox stage filter took — so a stage is never read without the
+ * funnel that owns it, and the unstaged remainder closes the arithmetic.
+ */
+function StageDetailTable({
+  stages,
+  loading,
+}: {
+  stages: OverviewStages | undefined;
+  loading: boolean;
+}) {
+  const tl = useTranslations("metricsOps.attendance.labels");
+  const fmt = useMetricsFmt();
+
+  if (loading) return <ChartSkeleton height={200} />;
+  if (!stages?.available || !stages.funnels.length) {
+    return (
+      <p className="py-8 text-center text-sm text-muted-foreground">
+        {tl("noStageDataHint")}
+      </p>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[640px] text-left text-sm">
+        <thead>
+          <tr className="border-b border-border-strong text-2xs font-semibold text-muted-foreground">
+            <th className="px-2 py-2">{tl("stageCol")}</th>
+            <th className="px-2 py-2 text-right" title={tl("engagedColTitle")}>
+              {tl("engagedCol")}
+            </th>
+            <th className="px-2 py-2 text-right" title={tl("shellColTitle")}>
+              {tl("shellCol")}
+            </th>
+            <th className="px-2 py-2 text-right" title={tl("shareColTitle")}>
+              {tl("shareCol")}
+            </th>
+            <th className="px-2 py-2 text-right" title={tl("parkedColTitle")}>
+              {tl("parkedCol")}
+            </th>
+            <th className="px-2 py-2 text-right" title={tl("stuckColTitle")}>
+              {tl("stuckCol")}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {stages.funnels.map((f) => (
+            <Fragment key={f.funnel_id || "__none"}>
+              {/* A real step, not a half-alpha one: on graphite a muted band at
+                  60% collapses back into the card and the group vanishes. */}
+              <tr className="bg-muted">
+                <th
+                  scope="row"
+                  className="px-2 py-1.5 text-2xs font-semibold text-muted-foreground"
+                  title={f.funnel_id ? undefined : tl("noFunnelHint")}
+                >
+                  {f.funnel_name || tl("noFunnel")}
+                </th>
+                <td className="readout px-2 py-1.5 text-right text-2xs font-semibold tabular-nums text-foreground">
+                  {fmt.num(f.engaged)}
+                </td>
+                <td className="px-2 py-1.5 text-right text-2xs tabular-nums text-muted-foreground">
+                  {f.shell > 0 ? fmt.num(f.shell) : "—"}
+                </td>
+                <td className="px-2 py-1.5 text-right text-2xs tabular-nums text-muted-foreground">
+                  {fmt.pct(f.pct_of_staged)}
+                </td>
+                <td className="px-2 py-1.5" />
+                <td
+                  className={cn(
+                    "px-2 py-1.5 text-right text-2xs font-semibold tabular-nums",
+                    f.stuck > 0 ? "text-warning-ink" : "text-muted-foreground",
+                  )}
+                >
+                  {f.stuck > 0 ? fmt.num(f.stuck) : "—"}
+                </td>
+              </tr>
+              {f.stages.map((s) => (
+                <tr key={s.stage_id} className="border-b border-border hover:bg-muted">
+                  <td className="px-2 py-2.5">
+                    <span className="flex items-start gap-2">
+                      <StageMark color={s.color} isWon={s.is_won} isLost={s.is_lost} />
+                      <span className="min-w-0">
+                        <span className="block truncate font-medium text-foreground">
+                          {s.stage_name}
+                        </span>
+                        {s.is_won || s.is_lost ? (
+                          <span
+                            className={cn(
+                              "text-2xs font-semibold",
+                              s.is_won ? "text-healthy-ink" : "text-destructive-ink",
+                            )}
+                          >
+                            {s.is_won ? tl("wonStage") : tl("lostStage")}
+                          </span>
+                        ) : null}
+                      </span>
+                    </span>
+                  </td>
+                  <td className="px-2 py-2.5 text-right font-semibold tabular-nums text-foreground">
+                    {fmt.num(s.engaged)}
+                  </td>
+                  <td className="px-2 py-2.5 text-right tabular-nums text-muted-foreground">
+                    {s.shell > 0 ? fmt.num(s.shell) : "—"}
+                  </td>
+                  <td className="px-2 py-2.5 text-right tabular-nums text-muted-foreground">
+                    {fmt.pct(s.pct_of_funnel)}
+                  </td>
+                  <td
+                    className="px-2 py-2.5 text-right tabular-nums text-muted-foreground"
+                    title={
+                      s.oldest_days_in_stage !== null
+                        ? tl("oldestInStage", { days: fmt.days(s.oldest_days_in_stage) })
+                        : undefined
+                    }
+                  >
+                    {s.avg_days_in_stage !== null ? fmt.days(s.avg_days_in_stage) : fmt.na}
+                  </td>
+                  <td
+                    className={cn(
+                      "px-2 py-2.5 text-right font-semibold tabular-nums",
+                      s.stuck > 0 ? "text-warning-ink" : "text-muted-foreground",
+                    )}
+                    title={
+                      s.rot_days_set
+                        ? tl("stuckAfter", { days: s.stuck_after_days })
+                        : tl("stuckAfterDefault", { days: s.stuck_after_days })
+                    }
+                  >
+                    {s.stuck > 0 ? fmt.num(s.stuck) : "—"}
+                  </td>
+                </tr>
+              ))}
+            </Fragment>
+          ))}
+          {stages.unstaged_engaged > 0 || stages.unstaged_shell > 0 ? (
+            <tr className="border-t border-border-strong">
+              <th
+                scope="row"
+                className="px-2 py-2.5 text-left font-medium text-muted-foreground"
+                title={tl("unstagedHint")}
+              >
+                {tl("unstagedCol")}
+              </th>
+              <td className="px-2 py-2.5 text-right font-semibold tabular-nums text-muted-foreground">
+                {fmt.num(stages.unstaged_engaged)}
+              </td>
+              <td className="px-2 py-2.5 text-right tabular-nums text-muted-foreground">
+                {stages.unstaged_shell > 0 ? fmt.num(stages.unstaged_shell) : "—"}
+              </td>
+              <td className="px-2 py-2.5" />
+              <td className="px-2 py-2.5" />
+              <td className="px-2 py-2.5" />
+            </tr>
+          ) : null}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** The section. Owns exactly one thing: which funnel the ladder is showing. */
+function StageDistributionSection({
+  stages,
+  loading,
+}: {
+  stages: OverviewStages | undefined;
+  loading: boolean;
+}) {
+  const ts = useTranslations("metricsOps.attendance.sections");
+  const [pickedFunnelId, setPickedFunnelId] = useState<string | null>(null);
+
+  const funnels = stages?.funnels ?? [];
+  // Derived during render, not reset in an effect: when a filter change removes
+  // the funnel that was open, the ladder falls back to the busiest one on the
+  // same paint instead of flashing empty first.
+  const activeFunnelId = funnels.some((f) => f.funnel_id === pickedFunnelId)
+    ? pickedFunnelId
+    : (funnels[0]?.funnel_id ?? null);
+  const activeFunnel = funnels.find((f) => f.funnel_id === activeFunnelId);
+
+  return (
+    <div>
+      <SectionLabel title={ts("stages")} subtitle={ts("stagesSub")} />
+      <div className="grid gap-3 xl:grid-cols-12">
+        <Surface className="xl:col-span-4">
+          <SectionTitle
+            icon={<Kanban className="h-4 w-4" weight="fill" />}
+            iconBg={GLYPH_PLATE.Kanban}
+            title={ts("stageCoverage")}
+            subtitle={ts("stageCoverageSub")}
+          />
+          <StageCoveragePanel
+            stages={stages}
+            loading={loading}
+            activeFunnelId={activeFunnelId}
+            onSelectFunnel={setPickedFunnelId}
+          />
+        </Surface>
+
+        <Surface className="xl:col-span-8">
+          <SectionTitle
+            icon={<FlowArrow className="h-4 w-4" weight="fill" />}
+            iconBg={GLYPH_PLATE.FlowArrow}
+            title={ts("stageChart")}
+            subtitle={ts("stageChartSub")}
+          />
+          <StageLadder funnel={activeFunnel} loading={loading} />
+        </Surface>
+      </div>
+
+      <div className="mt-3 grid gap-3 xl:grid-cols-12">
+        {/* All funnels at once, as area. The ladder above reads one funnel in
+            depth; this is the only view that answers "where is everything". */}
+        <Surface className="min-w-0 xl:col-span-5">
+          <SectionTitle
+            icon={<Kanban className="h-4 w-4" weight="fill" />}
+            iconBg={GLYPH_PLATE.Kanban}
+            title={ts("stageMosaic")}
+            subtitle={ts("stageMosaicSub")}
+          />
+          <StageMosaic
+            stages={stages}
+            loading={loading}
+            activeFunnelId={activeFunnelId}
+            onSelectFunnel={setPickedFunnelId}
+          />
+        </Surface>
+
+        {/* min-w-0: a grid item defaults to min-width:auto, so the table's own
+            min-w-[640px] would push the whole column past the viewport instead
+            of scrolling inside its overflow container. It did, by 282px. */}
+        <Surface className="min-w-0 xl:col-span-7">
+          <SectionTitle
+            icon={<Stack className="h-4 w-4" weight="fill" />}
+            iconBg={GLYPH_PLATE.Stack}
+            title={ts("stageTable")}
+            subtitle={ts("stageTableSub")}
+          />
+          <StageDetailTable stages={stages} loading={loading} />
+        </Surface>
+      </div>
+    </div>
+  );
+}
+
 /* ── Page ─────────────────────────────────────────────────────────── */
 
 export default function AttendanceOpsPage() {
@@ -2049,7 +3004,7 @@ export default function AttendanceOpsPage() {
           : tl("last90d");
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Page head on the canvas, Azure-style: trail, title, then the command
           bar carrying export/refresh as flat commands. The filter row sits
           directly below it, unboxed — a filter bar is chrome, not content,
@@ -2284,7 +3239,7 @@ export default function AttendanceOpsPage() {
         <>
           <div>
             <SectionLabel title={ts("volume")} subtitle={ts("volumeSub")} />
-            <div className="grid gap-4 xl:grid-cols-12">
+            <div className="grid gap-3 xl:grid-cols-12">
               <Surface className="xl:col-span-7">
                 <SectionTitle
                   icon={<ChartBar className="h-4 w-4" weight="fill" />}
@@ -2318,12 +3273,20 @@ export default function AttendanceOpsPage() {
             <ExtendedOpsPanels overview={overview} loading={loading} />
           </div>
 
+          {/* Placed before the department and team sections deliberately: those
+              answer "who handled it", this one answers "where did it stop",
+              which is the question a manager arrives with. */}
+          <StageDistributionSection
+            stages={overview?.stages}
+            loading={loading}
+          />
+
           <div>
             <SectionLabel
               title={ts("departments")}
               subtitle={ts("departmentsSub")}
             />
-            <div className="grid gap-4 xl:grid-cols-12">
+            <div className="grid gap-3 xl:grid-cols-12">
               <Surface className="xl:col-span-5">
                 <SectionTitle
                   icon={<Buildings className="h-4 w-4" weight="fill" />}
@@ -2354,7 +3317,7 @@ export default function AttendanceOpsPage() {
 
           <div>
             <SectionLabel title={ts("team")} subtitle={ts("teamSub")} />
-            <div className="grid gap-4 xl:grid-cols-12">
+            <div className="grid gap-3 xl:grid-cols-12">
               <Surface className="xl:col-span-5">
                 <SectionTitle
                   icon={<Users className="h-4 w-4" weight="fill" />}
@@ -2424,6 +3387,14 @@ export default function AttendanceOpsPage() {
                 <p>
                   <strong className="text-foreground">{tg("resolution")}</strong>{" "}
                   · {tg("resolutionDesc")}
+                </p>
+                <p>
+                  <strong className="text-foreground">{tg("stageParked")}</strong>{" "}
+                  · {tg("stageParkedDesc")}
+                </p>
+                <p>
+                  <strong className="text-foreground">{tg("stageStuck")}</strong>{" "}
+                  · {tg("stageStuckDesc")}
                 </p>
               </div>
             </Surface>
