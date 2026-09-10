@@ -400,6 +400,10 @@ export interface CrmListViewProps {
    * selected, so one conversation and two hundred read correctly.
    */
   funnelStages?: FunnelStages[];
+  /** Whether this operator may move conversations to ANOTHER funnel
+   *  (stages:transfer). Separate from canAssignStage, which only covers
+   *  sorting within the funnel they already work in. */
+  canMoveToFunnel?: boolean;
   canAssignOwner?: boolean;
   canAssignLabel?: boolean;
 }
@@ -411,6 +415,7 @@ export default function CrmListView({
   workspaceId,
   canAssignStage = false,
   funnelStages = [],
+  canMoveToFunnel = false,
   canAssignOwner = false,
   canAssignLabel = false,
 }: CrmListViewProps) {
@@ -557,15 +562,14 @@ export default function CrmListView({
    * nowhere to move to and the button would open a dialog listing nothing.
    */
   const canMoveAcrossFunnels =
-    canAssignStage && funnelStages.filter((f) => f.stages.length > 0).length > 1;
+    canAssignStage &&
+    canMoveToFunnel &&
+    funnelStages.filter((f) => f.stages.length > 0).length > 1;
 
   const runBulk = useCallback(
     async (
       action: CrmBulkActionType,
       value: string,
-      // Carried through to the server, which refuses a cross-funnel landing
-      // without it. Only the funnel dialog sets it, after confirming the count.
-      moveToFunnel = false,
     ): Promise<string | null> => {
       if (!value) return null;
 
@@ -595,7 +599,6 @@ export default function CrmListView({
         targets,
         value,
         ...(allMatching ? { filter } : {}),
-        ...(moveToFunnel ? { moveToFunnel: true } : {}),
       });
       setBulkBusy(false);
       if (err) {
@@ -869,7 +872,7 @@ export default function CrmListView({
           funnels={funnelStages}
           currentStageId={null}
           bulkCount={allMatching ? total : selectedEntries.length}
-          onConfirm={(stageId) => runBulk("move_stage", stageId, true)}
+          onConfirm={(stageId) => runBulk("move_funnel", stageId)}
         />
       ) : null}
     </div>

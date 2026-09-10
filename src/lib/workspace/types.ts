@@ -57,7 +57,12 @@ export type ResourceAction =
     | "use"
     | "list_members"
     | "block"
-    | "call";
+    | "call"
+    // Moving a conversation to ANOTHER funnel, and transferring a live call.
+    // Distinct from "assign": sorting the funnel you work in is attendance,
+    // taking a conversation off one team's board and putting it on another's
+    // is not.
+    | "transfer";
 
 export interface Workspace {
     id: string;

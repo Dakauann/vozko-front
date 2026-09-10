@@ -1643,7 +1643,7 @@ export default function CrmLayout({
       onToggleAutomation: handleWindowToggleAutomation,
       onEntryStageChange: handleEntryStageChange,
       onAssignStage: handleAssignStage,
-      onMoveToFunnel: handleMoveToFunnel,
+      onMoveToFunnel: can("stages", "transfer") ? handleMoveToFunnel : undefined,
       onAssignLabel: handleAssignLabel,
       onRemoveLabel: handleRemoveLabel,
     }),
@@ -2420,7 +2420,7 @@ export default function CrmLayout({
                   onRemoveLabel={handleRemoveLabel}
                   funnelStages={funnelStages}
                   onMoveToFunnel={
-                    can("stages", "assign") ? handleMoveToFunnel : undefined
+                    can("stages", "transfer") ? handleMoveToFunnel : undefined
                   }
                 />
               </div>
@@ -2455,7 +2455,7 @@ export default function CrmLayout({
                       entryAvailableTags={entryAvailableStages}
                       funnelStages={funnelStages}
                       onMoveToFunnel={
-                        can("stages", "assign") ? handleMoveToFunnel : undefined
+                        can("stages", "transfer") ? handleMoveToFunnel : undefined
                       }
                       onEntryStageChange={
                         can("stages", "assign")
@@ -2518,6 +2518,7 @@ export default function CrmLayout({
                 canAssignStage={can("stages", "assign")}
                 canAssignOwner={can("conversations", "assign")}
                 canAssignLabel={can("labels", "assign")}
+                canMoveToFunnel={can("stages", "transfer")}
                 funnelStages={funnelStages}
               />
             </div>
@@ -2636,7 +2637,7 @@ export default function CrmLayout({
                     entryAvailableTags={entryAvailableStages}
                     funnelStages={funnelStages}
                     onMoveToFunnel={
-                      can("stages", "assign") ? handleMoveToFunnel : undefined
+                      can("stages", "transfer") ? handleMoveToFunnel : undefined
                     }
                     onEntryStageChange={
                       can("stages", "assign")

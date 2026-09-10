@@ -206,6 +206,15 @@ export interface CrmEntriesResult {
 // POST /crm/bulk contract. One Action + Value fans out over every Target.
 export type CrmBulkActionType =
     | 'move_stage'
+    /**
+     * Same fan-out as move_stage, onto a stage of ANOTHER funnel.
+     *
+     * A distinct action rather than a flag, because it needs a distinct
+     * permission: the server maps each action to the one permission it
+     * requires, and move_funnel maps to stages:transfer. A client cannot ask
+     * for the privileged behaviour under the unprivileged name.
+     */
+    | 'move_funnel'
     | 'assign'
     | 'add_label'
     | 'remove_label';
@@ -228,15 +237,6 @@ export interface CrmBulkInput {
      * them to collect ids.
      */
     filter?: CrmFilter;
-    /**
-     * Authorises a move_stage onto a stage of a DIFFERENT funnel, for every
-     * target in this request.
-     *
-     * Without it the server refuses one, which is what stops a mis-scoped
-     * selection from reorganising a whole board on a single click. Set only
-     * after the operator has confirmed a funnel change naming the count.
-     */
-    moveToFunnel?: boolean;
 }
 
 export interface CrmBulkFailure {

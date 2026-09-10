@@ -51,10 +51,11 @@ export function reorderStages(stageIds: string[]) {
 /**
  * Move a conversation onto a stage.
  *
- * `moveToFunnel` authorises landing on a stage of a DIFFERENT funnel. Without
- * it the server refuses the move, which is what stops a stage list showing the
- * wrong funnel from stranding a lead on a board nobody looks at. Pass it only
- * after the operator has deliberately chosen a target funnel.
+ * `moveToFunnel` sends it to the funnel-change ROUTE rather than adding a flag
+ * to the payload. The two endpoints run the same code; they differ only in the
+ * permission they require (stages:assign vs stages:transfer), so which URL is
+ * called IS the statement of intent, and a client cannot ask for a privileged
+ * move on the unprivileged route.
  */
 export function assignStageToEntry(
     stageId: string,
@@ -62,15 +63,17 @@ export function assignStageToEntry(
     entryType: EntryType,
     moveToFunnel = false,
 ) {
-    return apiClient<EntryStage>('/stages/entries', {
-        method: 'POST',
-        body: JSON.stringify({
-            stageId,
-            entryId,
-            entryType: normalizeEntryType(entryType),
-            ...(moveToFunnel ? { moveToFunnel: true } : {}),
-        }),
-    });
+    return apiClient<EntryStage>(
+        moveToFunnel ? '/stages/entries/funnel' : '/stages/entries',
+        {
+            method: 'POST',
+            body: JSON.stringify({
+                stageId,
+                entryId,
+                entryType: normalizeEntryType(entryType),
+            }),
+        },
+    );
 }
 
 export function removeStageFromEntry(

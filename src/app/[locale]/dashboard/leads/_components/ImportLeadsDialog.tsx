@@ -19,6 +19,7 @@ import {
 import { Checkbox } from "@/components/elevated-design/elevated-checkbox";
 import { CheckCircle, DownloadSimple, UploadSimple, Users } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
+import { useWorkspace } from "@/contexts/workspace-context";
 import {
   importLeadsAction,
   LEAD_IMPORT_MAX_ROWS,
@@ -65,6 +66,11 @@ export function ImportLeadsDialog({
 }) {
   const t = useTranslations("leadsPage.import");
   const { toast } = useToast();
+  const { can } = useWorkspace();
+  // Seeding is a channel privilege, not a lead one: opening conversations with
+  // numbers that never wrote in is what unofficial_whatsapp_instances:send
+  // governs.
+  const canSeedInbox = can("unofficial_whatsapp_instances", "send");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [fileName, setFileName] = useState<string | null>(null);
@@ -325,20 +331,30 @@ export function ImportLeadsDialog({
                 </ElevatedSelect>
                 <p className="text-xs text-muted-foreground">{t("existing.neverOverwrites")}</p>
 
-                {/* ── open a conversation for each imported number ──────── */}
-                <label className="flex cursor-pointer items-start gap-2.5 text-sm text-foreground">
-                  <Checkbox
-                    className="mt-0.5"
-                    checked={seedInbox}
-                    onCheckedChange={(next) => setSeedInbox(next === true)}
-                  />
-                  <span>
-                    {t("seedInbox.label")}
-                    <span className="mt-0.5 block text-xs text-muted-foreground">
-                      {t("seedInbox.help")}
+                {/* ── open a conversation for each imported number ────────
+
+                    Hidden without the CHANNEL permission rather than shown and
+                    refused. Seeding opens conversations with numbers that never
+                    wrote in, which is unofficial_whatsapp_instances:send, not
+                    leads:create — an operator who may import but not start cold
+                    conversations should not be offered the option at all. The
+                    server enforces it regardless; this only keeps the UI
+                    honest. */}
+                {canSeedInbox ? (
+                  <label className="flex cursor-pointer items-start gap-2.5 text-sm text-foreground">
+                    <Checkbox
+                      className="mt-0.5"
+                      checked={seedInbox}
+                      onCheckedChange={(next) => setSeedInbox(next === true)}
+                    />
+                    <span>
+                      {t("seedInbox.label")}
+                      <span className="mt-0.5 block text-xs text-muted-foreground">
+                        {t("seedInbox.help")}
+                      </span>
                     </span>
-                  </span>
-                </label>
+                  </label>
+                ) : null}
               </>
             ) : (
               <p className="text-sm text-muted-foreground">{t("empty")}</p>
