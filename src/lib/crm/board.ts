@@ -228,6 +228,15 @@ export interface CrmBulkInput {
      * them to collect ids.
      */
     filter?: CrmFilter;
+    /**
+     * Authorises a move_stage onto a stage of a DIFFERENT funnel, for every
+     * target in this request.
+     *
+     * Without it the server refuses one, which is what stops a mis-scoped
+     * selection from reorganising a whole board on a single click. Set only
+     * after the operator has confirmed a funnel change naming the count.
+     */
+    moveToFunnel?: boolean;
 }
 
 export interface CrmBulkFailure {

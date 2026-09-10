@@ -7,7 +7,13 @@ import {
   motion,
   useDragControls,
 } from "framer-motion";
-import { Check, Circle, User } from "@/components/icons";
+import {
+  ArrowsLeftRight,
+  Check,
+  Circle,
+  DotsThree,
+  User,
+} from "@/components/icons";
 import type {
   EntryType,
   InboxEntry,
@@ -63,6 +69,8 @@ function truncate(text: string, max: number) {
 
 
 import type { FunnelColumnState } from "@/hooks/use-conversation-ws";
+import type { FunnelStages } from "@/app/actions/stages";
+import MoveToFunnelDialog from "@/components/crm/MoveToFunnelDialog";
 
 interface CrmFunnelViewProps {
   entries: InboxEntry[];
@@ -92,6 +100,21 @@ interface CrmFunnelViewProps {
     entryId: string,
     entryType: EntryType,
   ) => void;
+  /**
+   * Every conversation funnel with its stages, for the card's "move to another
+   * funnel" action.
+   *
+   * The board itself stays scoped to ONE funnel — its columns are that funnel's
+   * stages, and dragging between them is a within-funnel move. Leaving the
+   * board is the separate, explicit act this feeds.
+   */
+  funnelStages?: FunnelStages[];
+  /** Applies a funnel change. Resolves to an error message, or null on success. */
+  onMoveToFunnel?: (
+    entryId: string,
+    entryType: EntryType,
+    stageId: string,
+  ) => Promise<string | null>;
 }
 
 let _skipCardClick = false;
@@ -198,6 +221,7 @@ function FunnelCard({
   availableLabels,
   onAssignLabel,
   onRemoveLabel,
+  onRequestMoveToFunnel,
   labelMenuOpen,
   onLabelMenuToggle,
 }: {
@@ -222,12 +246,33 @@ function FunnelCard({
     entryId: string,
     entryType: EntryType,
   ) => void;
+  /**
+   * Opens the "move to another funnel" dialog for this card.
+   *
+   * Absent, the menu item is not rendered. The dialog itself lives at the view
+   * level rather than per card: one dialog for the board, not one per row.
+   */
+  onRequestMoveToFunnel?: (entry: InboxEntry) => void;
   labelMenuOpen?: boolean;
   onLabelMenuToggle?: () => void;
 }) {
   const [isHovered, setIsHovered] = useState(false);
   const { can } = useWorkspace();
   const canReadAnalysis = can("analysis", "read");
+
+  /** Whether labels are offered at all in the card menu. */
+  const hasLabelActions = Boolean(
+    availableLabels && availableLabels.length > 0 && onLabelMenuToggle,
+  );
+
+  /**
+   * Whether the card has a menu worth opening.
+   *
+   * Anything in it counts. Tying this to labels alone is what made the funnel
+   * move unreachable on a workspace with none: the trigger never fired, so the
+   * action existed in the code and nowhere on the screen.
+   */
+  const hasCardMenu = hasLabelActions || Boolean(onRequestMoveToFunnel);
 
   if (isDragGhost) {
     return (
@@ -264,26 +309,57 @@ function FunnelCard({
         { selected: isSelected },
         cn(
           "will-change-transform select-none",
+          // Names the hover scope the actions button reveals within, so hovering
+          // one card does not light up the button on every card in the column.
+          "group/kanban-card",
           canDrag ? "cursor-grab active:cursor-grabbing" : "cursor-pointer",
         ),
       )}
       whileHover={kanbanCardHover}
       onContextMenu={(e) => {
-        if (
-          availableLabels &&
-          availableLabels.length > 0 &&
-          onLabelMenuToggle
-        ) {
+        // Opens when the card has ANY action, not only labels.
+        //
+        // This used to require availableLabels.length > 0, which quietly made
+        // every other action in here unreachable for a workspace that has not
+        // created labels: right-click did nothing at all.
+        if (hasCardMenu) {
           e.preventDefault();
           e.stopPropagation();
-          onLabelMenuToggle();
+          onLabelMenuToggle?.();
         }
       }}
     >
       <FunnelCardBody entry={entry} />
 
-      {/* Label context menu (right-click) */}
-      {labelMenuOpen && availableLabels && (
+      {/* The visible way in.
+
+          Right-click alone is a shortcut nobody is told about: the card carried
+          no hint that a menu existed, so the actions in it may as well not have
+          shipped. This is the affordance; the context menu stays as the faster
+          path for people who find it. Shown on hover on a pointer device and
+          always on touch, where there is no hover and no right-click at all. */}
+      {hasCardMenu ? (
+        <button
+          type="button"
+          aria-label="Ações da conversa"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            onLabelMenuToggle?.();
+          }}
+          className={cn(
+            "absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-[--radius]",
+            "text-muted-foreground transition-all hover:bg-muted hover:text-foreground",
+            "opacity-100 md:opacity-0 md:group-hover/kanban-card:opacity-100 md:focus-visible:opacity-100",
+            labelMenuOpen && "md:opacity-100",
+          )}
+        >
+          <DotsThree weight="bold" className="h-4 w-4" />
+        </button>
+      ) : null}
+
+      {/* Card menu: labels, then the funnel move. */}
+      {labelMenuOpen && hasCardMenu && (
         <>
           <div
             className="fixed inset-0 z-40"
@@ -292,12 +368,16 @@ function FunnelCard({
               onLabelMenuToggle?.();
             }}
           />
-          <div className="absolute right-2 top-10 z-50 w-48 rounded-[--radius] border border-border bg-card shadow-xl py-1 animate-in fade-in slide-in-from-top-1 duration-150">
-            <div className="px-3 py-1.5 text-2xs font-semibold text-muted-foreground">
-              Labels
-            </div>
-            <div className="max-h-44 overflow-y-auto">
-              {availableLabels.map((label) => {
+          <div className="absolute right-2 top-10 z-50 w-52 rounded-[--radius] border border-border bg-card shadow-xl py-1 animate-in fade-in slide-in-from-top-1 duration-150">
+            {/* Labels are now one SECTION of this menu rather than all of it,
+                so they render only when the workspace has any. */}
+            {hasLabelActions && availableLabels ? (
+              <>
+                <div className="px-3 py-1.5 text-2xs font-semibold text-muted-foreground">
+                  Etiquetas
+                </div>
+                <div className="max-h-44 overflow-y-auto">
+                  {availableLabels.map((label) => {
                 const isAssigned = entry.labels?.some(
                   (l) => l.label_id === label.id,
                 );
@@ -338,8 +418,38 @@ function FunnelCard({
                     )}
                   </button>
                 );
-              })}
-            </div>
+                  })}
+                </div>
+              </>
+            ) : null}
+
+            {/* The funnel change.
+
+                Dragging a card between columns is a move WITHIN this funnel:
+                the columns are its stages, so leaving the board is deliberately
+                not a drag. It opens a dialog rather than acting on click, and
+                the divider only appears when there is something above it. */}
+            {onRequestMoveToFunnel ? (
+              <>
+                {hasLabelActions ? (
+                  <div className="my-1 border-t border-border" />
+                ) : null}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onLabelMenuToggle?.();
+                    onRequestMoveToFunnel(entry);
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-2xs font-medium text-foreground transition-colors hover:bg-muted"
+                >
+                  <ArrowsLeftRight
+                    weight="bold"
+                    className="h-3 w-3 flex-shrink-0 text-muted-foreground"
+                  />
+                  <span className="truncate">Mover para outro funil…</span>
+                </button>
+              </>
+            ) : null}
           </div>
         </>
       )}
@@ -376,6 +486,7 @@ function FunnelColumn({
   onAssignLabel,
   onRemoveLabel,
   labelMenuEntryId,
+  onRequestMoveToFunnel,
   onLabelMenuToggle,
 }: {
   stage: Stage;
@@ -409,6 +520,8 @@ function FunnelColumn({
     entryType: EntryType,
   ) => void;
   labelMenuEntryId?: string | null;
+  /** Opens the funnel-move dialog for a card. Threaded from the view. */
+  onRequestMoveToFunnel?: (entry: InboxEntry) => void;
   onLabelMenuToggle?: (entryKey: string) => void;
 }) {
   const pSize = pageSize ?? 20;
@@ -485,6 +598,9 @@ function FunnelColumn({
                 availableLabels={availableLabels}
                 onAssignLabel={onAssignLabel}
                 onRemoveLabel={onRemoveLabel}
+                onRequestMoveToFunnel={
+                  onRequestMoveToFunnel
+                }
                 labelMenuOpen={labelMenuEntryId === entryKey}
                 onLabelMenuToggle={() => onLabelMenuToggle?.(entryKey)}
               />
@@ -556,6 +672,8 @@ export default function CrmFunnelView({
   labels: availableLabels = [],
   onAssignLabel,
   onRemoveLabel,
+  funnelStages = [],
+  onMoveToFunnel,
 }: CrmFunnelViewProps) {
   const defaultColumnOrder = useMemo(
     () => [...stages].sort((a, b) => a.position - b.position).map((t) => t.id),
@@ -568,6 +686,26 @@ export default function CrmFunnelView({
   const [optimisticMoves, setOptimisticMoves] = useState<Map<string, string>>(
     new Map(),
   );
+
+  /**
+   * The card whose funnel is being changed, or null.
+   *
+   * One dialog for the whole board rather than one per card: a board renders
+   * hundreds of cards, and mounting a dialog inside each would build hundreds
+   * of them to show at most one.
+   */
+  const [movingEntry, setMovingEntry] = useState<InboxEntry | null>(null);
+
+  /**
+   * Whether the card menu offers the funnel change at all.
+   *
+   * Same three conditions the thread applies: a handler, and at least two
+   * populated funnels to move between. A menu item that opens a dialog listing
+   * nothing is worse than no menu item.
+   */
+  const canMoveAcrossFunnels =
+    Boolean(onMoveToFunnel) &&
+    funnelStages.filter((f) => f.stages.length > 0).length > 1;
 
   const [isDraggingCard, setIsDraggingCard] = useState<string | null>(null);
   const [dragOverColumnId, setDragOverColumnId] = useState<string | null>(null);
@@ -1087,6 +1225,9 @@ export default function CrmFunnelView({
                       availableLabels={availableLabels}
                       onAssignLabel={onAssignLabel}
                       onRemoveLabel={onRemoveLabel}
+                      onRequestMoveToFunnel={
+                        canMoveAcrossFunnels ? setMovingEntry : undefined
+                      }
                       labelMenuEntryId={labelMenuEntryId}
                       onLabelMenuToggle={(key) =>
                         setLabelMenuEntryId(
@@ -1146,6 +1287,9 @@ export default function CrmFunnelView({
                               availableLabels={availableLabels}
                               onAssignLabel={onAssignLabel}
                               onRemoveLabel={onRemoveLabel}
+                              onRequestMoveToFunnel={
+                                canMoveAcrossFunnels ? setMovingEntry : undefined
+                              }
                               labelMenuOpen={labelMenuEntryId === entryKey}
                               onLabelMenuToggle={() =>
                                 setLabelMenuEntryId(
@@ -1222,6 +1366,29 @@ export default function CrmFunnelView({
           </motion.div>
         </div>
       )}
+
+      {/* One dialog for the whole board. The card menu only says which entry it
+          is for: a board renders hundreds of cards, and mounting a dialog inside
+          each would build hundreds to show at most one. */}
+      {canMoveAcrossFunnels && onMoveToFunnel && movingEntry ? (
+        <MoveToFunnelDialog
+          open
+          onOpenChange={(next) => {
+            if (!next) setMovingEntry(null);
+          }}
+          funnels={funnelStages}
+          currentStageId={movingEntry.stage?.stage_id ?? null}
+          currentStageName={movingEntry.stage?.name ?? null}
+          contactName={movingEntry.lead_name || movingEntry.lead_number}
+          onConfirm={(stageId) =>
+            onMoveToFunnel(
+              movingEntry.entry_id,
+              movingEntry.entry_type,
+              stageId,
+            )
+          }
+        />
+      ) : null}
     </div>
   );
 }

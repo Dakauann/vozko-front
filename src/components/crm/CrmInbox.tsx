@@ -29,6 +29,7 @@ import type {
   Stage,
   WsSearchInboxPayload,
 } from "@/lib/conversations/types";
+import type { FunnelStages } from "@/app/actions/stages";
 import { getConversationStatusDisplay } from "@/lib/conversations/close-provenance";
 import { AiHandlerChip } from "@/components/crm/AiHandlerChip";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -111,6 +112,18 @@ interface CrmInboxProps {
   conversationStatusCounts?: Record<string, number>;
   loadingMore?: boolean;
   tags?: Stage[];
+  /**
+   * Every conversation stage in the workspace, grouped by funnel, for the
+   * filter only.
+   *
+   * `tags` above stays what it was: ONE funnel's stages, which is what the
+   * per-conversation "Mover para" menu offers. The FILTER needs all of them.
+   * With a single funnel's list an agent picks a stage no conversation in front
+   * of them carries and the inbox comes back empty, which is what UniFecaf hit:
+   * their filter only ever offered stages of a funnel they had renamed
+   * "NÃO USAR".
+   */
+  funnelStages?: FunnelStages[];
   campaignType?: CampaignType;
   translations: {
     title: string;
@@ -234,6 +247,7 @@ export default function CrmInbox({
   conversationStatusCounts,
   loadingMore = false,
   tags: availableTags = [],
+  funnelStages = [],
   campaignType,
   translations: t,
   onSearch,
@@ -616,6 +630,43 @@ export default function CrmInbox({
 
   const activeFilterCount = countActiveFilters(filters);
 
+  /**
+   * The funnels the stage filter offers.
+   *
+   * Falls back to the single-funnel `tags` list when the grouped read is
+   * unavailable, so an older API or a failed fetch degrades to the previous
+   * behaviour instead of an empty filter. An empty dropdown reads as "this
+   * workspace has no stages", which is a worse lie than an incomplete list.
+   *
+   * Funnels with no stages are dropped here rather than on the server: the
+   * server lists them because the funnels page wants them, and an empty
+   * <optgroup> renders as a heading with nothing under it.
+   */
+  const filterStageGroups = useMemo(() => {
+    const grouped = funnelStages.filter((g) => g.stages.length > 0);
+    if (grouped.length > 0) return grouped;
+    if (availableTags.length === 0) return [];
+    return [
+      {
+        pipelineId: "",
+        pipelineName: "",
+        isDefault: false,
+        position: 0,
+        stages: availableTags,
+      },
+    ];
+  }, [funnelStages, availableTags]);
+
+  /**
+   * The same stages, flat, only so selecting one can recover its name for
+   * `stageName`. That is the fallback the payload uses when no id is sent, and
+   * it has to be the name of the stage actually chosen.
+   */
+  const filterStageOptions = useMemo(
+    () => filterStageGroups.flatMap((g) => g.stages),
+    [filterStageGroups],
+  );
+
   return (
     <div className="flex h-full flex-col bg-card">
       {/*
@@ -806,30 +857,44 @@ export default function CrmInbox({
             <div className="px-4 py-3 space-y-2.5">
               {/* Row 1: Tag + Channel */}
               <div className="flex gap-2">
-                {/* Tag filter */}
+                {/* Stage filter, grouped by funnel.
+
+                    One <optgroup> per funnel and the stages as its options, so
+                    picking one filters by that exact stage the way the kanban
+                    already does. The flat list this replaced could only ever
+                    show the resolved funnel's stages, so in a workspace with
+                    several funnels the filter silently addressed stages no
+                    conversation on screen carried. */}
                 <div className="flex-1 min-w-0">
                   <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
-                    Tag
+                    Etapa
                   </label>
                   <select
                     value={filters.stageId}
                     onChange={(e) => {
-                      const tag = availableTags.find(
-                        (t) => t.id === e.target.value,
+                      const stage = filterStageOptions.find(
+                        (s) => s.id === e.target.value,
                       );
                       setFilters((f) => ({
                         ...f,
                         stageId: e.target.value,
-                        stageName: tag?.name ?? "",
+                        stageName: stage?.name ?? "",
                       }));
                     }}
                     className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-2xs text-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
                   >
                     <option value="">Todas</option>
-                    {availableTags.map((tag) => (
-                      <option key={tag.id} value={tag.id}>
-                        {tag.name}
-                      </option>
+                    {filterStageGroups.map((group) => (
+                      <optgroup
+                        key={group.pipelineId || "__sem_funil__"}
+                        label={group.pipelineName || "Sem funil"}
+                      >
+                        {group.stages.map((stage) => (
+                          <option key={stage.id} value={stage.id}>
+                            {stage.name}
+                          </option>
+                        ))}
+                      </optgroup>
                     ))}
                   </select>
                 </div>

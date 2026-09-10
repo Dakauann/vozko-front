@@ -8701,12 +8701,19 @@
         "created": "Leads created",
         "matched": "Already existed",
         "skipped": "{invalid} lines with an invalid phone and {duplicates} repeated lines were skipped.",
-        "blocked": "{count} of the existing contacts are blocked and will not be reached by campaigns."
+        "blocked": "{count} of the existing contacts are blocked and will not be reached by campaigns.",
+        "inboxSeedQueued": "{count} conversations are being created in the background and will appear in the inbox shortly.",
+        "inboxSeedFailed": "The leads were imported, but their conversations could not be created. Check that an unofficial WhatsApp number is connected."
       },
       "error": {
         "title": "Could not import",
         "generic": "Please try again in a moment."
-      }
+      },
+      "seedInbox": {
+        "label": "Open a conversation in the inbox",
+        "help": "Creates an empty unofficial WhatsApp conversation for each imported number, so the leads show up in the inbox without anyone having to message first. Nothing is sent."
+      },
+      "recognisedColumns": "The template carries the three columns the import stores: telefone (phone), nome (name) and idade (age). Only the phone is required. Any other column in the file is ignored."
     },
     "header": {
       "badge": "Leads",

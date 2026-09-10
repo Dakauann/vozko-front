@@ -7133,12 +7133,19 @@
         "created": "Leads creados",
         "matched": "Ya existían",
         "skipped": "Se omitieron {invalid} líneas con teléfono inválido y {duplicates} repetidas.",
-        "blocked": "{count} de los contactos existentes están bloqueados y no serán alcanzados por campañas."
+        "blocked": "{count} de los contactos existentes están bloqueados y no serán alcanzados por campañas.",
+        "inboxSeedQueued": "{count} conversaciones se están creando en segundo plano y aparecerán en la bandeja en breve.",
+        "inboxSeedFailed": "Los leads se importaron, pero no se pudieron crear las conversaciones. Verifique que haya un número conectado en WhatsApp no oficial."
       },
       "error": {
         "title": "No se pudo importar",
         "generic": "Inténtalo de nuevo en unos instantes."
-      }
+      },
+      "seedInbox": {
+        "label": "Abrir conversación en la bandeja",
+        "help": "Crea una conversación vacía de WhatsApp no oficial para cada número importado, para que los leads aparezcan en la bandeja sin que nadie tenga que escribir primero. No se envía nada."
+      },
+      "recognisedColumns": "La plantilla trae las tres columnas que la importación guarda: telefone (teléfono), nome (nombre) e idade (edad). Solo el teléfono es obligatorio. Las demás columnas del archivo se ignoran."
     },
     "header": {
       "badge": "Leads",

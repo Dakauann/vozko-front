@@ -398,6 +398,7 @@ export default function CrmLayout({
     requestFunnelColumn,
     requestFunnelSummary,
     tags,
+    funnelStages,
     labels,
     reloadStages,
     reloadLabels,
@@ -1227,6 +1228,35 @@ export default function CrmLayout({
     [],
   );
 
+  /**
+   * Moves a conversation to a stage of ANOTHER funnel.
+   *
+   * A separate handler from handleEntryStageChange because the request is
+   * different: it carries the explicit cross-funnel authorisation the server
+   * demands, and only a person can trigger it. Returns the error rather than
+   * toasting it, so the dialog can keep itself open and show the failure beside
+   * the choice that caused it instead of closing over a move that did not
+   * happen.
+   */
+  const handleMoveToFunnel = useCallback(
+    async (
+      entryId: string,
+      entryType: EntryType,
+      stageId: string,
+    ): Promise<string | null> => {
+      const { error } = await assignStageToEntryAction(
+        stageId,
+        entryId,
+        entryType,
+        true,
+      );
+      if (error) return error;
+      toast.success("Conversa movida para o outro funil");
+      return null;
+    },
+    [],
+  );
+
   const handleStagesReorder = useCallback(() => {
     reloadStages(campaignId || undefined, campaignType, stagePipelineId);
   }, [reloadStages, campaignId, campaignType, stagePipelineId]);
@@ -1593,6 +1623,7 @@ export default function CrmLayout({
       canAssignLabel: can("labels", "assign"),
       togglingAutomation: togglingWindowAutomation,
       stages: tags,
+      funnelStages,
       labels,
       // Resolved per conversation: one bundle serves every open window, so the
       // owner and the stages have to be looked up rather than baked in.
@@ -1612,6 +1643,7 @@ export default function CrmLayout({
       onToggleAutomation: handleWindowToggleAutomation,
       onEntryStageChange: handleEntryStageChange,
       onAssignStage: handleAssignStage,
+      onMoveToFunnel: handleMoveToFunnel,
       onAssignLabel: handleAssignLabel,
       onRemoveLabel: handleRemoveLabel,
     }),
@@ -1621,6 +1653,7 @@ export default function CrmLayout({
       can,
       togglingWindowAutomation,
       tags,
+      funnelStages,
       labels,
       inbox,
       assignTo,
@@ -1628,6 +1661,7 @@ export default function CrmLayout({
       handleWindowToggleAutomation,
       handleEntryStageChange,
       handleAssignStage,
+      handleMoveToFunnel,
       handleAssignLabel,
       handleRemoveLabel,
     ],
@@ -2384,6 +2418,10 @@ export default function CrmLayout({
                   labels={labels}
                   onAssignLabel={handleAssignLabel}
                   onRemoveLabel={handleRemoveLabel}
+                  funnelStages={funnelStages}
+                  onMoveToFunnel={
+                    can("stages", "assign") ? handleMoveToFunnel : undefined
+                  }
                 />
               </div>
 
@@ -2415,6 +2453,10 @@ export default function CrmLayout({
                       tags={tags}
                       currentEntryTags={currentEntryStages}
                       entryAvailableTags={entryAvailableStages}
+                      funnelStages={funnelStages}
+                      onMoveToFunnel={
+                        can("stages", "assign") ? handleMoveToFunnel : undefined
+                      }
                       onEntryStageChange={
                         can("stages", "assign")
                           ? handleEntryStageChange
@@ -2476,6 +2518,7 @@ export default function CrmLayout({
                 canAssignStage={can("stages", "assign")}
                 canAssignOwner={can("conversations", "assign")}
                 canAssignLabel={can("labels", "assign")}
+                funnelStages={funnelStages}
               />
             </div>
           ) : (
@@ -2513,6 +2556,7 @@ export default function CrmLayout({
                   conversationStatusCounts={conversationStatusCounts}
                   loadingMore={loadingInbox}
                   tags={tags}
+                  funnelStages={funnelStages}
                   campaignType={campaignType}
                   translations={t.inbox}
                   onSearch={searchInbox}
@@ -2590,6 +2634,10 @@ export default function CrmLayout({
                     tags={tags}
                     currentEntryTags={currentEntryStages}
                     entryAvailableTags={entryAvailableStages}
+                    funnelStages={funnelStages}
+                    onMoveToFunnel={
+                      can("stages", "assign") ? handleMoveToFunnel : undefined
+                    }
                     onEntryStageChange={
                       can("stages", "assign")
                         ? handleEntryStageChange

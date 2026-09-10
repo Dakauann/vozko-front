@@ -48,14 +48,28 @@ export function reorderStages(stageIds: string[]) {
 }
 
 
+/**
+ * Move a conversation onto a stage.
+ *
+ * `moveToFunnel` authorises landing on a stage of a DIFFERENT funnel. Without
+ * it the server refuses the move, which is what stops a stage list showing the
+ * wrong funnel from stranding a lead on a board nobody looks at. Pass it only
+ * after the operator has deliberately chosen a target funnel.
+ */
 export function assignStageToEntry(
     stageId: string,
     entryId: string,
     entryType: EntryType,
+    moveToFunnel = false,
 ) {
     return apiClient<EntryStage>('/stages/entries', {
         method: 'POST',
-        body: JSON.stringify({ stageId, entryId, entryType: normalizeEntryType(entryType) }),
+        body: JSON.stringify({
+            stageId,
+            entryId,
+            entryType: normalizeEntryType(entryType),
+            ...(moveToFunnel ? { moveToFunnel: true } : {}),
+        }),
     });
 }
 

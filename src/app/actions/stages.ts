@@ -109,8 +109,9 @@ export async function assignStageToEntryAction(
     stageId: string,
     entryId: string,
     entryType: EntryType,
+    moveToFunnel = false,
 ): Promise<{ entryStage: EntryStage | null; error?: string }> {
-    const response = await assignStageToEntry(stageId, entryId, entryType);
+    const response = await assignStageToEntry(stageId, entryId, entryType, moveToFunnel);
 
     if (response.error) {
         return { entryStage: null, error: response.error.message };
@@ -159,4 +160,46 @@ export async function getBatchEntryStagesAction(
     }
 
     return { entryStages: response.data ?? {} };
+}
+
+/**
+ * One funnel and the stages it holds.
+ *
+ * `pipelineId` is empty on the trailing group that carries stages whose funnel
+ * is missing. Those still filter and are still assigned to live conversations,
+ * so the server lists them rather than dropping them.
+ */
+export interface FunnelStages {
+    pipelineId: string;
+    pipelineName: string;
+    isDefault: boolean;
+    position: number;
+    stages: Stage[];
+}
+
+/**
+ * Every conversation stage in the workspace, grouped by funnel.
+ *
+ * Distinct from listStagesAction, which resolves ONE funnel. That is right for
+ * "what can this conversation be moved to" and wrong for "what can I filter the
+ * whole inbox by": a workspace with several funnels had all but one of them
+ * unreachable, so an agent filtering by a stage got an empty list while the
+ * conversations sat one funnel over.
+ */
+export async function listFunnelStagesAction(
+    workspaceId?: string,
+): Promise<{ funnels: FunnelStages[]; error?: string }> {
+    const wsHeaders: Record<string, string> = workspaceId
+        ? { 'X-Workspace-ID': workspaceId }
+        : {};
+    const response = await apiClient<FunnelStages[]>('/stages/by-funnel', {
+        method: 'GET',
+        headers: wsHeaders,
+    });
+
+    if (response.error) {
+        return { funnels: [], error: response.error.message };
+    }
+
+    return { funnels: response.data ?? [] };
 }

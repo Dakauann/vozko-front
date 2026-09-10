@@ -18,6 +18,7 @@ import {
   ArrowBendUpLeft,
   ArrowDown,
   ArrowUp,
+  ArrowsLeftRight,
   Bookmark,
   CaretDown,
   ChatText,
@@ -61,6 +62,8 @@ import {
 
 import { ChannelAvatar } from "@/components/channels/channel-avatar";
 import ConversationAnalysisPanel from "@/components/crm/ConversationAnalysisPanel";
+import MoveToFunnelDialog from "@/components/crm/MoveToFunnelDialog";
+import type { FunnelStages } from "@/app/actions/stages";
 import DocumentPreview from "./DocumentPreview";
 import FormattedMessageText from "@/components/ui/formatted-message-text";
 import TemplateBubble from "@/components/crm/TemplateBubble";
@@ -1373,6 +1376,29 @@ interface CrmConversationViewProps {
   tags?: Stage[];
   currentEntryTags?: { stage_id: string; name: string; color: string }[];
   entryAvailableTags?: { stage_id: string; name: string; color: string }[];
+  /**
+   * Every conversation funnel in the workspace with its stages, for the
+   * "move to another funnel" dialog only.
+   *
+   * The ordinary stage menu above deliberately offers ONE funnel's stages
+   * (`entryAvailableTags`, the entry's own), because a list that quietly mixed
+   * funnels is how a lead ends up stranded on a board nobody looks at. Changing
+   * funnel is a separate, explicit act, and this is what it picks from.
+   */
+  funnelStages?: FunnelStages[];
+  /**
+   * Applies a funnel change. Resolves to an error message, or null on success.
+   *
+   * Separate from onEntryStageChange because the server treats it differently:
+   * a cross-funnel move must be requested outright, and only a person may make
+   * one. Absent this prop the affordance is not rendered at all, rather than
+   * offered and inert.
+   */
+  onMoveToFunnel?: (
+    entryId: string,
+    entryType: EntryType,
+    stageId: string,
+  ) => Promise<string | null>;
   onEntryStageChange?: (
     entryId: string,
     entryType: EntryType,
@@ -1417,6 +1443,8 @@ export default function CrmConversationView({
   tags = [],
   currentEntryTags = [],
   entryAvailableTags = [],
+  funnelStages = [],
+  onMoveToFunnel,
   onEntryStageChange,
   onAssignStage,
   availableLabels = [],
@@ -1436,6 +1464,7 @@ export default function CrmConversationView({
   const bottomRef = useRef<HTMLDivElement>(null);
   const [showScrollDown, setShowScrollDown] = useState(false);
   const [stageSelectorOpen, setTagSelectorOpen] = useState(false);
+  const [moveToFunnelOpen, setMoveToFunnelOpen] = useState(false);
   const [labelSelectorOpen, setLabelSelectorOpen] = useState(false);
   const [agentToolDefinitions, setAgentToolDefinitions] = useState<
     AgentToolDefinition[]
@@ -1759,6 +1788,20 @@ export default function CrmConversationView({
    * were multi-select tags. `AssignStage` deletes the current row before inserting,
    * so "add" and "move" were already the same write; only the UI still disagreed.
    */
+  /**
+   * Whether the funnel change is offered at all.
+   *
+   * Three conditions, and each removes a way of offering something that cannot
+   * work: no handler means the caller did not wire it, no stage assignment
+   * permission means the operator may not move anything, and fewer than two
+   * populated funnels means there is nowhere to move to. An affordance that
+   * opens a dialog listing nothing is worse than no affordance.
+   */
+  const canMoveAcrossFunnels =
+    Boolean(onMoveToFunnel) &&
+    Boolean(onEntryStageChange || onAssignStage) &&
+    funnelStages.filter((f) => f.stages.length > 0).length > 1;
+
   const moveEntryToStage = (stageId: string) => {
     if (onEntryStageChange) {
       onEntryStageChange(
@@ -1880,6 +1923,32 @@ export default function CrmConversationView({
                         );
                       })}
                     </div>
+
+                    {/* The funnel change lives at the foot of the stage menu
+                        rather than beside it: same intent ("put this
+                        conversation somewhere else"), reached from the same
+                        control, but a heavier act — so it is separated by a
+                        rule and opens a dialog instead of applying on click. */}
+                    {canMoveAcrossFunnels ? (
+                      <>
+                        <div className="my-1 border-t border-border" />
+                        <button
+                          onClick={() => {
+                            setTagSelectorOpen(false);
+                            setMoveToFunnelOpen(true);
+                          }}
+                          className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                        >
+                          <ArrowsLeftRight
+                            weight="bold"
+                            className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
+                          />
+                          <span className="truncate">
+                            Mover para outro funil…
+                          </span>
+                        </button>
+                      </>
+                    ) : null}
                   </motion.div>
                 </>
               )}
@@ -1887,6 +1956,26 @@ export default function CrmConversationView({
           </div>
         </div>
       )}
+
+      {/* onMoveToFunnel is checked here as well as inside canMoveAcrossFunnels
+          so the narrowing holds for the callback below. */}
+      {canMoveAcrossFunnels && onMoveToFunnel ? (
+        <MoveToFunnelDialog
+          open={moveToFunnelOpen}
+          onOpenChange={setMoveToFunnelOpen}
+          funnels={funnelStages}
+          currentStageId={currentTagId}
+          currentStageName={currentEntryTags?.[0]?.name ?? null}
+          contactName={conversation.lead_name || conversation.lead_number}
+          onConfirm={(stageId) =>
+            onMoveToFunnel(
+              conversation.entry_id,
+              conversation.entry_type as EntryType,
+              stageId,
+            )
+          }
+        />
+      ) : null}
 
       {/* ── Floating Label Selector ──────────────────────────────── */}
       {availableLabels.length > 0 && (

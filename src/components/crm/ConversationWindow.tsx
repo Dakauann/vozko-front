@@ -10,6 +10,7 @@ import type {
   MediaType,
   Stage,
 } from "@/lib/conversations/types";
+import type { FunnelStages } from "@/app/actions/stages";
 import type { NextConversationStatus } from "@/lib/conversations/status-actions";
 import type { WindowConversationState } from "@/lib/conversations/windowed-conversations";
 import type { ConversationWindow as WindowGeometry } from "@/lib/conversations/window-deck";
@@ -78,6 +79,12 @@ export interface ConversationWindowActionsBundle {
   canAssignLabel: boolean;
   togglingAutomation?: boolean;
   stages?: Stage[];
+  /**
+   * Every conversation funnel with its stages, for the "move to another
+   * funnel" dialog the thread renders. Absent it, the affordance is simply not
+   * shown, which is how a window used to differ from the centre pane.
+   */
+  funnelStages?: FunnelStages[];
   labels?: Label[];
   /**
    * The parts that differ per conversation — who owns it, which stages and
@@ -109,6 +116,18 @@ export interface ConversationWindowActionsBundle {
     entryId: string,
     entryType: EntryType,
   ) => void;
+  /**
+   * Applies a funnel change. Resolves to an error message, or null on success.
+   *
+   * Same handler the centre pane gets, so a conversation offers the same
+   * controls wherever it is opened. A window that quietly lacked the option was
+   * read as a bug, not as a boundary.
+   */
+  onMoveToFunnel?: (
+    entryId: string,
+    entryType: EntryType,
+    stageId: string,
+  ) => Promise<string | null>;
   onAssignLabel?: (
     labelId: string,
     entryId: string,
@@ -497,6 +516,10 @@ export default function ConversationWindow({
                 tags={actions.stages}
                 currentEntryTags={entryContext.currentStages}
                 entryAvailableTags={entryContext.availableStages}
+                funnelStages={actions.funnelStages}
+                onMoveToFunnel={
+                  actions.canAssignStage ? actions.onMoveToFunnel : undefined
+                }
                 onEntryStageChange={
                   actions.canAssignStage ? actions.onEntryStageChange : undefined
                 }

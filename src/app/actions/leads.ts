@@ -427,6 +427,16 @@ export interface LeadImportResult {
     duplicate: number;
     rejected: { line: number; number: string; reason: string }[];
     rejectedTruncated?: number;
+    /**
+     * Numbers handed to the inbox seeding job, when the import asked for it.
+     *
+     * Queued, not seeded: the work runs in the background, so the UI has to
+     * word it as a promise. An operator told "500 conversas criadas" who then
+     * refreshes the inbox and sees nothing has been lied to.
+     */
+    inboxSeedQueued?: number;
+    /** Why seeding could not be queued, when the leads themselves imported fine. */
+    inboxSeedError?: string;
 }
 
 /** Row limit the API enforces. Mirrored so the UI can refuse before uploading. */
@@ -443,6 +453,7 @@ export const LEAD_IMPORT_MAX_ROWS = 100000;
 export async function importLeadsAction(
     rows: LeadImportRow[],
     onExisting: 'fill_empty' | 'skip' = 'fill_empty',
+    seedInbox = false,
 ): Promise<{ result: LeadImportResult | null; error: string | null }> {
     if (rows.length === 0) {
         return { result: null, error: null };
@@ -451,7 +462,7 @@ export async function importLeadsAction(
     const response = await apiClient<LeadImportResult>('/leads/import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rows, onExisting }),
+        body: JSON.stringify({ rows, onExisting, seedInbox }),
     });
 
     if (response.error) {

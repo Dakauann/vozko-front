@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import {
   ArrowsClockwise,
+  ArrowsLeftRight,
   ChatCircleDots,
   Headset,
   Phone,
@@ -39,6 +40,8 @@ import {
   ElevatedSelectItem,
 } from "@/components/elevated-design/elevated-select";
 import AssignMemberPicker from "@/components/crm/AssignMemberPicker";
+import MoveToFunnelDialog from "@/components/crm/MoveToFunnelDialog";
+import type { FunnelStages } from "@/app/actions/stages";
 
 import { getCrmEntriesAction, crmBulkAction } from "@/app/actions/crm-board";
 import { getBatchEntryStagesAction } from "@/app/actions/stages";
@@ -215,6 +218,8 @@ interface BulkActionsBarProps {
   labelOptions: BulkOption[];
   bulkBusy: boolean;
   onBulk: (action: CrmBulkActionType, value: string) => void;
+  /** Opens the funnel-move dialog for the current selection. */
+  onRequestBulkMoveToFunnel?: () => void;
   onClear: () => void;
 }
 
@@ -230,6 +235,7 @@ function BulkActionsBar({
   labelOptions,
   bulkBusy,
   onBulk,
+  onRequestBulkMoveToFunnel,
   onClear,
 }: BulkActionsBarProps) {
   return (
@@ -245,6 +251,28 @@ function BulkActionsBar({
           onSelect={(v) => onBulk("move_stage", v)}
           disabled={bulkBusy}
         />
+      ) : null}
+
+      {/* Deliberately NOT a second entry in the menu above.
+
+          That menu applies on click, which is right for a stage inside the
+          funnel the rows are already on and wrong for a funnel change: the same
+          click would move every selected conversation off the board the operator
+          is looking at, with no undo. This one opens the dialog, which names the
+          count before it does anything. */}
+      {canAssignStage && onRequestBulkMoveToFunnel ? (
+        <button
+          type="button"
+          disabled={bulkBusy}
+          onClick={onRequestBulkMoveToFunnel}
+          className="inline-flex h-9 items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 text-xs font-medium text-foreground transition-colors hover:border-foreground/20 hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <ArrowsLeftRight
+            weight="bold"
+            className="h-3.5 w-3.5 text-muted-foreground"
+          />
+          <span>Mover para outro funil…</span>
+        </button>
       ) : null}
 
       {canAssignOwner && workspaceId ? (
@@ -362,6 +390,16 @@ export interface CrmListViewProps {
   labels: Label[];
   workspaceId?: string;
   canAssignStage?: boolean;
+  /**
+   * Every conversation funnel with its stages, for the "move to another funnel"
+   * action on the selection bar.
+   *
+   * Selecting one row and using that bar IS the per-row path here: it is how
+   * stage, owner and label already work in this table, and a second per-row menu
+   * would be a second way to do the same thing. The dialog counts what is
+   * selected, so one conversation and two hundred read correctly.
+   */
+  funnelStages?: FunnelStages[];
   canAssignOwner?: boolean;
   canAssignLabel?: boolean;
 }
@@ -372,6 +410,7 @@ export default function CrmListView({
   labels,
   workspaceId,
   canAssignStage = false,
+  funnelStages = [],
   canAssignOwner = false,
   canAssignLabel = false,
 }: CrmListViewProps) {
@@ -508,9 +547,27 @@ export default function CrmListView({
     setAllMatching(false);
   }, []);
 
+  /** Whether the funnel-move dialog is open for the current selection. */
+  const [movingSelection, setMovingSelection] = useState(false);
+
+  /**
+   * Whether the selection bar offers the funnel change at all.
+   *
+   * Same rule the thread and the board apply: two populated funnels, or there is
+   * nowhere to move to and the button would open a dialog listing nothing.
+   */
+  const canMoveAcrossFunnels =
+    canAssignStage && funnelStages.filter((f) => f.stages.length > 0).length > 1;
+
   const runBulk = useCallback(
-    async (action: CrmBulkActionType, value: string) => {
-      if (!value) return;
+    async (
+      action: CrmBulkActionType,
+      value: string,
+      // Carried through to the server, which refuses a cross-funnel landing
+      // without it. Only the funnel dialog sets it, after confirming the count.
+      moveToFunnel = false,
+    ): Promise<string | null> => {
+      if (!value) return null;
 
       // Two targeting modes, one request shape. Naming the filter instead of the
       // ids is what lets "everyone in stage X" mean all of them rather than the
@@ -521,7 +578,7 @@ export default function CrmListView({
             entryId: e.EntryID,
             entryType: e.EntryType,
           }));
-      if (!allMatching && targets.length === 0) return;
+      if (!allMatching && targets.length === 0) return null;
 
       if (
         allMatching &&
@@ -529,7 +586,7 @@ export default function CrmListView({
           `Aplicar esta ação a todas as ${total} conversas do filtro atual?`,
         )
       ) {
-        return;
+        return null;
       }
 
       setBulkBusy(true);
@@ -538,11 +595,12 @@ export default function CrmListView({
         targets,
         value,
         ...(allMatching ? { filter } : {}),
+        ...(moveToFunnel ? { moveToFunnel: true } : {}),
       });
       setBulkBusy(false);
       if (err) {
         toast.error(err);
-        return;
+        return err;
       }
       const ok = result?.succeeded ?? 0;
       const failed = result?.failed?.length ?? 0;
@@ -559,6 +617,7 @@ export default function CrmListView({
       }
       clearSelection();
       await load();
+      return null;
     },
     [allMatching, selectedEntries, filter, total, clearSelection, load],
   );
@@ -697,6 +756,9 @@ export default function CrmListView({
         labelOptions={labelOptions}
         bulkBusy={bulkBusy}
         onBulk={runBulk}
+        onRequestBulkMoveToFunnel={
+          canMoveAcrossFunnels ? () => setMovingSelection(true) : undefined
+        }
         onClear={clearSelection}
       />
     ),
@@ -709,6 +771,7 @@ export default function CrmListView({
       labelOptions,
       bulkBusy,
       runBulk,
+      canMoveAcrossFunnels,
       clearSelection,
     ],
   );
@@ -793,6 +856,22 @@ export default function CrmListView({
               }
         }
       />
+
+      {/* The funnel move for the selection. `bulkCount` is what makes the copy
+          honest at both ends: one row reads "1 conversa", and "todo o filtro"
+          reads the server's total rather than the twenty rows on this page. */}
+      {canMoveAcrossFunnels && movingSelection ? (
+        <MoveToFunnelDialog
+          open
+          onOpenChange={(next) => {
+            if (!next) setMovingSelection(false);
+          }}
+          funnels={funnelStages}
+          currentStageId={null}
+          bulkCount={allMatching ? total : selectedEntries.length}
+          onConfirm={(stageId) => runBulk("move_stage", stageId, true)}
+        />
+      ) : null}
     </div>
   );
 }

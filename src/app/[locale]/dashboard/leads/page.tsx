@@ -5,6 +5,7 @@ import {
   Brain,
   Clock,
   Prohibit,
+  DownloadSimple,
   UploadSimple,
   Users,
   WhatsappLogo,
@@ -19,6 +20,7 @@ import {
 } from "@/components/elevated-design/table/dashboard-table";
 import Button from "@/components/elevated-design/button";
 import ImportLeadsDialog from "./_components/ImportLeadsDialog";
+import { downloadLeadImportTemplate } from "@/lib/leads/template";
 import LeadSavedViews from "./_components/LeadSavedViews";
 import LeadsToolbar, {
   type LeadFilterOptionSets,
@@ -380,14 +382,30 @@ function LeadsPageContent() {
           description={t("header.description")}
           actions={
             canImportLeads ? (
-              <Button
-                variant="secondary"
-                size="sm"
-                icon={<UploadSimple weight="bold" />}
-                iconVisible
-                title={t("import.action")}
-                onClick={() => setImportOpen(true)}
-              />
+              <div className="flex flex-wrap items-center gap-2">
+                {/* The model file, offered before the flow rather than only
+                    inside it. An operator preparing a spreadsheet wants the
+                    format first; making them open the import dialog to find it
+                    means opening a dialog they are not ready to complete. Ghost
+                    beside the secondary import, so the commit still reads as the
+                    primary act here. */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  icon={<DownloadSimple weight="bold" />}
+                  iconVisible
+                  title={t("import.template")}
+                  onClick={downloadLeadImportTemplate}
+                />
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  icon={<UploadSimple weight="bold" />}
+                  iconVisible
+                  title={t("import.action")}
+                  onClick={() => setImportOpen(true)}
+                />
+              </div>
             ) : undefined
           }
         />

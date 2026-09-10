@@ -16,6 +16,7 @@ import {
   ElevatedSelect,
   ElevatedSelectItem,
 } from "@/components/elevated-design/elevated-select";
+import { Checkbox } from "@/components/elevated-design/elevated-checkbox";
 import { CheckCircle, DownloadSimple, UploadSimple, Users } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -23,13 +24,11 @@ import {
   LEAD_IMPORT_MAX_ROWS,
   type LeadImportResult,
 } from "@/app/actions/leads";
-import { buildCsvDocument } from "@/lib/csv/csv";
+import { downloadLeadImportTemplate } from "@/lib/leads/template";
 import { readDelimitedFile } from "@/lib/csv/parse";
-import { downloadCsv } from "@/lib/browser/download";
 import {
   buildLeadImportRows,
   readLeadImportFile,
-  LEAD_IMPORT_TEMPLATE_COLUMNS,
   type LeadColumnMap,
   type LeadImportFile,
 } from "@/lib/leads/import";
@@ -72,6 +71,10 @@ export function ImportLeadsDialog({
   const [file, setFile] = useState<LeadImportFile | null>(null);
   const [map, setMap] = useState<LeadColumnMap>({ number: 0, name: 1, age: null });
   const [onExisting, setOnExisting] = useState<"fill_empty" | "skip">("fill_empty");
+  // Opt-in, and deliberately not remembered between opens: it creates a
+  // conversation per row, which is a real change to what the inbox contains, so
+  // it should be chosen for each import rather than inherited from the last one.
+  const [seedInbox, setSeedInbox] = useState(false);
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<LeadImportResult | null>(null);
 
@@ -89,6 +92,7 @@ export function ImportLeadsDialog({
     setMap({ number: 0, name: 1, age: null });
     setResult(null);
     setImporting(false);
+    setSeedInbox(false);
   };
 
   const close = (next: boolean) => {
@@ -106,26 +110,20 @@ export function ImportLeadsDialog({
     setMap(read.guess);
   };
 
-  const downloadTemplate = () => {
-    downloadCsv(
-      buildCsvDocument([
-        {
-          header: [...LEAD_IMPORT_TEMPLATE_COLUMNS],
-          rows: [
-            ["5511987654321", "Ana Maria", 34],
-            ["11987654322", "Bruno Alves", ""],
-          ],
-        },
-      ]),
-      "leads-modelo.csv",
-    );
-  };
+  // The example file is built in one place and offered from two: here, and the
+  // leads page header. See lib/leads/template.ts for why the rows are what they
+  // are.
+  const downloadTemplate = downloadLeadImportTemplate;
 
   const runImport = async () => {
     if (!parsed || parsed.rows.length === 0) return;
     setImporting(true);
 
-    const { result: outcome, error } = await importLeadsAction(parsed.rows, onExisting);
+    const { result: outcome, error } = await importLeadsAction(
+      parsed.rows,
+      onExisting,
+      seedInbox,
+    );
     setImporting(false);
 
     if (error || !outcome) {
@@ -192,6 +190,15 @@ export function ImportLeadsDialog({
                 onClick={downloadTemplate}
               />
             </div>
+
+            {/* Which columns actually land, said before the file is chosen.
+                The importer stores exactly three fields; a spreadsheet carrying
+                "empresa" or "origem" maps none of them and those columns are
+                dropped silently, which an operator only discovers afterwards by
+                noticing the data is not there. */}
+            <p className="text-xs text-muted-foreground">
+              {t("recognisedColumns")}
+            </p>
 
             {file ? (
               <>
@@ -317,6 +324,21 @@ export function ImportLeadsDialog({
                   </ElevatedSelectItem>
                 </ElevatedSelect>
                 <p className="text-xs text-muted-foreground">{t("existing.neverOverwrites")}</p>
+
+                {/* ── open a conversation for each imported number ──────── */}
+                <label className="flex cursor-pointer items-start gap-2.5 text-sm text-foreground">
+                  <Checkbox
+                    className="mt-0.5"
+                    checked={seedInbox}
+                    onCheckedChange={(next) => setSeedInbox(next === true)}
+                  />
+                  <span>
+                    {t("seedInbox.label")}
+                    <span className="mt-0.5 block text-xs text-muted-foreground">
+                      {t("seedInbox.help")}
+                    </span>
+                  </span>
+                </label>
               </>
             ) : (
               <p className="text-sm text-muted-foreground">{t("empty")}</p>
@@ -414,6 +436,21 @@ function ImportSummary({ result }: { result: LeadImportResult }) {
       {result.blocked > 0 ? (
         <p className="text-xs text-warning-ink">
           {t("result.blocked", { count: result.blocked })}
+        </p>
+      ) : null}
+
+      {/* Seeding runs in the background, so this is worded as a promise. An
+          operator told the conversations exist, who then refreshes the inbox
+          and finds it unchanged, concludes the feature is broken.
+
+          The server's own message is a diagnostic and is not shown: it is
+          English, like every other string that endpoint returns, and this panel
+          is read in the operator's language. */}
+      {result.inboxSeedError ? (
+        <p className="text-xs text-warning-ink">{t("result.inboxSeedFailed")}</p>
+      ) : result.inboxSeedQueued ? (
+        <p className="text-xs text-muted-foreground">
+          {t("result.inboxSeedQueued", { count: result.inboxSeedQueued })}
         </p>
       ) : null}
     </div>

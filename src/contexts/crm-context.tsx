@@ -36,7 +36,7 @@ import type {
   OpenWindowConversationInput,
   WindowConversations,
 } from "@/lib/conversations/windowed-conversations";
-import { listStagesAction } from "@/app/actions/stages";
+import { listStagesAction, listFunnelStagesAction, type FunnelStages } from "@/app/actions/stages";
 import { listLabelsAction } from "@/app/actions/labels";
 import { useWorkspace } from "@/contexts/workspace-context";
 
@@ -112,6 +112,15 @@ interface CrmContextValue {
     campaignType?: string,
     pipelineId?: string,
   ) => Promise<void>;
+  /**
+   * Every conversation stage in the workspace, grouped by funnel.
+   *
+   * Separate from `tags`, which is ONE funnel's stages and is what the stage
+   * assignment menus read. The inbox filter needs all of them: a workspace with
+   * several funnels had all but the resolved one unreachable, so filtering by a
+   * stage returned nothing while the conversations sat one funnel over.
+   */
+  funnelStages: FunnelStages[];
   labels: Label[];
   reloadLabels: () => Promise<void>;
   campaignId: string;
@@ -201,6 +210,7 @@ export function CrmProvider({
   enabled = true,
 }: CrmProviderProps) {
   const [tags, setTags] = useState<Stage[]>([]);
+  const [funnelStages, setFunnelStages] = useState<FunnelStages[]>([]);
   const [labels, setLabels] = useState<Label[]>([]);
   const { currentWorkspace } = useWorkspace();
   const workspaceId = currentWorkspace?.id ?? "";
@@ -237,6 +247,25 @@ export function CrmProvider({
     [workspaceId],
   );
 
+  // Loaded once per workspace and independent of which funnel is on screen: the
+  // inbox filter has to offer every funnel, not the resolved one. Fetched in the
+  // effect body with .then so the state write happens in the callback, which is
+  // what react-hooks/set-state-in-effect requires.
+  useEffect(() => {
+    if (!workspaceId) {
+      setFunnelStages([]);
+      return;
+    }
+    let live = true;
+    listFunnelStagesAction(workspaceId).then((result) => {
+      if (!live || result.error) return;
+      setFunnelStages(result.funnels);
+    });
+    return () => {
+      live = false;
+    };
+  }, [workspaceId]);
+
   const reloadLabels = useCallback(async () => {
     const result = await listLabelsAction(workspaceId || undefined);
     if (!result.error) {
@@ -249,6 +278,7 @@ export function CrmProvider({
       ...ws,
       tags,
       reloadStages,
+      funnelStages,
       labels,
       reloadLabels,
       campaignId,
@@ -257,7 +287,16 @@ export function CrmProvider({
       switchView: ws.switchView,
       applyLeadRename: ws.applyLeadRename,
     }),
-    [ws, tags, reloadStages, labels, reloadLabels, campaignId, campaignType],
+    [
+      ws,
+      tags,
+      reloadStages,
+      funnelStages,
+      labels,
+      reloadLabels,
+      campaignId,
+      campaignType,
+    ],
   );
 
   return <CrmContext.Provider value={value}>{children}</CrmContext.Provider>;
