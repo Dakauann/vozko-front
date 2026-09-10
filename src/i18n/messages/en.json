@@ -10211,7 +10211,8 @@
       "topics": "Topics",
       "authors": "Authors",
       "feed": "Comments",
-      "settings": "Settings"
+      "settings": "Settings",
+      "alerts": "Alerts"
     },
     "disabled": {
       "title": "Comment analysis is off",
@@ -10339,7 +10340,7 @@
     },
     "authors": {
       "title": "Who comments",
-      "description": "Authors ranked by their pattern of severe comments",
+      "description": "Ranked by reputation. Click a column to reorder",
       "scopeLabel": "Author filter",
       "scope": {
         "flagged": "Flagged",
@@ -10351,30 +10352,27 @@
       "emptyDescription": "The author list is rebuilt hourly from the analysed comments.",
       "columns": {
         "author": "Author",
+        "reputation": "Reputation",
         "comments": "Comments",
-        "worst": "Worst severity",
-        "stance": "Stance",
+        "positive": "Positive",
+        "negative": "Negative",
+        "severity": "Worst severity",
         "lastSeen": "Last seen",
         "moderation": "Moderation"
       },
       "flagged": "Flagged",
       "highCount": "{count, plural, one {# severe} other {# severe}}",
-      "noComments": "No analysed comments from this author.",
-      "actions": {
-        "hide": "Hide",
-        "privateReply": "Reply in DM"
-      },
       "pagination": "{from} to {to} of {total}",
       "previous": "Previous",
       "next": "Next",
-      "privateReply": {
-        "title": "Reply in DM",
-        "placeholder": "Write the private message",
-        "hint": "Instagram allows a single private reply per comment, within 7 days.",
-        "alreadyUsed": "This comment has already received a private reply.",
-        "cancel": "Cancel",
-        "sending": "Sending...",
-        "send": "Send"
+      "reputationHint": "A supporter comment adds 1 point, a critic takes 0.5, a hostile one takes 1, and each high-severity comment takes 1 more.",
+      "openAuthor": "Open this author",
+      "filters": {
+        "stance": "Stance",
+        "any": "Any",
+        "minComments": "Minimum comments",
+        "noMinimum": "No minimum",
+        "atLeast": "{count}+ comments"
       }
     },
     "feed": {
@@ -10400,11 +10398,17 @@
       "spam": "spam",
       "requiresAction": "Needs a reply",
       "failedReason": "Failed after {attempts, plural, one {# attempt} other {# attempts}}: {reason}.",
-      "retry": "Try again",
-      "retrying": "Reprocessing...",
       "pagination": "{from} to {to} of {total}",
       "previous": "Previous",
-      "next": "Next"
+      "next": "Next",
+      "openAuthor": "Open this author",
+      "live": {
+        "label": "Live feed",
+        "paused": "Paused",
+        "live": "Live",
+        "connecting": "Connecting...",
+        "waiting": "{count, plural, one {# comment just analysed} other {# comments just analysed}}. Show"
+      }
     },
     "settings": {
       "saveFailed": "Could not save.",
@@ -10476,6 +10480,16 @@
         "tokenBillingOnly": "not configured (tokens only)",
         "confirm": "Confirm and start",
         "cancelDialog": "Cancel"
+      },
+      "replyPolicy": {
+        "title": "Replying to comments",
+        "description": "Whether and how the AI helps answer people who comment on this account's posts",
+        "label": "Mode",
+        "modes": {
+          "off": "Off",
+          "suggest": "Draft for review"
+        },
+        "hint": "On \"draft\", the AI writes a suggestion and a person reviews and publishes it. Nothing is published on its own. Each draft is an AI call and is billed."
       }
     },
     "post": {
@@ -10537,17 +10551,171 @@
       "enabledMark": "on",
       "scopedToPost": "This post only",
       "configureCta": "Configure on the account",
-      "period": {
-        "label": "Period",
-        "days7": "7 days",
-        "days30": "30 days",
-        "days90": "90 days"
-      },
       "noAccounts": {
         "title": "No Instagram account connected",
         "description": "Connect an account and turn on comment analysis in its Audience tab.",
         "cta": "Go to Instagram accounts"
       }
+    },
+    "authorView": {
+      "flagged": "Flagged",
+      "summary": "{comments} analysed comments, from {first} to {last}",
+      "notAnalyzed": "This author has no analysed comments on this account yet.",
+      "sectionLabel": "What to see about this author",
+      "sections": {
+        "posts": "Posts",
+        "comments": "Comments"
+      },
+      "filteredByPost": "Post {post}",
+      "noPostsTitle": "No posts yet",
+      "noPostsDescription": "Posts appear here as soon as this person's comments are analysed.",
+      "commentsOnPost": "{count, plural, one {# comment} other {# comments}}",
+      "highOnPost": "{count, plural, one {# severe} other {# severe}}",
+      "postsFootnote": "{total} posts this person commented on. Likes and other interactions are not counted: we record comments only.",
+      "noComments": "No analysed comments here."
+    },
+    "quickActions": {
+      "answer": "Reply",
+      "escalate": "Forward",
+      "openAuthor": "Open author",
+      "hide": "Hide",
+      "hidden": "Hidden",
+      "privateReply": "Reply privately",
+      "retry": "Re-analyse",
+      "retrying": "Re-analysing...",
+      "privateReplyDialog": {
+        "title": "Reply privately",
+        "placeholder": "Write the private message",
+        "hint": "Instagram allows one private reply per comment, within 7 days.",
+        "alreadyUsed": "This comment already received a private reply.",
+        "cancel": "Cancel",
+        "sending": "Sending...",
+        "send": "Send"
+      }
+    },
+    "escalate": {
+      "title": "Forward on WhatsApp",
+      "description": "Sends this comment to a conversation you already have open. It does not start a conversation with someone who never wrote to you.",
+      "searchPlaceholder": "Search by name or number",
+      "noRecipients": "No conversations found.",
+      "windowClosed": "Window closed",
+      "notePlaceholder": "Want to add something? (optional)",
+      "noteHint": "Your note goes at the end of the message, after the comment.",
+      "previewLabel": "What will be sent",
+      "preview": {
+        "heading": "Flagged comment on Instagram",
+        "author": "Author",
+        "severity": "Severity",
+        "post": "Post",
+        "comment": "Comment"
+      },
+      "cancel": "Cancel",
+      "sending": "Sending...",
+      "send": "Forward"
+    },
+    "reply": {
+      "title": "Reply to the comment",
+      "description": "The reply is public and goes out in the account's name. Nothing is published until you press publish.",
+      "draft": "Draft with AI",
+      "redraft": "Draft another",
+      "drafting": "Writing...",
+      "fromModel": "AI draft",
+      "placeholder": "Write the reply, or ask for a draft",
+      "publicHint": "Check it before publishing: the AI does not know your deadlines, prices or policies.",
+      "cancel": "Cancel",
+      "publishing": "Publishing...",
+      "publish": "Publish reply"
+    },
+    "roles": {
+      "inferred": "looks like {role}",
+      "tooltip": "AI inference from this person's own comments. {confidence} confidence, based on {count, plural, one {# comment} other {# comments}}. Not verified information.",
+      "confidence": {
+        "none": "No",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      },
+      "labels": {
+        "unknown": "unidentified",
+        "politician": "a politician",
+        "journalist": "a journalist",
+        "public_servant": "a public servant",
+        "business_owner": "a business owner",
+        "professional": "a professional in the field",
+        "activist": "an activist"
+      }
+    },
+    "period": {
+      "label": "Period",
+      "from": "From",
+      "to": "To",
+      "presets": {
+        "7": "Last 7 days",
+        "30": "Last 30 days",
+        "90": "Last 90 days",
+        "today": "Today",
+        "all": "All time",
+        "custom": "Custom"
+      }
+    },
+    "alerts": {
+      "title": "Alerts",
+      "description": "Automatic WhatsApp warnings when the analysis crosses a threshold",
+      "new": "New rule",
+      "newTitle": "New alert rule",
+      "editTitle": "Edit alert rule",
+      "emptyTitle": "No alerts configured",
+      "emptyDescription": "Create a rule to be warned on WhatsApp when something crosses the threshold you set.",
+      "enabledLabel": "Turn the rule on or off",
+      "test": "Test",
+      "edit": "Edit",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "cooldownChip": "1 warning every {minutes} min",
+      "capChip": "up to {count} per day",
+      "lastFired": "Last fired {when} · {count, plural, one {# today} other {# today}}",
+      "lastErrorLabel": "Last failure",
+      "officialHint": "The official channel sends an approved template and spends balance on every firing. The template's variables are filled in this order: rule name, what was measured, where, and the comment excerpt. If your template uses named variables they are filled by name. A template with no variables works too.",
+      "limitsHint": "The minimum interval is {cooldown} minutes and the ceiling is {perDay} warnings a day. Lower values are adjusted automatically.",
+      "metricNames": {
+        "comment_severity": "Severity of one comment",
+        "high_severity_count": "Severe comments in the window",
+        "hostile_count": "Hostile comments in the window",
+        "comment_volume": "Comment volume in the window",
+        "acceptance_score": "Acceptance (falls below)"
+      },
+      "metrics": {
+        "comment_severity": "When a comment reaches severity {threshold} or above",
+        "high_severity_count": "When there are {threshold} or more severe comments in {minutes} min",
+        "hostile_count": "When there are {threshold} or more hostile comments in {minutes} min",
+        "comment_volume": "When there are {threshold} or more comments in {minutes} min",
+        "acceptance_score": "When acceptance falls to {threshold} or below in {minutes} min"
+      },
+      "channels": {
+        "official": "Official WhatsApp (template)",
+        "unofficial": "Unofficial WhatsApp (text)"
+      },
+      "fields": {
+        "name": "Rule name",
+        "namePlaceholder": "e.g. severe comment on the page",
+        "metric": "What to watch",
+        "thresholdAbove": "Fire at or above",
+        "thresholdBelow": "Fire when it falls to",
+        "window": "Window (minutes)",
+        "channel": "Channel",
+        "recipient": "Recipient number",
+        "businessPhone": "Official number",
+        "template": "Approved template",
+        "cooldown": "Interval between warnings (min)",
+        "maxPerDay": "Maximum per day",
+        "enabled": "Rule active",
+        "brief": "Include the AI reading"
+      },
+      "templateVariables": "Recognised names, if your template uses named variables: {facts}",
+      "briefHint": "The AI adds one sentence on what is happening and one on how to respond. That is one billed AI call per firing, and the alert is sent as usual if the AI does not answer.",
+      "briefChip": "with AI reading"
     }
   },
   "telegram": {

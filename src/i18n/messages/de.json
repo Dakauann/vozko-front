@@ -9136,7 +9136,8 @@
       "topics": "Themen",
       "authors": "Autoren",
       "feed": "Kommentare",
-      "settings": "Einstellungen"
+      "settings": "Einstellungen",
+      "alerts": "Benachrichtigungen"
     },
     "disabled": {
       "title": "Kommentaranalyse ist ausgeschaltet",
@@ -9264,7 +9265,7 @@
     },
     "authors": {
       "title": "Wer kommentiert",
-      "description": "Autoren nach ihrem Muster schwerer Kommentare",
+      "description": "Nach Reputation sortiert. Für eine andere Reihenfolge auf eine Spalte klicken",
       "scopeLabel": "Autorenfilter",
       "scope": {
         "flagged": "Markiert",
@@ -9276,30 +9277,27 @@
       "emptyDescription": "Die Autorenliste wird stündlich aus den analysierten Kommentaren neu aufgebaut.",
       "columns": {
         "author": "Autor",
+        "reputation": "Reputation",
         "comments": "Kommentare",
-        "worst": "Höchster Schweregrad",
-        "stance": "Haltung",
+        "positive": "Positiv",
+        "negative": "Negativ",
+        "severity": "Höchster Schweregrad",
         "lastSeen": "Zuletzt",
         "moderation": "Moderation"
       },
       "flagged": "Markiert",
       "highCount": "{count, plural, one {# schwerer} other {# schwere}}",
-      "noComments": "Keine analysierten Kommentare dieses Autors.",
-      "actions": {
-        "hide": "Ausblenden",
-        "privateReply": "Per DM antworten"
-      },
       "pagination": "{from} bis {to} von {total}",
       "previous": "Zurück",
       "next": "Weiter",
-      "privateReply": {
-        "title": "Per DM antworten",
-        "placeholder": "Private Nachricht schreiben",
-        "hint": "Instagram erlaubt genau eine private Antwort pro Kommentar, innerhalb von 7 Tagen.",
-        "alreadyUsed": "Dieser Kommentar hat bereits eine private Antwort erhalten.",
-        "cancel": "Abbrechen",
-        "sending": "Wird gesendet...",
-        "send": "Senden"
+      "reputationHint": "Ein zustimmender Kommentar bringt 1 Punkt, ein kritischer kostet 0,5, ein feindseliger 1, und jeder schwerwiegende Kommentar kostet 1 weiteren Punkt.",
+      "openAuthor": "Diese Person ansehen",
+      "filters": {
+        "stance": "Haltung",
+        "any": "Beliebig",
+        "minComments": "Mindestanzahl Kommentare",
+        "noMinimum": "Kein Minimum",
+        "atLeast": "{count}+ Kommentare"
       }
     },
     "feed": {
@@ -9325,11 +9323,17 @@
       "spam": "Spam",
       "requiresAction": "Antwort nötig",
       "failedReason": "Fehlgeschlagen nach {attempts, plural, one {# Versuch} other {# Versuchen}}: {reason}.",
-      "retry": "Erneut versuchen",
-      "retrying": "Wird erneut verarbeitet...",
       "pagination": "{from} bis {to} von {total}",
       "previous": "Zurück",
-      "next": "Weiter"
+      "next": "Weiter",
+      "openAuthor": "Diese Person ansehen",
+      "live": {
+        "label": "Live-Feed",
+        "paused": "Pausiert",
+        "live": "Live",
+        "connecting": "Verbinden...",
+        "waiting": "{count, plural, one {# Kommentar gerade analysiert} other {# Kommentare gerade analysiert}}. Anzeigen"
+      }
     },
     "settings": {
       "saveFailed": "Speichern nicht möglich.",
@@ -9401,6 +9405,16 @@
         "tokenBillingOnly": "nicht konfiguriert (nur Tokens)",
         "confirm": "Bestätigen und starten",
         "cancelDialog": "Abbrechen"
+      },
+      "replyPolicy": {
+        "title": "Antworten auf Kommentare",
+        "description": "Ob und wie die KI beim Beantworten von Kommentaren unter den Beiträgen dieses Kontos hilft",
+        "label": "Modus",
+        "modes": {
+          "off": "Aus",
+          "suggest": "Entwurf zur Prüfung"
+        },
+        "hint": "Im Entwurfsmodus schreibt die KI einen Vorschlag, den eine Person prüft und veröffentlicht. Es wird nichts von selbst veröffentlicht. Jeder Entwurf ist ein KI-Aufruf und wird abgerechnet."
       }
     },
     "post": {
@@ -9462,17 +9476,171 @@
       "enabledMark": "an",
       "scopedToPost": "Nur dieser Beitrag",
       "configureCta": "Im Konto konfigurieren",
-      "period": {
-        "label": "Zeitraum",
-        "days7": "7 Tage",
-        "days30": "30 Tage",
-        "days90": "90 Tage"
-      },
       "noAccounts": {
         "title": "Kein Instagram-Konto verbunden",
         "description": "Verbinden Sie ein Konto und schalten Sie die Kommentaranalyse in dessen Tab Publikum ein.",
         "cta": "Zu den Instagram-Konten"
       }
+    },
+    "authorView": {
+      "flagged": "Markiert",
+      "summary": "{comments} analysierte Kommentare, von {first} bis {last}",
+      "notAnalyzed": "Für diese Person gibt es in diesem Konto noch keine analysierten Kommentare.",
+      "sectionLabel": "Was zu dieser Person zu sehen ist",
+      "sections": {
+        "posts": "Beiträge",
+        "comments": "Kommentare"
+      },
+      "filteredByPost": "Beitrag {post}",
+      "noPostsTitle": "Noch keine Beiträge",
+      "noPostsDescription": "Beiträge erscheinen hier, sobald die Kommentare dieser Person analysiert sind.",
+      "commentsOnPost": "{count, plural, one {# Kommentar} other {# Kommentare}}",
+      "highOnPost": "{count, plural, one {# schwerwiegend} other {# schwerwiegend}}",
+      "postsFootnote": "{total} Beiträge, unter denen diese Person kommentiert hat. Likes und andere Interaktionen zählen nicht mit: wir erfassen nur Kommentare.",
+      "noComments": "Hier gibt es keine analysierten Kommentare."
+    },
+    "quickActions": {
+      "answer": "Antworten",
+      "escalate": "Weiterleiten",
+      "openAuthor": "Person ansehen",
+      "hide": "Ausblenden",
+      "hidden": "Ausgeblendet",
+      "privateReply": "Privat antworten",
+      "retry": "Neu analysieren",
+      "retrying": "Wird neu analysiert...",
+      "privateReplyDialog": {
+        "title": "Privat antworten",
+        "placeholder": "Private Nachricht schreiben",
+        "hint": "Instagram erlaubt eine private Antwort pro Kommentar, innerhalb von 7 Tagen.",
+        "alreadyUsed": "Dieser Kommentar hat bereits eine private Antwort erhalten.",
+        "cancel": "Abbrechen",
+        "sending": "Wird gesendet...",
+        "send": "Senden"
+      }
+    },
+    "escalate": {
+      "title": "Per WhatsApp weiterleiten",
+      "description": "Sendet diesen Kommentar in eine Unterhaltung, die bereits offen ist. Es wird keine Unterhaltung mit jemandem begonnen, der nie geschrieben hat.",
+      "searchPlaceholder": "Nach Name oder Nummer suchen",
+      "noRecipients": "Keine Unterhaltungen gefunden.",
+      "windowClosed": "Fenster geschlossen",
+      "notePlaceholder": "Möchten Sie etwas hinzufügen? (optional)",
+      "noteHint": "Ihre Notiz steht am Ende der Nachricht, nach dem Kommentar.",
+      "previewLabel": "Was gesendet wird",
+      "preview": {
+        "heading": "Markierter Kommentar auf Instagram",
+        "author": "Autor",
+        "severity": "Schweregrad",
+        "post": "Beitrag",
+        "comment": "Kommentar"
+      },
+      "cancel": "Abbrechen",
+      "sending": "Wird gesendet...",
+      "send": "Weiterleiten"
+    },
+    "reply": {
+      "title": "Auf den Kommentar antworten",
+      "description": "Die Antwort ist öffentlich und erscheint im Namen des Kontos. Es wird nichts veröffentlicht, bis Sie auf Veröffentlichen klicken.",
+      "draft": "Mit KI vorschlagen",
+      "redraft": "Neuen Vorschlag",
+      "drafting": "Wird geschrieben...",
+      "fromModel": "KI-Vorschlag",
+      "placeholder": "Antwort schreiben oder einen Vorschlag anfordern",
+      "publicHint": "Vor dem Veröffentlichen prüfen: die KI kennt Ihre Fristen, Preise und Richtlinien nicht.",
+      "cancel": "Abbrechen",
+      "publishing": "Wird veröffentlicht...",
+      "publish": "Antwort veröffentlichen"
+    },
+    "roles": {
+      "inferred": "wirkt wie {role}",
+      "tooltip": "KI-Einschätzung aus den eigenen Kommentaren dieser Person. Konfidenz {confidence}, auf Basis von {count, plural, one {# Kommentar} other {# Kommentaren}}. Keine geprüfte Information.",
+      "confidence": {
+        "none": "keine",
+        "low": "niedrig",
+        "medium": "mittel",
+        "high": "hoch"
+      },
+      "labels": {
+        "unknown": "nicht bestimmt",
+        "politician": "Politiker:in",
+        "journalist": "Journalist:in",
+        "public_servant": "Beschäftigte:r im öffentlichen Dienst",
+        "business_owner": "Unternehmer:in",
+        "professional": "Fachperson",
+        "activist": "Aktivist:in"
+      }
+    },
+    "period": {
+      "label": "Zeitraum",
+      "from": "Von",
+      "to": "Bis",
+      "presets": {
+        "7": "Letzte 7 Tage",
+        "30": "Letzte 30 Tage",
+        "90": "Letzte 90 Tage",
+        "today": "Heute",
+        "all": "Gesamter Zeitraum",
+        "custom": "Benutzerdefiniert"
+      }
+    },
+    "alerts": {
+      "title": "Benachrichtigungen",
+      "description": "Automatische WhatsApp-Warnungen, wenn die Analyse einen Schwellenwert überschreitet",
+      "new": "Neue Regel",
+      "newTitle": "Neue Benachrichtigungsregel",
+      "editTitle": "Benachrichtigungsregel bearbeiten",
+      "emptyTitle": "Keine Benachrichtigungen eingerichtet",
+      "emptyDescription": "Legen Sie eine Regel an, um per WhatsApp gewarnt zu werden, wenn ein Wert Ihren Schwellenwert überschreitet.",
+      "enabledLabel": "Regel ein- oder ausschalten",
+      "test": "Testen",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "saving": "Wird gespeichert...",
+      "cooldownChip": "1 Warnung alle {minutes} Min.",
+      "capChip": "bis zu {count} pro Tag",
+      "lastFired": "Zuletzt ausgelöst am {when} · {count, plural, one {# heute} other {# heute}}",
+      "lastErrorLabel": "Letzter Fehler",
+      "officialHint": "Der offizielle Kanal sendet eine genehmigte Vorlage und verbraucht bei jeder Auslösung Guthaben. Die Variablen der Vorlage werden in dieser Reihenfolge gefüllt: Regelname, was gemessen wurde, wo, und der Kommentarauszug. Benannte Variablen werden anhand ihres Namens gefüllt. Eine Vorlage ohne Variablen funktioniert ebenfalls.",
+      "limitsHint": "Der Mindestabstand beträgt {cooldown} Minuten, die Obergrenze {perDay} Warnungen pro Tag. Niedrigere Werte werden automatisch angepasst.",
+      "metricNames": {
+        "comment_severity": "Schweregrad eines Kommentars",
+        "high_severity_count": "Schwerwiegende Kommentare im Zeitfenster",
+        "hostile_count": "Feindselige Kommentare im Zeitfenster",
+        "comment_volume": "Kommentarvolumen im Zeitfenster",
+        "acceptance_score": "Akzeptanz (fällt unter)"
+      },
+      "metrics": {
+        "comment_severity": "Wenn ein Kommentar Schweregrad {threshold} oder höher erreicht",
+        "high_severity_count": "Wenn es {threshold} oder mehr schwerwiegende Kommentare in {minutes} Min. gibt",
+        "hostile_count": "Wenn es {threshold} oder mehr feindselige Kommentare in {minutes} Min. gibt",
+        "comment_volume": "Wenn es {threshold} oder mehr Kommentare in {minutes} Min. gibt",
+        "acceptance_score": "Wenn die Akzeptanz in {minutes} Min. auf {threshold} oder darunter fällt"
+      },
+      "channels": {
+        "official": "Offizielles WhatsApp (Vorlage)",
+        "unofficial": "Inoffizielles WhatsApp (Text)"
+      },
+      "fields": {
+        "name": "Regelname",
+        "namePlaceholder": "z. B. schwerwiegender Kommentar auf der Seite",
+        "metric": "Was beobachtet wird",
+        "thresholdAbove": "Auslösen ab",
+        "thresholdBelow": "Auslösen beim Fallen auf",
+        "window": "Zeitfenster (Minuten)",
+        "channel": "Kanal",
+        "recipient": "Empfängernummer",
+        "businessPhone": "Offizielle Nummer",
+        "template": "Genehmigte Vorlage",
+        "cooldown": "Abstand zwischen Warnungen (Min.)",
+        "maxPerDay": "Maximum pro Tag",
+        "enabled": "Regel aktiv",
+        "brief": "KI-Einschätzung einbeziehen"
+      },
+      "templateVariables": "Erkannte Namen, falls Ihre Vorlage benannte Variablen nutzt: {facts}",
+      "briefHint": "Die KI ergänzt einen Satz dazu, was passiert, und einen dazu, wie zu reagieren ist. Das ist ein abgerechneter KI-Aufruf pro Auslösung; die Benachrichtigung wird auch gesendet, wenn die KI nicht antwortet.",
+      "briefChip": "mit KI-Einschätzung"
     }
   },
   "telegram": {

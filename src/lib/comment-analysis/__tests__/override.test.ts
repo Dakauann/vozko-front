@@ -22,6 +22,7 @@ const effective: CommentAnalysisSettings = {
     ],
     severityThreshold: 60,
     dailyCap: 2000,
+    replyPolicy: { mode: "off", maxAutoSeverity: 30 },
     instructions: "Conta da prefeitura",
     updatedAt: "2026-09-01T00:00:00Z",
 };

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
 import type {
+  AuthorRoleInference,
   CommentIntent,
   CommentSentiment,
   CommentStance,
@@ -11,6 +12,7 @@ import type {
   ModerationState,
 } from "@/lib/comment-analysis/types";
 import { HIGH_SEVERITY_THRESHOLD } from "@/lib/comment-analysis/types";
+import { ArrowDown, ArrowUp, IdentificationCard, Minus } from "@/components/icons";
 import { VOZ_SERIES } from "@/components/charts/vozko";
 import { cn } from "@/lib/utils";
 
@@ -100,6 +102,28 @@ export function SeverityBar({ severity, compact = false }: { severity: number; c
   );
 }
 
+/**
+ * The reputation readout: the signed ledger for one author.
+ *
+ * Sign, arrow and colour all carry it, so the number reads the same to someone
+ * who cannot separate the two hues. The ground stays neutral and the hue is the
+ * mark, never a wash behind ink of its own colour.
+ */
+export function ReputationReadout({ value, className }: { value: number; className?: string }) {
+  const t = useTranslations("commentAnalysis.authors");
+  const tone = value < 0 ? "text-destructive-ink" : value > 0 ? "text-healthy-ink" : "text-muted-foreground";
+  const Glyph = value < 0 ? ArrowDown : value > 0 ? ArrowUp : Minus;
+  return (
+    <span
+      className={cn("readout inline-flex items-center gap-1.5 text-sm font-semibold tabular-nums", tone, className)}
+      title={t("reputationHint")}
+    >
+      <Glyph className="h-3.5 w-3.5 shrink-0" weight="bold" aria-hidden />
+      {value > 0 ? `+${value}` : String(value)}
+    </span>
+  );
+}
+
 export function Chip({
   children,
   dot,
@@ -142,6 +166,44 @@ export function SentimentChip({ sentiment }: { sentiment: CommentSentiment }) {
 export function IntentChip({ intent }: { intent: CommentIntent }) {
   const t = useTranslations("commentAnalysis.enums.intent");
   return <Chip>{t(intent)}</Chip>;
+}
+
+/**
+ * The inferred-role chip (§5).
+ *
+ * Everything about it is designed to read as an INFERENCE rather than a fact,
+ * because it is a claim about a real member of the public: the label is
+ * prefixed with "parece", the tooltip carries the confidence, the corpus size
+ * and the model's own sentence, and the chip is neutral rather than coloured so
+ * it never reads as a status the product is sure of.
+ *
+ * It renders nothing unless the SERVER says the inference is strong enough.
+ * The thresholds live in the domain, and re-deriving them here would give the
+ * product two answers to "is this safe to show".
+ */
+export function AuthorRoleChip({
+  role,
+  displayable,
+}: {
+  role: AuthorRoleInference;
+  displayable: boolean;
+}) {
+  const t = useTranslations("commentAnalysis.roles");
+  if (!displayable || role.role === "unknown") return null;
+  return (
+    <Chip
+      className="text-muted-foreground"
+      title={[
+        t("tooltip", { confidence: t(`confidence.${role.confidence}`), count: role.basedOnComments }),
+        role.rationale,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <IdentificationCard className="h-3 w-3" weight="fill" />
+      {t("inferred", { role: t(`labels.${role.role}`) })}
+    </Chip>
+  );
 }
 
 export function ModerationChip({ state }: { state: ModerationState }) {

@@ -12,13 +12,17 @@ import type { CommentAnalysisSettings, CommentAnalysisStats, TrendPoint } from "
 import { useWorkspace } from "@/contexts/workspace-context";
 import Button from "@/components/elevated-design/button";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
+import type { Period } from "@/lib/comment-analysis/period";
+import { DEFAULT_PERIOD, isPeriodReady, periodRange } from "@/lib/comment-analysis/period";
+import { PeriodPicker } from "@/components/instagram/comment-analysis-period";
+import { CommentAnalysisAlerts } from "@/components/instagram/comment-analysis-alerts";
 import { CommentAnalysisOverview } from "@/components/instagram/comment-analysis-overview";
 import { CommentAnalysisTopics } from "@/components/instagram/comment-analysis-topics";
 import { CommentAnalysisAuthors } from "@/components/instagram/comment-analysis-authors";
 import { CommentAnalysisFeed } from "@/components/instagram/comment-analysis-feed";
 import { CommentAnalysisSettingsPanel } from "@/components/instagram/comment-analysis-settings";
 import { EmptyState, Skeleton } from "@/components/instagram/comment-analysis-shared";
-import { ChartLineUp, ChatCircle, Gear, Hash, ShieldWarning, Sparkle, Warning } from "@/components/icons";
+import { Bell, ChartLineUp, ChatCircle, Gear, Hash, ShieldWarning, Sparkle, Warning } from "@/components/icons";
 
 /*
  * The "Audiência" tab of an Instagram account: the five panels of plan §13
@@ -30,8 +34,10 @@ import { ChartLineUp, ChatCircle, Gear, Hash, ShieldWarning, Sparkle, Warning } 
  * update permission because turning it on starts billing.
  */
 
-type Section = "overview" | "topics" | "authors" | "feed" | "settings";
+type Section = "overview" | "topics" | "authors" | "feed" | "alerts" | "settings";
 
+// The trend chart is a 30-day series by construction (the rollups are daily),
+// so it keeps its own reach. Everything else on the tab follows the period.
 const TREND_DAYS = 30;
 
 function isoDaysAgo(days: number): string {
@@ -44,6 +50,7 @@ export function CommentAnalysisTab({ accountId }: { accountId: string }) {
   const t = useTranslations("commentAnalysis");
   const { can } = useWorkspace();
   const canConfigure = can("comment_analysis", "update");
+  const canSendAlerts = can("comment_analysis", "send");
 
   const [section, setSection] = useState<Section>("overview");
   const [settings, setSettings] = useState<CommentAnalysisSettings | null>(null);
@@ -52,6 +59,9 @@ export function CommentAnalysisTab({ accountId }: { accountId: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [focusTopics, setFocusTopics] = useState(false);
+  // One period for the whole tab. Before this the stats cards and the tables
+  // under them could be answering about different spans of time.
+  const [period, setPeriod] = useState<Period>(DEFAULT_PERIOD);
 
   useEffect(() => {
     let cancelled = false;
@@ -75,7 +85,7 @@ export function CommentAnalysisTab({ accountId }: { accountId: string }) {
     if (!enabled) return;
     let cancelled = false;
     void Promise.all([
-      getCommentAnalysisStatsAction({ accountId }),
+      getCommentAnalysisStatsAction({ accountId, ...(isPeriodReady(period) ? periodRange(period) : {}) }),
       getCommentAnalysisTrendsAction("account", accountId, isoDaysAgo(TREND_DAYS)),
     ]).then(([statsResult, trendResult]) => {
       if (cancelled) return;
@@ -86,7 +96,7 @@ export function CommentAnalysisTab({ accountId }: { accountId: string }) {
     return () => {
       cancelled = true;
     };
-  }, [accountId, enabled, refreshKey]);
+  }, [accountId, enabled, refreshKey, period]);
 
   if (loading) {
     return (
@@ -130,6 +140,11 @@ export function CommentAnalysisTab({ accountId }: { accountId: string }) {
     { value: "topics" as const, label: t("sections.topics"), icon: <Hash className="h-3.5 w-3.5" weight="fill" /> },
     { value: "authors" as const, label: t("sections.authors"), icon: <ShieldWarning className="h-3.5 w-3.5" weight="fill" /> },
     { value: "feed" as const, label: t("sections.feed"), icon: <ChatCircle className="h-3.5 w-3.5" weight="fill" /> },
+    // Alerts sit behind SEND, not update: arming an automated sender is
+    // granting sends, and the route enforces the same thing.
+    ...(canSendAlerts
+      ? [{ value: "alerts" as const, label: t("sections.alerts"), icon: <Bell className="h-3.5 w-3.5" weight="fill" /> }]
+      : []),
     ...(canConfigure ? [{ value: "settings" as const, label: t("sections.settings"), icon: <Gear className="h-3.5 w-3.5" weight="fill" /> }] : []),
   ];
 
@@ -146,6 +161,12 @@ export function CommentAnalysisTab({ accountId }: { accountId: string }) {
         collapseLabels="sm"
       />
 
+      {/* The period narrows what is MEASURED. Alerts and settings are
+          configuration, so a window would mean nothing there. */}
+      {section !== "settings" && section !== "alerts" ? (
+        <PeriodPicker className="mb-4" value={period} onChange={setPeriod} />
+      ) : null}
+
       {section === "overview" ? <CommentAnalysisOverview stats={stats} trend={trend} loading={!stats} /> : null}
       {section === "topics" ? (
         <CommentAnalysisTopics
@@ -161,8 +182,13 @@ export function CommentAnalysisTab({ accountId }: { accountId: string }) {
           }
         />
       ) : null}
-      {section === "authors" ? <CommentAnalysisAuthors accountId={accountId} topics={settings.topics} /> : null}
-      {section === "feed" ? <CommentAnalysisFeed accountId={accountId} topics={settings.topics} /> : null}
+      {section === "authors" ? (
+        <CommentAnalysisAuthors accountId={accountId} topics={settings.topics} period={period} />
+      ) : null}
+      {section === "feed" ? (
+        <CommentAnalysisFeed accountId={accountId} topics={settings.topics} period={period} />
+      ) : null}
+      {section === "alerts" ? <CommentAnalysisAlerts accountId={accountId} /> : null}
       {section === "settings" && canConfigure ? (
         <CommentAnalysisSettingsPanel
           settings={settings}

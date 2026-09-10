@@ -1,9 +1,6 @@
 "use client";
 
 import {
-  ArrowDown,
-  ArrowUp,
-  ArrowsDownUp,
   CaretLeft,
   CaretRight,
   Check,
@@ -12,6 +9,7 @@ import {
 import { Fragment, ReactNode, useCallback } from "react";
 
 import { CircuitTraces } from "@/components/brand/circuit";
+import { SortableColumnHead } from "@/components/elevated-design/table/sortable-column-head";
 import { LightPool } from "@/components/brand/light-pool";
 import { cn } from "@/lib/utils";
 
@@ -322,74 +320,19 @@ export function DashboardTable<T>({
                   </button>
                 </th>
               )}
-              {columns.map((column) => {
-                const sortable = !!(sorting && column.sortKey);
-                const activeIndex = sortable
-                  ? sorting!.sorts.findIndex((s) => s.key === column.sortKey)
-                  : -1;
-                const active = activeIndex >= 0 ? sorting!.sorts[activeIndex] : undefined;
-
-                return (
-                  <th
-                    key={column.key}
-                    className={cn(
-                      "px-4 py-2 text-2xs font-semibold text-muted-foreground",
-                      column.className,
-                    )}
-                    scope="col"
-                    aria-sort={
-                      active
-                        ? active.direction === "asc"
-                          ? "ascending"
-                          : "descending"
-                        : sortable
-                          ? "none"
-                          : undefined
-                    }
-                  >
-                    {sortable ? (
-                      <button
-                        type="button"
-                        onClick={(e) =>
-                          sorting!.onToggle(column.sortKey!, {
-                            additive: e.shiftKey,
-                          })
-                        }
-                        className={cn(
-                          "group/sort -mx-1 inline-flex items-center gap-1.5 rounded px-1 py-0.5 transition-colors",
-                          "hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary",
-                          active && "text-foreground",
-                        )}
-                      >
-                        <span>{column.header}</span>
-                        {/* The neutral glyph shows only on hover: a column that
-                            is not sorted must not look like it is. */}
-                        {active ? (
-                          active.direction === "asc" ? (
-                            <ArrowUp weight="bold" className="h-3 w-3" />
-                          ) : (
-                            <ArrowDown weight="bold" className="h-3 w-3" />
-                          )
-                        ) : (
-                          <ArrowsDownUp
-                            weight="bold"
-                            className="h-3 w-3 opacity-0 transition-opacity group-hover/sort:opacity-60"
-                          />
-                        )}
-                        {/* Rank, only while several keys are active, so a
-                            multi-key order is readable rather than implied. */}
-                        {active && sorting!.sorts.length > 1 ? (
-                          <span className="text-2xs tabular-nums text-muted-foreground">
-                            {activeIndex + 1}
-                          </span>
-                        ) : null}
-                      </button>
-                    ) : (
-                      column.header
-                    )}
-                  </th>
-                );
-              })}
+              {columns.map((column) => (
+                <SortableColumnHead
+                  key={column.key}
+                  label={column.header}
+                  sortKey={column.sortKey}
+                  sorts={sorting?.sorts}
+                  onToggle={sorting?.onToggle}
+                  className={cn(
+                    "px-4 py-2 text-2xs font-semibold text-muted-foreground",
+                    column.className,
+                  )}
+                />
+              ))}
               {renderRowActions ? (
                 <th
                   className="px-4 py-2 text-xs font-semibold text-muted-foreground text-right"

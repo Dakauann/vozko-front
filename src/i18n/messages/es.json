@@ -8639,7 +8639,8 @@
       "topics": "Temas",
       "authors": "Autores",
       "feed": "Comentarios",
-      "settings": "Configuración"
+      "settings": "Configuración",
+      "alerts": "Alertas"
     },
     "disabled": {
       "title": "Análisis de comentarios apagado",
@@ -8767,7 +8768,7 @@
     },
     "authors": {
       "title": "Quién comenta",
-      "description": "Autores ordenados por su patrón de comentarios graves",
+      "description": "Ranking por reputación. Haz clic en una columna para reordenar",
       "scopeLabel": "Filtro de autores",
       "scope": {
         "flagged": "Señalados",
@@ -8779,30 +8780,27 @@
       "emptyDescription": "La lista de autores se reconstruye cada hora a partir de los comentarios analizados.",
       "columns": {
         "author": "Autor",
+        "reputation": "Reputación",
         "comments": "Comentarios",
-        "worst": "Peor gravedad",
-        "stance": "Postura",
+        "positive": "Positivos",
+        "negative": "Negativos",
+        "severity": "Peor gravedad",
         "lastSeen": "Último",
         "moderation": "Moderación"
       },
       "flagged": "Señalado",
       "highCount": "{count, plural, one {# grave} other {# graves}}",
-      "noComments": "Ningún comentario analizado de este autor.",
-      "actions": {
-        "hide": "Ocultar",
-        "privateReply": "Responder por DM"
-      },
       "pagination": "{from} a {to} de {total}",
       "previous": "Anterior",
       "next": "Siguiente",
-      "privateReply": {
-        "title": "Responder por DM",
-        "placeholder": "Escriba el mensaje privado",
-        "hint": "Instagram permite una única respuesta privada por comentario, dentro de 7 días.",
-        "alreadyUsed": "Este comentario ya recibió una respuesta privada.",
-        "cancel": "Cancelar",
-        "sending": "Enviando...",
-        "send": "Enviar"
+      "reputationHint": "Cada comentario simpatizante suma 1 punto, uno crítico resta 0,5, uno hostil resta 1, y cada comentario grave resta 1 punto más.",
+      "openAuthor": "Ver este autor",
+      "filters": {
+        "stance": "Posicionamiento",
+        "any": "Cualquiera",
+        "minComments": "Mínimo de comentarios",
+        "noMinimum": "Sin mínimo",
+        "atLeast": "{count}+ comentarios"
       }
     },
     "feed": {
@@ -8828,11 +8826,17 @@
       "spam": "spam",
       "requiresAction": "Pide respuesta",
       "failedReason": "Falló tras {attempts, plural, one {# intento} other {# intentos}}: {reason}.",
-      "retry": "Reintentar",
-      "retrying": "Reprocesando...",
       "pagination": "{from} a {to} de {total}",
       "previous": "Anterior",
-      "next": "Siguiente"
+      "next": "Siguiente",
+      "openAuthor": "Ver este autor",
+      "live": {
+        "label": "Feed en vivo",
+        "paused": "Pausado",
+        "live": "En vivo",
+        "connecting": "Conectando...",
+        "waiting": "{count, plural, one {# comentario analizado ahora} other {# comentarios analizados ahora}}. Mostrar"
+      }
     },
     "settings": {
       "saveFailed": "No se pudo guardar.",
@@ -8904,6 +8908,16 @@
         "tokenBillingOnly": "no configurada (solo tokens)",
         "confirm": "Confirmar e iniciar",
         "cancelDialog": "Cancelar"
+      },
+      "replyPolicy": {
+        "title": "Respuesta a los comentarios",
+        "description": "Si la IA ayuda a responder a quienes comentan en las publicaciones de esta cuenta, y cómo",
+        "label": "Modo",
+        "modes": {
+          "off": "Desactivado",
+          "suggest": "Sugerir para revisión"
+        },
+        "hint": "En \"sugerir\", la IA escribe un borrador y una persona lo revisa y publica. No se publica nada solo. Cada sugerencia es una llamada de IA y se cobra."
       }
     },
     "post": {
@@ -8965,17 +8979,171 @@
       "enabledMark": "encendida",
       "scopedToPost": "Solo esta publicación",
       "configureCta": "Configurar en la cuenta",
-      "period": {
-        "label": "Período",
-        "days7": "7 días",
-        "days30": "30 días",
-        "days90": "90 días"
-      },
       "noAccounts": {
         "title": "Ninguna cuenta de Instagram conectada",
         "description": "Conecte una cuenta y encienda el análisis de comentarios en su pestaña Audiencia.",
         "cta": "Ir a cuentas de Instagram"
       }
+    },
+    "authorView": {
+      "flagged": "Señalado",
+      "summary": "{comments} comentarios analizados, de {first} a {last}",
+      "notAnalyzed": "Este autor aún no tiene comentarios analizados en esta cuenta.",
+      "sectionLabel": "Qué ver de este autor",
+      "sections": {
+        "posts": "Publicaciones",
+        "comments": "Comentarios"
+      },
+      "filteredByPost": "Publicación {post}",
+      "noPostsTitle": "Todavía no hay publicaciones",
+      "noPostsDescription": "Las publicaciones aparecen aquí en cuanto se analizan los comentarios de esta persona.",
+      "commentsOnPost": "{count, plural, one {# comentario} other {# comentarios}}",
+      "highOnPost": "{count, plural, one {# grave} other {# graves}}",
+      "postsFootnote": "{total} publicaciones en las que comentó esta persona. Los me gusta y otras interacciones no se cuentan: solo registramos comentarios.",
+      "noComments": "Ningún comentario analizado aquí."
+    },
+    "quickActions": {
+      "answer": "Responder",
+      "escalate": "Reenviar",
+      "openAuthor": "Ver autor",
+      "hide": "Ocultar",
+      "hidden": "Oculto",
+      "privateReply": "Responder por privado",
+      "retry": "Reanalizar",
+      "retrying": "Reanalizando...",
+      "privateReplyDialog": {
+        "title": "Responder por privado",
+        "placeholder": "Escribe el mensaje privado",
+        "hint": "Instagram permite una única respuesta privada por comentario, en un plazo de 7 días.",
+        "alreadyUsed": "Este comentario ya recibió una respuesta privada.",
+        "cancel": "Cancelar",
+        "sending": "Enviando...",
+        "send": "Enviar"
+      }
+    },
+    "escalate": {
+      "title": "Reenviar por WhatsApp",
+      "description": "Envía este comentario a una conversación que ya tienes abierta. No inicia una conversación con alguien que nunca les escribió.",
+      "searchPlaceholder": "Buscar por nombre o número",
+      "noRecipients": "No se encontraron conversaciones.",
+      "windowClosed": "Ventana cerrada",
+      "notePlaceholder": "¿Quieres agregar algo? (opcional)",
+      "noteHint": "Tu nota va al final del mensaje, después del comentario.",
+      "previewLabel": "Lo que se enviará",
+      "preview": {
+        "heading": "Comentario señalado en Instagram",
+        "author": "Autor",
+        "severity": "Gravedad",
+        "post": "Publicación",
+        "comment": "Comentario"
+      },
+      "cancel": "Cancelar",
+      "sending": "Enviando...",
+      "send": "Reenviar"
+    },
+    "reply": {
+      "title": "Responder al comentario",
+      "description": "La respuesta es pública y sale a nombre de la cuenta. No se publica nada hasta que pulses publicar.",
+      "draft": "Sugerir con IA",
+      "redraft": "Sugerir otra",
+      "drafting": "Escribiendo...",
+      "fromModel": "Sugerencia de la IA",
+      "placeholder": "Escribe la respuesta, o pide una sugerencia",
+      "publicHint": "Revísala antes de publicar: la IA no conoce tus plazos, precios ni políticas.",
+      "cancel": "Cancelar",
+      "publishing": "Publicando...",
+      "publish": "Publicar respuesta"
+    },
+    "roles": {
+      "inferred": "parece {role}",
+      "tooltip": "Inferencia de la IA a partir de los comentarios de esta persona. Confianza {confidence}, basada en {count, plural, one {# comentario} other {# comentarios}}. No es información verificada.",
+      "confidence": {
+        "none": "nula",
+        "low": "baja",
+        "medium": "media",
+        "high": "alta"
+      },
+      "labels": {
+        "unknown": "no identificado",
+        "politician": "político",
+        "journalist": "periodista",
+        "public_servant": "funcionario público",
+        "business_owner": "empresario",
+        "professional": "profesional del área",
+        "activist": "activista"
+      }
+    },
+    "period": {
+      "label": "Período",
+      "from": "Desde",
+      "to": "Hasta",
+      "presets": {
+        "7": "Últimos 7 días",
+        "30": "Últimos 30 días",
+        "90": "Últimos 90 días",
+        "today": "Hoy",
+        "all": "Desde el inicio",
+        "custom": "Personalizado"
+      }
+    },
+    "alerts": {
+      "title": "Alertas",
+      "description": "Avisos automáticos por WhatsApp cuando el análisis cruza un límite",
+      "new": "Nueva regla",
+      "newTitle": "Nueva regla de alerta",
+      "editTitle": "Editar regla de alerta",
+      "emptyTitle": "Ninguna alerta configurada",
+      "emptyDescription": "Crea una regla para recibir un aviso por WhatsApp cuando algo supere el límite que definas.",
+      "enabledLabel": "Activar o desactivar la regla",
+      "test": "Probar",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "cooldownChip": "1 aviso cada {minutes} min",
+      "capChip": "hasta {count} por día",
+      "lastFired": "Último disparo el {when} · {count, plural, one {# hoy} other {# hoy}}",
+      "lastErrorLabel": "Último fallo",
+      "officialHint": "El canal oficial envía una plantilla aprobada y consume saldo en cada disparo. Las variables de la plantilla se rellenan en este orden: nombre de la regla, qué se midió, dónde, y el fragmento del comentario. Si tu plantilla usa variables con nombre, se rellenan por nombre. Una plantilla sin variables también funciona.",
+      "limitsHint": "El intervalo mínimo es de {cooldown} minutos y el tope es de {perDay} avisos por día. Los valores menores se ajustan automáticamente.",
+      "metricNames": {
+        "comment_severity": "Gravedad de un comentario",
+        "high_severity_count": "Comentarios graves en la ventana",
+        "hostile_count": "Comentarios hostiles en la ventana",
+        "comment_volume": "Volumen de comentarios en la ventana",
+        "acceptance_score": "Aceptación (cae por debajo de)"
+      },
+      "metrics": {
+        "comment_severity": "Cuando un comentario tenga gravedad {threshold} o más",
+        "high_severity_count": "Cuando haya {threshold} o más comentarios graves en {minutes} min",
+        "hostile_count": "Cuando haya {threshold} o más comentarios hostiles en {minutes} min",
+        "comment_volume": "Cuando haya {threshold} o más comentarios en {minutes} min",
+        "acceptance_score": "Cuando la aceptación caiga a {threshold} o menos en {minutes} min"
+      },
+      "channels": {
+        "official": "WhatsApp oficial (plantilla)",
+        "unofficial": "WhatsApp no oficial (texto)"
+      },
+      "fields": {
+        "name": "Nombre de la regla",
+        "namePlaceholder": "Ej.: comentario grave en la página",
+        "metric": "Qué observar",
+        "thresholdAbove": "Disparar a partir de",
+        "thresholdBelow": "Disparar al caer a",
+        "window": "Ventana (minutos)",
+        "channel": "Canal",
+        "recipient": "Número que recibe",
+        "businessPhone": "Número oficial",
+        "template": "Plantilla aprobada",
+        "cooldown": "Intervalo entre avisos (min)",
+        "maxPerDay": "Máximo por día",
+        "enabled": "Regla activa",
+        "brief": "Incluir la lectura de la IA"
+      },
+      "templateVariables": "Nombres reconocidos, si tu plantilla usa variables con nombre: {facts}",
+      "briefHint": "La IA añade una frase sobre lo que está pasando y otra sobre cómo responder. Es una llamada de IA por disparo, con cargo, y la alerta se envía igual si la IA no responde.",
+      "briefChip": "con lectura de la IA"
     }
   },
   "telegram": {

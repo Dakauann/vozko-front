@@ -20,9 +20,10 @@ import type {
   CommentAnalysisSpend,
   CommentBackfill,
   CommentTopic,
+  ReplyMode,
   Vertical,
 } from "@/lib/comment-analysis/types";
-import { MAX_INSTRUCTIONS_LENGTH, VERTICALS } from "@/lib/comment-analysis/types";
+import { MAX_INSTRUCTIONS_LENGTH, SELECTABLE_REPLY_MODES, VERTICALS } from "@/lib/comment-analysis/types";
 import { exchangeRateFromMicros, formatMicrosAsBrl } from "@/lib/pricing/currency";
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
@@ -199,6 +200,36 @@ export function CommentAnalysisSettingsPanel({
         <p className="mt-3 text-xs text-muted-foreground">{t("threshold.hint")}</p>
         <p className="mt-1 text-xs text-muted-foreground">{t("dailyCap.hint")}</p>
         <p className="mt-1 text-xs text-muted-foreground">{t("vertical.hint")}</p>
+      </Panel>
+
+      {/*
+        Replying (§6). Its own panel, not a row among the thresholds: this is
+        the one setting that makes the product write in the customer's voice
+        under their own posts, and the copy has to say exactly what it does.
+        Only "off" and "suggest" are offered — the API refuses "auto" while no
+        step posts on it, so offering it would be a switch that does nothing.
+      */}
+      <Panel title={t("replyPolicy.title")} description={t("replyPolicy.description")}>
+        <ElevatedSelect
+          label={t("replyPolicy.label")}
+          value={settings.replyPolicy?.mode ?? "off"}
+          disabled={saving}
+          onValueChange={(mode) =>
+            void patch({
+              replyPolicy: {
+                mode: mode as ReplyMode,
+                maxAutoSeverity: settings.replyPolicy?.maxAutoSeverity ?? 30,
+              },
+            })
+          }
+        >
+          {SELECTABLE_REPLY_MODES.map((mode) => (
+            <ElevatedSelectItem key={mode} value={mode}>
+              {t(`replyPolicy.modes.${mode}`)}
+            </ElevatedSelectItem>
+          ))}
+        </ElevatedSelect>
+        <p className="mt-3 text-xs text-muted-foreground">{t("replyPolicy.hint")}</p>
       </Panel>
 
       <Panel title={t("instructions.title")} description={t("instructions.description")}>

@@ -19,6 +19,9 @@ import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-t
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { CommentAnalysisOverview } from "@/components/instagram/comment-analysis-overview";
 import { CommentAnalysisTopics } from "@/components/instagram/comment-analysis-topics";
+import type { Period } from "@/lib/comment-analysis/period";
+import { DEFAULT_PERIOD, isPeriodReady, periodRange } from "@/lib/comment-analysis/period";
+import { PeriodPicker } from "@/components/instagram/comment-analysis-period";
 import { CommentAnalysisAuthors } from "@/components/instagram/comment-analysis-authors";
 import { CommentAnalysisFeed } from "@/components/instagram/comment-analysis-feed";
 import { Chip, EmptyState, Skeleton } from "@/components/instagram/comment-analysis-shared";
@@ -36,16 +39,10 @@ import { ChartLineUp, ChatCircle, Gear, Hash, ShieldWarning, Sparkle, Warning } 
  */
 
 type Section = "overview" | "topics" | "authors" | "feed";
-type Period = "7" | "30" | "90";
+
 
 const ALL_POSTS = "__all";
 const LOCALE_TAG: Record<string, string> = { pt: "pt-BR", en: "en-US", es: "es-ES", de: "de-DE" };
-
-function isoDaysAgo(days: number): string {
-  const d = new Date();
-  d.setUTCDate(d.getUTCDate() - days);
-  return d.toISOString().slice(0, 10);
-}
 
 function postLabel(m: InstagramMedia, df: Intl.DateTimeFormat, untitled: string): string {
   const caption = m.caption?.replace(/\s+/g, " ").trim() ?? "";
@@ -75,7 +72,7 @@ export function CommentAnalysisAudience({
   const [accountId, setAccountId] = useState(initialAccountId ?? "");
   const [containerId, setContainerId] = useState(initialContainerId ?? "");
   const [posts, setPosts] = useState<InstagramMedia[]>([]);
-  const [period, setPeriod] = useState<Period>("30");
+  const [period, setPeriod] = useState<Period>(DEFAULT_PERIOD);
   const [section, setSection] = useState<Section>("overview");
 
   const [settings, setSettings] = useState<CommentAnalysisSettings | null>(null);
@@ -131,7 +128,8 @@ export function CommentAnalysisAudience({
   useEffect(() => {
     if (!accountId || !enabled) return;
     let cancelled = false;
-    const from = isoDaysAgo(Number(period));
+    if (!isPeriodReady(period)) return;
+    const { from } = periodRange(period);
     void Promise.all([
       getCommentAnalysisStatsAction({ accountId, containerId: containerId || undefined, from }),
       getCommentAnalysisTrendsAction(containerId ? "container" : "account", containerId || accountId, from),
@@ -199,12 +197,6 @@ export function CommentAnalysisAudience({
     { value: "feed" as const, label: t("sections.feed"), icon: <ChatCircle className="h-3.5 w-3.5" weight="fill" /> },
   ];
 
-  const periods = [
-    { value: "7" as const, label: ta("period.days7") },
-    { value: "30" as const, label: ta("period.days30") },
-    { value: "90" as const, label: ta("period.days90") },
-  ];
-
   return (
     <div className="space-y-4">
       {/* Scope row: account, post, period. Unboxed, like the metrics page. */}
@@ -229,7 +221,7 @@ export function CommentAnalysisAudience({
             ))}
           </ElevatedSelect>
         </div>
-        <ElevatedPillToggle<Period> aria-label={ta("period.label")} value={period} onChange={setPeriod} options={periods} />
+        <PeriodPicker value={period} onChange={setPeriod} />
       </div>
 
       {error && !settings ? <EmptyState icon={<Warning weight="duotone" />} title={t("errorTitle")} description={error} /> : null}
@@ -262,8 +254,17 @@ export function CommentAnalysisAudience({
 
           {section === "overview" ? <CommentAnalysisOverview stats={stats} trend={trend} loading={!stats} /> : null}
           {section === "topics" ? <CommentAnalysisTopics topics={settings.topics} stats={stats?.topics ?? []} /> : null}
-          {section === "authors" && !containerId ? <CommentAnalysisAuthors accountId={accountId} topics={settings.topics} /> : null}
-          {section === "feed" ? <CommentAnalysisFeed accountId={accountId} containerId={containerId || undefined} topics={settings.topics} /> : null}
+          {section === "authors" && !containerId ? (
+            <CommentAnalysisAuthors accountId={accountId} topics={settings.topics} period={period} />
+          ) : null}
+          {section === "feed" ? (
+            <CommentAnalysisFeed
+              accountId={accountId}
+              containerId={containerId || undefined}
+              topics={settings.topics}
+              period={period}
+            />
+          ) : null}
         </>
       ) : null}
     </div>

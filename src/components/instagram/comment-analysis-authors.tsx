@@ -4,75 +4,117 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import {
-  getCommentAuthorAction,
   listCommentAuthorsAction,
   setCommentAuthorModerationAction,
 } from "@/app/actions/comment-analysis";
-import { hideInstagramCommentAction, privateReplyInstagramCommentAction } from "@/app/actions/instagram";
-import type { AnalyzedComment, CommentAuthor, CommentTopic, ModerationState } from "@/lib/comment-analysis/types";
-import { MODERATION_STATES } from "@/lib/comment-analysis/types";
+import type {
+  AuthorSort,
+  AuthorSortKey,
+  CommentAuthor,
+  CommentStance,
+  CommentTopic,
+  ModerationState,
+} from "@/lib/comment-analysis/types";
+import {
+  AUTHOR_SORT_FIRST_DIRECTION,
+  AUTHOR_TABLE_COLUMNS,
+  COMMENT_STANCES,
+  DEFAULT_AUTHOR_SORT,
+  MODERATION_STATES,
+} from "@/lib/comment-analysis/types";
+import type { Period } from "@/lib/comment-analysis/period";
+import { DEFAULT_AUTHORS_PERIOD, isPeriodReady, periodRange } from "@/lib/comment-analysis/period";
 import Button from "@/components/elevated-design/button";
-import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
-import {
-  ElevatedDialog,
-  ElevatedDialogContent,
-  ElevatedDialogFooter,
-  ElevatedDialogHeader,
-  ElevatedDialogTitle,
-} from "@/components/elevated-design/elevated-dialog";
 import { InstagramAvatar } from "@/components/instagram/instagram-avatar";
+import { CommentAnalysisAuthorView } from "@/components/instagram/comment-analysis-author-view";
+import { SortableColumnHead } from "@/components/elevated-design/table/sortable-column-head";
 import {
+  AuthorRoleChip,
   Chip,
   EmptyState,
-  IntentChip,
   ModerationChip,
   Panel,
-  SentimentChip,
+  ReputationReadout,
   SeverityBar,
   Skeleton,
   StanceChip,
-  topicLabel,
 } from "@/components/instagram/comment-analysis-shared";
-import { CaretDown, EyeSlash, PaperPlaneTilt, ShieldWarning, UsersThree, Warning } from "@/components/icons";
+import { CaretRight, ShieldWarning, UsersThree, Warning } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 /*
- * The "who commented bad things" table (plan §11.3, §13).
+ * The "who commented bad things" table (plan §11.3, §13, §1).
  *
- * Ranked as the API ranks it: flagged first, then by high-severity count,
- * then by worst comment. A row expands into that author's comments, and the
- * actions on them (hide, private reply) go through the SAME Instagram
- * endpoints the moderation list already uses; the only new action is the
- * author's moderation standing, which lives in the engine.
+ * Ranked as the API ranks it: the ordering is a query parameter, the column
+ * heads are the control, and the default opens on the worst reputations. A row
+ * opens the AUTHOR VIEW rather than expanding in place, so "who is this person"
+ * has one answer here, in the feed, and anywhere else an @ appears.
+ *
+ * The period changes what the ranking MEANS, not just what it filters: with a
+ * window the standing in every column describes that window, so somebody
+ * hostile last month and quiet since drops out of this week's list. The panel
+ * opens on all time, which is also the server's cheap path.
  */
 
 const LOCALE_TAG: Record<string, string> = { pt: "pt-BR", en: "en-US", es: "es-ES", de: "de-DE" };
 
 type Scope = "flagged" | "all";
 
-export function CommentAnalysisAuthors({ accountId, topics }: { accountId: string; topics: CommentTopic[] }) {
+/** The minimum-comments options. Enough to cut one-off commenters, no more. */
+const MIN_COMMENT_OPTIONS = [2, 5, 10, 25];
+
+const ANY = "__any";
+
+export function CommentAnalysisAuthors({
+  accountId,
+  topics,
+  period = DEFAULT_AUTHORS_PERIOD,
+}: {
+  accountId: string;
+  topics: CommentTopic[];
+  period?: Period;
+}) {
   const t = useTranslations("commentAnalysis.authors");
+  const tFilters = useTranslations("commentAnalysis.authors.filters");
   const tMod = useTranslations("commentAnalysis.enums.moderation");
+  const tStance = useTranslations("commentAnalysis.enums.stance");
   const locale = useLocale();
   const nf = useMemo(() => new Intl.NumberFormat(LOCALE_TAG[locale] ?? "pt-BR"), [locale]);
   const df = useMemo(() => new Intl.DateTimeFormat(LOCALE_TAG[locale] ?? "pt-BR", { dateStyle: "short" }), [locale]);
 
   const [scope, setScope] = useState<Scope>("flagged");
+  const [sort, setSort] = useState<AuthorSort>(DEFAULT_AUTHOR_SORT);
+  const [stance, setStance] = useState<CommentStance | typeof ANY>(ANY);
+  const [minComments, setMinComments] = useState(0);
   const [authors, setAuthors] = useState<CommentAuthor[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [viewing, setViewing] = useState<CommentAuthor | null>(null);
 
   // Fetches settle in the promise callback, never synchronously in the
   // effect body; the previous page stays visible (dimmed) while the next
   // one loads.
+  const range = useMemo(() => (isPeriodReady(period) ? periodRange(period) : null), [period]);
+
   useEffect(() => {
+    // A half-typed custom range would reload the table on every keystroke and
+    // then be refused by the API, so it simply waits.
+    if (!range) return;
     let cancelled = false;
-    void listCommentAuthorsAction({ accountId, flaggedOnly: scope === "flagged", page, pageSize: 20 }).then((result) => {
+    void listCommentAuthorsAction({
+      accountId,
+      flaggedOnly: scope === "flagged",
+      stance: stance === ANY ? undefined : stance,
+      minComments: minComments || undefined,
+      sort,
+      page,
+      pageSize: 20,
+      ...range,
+    }).then((result) => {
       if (cancelled) return;
       if (result.error) setError(result.error);
       else {
@@ -85,15 +127,40 @@ export function CommentAnalysisAuthors({ accountId, topics }: { accountId: strin
     return () => {
       cancelled = true;
     };
-  }, [accountId, scope, page]);
+  }, [accountId, scope, stance, minComments, sort, page, range]);
+
+  // Any narrowing sends the reader back to page one: page 4 of a list that
+  // just shrank to two pages is an empty table with no explanation.
+  const narrow = <T,>(set: (value: T) => void) => (value: T) => {
+    set(value);
+    setPage(1);
+    setLoading(true);
+  };
+
+  // One key at a time: the API orders by a single key, so clicking a new head
+  // replaces the order rather than stacking onto it, and clicking the active
+  // head flips it. Each key opens on the direction that answers its own
+  // question first — worst reputation, most comments, most recent.
+  const toggleSort = (key: string) => {
+    setSort((cur) =>
+      cur.key === key
+        ? { key: cur.key, direction: cur.direction === "asc" ? "desc" : "asc" }
+        : { key: key as AuthorSortKey, direction: AUTHOR_SORT_FIRST_DIRECTION[key as AuthorSortKey] },
+    );
+    setPage(1);
+    setLoading(true);
+  };
+
+  const applyModeration = (authorId: string, state: ModerationState) =>
+    setAuthors((prev) => prev.map((a) => (a.id === authorId ? { ...a, moderationState: state } : a)));
 
   const handleModeration = async (author: CommentAuthor, state: ModerationState) => {
     const previous = author.moderationState;
-    setAuthors((prev) => prev.map((a) => (a.id === author.id ? { ...a, moderationState: state } : a)));
+    applyModeration(author.id, state);
     const result = await setCommentAuthorModerationAction(author.id, state);
     if (result.error) {
       setError(result.error);
-      setAuthors((prev) => prev.map((a) => (a.id === author.id ? { ...a, moderationState: previous } : a)));
+      applyModeration(author.id, previous);
     }
   };
 
@@ -106,11 +173,7 @@ export function CommentAnalysisAuthors({ accountId, topics }: { accountId: strin
           size="sm"
           aria-label={t("scopeLabel")}
           value={scope}
-          onChange={(v) => {
-            setScope(v);
-            setPage(1);
-            setLoading(true);
-          }}
+          onChange={narrow(setScope)}
           options={[
             { value: "flagged", label: t("scope.flagged"), icon: <ShieldWarning className="h-3.5 w-3.5" weight="fill" /> },
             { value: "all", label: t("scope.all"), icon: <UsersThree className="h-3.5 w-3.5" weight="fill" /> },
@@ -118,6 +181,33 @@ export function CommentAnalysisAuthors({ accountId, topics }: { accountId: strin
         />
       }
     >
+      <div className="mb-4 grid grid-cols-2 gap-2">
+        <ElevatedSelect
+          label={tFilters("stance")}
+          value={stance}
+          onValueChange={narrow((v: string) => setStance(v as CommentStance | typeof ANY))}
+        >
+          <ElevatedSelectItem value={ANY}>{tFilters("any")}</ElevatedSelectItem>
+          {COMMENT_STANCES.map((s) => (
+            <ElevatedSelectItem key={s} value={s}>
+              {tStance(s)}
+            </ElevatedSelectItem>
+          ))}
+        </ElevatedSelect>
+        <ElevatedSelect
+          label={tFilters("minComments")}
+          value={String(minComments)}
+          onValueChange={narrow((v: string) => setMinComments(Number(v)))}
+        >
+          <ElevatedSelectItem value="0">{tFilters("noMinimum")}</ElevatedSelectItem>
+          {MIN_COMMENT_OPTIONS.map((n) => (
+            <ElevatedSelectItem key={n} value={String(n)}>
+              {tFilters("atLeast", { count: n })}
+            </ElevatedSelectItem>
+          ))}
+        </ElevatedSelect>
+      </div>
+
       {error ? (
         <p className="mb-3 flex items-center gap-2 text-xs text-destructive-ink">
           <Warning className="h-3.5 w-3.5" /> {error}
@@ -137,16 +227,22 @@ export function CommentAnalysisAuthors({ accountId, topics }: { accountId: strin
           description={scope === "flagged" ? t("emptyFlaggedDescription") : t("emptyDescription")}
         />
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-sm">
+        <div className={cn("overflow-x-auto transition-opacity", loading && "opacity-60")}>
+          <table className="w-full min-w-[860px] text-sm">
             <thead>
               <tr className="border-b border-border text-left text-2xs uppercase tracking-wide text-muted-foreground">
-                <th className="pb-2 pr-3 font-medium">{t("columns.author")}</th>
-                <th className="pb-2 pr-3 font-medium tabular-nums">{t("columns.comments")}</th>
-                <th className="pb-2 pr-3 font-medium">{t("columns.worst")}</th>
-                <th className="pb-2 pr-3 font-medium">{t("columns.stance")}</th>
-                <th className="pb-2 pr-3 font-medium">{t("columns.lastSeen")}</th>
-                <th className="pb-2 font-medium">{t("columns.moderation")}</th>
+                <SortableColumnHead className="pb-2 pr-3 font-medium" label={t("columns.author")} />
+                {AUTHOR_TABLE_COLUMNS.map((column) => (
+                  <SortableColumnHead
+                    key={column.key}
+                    className={cn("pb-2 pr-3 font-medium", column.numeric && "tabular-nums")}
+                    label={t(`columns.${column.key}`)}
+                    sortKey={column.key}
+                    sorts={[sort]}
+                    onToggle={toggleSort}
+                  />
+                ))}
+                <SortableColumnHead className="pb-2 font-medium" label={t("columns.moderation")} />
               </tr>
             </thead>
             <tbody>
@@ -155,9 +251,7 @@ export function CommentAnalysisAuthors({ accountId, topics }: { accountId: strin
                   key={author.id}
                   author={author}
                   accountId={accountId}
-                  topics={topics}
-                  expanded={expanded === author.id}
-                  onToggle={() => setExpanded((cur) => (cur === author.id ? null : author.id))}
+                  onOpen={() => setViewing(author)}
                   onModeration={(state) => void handleModeration(author, state)}
                   nf={nf}
                   df={df}
@@ -178,6 +272,17 @@ export function CommentAnalysisAuthors({ accountId, topics }: { accountId: strin
           </div>
         </div>
       ) : null}
+
+      {viewing ? (
+        <CommentAnalysisAuthorView
+          accountId={accountId}
+          topics={topics}
+          period={period}
+          author={viewing}
+          onClose={() => setViewing(null)}
+          onModeration={applyModeration}
+        />
+      ) : null}
     </Panel>
   );
 }
@@ -185,9 +290,7 @@ export function CommentAnalysisAuthors({ accountId, topics }: { accountId: strin
 function AuthorRow({
   author,
   accountId,
-  topics,
-  expanded,
-  onToggle,
+  onOpen,
   onModeration,
   nf,
   df,
@@ -195,9 +298,7 @@ function AuthorRow({
 }: {
   author: CommentAuthor;
   accountId: string;
-  topics: CommentTopic[];
-  expanded: boolean;
-  onToggle: () => void;
+  onOpen: () => void;
   onModeration: (state: ModerationState) => void;
   nf: Intl.NumberFormat;
   df: Intl.DateTimeFormat;
@@ -206,156 +307,50 @@ function AuthorRow({
   const t = useTranslations("commentAnalysis.authors");
   const handle = author.authorHandle ? `@${author.authorHandle}` : author.authorExternalId;
   return (
-    <>
-      <tr className={cn("border-b border-border align-middle", author.isFlagged && "bg-muted/40")}>
-        <td className="py-2.5 pr-3">
-          <button type="button" onClick={onToggle} className="flex min-w-0 items-center gap-2 text-left" aria-expanded={expanded}>
-            <CaretDown className={cn("h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform", expanded && "rotate-180")} />
-            <InstagramAvatar accountId={accountId} username={author.authorHandle ?? author.authorExternalId} className="size-7" textClassName="text-xs" />
-            <span className="min-w-0">
-              <span className="block truncate font-medium text-foreground">{handle}</span>
-              <span className="flex flex-wrap gap-1">
-                {author.isFlagged ? (
-                  <Chip className="text-destructive-ink">
-                    <ShieldWarning className="h-3 w-3" weight="fill" /> {t("flagged")}
-                  </Chip>
-                ) : null}
-                <ModerationChip state={author.moderationState} />
-              </span>
+    <tr className={cn("border-b border-border align-middle", author.isFlagged && "bg-muted/40")}>
+      <td className="py-2.5 pr-3">
+        <button type="button" onClick={onOpen} title={t("openAuthor")} className="group/open flex min-w-0 items-center gap-2 text-left">
+          <CaretRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform group-hover/open:translate-x-0.5" />
+          <InstagramAvatar accountId={accountId} username={author.authorHandle ?? author.authorExternalId} className="size-7" textClassName="text-xs" />
+          <span className="min-w-0">
+            <span className="block truncate font-medium text-foreground">{handle}</span>
+            <span className="flex flex-wrap gap-1">
+              {author.isFlagged ? (
+                <Chip className="text-destructive-ink">
+                  <ShieldWarning className="h-3 w-3" weight="fill" /> {t("flagged")}
+                </Chip>
+              ) : null}
+              <StanceChip stance={author.derivedStance} />
+              <AuthorRoleChip role={author.role} displayable={author.roleDisplayable} />
+              <ModerationChip state={author.moderationState} />
             </span>
-          </button>
-        </td>
-        <td className="py-2.5 pr-3 tabular-nums text-foreground">
-          {nf.format(author.counters.analyzed)}
-          {author.counters.severityHighCount > 0 ? (
-            <span className="block text-2xs text-destructive-ink">{t("highCount", { count: author.counters.severityHighCount })}</span>
-          ) : null}
-        </td>
-        <td className="py-2.5 pr-3">
-          <SeverityBar severity={author.counters.severityMax} compact />
-        </td>
-        <td className="py-2.5 pr-3">
-          <StanceChip stance={author.derivedStance} />
-        </td>
-        <td className="py-2.5 pr-3 text-xs text-muted-foreground">{df.format(new Date(author.lastSeenAt))}</td>
-        <td className="py-2.5">
-          <ElevatedSelect value={author.moderationState} onValueChange={(v) => onModeration(v as ModerationState)} className="w-[132px]">
-            {MODERATION_STATES.map((s) => (
-              <ElevatedSelectItem key={s} value={s}>
-                {moderationLabel(s)}
-              </ElevatedSelectItem>
-            ))}
-          </ElevatedSelect>
-        </td>
-      </tr>
-      {expanded ? (
-        <tr className="border-b border-border">
-          <td colSpan={6} className="bg-muted/30 px-3 py-3">
-            <AuthorComments author={author} accountId={accountId} topics={topics} />
-          </td>
-        </tr>
-      ) : null}
-    </>
-  );
-}
-
-function AuthorComments({ author, accountId, topics }: { author: CommentAuthor; accountId: string; topics: CommentTopic[] }) {
-  const t = useTranslations("commentAnalysis.authors");
-  const tTopics = useTranslations("commentAnalysis.topics");
-  const [comments, setComments] = useState<AnalyzedComment[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [replying, setReplying] = useState<AnalyzedComment | null>(null);
-  const [busy, setBusy] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    void getCommentAuthorAction(author.id, 1, 20).then((result) => {
-      if (cancelled) return;
-      if (result.error) setError(result.error);
-      else setComments(result.detail?.comments ?? []);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [author.id]);
-
-  const hide = async (c: AnalyzedComment) => {
-    setBusy(c.id);
-    const result = await hideInstagramCommentAction(accountId, c.sourceCommentId, true);
-    setBusy(null);
-    if (result.error) setError(result.error);
-  };
-
-  if (error) {
-    return <p className="text-xs text-destructive-ink">{error}</p>;
-  }
-  if (comments === null) {
-    return <Skeleton className="h-16" />;
-  }
-  if (comments.length === 0) {
-    return <p className="text-xs text-muted-foreground">{t("noComments")}</p>;
-  }
-  return (
-    <>
-      <ul className="space-y-2">
-        {comments.map((c) => (
-          <li key={c.id} className="rounded-[--radius] border border-border bg-card px-3 py-2">
-            <p className="text-sm text-foreground">{c.excerpt}</p>
-            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-              {c.stance ? <StanceChip stance={c.stance} /> : null}
-              {c.sentiment ? <SentimentChip sentiment={c.sentiment} /> : null}
-              {c.intent ? <IntentChip intent={c.intent} /> : null}
-              {c.topicKey ? <Chip>{topicLabel(topics, c.topicKey, tTopics("otherLabel"))}</Chip> : null}
-              <span className="ml-auto">
-                <SeverityBar severity={c.severity} compact />
-              </span>
-            </div>
-            <div className="mt-2 flex gap-2">
-              <Button size="sm" variant="ghost" icon={<EyeSlash className="h-3.5 w-3.5" />} title={t("actions.hide")} disabled={busy === c.id} onClick={() => void hide(c)} />
-              <Button size="sm" variant="ghost" icon={<PaperPlaneTilt className="h-3.5 w-3.5" />} title={t("actions.privateReply")} onClick={() => setReplying(c)} />
-            </div>
-          </li>
-        ))}
-      </ul>
-      {replying ? <PrivateReplyDialog accountId={accountId} comment={replying} onClose={() => setReplying(null)} /> : null}
-    </>
-  );
-}
-
-function PrivateReplyDialog({ accountId, comment, onClose }: { accountId: string; comment: AnalyzedComment; onClose: () => void }) {
-  const t = useTranslations("commentAnalysis.authors.privateReply");
-  const [text, setText] = useState("");
-  const [sending, setSending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const send = async () => {
-    setSending(true);
-    const result = await privateReplyInstagramCommentAction(accountId, comment.sourceCommentId, text.trim());
-    setSending(false);
-    if (result.error) {
-      setError(result.code === "private_reply_used" ? t("alreadyUsed") : result.error);
-      return;
-    }
-    onClose();
-  };
-
-  return (
-    <ElevatedDialog open onOpenChange={(o) => !o && onClose()}>
-      <ElevatedDialogContent className="flex w-full max-w-md flex-col gap-0 overflow-hidden !p-0">
-        <ElevatedDialogHeader className="shrink-0 border-b border-border px-5 py-4">
-          <ElevatedDialogTitle>{t("title")}</ElevatedDialogTitle>
-        </ElevatedDialogHeader>
-        <div className="space-y-3 p-5">
-          <blockquote className="rounded-[--radius] border border-border bg-muted px-3 py-2 text-xs text-muted-foreground">{comment.excerpt}</blockquote>
-          <ElevatedTextarea autoFocus rows={4} value={text} onChange={(e) => setText(e.target.value)} placeholder={t("placeholder")} />
-          <p className="text-2xs text-muted-foreground">{t("hint")}</p>
-          {error ? <p className="text-xs text-destructive-ink">{error}</p> : null}
-        </div>
-        <ElevatedDialogFooter className="shrink-0 flex-row items-center justify-end gap-2 border-t border-border px-5 py-3">
-          <Button title={t("cancel")} variant="ghost" onClick={onClose} />
-          <Button title={sending ? t("sending") : t("send")} variant="primary" disabled={sending || text.trim() === ""} onClick={() => void send()} />
-        </ElevatedDialogFooter>
-      </ElevatedDialogContent>
-    </ElevatedDialog>
+          </span>
+        </button>
+      </td>
+      <td className="py-2.5 pr-3">
+        <ReputationReadout value={author.reputation} />
+      </td>
+      <td className="py-2.5 pr-3 tabular-nums text-foreground">{nf.format(author.counters.analyzed)}</td>
+      <td className="py-2.5 pr-3 tabular-nums text-healthy-ink">{nf.format(author.counters.stanceSupporter)}</td>
+      <td className="py-2.5 pr-3 tabular-nums text-destructive-ink">
+        {nf.format(author.counters.stanceHostile)}
+        {author.counters.severityHighCount > 0 ? (
+          <span className="block text-2xs text-muted-foreground">{t("highCount", { count: author.counters.severityHighCount })}</span>
+        ) : null}
+      </td>
+      <td className="py-2.5 pr-3">
+        <SeverityBar severity={author.counters.severityMax} compact />
+      </td>
+      <td className="py-2.5 pr-3 text-xs text-muted-foreground">{df.format(new Date(author.lastSeenAt))}</td>
+      <td className="py-2.5">
+        <ElevatedSelect value={author.moderationState} onValueChange={(v) => onModeration(v as ModerationState)} className="w-[132px]">
+          {MODERATION_STATES.map((s) => (
+            <ElevatedSelectItem key={s} value={s}>
+              {moderationLabel(s)}
+            </ElevatedSelectItem>
+          ))}
+        </ElevatedSelect>
+      </td>
+    </tr>
   );
 }

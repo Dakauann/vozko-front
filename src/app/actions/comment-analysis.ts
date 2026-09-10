@@ -1,5 +1,12 @@
 import type {
+    AlertRule,
+    AlertRuleDraft,
+    AlertVocabulary,
     AnalyzedComment,
+    AuthorContainersPage,
+    AuthorSort,
+    EscalationRecipient,
+    EscalationResult,
     BackfillEstimate,
     CommentAnalysisSettings,
     CommentAnalysisSettingsPatch,
@@ -15,6 +22,7 @@ import type {
     CommentStance,
     ModerationState,
     PaginatedMeta,
+    ReplySuggestion,
     RollupScope,
     TrendPoint,
 } from '@/lib/comment-analysis/types';
@@ -96,6 +104,16 @@ export async function listCommentAuthorsAction(input: {
     stance?: CommentStance;
     moderation?: ModerationState;
     minComments?: number;
+    /** Resolves an @ seen in the feed to its author row (§2). */
+    authorExternalId?: string;
+    /**
+     * The window, as instants. Sending one switches the server from the
+     * lifetime projection to regrouping the comments themselves, so the
+     * standing it returns describes the window rather than all time.
+     */
+    from?: string;
+    to?: string;
+    sort?: AuthorSort;
     page?: number;
     pageSize?: number;
 }) {
@@ -104,6 +122,13 @@ export async function listCommentAuthorsAction(input: {
     if (input.stance) params.set('stance', input.stance);
     if (input.moderation) params.set('moderation', input.moderation);
     if (input.minComments) params.set('minComments', String(input.minComments));
+    if (input.authorExternalId) params.set('authorExternalId', input.authorExternalId);
+    if (input.from) params.set('from', input.from);
+    if (input.to) params.set('to', input.to);
+    if (input.sort) {
+        params.set('sort', input.sort.key);
+        params.set('order', input.sort.direction);
+    }
     if (input.page) params.set('page', String(input.page));
     if (input.pageSize) params.set('pageSize', String(input.pageSize));
     const response = await apiClient<PaginatedResponse<CommentAuthor>>(
@@ -124,6 +149,74 @@ export async function getCommentAuthorAction(authorId: string, page = 1, pageSiz
     );
     if (response.error) return { error: response.error.message };
     return { detail: response.data };
+}
+
+export async function listAuthorContainersAction(
+    authorId: string,
+    page = 1,
+    pageSize = 20,
+    range?: { from?: string; to?: string },
+) {
+    const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+    if (range?.from) params.set('from', range.from);
+    if (range?.to) params.set('to', range.to);
+    const response = await apiClient<AuthorContainersPage>(
+        `/comment-analysis/authors/${authorId}/containers?${params.toString()}`,
+        { method: 'GET' },
+    );
+    if (response.error) return { error: response.error.message };
+    return { result: response.data };
+}
+
+/**
+ * Who a comment can be forwarded to: conversations this workspace already has
+ * open. Deliberately not "any number" — forwarding is not cold outbound.
+ */
+export async function listEscalationRecipientsAction(query = '', limit = 20) {
+    const params = new URLSearchParams({ limit: String(limit) });
+    if (query.trim()) params.set('query', query.trim());
+    const response = await apiClient<EscalationRecipient[]>(
+        `/comment-analysis/escalation-recipients?${params.toString()}`,
+        { method: 'GET' },
+    );
+    if (response.error) return { recipients: [] as EscalationRecipient[], error: response.error.message };
+    return { recipients: response.data ?? [] };
+}
+
+export async function escalateCommentAction(
+    commentId: string,
+    recipient: { entryId: string; entryType: string },
+    note?: string,
+) {
+    const response = await apiClient<EscalationResult>(`/comment-analysis/${commentId}/escalate`, {
+        method: 'POST',
+        body: JSON.stringify({
+            recipientId: recipient.entryId,
+            recipientKind: recipient.entryType,
+            note: note?.trim() || undefined,
+        }),
+    });
+    if (response.error) return { error: response.error.message };
+    return { result: response.data };
+}
+
+/** Drafts an answer. Drafting never posts. */
+export async function suggestCommentReplyAction(commentId: string) {
+    const response = await apiClient<ReplySuggestion>(`/comment-analysis/${commentId}/reply/suggest`, {
+        method: 'POST',
+    });
+    if (response.error) return { error: response.error.message };
+    return { suggestion: response.data };
+}
+
+/** Publishes the operator's text. Nothing re-drafts at send time. */
+export async function postCommentReplyAction(commentId: string, text: string) {
+    const response = await apiClient<ReplySuggestion>(`/comment-analysis/${commentId}/reply`, {
+        method: 'POST',
+        body: JSON.stringify({ text }),
+    });
+    if (response.error) return { error: response.error.message };
+    return { reply: response.data };
 }
 
 export async function setCommentAuthorModerationAction(authorId: string, state: ModerationState) {
@@ -272,4 +365,56 @@ export async function deleteCommentContainerSettingsAction(
     );
     if (response.error) return { error: response.error.message };
     return { settings: response.data };
+}
+
+/*
+ * Alert rules. Every one of these is gated on `comment_analysis:send`, because
+ * arming an automated sender is granting sends.
+ */
+
+export async function listAlertRulesAction(accountId?: string, source: CommentSource = 'instagram') {
+    const params = new URLSearchParams({ source });
+    if (accountId) params.set('accountId', accountId);
+    const response = await apiClient<AlertRule[]>(`/comment-analysis/alerts?${params.toString()}`, {
+        method: 'GET',
+    });
+    if (response.error) return { rules: [] as AlertRule[], error: response.error.message };
+    return { rules: response.data ?? [] };
+}
+
+export async function getAlertOptionsAction() {
+    const response = await apiClient<AlertVocabulary>('/comment-analysis/alerts/options', { method: 'GET' });
+    if (response.error) return { error: response.error.message };
+    return { options: response.data };
+}
+
+export async function createAlertRuleAction(draft: AlertRuleDraft) {
+    const response = await apiClient<AlertRule>('/comment-analysis/alerts', {
+        method: 'POST',
+        body: JSON.stringify(draft),
+    });
+    if (response.error) return { error: response.error.message };
+    return { rule: response.data };
+}
+
+export async function updateAlertRuleAction(id: string, draft: AlertRuleDraft) {
+    const response = await apiClient<AlertRule>(`/comment-analysis/alerts/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(draft),
+    });
+    if (response.error) return { error: response.error.message };
+    return { rule: response.data };
+}
+
+export async function deleteAlertRuleAction(id: string) {
+    const response = await apiClient<void>(`/comment-analysis/alerts/${id}`, { method: 'DELETE' });
+    if (response.error) return { error: response.error.message };
+    return {};
+}
+
+/** Sends one alert now. It does not consume the rule's cooldown or daily cap. */
+export async function testAlertRuleAction(id: string) {
+    const response = await apiClient<void>(`/comment-analysis/alerts/${id}/test`, { method: 'POST' });
+    if (response.error) return { error: response.error.message };
+    return {};
 }
