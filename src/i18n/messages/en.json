@@ -12381,5 +12381,35 @@
       "body": "See how your operation can work as one system.",
       "cta": "Explore the platform"
     }
+  },
+  "denseCharts": {
+    "viewData": "View data",
+    "unavailable": "Chart unavailable. Exact values are listed below.",
+    "category": "Category",
+    "count": "Count",
+    "date": "Date",
+    "waffleHint": "Each block ≈ 1%. Exact values appear in the legend.",
+    "dailyTrend": "Daily observations in the selected period",
+    "miniHint": "Mini charts show daily observations; author counts are not additive across days.",
+    "activity": "Audience activity",
+    "activityHint": "Daily comment volume, split by stance",
+    "radialHint": "Distance from the center = share of analyzed comments (0–100%)",
+    "dailyScore": "Daily acceptance",
+    "scoreMethod": "How this score is calculated",
+    "intent": "Comment intent",
+    "blockHint": "Block area = share of classified comments",
+    "channelBlocks": "Channel distribution",
+    "responseMap": "Response and resolution",
+    "responseMapHint": "Response time vs. resolution. Bubble area = conversation load.",
+    "responseMinutes": "Response time (min)",
+    "resolution": "Resolved (%)",
+    "load": "Conversation load",
+    "performance": "Response map",
+    "missingResponse": "{count} agents without response-time data are omitted.",
+    "topicMap": "Topic distribution",
+    "heatHint": "Hourly intensity",
+    "low": "Low",
+    "high": "High"
   }
+
 }

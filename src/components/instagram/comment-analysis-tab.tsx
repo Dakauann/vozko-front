@@ -36,16 +36,6 @@ import { Bell, ChartLineUp, ChatCircle, Gear, Hash, ShieldWarning, Sparkle, Warn
 
 type Section = "overview" | "topics" | "authors" | "feed" | "alerts" | "settings";
 
-// The trend chart is a 30-day series by construction (the rollups are daily),
-// so it keeps its own reach. Everything else on the tab follows the period.
-const TREND_DAYS = 30;
-
-function isoDaysAgo(days: number): string {
-  const d = new Date();
-  d.setUTCDate(d.getUTCDate() - days);
-  return d.toISOString().slice(0, 10);
-}
-
 export function CommentAnalysisTab({ accountId }: { accountId: string }) {
   const t = useTranslations("commentAnalysis");
   const { can } = useWorkspace();
@@ -83,10 +73,12 @@ export function CommentAnalysisTab({ accountId }: { accountId: string }) {
 
   useEffect(() => {
     if (!enabled) return;
+    if (!isPeriodReady(period)) return;
     let cancelled = false;
+    const { from, to } = periodRange(period);
     void Promise.all([
-      getCommentAnalysisStatsAction({ accountId, ...(isPeriodReady(period) ? periodRange(period) : {}) }),
-      getCommentAnalysisTrendsAction("account", accountId, isoDaysAgo(TREND_DAYS)),
+      getCommentAnalysisStatsAction({ accountId, from, to }),
+      getCommentAnalysisTrendsAction("account", accountId, from, to),
     ]).then(([statsResult, trendResult]) => {
       if (cancelled) return;
       if (statsResult.error) setError(statsResult.error);
@@ -167,7 +159,7 @@ export function CommentAnalysisTab({ accountId }: { accountId: string }) {
         <PeriodPicker className="mb-4" value={period} onChange={setPeriod} />
       ) : null}
 
-      {section === "overview" ? <CommentAnalysisOverview stats={stats} trend={trend} loading={!stats} /> : null}
+      {section === "overview" ? <CommentAnalysisOverview stats={stats} trend={trend} loading={!stats} topics={settings?.topics} /> : null}
       {section === "topics" ? (
         <CommentAnalysisTopics
           topics={settings.topics}

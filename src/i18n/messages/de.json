@@ -11379,5 +11379,35 @@
       "body": "Sehen Sie, wie Ihr Betrieb als ein System funktionieren kann.",
       "cta": "Plattform kennenlernen"
     }
+  },
+  "denseCharts": {
+    "viewData": "Daten anzeigen",
+    "unavailable": "Diagramm nicht verfügbar. Die genauen Werte stehen unten.",
+    "category": "Kategorie",
+    "count": "Anzahl",
+    "date": "Datum",
+    "waffleHint": "Jeder Block ≈ 1 %. Genaue Werte stehen in der Legende.",
+    "dailyTrend": "Tägliche Beobachtungen im gewählten Zeitraum",
+    "miniHint": "Minidiagramme zeigen tägliche Beobachtungen; Autoren dürfen nicht über Tage addiert werden.",
+    "activity": "Publikumsaktivität",
+    "activityHint": "Tägliches Kommentarvolumen nach Haltung",
+    "radialHint": "Abstand vom Mittelpunkt = Anteil analysierter Kommentare (0–100 %)",
+    "dailyScore": "Tägliche Akzeptanz",
+    "scoreMethod": "So wird dieser Wert berechnet",
+    "intent": "Kommentarabsicht",
+    "blockHint": "Blockfläche = Anteil klassifizierter Kommentare",
+    "channelBlocks": "Kanalverteilung",
+    "responseMap": "Antwort und Lösung",
+    "responseMapHint": "Antwortzeit und Lösungsquote. Blasenfläche = Gesprächsvolumen.",
+    "responseMinutes": "Antwortzeit (Min.)",
+    "resolution": "Gelöst (%)",
+    "load": "Gesprächsvolumen",
+    "performance": "Antwortdiagramm",
+    "missingResponse": "{count} Mitarbeiter ohne Antwortzeitdaten werden ausgelassen.",
+    "topicMap": "Themenverteilung",
+    "heatHint": "Stündliche Intensität",
+    "low": "Niedrig",
+    "high": "Hoch"
   }
+
 }

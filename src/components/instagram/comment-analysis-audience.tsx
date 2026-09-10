@@ -25,7 +25,7 @@ import { PeriodPicker } from "@/components/instagram/comment-analysis-period";
 import { CommentAnalysisAuthors } from "@/components/instagram/comment-analysis-authors";
 import { CommentAnalysisFeed } from "@/components/instagram/comment-analysis-feed";
 import { Chip, EmptyState, Skeleton } from "@/components/instagram/comment-analysis-shared";
-import { ChartLineUp, ChatCircle, Gear, Hash, ShieldWarning, Sparkle, Warning } from "@/components/icons";
+import { ChartLineUp, ChatCircle, Gear, Hash, ShieldWarning, Sparkle } from "@/components/icons";
 
 /*
  * The workspace-wide audience dashboard (Métricas > Audiência): every
@@ -129,15 +129,16 @@ export function CommentAnalysisAudience({
     if (!accountId || !enabled) return;
     let cancelled = false;
     if (!isPeriodReady(period)) return;
-    const { from } = periodRange(period);
+    const { from, to } = periodRange(period);
     void Promise.all([
-      getCommentAnalysisStatsAction({ accountId, containerId: containerId || undefined, from }),
-      getCommentAnalysisTrendsAction(containerId ? "container" : "account", containerId || accountId, from),
+      getCommentAnalysisStatsAction({ accountId, containerId: containerId || undefined, from, to }),
+      getCommentAnalysisTrendsAction(containerId ? "container" : "account", containerId || accountId, from, to),
     ]).then(([st, tr]) => {
       if (cancelled) return;
       if (st.error) setError(st.error);
       else setStats(st.stats ?? null);
       if (!tr.error) setTrend(tr.points);
+      else { setTrend([]); setError(tr.error); }
     });
     return () => {
       cancelled = true;
@@ -221,10 +222,10 @@ export function CommentAnalysisAudience({
             ))}
           </ElevatedSelect>
         </div>
-        <PeriodPicker value={period} onChange={setPeriod} />
+        <PeriodPicker value={period} onChange={(next) => { setPeriod(next); setStats(null); setTrend([]); setError(null); }} />
       </div>
 
-      {error && !settings ? <EmptyState icon={<Warning weight="duotone" />} title={t("errorTitle")} description={error} /> : null}
+      {error ? <div role="alert" className="rounded-[--radius] border border-border bg-muted px-3 py-2 text-sm text-destructive-ink">{error}</div> : null}
 
       {settings && !enabled ? (
         <div className="rounded-[--radius] border border-border bg-card">
@@ -252,7 +253,7 @@ export function CommentAnalysisAudience({
             {containerId ? <Chip>{ta("scopedToPost")}</Chip> : null}
           </div>
 
-          {section === "overview" ? <CommentAnalysisOverview stats={stats} trend={trend} loading={!stats} /> : null}
+          {section === "overview" && (!error || stats) ? <CommentAnalysisOverview stats={stats} trend={trend} loading={!stats} topics={settings.topics} /> : null}
           {section === "topics" ? <CommentAnalysisTopics topics={settings.topics} stats={stats?.topics ?? []} /> : null}
           {section === "authors" && !containerId ? (
             <CommentAnalysisAuthors accountId={accountId} topics={settings.topics} period={period} />

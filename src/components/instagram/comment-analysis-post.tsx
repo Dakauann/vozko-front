@@ -138,7 +138,7 @@ export function CommentPostAnalysisPanel({ accountId, containerId }: { accountId
 
       {/* The dialog column is narrow on every viewport, so the overview
           takes its single-column layout regardless of the window width. */}
-      {effective.enabled && section === "overview" ? <CommentAnalysisOverview stats={stats} trend={trend} loading={!stats} layout="narrow" /> : null}
+      {effective.enabled && section === "overview" ? <CommentAnalysisOverview stats={stats} trend={trend} loading={!stats} layout="narrow" topics={effective.topics} /> : null}
       {effective.enabled && section === "feed" ? <CommentAnalysisFeed accountId={accountId} containerId={containerId} topics={effective.topics} /> : null}
 
       {!effective.enabled ? (

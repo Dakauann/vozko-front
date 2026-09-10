@@ -7,6 +7,7 @@ import type { CommentTopic, TopicStat } from "@/lib/comment-analysis/types";
 import { Panel, SeverityBar, EmptyState, percent, topicColor, topicLabel } from "@/components/instagram/comment-analysis-shared";
 import { Hash, Lightning } from "@/components/icons";
 import { cn } from "@/lib/utils";
+import { BlockChart } from "@/components/charts/composition-charts";
 
 /*
  * Topics ranked by volume, each with its sentiment mix and average severity.
@@ -36,9 +37,11 @@ export function CommentAnalysisTopics({
   const ranked = useMemo(() => [...stats].sort((a, b) => b.count - a.count), [stats]);
   const otherShare = percent(stats.find((s) => s.topicKey === "other")?.count ?? 0, total);
   const max = ranked[0]?.count ?? 0;
+  const blocks = useMemo(() => ranked.map((item) => ({ key: item.topicKey, label: topicLabel(topics, item.topicKey, t("otherLabel")), value: item.count, color: topicColor(topics, item.topicKey) })), [ranked, topics, t]);
 
   return (
-    <Panel title={t("title")} description={t("description")}>
+    <Panel compact title={t("title")} description={t("description")}>
+      {total > 0 ? <div className="mb-3"><BlockChart data={blocks} label={t("title")} height={170} legend={false} /></div> : null}
       {otherShare >= OTHER_PROMPT_SHARE ? (
         <div className="mb-4 flex items-start gap-3 rounded-[--radius] border border-border bg-muted px-4 py-3">
           <Lightning className="mt-0.5 h-4 w-4 shrink-0 text-warning-ink" weight="fill" />

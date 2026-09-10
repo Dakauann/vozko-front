@@ -281,12 +281,9 @@ export function vozRing(outerRadius: number | string, innerRadius: number | stri
 /*   CompareBars  a few magnitudes on a shared scale     -> a bar list  */
 /*   SplitFlow    two opposed directions of one flow     -> centred bar */
 /*                                                                      */
-/* No second charting library was added to get these. Recharts already  */
-/* ships Treemap, RadialBar, Radar, Scatter, Funnel, Sankey and         */
-/* Sunburst and the product simply was not using them; a second library */
-/* would have bought chart types this data has no use for, at the cost  */
-/* of a second chart grammar, which is the thing this module exists to  */
-/* prevent.                                                             */
+/* These lightweight forms share tokens with the existing Recharts     */
+/* charts and the advanced ECharts forms in composition-charts.tsx.    */
+/* Engine choice does not change colour identity, units or typography. */
 /* ==================================================================== */
 
 /** Track height for every horizontal value bar in the product. Thin on

@@ -50,7 +50,6 @@ import {
   CompareBars,
   Meter,
   ProgressRing,
-  SegmentBar,
   SplitFlow,
   vozGrid,
   vozRing,
@@ -106,6 +105,10 @@ import { cn } from "@/lib/utils";
 import { ChannelTile, channelPlate } from "@/components/channels/channel-tile";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useLocale, useTranslations } from "next-intl";
+import { BlockChart } from "@/components/charts/composition-charts";
+import { WaffleChart } from "@/components/charts/dense-charts";
+import { TeamResponseChart } from "@/components/charts/team-response-chart";
+import { share } from "@/lib/charts/data";
 
 /* ── Chart colours ────────────────────────────────────────────────── */
 
@@ -204,7 +207,7 @@ function Surface({
   return (
     <section
       className={cn(
-        "rounded-[--radius] border border-border bg-card p-3 md:p-4",
+        "min-w-0 rounded-[--radius] border border-border bg-card p-3",
         className,
       )}
       style={{ boxShadow: softSurfaceShadow }}
@@ -232,7 +235,7 @@ function SectionTitle({
       <div className="flex min-w-0 items-start gap-2.5">
         <div
           className={cn(
-            "flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius]",
+            "flex h-7 w-7 shrink-0 items-center justify-center rounded-[--radius]",
             iconBg,
           )}
         >
@@ -295,6 +298,7 @@ type KpiDef = {
   icon: typeof CheckCircle;
   bg: string;
   muted?: boolean;
+  visual?: ReactNode;
 };
 
 function KpiStrip({
@@ -329,6 +333,7 @@ function KpiStrip({
       hint: t("finishedHint"),
       icon: CheckCircle,
       bg: GLYPH_PLATE.CheckCircle,
+      visual: <ProgressRing value={share(kpis?.finished ?? 0, (kpis?.finished ?? 0) + (kpis?.ongoing ?? 0) + (kpis?.pending ?? 0))} label={t("finished")} size={34} strokeWidth={4} color={COLORS.finished}><span /></ProgressRing>,
     },
     {
       key: "ongoing",
@@ -338,6 +343,7 @@ function KpiStrip({
       hint: t("ongoingHint"),
       icon: Pulse,
       bg: GLYPH_PLATE.Pulse,
+      visual: <ProgressRing value={share(kpis?.ongoing ?? 0, (kpis?.finished ?? 0) + (kpis?.ongoing ?? 0) + (kpis?.pending ?? 0))} label={t("ongoing")} size={34} strokeWidth={4} color={COLORS.ongoing}><span /></ProgressRing>,
     },
     {
       key: "pending",
@@ -347,6 +353,7 @@ function KpiStrip({
       hint: t("pendingHint"),
       icon: Hourglass,
       bg: GLYPH_PLATE.Hourglass,
+      visual: <ProgressRing value={share(kpis?.pending ?? 0, (kpis?.finished ?? 0) + (kpis?.ongoing ?? 0) + (kpis?.pending ?? 0))} label={t("pending")} size={34} strokeWidth={4} color={COLORS.pending}><span /></ProgressRing>,
     },
     {
       key: "unassigned",
@@ -427,9 +434,12 @@ function KpiStrip({
                 {c.label}
               </p>
             </div>
-            <p className="readout mt-2 truncate font-display text-2xl font-semibold tracking-tight text-foreground">
+            <div className="mt-1.5 flex items-center justify-between gap-1">
+            <p className="readout truncate font-display text-2xl font-semibold tracking-tight text-foreground">
               {c.value}
             </p>
+            {!loading ? c.visual : null}
+            </div>
             <p className="truncate text-2xs text-muted-foreground">{c.short}</p>
           </div>
         ))}
@@ -479,9 +489,9 @@ function KpiStrip({
  */
 const CHANNEL_BAR: Record<string, string> = {
   whatsapp: "#25d366",
-  // The two transports share a brand and must not share a bar: an operator
-  // reading a 50/50 split has to see WHICH WhatsApp half is which.
-  unofficial_whatsapp: "#7d8f86",
+  // Brand teal distinguishes the unofficial transport from WhatsApp green
+  // and follows the dashboard's light and dark themes.
+  unofficial_whatsapp: "hsl(var(--chart-1))",
   instagram: "#e1306c",
   telegram: "#229ed9",
   voice: "#8b5cf6",
@@ -507,18 +517,8 @@ function channelLabel(channel: string, tc: (key: string) => string): string {
 }
 
 /**
- * Channel mix, as rows on one shared scale.
- *
- * This was a grid of bordered cards inside a bordered panel, each card holding
- * one number and a bar at p-4. Nested cards are the lazy container, they cost
- * a whole screenful of vertical space for four values, and the outer panel was
- * already the box. The rows below carry the same four facts in a third of the
- * height, and because every bar now runs on ONE scale the channels are
- * comparable by eye instead of by reading four percentages.
- *
- * The bars keep each channel's real brand colour: that is what makes two rows
- * tellable apart at a glance, and it is data, not decoration. The plate behind
- * the glyph stays neutral, per the system's mark-not-wash rule.
+ * Channel composition: block area is conversation count, with stable channel
+ * colours and exact counts/shares in the legend and accessible data table.
  */
 function ChannelMixChart({
   mix,
@@ -529,7 +529,6 @@ function ChannelMixChart({
 }) {
   const tc = useTranslations("metricsOps.common");
   const tl = useTranslations("metricsOps.attendance.labels");
-  const fmt = useMetricsFmt();
   const data = useMemo(() => {
     if (!mix?.length) return [];
     return [...mix]
@@ -545,63 +544,11 @@ function ChannelMixChart({
         bar: CHANNEL_BAR[c.channel] ?? "hsl(var(--muted-foreground))",
       }));
   }, [mix, tc]);
-  const total = data.reduce((s, d) => s + d.value, 0);
-  const max = data.reduce((m, d) => Math.max(m, d.value), 0);
+  const blocks = useMemo(() => data.map((item) => ({ key: item.key, label: item.name, value: item.value, color: item.bar })), [data]);
 
-  if (loading) return <ChartSkeleton height={140} />;
-  if (!data.length) {
-    return (
-      <EmptyChart
-        icon={<ChartPie className="h-8 w-8" weight="fill" />}
-        message={tl("noChannelMix")}
-        height={140}
-      />
-    );
-  }
-
-  return (
-    <div className="space-y-2.5">
-      <div className="flex items-baseline justify-between gap-2">
-        <p className="text-2xs font-semibold text-muted-foreground">
-          {tl("channelTotalConversations")}
-        </p>
-        <p className="readout text-sm font-semibold tabular-nums text-foreground">
-          {fmt.num(total)}
-        </p>
-      </div>
-      <ul className="grid gap-x-6 gap-y-2.5 sm:grid-cols-2">
-        {data.map((d) => (
-          <li key={d.key} className="flex min-w-0 items-center gap-2.5">
-            <ChannelTile channel={d.key} size="sm" />
-            <div className="min-w-0 flex-1">
-              <div className="flex items-baseline justify-between gap-2">
-                <span className="truncate text-xs font-medium text-foreground">{d.name}</span>
-                <span className="flex shrink-0 items-baseline gap-2">
-                  <span className="readout text-sm font-semibold tabular-nums text-foreground">
-                    {fmt.num(d.value)}
-                  </span>
-                  <span className="w-11 text-right text-2xs tabular-nums text-muted-foreground">
-                    {fmt.pct(d.pct)}
-                  </span>
-                </span>
-              </div>
-              {/* One shared maximum, so the rows compare. Percent-of-self bars
-                  made every channel look equally busy. */}
-              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full transition-[width] duration-300"
-                  style={{
-                    width: `${max > 0 ? (d.value / max) * 100 : 0}%`,
-                    backgroundColor: d.bar,
-                  }}
-                />
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+  if (loading) return <ChartSkeleton height={180} />;
+  if (!data.some((item) => item.value > 0)) return <EmptyChart icon={<ChartPie className="h-8 w-8" weight="fill" />} message={tl("noChannelMix")} height={180} />;
+  return <BlockChart data={blocks} label={tl("channelTotalConversations")} height={160} />;
 }
 
 function SectionLabel({ title, subtitle }: { title: string; subtitle?: string }) {
@@ -635,7 +582,7 @@ function SectionLabel({ title, subtitle }: { title: string; subtitle?: string })
  *   messages         two directions of one exchange   -> SplitFlow
  *   reopen           one ratio against its whole      -> Meter
  *   templates        one share, plus raw volume       -> Meter + readouts
- *   AI               one population split by outcome  -> SegmentBar
+ *   AI               one population split by outcome  -> WaffleChart
  */
 function ExtendedOpsPanels({
   overview,
@@ -832,7 +779,8 @@ function ExtendedOpsPanels({
         </div>
       </div>
 
-      {/* Dedicated template volume block: was easy to miss inside Messages. */}
+      <div className="grid items-start gap-3 xl:grid-cols-3">
+      {/* Compact companion panels: templates, channel composition and AI outcomes. */}
       <div>
         <SectionLabel title={ts("templates")} subtitle={ts("templatesSub")} />
         <Surface>
@@ -845,8 +793,8 @@ function ExtendedOpsPanels({
           {loading ? (
             <ChartSkeleton height={110} />
           ) : (
-            <div className="grid gap-4 md:grid-cols-12">
-              <div className="md:col-span-5">
+            <div className="grid gap-3">
+              <div className="min-w-0">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="text-2xs font-semibold text-muted-foreground">
                     {tl("templateShareOfOutbound")}
@@ -866,7 +814,7 @@ function ExtendedOpsPanels({
                   {tl("templateShareHint")}
                 </p>
               </div>
-              <div className="md:col-span-7">
+              <div className="min-w-0">
                 <CompareBars
                   rows={[
                     {
@@ -930,13 +878,13 @@ function ExtendedOpsPanels({
               height={110}
             />
           ) : (
-            <div className="grid gap-4 md:grid-cols-12">
-              {/* One population of sessions split by how it ended: a single
-                  bar, named in its own legend. Four boxes reporting counts
-                  and rates made the reader rebuild that whole themselves. */}
-              <div className="md:col-span-7">
-                <SegmentBar
-                  segments={[
+            <div className="grid gap-3">
+              {/* One session population split by outcome; square allocation
+                  is approximate, and the legend preserves exact counts. */}
+              <div className="min-w-0">
+                <WaffleChart
+                  label={ts("aiTitle")}
+                  data={[
                     {
                       key: "contained",
                       label: tl("resolvedByAi"),
@@ -962,7 +910,6 @@ function ExtendedOpsPanels({
                       color: "hsl(var(--muted-foreground) / 0.55)",
                     },
                   ]}
-                  formatValue={(v) => fmt.num(v)}
                 />
                 <p className="mt-2 text-2xs text-muted-foreground">
                   {tl("aiSessions")}:{" "}
@@ -971,10 +918,8 @@ function ExtendedOpsPanels({
                   </strong>
                 </p>
               </div>
-              {/* The bar beside this one already names the counts, so these
-                  rows are titled as RATES. Repeating the same two labels made
-                  the panel look like it had rendered twice. */}
-              <div className="md:col-span-5">
+              {/* Rates retain the server's denominators and sample counts. */}
+              <div className="min-w-0">
                 <CompareBars
                   rows={[
                     {
@@ -999,6 +944,7 @@ function ExtendedOpsPanels({
             </div>
           )}
         </Surface>
+      </div>
       </div>
     </div>
   );
@@ -1526,6 +1472,18 @@ function DepartmentStackedChart({
       </ResponsiveContainer>
     </div>
   );
+}
+
+function TeamChart({ rows, loading }: { rows: MemberRow[] | undefined; loading: boolean }) {
+  const t = useTranslations("denseCharts");
+  const [view, setView] = useState<"performance" | "load">("performance");
+  const hasMeasured = rows?.some((row) => row.avg_response_mins !== null && row.resolved + row.open + row.pending > 0);
+  if (loading) return <ChartSkeleton height={280} />;
+  if (!hasMeasured) return <TeamResolutionChart rows={rows} loading={loading} />;
+  return <div className="space-y-2">
+    <ElevatedPillToggle aria-label={t("responseMap")} value={view} onChange={setView} options={[{ value: "performance", label: t("performance") }, { value: "load", label: t("load") }]} />
+    {view === "performance" ? <TeamResponseChart rows={rows ?? []} /> : <TeamResolutionChart rows={rows} loading={loading} />}
+  </div>;
 }
 
 function TeamResolutionChart({
@@ -3325,7 +3283,7 @@ export default function AttendanceOpsPage() {
                   title={ts("teamRank")}
                   subtitle={ts("teamRankSub")}
                 />
-                <TeamResolutionChart
+                <TeamChart
                   rows={overview?.by_member}
                   loading={loading}
                 />

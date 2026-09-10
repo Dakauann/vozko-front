@@ -12432,5 +12432,35 @@
       "body": "Veja como a sua operação pode funcionar como um sistema único.",
       "cta": "Conhecer a plataforma"
     }
+  },
+  "denseCharts": {
+    "viewData": "Ver dados",
+    "unavailable": "Gráfico indisponível. Os valores exatos estão abaixo.",
+    "category": "Categoria",
+    "count": "Quantidade",
+    "date": "Data",
+    "waffleHint": "Cada bloco ≈ 1%. Os valores exatos estão na legenda.",
+    "dailyTrend": "Observações diárias no período selecionado",
+    "miniHint": "Os minigráficos mostram observações diárias; autores não devem ser somados entre os dias.",
+    "activity": "Atividade da audiência",
+    "activityHint": "Volume diário de comentários por posicionamento",
+    "radialHint": "Distância do centro = proporção dos comentários analisados (0–100%)",
+    "dailyScore": "Aceitação diária",
+    "scoreMethod": "Como essa pontuação é calculada",
+    "intent": "Intenção dos comentários",
+    "blockHint": "Área do bloco = proporção dos comentários classificados",
+    "channelBlocks": "Distribuição por canal",
+    "responseMap": "Resposta e resolução",
+    "responseMapHint": "Tempo de resposta e resolução. Área da bolha = volume de conversas.",
+    "responseMinutes": "Tempo de resposta (min)",
+    "resolution": "Resolvidas (%)",
+    "load": "Volume de conversas",
+    "performance": "Mapa de resposta",
+    "missingResponse": "{count} agentes sem dados de tempo de resposta foram omitidos.",
+    "topicMap": "Distribuição dos temas",
+    "heatHint": "Intensidade por hora",
+    "low": "Baixa",
+    "high": "Alta"
   }
+
 }

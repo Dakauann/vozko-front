@@ -150,6 +150,8 @@ export interface Instrument {
   /** Long-form definition. Financial figures need one; most readouts do not. */
   tooltip?: string;
   tone?: ReadoutTone;
+  /** A compact visualization using this metric's actual observations. */
+  chart?: ReactNode;
 }
 
 /**
@@ -235,6 +237,7 @@ export function InstrumentStrip({
             </span>
           )}
 
+          {inst.chart && !loading ? <div className="my-0.5 min-w-0">{inst.chart}</div> : null}
           {inst.detail && !loading ? (
             <span className="truncate text-xs text-muted-foreground">
               {inst.detail}
