@@ -9208,6 +9208,13 @@
     }
   },
   "commentAnalysis": {
+    "channels": {
+      "instagram": "Instagram",
+      "whatsapp": "WhatsApp",
+      "telegram": "Telegram",
+      "unofficial_whatsapp": "WhatsApp (inoffiziell)",
+      "voice": "Sprache"
+    },
     "conversations": {
       "title": "Gespräche",
       "description": "Was die KI in den Gesprächen dieses Zeitraums gelesen hat.",
@@ -9591,9 +9598,16 @@
       }
     },
     "audience": {
+      "channel": "Kanal",
+      "allChannels": "Alle Kanäle",
+      "allAccounts": "Alle Konten",
+      "subjectKind": "Typ",
+      "allKinds": "Kommentare und Gespräche",
+      "kindComment": "Nur Kommentare",
+      "kindConversation": "Nur Gespräche",
       "badge": "Publikum",
       "description": "Was die Kommentare über {name} sagen: Zustimmung, Kritik, Themen und wer kommentiert.",
-      "noPermissionDesc": "Für dieses Dashboard ist die Berechtigung Kommentaranalyse (comment_analysis:read) nötig.",
+      "noPermissionDesc": "Für dieses Dashboard ist die Berechtigung Audience-Analyse (audience:read) nötig.",
       "account": "Konto",
       "post": "Beitrag",
       "allPosts": "Alle Beiträge",

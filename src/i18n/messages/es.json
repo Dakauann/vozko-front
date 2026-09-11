@@ -8711,6 +8711,13 @@
     }
   },
   "commentAnalysis": {
+    "channels": {
+      "instagram": "Instagram",
+      "whatsapp": "WhatsApp",
+      "telegram": "Telegram",
+      "unofficial_whatsapp": "WhatsApp (no oficial)",
+      "voice": "Voz"
+    },
     "conversations": {
       "title": "Conversaciones",
       "description": "Lo que la IA leyó en las conversaciones de este período.",
@@ -9094,9 +9101,16 @@
       }
     },
     "audience": {
+      "channel": "Canal",
+      "allChannels": "Todos los canales",
+      "allAccounts": "Todas las cuentas",
+      "subjectKind": "Tipo",
+      "allKinds": "Comentarios y conversaciones",
+      "kindComment": "Solo comentarios",
+      "kindConversation": "Solo conversaciones",
       "badge": "Audiencia",
       "description": "Lo que dicen los comentarios sobre {name}: apoyo, crítica, temas y quién comenta.",
-      "noPermissionDesc": "Se necesita el permiso Análisis de comentarios (comment_analysis:read) para ver este panel.",
+      "noPermissionDesc": "Se necesita el permiso Análisis de la audiencia (audience:read) para ver este panel.",
       "account": "Cuenta",
       "post": "Publicación",
       "allPosts": "Todas las publicaciones",

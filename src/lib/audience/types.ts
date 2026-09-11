@@ -411,9 +411,44 @@ export interface CommentBackfill {
     finishedAt?: string;
 }
 
+/*
+ * What the engine analyses. A comment is one utterance under a post; a
+ * conversation is a two-sided exchange on any channel. They carry different
+ * labels, which is why a screen says which it wants.
+ */
+export type SubjectKind = "comment" | "conversation";
+
+/** The channels the engine can analyse. Mirrors the backend's source set. */
+export type AudienceSource =
+    | "instagram"
+    | "whatsapp"
+    | "telegram"
+    | "unofficial_whatsapp"
+    | "voice";
+
+export const AUDIENCE_SOURCES: AudienceSource[] = [
+    "instagram",
+    "whatsapp",
+    "telegram",
+    "unofficial_whatsapp",
+    "voice",
+];
+
 export interface CommentListFilters {
-    accountId: string;
+    /**
+     * Empty means every account. The audience view is workspace-wide by
+     * default; only a screen scoped to one account sets this.
+     */
+    accountId?: string;
+    /** Empty means every channel. */
+    source?: AudienceSource | "";
+    /** Empty means every subject kind: comments AND conversations. */
+    subjectKind?: SubjectKind[];
     containerId?: string;
+    interest?: string;
+    disposition?: string;
+    qualification?: string;
+    nextAction?: string;
     status?: CommentAnalysisStatus[];
     topic?: string;
     stance?: CommentStance;

@@ -41,7 +41,13 @@ interface PaginatedResponse<T> {
 
 function filtersToParams(f: CommentListFilters): URLSearchParams {
     const params = new URLSearchParams();
-    params.set('accountId', f.accountId);
+    if (f.accountId) params.set("accountId", f.accountId);
+    if (f.source) params.set("source", f.source);
+    if (f.subjectKind?.length) params.set("subjectKind", f.subjectKind.join(","));
+    if (f.interest) params.set("interest", f.interest);
+    if (f.disposition) params.set("disposition", f.disposition);
+    if (f.qualification) params.set("qualification", f.qualification);
+    if (f.nextAction) params.set("nextAction", f.nextAction);
     if (f.containerId) params.set('containerId', f.containerId);
     if (f.status?.length) params.set('status', f.status.join(','));
     if (f.topic) params.set('topic', f.topic);

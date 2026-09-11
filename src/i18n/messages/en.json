@@ -10283,6 +10283,13 @@
     }
   },
   "commentAnalysis": {
+    "channels": {
+      "instagram": "Instagram",
+      "whatsapp": "WhatsApp",
+      "telegram": "Telegram",
+      "unofficial_whatsapp": "WhatsApp (unofficial)",
+      "voice": "Voice"
+    },
     "conversations": {
       "title": "Conversations",
       "description": "What the AI read in the conversations from this period.",
@@ -10666,9 +10673,16 @@
       }
     },
     "audience": {
+      "channel": "Channel",
+      "allChannels": "All channels",
+      "allAccounts": "All accounts",
+      "subjectKind": "Type",
+      "allKinds": "Comments and conversations",
+      "kindComment": "Comments only",
+      "kindConversation": "Conversations only",
       "badge": "Audience",
       "description": "What the comments say about {name}: support, criticism, topics and who comments.",
-      "noPermissionDesc": "The Comment analysis permission (comment_analysis:read) is required to see this dashboard.",
+      "noPermissionDesc": "The Audience analysis permission (audience:read) is required to see this dashboard.",
       "account": "Account",
       "post": "Post",
       "allPosts": "All posts",
