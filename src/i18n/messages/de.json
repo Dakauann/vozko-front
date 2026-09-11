@@ -9085,6 +9085,13 @@
       "unknown": "Nicht angegeben"
     },
     "automation": {
+      "handlingTitle": "Nach dem Gespräch",
+      "enableAnalysisLabel": "Gespräche mit KI analysieren",
+      "enableAnalysisHint": "Klassifiziert jedes Gespräch, sobald es ruht, und erscheint unter Metriken > Audience. Pro Analyse kostenpflichtig.",
+      "enableAutoStagingLabel": "Phase automatisch verschieben",
+      "enableAutoStagingHint": "Die KI wählt die Pipeline-Phase, die zum tatsächlichen Stand des Gesprächs passt.",
+      "enableAutoMemoryLabel": "Fakten zum Lead merken",
+      "enableAutoMemoryHint": "Hält dauerhafte Fakten aus dem Gespräch im Gedächtnis des Leads fest.",
       "title": "KI-Betreuung",
       "agentLabel": "Zuständiger Agent",
       "agentHint": "Dieser Agent beantwortet Direktnachrichten an dieses Konto.",
@@ -9904,6 +9911,13 @@
       "uses": "{count} Aufrufe"
     },
     "automation": {
+      "handlingTitle": "Nach dem Gespräch",
+      "enableAnalysisLabel": "Gespräche mit KI analysieren",
+      "enableAnalysisHint": "Klassifiziert jedes Gespräch, sobald es ruht, und erscheint unter Metriken > Audience. Pro Analyse kostenpflichtig.",
+      "enableAutoStagingLabel": "Phase automatisch verschieben",
+      "enableAutoStagingHint": "Die KI wählt die Pipeline-Phase, die zum tatsächlichen Stand des Gesprächs passt.",
+      "enableAutoMemoryLabel": "Fakten zum Lead merken",
+      "enableAutoMemoryHint": "Hält dauerhafte Fakten aus dem Gespräch im Gedächtnis des Leads fest.",
       "title": "KI-Betreuung",
       "agentLabel": "Zuständiger Agent",
       "agentHint": "Der Agent beantwortet Nachrichten dieses Kontos.",

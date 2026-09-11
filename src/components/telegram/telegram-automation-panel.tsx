@@ -32,6 +32,7 @@ export function TelegramAutomationPanel({
       }
       translationNamespace="telegram.automation"
       controlId="tg-automation-enabled"
+      showHandling
     />
   );
 }

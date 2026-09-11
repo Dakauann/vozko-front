@@ -10211,6 +10211,13 @@
       "unknown": "Não informado"
     },
     "automation": {
+      "handlingTitle": "Depois da conversa",
+      "enableAnalysisLabel": "Analisar conversas com IA",
+      "enableAnalysisHint": "Classifica cada conversa quando ela para, e aparece em Métricas > Audiência. Gera cobrança por análise.",
+      "enableAutoStagingLabel": "Mover a etapa automaticamente",
+      "enableAutoStagingHint": "A IA escolhe a etapa do funil mais adequada ao estado atual da conversa.",
+      "enableAutoMemoryLabel": "Memorizar fatos do lead",
+      "enableAutoMemoryHint": "Registra na memória do lead os fatos duráveis que aparecerem na conversa.",
       "title": "Atendimento com IA",
       "agentLabel": "Agente responsável",
       "agentHint": "O agente responde às mensagens diretas desta conta.",
@@ -11030,6 +11037,13 @@
       "uses": "{count} usos"
     },
     "automation": {
+      "handlingTitle": "Depois da conversa",
+      "enableAnalysisLabel": "Analisar conversas com IA",
+      "enableAnalysisHint": "Classifica cada conversa quando ela para, e aparece em Métricas > Audiência. Gera cobrança por análise.",
+      "enableAutoStagingLabel": "Mover a etapa automaticamente",
+      "enableAutoStagingHint": "A IA escolhe a etapa do funil mais adequada ao estado atual da conversa.",
+      "enableAutoMemoryLabel": "Memorizar fatos do lead",
+      "enableAutoMemoryHint": "Registra na memória do lead os fatos duráveis que aparecerem na conversa.",
       "title": "Atendimento com IA",
       "agentLabel": "Agente responsável",
       "agentHint": "O agente responde às mensagens desta conta.",

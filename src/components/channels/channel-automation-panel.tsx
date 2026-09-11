@@ -46,6 +46,14 @@ export interface ChannelAutomationAccount {
   workflowId?: string | null;
   enableAgentResponses: boolean;
   enableWorkflow: boolean;
+  /**
+   * What happens AFTER a conversation goes quiet, independent of the
+   * agent-or-workflow choice above: a channel can analyse conversations it
+   * never answered.
+   */
+  enableAnalysis?: boolean;
+  enableAutoStaging?: boolean;
+  enableAutoMemory?: boolean;
 }
 
 export interface ChannelAutomationPayload {
@@ -53,7 +61,21 @@ export interface ChannelAutomationPayload {
   workflowId?: string | null;
   enableAgentResponses?: boolean;
   enableWorkflow?: boolean;
+  enableAnalysis?: boolean;
+  enableAutoStaging?: boolean;
+  enableAutoMemory?: boolean;
 }
+
+/**
+ * The post-conversation passes, in the order an operator meets them.
+ *
+ * These were reachable only through the API on Instagram and Telegram: the
+ * column existed, the resolver read it, and no screen ever set it. Analysis is
+ * the one that costs money, so it leads and says so.
+ */
+const HANDLING_TOGGLES = ["enableAnalysis", "enableAutoStaging", "enableAutoMemory"] as const;
+
+type HandlingKey = (typeof HANDLING_TOGGLES)[number];
 
 export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
   account,
@@ -61,6 +83,13 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
   onSave,
   translationNamespace,
   controlId = "channel-automation-enabled",
+  /*
+   * Opt-in, because unofficial WhatsApp already renders these three on its
+   * instance page alongside a fourth of its own. Showing them here too would
+   * give that channel two switches for one flag, which is worse than having
+   * none: the operator cannot tell which one won.
+   */
+  showHandling = false,
 }: {
   account: T;
   onUpdated: (account: T) => void;
@@ -73,6 +102,8 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
   translationNamespace: string;
   /** Distinct per channel so two panels on one page keep valid label targets. */
   controlId?: string;
+  /** Whether to render the post-conversation handling toggles. */
+  showHandling?: boolean;
 }) {
   const t = useTranslations(translationNamespace);
 
@@ -90,6 +121,11 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
   // A flag, not a timestamp: it only drives the transient "Saved" label.
   const [justSaved, setJustSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [handling, setHandling] = useState<Record<HandlingKey, boolean>>({
+    enableAnalysis: account.enableAnalysis ?? false,
+    enableAutoStaging: account.enableAutoStaging ?? false,
+    enableAutoMemory: account.enableAutoMemory ?? false,
+  });
 
   const agentSelect = usePaginatedSelect<AgentListItem>({
     fetchFn: useCallback(async (page: number, search: string) => {
@@ -245,6 +281,11 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
     );
   };
 
+  const handleHandlingChange = (key: HandlingKey, next: boolean) => {
+    setHandling((current) => ({ ...current, [key]: next }));
+    void save({ [key]: next });
+  };
+
   const active = enabled && !!selectedId;
 
   const modes: { id: Mode; label: string; icon: typeof Robot }[] = [
@@ -381,6 +422,35 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
             aria-label={t("enableLabel")}
           />
         </div>
+
+        {/*
+          What happens after a conversation goes quiet. Separated by a rule from
+          the agent/workflow choice above because it is a different decision: it
+          applies whether or not this channel answers anyone, and it is the half
+          that costs money.
+        */}
+        {showHandling ? (
+          <div className="space-y-3 border-t border-border pt-4">
+            <p className="text-xs font-medium text-muted-foreground">{t("handlingTitle")}</p>
+            {HANDLING_TOGGLES.map((key) => (
+              <div key={key} className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <label htmlFor={`${controlId}-${key}`} className="text-sm text-foreground">
+                    {t(`${key}Label`)}
+                  </label>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{t(`${key}Hint`)}</p>
+                </div>
+                <Switch
+                  id={`${controlId}-${key}`}
+                  checked={handling[key]}
+                  onCheckedChange={(next: boolean) => handleHandlingChange(key, next)}
+                  disabled={saving}
+                  aria-label={t(`${key}Label`)}
+                />
+              </div>
+            ))}
+          </div>
+        ) : null}
 
         {error ? (
           <p className="flex items-start gap-2 rounded-lg border border-border bg-muted p-3 text-xs text-foreground">

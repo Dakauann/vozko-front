@@ -8588,6 +8588,13 @@
       "unknown": "No informado"
     },
     "automation": {
+      "handlingTitle": "Después de la conversación",
+      "enableAnalysisLabel": "Analizar conversaciones con IA",
+      "enableAnalysisHint": "Clasifica cada conversación cuando se detiene, y aparece en Métricas > Audiencia. Se cobra por análisis.",
+      "enableAutoStagingLabel": "Mover la etapa automáticamente",
+      "enableAutoStagingHint": "La IA elige la etapa del embudo que corresponde al estado actual de la conversación.",
+      "enableAutoMemoryLabel": "Recordar datos del lead",
+      "enableAutoMemoryHint": "Registra en la memoria del lead los datos duraderos que aparezcan en la conversación.",
       "title": "Atención con IA",
       "agentLabel": "Agente responsable",
       "agentHint": "Este agente responde los mensajes directos de esta cuenta.",
@@ -9407,6 +9414,13 @@
       "uses": "{count} usos"
     },
     "automation": {
+      "handlingTitle": "Después de la conversación",
+      "enableAnalysisLabel": "Analizar conversaciones con IA",
+      "enableAnalysisHint": "Clasifica cada conversación cuando se detiene, y aparece en Métricas > Audiencia. Se cobra por análisis.",
+      "enableAutoStagingLabel": "Mover la etapa automáticamente",
+      "enableAutoStagingHint": "La IA elige la etapa del embudo que corresponde al estado actual de la conversación.",
+      "enableAutoMemoryLabel": "Recordar datos del lead",
+      "enableAutoMemoryHint": "Registra en la memoria del lead los datos duraderos que aparezcan en la conversación.",
       "title": "Atención con IA",
       "agentLabel": "Agente responsable",
       "agentHint": "El agente responde a los mensajes de esta cuenta.",

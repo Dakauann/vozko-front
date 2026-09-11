@@ -10160,6 +10160,13 @@
       "unknown": "Not reported"
     },
     "automation": {
+      "handlingTitle": "After the conversation",
+      "enableAnalysisLabel": "Analyse conversations with AI",
+      "enableAnalysisHint": "Classifies each conversation once it goes quiet, and shows up under Metrics > Audience. Billed per analysis.",
+      "enableAutoStagingLabel": "Move the stage automatically",
+      "enableAutoStagingHint": "The AI picks the pipeline stage that matches where the conversation actually is.",
+      "enableAutoMemoryLabel": "Remember facts about the lead",
+      "enableAutoMemoryHint": "Records durable facts from the conversation in the lead's memory.",
       "title": "AI attendance",
       "agentLabel": "Attending agent",
       "agentHint": "This agent answers direct messages sent to this account.",
@@ -10979,6 +10986,13 @@
       "uses": "{count} uses"
     },
     "automation": {
+      "handlingTitle": "After the conversation",
+      "enableAnalysisLabel": "Analyse conversations with AI",
+      "enableAnalysisHint": "Classifies each conversation once it goes quiet, and shows up under Metrics > Audience. Billed per analysis.",
+      "enableAutoStagingLabel": "Move the stage automatically",
+      "enableAutoStagingHint": "The AI picks the pipeline stage that matches where the conversation actually is.",
+      "enableAutoMemoryLabel": "Remember facts about the lead",
+      "enableAutoMemoryHint": "Records durable facts from the conversation in the lead's memory.",
       "title": "AI attendance",
       "agentLabel": "Attending agent",
       "agentHint": "The agent answers messages from this account.",
