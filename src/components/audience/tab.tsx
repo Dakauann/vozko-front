@@ -14,14 +14,14 @@ import Button from "@/components/elevated-design/button";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 import type { Period } from "@/lib/comment-analysis/period";
 import { DEFAULT_PERIOD, isPeriodReady, periodRange } from "@/lib/comment-analysis/period";
-import { PeriodPicker } from "@/components/instagram/comment-analysis-period";
-import { CommentAnalysisAlerts } from "@/components/instagram/comment-analysis-alerts";
-import { CommentAnalysisOverview } from "@/components/instagram/comment-analysis-overview";
-import { CommentAnalysisTopics } from "@/components/instagram/comment-analysis-topics";
-import { CommentAnalysisAuthors } from "@/components/instagram/comment-analysis-authors";
-import { CommentAnalysisFeed } from "@/components/instagram/comment-analysis-feed";
-import { CommentAnalysisSettingsPanel } from "@/components/instagram/comment-analysis-settings";
-import { EmptyState, Skeleton } from "@/components/instagram/comment-analysis-shared";
+import { PeriodPicker } from "@/components/audience/period";
+import { CommentAnalysisAlerts } from "@/components/audience/alerts";
+import { CommentAnalysisOverview } from "@/components/audience/overview";
+import { CommentAnalysisTopics } from "@/components/audience/topics";
+import { CommentAnalysisAuthors } from "@/components/audience/authors";
+import { CommentAnalysisFeed } from "@/components/audience/feed";
+import { CommentAnalysisSettingsPanel } from "@/components/audience/settings";
+import { EmptyState, Skeleton } from "@/components/audience/shared";
 import { Bell, ChartLineUp, ChatCircle, Gear, Hash, ShieldWarning, Sparkle, Warning } from "@/components/icons";
 
 /*

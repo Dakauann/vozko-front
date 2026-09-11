@@ -40,7 +40,7 @@ import {
 import type { CommentAnalysisSettings } from "@/lib/comment-analysis/types";
 import type { OverrideDraft } from "@/lib/comment-analysis/override";
 import { overrideDraftFrom, overrideDraftToPut } from "@/lib/comment-analysis/override";
-import { OverrideFields } from "@/components/instagram/comment-analysis-override-fields";
+import { OverrideFields } from "@/components/audience/override-fields";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useTranslations } from "next-intl";
 

@@ -17,8 +17,8 @@ import { COMMENT_INTENTS, COMMENT_SENTIMENTS, COMMENT_STANCES, HIGH_SEVERITY_THR
 import Button from "@/components/elevated-design/button";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
-import { CommentAnalysisAuthorView } from "@/components/instagram/comment-analysis-author-view";
-import { CommentQuickActions } from "@/components/instagram/comment-analysis-quick-actions";
+import { CommentAnalysisAuthorView } from "@/components/audience/author-view";
+import { CommentQuickActions } from "@/components/audience/quick-actions";
 import { useCommentAnalysisLive, type LiveAnalyzedComment } from "@/hooks/use-comment-analysis-live";
 import type { Period } from "@/lib/comment-analysis/period";
 import { DEFAULT_PERIOD, isPeriodReady, periodRange } from "@/lib/comment-analysis/period";
@@ -32,7 +32,7 @@ import {
   Skeleton,
   StanceChip,
   topicLabel,
-} from "@/components/instagram/comment-analysis-shared";
+} from "@/components/audience/shared";
 import { Broadcast, ChatCircle, Pause, Warning } from "@/components/icons";
 import { cn } from "@/lib/utils";
 

@@ -32,8 +32,8 @@ import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { AIModelSelector } from "@/components/elevated-design/ai-model-selector";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Panel, Skeleton } from "@/components/instagram/comment-analysis-shared";
-import { cleanTopics, editableTopics, TopicsEditor } from "@/components/instagram/comment-analysis-topics-editor";
+import { Panel, Skeleton } from "@/components/audience/shared";
+import { cleanTopics, editableTopics, TopicsEditor } from "@/components/audience/topics-editor";
 import { Warning, X } from "@/components/icons";
 import { cn } from "@/lib/utils";
 

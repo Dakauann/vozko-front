@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import type { CommentTopic, TopicStat } from "@/lib/comment-analysis/types";
-import { Panel, SeverityBar, EmptyState, percent, topicColor, topicLabel } from "@/components/instagram/comment-analysis-shared";
+import { Panel, SeverityBar, EmptyState, percent, topicColor, topicLabel } from "@/components/audience/shared";
 import { Hash, Lightning } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { BlockChart } from "@/components/charts/composition-charts";

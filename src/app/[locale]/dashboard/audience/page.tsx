@@ -5,8 +5,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
-import { CommentAnalysisAudience } from "@/components/instagram/comment-analysis-audience";
-import { EmptyState, Skeleton } from "@/components/instagram/comment-analysis-shared";
+import { CommentAnalysisAudience } from "@/components/audience/audience";
+import { EmptyState, Skeleton } from "@/components/audience/shared";
 import { UsersThree } from "@/components/icons";
 import { useWorkspace } from "@/contexts/workspace-context";
 

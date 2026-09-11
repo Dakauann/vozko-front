@@ -16,8 +16,8 @@ import {
   ElevatedDialogHeader,
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
-import { EscalateCommentDialog } from "@/components/instagram/comment-analysis-escalate-dialog";
-import { ReplyCommentDialog } from "@/components/instagram/comment-analysis-reply-dialog";
+import { EscalateCommentDialog } from "@/components/audience/escalate-dialog";
+import { ReplyCommentDialog } from "@/components/audience/reply-dialog";
 import { ArrowClockwise, EyeSlash, PaperPlaneTilt, Sparkle, UsersThree, WhatsappLogo } from "@/components/icons";
 import { cn } from "@/lib/utils";
 

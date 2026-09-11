@@ -14,7 +14,7 @@ import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { AIModelSelector } from "@/components/elevated-design/ai-model-selector";
-import { editableTopics, TopicsEditor } from "@/components/instagram/comment-analysis-topics-editor";
+import { editableTopics, TopicsEditor } from "@/components/audience/topics-editor";
 
 /*
  * The per-post override form, shared by the post detail dialog (editing a

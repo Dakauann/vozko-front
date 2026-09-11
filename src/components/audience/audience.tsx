@@ -17,15 +17,15 @@ import { Link } from "@/i18n/routing";
 import Button from "@/components/elevated-design/button";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
-import { CommentAnalysisOverview } from "@/components/instagram/comment-analysis-overview";
-import { CommentAnalysisConversations } from "@/components/instagram/comment-analysis-conversations";
-import { CommentAnalysisTopics } from "@/components/instagram/comment-analysis-topics";
+import { CommentAnalysisOverview } from "@/components/audience/overview";
+import { CommentAnalysisConversations } from "@/components/audience/conversations";
+import { CommentAnalysisTopics } from "@/components/audience/topics";
 import type { Period } from "@/lib/comment-analysis/period";
 import { DEFAULT_PERIOD, isPeriodReady, periodRange } from "@/lib/comment-analysis/period";
-import { PeriodPicker } from "@/components/instagram/comment-analysis-period";
-import { CommentAnalysisAuthors } from "@/components/instagram/comment-analysis-authors";
-import { CommentAnalysisFeed } from "@/components/instagram/comment-analysis-feed";
-import { Chip, EmptyState, Skeleton } from "@/components/instagram/comment-analysis-shared";
+import { PeriodPicker } from "@/components/audience/period";
+import { CommentAnalysisAuthors } from "@/components/audience/authors";
+import { CommentAnalysisFeed } from "@/components/audience/feed";
+import { Chip, EmptyState, Skeleton } from "@/components/audience/shared";
 import { ChartLineUp, ChatCircle, Gear, Hash, ShieldWarning, Sparkle } from "@/components/icons";
 
 /*

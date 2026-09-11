@@ -14,7 +14,7 @@ import type { InstagramAccount, InstagramComment, InstagramMedia } from "@/lib/i
 import { InstagramAvatar } from "@/components/instagram/instagram-avatar";
 import { InstagramCommentThread } from "@/components/instagram/instagram-comment-thread";
 import { InstagramCommentRulesPanel } from "@/components/instagram/instagram-comment-rules-panel";
-import { CommentPostAnalysisPanel } from "@/components/instagram/comment-analysis-post";
+import { CommentPostAnalysisPanel } from "@/components/audience/post";
 import { useWorkspace } from "@/contexts/workspace-context";
 import {
   Tabs,

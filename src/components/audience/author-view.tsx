@@ -28,7 +28,7 @@ import {
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
 import { InstagramAvatar } from "@/components/instagram/instagram-avatar";
-import { CommentQuickActions } from "@/components/instagram/comment-analysis-quick-actions";
+import { CommentQuickActions } from "@/components/audience/quick-actions";
 import {
   AuthorRoleChip,
   Chip,
@@ -41,7 +41,7 @@ import {
   Skeleton,
   StanceChip,
   topicLabel,
-} from "@/components/instagram/comment-analysis-shared";
+} from "@/components/audience/shared";
 import { ChatCircle, ImageSquare, ShieldWarning, Warning, X } from "@/components/icons";
 import { cn } from "@/lib/utils";
 

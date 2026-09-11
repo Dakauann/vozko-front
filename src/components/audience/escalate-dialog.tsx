@@ -15,7 +15,7 @@ import {
   ElevatedDialogHeader,
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
-import { Chip, Skeleton } from "@/components/instagram/comment-analysis-shared";
+import { Chip, Skeleton } from "@/components/audience/shared";
 import { Check, MagnifyingGlass, Warning, WhatsappLogo } from "@/components/icons";
 import { cn } from "@/lib/utils";
 

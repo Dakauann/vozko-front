@@ -7,7 +7,7 @@ import { ProgressRing, VOZ_SERIES } from "@/components/charts/vozko";
 import { BlockChart } from "@/components/charts/composition-charts";
 import { ChartLegend, WaffleChart, type ChartDatum } from "@/components/charts/dense-charts";
 import { InstrumentStrip, type Instrument } from "@/components/console/page-shapes";
-import { EmptyState, Panel, Skeleton } from "@/components/instagram/comment-analysis-shared";
+import { EmptyState, Panel, Skeleton } from "@/components/audience/shared";
 import { ChatsCircle } from "@/components/icons";
 import type { CommentAnalysisStats } from "@/lib/comment-analysis/types";
 

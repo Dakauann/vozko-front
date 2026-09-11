@@ -18,10 +18,10 @@ import { Link } from "@/i18n/routing";
 import Button from "@/components/elevated-design/button";
 import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
-import { CommentAnalysisOverview } from "@/components/instagram/comment-analysis-overview";
-import { CommentAnalysisFeed } from "@/components/instagram/comment-analysis-feed";
-import { OverrideFields } from "@/components/instagram/comment-analysis-override-fields";
-import { Chip, EmptyState, Panel, Skeleton } from "@/components/instagram/comment-analysis-shared";
+import { CommentAnalysisOverview } from "@/components/audience/overview";
+import { CommentAnalysisFeed } from "@/components/audience/feed";
+import { OverrideFields } from "@/components/audience/override-fields";
+import { Chip, EmptyState, Panel, Skeleton } from "@/components/audience/shared";
 import { ArrowSquareOut, ChartLineUp, ChatCircle, Gear, Sparkle, Warning } from "@/components/icons";
 
 /*

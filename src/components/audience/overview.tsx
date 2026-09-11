@@ -9,7 +9,7 @@ import { ChartLegend, DataChart, Sparkline, WaffleChart, type ChartDatum } from 
 import { InstrumentStrip, type Instrument } from "@/components/console/page-shapes";
 import type { CommentAnalysisStats, CommentTopic, TrendPoint } from "@/lib/comment-analysis/types";
 import { HIGH_SEVERITY_THRESHOLD } from "@/lib/comment-analysis/types";
-import { EmptyState, Panel, STANCE_COLOR, Skeleton, topicColor, topicLabel } from "@/components/instagram/comment-analysis-shared";
+import { EmptyState, Panel, STANCE_COLOR, Skeleton, topicColor, topicLabel } from "@/components/audience/shared";
 import { ChartLineUp } from "@/components/icons";
 import { cn } from "@/lib/utils";
 

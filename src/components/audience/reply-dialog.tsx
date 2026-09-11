@@ -14,7 +14,7 @@ import {
   ElevatedDialogHeader,
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
-import { Chip } from "@/components/instagram/comment-analysis-shared";
+import { Chip } from "@/components/audience/shared";
 import { PaperPlaneTilt, Sparkle, Warning } from "@/components/icons";
 
 /*

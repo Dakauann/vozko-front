@@ -35,7 +35,7 @@ import {
   ElevatedDialogHeader,
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
-import { Chip, EmptyState, Panel, Skeleton } from "@/components/instagram/comment-analysis-shared";
+import { Chip, EmptyState, Panel, Skeleton } from "@/components/audience/shared";
 import { Bell, PaperPlaneTilt, Plus, Trash, Warning } from "@/components/icons";
 import { cn } from "@/lib/utils";
 

@@ -28,7 +28,7 @@ import Button from "@/components/elevated-design/button";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 import { InstagramAvatar } from "@/components/instagram/instagram-avatar";
-import { CommentAnalysisAuthorView } from "@/components/instagram/comment-analysis-author-view";
+import { CommentAnalysisAuthorView } from "@/components/audience/author-view";
 import { SortableColumnHead } from "@/components/elevated-design/table/sortable-column-head";
 import {
   AuthorRoleChip,
@@ -40,7 +40,7 @@ import {
   SeverityBar,
   Skeleton,
   StanceChip,
-} from "@/components/instagram/comment-analysis-shared";
+} from "@/components/audience/shared";
 import { CaretRight, ShieldWarning, UsersThree, Warning } from "@/components/icons";
 import { cn } from "@/lib/utils";
 

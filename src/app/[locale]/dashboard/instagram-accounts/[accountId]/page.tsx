@@ -24,7 +24,7 @@ import {
   TabsTrigger,
 } from "@/components/elevated-design/elevated-tabs";
 import { GridFour, Robot, UsersThree } from "@/components/icons";
-import { CommentAnalysisTab } from "@/components/instagram/comment-analysis-tab";
+import { CommentAnalysisTab } from "@/components/audience/tab";
 import { InstagramPostDetail } from "@/components/instagram/instagram-post-detail";
 import { InstagramPostGrid } from "@/components/instagram/instagram-post-grid";
 import { InstagramProfileHeader } from "@/components/instagram/instagram-profile-header";
