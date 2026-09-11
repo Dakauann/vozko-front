@@ -9759,7 +9759,7 @@
         "departments": "Departments",
         "departmentsSub": "Volume and times by campaign department",
         "deptChart": "Conversations by department",
-        "deptChartSub": "Top 8 · finished, in progress and waiting",
+        "deptChartSub": "Block area = the department's conversation volume",
         "deptTable": "Times by department",
         "deptTableSub": "Wait until 1st reply and average duration",
         "team": "Team",
@@ -9780,13 +9780,16 @@
         "stageTableSub": "Volume, time parked and stalled conversations",
         "stageCoverage": "Coverage by funnel",
         "stageCoverageSub": "How much of the period sits in a stage, and in which funnel",
-        "stageMosaic": "Block map",
-        "stageMosaicSub": "Every funnel at once, each block sized by its volume"
+        "stageMosaic": "Volume by stage",
+        "stageMosaicSub": "Every funnel side by side · block area is the stage's volume"
       },
       "status": {
         "finished": "Conversations finished",
         "ongoing": "Conversations in progress",
-        "pending": "Conversations pending"
+        "pending": "Conversations pending",
+        "finishedShort": "Finished",
+        "ongoingShort": "In progress",
+        "pendingShort": "Waiting"
       },
       "glossary": {
         "avgWait": "Avg wait",
@@ -9930,7 +9933,10 @@
         "aiAbandoned": "Abandoned",
         "mosaicHint": "Funnel height = share of everything staged. Block width = share of the funnel. The amber band at the foot is the stalled part.",
         "aiContainmentRate": "AI resolution rate",
-        "aiHandoffRate": "Handoff rate"
+        "aiHandoffRate": "Handoff rate",
+        "statusRadialHint": "Distance from the centre = share of the period's conversations (0–100%)",
+        "stageBlockHint": "Block area = the stage's conversation volume",
+        "deptBlockHint": "Block area = the department's conversation volume"
       }
     }
   },
@@ -10277,6 +10283,26 @@
     }
   },
   "commentAnalysis": {
+    "conversations": {
+      "title": "Conversations",
+      "description": "What the AI read in the conversations from this period.",
+      "emptyTitle": "No conversations analysed",
+      "emptyDescription": "Turn analysis on for a campaign to see disposition, qualification and attendance quality here.",
+      "analysed": "Conversations analysed",
+      "attendanceQuality": "Attendance quality",
+      "range": "between {min} and {max}",
+      "messagesAvg": "Messages per conversation",
+      "messagesTotal": "{count} in total",
+      "needsHuman": "Need a human",
+      "dispositionTitle": "Where the conversation stopped",
+      "dispositionDescription": "Each conversation's current outcome against the campaign objective.",
+      "qualificationTitle": "Qualification",
+      "qualificationDescription": "How close each person is to reaching the objective.",
+      "interestTitle": "Interest",
+      "interestDescription": "Interest shown through concrete actions, not politeness.",
+      "qualityTitle": "Attendance and next step",
+      "qualityDescription": "The score is computed from four dimensions the AI rates, never stated by it."
+    },
     "errorTitle": "Comment analysis could not be loaded",
     "sectionsLabel": "Audience analysis sections",
     "sections": {
@@ -10294,6 +10320,32 @@
       "noPermission": "Ask a workspace administrator to turn on comment analysis."
     },
     "enums": {
+      "interest": {
+        "interested": "Interested",
+        "not_interested": "Not interested",
+        "undecided": "Undecided"
+      },
+      "disposition": {
+        "sale": "Closed",
+        "filling_info": "Filling in details",
+        "callback": "Callback",
+        "declined": "Declined",
+        "no_answer": "No answer",
+        "voicemail": "Voicemail",
+        "pending": "In progress"
+      },
+      "qualification": {
+        "hot_lead": "Hot lead",
+        "warm_lead": "Warm lead",
+        "cold_lead": "Cold lead"
+      },
+      "nextAction": {
+        "schedule_callback": "Schedule a callback",
+        "send_whatsapp": "Send a WhatsApp",
+        "close": "Close",
+        "escalate": "Escalate",
+        "continue": "Continue"
+      },
       "stance": {
         "supporter": "Supporter",
         "neutral": "Neutral",
@@ -12411,5 +12463,4 @@
     "low": "Low",
     "high": "High"
   }
-
 }

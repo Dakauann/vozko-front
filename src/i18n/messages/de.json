@@ -8684,7 +8684,7 @@
         "departments": "Abteilungen",
         "departmentsSub": "Volumen und Zeiten nach Kampagnenabteilung",
         "deptChart": "Gespräche nach Abteilung",
-        "deptChartSub": "Top 8 · abgeschlossen, in Bearbeitung und wartend",
+        "deptChartSub": "Blockfläche = Konversationsvolumen der Abteilung",
         "deptTable": "Zeiten nach Abteilung",
         "deptTableSub": "Wartezeit bis 1. Antwort und Ø Dauer",
         "team": "Team",
@@ -8705,13 +8705,16 @@
         "stageTableSub": "Volumen, Standzeit und festgefahrene Konversationen",
         "stageCoverage": "Abdeckung nach Funnel",
         "stageCoverageSub": "Wie viel des Zeitraums in einer Phase steht, und in welchem Funnel",
-        "stageMosaic": "Blockkarte",
-        "stageMosaicSub": "Alle Funnel auf einmal, jeder Block so groß wie sein Volumen"
+        "stageMosaic": "Volumen nach Phase",
+        "stageMosaicSub": "Alle Funnel nebeneinander · die Blockfläche ist das Volumen der Phase"
       },
       "status": {
         "finished": "Abgeschlossene Gespräche",
         "ongoing": "Gespräche in Bearbeitung",
-        "pending": "Gespräche in Warteschleife"
+        "pending": "Gespräche in Warteschleife",
+        "finishedShort": "Erledigt",
+        "ongoingShort": "Laufend",
+        "pendingShort": "Wartend"
       },
       "glossary": {
         "avgWait": "Ø Wartezeit",
@@ -8855,7 +8858,10 @@
         "aiAbandoned": "Abgebrochen",
         "mosaicHint": "Funnel-Höhe = Anteil an allen Phasen. Blockbreite = Anteil am Funnel. Das bernsteinfarbene Band am Fuß ist der festgefahrene Teil.",
         "aiContainmentRate": "KI-Lösungsquote",
-        "aiHandoffRate": "Übergabequote"
+        "aiHandoffRate": "Übergabequote",
+        "statusRadialHint": "Abstand vom Zentrum = Anteil der Konversationen im Zeitraum (0–100%)",
+        "stageBlockHint": "Blockfläche = Konversationsvolumen der Phase",
+        "deptBlockHint": "Blockfläche = Konversationsvolumen der Abteilung"
       }
     }
   },
@@ -9202,6 +9208,26 @@
     }
   },
   "commentAnalysis": {
+    "conversations": {
+      "title": "Gespräche",
+      "description": "Was die KI in den Gesprächen dieses Zeitraums gelesen hat.",
+      "emptyTitle": "Keine Gespräche analysiert",
+      "emptyDescription": "Aktiviere die Analyse in der Kampagne, um hier Status, Qualifizierung und Betreuungsqualität zu sehen.",
+      "analysed": "Analysierte Gespräche",
+      "attendanceQuality": "Betreuungsqualität",
+      "range": "zwischen {min} und {max}",
+      "messagesAvg": "Nachrichten pro Gespräch",
+      "messagesTotal": "{count} insgesamt",
+      "needsHuman": "Brauchen einen Menschen",
+      "dispositionTitle": "Wo das Gespräch stehen blieb",
+      "dispositionDescription": "Aktuelles Ergebnis jedes Gesprächs gemessen am Kampagnenziel.",
+      "qualificationTitle": "Qualifizierung",
+      "qualificationDescription": "Wie nah jede Person dem Ziel ist.",
+      "interestTitle": "Interesse",
+      "interestDescription": "Interesse, das sich in konkreten Handlungen zeigt, nicht in Höflichkeit.",
+      "qualityTitle": "Betreuung und nächster Schritt",
+      "qualityDescription": "Die Note wird aus vier von der KI bewerteten Dimensionen berechnet, nie von ihr genannt."
+    },
     "errorTitle": "Die Kommentaranalyse konnte nicht geladen werden",
     "sectionsLabel": "Bereiche der Publikumsanalyse",
     "sections": {
@@ -9219,6 +9245,32 @@
       "noPermission": "Bitten Sie einen Workspace-Administrator, die Kommentaranalyse einzuschalten."
     },
     "enums": {
+      "interest": {
+        "interested": "Interessiert",
+        "not_interested": "Kein Interesse",
+        "undecided": "Unentschieden"
+      },
+      "disposition": {
+        "sale": "Abgeschlossen",
+        "filling_info": "Daten werden erfasst",
+        "callback": "Rückruf",
+        "declined": "Abgelehnt",
+        "no_answer": "Keine Antwort",
+        "voicemail": "Mailbox",
+        "pending": "Laufend"
+      },
+      "qualification": {
+        "hot_lead": "Heißer Lead",
+        "warm_lead": "Warmer Lead",
+        "cold_lead": "Kalter Lead"
+      },
+      "nextAction": {
+        "schedule_callback": "Rückruf planen",
+        "send_whatsapp": "WhatsApp senden",
+        "close": "Abschließen",
+        "escalate": "Eskalieren",
+        "continue": "Fortsetzen"
+      },
       "stance": {
         "supporter": "Unterstützer",
         "neutral": "Neutral",
@@ -11409,5 +11461,4 @@
     "low": "Niedrig",
     "high": "Hoch"
   }
-
 }

@@ -8187,7 +8187,7 @@
         "departments": "Departamentos",
         "departmentsSub": "Volumen y tiempos por departamento de la campaña",
         "deptChart": "Conversaciones por departamento",
-        "deptChartSub": "Top 8 · finalizadas, en curso y en espera",
+        "deptChartSub": "Área del bloque = volumen de conversaciones del departamento",
         "deptTable": "Tiempos por departamento",
         "deptTableSub": "Espera hasta la 1.ª respuesta y duración media",
         "team": "Equipo",
@@ -8208,13 +8208,16 @@
         "stageTableSub": "Volumen, tiempo detenido y conversaciones estancadas",
         "stageCoverage": "Cobertura por embudo",
         "stageCoverageSub": "Cuánto del período está en una etapa, y en qué embudo",
-        "stageMosaic": "Mapa de bloques",
-        "stageMosaicSub": "Todos los embudos a la vez, cada bloque del tamaño de su volumen"
+        "stageMosaic": "Volumen por etapa",
+        "stageMosaicSub": "Todos los embudos lado a lado · el área del bloque es el volumen de la etapa"
       },
       "status": {
         "finished": "Conversaciones finalizadas",
         "ongoing": "Conversaciones en curso",
-        "pending": "Conversaciones pendientes"
+        "pending": "Conversaciones pendientes",
+        "finishedShort": "Concluidas",
+        "ongoingShort": "En curso",
+        "pendingShort": "Esperando"
       },
       "glossary": {
         "avgWait": "Espera media",
@@ -8358,7 +8361,10 @@
         "aiAbandoned": "Abandonadas",
         "mosaicHint": "Alto del embudo = participación en el total en etapas. Ancho del bloque = participación en el embudo. La franja ámbar al pie es la parte estancada.",
         "aiContainmentRate": "Tasa de resolución por IA",
-        "aiHandoffRate": "Tasa de transferencia"
+        "aiHandoffRate": "Tasa de transferencia",
+        "statusRadialHint": "Distancia del centro = proporción de las conversaciones del período (0–100%)",
+        "stageBlockHint": "Área del bloque = volumen de conversaciones de la etapa",
+        "deptBlockHint": "Área del bloque = volumen de conversaciones del departamento"
       }
     }
   },
@@ -8705,6 +8711,26 @@
     }
   },
   "commentAnalysis": {
+    "conversations": {
+      "title": "Conversaciones",
+      "description": "Lo que la IA leyó en las conversaciones de este período.",
+      "emptyTitle": "Ninguna conversación analizada",
+      "emptyDescription": "Activa el análisis en la campaña para ver disposición, calificación y calidad de atención aquí.",
+      "analysed": "Conversaciones analizadas",
+      "attendanceQuality": "Calidad de la atención",
+      "range": "entre {min} y {max}",
+      "messagesAvg": "Mensajes por conversación",
+      "messagesTotal": "{count} en total",
+      "needsHuman": "Necesitan una persona",
+      "dispositionTitle": "Dónde se detuvo la conversación",
+      "dispositionDescription": "Resultado actual de cada conversación frente al objetivo de la campaña.",
+      "qualificationTitle": "Calificación",
+      "qualificationDescription": "Qué tan cerca está cada persona de alcanzar el objetivo.",
+      "interestTitle": "Interés",
+      "interestDescription": "Interés demostrado con acciones concretas, no con cortesía.",
+      "qualityTitle": "Atención y próximo paso",
+      "qualityDescription": "La nota se calcula a partir de cuatro dimensiones que la IA evalúa, nunca la informa directamente."
+    },
     "errorTitle": "No se pudo cargar el análisis de comentarios",
     "sectionsLabel": "Secciones del análisis de audiencia",
     "sections": {
@@ -8722,6 +8748,32 @@
       "noPermission": "Pida a un administrador del workspace que encienda el análisis de comentarios."
     },
     "enums": {
+      "interest": {
+        "interested": "Interesado",
+        "not_interested": "Sin interés",
+        "undecided": "Indeciso"
+      },
+      "disposition": {
+        "sale": "Cerrado",
+        "filling_info": "Completando datos",
+        "callback": "Devolución de llamada",
+        "declined": "Rechazado",
+        "no_answer": "Sin respuesta",
+        "voicemail": "Buzón de voz",
+        "pending": "En curso"
+      },
+      "qualification": {
+        "hot_lead": "Lead caliente",
+        "warm_lead": "Lead tibio",
+        "cold_lead": "Lead frío"
+      },
+      "nextAction": {
+        "schedule_callback": "Agendar devolución",
+        "send_whatsapp": "Enviar WhatsApp",
+        "close": "Cerrar",
+        "escalate": "Escalar",
+        "continue": "Continuar"
+      },
       "stance": {
         "supporter": "Simpatizante",
         "neutral": "Neutral",
@@ -10912,5 +10964,4 @@
     "low": "Baja",
     "high": "Alta"
   }
-
 }

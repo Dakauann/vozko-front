@@ -9810,7 +9810,7 @@
         "departments": "Departamentos",
         "departmentsSub": "Volume e tempos por departamento da campanha",
         "deptChart": "Conversas por departamento",
-        "deptChartSub": "Top 8 · concluídas, em andamento e aguardando",
+        "deptChartSub": "Área do bloco = volume de conversas do departamento",
         "deptTable": "Tempos por departamento",
         "deptTableSub": "Espera até a 1ª resposta e duração média",
         "team": "Equipe",
@@ -9831,13 +9831,16 @@
         "stageTableSub": "Volume, tempo parado e conversas travadas",
         "stageCoverage": "Cobertura por funil",
         "stageCoverageSub": "Quanto do período está em etapa, e em qual funil",
-        "stageMosaic": "Mapa de blocos",
-        "stageMosaicSub": "Todos os funis de uma vez, cada bloco no tamanho do seu volume"
+        "stageMosaic": "Volume por etapa",
+        "stageMosaicSub": "Todos os funis lado a lado · a área do bloco é o volume da etapa"
       },
       "status": {
         "finished": "Conversas concluídas",
         "ongoing": "Conversas em andamento",
-        "pending": "Conversas aguardando"
+        "pending": "Conversas aguardando",
+        "finishedShort": "Concluídas",
+        "ongoingShort": "Em andamento",
+        "pendingShort": "Aguardando"
       },
       "glossary": {
         "avgWait": "Espera média",
@@ -9981,7 +9984,10 @@
         "aiAbandoned": "Abandonadas",
         "mosaicHint": "Altura do funil = participação no total em etapas. Largura do bloco = participação na etapa. A faixa âmbar na base é a parte travada.",
         "aiContainmentRate": "Taxa de resolução pela IA",
-        "aiHandoffRate": "Taxa de transferência"
+        "aiHandoffRate": "Taxa de transferência",
+        "statusRadialHint": "Distância do centro = proporção das conversas do período (0–100%)",
+        "stageBlockHint": "Área do bloco = volume de conversas da etapa",
+        "deptBlockHint": "Área do bloco = volume de conversas do departamento"
       }
     }
   },
@@ -10328,6 +10334,26 @@
     }
   },
   "commentAnalysis": {
+    "conversations": {
+      "title": "Conversas",
+      "description": "O que a IA leu nas conversas deste período.",
+      "emptyTitle": "Nenhuma conversa analisada",
+      "emptyDescription": "Ative a análise na campanha para ver disposição, qualificação e qualidade do atendimento aqui.",
+      "analysed": "Conversas analisadas",
+      "attendanceQuality": "Qualidade do atendimento",
+      "range": "entre {min} e {max}",
+      "messagesAvg": "Mensagens por conversa",
+      "messagesTotal": "{count} no total",
+      "needsHuman": "Precisam de um humano",
+      "dispositionTitle": "Onde a conversa parou",
+      "dispositionDescription": "Resultado atual de cada conversa em relação ao objetivo da campanha.",
+      "qualificationTitle": "Qualificação",
+      "qualificationDescription": "Quão perto cada pessoa está de alcançar o objetivo.",
+      "interestTitle": "Interesse",
+      "interestDescription": "Interesse demonstrado por ações concretas, não por educação.",
+      "qualityTitle": "Atendimento e próximo passo",
+      "qualityDescription": "A nota é calculada a partir de quatro dimensões avaliadas pela IA, nunca informada por ela."
+    },
     "errorTitle": "Não foi possível carregar a análise de comentários",
     "sectionsLabel": "Seções da análise de audiência",
     "sections": {
@@ -10345,6 +10371,32 @@
       "noPermission": "Peça a um administrador do workspace para ligar a análise de comentários."
     },
     "enums": {
+      "interest": {
+        "interested": "Interessado",
+        "not_interested": "Sem interesse",
+        "undecided": "Indeciso"
+      },
+      "disposition": {
+        "sale": "Fechado",
+        "filling_info": "Preenchendo dados",
+        "callback": "Retorno",
+        "declined": "Recusado",
+        "no_answer": "Sem resposta",
+        "voicemail": "Caixa postal",
+        "pending": "Em andamento"
+      },
+      "qualification": {
+        "hot_lead": "Lead quente",
+        "warm_lead": "Lead morno",
+        "cold_lead": "Lead frio"
+      },
+      "nextAction": {
+        "schedule_callback": "Agendar retorno",
+        "send_whatsapp": "Enviar WhatsApp",
+        "close": "Encerrar",
+        "escalate": "Escalar",
+        "continue": "Continuar"
+      },
       "stance": {
         "supporter": "Simpatizante",
         "neutral": "Neutro",
@@ -12462,5 +12514,4 @@
     "low": "Baixa",
     "high": "Alta"
   }
-
 }

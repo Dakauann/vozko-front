@@ -122,6 +122,45 @@ export interface CommentCounters {
 
     distinctAuthors: number;
     flaggedAuthors: number;
+
+    // ---- Conversation subjects ----
+    //
+    // A slice can hold both kinds now, so these two say how much of it each
+    // block describes. Without them a reader cannot tell an all-comment slice
+    // from one where every conversation happened to be unlabelled.
+    commentCount: number;
+    conversationCount: number;
+
+    interestInterested: number;
+    interestNotInterested: number;
+    interestUndecided: number;
+
+    dispositionSale: number;
+    dispositionFillingInfo: number;
+    dispositionCallback: number;
+    dispositionDeclined: number;
+    dispositionNoAnswer: number;
+    dispositionVoicemail: number;
+    dispositionPending: number;
+
+    qualificationHotLead: number;
+    qualificationWarmLead: number;
+    qualificationColdLead: number;
+
+    nextActionScheduleCallback: number;
+    nextActionSendWhatsApp: number;
+    nextActionClose: number;
+    nextActionEscalate: number;
+    nextActionContinue: number;
+
+    // Averaged over analysed CONVERSATIONS only: comments carry no such score
+    // and their zeros would drag a mixed slice toward nothing.
+    attendanceQualityAvg: number;
+    attendanceQualityMin: number;
+    attendanceQualityMax: number;
+
+    messagesTotal: number;
+    messagesAvg: number;
 }
 
 export interface TopicStat {
@@ -430,6 +469,31 @@ export const EMPTY_COUNTERS: CommentCounters = {
     requiresActionCount: 0,
     distinctAuthors: 0,
     flaggedAuthors: 0,
+    commentCount: 0,
+    conversationCount: 0,
+    interestInterested: 0,
+    interestNotInterested: 0,
+    interestUndecided: 0,
+    dispositionSale: 0,
+    dispositionFillingInfo: 0,
+    dispositionCallback: 0,
+    dispositionDeclined: 0,
+    dispositionNoAnswer: 0,
+    dispositionVoicemail: 0,
+    dispositionPending: 0,
+    qualificationHotLead: 0,
+    qualificationWarmLead: 0,
+    qualificationColdLead: 0,
+    nextActionScheduleCallback: 0,
+    nextActionSendWhatsApp: 0,
+    nextActionClose: 0,
+    nextActionEscalate: 0,
+    nextActionContinue: 0,
+    attendanceQualityAvg: 0,
+    attendanceQualityMin: 0,
+    attendanceQualityMax: 0,
+    messagesTotal: 0,
+    messagesAvg: 0,
 };
 
 /**

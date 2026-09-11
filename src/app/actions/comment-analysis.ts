@@ -418,3 +418,21 @@ export async function testAlertRuleAction(id: string) {
     if (response.error) return { error: response.error.message };
     return {};
 }
+
+/*
+ * The audience surface: the same rows, not narrowed to comments.
+ *
+ * /comment-analysis pins itself to comments so those screens keep showing what
+ * they always did. /audience serves every subject kind, which is what a view
+ * called "audience" has to mean now that conversations live in the same engine.
+ */
+export async function getAudienceStatsAction(filters: CommentListFilters) {
+    const response = await apiClient<CommentAnalysisStats>(
+        `/audience/stats?${filtersToParams(filters).toString()}`,
+        { method: 'GET' },
+    );
+    if (response.error) return { error: response.error.message };
+    return {
+        stats: response.data ?? { ...EMPTY_COUNTERS, topics: [], acceptanceScore: 50 },
+    };
+}

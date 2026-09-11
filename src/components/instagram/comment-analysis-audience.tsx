@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import {
   getCommentAnalysisSettingsAction,
-  getCommentAnalysisStatsAction,
+  getAudienceStatsAction,
   getCommentAnalysisTrendsAction,
   listCommentAnalysisAccountsAction,
 } from "@/app/actions/comment-analysis";
@@ -18,6 +18,7 @@ import Button from "@/components/elevated-design/button";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { CommentAnalysisOverview } from "@/components/instagram/comment-analysis-overview";
+import { CommentAnalysisConversations } from "@/components/instagram/comment-analysis-conversations";
 import { CommentAnalysisTopics } from "@/components/instagram/comment-analysis-topics";
 import type { Period } from "@/lib/comment-analysis/period";
 import { DEFAULT_PERIOD, isPeriodReady, periodRange } from "@/lib/comment-analysis/period";
@@ -131,7 +132,7 @@ export function CommentAnalysisAudience({
     if (!isPeriodReady(period)) return;
     const { from, to } = periodRange(period);
     void Promise.all([
-      getCommentAnalysisStatsAction({ accountId, containerId: containerId || undefined, from, to }),
+      getAudienceStatsAction({ accountId, containerId: containerId || undefined, from, to }),
       getCommentAnalysisTrendsAction(containerId ? "container" : "account", containerId || accountId, from, to),
     ]).then(([st, tr]) => {
       if (cancelled) return;
@@ -253,7 +254,17 @@ export function CommentAnalysisAudience({
             {containerId ? <Chip>{ta("scopedToPost")}</Chip> : null}
           </div>
 
-          {section === "overview" && (!error || stats) ? <CommentAnalysisOverview stats={stats} trend={trend} loading={!stats} topics={settings.topics} /> : null}
+          {section === "overview" && (!error || stats) ? (
+            <div className="flex flex-col gap-6">
+              <CommentAnalysisOverview stats={stats} trend={trend} loading={!stats} topics={settings.topics} />
+              {/*
+                The conversation half of the audience. It renders its own empty
+                state, so a workspace that only analyses comments reads an
+                explanation rather than finding a gap on the page.
+              */}
+              <CommentAnalysisConversations stats={stats} loading={!stats} />
+            </div>
+          ) : null}
           {section === "topics" ? <CommentAnalysisTopics topics={settings.topics} stats={stats?.topics ?? []} /> : null}
           {section === "authors" && !containerId ? (
             <CommentAnalysisAuthors accountId={accountId} topics={settings.topics} period={period} />
