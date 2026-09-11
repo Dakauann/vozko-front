@@ -11,10 +11,8 @@ import {
   FlowArrow,
   Headset,
   Hourglass,
-  Info,
   Kanban,
   Lightning,
-  Phone,
   PhoneIncoming,
   Pulse,
   Robot,
@@ -33,8 +31,6 @@ import {
   CartesianGrid,
   Cell,
   Legend,
-  Pie,
-  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -51,8 +47,8 @@ import {
   Meter,
   ProgressRing,
   SplitFlow,
+  VOZ_SERIES,
   vozGrid,
-  vozRing,
   vozXAxis,
   vozYAxis,
 } from "@/components/charts/vozko";
@@ -105,10 +101,14 @@ import { cn } from "@/lib/utils";
 import { ChannelTile, channelPlate } from "@/components/channels/channel-tile";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useLocale, useTranslations } from "next-intl";
-import { BlockChart } from "@/components/charts/composition-charts";
+import {
+  BlockChart,
+  GroupedBlockChart,
+  RadialProfileChart,
+} from "@/components/charts/composition-charts";
 import { WaffleChart } from "@/components/charts/dense-charts";
 import { TeamResponseChart } from "@/components/charts/team-response-chart";
-import { share } from "@/lib/charts/data";
+import { entityColorIndex, share } from "@/lib/charts/data";
 
 /* ── Chart colours ────────────────────────────────────────────────── */
 
@@ -1120,22 +1120,25 @@ function StatusCompositionChart({
   const total = dist?.total ?? 0;
   const slices = useMemo(() => {
     if (!dist || total === 0) return [];
+    /* Short names on purpose. The long forms are written for a table header
+       and a tooltip; drawn around a ring they ran off both edges at phone
+       width, and in the legend all three truncated to "Conversas …". */
     return [
       {
         key: "finished",
-        name: st("finished"),
+        name: st("finishedShort"),
         value: dist.finished,
         color: COLORS.finished,
       },
       {
         key: "ongoing",
-        name: st("ongoing"),
+        name: st("ongoingShort"),
         value: dist.ongoing,
         color: COLORS.ongoing,
       },
       {
         key: "pending",
-        name: st("pending"),
+        name: st("pendingShort"),
         value: dist.pending,
         color: COLORS.pending,
       },
@@ -1145,11 +1148,15 @@ function StatusCompositionChart({
   const resolutionRate =
     total > 0 && dist ? Math.round((dist.finished / total) * 1000) / 10 : null;
 
-  const config: ChartConfig = {
-    finished: { label: st("finished"), color: COLORS.finished },
-    ongoing: { label: st("ongoing"), color: COLORS.ongoing },
-    pending: { label: st("pending"), color: COLORS.pending },
-  };
+  /* The radial profile the audience screen uses, on the same three states.
+     Distance from the centre is the share on an explicit common 0-100% axis,
+     so the three are compared by LENGTH against a printed scale rather than by
+     judging the angle of a wedge, which people read badly. The hole of the old
+     donut carried the total; it now sits beside the chart as a real figure. */
+  const profile = useMemo(
+    () => slices.map((s) => ({ key: s.key, label: s.name, value: s.value, color: s.color })),
+    [slices],
+  );
 
   if (loading) return <ChartSkeleton height={240} />;
   if (!slices.length) {
@@ -1164,63 +1171,22 @@ function StatusCompositionChart({
 
   return (
     <div className="grid min-h-[240px] grid-cols-1 items-center gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(160px,0.95fr)]">
-      <ChartContainer config={config} className="mx-auto h-[200px] w-full max-w-[220px]">
-        <PieChart>
-          <Pie
-            data={slices}
-            dataKey="value"
-            nameKey="name"
-            cx="50%"
-            cy="50%"
-            {...vozRing(78, 66)}
-          >
-            {slices.map((s) => (
-              <Cell key={s.key} fill={s.color} />
-            ))}
-          </Pie>
-          {/* The hole earns its keep: the slice total lives in the centre, so
-              the donut reads as "N conversations, composed like this" without
-              a trip to the side panel. */}
-          <text
-            x="50%"
-            y="46%"
-            textAnchor="middle"
-            dominantBaseline="middle"
-            className="fill-foreground font-display text-xl font-semibold"
-            style={{ fontVariantNumeric: "tabular-nums" }}
-          >
-            {fmt.num(total)}
-          </text>
-          <text
-            x="50%"
-            y="57%"
-            textAnchor="middle"
-            dominantBaseline="middle"
-            className="fill-[hsl(var(--muted-foreground))] text-[10px] font-medium"
-          >
-            {tl("conversations")}
-          </text>
-          <ChartTooltip
-            content={
-              <ChartTooltipContent
-                nameKey="name"
-                formatter={(value, name) => {
-                  const n = Number(value);
-                  const pct = total > 0 ? ((n / total) * 100).toFixed(1) : "0";
-                  return (
-                    <div className="flex items-center gap-3">
-                      <span className="text-muted-foreground">{String(name)}</span>
-                      <span className="font-semibold tabular-nums">
-                        {fmt.num(n)} ({pct}%)
-                      </span>
-                    </div>
-                  );
-                }}
-              />
-            }
-          />
-        </PieChart>
-      </ChartContainer>
+      {/* The audience screen's radial profile, on the same three states. The
+          donut it replaces asked the reader to judge three angles; here each
+          state is a bar from a common centre against a printed 0-100% scale,
+          so they compare by length. The total the hole used to carry is the
+          figure beside the chart, which is where a number belongs. */}
+      <div className="min-w-0">
+        <RadialProfileChart
+          data={profile}
+          total={total}
+          label={tl("conversationsLabel")}
+        />
+        {/* Its own string. denseCharts.radialHint says "comentários
+            analisados", which is the audience screen's subject, not this
+            panel's. */}
+        <p className="mt-1 text-2xs text-muted-foreground">{tl("statusRadialHint")}</p>
+      </div>
 
       <div className="space-y-2.5">
         <div className="rounded-[--radius] border border-border bg-background px-3 py-2">
@@ -1237,36 +1203,10 @@ function StatusCompositionChart({
             })}
           </p>
         </div>
-        <ul className="space-y-2">
-          {slices.map((s) => {
-            const pct = total > 0 ? (s.value / total) * 100 : 0;
-            return (
-              <li key={s.key}>
-                <div className="mb-1 flex items-center justify-between gap-2 text-xs">
-                  <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-                    <span
-                      className="h-2 w-2 rounded-full"
-                      style={{ backgroundColor: s.color }}
-                    />
-                    {s.name}
-                  </span>
-                  <span className="font-semibold tabular-nums text-foreground">
-                    {fmt.num(s.value)}
-                  </span>
-                </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full transition-all"
-                    style={{ width: `${pct}%`, backgroundColor: s.color }}
-                  />
-                </div>
-                <p className="mt-0.5 text-right text-2xs tabular-nums text-muted-foreground">
-                  {tl("pctOfTotal", { pct: pct.toFixed(1) })}
-                </p>
-              </li>
-            );
-          })}
-        </ul>
+        {/* The per-state counts and shares used to be repeated here as a bar
+            list. RadialProfileChart carries its own legend with both, so this
+            column keeps only what the chart does NOT say: the headline rate,
+            and how the finished ones were closed. */}
         {!loading ? <OverallCloseOriginNote bySource={bySource} /> : null}
       </div>
     </div>
@@ -1335,6 +1275,23 @@ function OverallCloseOriginNote({
   );
 }
 
+/**
+ * Departments as blocks, sized by the work they carry.
+ *
+ * This was a horizontal stacked bar capped at eight rows. A treemap is the
+ * right form for the question the panel actually asks — "who is carrying the
+ * load" — because departments are NOMINAL: they have no order, so area is a
+ * fairer encoding than a ranked axis, and a long tail of small departments
+ * stays visible as small blocks instead of falling off the cap.
+ *
+ * The status split the stack used to carry is not lost: the detail table
+ * beside this one prints finished / ongoing / waiting per department with
+ * exact numbers, which is where a three-way breakdown is read anyway.
+ *
+ * Colour follows the DEPARTMENT, hashed from its id, so filtering the page
+ * never repaints the survivors — a reader who learned "Cobrança is the indigo
+ * one" keeps that.
+ */
 function DepartmentStackedChart({
   rows,
   loading,
@@ -1342,37 +1299,25 @@ function DepartmentStackedChart({
   rows: DepartmentRow[] | undefined;
   loading: boolean;
 }) {
-  const st = useTranslations("metricsOps.attendance.status");
   const tc = useTranslations("metricsOps.common");
   const tl = useTranslations("metricsOps.attendance.labels");
-  const fmt = useMetricsFmt();
-  const finishedLabel = st("finished");
-  const ongoingLabel = st("ongoing");
-  const pendingLabel = st("pending");
   const noDept = tc("noDepartment");
 
-  const data = useMemo(() => {
+  const blocks = useMemo(() => {
     if (!rows?.length) return [];
     return [...rows]
-      .map((r) => {
-        const fullName = (r.department_name || "").trim() || noDept;
-        return {
-          name: fullName.length > 18 ? `${fullName.slice(0, 16)}…` : fullName,
-          fullName,
-          concluidas: r.finished,
-          em_andamento: r.ongoing,
-          aguardando: r.pending,
-          total: r.finished + r.ongoing + r.pending,
-          tme: r.avg_wait_mins,
-          tma: r.avg_handle_mins,
-        };
-      })
-      .sort((a, b) => b.total - a.total)
-      .slice(0, 8);
+      .map((r) => ({
+        key: r.department_id || "__none",
+        label: (r.department_name || "").trim() || noDept,
+        value: r.finished + r.ongoing + r.pending,
+        color: VOZ_SERIES[entityColorIndex(r.department_id || "__none")],
+      }))
+      .filter((b) => b.value > 0)
+      .sort((a, b) => b.value - a.value);
   }, [rows, noDept]);
 
   if (loading) return <ChartSkeleton height={260} />;
-  if (!data.length) {
+  if (!blocks.length) {
     return (
       <EmptyChart
         icon={<Buildings className="h-9 w-9" weight="fill" />}
@@ -1382,94 +1327,10 @@ function DepartmentStackedChart({
     );
   }
 
-  const chartH = Math.max(200, data.length * 36 + 48);
-
   return (
-    <div style={{ height: chartH }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={data}
-          layout="vertical"
-          margin={{ top: 28, right: 12, left: 4, bottom: 4 }}
-          barCategoryGap={8}
-        >
-          <CartesianGrid {...vozGrid} vertical horizontal={false} />
-          <XAxis type="number" allowDecimals={false} {...vozXAxis} />
-          <YAxis type="category" dataKey="name" {...vozYAxis} width={118} />
-          <Tooltip
-            cursor={{ fill: "hsl(var(--primary) / 0.08)" }}
-            content={({ active, payload }) => {
-              if (!active || !payload?.length) return null;
-              const row = payload[0]?.payload as (typeof data)[0];
-              return (
-                <div className="rounded-lg border border-border bg-card px-3 py-2 text-xs shadow-md">
-                  <p className="mb-1.5 font-semibold text-foreground">
-                    {row.fullName}
-                  </p>
-                  <p className="text-muted-foreground">
-                    {finishedLabel}:{" "}
-                    <span className="font-medium text-foreground">
-                      {fmt.num(row.concluidas)}
-                    </span>
-                  </p>
-                  <p className="text-muted-foreground">
-                    {ongoingLabel}:{" "}
-                    <span className="font-medium text-foreground">
-                      {fmt.num(row.em_andamento)}
-                    </span>
-                  </p>
-                  <p className="text-muted-foreground">
-                    {pendingLabel}:{" "}
-                    <span className="font-medium text-foreground">
-                      {fmt.num(row.aguardando)}
-                    </span>
-                  </p>
-                  <p className="mt-1 text-muted-foreground">
-                    {tl("waitDurationHint", {
-                      wait: fmt.mins(row.tme),
-                      duration: fmt.mins(row.tma),
-                    })}
-                  </p>
-                </div>
-              );
-            }}
-          />
-          <Legend
-            verticalAlign="top"
-            align="left"
-            height={24}
-            iconType="circle"
-            iconSize={8}
-            wrapperStyle={{ paddingBottom: 4, display: "flex", gap: 12 }}
-            formatter={(v) => (
-              <span className="mr-4 text-2xs text-muted-foreground">{v}</span>
-            )}
-          />
-          <Bar
-            dataKey="concluidas"
-            name={finishedLabel}
-            stackId="s"
-            fill={COLORS.finished}
-            radius={[0, 0, 0, 0]}
-            barSize={16}
-          />
-          <Bar
-            dataKey="em_andamento"
-            name={ongoingLabel}
-            stackId="s"
-            fill={COLORS.ongoing}
-            barSize={16}
-          />
-          <Bar
-            dataKey="aguardando"
-            name={pendingLabel}
-            stackId="s"
-            fill={COLORS.pending}
-            radius={[0, 4, 4, 0]}
-            barSize={16}
-          />
-        </BarChart>
-      </ResponsiveContainer>
+    <div>
+      <BlockChart data={blocks} label={tc("department")} height={220} />
+      <p className="mt-1 text-2xs text-muted-foreground">{tl("deptBlockHint")}</p>
     </div>
   );
 }
@@ -2336,195 +2197,76 @@ function StageLadder({
   );
 }
 /**
- * The block view: every funnel and every stage at once, as area.
+ * Every funnel and every stage at once, as area.
  *
- * This is a mosaic (Marimekko), not a treemap, and the difference is the whole
- * point. A treemap squarifies by size, which scrambles the stages into
- * whatever packs best and destroys the one thing a funnel IS: an order. Here
- * a funnel is a band whose HEIGHT is its share of the workspace, and inside it
- * each stage is a block whose WIDTH is its share of that funnel — so both
- * groupings survive, and the reader still gets true two-dimensional area.
+ * This was a hand-rolled Marimekko, kept because a treemap scrambles stage
+ * ORDER. In the running product that argument did not survive contact: the
+ * ladder panel beside this one already reads one funnel IN ORDER, with names,
+ * dwell and stalled counts, so order was never this panel's job. What this
+ * panel owes is "where is everything", and it was failing at it — a funnel
+ * holding nine conversations rendered as four unlabelled blocks reading
+ * "3 4 1 1", which is not information.
  *
- * The ladder beside it reads ONE funnel in depth. This reads all of them at
- * once, which is the question "where is everything" and the one the ladder
- * structurally cannot answer.
- *
- * Colour: hue by funnel (identity, fixed by index so a filter that drops a
- * funnel never repaints the survivors), lightness by stage POSITION. Stages
- * are ordered, so an ordinal ramp is the legal encoding here — and it is not
- * double-encoding volume, because volume is already the block's area.
- *
- * The fill stays a tint and the full-strength hue is spent on a 3px edge. A
- * large saturated slab is banned in this system, and dark's brand green is
- * only allowed as a large fill at low alpha.
+ * It is now the same nested treemap the audience screen uses. The funnel name
+ * rides a band over its own region, so a stage name that exists in two funnels
+ * ("em atendimento" is in most of them) is never ambiguous, and the blocks
+ * stay comparable by area across funnels.
  */
-const MOSAIC_HUES = [
-  "var(--chart-1)",
-  "var(--chart-2)",
-  "var(--chart-4)",
-  "var(--chart-5)",
-  "var(--chart-3)",
-] as const;
-
-/** Alpha by stage position: the head of the funnel is boldest. Floors well
- * short of a saturated block, so `--foreground` stays readable on it in both
- * themes. */
-function mosaicAlpha(index: number, count: number): number {
-  if (count <= 1) return 0.3;
-  return 0.3 - (index / (count - 1)) * 0.18;
-}
-
-function StageMosaic({
+function StageBlocks({
   stages,
   loading,
-  activeFunnelId,
-  onSelectFunnel,
 }: {
   stages: OverviewStages | undefined;
   loading: boolean;
-  activeFunnelId: string | null;
-  onSelectFunnel: (id: string) => void;
 }) {
   const tl = useTranslations("metricsOps.attendance.labels");
-  const fmt = useMetricsFmt();
 
-  if (loading) return <ChartSkeleton height={220} />;
-  if (!stages?.available || !stages.funnels.length) {
+  const groups = useMemo(() => {
+    if (!stages?.funnels?.length) return [];
+    return stages.funnels
+      .filter((f) => f.engaged > 0)
+      .map((f, fi) => {
+        const hue = `var(--chart-${(fi % 5) + 1})`;
+        const cells = f.stages.filter((s) => s.engaged > 0);
+        return {
+          key: f.funnel_id || "__none",
+          label: f.funnel_name || tl("noFunnel"),
+          color: `hsl(${hue} / 0.18)`,
+          children: cells.map((s, si) => ({
+            key: s.stage_id,
+            label: s.stage_name,
+            value: s.engaged,
+            // Hue identifies the funnel; the step within it follows the
+            // stage's POSITION, which is ordered, so the ramp is legal and
+            // does not double-encode the area.
+            color: s.is_won
+              ? "hsl(var(--healthy))"
+              : s.is_lost
+                ? "hsl(var(--destructive))"
+                : `hsl(${hue} / ${(1 - (si / Math.max(1, cells.length - 1)) * 0.55).toFixed(2)})`,
+          })),
+        };
+      })
+      .filter((g) => g.children.length > 0);
+  }, [stages, tl]);
+
+  if (loading) return <ChartSkeleton height={260} />;
+  if (!groups.length) {
     return (
       <EmptyChart
         icon={<Stack className="h-9 w-9" weight="fill" />}
         message={tl("noStageData")}
-        height={220}
+        height={260}
       />
     );
   }
 
-  const withVolume = stages.funnels.filter((f) => f.engaged > 0);
-  const rows = withVolume.length ? withVolume : stages.funnels;
-  const totalEngaged = rows.reduce((s, f) => s + f.engaged, 0);
-
   return (
-    <div className="space-y-2">
-      <div className="space-y-1">
-        {rows.map((f, fi) => {
-          const hue = MOSAIC_HUES[fi % MOSAIC_HUES.length];
-          const share = totalEngaged > 0 ? f.engaged / totalEngaged : 1 / rows.length;
-          // A floor, because a funnel holding 2% of the workspace is still a
-          // funnel and must stay clickable and labelled rather than collapsing
-          // into a hairline.
-          const height = Math.max(46, Math.round(share * 260));
-          const active = f.funnel_id === activeFunnelId;
-          const cells = f.stages.filter((s) => s.engaged > 0);
-          const rowTotal = cells.reduce((s, c) => s + c.engaged, 0);
-
-          return (
-            <button
-              key={f.funnel_id || "__none"}
-              type="button"
-              onClick={() => onSelectFunnel(f.funnel_id)}
-              aria-pressed={active}
-              className={cn(
-                "block w-full rounded-[--radius] text-left transition-shadow",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                active && "ring-1 ring-primary-edge",
-              )}
-              title={`${f.funnel_name || tl("noFunnel")} · ${fmt.num(f.engaged)}`}
-            >
-              <div className="mb-1 flex items-baseline justify-between gap-2 px-0.5">
-                <span
-                  className={cn(
-                    "truncate text-2xs text-foreground",
-                    active ? "font-semibold" : "font-medium",
-                  )}
-                >
-                  {f.funnel_name || tl("noFunnel")}
-                </span>
-                <span className="readout shrink-0 text-2xs font-semibold tabular-nums text-muted-foreground">
-                  {fmt.num(f.engaged)} · {fmt.pct(f.pct_of_staged)}
-                </span>
-              </div>
-              <div className="flex gap-0.5 overflow-hidden rounded-[--radius]" style={{ height }}>
-                {cells.length === 0 ? (
-                  <div className="h-full w-full rounded-[--radius] bg-muted" />
-                ) : (
-                  cells.map((s, si) => {
-                    const w = rowTotal > 0 ? (s.engaged / rowTotal) * 100 : 0;
-                    const alpha = mosaicAlpha(si, cells.length);
-                    const edge = s.is_won
-                      ? "hsl(var(--healthy))"
-                      : s.is_lost
-                        ? "hsl(var(--destructive))"
-                        : `hsl(${hue})`;
-                    // Only label a block that can actually hold the label.
-                    // A name clipped to "Docu…" in a 30px cell is noise, and
-                    // the value is one hover and one table row away.
-                    const roomy = w >= 14 && height >= 56;
-                    const semiRoomy = w >= 9;
-                    return (
-                      <div
-                        key={s.stage_id}
-                        className="relative h-full min-w-0 overflow-hidden rounded-[3px]"
-                        style={{
-                          width: `${w}%`,
-                          backgroundColor: s.is_won
-                            ? `hsl(var(--healthy) / ${alpha})`
-                            : s.is_lost
-                              ? `hsl(var(--destructive) / ${alpha})`
-                              : `hsl(${hue} / ${alpha})`,
-                        }}
-                        title={`${s.stage_name}: ${fmt.num(s.engaged)} (${fmt.pct(
-                          s.pct_of_funnel,
-                        )})${s.stuck > 0 ? ` · ${tl("stageStuck", { count: fmt.num(s.stuck) })}` : ""}`}
-                      >
-                        {/* Full-strength hue as a 3px edge: identity lives in
-                            the mark, not in a saturated slab. */}
-                        <span
-                          aria-hidden
-                          className="absolute inset-x-0 top-0 h-[3px]"
-                          style={{ backgroundColor: edge }}
-                        />
-                        {/* Stalled work rises from the block's own floor, so
-                            the amber is a share of THIS stage, not a separate
-                            quantity floating beside it. */}
-                        {s.stuck > 0 && s.engaged > 0 ? (
-                          <span
-                            aria-hidden
-                            className="absolute inset-x-0 bottom-0"
-                            style={{
-                              height: `${Math.min(100, (s.stuck / s.engaged) * 100)}%`,
-                              backgroundColor: "hsl(var(--warning) / 0.55)",
-                            }}
-                          />
-                        ) : null}
-                        {roomy ? (
-                          <span className="absolute inset-x-1.5 top-2 block">
-                            {/* The name only appears where it can be read. On a
-                                phone a 14% block is ~50px, which crops
-                                "Documentação pendente" to "Docu…" — noise, and
-                                the name is a hover and a table row away. */}
-                            <span className="hidden truncate text-2xs font-medium text-foreground sm:block">
-                              {s.stage_name}
-                            </span>
-                            <span className="readout block truncate text-2xs font-semibold tabular-nums text-foreground sm:mt-0.5">
-                              {fmt.num(s.engaged)}
-                            </span>
-                          </span>
-                        ) : semiRoomy ? (
-                          <span className="readout absolute inset-x-1 top-2 block truncate text-center text-2xs font-semibold tabular-nums text-foreground">
-                            {fmt.num(s.engaged)}
-                          </span>
-                        ) : null}
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      <p className="text-2xs text-muted-foreground">{tl("mosaicHint")}</p>
+    <div>
+      <GroupedBlockChart groups={groups} label={tl("stageCol")} height={260} />
+      {/* Its own copy. denseCharts.blockHint says "comentários classificados",
+          which is the audience screen's subject, not this panel's. */}
+      <p className="mt-1 text-2xs text-muted-foreground">{tl("stageBlockHint")}</p>
     </div>
   );
 }
@@ -2556,9 +2298,13 @@ function StageDetailTable({
   }
 
   return (
-    <div className="overflow-x-auto">
+    /* Capped and scrolled. A workspace with several funnels lists every stage
+       of every one of them, which ran to dozens of rows and pushed the panels
+       under it off the screen. The head stays pinned so a row scrolled into
+       view still has its column names. */
+    <div className="max-h-[420px] overflow-auto">
       <table className="w-full min-w-[640px] text-left text-sm">
-        <thead>
+        <thead className="sticky top-0 z-10 bg-card">
           <tr className="border-b border-border-strong text-2xs font-semibold text-muted-foreground">
             <th className="px-2 py-2">{tl("stageCol")}</th>
             <th className="px-2 py-2 text-right" title={tl("engagedColTitle")}>
@@ -2754,12 +2500,7 @@ function StageDistributionSection({
             title={ts("stageMosaic")}
             subtitle={ts("stageMosaicSub")}
           />
-          <StageMosaic
-            stages={stages}
-            loading={loading}
-            activeFunnelId={activeFunnelId}
-            onSelectFunnel={setPickedFunnelId}
-          />
+          <StageBlocks stages={stages} loading={loading} />
         </Surface>
 
         {/* min-w-0: a grid item defaults to min-width:auto, so the table's own

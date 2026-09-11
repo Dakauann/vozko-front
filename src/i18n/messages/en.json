@@ -1,4 +1,29 @@
 {
+  "crmAnalysis": {
+    "awaiting": "Awaiting analysis",
+    "awaitingHint": "This conversation is still going. The AI analyses it once it has been quiet for a few minutes; nothing is being analysed yet.",
+    "queued": "Analysing",
+    "queuedHint": "The AI is analysing this conversation. The result appears here on its own; any previous one stays visible until it does."
+  },
+  "departmentScope": {
+    "blockedTitle": "You are not in any department",
+    "blockedBody": "This workspace organises conversations by department. Until you belong to one, nothing appears here, even with every permission your role grants.",
+    "blockedAction": "Ask a workspace admin to add you to a department.",
+    "adminNoDepartmentBadge": "No department",
+    "adminNoDepartmentTooltip": "This workspace uses departments, so this member only sees conversations in the departments they belong to. Belonging to none, they see nothing, whatever their role allows.",
+    "adminNoDepartmentSummary": "{count, plural, =1 {# member is in no department and sees no conversations} other {# members are in no department and see no conversations}}.",
+    "adminEmptyDepartment": "No members",
+    "adminEmptyDepartmentTooltip": "An empty department gives access to nobody, but its existence is what makes every member department-scoped. Delete it if this workspace does not use departments.",
+    "adminRoleCaption": "Permissions say what a member may do. Where the workspace uses departments, they also only see conversations in their own departments, however complete the role is.",
+    "adminFirstDepartmentTitle": "This changes visibility for the whole workspace",
+    "adminFirstDepartmentBody": "Right now every member sees conversations according to their permissions alone. Creating the first department changes that rule: from now on, members who are not admins only see conversations in departments they belong to.",
+    "adminFirstDepartmentImpact": "{count, plural, =0 {There are no members to leave without access.} =1 {# member is currently in no department and will stop seeing conversations until you add them to one.} other {# members are currently in no department and will stop seeing conversations until you add them to one.}}",
+    "adminFirstDepartmentConfirm": "Create department",
+    "adminLastDepartmentTitle": "This widens access for the whole workspace",
+    "adminLastDepartmentBody": "This is the last department. Deleting it returns the workspace to permissions alone, so every member with permission to read conversations will see all of them again.",
+    "adminLastDepartmentConfirm": "Delete department",
+    "cancel": "Cancel"
+  },
   "workingHours": {
     "title": "Working hours",
     "weekLabel": "Week",
@@ -10289,13 +10314,12 @@
       "audience": "Audience"
     }
   },
-  "commentAnalysis": {
+  "audience": {
     "channels": {
       "instagram": "Instagram",
       "whatsapp": "WhatsApp",
       "telegram": "Telegram",
-      "unofficial_whatsapp": "WhatsApp (unofficial)",
-      "voice": "Voice"
+      "unofficial_whatsapp": "WhatsApp (unofficial)"
     },
     "conversations": {
       "title": "Conversations",
@@ -10307,6 +10331,13 @@
       "range": "between {min} and {max}",
       "messagesAvg": "Messages per conversation",
       "messagesTotal": "{count} in total",
+      "qualityValue": "Quality {value}%",
+      "messageCount": "{count, plural, one {# message} other {# messages}}",
+      "activityTitle": "Conversation activity",
+      "activityDescription": "Conversations analyzed each day",
+      "activityEmptyTitle": "No history yet",
+      "activityEmptyDescription": "The chart appears as soon as the first conversation is analyzed.",
+      "date": "Date",
       "needsHuman": "Need a human",
       "dispositionTitle": "Where the conversation stopped",
       "dispositionDescription": "Each conversation's current outcome against the campaign objective.",
@@ -10315,7 +10346,50 @@
       "interestTitle": "Interest",
       "interestDescription": "Interest shown through concrete actions, not politeness.",
       "qualityTitle": "Attendance and next step",
+      "objectiveReached": "Objective reached",
+      "objectiveTooltip": "Share of analysed conversations that closed on the campaign's objective. A booked callback counts as progress, not as an outcome, so it is not included here.",
+      "nothingAnalysed": "Nothing analysed in this period",
+      "vsPrevious": "{delta} pts vs previous period",
+      "flatVsPrevious": "Unchanged vs previous period",
+      "noComparison": "No previous period to compare",
+      "escalations": "{count} waiting on a person",
+      "coverage": "Coverage",
+      "coverageDetail": "{analysed} of {queued} conversations",
+      "coverageTooltip": "How much of the period the percentages above actually describe. Conversations still queued or failed are counted here and excluded from every rate.",
+      "coverageTitle": "What these numbers are made of",
+      "coverageDescription": "Analysed, waiting and failed conversations in this period.",
+      "analysedLabel": "Analysed",
+      "waitingLabel": "Waiting",
+      "failedLabel": "Failed",
+      "skippedLabel": "Skipped",
+      "freshness": "Last analysis {when}",
+      "freshnessNever": "No analysis yet",
+      "attentionTitle": "Needs attention now",
+      "attentionDescription": "What a person has to pick up, longest queue first.",
+      "attentionClearTitle": "Nothing waiting",
+      "attentionClearDescription": "No conversation in this period asks for a person.",
+      "queuedTitle": "Analysis in progress",
+      "queuedDescription": "{count} conversations are queued. The numbers appear as soon as the first one is classified.",
+      "subjectsTitle": "What people are asking about",
+      "subjectsDescription": "The subjects that came up most, as a share of analysed conversations.",
+      "subjectsEmptyTitle": "No recurring subject yet",
+      "subjectsEmptyDescription": "A subject appears here once the AI can name what a conversation was about.",
       "qualityDescription": "The score is computed from four dimensions the AI rates, never stated by it."
+    },
+    "budget": {
+      "title": "Analysis budget",
+      "description": "How much this workspace may analyse, across every channel, in any 24 hours.",
+      "used": "{used} of {limit} analyses used",
+      "remaining": "{count} left",
+      "spent": "Budget spent",
+      "window": "The window rolls: the oldest hour drops out as the newest fills, so there is no daily reset.",
+      "freesAt": "Analysis resumes from {when}, when the oldest hour leaves the window.",
+      "limitLabel": "Limit per 24 hours",
+      "limitHint": "Applies to the whole workspace, comments and conversations alike.",
+      "waiting": "{count} queued for analysis",
+      "constrained": "{count} queued, more than the window can take. At this limit the overflow waits about {hours}h. Nothing is discarded; raise the limit to clear it sooner.",
+      "debounceLabel": "Quiet period (minutes)",
+      "debounceHint": "How long a conversation must go without messages before the AI judges it. Longer means fewer, later analyses; shorter means faster answers and more of them. Between {min} and {max} minutes."
     },
     "errorTitle": "Comment analysis could not be loaded",
     "sectionsLabel": "Audience analysis sections",
@@ -10517,6 +10591,13 @@
     "feed": {
       "title": "Classified comments",
       "description": "Each comment with its topic, sentiment, stance, intent and severity",
+      "conversationTitle": "Classified conversations",
+      "conversationDescription": "Each conversation with summary, interest, outcome, qualification and next step",
+      "mixedTitle": "Classified comments and conversations",
+      "mixedDescription": "Audience analyses correctly separated by type and channel",
+      "conversationViewLabel": "Conversation view",
+      "conversationEmptyTitle": "No conversations in this view",
+      "conversationEmptyDescription": "Adjust the filters or wait for the next analysis.",
       "viewLabel": "Comment view",
       "views": {
         "all": "All",
@@ -10679,7 +10760,7 @@
         "reset": "Inherit everything again"
       }
     },
-    "audience": {
+    "page": {
       "channel": "Channel",
       "allChannels": "All channels",
       "allAccounts": "All accounts",
@@ -10688,7 +10769,7 @@
       "kindComment": "Comments only",
       "kindConversation": "Conversations only",
       "badge": "Audience",
-      "description": "What the comments say about {name}: support, criticism, topics and who comments.",
+      "description": "Comments and conversations analysed by AI: interest, outcome, recurring subjects and attendance quality.",
       "noPermissionDesc": "The Audience analysis permission (audience:read) is required to see this dashboard.",
       "account": "Account",
       "post": "Post",
@@ -11610,7 +11691,7 @@
       "addVariant": "Add variant",
       "removeVariant": "Remove",
       "variantLabel": "Variant {index}",
-      "bodyPlaceholder": "Write the message. Use {{1}}, {{2}} for variables.",
+      "bodyPlaceholder": "Write the message. Use '{{1}}', '{{2}}' for variables.",
       "variantsMismatch": "Every variant must use exactly the same variables.",
       "variablesDetected": "{count} variable(s) detected. Every number needs those values.",
       "menuStyle": "Menu style",

@@ -33,6 +33,7 @@ import {
   WhatsappLogo,
 } from "@/components/icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import type { ComposerDraft } from "./CrmMessageInput";
 import CrmConversationView from "./CrmConversationView";
@@ -295,6 +296,7 @@ export default function CrmLayout({
   toolbarBeforeUsers,
 }: CrmLayoutProps) {
   const tContactPanel = useTranslations("crmContactPanel");
+  const tCommon = useTranslations("common");
   const tWindow = useTranslations("liveChat.conversationWindow");
   const tBoard = useTranslations("crmBoard");
   const [mobileShowConversation, setMobileShowConversation] = useState(false);
@@ -327,9 +329,6 @@ export default function CrmLayout({
     name: string;
   } | null>(null);
   const [filterStageIds, setFilterStageIds] = useState<string[]>([]);
-  const [whatsappPhones, setWhatsappPhones] = useState<WhatsAppBusinessPhone[]>(
-    [],
-  );
   const [totalContacts, setTotalContacts] = useState<number | null>(null);
   const { can, currentWorkspace } = useWorkspace();
 
@@ -881,23 +880,6 @@ export default function CrmLayout({
 
   useEffect(() => {
     if (!enabled) return;
-    let cancelled = false;
-    (async () => {
-      const result = await listBusinessPhonesAction({
-        status: "CONNECTED",
-        pageSize: 500,
-      });
-      if (!cancelled && !result.error) {
-        setWhatsappPhones(result.phones);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [enabled]);
-
-  useEffect(() => {
-    if (!enabled) return;
     const timer = setTimeout(() => {
       if (notificationPermission === "default") {
         requestNotificationPermission();
@@ -1333,6 +1315,16 @@ export default function CrmLayout({
 
   const [togglingAi, setTogglingAi] = useState(false);
   const [callDropdownOpen, setCallDropdownOpen] = useState(false);
+  const { data: whatsappPhones = [], isLoading: loadingCallPhones } = useQuery<WhatsAppBusinessPhone[]>({
+    queryKey: ["crm-call-phones", currentWorkspace?.id],
+    enabled: enabled && callDropdownOpen && !!currentWorkspace?.id && can("call_session", "use"),
+    staleTime: 60_000,
+    queryFn: async () => {
+      const result = await listBusinessPhonesAction({ status: "CONNECTED", pageSize: 500 });
+      if (result.error) throw new Error(result.error);
+      return result.phones;
+    },
+  });
   const callDropdownRef = useRef<HTMLDivElement>(null);
   const [statusMenuOpen, setStatusMenuOpen] = useState(false);
   const statusMenuRef = useRef<HTMLDivElement>(null);
@@ -1965,6 +1957,9 @@ export default function CrmLayout({
                 already talks to us on, and only fall back to a picker when
                 it's genuinely ambiguous (several numbers, no prior WA chat). */}
               {(() => {
+                if (loadingCallPhones) {
+                  return <div role="status" className="px-3 py-2 text-xs text-muted-foreground">{tCommon("loading")}</div>;
+                }
                 const openEntry = inbox.find(
                   (e) => e.entry_id === activeConversation?.entry_id,
                 );

@@ -16,7 +16,6 @@ import type { CampaignType, EntryType } from "@/lib/conversations/types";
 export type ChannelFilter =
     | "all"
     | "whatsapp"
-    | "voice"
     | "instagram"
     | "telegram"
     | "unofficial_whatsapp";
@@ -26,9 +25,9 @@ export type ChannelFilter =
  * not a style choice:
  *
  *  - "all"      narrows nothing.
- *  - "campaign" narrows by campaign type, because WhatsApp Cloud and voice
- *               conversations are reached through campaigns; these filters also
- *               show the campaign picker.
+ *  - "campaign" narrows by campaign type, because WhatsApp Cloud
+ *               conversations are reached through campaigns; this filter also
+ *               shows the campaign picker.
  *  - "entry"    narrows by the conversation's entry_type. Instagram, Telegram
  *               and unofficial WhatsApp are channels you filter directly.
  *
@@ -86,12 +85,11 @@ export function channelFilterSpec(filter: ChannelFilter): ChannelFilterSpec | un
  * Whether this filter selects by campaign — which is also what decides if the
  * campaign picker is shown.
  *
- * "voice" has no row in CHANNEL_FILTERS (it is not offered as a button) but is
- * still reachable as state, so it is answered from the union rather than the
- * table.
+ * Answered straight from the table now. It used to special-case "voice", which
+ * had no row because it was never offered as a button yet was still reachable
+ * as state; that channel no longer exists.
  */
 export function isCampaignChannel(filter: ChannelFilter): boolean {
-    if (filter === "voice") return true;
     return channelFilterSpec(filter)?.kind === "campaign";
 }
 

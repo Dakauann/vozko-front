@@ -41,6 +41,8 @@ interface PaginatedResponse<T> {
 
 function filtersToParams(f: CommentListFilters): URLSearchParams {
     const params = new URLSearchParams();
+    if (f.subjectId) params.set("subjectId", f.subjectId);
+    if (f.latestOnly) params.set("latestOnly", "true");
     if (f.accountId) params.set("accountId", f.accountId);
     if (f.source) params.set("source", f.source);
     if (f.subjectKind?.length) params.set("subjectKind", f.subjectKind.join(","));
@@ -84,7 +86,7 @@ export async function getCommentAnalysisStatsAction(filters: CommentListFilters)
     );
     if (response.error) return { error: response.error.message };
     return {
-        stats: response.data ?? { ...EMPTY_COUNTERS, topics: [], acceptanceScore: 50 },
+        stats: response.data ?? { ...EMPTY_COUNTERS, topics: [], subjects: [], acceptanceScore: 50 },
     };
 }
 
@@ -100,6 +102,16 @@ export async function getCommentAnalysisTrendsAction(
     const response = await apiClient<TrendPoint[]>(`/audience/trends?${params.toString()}`, {
         method: 'GET',
     });
+    if (response.error) return { points: [] as TrendPoint[], error: response.error.message };
+    return { points: response.data ?? [] };
+}
+
+/** Daily activity for workspace-wide and mixed channel/type audience views. */
+export async function getAudienceTrendsAction(filters: CommentListFilters) {
+    const response = await apiClient<TrendPoint[]>(
+        `/audience/trends?${filtersToParams(filters).toString()}`,
+        { method: 'GET' },
+    );
     if (response.error) return { points: [] as TrendPoint[], error: response.error.message };
     return { points: response.data ?? [] };
 }
@@ -439,6 +451,87 @@ export async function getAudienceStatsAction(filters: CommentListFilters) {
     );
     if (response.error) return { error: response.error.message };
     return {
-        stats: response.data ?? { ...EMPTY_COUNTERS, topics: [], acceptanceScore: 50 },
+        stats: response.data ?? { ...EMPTY_COUNTERS, topics: [], subjects: [], acceptanceScore: 50 },
     };
+}
+
+/**
+ * How much of the workspace's rolling analysis budget is spent.
+ *
+ * Its own call rather than a field on stats: the budget belongs to the
+ * workspace, not to the filtered slice, so folding it into stats would return
+ * the same number several times per page load and imply it varied by filter.
+ * One cheap read, once per load.
+ */
+export interface AudienceUsage {
+    used: number;
+    limit: number;
+    /** When the oldest counted analysis leaves the window, so room frees up. */
+    oldestAt?: string;
+    /**
+     * How much is queued and not yet classified, workspace-wide.
+     *
+     * The number that makes the other two actionable. Reaching the ceiling never
+     * discards work, it postpones it, so a limit set too low shows up as a queue
+     * that stops draining and nowhere else.
+     */
+    waiting: number;
+}
+
+export async function getAudienceUsageAction(): Promise<{
+    usage: AudienceUsage | null;
+    error?: string;
+}> {
+    const response = await apiClient<AudienceUsage>("/audience/usage", { method: "GET" });
+    if (response.error) {
+        return { usage: null, error: response.error.message };
+    }
+    return { usage: response.data ?? null };
+}
+
+/**
+ * What the workspace decides about its own analysis.
+ *
+ * Both values are as STORED, where 0 means "never set". The screen needs that
+ * to tell an unset window from one somebody deliberately set to five minutes,
+ * so the resolved number rides along separately rather than replacing it.
+ */
+export interface AudienceWorkspaceSettings {
+    dailyCap: number;
+    debounceMinutes: number;
+    /** What the sweep actually waits, which is the default when nothing is set. */
+    effectiveDebounceMinutes: number;
+    minDebounceMinutes: number;
+    maxDebounceMinutes: number;
+}
+
+export async function getAudienceWorkspaceSettingsAction(): Promise<{
+    settings: AudienceWorkspaceSettings | null;
+    error?: string;
+}> {
+    const response = await apiClient<AudienceWorkspaceSettings>("/audience/workspace-settings", { method: "GET" });
+    if (response.error) {
+        return { settings: null, error: response.error.message };
+    }
+    return { settings: response.data ?? null };
+}
+
+/**
+ * Change the ceiling, the quiet period, or both.
+ *
+ * A partial update: an omitted field is left alone, so the two controls on the
+ * budget panel never overwrite each other. Workspace-wide by design, because the
+ * budget is counted per workspace and the sweep is keyed on it.
+ */
+export async function updateAudienceWorkspaceSettingsAction(
+    input: { dailyCap?: number; debounceMinutes?: number },
+): Promise<{ settings: AudienceWorkspaceSettings | null; error?: string }> {
+    const response = await apiClient<AudienceWorkspaceSettings>("/audience/workspace-settings", {
+        method: "PUT",
+        body: JSON.stringify(input),
+    });
+    if (response.error) {
+        return { settings: null, error: response.error.message };
+    }
+    return { settings: response.data ?? null };
 }

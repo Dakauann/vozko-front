@@ -34,15 +34,15 @@ function namespace(catalog: Record<string, unknown>, name: string): unknown {
     return catalog[name];
 }
 
-describe("commentAnalysis messages", () => {
-    const reference = new Set(flatten(namespace(pt, "commentAnalysis")).map(([key]) => key));
+describe("audience messages", () => {
+    const reference = new Set(flatten(namespace(pt, "audience")).map(([key]) => key));
 
     it("pt defines the namespace", () => {
         expect(reference.size).toBeGreaterThan(100);
     });
 
     for (const [locale, catalog] of Object.entries(CATALOGS)) {
-        const ns = namespace(catalog, "commentAnalysis");
+        const ns = namespace(catalog, "audience");
 
         it(`${locale}: has every key pt has, and no extras`, () => {
             const keys = new Set(flatten(ns).map(([key]) => key));

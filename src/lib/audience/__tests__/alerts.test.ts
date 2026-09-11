@@ -30,7 +30,7 @@ describe("alert rule labels", () => {
 
     it("names and explains every metric in all four locales", () => {
         for (const [locale, catalog] of Object.entries(catalogs)) {
-            const alerts = (catalog.commentAnalysis as Record<string, unknown>).alerts as
+            const alerts = (catalog.audience as Record<string, unknown>).alerts as
                 | { metricNames?: Record<string, string>; metrics?: Record<string, string>; channels?: Record<string, string> }
                 | undefined;
             expect(alerts, locale).toBeDefined();
@@ -50,13 +50,13 @@ describe("alert rule labels", () => {
     it("says the official channel costs money", () => {
         // Not cosmetic: this is the only warning that arming a rule will spend
         // balance on every firing.
-        const alerts = (pt.commentAnalysis as Record<string, unknown>).alerts as { officialHint?: string };
+        const alerts = (pt.audience as Record<string, unknown>).alerts as { officialHint?: string };
         expect(alerts.officialHint).toBeTruthy();
         expect(alerts.officialHint?.toLowerCase()).toContain("saldo");
     });
 
     it("states the safety floors", () => {
-        const alerts = (pt.commentAnalysis as Record<string, unknown>).alerts as { limitsHint?: string };
+        const alerts = (pt.audience as Record<string, unknown>).alerts as { limitsHint?: string };
         expect(alerts.limitsHint).toBeTruthy();
         // The hint interpolates the server's own floors rather than repeating
         // numbers that could drift from them.
@@ -66,7 +66,7 @@ describe("alert rule labels", () => {
 
     it("offers alerts as a section", () => {
         for (const [locale, catalog] of Object.entries(catalogs)) {
-            const sections = (catalog.commentAnalysis as Record<string, unknown>).sections as Record<string, string>;
+            const sections = (catalog.audience as Record<string, unknown>).sections as Record<string, string>;
             expect(sections?.alerts, `${locale}.sections.alerts`).toBeTruthy();
         }
     });

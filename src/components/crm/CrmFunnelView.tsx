@@ -258,7 +258,8 @@ function FunnelCard({
 }) {
   const [isHovered, setIsHovered] = useState(false);
   const { can } = useWorkspace();
-  const canReadAnalysis = can("analysis", "read");
+  // See CrmInbox: the analysis lives behind the audience resource now.
+  const canReadAnalysis = can("audience", "read");
 
   /** Whether labels are offered at all in the card menu. */
   const hasLabelActions = Boolean(

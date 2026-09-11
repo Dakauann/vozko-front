@@ -71,7 +71,7 @@ describe("period", () => {
         const catalogs: Record<string, Record<string, unknown>> = { pt, en, es, de };
         for (const [locale, catalog] of Object.entries(catalogs)) {
             const labels = (
-                (catalog.commentAnalysis as Record<string, unknown>).period as
+                (catalog.audience as Record<string, unknown>).period as
                     | { presets?: Record<string, string> }
                     | undefined
             )?.presets;

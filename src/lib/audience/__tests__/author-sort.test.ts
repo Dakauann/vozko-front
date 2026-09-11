@@ -42,7 +42,7 @@ describe("author sort vocabulary", () => {
         const catalogs: Record<string, Record<string, unknown>> = { pt, en, es, de };
         for (const [locale, catalog] of Object.entries(catalogs)) {
             const columns = (
-                (catalog.commentAnalysis as Record<string, Record<string, unknown>> | undefined)
+                (catalog.audience as Record<string, Record<string, unknown>> | undefined)
                     ?.authors as Record<string, unknown> | undefined
             )?.columns as Record<string, string> | undefined;
             expect(columns, locale).toBeDefined();

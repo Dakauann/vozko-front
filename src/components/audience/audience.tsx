@@ -6,8 +6,12 @@ import { useLocale, useTranslations } from "next-intl";
 import {
   getCommentAnalysisSettingsAction,
   getAudienceStatsAction,
-  getCommentAnalysisTrendsAction,
+  getAudienceTrendsAction,
+  getAudienceUsageAction,
+  getAudienceWorkspaceSettingsAction,
   listCommentAnalysisAccountsAction,
+  type AudienceUsage,
+  type AudienceWorkspaceSettings,
 } from "@/app/actions/audience";
 import { listInstagramAccountsAction, listInstagramMediaAction } from "@/app/actions/instagram";
 import type { AudienceSource, CommentAnalysisSettings, CommentAnalysisStats, SubjectKind, TrendPoint } from "@/lib/audience/types";
@@ -20,6 +24,7 @@ import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-t
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { CommentAnalysisOverview } from "@/components/audience/overview";
 import { CommentAnalysisConversations } from "@/components/audience/conversations";
+import { AnalysisBudgetPanel } from "@/components/audience/budget";
 import { CommentAnalysisTopics } from "@/components/audience/topics";
 import type { Period } from "@/lib/audience/period";
 import { DEFAULT_PERIOD, isPeriodReady, periodRange } from "@/lib/audience/period";
@@ -65,9 +70,9 @@ export function CommentAnalysisAudience({
   /** Lets the page mirror the scope into the URL so a view can be shared. */
   onScopeChange?: (accountId: string, containerId: string | undefined) => void;
 }) {
-  const t = useTranslations("commentAnalysis");
-  const ta = useTranslations("commentAnalysis.audience");
-  const tChannel = useTranslations("commentAnalysis.channels");
+  const t = useTranslations("audience");
+  const ta = useTranslations("audience.page");
+  const tChannel = useTranslations("audience.channels");
   const locale = useLocale();
   const df = useMemo(() => new Intl.DateTimeFormat(LOCALE_TAG[locale] ?? "pt-BR", { dateStyle: "short" }), [locale]);
   const { can } = useWorkspace();
@@ -89,8 +94,20 @@ export function CommentAnalysisAudience({
   const showsInstagramScope = (source === "" || source === "instagram") && accounts !== null && accounts.length > 0;
 
   const [settings, setSettings] = useState<CommentAnalysisSettings | null>(null);
-  const [stats, setStats] = useState<CommentAnalysisStats | null>(null);
-  const [trend, setTrend] = useState<TrendPoint[]>([]);
+  const [commentStats, setCommentStats] = useState<CommentAnalysisStats | null>(null);
+  const [conversationStats, setConversationStats] = useState<CommentAnalysisStats | null>(null);
+  const [previousStats, setPreviousStats] = useState<CommentAnalysisStats | null>(null);
+  // The workspace ceiling, read once per load. It belongs beside coverage: a
+  // budget that has been hit is the reason coverage would be low, and until now
+  // the only sign of it was analysis quietly stopping.
+  const [usage, setUsage] = useState<AudienceUsage | null>(null);
+  // The settings the budget is measured against. Separate from usage because
+  // one is configuration and the other is consumption: the poll refreshes the
+  // spend every minute, while the settings only change when somebody edits them.
+  const [workspaceSettings, setWorkspaceSettings] = useState<AudienceWorkspaceSettings | null>(null);
+  const [refresh, setRefresh] = useState(0);
+  const [commentTrend, setCommentTrend] = useState<TrendPoint[]>([]);
+  const [conversationTrend, setConversationTrend] = useState<TrendPoint[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   // Accounts and which of them have analysis configured, loaded once. The
@@ -135,6 +152,33 @@ export function CommentAnalysisAudience({
     };
   }, [accountId]);
 
+  /*
+   * Analyses land on their own schedule: a conversation goes quiet, its window
+   * elapses, and the batch runs minutes later. A page that only reads once
+   * therefore shows a backlog that never appears to drain, so the numbers are
+   * re-read on a slow tick rather than leaving the reader to guess whether
+   * nothing changed or nothing refreshed.
+   *
+   * This is the most expensive read on the page: one tick is several aggregate
+   * queries over the whole period, none of them cached. So it only runs while
+   * somebody is actually looking. A dashboard left open on a background tab
+   * used to keep asking all day, which is a real cost for an answer nobody is
+   * reading, and it refreshes immediately on return so coming back to the tab
+   * never shows stale numbers.
+   */
+  useEffect(() => {
+    const tick = () => {
+      if (document.visibilityState !== "visible") return;
+      setRefresh((value) => value + 1);
+    };
+    const timer = setInterval(tick, 60_000);
+    document.addEventListener("visibilitychange", tick);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", tick);
+    };
+  }, []);
+
   // The numbers for the current scope and period.
   //
   // No account is required. The engine scopes every read to the session's
@@ -143,40 +187,81 @@ export function CommentAnalysisAudience({
   useEffect(() => {
     let cancelled = false;
     if (!isPeriodReady(period)) return;
-    const { from, to } = periodRange(period);
-
-    // Trends read the daily rollups, which are keyed by account or container.
-    // With no account selected there is no rollup scope to ask for, so the
-    // trend line is simply absent rather than wrong.
-    const trendScope = containerId || accountId;
+    const { from, to: rangeEnd } = periodRange(period);
+    const to = rangeEnd ?? new Date().toISOString();
+    const scope = {
+      accountId: accountId || undefined,
+      source: source || undefined,
+      containerId: containerId || undefined,
+      from,
+      to,
+    };
+    /*
+     * A conversation can be analysed several times as it goes on, so the
+     * totals count each conversation ONCE, at its most recent verdict.
+     * Without this, a long conversation that went quiet three times would be
+     * three conversations in every percentage on the page.
+     */
+    const baseFilters = { ...scope, latestOnly: true };
+    /*
+     * The daily series is the exception: it says what was learned on each day,
+     * so every analysis belongs to the day it ran on. Collapsing to the latest
+     * revision here would move a conversation off the day it was analysed and
+     * quietly rewrite history every time it is analysed again.
+     */
+    const seriesFilters = scope;
+    const duration = from ? Date.parse(to) - Date.parse(from) : 0;
 
     void Promise.all([
-      getAudienceStatsAction({
-        accountId: accountId || undefined,
-        source: source || undefined,
-        subjectKind: kind === ALL_KINDS ? undefined : [kind],
-        containerId: containerId || undefined,
-        from,
-        to,
-      }),
-      trendScope
-        ? getCommentAnalysisTrendsAction(containerId ? "container" : "account", trendScope, from, to)
-        : Promise.resolve({ points: [] as TrendPoint[], error: null as string | null }),
-    ]).then(([st, tr]) => {
+      kind === "conversation"
+        ? Promise.resolve({ stats: null, error: null as string | null })
+        : getAudienceStatsAction({ ...baseFilters, subjectKind: ["comment"] }),
+      kind === "comment"
+        ? Promise.resolve({ stats: null, error: null as string | null })
+        : getAudienceStatsAction({ ...baseFilters, subjectKind: ["conversation"] }),
+      kind === "conversation"
+        ? Promise.resolve({ points: [] as TrendPoint[], error: null as string | null })
+        : getAudienceTrendsAction({ ...seriesFilters, subjectKind: ["comment"] }),
+      kind === "comment"
+        ? Promise.resolve({ points: [] as TrendPoint[], error: null as string | null })
+        : getAudienceTrendsAction({ ...seriesFilters, subjectKind: ["conversation"] }),
+      kind === "comment" || !from
+        ? Promise.resolve({ stats: null, error: null as string | null })
+        : getAudienceStatsAction({ ...baseFilters, subjectKind: ["conversation"], from: new Date(Date.parse(from) - duration).toISOString(), to: from }),
+      // Not filtered by anything: the budget belongs to the workspace, not to
+      // the slice being looked at.
+      getAudienceUsageAction(),
+      getAudienceWorkspaceSettingsAction(),
+    ]).then(([comments, conversations, commentSeries, conversationSeries, previous, budget, analysisSettings]) => {
       if (cancelled) return;
-      if (st.error) setError(st.error);
-      else setStats(st.stats ?? null);
-      if (!tr.error) setTrend(tr.points);
-      else { setTrend([]); setError(tr.error); }
+      setUsage(budget.usage);
+      setWorkspaceSettings(analysisSettings.settings);
+      if (comments.error || conversations.error) setError(comments.error || conversations.error || null);
+      else {
+        setCommentStats(comments.stats ?? null);
+        setConversationStats(conversations.stats ?? null);
+        setPreviousStats(previous.error ? null : previous.stats ?? null);
+        setError(null);
+      }
+      if (!commentSeries.error && !conversationSeries.error) {
+        setCommentTrend(commentSeries.points);
+        setConversationTrend(conversationSeries.points);
+      } else {
+        setCommentTrend([]);
+        setConversationTrend([]);
+        setError(commentSeries.error || conversationSeries.error || null);
+      }
     });
     return () => {
       cancelled = true;
     };
-  }, [accountId, containerId, source, kind, period]);
+  }, [accountId, containerId, source, kind, period, refresh]);
 
   const resetNumbers = () => {
-    setStats(null);
-    setTrend([]);
+    setCommentStats(null);
+    setConversationStats(null);
+    setCommentTrend([]);
+    setConversationTrend([]);
     setError(null);
   };
 
@@ -211,8 +296,10 @@ export function CommentAnalysisAudience({
     }
     setAccountId(id);
     setContainerId("");
-    setStats(null);
-    setTrend([]);
+    setCommentStats(null);
+    setConversationStats(null);
+    setCommentTrend([]);
+    setConversationTrend([]);
     setSettings(null);
     if (section === "authors") setSection("overview");
     onScopeChange?.(id, undefined);
@@ -221,8 +308,10 @@ export function CommentAnalysisAudience({
   const changePost = (id: string) => {
     const next = id === ALL_POSTS ? "" : id;
     setContainerId(next);
-    setStats(null);
-    setTrend([]);
+    setCommentStats(null);
+    setConversationStats(null);
+    setCommentTrend([]);
+    setConversationTrend([]);
     if (next && section === "authors") setSection("overview");
     onScopeChange?.(accountId, next || undefined);
   };
@@ -252,7 +341,11 @@ export function CommentAnalysisAudience({
     { value: "overview" as const, label: t("sections.overview"), icon: <ChartLineUp className="h-3.5 w-3.5" weight="fill" /> },
     ...(accountId ? [{ value: "topics" as const, label: t("sections.topics"), icon: <Hash className="h-3.5 w-3.5" weight="fill" /> }] : []),
     ...(accountId && !containerId ? [{ value: "authors" as const, label: t("sections.authors"), icon: <ShieldWarning className="h-3.5 w-3.5" weight="fill" /> }] : []),
-    { value: "feed" as const, label: t("sections.feed"), icon: <ChatCircle className="h-3.5 w-3.5" weight="fill" /> },
+    {
+      value: "feed" as const,
+      label: kind === "conversation" ? ta("kindConversation") : kind === "comment" ? ta("kindComment") : ta("allKinds"),
+      icon: <ChatCircle className="h-3.5 w-3.5" weight="fill" />,
+    },
   ];
 
   return (
@@ -313,7 +406,7 @@ export function CommentAnalysisAudience({
           </ElevatedSelect>
         </div>
 
-        <PeriodPicker value={period} onChange={(next) => { setPeriod(next); setStats(null); setTrend([]); setError(null); }} />
+        <PeriodPicker value={period} onChange={(next) => { setPeriod(next); setCommentStats(null); setConversationStats(null); setCommentTrend([]); setConversationTrend([]); setError(null); }} />
       </div>
 
       {error ? <div role="alert" className="rounded-[--radius] border border-border bg-muted px-3 py-2 text-sm text-destructive-ink">{error}</div> : null}
@@ -349,24 +442,43 @@ export function CommentAnalysisAudience({
             {containerId ? <Chip>{ta("scopedToPost")}</Chip> : null}
           </div>
 
-          {section === "overview" && (!error || stats) ? (
+          {section === "overview" && (!error || commentStats || conversationStats) ? (
             <div className="flex flex-col gap-6">
-              <CommentAnalysisOverview stats={stats} trend={trend} loading={!stats} topics={settings?.topics ?? []} />
               {/*
-                The conversation half of the audience. It renders its own empty
-                state, so a workspace that only analyses comments reads an
-                explanation rather than finding a gap on the page.
+                The ceiling first: it governs both halves below, and when it is
+                spent it is the reason the rest of the page looks thin.
               */}
-              <CommentAnalysisConversations stats={stats} loading={!stats} />
+              <AnalysisBudgetPanel
+                usage={usage}
+                settings={workspaceSettings}
+                onChanged={(next) => {
+                  setWorkspaceSettings(next);
+                  // The meter is drawn against the ceiling, so a saved ceiling
+                  // has to reach it now rather than on the next poll a minute
+                  // later. The spend itself is unchanged by the edit.
+                  setUsage((current) =>
+                    current && next.dailyCap > 0 ? { ...current, limit: next.dailyCap } : current,
+                  );
+                }}
+              />
+              {kind !== "conversation" && (kind === "comment" || !commentStats || commentStats.commentCount > 0) ? (
+                <CommentAnalysisOverview stats={commentStats} trend={commentTrend} loading={!commentStats} topics={settings?.topics ?? []} />
+              ) : null}
+              {kind !== "comment" ? (
+                <CommentAnalysisConversations stats={conversationStats} previousStats={previousStats} trend={conversationTrend} loading={!conversationStats} />
+              ) : null}
             </div>
           ) : null}
-          {section === "topics" && settings ? <CommentAnalysisTopics topics={settings.topics} stats={stats?.topics ?? []} /> : null}
+          {section === "topics" && settings ? <CommentAnalysisTopics topics={settings.topics} stats={commentStats?.topics ?? []} /> : null}
           {section === "authors" && accountId && !containerId ? (
             <CommentAnalysisAuthors accountId={accountId} topics={settings?.topics ?? []} period={period} />
           ) : null}
           {section === "feed" ? (
             <CommentAnalysisFeed
+              key={JSON.stringify([accountId, source, kind, containerId, period])}
               accountId={accountId}
+              source={source || undefined}
+              subjectKind={kind === ALL_KINDS ? undefined : kind}
               containerId={containerId || undefined}
               topics={settings?.topics ?? []}
               period={period}

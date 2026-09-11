@@ -12,6 +12,8 @@ import {
   CalendarBlank,
   ChatCircleDots,
   Check,
+  Clock,
+  CircleNotch,
   Funnel,
   MagnifyingGlass,
   Phone,
@@ -38,7 +40,12 @@ import AnalysisHoverCard from "@/components/crm/AnalysisHoverCard";
 import TooltipWrapper from "@/components/ui/tooltip-wrapper";
 import { cn, readableInkFor } from "@/lib/utils";
 import { motion as framerMotion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
+import {
+  NoDepartmentNotice,
+  useBlockedByMissingDepartment,
+} from "@/components/dashboard/NoDepartmentNotice";
 import {
   listAssignableMembersAction,
   type AssignableMember,
@@ -201,7 +208,6 @@ const CHANNEL_FILTER_LABELS: Record<MessageChannel, string> = {
   unofficial_whatsapp: "WhatsApp (não oficial)",
   instagram: "Instagram",
   telegram: "Telegram",
-  voice: "Voz",
 };
 
 const EMPTY_FILTERS: FilterState = {
@@ -288,6 +294,11 @@ export default function CrmInbox({
     import("@/lib/analysis/types").Analysis | null
   >(null);
   const { can, currentWorkspace } = useWorkspace();
+  const blockedByDepartment = useBlockedByMissingDepartment();
+  // Read here rather than threaded through the translations prop bag: six call
+  // sites build that object, and two strings for one chip is not worth making
+  // every one of them change.
+  const tAnalysis = useTranslations("crmAnalysis");
 
   // Assignable members for the "Responsável" filter (Todos / Sem responsável / member).
   const [members, setMembers] = useState<AssignableMember[]>([]);
@@ -302,7 +313,9 @@ export default function CrmInbox({
       cancelled = true;
     };
   }, [currentWorkspace?.id]);
-  const canReadAnalysis = can("analysis", "read");
+  // The analysis moved behind the audience resource; "analysis" no longer gates
+  // any route, so checking it hid this from everyone who holds the real one.
+  const canReadAnalysis = can("audience", "read");
   const inboxListRef = useRef<HTMLDivElement>(null);
   const loadMoreCalledRef = useRef(false);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -915,10 +928,7 @@ export default function CrmInbox({
                     className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-2xs text-foreground outline-none focus:border-healthy/30 focus:ring-1 focus:ring-healthy/30"
                   >
                     <option value="">Todos</option>
-                    {FILTERABLE_MESSAGE_CHANNELS.filter(
-                      // Voice is meaningless inside a WhatsApp campaign.
-                      (c) => c !== "voice" || campaignType !== "whatsapp",
-                    ).map((c) => (
+                    {FILTERABLE_MESSAGE_CHANNELS.map((c) => (
                       <option key={c} value={c}>
                         {CHANNEL_FILTER_LABELS[c]}
                       </option>
@@ -1163,17 +1173,10 @@ export default function CrmInbox({
                         <span className="text-2xs text-muted-foreground tabular-nums flex-shrink-0">
                           {formatMatchTime(match.created_at)}
                         </span>
-                        {match.channel === "voice" ? (
-                          <Phone
-                            weight="fill"
-                            className="h-2.5 w-2.5 flex-shrink-0 text-info-ink/60"
-                          />
-                        ) : (
-                          <ChannelLogo
-                            channel={match.channel}
-                            className="h-2.5 w-2.5 flex-shrink-0"
-                          />
-                        )}
+                        <ChannelLogo
+                          channel={match.channel}
+                          className="h-2.5 w-2.5 flex-shrink-0"
+                        />
                       </div>
                       <p className="text-2xs text-foreground leading-snug break-words">
                         <HighlightedText
@@ -1214,11 +1217,21 @@ export default function CrmInbox({
                   />
                 )}
               </div>
-              <p className="text-sm text-muted-foreground">
-                {isServerSearchActive
-                  ? "Nenhum resultado encontrado"
-                  : t.noConversations}
-              </p>
+              {/*
+                "No conversations yet" is a lie for a member the department
+                scope has excluded from everything: the workspace is not empty,
+                none of it is theirs. The notice renders only in that state and
+                explains what to do about it.
+              */}
+              {!isServerSearchActive && blockedByDepartment ? (
+                <NoDepartmentNotice compact />
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {isServerSearchActive
+                    ? "Nenhum resultado encontrado"
+                    : t.noConversations}
+                </p>
+              )}
               {isServerSearchActive && (
                 <button
                   onClick={handleClearAll}
@@ -1412,6 +1425,37 @@ export default function CrmInbox({
                             assignedUserId={entry.assigned_user_id}
                             size="sm"
                           />
+                          {/*
+                            An analysis is on its way.
+
+                            Shown beside the verdict rather than instead of it:
+                            a conversation being re-analysed still carries last
+                            revision's answer, and the hover card keeps showing
+                            it. Gated on the same permission as the verdict, so
+                            this never tells someone about work they cannot see
+                            the result of.
+                          */}
+                          {canReadAnalysis && entry.analysis_phase && (
+                            <span
+                              title={tAnalysis(`${entry.analysis_phase}Hint`)}
+                              className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-2xs font-medium text-muted-foreground shadow-sm"
+                            >
+                              {/*
+                                A spinner only once something is actually
+                                running. While the conversation is still going
+                                nothing is being analysed, and a spinner there
+                                would be claiming work that has not started.
+                              */}
+                              {entry.analysis_phase === "queued" ? (
+                                <CircleNotch className="h-3 w-3 animate-spin" weight="bold" />
+                              ) : (
+                                <Clock className="h-3 w-3" weight="bold" />
+                              )}
+                              <span className="truncate">
+                                {tAnalysis(entry.analysis_phase)}
+                              </span>
+                            </span>
+                          )}
                           {/* stage: pipeline position, refined outlined bubble + color dot */}
                           {entry.stage && (
                             <span className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-2xs font-medium text-foreground shadow-sm">

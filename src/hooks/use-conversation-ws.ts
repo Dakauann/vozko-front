@@ -761,6 +761,14 @@ export function useConversationWs({
           (raw.latest_analysis as InboxEntry["latest_analysis"]) ??
           (raw.latestAnalysis as InboxEntry["latest_analysis"]) ??
           undefined,
+        // Omitted from the payload when there is nothing coming, so the
+        // fallback is undefined rather than a carried-over value: a row rebuilt
+        // after a message must not inherit a stale phase from the entry it
+        // replaced.
+        analysis_phase:
+          (raw.analysis_phase as InboxEntry["analysis_phase"]) ??
+          (raw.analysisPhase as InboxEntry["analysis_phase"]) ??
+          undefined,
         conversation_status:
           (raw.conversation_status as string) ??
           (raw.conversationStatus as string) ??
@@ -1727,12 +1735,29 @@ export function useConversationWs({
         }
 
         case "conversation:analysis_update": {
-          const { entry_id, entry_type, analysis } = event.payload;
+          const { entry_id, entry_type, analysis, pending } = event.payload;
           setLatestAnalysisUpdate(event.payload);
+          /*
+           * The verdict and the pending flag move independently.
+           *
+           * A "queued" frame carries no analysis, so keeping the one already on
+           * the entry is the whole point: a conversation being re-analysed
+           * still has last revision's answer, and blanking it for the minutes
+           * until the batch runs would read as the analysis having been lost.
+           */
+          // This frame comes from the ENGINE, so its pending flag means queued,
+          // never the earlier "waiting for the conversation to settle" phase.
+          // A frame that says not-pending clears the phase entirely: the
+          // analysis it announces is the one that was being waited for.
+          const applyAnalysis = (e: InboxEntry): InboxEntry => ({
+            ...e,
+            latest_analysis: analysis ?? e.latest_analysis,
+            analysis_phase: pending ? "queued" : undefined,
+          });
           setInbox((prev) =>
             prev.map((e) =>
               e.entry_id === entry_id && e.entry_type === entry_type
-                ? { ...e, latest_analysis: analysis }
+                ? applyAnalysis(e)
                 : e,
             ),
           );
@@ -1747,10 +1772,7 @@ export function useConversationWs({
               if (idx !== -1) {
                 changed = true;
                 const updatedEntries = [...col.entries];
-                updatedEntries[idx] = {
-                  ...updatedEntries[idx],
-                  latest_analysis: analysis,
-                };
+                updatedEntries[idx] = applyAnalysis(updatedEntries[idx]);
                 newMap.set(stageId, { ...col, entries: updatedEntries });
               }
             }

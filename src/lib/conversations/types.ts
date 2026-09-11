@@ -61,9 +61,7 @@ export interface InboxEntryLabel {
 
 
 export type EntryType =
-    | 'voice'
     | 'whatsapp'
-    | 'sip'
     | 'support'
     | 'instagram'
     | 'telegram'
@@ -86,7 +84,7 @@ export type EntryType =
  * no Instagram campaign to model, and adding one would invent a capability the
  * platform does not grant.
  */
-export type CampaignType = 'voice' | 'whatsapp' | 'support' | 'unofficial_whatsapp';
+export type CampaignType = 'whatsapp' | 'support' | 'unofficial_whatsapp';
 
 /**
  * Which container a scoped inbox narrows to.
@@ -101,13 +99,12 @@ export type ContainerKind = 'campaign' | undefined;
 /**
  * The channel a MESSAGE was carried on, which is what the inbox filters by.
  *
- * Distinct from EntryType: 'sip' and 'support' are entry kinds, not message
- * channels. Declared once because it had been spelled out inline in three
- * places, and each new channel was added to some of them, Telegram reached the
- * inbox with no filter option, and a Telegram message rendered a telephone icon
- * because it fell through the whatsapp/instagram checks to the voice branch.
+ * Distinct from EntryType: 'support' is an entry kind, not a message channel.
+ * Declared once because it had been spelled out inline in three places, and
+ * each new channel was added to some of them, so Telegram reached the inbox
+ * with no filter option at all.
  */
-export type MessageChannel = 'voice' | 'whatsapp' | 'instagram' | 'telegram' | 'unofficial_whatsapp';
+export type MessageChannel = 'whatsapp' | 'instagram' | 'telegram' | 'unofficial_whatsapp';
 
 /** The channels an operator can filter the inbox by, in display order. */
 export const FILTERABLE_MESSAGE_CHANNELS: readonly MessageChannel[] = [
@@ -118,22 +115,20 @@ export const FILTERABLE_MESSAGE_CHANNELS: readonly MessageChannel[] = [
     'unofficial_whatsapp',
     'instagram',
     'telegram',
-    'voice',
 ] as const;
 
 export type WhatsAppCampaignTypeFilter = 'standard' | 'organic';
 
-export function normalizeEntryType(
-    entryType: EntryType,
-): 'voice' | 'whatsapp' | 'support' | 'instagram' | 'telegram' | 'unofficial_whatsapp' {
-    if (entryType === 'sip') return 'voice';
-    return entryType as
-        | 'voice'
-        | 'whatsapp'
-        | 'support'
-        | 'instagram'
-        | 'telegram'
-        | 'unofficial_whatsapp';
+/**
+ * Kept as a named step even though it no longer rewrites anything.
+ *
+ * It existed to fold 'sip' into 'voice'. Both were telephony entry kinds and
+ * neither exists any more, so every entry type now normalizes to itself. The
+ * call sites stay pointed here rather than at a raw cast, so folding a future
+ * transport into its channel is one edit again.
+ */
+export function normalizeEntryType(entryType: EntryType): EntryType {
+    return entryType;
 }
 
 /**
@@ -156,7 +151,7 @@ export const channelCapabilities = {
         // IGSID or a Telegram user id, so a call session can reach it. This
         // gates CALLING only; the WhatsApp call-permission flow is a Cloud API
         // feature and stays gated on 'whatsapp' where it is used.
-        return t === 'whatsapp' || t === 'voice' || t === 'unofficial_whatsapp';
+        return t === 'whatsapp' || t === 'unofficial_whatsapp';
     },
 
     /**
@@ -204,7 +199,7 @@ export const channelCapabilities = {
     supportsAiHandling(entryType: EntryType): boolean {
         const t = normalizeEntryType(entryType);
         return (
-            t === 'whatsapp' || t === 'voice' || t === 'support' ||
+            t === 'whatsapp' || t === 'support' ||
             t === 'instagram' || t === 'telegram' || t === 'unofficial_whatsapp'
         );
     },
@@ -274,6 +269,15 @@ export interface AIHandler {
     current_node_type?: string;
 }
 
+/**
+ * Where an upcoming analysis has got to.
+ *
+ * "awaiting" is the conversation still being active: nothing is analysing yet
+ * and nothing will until it settles. "queued" is the engine having it. They get
+ * different words on screen because they are different facts.
+ */
+export type AnalysisPhase = "awaiting" | "queued";
+
 export interface InboxEntry {
     entry_id: string;
     entry_type: EntryType;
@@ -319,6 +323,16 @@ export interface InboxEntry {
     assigned_user_id?: string;
     assigned_username?: string;
     latest_analysis?: Analysis | null;
+    /**
+     * Where an upcoming analysis has got to.
+     *
+     * The two states must not share a word: "awaiting" means the conversation
+     * is still going and nothing is being analysed yet, "queued" means the
+     * engine has it. Independent of `latest_analysis`, which keeps showing the
+     * previous verdict while the next one is computed, and carried on the entry
+     * itself so a page reload still shows it.
+     */
+    analysis_phase?: AnalysisPhase;
     conversation_status?: string;
     close_source?: string;
     close_reason?: string;
@@ -791,7 +805,11 @@ export type WsServerEvent =
 export interface WsAnalysisUpdatePayload {
     entry_id: string;
     entry_type: EntryType;
-    analysis: Analysis;
+    /** Absent on a "queued" frame: there is no verdict yet, and the one already
+     * on screen must not be overwritten with a blank. */
+    analysis?: Analysis | null;
+    /** A new analysis is queued or running. */
+    pending?: boolean;
 }
 
 

@@ -81,8 +81,8 @@ export function CommentAnalysisAuthorView({
   /** Lets a list that shows this author keep its own row in step. */
   onModeration?: (authorId: string, state: ModerationState) => void;
 }) {
-  const t = useTranslations("commentAnalysis.authorView");
-  const tMod = useTranslations("commentAnalysis.enums.moderation");
+  const t = useTranslations("audience.authorView");
+  const tMod = useTranslations("audience.enums.moderation");
   const locale = useLocale();
   const df = useMemo(() => new Intl.DateTimeFormat(LOCALE_TAG[locale] ?? "pt-BR", { dateStyle: "short" }), [locale]);
   const nf = useMemo(() => new Intl.NumberFormat(LOCALE_TAG[locale] ?? "pt-BR"), [locale]);
@@ -255,7 +255,7 @@ function AuthorPosts({
   selected: string | null;
   onSelect: (containerId: string) => void;
 }) {
-  const t = useTranslations("commentAnalysis.authorView");
+  const t = useTranslations("audience.authorView");
   const [containers, setContainers] = useState<AuthorContainer[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -330,9 +330,9 @@ function AuthorComments({
   containerId: string | null;
   range: { from?: string; to?: string };
 }) {
-  const t = useTranslations("commentAnalysis.authorView");
-  const tActions = useTranslations("commentAnalysis.quickActions");
-  const tTopics = useTranslations("commentAnalysis.topics");
+  const t = useTranslations("audience.authorView");
+  const tActions = useTranslations("audience.quickActions");
+  const tTopics = useTranslations("audience.topics");
   const [comments, setComments] = useState<AnalyzedComment[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hidden, setHidden] = useState<Set<string>>(new Set());

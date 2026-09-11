@@ -42,7 +42,7 @@ export function EscalateCommentDialog({
   onClose: () => void;
   onSent?: (text: string) => void;
 }) {
-  const t = useTranslations("commentAnalysis.escalate");
+  const t = useTranslations("audience.escalate");
   const [query, setQuery] = useState("");
   const [recipients, setRecipients] = useState<EscalationRecipient[] | null>(null);
   const [selected, setSelected] = useState<EscalationRecipient | null>(null);

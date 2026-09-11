@@ -37,7 +37,7 @@ export function ReplyCommentDialog({
   onClose: () => void;
   onPosted?: (text: string) => void;
 }) {
-  const t = useTranslations("commentAnalysis.reply");
+  const t = useTranslations("audience.reply");
   const [text, setText] = useState("");
   const [fromModel, setFromModel] = useState(false);
   const [drafting, setDrafting] = useState(false);

@@ -29,7 +29,7 @@ export function TopicsEditor({
   onChange: (next: CommentTopic[]) => void;
   disabled?: boolean;
 }) {
-  const t = useTranslations("commentAnalysis.settings.topics");
+  const t = useTranslations("audience.settings.topics");
 
   const update = (index: number, field: "label" | "description", value: string) => {
     onChange(topics.map((tp, i) => (i === index ? { ...tp, [field]: value } : tp)));

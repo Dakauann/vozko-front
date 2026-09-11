@@ -68,7 +68,7 @@ export function CommentQuickActions({
   onError?: (message: string) => void;
   className?: string;
 }) {
-  const t = useTranslations("commentAnalysis.quickActions");
+  const t = useTranslations("audience.quickActions");
   const { can } = useWorkspace();
   const canSend = can("audience", "send");
   const [busy, setBusy] = useState<"hide" | "retry" | null>(null);
@@ -175,7 +175,7 @@ function PrivateReplyDialog({
   comment: AnalyzedComment;
   onClose: () => void;
 }) {
-  const t = useTranslations("commentAnalysis.quickActions.privateReplyDialog");
+  const t = useTranslations("audience.quickActions.privateReplyDialog");
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);

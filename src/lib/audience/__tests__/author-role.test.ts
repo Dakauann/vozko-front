@@ -17,7 +17,7 @@ describe("author role labels", () => {
 
     it("labels every role in all four locales", () => {
         for (const [locale, catalog] of Object.entries(catalogs)) {
-            const roles = (catalog.commentAnalysis as Record<string, unknown>).roles as
+            const roles = (catalog.audience as Record<string, unknown>).roles as
                 | { labels?: Record<string, string>; confidence?: Record<string, string> }
                 | undefined;
             expect(roles, locale).toBeDefined();

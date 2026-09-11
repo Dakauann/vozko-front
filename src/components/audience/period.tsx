@@ -26,7 +26,7 @@ export function PeriodPicker({
   onChange: (period: Period) => void;
   className?: string;
 }) {
-  const t = useTranslations("commentAnalysis.period");
+  const t = useTranslations("audience.period");
 
   return (
     <div className={cn("flex flex-wrap items-center gap-2", className)}>

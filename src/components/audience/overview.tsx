@@ -23,12 +23,12 @@ export function CommentAnalysisOverview({ stats, trend, loading, layout = "page"
   topics?: CommentTopic[];
 }) {
   const narrow = layout === "narrow";
-  const t = useTranslations("commentAnalysis.overview");
+  const t = useTranslations("audience.overview");
   const td = useTranslations("denseCharts");
-  const tStance = useTranslations("commentAnalysis.enums.stance");
-  const tSent = useTranslations("commentAnalysis.enums.sentiment");
-  const tIntent = useTranslations("commentAnalysis.enums.intent");
-  const tTopics = useTranslations("commentAnalysis.topics");
+  const tStance = useTranslations("audience.enums.stance");
+  const tSent = useTranslations("audience.enums.sentiment");
+  const tIntent = useTranslations("audience.enums.intent");
+  const tTopics = useTranslations("audience.topics");
   const locale = useLocale();
   const nf = useMemo(() => new Intl.NumberFormat(locale), [locale]);
   const df = useMemo(() => new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", timeZone: "UTC" }), [locale]);

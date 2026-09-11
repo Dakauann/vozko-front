@@ -3,7 +3,7 @@
  *
  * These mirror `delivery/http/commentanalysis/dto.go`. Stored values are
  * English slugs on both sides; the UI translates every enum label in all four
- * locales (see `i18n/messages/*.json` under `commentAnalysis.enums`), and the
+ * locales (see `i18n/messages/*.json` under `audience.enums`), and the
  * slugs never reach the screen untranslated.
  *
  * Two derived numbers are never model-produced and never computed here:
@@ -13,6 +13,21 @@
  */
 
 export type CommentSource = 'instagram';
+
+/** What the engine analyzed. */
+export type SubjectKind = "comment" | "conversation";
+
+/** Every channel supported by the channel-agnostic audience pipeline. */
+export type AudienceSource =
+    | "instagram"
+    | "whatsapp"
+    | "telegram"
+    | "unofficial_whatsapp";
+
+export type ConversationInterest = "interested" | "not_interested" | "undecided";
+export type ConversationDisposition = "sale" | "filling_info" | "callback" | "declined" | "no_answer" | "voicemail" | "pending";
+export type ConversationQualification = "hot_lead" | "warm_lead" | "cold_lead";
+export type ConversationNextAction = "schedule_callback" | "send_whatsapp" | "close" | "escalate" | "continue";
 
 export type CommentAnalysisStatus = 'pending' | 'in_flight' | 'analyzed' | 'failed' | 'skipped';
 
@@ -51,7 +66,8 @@ export const HIGH_SEVERITY_THRESHOLD = 60;
 
 export interface AnalyzedComment {
     id: string;
-    source: CommentSource;
+    subjectKind?: SubjectKind;
+    source: AudienceSource;
     accountId: string;
     containerId: string;
     subjectId: string;
@@ -79,6 +95,15 @@ export interface AnalyzedComment {
 
     excerpt: string;
     truncated: boolean;
+
+    interest?: ConversationInterest;
+    productInterest?: string;
+    disposition?: ConversationDisposition;
+    qualification?: ConversationQualification;
+    nextAction?: ConversationNextAction;
+    summary?: string;
+    attendanceQuality?: number;
+    messageCount?: number;
 
     model?: string;
     analyzedAt?: string;
@@ -130,6 +155,8 @@ export interface CommentCounters {
     // from one where every conversation happened to be unlabelled.
     commentCount: number;
     conversationCount: number;
+    conversationAnalyzed: number;
+    lastAnalyzedAt?: string;
 
     interestInterested: number;
     interestNotInterested: number;
@@ -172,8 +199,22 @@ export interface TopicStat {
     severityAvg: number;
 }
 
+/**
+ * One subject the conversations kept coming back to.
+ *
+ * `key` is the canonical form the backend grouped on and is the identity, so a
+ * chart keys its marks on it. `label` is a real example of how the model wrote
+ * it, which is what a person should read.
+ */
+export interface SubjectCount {
+    key: string;
+    label: string;
+    count: number;
+}
+
 export interface CommentAnalysisStats extends CommentCounters {
     topics: TopicStat[];
+    subjects: SubjectCount[];
     acceptanceScore: number;
 }
 
@@ -412,29 +453,20 @@ export interface CommentBackfill {
 }
 
 /*
- * What the engine analyses. A comment is one utterance under a post; a
- * conversation is a two-sided exchange on any channel. They carry different
- * labels, which is why a screen says which it wants.
+ * The channels the engine can analyse. Mirrors the backend's source set, and
+ * is what a channel filter offers: a screen that spans channels iterates it
+ * rather than hard-coding the list.
  */
-export type SubjectKind = "comment" | "conversation";
-
-/** The channels the engine can analyse. Mirrors the backend's source set. */
-export type AudienceSource =
-    | "instagram"
-    | "whatsapp"
-    | "telegram"
-    | "unofficial_whatsapp"
-    | "voice";
-
 export const AUDIENCE_SOURCES: AudienceSource[] = [
     "instagram",
     "whatsapp",
     "telegram",
     "unofficial_whatsapp",
-    "voice",
 ];
 
 export interface CommentListFilters {
+    subjectId?: string;
+    latestOnly?: boolean;
     /**
      * Empty means every account. The audience view is workspace-wide by
      * default; only a screen scoped to one account sets this.
@@ -506,6 +538,7 @@ export const EMPTY_COUNTERS: CommentCounters = {
     flaggedAuthors: 0,
     commentCount: 0,
     conversationCount: 0,
+    conversationAnalyzed: 0,
     interestInterested: 0,
     interestNotInterested: 0,
     interestUndecided: 0,
@@ -616,7 +649,7 @@ export const AUTHOR_SORT_FIRST_DIRECTION: Record<AuthorSortKey, 'asc' | 'desc'> 
  * The orderable columns of the authors table, in table order.
  *
  * A column's key IS its API sort key and the suffix of its
- * `commentAnalysis.authors.columns.*` label, so a column cannot exist without
+ * `audience.authors.columns.*` label, so a column cannot exist without
  * an ordering behind it or a label in front of it. Kept here rather than in the
  * component so the label coverage is testable without rendering React.
  */

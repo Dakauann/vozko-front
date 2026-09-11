@@ -12,6 +12,8 @@ import type {
   CommentSentiment,
   CommentStance,
   CommentTopic,
+  AudienceSource,
+  SubjectKind,
 } from "@/lib/audience/types";
 import { COMMENT_INTENTS, COMMENT_SENTIMENTS, COMMENT_STANCES, HIGH_SEVERITY_THRESHOLD } from "@/lib/audience/types";
 import Button from "@/components/elevated-design/button";
@@ -61,24 +63,33 @@ const ANY = "__any";
 
 export function CommentAnalysisFeed({
   accountId,
+  source,
+  subjectKind,
   containerId,
   topics,
   period = DEFAULT_PERIOD,
 }: {
   accountId: string;
+  source?: AudienceSource;
+  subjectKind?: SubjectKind;
   /** When set, only this post's comments. */
   containerId?: string;
   topics: CommentTopic[];
   /** Inherited from the tab, so every panel answers for the same window. */
   period?: Period;
 }) {
-  const t = useTranslations("commentAnalysis.feed");
-  const tTopics = useTranslations("commentAnalysis.topics");
-  const tStance = useTranslations("commentAnalysis.enums.stance");
-  const tSent = useTranslations("commentAnalysis.enums.sentiment");
-  const tIntent = useTranslations("commentAnalysis.enums.intent");
-  const tStatus = useTranslations("commentAnalysis.enums.status");
-  const tReason = useTranslations("commentAnalysis.enums.failureReason");
+  const t = useTranslations("audience.feed");
+  const tTopics = useTranslations("audience.topics");
+  const tStance = useTranslations("audience.enums.stance");
+  const tSent = useTranslations("audience.enums.sentiment");
+  const tIntent = useTranslations("audience.enums.intent");
+  const tStatus = useTranslations("audience.enums.status");
+  const tReason = useTranslations("audience.enums.failureReason");
+  const tConversations = useTranslations("audience.conversations");
+  const tInterest = useTranslations("audience.enums.interest");
+  const tDisposition = useTranslations("audience.enums.disposition");
+  const tQualification = useTranslations("audience.enums.qualification");
+  const tNextAction = useTranslations("audience.enums.nextAction");
   const locale = useLocale();
   const df = useMemo(() => new Intl.DateTimeFormat(LOCALE_TAG[locale] ?? "pt-BR", { dateStyle: "short", timeStyle: "short" }), [locale]);
   const nf = useMemo(() => new Intl.NumberFormat(LOCALE_TAG[locale] ?? "pt-BR"), [locale]);
@@ -96,6 +107,9 @@ export function CommentAnalysisFeed({
   const [error, setError] = useState<string | null>(null);
   const [hidden, setHidden] = useState<Set<string>>(new Set());
   const [live, setLive] = useState(false);
+  const conversationOnly = subjectKind === "conversation";
+  const commentOnly = subjectKind === "comment";
+  const selectedView = conversationOnly && (view === "action" || view === "high") ? "all" : view;
   const { connected, analysedSinceDrain, drain } = useCommentAnalysisLive({
     accountId,
     paused: !live,
@@ -109,9 +123,12 @@ export function CommentAnalysisFeed({
     setItems((prev) => {
       const seen = new Set(prev.map((c) => c.id));
       const fresh = rows
+        .filter((r) => !source || r.source === source)
+        .filter((r) => !subjectKind || r.subjectKind === subjectKind)
         .filter((r) => !seen.has(r.commentId))
         .map<AnalyzedComment>((r) => ({
           id: r.commentId,
+          subjectKind: r.subjectKind,
           source: r.source,
           accountId: r.accountId,
           containerId: r.containerId,
@@ -131,6 +148,14 @@ export function CommentAnalysisFeed({
           severity: r.severity,
           requiresAction: r.requiresAction,
           excerpt: r.excerpt,
+          interest: r.interest,
+          productInterest: r.productInterest,
+          disposition: r.disposition,
+          qualification: r.qualification,
+          nextAction: r.nextAction,
+          summary: r.summary,
+          attendanceQuality: r.attendanceQuality,
+          messageCount: r.messageCount,
           truncated: false,
           occurredAt: r.occurredAt,
           analyzedAt: r.analyzedAt,
@@ -138,7 +163,7 @@ export function CommentAnalysisFeed({
         }));
       return [...fresh, ...prev];
     });
-  }, []);
+  }, [source, subjectKind]);
 
   // Taking the queue is the paused path's one action: the operator decides
   // when the list is allowed to move.
@@ -147,8 +172,8 @@ export function CommentAnalysisFeed({
   const [viewing, setViewing] = useState<string | null>(null);
 
   const filters = useMemo<CommentListFilters>(() => {
-    const f: CommentListFilters = { accountId, containerId, page, pageSize: 20 };
-    switch (view) {
+    const f: CommentListFilters = { accountId: accountId || undefined, source, subjectKind: subjectKind ? [subjectKind] : undefined, containerId, page, pageSize: 20 };
+    switch (selectedView) {
       case "action":
         f.requiresAction = true;
         f.status = ["analyzed"];
@@ -165,15 +190,17 @@ export function CommentAnalysisFeed({
       default:
         f.sort = "occurredAt:desc";
     }
-    if (stance !== ANY) f.stance = stance as CommentStance;
-    if (sentiment !== ANY) f.sentiment = sentiment as CommentSentiment;
-    if (intent !== ANY) f.intent = intent as CommentIntent;
-    if (topic !== ANY) f.topic = topic;
+    if (!conversationOnly) {
+      if (stance !== ANY) f.stance = stance as CommentStance;
+      if (sentiment !== ANY) f.sentiment = sentiment as CommentSentiment;
+      if (intent !== ANY) f.intent = intent as CommentIntent;
+      if (topic !== ANY) f.topic = topic;
+    }
     // A half-typed custom range is left off entirely rather than sent and
     // refused; the panel simply keeps showing what it has.
     if (isPeriodReady(period)) Object.assign(f, periodRange(period));
     return f;
-  }, [accountId, containerId, page, view, stance, sentiment, intent, topic, period]);
+  }, [accountId, source, subjectKind, containerId, page, selectedView, stance, sentiment, intent, topic, period, conversationOnly]);
 
   useEffect(() => {
     let cancelled = false;
@@ -202,8 +229,8 @@ export function CommentAnalysisFeed({
 
   return (
     <Panel
-      title={t("title")}
-      description={t("description")}
+      title={conversationOnly ? t("conversationTitle") : commentOnly ? t("title") : t("mixedTitle")}
+      description={conversationOnly ? t("conversationDescription") : commentOnly ? t("description") : t("mixedDescription")}
       action={
         <div className="flex items-center gap-2">
           <ElevatedPillToggle<LiveMode>
@@ -223,21 +250,20 @@ export function CommentAnalysisFeed({
           />
           <ElevatedPillToggle<View>
             size="sm"
-            aria-label={t("viewLabel")}
-            value={view}
+            aria-label={conversationOnly ? t("conversationViewLabel") : t("viewLabel")}
+            value={selectedView}
             onChange={resetPage(setView)}
             collapseLabels="sm"
             options={[
               { value: "all", label: t("views.all") },
-              { value: "action", label: t("views.action") },
-              { value: "high", label: t("views.high") },
+              ...(!conversationOnly ? [{ value: "action" as const, label: t("views.action") }, { value: "high" as const, label: t("views.high") }] : []),
               { value: "failed", label: t("views.failed"), icon: <Warning className="h-3.5 w-3.5" weight="fill" /> },
             ]}
           />
         </div>
       }
     >
-      <div className="mb-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
+      {!conversationOnly ? <div className="mb-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
         <ElevatedSelect value={stance} onValueChange={resetPage(setStance)} label={t("filters.stance")}>
           <ElevatedSelectItem value={ANY}>{t("filters.any")}</ElevatedSelectItem>
           {COMMENT_STANCES.map((s) => (
@@ -270,7 +296,7 @@ export function CommentAnalysisFeed({
             </ElevatedSelectItem>
           ))}
         </ElevatedSelect>
-      </div>
+      </div> : null}
 
       {error ? (
         <p className="mb-3 flex items-center gap-2 text-xs text-destructive-ink">
@@ -296,7 +322,11 @@ export function CommentAnalysisFeed({
           <Skeleton className="h-20" />
         </div>
       ) : items.length === 0 ? (
-        <EmptyState icon={<ChatCircle weight="duotone" />} title={t("emptyTitle")} description={t("emptyDescription")} />
+        <EmptyState
+          icon={<ChatCircle weight="duotone" />}
+          title={conversationOnly ? t("conversationEmptyTitle") : t("emptyTitle")}
+          description={conversationOnly ? t("conversationEmptyDescription") : t("emptyDescription")}
+        />
       ) : (
         <ul className={cn("space-y-2", loading && "opacity-60")}>
           {items.map((c) => (
@@ -304,26 +334,39 @@ export function CommentAnalysisFeed({
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <p className="text-sm text-foreground">
-                    {c.excerpt}
+                    {c.subjectKind === "conversation" ? (c.summary || c.excerpt) : c.excerpt}
                     {c.truncated ? <span className="text-muted-foreground"> {t("truncated")}</span> : null}
                   </p>
                   <p className="mt-1 text-2xs text-muted-foreground">
-                    <button
-                      type="button"
-                      onClick={() => setViewing(c.authorExternalId)}
-                      title={t("openAuthor")}
-                      className="rounded font-medium text-foreground underline decoration-dotted underline-offset-2 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-                    >
-                      {c.authorHandle ? `@${c.authorHandle}` : c.authorExternalId}
-                    </button>{" "}
+                    {c.subjectKind === "conversation" ? (
+                      <span className="font-medium text-foreground">{c.authorHandle || c.authorExternalId}</span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setViewing(c.authorExternalId)}
+                        title={t("openAuthor")}
+                        className="rounded font-medium text-foreground underline decoration-dotted underline-offset-2 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                      >
+                        {c.authorHandle ? `@${c.authorHandle}` : c.authorExternalId}
+                      </button>
+                    )}{" "}
                     · {df.format(new Date(c.occurredAt))}
-                    {c.isSpam ? ` · ${t("spam")}` : ""}
+                    {c.subjectKind !== "conversation" && c.isSpam ? ` · ${t("spam")}` : ""}
                   </p>
                 </div>
-                {c.status === "analyzed" ? <SeverityBar severity={c.severity} /> : <StatusChip status={c.status} label={tStatus(c.status)} />}
+                {c.status === "analyzed" && c.subjectKind !== "conversation" ? <SeverityBar severity={c.severity} /> : c.status !== "analyzed" ? <StatusChip status={c.status} label={tStatus(c.status)} /> : null}
               </div>
 
-              {c.status === "analyzed" ? (
+              {c.status === "analyzed" && c.subjectKind === "conversation" ? (
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  {c.interest ? <Chip>{tInterest(c.interest)}</Chip> : null}
+                  {c.disposition ? <Chip>{tDisposition(c.disposition)}</Chip> : null}
+                  {c.qualification ? <Chip>{tQualification(c.qualification)}</Chip> : null}
+                  {c.nextAction ? <Chip>{tNextAction(c.nextAction)}</Chip> : null}
+                  {typeof c.attendanceQuality === "number" ? <Chip>{tConversations("qualityValue", { value: c.attendanceQuality })}</Chip> : null}
+                  {typeof c.messageCount === "number" ? <Chip>{tConversations("messageCount", { count: c.messageCount })}</Chip> : null}
+                </div>
+              ) : c.status === "analyzed" ? (
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   {c.stance ? <StanceChip stance={c.stance} /> : null}
                   {c.sentiment ? <SentimentChip sentiment={c.sentiment} /> : null}
@@ -339,16 +382,18 @@ export function CommentAnalysisFeed({
                 </p>
               ) : null}
 
-              <CommentQuickActions
-                className="mt-2"
-                accountId={accountId}
-                comment={c}
-                hidden={hidden.has(c.id)}
-                onHidden={(x) => setHidden((prev) => new Set(prev).add(x.id))}
-                onOpenAuthor={setViewing}
-                onRetried={(x) => setItems((prev) => prev.map((y) => (y.id === x.id ? x : y)))}
-                onError={setError}
-              />
+              {c.subjectKind !== "conversation" ? (
+                <CommentQuickActions
+                  className="mt-2"
+                  accountId={accountId}
+                  comment={c}
+                  hidden={hidden.has(c.id)}
+                  onHidden={(x) => setHidden((prev) => new Set(prev).add(x.id))}
+                  onOpenAuthor={setViewing}
+                  onRetried={(x) => setItems((prev) => prev.map((y) => (y.id === x.id ? x : y)))}
+                  onError={setError}
+                />
+              ) : null}
             </li>
           ))}
         </ul>

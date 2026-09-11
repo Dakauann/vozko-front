@@ -135,12 +135,10 @@ export default function ConversationPathChart({
     let ai = 0;
     let media = 0;
     let tools = 0;
-    let voice = 0;
     let whatsapp = 0;
     let failedDelivery = 0;
 
     for (const m of list) {
-      if (m.channel === "voice") voice += 1;
       if (m.channel === "whatsapp") whatsapp += 1;
       if (m.delivery_status === "failed") failedDelivery += 1;
       if (m.media_type || m.media_id) media += 1;
@@ -190,7 +188,6 @@ export default function ConversationPathChart({
       ai,
       media,
       tools,
-      voice,
       whatsapp,
       failedDelivery,
       total: list.length,
@@ -236,11 +233,6 @@ export default function ConversationPathChart({
         name: t("channel.whatsapp"),
         count: threadStats.whatsapp,
         color: MIX.customer,
-      },
-      {
-        name: t("channel.voice"),
-        count: threadStats.voice,
-        color: MIX.media,
       },
     ].filter((r) => r.count > 0);
   }, [threadStats, t]);

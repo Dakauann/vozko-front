@@ -37,7 +37,7 @@ import { Bell, ChartLineUp, ChatCircle, Gear, Hash, ShieldWarning, Sparkle, Warn
 type Section = "overview" | "topics" | "authors" | "feed" | "alerts" | "settings";
 
 export function CommentAnalysisTab({ accountId }: { accountId: string }) {
-  const t = useTranslations("commentAnalysis");
+  const t = useTranslations("audience");
   const { can } = useWorkspace();
   const canConfigure = can("audience", "update");
   const canSendAlerts = can("audience", "send");

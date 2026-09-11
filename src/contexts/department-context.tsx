@@ -11,7 +11,12 @@ import {
 } from "react";
 
 import type { Department } from "@/lib/department/types";
-import { fetchDepartments } from "@/lib/department/client";
+import type { DepartmentScope } from "@/lib/department/client";
+import {
+  NO_DEPARTMENT_SCOPE,
+  fetchDepartmentScope,
+  fetchDepartments,
+} from "@/lib/department/client";
 import { useAuth } from "@/contexts/auth-context";
 import { useWorkspace } from "@/contexts/workspace-context";
 
@@ -22,6 +27,13 @@ interface DepartmentContextType {
   switchDepartment: (department: Department | null) => void;
   refreshDepartments: () => Promise<void>;
   isLocked: boolean;
+  /**
+   * The caller's OWN visibility. Every screen that can render an empty list
+   * needs it: without it "nothing here" and "none of this is yours" look
+   * identical, which is the single thing that turns a misconfigured member
+   * into a support thread.
+   */
+  scope: DepartmentScope;
 }
 
 const DepartmentContext = createContext<DepartmentContextType | undefined>(
@@ -96,6 +108,7 @@ export function DepartmentProvider({
     null,
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [scope, setScope] = useState<DepartmentScope>(NO_DEPARTMENT_SCOPE);
   const requestRef = useRef<Promise<void> | null>(null);
   const lastFetchKeyRef = useRef<string | null>(null);
 
@@ -111,6 +124,7 @@ export function DepartmentProvider({
     if (!currentWorkspace?.id || !user?.id) {
       setDepartments([]);
       setCurrentDepartment(null);
+      setScope(NO_DEPARTMENT_SCOPE);
       clearDepartmentCookieClient();
       lastFetchKeyRef.current = null;
       return;
@@ -126,7 +140,14 @@ export function DepartmentProvider({
     const request = (async () => {
       setIsLoading(true);
       try {
-        const result = await fetchDepartments();
+        // Fetched together: a member in no department gets an EMPTY list from
+        // /departments, which on its own is indistinguishable from a workspace
+        // that has none. The scope is what tells the two apart.
+        const [result, scopeResult] = await Promise.all([
+          fetchDepartments(),
+          fetchDepartmentScope(),
+        ]);
+        setScope(scopeResult.scope);
         if (result.error) return;
 
         const all = result.departments;
@@ -205,6 +226,7 @@ export function DepartmentProvider({
       switchDepartment,
       refreshDepartments,
       isLocked,
+      scope,
     }),
     [
       departments,
@@ -213,6 +235,7 @@ export function DepartmentProvider({
       switchDepartment,
       refreshDepartments,
       isLocked,
+      scope,
     ],
   );
 
@@ -233,6 +256,7 @@ export function useDepartment() {
       switchDepartment: () => {},
       refreshDepartments: async () => {},
       isLocked: false,
+      scope: NO_DEPARTMENT_SCOPE,
     } as DepartmentContextType;
   }
   return context;

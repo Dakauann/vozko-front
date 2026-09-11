@@ -24,7 +24,7 @@ export default function AudiencePage() {
 }
 
 function AudiencePageBody() {
-  const t = useTranslations("commentAnalysis.audience");
+  const t = useTranslations("audience.page");
   const tc = useTranslations("metricsOps.common");
   const { currentWorkspace, can, permissionsLoading } = useWorkspace();
   const router = useRouter();
@@ -47,9 +47,15 @@ function AudiencePageBody() {
 
   return (
     <div className="space-y-4">
+      {/*
+        The subtitle says what the page SHOWS, not whose it is. The workspace is
+        already named in the chrome, and interpolating it here produced a
+        sentence about a person nobody is talking about, since a workspace is
+        usually named after an email address.
+      */}
       <DashboardPageHeader
         badge={t("badge")}
-        description={currentWorkspace ? t("description", { name: currentWorkspace.name }) : tc("selectWorkspace")}
+        description={currentWorkspace ? t("description") : tc("selectWorkspace")}
         icon={<UsersThree className="h-6 w-6" weight="fill" />}
       />
 

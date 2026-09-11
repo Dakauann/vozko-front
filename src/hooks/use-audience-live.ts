@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import type { AnalyzedComment, CommentSource } from "@/lib/audience/types";
+import type { AnalyzedComment, AudienceSource, SubjectKind } from "@/lib/audience/types";
 
 /*
  * The live comment feed's client half (§7).
@@ -25,8 +25,9 @@ const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:4000";
 /** Mirrors `audience.Analyzed`. */
 export interface LiveAnalyzedComment {
   commentId: string;
+  subjectKind: SubjectKind;
   workspaceId: string;
-  source: CommentSource;
+  source: AudienceSource;
   accountId: string;
   containerId: string;
   authorExternalId: string;
@@ -39,13 +40,21 @@ export interface LiveAnalyzedComment {
   requiresAction: boolean;
   isSpam: boolean;
   excerpt: string;
+  interest?: AnalyzedComment["interest"];
+  productInterest?: string;
+  disposition?: AnalyzedComment["disposition"];
+  qualification?: AnalyzedComment["qualification"];
+  nextAction?: AnalyzedComment["nextAction"];
+  summary?: string;
+  attendanceQuality?: number;
+  messageCount?: number;
   occurredAt: string;
   analyzedAt: string;
 }
 
 interface LiveBatch {
   workspaceId: string;
-  source: CommentSource;
+  source: AudienceSource;
   accountId: string;
   containerId: string;
   items: LiveAnalyzedComment[];
@@ -94,7 +103,7 @@ export function useCommentAnalysisLive({
   }, [paused, onRows]);
 
   useEffect(() => {
-    if (!enabled || !accountId) return;
+    if (!enabled) return;
     closedRef.current = false;
     let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -125,7 +134,7 @@ export function useCommentAnalysisLive({
 
         const batch = parsed.payload;
         // One socket carries the whole workspace; this view is one account.
-        if (batch.accountId !== accountId) return;
+        if (accountId && batch.accountId !== accountId) return;
 
         const items = batch.items ?? [];
         const seen = new Set(bufferRef.current.map((c) => c.commentId));

@@ -88,7 +88,7 @@ const TONE_TEXT: Record<ReturnType<typeof severityTone>, string> = {
  * channels, so red is never the only one carrying it.
  */
 export function SeverityBar({ severity, compact = false }: { severity: number; compact?: boolean }) {
-  const t = useTranslations("commentAnalysis.enums.severity");
+  const t = useTranslations("audience.enums.severity");
   const tone = severityTone(severity);
   const band = severity >= HIGH_SEVERITY_THRESHOLD ? "high" : severity >= 30 ? "medium" : severity > 0 ? "low" : "none";
   return (
@@ -110,7 +110,7 @@ export function SeverityBar({ severity, compact = false }: { severity: number; c
  * mark, never a wash behind ink of its own colour.
  */
 export function ReputationReadout({ value, className }: { value: number; className?: string }) {
-  const t = useTranslations("commentAnalysis.authors");
+  const t = useTranslations("audience.authors");
   const tone = value < 0 ? "text-destructive-ink" : value > 0 ? "text-healthy-ink" : "text-muted-foreground";
   const Glyph = value < 0 ? ArrowDown : value > 0 ? ArrowUp : Minus;
   return (
@@ -150,7 +150,7 @@ export function Chip({
 }
 
 export function StanceChip({ stance }: { stance: CommentStance }) {
-  const t = useTranslations("commentAnalysis.enums.stance");
+  const t = useTranslations("audience.enums.stance");
   return (
     <Chip dot={STANCE_COLOR[stance]} className={STANCE_TEXT[stance]}>
       {t(stance)}
@@ -159,12 +159,12 @@ export function StanceChip({ stance }: { stance: CommentStance }) {
 }
 
 export function SentimentChip({ sentiment }: { sentiment: CommentSentiment }) {
-  const t = useTranslations("commentAnalysis.enums.sentiment");
+  const t = useTranslations("audience.enums.sentiment");
   return <Chip dot={SENTIMENT_COLOR[sentiment]}>{t(sentiment)}</Chip>;
 }
 
 export function IntentChip({ intent }: { intent: CommentIntent }) {
-  const t = useTranslations("commentAnalysis.enums.intent");
+  const t = useTranslations("audience.enums.intent");
   return <Chip>{t(intent)}</Chip>;
 }
 
@@ -188,7 +188,7 @@ export function AuthorRoleChip({
   role: AuthorRoleInference;
   displayable: boolean;
 }) {
-  const t = useTranslations("commentAnalysis.roles");
+  const t = useTranslations("audience.roles");
   if (!displayable || role.role === "unknown") return null;
   return (
     <Chip
@@ -207,7 +207,7 @@ export function AuthorRoleChip({
 }
 
 export function ModerationChip({ state }: { state: ModerationState }) {
-  const t = useTranslations("commentAnalysis.enums.moderation");
+  const t = useTranslations("audience.enums.moderation");
   if (state === "none") return null;
   const tone = state === "blocked" ? "text-destructive-ink" : state === "muted" ? "text-warning-ink" : "text-muted-foreground";
   return <Chip className={tone}>{t(state)}</Chip>;

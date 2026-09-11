@@ -82,12 +82,29 @@ const QUALIFICATION_CONFIG = {
 
 const DISPOSITION_LABELS: Record<string, string> = {
   sale: "Venda",
+  filling_info: "Preenchendo dados",
   callback: "Retornar",
   declined: "Recusado",
   no_answer: "Sem resposta",
   voicemail: "Caixa postal",
   pending: "Pendente",
 };
+
+/*
+ * What to show for a label this panel does not recognise.
+ *
+ * Every lookup below goes through a fallback rather than indexing the config
+ * directly. The direct version threw: a row that is queued but not yet
+ * classified carries empty labels, so SENTIMENT_CONFIG[""] was undefined and
+ * reading .icon off it took down the whole CRM route, not just this panel.
+ *
+ * The status filter on the fetch is the real fix for that case. This is the
+ * second line: a label the engine adds later (a new disposition, say) must
+ * degrade to a neutral tile, never to a crash.
+ */
+const UNKNOWN_SENTIMENT = { label: "—", icon: SmileyMeh, tile: "tile-muted" } as const;
+const UNKNOWN_INTEREST = { label: "—", tile: "tile-muted" } as const;
+const UNKNOWN_QUALIFICATION = { label: "—", icon: Target, tile: "tile-muted", bar: "bg-muted" } as const;
 
 const NEXT_ACTION_LABELS: Record<string, string> = {
   schedule_callback: "Agendar retorno",
@@ -134,16 +151,22 @@ export default function ConversationAnalysisPanel({
       latestAnalysisUpdate.entry_id === entryId &&
       latestAnalysisUpdate.entry_type === entryType
     ) {
-      setAnalysis(latestAnalysisUpdate.analysis);
+      // A "queued" frame carries no analysis. Keeping the one on screen is the
+      // point: this conversation is being re-analysed and still has its
+      // previous verdict, so replacing it with nothing would read as the
+      // analysis having been lost rather than refreshed.
+      if (latestAnalysisUpdate.analysis) {
+        setAnalysis(latestAnalysisUpdate.analysis);
+      }
       setLoading(false);
     }
   }, [latestAnalysisUpdate, entryId, entryType]);
 
   if (loading || !analysis) return null;
 
-  const sentiment = SENTIMENT_CONFIG[analysis.sentiment];
-  const interest = INTEREST_CONFIG[analysis.interest];
-  const qualification = QUALIFICATION_CONFIG[analysis.qualification];
+  const sentiment = SENTIMENT_CONFIG[analysis.sentiment] ?? UNKNOWN_SENTIMENT;
+  const interest = INTEREST_CONFIG[analysis.interest] ?? UNKNOWN_INTEREST;
+  const qualification = QUALIFICATION_CONFIG[analysis.qualification] ?? UNKNOWN_QUALIFICATION;
   const SentimentIcon = sentiment.icon;
   const QualIcon = qualification.icon;
 

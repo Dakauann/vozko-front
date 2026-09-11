@@ -49,8 +49,8 @@ function isoDaysAgo(days: number): string {
 }
 
 export function CommentPostAnalysisPanel({ accountId, containerId }: { accountId: string; containerId: string }) {
-  const t = useTranslations("commentAnalysis.post");
-  const tc = useTranslations("commentAnalysis");
+  const t = useTranslations("audience.post");
+  const tc = useTranslations("audience");
   const { can } = useWorkspace();
   const canConfigure = can("audience", "update");
 
@@ -165,7 +165,7 @@ function OverrideEditor({
   settings: CommentContainerSettings;
   onSaved: (next: CommentContainerSettings) => void;
 }) {
-  const t = useTranslations("commentAnalysis.post.override");
+  const t = useTranslations("audience.post.override");
   const [draft, setDraft] = useState<OverrideDraft>(() => overrideDraftFrom(settings));
   const [editing, setEditing] = useState(!!settings.override);
   const [saving, setSaving] = useState(false);

@@ -59,8 +59,8 @@ export function CommentAnalysisSettingsPanel({
   /** When true the topic editor scrolls into view (the topics panel's prompt). */
   focusTopics?: boolean;
 }) {
-  const t = useTranslations("commentAnalysis.settings");
-  const tVert = useTranslations("commentAnalysis.enums.vertical");
+  const t = useTranslations("audience.settings");
+  const tVert = useTranslations("audience.enums.vertical");
   const locale = useLocale();
   const nf = useMemo(() => new Intl.NumberFormat(LOCALE_TAG[locale] ?? "pt-BR"), [locale]);
 
@@ -271,7 +271,7 @@ export function CommentAnalysisSettingsPanel({
 }
 
 function SpendPanel({ accountId, nf }: { accountId: string; nf: Intl.NumberFormat }) {
-  const t = useTranslations("commentAnalysis.settings.spend");
+  const t = useTranslations("audience.settings.spend");
   const locale = useLocale();
   const [spend, setSpend] = useState<CommentAnalysisSpend | null>(null);
   const [rate, setRate] = useState<number | null>(null);
@@ -317,8 +317,8 @@ function Figure({ label, value, muted }: { label: string; value: string; muted?:
 }
 
 function BackfillPanel({ settings, nf }: { settings: CommentAnalysisSettings; nf: Intl.NumberFormat }) {
-  const t = useTranslations("commentAnalysis.settings.backfill");
-  const tStatus = useTranslations("commentAnalysis.enums.backfillStatus");
+  const t = useTranslations("audience.settings.backfill");
+  const tStatus = useTranslations("audience.enums.backfillStatus");
   const locale = useLocale();
   const [estimate, setEstimate] = useState<BackfillEstimate | null>(null);
   const [estimating, setEstimating] = useState(false);

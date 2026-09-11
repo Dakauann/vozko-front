@@ -92,7 +92,7 @@ function draftOf(rule: AlertRule): AlertRuleDraft {
 }
 
 export function CommentAnalysisAlerts({ accountId }: { accountId: string }) {
-  const t = useTranslations("commentAnalysis.alerts");
+  const t = useTranslations("audience.alerts");
   const { can } = useWorkspace();
   const canManage = can("audience", "send");
   const locale = useLocale();
@@ -301,7 +301,7 @@ function AlertRuleDialog({
   onClose: () => void;
   onSaved: () => void;
 }) {
-  const t = useTranslations("commentAnalysis.alerts");
+  const t = useTranslations("audience.alerts");
   const [draft, setDraft] = useState<AlertRuleDraft>(initial);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);

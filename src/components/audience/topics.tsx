@@ -29,7 +29,7 @@ export function CommentAnalysisTopics({
   stats: TopicStat[];
   onEditTopics?: () => void;
 }) {
-  const t = useTranslations("commentAnalysis.topics");
+  const t = useTranslations("audience.topics");
   const locale = useLocale();
   const nf = useMemo(() => new Intl.NumberFormat(LOCALE_TAG[locale] ?? "pt-BR"), [locale]);
 

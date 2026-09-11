@@ -1,4 +1,29 @@
 {
+  "crmAnalysis": {
+    "awaiting": "Wartet auf Analyse",
+    "awaitingHint": "Dieses Gespräch läuft noch. Die KI analysiert es, sobald einige Minuten lang nichts mehr kommt; es wird noch nichts analysiert.",
+    "queued": "Wird analysiert",
+    "queuedHint": "Die KI analysiert dieses Gespräch. Das Ergebnis erscheint von selbst; die vorherige Analyse bleibt bis dahin sichtbar."
+  },
+  "departmentScope": {
+    "blockedTitle": "Sie sind in keiner Abteilung",
+    "blockedBody": "Dieser Workspace ordnet Gespräche nach Abteilung. Solange Sie keiner angehören, erscheint hier nichts, auch nicht mit allen Rechten Ihrer Rolle.",
+    "blockedAction": "Bitten Sie eine Workspace-Administration, Sie einer Abteilung hinzuzufügen.",
+    "adminNoDepartmentBadge": "Keine Abteilung",
+    "adminNoDepartmentTooltip": "Dieser Workspace nutzt Abteilungen, daher sieht dieses Mitglied nur Gespräche der Abteilungen, denen es angehört. Ohne Abteilung sieht es nichts, wie vollständig die Rolle auch ist.",
+    "adminNoDepartmentSummary": "{count, plural, =1 {# Mitglied ist in keiner Abteilung und sieht keine Gespräche} other {# Mitglieder sind in keiner Abteilung und sehen keine Gespräche}}.",
+    "adminEmptyDepartment": "Keine Mitglieder",
+    "adminEmptyDepartmentTooltip": "Eine leere Abteilung gibt niemandem Zugriff, aber allein ihr Bestehen sorgt dafür, dass alle Mitglieder nach Abteilung gefiltert werden. Löschen Sie sie, wenn dieser Workspace keine Abteilungen nutzt.",
+    "adminRoleCaption": "Rechte sagen, was ein Mitglied tun darf. Wo der Workspace Abteilungen nutzt, sieht es zusätzlich nur Gespräche der eigenen Abteilungen, wie vollständig die Rolle auch ist.",
+    "adminFirstDepartmentTitle": "Das ändert die Sichtbarkeit im ganzen Workspace",
+    "adminFirstDepartmentBody": "Derzeit sehen Mitglieder Gespräche allein nach ihren Rechten. Die erste Abteilung ändert diese Regel: Ab dann sehen Mitglieder ohne Administrationsrolle nur Gespräche der Abteilungen, denen sie angehören.",
+    "adminFirstDepartmentImpact": "{count, plural, =0 {Es gibt keine Mitglieder, die dadurch den Zugriff verlieren.} =1 {# Mitglied ist derzeit in keiner Abteilung und sieht keine Gespräche mehr, bis Sie es einer hinzufügen.} other {# Mitglieder sind derzeit in keiner Abteilung und sehen keine Gespräche mehr, bis Sie sie einer hinzufügen.}}",
+    "adminFirstDepartmentConfirm": "Abteilung erstellen",
+    "adminLastDepartmentTitle": "Das erweitert den Zugriff im ganzen Workspace",
+    "adminLastDepartmentBody": "Dies ist die letzte Abteilung. Wird sie gelöscht, zählen wieder allein die Rechte, und jedes Mitglied, das Gespräche lesen darf, sieht wieder alle.",
+    "adminLastDepartmentConfirm": "Abteilung löschen",
+    "cancel": "Abbrechen"
+  },
   "workingHours": {
     "title": "Arbeitszeiten",
     "weekLabel": "Woche",
@@ -9214,13 +9239,12 @@
       "audience": "Publikum"
     }
   },
-  "commentAnalysis": {
+  "audience": {
     "channels": {
       "instagram": "Instagram",
       "whatsapp": "WhatsApp",
       "telegram": "Telegram",
-      "unofficial_whatsapp": "WhatsApp (inoffiziell)",
-      "voice": "Sprache"
+      "unofficial_whatsapp": "WhatsApp (inoffiziell)"
     },
     "conversations": {
       "title": "Gespräche",
@@ -9232,6 +9256,13 @@
       "range": "zwischen {min} und {max}",
       "messagesAvg": "Nachrichten pro Gespräch",
       "messagesTotal": "{count} insgesamt",
+      "qualityValue": "Qualität {value}%",
+      "messageCount": "{count, plural, one {# Nachricht} other {# Nachrichten}}",
+      "activityTitle": "Gesprächsaktivität",
+      "activityDescription": "Pro Tag analysierte Gespräche",
+      "activityEmptyTitle": "Noch kein Verlauf",
+      "activityEmptyDescription": "Das Diagramm erscheint, sobald das erste Gespräch analysiert wurde.",
+      "date": "Datum",
       "needsHuman": "Brauchen einen Menschen",
       "dispositionTitle": "Wo das Gespräch stehen blieb",
       "dispositionDescription": "Aktuelles Ergebnis jedes Gesprächs gemessen am Kampagnenziel.",
@@ -9240,7 +9271,50 @@
       "interestTitle": "Interesse",
       "interestDescription": "Interesse, das sich in konkreten Handlungen zeigt, nicht in Höflichkeit.",
       "qualityTitle": "Betreuung und nächster Schritt",
+      "objectiveReached": "Ziel erreicht",
+      "objectiveTooltip": "Anteil der analysierten Gespräche, die mit dem Kampagnenziel abgeschlossen wurden. Ein vereinbarter Rückruf zählt als Fortschritt, nicht als Ergebnis, und ist hier nicht enthalten.",
+      "nothingAnalysed": "In diesem Zeitraum nichts analysiert",
+      "vsPrevious": "{delta} Pkt. ggü. Vorperiode",
+      "flatVsPrevious": "Unverändert ggü. Vorperiode",
+      "noComparison": "Keine Vorperiode zum Vergleich",
+      "escalations": "{count} warten auf eine Person",
+      "coverage": "Abdeckung",
+      "coverageDetail": "{analysed} von {queued} Gesprächen",
+      "coverageTooltip": "Wie viel des Zeitraums die Prozentwerte oben tatsächlich beschreiben. Gespräche in der Warteschlange oder mit Fehler zählen hier und bleiben aus allen Quoten heraus.",
+      "coverageTitle": "Woraus diese Zahlen bestehen",
+      "coverageDescription": "Analysierte, wartende und fehlgeschlagene Gespräche in diesem Zeitraum.",
+      "analysedLabel": "Analysiert",
+      "waitingLabel": "In Warteschlange",
+      "failedLabel": "Fehlgeschlagen",
+      "skippedLabel": "Übersprungen",
+      "freshness": "Letzte Analyse {when}",
+      "freshnessNever": "Noch keine Analyse",
+      "attentionTitle": "Braucht jetzt Aufmerksamkeit",
+      "attentionDescription": "Was eine Person übernehmen muss, längste Warteschlange zuerst.",
+      "attentionClearTitle": "Nichts offen",
+      "attentionClearDescription": "Kein Gespräch dieses Zeitraums verlangt nach einer Person.",
+      "queuedTitle": "Analyse läuft",
+      "queuedDescription": "{count} Gespräche stehen in der Warteschlange. Die Zahlen erscheinen, sobald das erste klassifiziert ist.",
+      "subjectsTitle": "Wonach die Leute fragen",
+      "subjectsDescription": "Die häufigsten Themen, als Anteil der analysierten Gespräche.",
+      "subjectsEmptyTitle": "Noch kein wiederkehrendes Thema",
+      "subjectsEmptyDescription": "Ein Thema erscheint hier, sobald die KI benennen kann, worum es im Gespräch ging.",
       "qualityDescription": "Die Note wird aus vier von der KI bewerteten Dimensionen berechnet, nie von ihr genannt."
+    },
+    "budget": {
+      "title": "Analyse-Budget",
+      "description": "Wie viel dieser Workspace über alle Kanäle hinweg in 24 Stunden analysieren darf.",
+      "used": "{used} von {limit} Analysen verbraucht",
+      "remaining": "noch {count}",
+      "spent": "Budget aufgebraucht",
+      "window": "Das Fenster wandert: die älteste Stunde fällt heraus, während die neueste hinzukommt, es gibt also keinen Tageswechsel.",
+      "freesAt": "Die Analyse läuft ab {when} weiter, sobald die älteste Stunde aus dem Fenster fällt.",
+      "limitLabel": "Limit pro 24 Stunden",
+      "limitHint": "Gilt für den ganzen Workspace, Kommentare wie Gespräche.",
+      "waiting": "{count} in der Warteschlange",
+      "constrained": "{count} warten, mehr als das Fenster fasst. Bei diesem Limit wartet der Überhang etwa {hours}h. Nichts geht verloren; ein höheres Limit leert die Schlange früher.",
+      "debounceLabel": "Ruhezeit (Minuten)",
+      "debounceHint": "Wie lange ein Gespräch ohne Nachrichten bleiben muss, bevor die KI es bewertet. Länger heißt weniger und spätere Analysen, kürzer heißt schnellere und mehr davon. Zwischen {min} und {max} Minuten."
     },
     "errorTitle": "Die Kommentaranalyse konnte nicht geladen werden",
     "sectionsLabel": "Bereiche der Publikumsanalyse",
@@ -9442,6 +9516,13 @@
     "feed": {
       "title": "Klassifizierte Kommentare",
       "description": "Jeder Kommentar mit Thema, Stimmung, Haltung, Absicht und Schweregrad",
+      "conversationTitle": "Klassifizierte Gespräche",
+      "conversationDescription": "Jedes Gespräch mit Zusammenfassung, Interesse, Ergebnis, Qualifizierung und nächstem Schritt",
+      "mixedTitle": "Klassifizierte Kommentare und Gespräche",
+      "mixedDescription": "Zielgruppenanalysen korrekt nach Typ und Kanal getrennt",
+      "conversationViewLabel": "Gesprächsansicht",
+      "conversationEmptyTitle": "Keine Gespräche in dieser Ansicht",
+      "conversationEmptyDescription": "Passe die Filter an oder warte auf die nächste Analyse.",
       "viewLabel": "Kommentaransicht",
       "views": {
         "all": "Alle",
@@ -9604,7 +9685,7 @@
         "reset": "Wieder alles erben"
       }
     },
-    "audience": {
+    "page": {
       "channel": "Kanal",
       "allChannels": "Alle Kanäle",
       "allAccounts": "Alle Konten",
@@ -9613,7 +9694,7 @@
       "kindComment": "Nur Kommentare",
       "kindConversation": "Nur Gespräche",
       "badge": "Publikum",
-      "description": "Was die Kommentare über {name} sagen: Zustimmung, Kritik, Themen und wer kommentiert.",
+      "description": "Von der KI analysierte Kommentare und Gespräche: Interesse, Ergebnis, wiederkehrende Themen und Servicequalität.",
       "noPermissionDesc": "Für dieses Dashboard ist die Berechtigung Audience-Analyse (audience:read) nötig.",
       "account": "Konto",
       "post": "Beitrag",
@@ -10609,7 +10690,7 @@
       "addVariant": "Variante hinzufügen",
       "removeVariant": "Entfernen",
       "variantLabel": "Variante {index}",
-      "bodyPlaceholder": "Schreibe die Nachricht. Nutze {{1}}, {{2}} für Variablen.",
+      "bodyPlaceholder": "Schreibe die Nachricht. Nutze '{{1}}', '{{2}}' für Variablen.",
       "variantsMismatch": "Alle Varianten müssen exakt dieselben Variablen verwenden.",
       "variablesDetected": "{count} Variable(n) erkannt. Jede Nummer braucht diese Werte.",
       "menuStyle": "Menüstil",

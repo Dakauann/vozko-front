@@ -57,7 +57,7 @@ export function OverrideFields({
   effective: CommentAnalysisSettings;
   disabled?: boolean;
 }) {
-  const t = useTranslations("commentAnalysis.post.override");
+  const t = useTranslations("audience.post.override");
   const { models, modelPricing } = useAiModelOptions(true);
   const set = <K extends keyof OverrideDraft>(key: K, value: OverrideDraft[K]) => onChange({ ...draft, [key]: value });
 

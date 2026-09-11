@@ -112,3 +112,44 @@ export async function removeDepartmentMember(
     }
     return {};
 }
+
+/**
+ * What the CALLER can see, and why.
+ *
+ * Departments are a scope, not a permission, and the interaction between the
+ * two is invisible from either screen: a member with a completely unrestricted
+ * role sees nothing the moment the workspace has a department they are not in.
+ * The server resolves this on every request already; this is the only endpoint
+ * that reports it back.
+ *
+ * It carries facts about the caller alone, never department names or anyone
+ * else's membership, which is why it needs no permission to read. The member
+ * who most needs the answer is the one with the least access.
+ */
+export interface DepartmentScope {
+    workspaceUsesDepartments: boolean;
+    memberDepartmentCount: number;
+    restrictedToOwnDepartments: boolean;
+    /** Restricted AND in no department, therefore seeing nothing at all. */
+    blockedByMissingDepartment: boolean;
+}
+
+export const NO_DEPARTMENT_SCOPE: DepartmentScope = {
+    workspaceUsesDepartments: false,
+    memberDepartmentCount: 0,
+    restrictedToOwnDepartments: false,
+    blockedByMissingDepartment: false,
+};
+
+export async function fetchDepartmentScope(): Promise<{
+    scope: DepartmentScope;
+    error?: string;
+}> {
+    const res = await apiClient<DepartmentScope>("/departments/scope", { method: "GET" });
+    if (res.error) {
+        // Falling back to "nothing to explain" keeps a failed call from
+        // telling a member their access is broken when it is not.
+        return { scope: NO_DEPARTMENT_SCOPE, error: res.error.message };
+    }
+    return { scope: res.data ?? NO_DEPARTMENT_SCOPE };
+}

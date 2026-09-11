@@ -1,4 +1,29 @@
 {
+  "crmAnalysis": {
+    "awaiting": "Esperando análisis",
+    "awaitingHint": "Esta conversación sigue en curso. La IA la analiza cuando pase unos minutos sin mensajes; todavía no se está analizando nada.",
+    "queued": "Analizando",
+    "queuedHint": "La IA está analizando esta conversación. El resultado aparece aquí solo; el análisis anterior sigue visible hasta entonces."
+  },
+  "departmentScope": {
+    "blockedTitle": "No estás en ningún departamento",
+    "blockedBody": "Este workspace organiza las conversaciones por departamento. Mientras no pertenezcas a uno, aquí no aparece nada, ni siquiera con todos los permisos de tu cargo.",
+    "blockedAction": "Pide a un administrador que te agregue a un departamento.",
+    "adminNoDepartmentBadge": "Sin departamento",
+    "adminNoDepartmentTooltip": "Este workspace usa departamentos, así que este miembro solo ve las conversaciones de los departamentos a los que pertenece. Sin ninguno, no ve nada, por completo que sea su cargo.",
+    "adminNoDepartmentSummary": "{count, plural, =1 {# miembro está sin departamento y no ve ninguna conversación} other {# miembros están sin departamento y no ven ninguna conversación}}.",
+    "adminEmptyDepartment": "Sin miembros",
+    "adminEmptyDepartmentTooltip": "Un departamento vacío no da acceso a nadie, pero su existencia es lo que hace que todos los miembros pasen a filtrarse por departamento. Elimínalo si este workspace no usa departamentos.",
+    "adminRoleCaption": "Los permisos dicen qué puede hacer un miembro. Donde el workspace usa departamentos, además solo ve las conversaciones de sus propios departamentos, por completo que sea el cargo.",
+    "adminFirstDepartmentTitle": "Esto cambia la visibilidad de todo el workspace",
+    "adminFirstDepartmentBody": "Hoy cada miembro ve las conversaciones solo según sus permisos. Crear el primer departamento cambia esa regla: a partir de ahí, quien no es administrador solo ve las conversaciones de los departamentos a los que pertenece.",
+    "adminFirstDepartmentImpact": "{count, plural, =0 {No hay miembros que queden sin acceso.} =1 {# miembro está hoy sin departamento y dejará de ver conversaciones hasta que lo agregues a uno.} other {# miembros están hoy sin departamento y dejarán de ver conversaciones hasta que los agregues a uno.}}",
+    "adminFirstDepartmentConfirm": "Crear departamento",
+    "adminLastDepartmentTitle": "Esto amplía el acceso de todo el workspace",
+    "adminLastDepartmentBody": "Este es el último departamento. Eliminarlo hace que el workspace vuelva a considerar solo los permisos, así que todo miembro que pueda leer conversaciones volverá a verlas todas.",
+    "adminLastDepartmentConfirm": "Eliminar departamento",
+    "cancel": "Cancelar"
+  },
   "workingHours": {
     "title": "Horario de atención",
     "weekLabel": "Semana",
@@ -8717,13 +8742,12 @@
       "audience": "Audiencia"
     }
   },
-  "commentAnalysis": {
+  "audience": {
     "channels": {
       "instagram": "Instagram",
       "whatsapp": "WhatsApp",
       "telegram": "Telegram",
-      "unofficial_whatsapp": "WhatsApp (no oficial)",
-      "voice": "Voz"
+      "unofficial_whatsapp": "WhatsApp (no oficial)"
     },
     "conversations": {
       "title": "Conversaciones",
@@ -8735,6 +8759,13 @@
       "range": "entre {min} y {max}",
       "messagesAvg": "Mensajes por conversación",
       "messagesTotal": "{count} en total",
+      "qualityValue": "Calidad {value}%",
+      "messageCount": "{count, plural, one {# mensaje} other {# mensajes}}",
+      "activityTitle": "Actividad de conversaciones",
+      "activityDescription": "Conversaciones analizadas por día",
+      "activityEmptyTitle": "Aún no hay historial",
+      "activityEmptyDescription": "El gráfico aparece cuando se analiza la primera conversación.",
+      "date": "Fecha",
       "needsHuman": "Necesitan una persona",
       "dispositionTitle": "Dónde se detuvo la conversación",
       "dispositionDescription": "Resultado actual de cada conversación frente al objetivo de la campaña.",
@@ -8743,7 +8774,50 @@
       "interestTitle": "Interés",
       "interestDescription": "Interés demostrado con acciones concretas, no con cortesía.",
       "qualityTitle": "Atención y próximo paso",
+      "objectiveReached": "Objetivo alcanzado",
+      "objectiveTooltip": "Porcentaje de conversaciones analizadas que cerraron en el objetivo de la campaña. Una devolución de llamada agendada cuenta como avance, no como desenlace, por eso no se incluye aquí.",
+      "nothingAnalysed": "Nada analizado en este período",
+      "vsPrevious": "{delta} pts vs período anterior",
+      "flatVsPrevious": "Sin cambios vs período anterior",
+      "noComparison": "Sin período anterior para comparar",
+      "escalations": "{count} esperando a una persona",
+      "coverage": "Cobertura",
+      "coverageDetail": "{analysed} de {queued} conversaciones",
+      "coverageTooltip": "Cuánto del período describen realmente los porcentajes de arriba. Las conversaciones aún en cola o fallidas se cuentan aquí y quedan fuera de todas las tasas.",
+      "coverageTitle": "De qué están hechos estos números",
+      "coverageDescription": "Conversaciones analizadas, en cola y fallidas en este período.",
+      "analysedLabel": "Analizadas",
+      "waitingLabel": "En cola",
+      "failedLabel": "Fallidas",
+      "skippedLabel": "Omitidas",
+      "freshness": "Último análisis {when}",
+      "freshnessNever": "Todavía sin análisis",
+      "attentionTitle": "Necesita atención ahora",
+      "attentionDescription": "Lo que una persona debe retomar, de la cola más larga a la más corta.",
+      "attentionClearTitle": "Nada pendiente",
+      "attentionClearDescription": "Ninguna conversación de este período pide una persona.",
+      "queuedTitle": "Análisis en curso",
+      "queuedDescription": "{count} conversaciones están en cola. Los números aparecen en cuanto se clasifique la primera.",
+      "subjectsTitle": "Sobre qué pregunta la gente",
+      "subjectsDescription": "Los asuntos que más aparecieron, como porcentaje de las conversaciones analizadas.",
+      "subjectsEmptyTitle": "Todavía no hay un asunto recurrente",
+      "subjectsEmptyDescription": "Un asunto aparece aquí cuando la IA puede nombrar de qué trató la conversación.",
       "qualityDescription": "La nota se calcula a partir de cuatro dimensiones que la IA evalúa, nunca la informa directamente."
+    },
+    "budget": {
+      "title": "Tope de análisis",
+      "description": "Cuánto puede analizar este workspace, en todos los canales, cada 24 horas.",
+      "used": "{used} de {limit} análisis usados",
+      "remaining": "quedan {count}",
+      "spent": "Tope alcanzado",
+      "window": "La ventana es móvil: la hora más antigua sale a medida que entra la más nueva, así que no hay reinicio diario.",
+      "freesAt": "El análisis se reanuda a partir de {when}, cuando la hora más antigua sale de la ventana.",
+      "limitLabel": "Tope por 24 horas",
+      "limitHint": "Vale para todo el workspace, comentarios y conversaciones.",
+      "waiting": "{count} en cola para analizar",
+      "constrained": "{count} en cola, más de lo que cabe en la ventana. Con este tope el excedente espera unas {hours}h. No se descarta nada; sube el tope para vaciarla antes.",
+      "debounceLabel": "Tiempo de silencio (minutos)",
+      "debounceHint": "Cuánto tiempo debe pasar la conversación sin mensajes antes de que la IA la analice. Más tiempo significa menos análisis y más tarde; menos tiempo, respuestas más rápidas y más numerosas. Entre {min} y {max} minutos."
     },
     "errorTitle": "No se pudo cargar el análisis de comentarios",
     "sectionsLabel": "Secciones del análisis de audiencia",
@@ -8945,6 +9019,13 @@
     "feed": {
       "title": "Comentarios clasificados",
       "description": "Cada comentario con tema, sentimiento, postura, intención y gravedad",
+      "conversationTitle": "Conversaciones clasificadas",
+      "conversationDescription": "Cada conversación con resumen, interés, resultado, calificación y próximo paso",
+      "mixedTitle": "Comentarios y conversaciones clasificados",
+      "mixedDescription": "Análisis de audiencia separados correctamente por tipo y canal",
+      "conversationViewLabel": "Vista de conversaciones",
+      "conversationEmptyTitle": "Ninguna conversación en esta vista",
+      "conversationEmptyDescription": "Ajusta los filtros o espera el próximo análisis.",
       "viewLabel": "Vista de comentarios",
       "views": {
         "all": "Todos",
@@ -9107,7 +9188,7 @@
         "reset": "Volver a heredar todo"
       }
     },
-    "audience": {
+    "page": {
       "channel": "Canal",
       "allChannels": "Todos los canales",
       "allAccounts": "Todas las cuentas",
@@ -9116,7 +9197,7 @@
       "kindComment": "Solo comentarios",
       "kindConversation": "Solo conversaciones",
       "badge": "Audiencia",
-      "description": "Lo que dicen los comentarios sobre {name}: apoyo, crítica, temas y quién comenta.",
+      "description": "Comentarios y conversaciones analizados por la IA: interés, desenlace, asuntos recurrentes y calidad de atención.",
       "noPermissionDesc": "Se necesita el permiso Análisis de la audiencia (audience:read) para ver este panel.",
       "account": "Cuenta",
       "post": "Publicación",
@@ -10112,7 +10193,7 @@
       "addVariant": "Añadir variante",
       "removeVariant": "Quitar",
       "variantLabel": "Variante {index}",
-      "bodyPlaceholder": "Escribe el mensaje. Usa {{1}}, {{2}} para variables.",
+      "bodyPlaceholder": "Escribe el mensaje. Usa '{{1}}', '{{2}}' para variables.",
       "variantsMismatch": "Todas las variantes deben usar exactamente las mismas variables.",
       "variablesDetected": "{count} variable(s) detectada(s). Cada número necesita esos valores.",
       "menuStyle": "Estilo del menú",

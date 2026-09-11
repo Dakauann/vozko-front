@@ -76,10 +76,10 @@ export function CommentAnalysisAuthors({
   topics: CommentTopic[];
   period?: Period;
 }) {
-  const t = useTranslations("commentAnalysis.authors");
-  const tFilters = useTranslations("commentAnalysis.authors.filters");
-  const tMod = useTranslations("commentAnalysis.enums.moderation");
-  const tStance = useTranslations("commentAnalysis.enums.stance");
+  const t = useTranslations("audience.authors");
+  const tFilters = useTranslations("audience.authors.filters");
+  const tMod = useTranslations("audience.enums.moderation");
+  const tStance = useTranslations("audience.enums.stance");
   const locale = useLocale();
   const nf = useMemo(() => new Intl.NumberFormat(LOCALE_TAG[locale] ?? "pt-BR"), [locale]);
   const df = useMemo(() => new Intl.DateTimeFormat(LOCALE_TAG[locale] ?? "pt-BR", { dateStyle: "short" }), [locale]);
@@ -304,7 +304,7 @@ function AuthorRow({
   df: Intl.DateTimeFormat;
   moderationLabel: (key: ModerationState) => string;
 }) {
-  const t = useTranslations("commentAnalysis.authors");
+  const t = useTranslations("audience.authors");
   const handle = author.authorHandle ? `@${author.authorHandle}` : author.authorExternalId;
   return (
     <tr className={cn("border-b border-border align-middle", author.isFlagged && "bg-muted/40")}>
