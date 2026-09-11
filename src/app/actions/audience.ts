@@ -374,7 +374,7 @@ export async function deleteCommentContainerSettingsAction(
 }
 
 /*
- * Alert rules. Every one of these is gated on `comment_analysis:send`, because
+ * Alert rules. Every one of these is gated on `audience:send`, because
  * arming an automated sender is granting sends.
  */
 

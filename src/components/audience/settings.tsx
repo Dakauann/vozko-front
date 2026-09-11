@@ -153,7 +153,7 @@ export function CommentAnalysisSettingsPanel({
         description={t("switch.description")}
         action={
           <ElevatedSwitch
-            id="comment-analysis-enabled"
+            id="audience-enabled"
             checked={settings.enabled}
             disabled={saving}
             onCheckedChange={(checked: boolean) => void patch({ enabled: checked })}

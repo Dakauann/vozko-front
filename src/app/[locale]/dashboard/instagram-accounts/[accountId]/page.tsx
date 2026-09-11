@@ -223,7 +223,7 @@ export default function InstagramAccountProfilePage({
                   <InstagramCommentRulesPanel accountId={accountId} />
                 </TabsContent>
 
-                {/* What the audience says, aggregated: the comment-analysis
+                {/* What the audience says, aggregated: the audience
                     engine's dashboard for this account. Off by default; the
                     tab explains itself when it is. */}
                 <TabsContent value="audience" className="mt-4">

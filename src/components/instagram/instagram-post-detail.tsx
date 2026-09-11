@@ -46,7 +46,7 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
   const { can } = useWorkspace();
   // The analysis tab exists only for readers of the feature; the panel
   // itself gates the override editor on the update permission.
-  const canSeeAnalysis = can("comment_analysis", "read");
+  const canSeeAnalysis = can("audience", "read");
 
   // Controlled so the split can follow the tab: the analysis tab carries
   // charts and a form, which need the width the picture can spare.

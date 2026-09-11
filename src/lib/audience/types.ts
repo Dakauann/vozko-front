@@ -568,7 +568,7 @@ export interface CommentContainerOverridePut {
 export const MAX_INSTRUCTIONS_LENGTH = 2000;
 
 /*
- * Author ranking (§1). These keys mirror `domain/comment_analysis/author_sort.go`
+ * Author ranking (§1). These keys mirror `domain/audience/author_sort.go`
  * one for one, and the API refuses anything else rather than defaulting, so a
  * typo here surfaces as a 400 instead of a silently different order.
  */
@@ -632,7 +632,7 @@ export const AUTHOR_TABLE_COLUMNS: { key: AuthorSortKey; numeric?: boolean }[] =
 /*
  * Alerts: "quando passar de X, me manda um WhatsApp".
  *
- * The vocabulary mirrors `domain/comment_analysis/alert.go`, and the SERVER is
+ * The vocabulary mirrors `domain/audience/alert.go`, and the SERVER is
  * the authority on two things the UI must not re-derive: whether a metric needs
  * a window, and which direction it alarms in. Both arrive from
  * /audience/alerts/options so a picker cannot describe a metric

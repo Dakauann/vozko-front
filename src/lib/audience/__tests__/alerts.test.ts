@@ -11,7 +11,7 @@ import type { AlertChannel, AlertMetric } from "@/lib/audience/types";
  * metric or channel. A label missing here renders the raw enum on a screen
  * whose whole job is to be unambiguous about what will wake somebody up.
  *
- * The metric list is duplicated from `domain/comment_analysis/alert.go` on
+ * The metric list is duplicated from `domain/audience/alert.go` on
  * purpose: this test IS the check that the two have not drifted. The runtime
  * picker reads the list from the server rather than from here.
  */

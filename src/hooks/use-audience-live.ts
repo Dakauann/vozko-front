@@ -7,7 +7,7 @@ import type { AnalyzedComment, CommentSource } from "@/lib/audience/types";
 /*
  * The live comment feed's client half (§7).
  *
- * A small socket of its own rather than the CRM's: the comment-analysis tab is
+ * A small socket of its own rather than the CRM's: the audience tab is
  * a different page and holds no conversation state, so reusing the inbox hook
  * would pull an inbox, a search index and a subscription model onto a screen
  * that wants one event type.
@@ -22,7 +22,7 @@ import type { AnalyzedComment, CommentSource } from "@/lib/audience/types";
 
 const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:4000";
 
-/** Mirrors `comment_analysis.CommentAnalyzed`. */
+/** Mirrors `audience.Analyzed`. */
 export interface LiveAnalyzedComment {
   commentId: string;
   workspaceId: string;

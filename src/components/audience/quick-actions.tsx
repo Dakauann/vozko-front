@@ -40,7 +40,7 @@ import { cn } from "@/lib/utils";
  * toolbar and opens on that person's posts.
  *
  * The two outward-facing actions (answer publicly, forward on WhatsApp) are
- * gated on comment_analysis:send, which is a separate privilege from moderating
+ * gated on audience:send, which is a separate privilege from moderating
  * precisely because they speak in the customer's name. The route enforces it;
  * hiding the buttons only saves the operator a refusal they cannot act on.
  */

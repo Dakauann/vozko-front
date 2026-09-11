@@ -1,5 +1,5 @@
 /**
- * The period every comment-analysis panel obeys.
+ * The period every audience panel obeys.
  *
  * One vocabulary, in one place, because the alternative is what the tab had
  * before: a 7/30/90 pill that moved the stats cards while the ranking and the

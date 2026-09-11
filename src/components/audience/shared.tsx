@@ -17,7 +17,7 @@ import { VOZ_SERIES } from "@/components/charts/vozko";
 import { cn } from "@/lib/utils";
 
 /*
- * Shared pieces of the comment-analysis dashboard.
+ * Shared pieces of the audience dashboard.
  *
  * Colour policy (dataviz): stance and sentiment are STATES, so they take
  * the status tokens (healthy / muted / warning / destructive), never the

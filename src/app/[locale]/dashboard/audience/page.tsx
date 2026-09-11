@@ -11,7 +11,7 @@ import { UsersThree } from "@/components/icons";
 import { useWorkspace } from "@/contexts/workspace-context";
 
 /**
- * Métricas > Audiência: the comment-analysis dashboard across the
+ * Métricas > Audiência: the audience dashboard across the
  * workspace's accounts. The scope (account, post) lives in the URL so the
  * post detail dialog can deep-link here and a view can be shared.
  */
@@ -31,7 +31,7 @@ function AudiencePageBody() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Matches the API: every /audience read is comment_analysis:read.
+  // Matches the API: every /audience read is audience:read.
   const canRead = !permissionsLoading && can("audience", "read");
 
   const onScopeChange = useCallback(

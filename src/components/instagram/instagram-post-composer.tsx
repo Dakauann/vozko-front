@@ -36,10 +36,10 @@ import { createCommentRuleAction, createInstagramMediaAction } from "@/app/actio
 import {
   getCommentAnalysisSettingsAction,
   putCommentContainerSettingsAction,
-} from "@/app/actions/comment-analysis";
-import type { CommentAnalysisSettings } from "@/lib/comment-analysis/types";
-import type { OverrideDraft } from "@/lib/comment-analysis/override";
-import { overrideDraftFrom, overrideDraftToPut } from "@/lib/comment-analysis/override";
+} from "@/app/actions/audience";
+import type { CommentAnalysisSettings } from "@/lib/audience/types";
+import type { OverrideDraft } from "@/lib/audience/override";
+import { overrideDraftFrom, overrideDraftToPut } from "@/lib/audience/override";
 import { OverrideFields } from "@/components/audience/override-fields";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useTranslations } from "next-intl";
@@ -77,7 +77,7 @@ export function InstagramPostComposer({
 }) {
   const t = useTranslations("instagram.composer");
   const { can } = useWorkspace();
-  const canConfigureAnalysis = can("comment_analysis", "update");
+  const canConfigureAnalysis = can("audience", "update");
 
   const [kind, setKind] = useState<PostKind>("feed");
   const [mediaUrl, setMediaUrl] = useState("");

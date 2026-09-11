@@ -244,7 +244,7 @@ export const campanhasNavItems: NavItem[] = [
     // Métricas opens for whoever can read either dashboard under it.
     requiredAnyOf: [
       { resource: "attendance", action: "read" },
-      { resource: "comment_analysis", action: "read" },
+      { resource: "audience", action: "read" },
     ],
     children: [
       {
@@ -257,7 +257,7 @@ export const campanhasNavItems: NavItem[] = [
         icon: UsersThree,
         labelKey: "nav.audience",
         href: "/dashboard/audience",
-        requiredPermission: { resource: "comment_analysis", action: "read" },
+        requiredPermission: { resource: "audience", action: "read" },
       },
     ],
   },
