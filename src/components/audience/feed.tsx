@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
-import { listAnalyzedCommentsAction } from "@/app/actions/comment-analysis";
+import { listAnalyzedCommentsAction } from "@/app/actions/audience";
 import type {
   AnalyzedComment,
   CommentAnalysisStatus,
@@ -12,16 +12,16 @@ import type {
   CommentSentiment,
   CommentStance,
   CommentTopic,
-} from "@/lib/comment-analysis/types";
-import { COMMENT_INTENTS, COMMENT_SENTIMENTS, COMMENT_STANCES, HIGH_SEVERITY_THRESHOLD } from "@/lib/comment-analysis/types";
+} from "@/lib/audience/types";
+import { COMMENT_INTENTS, COMMENT_SENTIMENTS, COMMENT_STANCES, HIGH_SEVERITY_THRESHOLD } from "@/lib/audience/types";
 import Button from "@/components/elevated-design/button";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 import { CommentAnalysisAuthorView } from "@/components/audience/author-view";
 import { CommentQuickActions } from "@/components/audience/quick-actions";
-import { useCommentAnalysisLive, type LiveAnalyzedComment } from "@/hooks/use-comment-analysis-live";
-import type { Period } from "@/lib/comment-analysis/period";
-import { DEFAULT_PERIOD, isPeriodReady, periodRange } from "@/lib/comment-analysis/period";
+import { useCommentAnalysisLive, type LiveAnalyzedComment } from "@/hooks/use-audience-live";
+import type { Period } from "@/lib/audience/period";
+import { DEFAULT_PERIOD, isPeriodReady, periodRange } from "@/lib/audience/period";
 import {
   Chip,
   EmptyState,
@@ -118,7 +118,7 @@ export function CommentAnalysisFeed({
           // The socket carries the analysis, not the channel's own ids; the
           // retry and hide actions key off the source comment id, so a live
           // row uses the analysis id until the next read fills the rest in.
-          sourceCommentId: r.commentId,
+          subjectId: r.commentId,
           authorExternalId: r.authorExternalId,
           authorHandle: r.authorHandle,
           status: "analyzed",
@@ -132,7 +132,7 @@ export function CommentAnalysisFeed({
           requiresAction: r.requiresAction,
           excerpt: r.excerpt,
           truncated: false,
-          commentedAt: r.commentedAt,
+          occurredAt: r.occurredAt,
           analyzedAt: r.analyzedAt,
           createdAt: r.analyzedAt,
         }));
@@ -163,7 +163,7 @@ export function CommentAnalysisFeed({
         f.status = ["failed"];
         break;
       default:
-        f.sort = "commentedAt:desc";
+        f.sort = "occurredAt:desc";
     }
     if (stance !== ANY) f.stance = stance as CommentStance;
     if (sentiment !== ANY) f.sentiment = sentiment as CommentSentiment;
@@ -316,7 +316,7 @@ export function CommentAnalysisFeed({
                     >
                       {c.authorHandle ? `@${c.authorHandle}` : c.authorExternalId}
                     </button>{" "}
-                    · {df.format(new Date(c.commentedAt))}
+                    · {df.format(new Date(c.occurredAt))}
                     {c.isSpam ? ` · ${t("spam")}` : ""}
                   </p>
                 </div>

@@ -8,9 +8,9 @@ import {
   getAudienceStatsAction,
   getCommentAnalysisTrendsAction,
   listCommentAnalysisAccountsAction,
-} from "@/app/actions/comment-analysis";
+} from "@/app/actions/audience";
 import { listInstagramAccountsAction, listInstagramMediaAction } from "@/app/actions/instagram";
-import type { CommentAnalysisSettings, CommentAnalysisStats, TrendPoint } from "@/lib/comment-analysis/types";
+import type { CommentAnalysisSettings, CommentAnalysisStats, TrendPoint } from "@/lib/audience/types";
 import type { InstagramAccount, InstagramMedia } from "@/lib/instagram/types";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { Link } from "@/i18n/routing";
@@ -20,8 +20,8 @@ import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design
 import { CommentAnalysisOverview } from "@/components/audience/overview";
 import { CommentAnalysisConversations } from "@/components/audience/conversations";
 import { CommentAnalysisTopics } from "@/components/audience/topics";
-import type { Period } from "@/lib/comment-analysis/period";
-import { DEFAULT_PERIOD, isPeriodReady, periodRange } from "@/lib/comment-analysis/period";
+import type { Period } from "@/lib/audience/period";
+import { DEFAULT_PERIOD, isPeriodReady, periodRange } from "@/lib/audience/period";
 import { PeriodPicker } from "@/components/audience/period";
 import { CommentAnalysisAuthors } from "@/components/audience/authors";
 import { CommentAnalysisFeed } from "@/components/audience/feed";
@@ -66,7 +66,7 @@ export function CommentAnalysisAudience({
   const locale = useLocale();
   const df = useMemo(() => new Intl.DateTimeFormat(LOCALE_TAG[locale] ?? "pt-BR", { dateStyle: "short" }), [locale]);
   const { can } = useWorkspace();
-  const canConfigure = can("comment_analysis", "update");
+  const canConfigure = can("audience", "update");
 
   const [accounts, setAccounts] = useState<InstagramAccount[] | null>(null);
   const [configured, setConfigured] = useState<Record<string, CommentAnalysisSettings>>({});

@@ -8,17 +8,17 @@ import {
   listAuthorContainersAction,
   listCommentAuthorsAction,
   setCommentAuthorModerationAction,
-} from "@/app/actions/comment-analysis";
+} from "@/app/actions/audience";
 import type {
   AnalyzedComment,
   AuthorContainer,
   CommentAuthor,
   CommentTopic,
   ModerationState,
-} from "@/lib/comment-analysis/types";
-import { MODERATION_STATES } from "@/lib/comment-analysis/types";
-import type { Period } from "@/lib/comment-analysis/period";
-import { DEFAULT_AUTHORS_PERIOD, isPeriodReady, periodRange } from "@/lib/comment-analysis/period";
+} from "@/lib/audience/types";
+import { MODERATION_STATES } from "@/lib/audience/types";
+import type { Period } from "@/lib/audience/period";
+import { DEFAULT_AUTHORS_PERIOD, isPeriodReady, periodRange } from "@/lib/audience/period";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 import {

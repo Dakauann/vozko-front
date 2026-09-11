@@ -11,7 +11,7 @@ import {
     COMMENT_STANCES,
     MODERATION_STATES,
     VERTICALS,
-} from "@/lib/comment-analysis/types";
+} from "@/lib/audience/types";
 
 /**
  * Every string the audience dashboard shows exists in all four locales and
@@ -86,8 +86,8 @@ describe("commentAnalysis messages", () => {
                 resources: Record<string, string>;
                 resourceDescriptions: Record<string, string>;
             };
-            expect(ws.resources.comment_analysis).toBeTruthy();
-            expect(ws.resourceDescriptions.comment_analysis).toBeTruthy();
+            expect(ws.resources.audience).toBeTruthy();
+            expect(ws.resourceDescriptions.audience).toBeTruthy();
         });
 
         it(`${locale}: no em or en dashes in copy`, () => {

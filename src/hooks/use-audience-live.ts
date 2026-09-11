@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import type { AnalyzedComment, CommentSource } from "@/lib/comment-analysis/types";
+import type { AnalyzedComment, CommentSource } from "@/lib/audience/types";
 
 /*
  * The live comment feed's client half (§7).
@@ -39,7 +39,7 @@ export interface LiveAnalyzedComment {
   requiresAction: boolean;
   isSpam: boolean;
   excerpt: string;
-  commentedAt: string;
+  occurredAt: string;
   analyzedAt: string;
 }
 
@@ -121,7 +121,7 @@ export function useCommentAnalysisLive({
         } catch {
           return;
         }
-        if (parsed.type !== "comment_analysis:analyzed" || !parsed.payload) return;
+        if (parsed.type !== "audience:analyzed" || !parsed.payload) return;
 
         const batch = parsed.payload;
         // One socket carries the whole workspace; this view is one account.

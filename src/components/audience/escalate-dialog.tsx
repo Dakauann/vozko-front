@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { escalateCommentAction, listEscalationRecipientsAction } from "@/app/actions/comment-analysis";
-import type { AnalyzedComment, EscalationRecipient } from "@/lib/comment-analysis/types";
+import { escalateCommentAction, listEscalationRecipientsAction } from "@/app/actions/audience";
+import type { AnalyzedComment, EscalationRecipient } from "@/lib/audience/types";
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";

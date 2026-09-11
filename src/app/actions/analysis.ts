@@ -274,7 +274,7 @@ interface AudienceRow {
     subjectKind: string;
     source: string;
     containerId: string;
-    sourceCommentId: string;
+    subjectId: string;
     sentiment?: string;
     interest?: string;
     productInterest?: string;
@@ -317,7 +317,7 @@ function toAnalysis(row: AudienceRow): Analysis {
         id: row.id,
         // The engine identifies a subject by its channel id; for a conversation
         // that id IS the entry id.
-        entryId: row.sourceCommentId,
+        entryId: row.subjectId,
         entryType: row.source as AnalysisEntryType,
         interest: (row.interest ?? "") as Analysis["interest"],
         productInterest: row.productInterest || null,

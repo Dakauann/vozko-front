@@ -10,7 +10,7 @@ import {
   listAlertRulesAction,
   testAlertRuleAction,
   updateAlertRuleAction,
-} from "@/app/actions/comment-analysis";
+} from "@/app/actions/audience";
 import type {
   AlertChannel,
   AlertChannelStatus,
@@ -18,7 +18,7 @@ import type {
   AlertRule,
   AlertRuleDraft,
   AlertVocabulary,
-} from "@/lib/comment-analysis/types";
+} from "@/lib/audience/types";
 import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones";
 import { listWhatsAppTemplatesAction } from "@/app/actions/whatsapp-templates";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
@@ -94,7 +94,7 @@ function draftOf(rule: AlertRule): AlertRuleDraft {
 export function CommentAnalysisAlerts({ accountId }: { accountId: string }) {
   const t = useTranslations("commentAnalysis.alerts");
   const { can } = useWorkspace();
-  const canManage = can("comment_analysis", "send");
+  const canManage = can("audience", "send");
   const locale = useLocale();
   const df = useMemo(
     () => new Intl.DateTimeFormat(LOCALE_TAG[locale] ?? "pt-BR", { dateStyle: "short", timeStyle: "short" }),

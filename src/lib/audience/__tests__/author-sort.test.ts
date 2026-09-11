@@ -9,7 +9,7 @@ import {
     AUTHOR_SORT_KEYS,
     AUTHOR_TABLE_COLUMNS,
     DEFAULT_AUTHOR_SORT,
-} from "@/lib/comment-analysis/types";
+} from "@/lib/audience/types";
 
 /**
  * The author ranking vocabulary is shared with the API, which REFUSES an

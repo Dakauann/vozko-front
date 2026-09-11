@@ -54,7 +54,7 @@ export interface AnalyzedComment {
     source: CommentSource;
     accountId: string;
     containerId: string;
-    sourceCommentId: string;
+    subjectId: string;
     parentCommentId?: string;
 
     authorExternalId: string;
@@ -82,7 +82,7 @@ export interface AnalyzedComment {
 
     model?: string;
     analyzedAt?: string;
-    commentedAt: string;
+    occurredAt: string;
     createdAt: string;
 }
 
@@ -426,7 +426,7 @@ export interface CommentListFilters {
     /** ISO date or date-time. */
     from?: string;
     to?: string;
-    sort?: 'severity:desc' | 'severity:asc' | 'commentedAt:desc' | 'commentedAt:asc';
+    sort?: 'severity:desc' | 'severity:asc' | 'occurredAt:desc' | 'occurredAt:asc';
     page?: number;
     pageSize?: number;
 }
@@ -600,7 +600,7 @@ export const AUTHOR_TABLE_COLUMNS: { key: AuthorSortKey; numeric?: boolean }[] =
  * The vocabulary mirrors `domain/comment_analysis/alert.go`, and the SERVER is
  * the authority on two things the UI must not re-derive: whether a metric needs
  * a window, and which direction it alarms in. Both arrive from
- * /comment-analysis/alerts/options so a picker cannot describe a metric
+ * /audience/alerts/options so a picker cannot describe a metric
  * differently from the evaluator that acts on it.
  */
 

@@ -31,8 +31,8 @@ function AudiencePageBody() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Matches the API: every /comment-analysis read is comment_analysis:read.
-  const canRead = !permissionsLoading && can("comment_analysis", "read");
+  // Matches the API: every /audience read is comment_analysis:read.
+  const canRead = !permissionsLoading && can("audience", "read");
 
   const onScopeChange = useCallback(
     (accountId: string, containerId: string | undefined) => {

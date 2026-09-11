@@ -32,7 +32,7 @@ export type ResourceType =
     | "plans"
     | "short_links"
     | "instagram_accounts"
-    | "comment_analysis"
+    | "audience"
     | "telegram_accounts"
     // Two resources for one channel, matching the backend: connecting a number
     // and blasting it are different privileges, and an attendant who may reply

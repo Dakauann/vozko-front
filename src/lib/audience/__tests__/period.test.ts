@@ -10,7 +10,7 @@ import {
     isPeriodReady,
     periodRange,
     type Period,
-} from "@/lib/comment-analysis/period";
+} from "@/lib/audience/period";
 
 /**
  * The period decides which of the server's two ranking implementations runs,

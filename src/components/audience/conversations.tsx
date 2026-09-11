@@ -9,7 +9,7 @@ import { ChartLegend, WaffleChart, type ChartDatum } from "@/components/charts/d
 import { InstrumentStrip, type Instrument } from "@/components/console/page-shapes";
 import { EmptyState, Panel, Skeleton } from "@/components/audience/shared";
 import { ChatsCircle } from "@/components/icons";
-import type { CommentAnalysisStats } from "@/lib/comment-analysis/types";
+import type { CommentAnalysisStats } from "@/lib/audience/types";
 
 /*
  * The conversation half of the audience view.

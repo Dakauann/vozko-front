@@ -10,7 +10,7 @@ import {
   getCommentBackfillAction,
   startCommentBackfillAction,
   updateCommentAnalysisSettingsAction,
-} from "@/app/actions/comment-analysis";
+} from "@/app/actions/audience";
 import { getAgentOptionsAction } from "@/app/actions/agents";
 import type { ModelPricingInfo } from "@/lib/agents/types";
 import { getExchangeRateAction } from "@/app/actions/pricing";
@@ -22,8 +22,8 @@ import type {
   CommentTopic,
   ReplyMode,
   Vertical,
-} from "@/lib/comment-analysis/types";
-import { MAX_INSTRUCTIONS_LENGTH, SELECTABLE_REPLY_MODES, VERTICALS } from "@/lib/comment-analysis/types";
+} from "@/lib/audience/types";
+import { MAX_INSTRUCTIONS_LENGTH, SELECTABLE_REPLY_MODES, VERTICALS } from "@/lib/audience/types";
 import { exchangeRateFromMicros, formatMicrosAsBrl } from "@/lib/pricing/currency";
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";

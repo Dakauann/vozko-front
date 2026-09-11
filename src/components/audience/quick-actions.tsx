@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { retryAnalyzedCommentAction } from "@/app/actions/comment-analysis";
+import { retryAnalyzedCommentAction } from "@/app/actions/audience";
 import { hideInstagramCommentAction, privateReplyInstagramCommentAction } from "@/app/actions/instagram";
-import type { AnalyzedComment } from "@/lib/comment-analysis/types";
+import type { AnalyzedComment } from "@/lib/audience/types";
 import { useWorkspace } from "@/contexts/workspace-context";
 import Button from "@/components/elevated-design/button";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
@@ -70,7 +70,7 @@ export function CommentQuickActions({
 }) {
   const t = useTranslations("commentAnalysis.quickActions");
   const { can } = useWorkspace();
-  const canSend = can("comment_analysis", "send");
+  const canSend = can("audience", "send");
   const [busy, setBusy] = useState<"hide" | "retry" | null>(null);
   const [replying, setReplying] = useState(false);
   const [answering, setAnswering] = useState(false);
@@ -78,7 +78,7 @@ export function CommentQuickActions({
 
   const hide = async () => {
     setBusy("hide");
-    const result = await hideInstagramCommentAction(accountId, comment.sourceCommentId, true);
+    const result = await hideInstagramCommentAction(accountId, comment.subjectId, true);
     setBusy(null);
     if (result.error) {
       onError?.(result.error);
@@ -182,7 +182,7 @@ function PrivateReplyDialog({
 
   const send = async () => {
     setSending(true);
-    const result = await privateReplyInstagramCommentAction(accountId, comment.sourceCommentId, text.trim());
+    const result = await privateReplyInstagramCommentAction(accountId, comment.subjectId, text.trim());
     setSending(false);
     if (result.error) {
       setError(result.code === "private_reply_used" ? t("alreadyUsed") : result.error);

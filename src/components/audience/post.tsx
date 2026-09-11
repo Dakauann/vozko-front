@@ -9,10 +9,10 @@ import {
   getCommentAnalysisTrendsAction,
   getCommentContainerSettingsAction,
   putCommentContainerSettingsAction,
-} from "@/app/actions/comment-analysis";
-import type { CommentAnalysisStats, CommentContainerSettings, CommentSource, TrendPoint } from "@/lib/comment-analysis/types";
-import type { OverrideDraft } from "@/lib/comment-analysis/override";
-import { overrideDraftFrom, overrideDraftToPut } from "@/lib/comment-analysis/override";
+} from "@/app/actions/audience";
+import type { CommentAnalysisStats, CommentContainerSettings, CommentSource, TrendPoint } from "@/lib/audience/types";
+import type { OverrideDraft } from "@/lib/audience/override";
+import { overrideDraftFrom, overrideDraftToPut } from "@/lib/audience/override";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { Link } from "@/i18n/routing";
 import Button from "@/components/elevated-design/button";
@@ -34,7 +34,7 @@ import { ArrowSquareOut, ChartLineUp, ChatCircle, Gear, Sparkle, Warning } from 
  * this panel only shows the two tiers side by side and edits the top one. A
  * field left blank inherits, and an override with every field blank is not
  * stored at all, so "inherit everything" and "no override" are one state.
- * The draft mappings live in lib/comment-analysis/override.ts, tested there.
+ * The draft mappings live in lib/audience/override.ts, tested there.
  */
 
 const SOURCE: CommentSource = "instagram";
@@ -52,7 +52,7 @@ export function CommentPostAnalysisPanel({ accountId, containerId }: { accountId
   const t = useTranslations("commentAnalysis.post");
   const tc = useTranslations("commentAnalysis");
   const { can } = useWorkspace();
-  const canConfigure = can("comment_analysis", "update");
+  const canConfigure = can("audience", "update");
 
   const [section, setSection] = useState<Section>("overview");
   const [settings, setSettings] = useState<CommentContainerSettings | null>(null);

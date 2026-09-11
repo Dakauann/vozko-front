@@ -25,8 +25,8 @@ import type {
     ReplySuggestion,
     RollupScope,
     TrendPoint,
-} from '@/lib/comment-analysis/types';
-import { EMPTY_COUNTERS, EMPTY_META } from '@/lib/comment-analysis/types';
+} from '@/lib/audience/types';
+import { EMPTY_COUNTERS, EMPTY_META } from '@/lib/audience/types';
 
 import { apiClient } from '@/lib/api/browser-client';
 
@@ -62,7 +62,7 @@ function filtersToParams(f: CommentListFilters): URLSearchParams {
 
 export async function listAnalyzedCommentsAction(filters: CommentListFilters) {
     const response = await apiClient<PaginatedResponse<AnalyzedComment>>(
-        `/comment-analysis?${filtersToParams(filters).toString()}`,
+        `/audience?${filtersToParams(filters).toString()}`,
         { method: 'GET' },
     );
     if (response.error) {
@@ -73,7 +73,7 @@ export async function listAnalyzedCommentsAction(filters: CommentListFilters) {
 
 export async function getCommentAnalysisStatsAction(filters: CommentListFilters) {
     const response = await apiClient<CommentAnalysisStats>(
-        `/comment-analysis/stats?${filtersToParams(filters).toString()}`,
+        `/audience/stats?${filtersToParams(filters).toString()}`,
         { method: 'GET' },
     );
     if (response.error) return { error: response.error.message };
@@ -91,7 +91,7 @@ export async function getCommentAnalysisTrendsAction(
     const params = new URLSearchParams({ scope, scopeId });
     if (from) params.set('from', from);
     if (to) params.set('to', to);
-    const response = await apiClient<TrendPoint[]>(`/comment-analysis/trends?${params.toString()}`, {
+    const response = await apiClient<TrendPoint[]>(`/audience/trends?${params.toString()}`, {
         method: 'GET',
     });
     if (response.error) return { points: [] as TrendPoint[], error: response.error.message };
@@ -132,7 +132,7 @@ export async function listCommentAuthorsAction(input: {
     if (input.page) params.set('page', String(input.page));
     if (input.pageSize) params.set('pageSize', String(input.pageSize));
     const response = await apiClient<PaginatedResponse<CommentAuthor>>(
-        `/comment-analysis/authors?${params.toString()}`,
+        `/audience/authors?${params.toString()}`,
         { method: 'GET' },
     );
     if (response.error) {
@@ -144,7 +144,7 @@ export async function listCommentAuthorsAction(input: {
 export async function getCommentAuthorAction(authorId: string, page = 1, pageSize = 20) {
     const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
     const response = await apiClient<CommentAuthorDetail>(
-        `/comment-analysis/authors/${authorId}?${params.toString()}`,
+        `/audience/authors/${authorId}?${params.toString()}`,
         { method: 'GET' },
     );
     if (response.error) return { error: response.error.message };
@@ -161,7 +161,7 @@ export async function listAuthorContainersAction(
     if (range?.from) params.set('from', range.from);
     if (range?.to) params.set('to', range.to);
     const response = await apiClient<AuthorContainersPage>(
-        `/comment-analysis/authors/${authorId}/containers?${params.toString()}`,
+        `/audience/authors/${authorId}/containers?${params.toString()}`,
         { method: 'GET' },
     );
     if (response.error) return { error: response.error.message };
@@ -176,7 +176,7 @@ export async function listEscalationRecipientsAction(query = '', limit = 20) {
     const params = new URLSearchParams({ limit: String(limit) });
     if (query.trim()) params.set('query', query.trim());
     const response = await apiClient<EscalationRecipient[]>(
-        `/comment-analysis/escalation-recipients?${params.toString()}`,
+        `/audience/escalation-recipients?${params.toString()}`,
         { method: 'GET' },
     );
     if (response.error) return { recipients: [] as EscalationRecipient[], error: response.error.message };
@@ -188,7 +188,7 @@ export async function escalateCommentAction(
     recipient: { entryId: string; entryType: string },
     note?: string,
 ) {
-    const response = await apiClient<EscalationResult>(`/comment-analysis/${commentId}/escalate`, {
+    const response = await apiClient<EscalationResult>(`/audience/${commentId}/escalate`, {
         method: 'POST',
         body: JSON.stringify({
             recipientId: recipient.entryId,
@@ -202,7 +202,7 @@ export async function escalateCommentAction(
 
 /** Drafts an answer. Drafting never posts. */
 export async function suggestCommentReplyAction(commentId: string) {
-    const response = await apiClient<ReplySuggestion>(`/comment-analysis/${commentId}/reply/suggest`, {
+    const response = await apiClient<ReplySuggestion>(`/audience/${commentId}/reply/suggest`, {
         method: 'POST',
     });
     if (response.error) return { error: response.error.message };
@@ -211,7 +211,7 @@ export async function suggestCommentReplyAction(commentId: string) {
 
 /** Publishes the operator's text. Nothing re-drafts at send time. */
 export async function postCommentReplyAction(commentId: string, text: string) {
-    const response = await apiClient<ReplySuggestion>(`/comment-analysis/${commentId}/reply`, {
+    const response = await apiClient<ReplySuggestion>(`/audience/${commentId}/reply`, {
         method: 'POST',
         body: JSON.stringify({ text }),
     });
@@ -220,7 +220,7 @@ export async function postCommentReplyAction(commentId: string, text: string) {
 }
 
 export async function setCommentAuthorModerationAction(authorId: string, state: ModerationState) {
-    const response = await apiClient<CommentAuthor>(`/comment-analysis/authors/${authorId}`, {
+    const response = await apiClient<CommentAuthor>(`/audience/authors/${authorId}`, {
         method: 'PATCH',
         body: JSON.stringify({ state }),
     });
@@ -230,7 +230,7 @@ export async function setCommentAuthorModerationAction(authorId: string, state: 
 
 export async function getCommentAnalysisSettingsAction(source: CommentSource, accountId: string) {
     const response = await apiClient<CommentAnalysisSettings>(
-        `/comment-analysis/settings/${source}/${accountId}`,
+        `/audience/settings/${source}/${accountId}`,
         { method: 'GET' },
     );
     if (response.error) return { error: response.error.message };
@@ -243,7 +243,7 @@ export async function updateCommentAnalysisSettingsAction(
     patch: CommentAnalysisSettingsPatch,
 ) {
     const response = await apiClient<CommentAnalysisSettings>(
-        `/comment-analysis/settings/${source}/${accountId}`,
+        `/audience/settings/${source}/${accountId}`,
         { method: 'PATCH', body: JSON.stringify(patch) },
     );
     if (response.error) return { error: response.error.message };
@@ -251,7 +251,7 @@ export async function updateCommentAnalysisSettingsAction(
 }
 
 export async function retryAnalyzedCommentAction(id: string) {
-    const response = await apiClient<AnalyzedComment>(`/comment-analysis/${id}/retry`, {
+    const response = await apiClient<AnalyzedComment>(`/audience/${id}/retry`, {
         method: 'POST',
     });
     if (response.error) return { error: response.error.message };
@@ -262,7 +262,7 @@ export async function getCommentAnalysisSpendAction(accountId: string, days?: nu
     const params = new URLSearchParams({ accountId });
     if (days) params.set('days', String(days));
     const response = await apiClient<CommentAnalysisSpend>(
-        `/comment-analysis/spend?${params.toString()}`,
+        `/audience/spend?${params.toString()}`,
         { method: 'GET' },
     );
     if (response.error) return { error: response.error.message };
@@ -278,7 +278,7 @@ export async function estimateCommentBackfillAction(
     if (containerId) params.set('containerId', containerId);
     const query = params.toString();
     const response = await apiClient<BackfillEstimate>(
-        `/comment-analysis/backfill/${source}/${accountId}/estimate${query ? `?${query}` : ''}`,
+        `/audience/backfill/${source}/${accountId}/estimate${query ? `?${query}` : ''}`,
         { method: 'GET' },
     );
     if (response.error) return { error: response.error.message };
@@ -291,7 +291,7 @@ export async function startCommentBackfillAction(
     confirmedEstimate: number,
     containerId?: string,
 ) {
-    const response = await apiClient<CommentBackfill>(`/comment-analysis/backfill/${source}/${accountId}`, {
+    const response = await apiClient<CommentBackfill>(`/audience/backfill/${source}/${accountId}`, {
         method: 'POST',
         body: JSON.stringify({ confirmedEstimate, containerId: containerId ?? '' }),
     });
@@ -300,7 +300,7 @@ export async function startCommentBackfillAction(
 }
 
 export async function getCommentBackfillAction(id: string) {
-    const response = await apiClient<CommentBackfill>(`/comment-analysis/backfill/${id}`, {
+    const response = await apiClient<CommentBackfill>(`/audience/backfill/${id}`, {
         method: 'GET',
     });
     if (response.error) return { error: response.error.message };
@@ -308,7 +308,7 @@ export async function getCommentBackfillAction(id: string) {
 }
 
 export async function cancelCommentBackfillAction(id: string) {
-    const response = await apiClient<CommentBackfill>(`/comment-analysis/backfill/${id}/cancel`, {
+    const response = await apiClient<CommentBackfill>(`/audience/backfill/${id}/cancel`, {
         method: 'POST',
     });
     if (response.error) return { error: response.error.message };
@@ -319,7 +319,7 @@ export async function cancelCommentBackfillAction(id: string) {
 
 /** Every account of the workspace with analysis settings (enabled or not). */
 export async function listCommentAnalysisAccountsAction() {
-    const response = await apiClient<CommentAnalysisSettings[]>('/comment-analysis/settings', {
+    const response = await apiClient<CommentAnalysisSettings[]>('/audience/settings', {
         method: 'GET',
     });
     if (response.error) return { accounts: [] as CommentAnalysisSettings[], error: response.error.message };
@@ -332,7 +332,7 @@ export async function getCommentContainerSettingsAction(
     containerId: string,
 ) {
     const response = await apiClient<CommentContainerSettings>(
-        `/comment-analysis/settings/${source}/${accountId}/containers/${containerId}`,
+        `/audience/settings/${source}/${accountId}/containers/${containerId}`,
         { method: 'GET' },
     );
     if (response.error) return { error: response.error.message };
@@ -346,7 +346,7 @@ export async function putCommentContainerSettingsAction(
     override: CommentContainerOverridePut,
 ) {
     const response = await apiClient<CommentContainerSettings>(
-        `/comment-analysis/settings/${source}/${accountId}/containers/${containerId}`,
+        `/audience/settings/${source}/${accountId}/containers/${containerId}`,
         { method: 'PUT', body: JSON.stringify(override) },
     );
     if (response.error) return { error: response.error.message };
@@ -360,7 +360,7 @@ export async function deleteCommentContainerSettingsAction(
     containerId: string,
 ) {
     const response = await apiClient<CommentContainerSettings>(
-        `/comment-analysis/settings/${source}/${accountId}/containers/${containerId}`,
+        `/audience/settings/${source}/${accountId}/containers/${containerId}`,
         { method: 'DELETE' },
     );
     if (response.error) return { error: response.error.message };
@@ -375,7 +375,7 @@ export async function deleteCommentContainerSettingsAction(
 export async function listAlertRulesAction(accountId?: string, source: CommentSource = 'instagram') {
     const params = new URLSearchParams({ source });
     if (accountId) params.set('accountId', accountId);
-    const response = await apiClient<AlertRule[]>(`/comment-analysis/alerts?${params.toString()}`, {
+    const response = await apiClient<AlertRule[]>(`/audience/alerts?${params.toString()}`, {
         method: 'GET',
     });
     if (response.error) return { rules: [] as AlertRule[], error: response.error.message };
@@ -383,13 +383,13 @@ export async function listAlertRulesAction(accountId?: string, source: CommentSo
 }
 
 export async function getAlertOptionsAction() {
-    const response = await apiClient<AlertVocabulary>('/comment-analysis/alerts/options', { method: 'GET' });
+    const response = await apiClient<AlertVocabulary>('/audience/alerts/options', { method: 'GET' });
     if (response.error) return { error: response.error.message };
     return { options: response.data };
 }
 
 export async function createAlertRuleAction(draft: AlertRuleDraft) {
-    const response = await apiClient<AlertRule>('/comment-analysis/alerts', {
+    const response = await apiClient<AlertRule>('/audience/alerts', {
         method: 'POST',
         body: JSON.stringify(draft),
     });
@@ -398,7 +398,7 @@ export async function createAlertRuleAction(draft: AlertRuleDraft) {
 }
 
 export async function updateAlertRuleAction(id: string, draft: AlertRuleDraft) {
-    const response = await apiClient<AlertRule>(`/comment-analysis/alerts/${id}`, {
+    const response = await apiClient<AlertRule>(`/audience/alerts/${id}`, {
         method: 'PUT',
         body: JSON.stringify(draft),
     });
@@ -407,14 +407,14 @@ export async function updateAlertRuleAction(id: string, draft: AlertRuleDraft) {
 }
 
 export async function deleteAlertRuleAction(id: string) {
-    const response = await apiClient<void>(`/comment-analysis/alerts/${id}`, { method: 'DELETE' });
+    const response = await apiClient<void>(`/audience/alerts/${id}`, { method: 'DELETE' });
     if (response.error) return { error: response.error.message };
     return {};
 }
 
 /** Sends one alert now. It does not consume the rule's cooldown or daily cap. */
 export async function testAlertRuleAction(id: string) {
-    const response = await apiClient<void>(`/comment-analysis/alerts/${id}/test`, { method: 'POST' });
+    const response = await apiClient<void>(`/audience/alerts/${id}/test`, { method: 'POST' });
     if (response.error) return { error: response.error.message };
     return {};
 }
@@ -422,7 +422,7 @@ export async function testAlertRuleAction(id: string) {
 /*
  * The audience surface: the same rows, not narrowed to comments.
  *
- * /comment-analysis pins itself to comments so those screens keep showing what
+ * /audience pins itself to comments so those screens keep showing what
  * they always did. /audience serves every subject kind, which is what a view
  * called "audience" has to mean now that conversations live in the same engine.
  */

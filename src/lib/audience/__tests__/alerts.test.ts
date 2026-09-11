@@ -4,7 +4,7 @@ import de from "@/i18n/messages/de.json";
 import en from "@/i18n/messages/en.json";
 import es from "@/i18n/messages/es.json";
 import pt from "@/i18n/messages/pt.json";
-import type { AlertChannel, AlertMetric } from "@/lib/comment-analysis/types";
+import type { AlertChannel, AlertMetric } from "@/lib/audience/types";
 
 /**
  * The alert vocabulary is shared with the server, which refuses an unknown

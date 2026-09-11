@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
-import type { CommentTopic } from "@/lib/comment-analysis/types";
+import type { CommentTopic } from "@/lib/audience/types";
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { Plus, Trash } from "@/components/icons";
@@ -16,9 +16,9 @@ import { Plus, Trash } from "@/components/icons";
 
 export const MAX_TOPICS = 30;
 
-// The list helpers live in lib/comment-analysis/override.ts (tested there)
+// The list helpers live in lib/audience/override.ts (tested there)
 // and are re-exported so the two editors import one thing.
-export { cleanTopics, editableTopics } from "@/lib/comment-analysis/override";
+export { cleanTopics, editableTopics } from "@/lib/audience/override";
 
 export function TopicsEditor({
   topics,

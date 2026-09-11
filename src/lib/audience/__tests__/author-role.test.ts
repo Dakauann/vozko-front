@@ -4,7 +4,7 @@ import de from "@/i18n/messages/de.json";
 import en from "@/i18n/messages/en.json";
 import es from "@/i18n/messages/es.json";
 import pt from "@/i18n/messages/pt.json";
-import { AUTHOR_ROLES } from "@/lib/comment-analysis/types";
+import { AUTHOR_ROLES } from "@/lib/audience/types";
 
 /**
  * The role taxonomy is closed on the server, so a label missing here would

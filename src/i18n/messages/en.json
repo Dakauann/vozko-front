@@ -6642,7 +6642,7 @@
       "ai_chat": "AI Chat",
       "stages": "Stages",
       "instagram_accounts": "Instagram accounts",
-      "comment_analysis": "Comment analysis",
+      "audience": "Audience analysis",
       "telegram_accounts": "Telegram accounts",
       "unofficial_whatsapp_instances": "WhatsApp numbers (unofficial)",
       "short_links": "Short links"
@@ -6695,7 +6695,7 @@
       "plans": "View available plans, contract plans, and cancel the workspace subscription",
       "ai_chat": "Access and use the workspace AI chat to create and manage conversations",
       "instagram_accounts": "Connect and manage the workspace's Instagram accounts.",
-      "comment_analysis": "View the comment analysis of connected accounts, moderate authors and configure the analysis (which is billed).",
+      "audience": "See the analysis of comments and conversations across connected channels, moderate authors and configure the analysis (which is billed).",
       "telegram_accounts": "Connect and manage the workspace's Telegram bots and accounts.",
       "unofficial_whatsapp_instances": "Connect and manage WhatsApp numbers over a linked device.",
       "short_links": "Create and track short links and their click statistics."

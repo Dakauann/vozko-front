@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { cleanTopics, overrideDraftFrom, overrideDraftToPut } from "@/lib/comment-analysis/override";
-import type { CommentAnalysisSettings, CommentContainerSettings } from "@/lib/comment-analysis/types";
+import { cleanTopics, overrideDraftFrom, overrideDraftToPut } from "@/lib/audience/override";
+import type { CommentAnalysisSettings, CommentContainerSettings } from "@/lib/audience/types";
 
 /**
  * The override editor's two mappings. The invariant that matters: a field the

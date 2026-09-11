@@ -5266,7 +5266,7 @@
       "plans": "Planes y Facturación",
       "ai_chat": "Chat de IA",
       "instagram_accounts": "Cuentas de Instagram",
-      "comment_analysis": "Análisis de comentarios",
+      "audience": "Análisis de la audiencia",
       "telegram_accounts": "Cuentas de Telegram",
       "unofficial_whatsapp_instances": "Números de WhatsApp (no oficial)",
       "short_links": "Enlaces cortos"
@@ -5319,7 +5319,7 @@
       "plans": "Ver planes disponibles, contratar planes y cancelar la suscripción del workspace",
       "ai_chat": "Accede y usa el chat de IA del espacio de trabajo para crear y gestionar conversaciones",
       "instagram_accounts": "Conectar y gestionar las cuentas de Instagram del workspace.",
-      "comment_analysis": "Ver el análisis de comentarios de las cuentas conectadas, moderar autores y configurar el análisis (que se cobra).",
+      "audience": "Ver el análisis de comentarios y conversaciones de los canales conectados, moderar autores y configurar el análisis (que genera cobro).",
       "telegram_accounts": "Conectar y gestionar los bots y cuentas de Telegram del workspace.",
       "unofficial_whatsapp_instances": "Conectar y gestionar números de WhatsApp mediante dispositivo vinculado.",
       "short_links": "Crear y seguir enlaces cortos y sus estadísticas de clics."

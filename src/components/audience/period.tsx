@@ -2,8 +2,8 @@
 
 import { useTranslations } from "next-intl";
 
-import type { Period, PeriodPreset } from "@/lib/comment-analysis/period";
-import { PERIOD_PRESETS } from "@/lib/comment-analysis/period";
+import type { Period, PeriodPreset } from "@/lib/audience/period";
+import { PERIOD_PRESETS } from "@/lib/audience/period";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { cn } from "@/lib/utils";

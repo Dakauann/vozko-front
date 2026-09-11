@@ -2,7 +2,7 @@ import type {
     CommentContainerOverridePut,
     CommentContainerSettings,
     CommentTopic,
-} from '@/lib/comment-analysis/types';
+} from '@/lib/audience/types';
 
 /**
  * The per-post override editor's draft: what the form holds between the

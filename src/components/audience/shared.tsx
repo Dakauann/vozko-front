@@ -10,8 +10,8 @@ import type {
   CommentStance,
   CommentTopic,
   ModerationState,
-} from "@/lib/comment-analysis/types";
-import { HIGH_SEVERITY_THRESHOLD } from "@/lib/comment-analysis/types";
+} from "@/lib/audience/types";
+import { HIGH_SEVERITY_THRESHOLD } from "@/lib/audience/types";
 import { ArrowDown, ArrowUp, IdentificationCard, Minus } from "@/components/icons";
 import { VOZ_SERIES } from "@/components/charts/vozko";
 import { cn } from "@/lib/utils";

@@ -7,13 +7,13 @@ import {
   getCommentAnalysisSettingsAction,
   getCommentAnalysisStatsAction,
   getCommentAnalysisTrendsAction,
-} from "@/app/actions/comment-analysis";
-import type { CommentAnalysisSettings, CommentAnalysisStats, TrendPoint } from "@/lib/comment-analysis/types";
+} from "@/app/actions/audience";
+import type { CommentAnalysisSettings, CommentAnalysisStats, TrendPoint } from "@/lib/audience/types";
 import { useWorkspace } from "@/contexts/workspace-context";
 import Button from "@/components/elevated-design/button";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
-import type { Period } from "@/lib/comment-analysis/period";
-import { DEFAULT_PERIOD, isPeriodReady, periodRange } from "@/lib/comment-analysis/period";
+import type { Period } from "@/lib/audience/period";
+import { DEFAULT_PERIOD, isPeriodReady, periodRange } from "@/lib/audience/period";
 import { PeriodPicker } from "@/components/audience/period";
 import { CommentAnalysisAlerts } from "@/components/audience/alerts";
 import { CommentAnalysisOverview } from "@/components/audience/overview";
@@ -39,8 +39,8 @@ type Section = "overview" | "topics" | "authors" | "feed" | "alerts" | "settings
 export function CommentAnalysisTab({ accountId }: { accountId: string }) {
   const t = useTranslations("commentAnalysis");
   const { can } = useWorkspace();
-  const canConfigure = can("comment_analysis", "update");
-  const canSendAlerts = can("comment_analysis", "send");
+  const canConfigure = can("audience", "update");
+  const canSendAlerts = can("audience", "send");
 
   const [section, setSection] = useState<Section>("overview");
   const [settings, setSettings] = useState<CommentAnalysisSettings | null>(null);

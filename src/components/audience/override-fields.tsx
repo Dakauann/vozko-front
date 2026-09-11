@@ -5,9 +5,9 @@ import { useTranslations } from "next-intl";
 
 import { getAgentOptionsAction } from "@/app/actions/agents";
 import type { ModelPricingInfo } from "@/lib/agents/types";
-import type { CommentAnalysisSettings } from "@/lib/comment-analysis/types";
-import { MAX_INSTRUCTIONS_LENGTH } from "@/lib/comment-analysis/types";
-import type { EnabledChoice, OverrideDraft } from "@/lib/comment-analysis/override";
+import type { CommentAnalysisSettings } from "@/lib/audience/types";
+import { MAX_INSTRUCTIONS_LENGTH } from "@/lib/audience/types";
+import type { EnabledChoice, OverrideDraft } from "@/lib/audience/override";
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";

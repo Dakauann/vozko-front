@@ -5788,7 +5788,7 @@
       "plans": "Pläne & Abrechnung",
       "ai_chat": "KI-Chat",
       "instagram_accounts": "Instagram-Konten",
-      "comment_analysis": "Kommentaranalyse",
+      "audience": "Audience-Analyse",
       "telegram_accounts": "Telegram-Konten",
       "unofficial_whatsapp_instances": "WhatsApp-Nummern (inoffiziell)",
       "short_links": "Kurzlinks"
@@ -5841,7 +5841,7 @@
       "plans": "Verfügbare Pläne anzeigen, Pläne buchen und das Workspace-Abo kündigen",
       "ai_chat": "Auf den KI-Chat des Workspace zugreifen und Konversationen erstellen und verwalten",
       "instagram_accounts": "Instagram-Konten des Workspace verbinden und verwalten.",
-      "comment_analysis": "Die Kommentaranalyse verbundener Konten ansehen, Autoren moderieren und die (kostenpflichtige) Analyse konfigurieren.",
+      "audience": "Die Analyse von Kommentaren und Gesprächen der verbundenen Kanäle sehen, Autoren moderieren und die Analyse konfigurieren (kostenpflichtig).",
       "telegram_accounts": "Telegram-Bots und -Konten des Workspace verbinden und verwalten.",
       "unofficial_whatsapp_instances": "WhatsApp-Nummern über ein verknüpftes Gerät verbinden und verwalten.",
       "short_links": "Kurzlinks erstellen und ihre Klickstatistiken verfolgen."
