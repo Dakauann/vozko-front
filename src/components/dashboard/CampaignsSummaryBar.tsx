@@ -24,7 +24,7 @@ const PRESETS: { key: Preset; labelKey: string; days?: number }[] = [
 type SummaryMetrics = Partial<WhatsAppCampaignMetrics>;
 
 interface CampaignsSummaryBarProps {
-  variant: "whatsapp" | "voice";
+  variant: "whatsapp";
   metrics: SummaryMetrics | null;
   loading?: boolean;
   from: string;
@@ -87,7 +87,6 @@ export function CampaignsSummaryBar({
   action,
 }: CampaignsSummaryBarProps) {
   const t = useTranslations("campaignsSummary");
-  const isVoice = variant === "voice";
   const m = metrics ?? {};
 
   const [preset, setPreset] = useState<Preset>(from || to ? "custom" : "all");
@@ -164,11 +163,7 @@ export function CampaignsSummaryBar({
   // Headline help is variant-specific so the copy stays honest: only WhatsApp has
   // the in-transit/delivered/read funnel referenced by headlineSendsHelp.
   const headlineHelp =
-    variant === "whatsapp"
-      ? t("headlineSendsHelp")
-      : isVoice
-        ? t("headlineCallsHelp")
-        : undefined;
+    variant === "whatsapp" ? t("headlineSendsHelp") : undefined;
 
   const hasFilter = !!from || !!to;
 
@@ -177,7 +172,7 @@ export function CampaignsSummaryBar({
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3">
         <div className="flex items-baseline gap-2">
           <h2 className="text-sm font-semibold text-foreground">
-            {isVoice ? t("titleCalls") : t("titleSends")}
+            {t("titleSends")}
           </h2>
           <span className="text-xs text-muted-foreground">
             {hasFilter ? t("filtered") : t("allTime")}
@@ -237,7 +232,7 @@ export function CampaignsSummaryBar({
       <div className="flex flex-wrap items-end gap-x-10 gap-y-4 px-5 py-4">
         <div className="flex flex-col">
           <TileLabel
-            label={isVoice ? t("headlineCalls") : t("headlineSends")}
+            label={t("headlineSends")}
             help={headlineHelp}
           />
           <span

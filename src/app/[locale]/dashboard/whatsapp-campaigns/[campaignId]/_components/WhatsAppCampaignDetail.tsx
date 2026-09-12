@@ -1640,8 +1640,6 @@ function WhatsAppCampaignDetailContent({
                   sale: t("detail.filters.disposition.sale"),
                   callback: t("detail.filters.disposition.callback"),
                   declined: t("detail.filters.disposition.declined"),
-                  no_answer: t("detail.filters.disposition.no_answer"),
-                  voicemail: t("detail.filters.disposition.voicemail"),
                   pending: t("detail.filters.disposition.pending"),
                 },
                 sentiment: {
@@ -1698,7 +1696,6 @@ function WhatsAppCampaignDetailContent({
                 },
                 channel: {
                   label: t("detail.conversationFilters.channel.label"),
-                  voice: t("detail.conversationFilters.channel.voice"),
                   whatsapp: t("detail.conversationFilters.channel.whatsapp"),
                 },
                 minMessageCount: t(

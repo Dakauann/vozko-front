@@ -2,7 +2,7 @@ export type AnalysisEntryType = 'voice' | 'whatsapp';
 
 export type AnalysisInterest = 'interested' | 'not_interested' | 'undecided';
 
-export type AnalysisDisposition = 'sale' | 'callback' | 'declined' | 'no_answer' | 'voicemail' | 'pending';
+export type AnalysisDisposition = 'sale' | 'callback' | 'declined' | 'pending';
 
 export type AnalysisSentiment = 'positive' | 'neutral' | 'negative';
 

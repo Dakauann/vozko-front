@@ -24,19 +24,9 @@ describe("FILTERABLE_MESSAGE_CHANNELS", () => {
         }
     });
 
-    it("includes voice, which is filterable but is not a messaging channel", () => {
-        expect(FILTERABLE_MESSAGE_CHANNELS).toContain("voice");
-    });
-
     it("lists each channel exactly once", () => {
         const seen = new Set(FILTERABLE_MESSAGE_CHANNELS);
         expect(seen.size).toBe(FILTERABLE_MESSAGE_CHANNELS.length);
-    });
-
-    // The dropdown maps over this array, so its order is the order an operator
-    // reads. Messaging channels lead; voice is the odd one out and trails.
-    it("puts voice last", () => {
-        expect(FILTERABLE_MESSAGE_CHANNELS[FILTERABLE_MESSAGE_CHANNELS.length - 1]).toBe("voice");
     });
 
     // Exhaustiveness: if MessageChannel gains a member and the list does not,
@@ -47,7 +37,6 @@ describe("FILTERABLE_MESSAGE_CHANNELS", () => {
             unofficial_whatsapp: true,
             instagram: true,
             telegram: true,
-            voice: true,
         };
         for (const channel of Object.keys(covered) as MessageChannel[]) {
             expect(FILTERABLE_MESSAGE_CHANNELS).toContain(channel);
@@ -57,9 +46,9 @@ describe("FILTERABLE_MESSAGE_CHANNELS", () => {
 
 describe("channel vs entry type", () => {
     // They are different vocabularies and were conflated by the inline unions.
-    // 'sip' and 'support' are entry kinds with no message channel of their own.
+    // 'support' is an entry kind with no message channel of its own.
     it("keeps entry-only kinds out of the channel filter", () => {
-        for (const entryOnly of ["sip", "support"] as EntryType[]) {
+        for (const entryOnly of ["support"] as EntryType[]) {
             expect(FILTERABLE_MESSAGE_CHANNELS).not.toContain(
                 entryOnly as unknown as MessageChannel,
             );

@@ -190,10 +190,7 @@ export function attendanceMetricsHref(params: {
   const base = `${params.localePrefix ?? ""}/dashboard/attendance`;
   const qs = new URLSearchParams();
   if (params.campaignId) qs.set("campaignId", params.campaignId);
-  if (
-    params.campaignType === "whatsapp" ||
-    params.campaignType === "voice"
-  ) {
+  if (params.campaignType === "whatsapp") {
     qs.set("campaignType", params.campaignType);
   }
   const q = qs.toString();

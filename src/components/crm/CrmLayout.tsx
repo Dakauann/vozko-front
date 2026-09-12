@@ -25,7 +25,6 @@ import {
   ChatCircleDots,
   Check,
   Info,
-  Phone,
   PhoneCall,
   Robot,
   InstagramLogo,
@@ -1447,8 +1446,8 @@ export default function CrmLayout({
       return;
     }
     const entryType = normalizeEntryType(activeConversation.entry_type);
-    // Only WhatsApp/voice conversations can place a WhatsApp call at all.
-    if (entryType !== "whatsapp" && entryType !== "voice") {
+    // Only WhatsApp conversations can place a WhatsApp call at all.
+    if (entryType !== "whatsapp") {
       setCallPermission({ status: "none", can_call: false });
       return;
     }

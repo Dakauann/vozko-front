@@ -64,12 +64,6 @@ function InfoRow({
 
 function channelBadge(type: string) {
   switch (type) {
-    case "voice":
-      return (
-        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-2xs font-medium text-healthy-ink dark:text-healthy-ink">
-          <Phone weight="fill" size={12} /> Voz
-        </span>
-      )
     case "whatsapp":
       return (
         <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-2 py-0.5 text-2xs font-medium text-healthy-ink dark:text-healthy-ink">

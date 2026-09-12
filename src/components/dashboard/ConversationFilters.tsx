@@ -34,7 +34,7 @@ export type MessageType =
   | "tool_result"
   | "audio"
   | "system";
-export type ChannelType = "voice" | "whatsapp";
+export type ChannelType = "whatsapp";
 
 export interface ConversationFilterValues {
   hasWhatsAppMessages?: boolean;
@@ -74,7 +74,6 @@ interface ConversationFiltersProps {
     };
     channel: {
       label: string;
-      voice: string;
       whatsapp: string;
     };
     minMessageCount: string;
@@ -430,9 +429,6 @@ export default function ConversationFilters({
               }
               placeholder={t.channel.label}
             >
-              <ElevatedSelectItem value="voice">
-                {t.channel.voice}
-              </ElevatedSelectItem>
               <ElevatedSelectItem value="whatsapp">
                 {t.channel.whatsapp}
               </ElevatedSelectItem>

@@ -51,8 +51,6 @@ interface CampaignFiltersProps {
       sale: string;
       callback: string;
       declined: string;
-      no_answer: string;
-      voicemail: string;
       pending: string;
     };
     sentiment: {
@@ -91,7 +89,6 @@ interface CampaignFiltersProps {
     };
     channel: {
       label: string;
-      voice: string;
       whatsapp: string;
     };
     minMessageCount: string;

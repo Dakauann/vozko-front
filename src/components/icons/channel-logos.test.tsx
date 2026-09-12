@@ -23,8 +23,8 @@ describe("channel marks", () => {
   it("claims no mark for channels it cannot draw", () => {
     // Voice is a real channel with no brand mark; the avatar must fall back to
     // the initial rather than reserve space for a badge that never arrives.
-    expect(hasChannelMark("voice")).toBe(false);
-    expect(ChannelLogo({ channel: "voice" })).toBeNull();
+    expect(hasChannelMark("support")).toBe(false);
+    expect(ChannelLogo({ channel: "support" })).toBeNull();
     expect(hasChannelMark(null)).toBe(false);
     expect(hasChannelMark(undefined)).toBe(false);
   });
@@ -33,7 +33,6 @@ describe("channel marks", () => {
   // filter that yields rows with no mark is the gap this whole file guards.
   it("covers every filterable channel except voice", () => {
     for (const channel of FILTERABLE_MESSAGE_CHANNELS) {
-      if (channel === "voice") continue;
       expect(hasChannelMark(channel), `${channel} is filterable but has no mark`).toBe(true);
     }
   });

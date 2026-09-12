@@ -25,7 +25,7 @@ export type AudienceSource =
     | "unofficial_whatsapp";
 
 export type ConversationInterest = "interested" | "not_interested" | "undecided";
-export type ConversationDisposition = "sale" | "filling_info" | "callback" | "declined" | "no_answer" | "voicemail" | "pending";
+export type ConversationDisposition = "sale" | "filling_info" | "callback" | "declined" | "pending";
 export type ConversationQualification = "hot_lead" | "warm_lead" | "cold_lead";
 export type ConversationNextAction = "schedule_callback" | "send_whatsapp" | "close" | "escalate" | "continue";
 
@@ -673,18 +673,24 @@ export const AUTHOR_TABLE_COLUMNS: { key: AuthorSortKey; numeric?: boolean }[] =
  */
 
 export type AlertMetric =
+    // Comment metrics.
     | 'comment_severity'
     | 'high_severity_count'
     | 'hostile_count'
     | 'comment_volume'
-    | 'acceptance_score';
+    | 'acceptance_score'
+    // Conversation metrics. Same machinery, a different subject, which is why
+    // the server sends subjectKind with each option rather than the client
+    // inferring it from the name.
+    | 'attendance_quality'
+    | 'escalation_count';
 
 export type AlertChannel = 'official' | 'unofficial';
 
 export interface AlertRule {
     id: string;
     workspaceId: string;
-    source: CommentSource;
+    source: AudienceSource;
     accountId: string;
 
     name: string;
@@ -695,6 +701,12 @@ export interface AlertRule {
     threshold: number;
     /** Only meaningful for a windowed metric; the server zeroes it otherwise. */
     windowMinutes: number;
+    /**
+     * How long a conversation must be before the rule will judge it. 0 is no
+     * floor. Only a per-conversation metric has one row to measure, and the
+     * server refuses the field on any other metric rather than ignoring it.
+     */
+    minMessages: number;
 
     channel: AlertChannel;
     recipient: string;
@@ -720,11 +732,12 @@ export interface AlertRule {
 export interface AlertRuleDraft {
     name: string;
     enabled: boolean;
-    source?: CommentSource;
+    source?: AudienceSource;
     accountId?: string;
     metric: AlertMetric;
     threshold: number;
     windowMinutes?: number;
+    minMessages?: number;
     channel: AlertChannel;
     recipient: string;
     businessPhoneId?: string;
@@ -739,6 +752,10 @@ export interface AlertMetricOption {
     metric: AlertMetric;
     windowed: boolean;
     triggersWhenBelow: boolean;
+    /** Which subject the metric reads. The picker filters on it. */
+    subjectKind: SubjectKind;
+    /** Whether a conversation-length floor applies to this metric. */
+    supportsMinMessages: boolean;
 }
 
 export interface AlertLimits {
@@ -750,6 +767,8 @@ export interface AlertLimits {
     minWindowMinutes: number;
     defaultWindowMinutes: number;
     maxWindowMinutes: number;
+    /** Upper bound for a rule's conversation-length floor. */
+    maxMinMessages: number;
     /**
      * How many facts an alert can supply. NOT a requirement on the template:
      * one that declares fewer gets the first few, one that declares more has

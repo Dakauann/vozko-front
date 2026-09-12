@@ -25,11 +25,10 @@ export interface EntryFilterValues {
 /**
  * The channels this bar filters for.
  *
- * Widened from "voice" | "whatsapp" when the unofficial WhatsApp campaign
- * arrived: it stores a provider error code on its entries exactly as the Cloud
- * API campaign does, so it needs the same filter. Voice does not.
+ * The unofficial WhatsApp campaign stores a provider error code on its entries
+ * exactly as the Cloud API campaign does, so it needs the same filter.
  */
-type CampaignType = "voice" | "whatsapp" | "unofficial_whatsapp";
+type CampaignType = "whatsapp" | "unofficial_whatsapp";
 
 /** Whether this channel records a provider error code worth filtering on. */
 function hasErrorCodes(campaignType: CampaignType): boolean {

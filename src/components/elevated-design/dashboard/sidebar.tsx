@@ -20,6 +20,7 @@ import {
   Phone,
   PhoneCall,
   Waveform,
+  Bell,
   Megaphone,
   Robot,
   Gear,
@@ -245,6 +246,7 @@ export const campanhasNavItems: NavItem[] = [
     requiredAnyOf: [
       { resource: "attendance", action: "read" },
       { resource: "audience", action: "read" },
+      { resource: "audience", action: "send" },
     ],
     children: [
       {
@@ -258,6 +260,15 @@ export const campanhasNavItems: NavItem[] = [
         labelKey: "nav.audience",
         href: "/dashboard/audience",
         requiredPermission: { resource: "audience", action: "read" },
+      },
+      {
+        // Gated on send rather than read: arming one puts a message on the
+        // workspace's own WhatsApp, to a real person, which is the same
+        // permission the rules themselves carry.
+        icon: Bell,
+        labelKey: "nav.analysisAlerts",
+        href: "/dashboard/analysis-alerts",
+        requiredPermission: { resource: "audience", action: "send" },
       },
     ],
   },

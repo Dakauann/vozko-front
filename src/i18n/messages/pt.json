@@ -403,8 +403,7 @@
       "channelTitle": "Mix de canais",
       "channelSubtitle": "WhatsApp vs voz na conversa",
       "channel": {
-        "whatsapp": "WhatsApp",
-        "voice": "Voz"
+        "whatsapp": "WhatsApp"
       },
       "snapshotTitle": "Resumo da conversa",
       "snapshot": {
@@ -437,8 +436,6 @@
           "sale": "Venda",
           "callback": "Retorno",
           "declined": "Recusado",
-          "no_answer": "Sem resposta",
-          "voicemail": "Caixa postal",
           "pending": "Pendente"
         },
         "nextAction": {
@@ -1880,7 +1877,8 @@
       "createUnofficialWhatsappCampaign": "Novo Disparo",
       "archivedUnofficialWhatsappCampaigns": "Arquivados",
       "audience": "Audiência",
-      "funnels": "Funis"
+      "funnels": "Funis",
+      "analysisAlerts": "Alertas"
     },
     "badges": {
       "new": "Novo",
@@ -4505,9 +4503,7 @@
   },
   "campaignsSummary": {
     "titleSends": "Resumo de envios",
-    "titleCalls": "Resumo de chamadas",
     "headlineSends": "Envios",
-    "headlineCalls": "Chamadas conectadas",
     "period": "Período",
     "presetAll": "Tudo",
     "preset7d": "7 dias",
@@ -4528,7 +4524,6 @@
     "read": "Lidas",
     "inTransit": "Em trânsito",
     "headlineSendsHelp": "Envios cobrados de verdade: débitos menos reembolsos no extrato (service whatsapp_campaign). Sobrevive a reset de campanha. Período = data da cobrança.",
-    "headlineCallsHelp": "Chamadas que foram efetivamente conectadas e cobradas no período.",
     "deliveredHelp": "Mensagens confirmadas como entregues no aparelho do destinatário (ainda não lidas).",
     "readHelp": "Mensagens confirmadas como lidas pelo destinatário.",
     "inTransitHelp": "Mensagens enviadas ao WhatsApp aguardando confirmação de entrega. Estado temporário: ao confirmar, passam para Entregues ou Lidas.",
@@ -4902,8 +4897,6 @@
           "sale": "Venda",
           "callback": "Retorno",
           "declined": "Recusou",
-          "no_answer": "Sem resposta",
-          "voicemail": "Caixa postal",
           "pending": "Pendente"
         },
         "sentiment": {
@@ -4940,7 +4933,6 @@
         },
         "channel": {
           "label": "Canal",
-          "voice": "Voz",
           "whatsapp": "WhatsApp"
         },
         "minMessageCount": "Mín. de mensagens",
@@ -5190,7 +5182,6 @@
         "callback": "Retorno",
         "declined": "Recusado",
         "noAnswer": "Sem Resposta",
-        "voicemail": "Caixa Postal",
         "pending": "Pendente"
       },
       "sentiment": {
@@ -5286,7 +5277,6 @@
       "busy": "Ocupado",
       "noAnswer": "Sem Resposta",
       "cancelled": "Cancelado",
-      "voicemail": "Caixa Postal",
       "processing": "Processando",
       "success": "Sucesso"
     },
@@ -5313,7 +5303,6 @@
       "callback": "Retorno",
       "declined": "Recusado",
       "noAnswer": "Sem Resposta",
-      "voicemail": "Caixa Postal",
       "pending": "Pendente"
     },
     "attendanceInsights": "Painel de Atendimento",
@@ -6624,8 +6613,7 @@
     "configTab": {
       "description": "Políticas da área de trabalho: atribuição e encerramento de conversas.",
       "sections": {
-        "attendance": "Atendimento",
-        "voice": "Voz"
+        "attendance": "Atendimento"
       }
     },
     "roles": {
@@ -9557,7 +9545,6 @@
       "campaignFiltered": "campanha filtrada",
       "noDepartment": "Sem departamento",
       "whatsapp": "WhatsApp",
-      "voice": "Voz",
       "human": "Humano",
       "ai": "IA",
       "glossaryTitle": "O que significa cada indicador",
@@ -10039,7 +10026,6 @@
       "summary": "Resumo"
     },
     "channels": {
-      "voice": "Voz",
       "whatsapp": "WhatsApp"
     },
     "timeline": {
@@ -10469,8 +10455,6 @@
         "filling_info": "Preenchendo dados",
         "callback": "Retorno",
         "declined": "Recusado",
-        "no_answer": "Sem resposta",
-        "voicemail": "Caixa postal",
         "pending": "Em andamento"
       },
       "qualification": {
@@ -10962,14 +10946,18 @@
         "high_severity_count": "Comentários graves na janela",
         "hostile_count": "Comentários hostis na janela",
         "comment_volume": "Volume de comentários na janela",
-        "acceptance_score": "Aceitação (cai abaixo de)"
+        "acceptance_score": "Aceitação (cai abaixo de)",
+        "attendance_quality": "Qualidade do atendimento (cai abaixo de)",
+        "escalation_count": "Conversas que pedem uma pessoa, na janela"
       },
       "metrics": {
         "comment_severity": "Quando um comentário tiver gravidade {threshold} ou mais",
         "high_severity_count": "Quando houver {threshold} ou mais comentários graves em {minutes} min",
         "hostile_count": "Quando houver {threshold} ou mais comentários hostis em {minutes} min",
         "comment_volume": "Quando houver {threshold} ou mais comentários em {minutes} min",
-        "acceptance_score": "Quando a aceitação cair para {threshold} ou menos em {minutes} min"
+        "acceptance_score": "Quando a aceitação cair para {threshold} ou menos em {minutes} min",
+        "attendance_quality": "quando uma conversa for avaliada abaixo de {threshold}",
+        "escalation_count": "quando {threshold} conversas pedirem uma pessoa em {minutes} min"
       },
       "channels": {
         "official": "WhatsApp oficial (modelo)",
@@ -10990,7 +10978,9 @@
         "maxPerDay": "Máximo por dia",
         "enabled": "Regra ativa",
         "brief": "Incluir leitura da IA",
-        "instance": "Número que envia"
+        "instance": "Número que envia",
+        "minMessages": "Mínimo de mensagens",
+        "minMessagesHint": "Conversas menores que isso não são avaliadas. Uma conversa de duas mensagens vai mal porque mal aconteceu, não porque foi mal atendida. 0 não aplica piso."
       },
       "templateVariables": "Nomes reconhecidos, se o seu modelo usar variáveis com nome: {facts}",
       "briefHint": "A IA acrescenta uma frase sobre o que está acontecendo e outra sobre como responder. É uma chamada de IA por disparo, cobrada, e o alerta é enviado normalmente se a IA não responder.",
@@ -11000,7 +10990,28 @@
         "not_enabled": "Este canal não está habilitado nesta instalação."
       },
       "cannotArmHint": "Não é possível ativar uma regra em um canal sem número conectado.",
-      "channelGoneChip": "Sem número"
+      "channelGoneChip": "Sem número",
+      "noSendableTemplates": "Este número não tem nenhum template pronto para envio. O template precisa estar aprovado, e com a mídia do cabeçalho, para um alerta usá-lo.",
+      "pickPhoneFirst": "Escolha o número primeiro: os templates são aprovados por número.",
+      "propose": {
+        "cta": "Criar um modelo para isto",
+        "working": "Enviando…",
+        "hint": "Envia um modelo utilitário no formato das variáveis deste alerta. A Meta revisa, normalmente em minutos.",
+        "submitted": "“{name}” foi enviado para revisão. Fica disponível assim que a Meta aprovar.",
+        "failed": "Não foi possível enviar o modelo.",
+        "rejected": "A Meta recusou o modelo. Edite na página de Templates e envie de novo.",
+        "exampleRule": "Atendimento fraco",
+        "exampleMeasurement": "atendimento avaliado em 41",
+        "exampleWhere": "WhatsApp"
+      }
+    },
+    "alertsPage": {
+      "badge": "Alertas de análise",
+      "description": "Seja avisado quando a IA chegar a uma conclusão que exige ação, em qualquer canal.",
+      "noPermissionDesc": "É necessária a permissão de encaminhamento da Audiência (audience:send) para criar alertas.",
+      "channelTitle": "Canal",
+      "channelDescription": "Um alerta observa um canal. Alertas de comentários do Instagram pertencem a uma conta e são configurados na aba Audiência dela.",
+      "channelLabel": "Canal"
     }
   },
   "telegram": {

@@ -14,7 +14,6 @@ import {
   Hourglass,
   Lightning,
   Phone,
-  PhoneCall,
   Pulse,
   Robot,
   Timer,
@@ -1009,11 +1008,6 @@ export default function LiveOpsPanel({
         label: tc("whatsapp"),
         icon: <WhatsappLogo className="h-3.5 w-3.5" weight="fill" />,
       },
-      {
-        value: "voice",
-        label: tc("phone"),
-        icon: <Phone className="h-3.5 w-3.5" weight="fill" />,
-      },
     ],
     [tc],
   );
@@ -1664,9 +1658,7 @@ export default function LiveOpsPanel({
                             <span className="truncate font-medium text-foreground">
                               {c.channel === "whatsapp"
                                 ? tc("whatsapp")
-                                : c.channel === "voice"
-                                  ? tc("voice")
-                                  : c.channel}
+                                : c.channel}
                             </span>
                             <span className="shrink-0 tabular-nums text-muted-foreground">
                               {fmt.num(c.count)} · {fmt.pct(c.pct)}

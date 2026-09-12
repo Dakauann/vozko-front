@@ -8,7 +8,6 @@ import {
   CurrencyDollar,
   Headset,
   LinkSimpleBreak,
-  Phone,
   Trash,
   TrendUp,
   WhatsappLogo,
@@ -474,8 +473,6 @@ function LinkedConversations({
     switch (entryType) {
       case "whatsapp":
         return { label: "WhatsApp", icon: <WhatsappLogo weight="fill" className="h-3.5 w-3.5 text-white" />, tile: "bg-[#25d366] text-white" };
-      case "voice":
-        return { label: "Voz", icon: <Phone weight="fill" className="h-3.5 w-3.5 text-background" />, tile: "bg-foreground/80 text-background" };
       case "support":
         return { label: "Suporte", icon: <Headset weight="fill" className="h-3.5 w-3.5 text-background" />, tile: "bg-foreground/80 text-background" };
       default:

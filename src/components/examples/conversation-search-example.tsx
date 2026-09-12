@@ -17,7 +17,7 @@ import { useConversationWs } from "@/hooks/use-conversation-ws";
 interface ConversationSearchExampleProps {
   token: string;
   campaignId: string;
-  campaignType: "voice" | "whatsapp";
+  campaignType: "whatsapp";
 }
 
 export function ConversationSearchExample({

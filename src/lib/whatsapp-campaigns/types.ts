@@ -207,7 +207,7 @@ export interface WhatsAppCampaignEntriesListParams {
     sort?: 'number' | 'name' | 'status' | 'createdAt' | 'updatedAt';
     order?: 'asc' | 'desc';
     interest?: 'interested' | 'not_interested' | 'undecided';
-    disposition?: 'sale' | 'callback' | 'declined' | 'no_answer' | 'voicemail' | 'pending';
+    disposition?: 'sale' | 'callback' | 'declined' | 'pending';
     sentiment?: 'positive' | 'neutral' | 'negative';
     qualification?: 'hot_lead' | 'warm_lead' | 'cold_lead';
     nextAction?: 'schedule_callback' | 'send_whatsapp' | 'close' | 'escalate' | 'continue';

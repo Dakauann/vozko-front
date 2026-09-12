@@ -52,7 +52,7 @@ const STAGE_COLORS = {
   failed: "hsl(var(--destructive))",
 } as const;
 
-type CampaignType = "voice" | "whatsapp";
+type CampaignType = "whatsapp";
 
 interface MonitoringEntry {
   id: string;
@@ -1161,12 +1161,7 @@ function AttendanceInsightsPanel({
         dateTo,
         campaignId,
         campaignType,
-        channel:
-          campaignType === "whatsapp"
-            ? "whatsapp"
-            : campaignType === "voice"
-              ? "voice"
-              : undefined,
+        channel: campaignType === "whatsapp" ? "whatsapp" : undefined,
         includeAi: true,
       });
 
@@ -1187,7 +1182,6 @@ function AttendanceInsightsPanel({
   const kpis = overview?.kpis;
   const ai = overview?.ai;
   const status = overview?.status_distribution;
-  const isVoice = campaignType === "voice";
 
   const statusPie = useMemo(() => {
     if (!status) return [];
@@ -1205,7 +1199,7 @@ function AttendanceInsightsPanel({
     <div className="flex flex-col h-full bg-card overflow-hidden">
       <div className="flex items-center justify-between px-4 py-2 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2">
-          <PanelIcon icon={isVoice ? Phone : WhatsappLogo} />
+          <PanelIcon icon={WhatsappLogo} />
           <span className="text-sm font-semibold text-foreground">
             {t("health")}
           </span>

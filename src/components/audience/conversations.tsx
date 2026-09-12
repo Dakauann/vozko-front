@@ -32,9 +32,10 @@ import type { CommentAnalysisStats, TrendPoint } from "@/lib/audience/types";
  * label. A reader scanning the block sees the shape of the pipeline, not seven
  * unrelated hues.
  *
- * no_answer and voicemail sit apart in muted tones because they are not
- * outcomes of a conversation at all, they are the absence of one, and colouring
- * them like a refusal would overstate how often people say no.
+ * The two voice-call outcomes that used to trail this list, no_answer and
+ * voicemail, are gone: they were telephony verdicts on a product with no voice
+ * channel, and offering them let the model label a messaging conversation with
+ * an outcome that cannot happen on it.
  */
 const DISPOSITION_KEYS = [
   "sale",
@@ -42,8 +43,6 @@ const DISPOSITION_KEYS = [
   "callback",
   "pending",
   "declined",
-  "noAnswer",
-  "voicemail",
 ] as const;
 
 const DISPOSITION_COLOR: Record<(typeof DISPOSITION_KEYS)[number], string> = {
@@ -52,8 +51,6 @@ const DISPOSITION_COLOR: Record<(typeof DISPOSITION_KEYS)[number], string> = {
   callback: VOZ_SERIES[3],
   pending: VOZ_SERIES[1],
   declined: "hsl(var(--destructive))",
-  noAnswer: "hsl(var(--muted-foreground))",
-  voicemail: "hsl(var(--muted-foreground))",
 };
 
 /** The enum value each counter key maps to, for the translation lookup. */
@@ -63,8 +60,6 @@ const DISPOSITION_ENUM: Record<(typeof DISPOSITION_KEYS)[number], string> = {
   callback: "callback",
   pending: "pending",
   declined: "declined",
-  noAnswer: "no_answer",
-  voicemail: "voicemail",
 };
 
 /**

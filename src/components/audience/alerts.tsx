@@ -18,9 +18,17 @@ import type {
   AlertRule,
   AlertRuleDraft,
   AlertVocabulary,
+  AudienceSource,
+  SubjectKind,
 } from "@/lib/audience/types";
+import { isTemplateSendable } from "@/lib/whatsapp-templates/params";
 import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones";
-import { listWhatsAppTemplatesAction } from "@/app/actions/whatsapp-templates";
+import {
+  createWhatsAppTemplateAction,
+  getWhatsAppTemplateByIdAction,
+  listWhatsAppTemplatesAction,
+} from "@/app/actions/whatsapp-templates";
+import { starterComponents } from "@/lib/whatsapp-outreach/types";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import type { WhatsAppTemplate } from "@/lib/whatsapp-templates/types";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -56,13 +64,43 @@ import { cn } from "@/lib/utils";
 
 const LOCALE_TAG: Record<string, string> = { pt: "pt-BR", en: "en-US", es: "es-ES", de: "de-DE" };
 
-function emptyDraft(accountId: string, limits: AlertVocabulary["limits"] | undefined): AlertRuleDraft {
+/*
+ * The body of the template this screen offers to create.
+ *
+ * NOT a translated string. It is a payload sent to Meta, and its `{{1}}`
+ * placeholders are WhatsApp's template syntax, which is not ICU: putting it in
+ * the message catalogue made next-intl fail to parse it, which the locale test
+ * caught. It is also language-neutral, being three variables the alert fills
+ * itself in a fixed order (rule, measurement, where).
+ */
+const PROPOSED_TEMPLATE_BODY = "🔔 {{1}}\n\n{{2}}\n\n{{3}}";
+
+/**
+ * A new rule starts on a metric its subject can actually measure.
+ *
+ * Defaulting to comment_severity everywhere meant a conversation rule opened
+ * pre-set to a metric the picker would not even list, so the first thing an
+ * operator saw was an empty select.
+ */
+const SUBJECT_DEFAULTS: Record<SubjectKind, { metric: AlertMetric; threshold: number }> = {
+  comment: { metric: "comment_severity", threshold: 80 },
+  conversation: { metric: "attendance_quality", threshold: 70 },
+};
+
+function emptyDraft(
+  accountId: string,
+  subjectKind: SubjectKind,
+  source: AudienceSource | undefined,
+  limits: AlertVocabulary["limits"] | undefined,
+): AlertRuleDraft {
+  const start = SUBJECT_DEFAULTS[subjectKind];
   return {
     name: "",
     enabled: true,
     accountId,
-    metric: "comment_severity",
-    threshold: 80,
+    source,
+    metric: start.metric,
+    threshold: start.threshold,
     windowMinutes: limits?.defaultWindowMinutes ?? 60,
     channel: "unofficial",
     recipient: "",
@@ -80,6 +118,7 @@ function draftOf(rule: AlertRule): AlertRuleDraft {
     metric: rule.metric,
     threshold: rule.threshold,
     windowMinutes: rule.windowMinutes,
+    minMessages: rule.minMessages,
     channel: rule.channel,
     recipient: rule.recipient,
     businessPhoneId: rule.businessPhoneId,
@@ -91,7 +130,29 @@ function draftOf(rule: AlertRule): AlertRuleDraft {
   };
 }
 
-export function CommentAnalysisAlerts({ accountId }: { accountId: string }) {
+/*
+ * One alerts panel, two subjects.
+ *
+ * A rule is keyed on (source, account). For COMMENTS the account is the
+ * Instagram account whose posts are being watched. For CONVERSATIONS there is no
+ * such account, so the workspace stands in for it, which is the same
+ * substitution the analysis engine already makes when it resolves a
+ * conversation's settings.
+ *
+ * The subject decides which metrics are on offer. It is not inferred here: the
+ * server sends subjectKind with every metric, so the picker and the evaluator
+ * cannot disagree about what a metric reads.
+ */
+export function CommentAnalysisAlerts({
+  accountId,
+  subjectKind = "comment",
+  source,
+}: {
+  accountId: string;
+  subjectKind?: SubjectKind;
+  /** Which channel the rule watches. Only meaningful for conversations. */
+  source?: AudienceSource;
+}) {
   const t = useTranslations("audience.alerts");
   const { can } = useWorkspace();
   const canManage = can("audience", "send");
@@ -108,18 +169,18 @@ export function CommentAnalysisAlerts({ accountId }: { accountId: string }) {
   const [busy, setBusy] = useState<string | null>(null);
 
   const reload = useCallback(() => {
-    void listAlertRulesAction(accountId).then((result) => {
+    void listAlertRulesAction(accountId, source).then((result) => {
       if (result.error) setError(result.error);
       else {
         setError(null);
         setRules(result.rules);
       }
     });
-  }, [accountId]);
+  }, [accountId, source]);
 
   useEffect(() => {
     let cancelled = false;
-    void Promise.all([listAlertRulesAction(accountId), getAlertOptionsAction()]).then(([list, opts]) => {
+    void Promise.all([listAlertRulesAction(accountId, source), getAlertOptionsAction()]).then(([list, opts]) => {
       if (cancelled) return;
       if (list.error) setError(list.error);
       else setRules(list.rules);
@@ -128,7 +189,7 @@ export function CommentAnalysisAlerts({ accountId }: { accountId: string }) {
     return () => {
       cancelled = true;
     };
-  }, [accountId]);
+  }, [accountId, source]);
 
   const toggle = async (rule: AlertRule, enabled: boolean) => {
     setRules((prev) => (prev ?? []).map((r) => (r.id === rule.id ? { ...r, enabled } : r)));
@@ -181,7 +242,7 @@ export function CommentAnalysisAlerts({ accountId }: { accountId: string }) {
             variant="secondary"
             icon={<Plus className="h-3.5 w-3.5" />}
             title={t("new")}
-            onClick={() => setEditing({ draft: emptyDraft(accountId, options?.limits) })}
+            onClick={() => setEditing({ draft: emptyDraft(accountId, subjectKind, source, options?.limits) })}
           />
         ) : undefined
       }
@@ -272,6 +333,7 @@ export function CommentAnalysisAlerts({ accountId }: { accountId: string }) {
       {editing ? (
         <AlertRuleDialog
           accountId={accountId}
+          subjectKind={subjectKind}
           options={options}
           ruleId={editing.id}
           initial={editing.draft}
@@ -288,6 +350,7 @@ export function CommentAnalysisAlerts({ accountId }: { accountId: string }) {
 
 function AlertRuleDialog({
   accountId,
+  subjectKind,
   options,
   ruleId,
   initial,
@@ -295,6 +358,7 @@ function AlertRuleDialog({
   onSaved,
 }: {
   accountId: string;
+  subjectKind: SubjectKind;
   options: AlertVocabulary | null;
   ruleId?: string;
   initial: AlertRuleDraft;
@@ -306,11 +370,22 @@ function AlertRuleDialog({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const metric = options?.metrics.find((m) => m.metric === draft.metric);
+  // Only the metrics that read THIS subject. A comment metric armed on a
+  // WhatsApp rule saves, shows "Regra ativa", and never fires, because the
+  // channel produces no comments for it to measure.
+  const metrics = (options?.metrics ?? []).filter((m) => m.subjectKind === subjectKind);
+  const metric = metrics.find((m) => m.metric === draft.metric);
   const limits = options?.limits;
 
   const [phones, setPhones] = useState<WhatsAppBusinessPhone[]>([]);
-  const [templates, setTemplates] = useState<WhatsAppTemplate[]>([]);
+  // Tagged with the number they were loaded for. Templates are approved per
+  // number, so a list that outlived a change of number would offer templates
+  // this rule cannot send, and clearing it in an effect is the cascading render
+  // the compiler rejects. Tagging lets the render decide.
+  const [templates, setTemplates] = useState<{ phoneId: string; items: WhatsAppTemplate[] }>({
+    phoneId: "",
+    items: [],
+  });
   const official = draft.channel === "official";
 
   /*
@@ -331,17 +406,105 @@ function AlertRuleDialog({
   const channelBlocked = Boolean(channelStatus?.length) && currentStatus?.available === false;
   const senders = currentStatus?.senders ?? [];
   const unofficialSenders = draft.channel === "unofficial" ? senders : [];
+  const sendableTemplates = templates.phoneId === draft.businessPhoneId ? templates.items : [];
+
+  /*
+   * The number an unofficial rule sends from.
+   *
+   * Derived rather than defaulted into the draft, because the draft is what
+   * gets saved and a value that only exists in the select is a value the
+   * operator sees chosen and the server never receives. With exactly one
+   * connected number that is the answer; with several the operator has to say.
+   */
+  const effectiveInstanceId =
+    draft.instanceId ?? (unofficialSenders.length === 1 ? unofficialSenders[0].id : "");
+
+  /*
+   * Proposing a template, the same move the CRM's new-conversation dialog makes.
+   *
+   * An operator arriving here with no approved template is stuck: the official
+   * channel cannot send without one, and writing one that matches the alert's
+   * variables is a separate screen and a piece of knowledge nobody has. So the
+   * one shape that always fits is offered ready to submit.
+   *
+   * Positional variables on purpose. The alert fills its facts in a fixed order
+   * (rule, measurement, where, excerpt), so a three-variable body is filled
+   * correctly whatever the rule watches, and Meta wants an example for each or
+   * it rejects the template on submission rather than on review.
+   */
+  const [proposing, setProposing] = useState(false);
+  const [proposed, setProposed] = useState<string | null>(null);
+  const [proposeError, setProposeError] = useState<string | null>(null);
+
+  const proposeTemplate = async () => {
+    if (!draft.businessPhoneId) return;
+    setProposing(true);
+    setProposeError(null);
+    const result = await createWhatsAppTemplateAction({
+      businessPhoneId: draft.businessPhoneId,
+      name: "alerta_analise",
+      language: "pt_BR",
+      // UTILITY, not MARKETING: these carry no promotional content and are
+      // billed at roughly a quarter, which is the same call the CRM makes.
+      category: "UTILITY",
+      components: starterComponents(PROPOSED_TEMPLATE_BODY, [
+        t("propose.exampleRule"),
+        t("propose.exampleMeasurement"),
+        t("propose.exampleWhere"),
+      ]),
+    });
+    setProposing(false);
+    if (result.error || !result.template) {
+      setProposeError(result.error ?? t("propose.failed"));
+      return;
+    }
+    if (result.template.status === "REJECTED") {
+      setProposeError(t("propose.rejected"));
+      return;
+    }
+    setProposed(result.template.name);
+    // The create endpoint answers with an id and a status and nothing else, so
+    // the template is re-read before it can be offered in the picker.
+    const refreshed = await getWhatsAppTemplateByIdAction(result.template.id);
+    if (refreshed.template && isTemplateSendable(refreshed.template)) {
+      setTemplates((current) => ({
+        phoneId: current.phoneId,
+        items: [refreshed.template as WhatsAppTemplate, ...current.items],
+      }));
+      set("templateId", refreshed.template.id);
+    }
+  };
+
+  /*
+   * Templates follow the NUMBER, the same way the official new-conversation
+   * dialog resolves them: a template is approved against one business phone, so
+   * asking for "all templates" offers the operator ones this rule could never
+   * send. Reloaded when the number changes, and filtered to what is actually
+   * sendable (approved, and with its header media present) through the same
+   * isTemplateSendable the send dialog uses.
+   */
+  const phoneForTemplates = official ? (draft.businessPhoneId ?? "") : "";
+  useEffect(() => {
+    if (!phoneForTemplates) return;
+    let cancelled = false;
+    void listWhatsAppTemplatesAction({ businessPhoneId: phoneForTemplates, pageSize: 100 }).then((tpl) => {
+      if (cancelled) return;
+      setTemplates({
+        phoneId: phoneForTemplates,
+        items: (tpl.templates ?? []).filter(isTemplateSendable),
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [phoneForTemplates]);
 
   useEffect(() => {
     if (!official) return;
     let cancelled = false;
-    void Promise.all([
-      listBusinessPhonesAction({ pageSize: 100 }),
-      listWhatsAppTemplatesAction({ pageSize: 100 }),
-    ]).then(([p, tpl]) => {
+    void listBusinessPhonesAction({ pageSize: 100 }).then((p) => {
       if (cancelled) return;
       setPhones(p.phones ?? []);
-      setTemplates(tpl.templates ?? []);
     });
     return () => {
       cancelled = true;
@@ -353,7 +516,14 @@ function AlertRuleDialog({
 
   const save = async () => {
     setSaving(true);
-    const payload: AlertRuleDraft = { ...draft, accountId };
+    // The instance goes in resolved, so what the picker showed is what is
+    // stored. Only for the unofficial channel: the official one sends from a
+    // business phone and carries no instance.
+    const payload: AlertRuleDraft = {
+      ...draft,
+      accountId,
+      instanceId: official ? undefined : effectiveInstanceId || undefined,
+    };
     const result = ruleId ? await updateAlertRuleAction(ruleId, payload) : await createAlertRuleAction(payload);
     setSaving(false);
     if (result.error) {
@@ -385,7 +555,7 @@ function AlertRuleDialog({
               value={draft.metric}
               onValueChange={(v) => set("metric", v as AlertMetric)}
             >
-              {(options?.metrics ?? []).map((m) => (
+              {metrics.map((m) => (
                 <ElevatedSelectItem key={m.metric} value={m.metric}>
                   {t(`metricNames.${m.metric}`)}
                 </ElevatedSelectItem>
@@ -399,6 +569,23 @@ function AlertRuleDialog({
               onChange={(e) => set("threshold", Number(e.target.value))}
             />
           </div>
+
+          {/* The floor exists only where there is one conversation to measure.
+              A two-message chat scores badly because it barely happened, not
+              because it was handled badly. */}
+          {metric?.supportsMinMessages ? (
+            <div className="flex flex-col gap-1">
+              <ElevatedInput
+                label={t("fields.minMessages")}
+                type="number"
+                min={0}
+                max={limits?.maxMinMessages ?? 500}
+                value={String(draft.minMessages ?? 0)}
+                onChange={(e) => set("minMessages", Number(e.target.value))}
+              />
+              <p className="text-2xs text-muted-foreground">{t("fields.minMessagesHint")}</p>
+            </div>
+          ) : null}
 
           {/* The window only exists for a metric counted over a span. Showing it
               otherwise would be a setting that does nothing. */}
@@ -465,7 +652,7 @@ function AlertRuleDialog({
           {!official && unofficialSenders.length > 0 ? (
             <ElevatedSelect
               label={t("fields.instance")}
-              value={draft.instanceId ?? (unofficialSenders.length === 1 ? unofficialSenders[0].id : "")}
+              value={effectiveInstanceId}
               onValueChange={(v) => set("instanceId", v)}
             >
               {unofficialSenders.map((s) => (
@@ -496,7 +683,7 @@ function AlertRuleDialog({
                   value={draft.templateId ?? ""}
                   onValueChange={(v) => set("templateId", v)}
                 >
-                  {templates.map((tpl) => (
+                  {sendableTemplates.map((tpl) => (
                     <ElevatedSelectItem key={tpl.id} value={tpl.id}>
                       {tpl.name}
                       {tpl.language ? ` (${tpl.language})` : ""}
@@ -504,6 +691,25 @@ function AlertRuleDialog({
                   ))}
                 </ElevatedSelect>
               </div>
+              {draft.businessPhoneId && sendableTemplates.length === 0 ? (
+                <div className="flex flex-col gap-1.5">
+                  <p className="text-2xs text-warning-ink">{t("noSendableTemplates")}</p>
+                  {proposed ? (
+                    <p className="text-2xs text-muted-foreground">{t("propose.submitted", { name: proposed })}</p>
+                  ) : (
+                    <div className="flex flex-col gap-1">
+                      <Button type="button" variant="secondary" size="sm" disabled={proposing} onClick={proposeTemplate}>
+                        {proposing ? t("propose.working") : t("propose.cta")}
+                      </Button>
+                      <p className="text-2xs text-muted-foreground">{t("propose.hint")}</p>
+                    </div>
+                  )}
+                  {proposeError ? <p className="text-2xs text-destructive-ink">{proposeError}</p> : null}
+                </div>
+              ) : null}
+              {!draft.businessPhoneId ? (
+                <p className="text-2xs text-muted-foreground">{t("pickPhoneFirst")}</p>
+              ) : null}
               <p className="text-2xs text-warning-ink">
                 {t("officialHint", { count: limits?.templateParamCount ?? 4 })}
               </p>

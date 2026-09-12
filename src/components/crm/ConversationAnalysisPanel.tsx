@@ -22,7 +22,7 @@ import { useCrm } from "@/contexts/crm-context";
 
 interface ConversationAnalysisPanelProps {
   entryId: string;
-  entryType: "voice" | "whatsapp";
+  entryType: "whatsapp";
 }
 
 /** Solid tile + white glyph (DESIGN.md §5 Icons / Symbols). Never wash + same-hue text. */
@@ -85,8 +85,6 @@ const DISPOSITION_LABELS: Record<string, string> = {
   filling_info: "Preenchendo dados",
   callback: "Retornar",
   declined: "Recusado",
-  no_answer: "Sem resposta",
-  voicemail: "Caixa postal",
   pending: "Pendente",
 };
 

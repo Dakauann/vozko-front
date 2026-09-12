@@ -403,8 +403,7 @@
       "channelTitle": "Channel mix",
       "channelSubtitle": "WhatsApp vs voice in the thread",
       "channel": {
-        "whatsapp": "WhatsApp",
-        "voice": "Voice"
+        "whatsapp": "WhatsApp"
       },
       "snapshotTitle": "Thread snapshot",
       "snapshot": {
@@ -437,8 +436,6 @@
           "sale": "Sale",
           "callback": "Callback",
           "declined": "Declined",
-          "no_answer": "No answer",
-          "voicemail": "Voicemail",
           "pending": "Pending"
         },
         "nextAction": {
@@ -1479,7 +1476,8 @@
       "createUnofficialWhatsappCampaign": "New campaign",
       "archivedUnofficialWhatsappCampaigns": "Archived",
       "audience": "Audience",
-      "funnels": "Funnels"
+      "funnels": "Funnels",
+      "analysisAlerts": "Alerts"
     },
     "badges": {
       "new": "New",
@@ -4553,9 +4551,7 @@
   },
   "campaignsSummary": {
     "titleSends": "Sends summary",
-    "titleCalls": "Calls summary",
     "headlineSends": "Sends",
-    "headlineCalls": "Connected calls",
     "period": "Period",
     "presetAll": "All",
     "preset7d": "7 days",
@@ -4576,7 +4572,6 @@
     "read": "Read",
     "inTransit": "In transit",
     "headlineSendsHelp": "Truly charged sends: debits minus refunds on the balance ledger (whatsapp_campaign). Survives campaign reset. Period = charge date.",
-    "headlineCallsHelp": "Calls that actually connected and were billed in the period.",
     "deliveredHelp": "Messages confirmed delivered to the recipient's device (not yet read).",
     "readHelp": "Messages confirmed read by the recipient.",
     "inTransitHelp": "Messages sent to WhatsApp awaiting delivery confirmation. A temporary state: once confirmed they move to Delivered or Read.",
@@ -4950,8 +4945,6 @@
           "sale": "Sale",
           "callback": "Callback",
           "declined": "Declined",
-          "no_answer": "No answer",
-          "voicemail": "Voicemail",
           "pending": "Pending"
         },
         "sentiment": {
@@ -4988,7 +4981,6 @@
         },
         "channel": {
           "label": "Channel",
-          "voice": "Voice",
           "whatsapp": "WhatsApp"
         },
         "minMessageCount": "Min messages",
@@ -5238,7 +5230,6 @@
         "callback": "Callback",
         "declined": "Declined",
         "noAnswer": "No Answer",
-        "voicemail": "Voicemail",
         "pending": "Pending"
       },
       "sentiment": {
@@ -5334,7 +5325,6 @@
       "busy": "Busy",
       "noAnswer": "No Answer",
       "cancelled": "Cancelled",
-      "voicemail": "Voicemail",
       "processing": "Processing",
       "success": "Success"
     },
@@ -5361,7 +5351,6 @@
       "callback": "Callback",
       "declined": "Declined",
       "noAnswer": "No Answer",
-      "voicemail": "Voicemail",
       "pending": "Pending"
     },
     "attendanceInsights": "Attendance Dashboard",
@@ -6586,8 +6575,7 @@
     "configTab": {
       "description": "Workspace policies: assignment and conversation closure.",
       "sections": {
-        "attendance": "Attendance",
-        "voice": "Voice"
+        "attendance": "Attendance"
       }
     },
     "roles": {
@@ -9506,7 +9494,6 @@
       "campaignFiltered": "campaign filtered",
       "noDepartment": "No department",
       "whatsapp": "WhatsApp",
-      "voice": "Voice",
       "human": "Human",
       "ai": "AI",
       "glossaryTitle": "What each indicator means",
@@ -9988,7 +9975,6 @@
       "summary": "Summary"
     },
     "channels": {
-      "voice": "Voice",
       "whatsapp": "WhatsApp"
     },
     "timeline": {
@@ -10418,8 +10404,6 @@
         "filling_info": "Filling in details",
         "callback": "Callback",
         "declined": "Declined",
-        "no_answer": "No answer",
-        "voicemail": "Voicemail",
         "pending": "In progress"
       },
       "qualification": {
@@ -10911,14 +10895,18 @@
         "high_severity_count": "Severe comments in the window",
         "hostile_count": "Hostile comments in the window",
         "comment_volume": "Comment volume in the window",
-        "acceptance_score": "Acceptance (falls below)"
+        "acceptance_score": "Acceptance (falls below)",
+        "attendance_quality": "Attendance quality (falls below)",
+        "escalation_count": "Conversations needing a person, in the window"
       },
       "metrics": {
         "comment_severity": "When a comment reaches severity {threshold} or above",
         "high_severity_count": "When there are {threshold} or more severe comments in {minutes} min",
         "hostile_count": "When there are {threshold} or more hostile comments in {minutes} min",
         "comment_volume": "When there are {threshold} or more comments in {minutes} min",
-        "acceptance_score": "When acceptance falls to {threshold} or below in {minutes} min"
+        "acceptance_score": "When acceptance falls to {threshold} or below in {minutes} min",
+        "attendance_quality": "when a conversation is rated below {threshold}",
+        "escalation_count": "when {threshold} conversations need a person within {minutes} min"
       },
       "channels": {
         "official": "Official WhatsApp (template)",
@@ -10939,7 +10927,9 @@
         "maxPerDay": "Maximum per day",
         "enabled": "Rule active",
         "brief": "Include the AI reading",
-        "instance": "Sending number"
+        "instance": "Sending number",
+        "minMessages": "Minimum messages",
+        "minMessagesHint": "Conversations shorter than this are not judged. A two-message chat scores badly because it barely happened, not because it was handled badly. 0 means no floor."
       },
       "templateVariables": "Recognised names, if your template uses named variables: {facts}",
       "briefHint": "The AI adds one sentence on what is happening and one on how to respond. That is one billed AI call per firing, and the alert is sent as usual if the AI does not answer.",
@@ -10949,7 +10939,28 @@
         "not_enabled": "This channel is not enabled in this deployment."
       },
       "cannotArmHint": "A rule cannot be armed on a channel with no connected number.",
-      "channelGoneChip": "No number"
+      "channelGoneChip": "No number",
+      "noSendableTemplates": "This number has no template ready to send. A template must be approved, and carry its header media, before an alert can use it.",
+      "pickPhoneFirst": "Pick the number first: templates are approved per number.",
+      "propose": {
+        "cta": "Create a template for this",
+        "working": "Submitting…",
+        "hint": "Submits a utility template shaped to this alert's variables. Meta reviews it, usually within minutes.",
+        "submitted": "“{name}” was submitted for review. It becomes selectable once Meta approves it.",
+        "failed": "The template could not be submitted.",
+        "rejected": "Meta rejected the template. Edit it on the Templates page and submit again.",
+        "exampleRule": "Weak attendance",
+        "exampleMeasurement": "attendance rated 41",
+        "exampleWhere": "WhatsApp"
+      }
+    },
+    "alertsPage": {
+      "badge": "Analysis alerts",
+      "description": "Be told when the AI reaches a conclusion worth acting on, on any channel.",
+      "noPermissionDesc": "The Audience forwarding permission (audience:send) is required to arm alerts.",
+      "channelTitle": "Channel",
+      "channelDescription": "An alert watches one channel. Instagram comment alerts belong to an account and are configured on its own Audience tab.",
+      "channelLabel": "Channel"
     }
   },
   "telegram": {

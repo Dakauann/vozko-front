@@ -403,8 +403,7 @@
       "channelTitle": "Kanalmix",
       "channelSubtitle": "WhatsApp vs. Sprache im Thread",
       "channel": {
-        "whatsapp": "WhatsApp",
-        "voice": "Sprache"
+        "whatsapp": "WhatsApp"
       },
       "snapshotTitle": "Thread-Überblick",
       "snapshot": {
@@ -437,8 +436,6 @@
           "sale": "Verkauf",
           "callback": "Rückruf",
           "declined": "Abgelehnt",
-          "no_answer": "Keine Antwort",
-          "voicemail": "Mailbox",
           "pending": "Ausstehend"
         },
         "nextAction": {
@@ -1204,7 +1201,8 @@
       "createUnofficialWhatsappCampaign": "Neue Kampagne",
       "archivedUnofficialWhatsappCampaigns": "Archiviert",
       "audience": "Publikum",
-      "funnels": "Funnels"
+      "funnels": "Funnels",
+      "analysisAlerts": "Alerts"
     },
     "badges": {
       "new": "Neu",
@@ -4079,9 +4077,7 @@
   },
   "campaignsSummary": {
     "titleSends": "Versandübersicht",
-    "titleCalls": "Anrufübersicht",
     "headlineSends": "Versendungen",
-    "headlineCalls": "Verbundene Anrufe",
     "period": "Zeitraum",
     "presetAll": "Alle",
     "preset7d": "7 Tage",
@@ -4102,7 +4098,6 @@
     "read": "Gelesen",
     "inTransit": "Unterwegs",
     "headlineSendsHelp": "Tatsächlich berechnete Sends: Debits minus Refunds im Ledger (whatsapp_campaign). Überlebt Kampagnen-Reset. Zeitraum = Buchungsdatum.",
-    "headlineCallsHelp": "Anrufe, die im Zeitraum tatsächlich verbunden und abgerechnet wurden.",
     "deliveredHelp": "Nachrichten, die als an das Gerät des Empfängers zugestellt bestätigt wurden (noch nicht gelesen).",
     "readHelp": "Nachrichten, die als vom Empfänger gelesen bestätigt wurden.",
     "inTransitHelp": "An WhatsApp gesendete Nachrichten, die auf Zustellbestätigung warten. Vorübergehender Zustand: nach Bestätigung wechseln sie zu Zugestellt oder Gelesen.",
@@ -4397,8 +4392,6 @@
           "sale": "Verkauf",
           "callback": "Rückruf",
           "declined": "Abgelehnt",
-          "no_answer": "Keine Antwort",
-          "voicemail": "Mailbox",
           "pending": "Ausstehend"
         },
         "sentiment": {
@@ -4435,7 +4428,6 @@
         },
         "channel": {
           "label": "Kanal",
-          "voice": "Sprache",
           "whatsapp": "WhatsApp"
         },
         "minMessageCount": "Min. Nachrichten",
@@ -4645,7 +4637,6 @@
         "callback": "Rückruf",
         "declined": "Abgelehnt",
         "noAnswer": "Keine Antwort",
-        "voicemail": "Mailbox",
         "pending": "Ausstehend"
       },
       "sentiment": {
@@ -4740,7 +4731,6 @@
       "busy": "Besetzt",
       "noAnswer": "Keine Antwort",
       "cancelled": "Abgebrochen",
-      "voicemail": "Voicemail",
       "processing": "Verarbeitung",
       "success": "Erfolg"
     },
@@ -4759,7 +4749,6 @@
       "callback": "Rückruf",
       "declined": "Abgelehnt",
       "noAnswer": "Keine Antwort",
-      "voicemail": "Voicemail",
       "pending": "Ausstehend"
     },
     "attendanceInsights": "Betreuung",
@@ -5733,8 +5722,7 @@
     "configTab": {
       "description": "Workspace-Richtlinien: Zuweisung und Gesprächsabschluss.",
       "sections": {
-        "attendance": "Betreuung",
-        "voice": "Sprache"
+        "attendance": "Betreuung"
       }
     },
     "roles": {
@@ -8431,7 +8419,6 @@
       "campaignFiltered": "Kampagne gefiltert",
       "noDepartment": "Keine Abteilung",
       "whatsapp": "WhatsApp",
-      "voice": "Sprache",
       "human": "Mensch",
       "ai": "KI",
       "glossaryTitle": "Was jeder Indikator bedeutet",
@@ -8913,7 +8900,6 @@
       "summary": "Zusammenfassung"
     },
     "channels": {
-      "voice": "Sprache",
       "whatsapp": "WhatsApp"
     },
     "timeline": {
@@ -9343,8 +9329,6 @@
         "filling_info": "Daten werden erfasst",
         "callback": "Rückruf",
         "declined": "Abgelehnt",
-        "no_answer": "Keine Antwort",
-        "voicemail": "Mailbox",
         "pending": "Laufend"
       },
       "qualification": {
@@ -9836,14 +9820,18 @@
         "high_severity_count": "Schwerwiegende Kommentare im Zeitfenster",
         "hostile_count": "Feindselige Kommentare im Zeitfenster",
         "comment_volume": "Kommentarvolumen im Zeitfenster",
-        "acceptance_score": "Akzeptanz (fällt unter)"
+        "acceptance_score": "Akzeptanz (fällt unter)",
+        "attendance_quality": "Betreuungsqualität (fällt unter)",
+        "escalation_count": "Gespräche, die eine Person brauchen, im Zeitfenster"
       },
       "metrics": {
         "comment_severity": "Wenn ein Kommentar Schweregrad {threshold} oder höher erreicht",
         "high_severity_count": "Wenn es {threshold} oder mehr schwerwiegende Kommentare in {minutes} Min. gibt",
         "hostile_count": "Wenn es {threshold} oder mehr feindselige Kommentare in {minutes} Min. gibt",
         "comment_volume": "Wenn es {threshold} oder mehr Kommentare in {minutes} Min. gibt",
-        "acceptance_score": "Wenn die Akzeptanz in {minutes} Min. auf {threshold} oder darunter fällt"
+        "acceptance_score": "Wenn die Akzeptanz in {minutes} Min. auf {threshold} oder darunter fällt",
+        "attendance_quality": "wenn ein Gespräch unter {threshold} bewertet wird",
+        "escalation_count": "wenn {threshold} Gespräche innerhalb von {minutes} Min. eine Person brauchen"
       },
       "channels": {
         "official": "Offizielles WhatsApp (Vorlage)",
@@ -9864,7 +9852,9 @@
         "maxPerDay": "Maximum pro Tag",
         "enabled": "Regel aktiv",
         "brief": "KI-Einschätzung einbeziehen",
-        "instance": "Absendernummer"
+        "instance": "Absendernummer",
+        "minMessages": "Mindestanzahl Nachrichten",
+        "minMessagesHint": "Kürzere Gespräche werden nicht bewertet. Ein Chat mit zwei Nachrichten schneidet schlecht ab, weil er kaum stattfand, nicht weil er schlecht geführt wurde. 0 heißt keine Untergrenze."
       },
       "templateVariables": "Erkannte Namen, falls Ihre Vorlage benannte Variablen nutzt: {facts}",
       "briefHint": "Die KI ergänzt einen Satz dazu, was passiert, und einen dazu, wie zu reagieren ist. Das ist ein abgerechneter KI-Aufruf pro Auslösung; die Benachrichtigung wird auch gesendet, wenn die KI nicht antwortet.",
@@ -9874,7 +9864,28 @@
         "not_enabled": "Dieser Kanal ist in dieser Installation nicht aktiviert."
       },
       "cannotArmHint": "Eine Regel kann auf einem Kanal ohne verbundene Nummer nicht scharf geschaltet werden.",
-      "channelGoneChip": "Keine Nummer"
+      "channelGoneChip": "Keine Nummer",
+      "noSendableTemplates": "Für diese Nummer ist keine Vorlage sendebereit. Eine Vorlage muss freigegeben sein und ihr Kopfmedium mitbringen, bevor eine Benachrichtigung sie nutzen kann.",
+      "pickPhoneFirst": "Zuerst die Nummer wählen: Vorlagen werden pro Nummer freigegeben.",
+      "propose": {
+        "cta": "Vorlage dafür erstellen",
+        "working": "Wird eingereicht…",
+        "hint": "Reicht eine Utility-Vorlage ein, die zu den Variablen dieser Benachrichtigung passt. Meta prüft sie, meist in Minuten.",
+        "submitted": "„{name}“ wurde zur Prüfung eingereicht und ist wählbar, sobald Meta sie freigibt.",
+        "failed": "Die Vorlage konnte nicht eingereicht werden.",
+        "rejected": "Meta hat die Vorlage abgelehnt. Bearbeite sie auf der Vorlagen-Seite und reiche sie erneut ein.",
+        "exampleRule": "Schwache Betreuung",
+        "exampleMeasurement": "Betreuung mit 41 bewertet",
+        "exampleWhere": "WhatsApp"
+      }
+    },
+    "alertsPage": {
+      "badge": "Analyse-Benachrichtigungen",
+      "description": "Erfahre es, wenn die KI auf einem Kanal zu einem Schluss kommt, der Handeln verlangt.",
+      "noPermissionDesc": "Die Weiterleitungsberechtigung für Audience (audience:send) wird benötigt, um Benachrichtigungen einzurichten.",
+      "channelTitle": "Kanal",
+      "channelDescription": "Eine Benachrichtigung beobachtet einen Kanal. Instagram-Kommentar-Benachrichtigungen gehören zu einem Konto und werden in dessen Audience-Tab eingerichtet.",
+      "channelLabel": "Kanal"
     }
   },
   "telegram": {

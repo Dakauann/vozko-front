@@ -1825,7 +1825,7 @@ export default function CrmConversationView({
       {/* Analysis panel */}
       <ConversationAnalysisPanel
         entryId={conversation.entry_id}
-        entryType={conversation.entry_type as "voice" | "whatsapp"}
+        entryType={conversation.entry_type as "whatsapp"}
       />
 
       {/* Floating Tag Selector */}
@@ -2251,13 +2251,10 @@ export default function CrmConversationView({
                     ));
                   }
 
-                  const isVoiceRun = run.channel === "voice";
                   const isWhatsAppRun = run.channel === "whatsapp";
-                  const channelColor = isVoiceRun
-                    ? "border-info"
-                    : isWhatsAppRun
-                      ? "border-healthy"
-                      : "border-foreground/20";
+                  const channelColor = isWhatsAppRun
+                    ? "border-healthy"
+                    : "border-foreground/20";
 
                   return (
                     <div
@@ -2602,12 +2599,8 @@ export default function CrmConversationView({
                                   msg.id &&
                                   "ring-2 ring-healthy ring-offset-2",
                                 isOutgoing
-                                  ? isVoiceRun
-                                    ? "bg-muted text-foreground rounded-tr-sm"
-                                    : "bg-[#d9fdd3] text-[#111b21] dark:bg-[#005c4b] dark:text-[#e9edef] rounded-tr-sm"
-                                  : isVoiceRun
-                                    ? "bg-muted text-foreground rounded-tl-sm"
-                                    : "bg-card text-foreground rounded-tl-sm",
+                                  ? "bg-[#d9fdd3] text-[#111b21] dark:bg-[#005c4b] dark:text-[#e9edef] rounded-tr-sm"
+                                  : "bg-card text-foreground rounded-tl-sm",
                                 isOutgoing
                                   ? cn("border-r-[3px]", channelColor)
                                   : cn("border-l-[3px]", channelColor),
@@ -2638,29 +2631,13 @@ export default function CrmConversationView({
                                       </span>
                                     </>
                                   )}
-                                  {isVoiceRun && (
-                                    <>
-                                      <PhoneCall
-                                        weight="fill"
-                                        className="h-2.5 w-2.5 text-info-ink/60"
-                                      />
-                                      <span className="text-2xs font-semibold  text-primary-ink/50">
-                                        Voz
-                                      </span>
-                                    </>
-                                  )}
                                 </div>
                               )}
 
                               {/* Sender name for incoming */}
                               {showSenderName && (
                                 <p
-                                  className={cn(
-                                    "text-2xs font-semibold mb-0.5",
-                                    isVoiceRun
-                                      ? "text-primary-ink"
-                                      : "text-healthy-ink",
-                                  )}
+                                  className="text-2xs font-semibold mb-0.5 text-healthy-ink"
                                 >
                                   {senderName || msg.from}
                                 </p>

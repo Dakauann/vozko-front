@@ -250,13 +250,13 @@ describe("groupMessagesByChannel", () => {
   it("splits runs on channel change", () => {
     const msgs = [
       makeMsg({ id: "1", channel: "whatsapp" }),
-      makeMsg({ id: "2", channel: "voice" }),
+      makeMsg({ id: "2", channel: "telegram" }),
       makeMsg({ id: "3", channel: "whatsapp" }),
     ];
     const runs = groupMessagesByChannel(msgs);
     expect(runs).toHaveLength(3);
     expect(runs[0].channel).toBe("whatsapp");
-    expect(runs[1].channel).toBe("voice");
+    expect(runs[1].channel).toBe("telegram");
     expect(runs[2].channel).toBe("whatsapp");
   });
 
@@ -484,35 +484,18 @@ describe("sender name display logic", () => {
 
 
 describe("channel color logic", () => {
-  it("voice run uses blue border", () => {
-    const channel = "voice";
-    const channelColor =
-      channel === "voice"
-        ? "border-blue-400"
-        : channel === "whatsapp"
-          ? "border-emerald-400"
-          : "border-foreground/20";
-    expect(channelColor).toBe("border-blue-400");
-  });
-
   it("whatsapp run uses emerald border", () => {
     const channel: string = "whatsapp";
     const channelColor =
-      channel === "voice"
-        ? "border-blue-400"
-        : channel === "whatsapp"
-          ? "border-emerald-400"
-          : "border-foreground/20";
+      channel === "whatsapp" ? "border-emerald-400" : "border-foreground/20";
     expect(channelColor).toBe("border-emerald-400");
   });
 
   it("unknown channel uses foreground border", () => {
     const channel: string = "other";
     const channelColor =
-      channel === "voice"
-        ? "border-blue-400"
-        : channel === "whatsapp"
-          ? "border-emerald-400"
+      channel === "whatsapp"
+        ? "border-emerald-400"
           : "border-foreground/20";
     expect(channelColor).toBe("border-foreground/20");
   });

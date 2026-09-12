@@ -18,6 +18,7 @@ import type {
     CommentContainerOverridePut,
     CommentContainerSettings,
     CommentListFilters,
+    AudienceSource,
     CommentSource,
     CommentStance,
     ModerationState,
@@ -390,7 +391,7 @@ export async function deleteCommentContainerSettingsAction(
  * arming an automated sender is granting sends.
  */
 
-export async function listAlertRulesAction(accountId?: string, source: CommentSource = 'instagram') {
+export async function listAlertRulesAction(accountId?: string, source: AudienceSource = 'instagram') {
     const params = new URLSearchParams({ source });
     if (accountId) params.set('accountId', accountId);
     const response = await apiClient<AlertRule[]>(`/audience/alerts?${params.toString()}`, {

@@ -12,7 +12,6 @@ import {
   Check,
   Leaf,
   Megaphone,
-  Phone,
   WhatsappLogo,
   X,
 } from "@/components/icons";
@@ -258,7 +257,7 @@ function WACampaignFilterToggle({
 interface CampaignOption {
   id: string;
   name: string;
-  type: "voice" | "whatsapp";
+  type: "whatsapp";
 }
 
 function CampaignSelector({
@@ -424,16 +423,12 @@ function CampaignSelector({
                     )}
                   />
                   <span className="flex items-center gap-1.5 truncate">
-                    {c.type === "whatsapp" ? (
-                      <WhatsappLogo size={12} className="shrink-0" />
-                    ) : (
-                      <Phone size={12} className="shrink-0" />
-                    )}
+                    <WhatsappLogo size={12} className="shrink-0" />
                     {c.name} {c.id}
                   </span>
                 </CommandItem>
               ))}
-              {channelFilter !== "voice" && waPage < waTotalPages && (
+              {waPage < waTotalPages && (
                 <CommandItem
                   value="__load_more__"
                   onSelect={handleLoadMore}

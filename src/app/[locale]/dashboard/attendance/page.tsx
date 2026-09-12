@@ -509,8 +509,6 @@ function channelLabel(channel: string, tc: (key: string) => string): string {
       return tc("instagram");
     case "telegram":
       return tc("telegram");
-    case "voice":
-      return tc("voice");
     default:
       return channel;
   }
@@ -2537,10 +2535,9 @@ export default function AttendanceOpsPage() {
   // Matches backend: GET /attendance/* → attendance:read
   const canRead = !permissionsLoading && can("attendance", "read");
   const searchParams = useSearchParams();
-  // Deep-link / monitor: ?campaignId=&campaignType=whatsapp|voice
+  // Deep-link / monitor: ?campaignId=&campaignType=whatsapp
   const campaignId = searchParams.get("campaignId") || undefined;
   const campaignType =
-    searchParams.get("campaignType") === "voice" ||
     searchParams.get("campaignType") === "whatsapp"
       ? searchParams.get("campaignType")!
       : undefined;

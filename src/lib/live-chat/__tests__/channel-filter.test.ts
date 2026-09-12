@@ -76,15 +76,6 @@ describe("narrowing", () => {
         expect(isCampaignChannel("all")).toBe(false);
     });
 
-    // Voice is reachable as state but is deliberately not offered as a button;
-    // it must still resolve, or selecting it from elsewhere silently breaks.
-    it("still resolves voice even though it has no button", () => {
-        expect(channelFilterSpec("voice")).toBeUndefined();
-        expect(isCampaignChannel("voice")).toBe(true);
-        expect(campaignTypeFor("voice")).toBe("voice");
-        expect(entryTypeFor("voice")).toBeUndefined();
-    });
-
     // Exactly one narrowing per filter: asking the inbox for both a campaign
     // type and an entry type would return their intersection, which is not what
     // any of these buttons promises.
@@ -92,7 +83,6 @@ describe("narrowing", () => {
         const all: ChannelFilter[] = [
             "all",
             "whatsapp",
-            "voice",
             "instagram",
             "telegram",
             "unofficial_whatsapp",

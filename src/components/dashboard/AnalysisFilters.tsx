@@ -26,8 +26,6 @@ export type AnalysisDisposition =
   | "sale"
   | "callback"
   | "declined"
-  | "no_answer"
-  | "voicemail"
   | "pending";
 export type AnalysisSentiment = "positive" | "neutral" | "negative";
 export type AnalysisQualification = "hot_lead" | "warm_lead" | "cold_lead";
@@ -68,8 +66,6 @@ interface AnalysisFiltersProps {
       sale: string;
       callback: string;
       declined: string;
-      no_answer: string;
-      voicemail: string;
       pending: string;
     };
     sentiment: {
@@ -321,12 +317,6 @@ export default function AnalysisFilters({
             </ElevatedSelectItem>
             <ElevatedSelectItem value="declined">
               {t.disposition.declined}
-            </ElevatedSelectItem>
-            <ElevatedSelectItem value="no_answer">
-              {t.disposition.no_answer}
-            </ElevatedSelectItem>
-            <ElevatedSelectItem value="voicemail">
-              {t.disposition.voicemail}
             </ElevatedSelectItem>
             <ElevatedSelectItem value="pending">
               {t.disposition.pending}

@@ -16,7 +16,6 @@ import {
   CircleNotch,
   Funnel,
   MagnifyingGlass,
-  Phone,
   Tag as TagIcon,
   User,
   X,

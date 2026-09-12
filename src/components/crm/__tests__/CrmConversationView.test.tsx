@@ -356,13 +356,13 @@ describe("CrmConversationView rendering", () => {
     expect(screen.getByText("WhatsApp")).toBeInTheDocument();
   });
 
-  it("renders voice channel label", () => {
+  it("renders telegram channel label", () => {
     const conv = makeConversation({
       messages: [
         makeMsg({
           id: "msg-1",
-          channel: "voice",
-          text: "Voice message",
+          channel: "telegram",
+          text: "Telegram message",
           to: "+5511888888888",
         }),
       ],
@@ -374,7 +374,7 @@ describe("CrmConversationView rendering", () => {
         translations={defaultTranslations as never}
       />,
     );
-    expect(screen.getByText("Voz")).toBeInTheDocument();
+    expect(screen.getByText("Telegram message")).toBeInTheDocument();
   });
 
   it("renders reply button when onReply is provided", () => {

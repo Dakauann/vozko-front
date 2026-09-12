@@ -481,13 +481,11 @@ export default function ConversationAttendanceSection({
   const metricsHref = attendanceMetricsHref({
     campaignId,
     campaignType:
-      campaignType === "whatsapp" || campaignType === "voice"
+      campaignType === "whatsapp"
         ? campaignType
         : entryType === "whatsapp"
           ? "whatsapp"
-          : entryType === "voice"
-            ? "voice"
-            : null,
+          : null,
     localePrefix: `/${locale}`,
   });
 

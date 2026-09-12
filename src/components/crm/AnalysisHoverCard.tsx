@@ -39,8 +39,6 @@ const DISPOSITION_MAP: Record<string, string> = {
   filling_info: "Coletando dados",
   callback: "Retornar",
   declined: "Recusado",
-  no_answer: "Sem resposta",
-  voicemail: "Caixa postal",
   pending: "Pendente",
 };
 

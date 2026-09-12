@@ -143,7 +143,7 @@ describe("useConversationWs socket lifecycle", () => {
 
     // Campaign / filter switching rides the same socket via switchView().
     rerender({ ...baseProps, campaignId: "camp-1", campaignType: "whatsapp" });
-    rerender({ ...baseProps, campaignId: "camp-2", campaignType: "voice" });
+    rerender({ ...baseProps, campaignId: "camp-2", campaignType: "unofficial_whatsapp" });
     await flushConnect();
 
     expect(FakeWebSocket.instances).toHaveLength(1);

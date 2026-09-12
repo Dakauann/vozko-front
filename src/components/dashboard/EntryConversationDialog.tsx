@@ -5,7 +5,6 @@ import {
   CaretRight,
   ChatCircle,
   Info,
-  Phone,
   Robot,
   Spinner,
   User,
@@ -65,8 +64,6 @@ interface EntryConversationDialogProps {
         sale?: string;
         callback?: string;
         declined?: string;
-        noAnswer?: string;
-        voicemail?: string;
         pending?: string;
       };
       sentimentValues?: {
@@ -172,8 +169,6 @@ function AnalysisPanel({
       sale: t.dispositionValues?.sale ?? "Venda",
       callback: t.dispositionValues?.callback ?? "Retornar ligação",
       declined: t.dispositionValues?.declined ?? "Recusado",
-      no_answer: t.dispositionValues?.noAnswer ?? "Sem resposta",
-      voicemail: t.dispositionValues?.voicemail ?? "Caixa postal",
       pending: t.dispositionValues?.pending ?? "Pendente",
     };
     return map[value] ?? value?.replace(/_/g, " ");
@@ -347,13 +342,7 @@ function MessageBubble({
 
   const isToolCall = message.messageType === "tool_call";
   const isToolResult = message.messageType === "tool_result";
-  const isVoice = message.channel === "voice";
-
-  const channelBgClass = isVoice
-    ? isUser
-      ? "bg-muted border-chart-4/30"
-      : "bg-muted border-chart-4/30"
-    : isUser
+  const channelBgClass = isUser
       ? "bg-muted border-border"
       : "bg-muted border-border";
 
@@ -364,12 +353,9 @@ function MessageBubble({
     return <Robot weight="fill" className="h-3.5 w-3.5 text-white" />;
   };
 
-  const getChannelIcon = () => {
-    if (isVoice) {
-      return <Phone weight="fill" className="h-3 w-3 text-chart-4" />;
-    }
-    return <WhatsappLogo weight="fill" className="h-3 w-3 text-healthy-ink" />;
-  };
+  const getChannelIcon = () => (
+    <WhatsappLogo weight="fill" className="h-3 w-3 text-healthy-ink" />
+  );
 
   const getToolInfo = () => {
     const callMatch = message.text.match(
@@ -487,9 +473,7 @@ function MessageBubble({
           <div className="flex items-center gap-1.5 mb-1">
             {getChannelIcon()}
             <span className="text-2xs font-medium text-muted-foreground">
-              {isVoice
-                ? (translations?.channels?.voice ?? tc("voice"))
-                : (translations?.channels?.whatsapp ?? tc("whatsapp"))}
+              {translations?.channels?.whatsapp ?? tc("whatsapp")}
             </span>
           </div>
           <div className="flex items-center gap-2 text-muted-foreground">
@@ -533,9 +517,7 @@ function MessageBubble({
         <div className="flex items-center gap-1.5 mb-1">
           {getChannelIcon()}
           <span className="text-2xs font-medium text-muted-foreground">
-            {isVoice
-              ? (translations?.channels?.voice ?? tc("voice"))
-              : (translations?.channels?.whatsapp ?? tc("whatsapp"))}
+            {translations?.channels?.whatsapp ?? tc("whatsapp")}
           </span>
         </div>
         <p className="text-sm leading-relaxed whitespace-pre-wrap break-words text-foreground">
@@ -620,15 +602,10 @@ export default function EntryConversationDialog({
           <div className="flex items-center gap-3">
             <div
               className={cn(
-                "flex h-12 w-12 items-center justify-center rounded-[--radius]",
-                entryType === "voice" ? "bg-muted" : "bg-healthy",
+                "flex h-12 w-12 items-center justify-center rounded-[--radius] bg-healthy",
               )}
             >
-              {entryType === "voice" ? (
-                <Phone weight="fill" className="h-6 w-6 text-white" />
-              ) : (
-                <WhatsappLogo weight="fill" className="h-6 w-6 text-white" />
-              )}
+              <WhatsappLogo weight="fill" className="h-6 w-6 text-white" />
             </div>
             <div>
               <ElevatedDialogTitle>
