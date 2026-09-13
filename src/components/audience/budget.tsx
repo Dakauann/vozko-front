@@ -132,7 +132,9 @@ export function AnalysisBudgetPanel({
           </div>
         )}
 
-        {canEdit && settings ? <SettingsEditor settings={settings} onChanged={onChanged} /> : null}
+        {canEdit && settings ? (
+          <SettingsEditor settings={settings} onChanged={onChanged} />
+        ) : null}
       </div>
     </Panel>
   );
@@ -184,22 +186,33 @@ function SettingField({
   const [error, setError] = useState("");
 
   /*
-   * An unset value shows the effective one as a PLACEHOLDER, not as text. A
-   * workspace that never chose a quiet period is running on the product
-   * default, and printing 5 in the box would claim somebody decided that.
+   * The box shows the value actually IN FORCE, never an empty field.
+   *
+   * It used to show only what the WORKSPACE had set, which for a workspace that
+   * has set nothing is blank. So the ceiling field sat empty beside a meter
+   * reading "2 de 20.000", and the quiet period sat empty while the sweep was
+   * plainly waiting five minutes: both controls looked broken next to figures
+   * that plainly worked. A grey placeholder was not enough either, because a
+   * hint still reads as "nothing set".
+   *
+   * "Stored" and "in force" differ only until somebody edits one, and editing is
+   * exactly when that difference stops mattering.
    */
   const stored = kind === "dailyCap" ? settings.dailyCap : settings.debounceMinutes;
-  const [draft, setDraft] = useState(stored > 0 ? String(stored) : "");
+  const effective = kind === "dailyCap" ? settings.effectiveDailyCap : settings.effectiveDebounceMinutes;
+  const shown = stored > 0 ? stored : effective;
+  const [draft, setDraft] = useState(String(shown));
 
-  const placeholder =
-    kind === "dailyCap" ? "" : String(settings.effectiveDebounceMinutes);
   const min = kind === "dailyCap" ? 1 : settings.minDebounceMinutes;
   const max = kind === "dailyCap" ? undefined : settings.maxDebounceMinutes;
 
   const commit = () => {
     const next = Number.parseInt(draft, 10);
-    if (!Number.isFinite(next) || next === stored) {
-      setDraft(stored > 0 ? String(stored) : "");
+    // Compared against what is SHOWN, not what is stored. Otherwise merely
+    // focusing and leaving an inherited value would persist it as a deliberate
+    // choice nobody made.
+    if (!Number.isFinite(next) || next === shown) {
+      setDraft(String(shown));
       return;
     }
     setSaving(true);
@@ -208,7 +221,7 @@ function SettingField({
       setSaving(false);
       if (res.error || !res.settings) {
         setError(res.error ?? "");
-        setDraft(stored > 0 ? String(stored) : "");
+        setDraft(String(shown));
         return;
       }
       onChanged?.(res.settings);
@@ -223,7 +236,6 @@ function SettingField({
         min={min}
         max={max}
         value={draft}
-        placeholder={placeholder}
         disabled={saving}
         onChange={(e) => setDraft(e.target.value)}
         onBlur={commit}

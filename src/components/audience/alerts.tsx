@@ -21,6 +21,7 @@ import type {
   AudienceSource,
   SubjectKind,
 } from "@/lib/audience/types";
+import { AUDIENCE_SOURCES } from "@/lib/audience/types";
 import { isTemplateSendable } from "@/lib/whatsapp-templates/params";
 import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones";
 import {
@@ -90,7 +91,6 @@ const SUBJECT_DEFAULTS: Record<SubjectKind, { metric: AlertMetric; threshold: nu
 function emptyDraft(
   accountId: string,
   subjectKind: SubjectKind,
-  source: AudienceSource | undefined,
   limits: AlertVocabulary["limits"] | undefined,
 ): AlertRuleDraft {
   const start = SUBJECT_DEFAULTS[subjectKind];
@@ -98,7 +98,10 @@ function emptyDraft(
     name: "",
     enabled: true,
     accountId,
-    source,
+    // Undefined is the wildcard: every conversation channel. A new rule no
+    // longer silently inherits the page's list filter, which is what armed a
+    // rule on a channel nobody chose.
+    source: undefined,
     metric: start.metric,
     threshold: start.threshold,
     windowMinutes: limits?.defaultWindowMinutes ?? 60,
@@ -146,14 +149,12 @@ function draftOf(rule: AlertRule): AlertRuleDraft {
 export function CommentAnalysisAlerts({
   accountId,
   subjectKind = "comment",
-  source,
 }: {
   accountId: string;
   subjectKind?: SubjectKind;
-  /** Which channel the rule watches. Only meaningful for conversations. */
-  source?: AudienceSource;
 }) {
   const t = useTranslations("audience.alerts");
+  const tChannelName = useTranslations("audience.channels");
   const { can } = useWorkspace();
   const canManage = can("audience", "send");
   const locale = useLocale();
@@ -169,18 +170,18 @@ export function CommentAnalysisAlerts({
   const [busy, setBusy] = useState<string | null>(null);
 
   const reload = useCallback(() => {
-    void listAlertRulesAction(accountId, source).then((result) => {
+    void listAlertRulesAction(accountId).then((result) => {
       if (result.error) setError(result.error);
       else {
         setError(null);
         setRules(result.rules);
       }
     });
-  }, [accountId, source]);
+  }, [accountId]);
 
   useEffect(() => {
     let cancelled = false;
-    void Promise.all([listAlertRulesAction(accountId, source), getAlertOptionsAction()]).then(([list, opts]) => {
+    void Promise.all([listAlertRulesAction(accountId), getAlertOptionsAction()]).then(([list, opts]) => {
       if (cancelled) return;
       if (list.error) setError(list.error);
       else setRules(list.rules);
@@ -189,7 +190,7 @@ export function CommentAnalysisAlerts({
     return () => {
       cancelled = true;
     };
-  }, [accountId, source]);
+  }, [accountId]);
 
   const toggle = async (rule: AlertRule, enabled: boolean) => {
     setRules((prev) => (prev ?? []).map((r) => (r.id === rule.id ? { ...r, enabled } : r)));
@@ -242,7 +243,7 @@ export function CommentAnalysisAlerts({
             variant="secondary"
             icon={<Plus className="h-3.5 w-3.5" />}
             title={t("new")}
-            onClick={() => setEditing({ draft: emptyDraft(accountId, subjectKind, source, options?.limits) })}
+            onClick={() => setEditing({ draft: emptyDraft(accountId, subjectKind, options?.limits) })}
           />
         ) : undefined
       }
@@ -271,6 +272,9 @@ export function CommentAnalysisAlerts({
                     {t(`metrics.${rule.metric}`, { threshold: rule.threshold, minutes: rule.windowMinutes })}
                   </p>
                   <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                    <Chip>
+                      {rule.source ? tChannelName(rule.source) : t("fields.watchedChannelAll")}
+                    </Chip>
                     <Chip>{t(`channels.${rule.channel}`)}</Chip>
                     {/* A rule armed on a channel the workspace can no longer
                         send on. Said on the row, because the alternative is
@@ -366,6 +370,7 @@ function AlertRuleDialog({
   onSaved: () => void;
 }) {
   const t = useTranslations("audience.alerts");
+  const tChannel = useTranslations("audience.channels");
   const [draft, setDraft] = useState<AlertRuleDraft>(initial);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -600,9 +605,26 @@ function AlertRuleDialog({
             />
           ) : null}
 
+          <ElevatedSelect
+            label={t("fields.watchedChannel")}
+            value={draft.source ?? ""}
+            onValueChange={(v) => set("source", (v || undefined) as AudienceSource | undefined)}
+          >
+            {/* The default, and the one an operator almost always means: a rule
+                per channel is four cooldowns and four daily caps for one
+                concern. */}
+            <ElevatedSelectItem value="">{t("fields.watchedChannelAll")}</ElevatedSelectItem>
+            {AUDIENCE_SOURCES.filter((s) => s !== "instagram").map((s) => (
+              <ElevatedSelectItem key={s} value={s}>
+                {tChannel(s)}
+              </ElevatedSelectItem>
+            ))}
+          </ElevatedSelect>
+          <p className="text-2xs text-muted-foreground">{t("fields.watchedChannelHint")}</p>
+
           <div className="grid grid-cols-2 gap-3">
             <ElevatedSelect
-              label={t("fields.channel")}
+              label={t("fields.sendChannel")}
               value={draft.channel}
               onValueChange={(v) => set("channel", v as AlertChannel)}
             >

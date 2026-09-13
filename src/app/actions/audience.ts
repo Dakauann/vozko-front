@@ -391,8 +391,19 @@ export async function deleteCommentContainerSettingsAction(
  * arming an automated sender is granting sends.
  */
 
-export async function listAlertRulesAction(accountId?: string, source: AudienceSource = 'instagram') {
-    const params = new URLSearchParams({ source });
+/**
+ * The account's alert rules, every channel unless one is named.
+ *
+ * The source defaulted to 'instagram', from when comments were the only thing
+ * analysed. That turned "list this account's rules" into "list its Instagram
+ * rules", so a conversation rule, and any rule watching ALL channels, was
+ * filtered out of its own page and the screen read "nenhum alerta configurado"
+ * with two rules sitting in the table. Omitting it now means no filter, which
+ * is what the server already does with an empty source.
+ */
+export async function listAlertRulesAction(accountId?: string, source?: AudienceSource) {
+    const params = new URLSearchParams();
+    if (source) params.set('source', source);
     if (accountId) params.set('accountId', accountId);
     const response = await apiClient<AlertRule[]>(`/audience/alerts?${params.toString()}`, {
         method: 'GET',
@@ -500,7 +511,14 @@ export async function getAudienceUsageAction(): Promise<{
 export interface AudienceWorkspaceSettings {
     dailyCap: number;
     debounceMinutes: number;
-    /** What the sweep actually waits, which is the default when nothing is set. */
+    /**
+     * The values actually IN FORCE, resolved by the server.
+     *
+     * The ceiling falls back through the workspace, then the channel accounts,
+     * then the product default. Resolving that here would be a second copy of
+     * the rule, free to disagree with the engine that enforces it.
+     */
+    effectiveDailyCap: number;
     effectiveDebounceMinutes: number;
     minDebounceMinutes: number;
     maxDebounceMinutes: number;

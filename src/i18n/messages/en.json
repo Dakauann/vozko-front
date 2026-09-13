@@ -10929,7 +10929,11 @@
         "brief": "Include the AI reading",
         "instance": "Sending number",
         "minMessages": "Minimum messages",
-        "minMessagesHint": "Conversations shorter than this are not judged. A two-message chat scores badly because it barely happened, not because it was handled badly. 0 means no floor."
+        "minMessagesHint": "Conversations shorter than this are not judged. A two-message chat scores badly because it barely happened, not because it was handled badly. 0 means no floor.",
+        "watchedChannel": "Channel to watch",
+        "watchedChannelAll": "All channels",
+        "watchedChannelHint": "Which conversations this rule reads. One rule across all channels shares a single cooldown and daily cap, so one incident is one message.",
+        "sendChannel": "How to notify"
       },
       "templateVariables": "Recognised names, if your template uses named variables: {facts}",
       "briefHint": "The AI adds one sentence on what is happening and one on how to respond. That is one billed AI call per firing, and the alert is sent as usual if the AI does not answer.",
@@ -10957,10 +10961,7 @@
     "alertsPage": {
       "badge": "Analysis alerts",
       "description": "Be told when the AI reaches a conclusion worth acting on, on any channel.",
-      "noPermissionDesc": "The Audience forwarding permission (audience:send) is required to arm alerts.",
-      "channelTitle": "Channel",
-      "channelDescription": "An alert watches one channel. Instagram comment alerts belong to an account and are configured on its own Audience tab.",
-      "channelLabel": "Channel"
+      "noPermissionDesc": "The Audience forwarding permission (audience:send) is required to arm alerts."
     }
   },
   "telegram": {

@@ -9854,7 +9854,11 @@
         "brief": "KI-Einschätzung einbeziehen",
         "instance": "Absendernummer",
         "minMessages": "Mindestanzahl Nachrichten",
-        "minMessagesHint": "Kürzere Gespräche werden nicht bewertet. Ein Chat mit zwei Nachrichten schneidet schlecht ab, weil er kaum stattfand, nicht weil er schlecht geführt wurde. 0 heißt keine Untergrenze."
+        "minMessagesHint": "Kürzere Gespräche werden nicht bewertet. Ein Chat mit zwei Nachrichten schneidet schlecht ab, weil er kaum stattfand, nicht weil er schlecht geführt wurde. 0 heißt keine Untergrenze.",
+        "watchedChannel": "Beobachteter Kanal",
+        "watchedChannelAll": "Alle Kanäle",
+        "watchedChannelHint": "Welche Gespräche diese Regel liest. Eine Regel für alle Kanäle teilt sich eine Sperrzeit und ein Tageslimit, ein Vorfall ist also eine Nachricht.",
+        "sendChannel": "Wie benachrichtigen"
       },
       "templateVariables": "Erkannte Namen, falls Ihre Vorlage benannte Variablen nutzt: {facts}",
       "briefHint": "Die KI ergänzt einen Satz dazu, was passiert, und einen dazu, wie zu reagieren ist. Das ist ein abgerechneter KI-Aufruf pro Auslösung; die Benachrichtigung wird auch gesendet, wenn die KI nicht antwortet.",
@@ -9882,10 +9886,7 @@
     "alertsPage": {
       "badge": "Analyse-Benachrichtigungen",
       "description": "Erfahre es, wenn die KI auf einem Kanal zu einem Schluss kommt, der Handeln verlangt.",
-      "noPermissionDesc": "Die Weiterleitungsberechtigung für Audience (audience:send) wird benötigt, um Benachrichtigungen einzurichten.",
-      "channelTitle": "Kanal",
-      "channelDescription": "Eine Benachrichtigung beobachtet einen Kanal. Instagram-Kommentar-Benachrichtigungen gehören zu einem Konto und werden in dessen Audience-Tab eingerichtet.",
-      "channelLabel": "Kanal"
+      "noPermissionDesc": "Die Weiterleitungsberechtigung für Audience (audience:send) wird benötigt, um Benachrichtigungen einzurichten."
     }
   },
   "telegram": {

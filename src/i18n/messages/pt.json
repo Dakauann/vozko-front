@@ -10980,7 +10980,11 @@
         "brief": "Incluir leitura da IA",
         "instance": "Número que envia",
         "minMessages": "Mínimo de mensagens",
-        "minMessagesHint": "Conversas menores que isso não são avaliadas. Uma conversa de duas mensagens vai mal porque mal aconteceu, não porque foi mal atendida. 0 não aplica piso."
+        "minMessagesHint": "Conversas menores que isso não são avaliadas. Uma conversa de duas mensagens vai mal porque mal aconteceu, não porque foi mal atendida. 0 não aplica piso.",
+        "watchedChannel": "Canal observado",
+        "watchedChannelAll": "Todos os canais",
+        "watchedChannelHint": "Quais conversas esta regra lê. Uma regra para todos os canais divide um único intervalo e um único teto diário, então um incidente é um aviso.",
+        "sendChannel": "Como avisar"
       },
       "templateVariables": "Nomes reconhecidos, se o seu modelo usar variáveis com nome: {facts}",
       "briefHint": "A IA acrescenta uma frase sobre o que está acontecendo e outra sobre como responder. É uma chamada de IA por disparo, cobrada, e o alerta é enviado normalmente se a IA não responder.",
@@ -11008,10 +11012,7 @@
     "alertsPage": {
       "badge": "Alertas de análise",
       "description": "Seja avisado quando a IA chegar a uma conclusão que exige ação, em qualquer canal.",
-      "noPermissionDesc": "É necessária a permissão de encaminhamento da Audiência (audience:send) para criar alertas.",
-      "channelTitle": "Canal",
-      "channelDescription": "Um alerta observa um canal. Alertas de comentários do Instagram pertencem a uma conta e são configurados na aba Audiência dela.",
-      "channelLabel": "Canal"
+      "noPermissionDesc": "É necessária a permissão de encaminhamento da Audiência (audience:send) para criar alertas."
     }
   },
   "telegram": {

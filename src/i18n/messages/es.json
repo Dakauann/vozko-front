@@ -9357,7 +9357,11 @@
         "brief": "Incluir la lectura de la IA",
         "instance": "Número que envía",
         "minMessages": "Mínimo de mensajes",
-        "minMessagesHint": "Las conversaciones más cortas que esto no se evalúan. Un chat de dos mensajes puntúa mal porque apenas ocurrió, no porque se atendiera mal. 0 no aplica mínimo."
+        "minMessagesHint": "Las conversaciones más cortas que esto no se evalúan. Un chat de dos mensajes puntúa mal porque apenas ocurrió, no porque se atendiera mal. 0 no aplica mínimo.",
+        "watchedChannel": "Canal observado",
+        "watchedChannelAll": "Todos los canales",
+        "watchedChannelHint": "Qué conversaciones lee esta regla. Una regla para todos los canales comparte un solo intervalo y un solo tope diario, así un incidente es un aviso.",
+        "sendChannel": "Cómo avisar"
       },
       "templateVariables": "Nombres reconocidos, si tu plantilla usa variables con nombre: {facts}",
       "briefHint": "La IA añade una frase sobre lo que está pasando y otra sobre cómo responder. Es una llamada de IA por disparo, con cargo, y la alerta se envía igual si la IA no responde.",
@@ -9385,10 +9389,7 @@
     "alertsPage": {
       "badge": "Alertas de análisis",
       "description": "Entérate cuando la IA llegue a una conclusión que exige acción, en cualquier canal.",
-      "noPermissionDesc": "Se requiere el permiso de reenvío de Audiencia (audience:send) para crear alertas.",
-      "channelTitle": "Canal",
-      "channelDescription": "Una alerta observa un canal. Las alertas de comentarios de Instagram pertenecen a una cuenta y se configuran en su propia pestaña Audiencia.",
-      "channelLabel": "Canal"
+      "noPermissionDesc": "Se requiere el permiso de reenvío de Audiencia (audience:send) para crear alertas."
     }
   },
   "telegram": {
