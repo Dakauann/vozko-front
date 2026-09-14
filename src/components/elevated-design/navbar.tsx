@@ -185,27 +185,12 @@ export default function Navbar() {
             : "border-border bg-card text-foreground",
         )}
       >
-        <div className="mx-auto flex h-12 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="relative mx-auto flex h-12 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-3">
             <BrandMark useWhite={showDarkNavigation || isDark} />
           </Link>
 
           <div className="hidden items-center gap-2 md:flex">
-            <Link
-              href="/faq"
-              aria-current={isFaqRoute ? "page" : undefined}
-              className={cn(
-                "rounded-[--radius] px-2.5 py-1.5 text-sm font-medium transition-colors",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                showDarkNavigation
-                  ? "text-white/80 hover:bg-white/10 hover:text-white"
-                  : isFaqRoute
-                    ? "text-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
-              )}
-            >
-              {tFaq("nav")}
-            </Link>
             <ThemeToggle />
             <LanguageSwitcher
               tone={showDarkNavigation ? "dark" : "light"}
@@ -238,6 +223,26 @@ export default function Navbar() {
                 className="px-4"
               />
             )}
+          </div>
+
+          {/* Centred nav zone. It sits in its own overlay so its position is
+              the bar's centre, not the midpoint between two clusters whose
+              widths change with the workspace name and the auth state. */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 right-0 hidden items-center justify-center md:flex">
+            <Link
+              href="/faq"
+              aria-current={isFaqRoute ? "page" : undefined}
+              className={cn(
+                "pointer-events-auto rounded-[--radius] px-2.5 py-1.5 text-sm font-medium transition-colors",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                showDarkNavigation
+                  ? "text-white hover:bg-white/10"
+                  : "text-foreground hover:bg-muted",
+                isFaqRoute && "bg-muted",
+              )}
+            >
+              {tFaq("nav")}
+            </Link>
           </div>
 
           <div className="flex items-center gap-2 md:hidden">

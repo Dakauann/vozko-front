@@ -51,6 +51,12 @@ means what. Every verdict ships as ground plus glyph plus word.
 - **Slugs are canonical across all four locales.** One URL to share, survives a
   language switch. Only the body is translated.
 - **The index is a ruled ledger, not a card grid.** Right at one entry and at forty.
+- **The navbar FAQ link is centred**, in its own overlay zone, not grouped with the
+  theme, language and sign-in cluster. Those are settings; FAQ is content, and sitting
+  beside the theme toggle made it read as a fourth utility control. Centring on the
+  bar rather than between the two clusters keeps it put when the auth state changes
+  the right cluster's width. It carries full-strength ink, because standing alone it
+  is a destination rather than a utility, and the active route takes a muted chip.
 
 ## Claim discipline
 
