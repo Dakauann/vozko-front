@@ -3202,7 +3202,19 @@
       "template_send_billing_not_configured": "Für diesen Versand ist keine Abrechnung konfiguriert.",
       "template_send_attempt_conflict": "Der Status dieses Versands hat sich geändert. Neu laden und erneut versuchen.",
       "template_provider_rejected": "WhatsApp hat diese Vorlage abgelehnt.",
-      "template_provider_unavailable": "WhatsApp ist gerade nicht erreichbar. Bitte gleich erneut versuchen."
+      "template_provider_unavailable": "WhatsApp ist gerade nicht erreichbar. Bitte gleich erneut versuchen.",
+      "template_otp_type_required": "Wählen Sie, was die Code-Schaltfläche tut: Code kopieren oder automatisch ausfüllen.",
+      "template_invalid_otp_type": "Ungültiger Typ der Code-Schaltfläche.",
+      "template_multiple_otp_buttons": "Eine Vorlage nimmt höchstens eine Code-Schaltfläche auf.",
+      "template_otp_button_not_authentication": "Nur eine Authentifizierungsvorlage darf eine Code-Schaltfläche haben.",
+      "template_authentication_needs_otp_button": "Eine Authentifizierungsvorlage braucht eine Code-Schaltfläche.",
+      "template_code_expiration_out_of_range": "Der Code muss zwischen 1 und 90 Minuten gültig sein.",
+      "template_authentication_code_required": "Senden abgelehnt: der Einmalcode fehlt.",
+      "template_otp_type_unsupported": "Hier lassen sich nur Schaltflächen zum Kopieren des Codes anlegen. Automatisches Ausfüllen erfordert eine bei WhatsApp registrierte Android-App.",
+      "template_authentication_no_header": "Authentifizierungsvorlagen dürfen keine Kopfzeile haben. WhatsApp zeigt keine an.",
+      "template_authentication_body_not_editable": "Bei Authentifizierungsvorlagen schreibt WhatsApp die Nachricht. Eigener Text ist nicht möglich.",
+      "template_authentication_footer_not_editable": "Die Fußzeile einer Authentifizierungsvorlage ist die Gültigkeitszeile von WhatsApp. Eigener Text ist nicht möglich.",
+      "template_authentication_code_too_long": "Der Code darf höchstens 15 Zeichen lang sein."
     },
     "header": {
       "badge": "WhatsApp Business",
@@ -3548,7 +3560,9 @@
         "quickRepliesMustBeGrouped": "Schnellantwort-Schaltflächen müssen zusammengefasst werden",
         "businessPhoneRequired": "Wählen Sie ein Geschäftstelefon, das mit dieser Vorlage verknüpft werden soll",
         "callPermissionWithButtons": "Eine Anruferlaubnis-Vorlage kann keine Schaltflächen haben, WhatsApp rendert die Erlaubnis-Schaltflächen.",
-        "mixedVariableFormat": "Mischen Sie nummerierte '{{1}}' und benannte '{{name}}' Variablen nicht, wählen Sie einen Stil."
+        "mixedVariableFormat": "Mischen Sie nummerierte '{{1}}' und benannte '{{name}}' Variablen nicht, wählen Sie einen Stil.",
+        "authNoHeader": "Authentifizierungsvorlagen dürfen keine Kopfzeile haben. Bitte entfernen.",
+        "authNeedsOtpButton": "Fügen Sie die Schaltfläche zum Kopieren des Codes hinzu; eine Authentifizierungsvorlage braucht sie."
       },
       "editor": {
         "noSelection": {
@@ -3605,7 +3619,8 @@
             "quickReply": "Schnellantwort",
             "url": "URL",
             "phone": "Telefon",
-            "copyCode": "Code kopieren"
+            "copyCode": "Code kopieren",
+            "otp": "Code kopieren"
           },
           "textLabel": "Schaltflächentext",
           "textPlaceholder": "Schaltflächentext...",
@@ -3617,12 +3632,24 @@
           "phoneLabel": "Telefonnummer",
           "phonePlaceholder": "+49 123 456 7890",
           "codeLabel": "Beispielcode",
-          "codePlaceholder": "z.B., 123456"
+          "codePlaceholder": "z.B., 123456",
+          "otpHint": "Beim Tippen kopiert WhatsApp den Code in die Zwischenablage. Der Code wird mit jeder Nachricht gesendet, nicht hier festgelegt.",
+          "otpLabelPlaceholder": "Code kopieren",
+          "otpLabelOptional": "Optional. Ohne Eingabe verwendet WhatsApp den eigenen Text, je Sprache übersetzt."
         },
         "callPermission": {
           "title": "Anruferlaubnis anfragen",
           "description": "WhatsApp rendert die Annehmen/Ablehnen-Schaltflächen automatisch. Fügen Sie einen Textkörper hinzu, der erklärt, warum Sie anrufen möchten.",
           "noFields": "Diese Komponente hat keine konfigurierbaren Felder."
+        },
+        "authentication": {
+          "bodyOwnedByMeta": "Bei Authentifizierungsvorlagen schreibt WhatsApp die Nachricht und übersetzt sie in jede Sprache. Sie wählen die Optionen unten.",
+          "securityRecommendation": "Sicherheitshinweis hinzufügen",
+          "securityRecommendationHint": "Ergänzt \"Teilen Sie diesen Code zu Ihrer Sicherheit nicht\".",
+          "footerOwnedByMeta": "Bei Authentifizierungsvorlagen schreibt WhatsApp die Fußzeile.",
+          "showExpiry": "Gültigkeitsdauer des Codes anzeigen",
+          "expiryMinutes": "Gültig für (Minuten)",
+          "expiryMinutesHint": "Zwischen 1 und 90 Minuten."
         }
       }
     },
@@ -3664,7 +3691,8 @@
         "phoneRequired": "Telefonnummer ist erforderlich",
         "phoneInvalid": "Geben Sie eine gültige Telefonnummer ein (10–15 Ziffern)",
         "parameterRequired": "Dieser Parameter ist erforderlich",
-        "businessPhoneRequired": "Wählen Sie ein Geschäftstelefon zum Senden"
+        "businessPhoneRequired": "Wählen Sie ein Geschäftstelefon zum Senden",
+        "codeTooLong": "Der Code darf höchstens {max} Zeichen lang sein."
       },
       "preview": {
         "title": "Nachrichtenvorschau",
@@ -3803,6 +3831,15 @@
       "ready": "Bereit",
       "missing_header_media": "Kopfzeilen-Medien fehlen",
       "not_approved": "Nicht genehmigt"
+    },
+    "rejectedReason": {
+      "INCORRECT_CATEGORY": "WhatsApp ordnet den Inhalt einer anderen Kategorie zu. Verifizierungscodes etwa gehören in die Kategorie Authentifizierung, nicht Dienstprogramm.",
+      "INVALID_FORMAT": "Das Format ist ungültig. Prüfen Sie die Variablen und ob jede ein Beispiel hat.",
+      "ABUSIVE_CONTENT": "WhatsApp hat den Inhalt als missbräuchlich oder richtlinienwidrig eingestuft.",
+      "SCAM": "WhatsApp hat den Inhalt als möglichen Betrug eingestuft.",
+      "TAG_CONTENT_MISMATCH": "Der Inhalt passt nicht zur gewählten Kategorie.",
+      "PROMOTIONAL": "Der Inhalt wirkt werblich, was die gewählte Kategorie nicht zulässt.",
+      "NONE": "WhatsApp hat die Vorlage ohne Angabe eines Grundes abgelehnt."
     }
   },
   "whatsappFlows": {

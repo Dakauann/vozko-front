@@ -2903,7 +2903,19 @@
       "template_send_billing_not_configured": "A cobrança não está configurada para este envio.",
       "template_send_attempt_conflict": "O status deste envio mudou. Recarregue e tente de novo.",
       "template_provider_rejected": "O WhatsApp recusou este modelo.",
-      "template_provider_unavailable": "O WhatsApp está indisponível no momento. Tente novamente em instantes."
+      "template_provider_unavailable": "O WhatsApp está indisponível no momento. Tente novamente em instantes.",
+      "template_otp_type_required": "Escolha o que o botão de código faz: copiar o código ou preencher automaticamente.",
+      "template_invalid_otp_type": "Tipo de botão de código inválido.",
+      "template_multiple_otp_buttons": "Um modelo aceita no máximo um botão de código.",
+      "template_otp_button_not_authentication": "Só um modelo de autenticação pode ter botão de código.",
+      "template_authentication_needs_otp_button": "Um modelo de autenticação precisa de um botão de código.",
+      "template_code_expiration_out_of_range": "O código deve valer entre 1 e 90 minutos.",
+      "template_authentication_code_required": "Envio recusado: falta o código de verificação.",
+      "template_otp_type_unsupported": "Aqui só é possível criar botões de copiar código. O preenchimento automático exige um app Android registrado no WhatsApp.",
+      "template_authentication_no_header": "Modelos de autenticação não podem ter cabeçalho. O WhatsApp não exibe um.",
+      "template_authentication_body_not_editable": "Em modelos de autenticação o WhatsApp escreve a mensagem. Você não pode incluir texto próprio.",
+      "template_authentication_footer_not_editable": "O rodapé de um modelo de autenticação é a linha de validade do WhatsApp. Você não pode incluir texto próprio.",
+      "template_authentication_code_too_long": "O código não pode ter mais de 15 caracteres."
     },
     "header": {
       "badge": "WhatsApp Business",
@@ -3277,7 +3289,9 @@
         "quickRepliesMustBeGrouped": "Botões de resposta rápida devem ser agrupados",
         "businessPhoneRequired": "Selecione um telefone comercial para associar a este template",
         "callPermissionWithButtons": "Um template de permissão de ligação não pode ter botões, o WhatsApp já exibe os botões de permissão.",
-        "mixedVariableFormat": "Não misture variáveis numeradas '{{1}}' e nomeadas '{{nome}}', escolha um único estilo."
+        "mixedVariableFormat": "Não misture variáveis numeradas '{{1}}' e nomeadas '{{nome}}', escolha um único estilo.",
+        "authNoHeader": "Modelos de autenticação não podem ter cabeçalho. Remova-o.",
+        "authNeedsOtpButton": "Adicione o botão de copiar código: um modelo de autenticação precisa de um."
       },
       "editor": {
         "noSelection": {
@@ -3334,7 +3348,8 @@
             "quickReply": "Resposta Rápida",
             "url": "URL",
             "phone": "Telefone",
-            "copyCode": "Copiar Código"
+            "copyCode": "Copiar Código",
+            "otp": "Copiar código"
           },
           "textLabel": "Texto do Botão",
           "textPlaceholder": "Texto do botão...",
@@ -3346,12 +3361,24 @@
           "phoneLabel": "Número de Telefone",
           "phonePlaceholder": "+55 11 99999-9999",
           "codeLabel": "Código de Exemplo",
-          "codePlaceholder": "ex.: 123456"
+          "codePlaceholder": "ex.: 123456",
+          "otpHint": "Ao tocar, o WhatsApp copia o código para a área de transferência. O código vai em cada envio, não é definido aqui.",
+          "otpLabelPlaceholder": "Copiar código",
+          "otpLabelOptional": "Opcional. Em branco, o WhatsApp usa o próprio texto, traduzido por idioma."
         },
         "callPermission": {
           "title": "Pedido de permissão para ligação",
           "description": "O WhatsApp renderiza automaticamente os botões de aceitar/recusar. Inclua um corpo explicando por que você quer ligar.",
           "noFields": "Este componente não tem campos para configurar."
+        },
+        "authentication": {
+          "bodyOwnedByMeta": "Em modelos de autenticação, o WhatsApp escreve a mensagem e traduz para cada idioma. Você escolhe as opções abaixo.",
+          "securityRecommendation": "Incluir o aviso de segurança",
+          "securityRecommendationHint": "Acrescenta \"Para sua segurança, não compartilhe este código\".",
+          "footerOwnedByMeta": "Em modelos de autenticação, o rodapé é escrito pelo WhatsApp.",
+          "showExpiry": "Mostrar por quanto tempo o código vale",
+          "expiryMinutes": "Válido por (minutos)",
+          "expiryMinutesHint": "Entre 1 e 90 minutos."
         }
       }
     },
@@ -3393,7 +3420,8 @@
         "phoneRequired": "Número de telefone é obrigatório",
         "phoneInvalid": "Insira um número de telefone válido (10–15 dígitos)",
         "parameterRequired": "Este parâmetro é obrigatório",
-        "businessPhoneRequired": "Selecione um telefone comercial para enviar"
+        "businessPhoneRequired": "Selecione um telefone comercial para enviar",
+        "codeTooLong": "O código não pode ter mais de {max} caracteres."
       },
       "preview": {
         "title": "Pré-visualização",
@@ -3515,6 +3543,15 @@
       "FOOTER": "Rodapé",
       "BUTTONS": "Botões",
       "CALL_PERMISSION_REQUEST": "Permissão de Ligação"
+    },
+    "rejectedReason": {
+      "INCORRECT_CATEGORY": "O WhatsApp entendeu que o conteúdo pertence a outra categoria. Códigos de verificação, por exemplo, precisam usar a categoria Autenticação, não Utilidade.",
+      "INVALID_FORMAT": "O formato é inválido. Verifique as variáveis e se cada uma tem um exemplo.",
+      "ABUSIVE_CONTENT": "O WhatsApp classificou o conteúdo como abusivo ou contrário às políticas dele.",
+      "SCAM": "O WhatsApp classificou o conteúdo como possível golpe.",
+      "TAG_CONTENT_MISMATCH": "O conteúdo não corresponde à categoria escolhida.",
+      "PROMOTIONAL": "O conteúdo parece promocional, o que a categoria escolhida não permite.",
+      "NONE": "O WhatsApp recusou o modelo sem informar o motivo."
     }
   },
   "whatsappFlows": {

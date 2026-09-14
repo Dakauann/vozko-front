@@ -2951,7 +2951,19 @@
       "template_send_billing_not_configured": "Billing isn't configured for this send.",
       "template_send_attempt_conflict": "This send's status changed. Reload and try again.",
       "template_provider_rejected": "WhatsApp rejected this template.",
-      "template_provider_unavailable": "WhatsApp is unavailable right now. Please try again shortly."
+      "template_provider_unavailable": "WhatsApp is unavailable right now. Please try again shortly.",
+      "template_otp_type_required": "Pick what the code button does: copy the code, or autofill it.",
+      "template_invalid_otp_type": "Invalid code button type.",
+      "template_multiple_otp_buttons": "A template takes at most one code button.",
+      "template_otp_button_not_authentication": "Only an authentication template can carry a code button.",
+      "template_authentication_needs_otp_button": "An authentication template needs a code button.",
+      "template_code_expiration_out_of_range": "The code must last between 1 and 90 minutes.",
+      "template_authentication_code_required": "Send refused: the one-time code is missing.",
+      "template_otp_type_unsupported": "Only copy-code buttons can be created here. Autofill needs an Android app registered with WhatsApp.",
+      "template_authentication_no_header": "Authentication templates can't have a header. WhatsApp doesn't show one.",
+      "template_authentication_body_not_editable": "WhatsApp writes the message for authentication templates. You can't add your own text.",
+      "template_authentication_footer_not_editable": "The footer of an authentication template is WhatsApp's expiry line. You can't add your own text.",
+      "template_authentication_code_too_long": "The code can't be longer than 15 characters."
     },
     "header": {
       "badge": "WhatsApp Business",
@@ -3325,7 +3337,9 @@
         "quickRepliesMustBeGrouped": "Quick reply buttons must be grouped together",
         "businessPhoneRequired": "Select a business phone to associate with this template",
         "callPermissionWithButtons": "A call permission template can't have buttons, WhatsApp renders the permission buttons for you.",
-        "mixedVariableFormat": "Don't mix numbered '{{1}}' and named '{{name}}' variables, pick one style."
+        "mixedVariableFormat": "Don't mix numbered '{{1}}' and named '{{name}}' variables, pick one style.",
+        "authNoHeader": "Authentication templates can't have a header. Remove it.",
+        "authNeedsOtpButton": "Add the copy-code button: an authentication template needs one."
       },
       "editor": {
         "noSelection": {
@@ -3382,7 +3396,8 @@
             "quickReply": "Quick Reply",
             "url": "URL",
             "phone": "Phone",
-            "copyCode": "Copy Code"
+            "copyCode": "Copy Code",
+            "otp": "Copy code"
           },
           "textLabel": "Button Text",
           "textPlaceholder": "Button text...",
@@ -3394,12 +3409,24 @@
           "phoneLabel": "Phone Number",
           "phonePlaceholder": "+1 234 567 8900",
           "codeLabel": "Example Code",
-          "codePlaceholder": "e.g., 123456"
+          "codePlaceholder": "e.g., 123456",
+          "otpHint": "WhatsApp copies the code to the clipboard when the recipient taps it. The code is sent with each message, not set here.",
+          "otpLabelPlaceholder": "Copy code",
+          "otpLabelOptional": "Optional. Left blank, WhatsApp uses its own label, translated per language."
         },
         "callPermission": {
           "title": "Call permission request",
           "description": "WhatsApp automatically renders the accept/decline buttons. Add a body explaining why you want to call.",
           "noFields": "This component has no fields to configure."
+        },
+        "authentication": {
+          "bodyOwnedByMeta": "WhatsApp writes the message for authentication templates and translates it for every language. You choose the options below.",
+          "securityRecommendation": "Add the security warning",
+          "securityRecommendationHint": "Appends \"For your security, do not share this code\".",
+          "footerOwnedByMeta": "WhatsApp writes the footer for authentication templates.",
+          "showExpiry": "Show how long the code lasts",
+          "expiryMinutes": "Valid for (minutes)",
+          "expiryMinutesHint": "Between 1 and 90 minutes."
         }
       }
     },
@@ -3441,7 +3468,8 @@
         "phoneRequired": "Phone number is required",
         "phoneInvalid": "Enter a valid phone number (10–15 digits)",
         "parameterRequired": "This parameter is required",
-        "businessPhoneRequired": "Select a business phone to send from"
+        "businessPhoneRequired": "Select a business phone to send from",
+        "codeTooLong": "The code can't be longer than {max} characters."
       },
       "preview": {
         "title": "Message Preview",
@@ -3563,6 +3591,15 @@
       "FOOTER": "Footer",
       "BUTTONS": "Buttons",
       "CALL_PERMISSION_REQUEST": "Call permission"
+    },
+    "rejectedReason": {
+      "INCORRECT_CATEGORY": "WhatsApp judged the content to belong to a different category. Verification codes, for example, must use the Authentication category, not Utility.",
+      "INVALID_FORMAT": "The format is invalid. Check the variables and that each one has an example.",
+      "ABUSIVE_CONTENT": "WhatsApp flagged the content as abusive or against its policies.",
+      "SCAM": "WhatsApp flagged the content as a possible scam.",
+      "TAG_CONTENT_MISMATCH": "The content doesn't match the chosen category.",
+      "PROMOTIONAL": "The content reads as promotional, which the chosen category doesn't allow.",
+      "NONE": "WhatsApp rejected the template without giving a reason."
     }
   },
   "whatsappFlows": {

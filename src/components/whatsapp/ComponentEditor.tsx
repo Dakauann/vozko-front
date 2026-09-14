@@ -23,6 +23,7 @@ import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useRef, useState, type ChangeEvent } from "react";
 import { uploadTemplateHeaderMediaAction } from "@/app/actions/whatsapp-templates";
+import type { TemplateCategory } from "@/lib/whatsapp-templates/types";
 
 // headerAcceptFor limits the file picker to the asset types WhatsApp accepts for
 // the selected header format, matching the backend validation.
@@ -42,11 +43,17 @@ function headerAcceptFor(format?: string): string {
 interface ComponentEditorProps {
   component: DraggableComponent | null;
   onChange: (component: DraggableComponent) => void;
+  /**
+   * The template being built. Authentication templates are a different shape:
+   * Meta writes their body and footer, and their only button is the code one.
+   */
+  category?: TemplateCategory;
 }
 
 export default function ComponentEditor({
   component,
   onChange,
+  category = "MARKETING",
 }: ComponentEditorProps) {
   const t = useTranslations("whatsappTemplates.form.editor");
   const componentTypeT = useTranslations("whatsappTemplates.componentType");
@@ -93,13 +100,25 @@ export default function ComponentEditor({
           <HeaderEditor component={component} updateData={updateData} />
         )}
         {component.type === "BODY" && (
-          <BodyEditor component={component} updateData={updateData} />
+          <BodyEditor
+            component={component}
+            updateData={updateData}
+            category={category}
+          />
         )}
         {component.type === "FOOTER" && (
-          <FooterEditor component={component} updateData={updateData} />
+          <FooterEditor
+            component={component}
+            updateData={updateData}
+            category={category}
+          />
         )}
         {component.type === "BUTTONS" && (
-          <ButtonsEditor component={component} updateData={updateData} />
+          <ButtonsEditor
+            component={component}
+            updateData={updateData}
+            category={category}
+          />
         )}
         {component.type === "CALL_PERMISSION_REQUEST" && <CallPermissionEditor />}
       </div>
@@ -313,11 +332,20 @@ function HeaderEditor({
 function BodyEditor({
   component,
   updateData,
+  category,
 }: {
   component: DraggableComponent;
   updateData: (updates: Partial<DraggableComponent["data"]>) => void;
+  category: TemplateCategory;
 }) {
   const t = useTranslations("whatsappTemplates.form.editor");
+
+  // Meta writes an authentication body itself, per language, and rejects one
+  // the business supplied. So there is nothing to type here: the only choice
+  // is whether Meta appends its own "do not share this code" line.
+  if (category === "AUTHENTICATION") {
+    return <AuthenticationBodyEditor component={component} updateData={updateData} />;
+  }
 
   const insertVariable = () => {
     const text = component.data.text || "";
@@ -470,11 +498,19 @@ function BodyEditor({
 function FooterEditor({
   component,
   updateData,
+  category,
 }: {
   component: DraggableComponent;
   updateData: (updates: Partial<DraggableComponent["data"]>) => void;
+  category: TemplateCategory;
 }) {
   const t = useTranslations("whatsappTemplates.form.editor.footer");
+
+  // Same inversion as the body: an authentication footer is Meta's own
+  // "expires in N minutes" line, so the operator picks N rather than words.
+  if (category === "AUTHENTICATION") {
+    return <AuthenticationFooterEditor component={component} updateData={updateData} />;
+  }
 
   return (
     <div data-tour="wt-footer-editor">
@@ -495,9 +531,11 @@ function FooterEditor({
 function ButtonsEditor({
   component,
   updateData,
+  category,
 }: {
   component: DraggableComponent;
   updateData: (updates: Partial<DraggableComponent["data"]>) => void;
+  category: TemplateCategory;
 }) {
   const t = useTranslations("whatsappTemplates.form.editor.buttons");
   const buttons = component.data.buttons || [];
@@ -520,6 +558,12 @@ function ButtonsEditor({
       newButton.phone_number = "";
     } else if (type === "COPY_CODE") {
       newButton.example = "";
+    } else if (type === "OTP") {
+      // Meta supplies the label per language, so the text is left empty and
+      // the operator only picks the behaviour. COPY_CODE is the default
+      // because the other two need an app registered with Meta to autofill
+      // into, which a CRM cannot arrange on the customer's behalf.
+      newButton.otp_type = "COPY_CODE";
     }
 
     updateData({ buttons: [...buttons, newButton] });
@@ -538,12 +582,19 @@ function ButtonsEditor({
     updateData({ buttons: newButtons });
   };
 
-  const buttonTypes = [
-    { value: "QUICK_REPLY", label: t("types.quickReply"), icon: ChatCircle },
-    { value: "URL", label: t("types.url"), icon: Link },
-    { value: "PHONE_NUMBER", label: t("types.phone"), icon: Phone },
-    { value: "COPY_CODE", label: t("types.copyCode"), icon: Copy },
-  ];
+  // An authentication template carries the code button and nothing else: Meta
+  // rejects a marketing-style button on one, and an OTP button on a marketing
+  // template. Offering only what the category allows keeps the operator out of
+  // a rejection they would have to decode from Meta.
+  const buttonTypes =
+    category === "AUTHENTICATION"
+      ? [{ value: "OTP", label: t("types.otp"), icon: Copy }]
+      : [
+          { value: "QUICK_REPLY", label: t("types.quickReply"), icon: ChatCircle },
+          { value: "URL", label: t("types.url"), icon: Link },
+          { value: "PHONE_NUMBER", label: t("types.phone"), icon: Phone },
+          { value: "COPY_CODE", label: t("types.copyCode"), icon: Copy },
+        ];
 
   return (
     <>
@@ -669,6 +720,30 @@ function ButtonsEditor({
                   }
                 />
               )}
+
+              {/* The code button has nothing to configure: Meta writes the
+                  label, and the code itself arrives at send time. The optional
+                  label override is offered because Meta accepts one. */}
+              {button.type === "OTP" && (
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground">
+                    {t("otpHint")}
+                  </p>
+                  <div>
+                    <ElevatedInput
+                      placeholder={t("otpLabelPlaceholder")}
+                      value={button.text || ""}
+                      onChange={(e) =>
+                        updateButton(index, { text: e.target.value })
+                      }
+                      maxLength={25}
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {t("otpLabelOptional")}
+                    </p>
+                  </div>
+                </div>
+              )}
             </motion.div>
           ))}
         </div>
@@ -701,5 +776,109 @@ function ButtonsEditor({
         </div>
       )}
     </>
+  );
+}
+
+/**
+ * The body of an authentication template.
+ *
+ * Meta writes the sentence ("<CODE> is your verification code"), translates it
+ * into every language the template is approved for, and rejects a body the
+ * business supplied. So there is no text field here at all: the one decision is
+ * whether Meta appends its own "for your security, do not share this code" line.
+ */
+function AuthenticationBodyEditor({
+  component,
+  updateData,
+}: {
+  component: DraggableComponent;
+  updateData: (updates: Partial<DraggableComponent["data"]>) => void;
+}) {
+  const t = useTranslations("whatsappTemplates.form.editor.authentication");
+
+  return (
+    <div className="space-y-3" data-tour="wt-auth-body-editor">
+      <div className="rounded-lg border border-border bg-muted p-3">
+        <p className="text-xs text-muted-foreground">{t("bodyOwnedByMeta")}</p>
+      </div>
+
+      <label className="flex cursor-pointer items-start gap-2.5 text-xs text-foreground">
+        <input
+          type="checkbox"
+          className="mt-0.5"
+          checked={component.data.add_security_recommendation ?? false}
+          onChange={(e) =>
+            updateData({ add_security_recommendation: e.target.checked })
+          }
+        />
+        <span>
+          {t("securityRecommendation")}
+          <span className="mt-0.5 block text-muted-foreground">
+            {t("securityRecommendationHint")}
+          </span>
+        </span>
+      </label>
+    </div>
+  );
+}
+
+/**
+ * The footer of an authentication template: Meta's own "expires in N minutes"
+ * line. The operator picks N, between 1 and 90, or leaves it off entirely.
+ */
+function AuthenticationFooterEditor({
+  component,
+  updateData,
+}: {
+  component: DraggableComponent;
+  updateData: (updates: Partial<DraggableComponent["data"]>) => void;
+}) {
+  const t = useTranslations("whatsappTemplates.form.editor.authentication");
+  const minutes = component.data.code_expiration_minutes;
+
+  return (
+    <div className="space-y-3" data-tour="wt-auth-footer-editor">
+      <div className="rounded-lg border border-border bg-muted p-3">
+        <p className="text-xs text-muted-foreground">{t("footerOwnedByMeta")}</p>
+      </div>
+
+      <label className="flex cursor-pointer items-center gap-2.5 text-xs text-foreground">
+        <input
+          type="checkbox"
+          checked={minutes !== undefined}
+          onChange={(e) =>
+            updateData({
+              code_expiration_minutes: e.target.checked ? 10 : undefined,
+            })
+          }
+        />
+        {t("showExpiry")}
+      </label>
+
+      {minutes !== undefined && (
+        <div>
+          <ElevatedInput
+            type="number"
+            min={1}
+            max={90}
+            label={t("expiryMinutes")}
+            value={String(minutes)}
+            onChange={(e) => {
+              // Clamped rather than validated on submit: Meta's bounds are 1 to
+              // 90, and a number outside them is a rejection the operator would
+              // have to decode from Meta's own error.
+              const next = Number(e.target.value);
+              if (Number.isNaN(next)) return;
+              updateData({
+                code_expiration_minutes: Math.min(90, Math.max(1, next)),
+              });
+            }}
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            {t("expiryMinutesHint")}
+          </p>
+        </div>
+      )}
+    </div>
   );
 }

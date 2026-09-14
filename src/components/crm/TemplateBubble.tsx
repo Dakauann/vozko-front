@@ -104,13 +104,13 @@ export default function TemplateBubble({
             >
               {btn.type === "URL" && <ArrowSquareOut className="h-3.5 w-3.5" />}
               {btn.type === "PHONE_NUMBER" && <Phone className="h-3.5 w-3.5" />}
-              {btn.type === "COPY_CODE" && (
+              {(btn.type === "COPY_CODE" || btn.type === "OTP") && (
                 <CopySimple className="h-3.5 w-3.5" />
               )}
               {btn.type === "QUICK_REPLY" && (
                 <LinkIcon className="h-3.5 w-3.5" />
               )}
-              <span>{btn.text}</span>
+              <span>{btn.text || (btn.type === "OTP" ? "Copiar codigo" : "")}</span>
             </div>
           ))}
         </div>

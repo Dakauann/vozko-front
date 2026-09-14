@@ -50,6 +50,7 @@ import TemplateEditModal from "@/components/whatsapp/TemplateEditModal";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import type { WhatsAppCampaign } from "@/lib/whatsapp-campaigns/types";
 import type { WhatsAppTemplate } from "@/lib/whatsapp-templates/types";
+import { templateParamSlots } from "@/lib/whatsapp-templates/params";
 import type { Workflow } from "@/lib/workflows/types";
 import { getAgentOptionsAction, listAgentsAction } from "@/app/actions/agents";
 import {
@@ -130,7 +131,15 @@ const extractTemplateVariables = (
     }
   }
 
-  return namedVars;
+  if (namedVars.length > 0) return namedVars;
+
+  // Nothing was written into this template's text, which for an authentication
+  // template is normal rather than empty: WhatsApp owns that body and the
+  // variable it substitutes is the one-time code. The shared reader is what
+  // knows that, and it answers with nothing for every other template, so this
+  // changes no existing campaign. Without it the wizard collects no column for
+  // the code and every entry is dispatched without one.
+  return templateParamSlots(template).body.map((slot) => `{{${slot}}}`);
 };
 
 const createWhatsAppCampaignSchema = (t: (key: string) => string) => {

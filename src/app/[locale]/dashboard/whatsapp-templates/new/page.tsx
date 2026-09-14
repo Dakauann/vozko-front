@@ -20,6 +20,7 @@ import type {
   TemplateComponent,
   HeaderFormat,
   ButtonType,
+  OtpType,
 } from "@/lib/whatsapp-templates/types";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import Button from "@/components/elevated-design/button";
@@ -40,8 +41,10 @@ import { useWorkspace } from "@/contexts/workspace-context";
 import DragDropBuilder, {
   type DraggableComponent,
   getDefaultData as getDefaultComponentData,
+  paletteForCategory,
 } from "@/components/whatsapp/DragDropBuilder";
 import ComponentEditor from "@/components/whatsapp/ComponentEditor";
+import { TemplateErrorBanner } from "@/components/whatsapp/TemplateErrorBanner";
 import WhatsAppPreview from "@/components/whatsapp/WhatsAppPreview";
 import TourGuide from "@/components/TourGuide";
 import type { TourStep } from "@/components/TourGuide";
@@ -113,6 +116,17 @@ export default function NewWhatsAppTemplatePage() {
     useState<DraggableComponent | null>(null);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // The failure banner. Separate from `errors` (which marks individual fields)
+  // because this is the one message that explains WHY the save did not happen,
+  // and it has to survive until the operator dismisses it: the builder fills the
+  // screen, so anything transient is read by nobody.
+  const [failure, setFailure] = useState<{
+    title: string;
+    message: string;
+    details?: string[];
+    code?: string;
+  } | null>(null);
 
   const businessPhoneSelect = usePaginatedSelect<WhatsAppBusinessPhone>({
     fetchFn: useCallback(async (page: number, search: string) => {
@@ -233,10 +247,32 @@ export default function NewWhatsAppTemplatePage() {
       newErrors.businessPhone = t("form.validation.businessPhoneRequired");
     }
 
+    // Authentication rules, mirroring ValidateAuthenticationTemplate on the
+    // server. The server is the source of truth and refuses all of this
+    // regardless; catching it here saves a round trip and points at the
+    // component rather than returning a sentence about one.
+    if (category === "AUTHENTICATION") {
+      if (components.some((c) => c.type === "HEADER")) {
+        newErrors.header = t("form.validation.authNoHeader");
+      }
+      const buttonsComp = components.find((c) => c.type === "BUTTONS");
+      const hasOtp = buttonsComp?.data.buttons?.some((b) => b.type === "OTP");
+      if (!hasOtp) {
+        newErrors.buttons = t("form.validation.authNeedsOtpButton");
+      }
+    }
+
     const bodyComponent = components.find((c) => c.type === "BODY");
-    if (!bodyComponent || !bodyComponent.data.text?.trim()) {
+    // An authentication template's body belongs to Meta: it writes
+    // "<CODE> is your verification code", localized, and rejects a body the
+    // business supplied. So the component is still required, its text is not,
+    // and none of the variable rules below have anything to run against.
+    const authorsOwnBody = category !== "AUTHENTICATION";
+    if (!bodyComponent) {
       newErrors.body = t("form.validation.bodyRequired");
-    } else {
+    } else if (authorsOwnBody && !bodyComponent.data.text?.trim()) {
+      newErrors.body = t("form.validation.bodyRequired");
+    } else if (authorsOwnBody) {
       const bodyText = bodyComponent.data.text || "";
 
       if (bodyText.length > 1024) {
@@ -467,6 +503,18 @@ export default function NewWhatsAppTemplatePage() {
         type: comp.type as TemplateComponent["type"],
       };
 
+      // The two authentication flags ride on their own components: the security
+      // line on BODY, the expiry on FOOTER. Sent only when the operator set
+      // them, because Meta reads a present false as "no security line" rather
+      // than as "not an authentication template".
+      if (comp.data.add_security_recommendation !== undefined) {
+        templateComp.add_security_recommendation =
+          comp.data.add_security_recommendation;
+      }
+      if (comp.data.code_expiration_minutes !== undefined) {
+        templateComp.code_expiration_minutes = comp.data.code_expiration_minutes;
+      }
+
       if (comp.type === "HEADER" && comp.data.format) {
         templateComp.format = comp.data.format as HeaderFormat;
         if (comp.data.format === "TEXT") {
@@ -542,6 +590,7 @@ export default function NewWhatsAppTemplatePage() {
             url?: string;
             phone_number?: string;
             example?: string | string[];
+            otp_type?: OtpType;
           } = {
             type: btn.type as ButtonType,
             text: btn.text || "",
@@ -550,6 +599,11 @@ export default function NewWhatsAppTemplatePage() {
           if (btn.phone_number) button.phone_number = btn.phone_number;
           if (btn.example) {
             button.example = btn.type === "URL" ? [btn.example] : btn.example;
+          }
+          // Without the kind the server cannot tell which code button this is,
+          // and Meta refuses an OTP button that does not name one.
+          if (btn.type === "OTP") {
+            button.otp_type = (btn.otp_type as OtpType) || "COPY_CODE";
           }
           return button;
         });
@@ -577,17 +631,23 @@ export default function NewWhatsAppTemplatePage() {
     const problems = validateForm();
     const problemKeys = Object.keys(problems);
     if (problemKeys.length > 0) {
-      toast({
+      // Every broken rule at once, and it stays up. Reporting only the first
+      // sends the operator round the loop once per problem.
+      setFailure({
         title: t("toast.validationTitle"),
-        description:
+        message:
           problemKeys.length > 1
             ? t("toast.validationCount", { count: String(problemKeys.length) })
             : problems[problemKeys[0]],
-        variant: "destructive",
+        details:
+          problemKeys.length > 1
+            ? problemKeys.map((key) => problems[key])
+            : undefined,
       });
       scrollToFirstError(problemKeys);
       return;
     }
+    setFailure(null);
 
     setSaving(true);
 
@@ -622,26 +682,28 @@ export default function NewWhatsAppTemplatePage() {
         // are rendered in the operator's language; a Meta rejection keeps
         // Meta's own sentence, which Meta already localised; anything
         // unrecognised still shows the server text rather than nothing.
-        toast({
+        setFailure({
           title: t("toast.createError"),
-          description: templateErrorMessage(
-            tRoot,
-            result.errorCode,
-            result.error,
-          ),
-          variant: "destructive",
+          message: templateErrorMessage(tRoot, result.errorCode, result.error),
+          code: result.errorCode,
         });
       } else if (result.template?.status === "REJECTED") {
-        // The template reached Meta but was rejected on submission. Keep the
-        // user on the page with the real reason so they can fix it.
-        toast({
+        // Meta ACCEPTED the request and then refused the template, so this
+        // arrives as a success with a REJECTED status. It is a failure to the
+        // operator and has to read like one.
+        //
+        // rejected_reason is a Meta enum (INCORRECT_CATEGORY, and friends).
+        // Translated when we know it, shown raw when we do not, so a reason we
+        // have never seen still reaches the person who has to act on it.
+        const reason = result.template.rejectedReason;
+        setFailure({
           title: t("toast.createRejected"),
-          description: result.template.rejectedReason
-            ? t("toast.createRejectedDesc", {
-                reason: result.template.rejectedReason,
-              })
+          message: reason
+            ? tRoot.has(`whatsappTemplates.rejectedReason.`)
+              ? tRoot(`whatsappTemplates.rejectedReason.`)
+              : t("toast.createRejectedDesc", { reason })
             : t("toast.createErrorDesc"),
-          variant: "destructive",
+          code: reason || undefined,
         });
       } else {
         toast({
@@ -659,6 +721,51 @@ export default function NewWhatsAppTemplatePage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  /**
+   * Switching category, with the buttons that no longer belong.
+   *
+   * The two families are mutually exclusive: only an authentication template may
+   * carry the one-time code button, and it may carry nothing else. Left alone,
+   * an operator who builds a marketing template and then switches to
+   * authentication keeps three quick replies the server will refuse, and the
+   * error names a button they can no longer see a way to remove — the palette
+   * has changed underneath them.
+   *
+   * Dropping only the buttons that became invalid, so switching back and forth
+   * does not quietly discard the rest of the template.
+   */
+  const changeCategory = (next: TemplateCategory) => {
+    setCategory(next);
+
+    const keepsOTP = next === "AUTHENTICATION";
+    const prune = (comp: DraggableComponent): DraggableComponent => {
+      if (comp.type !== "BUTTONS" || !comp.data.buttons) return comp;
+      const kept = comp.data.buttons.filter((btn) =>
+        keepsOTP ? btn.type === "OTP" : btn.type !== "OTP",
+      );
+      if (kept.length === comp.data.buttons.length) return comp;
+      return { ...comp, data: { ...comp.data, buttons: kept } };
+    };
+
+    // Components the new category cannot carry at all. WhatsApp renders no
+    // header on an authentication template and no call-permission prompt beside
+    // a one-time code, so switching to it drops both rather than leaving a
+    // template the server will refuse with an error pointing at a component the
+    // palette no longer shows.
+    const allowed = new Set(paletteForCategory(next).map((p) => p.type));
+
+    setComponents((current) =>
+      current.filter((c) => allowed.has(c.type)).map(prune),
+    );
+    // The editor renders from its own copy, so it has to be pruned too or it
+    // keeps offering buttons that are no longer in the template.
+    setSelectedComponent((current) => {
+      if (!current) return current;
+      if (!allowed.has(current.type)) return null;
+      return prune(current);
+    });
   };
 
   const handleComponentChange = (updatedComponent: DraggableComponent) => {
@@ -808,6 +915,20 @@ export default function NewWhatsAppTemplatePage() {
       <form onSubmit={handleSubmit} className="flex gap-5 items-start">
         {/* Left column: Form + Builder */}
         <div className="flex-1 min-w-0 space-y-5">
+          {/* Why the save did not happen, above everything and staying put
+              until dismissed. Covers all three sources: our own validation,
+              a server refusal (ours or Meta's), and a template Meta accepted
+              and then rejected. */}
+          {failure && (
+            <TemplateErrorBanner
+              title={failure.title}
+              message={failure.message}
+              details={failure.details}
+              code={failure.code}
+              onDismiss={() => setFailure(null)}
+              dismissLabel={tRoot("common.close")}
+            />
+          )}
           {/* Template Basic Info */}
           <div data-tour="wt-template-info">
             <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
@@ -890,7 +1011,9 @@ export default function NewWhatsAppTemplatePage() {
 
                 <ElevatedSelect
                   value={category}
-                  onValueChange={(v) => setCategory(v as TemplateCategory)}
+                  onValueChange={(v) =>
+                    changeCategory(v as TemplateCategory)
+                  }
                   label={t("form.labels.category")}
                 >
                   {categories.map((cat) => (
@@ -928,6 +1051,7 @@ export default function NewWhatsAppTemplatePage() {
                     onChange={setComponents}
                     onComponentSelect={setSelectedComponent}
                     selectedComponentId={selectedComponent?.id}
+                    palette={paletteForCategory(category)}
                   />
                 </div>
 
@@ -935,6 +1059,7 @@ export default function NewWhatsAppTemplatePage() {
                   <ComponentEditor
                     component={selectedComponent}
                     onChange={handleComponentChange}
+                    category={category}
                   />
                 </div>
               </div>

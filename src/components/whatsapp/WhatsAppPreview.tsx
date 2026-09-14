@@ -296,7 +296,7 @@ function ButtonsPreview({ component }: { component: DraggableComponent }) {
             {button.type === "URL" && (
               <Link className="h-4 w-4" weight="bold" />
             )}
-            {button.type === "COPY_CODE" && (
+            {(button.type === "COPY_CODE" || button.type === "OTP") && (
               <Copy className="h-4 w-4" weight="bold" />
             )}
             <span>
@@ -304,6 +304,9 @@ function ButtonsPreview({ component }: { component: DraggableComponent }) {
               {button.type === "URL" && (button.text || "Visit Website")}
               {button.type === "PHONE_NUMBER" && (button.text || "Call Us")}
               {button.type === "COPY_CODE" && "Copy Offer Code"}
+              {/* Meta labels the code button itself, per language. The default
+                  shown here is what it renders when no override is given. */}
+              {button.type === "OTP" && (button.text || "Copy code")}
             </span>
           </div>
         </motion.button>

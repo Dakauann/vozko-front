@@ -47,16 +47,30 @@ function componentsOf(template: Pick<WhatsAppTemplate, "components"> | null | un
  * empty placeholders.
  */
 export function templateParamSlots(
-    template: Pick<WhatsAppTemplate, "components" | "parameterFormat"> | null | undefined,
+    template: Pick<WhatsAppTemplate, "components" | "parameterFormat" | "category"> | null | undefined,
 ): TemplateParamSlots {
     const components = componentsOf(template);
 
     const body = components.find((c) => c.type?.toUpperCase() === "BODY");
     const header = components.find((c) => c.type?.toUpperCase() === "HEADER");
 
-    const bodySlots = extractPlaceholders(body?.text);
+    let bodySlots = extractPlaceholders(body?.text);
     const headerSlots =
         header?.format?.toUpperCase() === "TEXT" ? extractPlaceholders(header?.text) : [];
+
+    // An authentication template always takes one variable, the one-time code,
+    // even when its body has no placeholder to read that from.
+    //
+    // WhatsApp owns that body: the business creates it with no text at all, and
+    // reads it back rendered in whatever form WhatsApp chose per language. So
+    // counting placeholders answers zero for a template that needs exactly one,
+    // and the operator is shown a form with no field to type the code into — the
+    // send is then refused by the server for a missing parameter they were never
+    // asked for. Mirrors the same rule on the server, which is what decides
+    // whether the send is accepted.
+    if (bodySlots.length === 0 && template?.category === "AUTHENTICATION") {
+        bodySlots = ["1"];
+    }
 
     // The stored format wins when it is set; otherwise a purely numeric first
     // placeholder is the only reliable signal.

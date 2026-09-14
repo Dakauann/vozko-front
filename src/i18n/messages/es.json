@@ -3119,7 +3119,19 @@
       "template_send_billing_not_configured": "La facturación no está configurada para este envío.",
       "template_send_attempt_conflict": "El estado de este envío cambió. Recarga e inténtalo de nuevo.",
       "template_provider_rejected": "WhatsApp rechazó esta plantilla.",
-      "template_provider_unavailable": "WhatsApp no está disponible ahora mismo. Inténtalo en unos instantes."
+      "template_provider_unavailable": "WhatsApp no está disponible ahora mismo. Inténtalo en unos instantes.",
+      "template_otp_type_required": "Elija qué hace el botón de código: copiarlo o autocompletarlo.",
+      "template_invalid_otp_type": "Tipo de botón de código inválido.",
+      "template_multiple_otp_buttons": "Una plantilla admite como máximo un botón de código.",
+      "template_otp_button_not_authentication": "Solo una plantilla de autenticación puede llevar un botón de código.",
+      "template_authentication_needs_otp_button": "Una plantilla de autenticación necesita un botón de código.",
+      "template_code_expiration_out_of_range": "El código debe durar entre 1 y 90 minutos.",
+      "template_authentication_code_required": "Envío rechazado: falta el código de verificación.",
+      "template_otp_type_unsupported": "Aquí solo se pueden crear botones de copiar código. El autocompletado requiere una app Android registrada en WhatsApp.",
+      "template_authentication_no_header": "Las plantillas de autenticación no pueden tener encabezado. WhatsApp no lo muestra.",
+      "template_authentication_body_not_editable": "En las plantillas de autenticación WhatsApp escribe el mensaje. No puede añadir texto propio.",
+      "template_authentication_footer_not_editable": "El pie de una plantilla de autenticación es la línea de validez de WhatsApp. No puede añadir texto propio.",
+      "template_authentication_code_too_long": "El código no puede superar los 15 caracteres."
     },
     "header": {
       "badge": "WhatsApp Business",
@@ -3465,7 +3477,9 @@
         "quickRepliesMustBeGrouped": "Los botones de respuesta rápida deben estar agrupados",
         "businessPhoneRequired": "Seleccione un teléfono comercial para asociar a esta plantilla",
         "callPermissionWithButtons": "Una plantilla de permiso de llamada no puede tener botones, WhatsApp muestra los botones de permiso.",
-        "mixedVariableFormat": "No mezcles variables numeradas '{{1}}' y con nombre '{{nombre}}', elige un solo estilo."
+        "mixedVariableFormat": "No mezcles variables numeradas '{{1}}' y con nombre '{{nombre}}', elige un solo estilo.",
+        "authNoHeader": "Las plantillas de autenticación no pueden tener encabezado. Quítelo.",
+        "authNeedsOtpButton": "Añada el botón de copiar código: una plantilla de autenticación lo necesita."
       },
       "editor": {
         "noSelection": {
@@ -3522,7 +3536,8 @@
             "quickReply": "Respuesta Rápida",
             "url": "URL",
             "phone": "Teléfono",
-            "copyCode": "Copiar Código"
+            "copyCode": "Copiar Código",
+            "otp": "Copiar código"
           },
           "textLabel": "Texto del Botón",
           "textPlaceholder": "Texto del botón...",
@@ -3534,12 +3549,24 @@
           "phoneLabel": "Número de Teléfono",
           "phonePlaceholder": "+34 612 345 678",
           "codeLabel": "Código de Ejemplo",
-          "codePlaceholder": "ej.: 123456"
+          "codePlaceholder": "ej.: 123456",
+          "otpHint": "Al tocarlo, WhatsApp copia el código al portapapeles. El código se envía con cada mensaje, no se define aquí.",
+          "otpLabelPlaceholder": "Copiar código",
+          "otpLabelOptional": "Opcional. En blanco, WhatsApp usa su propio texto, traducido por idioma."
         },
         "callPermission": {
           "title": "Solicitud de permiso de llamada",
           "description": "WhatsApp renderiza automáticamente los botones de aceptar/rechazar. Agregue un cuerpo que explique por qué desea llamar.",
           "noFields": "Este componente no tiene campos para configurar."
+        },
+        "authentication": {
+          "bodyOwnedByMeta": "En las plantillas de autenticación, WhatsApp escribe el mensaje y lo traduce a cada idioma. Usted elige las opciones de abajo.",
+          "securityRecommendation": "Incluir el aviso de seguridad",
+          "securityRecommendationHint": "Añade \"Por su seguridad, no comparta este código\".",
+          "footerOwnedByMeta": "En las plantillas de autenticación, el pie lo escribe WhatsApp.",
+          "showExpiry": "Mostrar cuánto dura el código",
+          "expiryMinutes": "Válido por (minutos)",
+          "expiryMinutesHint": "Entre 1 y 90 minutos."
         }
       }
     },
@@ -3581,7 +3608,8 @@
         "phoneRequired": "El número de teléfono es obligatorio",
         "phoneInvalid": "Ingrese un número válido (10–15 dígitos)",
         "parameterRequired": "Este parámetro es obligatorio",
-        "businessPhoneRequired": "Seleccione un teléfono comercial para enviar"
+        "businessPhoneRequired": "Seleccione un teléfono comercial para enviar",
+        "codeTooLong": "El código no puede superar los {max} caracteres."
       },
       "preview": {
         "title": "Vista previa del Mensaje",
@@ -3720,6 +3748,15 @@
       "ready": "Listo",
       "missing_header_media": "Falta multimedia del encabezado",
       "not_approved": "No aprobado"
+    },
+    "rejectedReason": {
+      "INCORRECT_CATEGORY": "WhatsApp consideró que el contenido pertenece a otra categoría. Los códigos de verificación, por ejemplo, deben usar la categoría Autenticación, no Utilidad.",
+      "INVALID_FORMAT": "El formato no es válido. Revise las variables y que cada una tenga un ejemplo.",
+      "ABUSIVE_CONTENT": "WhatsApp marcó el contenido como abusivo o contrario a sus políticas.",
+      "SCAM": "WhatsApp marcó el contenido como posible estafa.",
+      "TAG_CONTENT_MISMATCH": "El contenido no corresponde a la categoría elegida.",
+      "PROMOTIONAL": "El contenido parece promocional, algo que la categoría elegida no permite.",
+      "NONE": "WhatsApp rechazó la plantilla sin indicar el motivo."
     }
   },
   "whatsappFlows": {

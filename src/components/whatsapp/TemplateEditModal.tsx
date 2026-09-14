@@ -718,7 +718,7 @@ function ButtonsPreview({ component }: { component: TemplateComponent }) {
             {button.type === "URL" && (
               <Link className="h-4 w-4" weight="bold" />
             )}
-            {button.type === "COPY_CODE" && (
+            {(button.type === "COPY_CODE" || button.type === "OTP") && (
               <Copy className="h-4 w-4" weight="bold" />
             )}
             <span>
@@ -726,6 +726,8 @@ function ButtonsPreview({ component }: { component: TemplateComponent }) {
               {button.type === "URL" && (button.text || "Visit Website")}
               {button.type === "PHONE_NUMBER" && (button.text || "Call Us")}
               {button.type === "COPY_CODE" && "Copy Offer Code"}
+              {/* WhatsApp writes this label itself when none is given. */}
+              {button.type === "OTP" && (button.text || "Copy code")}
             </span>
           </div>
         </button>

@@ -64,6 +64,20 @@ export const TEMPLATE_ERROR_CODES = [
     "template_call_permission_with_buttons",
     "template_multiple_call_permission",
 
+    // AUTHENTICATION templates: the one-time code rules.
+    "template_otp_type_required",
+    "template_invalid_otp_type",
+    "template_multiple_otp_buttons",
+    "template_otp_type_unsupported",
+    "template_otp_button_not_authentication",
+    "template_authentication_needs_otp_button",
+    "template_code_expiration_out_of_range",
+    "template_authentication_no_header",
+    "template_authentication_body_not_editable",
+    "template_authentication_footer_not_editable",
+    "template_authentication_code_too_long",
+    "template_authentication_code_required",
+
     "template_mixed_parameter_styles",
 
     "template_invalid_component_type",

@@ -38,7 +38,12 @@ export interface DraggableComponent {
       url?: string;
       phone_number?: string;
       example?: string;
+      /** Set on an OTP button: COPY_CODE, ONE_TAP or ZERO_TAP. */
+      otp_type?: string;
     }>;
+    /** AUTHENTICATION only: the security line on BODY, the expiry on FOOTER. */
+    add_security_recommendation?: boolean;
+    code_expiration_minutes?: number;
     [key: string]: unknown;
   };
 }
@@ -60,7 +65,7 @@ interface DragDropBuilderProps {
   palette?: ComponentPaletteItem[];
 }
 
-const DEFAULT_PALETTE: ComponentPaletteItem[] = [
+export const DEFAULT_PALETTE: ComponentPaletteItem[] = [
   {
     type: "HEADER",
     icon: TextT,
@@ -102,6 +107,24 @@ const DEFAULT_PALETTE: ComponentPaletteItem[] = [
     singleton: true,
   },
 ];
+
+/**
+ * The palette an operator may build from, for a given category.
+ *
+ * Authentication templates are the narrow case: WhatsApp writes the body and
+ * the footer and renders no header at all, so offering HEADER there would only
+ * let someone build a template the server refuses. Call permission is a
+ * marketing/utility device and has no meaning beside a one-time code either.
+ *
+ * The server enforces all of this regardless (ValidateAuthenticationTemplate);
+ * this keeps the operator out of a rejection they would have to decode.
+ */
+export function paletteForCategory(category: string): ComponentPaletteItem[] {
+  if (category !== "AUTHENTICATION") return DEFAULT_PALETTE;
+  return DEFAULT_PALETTE.filter(
+    (item) => item.type === "BODY" || item.type === "FOOTER" || item.type === "BUTTONS",
+  );
+}
 
 export default function DragDropBuilder({
   components,

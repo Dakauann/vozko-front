@@ -135,6 +135,11 @@ function convertToDraggableComponents(
         format: component.format,
         text: component.text,
         variableExamples: component.parameters,
+        // Carried through, or opening an authentication template and saving it
+        // writes it back without its security line and expiry — the two things
+        // WhatsApp renders its body and footer from.
+        add_security_recommendation: component.add_security_recommendation,
+        code_expiration_minutes: component.code_expiration_minutes,
       },
     };
 
@@ -151,6 +156,9 @@ function convertToDraggableComponents(
         url: btn.url,
         phone_number: btn.phone_number,
         example: Array.isArray(btn.example) ? btn.example[0] : btn.example,
+        // Same reason: without the kind, a reloaded code button is an OTP
+        // button that names nothing, which the server refuses on save.
+        otp_type: btn.otp_type,
       }));
     }
 

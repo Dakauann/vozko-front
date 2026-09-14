@@ -17,7 +17,10 @@ import {
   WhatsappLogo,
   XCircle,
 } from "@/components/icons";
-import { extractPlaceholders } from "@/lib/whatsapp-templates/params";
+import {
+  extractPlaceholders,
+  templateParamSlots,
+} from "@/lib/whatsapp-templates/params";
 import { getWhatsAppTemplateByIdAction } from "@/app/actions/whatsapp-templates";
 import { startOfficialConversationAction } from "@/app/actions/whatsapp-outreach";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -35,6 +38,9 @@ import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
+
+/** WhatsApp caps the one-time code at 15 characters. Mirrors the server. */
+const AUTH_CODE_MAX_LENGTH = 15;
 
 interface DebugInfo {
   requestPayload: Record<string, unknown> | null;
@@ -110,9 +116,12 @@ export default function SendWhatsAppTemplatePage() {
     [template],
   );
 
+  // The shared reader, so this page asks for exactly the variables the server
+  // will substitute — including the one-time code of an authentication
+  // template, whose body carries no placeholder to derive it from.
   const bodyParamNames = useMemo(
-    () => extractPlaceholders(bodyComponent?.text),
-    [bodyComponent],
+    () => templateParamSlots(template).body,
+    [template],
   );
   const headerParamNames = useMemo(
     () =>
@@ -139,19 +148,14 @@ export default function SendWhatsAppTemplatePage() {
         } else if (result.template) {
           setTemplate(result.template);
 
-          const body = result.template.components.find(
-            (c) => c.type === "BODY",
-          );
-          const bodyExtracted = extractPlaceholders(body?.text);
-          setBodyParams(new Array(bodyExtracted.length).fill(""));
-
-          const header = result.template.components.find(
-            (c) => c.type === "HEADER",
-          );
-          if (header?.format === "TEXT") {
-            const headerExtracted = extractPlaceholders(header?.text);
-            setHeaderTextParams(new Array(headerExtracted.length).fill(""));
-          }
+          // Sized from the SAME reader that renders the fields. Counting the
+          // body's placeholders here instead would size this array at zero for
+          // an authentication template, whose one field is the code and whose
+          // body has no placeholder — leaving a rendered input whose value
+          // nothing validates.
+          const slots = templateParamSlots(result.template);
+          setBodyParams(new Array(slots.body.length).fill(""));
+          setHeaderTextParams(new Array(slots.header.length).fill(""));
         }
       } catch {
         setError(t("error.default"));
@@ -193,6 +197,18 @@ export default function SendWhatsAppTemplatePage() {
         );
       }
     });
+
+    // WhatsApp caps the one-time code at 15 characters, and the server refuses
+    // a longer one before it charges for the send. Same rule here so the
+    // operator sees it while typing rather than after pressing send.
+    if (template?.category === "AUTHENTICATION") {
+      const code = bodyParams[0]?.trim() ?? "";
+      if (code.length > AUTH_CODE_MAX_LENGTH) {
+        newErrors.body_param_0 = t("send.validation.codeTooLong", {
+          max: String(AUTH_CODE_MAX_LENGTH),
+        });
+      }
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -564,6 +580,11 @@ export default function SendWhatsAppTemplatePage() {
                             newParams[index] = e.target.value;
                             setBodyParams(newParams);
                           }}
+                          maxLength={
+                            template?.category === "AUTHENTICATION"
+                              ? AUTH_CODE_MAX_LENGTH
+                              : undefined
+                          }
                           icon={<User className="h-5 w-5" weight="fill" />}
                         />
                         {errors[`body_param_${index}`] && (

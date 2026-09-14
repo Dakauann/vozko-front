@@ -40,11 +40,15 @@ interface CreateTemplateDialogProps {
   businessPhoneId?: string;
 }
 
-const categories: TemplateCategory[] = [
-  "MARKETING",
-  "UTILITY",
-  "AUTHENTICATION",
-];
+// Authentication is deliberately absent.
+//
+// This is the quick creator embedded in the agent flow: it writes a body and
+// offers URL, phone and quick-reply buttons. An authentication template is the
+// opposite shape — WhatsApp writes the body, and the only button it accepts is
+// the one-time code button, which this dialog cannot build. Offering the
+// category here would only produce a template the server refuses. The full
+// builder at /whatsapp-templates/new handles them.
+const categories: TemplateCategory[] = ["MARKETING", "UTILITY"];
 const languageOptions = ["pt_BR", "en_US", "es", "de"];
 const headerFormats: HeaderFormat[] = ["TEXT", "IMAGE", "VIDEO", "DOCUMENT"];
 const buttonTypes: ButtonType[] = ["URL", "PHONE_NUMBER", "QUICK_REPLY"];
