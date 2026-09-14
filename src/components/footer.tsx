@@ -22,6 +22,7 @@ type ContactChannel = { icon: Icon; labelKey: string; value: string };
  */
 export default function Footer() {
   const t = useTranslations("footerMain");
+  const tFaq = useTranslations("faq");
   const brand = getBrand();
   const currentYear = new Date().getFullYear();
 
@@ -104,6 +105,12 @@ export default function Footer() {
         <div className="mx-auto flex w-full max-w-[1600px] flex-col items-center justify-between gap-3 px-4 py-4 text-center sm:px-6 lg:px-8 md:flex-row md:text-left">
           <p className="legend min-w-0">{t("copyright", { year: currentYear })}</p>
           <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 md:justify-end">
+            <Link
+              href="/faq"
+              className="legend rounded-[--radius] transition-colors hover:!text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {tFaq("nav")}
+            </Link>
             <Link
               href="/terms-of-service"
               className="legend rounded-[--radius] transition-colors hover:!text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"

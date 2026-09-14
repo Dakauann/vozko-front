@@ -178,14 +178,14 @@
 .buttonPrimary {
   background: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
-  box-shadow: var(--shadow-button-primary);
+  box-shadow: var(--elev-button-primary);
 }
 
 .buttonSecondary {
   border: 1px solid hsl(var(--control-edge));
   background: hsl(var(--card));
   color: hsl(var(--foreground));
-  box-shadow: var(--shadow-quiet);
+  box-shadow: var(--elev-button-quiet);
 }
 
 /* Chapters: each one is a self-playing panel, and the kanban set the grammar. */

@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import Button from "@/components/elevated-design/button";
+import ElevatedInput from "@/components/elevated-design/elevated-input";
 import {
   ElevatedDialog,
   ElevatedDialogContent,
@@ -20,6 +21,7 @@ import { Checkbox } from "@/components/elevated-design/elevated-checkbox";
 import { CheckCircle, DownloadSimple, UploadSimple, Users } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import { useWorkspace } from "@/contexts/workspace-context";
+import { useAuth } from "@/contexts/auth-context";
 import {
   importLeadsAction,
   LEAD_IMPORT_MAX_ROWS,
@@ -29,10 +31,17 @@ import { downloadLeadImportTemplate } from "@/lib/leads/template";
 import { readDelimitedFile } from "@/lib/csv/parse";
 import {
   buildLeadImportRows,
+  countRowsWithoutName,
+  MAX_SEEDED_CONVERSATIONS,
   readLeadImportFile,
   type LeadColumnMap,
   type LeadImportFile,
 } from "@/lib/leads/import";
+import {
+  MessageVariantsEditor,
+  placeholdersIn,
+  variantsAgree,
+} from "@/components/unofficial-whatsapp/message-variants-editor";
 import { cn } from "@/lib/utils";
 
 /** How many rejected lines are listed before the rest are summarised. */
@@ -40,6 +49,18 @@ const REJECTED_PREVIEW = 15;
 
 /** "This column is not in my file." Radix selects cannot hold an empty value. */
 const NO_COLUMN = "none";
+
+/** Mirrors MaxScriptVariants in the Go domain. */
+const MAX_SEED_VARIANTS = 10;
+
+/** Mirrors ScriptMinMessages / ScriptMaxMessages. */
+const SEED_MESSAGE_OPTIONS = [2, 3, 4, 5, 6, 7, 8];
+
+/** The variable a seeded opening may carry: the lead's name. */
+const NAME_PLACEHOLDER = 1;
+
+/** Mirrors MaxScriptContextRunes in the Go domain, which truncates past it. */
+const SEED_CONTEXT_MAX = 600;
 
 /**
  * Import contacts from a spreadsheet.
@@ -67,6 +88,12 @@ export function ImportLeadsDialog({
   const t = useTranslations("leadsPage.import");
   const { toast } = useToast();
   const { can } = useWorkspace();
+  const { user } = useAuth();
+  // The PLATFORM role, deliberately not useWorkspace().can(): `isPrivileged`
+  // there is true for a workspace OWNER, and writing AI conversations spends
+  // the workspace's balance on something only we should be handing out. The
+  // server checks claims.Role independently; this only keeps the UI honest.
+  const isSystemAdmin = user?.role === "admin";
   // Seeding is a channel privilege, not a lead one: opening conversations with
   // numbers that never wrote in is what unofficial_whatsapp_instances:send
   // governs.
@@ -81,6 +108,12 @@ export function ImportLeadsDialog({
   // conversation per row, which is a real change to what the inbox contains, so
   // it should be chosen for each import rather than inherited from the last one.
   const [seedInbox, setSeedInbox] = useState(false);
+  // Scripting, and everything it needs. Not remembered between opens either:
+  // it spends money, so it is chosen per import rather than inherited.
+  const [seedConversations, setSeedConversations] = useState(false);
+  const [bodies, setBodies] = useState<string[]>([""]);
+  const [seedContext, setSeedContext] = useState("");
+  const [maxMessages, setMaxMessages] = useState(4);
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<LeadImportResult | null>(null);
 
@@ -90,7 +123,28 @@ export function ImportLeadsDialog({
   );
 
   const tooManyRows = (parsed?.rows.length ?? 0) > LEAD_IMPORT_MAX_ROWS;
-  const canImport = !importing && !tooManyRows && (parsed?.rows.length ?? 0) > 0;
+
+  // The script panel exists only where all three of its conditions hold. The
+  // server enforces the same three; this stops the form promising an outcome
+  // the import would refuse.
+  const canScript = isSystemAdmin && canSeedInbox && seedInbox;
+  const trimmedBodies = bodies.map((b) => b.trim()).filter(Boolean);
+  const scriptIsValid =
+    trimmedBodies.length > 0 && variantsAgree(trimmedBodies);
+  const scriptUsesName = trimmedBodies.some((b) =>
+    placeholdersIn(b).includes(NAME_PLACEHOLDER),
+  );
+  const scriptOn = canScript && seedConversations;
+  // How many rows will be seeded plain because there is no name to render.
+  const unnamedRows =
+    scriptOn && scriptUsesName ? countRowsWithoutName(parsed?.rows ?? []) : 0;
+  const scriptBlocksImport = scriptOn && !scriptIsValid;
+
+  const canImport =
+    !importing &&
+    !tooManyRows &&
+    !scriptBlocksImport &&
+    (parsed?.rows.length ?? 0) > 0;
 
   const reset = () => {
     setFileName(null);
@@ -99,6 +153,10 @@ export function ImportLeadsDialog({
     setResult(null);
     setImporting(false);
     setSeedInbox(false);
+    setSeedConversations(false);
+    setBodies([""]);
+    setSeedContext("");
+    setMaxMessages(4);
   };
 
   const close = (next: boolean) => {
@@ -129,6 +187,13 @@ export function ImportLeadsDialog({
       parsed.rows,
       onExisting,
       seedInbox,
+      scriptOn
+        ? {
+            bodies: trimmedBodies,
+            maxMessages,
+            ...(seedContext.trim() ? { context: seedContext.trim() } : {}),
+          }
+        : undefined,
     );
     setImporting(false);
 
@@ -341,19 +406,143 @@ export function ImportLeadsDialog({
                     server enforces it regardless; this only keeps the UI
                     honest. */}
                 {canSeedInbox ? (
-                  <label className="flex cursor-pointer items-start gap-2.5 text-sm text-foreground">
-                    <Checkbox
-                      className="mt-0.5"
-                      checked={seedInbox}
-                      onCheckedChange={(next) => setSeedInbox(next === true)}
-                    />
-                    <span>
-                      {t("seedInbox.label")}
-                      <span className="mt-0.5 block text-xs text-muted-foreground">
-                        {t("seedInbox.help")}
+                  <div className="space-y-3">
+                    <label className="flex cursor-pointer items-start gap-2.5 text-sm text-foreground">
+                      <Checkbox
+                        className="mt-0.5"
+                        checked={seedInbox}
+                        onCheckedChange={(next) => {
+                          const on = next === true;
+                          setSeedInbox(on);
+                          // Unticking this clears the script, so a stale `true`
+                          // can never be sent. The server refuses the
+                          // combination with a 400, and an operator who simply
+                          // changed their mind should not meet it.
+                          if (!on) setSeedConversations(false);
+                        }}
+                      />
+                      <span>
+                        {t("seedInbox.label")}
+                        <span className="mt-0.5 block text-xs text-muted-foreground">
+                          {t("seedInbox.help")}
+                        </span>
                       </span>
-                    </span>
-                  </label>
+                    </label>
+
+                    {/* Write an example conversation into each one.
+
+                        Three conditions, all of which the server checks too:
+                        the platform role, the channel permission, and the
+                        checkbox above. Hidden rather than disabled for a
+                        non-admin: this is not a feature a workspace can be
+                        upsold into, so showing it would only raise a question
+                        support has to answer. */}
+                    {canScript ? (
+                      <div className="space-y-3 rounded-[--radius] border border-border bg-card/40 p-3">
+                        <label className="flex cursor-pointer items-start gap-2.5 text-sm text-foreground">
+                          <Checkbox
+                            className="mt-0.5"
+                            checked={seedConversations}
+                            onCheckedChange={(next) =>
+                              setSeedConversations(next === true)
+                            }
+                          />
+                          <span>
+                            <span className="flex flex-wrap items-center gap-2">
+                              {t("seedConversations.label")}
+                              <span className="rounded-full bg-muted px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                {t("seedConversations.adminOnly")}
+                              </span>
+                            </span>
+                            <span className="mt-0.5 block text-xs text-muted-foreground">
+                              {t("seedConversations.help")}
+                            </span>
+                          </span>
+                        </label>
+
+                        {seedConversations ? (
+                          <div className="space-y-3 border-t border-border pt-3">
+                            <MessageVariantsEditor
+                              bodies={bodies}
+                              onChange={setBodies}
+                              max={MAX_SEED_VARIANTS}
+                              disabled={importing}
+                              rows={3}
+                              labels={{
+                                title: t("seedConversations.variantsTitle"),
+                                help: t("seedConversations.variantsHelp"),
+                                addVariant: t("seedConversations.addVariant"),
+                                removeVariant: t(
+                                  "seedConversations.removeVariant",
+                                ),
+                                variantLabel: (index) =>
+                                  t("seedConversations.variantLabel", { index }),
+                                bodyPlaceholder: t(
+                                  "seedConversations.bodyPlaceholder",
+                                ),
+                                mismatch: t("seedConversations.variantsMismatch"),
+                                variablesDetected: () =>
+                                  t("seedConversations.nameVariable"),
+                              }}
+                            />
+
+                            <ElevatedInput
+                              label={t("seedConversations.contextLabel")}
+                              value={seedContext}
+                              onChange={(e) => setSeedContext(e.target.value)}
+                              disabled={importing}
+                              controlSize="sm"
+                              maxLength={SEED_CONTEXT_MAX}
+                              placeholder={t(
+                                "seedConversations.contextPlaceholder",
+                              )}
+                            />
+
+                            <ElevatedSelect
+                              label={t("seedConversations.maxMessages")}
+                              value={String(maxMessages)}
+                              onValueChange={(v) => setMaxMessages(Number(v))}
+                            >
+                              {SEED_MESSAGE_OPTIONS.map((n) => (
+                                <ElevatedSelectItem key={n} value={String(n)}>
+                                  {t("seedConversations.messageCount", {
+                                    count: n,
+                                  })}
+                                </ElevatedSelectItem>
+                              ))}
+                            </ElevatedSelect>
+
+                            {/* An opening that renders the name cannot address
+                                a row without one, so those are seeded as plain
+                                empty chats. Said before committing, because
+                                afterwards it only shows up as a scripted count
+                                smaller than expected. */}
+                            {unnamedRows > 0 ? (
+                              <p className="text-xs text-warning-ink">
+                                {t("seedConversations.unnamedRows", {
+                                  count: unnamedRows,
+                                })}
+                              </p>
+                            ) : null}
+
+                            {/* What this costs and how far it goes, said once,
+                                where the decision is made. */}
+                            <p className="text-2xs text-muted-foreground">
+                              {t("seedConversations.costNotice", {
+                                max: MAX_SEEDED_CONVERSATIONS,
+                              })}
+                            </p>
+
+                            {scriptBlocksImport ? (
+                              <p className="text-xs font-semibold text-destructive-ink">
+                                {t("seedConversations.invalid")}
+                              </p>
+                            ) : null}
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
                 ) : null}
               </>
             ) : (
@@ -467,6 +656,19 @@ function ImportSummary({ result }: { result: LeadImportResult }) {
       ) : result.inboxSeedQueued ? (
         <p className="text-xs text-muted-foreground">
           {t("result.inboxSeedQueued", { count: result.inboxSeedQueued })}
+        </p>
+      ) : null}
+
+      {/* The scripted count is its own line, not folded into the one above,
+          because the two can disagree in the way that matters: every
+          conversation queued, and none of them scripted. */}
+      {result.scriptedSeedError ? (
+        <p className="text-xs text-warning-ink">
+          {t("result.scriptedSeedFailed")}
+        </p>
+      ) : result.scriptedSeedQueued ? (
+        <p className="text-xs text-muted-foreground">
+          {t("result.scriptedSeedQueued", { count: result.scriptedSeedQueued })}
         </p>
       ) : null}
     </div>

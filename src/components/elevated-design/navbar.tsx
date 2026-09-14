@@ -7,6 +7,7 @@ import {
   SquaresFour,
   SignOut,
   List,
+  Question,
   User,
   X,
 } from "@/components/icons";
@@ -33,8 +34,10 @@ const BrandMark = ({
   useWhite?: boolean;
 }) => <BrandLogo useWhite={useWhite} size="sm" hideTextOnMobile />;
 
-// Public marketing pages (about / how-it-works / contact / pricing) were removed.
-// The top bar is now a clean sign-in surface with no marketing navigation.
+// Public marketing pages (about / how-it-works / contact / pricing) were removed;
+// the bar stayed a clean sign-in surface. FAQ is the one link that came back
+// (2026-09-14), because it is help content people go looking for rather than
+// marketing pushed at them, and a support answer needs a findable address.
 
 const DARK_ON_TOP_ROUTES: string[] = [];
 
@@ -45,7 +48,9 @@ export default function Navbar() {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const t = useTranslations("navbar");
+  const tFaq = useTranslations("faq");
   const isDark = mounted && resolvedTheme === "dark";
+  const isFaqRoute = Boolean(pathname && /^\/faq(\/|$)/.test(pathname));
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -186,6 +191,21 @@ export default function Navbar() {
           </Link>
 
           <div className="hidden items-center gap-2 md:flex">
+            <Link
+              href="/faq"
+              aria-current={isFaqRoute ? "page" : undefined}
+              className={cn(
+                "rounded-[--radius] px-2.5 py-1.5 text-sm font-medium transition-colors",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                showDarkNavigation
+                  ? "text-white/80 hover:bg-white/10 hover:text-white"
+                  : isFaqRoute
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}
+            >
+              {tFaq("nav")}
+            </Link>
             <ThemeToggle />
             <LanguageSwitcher
               tone={showDarkNavigation ? "dark" : "light"}
@@ -299,6 +319,22 @@ export default function Navbar() {
                 exit="closed"
                 className="flex flex-col p-4 space-y-2"
               >
+                <motion.div variants={menuItemVariants}>
+                  <Link
+                    href="/faq"
+                    onClick={closeMobileMenu}
+                    aria-current={isFaqRoute ? "page" : undefined}
+                    className="flex items-center gap-3 rounded-[--radius] px-4 py-3 text-sm text-foreground transition-colors hover:bg-muted"
+                  >
+                    <Question className="h-5 w-5 text-muted-foreground" weight="fill" />
+                    <span>{tFaq("nav")}</span>
+                  </Link>
+                </motion.div>
+
+                <motion.div variants={menuItemVariants} className="py-1">
+                  <div className="border-t border-border" />
+                </motion.div>
+
                 {isLoading ? (
                   <motion.div variants={menuItemVariants}>
                     <div className="h-12 bg-border animate-pulse rounded-lg w-full" />

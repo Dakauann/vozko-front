@@ -13,7 +13,6 @@ import {
 } from "@/app/actions/audience";
 import { getAgentOptionsAction } from "@/app/actions/agents";
 import type { ModelPricingInfo } from "@/lib/agents/types";
-import { getExchangeRateAction } from "@/app/actions/pricing";
 import type {
   BackfillEstimate,
   CommentAnalysisSettings,
@@ -24,7 +23,6 @@ import type {
   Vertical,
 } from "@/lib/audience/types";
 import { MAX_INSTRUCTIONS_LENGTH, SELECTABLE_REPLY_MODES, VERTICALS } from "@/lib/audience/types";
-import { exchangeRateFromMicros, formatMicrosAsBrl } from "@/lib/pricing/currency";
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
@@ -35,7 +33,6 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Panel, Skeleton } from "@/components/audience/shared";
 import { cleanTopics, editableTopics, TopicsEditor } from "@/components/audience/topics-editor";
 import { Warning, X } from "@/components/icons";
-import { cn } from "@/lib/utils";
 
 /*
  * Settings (plan §13): on/off, model, vertical, the operator's instructions
@@ -272,34 +269,28 @@ export function CommentAnalysisSettingsPanel({
 
 function SpendPanel({ accountId, nf }: { accountId: string; nf: Intl.NumberFormat }) {
   const t = useTranslations("audience.settings.spend");
-  const locale = useLocale();
   const [spend, setSpend] = useState<CommentAnalysisSpend | null>(null);
-  const [rate, setRate] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    void Promise.all([getCommentAnalysisSpendAction(accountId), getExchangeRateAction()]).then(([s, r]) => {
+    void getCommentAnalysisSpendAction(accountId).then((s) => {
       if (cancelled) return;
       if (s.spend) setSpend(s.spend);
-      setRate(exchangeRateFromMicros(r.item?.priceMicros));
     });
     return () => {
       cancelled = true;
     };
   }, [accountId]);
 
-  const price = spend ? formatMicrosAsBrl(spend.priceMicros, rate, LOCALE_TAG[locale] ?? "pt-BR") : null;
-
   return (
     <Panel title={t("title")} description={t("description")}>
       {!spend ? (
         <Skeleton className="h-10" />
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-3 gap-3">
           <Figure label={t("comments")} value={nf.format(spend.items)} />
           <Figure label={t("batches")} value={nf.format(spend.batches)} />
           <Figure label={t("tokens")} value={nf.format(spend.promptTokens + spend.completionTokens)} />
-          <Figure label={t("surcharge")} value={price ?? t("noSurcharge")} muted={!price} />
         </div>
       )}
       <p className="mt-3 text-2xs text-muted-foreground">{t("hint")}</p>
@@ -307,11 +298,11 @@ function SpendPanel({ accountId, nf }: { accountId: string; nf: Intl.NumberForma
   );
 }
 
-function Figure({ label, value, muted }: { label: string; value: string; muted?: boolean }) {
+function Figure({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-2xs uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className={cn("readout font-display text-lg font-semibold tabular-nums", muted ? "text-muted-foreground" : "text-foreground")}>{value}</p>
+      <p className="readout font-display text-lg font-semibold tabular-nums text-foreground">{value}</p>
     </div>
   );
 }
@@ -319,17 +310,11 @@ function Figure({ label, value, muted }: { label: string; value: string; muted?:
 function BackfillPanel({ settings, nf }: { settings: CommentAnalysisSettings; nf: Intl.NumberFormat }) {
   const t = useTranslations("audience.settings.backfill");
   const tStatus = useTranslations("audience.enums.backfillStatus");
-  const locale = useLocale();
   const [estimate, setEstimate] = useState<BackfillEstimate | null>(null);
   const [estimating, setEstimating] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [backfill, setBackfill] = useState<CommentBackfill | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [rate, setRate] = useState<number | null>(null);
-
-  useEffect(() => {
-    void getExchangeRateAction().then((r) => setRate(exchangeRateFromMicros(r.item?.priceMicros)));
-  }, []);
 
   // Poll a running backfill: it drains a page per minute under the
   // provider's hourly budget, so the progress bar moves slowly and honestly.
@@ -374,7 +359,6 @@ function BackfillPanel({ settings, nf }: { settings: CommentAnalysisSettings; nf
     else if (result.backfill) setBackfill(result.backfill);
   };
 
-  const estimatePrice = estimate ? formatMicrosAsBrl(estimate.estimatedMicros, rate, LOCALE_TAG[locale] ?? "pt-BR") : null;
   const active = backfill && (backfill.status === "pending" || backfill.status === "running");
 
   return (
@@ -430,7 +414,6 @@ function BackfillPanel({ settings, nf }: { settings: CommentAnalysisSettings; nf
             ? t("confirmDescription", {
                 comments: nf.format(estimate.estimatedComments),
                 containers: nf.format(estimate.containers),
-                price: estimatePrice ?? t("tokenBillingOnly"),
               })
             : ""
         }

@@ -51,23 +51,26 @@ describe("parameterCount", () => {
   });
 });
 
+// variantsAgree takes BODIES rather than a spec, because a lead import authors
+// the same kind of message without one. parameterCount still takes the spec, so
+// its callers did not have to move.
 describe("variantsAgree", () => {
   it("accepts a single body", () => {
-    expect(variantsAgree(spec("bom dia"))).toBe(true);
+    expect(variantsAgree(["bom dia"])).toBe(true);
   });
 
   it("accepts variants using the same variables in any order", () => {
-    expect(variantsAgree(spec("{{1}} {{2}}", "{{2}}, {{1}}"))).toBe(true);
+    expect(variantsAgree(["{{1}} {{2}}", "{{2}}, {{1}}"])).toBe(true);
   });
 
   it("rejects the same COUNT of different variables", () => {
     // The trap this exists for: one variant reading {{1}} beside one reading
     // {{2}} would send a raw "{{2}}" to everyone assigned the second, because
     // the importer only collected one column.
-    expect(variantsAgree(spec("oi {{1}}", "ola {{2}}"))).toBe(false);
+    expect(variantsAgree(["oi {{1}}", "ola {{2}}"])).toBe(false);
   });
 
   it("rejects a variant that uses a variable the others do not", () => {
-    expect(variantsAgree(spec("oi {{1}}", "ola {{1}} de {{2}}"))).toBe(false);
+    expect(variantsAgree(["oi {{1}}", "ola {{1}} de {{2}}"])).toBe(false);
   });
 });

@@ -11,7 +11,12 @@ import {
   ElevatedSelect,
   ElevatedSelectItem,
 } from "@/components/elevated-design/elevated-select";
-import { cn } from "@/lib/utils";
+import {
+  MessageVariantsEditor,
+  parameterCountIn,
+  placeholdersIn,
+  variantsAgree,
+} from "@/components/unofficial-whatsapp/message-variants-editor";
 import { useTranslations } from "next-intl";
 
 /**
@@ -48,31 +53,19 @@ const NEEDS_MEDIA: UnofficialWhatsAppMessageKind[] = [
 
 const MAX_VARIANTS = 10;
 
-/** Mirrors the domain's regex, so the counter and the backend agree. */
-const PLACEHOLDER = /\{\{(\d+)\}\}/g;
-
-export function placeholdersIn(body: string): number[] {
-  const found = new Set<number>();
-  for (const match of body.matchAll(PLACEHOLDER)) {
-    const n = Number(match[1]);
-    if (Number.isFinite(n)) found.add(n);
-  }
-  return [...found].sort((a, b) => a - b);
-}
+/**
+ * The placeholder rules live in MessageVariantsEditor now, because a lead
+ * import authors its first message the same way and a second copy of them would
+ * be a second chance to disagree with the Go domain.
+ *
+ * Re-exported so the campaign form's imports do not move, and so the one thing
+ * that IS about a campaign spec — reading the bodies off it — stays here.
+ */
+export { placeholdersIn, variantsAgree };
 
 /** The highest placeholder across every variant — how many columns an import needs. */
 export function parameterCount(spec: UnofficialWhatsAppMessageSpec): number {
-  return spec.bodies.reduce(
-    (max, body) => Math.max(max, ...placeholdersIn(body), 0),
-    0,
-  );
-}
-
-/** Whether every variant uses the same placeholder SET, not just the same count. */
-export function variantsAgree(spec: UnofficialWhatsAppMessageSpec): boolean {
-  if (spec.bodies.length < 2) return true;
-  const first = placeholdersIn(spec.bodies[0]).join(",");
-  return spec.bodies.every((b) => placeholdersIn(b).join(",") === first);
+  return parameterCountIn(spec.bodies);
 }
 
 export interface CampaignMessageComposerProps {
@@ -94,27 +87,7 @@ export function CampaignMessageComposer({
   const setKind = (kind: UnofficialWhatsAppMessageKind) =>
     onChange({ ...value, kind });
 
-  const setBody = (index: number, body: string) => {
-    const bodies = [...value.bodies];
-    bodies[index] = body;
-    onChange({ ...value, bodies });
-  };
-
-  const addVariant = () => {
-    if (value.bodies.length >= MAX_VARIANTS) return;
-    onChange({ ...value, bodies: [...value.bodies, ""] });
-  };
-
-  const removeVariant = (index: number) => {
-    // Never drop to zero bodies: a campaign with no message is not a state the
-    // form should be able to reach.
-    if (value.bodies.length <= 1) return;
-    onChange({ ...value, bodies: value.bodies.filter((_, i) => i !== index) });
-  };
-
   const needsMedia = NEEDS_MEDIA.includes(value.kind);
-  const agree = variantsAgree(value);
-  const params = parameterCount(value);
 
   return (
     <div className="space-y-4">
@@ -146,71 +119,22 @@ export function CampaignMessageComposer({
         ) : null}
       </div>
 
-      <div className="space-y-3">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-sm font-medium text-foreground">
-              {t("form.variantsTitle")}
-            </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              {t("form.variantsHelp")}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={addVariant}
-            disabled={disabled || value.bodies.length >= MAX_VARIANTS}
-            className="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-40"
-          >
-            <Plus className="h-3.5 w-3.5" weight="bold" />
-            {t("form.addVariant")}
-          </button>
-        </div>
-
-        {value.bodies.map((body, index) => (
-          <div key={index} className="space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
-                {t("form.variantLabel", { index: index + 1 })}
-              </span>
-              {value.bodies.length > 1 ? (
-                <button
-                  type="button"
-                  onClick={() => removeVariant(index)}
-                  disabled={disabled}
-                  className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-2xs text-destructive-ink transition-colors hover:bg-muted"
-                >
-                  <Trash className="h-3 w-3" weight="bold" />
-                  {t("form.removeVariant")}
-                </button>
-              ) : null}
-            </div>
-            <textarea
-              value={body}
-              onChange={(e) => setBody(index, e.target.value)}
-              disabled={disabled}
-              rows={4}
-              placeholder={t("form.bodyPlaceholder")}
-              className={cn(
-                "w-full resize-y rounded-[--radius] border border-border bg-background px-3 py-2 text-sm text-foreground",
-                "focus:outline-none focus:ring-2 focus:ring-primary/40",
-              )}
-            />
-          </div>
-        ))}
-
-        {!agree ? (
-          <p className="text-xs font-semibold text-destructive-ink">
-            {t("form.variantsMismatch")}
-          </p>
-        ) : null}
-
-        {params > 0 ? (
-          <p className="text-xs text-muted-foreground">
-            {t("form.variablesDetected", { count: params })}
-          </p>
-        ) : null}
-      </div>
+      <MessageVariantsEditor
+        bodies={value.bodies}
+        onChange={(bodies) => onChange({ ...value, bodies })}
+        max={MAX_VARIANTS}
+        disabled={disabled}
+        labels={{
+          title: t("form.variantsTitle"),
+          help: t("form.variantsHelp"),
+          addVariant: t("form.addVariant"),
+          removeVariant: t("form.removeVariant"),
+          variantLabel: (index) => t("form.variantLabel", { index }),
+          bodyPlaceholder: t("form.bodyPlaceholder"),
+          mismatch: t("form.variantsMismatch"),
+          variablesDetected: (count) => t("form.variablesDetected", { count }),
+        }}
+      />
 
       {value.kind === "menu" ? (
         <MenuEditor value={value} onChange={onChange} disabled={disabled} />

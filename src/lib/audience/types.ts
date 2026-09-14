@@ -431,8 +431,6 @@ export interface CommentAnalysisSpend {
 export interface BackfillEstimate {
     containers: number;
     estimatedComments: number;
-    /** USD micros; 0 when the per-comment surcharge is not configured. */
-    estimatedMicros: number;
 }
 
 export interface CommentBackfill {

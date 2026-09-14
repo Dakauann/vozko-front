@@ -7707,7 +7707,9 @@
         "skipped": "{invalid} Zeilen mit ungültiger Nummer und {duplicates} doppelte Zeilen wurden übersprungen.",
         "blocked": "{count} der vorhandenen Kontakte sind blockiert und werden von Kampagnen nicht erreicht.",
         "inboxSeedQueued": "{count} Konversationen werden im Hintergrund angelegt und erscheinen in Kürze im Postfach.",
-        "inboxSeedFailed": "Die Leads wurden importiert, ihre Konversationen konnten aber nicht angelegt werden. Prüfen Sie, ob eine inoffizielle WhatsApp-Nummer verbunden ist."
+        "inboxSeedFailed": "Die Leads wurden importiert, ihre Konversationen konnten aber nicht angelegt werden. Prüfen Sie, ob eine inoffizielle WhatsApp-Nummer verbunden ist.",
+        "scriptedSeedQueued": "Für {count} davon wird eine Beispielunterhaltung geschrieben.",
+        "scriptedSeedFailed": "Die Unterhaltungen wurden angelegt, aber es wurden keine Beispielnachrichten hineingeschrieben."
       },
       "error": {
         "title": "Import nicht möglich",
@@ -7717,7 +7719,27 @@
         "label": "Konversation im Postfach öffnen",
         "help": "Legt für jede importierte Nummer eine leere inoffizielle WhatsApp-Konversation an, damit die Leads im Postfach erscheinen, ohne dass jemand zuerst schreiben muss. Es wird nichts gesendet."
       },
-      "recognisedColumns": "Die Vorlage enthält die drei Spalten, die der Import speichert: telefone (Telefon), nome (Name) und idade (Alter). Nur die Telefonnummer ist Pflicht. Alle weiteren Spalten der Datei werden ignoriert."
+      "recognisedColumns": "Die Vorlage enthält die drei Spalten, die der Import speichert: telefone (Telefon), nome (Name) und idade (Alter). Nur die Telefonnummer ist Pflicht. Alle weiteren Spalten der Datei werden ignoriert.",
+      "seedConversations": {
+        "label": "Beispielunterhaltungen anlegen",
+        "adminOnly": "nur Admin",
+        "help": "Schreibt per KI einen kurzen Beispielverlauf in jede Unterhaltung, damit der Posteingang bearbeitet statt leer wirkt. Nutzt das Guthaben des Workspace. Es wird nichts versendet.",
+        "variantsTitle": "Erste Nachricht",
+        "variantsHelp": "Was das Unternehmen geschrieben hätte. Varianten hinzufügen, damit die angelegten Unterhaltungen nicht alle gleich klingen. '{{1}}' steht für den Namen des Leads.",
+        "addVariant": "Variante hinzufügen",
+        "removeVariant": "Entfernen",
+        "variantLabel": "Variante {index}",
+        "bodyPlaceholder": "Hallo '{{1}}', wie geht es dir? Ich habe gesehen, dass dich unser Kurs interessiert.",
+        "variantsMismatch": "Alle Varianten müssen dieselben Variablen verwenden.",
+        "nameVariable": "Der Name des Leads ersetzt '{{1}}'.",
+        "contextLabel": "Über das Unternehmen (optional)",
+        "contextPlaceholder": "Technischer Pflegekurs, Anmeldung offen",
+        "maxMessages": "Länge der Unterhaltung",
+        "messageCount": "{count} Nachrichten",
+        "unnamedRows": "{count} Zeilen haben keinen Namen und bekommen stattdessen eine leere Unterhaltung, weil die erste Nachricht den Namen verwendet.",
+        "costNotice": "Nur die ersten {max} Kontakte des Imports bekommen eine Beispielunterhaltung, der Rest eine leere. Die KI wird vom Guthaben des Workspace abgerechnet.",
+        "invalid": "Schreibe die erste Nachricht und verwende in allen Varianten dieselben Variablen."
+      }
     },
     "header": {
       "badge": "Leads",
@@ -9623,9 +9645,7 @@
         "comments": "Kommentare",
         "batches": "Aufrufe",
         "tokens": "Tokens",
-        "surcharge": "Gebühr pro Kommentar",
-        "noSurcharge": "Nur Tokens",
-        "hint": "Tokens werden dem Guthaben als KI-Nutzung belastet. Die Gebühr pro Kommentar erscheint, wenn konfiguriert, als ein Eintrag pro Stapel."
+        "hint": "Tokens werden dem Guthaben als KI-Nutzung belastet."
       },
       "backfill": {
         "title": "Ältere Kommentare analysieren",
@@ -9642,8 +9662,7 @@
         "cancel": "Nachverarbeitung abbrechen",
         "hint": "Die Nachverarbeitung hält das Aufruflimit von Instagram ein und kann bei großen Konten Stunden dauern. Bei Unterbrechung macht sie dort weiter, wo sie aufgehört hat.",
         "confirmTitle": "Nachverarbeitung bestätigen",
-        "confirmDescription": "Etwa {comments} Kommentare in {containers} Beiträgen werden in die Warteschlange gestellt. Geschätzte Gebühr pro Kommentar: {price}. Tokens werden separat als KI-Nutzung berechnet.",
-        "tokenBillingOnly": "nicht konfiguriert (nur Tokens)",
+        "confirmDescription": "Etwa {comments} Kommentare in {containers} Beiträgen werden in die Warteschlange gestellt. Die Analyse wird als KI-Nutzung nach verbrauchten Tokens berechnet.",
         "confirm": "Bestätigen und starten",
         "cancelDialog": "Abbrechen"
       },
@@ -11618,5 +11637,441 @@
     "heatHint": "Stündliche Intensität",
     "low": "Niedrig",
     "high": "Hoch"
+  },
+  "faq":   {
+    "nav": "FAQ",
+    "index": {
+      "title": "Fragen und Antworten",
+      "lead": "Klare Erklärungen zu dem, was sich in den Kanälen ändert, mit denen Ihr Team täglich arbeitet. Ohne Umschweife, mit allen Quellen am Seitenende.",
+      "readingTime": "{minutes} Min. Lesezeit",
+      "empty": "Noch keine Beiträge veröffentlicht.",
+      "metaTitle": "FAQ: Fragen und Antworten",
+      "metaDescription": "Klare Erklärungen zu Abrechnung, Kanälen und Plattformregeln der Messaging-Kanäle, mit denen Ihr Team täglich arbeitet."
+    },
+    "posts": {
+      "metaServiceCosts": {
+        "category": "WhatsApp · Abrechnung",
+        "title": "Die neuen WhatsApp-Kosten von Meta",
+        "excerpt": "Ab dem 1. Oktober 2026 kostet jede Antwort an Kundinnen und Kunden Geld. Jede Rufnummer erhält 1.000 kostenlose Servicenachrichten pro Monat, und dieser Beitrag zeigt Nachricht für Nachricht, was darauf angerechnet wird.",
+        "lead": "Ab dem 1. Oktober 2026 kostet jede Antwort an Kundinnen und Kunden Geld.",
+        "standfirst": "Jede Unternehmensrufnummer erhält 1.000 kostenlose Servicenachrichten pro Monat. Unten stehen drei echte Gespräche mit jeder einzelnen Nachricht markiert: was das Kontingent verbraucht, was getrennt berechnet wird und was kostenlos bleibt.",
+        "readingTime": "{minutes} Min. Lesezeit",
+        "backToIndex": "Zurück zum FAQ",
+        "metaTitle": "Die neuen WhatsApp-Kosten von Meta: was sich am 1. Oktober 2026 ändert",
+        "metaDescription": "Servicenachrichten werden ab 1.000 pro Rufnummer und Monat berechnet, und Utility-Vorlagen im 24-Stunden-Fenster sind nicht mehr kostenlos. Mit anschaulichen Beispielen, welche Nachrichten kosten.",
+        "announcement": {
+          "title": "Was Meta angekündigt hat",
+          "body1": "Am 1. Oktober 2026 tritt die größte Abrechnungsänderung bei WhatsApp Business seit Juli 2025 in Kraft. Zwei Dinge, die heute kostenlos sind, werden berechnet: die freie Antwort, die Ihr Team im 24-Stunden-Fenster sendet und die Meta Servicenachricht nennt, sowie die Utility-Vorlage, die im selben Fenster verschickt wird. Bis zum 30. September 2026 bleiben beide kostenlos.",
+          "body2": "Die Entscheidung stammt von Meta und gilt für jedes Unternehmen, das die offizielle WhatsApp Business API nutzt, in jedem Land und über jeden Anbieter. Es ist keine Preisänderung Ihrer Kundenservice-Plattform: Meta legt die Kategorie jeder Nachricht, den Tarif je Land und das Startdatum fest, und jeder Anbieter gibt genau dieselben Kosten weiter. Die Rechnung, die dieser Beitrag durchgeht, wäre mit jedem anderen Werkzeug am Markt identisch.",
+          "body3": "Was sich nicht ändert, ist ebenso wichtig und rückt die Sache zurecht. Nachrichten, die Kundinnen und Kunden an ein Unternehmen senden, bleiben kostenlos, heute wie nach dem Oktober, und zwar ohne jede Obergrenze. Das 24-Stunden-Fenster bleibt bestehen und wird weiterhin von der Kundschaft geöffnet. Gespräche aus einer Click-to-WhatsApp-Anzeige behalten ihre 72 vollständig kostenlosen Stunden. Und die neue Abrechnung beginnt erst nach einem großzügigen Monatskontingent, mit dem dieser Beitrag anfängt.",
+          "callout": {
+            "title": "Wer entscheidet und wer abrechnet",
+            "body": "Meta legt die Nachrichtenkategorien, die Tarife je Land und die Termine fest. Der API-Anbieter gibt den Betrag lediglich weiter. Keine Kundenservice-Plattform kann eine Nachricht befreien, die Meta als abrechenbar eingestuft hat, oder einen anderen Tarif als Metas offizielle Tabelle anbieten."
+          }
+        },
+        "allowance": {
+          "title": "Das Kontingent von 1.000 Nachrichten",
+          "intro": "Meta berechnet nicht plötzlich alles. Es gibt ein monatliches Kontingent pro Unternehmensrufnummer, und berechnet wird erst ab der 1.001. Nachricht.",
+          "bar": {
+            "panelTitle": "Ein Monat auf einer Rufnummer",
+            "panelScenario": "Beispiel: 1.250 Servicenachrichten im Monat gesendet.",
+            "freeLabel": "Kostenlos",
+            "billedLabel": "Berechnet",
+            "scaleStart": "Nachricht 1",
+            "scaleEnd": "Nachricht 1.250",
+            "foot": "Das Kontingent startet am 1. jedes Monats neu und wird nicht übertragen: Was im Oktober übrig bleibt, ist im November nichts mehr wert."
+          },
+          "body1": "Das Kontingent gilt pro Rufnummer, nicht pro Konto. Ein Betrieb mit vier verbundenen Nummern hat 4.000 kostenlose Servicenachrichten im Monat, aber nur wenn die Arbeit tatsächlich auf sie verteilt ist, denn der Rest der einen Nummer deckt nie den Überhang der anderen. Trägt eine einzige Nummer den gesamten Verkehr, läuft sie allein über, während die anderen drei den Monat unberührt beenden, und dieser Überschuss verfällt ersatzlos.",
+          "body2": "Ab der tausendsten kostet jede Servicenachricht denselben Tarif, den Meta bereits für eine Utility- oder Authentifizierungsvorlage im Land der empfangenden Person berechnet. In dieser Kategorie gibt es keinen Mengenrabatt: Nachricht 1.001 kostet genau so viel wie Nachricht 90.000, und kein bei einem Anbieter gebuchter Tarif ändert diesen Betrag.",
+          "body3": "Ein Punkt sei wiederholt, weil er beim ersten Lesen oft missverstanden wird. Das Kontingent deckt ausschließlich Servicenachrichten ab, also freie Antworten im Fenster. Marketing-, Authentifizierungs- und Utility-Vorlagen werden weiterhin ab der ersten Einheit berechnet, denn sie gehörten nie zu dieser Kategorie. Ein Betrieb, der viele Vorlagen verschickt und selten antwortet, kann einen ganzen Monat lang das Kontingent nicht anrühren und trotzdem eine hohe Rechnung erhalten."
+        },
+        "window": {
+          "title": "Das 24-Stunden-Fenster",
+          "intro": "Alle Regeln hängen an einer Uhr. Schreibt die Kundin oder der Kunde, öffnet sich ein 24-Stunden-Fenster, und nur darin gibt es überhaupt Servicenachrichten.",
+          "clock": {
+            "panelTitle": "Ein Gespräch, von Anfang bis Ende",
+            "panelScenario": "Die grüne Linie ist die Zeit, in der das Fenster offen bleibt.",
+            "steps": [
+              {
+                "time": "09:12 · Die Kundin schreibt",
+                "body": "Eingehende Nachrichten kosten nie etwas, und sie öffnen das Fenster.",
+                "tag": "Kostenlos",
+                "verdict": "free"
+              },
+              {
+                "time": "09:14 · Sie antworten",
+                "body": "Freie Antwort ohne Vorlage. Das ist eine Servicenachricht und sie verbraucht das Kontingent.",
+                "tag": "Servicenachricht",
+                "verdict": "billed"
+              },
+              {
+                "time": "15:40 · Sie antworten erneut",
+                "body": "Noch im Fenster. Jede freie Antwort zählt als eine Nachricht.",
+                "tag": "Servicenachricht",
+                "verdict": "billed"
+              },
+              {
+                "time": "09:12 am Folgetag · Das Fenster schließt",
+                "body": "24 Stunden nach der letzten Nachricht der Kundin."
+              },
+              {
+                "time": "Danach",
+                "body": "Der einzige Weg zurück ist eine genehmigte Vorlage, berechnet nach ihrer Kategorie.",
+                "tag": "Vorlage",
+                "verdict": "billed"
+              }
+            ],
+            "foot": "Die Uhr startet mit jeder neuen Kundennachricht neu: Das Fenster zählt nicht 24 Stunden ab dem ersten Kontakt, sondern ab der zuletzt eingegangenen Nachricht."
+          },
+          "body1": "Eine Servicenachricht ist eine freie Antwort, also Text, Bild, Audio oder Dokument ohne genehmigte Vorlage, die das Unternehmen innerhalb dieses Fensters sendet. Wer sie geschrieben hat, spielt keine Rolle: ob Mensch, Chatbot oder Automatisierung, die Nachricht ist dieselbe und die Abrechnung auch. Über die Kategorie entscheiden Format und Sendezeitpunkt, nie die Herkunft.",
+          "body2": "Öffnen kann das Fenster nur die Kundschaft. Ein Unternehmen kann es nicht von sich aus öffnen, und genau dafür gibt es Vorlagen: außerhalb des Fensters ist eine genehmigte Vorlage der einzige Weg, jemanden zu erreichen. Deshalb startet das Fenster auch mit jeder eingehenden Nachricht neu. Ein Gespräch, das sich über zwei Tage zieht und in dem die Kundin ab und zu antwortet, hält das Fenster die ganze Zeit offen, und jede freie Antwort in diesem Zeitraum ist eine Servicenachricht.",
+          "body3": "In der Praxis heißt das: Die Kosten eines Serviceteams hängen nicht davon ab, wie viele Gespräche es führt, sondern davon, wie oft es in jedem Gespräch spricht. Zwei Teams mit identischem Gesprächsvolumen können sehr unterschiedliche Rechnungen bekommen, wenn das eine in vier kurzen Blasen antwortet und das andere in einer vollständigen Antwort."
+        },
+        "examples": {
+          "title": "Drei Gespräche, drei Rechnungen",
+          "intro": "Eine geschriebene Regel ist das eine, eine Rechnung das andere. Die drei Gespräche unten sind die, die Ihr Team täglich führt, mit jeder Nachricht so markiert, wie Meta sie ab Oktober einstuft. Die Zahl oben ist, wie viele Nachrichten aus dem Monatskontingent abgeflossen sind.",
+          "body": "Lesen Sie sie der Reihe nach. Das erste zeigt, was ein gewöhnlicher Servicefall kostet: gut gelöst und trotzdem teuer. Das zweite zeigt denselben Aufwand zum Nulltarif, nur weil das Gespräch anderswo begonnen hat. Das dritte zeigt den Teil der Änderung, den fast niemand bemerkt, weil er in einer Vorlage steckt, die immer kostenlos war.",
+          "thread": {
+            "billedUnit": "berechnet"
+          },
+          "items": [
+            {
+              "title": "Inkasso: die Kundin bittet um eine neue Rechnung",
+              "scenario": "Von der Kundin eröffnet und innerhalb des 24-Stunden-Fensters gelöst.",
+              "verdict": "Vier Servicenachrichten in einem Gespräch von neun Minuten. Die ersten beiden Antworten zusammenzufassen und den Abschiedsgruß wegzulassen, brächte dasselbe Gespräch auf zwei.",
+              "turns": [
+                {
+                  "from": "customer",
+                  "clock": "09:12",
+                  "text": "Guten Morgen! Ich habe die September-Rechnung verloren, können Sie sie erneut senden?",
+                  "verdict": "free",
+                  "tag": "Kostenlos",
+                  "reason": "Eine Nachricht der Kundin an das Unternehmen kostet nie etwas."
+                },
+                {
+                  "from": "business",
+                  "clock": "09:13",
+                  "text": "Guten Morgen, Marina! Ich habe Sie gefunden. Nennen Sie mir kurz Ihre Steuernummer, dann stelle ich die Rechnung neu aus.",
+                  "verdict": "billed",
+                  "tag": "Servicenachricht",
+                  "reason": "Freie Antwort im offenen Fenster.",
+                  "banner": "24-Stunden-Fenster um 09:12 geöffnet",
+                  "bannerTone": "neutral"
+                },
+                {
+                  "from": "customer",
+                  "clock": "09:15",
+                  "text": "123.456.789-00",
+                  "verdict": "free",
+                  "tag": "Kostenlos",
+                  "reason": "Eingehend, und die Uhr des Fensters startet hier neu."
+                },
+                {
+                  "from": "business",
+                  "clock": "09:16",
+                  "text": "Perfekt. Hier ist die aktualisierte Rechnung, fällig am 30. September.",
+                  "verdict": "billed",
+                  "tag": "Servicenachricht",
+                  "reason": "Zweite freie Antwort."
+                },
+                {
+                  "from": "business",
+                  "clock": "09:16",
+                  "text": "rechnung-september.pdf",
+                  "verdict": "billed",
+                  "tag": "Servicenachricht",
+                  "reason": "Der Anhang ist eine eigene Nachricht und zählt erneut."
+                },
+                {
+                  "from": "customer",
+                  "clock": "09:20",
+                  "text": "Angekommen, vielen Dank!",
+                  "verdict": "free",
+                  "tag": "Kostenlos",
+                  "reason": "Eingehend."
+                },
+                {
+                  "from": "business",
+                  "clock": "09:21",
+                  "text": "Sehr gerne, Marina. Melden Sie sich jederzeit hier.",
+                  "verdict": "billed",
+                  "tag": "Servicenachricht",
+                  "reason": "Auch die Höflichkeit am Schluss wird berechnet."
+                }
+              ]
+            },
+            {
+              "title": "Vertrieb: der Lead aus der Anzeige",
+              "scenario": "Eröffnet durch einen Klick auf eine Click-to-WhatsApp-Anzeige.",
+              "verdict": "Null aus dem Kontingent über die gesamte Erkundungsphase. Das ist heute der günstigste Weg, und er beginnt bei der Anzeige, nicht im Posteingang.",
+              "turns": [
+                {
+                  "from": "customer",
+                  "clock": "14:02",
+                  "text": "Ich habe Ihre Anzeige gesehen. Wie funktioniert das für ein Team mit drei Mitarbeitenden?",
+                  "verdict": "free",
+                  "tag": "Kostenlos",
+                  "reason": "Kam über einen Klick auf eine Click-to-WhatsApp-Anzeige."
+                },
+                {
+                  "from": "business",
+                  "clock": "14:05",
+                  "text": "Hallo Diego! Mit drei Mitarbeitenden arbeiten Sie im selben Posteingang, jede Person mit eigener Warteschlange. Soll ich es zeigen?",
+                  "verdict": "free",
+                  "tag": "Kostenlos",
+                  "reason": "Das Unternehmen hat binnen 24 Stunden geantwortet, damit öffnet sich das kostenlose 72-Stunden-Fenster.",
+                  "banner": "Kostenloses 72-Stunden-Fenster durch die Anzeige geöffnet",
+                  "bannerTone": "free"
+                },
+                {
+                  "from": "customer",
+                  "clock": "14:09",
+                  "text": "Gerne. Und lässt es sich mit unserem bestehenden CRM verbinden?",
+                  "verdict": "free",
+                  "tag": "Kostenlos",
+                  "reason": "Eingehend."
+                },
+                {
+                  "from": "business",
+                  "clock": "14:11",
+                  "text": "Ja. Die Anbindung läuft über die API, und der Gesprächsverlauf bleibt am Lead.",
+                  "verdict": "free",
+                  "tag": "Kostenlos",
+                  "reason": "Innerhalb der 72 Stunden ist jede Nachrichtenart kostenlos."
+                },
+                {
+                  "from": "business",
+                  "clock": "18:30",
+                  "text": "Diego, ich habe morgen 10 Uhr für eine Demo reserviert. Passt das?",
+                  "verdict": "free",
+                  "tag": "Kostenlos",
+                  "reason": "Immer noch in den 72 Stunden. Auch Vorlagen kosten hier nichts."
+                },
+                {
+                  "from": "business",
+                  "clock": "4 Tage später",
+                  "text": "Hallo Diego! Ihr Angebot ist fertig und über den Link unten abrufbar.",
+                  "verdict": "billed",
+                  "tag": "Utility-Vorlage",
+                  "reason": "Das Fenster ist geschlossen. Ab hier nur noch Vorlagen, berechnet nach ihrer Kategorie.",
+                  "template": "Genehmigte Vorlage",
+                  "banner": "Kostenloses Fenster nach 72 Stunden geschlossen",
+                  "bannerTone": "neutral"
+                }
+              ]
+            },
+            {
+              "title": "Support: die Vorlage, die früher kostenlos war",
+              "scenario": "Die Änderung, die am leichtesten übersehen wird: eine Utility-Vorlage innerhalb des Fensters.",
+              "verdict": "Zwei Servicenachrichten und eine Utility-Vorlage, die bis zum 30. September nichts gekostet hätte. Diese Vorlage geht nicht vom Kontingent ab, denn das Kontingent gilt nur für Servicenachrichten.",
+              "turns": [
+                {
+                  "from": "customer",
+                  "clock": "10:40",
+                  "text": "Meine Bestellung ist als versandt markiert, aber nie angekommen.",
+                  "verdict": "free",
+                  "tag": "Kostenlos",
+                  "reason": "Eine Nachricht des Kunden kostet nie etwas."
+                },
+                {
+                  "from": "business",
+                  "clock": "10:43",
+                  "text": "Hallo Rafael. Ich frage jetzt beim Versanddienstleister nach und melde mich direkt zurück.",
+                  "verdict": "billed",
+                  "tag": "Servicenachricht",
+                  "reason": "Freie Antwort im offenen Fenster.",
+                  "banner": "24-Stunden-Fenster um 10:40 geöffnet",
+                  "bannerTone": "neutral"
+                },
+                {
+                  "from": "business",
+                  "clock": "11:05",
+                  "text": "Update zu Bestellung #48219: in Zustellung, voraussichtlich heute bis 18 Uhr.",
+                  "verdict": "billed",
+                  "tag": "Utility-Vorlage",
+                  "reason": "Bis 30.09.2026 im Fenster kostenlos. Ab 01.10. berechnet, und außerhalb des Kontingents.",
+                  "template": "Genehmigte Vorlage"
+                },
+                {
+                  "from": "customer",
+                  "clock": "11:07",
+                  "text": "Super, danke!",
+                  "verdict": "free",
+                  "tag": "Kostenlos",
+                  "reason": "Eingehend."
+                },
+                {
+                  "from": "business",
+                  "clock": "11:08",
+                  "text": "Sehr gerne, Rafael. Ich habe es hier in Ihrem Verlauf vermerkt.",
+                  "verdict": "billed",
+                  "tag": "Servicenachricht",
+                  "reason": "Verbraucht das Kontingent."
+                }
+              ]
+            }
+          ]
+        },
+        "matrix": {
+          "title": "Was berechnet wird, Zeile für Zeile",
+          "intro": "Diese Tabelle beantwortet die Frage, die alle zuerst stellen: Was hat sich tatsächlich geändert. Von sieben Zeilen bleiben fünf genau so, wie sie waren. Nur die beiden hervorgehobenen haben sich bewegt.",
+          "body": "Auffällig ist, dass Marketing und Authentifizierung nicht unter den Änderungen auftauchen. Diese Vorlagen wurden immer berechnet und behalten ihren Tarif. Geändert hat sich der Umgang mit dem 24-Stunden-Fenster: Es ist kein kostenloser Raum mehr, sondern nur noch der Raum, in dem freie Antworten erlaubt sind. Die Erlaubnis bleibt, die Kostenfreiheit endet.",
+          "table": {
+            "caption": "Abrechnung nach Nachrichtentyp, vor und nach dem 1. Oktober 2026.",
+            "columnType": "Nachrichtentyp",
+            "columnBefore": "Bis 30.09.2026",
+            "columnAfter": "Ab 01.10.2026",
+            "rows": [
+              {
+                "type": "Eingehende Nachricht der Kundschaft",
+                "kind": "Jederzeit, im Fenster oder außerhalb",
+                "before": "Kostenlos",
+                "beforeVerdict": "free",
+                "after": "Kostenlos",
+                "afterVerdict": "free"
+              },
+              {
+                "type": "Freie Antwort im 24-Stunden-Fenster",
+                "kind": "Die Servicenachricht: Text, Medien, Audio, Dokument",
+                "before": "Kostenlos",
+                "beforeVerdict": "free",
+                "after": "Ab 1.000/Monat",
+                "afterVerdict": "billed",
+                "changedFlag": "Geändert"
+              },
+              {
+                "type": "Utility-Vorlage im Fenster",
+                "kind": "Bestellstatus, Bestätigungen, Lieferhinweise",
+                "before": "Kostenlos",
+                "beforeVerdict": "free",
+                "after": "Berechnet",
+                "afterVerdict": "billed",
+                "changedFlag": "Geändert"
+              },
+              {
+                "type": "Utility-Vorlage außerhalb des Fensters",
+                "kind": "Dieselbe Nachricht bei geschlossenem Fenster",
+                "before": "Berechnet",
+                "beforeVerdict": "billed",
+                "after": "Berechnet",
+                "afterVerdict": "billed"
+              },
+              {
+                "type": "Authentifizierungsvorlage",
+                "kind": "Bestätigungscodes und Einmalpasswörter",
+                "before": "Berechnet",
+                "beforeVerdict": "billed",
+                "after": "Berechnet",
+                "afterVerdict": "billed"
+              },
+              {
+                "type": "Marketing-Vorlage",
+                "kind": "Kampagnen, Angebote und Reaktivierung",
+                "before": "Berechnet",
+                "beforeVerdict": "billed",
+                "after": "Berechnet",
+                "afterVerdict": "billed"
+              },
+              {
+                "type": "Jede Nachricht im 72-Stunden-Fenster",
+                "kind": "Gespräch aus einer Click-to-WhatsApp-Anzeige oder einem Seiten-Button",
+                "before": "Kostenlos",
+                "beforeVerdict": "free",
+                "after": "Kostenlos",
+                "afterVerdict": "free"
+              }
+            ]
+          },
+          "agentCallout": {
+            "title": "Und die Antworten des Meta Business Agent?",
+            "body": "Seit dem 1. August 2026 werden sie nach verbrauchten Tokens abgerechnet, nicht pro Nachricht. Eine Nachricht ohne Vorlage wird genau einmal berechnet: entweder als Servicenachricht oder als Meta-Business-Agent-Nachricht, nie als beides."
+          }
+        },
+        "math": {
+          "title": "Was das in der Praxis kostet",
+          "intro": "Ziehen Sie auf Ihr monatliches Volumen an Servicenachrichten einer Rufnummer und lesen Sie die Rechnung ab. Die Rechnung ist Metas eigene: Monatssumme, minus das Kontingent von 1.000, mal der Tarif des Empfängerlandes.",
+          "ledger": {
+            "panelTitle": "Die Rechnung des Monats",
+            "panelScenario": "Eine Rufnummer, ein Monat.",
+            "inputLabel": "Servicenachrichten in diesem Monat",
+            "sent": "In diesem Monat gesendet",
+            "freeTier": "Kostenloses Kontingent (nicht berechnet)",
+            "billable": "Abrechenbare Nachrichten",
+            "rate": "Tarif pro Nachricht",
+            "rateNote": "Referenz Brasilien, entspricht dem Utility- und Authentifizierungstarif",
+            "fx": "Verwendeter Wechselkurs",
+            "fxNote": "US-Dollar am 14. September 2026",
+            "total": "Geschätzte Monatskosten",
+            "disclaimer": "Eine Schätzung. Meta rechnet in US-Dollar ab, und der Tarif richtet sich nach dem Land der empfangenden Person. Der Betrag in Real hängt vom Tageskurs ab, und Ihr Anbieter kann eigene Gebühren aufschlagen."
+          },
+          "body": "Der Referenztarif oben ist der brasilianische von rund 0,0068 US-Dollar pro Nachricht, geprüft am 14. September 2026. Betreut Ihr Team Kundschaft außerhalb Brasiliens, ändert sich die Zahl, denn abgerechnet wird nach dem Land der empfangenden Person und nicht nach dem des Unternehmens. Eine Kundin in Portugal oder Deutschland zu betreuen kostet pro Nachricht erheblich mehr als eine in Sao Paulo.",
+          "body2": "Für die meisten kleinen Betriebe bleibt der Endbetrag bescheiden, und genau das ist der Punkt: Das Kontingent von 1.000 Nachrichten gibt es, damit ein Geschäft mit geringem Volumen die Änderung nicht spürt. Spürbar wird sie im großen Maßstab, vor allem bei Inkasso und Support, wo jedes Gespräch mehrere freie Antworten verbraucht und das Monatsvolumen pro Nummer mühelos zehntausend Nachrichten übersteigt."
+        },
+        "actions": {
+          "title": "Was vor dem 1. Oktober zu tun ist",
+          "intro": "Fünf Entscheidungen, die die Oktober-Rechnung verändern, alle vor dem Stichtag zu treffen. Die erste ist Pflicht, sonst werden Nachrichten schlicht nicht mehr zugestellt. Die anderen vier sind Ersparnis.",
+          "steps": [
+            {
+              "title": "Zahlungsmethode bestätigen",
+              "body": "Ohne hinterlegte Zahlungsmethode im WhatsApp-Business-Konto stellt Meta die 1.000 Servicenachrichten des Monats zu und liefert ab der 1.001. nicht mehr aus. Frist dafür ist der 30. September 2026."
+            },
+            {
+              "title": "Die ganze Antwort in eine Nachricht packen",
+              "body": "Drei Blasen hintereinander sind drei berechnete Nachrichten. Dieselbe Information als eine vollständige Antwort ist eine. Das ist die unmittelbarste Ersparnis und erfordert keine Systemänderung."
+            },
+            {
+              "title": "Den Erstkontakt über die Anzeige führen",
+              "body": "Ein Gespräch aus einer Click-to-WhatsApp-Anzeige oder einem Seiten-Button öffnet 72 kostenlose Stunden, sofern das Unternehmen binnen 24 Stunden antwortet. In diesem Fenster kostet nichts etwas, Vorlagen eingeschlossen."
+            },
+            {
+              "title": "Das Volumen auf die Nummern verteilen",
+              "body": "Das Kontingent gilt pro Rufnummer. Vier verbundene Nummern bedeuten 4.000 kostenlose Nachrichten im Monat, aber nur bei tatsächlich verteilter Arbeit, denn der Rest der einen Nummer deckt nie den Überhang der anderen."
+            },
+            {
+              "title": "Erst messen, dann schätzen",
+              "body": "Erheben Sie, wie viele freie Antworten jede Nummer in den letzten 30 Tagen gesendet hat. Diese Zahl entscheidet, ob das Kontingent reicht, nicht die Gesamtzahl ausgetauschter Nachrichten."
+            }
+          ],
+          "deadline": {
+            "title": "Der 30. September 2026 ist das entscheidende Datum",
+            "body": "Bis dahin muss eine gültige Zahlungsmethode im Konto hinterlegt sein. Die Abrechnung selbst beginnt am 1. Oktober, und das Monatskontingent startet danach zu jedem Monatswechsel neu."
+          }
+        },
+        "sources": {
+          "title": "Woher jede Angabe stammt",
+          "intro": "Nichts davon ist unsere eigene Auslegung der Meta-Regeln. Die offizielle Dokumentation steht an erster Stelle, die übrigen Quellen erläutern die Ankündigung und die Tarife.",
+          "items": [
+            {
+              "label": "Pricing on the WhatsApp Business Platform, Meta for Developers",
+              "href": "https://developers.facebook.com/documentation/business-messaging/whatsapp/pricing"
+            },
+            {
+              "label": "WhatsApp Business Platform Pricing, offizielle Übersicht",
+              "href": "https://whatsappbusiness.com/products/platform-pricing/"
+            },
+            {
+              "label": "Service message charging starts October 1, 2026 (360dialog)",
+              "href": "https://360dialog.com/blog/whatsapp-service-message-charging-october-2026/"
+            },
+            {
+              "label": "WhatsApp pricing change 2026 (respond.io)",
+              "href": "https://respond.io/blog/whatsapp-pricing-change-2026"
+            },
+            {
+              "label": "WhatsApp API message pricing update, effective October 1, 2026 (YCloud)",
+              "href": "https://www.ycloud.com/blog/whatsapp-api-message-pricing-update-effective-october-1-2026"
+            }
+          ],
+          "checked": "Geprüft am {date}. Regeln und Tarife stammen von Meta und können sich ändern. Bei Widersprüchen gilt die offizielle Dokumentation."
+        },
+        "close": {
+          "legend": "Nächster Schritt",
+          "title": "Weniger Nachrichten, dieselbe Antwort.",
+          "body": "Nach dem Oktober ist der Betrieb am günstigsten, der in weniger Zügen zum Ziel kommt: eine vollständige Antwort statt vier, Erstkontakt über das kostenlose Fenster und Volumen auf die richtigen Nummern verteilt.",
+          "primaryCta": "Konto erstellen",
+          "secondaryCta": "Alle Fragen ansehen"
+        }
+      }
+    }
   }
 }
