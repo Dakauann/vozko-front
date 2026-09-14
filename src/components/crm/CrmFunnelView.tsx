@@ -40,6 +40,7 @@ import {
   kanbanDragOverlayAnimate,
   kanbanDragOverlayTransition,
 } from "@/components/crm/kanban-card";
+import { AnchoredMenu } from "@/components/ui/anchored-menu";
 import { useWorkspace } from "@/contexts/workspace-context";
 
 
@@ -257,6 +258,9 @@ function FunnelCard({
   onLabelMenuToggle?: () => void;
 }) {
   const [isHovered, setIsHovered] = useState(false);
+  /** The three-dot trigger. The menu is portalled out of the card, so it needs
+   *  this to know where the card is on the screen. */
+  const menuAnchorRef = useRef<HTMLButtonElement | null>(null);
   const { can } = useWorkspace();
   // See CrmInbox: the analysis lives behind the audience resource now.
   const canReadAnalysis = can("audience", "read");
@@ -342,7 +346,10 @@ function FunnelCard({
       {hasCardMenu ? (
         <button
           type="button"
+          ref={menuAnchorRef}
           aria-label="Ações da conversa"
+          aria-haspopup="menu"
+          aria-expanded={Boolean(labelMenuOpen)}
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
             e.stopPropagation();
@@ -359,32 +366,38 @@ function FunnelCard({
         </button>
       ) : null}
 
-      {/* Card menu: labels, then the funnel move. */}
-      {labelMenuOpen && hasCardMenu && (
-        <>
-          <div
-            className="fixed inset-0 z-40"
-            onClick={(e) => {
-              e.stopPropagation();
-              onLabelMenuToggle?.();
-            }}
-          />
-          <div className="absolute right-2 top-10 z-50 w-52 rounded-[--radius] border border-border bg-card shadow-xl py-1 animate-in fade-in slide-in-from-top-1 duration-150">
-            {/* Labels are now one SECTION of this menu rather than all of it,
-                so they render only when the workspace has any. */}
-            {hasLabelActions && availableLabels ? (
-              <>
-                <div className="px-3 py-1.5 text-2xs font-semibold text-muted-foreground">
-                  Etiquetas
-                </div>
-                <div className="max-h-44 overflow-y-auto">
-                  {availableLabels.map((label) => {
+      {/* Card menu: labels, then the funnel move.
+
+          Portalled out of the card by AnchoredMenu rather than positioned
+          inside it. A card is a transformed, `will-change: transform` element,
+          so it is its own stacking context: this menu, rendered in there at
+          z-50, could not reach over the cards below it and went behind them.
+          The column body scrolls on top of that, which clipped the menu's lower
+          half — the funnel move — clean off the screen. */}
+      <AnchoredMenu
+        open={Boolean(labelMenuOpen && hasCardMenu)}
+        anchorRef={menuAnchorRef}
+        onClose={() => onLabelMenuToggle?.()}
+        label="Ações da conversa"
+      >
+        {/* Labels are now one SECTION of this menu rather than all of it,
+            so they render only when the workspace has any. */}
+        {hasLabelActions && availableLabels ? (
+          <>
+            <div className="px-3 py-1.5 text-2xs font-semibold text-muted-foreground">
+              Etiquetas
+            </div>
+            {/* The labels scroll on their own so a workspace with forty of them
+                cannot push the funnel move below the fold. */}
+            <div className="max-h-44 overflow-y-auto">
+              {availableLabels.map((label) => {
                 const isAssigned = entry.labels?.some(
                   (l) => l.label_id === label.id,
                 );
                 return (
                   <button
                     key={label.id}
+                    role="menuitem"
                     onClick={(e) => {
                       e.stopPropagation();
                       if (isAssigned && onRemoveLabel) {
@@ -419,41 +432,40 @@ function FunnelCard({
                     )}
                   </button>
                 );
-                  })}
-                </div>
-              </>
-            ) : null}
+              })}
+            </div>
+          </>
+        ) : null}
 
-            {/* The funnel change.
+        {/* The funnel change.
 
-                Dragging a card between columns is a move WITHIN this funnel:
-                the columns are its stages, so leaving the board is deliberately
-                not a drag. It opens a dialog rather than acting on click, and
-                the divider only appears when there is something above it. */}
-            {onRequestMoveToFunnel ? (
-              <>
-                {hasLabelActions ? (
-                  <div className="my-1 border-t border-border" />
-                ) : null}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onLabelMenuToggle?.();
-                    onRequestMoveToFunnel(entry);
-                  }}
-                  className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-2xs font-medium text-foreground transition-colors hover:bg-muted"
-                >
-                  <ArrowsLeftRight
-                    weight="bold"
-                    className="h-3 w-3 flex-shrink-0 text-muted-foreground"
-                  />
-                  <span className="truncate">Mover para outro funil…</span>
-                </button>
-              </>
+            Dragging a card between columns is a move WITHIN this funnel: the
+            columns are its stages, so leaving the board is deliberately not a
+            drag. It opens a dialog rather than acting on click, and the divider
+            only appears when there is something above it. */}
+        {onRequestMoveToFunnel ? (
+          <>
+            {hasLabelActions ? (
+              <div className="my-1 border-t border-border" />
             ) : null}
-          </div>
-        </>
-      )}
+            <button
+              role="menuitem"
+              onClick={(e) => {
+                e.stopPropagation();
+                onLabelMenuToggle?.();
+                onRequestMoveToFunnel(entry);
+              }}
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-2xs font-medium text-foreground transition-colors hover:bg-muted"
+            >
+              <ArrowsLeftRight
+                weight="bold"
+                className="h-3 w-3 flex-shrink-0 text-muted-foreground"
+              />
+              <span className="truncate">Mover para outro funil…</span>
+            </button>
+          </>
+        ) : null}
+      </AnchoredMenu>
 
       {/* Analysis hover card */}
       {canReadAnalysis && entry.latest_analysis && (
