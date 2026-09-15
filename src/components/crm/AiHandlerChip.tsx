@@ -13,10 +13,7 @@
 import { Robot, FlowArrow } from "@/components/icons";
 
 import type { AIHandler } from "@/lib/conversations/types";
-import {
-  isAiAutoReplyEnabled,
-  isAiCurrentlyAttending,
-} from "@/lib/conversations/attendance-summary";
+import { isAiAutoReplyEnabled } from "@/lib/conversations/attendance-summary";
 import { cn } from "@/lib/utils";
 
 interface AiHandlerChipProps {
@@ -60,18 +57,23 @@ export function AiHandlerChip({
   const humanOwns = assignee.length > 0 && !assignee.startsWith("ai:");
   if (conversationStatus === "finished" || humanOwns) return null;
 
-  // Prefer the resolved handler; fall back to a generic "IA" chip when handler data is
-  // absent (older payloads) but the AI is still attending, so nothing regresses.
+  /*
+   * The handler is the ONLY evidence that an AI exists here.
+   *
+   * This used to fall back to a fabricated { kind: "agent" } whenever the
+   * payload carried no handler but isAiCurrentlyAttending() was true. That
+   * predicate ends in `return true` for any unassigned, unpaused conversation:
+   * it never asks whether an AI is configured. So a thread with no agent and no
+   * enabled workflow rendered a chip reading "IA · Agente", the word "Agente"
+   * being the hardcoded fallback below rather than anything's name.
+   *
+   * The backend sends ai_handler on every conversation payload and sets it to
+   * nil exactly when neither an agent nor a workflow is linked AND enabled.
+   * Trusting it means an absent handler hides the chip, which is the right
+   * direction to fail: showing nothing beats inventing an AI.
+   */
   const resolved: AIHandler | null =
-    handler && (handler.kind === "agent" || handler.kind === "workflow")
-      ? handler
-      : isAiCurrentlyAttending({
-            automationEnabled,
-            conversationStatus,
-            assignedUserId,
-          })
-        ? { kind: "agent" }
-        : null;
+    handler && (handler.kind === "agent" || handler.kind === "workflow") ? handler : null;
   if (!resolved) return null;
 
   const paused = !isAiAutoReplyEnabled(automationEnabled);
