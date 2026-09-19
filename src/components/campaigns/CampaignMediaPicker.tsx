@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
  * the domain's MessageSpec carries a MediaID and not a link.
  */
 export function CampaignMediaPicker({
+  kind,
   mediaId,
   fileName,
   onChange,
@@ -22,6 +23,15 @@ export function CampaignMediaPicker({
   labels,
   disabled,
 }: {
+  /**
+   * What the file IS, sent to the store alongside the bytes.
+   *
+   * The upload endpoint refuses a file with no type, so this is required
+   * rather than inferred here: the caller already knows which kind it is
+   * collecting, and guessing from the MIME type would disagree with it the
+   * first time somebody picks a PDF for a document campaign.
+   */
+  kind: string;
   mediaId?: string;
   fileName?: string;
   onChange: (next: { mediaId?: string; fileName?: string; previewUrl?: string }) => void;
@@ -73,8 +83,13 @@ export function CampaignMediaPicker({
             setUploading(true);
             setError(null);
             try {
+              // The field names are the endpoint's, not ours: it reads
+              // `media`, `mediaType` and `description`, and refuses the upload
+              // outright when any of the three is missing.
               const form = new FormData();
-              form.append("file", file);
+              form.append("media", file);
+              form.append("mediaType", kind);
+              form.append("description", file.name);
               const result = await uploadMediaAction(form);
               if (result.error || !result.mediaId) {
                 setError(result.error ?? labels.failed);
@@ -109,4 +124,7 @@ export const MEDIA_ACCEPT: Record<string, string> = {
   video: "video/mp4,video/3gpp",
   audio: "audio/*",
   document: "*/*",
+  // A WhatsApp sticker is a webp image. Unused by campaigns, which have no
+  // sticker kind; seeded conversation openings do.
+  sticker: "image/webp",
 };

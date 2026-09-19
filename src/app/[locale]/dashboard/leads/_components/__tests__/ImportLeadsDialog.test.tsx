@@ -48,6 +48,12 @@ vi.mock("@/lib/leads/template", () => ({
   downloadLeadImportTemplate: vi.fn(),
 }));
 
+// The workspace media library the opening's attachment is uploaded to.
+const uploadMediaActionMock = vi.fn();
+vi.mock("@/app/actions/medias", () => ({
+  uploadMediaAction: (...args: unknown[]) => uploadMediaActionMock(...args),
+}));
+
 vi.mock("@/lib/csv/parse", () => ({
   readDelimitedFile: vi.fn(),
 }));
@@ -110,6 +116,10 @@ beforeEach(() => {
   vi.clearAllMocks();
   canMock.mockReturnValue(true);
   useAuthMock.mockReturnValue({ user: { id: "u-1", role: "admin" } });
+  uploadMediaActionMock.mockResolvedValue({
+    mediaId: "media-1",
+    mediaUrl: "https://cdn.example/abc.jpg",
+  });
   importLeadsActionMock.mockResolvedValue({
     result: { created: 1, matched: 0, blocked: 0, invalid: 0, duplicate: 0, rejected: [] },
     error: null,
@@ -245,6 +255,54 @@ describe("once the script panel is open", () => {
       bodies: ["Oi {{1}}, tudo bem?"],
       maxMessages: 4,
     });
+  });
+
+  /** The picker's own input, which is the one added after the CSV input. */
+  function attachmentInput() {
+    const inputs = document.querySelectorAll('input[type="file"]');
+    return inputs[inputs.length - 1] as HTMLInputElement;
+  }
+
+  async function attachAFile() {
+    const file = new File(["..."], "catalogo.jpg", { type: "image/jpeg" });
+    const input = attachmentInput();
+    Object.defineProperty(input, "files", { value: [file] });
+    fireEvent.change(input);
+    await waitFor(() => expect(uploadMediaActionMock).toHaveBeenCalled());
+  }
+
+  // The attachment is optional, and an operator who never opened the picker
+  // should send exactly the script this feature shipped as.
+  it("sends no attachment when no file was picked", async () => {
+    await openPanel();
+    fireEvent.change(firstMessageBox(), { target: { value: "Oi {{1}}?" } });
+    await waitFor(() => expect(importButton().disabled).toBe(false));
+
+    fireEvent.click(importButton());
+    await waitFor(() => expect(importLeadsActionMock).toHaveBeenCalled());
+    const [, , , script] = importLeadsActionMock.mock.calls[0];
+    expect(script.attachment).toBeUndefined();
+  });
+
+  it("sends the picked file as the opening's attachment", async () => {
+    await openPanel();
+    fireEvent.change(firstMessageBox(), { target: { value: "Oi {{1}}?" } });
+    await attachAFile();
+
+    // The field names are the upload endpoint's, which refuses anything else.
+    const form = uploadMediaActionMock.mock.calls[0][0] as FormData;
+    expect(form.get("mediaType")).toBe("image");
+    expect(form.get("media")).toBeInstanceOf(File);
+    expect(form.get("description")).toBe("catalogo.jpg");
+
+    await waitFor(() => expect(importButton().disabled).toBe(false));
+    fireEvent.click(importButton());
+    await waitFor(() => expect(importLeadsActionMock).toHaveBeenCalled());
+
+    const [, , , script] = importLeadsActionMock.mock.calls[0];
+    expect(script.attachment).toEqual({ mediaId: "media-1", kind: "image" });
+    // The bodies are the caption, not something the file replaced.
+    expect(script.bodies).toEqual(["Oi {{1}}?"]);
   });
 
   // A stale `true` can never be sent: the server refuses a script without

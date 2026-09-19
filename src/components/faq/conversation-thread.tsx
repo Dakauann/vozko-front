@@ -35,6 +35,11 @@ export type ThreadData = {
  * column, which is what makes the argument readable before a word is read:
  * four amber marks in a row, or a column of green ones.
  *
+ * The bubbles are the CRM inbox's own: same fills, same radius, same clipped
+ * top corner, same 3px channel edge, on the same canvas. The reader is being
+ * asked to recognise a message they see all day, and a recoloured transcript
+ * makes them translate before they can follow the argument.
+ *
  * It renders complete and static. An earlier version played itself turn by
  * turn, and because a thread is taller than the viewport the observer meant to
  * start it never fired, so readers met a tall empty box instead of a
@@ -60,6 +65,7 @@ export function ConversationThread({
         </span>
       }
       foot={data.verdict}
+      bodyClassName={styles.threadBody}
     >
       {data.turns.map((turn, index) => (
         <div key={`${turn.clock}-${index}`} className={styles.turn} data-from={turn.from}>

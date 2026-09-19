@@ -124,6 +124,22 @@ export interface UnofficialWhatsAppCampaignTarget {
     metadata?: Record<string, string | number | boolean | null>;
 }
 
+/**
+ * The administrator-only demonstration control: create a campaign that already
+ * carries results, instead of blasting a real list to produce them.
+ *
+ * Sent on the way IN and never returned, because it is an instruction rather
+ * than a property of the campaign - what became of it is readable from
+ * `metrics`, exactly like any other campaign's. `respondedPercent` lands on
+ * READ, the furthest state this channel's vocabulary has: someone who answered
+ * necessarily opened the message. Whatever the two shares leave over stays
+ * PENDING.
+ */
+export interface UnofficialWhatsAppCampaignSeedOutcome {
+    respondedPercent: number;
+    failedPercent: number;
+}
+
 export interface UnofficialWhatsAppCampaignPayload {
     name: string;
     instanceId: string;
@@ -147,6 +163,8 @@ export interface UnofficialWhatsAppCampaignPayload {
     scheduledStart?: string | null;
     archived?: boolean;
     targets?: UnofficialWhatsAppCampaignTarget[];
+    /** Ignored by the server for anyone who is not a platform administrator. */
+    seedOutcome?: UnofficialWhatsAppCampaignSeedOutcome | null;
 }
 
 export interface UnofficialWhatsAppCampaignEntry {

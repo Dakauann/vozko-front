@@ -7738,7 +7738,21 @@
         "messageCount": "{count} Nachrichten",
         "unnamedRows": "{count} Zeilen haben keinen Namen und bekommen stattdessen eine leere Unterhaltung, weil die erste Nachricht den Namen verwendet.",
         "costNotice": "Nur die ersten {max} Kontakte des Imports bekommen eine Beispielunterhaltung, der Rest eine leere. Die KI wird vom Guthaben des Workspace abgerechnet.",
-        "invalid": "Schreibe die erste Nachricht und verwende in allen Varianten dieselben Variablen."
+        "invalid": "Schreibe die erste Nachricht und verwende in allen Varianten dieselben Variablen.",
+        "mediaTitle": "Anhang der ersten Nachricht",
+        "mediaHelp": "Optional. Der Text oben wird zur Bildunterschrift.",
+        "mediaKind": "Dateityp",
+        "mediaKinds": {
+            "image": "Bild",
+            "video": "Video",
+            "audio": "Audio",
+            "document": "Dokument",
+            "sticker": "Sticker"
+        },
+        "mediaUpload": "Datei hochladen",
+        "mediaUploading": "Wird hochgeladen...",
+        "mediaRemove": "Datei entfernen",
+        "mediaFailed": "Die Datei konnte nicht hochgeladen werden"
       }
     },
     "header": {
@@ -10839,7 +10853,14 @@
       "previewVariantsHelp": "{count} Variante(n). Jeder Empfänger erhält eine.",
       "recipientsPaste": "Liste einfügen oder hochladen",
       "downloadExample": "Beispiel herunterladen",
-      "noTargets": "Füge mindestens eine Nummer hinzu."
+      "noTargets": "Füge mindestens eine Nummer hinzu.",
+      "adminOnly": "nur Admin",
+      "seedOutcome": "Mit Ergebnissen anlegen",
+      "seedOutcomeDescription": "Demo-Kampagne: Kontakte werden bereits mit einem Ergebnis angelegt. Es wird nichts gesendet.",
+      "seedRespondedPercent": "% geantwortet",
+      "seedFailedPercent": "% fehlgeschlagen",
+      "seedOutcomeSummary": "{responded} geantwortet · {failed} fehlgeschlagen · {pending} noch offen.",
+      "seedOutcomeOverflow": "Die beiden Prozentwerte zusammen dürfen 100 % nicht überschreiten."
     },
     "detail": {
       "numberOffline": "Diese Nummer ist getrennt. Die Kampagne sendet nichts, bis sie wieder verbunden ist.",
@@ -11652,38 +11673,22 @@
       "metaServiceCosts": {
         "category": "WhatsApp · Abrechnung",
         "title": "Die neuen WhatsApp-Kosten von Meta",
-        "excerpt": "Ab dem 1. Oktober 2026 kostet jede Antwort an Kundinnen und Kunden Geld. Jede Rufnummer erhält 1.000 kostenlose Servicenachrichten pro Monat, und dieser Beitrag zeigt Nachricht für Nachricht, was darauf angerechnet wird.",
+        "excerpt": "Ab dem 1. Oktober 2026 kostet jede Antwort an Kundinnen und Kunden Geld. Dieser Beitrag zeigt Nachricht für Nachricht, welche Antworten Meta berechnet und welche kostenlos bleiben.",
         "lead": "Ab dem 1. Oktober 2026 kostet jede Antwort an Kundinnen und Kunden Geld.",
-        "standfirst": "Jede Unternehmensrufnummer erhält 1.000 kostenlose Servicenachrichten pro Monat. Unten stehen drei echte Gespräche mit jeder einzelnen Nachricht markiert: was das Kontingent verbraucht, was getrennt berechnet wird und was kostenlos bleibt.",
+        "standfirst": "Unten stehen drei echte Gespräche mit jeder einzelnen Nachricht markiert: was Meta ab Oktober berechnet, was getrennt berechnet wird und was kostenlos bleibt.",
         "readingTime": "{minutes} Min. Lesezeit",
         "backToIndex": "Zurück zum FAQ",
         "metaTitle": "Die neuen WhatsApp-Kosten von Meta: was sich am 1. Oktober 2026 ändert",
-        "metaDescription": "Servicenachrichten werden ab 1.000 pro Rufnummer und Monat berechnet, und Utility-Vorlagen im 24-Stunden-Fenster sind nicht mehr kostenlos. Mit anschaulichen Beispielen, welche Nachrichten kosten.",
+        "metaDescription": "Die freie Antwort im 24-Stunden-Fenster wird berechnet, und Utility-Vorlagen in diesem Fenster sind nicht mehr kostenlos. Mit anschaulichen Beispielen, welche Nachrichten kosten.",
         "announcement": {
           "title": "Was Meta angekündigt hat",
           "body1": "Am 1. Oktober 2026 tritt die größte Abrechnungsänderung bei WhatsApp Business seit Juli 2025 in Kraft. Zwei Dinge, die heute kostenlos sind, werden berechnet: die freie Antwort, die Ihr Team im 24-Stunden-Fenster sendet und die Meta Servicenachricht nennt, sowie die Utility-Vorlage, die im selben Fenster verschickt wird. Bis zum 30. September 2026 bleiben beide kostenlos.",
           "body2": "Die Entscheidung stammt von Meta und gilt für jedes Unternehmen, das die offizielle WhatsApp Business API nutzt, in jedem Land und über jeden Anbieter. Es ist keine Preisänderung Ihrer Kundenservice-Plattform: Meta legt die Kategorie jeder Nachricht, den Tarif je Land und das Startdatum fest, und jeder Anbieter gibt genau dieselben Kosten weiter. Die Rechnung, die dieser Beitrag durchgeht, wäre mit jedem anderen Werkzeug am Markt identisch.",
-          "body3": "Was sich nicht ändert, ist ebenso wichtig und rückt die Sache zurecht. Nachrichten, die Kundinnen und Kunden an ein Unternehmen senden, bleiben kostenlos, heute wie nach dem Oktober, und zwar ohne jede Obergrenze. Das 24-Stunden-Fenster bleibt bestehen und wird weiterhin von der Kundschaft geöffnet. Gespräche aus einer Click-to-WhatsApp-Anzeige behalten ihre 72 vollständig kostenlosen Stunden. Und die neue Abrechnung beginnt erst nach einem großzügigen Monatskontingent, mit dem dieser Beitrag anfängt.",
+          "body3": "Was sich nicht ändert, ist ebenso wichtig und rückt die Sache zurecht. Nachrichten, die Kundinnen und Kunden an ein Unternehmen senden, bleiben kostenlos, heute wie nach dem Oktober, und zwar ohne jede Obergrenze. Das 24-Stunden-Fenster bleibt bestehen und wird weiterhin von der Kundschaft geöffnet. Gespräche aus einer Click-to-WhatsApp-Anzeige behalten ihre 72 vollständig kostenlosen Stunden. Was sich ändert, ist enger gefasst, als die Schlagzeilen vermuten lassen, und genau da setzt dieser Beitrag an.",
           "callout": {
             "title": "Wer entscheidet und wer abrechnet",
             "body": "Meta legt die Nachrichtenkategorien, die Tarife je Land und die Termine fest. Der API-Anbieter gibt den Betrag lediglich weiter. Keine Kundenservice-Plattform kann eine Nachricht befreien, die Meta als abrechenbar eingestuft hat, oder einen anderen Tarif als Metas offizielle Tabelle anbieten."
           }
-        },
-        "allowance": {
-          "title": "Das Kontingent von 1.000 Nachrichten",
-          "intro": "Meta berechnet nicht plötzlich alles. Es gibt ein monatliches Kontingent pro Unternehmensrufnummer, und berechnet wird erst ab der 1.001. Nachricht.",
-          "bar": {
-            "panelTitle": "Ein Monat auf einer Rufnummer",
-            "panelScenario": "Beispiel: 1.250 Servicenachrichten im Monat gesendet.",
-            "freeLabel": "Kostenlos",
-            "billedLabel": "Berechnet",
-            "scaleStart": "Nachricht 1",
-            "scaleEnd": "Nachricht 1.250",
-            "foot": "Das Kontingent startet am 1. jedes Monats neu und wird nicht übertragen: Was im Oktober übrig bleibt, ist im November nichts mehr wert."
-          },
-          "body1": "Das Kontingent gilt pro Rufnummer, nicht pro Konto. Ein Betrieb mit vier verbundenen Nummern hat 4.000 kostenlose Servicenachrichten im Monat, aber nur wenn die Arbeit tatsächlich auf sie verteilt ist, denn der Rest der einen Nummer deckt nie den Überhang der anderen. Trägt eine einzige Nummer den gesamten Verkehr, läuft sie allein über, während die anderen drei den Monat unberührt beenden, und dieser Überschuss verfällt ersatzlos.",
-          "body2": "Ab der tausendsten kostet jede Servicenachricht denselben Tarif, den Meta bereits für eine Utility- oder Authentifizierungsvorlage im Land der empfangenden Person berechnet. In dieser Kategorie gibt es keinen Mengenrabatt: Nachricht 1.001 kostet genau so viel wie Nachricht 90.000, und kein bei einem Anbieter gebuchter Tarif ändert diesen Betrag.",
-          "body3": "Ein Punkt sei wiederholt, weil er beim ersten Lesen oft missverstanden wird. Das Kontingent deckt ausschließlich Servicenachrichten ab, also freie Antworten im Fenster. Marketing-, Authentifizierungs- und Utility-Vorlagen werden weiterhin ab der ersten Einheit berechnet, denn sie gehörten nie zu dieser Kategorie. Ein Betrieb, der viele Vorlagen verschickt und selten antwortet, kann einen ganzen Monat lang das Kontingent nicht anrühren und trotzdem eine hohe Rechnung erhalten."
         },
         "window": {
           "title": "Das 24-Stunden-Fenster",
@@ -11700,7 +11705,7 @@
               },
               {
                 "time": "09:14 · Sie antworten",
-                "body": "Freie Antwort ohne Vorlage. Das ist eine Servicenachricht und sie verbraucht das Kontingent.",
+                "body": "Freie Antwort ohne Vorlage. Das ist eine Servicenachricht und sie wird berechnet.",
                 "tag": "Servicenachricht",
                 "verdict": "billed"
               },
@@ -11729,7 +11734,7 @@
         },
         "examples": {
           "title": "Drei Gespräche, drei Rechnungen",
-          "intro": "Eine geschriebene Regel ist das eine, eine Rechnung das andere. Die drei Gespräche unten sind die, die Ihr Team täglich führt, mit jeder Nachricht so markiert, wie Meta sie ab Oktober einstuft. Die Zahl oben ist, wie viele Nachrichten aus dem Monatskontingent abgeflossen sind.",
+          "intro": "Eine geschriebene Regel ist das eine, eine Rechnung das andere. Die drei Gespräche unten sind die, die Ihr Team täglich führt, mit jeder Nachricht so markiert, wie Meta sie ab Oktober einstuft. Die Zahl oben ist, wie viele Nachrichten Meta berechnet.",
           "body": "Lesen Sie sie der Reihe nach. Das erste zeigt, was ein gewöhnlicher Servicefall kostet: gut gelöst und trotzdem teuer. Das zweite zeigt denselben Aufwand zum Nulltarif, nur weil das Gespräch anderswo begonnen hat. Das dritte zeigt den Teil der Änderung, den fast niemand bemerkt, weil er in einer Vorlage steckt, die immer kostenlos war.",
           "thread": {
             "billedUnit": "berechnet"
@@ -11803,7 +11808,7 @@
             {
               "title": "Vertrieb: der Lead aus der Anzeige",
               "scenario": "Eröffnet durch einen Klick auf eine Click-to-WhatsApp-Anzeige.",
-              "verdict": "Null aus dem Kontingent über die gesamte Erkundungsphase. Das ist heute der günstigste Weg, und er beginnt bei der Anzeige, nicht im Posteingang.",
+              "verdict": "Nichts berechnet über die gesamte Erkundungsphase. Das ist heute der günstigste Weg, und er beginnt bei der Anzeige, nicht im Posteingang.",
               "turns": [
                 {
                   "from": "customer",
@@ -11863,7 +11868,7 @@
             {
               "title": "Support: die Vorlage, die früher kostenlos war",
               "scenario": "Die Änderung, die am leichtesten übersehen wird: eine Utility-Vorlage innerhalb des Fensters.",
-              "verdict": "Zwei Servicenachrichten und eine Utility-Vorlage, die bis zum 30. September nichts gekostet hätte. Diese Vorlage geht nicht vom Kontingent ab, denn das Kontingent gilt nur für Servicenachrichten.",
+              "verdict": "Zwei Servicenachrichten und eine Utility-Vorlage, die bis zum 30. September nichts gekostet hätte. Die Vorlage wird getrennt von den Antworten berechnet, denn sie ist keine Servicenachricht.",
               "turns": [
                 {
                   "from": "customer",
@@ -11889,7 +11894,7 @@
                   "text": "Update zu Bestellung #48219: in Zustellung, voraussichtlich heute bis 18 Uhr.",
                   "verdict": "billed",
                   "tag": "Utility-Vorlage",
-                  "reason": "Bis 30.09.2026 im Fenster kostenlos. Ab 01.10. berechnet, und außerhalb des Kontingents.",
+                  "reason": "Bis 30.09.2026 im Fenster kostenlos. Ab 01.10. berechnet.",
                   "template": "Genehmigte Vorlage"
                 },
                 {
@@ -11906,7 +11911,7 @@
                   "text": "Sehr gerne, Rafael. Ich habe es hier in Ihrem Verlauf vermerkt.",
                   "verdict": "billed",
                   "tag": "Servicenachricht",
-                  "reason": "Verbraucht das Kontingent."
+                  "reason": "Wird als Servicenachricht berechnet."
                 }
               ]
             }
@@ -11935,7 +11940,7 @@
                 "kind": "Die Servicenachricht: Text, Medien, Audio, Dokument",
                 "before": "Kostenlos",
                 "beforeVerdict": "free",
-                "after": "Ab 1.000/Monat",
+                "after": "Berechnet",
                 "afterVerdict": "billed",
                 "changedFlag": "Geändert"
               },
@@ -11987,54 +11992,22 @@
             "body": "Seit dem 1. August 2026 werden sie nach verbrauchten Tokens abgerechnet, nicht pro Nachricht. Eine Nachricht ohne Vorlage wird genau einmal berechnet: entweder als Servicenachricht oder als Meta-Business-Agent-Nachricht, nie als beides."
           }
         },
-        "math": {
-          "title": "Was das in der Praxis kostet",
-          "intro": "Ziehen Sie auf Ihr monatliches Volumen an Servicenachrichten einer Rufnummer und lesen Sie die Rechnung ab. Die Rechnung ist Metas eigene: Monatssumme, minus das Kontingent von 1.000, mal der Tarif des Empfängerlandes.",
-          "ledger": {
-            "panelTitle": "Die Rechnung des Monats",
-            "panelScenario": "Eine Rufnummer, ein Monat.",
-            "inputLabel": "Servicenachrichten in diesem Monat",
-            "sent": "In diesem Monat gesendet",
-            "freeTier": "Kostenloses Kontingent (nicht berechnet)",
-            "billable": "Abrechenbare Nachrichten",
-            "rate": "Tarif pro Nachricht",
-            "rateNote": "Referenz Brasilien, entspricht dem Utility- und Authentifizierungstarif",
-            "fx": "Verwendeter Wechselkurs",
-            "fxNote": "US-Dollar am 14. September 2026",
-            "total": "Geschätzte Monatskosten",
-            "disclaimer": "Eine Schätzung. Meta rechnet in US-Dollar ab, und der Tarif richtet sich nach dem Land der empfangenden Person. Der Betrag in Real hängt vom Tageskurs ab, und Ihr Anbieter kann eigene Gebühren aufschlagen."
-          },
-          "body": "Der Referenztarif oben ist der brasilianische von rund 0,0068 US-Dollar pro Nachricht, geprüft am 14. September 2026. Betreut Ihr Team Kundschaft außerhalb Brasiliens, ändert sich die Zahl, denn abgerechnet wird nach dem Land der empfangenden Person und nicht nach dem des Unternehmens. Eine Kundin in Portugal oder Deutschland zu betreuen kostet pro Nachricht erheblich mehr als eine in Sao Paulo.",
-          "body2": "Für die meisten kleinen Betriebe bleibt der Endbetrag bescheiden, und genau das ist der Punkt: Das Kontingent von 1.000 Nachrichten gibt es, damit ein Geschäft mit geringem Volumen die Änderung nicht spürt. Spürbar wird sie im großen Maßstab, vor allem bei Inkasso und Support, wo jedes Gespräch mehrere freie Antworten verbraucht und das Monatsvolumen pro Nummer mühelos zehntausend Nachrichten übersteigt."
-        },
         "actions": {
-          "title": "Was vor dem 1. Oktober zu tun ist",
-          "intro": "Fünf Entscheidungen, die die Oktober-Rechnung verändern, alle vor dem Stichtag zu treffen. Die erste ist Pflicht, sonst werden Nachrichten schlicht nicht mehr zugestellt. Die anderen vier sind Ersparnis.",
+          "title": "Was sich im Alltag ändert",
+          "intro": "Zwei Situationen, die heute nichts kosten und ab dem 1. Oktober einen Preis haben. Keine von beiden erfordert eine Systemänderung: Es ist dasselbe Gespräch, mit einer anderen Zahl auf der Rechnung.",
           "steps": [
             {
-              "title": "Zahlungsmethode bestätigen",
-              "body": "Ohne hinterlegte Zahlungsmethode im WhatsApp-Business-Konto stellt Meta die 1.000 Servicenachrichten des Monats zu und liefert ab der 1.001. nicht mehr aus. Frist dafür ist der 30. September 2026."
+              "title": "Eine Antwort in drei Blasen sind drei Berechnungen",
+              "body": "Drei Blasen hintereinander sind drei berechnete Nachrichten. Dieselbe Information als eine vollständige Antwort ist eine."
             },
             {
-              "title": "Die ganze Antwort in eine Nachricht packen",
-              "body": "Drei Blasen hintereinander sind drei berechnete Nachrichten. Dieselbe Information als eine vollständige Antwort ist eine. Das ist die unmittelbarste Ersparnis und erfordert keine Systemänderung."
-            },
-            {
-              "title": "Den Erstkontakt über die Anzeige führen",
+              "title": "Der Erstkontakt über die Anzeige öffnet 72 kostenlose Stunden",
               "body": "Ein Gespräch aus einer Click-to-WhatsApp-Anzeige oder einem Seiten-Button öffnet 72 kostenlose Stunden, sofern das Unternehmen binnen 24 Stunden antwortet. In diesem Fenster kostet nichts etwas, Vorlagen eingeschlossen."
-            },
-            {
-              "title": "Das Volumen auf die Nummern verteilen",
-              "body": "Das Kontingent gilt pro Rufnummer. Vier verbundene Nummern bedeuten 4.000 kostenlose Nachrichten im Monat, aber nur bei tatsächlich verteilter Arbeit, denn der Rest der einen Nummer deckt nie den Überhang der anderen."
-            },
-            {
-              "title": "Erst messen, dann schätzen",
-              "body": "Erheben Sie, wie viele freie Antworten jede Nummer in den letzten 30 Tagen gesendet hat. Diese Zahl entscheidet, ob das Kontingent reicht, nicht die Gesamtzahl ausgetauschter Nachrichten."
             }
           ],
           "deadline": {
-            "title": "Der 30. September 2026 ist das entscheidende Datum",
-            "body": "Bis dahin muss eine gültige Zahlungsmethode im Konto hinterlegt sein. Die Abrechnung selbst beginnt am 1. Oktober, und das Monatskontingent startet danach zu jedem Monatswechsel neu."
+            "title": "Der 1. Oktober 2026 ist das entscheidende Datum",
+            "body": "Dann wird die freie Antwort im Fenster berechnet. Bis zum 30. September kostet dieselbe Nachricht nichts."
           }
         },
         "sources": {

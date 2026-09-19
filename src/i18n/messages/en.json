@@ -8784,7 +8784,21 @@
         "messageCount": "{count} messages",
         "unnamedRows": "{count} rows have no name and will get an empty conversation instead, because the first message uses the name.",
         "costNotice": "Only the first {max} contacts of the import get an example conversation; the rest get an empty one. The AI is billed to the workspace's balance.",
-        "invalid": "Write the first message, and make every variant use the same variables."
+        "invalid": "Write the first message, and make every variant use the same variables.",
+        "mediaTitle": "First message attachment",
+        "mediaHelp": "Optional. The text above becomes the caption.",
+        "mediaKind": "File type",
+        "mediaKinds": {
+            "image": "Image",
+            "video": "Video",
+            "audio": "Audio",
+            "document": "Document",
+            "sticker": "Sticker"
+        },
+        "mediaUpload": "Upload a file",
+        "mediaUploading": "Uploading...",
+        "mediaRemove": "Remove file",
+        "mediaFailed": "The file could not be uploaded"
       }
     },
     "header": {
@@ -11840,7 +11854,14 @@
       "previewVariantsHelp": "{count} variant(s). Each recipient gets one.",
       "recipientsPaste": "Paste or upload the list",
       "downloadExample": "Download example",
-      "noTargets": "Add at least one number."
+      "noTargets": "Add at least one number.",
+      "adminOnly": "admin only",
+      "seedOutcome": "Create with results",
+      "seedOutcomeDescription": "Demo campaign: contacts are created already carrying a result. Nothing is sent.",
+      "seedRespondedPercent": "% responded",
+      "seedFailedPercent": "% failed",
+      "seedOutcomeSummary": "{responded} responded · {failed} failed · {pending} still pending.",
+      "seedOutcomeOverflow": "The two percentages together cannot exceed 100%."
     },
     "detail": {
       "numberOffline": "This number is disconnected. The campaign will not send until it reconnects.",
@@ -12654,38 +12675,22 @@
       "metaServiceCosts": {
         "category": "WhatsApp · Billing",
         "title": "Meta's new WhatsApp costs",
-        "excerpt": "From 1 October 2026, replying to a customer has a price. Every phone number gets 1,000 free service messages a month, and this article shows, message by message, what counts against them.",
+        "excerpt": "From 1 October 2026, replying to a customer has a price. This article shows, message by message, which replies Meta starts charging for and which stay free.",
         "lead": "From 1 October 2026, replying to a customer has a price.",
-        "standfirst": "Every business phone number gets 1,000 free service messages a month. Below are three real conversations with every message marked: what draws down the allowance, what is billed separately, and what stays free.",
+        "standfirst": "Below are three real conversations with every message marked: what Meta starts charging for in October, what is billed separately, and what stays free.",
         "readingTime": "{minutes} min read",
         "backToIndex": "Back to the FAQ",
         "metaTitle": "Meta's new WhatsApp costs: what changes on 1 October 2026",
-        "metaDescription": "Service messages become billable after 1,000 per phone number per month, and utility templates inside the 24-hour window stop being free. With visual examples of exactly which messages are charged.",
+        "metaDescription": "Free-form replies inside the 24-hour window become billable, and utility templates inside that window stop being free. With visual examples of exactly which messages are charged.",
         "announcement": {
           "title": "What Meta announced",
           "body1": "On 1 October 2026 the largest WhatsApp Business billing change since July 2025 takes effect. Two things that are free today become chargeable: the free-form reply your team sends inside the 24-hour window, which Meta calls a service message, and the utility template sent inside that same window. Until 30 September 2026 both remain free.",
           "body2": "The decision is Meta's, and it applies to every business using the official WhatsApp Business API, in any country and through any provider. It is not a price change by your customer-service platform: Meta sets the category of each message, the rate for each country and the start date, and every provider passes on exactly the same cost. The bill this article walks through would be identical on any other tool on the market.",
-          "body3": "What is not changing matters just as much, and it is what keeps this in proportion. Messages customers send to a business stay free, today and after October, with no cap at all. The 24-hour window still exists and is still opened by the customer. Conversations that start from a Click-to-WhatsApp ad still get 72 entirely free hours. And the new charge only begins after a generous monthly allowance, which is where this article starts.",
+          "body3": "What is not changing matters just as much, and it is what keeps this in proportion. Messages customers send to a business stay free, today and after October, with no cap at all. The 24-hour window still exists and is still opened by the customer. Conversations that start from a Click-to-WhatsApp ad still get 72 entirely free hours. What changes is narrower than the headlines suggest, and that is where this article starts.",
           "callout": {
             "title": "Who decides and who charges",
             "body": "Meta sets the message categories, the per-country rates and the dates. The API provider only passes the amount on. No customer-service platform can exempt a message Meta has classified as chargeable, or offer a rate different from Meta's official table."
           }
-        },
-        "allowance": {
-          "title": "The 1,000-message allowance",
-          "intro": "Meta did not start charging for everything. It created a monthly allowance per business phone number, and only charges from the 1,001st message onward.",
-          "bar": {
-            "panelTitle": "One month on one phone number",
-            "panelScenario": "Example: 1,250 service messages sent in the month.",
-            "freeLabel": "Free",
-            "billedLabel": "Billed",
-            "scaleStart": "Message 1",
-            "scaleEnd": "Message 1,250",
-            "foot": "The allowance resets on the 1st and never rolls over: whatever October leaves unused is worth nothing in November."
-          },
-          "body1": "The allowance is per number, not per account. An operation with four connected numbers has 4,000 free service messages a month, but only if the workload is genuinely spread across them, because one number's leftovers never cover another number's overflow. A single number carrying all the traffic runs over on its own while the other three end the month untouched, and that surplus is simply lost.",
-          "body2": "Past the thousandth, every service message costs the same rate Meta already charges for a utility or authentication template in the recipient's country. There is no volume discount in this category: message 1,001 costs exactly what message 90,000 costs, and no plan bought from a provider changes that figure.",
-          "body3": "One point is worth repeating, because it trips people up on a first read. The allowance covers service messages only, meaning free-form replies inside the window. Marketing, authentication and utility templates are still charged from the very first one, because they were never in that category. An operation that sends many templates and replies rarely can go a whole month without touching the allowance and still get a large invoice."
         },
         "window": {
           "title": "The 24-hour window",
@@ -12702,7 +12707,7 @@
               },
               {
                 "time": "09:14 · You reply",
-                "body": "A free-form reply with no template. It is a service message and it draws down the allowance.",
+                "body": "A free-form reply with no template. It is a service message, and from October it is charged.",
                 "tag": "Service message",
                 "verdict": "billed"
               },
@@ -12731,7 +12736,7 @@
         },
         "examples": {
           "title": "Three conversations, three bills",
-          "intro": "A written rule is one thing; an invoice is another. The three conversations below are the ones your team has every day, with every message marked the way Meta will classify it from October. The number at the top of each is how many messages came out of the month's allowance.",
+          "intro": "A written rule is one thing; an invoice is another. The three conversations below are the ones your team has every day, with every message marked the way Meta will classify it from October. The number at the top of each is how many messages Meta charges for.",
           "body": "Read them in order. The first shows what an ordinary support case costs, handled well and expensive anyway. The second shows the same effort costing nothing, purely because the conversation started somewhere else. The third shows the part of the change almost nobody notices, because it happens inside a template that was always free.",
           "thread": {
             "billedUnit": "billed"
@@ -12805,7 +12810,7 @@
             {
               "title": "Sales: the lead that came from an ad",
               "scenario": "Opened by a click on a Click-to-WhatsApp ad.",
-              "verdict": "Zero from the allowance across the entire discovery phase. It is the cheapest path available today, and it starts at the ad, not at the inbox.",
+              "verdict": "Nothing charged across the entire discovery phase. It is the cheapest path available today, and it starts at the ad, not at the inbox.",
               "turns": [
                 {
                   "from": "customer",
@@ -12865,7 +12870,7 @@
             {
               "title": "Support: the template that used to be free",
               "scenario": "The easiest change to miss: a utility template sent inside the window.",
-              "verdict": "Two service messages and one utility template that, until 30 September, would have cost nothing. That template does not come out of the allowance, because the allowance only covers service messages.",
+              "verdict": "Two service messages and one utility template that, until 30 September, would have cost nothing. The template is billed separately from the replies, because it is not a service message.",
               "turns": [
                 {
                   "from": "customer",
@@ -12891,7 +12896,7 @@
                   "text": "Update on order #48219: out for delivery, expected today before 6pm.",
                   "verdict": "billed",
                   "tag": "Utility template",
-                  "reason": "Free inside the window until 30/09/2026. Charged from 01/10, and outside the allowance.",
+                  "reason": "Free inside the window until 30/09/2026. Charged from 01/10.",
                   "template": "Approved template"
                 },
                 {
@@ -12908,7 +12913,7 @@
                   "text": "You are welcome, Rafael. I have logged it on your record here.",
                   "verdict": "billed",
                   "tag": "Service message",
-                  "reason": "Draws down the allowance."
+                  "reason": "Charged as a service message."
                 }
               ]
             }
@@ -12937,7 +12942,7 @@
                 "kind": "The service message: text, media, audio, document",
                 "before": "Free",
                 "beforeVerdict": "free",
-                "after": "After 1,000/month",
+                "after": "Billed",
                 "afterVerdict": "billed",
                 "changedFlag": "Changed"
               },
@@ -12989,54 +12994,22 @@
             "body": "Since 1 August 2026 they are charged by tokens consumed rather than per message. A non-template message is charged once and only once: either as a service message or as a Meta Business Agent message, never as both."
           }
         },
-        "math": {
-          "title": "What it costs in practice",
-          "intro": "Drag to your monthly service-message volume on one number and read the bill. The arithmetic is Meta's own: the month's total, minus the 1,000 allowance, times the rate for the recipient's country.",
-          "ledger": {
-            "panelTitle": "The month's bill",
-            "panelScenario": "One phone number, one month.",
-            "inputLabel": "Service messages this month",
-            "sent": "Sent this month",
-            "freeTier": "Free allowance (not charged)",
-            "billable": "Billable messages",
-            "rate": "Rate per message",
-            "rateNote": "Brazil reference, equal to the utility and authentication rate",
-            "fx": "Exchange rate used",
-            "fxNote": "US dollar on 14 September 2026",
-            "total": "Estimated monthly cost",
-            "disclaimer": "An estimate. Meta invoices in US dollars and the rate follows the recipient's country. The figure in reais depends on the day's exchange rate, and your provider may add its own fee on top."
-          },
-          "body": "The reference rate above is Brazil's, roughly US$0.0068 per message, checked on 14 September 2026. If your operation serves customers outside Brazil the number changes, because the charge follows the recipient's country and not the company's. Serving a customer in Portugal or Germany costs considerably more per message than serving one in Sao Paulo.",
-          "body2": "For most small operations the final figure is modest, and that is the point: the 1,000-message allowance exists precisely so a low-volume business does not feel the change. The impact shows up at scale, above all in collections and support, where each conversation consumes several free-form replies and monthly volume passes ten thousand messages per number without difficulty."
-        },
         "actions": {
-          "title": "What to do before 1 October",
-          "intro": "Five decisions that change October's invoice, all of them taken before the date. The first is mandatory, on pain of messages simply no longer being delivered. The other four are savings.",
+          "title": "What changes day to day",
+          "intro": "Two situations that cost nothing today and carry a price from 1 October. Neither depends on a system change: it is the same conversation, with a different figure on the invoice.",
           "steps": [
             {
-              "title": "Confirm the payment method",
-              "body": "With no payment method on the WhatsApp Business account, Meta delivers the month's 1,000 service messages and stops delivering from the 1,001st. The deadline to sort it out is 30 September 2026."
+              "title": "A reply split into three bubbles is three charges",
+              "body": "Three bubbles in a row are three charged messages. The same information written as one complete reply is one."
             },
             {
-              "title": "Put the whole reply in one message",
-              "body": "Three bubbles in a row are three charged messages. The same information written as one complete reply is one. It is the most immediate saving available and it needs no system change."
-            },
-            {
-              "title": "Move first contact to the ad",
+              "title": "First contact from an ad opens 72 free hours",
               "body": "A conversation opened by a Click-to-WhatsApp ad or a Page button opens 72 free hours, provided the business replies within 24 hours. Inside that window nothing is charged, templates included."
-            },
-            {
-              "title": "Spread volume across the numbers",
-              "body": "The allowance is per phone number. Four connected numbers mean 4,000 free messages a month, but only if the work is genuinely distributed, because one number's leftovers never cover another's overflow."
-            },
-            {
-              "title": "Measure before you estimate",
-              "body": "Pull how many free-form replies each number sent in the last 30 days. That figure, not the total messages exchanged, decides whether the allowance covers your operation."
             }
           ],
           "deadline": {
-            "title": "30 September 2026 is the date that matters",
-            "body": "It is the deadline for having a valid payment method on the account. The charging itself starts on 1 October, and the month's allowance resets at the turn of every month after that."
+            "title": "1 October 2026 is the date that matters",
+            "body": "That is when a free-form reply inside the window starts being charged. Until 30 September the same message costs nothing."
           }
         },
         "sources": {

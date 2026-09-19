@@ -55,3 +55,36 @@ export function canPause(status: string): boolean {
 export function canStop(status: string): boolean {
     return status !== "STOPPED";
 }
+
+/**
+ * How a seeded demonstration campaign's list divides up.
+ *
+ * Mirrors `SeededOutcome.Statuses` in the Go domain, which is the authority:
+ * CUMULATIVE integer division, so the rounding happens in one place and shares
+ * that add up to 100 settle the whole list exactly. Flooring each bucket on its
+ * own leaves up to two entries over — 40% and 60% of three targets floors to
+ * one and one — and the preview would then promise a split the server does not
+ * produce.
+ *
+ * It exists so the create form can show the operator the three real numbers
+ * instead of two percentages they have to multiply in their head, and it is
+ * here rather than inline in that form because a rule that is spelled twice is
+ * a rule that drifts.
+ */
+export function seededOutcomeCounts(
+    total: number,
+    respondedPercent: number,
+    failedPercent: number,
+): { responded: number; failed: number; pending: number } {
+    const clamp = (v: number) => Math.min(100, Math.max(0, Math.floor(v) || 0));
+    const respondedShare = clamp(respondedPercent);
+    const failedShare = clamp(failedPercent);
+
+    const responded = Math.floor((total * respondedShare) / 100);
+    const settled = Math.floor((total * clamp(respondedShare + failedShare)) / 100);
+    return {
+        responded,
+        failed: settled - responded,
+        pending: Math.max(0, total - settled),
+    };
+}

@@ -29,8 +29,8 @@ export const FAQ_POSTS: readonly FaqPostEntry[] = [
     slug: "novos-custos-meta",
     key: "metaServiceCosts",
     publishedAt: "2026-09-14",
-    updatedAt: "2026-09-14",
-    readingMinutes: 8,
+    updatedAt: "2026-09-19",
+    readingMinutes: 6,
   },
 ];
 

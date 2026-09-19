@@ -468,6 +468,22 @@ export interface LeadImportSeedConversations {
     maxMessages: number;
     /** Optional free text about what the business sells. */
     context?: string;
+    /**
+     * A file for the first message to carry, with `bodies` as its caption.
+     *
+     * Optional: omitted is the plain text opening. The id comes from the
+     * workspace media library (`POST /medias`) and never from a URL, and the
+     * server checks that it belongs to the importing workspace before any
+     * conversation is written.
+     */
+    attachment?: LeadImportSeedAttachment;
+}
+
+/** The workspace media library asset a seeded opening carries. */
+export interface LeadImportSeedAttachment {
+    mediaId: string;
+    /** image | video | audio | voice | document | sticker. */
+    kind: string;
 }
 
 /** Row limit the API enforces. Mirrored so the UI can refuse before uploading. */
