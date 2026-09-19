@@ -60,19 +60,34 @@ export function AiHandlerChip({
   const humanOwns = assignee.length > 0 && !assignee.startsWith("ai:");
   if (conversationStatus === "finished" || humanOwns) return null;
 
-  // Prefer the resolved handler; fall back to a generic "IA" chip when handler data is
-  // absent (older payloads) but the AI is still attending, so nothing regresses.
+  // No handler, no chip. The handler is the AI the CAMPAIGN actually configured,
+  // and nothing else can stand in for it.
+  //
+  // This used to fabricate a `{ kind: "agent" }` whenever isAiCurrentlyAttending
+  // said yes — and that function never asks whether an AI exists, only whether
+  // automation was explicitly switched off. A campaign created with no agent and
+  // no workflow leaves `automation_enabled` NULL, which reads as "on", so every
+  // one of its conversations displayed "IA · Agente" over an AI that was never
+  // configured. Live case: 670 contacts, zero ai_response messages, and the
+  // operator who built the campaign read the badge as confirmation it was wired
+  // — the first human reply came 2h09 after the first customer answered.
+  //
+  // The fallback was added for payloads that predate the handler field. Showing
+  // nothing is the honest answer for those too: an absent chip says "we don't
+  // know", while a fabricated one asserts something false.
   const resolved: AIHandler | null =
     handler && (handler.kind === "agent" || handler.kind === "workflow")
       ? handler
-      : isAiCurrentlyAttending({
-            automationEnabled,
-            conversationStatus,
-            assignedUserId,
-          })
-        ? { kind: "agent" }
-        : null;
+      : null;
   if (!resolved) return null;
+  if (
+    !isAiCurrentlyAttending({ automationEnabled, conversationStatus, assignedUserId }) &&
+    isAiAutoReplyEnabled(automationEnabled)
+  ) {
+    // A human owns the thread, or it is finished: the guards above already cover
+    // those, and this keeps the two paths agreeing if either changes.
+    return null;
+  }
 
   const paused = !isAiAutoReplyEnabled(automationEnabled);
   const isWorkflow = resolved.kind === "workflow";
