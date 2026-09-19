@@ -1917,6 +1917,8 @@
       "administration": "Administração"
     },
     "toggleSubmenu": "Alternar subitens",
+    "foldAll": "Recolher tudo",
+    "unfoldAll": "Expandir tudo",
     "collapse": "Recolher",
     "expand": "Expandir"
   },
@@ -11917,9 +11919,9 @@
       "adminOnly": "somente admin",
       "seedOutcome": "Criar com resultados",
       "seedOutcomeDescription": "Campanha de demonstração: os contatos já nascem com um resultado. Nada é enviado.",
-      "seedRespondedPercent": "% que respondeu",
+      "seedSentPercent": "% enviado",
       "seedFailedPercent": "% que falhou",
-      "seedOutcomeSummary": "{responded} responderam · {failed} falharam · {pending} continuam pendentes.",
+      "seedOutcomeSummary": "{sent} enviados · {failed} falharam · {pending} continuam pendentes.",
       "seedOutcomeOverflow": "As duas porcentagens somadas não podem passar de 100%."
     },
     "detail": {

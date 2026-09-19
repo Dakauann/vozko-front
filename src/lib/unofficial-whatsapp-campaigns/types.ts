@@ -130,13 +130,14 @@ export interface UnofficialWhatsAppCampaignTarget {
  *
  * Sent on the way IN and never returned, because it is an instruction rather
  * than a property of the campaign - what became of it is readable from
- * `metrics`, exactly like any other campaign's. `respondedPercent` lands on
- * READ, the furthest state this channel's vocabulary has: someone who answered
- * necessarily opened the message. Whatever the two shares leave over stays
+ * `metrics`, exactly like any other campaign's. `sentPercent` lands on SENT,
+ * which is what "this one went out" means here and the state a real entry
+ * reaches the moment the provider accepts it; DELIVERED and READ are facts the
+ * contact's phone reports afterwards. Whatever the two shares leave over stays
  * PENDING.
  */
 export interface UnofficialWhatsAppCampaignSeedOutcome {
-    respondedPercent: number;
+    sentPercent: number;
     failedPercent: number;
 }
 

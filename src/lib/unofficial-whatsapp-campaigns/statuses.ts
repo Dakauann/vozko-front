@@ -73,18 +73,18 @@ export function canStop(status: string): boolean {
  */
 export function seededOutcomeCounts(
     total: number,
-    respondedPercent: number,
+    sentPercent: number,
     failedPercent: number,
-): { responded: number; failed: number; pending: number } {
+): { sent: number; failed: number; pending: number } {
     const clamp = (v: number) => Math.min(100, Math.max(0, Math.floor(v) || 0));
-    const respondedShare = clamp(respondedPercent);
+    const sentShare = clamp(sentPercent);
     const failedShare = clamp(failedPercent);
 
-    const responded = Math.floor((total * respondedShare) / 100);
-    const settled = Math.floor((total * clamp(respondedShare + failedShare)) / 100);
+    const sent = Math.floor((total * sentShare) / 100);
+    const settled = Math.floor((total * clamp(sentShare + failedShare)) / 100);
     return {
-        responded,
-        failed: settled - responded,
+        sent,
+        failed: settled - sent,
         pending: Math.max(0, total - settled),
     };
 }

@@ -6,6 +6,8 @@ import { createPortal } from "react-dom";
 import { AnimatePresence, type Variants, motion } from "framer-motion";
 import {
   Archive,
+  ArrowsInSimple,
+  ArrowsOut,
   Buildings,
   Check,
   CaretDown,
@@ -156,7 +158,26 @@ function usePersistentOpenSet(storageKey: string) {
     });
   }, []);
 
-  return [open, toggle] as const;
+  /**
+   * Opens or shuts a list of keys in one write.
+   *
+   * Takes the keys rather than clearing the whole Set, so fold-all touches only
+   * what the operator can actually see: these sets are shared across products,
+   * and wiping them would silently reshape a product they are not looking at.
+   */
+  const setMany = React.useCallback((keys: string[], shouldOpen: boolean) => {
+    if (keys.length === 0) return;
+    setOpen((prev) => {
+      const next = new Set(prev);
+      for (const key of keys) {
+        if (shouldOpen) next.add(key);
+        else next.delete(key);
+      }
+      return next;
+    });
+  }, []);
+
+  return [open, toggle, setMany] as const;
 }
 
 export type NavPermission = {
@@ -1349,6 +1370,91 @@ function groupByFamily(
   return groups;
 }
 
+/**
+ * Every section header and row accordion the operator could open RIGHT NOW.
+ *
+ * Derived by replaying the SAME filters the nav renders with, never from the
+ * raw nav table. A fold-all that counted rows a permission hides would report
+ * "something is open" about something invisible, and an unfold-all would write
+ * keys that nothing can ever use — both of which turn the control into a button
+ * whose label disagrees with the spine beside it.
+ */
+function collapsibleKeys(
+  items: NavItem[],
+  isAdmin: boolean,
+  can: (resource: ResourceType, action: ResourceAction) => boolean,
+  canAny: (resource: ResourceType) => boolean,
+): { families: string[]; rows: string[] } {
+  const families = new Set<string>();
+  const rows: string[] = [];
+
+  // Children carry one extra rule that top-level rows do not — `admin` — so the
+  // two walks are deliberately not folded into one predicate. See the child
+  // filter in NavItemComponent, which this mirrors.
+  const walkChildren = (children: NavItem[]) => {
+    for (const child of children) {
+      if (child.admin && !isAdmin) continue;
+      if (child.hideForAdmin && isAdmin) continue;
+      if (!navPermissionAllowed(child, can, canAny)) continue;
+      if (child.children?.length) {
+        rows.push(child.href);
+        walkChildren(child.children);
+      }
+    }
+  };
+
+  for (const item of items) {
+    if (item.hideForAdmin && isAdmin) continue;
+    if (!navPermissionAllowed(item, can, canAny)) continue;
+    if (item.family) families.add(item.family);
+    if (item.children?.length) {
+      rows.push(item.href);
+      walkChildren(item.children);
+    }
+  }
+
+  return { families: Array.from(families), rows };
+}
+
+/**
+ * Fold or unfold every section at once.
+ *
+ * ONE control, not two, and it commits to whichever action the spine currently
+ * needs: with anything open it folds, with everything shut it unfolds. Two
+ * buttons would put a permanently dead one next to a live one in furniture an
+ * operator reads all day, and the sidebar head has room for exactly one glyph
+ * beside the product switcher without stealing width from the product name.
+ *
+ * It rides in the switcher row rather than in a strip of its own, so it costs
+ * the nav no vertical space — the thing the spine is actually short of.
+ */
+function FoldAllButton({
+  anyOpen,
+  onFoldAll,
+  onUnfoldAll,
+  t,
+}: {
+  anyOpen: boolean;
+  onFoldAll: () => void;
+  onUnfoldAll: () => void;
+  t: ReturnType<typeof useTranslations>;
+}) {
+  const label = anyOpen ? t("foldAll") : t("unfoldAll");
+  const Icon = anyOpen ? ArrowsInSimple : ArrowsOut;
+
+  return (
+    <button
+      type="button"
+      onClick={anyOpen ? onFoldAll : onUnfoldAll}
+      title={label}
+      aria-label={label}
+      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius] border border-transparent text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <Icon aria-hidden="true" className="h-4 w-4" weight="bold" />
+    </button>
+  );
+}
+
 function GroupedNavItems({
   items,
   isExpanded,
@@ -1567,8 +1673,40 @@ export function DashboardSidebar({
 
   // Both the per-row accordions and the section families are collapsed by
   // default and remember what the operator left open. See usePersistentOpenSet.
-  const [openItems, toggleItem] = usePersistentOpenSet(OPEN_ITEMS_KEY);
-  const [openFamilies, toggleFamily] = usePersistentOpenSet(OPEN_FAMILIES_KEY);
+  const [openItems, toggleItem, setItemsOpen] =
+    usePersistentOpenSet(OPEN_ITEMS_KEY);
+  const [openFamilies, toggleFamily, setFamiliesOpen] =
+    usePersistentOpenSet(OPEN_FAMILIES_KEY);
+
+  // What fold-all would act on: this product's nav plus the admin block, which
+  // renders from the same two open sets and would otherwise be left behind by a
+  // control that claims to fold everything.
+  const foldable = React.useMemo(
+    () =>
+      collapsibleKeys(
+        [...currentProduct.navItems, ...(isAdmin ? adminItems : [])],
+        isAdmin,
+        can,
+        canAny,
+      ),
+    [currentProduct, adminItems, isAdmin, can, canAny],
+  );
+
+  // Read off the VISIBLE keys, not off Set.size. The sets span products, so a
+  // section left open under another product would otherwise make this button
+  // offer to fold a spine that is already folded.
+  const anyOpen =
+    foldable.families.some((family) => openFamilies.has(family)) ||
+    foldable.rows.some((href) => openItems.has(href));
+
+  const setAllOpen = React.useCallback(
+    (shouldOpen: boolean) => {
+      setFamiliesOpen(foldable.families, shouldOpen);
+      setItemsOpen(foldable.rows, shouldOpen);
+    },
+    [foldable, setFamiliesOpen, setItemsOpen],
+  );
+
   const [motionEnabled, setMotionEnabled] = React.useState(false);
 
   React.useEffect(() => {
@@ -1591,13 +1729,30 @@ export function DashboardSidebar({
           mobile ? "px-2 py-2" : isExpanded ? "px-2 py-2" : "px-1.5 py-2",
         )}
       >
-        <ProductSwitcher
-          currentProduct={currentProduct}
-          onProductChange={handleProductSwitch}
-          isExpanded={isExpanded || mobile}
-          t={t}
-          products={visibleProducts}
-        />
+        <div className="flex items-center gap-1">
+          <div className="min-w-0 flex-1">
+            <ProductSwitcher
+              currentProduct={currentProduct}
+              onProductChange={handleProductSwitch}
+              isExpanded={isExpanded || mobile}
+              t={t}
+              products={visibleProducts}
+            />
+          </div>
+          {/* Absent in the rail, where no family header and no accordion is
+              drawn at all, and absent when this product has nothing that
+              folds: a control that cannot do anything is chrome, not an
+              affordance. */}
+          {(isExpanded || mobile) &&
+            foldable.families.length + foldable.rows.length > 0 && (
+              <FoldAllButton
+                anyOpen={anyOpen}
+                onFoldAll={() => setAllOpen(false)}
+                onUnfoldAll={() => setAllOpen(true)}
+                t={t}
+              />
+            )}
+        </div>
       </div>
 
       {/* Scrollable container for both product nav and admin nav */}

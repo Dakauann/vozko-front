@@ -1241,6 +1241,8 @@
       "administration": "Verwaltung"
     },
     "toggleSubmenu": "Unterpunkte umschalten",
+    "foldAll": "Alle einklappen",
+    "unfoldAll": "Alle ausklappen",
     "collapse": "Einklappen",
     "expand": "Ausklappen"
   },
@@ -10865,9 +10867,9 @@
       "adminOnly": "nur Admin",
       "seedOutcome": "Mit Ergebnissen anlegen",
       "seedOutcomeDescription": "Demo-Kampagne: Kontakte werden bereits mit einem Ergebnis angelegt. Es wird nichts gesendet.",
-      "seedRespondedPercent": "% geantwortet",
+      "seedSentPercent": "% gesendet",
       "seedFailedPercent": "% fehlgeschlagen",
-      "seedOutcomeSummary": "{responded} geantwortet · {failed} fehlgeschlagen · {pending} noch offen.",
+      "seedOutcomeSummary": "{sent} gesendet · {failed} fehlgeschlagen · {pending} noch offen.",
       "seedOutcomeOverflow": "Die beiden Prozentwerte zusammen dürfen 100 % nicht überschreiten."
     },
     "detail": {

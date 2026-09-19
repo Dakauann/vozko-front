@@ -1516,6 +1516,8 @@
       "administration": "Administration"
     },
     "toggleSubmenu": "Toggle subitems",
+    "foldAll": "Collapse all",
+    "unfoldAll": "Expand all",
     "collapse": "Collapse",
     "expand": "Expand"
   },
@@ -11866,9 +11868,9 @@
       "adminOnly": "admin only",
       "seedOutcome": "Create with results",
       "seedOutcomeDescription": "Demo campaign: contacts are created already carrying a result. Nothing is sent.",
-      "seedRespondedPercent": "% responded",
+      "seedSentPercent": "% sent",
       "seedFailedPercent": "% failed",
-      "seedOutcomeSummary": "{responded} responded · {failed} failed · {pending} still pending.",
+      "seedOutcomeSummary": "{sent} sent · {failed} failed · {pending} still pending.",
       "seedOutcomeOverflow": "The two percentages together cannot exceed 100%."
     },
     "detail": {

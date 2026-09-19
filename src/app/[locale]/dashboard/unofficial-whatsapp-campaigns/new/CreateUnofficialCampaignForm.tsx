@@ -156,7 +156,7 @@ export default function CreateUnofficialCampaignForm({
   // creates a campaign that CLAIMS to have run, which should be chosen every
   // time rather than inherited from the last one.
   const [seedOutcome, setSeedOutcome] = useState(false);
-  const [respondedPercent, setRespondedPercent] = useState(40);
+  const [sentPercent, setSentPercent] = useState(40);
   const [failedPercent, setFailedPercent] = useState(10);
 
   const csvInputRef = useRef<HTMLInputElement>(null);
@@ -244,10 +244,10 @@ export default function CreateUnofficialCampaignForm({
   const isSystemAdmin = user?.role === "admin";
   const canSeedOutcome = mode === "create" && isSystemAdmin;
   const seedOn = canSeedOutcome && seedOutcome;
-  const seedOverflow = seedOn && respondedPercent + failedPercent > 100;
+  const seedOverflow = seedOn && sentPercent + failedPercent > 100;
   const seedCounts = seededOutcomeCounts(
     parsed.targets.length,
-    respondedPercent,
+    sentPercent,
     failedPercent,
   );
 
@@ -310,7 +310,7 @@ export default function CreateUnofficialCampaignForm({
         name: target.name,
         variables: target.variables,
       })),
-      seedOutcome: seedOn ? { respondedPercent, failedPercent } : undefined,
+      seedOutcome: seedOn ? { sentPercent, failedPercent } : undefined,
     };
 
     const result =
@@ -792,9 +792,9 @@ export default function CreateUnofficialCampaignForm({
                       min={0}
                       max={100}
                       controlSize="sm"
-                      label={t("form.seedRespondedPercent")}
-                      value={String(respondedPercent)}
-                      onChange={(e) => setRespondedPercent(Number(e.target.value))}
+                      label={t("form.seedSentPercent")}
+                      value={String(sentPercent)}
+                      onChange={(e) => setSentPercent(Number(e.target.value))}
                       disabled={isSubmitting}
                     />
                     <ElevatedInput
