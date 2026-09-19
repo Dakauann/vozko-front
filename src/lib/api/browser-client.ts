@@ -62,6 +62,26 @@ const AUTH_TIMEOUT_MS = 10_000;
  */
 const UPLOAD_TIMEOUT_MS = 10 * 60_000;
 
+/**
+ * Analytics endpoints aggregate a whole period on demand, so the ten-second
+ * bound was rejecting healthy requests the same way it once rejected healthy
+ * uploads.
+ *
+ * The metrics page fans out to several /attendance/* endpoints at once, and on
+ * the largest workspaces a 90-day window is seconds of aggregation per call
+ * even after the query work itself was tuned. Users saw "Request timed out"
+ * with every card blank, which reads as an outage rather than as a slow report.
+ *
+ * Still bounded: long enough that a real answer arrives, short enough that a
+ * dead connection cannot pin the page.
+ */
+const ANALYTICS_TIMEOUT_MS = 30_000;
+
+/** Endpoints that aggregate a period and are allowed the longer bound. */
+function isAnalyticsEndpoint(endpoint: string): boolean {
+  return endpoint.startsWith("/attendance/");
+}
+
 function timeoutSignal(ms: number): { signal: AbortSignal; clear: () => void } {
   const controller = new AbortController();
   const id = setTimeout(
@@ -264,7 +284,13 @@ export async function apiClient<T>(
     // Bound the request so a stalled connection can't pin isLoading forever.
     // A caller-supplied signal (e.g. an SSE stream that owns its own lifetime)
     // takes precedence over the default timeout.
-    const t = timeoutSignal(isFormData ? UPLOAD_TIMEOUT_MS : AUTH_TIMEOUT_MS);
+    const t = timeoutSignal(
+      isFormData
+        ? UPLOAD_TIMEOUT_MS
+        : isAnalyticsEndpoint(endpoint)
+          ? ANALYTICS_TIMEOUT_MS
+          : AUTH_TIMEOUT_MS,
+    );
     return fetch(url, {
       ...options,
       credentials: "include",
