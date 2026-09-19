@@ -398,6 +398,7 @@ export default function CreateUnofficialCampaignForm({
                   <CampaignMediaPicker
                     mediaId={message.mediaId}
                     fileName={message.fileName}
+                    mediaType={message.kind}
                     accept={MEDIA_ACCEPT[message.kind] ?? "*/*"}
                     disabled={isSubmitting}
                     onChange={(next) =>
