@@ -4545,7 +4545,14 @@
         "missingVariablesDescription": "{count, plural, one {# contacto tiene} other {# contactos tienen}} variables de plantilla en blanco.",
         "showMissingVariables": "Ver contactos con variables faltantes",
         "cannotSubmitMissingVars": "Completa las variables para {count, plural, one {# contacto} other {# contactos}} antes de enviar.",
-        "formHasErrors": "Por favor corrige los errores en el formulario antes de enviar."
+        "formHasErrors": "Por favor corrige los errores en el formulario antes de enviar.",
+        "confirmTemplateFirst": "Activa “Confirmo que revisé los datos de la plantilla” en el panel de vista previa, a la derecha, para crear la campaña.",
+        "confirmTemplateLabel": "Confirmo que revisé los datos de la plantilla de arriba",
+        "confirmTemplateRequired": "Obligatorio para crear la campaña.",
+        "contactHasError": "Contacto {position} de la lista: {detail}",
+        "unknownFieldErrors": "Campos con error: {fields}. Revísalos antes de enviar.",
+        "submitCrashed": "Fallo inesperado al validar el formulario: {detail}",
+        "andMoreContacts": "{count, plural, one {# contacto más} other {# contactos más}} con error."
       },
       "csv": {
         "invalidFileType": "Selecciona un archivo CSV válido.",

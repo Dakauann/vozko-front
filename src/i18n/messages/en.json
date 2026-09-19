@@ -5206,7 +5206,14 @@
         "missingVariablesDescription": "{count, plural, one {# contact has} other {# contacts have}} blank template variables.",
         "showMissingVariables": "View contacts with missing variables",
         "cannotSubmitMissingVars": "Fill in the variables for {count, plural, one {# contact} other {# contacts}} before submitting.",
-        "formHasErrors": "Please fix the errors in the form before submitting."
+        "formHasErrors": "Please fix the errors in the form before submitting.",
+        "confirmTemplateFirst": "Turn on “I confirm I reviewed the template details” in the preview panel on the right to create the campaign.",
+        "confirmTemplateLabel": "I confirm I reviewed the template details above",
+        "confirmTemplateRequired": "Required to create the campaign.",
+        "contactHasError": "Contact {position} in the list: {detail}",
+        "unknownFieldErrors": "Fields with errors: {fields}. Review them before submitting.",
+        "submitCrashed": "Unexpected failure while validating the form: {detail}",
+        "andMoreContacts": "{count, plural, one {# more contact} other {# more contacts}} with errors."
       },
       "csv": {
         "invalidFileType": "Select a valid CSV file.",

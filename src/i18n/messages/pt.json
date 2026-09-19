@@ -5158,7 +5158,14 @@
         "missingVariablesDescription": "{count, plural, one {# contato está} other {# contatos estão}} com variáveis do template em branco.",
         "showMissingVariables": "Ver contatos com variáveis faltando",
         "cannotSubmitMissingVars": "Preencha as variáveis de {count, plural, one {# contato} other {# contatos}} antes de enviar.",
-        "formHasErrors": "Por favor, corrija os erros no formulário antes de enviar."
+        "formHasErrors": "Por favor, corrija os erros no formulário antes de enviar.",
+        "confirmTemplateFirst": "Ative “Confirmo que revisei os dados do template” no painel de prévia, à direita, para criar a campanha.",
+        "confirmTemplateLabel": "Confirmo que revisei os dados do template acima",
+        "confirmTemplateRequired": "Obrigatório para criar a campanha.",
+        "contactHasError": "Contato {position} da lista: {detail}",
+        "unknownFieldErrors": "Campos com erro: {fields}. Revise-os antes de enviar.",
+        "submitCrashed": "Falha inesperada ao validar o formulário: {detail}",
+        "andMoreContacts": "Mais {count, plural, one {# contato} other {# contatos}} com erro."
       },
       "csv": {
         "invalidFileType": "Selecione um arquivo CSV válido.",

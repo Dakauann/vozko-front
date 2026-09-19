@@ -4624,7 +4624,14 @@
         "missingVariablesDescription": "{count, plural, one {# Kontakt hat} other {# Kontakte haben}} leere Vorlagenvariablen.",
         "showMissingVariables": "Kontakte mit fehlenden Variablen anzeigen",
         "cannotSubmitMissingVars": "Variablen für {count, plural, one {# Kontakt} other {# Kontakte}} vor dem Absenden ausfüllen.",
-        "formHasErrors": "Bitte beheben Sie die Fehler im Formular vor dem Absenden."
+        "formHasErrors": "Bitte beheben Sie die Fehler im Formular vor dem Absenden.",
+        "confirmTemplateFirst": "Aktiviere „Ich bestätige, dass ich die Vorlagendaten geprüft habe“ im Vorschaubereich rechts, um die Kampagne zu erstellen.",
+        "confirmTemplateLabel": "Ich bestätige, dass ich die Vorlagendaten oben geprüft habe",
+        "confirmTemplateRequired": "Erforderlich, um die Kampagne zu erstellen.",
+        "contactHasError": "Kontakt {position} in der Liste: {detail}",
+        "unknownFieldErrors": "Felder mit Fehlern: {fields}. Bitte vor dem Senden prüfen.",
+        "submitCrashed": "Unerwarteter Fehler bei der Formularprüfung: {detail}",
+        "andMoreContacts": "{count, plural, one {# weiterer Kontakt} other {# weitere Kontakte}} mit Fehlern."
       },
       "csv": {
         "invalidFileType": "Gültige CSV-Datei auswählen.",
