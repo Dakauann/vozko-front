@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  seededOutcomeCounts,
   UNOFFICIAL_DISPATCHED_STATUSES,
   UNOFFICIAL_SEND_STATUSES,
   canPause,
@@ -53,5 +54,58 @@ describe("lifecycle guards", () => {
     expect(canStop("PAUSED")).toBe(true);
     expect(canStop("COMPLETED")).toBe(true);
     expect(canStop("STOPPED")).toBe(false);
+  });
+});
+
+describe("seededOutcomeCounts", () => {
+  it("divides the list the way the server does", () => {
+    expect(seededOutcomeCounts(100, 30, 10)).toEqual({
+      responded: 30,
+      failed: 10,
+      pending: 60,
+    });
+  });
+
+  it("floors rather than rounds, so the preview never promises a row that does not exist", () => {
+    expect(seededOutcomeCounts(7, 50, 20)).toEqual({
+      responded: 3,
+      failed: 1,
+      pending: 3,
+    });
+  });
+
+  it("treats an empty or nonsense percentage as nothing settled", () => {
+    expect(seededOutcomeCounts(10, Number.NaN, -5)).toEqual({
+      responded: 0,
+      failed: 0,
+      pending: 10,
+    });
+  });
+
+  // Flooring each bucket on its own left the third target PENDING on a real
+  // campaign, so the preview promised a split the server never produced.
+  it("leaves nothing pending when the shares add up to 100", () => {
+    expect(seededOutcomeCounts(3, 40, 60)).toEqual({
+      responded: 1,
+      failed: 2,
+      pending: 0,
+    });
+
+    for (let total = 1; total <= 200; total++) {
+      expect(seededOutcomeCounts(total, 40, 60).pending).toBe(0);
+      expect(seededOutcomeCounts(total, 33, 67).pending).toBe(0);
+    }
+  });
+
+  it("never settles more entries than the list holds", () => {
+    for (let total = 1; total <= 60; total++) {
+      for (let responded = 0; responded <= 100; responded += 7) {
+        for (let failed = 0; failed <= 100; failed += 11) {
+          const counts = seededOutcomeCounts(total, responded, failed);
+          expect(counts.failed).toBeGreaterThanOrEqual(0);
+          expect(counts.responded + counts.failed + counts.pending).toBe(total);
+        }
+      }
+    }
   });
 });

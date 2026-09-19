@@ -432,81 +432,6 @@
 
 /* ── The allowance bar ─────────────────────────────────────────────────── */
 
-/*
-  One bar, two parts, each label set inside the part it names. The first
-  version drew fifty segments and read as a barcode: no segment meant anything
-  and the 1,000 threshold vanished into the stripes. Here the threshold is the
-  only division on the bar, which is exactly what the article is about.
-*/
-.barWrap { padding: clamp(0.85rem, 2vw, 1.15rem); }
-
-.bar {
-  display: flex;
-  height: 4rem;
-  overflow: hidden;
-  border-radius: 6px;
-  background: hsl(var(--muted));
-}
-
-.barPart {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  /* A floor, so a small billed slice still shows its number, and no more:
-     min-content width here would have widened the slice and quietly misstated
-     the proportion the bar exists to show. */
-  min-width: 4.25rem;
-  padding: 0 0.8rem;
-  /* A one-time grow on load. A CSS animation cannot fail to fire the way a
-     viewport observer can on an element taller than the viewport. */
-  animation: barGrow 800ms cubic-bezier(0.23, 1, 0.32, 1) both;
-}
-
-.barFree {
-  background: hsl(var(--healthy));
-  color: hsl(var(--healthy-foreground));
-}
-
-.barBilled {
-  background: hsl(var(--warning));
-  color: hsl(var(--warning-foreground));
-  border-left: 2px solid hsl(var(--card));
-  animation-delay: 200ms;
-}
-
-.barValue {
-  font-family: var(--font-oxanium), sans-serif;
-  font-size: 1.25rem;
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1;
-}
-
-.barLabel {
-  margin-top: 0.2rem;
-  font-family: var(--faq-mono);
-  font-size: 0.5625rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-@keyframes barGrow {
-  from { flex-grow: 0.01; opacity: 0; }
-  to { opacity: 1; }
-}
-
-.barScale {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 0.55rem;
-}
-
 /* ── Verdict tags ──────────────────────────────────────────────────────── */
 
 /*
@@ -549,6 +474,11 @@
   thread taller than the viewport the observer that started it never fired, so
   readers met a tall empty box. A reading page shows its content.
 */
+.threadBody {
+  padding: clamp(0.85rem, 2vw, 1.15rem);
+  background: hsl(var(--background));
+}
+
 .turn {
   display: grid;
   grid-template-columns: 2.6rem minmax(0, 1fr) 10.5rem;
@@ -577,33 +507,45 @@
 .bubble {
   display: inline-block;
   max-width: 100%;
-  padding: 0.45rem 0.65rem;
-  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   font-size: 0.875rem;
   line-height: 1.45;
   text-align: left;
 }
 
 /*
-  Not a WhatsApp skin. The reader already knows what WhatsApp looks like; what
-  they cannot see in their own inbox is which bubble Meta invoices. Direction
-  is carried by side and ground: the customer speaks from a recess, the
-  business from a sheet with an edge.
+  The inbox's own two fills, not an approximation of them.
+
+  This used to be deliberately un-WhatsApp: a recess for the customer, a sheet
+  for the business. That was the wrong call for a page whose reader has the CRM
+  open in the next tab. The bubble they are being asked to recognise is the one
+  they see all day, and recolouring it here makes them translate before they can
+  follow the argument. Fills, radius, clipped top corner and the 3px channel
+  edge are lifted from CrmConversationView's message rows; when those move,
+  these move with them.
 */
 .bubbleCustomer {
-  border: 1px solid hsl(var(--border));
-  background: hsl(var(--muted));
+  background: hsl(var(--card));
   color: hsl(var(--foreground));
-  border-bottom-left-radius: 2px;
+  border-left: 3px solid hsl(var(--healthy));
+  border-top-left-radius: 2px;
 }
 
 .bubbleBusiness {
-  border: 1px solid hsl(var(--control-edge));
-  background: hsl(var(--background));
-  color: hsl(var(--foreground));
-  border-bottom-right-radius: 2px;
+  background: #d9fdd3;
+  color: #111b21;
+  border-right: 3px solid hsl(var(--healthy));
+  border-top-right-radius: 2px;
 }
 
+:global(.dark) .bubbleCustomer { background: #202c33; color: #e9edef; }
+
+:global(.dark) .bubbleBusiness { background: #005c4b; color: #e9edef; }
+
+/* The template's edge goes dashed: an approved template is a different object
+   from a free-form reply, and that difference is the whole point of the row. */
 .bubbleTemplate { border-style: dashed; }
 
 .templateMark {
@@ -615,6 +557,13 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: hsl(var(--muted-foreground));
+}
+
+/* On the fixed green ground the page's muted ink is not guaranteed to hold, so
+   the mark takes the bubble's own colour instead. */
+.bubbleBusiness .templateMark {
+  color: inherit;
+  opacity: 0.68;
 }
 
 .turnVerdict {
@@ -823,94 +772,6 @@
   color: hsl(var(--warning-ink));
 }
 
-/* ── The month's arithmetic ────────────────────────────────────────────── */
-
-.ledgerRow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: baseline;
-  gap: 0.3rem 1.25rem;
-  padding: 0.6rem clamp(0.85rem, 2vw, 1.15rem);
-  border-bottom: 1px solid hsl(var(--border));
-}
-
-.ledgerLabel {
-  font-size: 0.9375rem;
-  line-height: 1.45;
-  color: hsl(var(--muted-foreground));
-}
-
-.ledgerValue {
-  font-family: var(--faq-mono);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  color: hsl(var(--foreground));
-}
-
-.ledgerTotal {
-  align-items: center;
-  background: hsl(var(--muted) / 0.6);
-  border-bottom: 0;
-}
-
-.ledgerTotal .ledgerLabel {
-  font-weight: 600;
-  color: hsl(var(--foreground));
-}
-
-.ledgerTotalValue {
-  font-family: var(--font-oxanium), sans-serif;
-  font-size: clamp(1.4rem, 2.8vw, 1.8rem);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.1;
-  text-align: right;
-  color: hsl(var(--foreground));
-}
-
-.ledgerTotalAlt {
-  display: block;
-  margin-top: 0.1rem;
-  font-family: var(--faq-mono);
-  font-size: 0.625rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: hsl(var(--muted-foreground));
-}
-
-.ledgerInput {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.4rem 0.9rem;
-  padding: 0.75rem clamp(0.85rem, 2vw, 1.15rem);
-  border-bottom: 1px solid hsl(var(--border));
-}
-
-.ledgerSlider {
-  flex: 1;
-  min-width: 10rem;
-  accent-color: hsl(var(--primary));
-  height: 1.75rem;
-}
-
-.ledgerSlider:focus-visible {
-  outline: 2px solid hsl(var(--ring));
-  outline-offset: 4px;
-  border-radius: 4px;
-}
-
-.ledgerNote {
-  padding: 0.75rem clamp(0.85rem, 2vw, 1.15rem);
-  border-top: 1px solid hsl(var(--border));
-  font-size: 0.8125rem;
-  line-height: 1.5;
-  color: hsl(var(--muted-foreground));
-}
-
 /* ── Action list ───────────────────────────────────────────────────────── */
 
 .steps {
@@ -1054,7 +915,6 @@
 /* ── Motion floor ──────────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
-  .barPart { animation: none; }
   .button,
   .entryGo,
   .entryTitle { transition: none; }

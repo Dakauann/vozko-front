@@ -34,6 +34,8 @@ import type {
 } from "@/lib/unofficial-whatsapp-campaigns/types";
 import type { Workflow } from "@/lib/workflows/types";
 import { instanceIssue } from "@/lib/unofficial-whatsapp/types";
+import { seededOutcomeCounts } from "@/lib/unofficial-whatsapp-campaigns/statuses";
+import { useAuth } from "@/contexts/auth-context";
 import { cn } from "@/lib/utils";
 import {
   createUnofficialCampaignAction,
@@ -150,6 +152,13 @@ export default function CreateUnofficialCampaignForm({
   const [maxMs, setMaxMs] = useState(initialCampaign?.sendDelayMaxMs ?? 12000);
   const [dailyCap, setDailyCap] = useState(initialCampaign?.dailyCap ?? 0);
 
+  // The demonstration control. Opt-in and deliberately not remembered: it
+  // creates a campaign that CLAIMS to have run, which should be chosen every
+  // time rather than inherited from the last one.
+  const [seedOutcome, setSeedOutcome] = useState(false);
+  const [respondedPercent, setRespondedPercent] = useState(40);
+  const [failedPercent, setFailedPercent] = useState(10);
+
   const csvInputRef = useRef<HTMLInputElement>(null);
 
   const instanceId = watch("instanceId");
@@ -227,6 +236,21 @@ export default function CreateUnofficialCampaignForm({
     [rawTargets, requiredVariables],
   );
 
+  // The PLATFORM role, deliberately not useWorkspace().can(): a workspace owner
+  // passes every permission this screen applies and still must not create a
+  // campaign that claims results it never produced. The server drops the field
+  // independently; this only keeps the UI honest.
+  const { user } = useAuth();
+  const isSystemAdmin = user?.role === "admin";
+  const canSeedOutcome = mode === "create" && isSystemAdmin;
+  const seedOn = canSeedOutcome && seedOutcome;
+  const seedOverflow = seedOn && respondedPercent + failedPercent > 100;
+  const seedCounts = seededOutcomeCounts(
+    parsed.targets.length,
+    respondedPercent,
+    failedPercent,
+  );
+
   const issue = selectedInstance ? instanceIssue(selectedInstance) : null;
   // A banned or half-provisioned number can only ever fail, so the form refuses
   // it outright rather than letting the operator find out at Start.
@@ -252,6 +276,10 @@ export default function CreateUnofficialCampaignForm({
   const onSubmit = handleSubmit(async (values) => {
     if (!variantsOk || !bodiesFilled) {
       toast({ title: t("form.saveFailed"), description: t("form.variantsMismatch"), variant: "destructive" });
+      return;
+    }
+    if (seedOverflow) {
+      toast({ title: t("form.saveFailed"), description: t("form.seedOutcomeOverflow"), variant: "destructive" });
       return;
     }
     if (mode === "create" && parsed.targets.length === 0) {
@@ -282,6 +310,7 @@ export default function CreateUnofficialCampaignForm({
         name: target.name,
         variables: target.variables,
       })),
+      seedOutcome: seedOn ? { respondedPercent, failedPercent } : undefined,
     };
 
     const result =
@@ -396,9 +425,9 @@ export default function CreateUnofficialCampaignForm({
                 disabled={isSubmitting}
                 mediaSlot={
                   <CampaignMediaPicker
+                    kind={message.kind}
                     mediaId={message.mediaId}
                     fileName={message.fileName}
-                    mediaType={message.kind}
                     accept={MEDIA_ACCEPT[message.kind] ?? "*/*"}
                     disabled={isSubmitting}
                     onChange={(next) =>
@@ -733,6 +762,64 @@ export default function CreateUnofficialCampaignForm({
               variablesNeeded: (count) => t("form.recipientsNeedVariables", { count }),
             }}
           />
+
+          {/* Create this campaign already carrying results.
+
+              Hidden rather than disabled for everyone else: it is not something
+              a workspace can be upsold into, so showing it would only raise a
+              question support has to answer. It sits under the list because it
+              is a fact about these recipients, not about the message. */}
+          {canSeedOutcome ? (
+            <div className="mt-4 space-y-3 rounded-[--radius] border border-border bg-card/40 p-3">
+              <div className="flex items-start justify-between gap-2">
+                <ElevatedSwitch
+                  checked={seedOutcome}
+                  onCheckedChange={setSeedOutcome}
+                  disabled={isSubmitting}
+                  label={t("form.seedOutcome")}
+                  description={t("form.seedOutcomeDescription")}
+                />
+                <span className="rounded-full bg-muted px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {t("form.adminOnly")}
+                </span>
+              </div>
+
+              {seedOutcome ? (
+                <div className="space-y-3 border-t border-border pt-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <ElevatedInput
+                      type="number"
+                      min={0}
+                      max={100}
+                      controlSize="sm"
+                      label={t("form.seedRespondedPercent")}
+                      value={String(respondedPercent)}
+                      onChange={(e) => setRespondedPercent(Number(e.target.value))}
+                      disabled={isSubmitting}
+                    />
+                    <ElevatedInput
+                      type="number"
+                      min={0}
+                      max={100}
+                      controlSize="sm"
+                      label={t("form.seedFailedPercent")}
+                      value={String(failedPercent)}
+                      onChange={(e) => setFailedPercent(Number(e.target.value))}
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  {/* The three real numbers, not two percentages the operator
+                      has to multiply in their head. */}
+                  <p className="text-xs text-muted-foreground">
+                    {t("form.seedOutcomeSummary", seedCounts)}
+                  </p>
+                  {seedOverflow ? (
+                    <FieldError message={t("form.seedOutcomeOverflow")} />
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
         </ElevatedContainer>
       ) : null}
 
@@ -747,7 +834,9 @@ export default function CreateUnofficialCampaignForm({
           type="submit"
           variant="primary"
           title={mode === "edit" ? t("form.save") : t("form.create")}
-          disabled={isSubmitting || numberUnusable || !variantsOk || !bodiesFilled}
+          disabled={
+            isSubmitting || numberUnusable || !variantsOk || !bodiesFilled || seedOverflow
+          }
         />
       </div>
     </form>

@@ -15,23 +15,25 @@ import { cn } from "@/lib/utils";
  * the domain's MessageSpec carries a MediaID and not a link.
  */
 export function CampaignMediaPicker({
+  kind,
   mediaId,
   fileName,
-  mediaType,
   onChange,
   accept,
   labels,
   disabled,
 }: {
+  /**
+   * What the file IS, sent to the store alongside the bytes.
+   *
+   * The upload endpoint refuses a file with no type, so this is required
+   * rather than inferred here: the caller already knows which kind it is
+   * collecting, and guessing from the MIME type would disagree with it the
+   * first time somebody picks a PDF for a document campaign.
+   */
+  kind: string;
   mediaId?: string;
   fileName?: string;
-  /**
-   * What POST /medias stores the file as. The message kind is the authority —
-   * it is what the send path hands the provider (MediaKind on the spec) — so
-   * the library row and the send agree by construction rather than by sniffing
-   * a browser-reported MIME type that can arrive empty.
-   */
-  mediaType: string;
   onChange: (next: { mediaId?: string; fileName?: string; previewUrl?: string }) => void;
   /** Narrowed per message kind, so an image campaign cannot take a PDF. */
   accept: string;
@@ -81,12 +83,12 @@ export function CampaignMediaPicker({
             setUploading(true);
             setError(null);
             try {
-              // The three fields POST /medias requires, under the names it
-              // reads: "file" alone came back as "Unable to get media type"
-              // and no campaign could carry an attachment at all.
+              // The field names are the endpoint's, not ours: it reads
+              // `media`, `mediaType` and `description`, and refuses the upload
+              // outright when any of the three is missing.
               const form = new FormData();
               form.append("media", file);
-              form.append("mediaType", mediaType);
+              form.append("mediaType", kind);
               form.append("description", file.name);
               const result = await uploadMediaAction(form);
               if (result.error || !result.mediaId) {
@@ -122,4 +124,7 @@ export const MEDIA_ACCEPT: Record<string, string> = {
   video: "video/mp4,video/3gpp",
   audio: "audio/*",
   document: "*/*",
+  // A WhatsApp sticker is a webp image. Unused by campaigns, which have no
+  // sticker kind; seeded conversation openings do.
+  sticker: "image/webp",
 };

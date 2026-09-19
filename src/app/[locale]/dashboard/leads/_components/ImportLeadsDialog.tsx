@@ -42,6 +42,10 @@ import {
   placeholdersIn,
   variantsAgree,
 } from "@/components/unofficial-whatsapp/message-variants-editor";
+import {
+  CampaignMediaPicker,
+  MEDIA_ACCEPT,
+} from "@/components/campaigns/CampaignMediaPicker";
 import { cn } from "@/lib/utils";
 
 /** How many rejected lines are listed before the rest are summarised. */
@@ -61,6 +65,18 @@ const NAME_PLACEHOLDER = 1;
 
 /** Mirrors MaxScriptContextRunes in the Go domain, which truncates past it. */
 const SEED_CONTEXT_MAX = 600;
+
+/**
+ * What the opening message may carry, and what each kind will accept.
+ *
+ * A subset of MediaKind.CanAttach in the Go domain: the API takes `voice` as
+ * well, which the CRM renders identically to `audio`, so offering both here
+ * would be two buttons for one outcome. The accept lists are the campaign
+ * composer's, reused rather than re-guessed.
+ */
+const SEED_MEDIA_KINDS = ["image", "video", "audio", "document", "sticker"] as const;
+
+type SeedMediaKind = (typeof SEED_MEDIA_KINDS)[number];
 
 /**
  * Import contacts from a spreadsheet.
@@ -113,6 +129,12 @@ export function ImportLeadsDialog({
   const [seedConversations, setSeedConversations] = useState(false);
   const [bodies, setBodies] = useState<string[]>([""]);
   const [seedContext, setSeedContext] = useState("");
+  // The attachment the opening carries, if any. Held apart from the bodies
+  // because it is optional: a script with no file is the plain text opening
+  // this feature shipped as.
+  const [mediaKind, setMediaKind] = useState<SeedMediaKind>("image");
+  const [mediaId, setMediaId] = useState<string | undefined>(undefined);
+  const [mediaName, setMediaName] = useState<string | undefined>(undefined);
   const [maxMessages, setMaxMessages] = useState(4);
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<LeadImportResult | null>(null);
@@ -157,6 +179,9 @@ export function ImportLeadsDialog({
     setBodies([""]);
     setSeedContext("");
     setMaxMessages(4);
+    setMediaKind("image");
+    setMediaId(undefined);
+    setMediaName(undefined);
   };
 
   const close = (next: boolean) => {
@@ -192,6 +217,10 @@ export function ImportLeadsDialog({
             bodies: trimmedBodies,
             maxMessages,
             ...(seedContext.trim() ? { context: seedContext.trim() } : {}),
+            // Omitted rather than sent empty: the server drops an attachment
+            // naming no file anyway, and sending one would only describe a
+            // choice the administrator did not make.
+            ...(mediaId ? { attachment: { mediaId, kind: mediaKind } } : {}),
           }
         : undefined,
     );
@@ -497,6 +526,56 @@ export function ImportLeadsDialog({
                                 "seedConversations.contextPlaceholder",
                               )}
                             />
+
+                            {/* The file the opening carries.
+
+                                Under the variants rather than above them,
+                                because the text is what the whole feature is
+                                for: the bodies are the caption, and a picture
+                                with no words under it leaves the model nothing
+                                to answer. Changing the kind clears the file, so
+                                an image can never be uploaded and then sent as
+                                a document. */}
+                            <div className="space-y-2 border-t border-border pt-3">
+                              <p className="text-sm font-medium text-foreground">
+                                {t("seedConversations.mediaTitle")}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {t("seedConversations.mediaHelp")}
+                              </p>
+                              <ElevatedSelect
+                                label={t("seedConversations.mediaKind")}
+                                value={mediaKind}
+                                onValueChange={(v) => {
+                                  setMediaKind(v as SeedMediaKind);
+                                  setMediaId(undefined);
+                                  setMediaName(undefined);
+                                }}
+                              >
+                                {SEED_MEDIA_KINDS.map((kind) => (
+                                  <ElevatedSelectItem key={kind} value={kind}>
+                                    {t(`seedConversations.mediaKinds.${kind}`)}
+                                  </ElevatedSelectItem>
+                                ))}
+                              </ElevatedSelect>
+                              <CampaignMediaPicker
+                                kind={mediaKind}
+                                mediaId={mediaId}
+                                fileName={mediaName}
+                                accept={MEDIA_ACCEPT[mediaKind] ?? "*/*"}
+                                disabled={importing}
+                                onChange={(next) => {
+                                  setMediaId(next.mediaId);
+                                  setMediaName(next.fileName);
+                                }}
+                                labels={{
+                                  upload: t("seedConversations.mediaUpload"),
+                                  uploading: t("seedConversations.mediaUploading"),
+                                  remove: t("seedConversations.mediaRemove"),
+                                  failed: t("seedConversations.mediaFailed"),
+                                }}
+                              />
+                            </div>
 
                             <ElevatedSelect
                               label={t("seedConversations.maxMessages")}

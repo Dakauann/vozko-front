@@ -19,11 +19,11 @@ const labels = {
   failed: "Não foi possível enviar o arquivo",
 };
 
-function pick(file: File, mediaType = "video") {
+function pick(file: File, kind = "video") {
   const onChange = vi.fn();
   render(
     <CampaignMediaPicker
-      mediaType={mediaType}
+      kind={kind}
       accept="video/mp4"
       labels={labels}
       onChange={onChange}
