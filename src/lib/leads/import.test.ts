@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { buildLeadImportRows, readLeadImportFile } from "./import";
+import {
+    buildLeadImportRows,
+    countRowsWithoutName,
+    MAX_SEEDED_CONVERSATIONS,
+    readLeadImportFile,
+} from "./import";
 
 function parse(raw: string) {
     const file = readLeadImportFile(raw);
@@ -156,5 +161,28 @@ describe("buildLeadImportRows", () => {
         expect(file.guess.name).toBeNull();
         expect(rows).toHaveLength(2);
         expect(rows[0].name).toBeUndefined();
+    });
+});
+
+describe("countRowsWithoutName", () => {
+    const row = (line: number, name?: string) => ({ line, number: "5511999999999", name });
+
+    it("counts the rows a scripted opening cannot address by name", () => {
+        expect(
+            countRowsWithoutName([row(1, "Marina"), row(2), row(3, "   "), row(4, "Joao")]),
+        ).toBe(2);
+    });
+
+    it("counts only the rows that will actually be scripted", () => {
+        // Row 201 gets a plain empty chat either way, so reporting it as an
+        // unnamed row the operator should fix would be reporting on rows the
+        // feature never touches.
+        const rows = Array.from({ length: 260 }, (_, i) => row(i + 1));
+        expect(countRowsWithoutName(rows)).toBe(MAX_SEEDED_CONVERSATIONS);
+    });
+
+    it("is zero when every row has a name", () => {
+        expect(countRowsWithoutName([row(1, "Marina"), row(2, "Joao")])).toBe(0);
+        expect(countRowsWithoutName([])).toBe(0);
     });
 });

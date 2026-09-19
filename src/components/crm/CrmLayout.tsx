@@ -1559,6 +1559,25 @@ export default function CrmLayout({
   // Toggle state for the robot button (backend: null defaults to true).
   // Header owner badge uses assignee first; see AttendanceOwnerBadge below.
   const aiIsActive = activeConversation?.automation_enabled !== false;
+
+  /*
+   * Whether an AI actually exists on this conversation.
+   *
+   * `automation_enabled` alone is NOT that question. It is the per-conversation
+   * PAUSE override an operator flips when taking over, and the backend's nil
+   * ("no override, inherit the channel") is read as true everywhere. So a
+   * conversation nobody has paused, on a channel with no agent and no workflow,
+   * satisfied `aiIsActive` and the header announced "IA ativa" over a thread no
+   * AI has ever touched.
+   *
+   * `ai_handler` is the honest signal and is already on the wire: the backend
+   * builds it only when an agent or a workflow is both linked AND enabled, and
+   * sends nil otherwise. The toggle below keeps using aiIsActive, because for
+   * the toggle the pause state IS the question.
+   */
+  const hasAiHandler =
+    currentInboxEntry?.ai_handler?.kind === "agent" ||
+    currentInboxEntry?.ai_handler?.kind === "workflow";
   // Enabled for any conversation that supports AI attendance. It used to
   // require a campaign id, which is the same assumption that made the handler
   // return early, so on Instagram and Telegram the button was BOTH disabled
@@ -1701,7 +1720,7 @@ export default function CrmLayout({
               }
               className="shrink-0"
             />
-          ) : aiIsActive ? (
+          ) : aiIsActive && hasAiHandler ? (
             <AttendanceOwnerBadge kind="ai_active" className="shrink-0" />
           ) : (
             <AttendanceOwnerBadge kind="unassigned" className="shrink-0" />

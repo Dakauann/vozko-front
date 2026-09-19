@@ -1,0 +1,1064 @@
+/*
+  The FAQ inherits the landing's world, at a reading page's scale.
+
+  Type faces, colour tokens, hairline dividers, 6px control corners and the
+  button geometry are the landing's own (`landing.module.css`). Two things are
+  deliberately not. The display sizes step down by about a third, because the
+  landing's 7.5rem headline is a poster and this is an article. And the page
+  runs one centred 48rem column instead of the landing's 80rem stage, because
+  at 80rem a paragraph occupies the left half of the screen and leaves the
+  right half empty.
+
+  Colour carries exactly one idea here, and only one:
+    green (--healthy, hue 152) = this message is free
+    amber (--warning)          = this message is billed
+  Brand green keeps its usual job on links, focus and the primary button, so
+  the reader never has to work out which green means what.
+
+  Density is a requirement, not a preference: a whole example conversation has
+  to fit on one screen, or the comparison it exists to make cannot be seen.
+*/
+
+.root {
+  --faq-gutter: clamp(1.25rem, 5vw, 3rem);
+  --faq-mono: ui-monospace, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+  --faq-column: 48rem;
+  /* The fixed navbar is 3rem tall (`h-12`) and overlays the page. */
+  --faq-navbar: 3rem;
+  position: relative;
+  width: 100%;
+  overflow: clip;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  isolation: isolate;
+  overflow-wrap: break-word;
+}
+
+.shell {
+  position: relative;
+  z-index: 1;
+  width: min(100%, var(--faq-column));
+  margin: 0 auto;
+}
+
+/* ── Type registers ────────────────────────────────────────────────────── */
+
+/* The mono line is metadata, never a kicker: a date, a count, a rate, a unit. */
+.legendLine {
+  font-family: var(--faq-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+.legendAccent { color: hsl(var(--primary-ink)); }
+
+.body {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: hsl(var(--muted-foreground));
+}
+
+.body + .body { margin-top: 1rem; }
+
+.body strong {
+  font-weight: 650;
+  color: hsl(var(--foreground));
+}
+
+.body a,
+.sectionIntro a {
+  color: hsl(var(--primary-ink));
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+/* ── Buttons: the landing's own control, same geometry ─────────────────── */
+
+.button {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.15rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 650;
+  transition:
+    transform 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.button:active { transform: scale(0.97); }
+
+.buttonPrimary {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  box-shadow: var(--elev-button-primary);
+}
+
+.buttonSecondary {
+  border: 1px solid hsl(var(--control-edge));
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  box-shadow: var(--elev-button-quiet);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button:hover { transform: translateY(-2px); }
+  .buttonPrimary:hover { background: hsl(var(--primary-hover)); }
+}
+
+/* ── Index masthead ────────────────────────────────────────────────────── */
+
+.indexHeader {
+  position: relative;
+  padding:
+    calc(var(--faq-navbar) + clamp(2.5rem, 6vh, 4rem))
+    var(--faq-gutter)
+    clamp(1.75rem, 4vh, 2.5rem);
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.indexTitle {
+  font-family: var(--font-oxanium), sans-serif;
+  font-size: clamp(2.1rem, 4.6vw, 3.25rem);
+  font-weight: 600;
+  line-height: 0.96;
+  letter-spacing: -0.045em;
+  color: hsl(var(--foreground));
+}
+
+.indexLead {
+  max-width: 56ch;
+  margin-top: 1rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: hsl(var(--muted-foreground));
+}
+
+/*
+  A ruled ledger, not a card grid: entries divided by the page's own hairline
+  and ranked by position, the way a table of contents is. It stays right at one
+  entry and at forty.
+*/
+.indexList {
+  padding: 0 var(--faq-gutter) clamp(3.5rem, 8vw, 6rem);
+}
+
+.entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  padding: clamp(1.4rem, 3vw, 2rem) 0;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.entry:first-child { border-top: 1px solid hsl(var(--border)); }
+
+.entryMeta {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.8rem;
+}
+
+.entryTitle {
+  grid-column: 1;
+  margin-top: 0.6rem;
+  font-family: var(--font-oxanium), sans-serif;
+  font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+  color: hsl(var(--foreground));
+  transition: color 180ms ease;
+}
+
+.entryTitle a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.entryTitle a:focus-visible { outline: none; }
+
+.entry:has(a:focus-visible) {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 6px;
+}
+
+.entryExcerpt {
+  grid-column: 1;
+  margin-top: 0.6rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: hsl(var(--muted-foreground));
+}
+
+.entryGo {
+  grid-column: 2;
+  grid-row: 2 / span 2;
+  display: inline-flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid hsl(var(--control-edge));
+  border-radius: var(--radius);
+  color: hsl(var(--muted-foreground));
+  transition: transform 180ms ease, color 180ms, border-color 180ms, background-color 180ms;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .entry:hover .entryTitle { color: hsl(var(--primary-ink)); }
+  .entry:hover .entryGo {
+    transform: translateX(3px);
+    border-color: hsl(var(--primary-edge));
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+}
+
+@media (max-width: 600px) {
+  .entry { grid-template-columns: minmax(0, 1fr); }
+  .entryGo { grid-column: 1; grid-row: auto; margin-top: 1rem; }
+}
+
+.indexEmpty {
+  padding: clamp(2.5rem, 7vw, 4rem) 0;
+  border-top: 1px solid hsl(var(--border));
+  border-bottom: 1px solid hsl(var(--border));
+  font-size: 1rem;
+  line-height: 1.65;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ── Post masthead ─────────────────────────────────────────────────────── */
+
+.postHeader {
+  position: relative;
+  padding:
+    calc(var(--faq-navbar) + clamp(1.75rem, 4.5vh, 3rem))
+    var(--faq-gutter)
+    clamp(1.75rem, 4vh, 2.5rem);
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--faq-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+  transition: color 160ms;
+}
+
+.backLink:hover { color: hsl(var(--foreground)); }
+
+.postTitle {
+  margin-top: clamp(1rem, 2.5vh, 1.5rem);
+  font-family: var(--font-oxanium), sans-serif;
+  font-size: clamp(1.9rem, 3.8vw, 2.9rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+  color: hsl(var(--foreground));
+}
+
+.postLead {
+  margin-top: 0.9rem;
+  font-family: var(--font-oxanium), sans-serif;
+  font-size: clamp(1rem, 1.4vw, 1.2rem);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  color: hsl(var(--primary-ink));
+}
+
+.postStandfirst {
+  margin-top: 0.8rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: hsl(var(--muted-foreground));
+}
+
+.postMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.8rem;
+  margin-top: clamp(1.25rem, 3vh, 1.75rem);
+  padding-top: 0.9rem;
+  border-top: 1px solid hsl(var(--border));
+}
+
+.metaRule {
+  width: 1px;
+  height: 0.7rem;
+  background: hsl(var(--border-strong));
+}
+
+/* ── Sections ──────────────────────────────────────────────────────────── */
+
+.section {
+  position: relative;
+  padding: clamp(2.25rem, 4.5vw, 3.5rem) var(--faq-gutter);
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.sectionTitle {
+  font-family: var(--font-oxanium), sans-serif;
+  font-size: clamp(1.45rem, 2.4vw, 1.95rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+  color: hsl(var(--foreground));
+}
+
+.sectionIntro {
+  margin-top: 0.8rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: hsl(var(--muted-foreground));
+}
+
+.sectionBlock { margin-top: clamp(1.35rem, 2.6vw, 1.85rem); }
+
+.afterBlock { margin-top: clamp(1.35rem, 2.6vw, 1.75rem); }
+
+.stack { display: grid; gap: clamp(1rem, 2.2vw, 1.5rem); }
+
+/* ── The shared instrument frame ───────────────────────────────────────── */
+
+/* Every diagram sits in the same object, so the reader learns one container
+   once instead of meeting a new one in each section. */
+.panel {
+  position: relative;
+  border: 1px solid hsl(var(--border-strong));
+  border-radius: 10px;
+  background: hsl(var(--card));
+  box-shadow: var(--elev-2);
+}
+
+.panelHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem 1rem;
+  padding: 0.75rem clamp(0.85rem, 2vw, 1.15rem);
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.panelTitle {
+  font-family: var(--font-oxanium), sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: hsl(var(--foreground));
+}
+
+.panelScenario {
+  margin-top: 0.15rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: hsl(var(--muted-foreground));
+}
+
+.panelBody { padding: clamp(0.85rem, 2vw, 1.15rem); }
+
+.panelFoot {
+  padding: 0.75rem clamp(0.85rem, 2vw, 1.15rem);
+  border-top: 1px solid hsl(var(--border));
+  background: hsl(var(--muted) / 0.55);
+  border-radius: 0 0 9px 9px;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: hsl(var(--foreground));
+}
+
+.note {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: hsl(var(--muted-foreground));
+}
+
+/* The count a thread ends on, set in the panel head so the reader gets the
+   answer before reading the transcript that proves it. */
+.tally {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: none;
+  padding: 0.25rem 0.55rem;
+  border-radius: var(--radius);
+  background: hsl(var(--warning));
+  color: hsl(var(--warning-foreground));
+  font-family: var(--faq-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tally[data-zero="true"] {
+  background: hsl(var(--muted));
+  border: 1px solid hsl(var(--healthy) / 0.45);
+  color: hsl(var(--healthy-ink));
+}
+
+.tallyValue {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── The allowance bar ─────────────────────────────────────────────────── */
+
+/*
+  One bar, two parts, each label set inside the part it names. The first
+  version drew fifty segments and read as a barcode: no segment meant anything
+  and the 1,000 threshold vanished into the stripes. Here the threshold is the
+  only division on the bar, which is exactly what the article is about.
+*/
+.barWrap { padding: clamp(0.85rem, 2vw, 1.15rem); }
+
+.bar {
+  display: flex;
+  height: 4rem;
+  overflow: hidden;
+  border-radius: 6px;
+  background: hsl(var(--muted));
+}
+
+.barPart {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* A floor, so a small billed slice still shows its number, and no more:
+     min-content width here would have widened the slice and quietly misstated
+     the proportion the bar exists to show. */
+  min-width: 4.25rem;
+  padding: 0 0.8rem;
+  /* A one-time grow on load. A CSS animation cannot fail to fire the way a
+     viewport observer can on an element taller than the viewport. */
+  animation: barGrow 800ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.barFree {
+  background: hsl(var(--healthy));
+  color: hsl(var(--healthy-foreground));
+}
+
+.barBilled {
+  background: hsl(var(--warning));
+  color: hsl(var(--warning-foreground));
+  border-left: 2px solid hsl(var(--card));
+  animation-delay: 200ms;
+}
+
+.barValue {
+  font-family: var(--font-oxanium), sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.barLabel {
+  margin-top: 0.2rem;
+  font-family: var(--faq-mono);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@keyframes barGrow {
+  from { flex-grow: 0.01; opacity: 0; }
+  to { opacity: 1; }
+}
+
+.barScale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.55rem;
+}
+
+/* ── Verdict tags ──────────────────────────────────────────────────────── */
+
+/*
+  Two states, two colours, and every tag carries a glyph and a word as well, so
+  it survives greyscale, colour blindness and a screenshot.
+*/
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-family: var(--faq-mono);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tagBilled {
+  background: hsl(var(--warning));
+  color: hsl(var(--warning-foreground));
+}
+
+.tagFree {
+  border: 1px solid hsl(var(--healthy) / 0.45);
+  background: hsl(var(--muted));
+  color: hsl(var(--healthy-ink));
+}
+
+/* ── The annotated conversation ────────────────────────────────────────── */
+
+/*
+  Conversation on the left, the bill on the right. The verdicts line up in one
+  scannable column, and that is what makes the point readable at a glance: four
+  amber marks in a row, seen before a word is read.
+
+  The transcript is static. It used to reveal itself turn by turn, and on a
+  thread taller than the viewport the observer that started it never fired, so
+  readers met a tall empty box. A reading page shows its content.
+*/
+.turn {
+  display: grid;
+  grid-template-columns: 2.6rem minmax(0, 1fr) 10.5rem;
+  gap: 0 0.7rem;
+  padding-block: 0.3rem;
+}
+
+.turnClock {
+  padding-top: 0.42rem;
+  font-family: var(--faq-mono);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  color: hsl(var(--muted-foreground));
+  text-align: right;
+}
+
+.turnMessage { min-width: 0; }
+
+.turn[data-from="business"] .turnMessage {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.bubble {
+  display: inline-block;
+  max-width: 100%;
+  padding: 0.45rem 0.65rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  text-align: left;
+}
+
+/*
+  Not a WhatsApp skin. The reader already knows what WhatsApp looks like; what
+  they cannot see in their own inbox is which bubble Meta invoices. Direction
+  is carried by side and ground: the customer speaks from a recess, the
+  business from a sheet with an edge.
+*/
+.bubbleCustomer {
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  border-bottom-left-radius: 2px;
+}
+
+.bubbleBusiness {
+  border: 1px solid hsl(var(--control-edge));
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  border-bottom-right-radius: 2px;
+}
+
+.bubbleTemplate { border-style: dashed; }
+
+.templateMark {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-family: var(--faq-mono);
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+.turnVerdict {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.22rem;
+  padding-top: 0.3rem;
+  padding-left: 0.7rem;
+  border-left: 1px solid hsl(var(--border));
+}
+
+.turnReason {
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: hsl(var(--muted-foreground));
+}
+
+/* The rule that opens or closes a window, spanning message and verdict. */
+.windowBanner {
+  grid-column: 2 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  margin-block: 0.35rem;
+  padding: 0.3rem 0.5rem;
+  border: 1px dashed hsl(var(--border-strong));
+  border-radius: 6px;
+  font-family: var(--faq-mono);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+.windowBannerFree {
+  border-color: hsl(var(--healthy) / 0.5);
+  color: hsl(var(--healthy-ink));
+}
+
+@media (max-width: 720px) {
+  /* The verdict column cannot hold a measure here, so it moves under the
+     message and keeps its rule as a left edge. */
+  .turn {
+    grid-template-columns: 2.3rem minmax(0, 1fr);
+    gap: 0 0.55rem;
+    padding-block: 0.4rem;
+  }
+  .turnVerdict {
+    grid-column: 2;
+    margin-top: 0.35rem;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.3rem 0.5rem;
+  }
+  .windowBanner { grid-column: 2; }
+}
+
+/* ── The 24-hour window, as a vertical clock ───────────────────────────── */
+
+/*
+  This was a horizontal track. At every width the five labels collided with one
+  another, which is what a horizontal timeline always does once its marks carry
+  more than a word. Vertical has no such limit, reads in the same direction as
+  the rest of the page, and needs no separate phone layout.
+*/
+.clock {
+  display: grid;
+  gap: 0;
+  padding: clamp(0.85rem, 2vw, 1.15rem);
+}
+
+.clockStep {
+  position: relative;
+  display: grid;
+  grid-template-columns: 0.875rem minmax(0, 1fr);
+  gap: 0 0.8rem;
+  padding-bottom: 1rem;
+}
+
+.clockStep:last-child { padding-bottom: 0; }
+
+/* The spine is drawn per step so its colour can change when the window shuts. */
+.clockStep::before {
+  content: "";
+  position: absolute;
+  left: 0.375rem;
+  top: 1.15rem;
+  bottom: -0.1rem;
+  width: 2px;
+  background: hsl(var(--border-strong));
+}
+
+.clockStep[data-open="true"]::before { background: hsl(var(--healthy)); }
+.clockStep:last-child::before { display: none; }
+
+.clockMark {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.28rem;
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 3px;
+  background: hsl(var(--border-strong));
+}
+
+.clockMark[data-kind="open"] { background: hsl(var(--healthy)); }
+.clockMark[data-kind="billed"] { background: hsl(var(--warning)); }
+.clockMark[data-kind="close"] {
+  background: hsl(var(--card));
+  border: 2px solid hsl(var(--control-edge));
+}
+
+.clockHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.6rem;
+}
+
+.clockTime {
+  font-family: var(--faq-mono);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: hsl(var(--foreground));
+}
+
+.clockBody {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ── The decision table ────────────────────────────────────────────────── */
+
+.matrixScroll {
+  overflow-x: auto;
+  border: 1px solid hsl(var(--border-strong));
+  border-radius: 10px;
+  background: hsl(var(--card));
+  box-shadow: var(--elev-2);
+}
+
+.matrix {
+  width: 100%;
+  min-width: 32rem;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.matrix th,
+.matrix td {
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.matrix thead th {
+  font-family: var(--faq-mono);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--muted) / 0.6);
+  white-space: nowrap;
+}
+
+.matrix tbody tr:last-child th,
+.matrix tbody tr:last-child td { border-bottom: 0; }
+
+.matrix tbody th {
+  font-weight: 600;
+  line-height: 1.35;
+  color: hsl(var(--foreground));
+}
+
+.matrixKind {
+  display: block;
+  margin-top: 0.12rem;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: hsl(var(--muted-foreground));
+}
+
+/* A row that moved is called out in words as well as by ground tint, so the
+   change never rests on colour alone. */
+.matrixChanged { background: hsl(var(--warning) / 0.08); }
+
+.matrixFlag {
+  display: block;
+  margin-top: 0.25rem;
+  font-family: var(--faq-mono);
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: hsl(var(--warning-ink));
+}
+
+/* ── The month's arithmetic ────────────────────────────────────────────── */
+
+.ledgerRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.3rem 1.25rem;
+  padding: 0.6rem clamp(0.85rem, 2vw, 1.15rem);
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.ledgerLabel {
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: hsl(var(--muted-foreground));
+}
+
+.ledgerValue {
+  font-family: var(--faq-mono);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: hsl(var(--foreground));
+}
+
+.ledgerTotal {
+  align-items: center;
+  background: hsl(var(--muted) / 0.6);
+  border-bottom: 0;
+}
+
+.ledgerTotal .ledgerLabel {
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.ledgerTotalValue {
+  font-family: var(--font-oxanium), sans-serif;
+  font-size: clamp(1.4rem, 2.8vw, 1.8rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  text-align: right;
+  color: hsl(var(--foreground));
+}
+
+.ledgerTotalAlt {
+  display: block;
+  margin-top: 0.1rem;
+  font-family: var(--faq-mono);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: hsl(var(--muted-foreground));
+}
+
+.ledgerInput {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.9rem;
+  padding: 0.75rem clamp(0.85rem, 2vw, 1.15rem);
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.ledgerSlider {
+  flex: 1;
+  min-width: 10rem;
+  accent-color: hsl(var(--primary));
+  height: 1.75rem;
+}
+
+.ledgerSlider:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.ledgerNote {
+  padding: 0.75rem clamp(0.85rem, 2vw, 1.15rem);
+  border-top: 1px solid hsl(var(--border));
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ── Action list ───────────────────────────────────────────────────────── */
+
+.steps {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid hsl(var(--border));
+}
+
+.step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.25rem 0.85rem;
+  padding: clamp(0.9rem, 2vw, 1.2rem) 0;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.stepMark {
+  grid-row: 1 / span 2;
+  display: inline-flex;
+  height: 1.75rem;
+  width: 1.75rem;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid hsl(var(--border-strong));
+  border-radius: var(--radius);
+  color: hsl(var(--primary-ink));
+}
+
+.stepTitle {
+  font-family: var(--font-oxanium), sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: hsl(var(--foreground));
+}
+
+.stepBody {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ── Sources ───────────────────────────────────────────────────────────── */
+
+.sources {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid hsl(var(--border));
+}
+
+.source {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.2rem 1rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid hsl(var(--border));
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: hsl(var(--muted-foreground));
+  transition: color 160ms;
+}
+
+.source:hover { color: hsl(var(--foreground)); }
+
+.sourceHost {
+  font-family: var(--faq-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ── Callout ───────────────────────────────────────────────────────────── */
+
+/* One opaque muted ground; the hue lives in the mark, never as a wash under
+   text of its own colour, and never as a thick coloured left border. */
+.callout {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.2rem 0.8rem;
+  padding: clamp(0.85rem, 2vw, 1.1rem);
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  background: hsl(var(--muted));
+}
+
+.calloutMark {
+  grid-row: 1 / span 2;
+  margin-top: 0.05rem;
+}
+
+.calloutTitle {
+  font-size: 0.9375rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.calloutBody {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ── Close ─────────────────────────────────────────────────────────────── */
+
+.postClose { padding: clamp(2.75rem, 6vw, 4.5rem) var(--faq-gutter); }
+
+.closeTitle {
+  margin-top: 0.8rem;
+  font-family: var(--font-oxanium), sans-serif;
+  font-size: clamp(1.6rem, 3.2vw, 2.3rem);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+  color: hsl(var(--foreground));
+}
+
+.closeBody {
+  margin-top: 0.9rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: hsl(var(--muted-foreground));
+}
+
+.closeActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .closeActions { flex-direction: column; align-items: stretch; }
+}
+
+/* ── Motion floor ──────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .barPart { animation: none; }
+  .button,
+  .entryGo,
+  .entryTitle { transition: none; }
+  .button:hover,
+  .button:active,
+  .entryGo { transform: none; }
+}

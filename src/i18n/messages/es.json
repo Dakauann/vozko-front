@@ -7192,7 +7192,9 @@
         "skipped": "Se omitieron {invalid} líneas con teléfono inválido y {duplicates} repetidas.",
         "blocked": "{count} de los contactos existentes están bloqueados y no serán alcanzados por campañas.",
         "inboxSeedQueued": "{count} conversaciones se están creando en segundo plano y aparecerán en la bandeja en breve.",
-        "inboxSeedFailed": "Los leads se importaron, pero no se pudieron crear las conversaciones. Verifique que haya un número conectado en WhatsApp no oficial."
+        "inboxSeedFailed": "Los leads se importaron, pero no se pudieron crear las conversaciones. Verifique que haya un número conectado en WhatsApp no oficial.",
+        "scriptedSeedQueued": "{count} de ellas recibirán una conversación de ejemplo.",
+        "scriptedSeedFailed": "Las conversaciones se crearon, pero no se escribió ningún mensaje de ejemplo en ellas."
       },
       "error": {
         "title": "No se pudo importar",
@@ -7202,7 +7204,27 @@
         "label": "Abrir conversación en la bandeja",
         "help": "Crea una conversación vacía de WhatsApp no oficial para cada número importado, para que los leads aparezcan en la bandeja sin que nadie tenga que escribir primero. No se envía nada."
       },
-      "recognisedColumns": "La plantilla trae las tres columnas que la importación guarda: telefone (teléfono), nome (nombre) e idade (edad). Solo el teléfono es obligatorio. Las demás columnas del archivo se ignoran."
+      "recognisedColumns": "La plantilla trae las tres columnas que la importación guarda: telefone (teléfono), nome (nombre) e idade (edad). Solo el teléfono es obligatorio. Las demás columnas del archivo se ignoran.",
+      "seedConversations": {
+        "label": "Sembrar conversaciones de ejemplo",
+        "adminOnly": "solo admin",
+        "help": "Escribe con IA un intercambio corto de ejemplo en cada conversación, para que la bandeja se vea trabajada en vez de vacía. Usa el saldo del workspace. No se envía nada a nadie.",
+        "variantsTitle": "Primer mensaje",
+        "variantsHelp": "Lo que la empresa habría enviado. Agrega variantes para que las conversaciones sembradas no se lean todas igual. Usa '{{1}}' para el nombre del lead.",
+        "addVariant": "Agregar variante",
+        "removeVariant": "Quitar",
+        "variantLabel": "Variante {index}",
+        "bodyPlaceholder": "Hola '{{1}}', ¿cómo estás? Vi que te interesó nuestro curso.",
+        "variantsMismatch": "Todas las variantes deben usar las mismas variables.",
+        "nameVariable": "El nombre del lead reemplazará a '{{1}}'.",
+        "contextLabel": "Sobre el negocio (opcional)",
+        "contextPlaceholder": "Curso técnico de enfermería, inscripciones abiertas",
+        "maxMessages": "Largo de la conversación",
+        "messageCount": "{count} mensajes",
+        "unnamedRows": "{count} filas no tienen nombre y recibirán una conversación vacía, porque el primer mensaje usa el nombre.",
+        "costNotice": "Solo los primeros {max} contactos de la importación reciben conversación de ejemplo; el resto recibe una vacía. La IA se cobra del saldo del workspace.",
+        "invalid": "Escribe el primer mensaje y usa las mismas variables en todas las variantes."
+      }
     },
     "header": {
       "badge": "Leads",
@@ -9133,9 +9155,7 @@
         "comments": "Comentarios",
         "batches": "Llamadas",
         "tokens": "Tokens",
-        "surcharge": "Tarifa por comentario",
-        "noSurcharge": "Solo tokens",
-        "hint": "Los tokens se cobran del saldo como uso de IA. La tarifa por comentario, cuando está configurada, aparece como un asiento por lote."
+        "hint": "Los tokens se cobran del saldo como uso de IA."
       },
       "backfill": {
         "title": "Analizar comentarios antiguos",
@@ -9152,8 +9172,7 @@
         "cancel": "Cancelar reprocesamiento",
         "hint": "El reprocesamiento respeta el límite de llamadas de Instagram, así que puede tardar horas en cuentas grandes. Continúa donde se detuvo si se interrumpe.",
         "confirmTitle": "Confirmar reprocesamiento",
-        "confirmDescription": "Unos {comments} comentarios en {containers} publicaciones se pondrán en cola. Tarifa por comentario estimada: {price}. Los tokens se cobran aparte, como uso de IA.",
-        "tokenBillingOnly": "no configurada (solo tokens)",
+        "confirmDescription": "Unos {comments} comentarios en {containers} publicaciones se pondrán en cola. El análisis se cobra como uso de IA, por los tokens que consuma.",
         "confirm": "Confirmar e iniciar",
         "cancelDialog": "Cancelar"
       },
@@ -11129,5 +11148,441 @@
     "heatHint": "Intensidad por hora",
     "low": "Baja",
     "high": "Alta"
+  },
+  "faq":   {
+    "nav": "FAQ",
+    "index": {
+      "title": "Preguntas y respuestas",
+      "lead": "Explicaciones directas sobre lo que cambia en los canales que tu operación usa todos los días. Sin rodeos y con todas las fuentes al pie de la página.",
+      "readingTime": "{minutes} min de lectura",
+      "empty": "Todavía no hay artículos publicados.",
+      "metaTitle": "FAQ: preguntas y respuestas",
+      "metaDescription": "Explicaciones directas sobre facturación, canales y reglas de las plataformas de mensajería que tu operación usa todos los días."
+    },
+    "posts": {
+      "metaServiceCosts": {
+        "category": "WhatsApp · Facturación",
+        "title": "Los nuevos costes de Meta en WhatsApp",
+        "excerpt": "Desde el 1 de octubre de 2026, responder a un cliente tiene precio. Cada número recibe 1.000 mensajes de servicio gratis al mes, y este artículo muestra, mensaje a mensaje, qué entra en esa cuenta.",
+        "lead": "Desde el 1 de octubre de 2026, responder a un cliente tiene precio.",
+        "standfirst": "Cada número de teléfono recibe 1.000 mensajes de servicio gratis al mes. Abajo hay tres conversaciones reales con cada mensaje marcado: qué consume la franquicia, qué se cobra aparte y qué sigue siendo gratis.",
+        "readingTime": "{minutes} min de lectura",
+        "backToIndex": "Volver al FAQ",
+        "metaTitle": "Nuevos costes de Meta en WhatsApp: qué cambia el 1 de octubre de 2026",
+        "metaDescription": "Los mensajes de servicio pasan a cobrarse a partir de 1.000 por número al mes, y la plantilla de utilidad dentro de la ventana de 24 horas deja de ser gratuita. Con ejemplos visuales de qué mensajes se cobran.",
+        "announcement": {
+          "title": "Qué anunció Meta",
+          "body1": "El 1 de octubre de 2026 entra en vigor el mayor cambio de facturación de WhatsApp Business desde julio de 2025. Dos cosas que hoy son gratuitas pasan a cobrarse: la respuesta libre que tu equipo envía dentro de la ventana de 24 horas, que Meta llama mensaje de servicio, y la plantilla de utilidad enviada dentro de esa misma ventana. Hasta el 30 de septiembre de 2026 ambas siguen siendo gratis.",
+          "body2": "La decisión es de Meta y se aplica a toda empresa que use la API oficial de WhatsApp Business, en cualquier país y con cualquier proveedor. No es un cambio de precio de tu plataforma de atención: Meta define la categoría de cada mensaje, la tarifa de cada país y la fecha de inicio, y todos los proveedores trasladan exactamente el mismo coste. La cuenta que recorre este artículo sería idéntica en cualquier otra herramienta del mercado.",
+          "body3": "Lo que no cambia importa igual, y es lo que pone la cosa en su sitio. Los mensajes que el cliente envía a la empresa siguen siendo gratuitos, hoy y después de octubre, sin límite alguno. La ventana de 24 horas sigue existiendo y la sigue abriendo el cliente. Las conversaciones que nacen de un anuncio Click-to-WhatsApp mantienen sus 72 horas enteramente gratuitas. Y el nuevo cobro solo empieza después de una franquicia mensual generosa, por donde arranca este artículo.",
+          "callout": {
+            "title": "Quién decide y quién cobra",
+            "body": "Meta define las categorías de mensaje, las tarifas por país y las fechas. El proveedor de la API solo traslada el importe. Ninguna plataforma de atención puede eximir un mensaje que Meta haya clasificado como cobrable, ni ofrecer una tarifa distinta de su tabla oficial."
+          }
+        },
+        "allowance": {
+          "title": "La franquicia de 1.000 mensajes",
+          "intro": "Meta no empezó a cobrarlo todo. Creó una franquicia mensual por número de teléfono y solo cobra a partir del mensaje 1.001.",
+          "bar": {
+            "panelTitle": "Un mes en un número de teléfono",
+            "panelScenario": "Ejemplo: 1.250 mensajes de servicio enviados en el mes.",
+            "freeLabel": "Gratis",
+            "billedLabel": "Cobrados",
+            "scaleStart": "Mensaje 1",
+            "scaleEnd": "Mensaje 1.250",
+            "foot": "La franquicia se reinicia el día 1 y no se acumula: lo que sobra de octubre no vale en noviembre."
+          },
+          "body1": "La franquicia es por número, no por cuenta. Una operación con cuatro números conectados tiene 4.000 mensajes de servicio gratis al mes, pero solo si la atención está realmente repartida entre ellos, porque lo que sobra en un número nunca cubre el exceso de otro. Un único número que carga con todo el tráfico se pasa él solo mientras los otros tres terminan el mes intactos, y ese sobrante simplemente se pierde.",
+          "body2": "Pasado el milésimo, cada mensaje de servicio cuesta la misma tarifa que Meta ya cobra por una plantilla de utilidad o de autenticación en el país de quien recibe. En esta categoría no hay descuento por volumen: el mensaje 1.001 cuesta lo mismo que el 90.000, y ningún plan contratado con un proveedor cambia esa cifra.",
+          "body3": "Conviene insistir en un punto que suele confundir en la primera lectura. La franquicia cubre solo mensajes de servicio, es decir respuestas libres dentro de la ventana. Las plantillas de marketing, de autenticación y de utilidad se siguen cobrando desde la primera unidad, porque nunca estuvieron en esa categoría. Una operación que dispara muchas plantillas y responde poco puede pasar un mes entero sin tocar la franquicia y aun así recibir una factura alta."
+        },
+        "window": {
+          "title": "La ventana de 24 horas",
+          "intro": "Toda la regla depende de un reloj. Cuando el cliente escribe se abre una ventana de 24 horas, y solo dentro de ella existe el mensaje de servicio.",
+          "clock": {
+            "panelTitle": "Una conversación, de principio a fin",
+            "panelScenario": "La línea verde es el tiempo que la ventana permanece abierta.",
+            "steps": [
+              {
+                "time": "09:12 · El cliente escribe",
+                "body": "Los mensajes recibidos nunca se cobran, y son los que abren la ventana.",
+                "tag": "Gratis",
+                "verdict": "free"
+              },
+              {
+                "time": "09:14 · Respondes",
+                "body": "Respuesta libre, sin plantilla. Es un mensaje de servicio y consume la franquicia.",
+                "tag": "Mensaje de servicio",
+                "verdict": "billed"
+              },
+              {
+                "time": "15:40 · Respondes otra vez",
+                "body": "Todavía dentro de la ventana. Cada respuesta libre cuenta como un mensaje.",
+                "tag": "Mensaje de servicio",
+                "verdict": "billed"
+              },
+              {
+                "time": "09:12 del día siguiente · La ventana se cierra",
+                "body": "24 horas después del último mensaje del cliente."
+              },
+              {
+                "time": "Después de eso",
+                "body": "La única vía es una plantilla aprobada, cobrada según su categoría.",
+                "tag": "Plantilla",
+                "verdict": "billed"
+              }
+            ],
+            "foot": "El reloj se reinicia con cada mensaje nuevo del cliente: la ventana no cuenta 24 horas desde el primer contacto, sino desde el último mensaje que envió."
+          },
+          "body1": "Un mensaje de servicio es una respuesta libre, es decir texto, imagen, audio o documento sin plantilla aprobada, que la empresa envía dentro de esa ventana. Da igual quién la escriba: agente humano, chatbot o automatización, el mensaje es el mismo y el cobro también. Lo que define la categoría es el formato y el momento del envío, nunca su origen.",
+          "body2": "La ventana solo la abre el cliente. La empresa no puede abrirla por su cuenta, y por eso existen las plantillas: fuera de la ventana, una plantilla aprobada es la única vía para llegar a alguien. También por eso la ventana se reinicia con cada mensaje entrante. Una conversación que se alarga dos días, con el cliente respondiendo de vez en cuando, mantiene la ventana abierta todo ese tiempo, y cada respuesta libre en ese periodo es un mensaje de servicio.",
+          "body3": "En la práctica esto significa que el coste de una operación de atención no depende de cuántas conversaciones tiene, sino de cuántas veces habla en cada una. Dos equipos con el mismo volumen de conversaciones pueden recibir facturas muy distintas si uno responde en cuatro globos cortos y el otro en una respuesta completa."
+        },
+        "examples": {
+          "title": "Tres conversaciones, tres cuentas",
+          "intro": "Una regla escrita es una cosa y una factura es otra. Las tres conversaciones de abajo son las que tu equipo tiene todos los días, con cada mensaje marcado tal como Meta lo va a clasificar desde octubre. El número de arriba es cuántos mensajes salieron de la franquicia del mes.",
+          "body": "Léelas en orden. La primera muestra lo que cuesta una atención corriente, bien resuelta y cara igualmente. La segunda muestra el mismo esfuerzo costando cero, solo porque la conversación empezó en otro sitio. La tercera muestra la parte del cambio que casi nadie nota, porque ocurre dentro de una plantilla que siempre fue gratuita.",
+          "thread": {
+            "billedUnit": "cobrados"
+          },
+          "items": [
+            {
+              "title": "Cobranza: la clienta pide un duplicado",
+              "scenario": "Abierta por la clienta y resuelta dentro de la ventana de 24 horas.",
+              "verdict": "Cuatro mensajes de servicio en una conversación de nueve minutos. Unir las dos primeras respuestas en una y quitar la despedida dejaría la misma conversación en dos.",
+              "turns": [
+                {
+                  "from": "customer",
+                  "clock": "09:12",
+                  "text": "¡Buenos días! Perdí la factura de septiembre, ¿pueden reenviármela?",
+                  "verdict": "free",
+                  "tag": "Gratis",
+                  "reason": "Un mensaje del cliente a la empresa nunca se cobra."
+                },
+                {
+                  "from": "business",
+                  "clock": "09:13",
+                  "text": "¡Buenos días, Marina! Ya te localicé. ¿Me confirmas tu identificación fiscal para emitir el duplicado?",
+                  "verdict": "billed",
+                  "tag": "Mensaje de servicio",
+                  "reason": "Respuesta libre dentro de la ventana.",
+                  "banner": "Ventana de 24 horas abierta a las 09:12",
+                  "bannerTone": "neutral"
+                },
+                {
+                  "from": "customer",
+                  "clock": "09:15",
+                  "text": "123.456.789-00",
+                  "verdict": "free",
+                  "tag": "Gratis",
+                  "reason": "Recibido, y el reloj de la ventana se reinicia aquí."
+                },
+                {
+                  "from": "business",
+                  "clock": "09:16",
+                  "text": "Perfecto. Aquí tienes la factura actualizada, con vencimiento el 30 de septiembre.",
+                  "verdict": "billed",
+                  "tag": "Mensaje de servicio",
+                  "reason": "Segunda respuesta libre."
+                },
+                {
+                  "from": "business",
+                  "clock": "09:16",
+                  "text": "factura-septiembre.pdf",
+                  "verdict": "billed",
+                  "tag": "Mensaje de servicio",
+                  "reason": "El adjunto es un mensaje aparte y cuenta de nuevo."
+                },
+                {
+                  "from": "customer",
+                  "clock": "09:20",
+                  "text": "Recibido, ¡gracias!",
+                  "verdict": "free",
+                  "tag": "Gratis",
+                  "reason": "Recibido."
+                },
+                {
+                  "from": "business",
+                  "clock": "09:21",
+                  "text": "A ti, Marina. Cualquier cosa nos escribes por aquí.",
+                  "verdict": "billed",
+                  "tag": "Mensaje de servicio",
+                  "reason": "La cortesía final también se cobra."
+                }
+              ]
+            },
+            {
+              "title": "Ventas: el lead que llegó de un anuncio",
+              "scenario": "Abierta por un clic en un anuncio Click-to-WhatsApp.",
+              "verdict": "Cero de la franquicia en toda la fase de descubrimiento. Es el camino más barato que existe hoy, y empieza en el anuncio, no en la bandeja de entrada.",
+              "turns": [
+                {
+                  "from": "customer",
+                  "clock": "14:02",
+                  "text": "Vi su anuncio. ¿Cómo funciona para un equipo de tres agentes?",
+                  "verdict": "free",
+                  "tag": "Gratis",
+                  "reason": "Llegó por un clic en un anuncio Click-to-WhatsApp."
+                },
+                {
+                  "from": "business",
+                  "clock": "14:05",
+                  "text": "¡Hola, Diego! Con tres agentes trabajáis en la misma bandeja, cada uno con su cola. ¿Te lo enseño?",
+                  "verdict": "free",
+                  "tag": "Gratis",
+                  "reason": "La empresa respondió en menos de 24 horas, así que se abre la ventana gratuita de 72 horas.",
+                  "banner": "Ventana gratuita de 72 horas abierta por el anuncio",
+                  "bannerTone": "free"
+                },
+                {
+                  "from": "customer",
+                  "clock": "14:09",
+                  "text": "Sí, por favor. ¿Y se integra con el CRM que ya usamos?",
+                  "verdict": "free",
+                  "tag": "Gratis",
+                  "reason": "Recibido."
+                },
+                {
+                  "from": "business",
+                  "clock": "14:11",
+                  "text": "Sí. La integración va por API y el historial de la conversación queda en el lead.",
+                  "verdict": "free",
+                  "tag": "Gratis",
+                  "reason": "Dentro de las 72 horas, cualquier tipo de mensaje sale gratis."
+                },
+                {
+                  "from": "business",
+                  "clock": "18:30",
+                  "text": "Diego, he reservado una demostración para mañana a las 10. ¿Te va bien?",
+                  "verdict": "free",
+                  "tag": "Gratis",
+                  "reason": "Todavía dentro de las 72 horas. Ni las plantillas se cobran aquí."
+                },
+                {
+                  "from": "business",
+                  "clock": "4 días después",
+                  "text": "¡Hola, Diego! Tu propuesta está lista y disponible en el enlace de abajo.",
+                  "verdict": "billed",
+                  "tag": "Plantilla de utilidad",
+                  "reason": "La ventana se cerró. A partir de aquí solo por plantilla, cobrada según su categoría.",
+                  "template": "Plantilla aprobada",
+                  "banner": "Ventana gratuita cerrada 72 horas después",
+                  "bannerTone": "neutral"
+                }
+              ]
+            },
+            {
+              "title": "Soporte: la plantilla que era gratis",
+              "scenario": "El cambio más fácil de pasar por alto: una plantilla de utilidad enviada dentro de la ventana.",
+              "verdict": "Dos mensajes de servicio y una plantilla de utilidad que, hasta el 30 de septiembre, no habría costado nada. Esa plantilla no sale de la franquicia, porque la franquicia solo cubre mensajes de servicio.",
+              "turns": [
+                {
+                  "from": "customer",
+                  "clock": "10:40",
+                  "text": "Mi pedido figura como enviado, pero no llegó.",
+                  "verdict": "free",
+                  "tag": "Gratis",
+                  "reason": "Un mensaje del cliente nunca se cobra."
+                },
+                {
+                  "from": "business",
+                  "clock": "10:43",
+                  "text": "Hola, Rafael. Lo consulto ahora mismo con el transportista y te respondo enseguida.",
+                  "verdict": "billed",
+                  "tag": "Mensaje de servicio",
+                  "reason": "Respuesta libre dentro de la ventana.",
+                  "banner": "Ventana de 24 horas abierta a las 10:40",
+                  "bannerTone": "neutral"
+                },
+                {
+                  "from": "business",
+                  "clock": "11:05",
+                  "text": "Actualización del pedido #48219: en reparto, previsto para hoy antes de las 18:00.",
+                  "verdict": "billed",
+                  "tag": "Plantilla de utilidad",
+                  "reason": "Gratis dentro de la ventana hasta el 30/09/2026. Se cobra desde el 01/10, y fuera de la franquicia.",
+                  "template": "Plantilla aprobada"
+                },
+                {
+                  "from": "customer",
+                  "clock": "11:07",
+                  "text": "Genial, ¡gracias!",
+                  "verdict": "free",
+                  "tag": "Gratis",
+                  "reason": "Recibido."
+                },
+                {
+                  "from": "business",
+                  "clock": "11:08",
+                  "text": "A ti, Rafael. Lo dejo registrado aquí en tu historial.",
+                  "verdict": "billed",
+                  "tag": "Mensaje de servicio",
+                  "reason": "Consume la franquicia."
+                }
+              ]
+            }
+          ]
+        },
+        "matrix": {
+          "title": "Qué se cobra, línea por línea",
+          "intro": "La tabla responde la pregunta que todo el mundo hace primero: qué cambió de verdad. De las siete filas, cinco siguen exactamente como estaban. Las dos destacadas son las únicas que se movieron.",
+          "body": "Fíjate en que marketing y autenticación no aparecen entre los cambios. Esas plantillas siempre se cobraron y mantienen su tarifa. Lo que cambió es el trato a la ventana de 24 horas: ha dejado de ser un espacio gratuito para ser solo el espacio donde se permite la respuesta libre. El permiso sigue, la gratuidad se acabó.",
+          "table": {
+            "caption": "Facturación por tipo de mensaje, antes y después del 1 de octubre de 2026.",
+            "columnType": "Tipo de mensaje",
+            "columnBefore": "Hasta 30/09/2026",
+            "columnAfter": "Desde 01/10/2026",
+            "rows": [
+              {
+                "type": "Mensaje recibido del cliente",
+                "kind": "A cualquier hora, dentro o fuera de la ventana",
+                "before": "Gratis",
+                "beforeVerdict": "free",
+                "after": "Gratis",
+                "afterVerdict": "free"
+              },
+              {
+                "type": "Respuesta libre dentro de la ventana de 24 h",
+                "kind": "El mensaje de servicio: texto, multimedia, audio, documento",
+                "before": "Gratis",
+                "beforeVerdict": "free",
+                "after": "Tras 1.000/mes",
+                "afterVerdict": "billed",
+                "changedFlag": "Cambió"
+              },
+              {
+                "type": "Plantilla de utilidad dentro de la ventana",
+                "kind": "Estado de pedido, confirmaciones, avisos de entrega",
+                "before": "Gratis",
+                "beforeVerdict": "free",
+                "after": "Se cobra",
+                "afterVerdict": "billed",
+                "changedFlag": "Cambió"
+              },
+              {
+                "type": "Plantilla de utilidad fuera de la ventana",
+                "kind": "El mismo mensaje con la ventana cerrada",
+                "before": "Se cobra",
+                "beforeVerdict": "billed",
+                "after": "Se cobra",
+                "afterVerdict": "billed"
+              },
+              {
+                "type": "Plantilla de autenticación",
+                "kind": "Códigos de verificación y contraseñas de un solo uso",
+                "before": "Se cobra",
+                "beforeVerdict": "billed",
+                "after": "Se cobra",
+                "afterVerdict": "billed"
+              },
+              {
+                "type": "Plantilla de marketing",
+                "kind": "Campañas, ofertas y reactivación",
+                "before": "Se cobra",
+                "beforeVerdict": "billed",
+                "after": "Se cobra",
+                "afterVerdict": "billed"
+              },
+              {
+                "type": "Cualquier mensaje en la ventana de 72 h",
+                "kind": "Conversación abierta por anuncio Click-to-WhatsApp o botón de la Página",
+                "before": "Gratis",
+                "beforeVerdict": "free",
+                "after": "Gratis",
+                "afterVerdict": "free"
+              }
+            ]
+          },
+          "agentCallout": {
+            "title": "¿Y las respuestas del Meta Business Agent?",
+            "body": "Desde el 1 de agosto de 2026 se cobran por tokens consumidos y no por mensaje. Un mensaje sin plantilla se cobra una sola vez: o como mensaje de servicio, o como mensaje del Meta Business Agent, nunca como ambos."
+          }
+        },
+        "math": {
+          "title": "Cuánto cuesta en la práctica",
+          "intro": "Arrastra hasta el volumen mensual de mensajes de servicio de un número y lee la cuenta. El cálculo es el de Meta: total del mes, menos la franquicia de 1.000, por la tarifa del país de quien recibe.",
+          "ledger": {
+            "panelTitle": "La cuenta del mes",
+            "panelScenario": "Un número de teléfono, un mes.",
+            "inputLabel": "Mensajes de servicio este mes",
+            "sent": "Enviados en el mes",
+            "freeTier": "Franquicia gratuita (no se cobra)",
+            "billable": "Mensajes facturables",
+            "rate": "Tarifa por mensaje",
+            "rateNote": "Referencia Brasil, igual a la tarifa de utilidad y autenticación",
+            "fx": "Tipo de cambio usado",
+            "fxNote": "Dólar estadounidense el 14 de septiembre de 2026",
+            "total": "Coste estimado del mes",
+            "disclaimer": "Es una estimación. Meta factura en dólares y la tarifa sigue el país de quien recibe el mensaje. El importe en reales depende del cambio del día, y tu proveedor puede sumar su propia comisión por encima."
+          },
+          "body": "La tarifa de referencia usada arriba es la de Brasil, de unos 0,0068 dólares por mensaje, comprobada el 14 de septiembre de 2026. Si tu operación atiende a clientes fuera de Brasil, la cifra cambia, porque el cobro sigue el país del destinatario y no el de la empresa. Atender a un cliente en Portugal o en Alemania cuesta bastante más por mensaje que atender a uno en Sao Paulo.",
+          "body2": "Para la mayoría de operaciones pequeñas el importe final es modesto, y ese es justo el punto: la franquicia de 1.000 existe para que un negocio de bajo volumen no note el cambio. El impacto aparece a escala, sobre todo en cobranza y en soporte, donde cada conversación consume varias respuestas libres y el volumen mensual supera sin esfuerzo los diez mil mensajes por número."
+        },
+        "actions": {
+          "title": "Qué hacer antes del 1 de octubre",
+          "intro": "Cinco decisiones que cambian la factura de octubre, todas tomadas antes de la fecha. La primera es obligatoria, so pena de que los mensajes dejen de entregarse. Las otras cuatro son ahorro.",
+          "steps": [
+            {
+              "title": "Confirma el método de pago",
+              "body": "Sin método de pago registrado en la cuenta de WhatsApp Business, Meta entrega los 1.000 mensajes de servicio del mes y deja de entregar a partir del 1.001. El plazo para regularizarlo es el 30 de septiembre de 2026."
+            },
+            {
+              "title": "Junta la respuesta en un solo mensaje",
+              "body": "Tres globos seguidos son tres mensajes cobrados. La misma información escrita en una respuesta completa es uno. Es el ahorro más inmediato que existe y no depende de ningún cambio de sistema."
+            },
+            {
+              "title": "Lleva el primer contacto al anuncio",
+              "body": "Una conversación abierta por un anuncio Click-to-WhatsApp o por el botón de la Página abre 72 horas gratuitas, siempre que la empresa responda en menos de 24 horas. En esa ventana no se cobra nada, plantillas incluidas."
+            },
+            {
+              "title": "Reparte el volumen entre los números",
+              "body": "La franquicia es por número de teléfono. Cuatro números conectados son 4.000 mensajes gratis al mes, pero solo si la atención está realmente repartida, porque lo que sobra en un número nunca cubre el exceso de otro."
+            },
+            {
+              "title": "Mide antes de estimar",
+              "body": "Revisa cuántas respuestas libres envió cada número en los últimos 30 días. Esa cifra, y no el total de mensajes intercambiados, decide si la franquicia cubre tu operación."
+            }
+          ],
+          "deadline": {
+            "title": "El 30 de septiembre de 2026 es la fecha que importa",
+            "body": "Es el plazo para tener un método de pago válido en la cuenta. El cobro en sí empieza el 1 de octubre, y la franquicia del mes se reinicia en cada cambio de mes posterior."
+          }
+        },
+        "sources": {
+          "title": "De dónde sale cada dato",
+          "intro": "Nada de esto es una interpretación nuestra de las reglas de Meta. La documentación oficial va primero, y el resto de fuentes detalla el anuncio y las tarifas.",
+          "items": [
+            {
+              "label": "Pricing on the WhatsApp Business Platform, Meta for Developers",
+              "href": "https://developers.facebook.com/documentation/business-messaging/whatsapp/pricing"
+            },
+            {
+              "label": "WhatsApp Business Platform Pricing, resumen oficial",
+              "href": "https://whatsappbusiness.com/products/platform-pricing/"
+            },
+            {
+              "label": "Service message charging starts October 1, 2026 (360dialog)",
+              "href": "https://360dialog.com/blog/whatsapp-service-message-charging-october-2026/"
+            },
+            {
+              "label": "WhatsApp pricing change 2026 (respond.io)",
+              "href": "https://respond.io/blog/whatsapp-pricing-change-2026"
+            },
+            {
+              "label": "WhatsApp API message pricing update, effective October 1, 2026 (YCloud)",
+              "href": "https://www.ycloud.com/blog/whatsapp-api-message-pricing-update-effective-october-1-2026"
+            }
+          ],
+          "checked": "Datos comprobados el {date}. Las reglas y tarifas son de Meta y pueden cambiar. Ante cualquier discrepancia, prevalece la documentación oficial."
+        },
+        "close": {
+          "legend": "Siguiente paso",
+          "title": "Menos mensajes, la misma respuesta.",
+          "body": "Después de octubre, la operación más barata es la que resuelve en menos turnos: una respuesta completa en lugar de cuatro, el primer contacto entrando por la ventana gratuita y el volumen repartido entre los números correctos.",
+          "primaryCta": "Crear cuenta",
+          "secondaryCta": "Ver todas las preguntas"
+        }
+      }
+    }
   }
 }

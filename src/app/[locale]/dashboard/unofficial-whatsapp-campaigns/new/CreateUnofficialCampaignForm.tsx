@@ -216,7 +216,7 @@ export default function CreateUnofficialCampaignForm({
   // ---------------------------------------------------------------- targets
 
   const requiredVariables = parameterCount(message);
-  const variantsOk = variantsAgree(message);
+  const variantsOk = variantsAgree(message.bodies);
   const bodiesFilled =
     message.kind === "text" || message.kind === "menu"
       ? message.bodies.every((b) => b.trim().length > 0)

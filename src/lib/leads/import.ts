@@ -241,3 +241,38 @@ export function buildLeadImportRows(
  * this, edits it, and uploads it must not have their own template rejected.
  */
 export const LEAD_IMPORT_TEMPLATE_COLUMNS = ["telefone", "nome", "idade"] as const;
+
+/**
+ * How many conversations one import may have written for them.
+ *
+ * Mirrors MaxScriptedTargets in the Go domain, where the cap is actually
+ * applied. Mirrored here so the dialog can tell the operator up front how many
+ * of their rows will get an example conversation, rather than letting them
+ * discover it from a number in the result panel that is smaller than the one
+ * they imported.
+ */
+export const MAX_SEEDED_CONVERSATIONS = 200;
+
+/**
+ * How many of the rows that would be scripted have no name.
+ *
+ * It exists because of one rule on the server: under an opening that renders
+ * {{1}}, a row with no name is seeded as a plain empty chat instead, because
+ * "Oi , tudo bem?" is worse than an empty chat. The operator should see that
+ * count before committing, not deduce it afterwards from a total that does not
+ * add up.
+ *
+ * Only the first `limit` rows are counted, because only those are scripted at
+ * all: counting all fifty thousand would report a number about rows the feature
+ * never touches.
+ */
+export function countRowsWithoutName(
+    rows: LeadImportRow[],
+    limit = MAX_SEEDED_CONVERSATIONS,
+): number {
+    let missing = 0;
+    for (const row of rows.slice(0, Math.max(0, limit))) {
+        if (!row.name || row.name.trim() === "") missing += 1;
+    }
+    return missing;
+}

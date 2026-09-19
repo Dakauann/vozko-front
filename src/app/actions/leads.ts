@@ -437,6 +437,37 @@ export interface LeadImportResult {
     inboxSeedQueued?: number;
     /** Why seeding could not be queued, when the leads themselves imported fine. */
     inboxSeedError?: string;
+    /**
+     * How many of those conversations will carry a written example thread.
+     *
+     * Always smaller than or equal to inboxSeedQueued: only the first
+     * MAX_SEEDED_CONVERSATIONS of an import cost anything, and every row after
+     * that still gets a plain empty chat.
+     */
+    scriptedSeedQueued?: number;
+    /**
+     * Why the conversations will open blank when the import asked for scripted
+     * ones — most often because the caller is not a platform administrator.
+     *
+     * Separate from inboxSeedError, because the pair has to be able to say "the
+     * conversations were queued and none of them will have a script".
+     */
+    scriptedSeedError?: string;
+}
+
+/**
+ * The example-conversation script, as the import dialog collects it.
+ *
+ * Sent per import rather than stored: the act is per import, and a saved
+ * template would be a settings screen nobody asked for.
+ */
+export interface LeadImportSeedConversations {
+    /** The first message, in variants. One is picked per contact, by number. */
+    bodies: string[];
+    /** The whole thread's length, counting that first message. */
+    maxMessages: number;
+    /** Optional free text about what the business sells. */
+    context?: string;
 }
 
 /** Row limit the API enforces. Mirrored so the UI can refuse before uploading. */
@@ -454,6 +485,7 @@ export async function importLeadsAction(
     rows: LeadImportRow[],
     onExisting: 'fill_empty' | 'skip' = 'fill_empty',
     seedInbox = false,
+    seedConversations?: LeadImportSeedConversations,
 ): Promise<{ result: LeadImportResult | null; error: string | null }> {
     if (rows.length === 0) {
         return { result: null, error: null };
@@ -462,7 +494,16 @@ export async function importLeadsAction(
     const response = await apiClient<LeadImportResult>('/leads/import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rows, onExisting, seedInbox }),
+        // seedConversations is OMITTED rather than sent as null when off: the
+        // server refuses a script without seedInbox with a 400, and a stale
+        // object on a request that unticked the box would fail an import the
+        // operator did not ask to change.
+        body: JSON.stringify({
+            rows,
+            onExisting,
+            seedInbox,
+            ...(seedInbox && seedConversations ? { seedConversations } : {}),
+        }),
     });
 
     if (response.error) {
