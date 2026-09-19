@@ -11643,7 +11643,8 @@
       "qualityLimit": "The number hit Meta's sending limit for quality or volume. Wait and try later.",
       "userStoppedMarketing": "This person opted out of marketing messages from this number.",
       "templateProblem": "The template was refused on send: it may be paused, rejected, or its variables may not match.",
-      "experimentHoldout": "Meta withheld this message for a delivery experiment."
+      "experimentHoldout": "Meta withheld this message for a delivery experiment.",
+      "mediaRejected": "Meta rejected the media file. Check the format (audio must be OGG/Opus, MP3, AAC or AMR) and whether this number's business verification is complete."
     }
   },
   "unofficialWhatsappCampaigns": {

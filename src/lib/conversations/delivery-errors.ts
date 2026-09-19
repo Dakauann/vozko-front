@@ -29,6 +29,12 @@ export function deliveryErrorKey(code: number | undefined): string | null {
             return "qualityLimit";
         case 131050:
             return "userStoppedMarketing";
+        // 131053 arrives with a long `details` when Meta feels like it and with
+        // nothing but the code when it does not — and an unmapped code with no
+        // details rendered as "WhatsApp gave no reason", which is false: the
+        // reason was right there in the payload.
+        case 131053:
+            return "mediaRejected";
         case 132000:
         case 132001:
         case 132005:

@@ -10145,7 +10145,8 @@
       "qualityLimit": "El número alcanzó el límite de envíos de Meta por calidad o volumen. Espera e inténtalo más tarde.",
       "userStoppedMarketing": "Esta persona optó por no recibir mensajes de marketing de este número.",
       "templateProblem": "La plantilla fue rechazada al enviar: puede estar pausada, rechazada o con variables que no coinciden.",
-      "experimentHoldout": "Meta retuvo este mensaje por un experimento de entrega."
+      "experimentHoldout": "Meta retuvo este mensaje por un experimento de entrega.",
+      "mediaRejected": "Meta rechazó el archivo multimedia. Revisa el formato (el audio debe ser OGG/Opus, MP3, AAC o AMR) y si la verificación del negocio de este número está completa."
     }
   },
   "unofficialWhatsappCampaigns": {

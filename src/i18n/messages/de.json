@@ -10642,7 +10642,8 @@
       "qualityLimit": "Die Nummer hat Metas Sendelimit für Qualität oder Volumen erreicht. Warten Sie und versuchen Sie es später.",
       "userStoppedMarketing": "Diese Person hat Marketingnachrichten von dieser Nummer abbestellt.",
       "templateProblem": "Die Vorlage wurde beim Senden abgelehnt: Sie kann pausiert oder abgelehnt sein oder ihre Variablen passen nicht.",
-      "experimentHoldout": "Meta hat diese Nachricht für ein Zustellexperiment zurückgehalten."
+      "experimentHoldout": "Meta hat diese Nachricht für ein Zustellexperiment zurückgehalten.",
+      "mediaRejected": "Meta hat die Mediendatei abgelehnt. Prüfe das Format (Audio muss OGG/Opus, MP3, AAC oder AMR sein) und ob die Unternehmensverifizierung dieser Nummer abgeschlossen ist."
     }
   },
   "unofficialWhatsappCampaigns": {
