@@ -1,13 +1,3 @@
-/**
- * The CRM console's geometry, kept out of the scene so it can be checked by
- * arithmetic instead of by eye. Every offset here is measured from the panel it
- * belongs to, never from the stage origin: the wide layout happens to put all
- * three panels on y=0, which hides the difference, and the portrait layout does
- * not, which is where it showed up as rows floating outside their own inbox.
- *
- * `crmBoxes` returns every element as a flat rectangle in stage coordinates, so
- * `crm-layout.test.ts` can assert containment and non-overlap for both layouts.
- */
 
 export type Size3 = [number, number, number];
 export type Point = [number, number];
@@ -17,22 +7,15 @@ export type CrmLayout = {
   inbox: Panel;
   thread: Panel;
   details: Panel;
-  /** A conversation row in the inbox list. */
   row: Size3;
   rowGap: number;
-  /** First row, measured DOWN from the inbox's top edge. */
   rowTop: number;
   visibleRows: number;
-  /** Thread contents, measured down from the thread's top edge. */
   threadRows: { header: number; first: number; second: number; third: number };
-  /** The composer, measured UP from the thread's bottom edge. */
   composer: number;
-  /** Record contents, measured down from the details panel's top edge. */
   detailRows: { title: number; stage: number; tags: number };
-  /** The owner block, measured up from the details panel's bottom edge. */
   owner: number;
   tag: Size3;
-  /** Portrait puts the two tags beside each other; wide stacks them. */
   tagsInARow: boolean;
   tagStep: number;
   extent: Point;
@@ -57,8 +40,6 @@ export const CRM_WIDE: CrmLayout = {
 };
 
 export const CRM_COMPACT: CrmLayout = {
-  // On phones the conversation gets the full width. The inbox and contact
-  // record sit beneath it, keeping the scene short enough for readable type.
   inbox: { at: [-1.8, -1.95], size: [3.3, 3.5, 0.22] },
   thread: { at: [0, 1.85], size: [6.9, 3.5, 0.26] },
   details: { at: [1.8, -1.95], size: [3.3, 3.5, 0.22] },
@@ -78,17 +59,14 @@ export const CRM_COMPACT: CrmLayout = {
 
 const halfH = (panel: Panel) => panel.size[1] / 2;
 
-/** A conversation row's centre, in stage coordinates. */
 export function rowAt(layout: CrmLayout, index: number): Point {
   return [layout.inbox.at[0], layout.inbox.at[1] + halfH(layout.inbox) - layout.rowTop - index * layout.rowGap];
 }
 
-/** Where a row starts before it slides into the queue. */
 export function rowEntryX(layout: CrmLayout): number {
   return layout.inbox.at[0] - 2.2;
 }
 
-/** A y inside the thread, from an offset measured down from its top edge. */
 export function threadY(layout: CrmLayout, down: number): number {
   return layout.thread.at[1] + halfH(layout.thread) - down;
 }
@@ -97,7 +75,6 @@ export function composerY(layout: CrmLayout): number {
   return layout.thread.at[1] - halfH(layout.thread) + layout.composer;
 }
 
-/** A y inside the details panel, from an offset measured down from its top edge. */
 export function detailY(layout: CrmLayout, down: number): number {
   return layout.details.at[1] + halfH(layout.details) - down;
 }
@@ -106,14 +83,12 @@ export function ownerY(layout: CrmLayout): number {
   return layout.details.at[1] - halfH(layout.details) + layout.owner;
 }
 
-/** Where a tag comes to rest on the record, once it has been filed. */
 export function tagAt(layout: CrmLayout, index: number, total: number): Point {
   const top = detailY(layout, layout.detailRows.tags) - 0.3;
   if (!layout.tagsInARow) return [layout.details.at[0], top - index * layout.tagStep];
   return [layout.details.at[0] + (index - (total - 1) / 2) * layout.tagStep, top];
 }
 
-/** Where a tag starts: on the open conversation, before it is filed. */
 export function tagFrom(layout: CrmLayout): Point {
   return [layout.thread.at[0], threadY(layout, layout.threadRows.second)];
 }
@@ -122,11 +97,6 @@ export type Box = { name: string; x: number; y: number; w: number; h: number };
 
 const box = (name: string, at: Point, w: number, h: number): Box => ({ name, x: at[0], y: at[1], w, h });
 
-/**
- * Every element of the scene as a flat rectangle. Text blocks are given the
- * height their rendered line box occupies at the scene's own scale, which is
- * what makes a "label overlaps a chip" assertion meaningful.
- */
 export function crmBoxes(layout: CrmLayout, tags: number) {
   const lineH = 0.26;
   const twoLineH = 0.44;
@@ -172,7 +142,6 @@ export const right = (b: Box) => b.x + b.w / 2;
 export const bottom = (b: Box) => b.y - b.h / 2;
 export const top = (b: Box) => b.y + b.h / 2;
 
-/** True when `inner` sits entirely within `outer`, allowing a hair of slack. */
 export function contains(outer: Box, inner: Box, slack = 0.001) {
   return (
     left(inner) >= left(outer) - slack &&
@@ -182,7 +151,6 @@ export function contains(outer: Box, inner: Box, slack = 0.001) {
   );
 }
 
-/** Overlap in both axes at once, which is the only kind that shows on screen. */
 export function overlaps(a: Box, b: Box, slack = 0.001) {
   return (
     left(a) < right(b) - slack && right(a) > left(b) + slack && bottom(a) < top(b) - slack && top(a) > bottom(b) + slack

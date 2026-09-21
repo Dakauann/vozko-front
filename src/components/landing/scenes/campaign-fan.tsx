@@ -72,7 +72,6 @@ const COMPACT: Layout = {
   extent: [4.6, 8.4],
 };
 
-/** Which contacts answer. Fixed, so the story is the same on every loop. */
 const REPLIES = [2, 5, 9, 14, 18];
 const SEND: Window = [0.05, 0.55];
 const REPLY: Window = [0.7, 0.95];
@@ -117,8 +116,6 @@ export function CampaignScene({
   useDampedProgress(progress, reduced, (t, delta) => {
     const sendSpan = SEND[1] - SEND[0] - SEND_TRAVEL;
     for (let index = 0; index < total; index += 1) {
-      // Each contact gets its own departure slot, so the send reads as a
-      // paced batch rather than one simultaneous blast.
       const start = SEND[0] + (index / Math.max(total - 1, 1)) * sendSpan;
       const u = MathUtils.clamp((t - start) / SEND_TRAVEL, 0, 1);
       const eased = smoothstep(u);
@@ -178,7 +175,7 @@ export function CampaignScene({
     <PanelScale scale={scale}>
       <StageLights reduced={reduced} palette={palette} />
       <group ref={stage} scale={scale} rotation={[-0.12, 0.09, 0]}>
-        {/* The approved template the campaign sends. */}
+        {}
         <group position={[layout.plateAt[0], layout.plateAt[1], 0]}>
           <Slab size={layout.plate} color={sheet(palette)} roughness={0.6} receiveShadow />
           <Bar
@@ -186,7 +183,7 @@ export function CampaignScene({
             size={[layout.plate[0] - 0.4, 0.03, 0.03]}
             color={palette.accent.ai}
           />
-          {/* Greeked body lines: the template's shape, not invented copy. */}
+          {}
           {[0.82, 0.62, 0.9, 0.5].map((w, index) => (
             <mesh key={index} position={[-layout.plate[0] * 0.5 * (1 - w) + 0.05, 0.2 - index * 0.3, layout.plate[2] / 2 + 0.02]}>
               <boxGeometry args={[layout.plate[0] * w * 0.8, 0.05, 0.02]} />
@@ -200,7 +197,7 @@ export function CampaignScene({
           </Label>
         </group>
 
-        {/* The audience: one dot per contact, lighting as the message lands. */}
+        {}
         <Label position={[layout.gridAt[0], layout.gridAt[1] + ((layout.rows - 1) / 2) * layout.step + 0.62, 0.2]} width={px(3.3)} className="select-none text-center">
           <p className="font-mono font-semibold uppercase tracking-[0.15em]" style={{ fontSize: font(9), color: palette.panelMuted }}>
             {labels.audience}
@@ -246,7 +243,7 @@ export function CampaignScene({
           </mesh>
         ))}
 
-        {/* The queue the replies land in. */}
+        {}
         <group position={[layout.queueAt[0], layout.queueAt[1], 0]}>
           <Slab size={layout.queue} color={sheetWell(palette)} radius={R.board} roughness={0.8} receiveShadow />
         </group>

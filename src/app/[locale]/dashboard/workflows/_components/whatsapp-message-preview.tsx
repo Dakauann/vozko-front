@@ -18,18 +18,12 @@ import {
   type ActionRowItem,
 } from "./message-node-primitives";
 
-// Re-exported so existing importers/tests keep a single entry point.
 export { centerWithin };
 
-// ── Config parsing ──────────────────────────────────────────────────────────
-// Pure, dependency-free translation of the send-buttons/list node config into a
-// structured shape the preview (and its tests) can render. It never throws on
-// malformed JSON; it degrades to empty options.
 
 export type InteractiveKind = "button" | "copy_code" | "list";
 
 export interface InteractiveOption {
-  /** Stable id echoed back by WhatsApp and used as the node's output handle. */
   id: string;
   title: string;
   description?: string;
@@ -122,10 +116,6 @@ export function parseInteractiveConfig(
   };
 }
 
-// ── Presentation ────────────────────────────────────────────────────────────
-// Faithful, theme-aware render of how the message lands in WhatsApp, composed
-// from the shared message-node primitives. Each option row carries data-option-id
-// and (via rowRef) a measured element so a node shell can align a source handle.
 
 export interface WhatsAppMessagePreviewProps {
   parsed: ParsedInteractive;

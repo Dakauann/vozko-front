@@ -10,11 +10,6 @@ import { EmptyState, Skeleton } from "@/components/audience/shared";
 import { UsersThree } from "@/components/icons";
 import { useWorkspace } from "@/contexts/workspace-context";
 
-/**
- * Métricas > Audiência: the audience dashboard across the
- * workspace's accounts. The scope (account, post) lives in the URL so the
- * post detail dialog can deep-link here and a view can be shared.
- */
 export default function AudiencePage() {
   return (
     <Suspense fallback={<Skeleton className="h-64" />}>
@@ -31,7 +26,6 @@ function AudiencePageBody() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Matches the API: every /audience read is audience:read.
   const canRead = !permissionsLoading && can("audience", "read");
 
   const onScopeChange = useCallback(
@@ -47,12 +41,8 @@ function AudiencePageBody() {
 
   return (
     <div className="space-y-4">
-      {/*
-        The subtitle says what the page SHOWS, not whose it is. The workspace is
-        already named in the chrome, and interpolating it here produced a
-        sentence about a person nobody is talking about, since a workspace is
-        usually named after an email address.
-      */}
+      {
+}
       <DashboardPageHeader
         badge={t("badge")}
         description={currentWorkspace ? t("description") : tc("selectWorkspace")}

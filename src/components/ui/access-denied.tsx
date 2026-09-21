@@ -21,7 +21,7 @@ export function AccessDenied({ backHref }: AccessDeniedProps) {
       <LightPool />
       <CircuitTraces className="pointer-events-none absolute -right-10 -top-10 hidden h-64 w-64 sm:block" />
       <div className="relative w-full max-w-lg text-center">
-        {/* Icon */}
+        {}
         <div className="mx-auto mb-6">
           <IconBox color="amber" size="lg" className="mx-auto h-20 w-20 rounded-full ring-8 ring-warning/50">
             <ShieldWarning
@@ -31,17 +31,17 @@ export function AccessDenied({ backHref }: AccessDeniedProps) {
           </IconBox>
         </div>
 
-        {/* Title */}
+        {}
         <h1 className="font-display text-2xl font-semibold tracking-[0.01em] text-foreground">
           {t("title")}
         </h1>
 
-        {/* Description */}
+        {}
         <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-muted-foreground">
           {t("description")}
         </p>
 
-        {/* Hint card */}
+        {}
         <div className="mx-auto mt-6 flex max-w-md items-start gap-3 rounded-[--radius] border border-border bg-muted px-4 py-3.5 text-left">
           <Info
             className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground"
@@ -50,7 +50,7 @@ export function AccessDenied({ backHref }: AccessDeniedProps) {
           <p className="text-sm leading-relaxed text-muted-foreground">{t("hint")}</p>
         </div>
 
-        {/* Back button */}
+        {}
         <div className="mt-8">
           <Button variant="outline" asChild>
             <Link href={backHref}>

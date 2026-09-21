@@ -236,23 +236,6 @@ export default function GrainBackground({
 }: GrainBackgroundProps) {
   const instanceId = useId().replace(/:/g, "");
 
-  /*
-    Retired as a visual device, kept as a component.
-
-    This rendered a seeded, warped, multi-colour blob field behind its children
-    — a generative gradient banner. It was already a survivor of the identity
-    two designs ago, and it is decoration standing where content belongs: it
-    carries no information, it fights the one accent this system has, and via
-    ui/confirm-dialog.tsx it was painting a candy-coloured field behind EVERY
-    confirmation dialog in the product.
-
-    Deleting the component would mean editing its call sites and their layouts,
-    which is functional churn for a visual decision. So the whole prop surface
-    is still accepted and simply ignored — exactly like the icon shim — and the
-    component now renders the quiet surface those call sites actually needed.
-    The palettes, the seeded-gradient helper and the exported types stay exported
-    so TourGuide, grain-card and the dialogs keep compiling untouched.
-  */
   return (
     <div
       className={cn(

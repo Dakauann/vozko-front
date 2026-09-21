@@ -221,7 +221,7 @@ export default function AdminRegisterUserPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      {/* Header */}
+      {}
       <DashboardPageHeader
         back={{
           onClick: () => router.push("/dashboard/users"),
@@ -233,7 +233,7 @@ export default function AdminRegisterUserPage() {
         description="Crie uma nova conta de usuário no sistema"
       />
 
-      {/* Success banner */}
+      {}
       {success && (
         <div>
           <ElevatedContainer className="rounded-lg border border-border bg-muted p-4">
@@ -248,17 +248,17 @@ export default function AdminRegisterUserPage() {
         </div>
       )}
 
-      {/* Error banner */}
+      {}
       {error && (
         <div className="p-4 bg-muted border border-border rounded-[--radius]">
           <p className="text-sm text-destructive-ink font-medium">{error}</p>
         </div>
       )}
 
-      {/* Form */}
+      {}
       <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Account Type */}
+          {}
           <div>
             <label className="block text-sm font-semibold text-foreground mb-3">
               Tipo de Conta <span className="text-destructive-ink">*</span>
@@ -305,7 +305,7 @@ export default function AdminRegisterUserPage() {
             </div>
           </div>
 
-          {/* Name */}
+          {}
           <ElevatedInput
             type="text"
             label="Nome completo"
@@ -315,7 +315,7 @@ export default function AdminRegisterUserPage() {
             required
           />
 
-          {/* Email + verification */}
+          {}
           <ElevatedInput
             type="email"
             label="E-mail"
@@ -349,7 +349,7 @@ export default function AdminRegisterUserPage() {
             </div>
           )}
 
-          {/* Document */}
+          {}
           {accountType === "individual" && (
             <ElevatedInput
               type="text"
@@ -375,7 +375,7 @@ export default function AdminRegisterUserPage() {
             />
           )}
 
-          {/* Passwords */}
+          {}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <ElevatedInput
               type="password"
@@ -395,7 +395,7 @@ export default function AdminRegisterUserPage() {
             />
           </div>
 
-          {/* Submit */}
+          {}
           <Button
             variant="main-cta"
             size="lg"

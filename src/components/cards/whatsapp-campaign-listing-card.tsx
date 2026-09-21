@@ -199,10 +199,8 @@ export function WhatsAppCampaignListingCard({
     },
   ];
 
- 
 
-  // Category is shown as plain meta text (not a washed color chip): design
-  // forbids bg-x/10 + text-x for meaning colors; solid chips live on the table.
+
   const tags = [
     {
       label:

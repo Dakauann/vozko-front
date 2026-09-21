@@ -62,7 +62,6 @@ export type CrmSceneLabels = {
   };
 };
 
-/** The conversation the scene follows all the way through. */
 const OPEN_ROW = 0;
 
 const CHANNEL_MARK = {
@@ -82,7 +81,6 @@ const AI_REPLY: Window = [0.52, 0.6];
 const CLASSIFY: Window = [0.64, 0.78];
 const ASSIGN: Window = [0.84, 0.95];
 
-/** Each row drops in on its own beat, so the queue fills rather than appears. */
 const rowWindow = (index: number, total: number): Window => {
   const span = (ARRIVE[1] - ARRIVE[0]) / total;
   return [ARRIVE[0] + index * span, ARRIVE[0] + index * span + span * 1.6];
@@ -139,14 +137,11 @@ export function CrmScene({
   const [detailsW, , detailsD] = layout.details.size;
 
   useDampedProgress(progress, reduced, (t, delta) => {
-    // 1 — the queue fills, one channel at a time.
     visible.forEach((_, index) => {
       const u = smoothWindow(t, rowWindow(index, visible.length));
       const [restX, y] = rowAt(layout, index);
       const group = rows.current[index];
       if (group) {
-        // Rows slide in from OUTSIDE THE INBOX, not from the stage origin: an
-        // absolute target here sent every row onto the thread panel.
         group.position.set(
           MathUtils.lerp(rowEntryX(layout), restX, u),
           y,
@@ -158,7 +153,6 @@ export function CrmScene({
       if (select) select.opacity = index === OPEN_ROW ? smoothWindow(t, OPEN) * 0.9 : 0;
     });
 
-    // 2 — the thread opens.
     const opened = smoothWindow(t, OPEN);
     if (thread.current) {
       thread.current.scale.setScalar(Math.max(0.88 + opened * 0.12, 0.001));
@@ -166,7 +160,6 @@ export function CrmScene({
     }
     if (threadFace.current) threadFace.current.opacity = 0.25 + opened * 0.75;
 
-    // 3 — the customer writes, the agent answers, a person closes.
     if (customerBubble.current) customerBubble.current.style.opacity = String(smoothWindow(t, CUSTOMER));
     if (aiBubble.current) aiBubble.current.style.opacity = String(smoothWindow(t, AI_REPLY));
     if (humanBubble.current) humanBubble.current.style.opacity = String(smoothWindow(t, ASSIGN));
@@ -177,7 +170,6 @@ export function CrmScene({
       handler.current.style.color = handedOver > 0.5 ? palette.ink.team : palette.ink.ai;
     }
 
-    // 4 — classification files itself into the record.
     tags.forEach((_, index) => {
       const u = smoothWindow(t, [CLASSIFY[0] + index * 0.06, CLASSIFY[1] - 0.06 + index * 0.06]);
       const chip = tagChips.current[index];
@@ -196,7 +188,6 @@ export function CrmScene({
     });
     if (stageChip.current) stageChip.current.style.opacity = String(smoothWindow(t, [CLASSIFY[0] + 0.04, CLASSIFY[1]]));
 
-    // 5 — the conversation gets an owner.
     const assigned = smoothWindow(t, ASSIGN);
     if (ownerRow.current) ownerRow.current.style.opacity = String(assigned);
     if (ownerBadge.current) {
@@ -217,7 +208,7 @@ export function CrmScene({
     <PanelScale scale={scale}>
       <StageLights reduced={reduced} palette={palette} />
       <group ref={stage} scale={scale} rotation={[-0.08, 0.16, 0]}>
-        {/* ── The inbox: every channel, one queue ───────────────────────── */}
+        {}
         <group position={[layout.inbox.at[0], layout.inbox.at[1], 0]}>
           <Slab size={layout.inbox.size} color={sheetWell(palette)} radius={R.board} roughness={0.8} receiveShadow />
           <Bar position={[0, inboxH / 2 - 0.5, inboxD / 2 + 0.02]} size={[inboxW - 0.5, 0.03, 0.03]} color={palette.accent.ai} />
@@ -241,8 +232,8 @@ export function CrmScene({
             >
               <Slab size={layout.row} color={sheet(palette)} roughness={0.58} castShadow />
               <Bar position={[-rowW / 2 + 0.12, 0, rowD / 2 + 0.015]} size={[0.06, rowH * 0.66, 0.02]} color={channelTone(row.channel, palette)} />
-              {/* The selection ring, set BEHIND the row's own slab so its edge
-                  shows rather than being buried inside it. */}
+              {
+}
               <mesh position={[0, 0, -rowD / 2 - 0.03]}>
                 <boxGeometry args={[rowW + 0.14, rowH + 0.14, 0.04]} />
                 <meshBasicMaterial
@@ -275,10 +266,10 @@ export function CrmScene({
           );
         })}
 
-        {/* ── The thread: the conversation itself ───────────────────────── */}
+        {}
         <group ref={thread} position={[layout.thread.at[0], layout.thread.at[1], 0]}>
           <Slab size={layout.thread.size} color={palette.board} radius={R.board} roughness={0.74} receiveShadow />
-          {/* The wallpaper the real thread carries, as a face on the panel. */}
+          {}
           <mesh position={[0, -0.2, threadD / 2 + 0.01]}>
             <planeGeometry args={[threadW - 0.24, layout.thread.size[1] - 1.5]} />
             <meshStandardMaterial ref={threadFace} color={sheetWell(palette)} transparent opacity={0.25} roughness={0.9} />
@@ -288,8 +279,8 @@ export function CrmScene({
             size={[threadW - 0.24, 0.025, 0.025]}
             color={palette.edge}
           />
-        {/* One bounded layout owns the entire thread. Messages wrap in normal
-            flow, and the text travels with the panel while it opens. */}
+        {
+}
         <Label
           position={[0, 0, threadD / 2 + 0.025]}
           width={px(threadW - 0.44)}
@@ -370,7 +361,7 @@ export function CrmScene({
         </Label>
         </group>
 
-        {/* ── The record: what the conversation writes down ─────────────── */}
+        {}
         <group position={[layout.details.at[0], layout.details.at[1], 0]}>
           <Slab size={layout.details.size} color={sheetWell(palette)} radius={R.board} roughness={0.8} receiveShadow />
         </group>
@@ -437,7 +428,7 @@ export function CrmScene({
           </div>
         </Label>
 
-        {/* The tags themselves, which fly from the conversation to the record. */}
+        {}
         {tags.map((tag, index) => (
           <group
             key={tag}

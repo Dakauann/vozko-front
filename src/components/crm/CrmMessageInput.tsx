@@ -44,12 +44,10 @@ import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
 
-/** The composer's current content, handed to the schedule dialog verbatim. */
 export interface ComposerDraft {
   text: string;
   mediaId?: string;
   mediaType?: MediaType;
-  /** Filename of an already-uploaded attachment, so the dialog can name it. */
   mediaName?: string;
   replyToMessageId?: string;
   signed: boolean;
@@ -79,17 +77,7 @@ interface CrmMessageInputProps {
   onTyping: (isTyping: boolean) => void;
   windowOpen: boolean;
   windowExpiresAt: string | null;
-  /**
-   * Why the server says sending is blocked. The composer RENDERS this rather
-   * than inferring it: inference from a missing expiry is what produced the
-   * "24h window" claim on channels that have no window.
-   */
   windowClosedReason?: WindowClosedReason | null;
-  /**
-   * Opens the schedule dialog with the current draft. Absent when the caller
-   * has not wired scheduling; the clock affordance is then not rendered at all,
-   * which is better than offering an action that does nothing.
-   */
   onSchedule?: (draft: ComposerDraft) => void;
   disabled?: boolean;
   disabledReason?: string;
@@ -99,10 +87,6 @@ interface CrmMessageInputProps {
     placeholder: string;
     windowClosed: string;
     windowClosedDescription: string;
-    // The fallback when the server names no reason. Kept REQUIRED: it was
-    // optional, the live-chat page never passed it, and every clockless channel
-    // reported "the 24h window is closed" on a channel that has no such window.
-    // A missing key must be a compile error, not a silent downgrade to a lie.
     windowClosedNoClock: string;
     sendButton: string;
     attachFile: string;
@@ -175,10 +159,6 @@ export default function CrmMessageInput({
   const { can } = useWorkspace();
   const crmT = useTranslations("crm");
   const scheduleT = useTranslations("scheduledMessages");
-  // Why the composer is blocked. Its own namespace: this is a property of the
-  // CONVERSATION, not of scheduling, and three pages already hand-list the
-  // composer's translation prop — threading seven more keys through them is how
-  // one of them ends up missing again.
   const windowT = useTranslations("conversationWindow.closed");
   const shortcutPageT = useTranslations("messageShortcutsPage");
   const [text, setText] = useState("");
@@ -252,7 +232,6 @@ export default function CrmMessageInput({
     });
   }, []);
 
-  // Auto-grow the composer textarea up to ~6 lines, then it scrolls (WhatsApp-style).
   useEffect(() => {
     const ta = textareaRef.current;
     if (!ta) return;
@@ -260,9 +239,6 @@ export default function CrmMessageInput({
     ta.style.height = `${Math.min(ta.scrollHeight, 120)}px`;
   }, [text, pendingMedia]);
 
-  // Shared by send and schedule: both consume the draft, so both must leave the
-  // composer in the same state. Two copies of this drifted apart is exactly how
-  // a scheduled message ends up sent twice, once now and once later.
   const clearDraft = useCallback(() => {
     if (pendingMedia?.previewUrl) URL.revokeObjectURL(pendingMedia.previewUrl);
     setPendingMedia(null);
@@ -588,14 +564,10 @@ export default function CrmMessageInput({
   }, []);
 
 
-  // One lookup, one true sentence. `expired` is the only reason that reopens on
-  // its own, which is why it is the only one that keeps the 24h wording.
   const closedCopy = (() => {
     if (windowClosedReason && windowT.has(windowClosedReason)) {
       return windowT(windowClosedReason);
     }
-    // No reason named (an older server, or a channel that has not adopted the
-    // vocabulary yet): keep the previous behaviour rather than invent one.
     return windowExpiresAt ? t.windowClosedDescription : t.windowClosedNoClock;
   })();
 
@@ -606,12 +578,10 @@ export default function CrmMessageInput({
       (pendingMedia?.mediaId && !pendingMedia.uploading));
 
   return (
-    // The composer sits on the SAME chat wallpaper as the message list (no white
-    // bar behind it); the input pill + any alerts float on top of it.
     <div className="relative flex-shrink-0">
       <div className="relative">
-      {/* Alerts float as centered pills over the wallpaper (never full-width bars,
-          never a same-colour wash, the meaning colour rides the icon/dot only). */}
+      {
+}
       {disabled && disabledReason && (
         <div className="flex justify-center px-4 pt-2">
           <div className="flex max-w-[92%] items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-1.5 shadow-md">
@@ -638,14 +608,10 @@ export default function CrmMessageInput({
                 {t.windowClosed}
               </p>
               <p className="truncate text-2xs text-muted-foreground">
-                {/* An expiry means a clock that reopens on its own; its absence
-                    means a structural block. The backend distinguishes them
-                    deliberately (nil expiry == "not a clock") and showing the
-                    24h copy for a blocked contact sends the operator waiting
-                    for something that will never happen. */}
-                {/* The server names the reason; we look it up. Only when it
-                    names none do we fall back, and even then never to the 24h
-                    sentence unless a clock is actually involved. */}
+                {
+}
+                {
+}
                 {closedCopy}
               </p>
             </div>
@@ -664,7 +630,7 @@ export default function CrmMessageInput({
         </div>
       )}
 
-      {/* Pending media preview */}
+      {}
       <AnimatePresence>
         {pendingMedia && (
           <motion.div
@@ -674,7 +640,7 @@ export default function CrmMessageInput({
             className="border-b border-border"
           >
             <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3">
-              {/* Preview */}
+              {}
               <div className="relative flex-shrink-0">
                 {pendingMedia.type === "image" ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -699,7 +665,7 @@ export default function CrmMessageInput({
                   </div>
                 )}
 
-                {/* Uploading overlay */}
+                {}
                 {pendingMedia.uploading && (
                   <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/40">
                     <CircleNotch
@@ -738,7 +704,7 @@ export default function CrmMessageInput({
         )}
       </AnimatePresence>
 
-      {/* Recording overlay – replaces the normal input area while recording */}
+      {}
       <AnimatePresence>
         {isRecording && (
           <motion.div
@@ -748,7 +714,7 @@ export default function CrmMessageInput({
             transition={{ duration: 0.2 }}
             className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3"
           >
-            {/* Cancel button */}
+            {}
             <button
               type="button"
               onClick={cancelRecording}
@@ -758,15 +724,15 @@ export default function CrmMessageInput({
               <Trash weight="bold" className="h-4 w-4" />
             </button>
 
-            {/* Waveform visualizer + timer */}
+            {}
             <div className="flex flex-1 min-w-0 items-center gap-2 sm:gap-3 rounded-full bg-muted px-3 sm:px-4 py-2">
-              {/* Pulsing dot */}
+              {}
               <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5 flex-shrink-0">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-muted opacity-75" />
                 <span className="relative inline-flex h-full w-full rounded-full bg-destructive" />
               </span>
 
-              {/* Waveform bars - responsive count */}
+              {}
               <div className="flex flex-1 min-w-0 items-center justify-center gap-[2px] h-6 sm:h-7 overflow-hidden">
                 {Array.from({ length: 30 }).map((_, i) => {
                   const level = audioLevels[i] ?? 0;
@@ -783,13 +749,13 @@ export default function CrmMessageInput({
                 })}
               </div>
 
-              {/* Timer */}
+              {}
               <span className="flex-shrink-0 font-mono text-2xs sm:text-xs font-semibold text-primary-ink tabular-nums">
                 {formatDuration(recordingDuration)}
               </span>
             </div>
 
-            {/* Stop & send button */}
+            {}
             <button
               type="button"
               onClick={stopRecording}
@@ -802,10 +768,10 @@ export default function CrmMessageInput({
         )}
       </AnimatePresence>
 
-      {/* Normal input area – hidden while recording */}
+      {}
       {!isRecording && (
         <>
-          {/* Reply-to-message bar */}
+          {}
           <AnimatePresence>
             {replyToMessage && (
               <motion.div
@@ -853,11 +819,11 @@ export default function CrmMessageInput({
             className="hidden"
           />
 
-          {/* WhatsApp-style composer: a floating rounded pill on the chat bg + a
-              single circular morph button (mic when empty, send when there's text). */}
+          {
+}
           <div className="flex items-end gap-2 px-2 py-2 sm:px-3">
             <div className="relative flex min-w-0 flex-1 items-end gap-0.5 rounded-[--radius] border border-border bg-card px-1.5 py-1 shadow-sm">
-              {/* attach */}
+              {}
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
@@ -868,10 +834,8 @@ export default function CrmMessageInput({
                 <Paperclip weight="bold" className="h-5 w-5" />
               </button>
 
-              {/* schedule — available whenever the window is open, EMPTY draft
-                  included: the dialog owns composition, so this is how an
-                  operator starts one. Hidden on a closed window because the
-                  backend refuses a schedule it could not send. */}
+              {
+}
               {onSchedule && windowOpen ? (
                 <button
                   type="button"
@@ -885,7 +849,7 @@ export default function CrmMessageInput({
                 </button>
               ) : null}
 
-              {/* quick-shortcut */}
+              {}
               {canCreateShortcut ? (
                 <button
                   type="button"
@@ -897,7 +861,7 @@ export default function CrmMessageInput({
                 </button>
               ) : null}
 
-              {/* text input */}
+              {}
               <div className="relative min-w-0 flex-1 self-center">
                 <ShortcutPicker
                   query={shortcutQuery}
@@ -936,7 +900,7 @@ export default function CrmMessageInput({
                 />
               </div>
 
-              {/* sign-with-name toggle */}
+              {}
               <div className="flex flex-shrink-0 items-center gap-1 self-center pl-1 pr-0.5">
                 <span className="hidden text-2xs font-medium text-muted-foreground sm:inline">
                   Assinar
@@ -948,7 +912,7 @@ export default function CrmMessageInput({
               </div>
             </div>
 
-            {/* single morph button: mic when empty → send when there's text */}
+            {}
             {text.trim().length > 0 || pendingMedia ? (
               <button
                 type="button"

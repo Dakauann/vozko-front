@@ -1,11 +1,3 @@
-/*
-  The FAQ's shared chrome.
-
-  Everything here is the landing's vocabulary applied to a reading surface:
-  hairline-divided sections on the page's own canvas, Oxanium titles, a mono
-  line only where it carries a real measurement, and the same 6px control
-  corner. No new material is introduced.
-*/
 
 import type { ReactNode } from "react";
 
@@ -13,8 +5,6 @@ import { Check, Warning } from "@/components/icons";
 
 import styles from "./faq.module.css";
 
-/** A mono line. Reserved for metadata a reader actually uses: dates, counts,
- *  rates, units. Never a decorative kicker above a heading. */
 export function LegendLine({
   children,
   accent = false,
@@ -53,15 +43,6 @@ export function Section({
   );
 }
 
-/**
- * The verdict, everywhere it appears.
- *
- * Two states only. An earlier draft had three (inbound, free, billed), which
- * asked the reader to hold a distinction that changes nothing: an inbound
- * message is free, and saying so in the reason line is clearer than giving it
- * a third colour. Status never rests on colour here, so each tag is ground
- * plus glyph plus word.
- */
 export type Verdict = "billed" | "free";
 
 export function BillingTag({ verdict, label }: { verdict: Verdict; label: string }) {

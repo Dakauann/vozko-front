@@ -22,7 +22,7 @@ import { useWorkspace } from "@/contexts/workspace-context";
 const TITLE_MAX = 255;
 const DESCRIPTION_MAX = 1000;
 const MAX_IMAGES = 5;
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024; 
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
   "image/png",
@@ -160,7 +160,7 @@ export default function NewIssuePage() {
 
   return (
     <main className="w-full max-w-2xl mx-auto space-y-6 py-2">
-      {/* Back button */}
+      {}
       <button
         type="button"
         onClick={() => router.push("/dashboard/issues")}
@@ -170,7 +170,7 @@ export default function NewIssuePage() {
         {t("form.back")}
       </button>
 
-      {/* Form card */}
+      {}
       <div className="rounded-[--radius] border border-border bg-card p-6 space-y-6">
         <div>
           <h1 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
@@ -182,7 +182,7 @@ export default function NewIssuePage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Title */}
+          {}
           <div className="space-y-1.5">
             <label
               htmlFor="issue-title"
@@ -221,7 +221,7 @@ export default function NewIssuePage() {
             </div>
           </div>
 
-          {/* Description */}
+          {}
           <div className="space-y-1.5">
             <label
               htmlFor="issue-description"
@@ -268,7 +268,7 @@ export default function NewIssuePage() {
             </div>
           </div>
 
-          {/* Images */}
+          {}
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
               {t("form.imagesLabel")}
@@ -328,7 +328,7 @@ export default function NewIssuePage() {
             </p>
           </div>
 
-          {/* Error */}
+          {}
           {error && (
             <div className="flex items-center gap-2 rounded-lg border border-border bg-muted dark:bg-muted px-3 py-2">
               <Warning className="h-4 w-4 text-destructive-ink shrink-0" />
@@ -336,7 +336,7 @@ export default function NewIssuePage() {
             </div>
           )}
 
-          {/* Submit */}
+          {}
           <div className="flex justify-end gap-3 pt-2">
             <Button
               variant="secondary"

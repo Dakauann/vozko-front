@@ -2,33 +2,10 @@
 
 import { Warning, X } from "@/components/icons";
 
-/**
- * Why a banner and not a toast.
- *
- * Template creation fails for reasons the operator has to ACT on, and acting
- * means reading the sentence, going back into a builder that fills the screen,
- * and changing something. A toast is gone in five seconds, which is how an
- * operator ends up pressing "Criar" four times against a duplicate name while
- * the explanation ("já existe conteúdo em Portuguese (BR) para esse modelo")
- * flashes past each time.
- *
- * So: stays until dismissed, sits above the form where the eye lands, and keeps
- * the provider's own wording verbatim. Meta writes its error_user_msg in the
- * operator's language already, and rewriting it in ours would only lose detail.
- */
 export interface TemplateErrorBannerProps {
     title: string;
-    /** The sentence to act on. Meta's own words, or our translated rule. */
     message: string;
-    /**
-     * Extra lines under the message: the failing rules of a client-side
-     * validation pass, or Meta's rejected_reason. Optional.
-     */
     details?: string[];
-    /**
-     * The stable error code, shown small and last. It is not for the operator;
-     * it is what they paste into a support message, and what support greps for.
-     */
     code?: string;
     onDismiss: () => void;
     dismissLabel: string;

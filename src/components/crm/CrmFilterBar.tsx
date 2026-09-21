@@ -25,9 +25,6 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedButton from "@/components/elevated-design/button";
 import { cn } from "@/lib/utils";
 
-// A conversation carries exactly one status; we still model it as a set so the
-// bar can filter on several at once (operator `in`). Labels default to the four
-// conversation lifecycle states the product uses everywhere.
 export interface CrmFilterStatusOption {
   value: string;
   label: string;
@@ -40,34 +37,18 @@ const DEFAULT_STATUS_OPTIONS: CrmFilterStatusOption[] = [
 ];
 
 const OWNER_ALL = "__all_owners__";
-// Sentinel for the "no responsible" filter: maps to the `owner is_empty` predicate the
-// board's "Sem responsável" swimlane already uses, so the table can isolate the pool of
-// unassigned conversations (a standard queue/triage view).
 const OWNER_UNASSIGNED = "__unassigned__";
 
-// The predicate helpers (predicates / readValues / withPredicate) live in
-// @/lib/crm/board: this bar, the opportunity bar and the leads bar all read and
-// write the same CrmFilter shape, and three private copies of them is three
-// chances to disagree about what clearing a control means.
 
 export interface CrmFilterBarProps {
   value: CrmFilter;
   onChange: (filter: CrmFilter) => void;
   labels: Label[];
-  /**
-   * Pipeline stages for the "Etapa" control. Omitted (or empty) hides it — the
-   * opportunity board passes its own axis, and a stage filter on a board that is
-   * already grouped BY stage would just be a column hider.
-   */
   stages?: Stage[];
   workspaceId?: string;
-  // Value min/max only makes sense for the opportunity board; off by default so
-  // the conversation board omits it. The bar stays otherwise identical.
   showValue?: boolean;
   showStatus?: boolean;
   statusOptions?: CrmFilterStatusOption[];
-  // Which date field the range maps to (created_at for conversations,
-  // close_date for opportunities).
   dateField?: string;
   className?: string;
 }
@@ -86,8 +67,6 @@ export default function CrmFilterBar({
 }: CrmFilterBarProps) {
   const [members, setMembers] = useState<AssignableMember[]>([]);
 
-  // Load the assignable members once for the owner select. The list is capped
-  // and filtered client-side; the picker is a single-select "one owner" filter.
   useEffect(() => {
     if (!workspaceId) return;
     let cancelled = false;
@@ -102,8 +81,6 @@ export default function CrmFilterBar({
     };
   }, [workspaceId]);
 
-  // Every control derives straight from `value`, so the bar is fully controlled
-  // and hydrates from a URL-restored filter with no internal mirror to sync.
   const statuses = readValues(value, "status", "in");
   const stageIds = readValues(value, "stage", "in");
   const labelIds = readValues(value, "label", "in");
@@ -155,9 +132,6 @@ export default function CrmFilterBar({
     [members],
   );
 
-  // Owner is a single-select across three predicate shapes: none (all), `is_empty`
-  // (unassigned) and `eq <id>` (one person). Clear any existing owner predicate first
-  // so the shapes never coexist.
   const setOwner = useCallback(
     (v: string) => {
       const next = predicates(value).filter((p) => p.field !== "owner");
@@ -210,13 +184,8 @@ export default function CrmFilterBar({
         />
       ) : null}
 
-      {/*
-        Etapa. Rides the same (field, operator) plumbing every other control
-        here uses — `stage in [...]`, which the backend already compiles to the
-        entry_stages membership subquery. Multi-select because "Proposta OR
-        Negociação" is the question people actually ask, and an `in` predicate
-        is how one control expresses OR without a second filter group.
-      */}
+      {
+}
       {stageOptions.length > 0 ? (
         <FilterMultiSelect
           triggerLabel="Etapa"

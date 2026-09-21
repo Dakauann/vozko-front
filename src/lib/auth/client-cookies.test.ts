@@ -1,10 +1,3 @@
-/**
- * @vitest-environment happy-dom
- *
- * Edge-case tests for client-side cookie utilities.
- * Uses a manual cookie store mock because happy-dom's cookie deletion
- * via expires/max-age is unreliable across tests.
- */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { hasUserDataCookie, getUserDataFromCookie } from '@/lib/auth/client-cookies';

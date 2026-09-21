@@ -8,14 +8,6 @@ import pt from "@/i18n/messages/pt.json";
 import { UTILITY_STARTERS } from "@/lib/whatsapp-outreach/types";
 import { exchangeRateFromMicros, formatMicrosAsBrl, microsToBrl } from "@/lib/pricing/currency";
 
-/**
- * These messages are ICU, and ICU reads a bare `{` as the start of an argument.
- * A starter body that says "Olá, {{1}}!" therefore fails to parse, and next-intl
- * reports that failure by rendering the key path — so the operator sees
- * `whatsappOutreach.create.starters.followUp.body` in the field where the message
- * was supposed to be. It shipped that way once; these tests are why it cannot
- * again.
- */
 
 const CATALOGS: Record<string, Record<string, unknown>> = { pt, en, de, es };
 
@@ -52,8 +44,6 @@ describe("whatsappOutreach messages", () => {
 
                 const rendered = new IntlMessageFormat(node as string, locale).format() as string;
                 for (let i = 1; i <= starter.variableCount; i += 1) {
-                    // The operator has to SEE the placeholder to know what they are
-                    // filling in, and Meta has to receive it verbatim.
                     expect(rendered).toContain(`{{${i}}}`);
                 }
                 expect(rendered).not.toContain("whatsappOutreach");
@@ -75,14 +65,7 @@ describe("whatsappOutreach messages", () => {
 });
 
 describe("price display", () => {
-    /**
-     * The regression this guards: prices are USD micros, balances are shown in
-     * BRL, and dividing micros by a million and printing "R$" quoted about a
-     * fifth of the real cost on the one screen whose job is to get consent to
-     * spend.
-     */
     it("converts USD micros to BRL with the configured rate", () => {
-        // A UTILITY template at $0.016667, with the rate at 5.50 BRL/USD.
         expect(microsToBrl(16_667, 5.5)).toBeCloseTo(0.0917, 4);
     });
 
@@ -100,7 +83,6 @@ describe("price display", () => {
     it("formats a converted price as BRL", () => {
         const label = formatMicrosAsBrl(16_667, 5.5);
         expect(label).toContain("R$");
-        // Not the unconverted 0,02 the dialog used to show.
         expect(label).not.toContain("0,02");
     });
 });

@@ -74,8 +74,6 @@ export default function FeatureOverviewDialog({
   palette = defaultPalette,
   headerHeight,
 }: FeatureOverviewDialogProps) {
-  // Start closed so the first paint never covers the page with a dim veil.
-  // Open after mount (one frame later) for first-time intros.
   const [open, setOpen] = useState(false);
   useEffect(() => {
     setOpen(true);
@@ -130,14 +128,10 @@ export default function FeatureOverviewDialog({
                 <div className="absolute inset-0 bg-muted" />
               </>
             ) : (
-              // No generative colour field behind the title. When there is no
-              // real media to show, the panel shows its own surface — the
-              // legend below carries the name.
               <div className="absolute inset-0 bg-muted" />
             )}
-            {/* Ink follows the ground: white over media, panel ink over the
-                plain surface. The title was unconditionally white, which went
-                invisible the moment the colour field behind it was removed. */}
+            {
+}
             <div className="absolute bottom-1/2 left-1/2 top-1/2 z-10 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap">
               <span
                 className={cn(

@@ -34,9 +34,7 @@ type NodeSpec = {
   tone: Tone;
   kind: keyof WorkflowSceneLabels["kinds"];
   window: Window;
-  /** The final node keeps its light instead of pulsing. */
   hold?: boolean;
-  /** The branch the packet does not take. */
   dim?: boolean;
 };
 type Point = [number, number];
@@ -48,7 +46,6 @@ type Layout = {
   canvas: Vec3;
   canvasAt: Point;
   labelWidth: number;
-  /** Where the branch answers sit, and how they align. */
   yesAt: Point;
   noAt: Point;
   extent: [number, number];
@@ -72,8 +69,6 @@ const WIDE: Layout = {
   extent: [10.4, 5.0],
 };
 
-// Portrait: the journey runs top to bottom, the way a phone is read, and the
-// branch opens left and right at the decision instead of trailing off-screen.
 const COMPACT: Layout = {
   pos: {
     trigger: [0, 2.55],
@@ -92,9 +87,6 @@ const COMPACT: Layout = {
   extent: [4.9, 6.6],
 };
 
-// The product's own node kinds: trigger, AI agent, condition, actions, human
-// handoff. The packet follows the "yes" branch; the "no" branch is shown taken
-// at half light so the decision reads as a real fork.
 const NODES: NodeSpec[] = [
   { key: "trigger", tone: "neutral", kind: "trigger", window: [0.02, 0.12] },
   { key: "agent", tone: "ai", kind: "ai", window: [0.28, 0.4] },
@@ -109,7 +101,6 @@ function toneColor(tone: Tone, palette: ScenePalette) {
   return palette.accent[tone];
 }
 
-/** Meets the edge of a node rather than its centre, on whichever side faces the target. */
 function port(from: Point, to: Point, node: Vec3): Point {
   const dx = to[0] - from[0];
   const dy = to[1] - from[1];
@@ -193,8 +184,8 @@ function NodeSlab({
           opacity={spec.dim ? 0.55 : 1}
         />
       </RoundedBox>
-      {/* A node is an object ON the canvas, so in daylight it takes the sheet
-          colour and in the dark scene the panel colour. */}
+      {
+}
       <Slab size={layout.node} color={palette.dark ? palette.board : palette.card} roughness={0.7} />
       <Label position={[0.04, 0, d / 2 + 0.02]} width={layout.labelWidth} className="select-none text-left">
         <p className="line-clamp-2 font-semibold leading-tight [overflow-wrap:anywhere]" style={{ fontSize: font(10), color: palette.panelInk, opacity: spec.dim ? 0.6 : 1 }}>

@@ -7,12 +7,10 @@ function getModelProvider(modelId: string): string {
   return parts.length > 1 ? parts[0].toLowerCase() : modelId.toLowerCase();
 }
 
-/** Provider slug from an OpenRouter model id (e.g. "anthropic" from "anthropic/claude"). */
 export function getModelProviderSlug(modelId: string): string {
   return getModelProvider(modelId);
 }
 
-/** Human-readable provider label used for group headers in the model picker. */
 const PROVIDER_LABELS: Record<string, string> = {
   openai: "OpenAI",
   anthropic: "Anthropic",

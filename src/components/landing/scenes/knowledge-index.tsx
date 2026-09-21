@@ -24,7 +24,6 @@ import {
 } from "../scene-kit";
 
 export type KnowledgeSceneLabels = {
-  /** The label on the index shelf itself, not the chapter's headline. */
   shelf: string;
   docs: string[];
   question: string;
@@ -33,7 +32,6 @@ export type KnowledgeSceneLabels = {
 };
 
 type Layout = {
-  /** The spine the index is built on. */
   railX: number;
   shelf: number;
   thickness: number;
@@ -66,7 +64,6 @@ const COMPACT: Layout = {
   extent: [5.4, 8.6],
 };
 
-/** The passage that answers the question. */
 const MATCH = 1;
 const ASK: Window = [0.04, 0.18];
 const SEEK: Window = [0.28, 0.46];
@@ -110,7 +107,6 @@ export function KnowledgeScene({
     const lifted = smoothWindow(t, LIFT);
     const answered = smoothWindow(t, ANSWER);
 
-    // The question runs down the spine, stops at the row that answers it.
     if (query.current) {
       const y = MathUtils.lerp(top + 0.55, rowY(MATCH), seeking);
       query.current.position.set(layout.railX, y, 0.42);
@@ -129,11 +125,9 @@ export function KnowledgeScene({
     docs.forEach((_, index) => {
       const isMatch = index === MATCH;
       const group = shelves.current[index];
-      // The row the answer came from pulls out of the index, like a drawer.
       if (group) group.position.set(isMatch ? lifted * 0.5 : 0, rowY(index), isMatch ? lifted * 0.28 : 0);
       const cap = caps.current[index];
       if (cap) {
-        // The search sweeps the index on its way down, then holds on the match.
         const sweep = Math.max(0, 1 - Math.abs(seeking * (docs.length - 1) - index) * 1.6);
         cap.emissiveIntensity = (isMatch ? Math.max(sweep, lifted) : sweep * 0.45) * (palette.dark ? 0.95 : 0.55);
       }
@@ -157,7 +151,7 @@ export function KnowledgeScene({
     <PanelScale scale={scale}>
       <StageLights reduced={reduced} palette={palette} cool={palette.accent.tag} />
       <group ref={stage} scale={scale} rotation={[-0.1, 0.14, 0]}>
-        {/* The spine: one index, with a row per document rather than a pile. */}
+        {}
         <Slab
           size={[0.3, railH, 0.4]}
           color={sheetWell(palette)}
@@ -190,7 +184,7 @@ export function KnowledgeScene({
               roughness={0.62}
               receiveShadow
             />
-            {/* The lit end-cap: which row the search is touching. */}
+            {}
             <mesh position={[shelfEnd - 0.07, 0, 0.02]}>
               <boxGeometry args={[0.14, layout.thickness + 0.04, 0.4]} />
               <meshStandardMaterial
@@ -233,7 +227,7 @@ export function KnowledgeScene({
           <meshStandardMaterial color={palette.accent.ai} emissive={palette.accent.ai} emissiveIntensity={0.85} roughness={0.35} />
         </mesh>
 
-        {/* The question going in. */}
+        {}
         <Label position={[layout.askAt[0] + 1.1, layout.askAt[1], 0.4]} width={layout.bubbleWidth} className="select-none text-left">
           <div ref={askLabel} style={{ opacity: 0 }}>
             <p className="rounded-lg rounded-bl-sm px-2 py-1.5 leading-snug [overflow-wrap:anywhere]" style={labelStyle(font(10), palette.panelInk, palette.bubble)}>
@@ -242,7 +236,7 @@ export function KnowledgeScene({
           </div>
         </Label>
 
-        {/* The answer coming out, and the row it stands on. */}
+        {}
         <Label position={[layout.answerAt[0], layout.answerAt[1], 0.4]} width={layout.bubbleWidth} className="select-none text-left">
           <div ref={answerLabel} style={{ opacity: 0 }}>
             <p

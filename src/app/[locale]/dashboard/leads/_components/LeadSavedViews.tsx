@@ -26,14 +26,6 @@ export interface LeadSavedViewsProps {
   onApply: (view: SavedView) => void;
 }
 
-/**
- * Named segments over the leads list.
- *
- * Reuses the workspace's existing saved-view resource (the same one the CRM
- * board saves its presets into) with objectType `lead`. A lead view has no
- * board axis, so it is exactly a filter plus a sort — which is what an operator
- * means by "my follow-up list".
- */
 export default function LeadSavedViews({
   filter,
   sorts,
@@ -61,7 +53,6 @@ export default function LeadSavedViews({
       name: trimmed,
       objectType: "lead",
       filter,
-      // A lead list has no columns axis; `none` is the list-only board.
       groupBy: "none",
       sortField: sorts[0]?.key,
       sortDir: sorts[0]?.direction,
@@ -83,8 +74,6 @@ export default function LeadSavedViews({
     await deleteSavedViewAction(id);
   }, []);
 
-  // Loading on open, not in an effect: the fetch reacts to an event, and an
-  // effect that setStates on every open is a cascading render.
   return (
     <Popover
       open={open}
@@ -161,8 +150,8 @@ export default function LeadSavedViews({
         </div>
 
         <div className="border-t border-border p-2">
-          {/* Saving an empty filter would create a view that means "everything",
-              which is what the unfiltered list already is. */}
+          {
+}
           <div className="flex items-center gap-1.5">
             <ElevatedInput
               value={name}

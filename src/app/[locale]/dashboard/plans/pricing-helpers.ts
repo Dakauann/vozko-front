@@ -1,6 +1,3 @@
-/**
- * Backward compatible wrappers. Prefer `@/lib/pricing/money` for new code.
- */
 import {
   microsToUsdDisplay,
   parseUsdToMicros,

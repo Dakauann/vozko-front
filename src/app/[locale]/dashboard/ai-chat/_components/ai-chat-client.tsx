@@ -54,13 +54,8 @@ import { useChatStream } from "@/hooks/use-chat-stream";
 
 const CHAT_MODEL_KEY = "ai-chat:model";
 
-// The shell's own curve (tailwind.config `transitionTimingFunction.panel`), so
-// the composer's travel reads as the same machine as the spine and header.
 const PANEL_EASE = [0.2, 0, 0, 1] as const;
 
-// Maps each copilot tool to an icon. The friendly label is i18n (aiChatPage.tools);
-// unmapped tools fall back to a prettified name + the generic Wrench icon, so a new
-// backend tool degrades gracefully instead of showing a raw machine name.
 const TOOL_ICON: Record<string, Icon> = {
   create_agent: Plus,
   update_agent: PencilSimple,
@@ -76,25 +71,16 @@ const TOOL_ICON: Record<string, Icon> = {
 
 const KNOWN_TOOLS = new Set(Object.keys(TOOL_ICON));
 
-// A Segment is one ordered piece of an assistant turn, the model's thinking, a
-// tool step, or a chunk of the answer, appended in the order events arrive, so
-// the timeline reads think → act → think → answer (matching the workflow builder).
 type Segment =
   | { kind: "thinking"; text: string; streaming?: boolean }
   | { kind: "tool"; name: string; summary: string; ok: boolean }
   | { kind: "text"; text: string; streaming?: boolean };
 
-// UIMessage augments a persisted message with the live, in-flight copilot state:
-// the ordered segments of the streaming turn and any pending approval. Persisted
-// messages (loaded from the server) carry only `content`.
 type UIMessage = ChatMessage & {
   segments?: Segment[];
   pending?: PendingAction | null;
 };
 
-// hydrate rebuilds the segment timeline (thinking → tools → answer) from a persisted
-// message's reasoning + tool steps, so a reloaded thread replays the same flow as the
-// live stream instead of showing only the final text.
 function hydrate(m: ChatMessage): UIMessage {
   if (!m.reasoning && !(m.tools && m.tools.length > 0)) return m;
   const segments: Segment[] = [];
@@ -237,7 +223,6 @@ export function AIChatClient() {
     [patchLastAssistant],
   );
 
-  // finalizeStreaming stops every live cursor on the current assistant turn.
   const finalizeStreaming = useCallback(
     () =>
       patchLastAssistant((m) => ({
@@ -251,7 +236,6 @@ export function AIChatClient() {
 
   const streamHandlers = useCallback(
     (threadId: string) => ({
-      // Thinking: extend the open thinking block, or start a new one.
       onReasoning: (text: string) =>
         patchSegments((segs) => {
           const last = segs[segs.length - 1];
@@ -268,10 +252,8 @@ export function AIChatClient() {
           }
           return segs;
         }),
-      // Tool step: appended in place in the timeline.
       onTool: (name: string, summary: string, ok: boolean) =>
         patchSegments((segs) => [...segs, { kind: "tool", name, summary, ok }]),
-      // Answer: extend the open text block, or start a new one.
       onDelta: (text: string) =>
         patchSegments((segs) => {
           const last = segs[segs.length - 1];
@@ -282,10 +264,8 @@ export function AIChatClient() {
         }),
       onProposal: (action: PendingAction) =>
         patchLastAssistant((m) => ({ ...m, pending: action })),
-      // Paused for approval: keep the live timeline + the proposal card.
       onAwaitingApproval: () => finalizeStreaming(),
       onError: (msg: string) => setError(msg),
-      // Completed turn: stop cursors, keep the timeline, refresh the sidebar (title).
       onDone: () => {
         finalizeStreaming();
         void refreshThreads();
@@ -326,14 +306,10 @@ export function AIChatClient() {
     async (actionId: string, kind: "approve" | "reject") => {
       if (!activeId) return;
       const tid = activeId;
-      // Clear the approval card on the proposing message.
       patchLastAssistant((m) =>
         m.pending?.id === actionId ? { ...m, pending: null } : m,
       );
       if (kind === "approve") {
-        // The backend executes the action then RE-ENTERS the loop: stream the
-        // continuation into a fresh assistant turn (it confirms on success, or
-        // recovers, possibly proposing a corrected action, on failure).
         const now = new Date().toISOString();
         setMessages((prev) => [
           ...prev,
@@ -389,8 +365,8 @@ export function AIChatClient() {
 
   return (
     <div className="-m-3 flex h-[calc(100dvh-3rem)] overflow-hidden border-y border-border bg-card sm:-m-6">
-      {/* Thread rail. A sunk bay beside the panel, not a second panel: the rule
-          divides them, and only the current row rises. */}
+      {
+}
       <aside className="hidden w-60 flex-shrink-0 flex-col border-r border-border bg-card md:flex">
         <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2.5">
           <span className="legend">{t("threadsLegend")}</span>
@@ -411,19 +387,13 @@ export function AIChatClient() {
                 key={thread.id}
                 className={cn(
                   "group flex items-center gap-2 pr-2 text-sm transition-colors duration-DEFAULT",
-                  // Linha de menu: fundo neutro opaco + marca (a lâmpada
-                  // abaixo). O hover NÃO pode ser --muted, senão ele é o mesmo
-                  // fundo do item atual e a conversa aberta fica idêntica à
-                  // que está só sob o ponteiro — exatamente a falha que a
-                  // regra de 2026-09-01 mediu e removeu. Menu destaca em
-                  // --accent-hover, como dropdown-menu.tsx.
                   current
                     ? "bg-muted font-semibold text-foreground"
                     : "text-muted-foreground hover:bg-[hsl(var(--accent-hover))] hover:text-foreground",
                 )}
               >
-                {/* The lamp pip: present on every row, lit only on the current
-                    one, so the rail never reports state by colour alone. */}
+                {
+}
                 <span
                   aria-hidden
                   className={cn(
@@ -457,14 +427,11 @@ export function AIChatClient() {
         </div>
       </aside>
 
-      {/* Conversation panel.
-          The composer is one element that lives at a fixed place in this tree;
-          what moves it is the spacer below. Empty → spacer grows and the
-          composer centres; first message → spacer unmounts and it docks. It is
-          never remounted, so a half-typed prompt and the caret survive the move. */}
+      {
+}
       <section className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-card">
-        {/* The brand's circuit routing behind the empty-chat greeting — an
-            identity surface until the first message lands. */}
+        {
+}
         {isEmpty && (
           <>
             <LightPool />
@@ -534,9 +501,8 @@ export function AIChatClient() {
           }}
         />
 
-        {/* The starters own the lower half only while the panel is empty.
-            Their exit is what lets the composer travel: the spacer collapses,
-            and the composer's `layout` animation carries it to the dock. */}
+        {
+}
         <AnimatePresence initial={false}>
           {isEmpty ? (
             <motion.div
@@ -568,15 +534,6 @@ export function AIChatClient() {
   );
 }
 
-/**
- * The composer, in both of its positions.
- *
- * `docked` only changes the chrome around it — a top rule and tighter padding
- * once the conversation owns the panel. The field itself is the same well in
- * both states, because it is the same control doing the same job; a first-run
- * input that restyles itself on send would report a state change that did not
- * happen.
- */
 function Composer({
   docked,
   input,
@@ -639,28 +596,18 @@ function Composer({
       ) : null}
 
       <div className="mx-auto max-w-3xl">
-        {/* Fault state, stated in words and colour. The previous banner used
-            `danger`, a token this project never defined, so an error rendered
-            as plain text on the panel and read as prose. */}
-        {/* Agora pela receita `.notice` (Alert), em vez de um banner à mão: o
-            fundo opaco e a tinta medida vêm da receita, e a borda superior
-            `destructive/60` sai junto — era o hue lavado atrás da sua própria
-            tinta, que a regra proíbe justamente por não sobreviver à medição. */}
+        {
+}
+        {
+}
         {error ? (
           <Alert variant="destructive" role="alert" className="mb-2">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         ) : null}
 
-        {/*
-          O compositor é um CAMPO, e campo é folha no claro / poço no escuro
-          (DESIGN.md, 2026-09-01): --card no claro atrás da aresta
-          --control-edge, --muted só no escuro. Estava --muted nos dois temas, e
-          no claro --muted contra --card mede 1.17:1 (APCA Lc 8) — abaixo do
-          ~Lc 15 que um preenchimento precisa para ler como plano, então não
-          chegava a ser superfície: era mancha. É o cinza que mais aparece na
-          tela, porque é o controle principal dela.
-        */}
+        {
+}
         <div className="rounded-lg border border-control-edge bg-card dark:bg-muted focus-within:ring-2 focus-within:ring-ring">
           <textarea
             value={input}
@@ -670,8 +617,8 @@ function Composer({
             placeholder={labels.placeholder}
             className="block max-h-40 w-full resize-none bg-transparent px-3 pt-2.5 text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
           />
-          {/* Instrument rail: what this turn will be sent with, and the commit
-              key, on one engraved line under the field. */}
+          {
+}
           <div className="flex items-center justify-between gap-2 border-t border-border px-2 py-1.5">
             <div className="min-w-0 max-w-[15rem] flex-1">
               <AIModelSelector
@@ -724,9 +671,6 @@ function MessageBubble({
   labels: BubbleLabels;
 }) {
   if (message.role === "user") {
-    // A recessed well, not a lamp-filled bubble. The accent is reserved for
-    // "current" and "commit"; a turn the operator already sent is neither, and
-    // painting every one of them orange spends the only signal the panel has.
     return (
       <div className="flex justify-end">
         <div className="rounded-lg max-w-[85%] whitespace-pre-wrap break-words border border-border bg-muted px-3.5 py-2.5 text-sm leading-relaxed text-foreground">
@@ -798,8 +742,6 @@ function ThinkingBlock({
   streaming?: boolean;
   labels: BubbleLabels;
 }) {
-  // Follow the stream: open while thinking, auto-collapse when done, unless the
-  // user explicitly toggles it (then their choice sticks).
   const [userToggled, setUserToggled] = useState<boolean | null>(null);
   const open = userToggled ?? !!streaming;
   return (

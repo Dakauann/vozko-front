@@ -48,9 +48,7 @@ type Layout = {
   panel: Vec3;
   card: Vec3;
   chip: Vec3;
-  /** Offsets down from the panel's top edge, plus the composer up from its foot. */
   rows: { title: number; first: number; second: number; composer: number };
-  /** Offsets down from the record's top edge. */
   cardRows: { lead: number; memories: number };
   slotY: readonly [number, number, number];
   context: { at: Point; size: Point; titleY: number };
@@ -75,7 +73,6 @@ const WIDE: Layout = {
   extent: [10.8, 6.2],
 };
 
-// Both channels share a full-width memory record below them on small screens.
 const COMPACT: Layout = {
   wa: [-1.75, 1.75],
   record: [0, -2.6],
@@ -93,8 +90,6 @@ const COMPACT: Layout = {
 };
 
 type ChipFlight = { fromPanel: "wa" | "below"; dy: number; window: Window; tone: "ai" | "team" };
-// Two facts come from the AI mid-conversation, one is typed by an operator from
-// the inbox panel below the record. All three land on the same list.
 const CHIP_FLIGHTS: ChipFlight[] = [
   { fromPanel: "wa", dy: 0.45, window: [0.14, 0.28], tone: "ai" },
   { fromPanel: "below", dy: -2.6, window: [0.36, 0.5], tone: "team" },
@@ -111,11 +106,6 @@ function setOpacity(node: HTMLElement | null, value: number) {
   if (node) node.style.opacity = String(value);
 }
 
-/**
- * A message in the thread. Incoming sits left on the neutral ground, ours sits
- * right on a brand tint with a squared-off tail, which is the arrangement any
- * messaging app uses and the fastest way to say "this is a conversation".
- */
 function Bubble({
   tone,
   palette,
@@ -139,8 +129,6 @@ function Bubble({
         style={{
           padding: `${size * 0.5}px ${size * 0.65}px`,
           fontSize: size,
-          // The outgoing tint is dark green on graphite and pale green in
-          // daylight, so its ink has to follow the theme rather than assume paper.
           color: outgoing && !palette.dark ? palette.panelInk : palette.panelInk,
           backgroundColor: outgoing ? palette.wash : palette.bubble,
         }}
@@ -154,14 +142,11 @@ function Bubble({
   );
 }
 
-/** The composer that closes every chat panel: a field and a send key. */
 function Composer({ palette, size, tone }: { palette: ScenePalette; size: number; tone: string }) {
   return (
     <div className="flex min-w-0 items-center gap-1.5">
       <span
         className="flex min-w-0 flex-1 items-center rounded-full px-2"
-        // `chip` is paper: on the dark chat panel it rendered as a white bar.
-        // The composer sits on the panel, so it takes the panel's own fill.
         style={{ height: size * 2.1, backgroundColor: palette.bubble, border: `1px solid ${palette.edge}` }}
       >
         <span className="block rounded" style={{ width: "58%", height: 2, backgroundColor: palette.panelMuted, opacity: 0.55 }} />
@@ -183,7 +168,6 @@ function Composer({ palette, size, tone }: { palette: ScenePalette; size: number
   );
 }
 
-/** The thread header: who you are talking to, and on which channel. */
 function ChatHeader({
   name,
   channel,
@@ -275,8 +259,6 @@ export function MemoryScene({
       setOpacity(chipLabels.current[index], pop);
     });
 
-    // Not-yet-arrived reads as "faded" on graphite, but a faded sheet on a
-    // daylight canvas simply disappears, so the floor is higher in light.
     const floor = palette.dark ? 0.35 : 0.6;
     const lit = floor + (1 - floor) * smoothWindow(t, IG_LIT);
     if (igMaterial.current) igMaterial.current.opacity = lit;
@@ -311,7 +293,7 @@ export function MemoryScene({
     <PanelScale scale={stageScale}>
       <StageLights reduced={reduced} palette={palette} accent={CHANNEL.whatsapp} cool={CHANNEL.instagram} />
       <group ref={stage} scale={stageScale} rotation={[-0.1, 0.07, 0]}>
-        {/* WhatsApp conversation */}
+        {}
         <group position={[layout.wa[0], layout.wa[1], 0]}>
           <Slab size={layout.panel} color={palette.board} radius={R.board} roughness={0.72} receiveShadow />
           <Bar position={[0, panelHalf - layout.rows.title - 0.3, 0.11]} size={[layout.panel[0] - 0.16, 0.02, 0.02]} color={palette.edge} />
@@ -356,7 +338,7 @@ export function MemoryScene({
           </Label>
         </group>
 
-        {/* The lead record */}
+        {}
         <group position={[layout.record[0], layout.record[1], 0.12]}>
           <Slab size={layout.card} color={sheet(palette)} roughness={0.58} receiveShadow />
           <Label position={[0, cardHalf - layout.cardRows.lead, 0.22]} width={px(layout.card[0] - 0.4)} className="select-none text-left">
@@ -408,7 +390,7 @@ export function MemoryScene({
           </group>
         ))}
 
-        {/* Instagram conversation, weeks later */}
+        {}
         <group position={[layout.ig[0], layout.ig[1], 0]}>
           <RoundedBox args={layout.panel} radius={R.board} smoothness={3} receiveShadow>
             <meshStandardMaterial ref={igMaterial} color={palette.board} roughness={0.72} transparent opacity={0.35} />

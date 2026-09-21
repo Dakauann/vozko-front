@@ -10,10 +10,6 @@ type FaqPostPageProps = {
   params: Promise<{ locale: string; slug: string }>;
 };
 
-/**
- * Slugs are canonical, not translated, so the same path exists under every
- * locale prefix and a shared link survives a language switch.
- */
 export function generateStaticParams() {
   return routing.locales.flatMap((locale) =>
     FAQ_POSTS.map((post) => ({ locale, slug: post.slug })),

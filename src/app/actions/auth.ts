@@ -1,9 +1,6 @@
 import type { User, UserPlan } from "@/lib/auth/types";
 import { apiClient } from "@/lib/api/browser-client";
 
-// The credential auth flows (login, register, logout, refresh, forgot/reset
-// password, email verification) live in `@/lib/auth/auth-api`. These are the
-// remaining user/session data helpers, now browser-direct via `apiClient`.
 
 interface UserMeResponse {
   id: string;
@@ -68,10 +65,6 @@ export async function updateUserPictureAction(
   return { success: true };
 }
 
-/**
- * Sets the user's CPF/CNPJ (required before billing). The API validates and stores it set-once;
- * `errorCode` distinguishes an invalid document from an attempt to change an already-set one.
- */
 export async function updateUserDocumentAction(
   document: string,
 ): Promise<{ user: User | null; error?: string; errorCode?: string | null }> {
@@ -85,10 +78,6 @@ export async function updateUserDocumentAction(
   return { user: data ? mapUserMe(data) : null, error: undefined, errorCode: null };
 }
 
-/**
- * Renames the authenticated user. `username` is a display name only — login is by email and the
- * value is not unique-constrained — so this is a plain overwrite, unlike the set-once document.
- */
 export async function updateUserNameAction(
   username: string,
 ): Promise<{ user: User | null; error?: string }> {

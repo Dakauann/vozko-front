@@ -16,7 +16,7 @@ export type ServiceType =
 export interface Balance {
     id: string;
     workspaceId: string;
-    amount: number;  
+    amount: number;
     currency: string;
     createdAt: string;
     updatedAt: string;
@@ -120,13 +120,6 @@ export interface BalanceOperationResponse {
     message?: string;
 }
 
-/*
- * Resource identity is carried by the GLYPH, on the one opaque neutral plate
- * every tile in this system sits on. These were raw Tailwind palette values
- * (emerald-500, amber-500, red-100) at 15% behind text of the same hue, so they
- * missed the token system twice over: off-palette, and a wash of themselves.
- * `bgColor` is now the plate and `color`/`iconColor` are the measured ink.
- */
 export const RESOURCE_TYPE_CONFIG: Record<ResourceType, { labelKey: string; color: string; bgColor: string; iconColor: string }> = {
     whatsapp_sendings: {
         labelKey: 'resourceType.whatsappSendings',

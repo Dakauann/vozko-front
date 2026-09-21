@@ -1,18 +1,5 @@
 "use client";
 
-/**
- * Agent simulator: an Operate surface inside the "Surface" world.
- *
- * THESIS: a split-view instrument. The left half is the conversation exactly
- * as a lead would live it (segmented bubbles, typing pulse, channel realism);
- * the right half is the X-ray of the turn that produced it (tool calls with
- * the model's own arguments, the assembled prompt, memory/RAG flags, token
- * cost). What a consumer chat hides is this page's first-class content,
- * because the visitor is not chatting, they are debugging. Tool calls also
- * appear inline in the transcript, at the exact position they fired: the
- * conversation stays the source of truth and the rail is its magnifier.
- * Refused: a debug modal, JSON crammed into chat bubbles, dashboard cards.
- */
 
 import {
     ArrowCounterClockwise,
@@ -53,9 +40,6 @@ type RailTab = "tools" | "xray";
 export default function SimulatorClient({ agent, toolCatalog }: SimulatorClientProps) {
     const t = useTranslations("agentSimulator");
 
-    // The conversation engine (transcript, turns, session memories, lead,
-    // retry semantics) is the shared hook: the edit-page panel runs the exact
-    // same logic, so the two surfaces cannot drift.
     const {
         session,
         pending,
@@ -158,7 +142,7 @@ export default function SimulatorClient({ agent, toolCatalog }: SimulatorClientP
 
     return (
         <div className="-m-3 flex h-[calc(100dvh-3rem)] flex-col overflow-hidden border-y border-border bg-card sm:-m-6">
-            {/* ── Instrument header ────────────────────────────────────────── */}
+            {}
             <header className="flex shrink-0 items-center gap-3 border-b border-border px-3 py-2 sm:px-4">
                 <Link
                     href={`/dashboard/agents/${agent.id}`}
@@ -181,7 +165,7 @@ export default function SimulatorClient({ agent, toolCatalog }: SimulatorClientP
                     </p>
                 </div>
 
-                {/* The sandbox promise, always on screen: this page's one claim. */}
+                {}
                 <span className="ml-2 hidden items-center gap-1.5 rounded-[--radius] border border-border bg-muted px-2.5 py-1 text-2xs font-medium text-foreground md:inline-flex">
                     <ShieldCheck className="h-3.5 w-3.5 text-healthy-ink" weight="bold" />
                     {t("sandboxBadge")}
@@ -243,9 +227,9 @@ export default function SimulatorClient({ agent, toolCatalog }: SimulatorClientP
                 </div>
             </header>
 
-            {/* ── Split view ───────────────────────────────────────────────── */}
+            {}
             <div className="flex min-h-0 flex-1">
-                {/* Conversation */}
+                {}
                 <section className="relative flex min-w-0 flex-1 flex-col">
                     <div
                         ref={scrollRef}
@@ -313,7 +297,7 @@ export default function SimulatorClient({ agent, toolCatalog }: SimulatorClientP
                         </div>
                     </div>
 
-                    {/* Composer */}
+                    {}
                     <div className="relative shrink-0 border-t border-border px-4 pb-3 pt-3">
                         {!atBottom && transcript.length > 0 && (
                             <button
@@ -373,7 +357,7 @@ export default function SimulatorClient({ agent, toolCatalog }: SimulatorClientP
                     </div>
                 </section>
 
-                {/* Inspector rail (desktop inline / mobile slide-over) */}
+                {}
                 <InspectorRail
                     tab={railTab}
                     onTabChange={setRailTab}
@@ -390,7 +374,6 @@ export default function SimulatorClient({ agent, toolCatalog }: SimulatorClientP
     );
 }
 
-/* ── Pieces ──────────────────────────────────────────────────────────────── */
 
 function EmptyState({ agentName, leadName }: { agentName: string; leadName: string | null }) {
     const t = useTranslations("agentSimulator");
@@ -438,7 +421,6 @@ function LeadContextPicker({
     const rootRef = useRef<HTMLDivElement>(null);
     const triggerRef = useRef<HTMLButtonElement>(null);
 
-    // Close on outside click: a popover this small earns no portal machinery.
     useEffect(() => {
         if (!open) return;
         const onPointerDown = (event: PointerEvent) => {
@@ -446,7 +428,6 @@ function LeadContextPicker({
                 setOpen(false);
             }
         };
-        // Escape closes and hands focus back to the trigger.
         const onKeyDown = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
                 setOpen(false);
@@ -461,8 +442,6 @@ function LeadContextPicker({
         };
     }, [open]);
 
-    // Debounced search over the workspace's leads. The searching indicator
-    // flips inside the timeout so the effect body stays setState-free.
     useEffect(() => {
         if (!open) return;
         const trimmed = query.trim();
@@ -474,7 +453,6 @@ function LeadContextPicker({
                 sort: "createdAt",
                 order: "desc",
             });
-            // A failed search must not read as "no leads found".
             setSearchError(Boolean(error));
             setResults(
                 leads.map((item) => ({
@@ -494,8 +472,6 @@ function LeadContextPicker({
         onChange(next);
     };
 
-    // Clearing the lead destroys the transcript exactly like Reset does, so it
-    // earns the same inline confirm, but only when there is anything to lose.
     const requestClear = () => {
         if (hasTranscript) {
             setConfirmingClear(true);
@@ -511,8 +487,6 @@ function LeadContextPicker({
                     <UserCircle className="h-3.5 w-3.5 shrink-0 text-info-ink" weight="bold" />
                     <span className="max-w-32 truncate">{lead.name}</span>
                     {confirmingClear ? (
-                        // Clearing the lead destroys the transcript exactly like
-                        // Reset does: same inline confirm, same anatomy.
                         <>
                             <span className="pl-1 text-2xs font-medium text-foreground">
                                 {t("resetConfirm")}
@@ -682,8 +656,6 @@ function InspectorRail({
     const t = useTranslations("agentSimulator");
     const mobileAsideRef = useRef<HTMLElement>(null);
 
-    // Opening the slide-over moves focus into it (first focusable control) so
-    // keyboard users land where the content is.
     useEffect(() => {
         if (openMobile) {
             mobileAsideRef.current?.querySelector<HTMLElement>("button")?.focus();
@@ -694,9 +666,6 @@ function InspectorRail({
         <>
             <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
                 <CrmSegmentedToggle<RailTab>
-                    // Icons are load-bearing: below md the toggle collapses
-                    // labels to sr-only, and in the slide-over, the only rail
-                    // access on phones, an iconless option would be a blank key.
                     options={[
                         {
                             value: "tools",
@@ -734,14 +703,13 @@ function InspectorRail({
 
     return (
         <>
-            {/* Desktop: inline rail */}
+            {}
             <aside className="hidden w-[24rem] shrink-0 flex-col border-l border-border xl:w-[26rem] lg:flex">
                 {body}
             </aside>
 
-            {/* Mobile: slide-over. `inert` keeps the closed panel's controls out
-                of the tab order: aria-hidden alone would leave keyboard focus
-                landing on invisible off-screen buttons. */}
+            {
+}
             <div
                 aria-hidden={!openMobile}
                 inert={!openMobile}
@@ -828,9 +796,6 @@ function ToolCallCard({
     const ref = useRef<HTMLDivElement>(null);
     const reduceMotion = useReducedMotion();
 
-    // Becoming highlighted expands the card once (the documented
-    // adjust-state-on-prop-change pattern); the user may still collapse it
-    // afterwards. The DOM scroll stays in an effect.
     const [prevHighlighted, setPrevHighlighted] = useState(false);
     if (highlighted !== prevHighlighted) {
         setPrevHighlighted(highlighted);

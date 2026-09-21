@@ -53,9 +53,6 @@ interface CallSessionPresencePayload {
     users: CallSessionPresenceUser[];
 }
 
-// Live presence of a workspace member on the call session. `busy` reflects an
-// active call (or a busy-while-ringing reservation); members with no active
-// session are absent from the roster (offline).
 export interface CallSessionPresenceEntry {
     userId: string;
     username?: string;
@@ -75,7 +72,6 @@ interface UseCallSessionWsReturn {
     endCall: () => void;
     clearError: () => void;
 
-    // Inbound WhatsApp calls still need to be answerable.
     incomingCall: IncomingCallOffer | null;
     acceptIncomingCall: (offerId: string) => void;
     declineIncomingCall: (offerId: string, reason?: string) => void;
@@ -181,9 +177,6 @@ export function useCallSessionWs({
         };
     }, [token, enabled, workspaceId, departmentId]);
 
-    // One reconnect controller for the socket's whole lifetime: infinite capped
-    // backoff + reconnect-on-visibility/online, gated by shouldReconnect so we
-    // never loop while disabled or logged out.
     if (controllerRef.current === null) {
         controllerRef.current = createReconnectController({
             connect: () => connectRef.current?.(),
@@ -200,8 +193,6 @@ export function useCallSessionWs({
         if (prevScopeRef.current !== scopeKey) {
             setCallState(null);
             setLastError(null);
-            // Presence is workspace-scoped; drop the stale roster so a switch
-            // doesn't briefly show the previous workspace's team.
             setPresence([]);
         }
         prevScopeRef.current = scopeKey;
@@ -224,13 +215,11 @@ export function useCallSessionWs({
             try {
                 scriptProcessorRef.current.disconnect();
             } catch {
-                /* ignore */
             }
             scriptProcessorRef.current = null;
         }
         if (captureContextRef.current && captureContextRef.current.state !== "closed") {
             captureContextRef.current.close().catch(() => {
-                /* ignore */
             });
         }
         captureContextRef.current = null;
@@ -240,7 +229,6 @@ export function useCallSessionWs({
         }
         if (playbackContextRef.current && playbackContextRef.current.state !== "closed") {
             playbackContextRef.current.close().catch(() => {
-                /* ignore */
             });
         }
         playbackContextRef.current = null;
@@ -506,21 +494,15 @@ export function useCallSessionWs({
                     previousSocket.close();
                 }
             } catch {
-                // Ignore socket cleanup errors during reconnect attempts.
             }
             wsRef.current = null;
         }
 
-        // Auth rides the httpOnly cookie on the WS handshake (the browser
-        // attaches it same-site); we no longer put the access token in the URL.
-        // `current.token` is used only as a presence gate for whether the app
-        // believes it is logged in.
         if (!current.token) {
             isConnectingRef.current = false;
             setStatus("disconnected");
             return;
         }
-        // Bail if a later connect/disconnect superseded this attempt.
         if (intentionalDisconnectRef.current || !paramsRef.current.enabled) {
             isConnectingRef.current = false;
             return;
@@ -539,8 +521,6 @@ export function useCallSessionWs({
             isConnectingRef.current = false;
             setStatus("connected");
 
-            // Reset backoff only after the connection has stayed up a while, so
-            // a flapping socket doesn't reset to the base delay every cycle.
             const stableTimer = setTimeout(() => {
                 controllerRef.current?.resetBackoff();
             }, 5000);
@@ -575,8 +555,6 @@ export function useCallSessionWs({
             setStatus("disconnected");
             wsRef.current = null;
 
-            // The controller decides whether/when to retry (infinite capped
-            // backoff, gated by shouldReconnect).
             controllerRef.current?.scheduleReconnect();
         };
     }, [handleServerEvent]);
@@ -611,20 +589,9 @@ export function useCallSessionWs({
         setIncomingCall(null);
     }, [stopAudioPipeline]);
 
-    // The socket's lifecycle is tied to the ACCOUNT and scope, NOT to the access
-    // token string. A token refresh happens every few minutes (POST /auth/refresh)
-    // and changes `token`; if the socket were torn down on every refresh, the old
-    // session's Shutdown would HANG UP the agent's live call and the reconnect would
-    // create a fresh session that owns nothing (the frontend then shows a call the
-    // backend no longer has: "call no longer exists" on end, and the agent still
-    // gets rung while "busy"). So we key the effect on a stable presence boolean
-    // that flips only on login/logout, and read the freshest token from paramsRef
-    // inside connect(). This is why the conversation socket stays up and the call
-    // socket used to churn.
     const hasToken = !!token;
     useEffect(() => {
         if (enabled && hasToken && workspaceId) {
-            // Attach visibility/online reconnect listeners for the socket's life.
             controllerRef.current?.start();
             const timer = setTimeout(() => {
                 connect();

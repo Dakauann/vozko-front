@@ -1,6 +1,3 @@
-/**
- * @vitest-environment node
- */
 
 import { describe, expect, it } from "vitest";
 import type { Edge, Node } from "@xyflow/react";
@@ -66,14 +63,12 @@ describe("layoutCopilotSubgraph", () => {
   it("anchors a new cluster to the RIGHT of an existing node it flows from", async () => {
     const base = node("base", 500, 300, 200, 100);
     const nodes = [base, node("t1"), node("t2")];
-    // base (untouched) → t1 → t2 (both touched)
     const edges = [edge("base", "t1"), edge("t1", "t2")];
     const pos = await layoutCopilotSubgraph({
       nodes,
       edges,
       touchedIds: new Set(["t1", "t2"]),
     });
-    // t1 lands one column to the right of base, on the same row.
     expect(pos.get("t1")).toEqual({ x: 500 + 200 + 120, y: 300 });
     expect(pos.get("t2")!.x).toBeGreaterThan(pos.get("t1")!.x);
   });
@@ -86,38 +81,31 @@ describe("layoutCopilotSubgraph", () => {
       edges: [],
       touchedIds: new Set(["t1"]),
     });
-    // base spans x:[0,200]; the new node starts a gap to its right.
     expect(pos.get("t1")!.x).toBeGreaterThanOrEqual(200 + 120);
   });
 });
 
 describe("layoutWholeFlow", () => {
   it("tidies the whole graph left-to-right, anchored at the current top-left", async () => {
-    // Scrambled positions; the chain n1→n2→n3 should come back ordered by x.
     const nodes = [node("n1", 700, 40), node("n2", 120, 500), node("n3", 360, 90)];
     const edges = [edge("n1", "n2"), edge("n2", "n3")];
     const pos = await layoutWholeFlow({ nodes, edges });
     expect(pos.size).toBe(3);
     expect(pos.get("n2")!.x).toBeGreaterThan(pos.get("n1")!.x);
     expect(pos.get("n3")!.x).toBeGreaterThan(pos.get("n2")!.x);
-    // Anchored in place: the tidied flow keeps its current top-left corner.
     const minX = Math.min(...[...pos.values()].map((p) => p.x));
     const minY = Math.min(...[...pos.values()].map((p) => p.y));
-    expect(minX).toBe(120); // smallest current x among the nodes
-    expect(minY).toBe(40); // smallest current y among the nodes
+    expect(minX).toBe(120);
+    expect(minY).toBe(40);
   });
 
   it("orders a branch's targets by output-handle sequence (top output → above)", async () => {
-    // A source with two outputs; its top handle's target must end up ABOVE the
-    // bottom handle's target, regardless of the targets' current Y.
     const src = {
       id: "src",
       position: { x: 0, y: 0 },
       data: { outputs: [{ id: "top" }, { id: "bottom" }] },
       measured: { width: 200, height: 100 },
     } as Node;
-    // Give the targets a misleading current Y (top lower than bottom) to prove the
-    // layout follows the edge order, not the existing positions.
     const nodes = [src, node("t_top", 0, 900), node("t_bottom", 0, 10)];
     const edges = [
       { id: "e1", source: "src", target: "t_top", sourceHandle: "top" } as Edge,

@@ -351,7 +351,7 @@ function NestedSchemaParameterRow({
 }) {
   const [expanded, setExpanded] = useState(true);
   const hasNested = param.type === "object" || param.type === "array";
-  const maxDepth = 4; 
+  const maxDepth = 4;
 
   const addNestedProperty = () => {
     if (param.type === "object") {
@@ -418,7 +418,7 @@ function NestedSchemaParameterRow({
         depthColors[depth % depthColors.length],
       )}
     >
-      {/* Header row with expand/collapse for nested types */}
+      {}
       <div className="flex items-start gap-2">
         {hasNested && (
           <button
@@ -470,7 +470,7 @@ function NestedSchemaParameterRow({
         </div>
       </div>
 
-      {/* Description */}
+      {}
       <ElevatedInput
         value={param.description}
         onChange={(e) => onChange({ ...param, description: e.target.value })}
@@ -478,7 +478,7 @@ function NestedSchemaParameterRow({
         placeholder={t("httpConfig.paramDescriptionPlaceholder")}
       />
 
-      {/* Required + Remove */}
+      {}
       <div className="flex items-center justify-between">
         {showRequired && (
           <label className="flex items-center gap-2 cursor-pointer">
@@ -505,7 +505,7 @@ function NestedSchemaParameterRow({
         </button>
       </div>
 
-      {/* Nested properties for object type */}
+      {}
       {expanded && param.type === "object" && depth < maxDepth && (
         <div className="mt-4 space-y-3 border-l-2 border-dashed border-border pl-4">
           <div className="flex items-center justify-between">
@@ -547,7 +547,7 @@ function NestedSchemaParameterRow({
         </div>
       )}
 
-      {/* Items schema for array type */}
+      {}
       {expanded &&
         param.type === "array" &&
         param.items &&
@@ -559,7 +559,7 @@ function NestedSchemaParameterRow({
               </span>
             </div>
 
-            {/* Item type selector */}
+            {}
             <div className="flex items-center gap-3">
               <span className="text-sm text-muted-foreground">
                 {t("httpConfig.itemType")}:
@@ -587,7 +587,7 @@ function NestedSchemaParameterRow({
               </ElevatedSelect>
             </div>
 
-            {/* Item description */}
+            {}
             <ElevatedInput
               value={param.items.description}
               onChange={(e) =>
@@ -600,7 +600,7 @@ function NestedSchemaParameterRow({
               placeholder={t("httpConfig.itemDescriptionPlaceholder")}
             />
 
-            {/* Nested properties for object items */}
+            {}
             {param.items.type === "object" && (
               <div className="mt-3 space-y-3">
                 <div className="flex items-center justify-between">
@@ -853,7 +853,6 @@ export default function HttpRequestConfigDialog({
         const parsed = JSON.parse(jsonText);
         setConfig(apiFormatToConfig(parsed));
       } catch {
-        // Keep current config if JSON is invalid
       }
     }
     setJsonMode(!jsonMode);
@@ -885,7 +884,7 @@ export default function HttpRequestConfigDialog({
         </DialogHeader>
 
         <div className="flex-1 space-y-5 overflow-y-auto bg-muted px-6 py-5">
-          {/* JSON mode toggle */}
+          {}
           <div className="flex items-center justify-end">
             <button
               type="button"
@@ -914,7 +913,7 @@ export default function HttpRequestConfigDialog({
             </div>
           ) : (
             <>
-              {/* Info banner */}
+              {}
               <div className="flex items-start gap-3 rounded-[--radius] border border-border bg-card p-4 shadow-sm">
                 <DialogIcon>
                   <Info weight="fill" />
@@ -929,7 +928,7 @@ export default function HttpRequestConfigDialog({
                 </div>
               </div>
 
-              {/* Basic Config */}
+              {}
               <ConfigSection title={t("httpConfig.basicConfig")}>
                 <div className="grid gap-4 lg:grid-cols-4">
                   <div className="lg:col-span-2">
@@ -983,7 +982,7 @@ export default function HttpRequestConfigDialog({
                 </div>
               </ConfigSection>
 
-              {/* Headers */}
+              {}
               <ConfigSection
                 action={
                   <AddConfigButton
@@ -1024,7 +1023,7 @@ export default function HttpRequestConfigDialog({
                 ) : null}
               </ConfigSection>
 
-              {/* Path Parameters */}
+              {}
               <ConfigSection
                 action={
                   <AddConfigButton
@@ -1067,7 +1066,7 @@ export default function HttpRequestConfigDialog({
                 ) : null}
               </ConfigSection>
 
-              {/* Query Schema */}
+              {}
               <ConfigSection
                 action={
                   <AddConfigButton
@@ -1110,7 +1109,7 @@ export default function HttpRequestConfigDialog({
                 ) : null}
               </ConfigSection>
 
-              {/* Body Schema */}
+              {}
               {supportsBody ? (
                 <ConfigSection
                   action={

@@ -72,8 +72,6 @@ function formatServicePrice(
   item: PlanPricingItem,
   exchangeRate: number,
 ): string {
-  // Markup-based (percentage) rows are filtered out before rendering (see groupByCategory): a customer
-  // must never see our markup. Only final per-unit prices are shown here.
   const usd = item.priceMicros / MICROS;
   const brl = usd * exchangeRate;
   if (brl < 0.01) {
@@ -92,8 +90,6 @@ function groupByCategory(
 ): Map<string, PlanPricingItem[]> {
   const map = new Map<string, PlanPricingItem[]>();
   for (const item of items) {
-    // Skip internal-only rows and markup-based (percentage) pricing: customers see final prices only,
-    // never our markup. The backend also strips markupPct/costMicros from customer plan responses.
     if (
       item.category === "exchange_rate" ||
       item.category === "margin" ||
@@ -269,11 +265,8 @@ function PlanCard({
       )}
 
       <div className={cn(featuredLabel && "mt-2")}>
-        {/* Brand block: render for every exclusive plan, not just the
-            featured one. `featuredLabel` is a carousel-level marker that
-            highlights a single card; gating the brand on it would hide the
-            logo on the remaining exclusive plans when an affiliate owns
-            more than one. */}
+        {
+}
         {!!item.plan.exclusiveAffiliateId && affiliateBrand && (
           <div className="mb-4 flex items-center gap-3 border-b border-border pb-3">
             <span className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center">
@@ -576,9 +569,8 @@ export function PlansCarousel({
       )}
 
       <div className="relative md:px-8 lg:px-10">
-        {/* Edge fade overlays intentionally omitted, they clashed with
-            consumer backgrounds (e.g. dialog bg-card). Clipping from
-            `overflow-hidden` below is sufficient. */}
+        {
+}
 
         <div className="overflow-hidden py-8" ref={emblaRef}>
           <div className="flex items-stretch">

@@ -98,7 +98,7 @@ export default function IntegrationsPage() {
         description={t("description")}
       />
 
-      {/* Google Calendar Integration */}
+      {}
       <ElevatedContainer>
         <div className="p-6">
           <div className="flex items-center gap-4">

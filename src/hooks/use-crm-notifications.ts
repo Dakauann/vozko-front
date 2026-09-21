@@ -59,7 +59,6 @@ export function useCrmNotifications(): UseCrmNotificationsReturn {
                 setIsMuted(false);
             }
         } catch {
-            // Ignore storage access failures and keep the default state.
         } finally {
             setHasLoadedMutePreference(true);
         }
@@ -75,7 +74,7 @@ export function useCrmNotifications(): UseCrmNotificationsReturn {
 
         outgoingRingtoneAudioRef.current = new Audio(OUTGOING_RINGTONE_PATH);
         outgoingRingtoneAudioRef.current.preload = "auto";
-        outgoingRingtoneAudioRef.current.loop = false; 
+        outgoingRingtoneAudioRef.current.loop = false;
         outgoingRingtoneAudioRef.current.volume = 0.7;
 
         if ("Notification" in window) {
@@ -125,7 +124,6 @@ export function useCrmNotifications(): UseCrmNotificationsReturn {
         try {
             localStorage.setItem(MUTE_STORAGE_KEY, String(isMuted));
         } catch {
-            // Ignore storage access failures.
         }
     }, [hasLoadedMutePreference, isMuted]);
 
@@ -228,7 +226,7 @@ export function useCrmNotifications(): UseCrmNotificationsReturn {
                     tag: tag || "crm-message",
                     badge: getBrand().logo.mark,
                     requireInteraction: false,
-                    silent: true, // We handle sound ourselves
+                    silent: true,
                 });
 
                 if (onClick) {

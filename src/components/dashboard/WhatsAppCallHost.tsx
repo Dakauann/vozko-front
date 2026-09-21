@@ -13,26 +13,6 @@ import { useCallSessionWs } from "@/hooks/use-call-session-ws";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
-/**
- * WhatsApp call host.
- *
- * This replaced the persistent call panel. VoIP was removed from the product —
- * SIP trunks, ramais, transfers, the keypad and the docked right-edge panel are
- * all gone — but WhatsApp calling stayed, and a WhatsApp call still has to be
- * placed by something and shown while it runs.
- *
- * So this component is deliberately headless until it has work to do:
- *
- *   - it renders NOTHING at rest (no edge tab, no panel, no launcher);
- *   - a call starts only when a conversation asks for one via
- *     `requestCall({ phoneNumber, whatsAppPhoneId })`, which is what the
- *     "Ligar" action in the CRM does;
- *   - while a call is live it shows one compact status strip with the number,
- *     the state and hang up.
- *
- * There is no free-dial entry point on purpose: without SIP there is no number
- * to dial that is not already a conversation.
- */
 function formatDuration(seconds: number): string {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
@@ -50,14 +30,10 @@ export default function WhatsAppCallHost() {
   const canUseCalling = can("call_session", "use");
 
   const { callState, startCall, endCall } = useCallSessionWs({
-    // Session-presence signal for the call socket (auth rides the cookie).
     token: user?.id ?? "",
     enabled: !!currentWorkspace?.id && canUseCalling,
   });
 
-  // A conversation asked to place a call. WhatsApp only: a request without a
-  // business phone has nowhere to go now that trunks are gone, so it is ignored
-  // rather than silently dialled over a channel that no longer exists.
   useEffect(() => {
     return subscribeCallRequest(
       ({ phoneNumber, whatsAppPhoneId, whatsAppPhoneLabel }) => {

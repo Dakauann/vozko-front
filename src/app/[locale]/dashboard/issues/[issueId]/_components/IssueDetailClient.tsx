@@ -29,7 +29,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024; 
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
   "image/png",
@@ -264,7 +264,7 @@ export default function IssueDetailClient({ issueId }: IssueDetailClientProps) {
 
   return (
     <main className="w-full max-w-4xl mx-auto space-y-6 py-2">
-      {/* Back button */}
+      {}
       <button
         type="button"
         onClick={() => router.push("/dashboard/issues")}
@@ -274,7 +274,7 @@ export default function IssueDetailClient({ issueId }: IssueDetailClientProps) {
         {t("detail.back")}
       </button>
 
-      {/* Issue header */}
+      {}
       <div className="rounded-[--radius] border border-border bg-card p-6 space-y-4">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
@@ -338,7 +338,7 @@ export default function IssueDetailClient({ issueId }: IssueDetailClientProps) {
         )}
       </div>
 
-      {/* Responses timeline */}
+      {}
       <div className="rounded-[--radius] border border-border bg-card overflow-hidden">
         <div className="px-6 py-4 border-b border-border">
           <h2 className="text-sm font-medium text-foreground">
@@ -387,7 +387,7 @@ export default function IssueDetailClient({ issueId }: IssueDetailClientProps) {
           )}
         </div>
 
-        {/* Response form, not closed */}
+        {}
         {!isClosed && (
           <div className="border-t border-border p-4 space-y-3">
             {imagePreview && (
@@ -471,7 +471,7 @@ export default function IssueDetailClient({ issueId }: IssueDetailClientProps) {
           </div>
         )}
 
-        {/* Closed notice */}
+        {}
         {isClosed && (
           <div className="border-t border-border px-6 py-3 bg-muted text-center">
             <p className="text-xs text-muted-foreground">

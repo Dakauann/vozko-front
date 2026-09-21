@@ -14,18 +14,18 @@ import { cn } from "@/lib/utils";
 
 
 const DEFAULT_PRESET_COLORS = [
-  "#3B82F6", // blue
-  "#10B981", // emerald
-  "#F59E0B", // amber
-  "#EF4444", // red
-  "#8B5CF6", // violet
-  "#EC4899", // pink
-  "#06B6D4", // cyan
-  "#F97316", // orange
-  "#84CC16", // lime
-  "#6366F1", // indigo
-  "#14B8A6", // teal
-  "#A855F7", // purple
+  "#3B82F6",
+  "#10B981",
+  "#F59E0B",
+  "#EF4444",
+  "#8B5CF6",
+  "#EC4899",
+  "#06B6D4",
+  "#F97316",
+  "#84CC16",
+  "#6366F1",
+  "#14B8A6",
+  "#A855F7",
 ];
 
 
@@ -260,7 +260,7 @@ export default function ElevatedListManager<T extends ColoredItem>({
 
   return (
     <div className="relative">
-      {/* Trigger */}
+      {}
       <div onClick={() => setOpen((o) => !o)} className="cursor-pointer">
         {trigger}
       </div>
@@ -268,7 +268,7 @@ export default function ElevatedListManager<T extends ColoredItem>({
       <AnimatePresence>
         {open && (
           <>
-            {/* Backdrop */}
+            {}
             <div className="fixed inset-0 z-40" onClick={closeAll} />
 
             <motion.div
@@ -282,7 +282,7 @@ export default function ElevatedListManager<T extends ColoredItem>({
                 className,
               )}
             >
-              {/* Header */}
+              {}
               <div className="flex items-center justify-between border-b border-border px-3 py-2.5">
                 {title && (
                   <span className="text-xs font-semibold text-foreground">
@@ -297,7 +297,7 @@ export default function ElevatedListManager<T extends ColoredItem>({
                 </button>
               </div>
 
-              {/* List */}
+              {}
               <div className="max-h-72 overflow-y-auto py-1">
                 {sortedItems.length === 0 && !creating && emptyMessage && (
                   <div className="px-3 py-4 text-center text-xs text-muted-foreground">
@@ -355,7 +355,7 @@ export default function ElevatedListManager<T extends ColoredItem>({
                           </button>
                         </div>
 
-                        {/* Description */}
+                        {}
                         <textarea
                           value={editDescription}
                           onChange={(e) => setEditDescription(e.target.value)}
@@ -373,7 +373,7 @@ export default function ElevatedListManager<T extends ColoredItem>({
                           )}
                         />
 
-                        {/* Color picker */}
+                        {}
                         <AnimatePresence>
                           {showColorPicker === item.id && (
                             <motion.div
@@ -444,7 +444,7 @@ export default function ElevatedListManager<T extends ColoredItem>({
                 ))}
               </div>
 
-              {/* Create new */}
+              {}
               {!isReadonly && (
                 <div className="border-t border-border">
                   <AnimatePresence mode="wait">
@@ -509,7 +509,7 @@ export default function ElevatedListManager<T extends ColoredItem>({
                           </button>
                         </div>
 
-                        {/* Description */}
+                        {}
                         <textarea
                           value={newDescription}
                           onChange={(e) => setNewDescription(e.target.value)}

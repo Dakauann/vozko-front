@@ -13,12 +13,6 @@ import {
     VERTICALS,
 } from "@/lib/audience/types";
 
-/**
- * Every string the audience dashboard shows exists in all four locales and
- * parses as ICU. Stored values are English slugs; a slug without a label in a
- * locale would reach the screen untranslated, so the enum tables are checked
- * against the TypeScript unions that produce them.
- */
 
 const CATALOGS: Record<string, Record<string, unknown>> = { pt, en, de, es };
 
@@ -75,7 +69,6 @@ describe("audience messages", () => {
             };
             expect(instagram.tabs.audience).toBeTruthy();
             expect(instagram.posts.tabAnalysis).toBeTruthy();
-            // The composer arms a post's analysis before it exists.
             for (const key of ["analysisTitle", "analysisHint", "analysisAccountOff", "analysisLoading", "publishedButAnalysisFailed"]) {
                 expect(instagram.composer[key], `composer.${key}`).toBeTruthy();
                 expect(() => new IntlMessageFormat(instagram.composer[key], locale)).not.toThrow();

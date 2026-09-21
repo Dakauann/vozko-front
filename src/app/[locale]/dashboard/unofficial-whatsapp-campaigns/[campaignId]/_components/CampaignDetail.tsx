@@ -47,14 +47,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
-/**
- * Entry status plates, matching the Cloud API campaign's detail page exactly.
- *
- * Solid grounds with a foreground colour, and the dot inherits `currentColor`,
- * so a status reads the same on both products. SKIPPED_NOT_ON_WHATSAPP shares
- * the warning plate with the spam skip because it is the same KIND of outcome:
- * nothing was sent, and nothing went wrong.
- */
 const entryStatusStyles: Record<string, string> = {
   PENDING: "bg-muted text-muted-foreground",
   SENT: "bg-primary text-primary-foreground",
@@ -89,7 +81,6 @@ function formatDate(value?: string | null) {
 }
 
 const ENTRIES_PAGE_SIZE = 25;
-/** Live enough to watch a run without hammering the API. */
 const REFRESH_MS = 5000;
 
 export default function UnofficialCampaignDetail({
@@ -98,10 +89,7 @@ export default function UnofficialCampaignDetail({
   campaign: UnofficialWhatsAppCampaign;
 }) {
   const t = useTranslations("unofficialWhatsappCampaigns");
-  // The CRM strings are the shared ones: the dialog is the same product.
   const tCrm = useTranslations("crm");
-  // The transport badge reuses the spine's own wording and hint, so the two
-  // surfaces cannot describe the same distinction differently.
   const tSidebar = useTranslations("sidebar");
   const { toast } = useToast();
   const { can } = useWorkspace();
@@ -151,9 +139,6 @@ export default function UnofficialCampaignDetail({
     fetchEntries();
   }, [fetchEntries]);
 
-  // Poll only while there is something to watch. A COMPLETED campaign cannot
-  // change on its own, and polling one is a request every five seconds that can
-  // never return anything new.
   useEffect(() => {
     if (campaign.status !== "RUNNING") return;
     const timer = setInterval(() => {
@@ -188,9 +173,6 @@ export default function UnofficialCampaignDetail({
   const handleExport = async () => {
     setExporting(true);
     try {
-      // The CURRENT filters ride with the export, so the file matches what is
-      // on screen. An export that silently ignored the filters would hand an
-      // operator a different set from the one they were looking at.
       const result = await exportUnofficialCampaignEntriesAction(campaign.id, {
         status: entryFilters.status || undefined,
         search: entryFilters.search || undefined,
@@ -229,16 +211,12 @@ export default function UnofficialCampaignDetail({
         backLink="/dashboard/unofficial-whatsapp-campaigns"
         editLink={`/dashboard/unofficial-whatsapp-campaigns/${campaign.id}/edit`}
         isPending={pending}
-        // A number that cannot send must not offer Start: the button would only
-        // ever produce the restriction error the banner above already explains.
         canStart={canStart(campaign.status) && campaign.instanceSessionLive}
         canPause={canPause(campaign.status)}
         canStop={canStop(campaign.status)}
         canReset={campaign.status !== "RUNNING"}
         hasPermissionStart={canRunStart}
         hasPermissionStop={canRunStop}
-        // The pre-flight list clean has no counterpart on the official campaign,
-        // so it rides in the actions menu rather than as a row of its own.
         extraActions={
           canUpdate
             ? (close) => (
@@ -338,7 +316,7 @@ export default function UnofficialCampaignDetail({
         }}
       />
 
-      {/* An automatic pause and a manual one look identical without this. */}
+      {}
       {campaign.statusReason ? (
         <div className="flex items-start gap-2 rounded-[--radius] border border-warning bg-warning px-3 py-2 text-warning-foreground">
           <Warning className="mt-0.5 h-4 w-4 shrink-0" weight="fill" />
@@ -353,9 +331,8 @@ export default function UnofficialCampaignDetail({
         </div>
       ) : null}
 
-      {/* Campaign info + metrics, in the same shape the Cloud API campaign
-          uses: an identity card carrying the channel plate and the settings an
-          operator checks before starting, then the wall of numbers. */}
+      {
+}
       <div className="grid gap-4">
         <div
           className="max-h-max rounded-[--radius] border border-border bg-card p-6"
@@ -407,9 +384,8 @@ export default function UnofficialCampaignDetail({
               </div>
             </div>
 
-            {/* The pacing an operator has to be able to read at a glance: it is
-                what decides how long this campaign will take, and on this
-                channel it is also the ban control. */}
+            {
+}
             <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
               <span>
                 {t("detail.pacing", {
@@ -442,9 +418,8 @@ export default function UnofficialCampaignDetail({
       </div>
 
 
-      {/* Filters sit above the contacts card, not inside its toolbar: they
-          narrow what the card shows, and the official campaign puts them in the
-          same place. */}
+      {
+}
       <EntryFiltersBar
         campaignType="unofficial_whatsapp"
         values={entryFilters}
@@ -531,8 +506,8 @@ export default function UnofficialCampaignDetail({
                   >
                     <div className="mb-4 flex items-start justify-between gap-4">
                       <div className="flex items-center gap-3">
-                        {/* Only once the campaign has actually reached this
-                            person is there a transcript to open. */}
+                        {
+}
                         {entry.conversationId ? (
                           <EntryConversationDialog
                             entryId={entry.conversationId}
@@ -595,8 +570,8 @@ export default function UnofficialCampaignDetail({
                       </div>
                     ) : null}
 
-                    {/* Which body this person received. Only worth showing when
-                        the campaign actually rotates variants. */}
+                    {
+}
                     {campaign.message.bodies.length > 1 ? (
                       <div className="mb-3">
                         <span className="inline-flex items-center gap-1 rounded-md border border-border bg-muted px-2 py-1 text-2xs text-foreground">
@@ -676,9 +651,8 @@ export default function UnofficialCampaignDetail({
         )}
       </div>
 
-      {/* containerKind="campaign" is what makes this the CAMPAIGN's inbox
-          rather than the whole number's: on this channel a conversation belongs
-          to a number forever, while a campaign is one run across many. */}
+      {
+}
       <CrmDialog
         isOpen={showCrmDialog}
         onClose={() => setShowCrmDialog(false)}

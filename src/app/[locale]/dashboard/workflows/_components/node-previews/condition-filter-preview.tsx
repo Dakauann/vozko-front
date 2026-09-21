@@ -3,7 +3,6 @@
 import { EmptyPreview } from "../message-node-primitives";
 import { DecisionBlock, Op } from "./decision-block";
 
-// condition_filter: a pass/block gate on a value.
 export function ConditionFilterPreview({
   config,
 }: {

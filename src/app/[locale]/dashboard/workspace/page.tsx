@@ -198,7 +198,7 @@ export default function WorkspaceSettingsPage() {
 
   return (
     <main className="w-full space-y-4">
-      {/* ─── HEADER ─── */}
+      {}
       <div>
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-2">
@@ -273,7 +273,7 @@ export default function WorkspaceSettingsPage() {
         </div>
       </div>
 
-      {/* ─── TABS (config first for owners; people/org after) ─── */}
+      {}
       <div>
         <Tabs defaultValue={isOwner ? "config" : "members"}>
           <TabsList>
@@ -503,14 +503,14 @@ function MembersTab({
     setRemoving(null);
     if (result.error) {
       setError(result.error);
-      return; // keep the confirmation open so the member can read the error
+      return;
     }
     setConfirmRemove(null);
     await onRefresh();
   };
 
   const closeRemoveDialog = () => {
-    if (removing) return; // don't dismiss mid-request
+    if (removing) return;
     setConfirmRemove(null);
     setError("");
   };
@@ -527,7 +527,7 @@ function MembersTab({
 
   return (
     <div className="space-y-4">
-      {/* Search bar */}
+      {}
       <ElevatedContainer className="rounded-lg border border-border bg-card p-4">
         <div className="flex items-center gap-3">
           <div className="relative flex-1 max-w-md">
@@ -879,7 +879,7 @@ function InvitesTab({
 
   return (
     <div className="space-y-4">
-      {/* Invite Form */}
+      {}
       {can("members", "create") && (
         <div>
           <AnimatePresence mode="wait">
@@ -892,7 +892,7 @@ function InvitesTab({
                 transition={{ duration: 0.2 }}
               >
                 <ElevatedContainer className="!p-5 space-y-4">
-                  {/* Header */}
+                  {}
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground">
                       <UserCirclePlus className="h-5 w-5" weight="fill" />
@@ -907,7 +907,7 @@ function InvitesTab({
                     </div>
                   </div>
 
-                  {/* Email + Role */}
+                  {}
                   <div className="flex items-start gap-3">
                     <ElevatedInput
                       type="email"
@@ -966,7 +966,7 @@ function InvitesTab({
                     </ElevatedSelect>
                   </div>
 
-                  {/* Admin role info */}
+                  {}
                   {selectedValue === "admin" && (
                     <div className="flex items-start gap-2 rounded-[--radius] bg-muted border border-border px-3 py-2.5">
                       <Shield
@@ -979,7 +979,7 @@ function InvitesTab({
                     </div>
                   )}
 
-                  {/* Inline Create-Role Dialog */}
+                  {}
                   <AnimatePresence>
                     {showCreateRole && (
                       <motion.div
@@ -1117,7 +1117,7 @@ function InvitesTab({
                     )}
                   </AnimatePresence>
 
-                  {/* Department assignment */}
+                  {}
                   {wsDepartments.length > 0 && (
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
@@ -1173,7 +1173,7 @@ function InvitesTab({
                     </div>
                   )}
 
-                  {/* Actions */}
+                  {}
                   <div className="flex items-center justify-between pt-1">
                     <ElevatedButton
                       onClick={() => {
@@ -1217,7 +1217,7 @@ function InvitesTab({
         </div>
       )}
 
-      {/* Pending Invites */}
+      {}
       {pendingInvites.length === 0 ? (
         <ElevatedContainer className="!border-dashed !bg-muted !p-10 text-center">
           <Envelope
@@ -1241,7 +1241,7 @@ function InvitesTab({
                 key={invite.id}
                 className="!p-0 overflow-hidden"
               >
-                {/* Invite row */}
+                {}
                 <div className="flex items-center gap-4 px-4 py-4">
                   <IconBox color="amber" size="sm">
                     <Envelope className="h-5 w-5" weight="fill" />
@@ -1302,7 +1302,7 @@ function InvitesTab({
                   </div>
                 </div>
 
-                {/* Expanded permissions view */}
+                {}
                 <AnimatePresence>
                   {isExpanded &&
                     invite.permissions &&
@@ -1834,7 +1834,7 @@ function PermissionsTab({
 
   return (
     <div className="space-y-4">
-      {/* Search bar for member selection */}
+      {}
       <ElevatedContainer className="rounded-lg border border-border bg-card p-4">
         <div className="flex items-center gap-3">
           <div className="relative flex-1 max-w-md">
@@ -1979,8 +1979,6 @@ function RolesTab({
   t: ReturnType<typeof useTranslations>;
 }) {
   const { can } = useWorkspace();
-  // The same namespace the blocked member reads, so the explanation an admin
-  // is given here and the one the member gets cannot drift apart.
   const tScope = useTranslations("departmentScope");
   const [editingRole, setEditingRole] = React.useState<CustomRole | null>(null);
   const [creating, setCreating] = React.useState(false);
@@ -2149,13 +2147,8 @@ function RolesTab({
               <h4 className="text-sm font-semibold text-foreground">
                 {t("customRoles.rolePermissions")}
               </h4>
-              {/*
-                Permissions are necessary, not sufficient, and this is the
-                screen where that gets forgotten: an admin ticks every box,
-                and the member still sees nothing because the workspace uses
-                departments and they are in none. Said here, next to the boxes,
-                rather than discovered later over WhatsApp.
-              */}
+              {
+}
               <p className="text-xs text-muted-foreground">
                 {tScope("adminRoleCaption")}
               </p>
@@ -2342,14 +2335,6 @@ function RolesTab({
 }
 
 
-/**
- * Escala própria de um departamento.
- *
- * Sobrescreve a do workspace por inteiro em vez de se somar a ela: o caso que
- * isso existe para resolver é um plantão que trabalha sábado dentro de uma
- * empresa de segunda a sexta, e uma interseção não conseguiria expressá-lo.
- * Desligar aqui devolve o departamento à escala do workspace.
- */
 function DepartmentWorkingHours({
   department,
   onSaved,
@@ -2370,8 +2355,6 @@ function DepartmentWorkingHours({
 
   const handleSave = async () => {
     setSaving(true);
-    // `null` viaja de propósito — é o que remove a escala própria. Omitir o
-    // campo diria "não mexa", e o botão nunca desligaria nada.
     const result = await updateDepartment(
       department.id,
       department.name,
@@ -2449,8 +2432,6 @@ function DepartmentsTab({
 }) {
   const { can } = useWorkspace();
   const { refreshDepartments } = useDepartment();
-  // Its own namespace: this copy explains the SCOPE rule, which is the same
-  // explanation the blocked member reads, and both must stay in step.
   const ts = useTranslations("departmentScope");
 
   const [departments, setDepartments] = React.useState<Department[]>([]);
@@ -2488,26 +2469,10 @@ function DepartmentsTab({
     can("departments", "update") || can("departments", "create");
   const canDelete = can("departments", "delete");
 
-  /*
-   * Who would be left seeing nothing.
-   *
-   * Departments are a scope, not a permission: with none, members are filtered
-   * on permissions alone; with one, every non-admin is filtered on department
-   * membership TOO, and a member in none matches nothing. So the count that
-   * matters on this screen is regular members with no department. Owners and
-   * admins are never scoped and are excluded, otherwise the warning would name
-   * people who are in no danger.
-   */
   const scopedMembers = React.useMemo(
     () => members.filter((m) => m.role !== "owner" && m.role !== "admin"),
     [members],
   );
-  /*
-   * Matched on BOTH keys on purpose. A department roster always carries the
-   * membership id and only sometimes the user id, so keying on one of them
-   * would silently count assigned people as unassigned and put a warning about
-   * lost access in front of an admin who has done nothing wrong.
-   */
   const assigned = React.useMemo(() => {
     const ids = new Set<string>();
     for (const list of Object.values(deptMembers)) {
@@ -2519,15 +2484,6 @@ function DepartmentsTab({
     return ids;
   }, [deptMembers]);
 
-  /*
-   * Null means "not known yet", and the screens below say nothing rather than
-   * guessing. Counting from a partially loaded membership map would report
-   * every member as unassigned while the rosters were still arriving, which is
-   * a worse lie than silence on a warning about people losing access.
-   *
-   * With no departments at all the answer needs no roster: the rule is not in
-   * force yet, so every scoped member is unassigned by definition.
-   */
   const unassignedCount = React.useMemo<number | null>(() => {
     if (departments.length === 0) return scopedMembers.length;
     if (!departments.every((d) => deptMembers[d.id] !== undefined)) return null;
@@ -2547,14 +2503,6 @@ function DepartmentsTab({
     loadDepartments();
   }, [loadDepartments]);
 
-  /*
-   * Every department's roster, loaded up front rather than on expand.
-   *
-   * The rosters used to arrive only when an admin opened a department, which
-   * is fine for browsing and useless for the question this screen now has to
-   * answer standing: who is in NO department, and therefore sees nothing. A
-   * departments list is an org chart, so this is a handful of requests once.
-   */
   React.useEffect(() => {
     let cancelled = false;
     const missing = departments.filter((d) => deptMembers[d.id] === undefined);
@@ -2714,7 +2662,7 @@ function DepartmentsTab({
 
   return (
     <div className="space-y-4">
-      {/* Create button / form */}
+      {}
       {canManage && (
         <AnimatePresence mode="wait">
           {showCreate ? (
@@ -2763,15 +2711,8 @@ function DepartmentsTab({
                     className="w-full"
                   />
                 </div>
-                {/*
-                  The cliff, named before the admin steps off it.
-
-                  The first department is not just a folder: it switches the
-                  whole workspace from "permissions decide" to "permissions AND
-                  department membership decide", so every member not in one goes
-                  dark at once. Shown inline rather than as a dialog because it
-                  is a warning to read, not a decision to interrupt.
-                */}
+                {
+}
                 {departments.length === 0 && (
                   <div
                     role="status"
@@ -2835,12 +2776,8 @@ function DepartmentsTab({
         </AnimatePresence>
       )}
 
-      {/*
-        The standing signal, so this state is visible without anyone reporting
-        it. Only while the rule is actually in force: in a workspace with no
-        departments nobody is scoped out of anything, and saying it there would
-        train admins to scroll past it.
-      */}
+      {
+}
       {departments.length > 0 && unassignedCount !== null && unassignedCount > 0 && (
         <div
           role="status"
@@ -2855,7 +2792,7 @@ function DepartmentsTab({
         </div>
       )}
 
-      {/* Department list */}
+      {}
       {departments.length === 0 ? (
         <ElevatedContainer className="!border-dashed !bg-muted !p-10 text-center">
           <TreeStructure
@@ -2885,7 +2822,7 @@ function DepartmentsTab({
                     isExpanded && "!border-primary/30",
                   )}
                 >
-                  {/* Department header row */}
+                  {}
                   <div
                     className="flex items-center gap-4 px-4 py-3.5 cursor-pointer hover:bg-muted transition-colors"
                     onClick={() => handleExpand(dept.id)}
@@ -3025,13 +2962,8 @@ function DepartmentsTab({
                     />
                   </div>
 
-                  {/*
-                    Deleting the LAST department is not a tidy-up, it is a
-                    workspace-wide widening: visibility goes back to permissions
-                    alone and everyone who can read conversations sees all of
-                    them again. Said here rather than nowhere, which is what the
-                    bare confirm button amounted to.
-                  */}
+                  {
+}
                   {confirmDelete === dept.id && departments.length === 1 && (
                     <div
                       role="status"
@@ -3046,18 +2978,15 @@ function DepartmentsTab({
                     </div>
                   )}
 
-                  {/*
-                    An empty department is the worst of both: it grants access to
-                    nobody, and its mere existence is what makes every member
-                    department-scoped. Worth flagging standing, not on hover.
-                  */}
+                  {
+}
                   {deptMembers[dept.id]?.length === 0 && (
                     <p className="mt-2 text-xs text-muted-foreground">
                       {ts("adminEmptyDepartment")} · {ts("adminEmptyDepartmentTooltip")}
                     </p>
                   )}
 
-                  {/* Expanded members section */}
+                  {}
                   <AnimatePresence>
                     {isExpanded && (
                       <motion.div
@@ -3068,12 +2997,8 @@ function DepartmentsTab({
                         className="overflow-hidden"
                       >
                         <div className="border-t border-border px-4 py-3 space-y-3">
-                          {/*
-                            A escala do departamento vive no painel expandido, e
-                            não na linha de edição inline: uma semana inteira não
-                            cabe ao lado do nome, e quem mexe em horário quer ver
-                            os sete dias de uma vez.
-                          */}
+                          {
+}
                           {canManage && (
                             <DepartmentWorkingHours
                               department={dept}
@@ -3081,7 +3006,7 @@ function DepartmentsTab({
                             />
                           )}
 
-                          {/* Add member row */}
+                          {}
                           {canManage && (
                             <>
                               {addingMember === dept.id ? (
@@ -3156,7 +3081,7 @@ function DepartmentsTab({
                             </>
                           )}
 
-                          {/* Members list */}
+                          {}
                           {isLoadingMembers ? (
                             <div className="flex h-16 items-center justify-center">
                               <CircleNotch

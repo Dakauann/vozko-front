@@ -25,14 +25,14 @@ export function PricingSection({
   affiliateBrand,
 }: PricingSectionProps) {
   const t = useTranslations("pricing");
-  void annualDiscountPct; 
+  void annualDiscountPct;
 
   return (
     <section
       id="pricing"
       className="relative overflow-hidden bg-background py-24 md:py-32"
     >
-      {/* Subtle background glow */}
+      {}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div
           className="w-[1000px] h-[600px] rounded-full opacity-15"
@@ -45,7 +45,7 @@ export function PricingSection({
       </div>
 
       <div className="relative mx-auto w-full max-w-7xl px-6 md:px-10">
-        {/* Header */}
+        {}
         <div className="relative text-center max-w-3xl mx-auto mb-12">
           <span className="text-xs font-semibold text-muted-foreground dark:text-info-ink">
             {t("badge")}
@@ -57,7 +57,7 @@ export function PricingSection({
             {t("description")}
           </p>
 
-          {/* Affiliate signature, top-right on md+, centered below on mobile */}
+          {}
           {affiliateBrand && (
             <>
               <div className="hidden md:block absolute top-0 right-0">

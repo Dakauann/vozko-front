@@ -58,25 +58,6 @@ import { quoteTemplateSendAction, startOfficialConversationAction } from "@/app/
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
-/**
- * Reach a number that never wrote to us, on the OFFICIAL WhatsApp channel.
- *
- * The unofficial channel's version of this dialog stops at "the conversation
- * exists" and leaves sending to the composer. This one cannot: a stranger has no
- * open 24h window, so the composer is blocked and the only legal first message
- * is an approved template — which costs money on every send.
- *
- * That difference shapes the whole surface. The operator is not filling in a
- * form and pressing send; they are being asked to spend the workspace's balance,
- * so the price is on screen before the button is, the message is shown as the
- * customer will actually receive it, and the button says what it costs.
- *
- * The second mode exists because the commonest reason this dialog fails is
- * having no approved template to send, and the answer to that has always been
- * "go to another page, build one, come back". It creates one here instead — and
- * says plainly that Meta has to approve it first, because a dialog that implied
- * otherwise would be lying about the one thing the operator is waiting on.
- */
 export function StartOfficialConversationDialog({
     open,
     onOpenChange,
@@ -84,20 +65,15 @@ export function StartOfficialConversationDialog({
 }: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    /** Called with the entry so the caller can route to it in the inbox. */
     onStarted: (entryId: string, entryType: string) => void;
 }) {
     const t = useTranslations("whatsappOutreach");
-    // The approval notice reuses the template builder's own copy rather than a
-    // second version of it. Two places telling an operator two different waiting
-    // times is worse than either number being slightly off.
     const tTemplates = useTranslations("whatsappTemplates");
     const { can } = useWorkspace();
     const canCreateTemplate = can("whatsapp_templates", "create");
 
     const [mode, setMode] = useState<"send" | "create">("send");
 
-    // ---------------------------------------------------------------- sending
 
     const [phones, setPhones] = useState<WhatsAppBusinessPhone[]>([]);
     const [phoneId, setPhoneId] = useState("");
@@ -109,22 +85,10 @@ export function StartOfficialConversationDialog({
     const [bodyValues, setBodyValues] = useState<string[]>([]);
     const [headerValues, setHeaderValues] = useState<string[]>([]);
     const [quote, setQuote] = useState<SendQuote | null>(null);
-    /**
-     * BRL per USD. Prices come back as USD micros and the operator has only ever
-     * seen reais, so without this the dialog would quote a fifth of the real cost.
-     */
     const [exchangeRate, setExchangeRate] = useState<number | null>(null);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<{ code: string; message: string } | null>(null);
 
-    /**
-     * One key per dialog opening.
-     *
-     * A double-click and a retry after a dropped connection share it, so they
-     * cost one message. A deliberate second send after a visible failure opens
-     * the dialog again and gets a new one — which is the only case where a second
-     * charge is what the operator actually asked for.
-     */
     const idempotencyKey = useRef<string>("");
 
     const template = useMemo(
@@ -133,8 +97,6 @@ export function StartOfficialConversationDialog({
     );
     const slots = useMemo(() => templateParamSlots(template), [template]);
 
-    // The shared parser, so a pasted number is normalised by exactly the rule the
-    // server will apply to it.
     const parsed = useMemo(() => normalizeRecipients(recipient), [recipient]);
     const resolvedNumber = parsed.valid[0] ?? "";
 
@@ -148,7 +110,6 @@ export function StartOfficialConversationDialog({
     const canSubmit =
         Boolean(phoneId) && Boolean(templateId) && Boolean(resolvedNumber) && !missingValues && !busy;
 
-    // Reset between openings, or the previous attempt's error greets the next one.
     useEffect(() => {
         if (open) {
             idempotencyKey.current =
@@ -181,7 +142,6 @@ export function StartOfficialConversationDialog({
             const result = await listBusinessPhonesAction({ status: "CONNECTED", page: 1, pageSize: 50 });
             const connected = result.phones ?? [];
             setPhones(connected);
-            // A single number needs no picker, and rendering one implies otherwise.
             if (connected.length === 1) setPhoneId(connected[0].id);
         })();
     }, [open]);
@@ -200,15 +160,11 @@ export function StartOfficialConversationDialog({
         void loadTemplates(phoneId);
     }, [open, phoneId, loadTemplates]);
 
-    // Variable slots are per template, so the values reset with it — carrying a
-    // previous template's answers into a new one silently sends the wrong text.
     useEffect(() => {
         setBodyValues(new Array(slots.body.length).fill(""));
         setHeaderValues(new Array(slots.header.length).fill(""));
     }, [templateId, slots.body.length, slots.header.length]);
 
-    // The price comes from the same call that performs the charge, so the number
-    // shown and the number billed cannot disagree.
     useEffect(() => {
         if (!templateId || !phoneId) {
             setQuote(null);
@@ -224,7 +180,6 @@ export function StartOfficialConversationDialog({
         };
     }, [templateId, phoneId]);
 
-    /** The real message bubble, built from what the operator has typed. */
     const previewMetadata: TemplateMessageMetadata | null = useMemo(() => {
         if (!template) return null;
         const filled = (template.components ?? []).map((component) => {
@@ -264,8 +219,6 @@ export function StartOfficialConversationDialog({
         setBusy(false);
 
         if (sendError) {
-            // An already-open window is not a failure: the operator can reply for
-            // free, so take them to the conversation instead of refusing.
             if (sendError.code === "window_already_open" && sendError.entryId) {
                 onStarted(sendError.entryId, sendError.entryType ?? "whatsapp");
                 onOpenChange(false);
@@ -307,7 +260,6 @@ export function StartOfficialConversationDialog({
         [templates, t],
     );
 
-    // ---------------------------------------------------------------- creating
 
     const [starter, setStarter] = useState<TemplateStarter | null>(null);
     const [newName, setNewName] = useState("");
@@ -322,12 +274,8 @@ export function StartOfficialConversationDialog({
         return matches.map((m) => m[1].trim());
     }, [newBody]);
 
-    /** The template being written, drawn as the customer would receive it. */
     const draftPreview: TemplateMessageMetadata | null = useMemo(() => {
         if (!newBody.trim()) return null;
-        // Example values stand in for the variables, which is what makes the
-        // preview readable — an operator cannot judge a sentence that still has
-        // {{1}} in the middle of it.
         const rendered = newBodySlots.reduce(
             (text, slot, index) =>
                 text
@@ -369,9 +317,6 @@ export function StartOfficialConversationDialog({
             businessPhoneId: phoneId,
             name: newName,
             language: "pt_BR",
-            // UTILITY is not a label: it is billed at roughly a quarter of
-            // MARKETING, and these starters carry no promotional content, so
-            // anything else would overcharge the workspace for the same words.
             category: "UTILITY",
             components: starterComponents(newBody, newExamples.filter((value) => value.trim())),
         });
@@ -381,8 +326,6 @@ export function StartOfficialConversationDialog({
             setCreateError(result.error ?? t("create.failed"));
             return;
         }
-        // The create endpoint answers with an id and a status and nothing else,
-        // so the template has to be re-read before it can be offered anywhere.
         if (result.template.status === "REJECTED") {
             setCreateError(t("create.rejected"));
             return;
@@ -401,10 +344,7 @@ export function StartOfficialConversationDialog({
         setCreateError(null);
     }, []);
 
-    // ---------------------------------------------------------------- render
 
-    // Null until BOTH the price and the rate are known. A price rendered before
-    // the rate arrives would be the dollar figure wearing a R$ sign.
     const priceLabel = formatMicrosAsBrl(quote?.priceMicros, exchangeRate);
 
     return (
@@ -419,21 +359,14 @@ export function StartOfficialConversationDialog({
                             <ElevatedDialogDescription>{t("description")}</ElevatedDialogDescription>
                         </ElevatedDialogHeader>
 
-                        {/* The scroller is the BODY, not the dialog. With the dialog
-                            itself scrolling, a sticky footer competes with the
-                            scrollport and clips at the viewport's bottom edge; as a
-                            plain flex child of a fixed-height column it simply cannot. */}
+                        {
+}
                         <div className="-mx-7 min-h-0 flex-1 overflow-y-auto px-7">
                             {phones.length === 0 ? (
                                 <p className="rounded-lg border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
                                     {t("noNumbers")}
                                 </p>
                             ) : (
-                                /* Two regions, and the split IS the task: what the
-                                   message is on the left, what it will look like and
-                                   what it costs on the right. Create mode uses the
-                                   same topology — a dialog that changes shape between
-                                   two halves of one job reads as two dialogs. */
                                 <div className="grid gap-x-7 gap-y-6 lg:grid-cols-[minmax(0,1fr)_320px]">
                                   <div className="space-y-6">
                                     <PhonePicker
@@ -443,8 +376,8 @@ export function StartOfficialConversationDialog({
                                         legend={t("fromLabel")}
                                     />
 
-                                    {/* Template. The whole send is shaped by this choice, so it
-                                        comes before the recipient rather than after it. */}
+                                    {
+}
                                     <div className="space-y-1.5">
                                         <ElevatedCommandSelect
                                             label={t("templateLabel")}
@@ -510,11 +443,8 @@ export function StartOfficialConversationDialog({
                                         )}
                                     </div>
 
-                                    {/* Recipient. Number and name are two facts about the
-                                        same person, so they sit tight together and the
-                                        generous interval goes BETWEEN groups, not inside
-                                        one. What we will actually dial is echoed back as
-                                        it is typed, exactly as the unofficial dialog does. */}
+                                    {
+}
                                     <div className="space-y-3">
                                       <div className="space-y-1.5">
                                         <ElevatedInput
@@ -557,8 +487,8 @@ export function StartOfficialConversationDialog({
                                       />
                                     </div>
 
-                                    {/* Variables. Header and body stay apart because Meta addresses
-                                        them as different components. */}
+                                    {
+}
                                     {(slots.header.length > 0 || slots.body.length > 0) && (
                                         <div className="space-y-3">
                                             <span className="legend">{t("variablesLabel")}</span>
@@ -595,14 +525,8 @@ export function StartOfficialConversationDialog({
 
                                   </div>
 
-                                  {/* The thread, and what it costs. Sticky, because the
-                                      whole reason to show a message before sending it is
-                                      to watch it change while you type — a preview that
-                                      scrolls away is a preview you stop consulting.
-                                      Cost sits directly under it: the message and its
-                                      price are the two halves of one decision, and
-                                      separating them is how an operator ends up agreeing
-                                      to only one of them. */}
+                                  {
+}
                                   <div className="space-y-3 lg:sticky lg:top-0 lg:self-start">
                                     <span className="legend">{t("previewLabel")}</span>
                                     <TemplateConversationPreview
@@ -675,9 +599,6 @@ export function StartOfficialConversationDialog({
 
                         <div className="-mx-7 min-h-0 flex-1 overflow-y-auto px-7">
                         {submittedForReview ? (
-                            /* Not a success toast. Meta has to approve this before it can be
-                               sent, and how long that takes is the only thing the operator
-                               actually wants to know. */
                             <div className="space-y-4">
                                 <div className="flex items-start gap-3 rounded-lg border border-border bg-muted p-4">
                                     <Clock className="mt-0.5 h-5 w-5 shrink-0 text-info-ink" weight="fill" aria-hidden />
@@ -706,9 +627,8 @@ export function StartOfficialConversationDialog({
                                     </p>
                                 )}
 
-                                {/* Starters, because the blank page is where this task fails.
-                                    All UTILITY, all context-neutral: they say something a
-                                    business of any kind might legitimately need to say. */}
+                                {
+}
                                 <div className="space-y-2">
                                     <span className="legend">{t("create.startersLabel")}</span>
                                     <div className="grid gap-2">
@@ -745,20 +665,8 @@ export function StartOfficialConversationDialog({
                                         {t("create.utilityNote")}
                                     </p>
 
-                                    {/* The way out, stated with its limit rather than
-                                        hidden behind "advanced".
-                                        
-                                        What is here is deliberately text-only: it is the
-                                        shape that needs no upload, no button wiring and no
-                                        media handle, which is why it can live inside a
-                                        dialog at all. Anything richer belongs in the real
-                                        builder, and pretending otherwise would mean a
-                                        media header with no file — a template that is
-                                        approved and still cannot be sent.
-                                        
-                                        New tab, because the operator is mid-send: they
-                                        have already chosen a number and typed a
-                                        recipient, and navigating away would discard both. */}
+                                    {
+}
                                     <a
                                         href="/dashboard/whatsapp-templates/new"
                                         target="_blank"
@@ -832,9 +740,8 @@ export function StartOfficialConversationDialog({
                                 )}
                               </div>
 
-                              {/* The preview column. Sticky, because the body field
-                                  is the thing being edited and the point of the
-                                  preview is to watch it change while you type. */}
+                              {
+}
                               <div className="space-y-3 lg:sticky lg:top-0 lg:self-start">
                                 <span className="legend">{t("create.previewLabel")}</span>
                                 <TemplateConversationPreview
@@ -847,12 +754,8 @@ export function StartOfficialConversationDialog({
                                     {t("create.previewHint")}
                                 </p>
 
-                                {/* The consequence panel, in the same place send mode
-                                    puts the price: this column answers "what happens
-                                    when I press the button". Here the answer is not a
-                                    cost, it is a wait — and an operator who expects to
-                                    send in a minute and cannot is the support ticket
-                                    this panel exists to prevent. */}
+                                {
+}
                                 <div className="rounded-lg border border-border bg-muted p-3">
                                     <div className="flex items-start gap-2.5">
                                         <Clock
@@ -910,18 +813,6 @@ export function StartOfficialConversationDialog({
     );
 }
 
-/**
- * Which number this send leaves from.
- *
- * Rendered in BOTH modes, because a template does not belong to the workspace —
- * it belongs to the WhatsApp Business Account behind one number. Choosing the
- * number is therefore what decides which templates exist to send and which
- * account a new template is created on, and the server refuses a mismatch
- * outright. A dialog that hid this choice would be asking the operator to guess.
- *
- * Hidden when there is exactly one number: a picker with one option is a
- * question with one answer, and rendering it implies there was a decision.
- */
 function PhonePicker({
     phones,
     value,

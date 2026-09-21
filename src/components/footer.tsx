@@ -10,16 +10,6 @@ import { useTranslations } from "next-intl";
 
 type ContactChannel = { icon: Icon; labelKey: string; value: string };
 
-/**
- * Public footer, in the panel's own vocabulary.
- *
- * This was a near-black slab (`bg-[#0b0d12]`, `text-white/70`) bolted under a
- * light product — a second visual world living below the fold, and the one part
- * of the public surface that ignored the theme entirely. It is now the same
- * panel as everything above it: engraved rules instead of a colour change,
- * silkscreen legends over their values, and registry identifiers set as
- * readouts, because a CNPJ is a number someone copies, not prose.
- */
 export default function Footer() {
   const t = useTranslations("footerMain");
   const tFaq = useTranslations("faq");

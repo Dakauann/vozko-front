@@ -1,13 +1,3 @@
-/**
- * The menu a card opens must not live inside the card.
- *
- * A kanban card is a transformed, `will-change: transform` element, so it opens
- * its own stacking context: a menu rendered inside it is sealed in there and no
- * z-index can lift it over the cards below. The column body is a scroll
- * container on top of that, so the menu's lower half — where the funnel move
- * sits — is clipped away entirely. These tests pin the two properties that fix
- * it: the menu renders OUTSIDE the clipping ancestor, at the overlay layer.
- */
 
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
@@ -34,7 +24,6 @@ function rectOf(r: {
   } as DOMRect;
 }
 
-/** A card inside a scrolling column: the exact shape the bug lives in. */
 function Harness({
   rect,
   open = true,
@@ -100,7 +89,6 @@ describe("AnchoredMenu", () => {
 
     const menu = screen.getByRole("menu");
     expect(menu).toHaveStyle({ position: "fixed" });
-    // The one layer portalled overlays share in this product (see ui/popover).
     expect(menu.className).toContain("z-[200]");
   });
 
@@ -108,9 +96,7 @@ describe("AnchoredMenu", () => {
     render(<Harness rect={ANCHOR} />);
 
     const menu = screen.getByRole("menu");
-    // 180 + 24 (anchor bottom) + 6 (gap)
     expect(menu.style.top).toBe("210px");
-    // right edge 424 - width 208
     expect(menu.style.left).toBe("216px");
     expect(menu.style.width).toBe("208px");
   });
@@ -122,19 +108,16 @@ describe("AnchoredMenu", () => {
   });
 
   it("flips above the anchor when the card sits at the bottom of the screen", () => {
-    // jsdom's viewport is 768 tall: an anchor at 700 leaves ~44px below.
     render(<Harness rect={rectOf({ top: 700, left: 400, width: 24, height: 24 })} />);
 
     const menu = screen.getByRole("menu");
     expect(menu.style.top).toBe("");
-    // 768 - 700 (anchor top) + 6 (gap)
     expect(menu.style.bottom).toBe("74px");
   });
 
   it("stays inside the viewport when the anchor hugs the right edge", () => {
     render(<Harness rect={rectOf({ top: 180, left: 1010, width: 24, height: 24 })} />);
 
-    // 1024 wide, 208 menu, 8px margin.
     expect(screen.getByRole("menu").style.left).toBe("808px");
   });
 
@@ -178,8 +161,6 @@ describe("AnchoredMenu", () => {
     }
     render(<Wrapper />);
 
-    // A portal keeps React-tree propagation, so without an explicit stop both
-    // the backdrop and the menu would select the card underneath.
     fireEvent.click(screen.getByTestId("anchored-menu-backdrop"));
     fireEvent.click(screen.getByRole("menu"));
     expect(onCardClick).not.toHaveBeenCalled();

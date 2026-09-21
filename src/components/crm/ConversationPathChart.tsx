@@ -1,9 +1,5 @@
 "use client";
 
-/**
- * CRM contact-panel charts (lateral infos rail only).
- * Path uses the same status palette as Metrics (--info / --warning / --healthy).
- */
 
 import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
@@ -23,7 +19,6 @@ import type { ConversationMessage } from "@/lib/conversations/types";
 import { vozGrid, vozXAxis, vozYAxis } from "@/components/charts/vozko";
 import { cn } from "@/lib/utils";
 
-/* Metrics-aligned status tokens: --info / --warning / --healthy */
 const STAGE_HUE = {
   new: "hsl(var(--info))",
   ongoing: "hsl(var(--warning))",
@@ -254,7 +249,7 @@ export default function ConversationPathChart({
 
   return (
     <div className={cn("space-y-5", className)}>
-      {/* Snapshot chips from data we already hold */}
+      {}
       <div>
         <p className="mb-2 text-2xs font-semibold text-foreground">
           {t("snapshotTitle")}
@@ -301,7 +296,7 @@ export default function ConversationPathChart({
         </div>
       </div>
 
-      {/* Path, horizontal stacked chart */}
+      {}
       <div>
         <div className="mb-2">
           <p className="text-2xs font-semibold text-foreground">
@@ -422,7 +417,7 @@ export default function ConversationPathChart({
         </ul>
       </div>
 
-      {/* Message mix */}
+      {}
       {mixData.length > 0 ? (
         <HorizontalBars
           title={t("mixTitle")}
@@ -431,7 +426,7 @@ export default function ConversationPathChart({
         />
       ) : null}
 
-      {/* Channel mix (when both present) */}
+      {}
       {channelData.length > 1 ? (
         <HorizontalBars
           title={t("channelTitle")}
@@ -440,7 +435,7 @@ export default function ConversationPathChart({
         />
       ) : null}
 
-      {/* Compact analysis (if attached to inbox entry) */}
+      {}
       {analysis?.summary ? (
         <div>
           <p className="mb-1.5 text-2xs font-semibold text-foreground">

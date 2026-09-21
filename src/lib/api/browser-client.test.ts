@@ -1,11 +1,3 @@
-/**
- * @vitest-environment happy-dom
- *
- * Contract for the single browser -> API client: cookie-only auth (no Authorization
- * header), refresh exactly once on 401 then retry (a direct POST /auth/refresh),
- * single-flight refresh across concurrent callers, one session-expired signal on
- * unrecoverable expiry, and no logout on transient 5xx.
- */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 

@@ -50,9 +50,6 @@ export default function PageRevealOverlay({
   delay = 0.12,
   disableOnReducedMotion = true,
 }: PageRevealOverlayProps) {
-  // Only play the brand curtain once per browser session. Replaying on every
-  // full reload of the locale layout was a common report of "screen goes solid
-  // white/dark then recovers" (and could stick if timers were throttled).
   const [visible, setVisible] = useState(() => {
     if (typeof window === "undefined") return false;
     try {
@@ -110,7 +107,6 @@ export default function PageRevealOverlay({
       try {
         sessionStorage.setItem(SESSION_KEY, "1");
       } catch {
-        /* private mode */
       }
     };
 
@@ -125,8 +121,6 @@ export default function PageRevealOverlay({
 
     const totalDuration = (duration + delay) * 1000 + 650;
     const timer = setTimeout(dismiss, totalDuration);
-    // Hard failsafe: never leave the curtain up more than 4s even if tab was
-    // backgrounded and timers were clamped.
     const hard = setTimeout(dismiss, 4000);
 
     return () => {

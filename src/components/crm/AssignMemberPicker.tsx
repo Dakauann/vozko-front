@@ -28,8 +28,6 @@ import {
 const PAGE_SIZE = 20;
 const NO_DEPARTMENT = "__none__";
 
-// Self-contained 4-language strings (pt/en/es/de) so the picker always renders
-// in the active locale without depending on the shared message tree.
 const STRINGS = {
   pt: {
     tooltip: "Atribuir para",
@@ -68,8 +66,6 @@ const STRINGS = {
   },
 } as const;
 
-// Widen the literal values to `string` so every locale's object (pt/es/de carry
-// different literals under `as const`) is assignable, not just the en shape.
 type Strings = Record<keyof (typeof STRINGS)["en"], string>;
 
 interface AssignMemberPickerProps {
@@ -102,7 +98,6 @@ export default function AssignMemberPicker({
   const listRef = useRef<HTMLDivElement>(null);
   const reqRef = useRef(0);
 
-  // Debounce the raw search input into the query that actually hits the server.
   useEffect(() => {
     const t = setTimeout(() => setQuery(search.trim()), 250);
     return () => clearTimeout(t);
@@ -118,7 +113,7 @@ export default function AssignMemberPicker({
         page: pageToLoad,
         pageSize: PAGE_SIZE,
       });
-      if (reqId !== reqRef.current) return; // a newer request superseded this one
+      if (reqId !== reqRef.current) return;
       setTotalPages(res.totalPages || 1);
       setPage(res.page || pageToLoad);
       setMembers((prev) => (replace ? res.members : [...prev, ...res.members]));
@@ -127,7 +122,6 @@ export default function AssignMemberPicker({
     [workspaceId],
   );
 
-  // (Re)load the first page whenever the picker opens or the query changes.
   useEffect(() => {
     if (!open) return;
     fetchPage(1, query, true);
@@ -152,9 +146,6 @@ export default function AssignMemberPicker({
     }
   }, [loading, page, totalPages, query, fetchPage]);
 
-  // Bucket members by department. A member in several departments appears under
-  // each; when no department info is present (workspace without departments)
-  // everything renders as a single flat group.
   const { groups, hasDepartments } = useMemo(() => {
     const withDepts = members.some((m) => (m.departments?.length ?? 0) > 0);
     if (!withDepts) {

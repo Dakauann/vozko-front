@@ -133,8 +133,8 @@ export default function ImageMagnifier({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        borderRadius: "10px", // Ensure the border radius is applied
-        overflow: "hidden", // Clip the content within the rounded corners
+        borderRadius: "10px",
+        overflow: "hidden",
       }}
     >
       <div

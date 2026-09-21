@@ -131,9 +131,6 @@ function formatShortUserId(userId: string) {
 }
 
 
-// One calm, consistent identity tile for every panel header. Chrome stays
-// monochrome (solid ink tile + canvas glyph, theme-safe); color is reserved for
-// data and state inside the panels, per the One Voice rule.
 function PanelIcon({ icon: IconCmp }: { icon: Icon }) {
   return (
     <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-foreground shadow-sm">
@@ -306,7 +303,7 @@ function LatestInteractionsPanel() {
               }}
               className="relative flex items-start gap-3 px-4 py-3 border-b border-border hover:bg-muted transition-colors group"
             >
-              {/* Avatar / icon */}
+              {}
               <div className="relative flex-shrink-0">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted shadow-sm">
                   <UserCircle
@@ -321,7 +318,7 @@ function LatestInteractionsPanel() {
                 )}
               </div>
 
-              {/* Content */}
+              {}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
                   <span
@@ -368,7 +365,7 @@ function LatestInteractionsPanel() {
                   </p>
                 </div>
 
-                {/* Labels */}
+                {}
                 {entry.labels && entry.labels.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-1.5">
                     {entry.labels.slice(0, 3).map((label) => (
@@ -387,7 +384,7 @@ function LatestInteractionsPanel() {
                 )}
               </div>
 
-              {/* New message pulse indicator */}
+              {}
               {entry.unread_count > 0 && (
                 <motion.div
                   className="absolute right-3 top-3 h-2 w-2 rounded-full bg-healthy"
@@ -493,7 +490,7 @@ function StatusGraphPanel({
       </div>
 
       <div className="flex-1 flex flex-col items-center px-3 py-3 gap-2 overflow-y-auto">
-        {/* Donut chart */}
+        {}
         <div className="relative w-full flex justify-center">
           <MiniDonutChart
             data={donutData.map((b) => ({
@@ -509,7 +506,7 @@ function StatusGraphPanel({
           />
         </div>
 
-        {/* Legend rows */}
+        {}
         <div className="w-full space-y-1 px-1">
           {bars.map((bar) => (
             <div key={bar.label} className="flex items-center gap-2">
@@ -532,7 +529,7 @@ function StatusGraphPanel({
           ))}
         </div>
 
-        {/* Stats footer */}
+        {}
         <div className="flex items-center justify-center gap-4 pt-2 border-t border-border w-full mt-auto">
           <div className="text-center">
             <p className="text-2xs text-muted-foreground font-semibold">
@@ -557,8 +554,6 @@ type UnifiedEntry = {
   labels?: { label_id: string; name: string; color: string }[];
 };
 
-// Read-only kanban card for the monitor. Mirrors the CRM funnel card so the two
-// surfaces read as the same component family.
 function MonitorKanbanCard({
   entry,
   dotColor,
@@ -615,9 +610,6 @@ function MonitorKanbanCard({
   );
 }
 
-// Fixed-width, self-scrolling kanban column. Fixed width + shrink-0 is what keeps
-// the board from cramming its columns thin as stages multiply; the row scrolls
-// horizontally instead.
 function MonitorKanbanColumn({
   name,
   color,
@@ -986,7 +978,7 @@ function AnalysisStatsPanelMonitor({
           </div>
         ) : analysisStats && analysisStats.totalAnalyses > 0 ? (
           <div className="px-4 py-3 space-y-4">
-            {/* Quality Gauge + Messages */}
+            {}
             <div className="flex items-center gap-3">
               <RadialGauge
                 value={qualityValue}
@@ -1015,7 +1007,7 @@ function AnalysisStatsPanelMonitor({
               </div>
             </div>
 
-            {/* Sentiment Donut */}
+            {}
             <div className="space-y-1">
               <p className="text-2xs font-semibold text-muted-foreground">
                 {t("sentimentLabel")}
@@ -1048,7 +1040,7 @@ function AnalysisStatsPanelMonitor({
               </div>
             </div>
 
-            {/* Qualification Donut */}
+            {}
             <div className="space-y-1">
               <p className="text-2xs font-semibold text-muted-foreground">
                 {t("qualificationLabel")}
@@ -1081,7 +1073,7 @@ function AnalysisStatsPanelMonitor({
               </div>
             </div>
 
-            {/* Interest mini-indicators */}
+            {}
             <div className="space-y-1 pt-1 border-t border-border">
               <p className="text-2xs font-semibold text-muted-foreground">
                 {t("interestLabel")}
@@ -1133,10 +1125,6 @@ function fmtMonPct(v: number | null | undefined): string {
   return `${v.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
 }
 
-/**
- * Campaign-only strip under the kanban.
- * Global ops live on Métricas; here we only show what matters for THIS campaign.
- */
 function AttendanceInsightsPanel({
   campaignId,
   campaignType,
@@ -1220,7 +1208,7 @@ function AttendanceInsightsPanel({
           </div>
         ) : (
           <div className="grid h-full min-h-[160px] grid-cols-1 gap-3 lg:grid-cols-12">
-            {/* Primary campaign KPIs */}
+            {}
             <div className="lg:col-span-5 space-y-2">
               <p className="text-2xs font-semibold text-muted-foreground">
                 {t("conversations")}
@@ -1267,7 +1255,7 @@ function AttendanceInsightsPanel({
               ) : null}
             </div>
 
-            {/* Status pie */}
+            {}
             <div className="lg:col-span-3 flex flex-col rounded-[--radius] border border-border bg-background px-2 py-2">
               <p className="mb-1 text-2xs font-semibold text-muted-foreground px-1">
                 Situação
@@ -1336,7 +1324,7 @@ function AttendanceInsightsPanel({
               )}
             </div>
 
-            {/* Team on this campaign */}
+            {}
             <div className="lg:col-span-4 flex flex-col rounded-[--radius] border border-border bg-background px-3 py-2 min-w-0">
               <p className="mb-1 text-2xs font-semibold text-muted-foreground">
                 {t("whoResolves")}
@@ -1644,7 +1632,7 @@ export default function MonitoringMode({
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
     >
-      {/* Slim header */}
+      {}
       <div className="flex h-14 flex-shrink-0 items-center justify-between border-b border-border bg-card px-4 md:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <div
@@ -1693,12 +1681,10 @@ export default function MonitoringMode({
         </div>
       </div>
 
-      {/*
-        Redesign: kanban is the product; sides only show campaign-live context.
-        Full analytics live under Métricas (not duplicated here).
-      */}
+      {
+}
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        {/* Left rail, live feed only */}
+        {}
         <aside className="flex max-h-[28vh] w-full flex-col border-b border-border bg-card lg:max-h-none lg:w-[240px] lg:border-b-0 lg:border-r">
           <div className="flex items-center gap-2 border-b border-border px-3 py-2.5">
             <PanelIcon icon={ChatCircle} />
@@ -1717,7 +1703,7 @@ export default function MonitoringMode({
           </div>
         </aside>
 
-        {/* Center, kanban hero + slim campaign health */}
+        {}
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
           <div className="flex items-center justify-between border-b border-border bg-card px-4 py-2">
             <div className="flex items-center gap-2">
@@ -1750,7 +1736,7 @@ export default function MonitoringMode({
           </div>
         </main>
 
-        {/* Right rail, campaign delivery + viewers (not global analytics) */}
+        {}
         <aside className="flex max-h-[36vh] w-full flex-col border-t border-border bg-card lg:max-h-none lg:w-[280px] lg:border-l lg:border-t-0">
           <div className="min-h-0 flex-[1.15] overflow-hidden border-b border-border">
             <div className="flex items-center gap-2 border-b border-border px-3 py-2.5">

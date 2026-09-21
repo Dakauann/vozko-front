@@ -147,9 +147,6 @@ function HeaderPreview({ component }: { component: DraggableComponent }) {
     return (
       <div className="aspect-video bg-muted flex items-center justify-center border-b border-border relative">
         {example ? (
-          // unoptimized: the header media is a user-supplied URL of any host, so it
-          // is not in next.config images.remotePatterns, routing it through the
-          // /_next/image optimizer 400s. Serve it directly instead.
           <Image src={example} alt="Header" fill className="object-cover" unoptimized />
         ) : (
           <div className="text-center">
@@ -224,7 +221,6 @@ function HeaderPreview({ component }: { component: DraggableComponent }) {
     return (
       <div className="aspect-video bg-muted flex items-center justify-center border-b border-border relative">
         {example ? (
-          // unoptimized: user-supplied URL of any host, see the IMAGE header note.
           <Image src={example} alt="GIF" fill className="object-cover" unoptimized />
         ) : (
           <div className="text-center">
@@ -304,8 +300,8 @@ function ButtonsPreview({ component }: { component: DraggableComponent }) {
               {button.type === "URL" && (button.text || "Visit Website")}
               {button.type === "PHONE_NUMBER" && (button.text || "Call Us")}
               {button.type === "COPY_CODE" && "Copy Offer Code"}
-              {/* Meta labels the code button itself, per language. The default
-                  shown here is what it renders when no override is given. */}
+              {
+}
               {button.type === "OTP" && (button.text || "Copy code")}
             </span>
           </div>
@@ -316,8 +312,6 @@ function ButtonsPreview({ component }: { component: DraggableComponent }) {
 }
 
 function CallPermissionPreview() {
-  // WhatsApp renders these accept/decline buttons automatically and controls
-  // their exact wording per the user's locale. This is a representative preview.
   const buttons = [
     { label: "Allow call", icon: true },
     { label: "Not now", icon: false },

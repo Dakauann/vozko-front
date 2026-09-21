@@ -6,14 +6,6 @@ import { NextIntlClientProvider } from "next-intl";
 import type { WindowClosedReason } from "@/lib/conversations/types";
 import ptMessages from "@/i18n/messages/pt.json";
 
-/**
- * The composer used to INFER why sending was blocked from whether an expiry
- * accompanied the closed window. That inference shipped a real bug: every
- * clockless channel — unofficial WhatsApp, and every group on it — announced
- * "the 24-hour window is closed" on a channel that has no such window.
- *
- * The server now names the reason. These pin that the composer renders it.
- */
 
 vi.mock("framer-motion", () => {
     const React = require("react");
@@ -60,7 +52,6 @@ function renderClosed(
 }
 
 describe("composer window-closed copy", () => {
-    // THE regression. A removed number is not a clock, and must never claim one.
     it("names a removed number instead of claiming a 24h window", () => {
         renderClosed("channel_unavailable");
 
@@ -86,8 +77,6 @@ describe("composer window-closed copy", () => {
         }
     });
 
-    // Only `expired` reopens on its own, so it is the only reason allowed to
-    // tell the operator to wait for the customer.
     it("only the expired reason mentions the 24-hour window", () => {
         const mentions = Object.entries(reasonCopy).filter(([, copy]) =>
             /24\s?h/i.test(copy as string),
@@ -95,8 +84,6 @@ describe("composer window-closed copy", () => {
         expect(mentions.map(([reason]) => reason)).toEqual(["expired"]);
     });
 
-    // An older server, or a channel that has not adopted the vocabulary: keep
-    // the previous behaviour rather than invent a reason.
     it("falls back sensibly when the server names no reason", () => {
         renderClosed(null, null);
         expect(screen.getByText(composerT.windowClosedNoClock)).toBeInTheDocument();

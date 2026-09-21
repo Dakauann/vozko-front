@@ -240,7 +240,7 @@ export function EditProfileDialog({
           </div>
 
           <div className="space-y-4">
-            {/* Profile Picture Section */}
+            {}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
                 {t("profile.profilePicture")}

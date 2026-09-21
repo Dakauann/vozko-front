@@ -40,10 +40,6 @@ describe("templateParamSlots", () => {
         expect(slots.body).toEqual([]);
     });
 
-    // The rule three send surfaces depend on: the template picker, the outreach
-    // dialog and the campaign wizard all ask this what to collect. WhatsApp owns
-    // an authentication body and returns it without a placeholder, so counting
-    // placeholders answers zero for a template that needs the one-time code.
     it("asks for the one-time code when an authentication body has no placeholder", () => {
         const slots = templateParamSlots(
             template({

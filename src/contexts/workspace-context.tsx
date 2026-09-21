@@ -209,7 +209,6 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
           setPermissions(result.permissions);
         }
       } catch {
-        // Silently fail, permissions will be empty (restrictive)
       } finally {
         setPermissionsLoading(false);
         permissionsRequestRef.current = null;
@@ -308,7 +307,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         let targetId: string | null = null;
         setCurrentWorkspace((prev) => {
           targetId = prev?.id ?? null;
-          return prev; 
+          return prev;
         });
         if (!targetId) {
           targetId = getWorkspaceIdFromCookie();

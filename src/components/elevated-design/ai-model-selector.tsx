@@ -61,15 +61,6 @@ export function AIModelSelector({
       : null;
 
   return (
-    /*
-      Legend over a sunk field.
-
-      This was a Material-style floating label that animated up and punched a
-      gap through the control's own border. That device belongs to a different
-      system entirely; here a control is legended on the panel above it, the
-      label holds still, and the field reads as a recess rather than an outline
-      with a hole in it.
-    */
     <div className={cn("w-full", className)}>
       {label ? (
         <span className="legend mb-1 block">{label}</span>

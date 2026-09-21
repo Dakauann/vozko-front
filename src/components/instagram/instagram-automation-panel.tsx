@@ -8,13 +8,6 @@ import {
 import type { InstagramAccount } from "@/lib/instagram/types";
 import { updateInstagramAccountAction } from "@/app/actions/instagram";
 
-/**
- * Instagram's binding of the shared automation panel.
- *
- * The agent-or-workflow choice is identical on every channel, so the behaviour
- * lives in ChannelAutomationPanel and only the save call and the translation
- * namespace are supplied here.
- */
 export function InstagramAutomationPanel({
   account,
   onUpdated,

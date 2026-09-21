@@ -106,13 +106,6 @@ export default function TelegramAccountsPage() {
     [toast, t, fetchAccounts, page, search],
   );
 
-  /**
-   * Re-points Telegram at our webhook.
-   *
-   * This is the one-button repair for the channel's worst failure. Telegram
-   * discards undelivered updates after 24 hours and has no history API, so a
-   * failing webhook is losing messages for as long as it stays broken.
-   */
   const handleReregister = useCallback(
     async (account: TelegramAccount) => {
       setBusyId(account.id);
@@ -133,8 +126,6 @@ export default function TelegramAccountsPage() {
     [toast, t, fetchAccounts, page, search],
   );
 
-  // Counted over the current page, an at-a-glance read of what is on screen,
-  // not a workspace-wide total.
   const activeCount = accounts.filter(
     (a) => a.status === "ACTIVE" && a.webhookHealthy,
   ).length;
@@ -173,10 +164,8 @@ export default function TelegramAccountsPage() {
                 {t(`status.${row.status.toLowerCase()}`)}
               </span>
 
-              {/* The two failure modes need different remedies, so they get
-                  different copy rather than one generic "unhealthy" line. A dead
-                  token needs a new token from BotFather; a failing webhook needs
-                  one button, and is losing messages until it is pressed. */}
+              {
+}
               {issue === "webhook" && (
                 <span
                   className="flex max-w-[320px] items-start gap-1 text-xs text-warning-ink dark:text-warning-ink"
@@ -239,9 +228,8 @@ export default function TelegramAccountsPage() {
             >
               {row.webhookHealthy ? t("webhook.healthy") : t("webhook.failing")}
             </span>
-            {/* Pending updates are a countdown, not a statistic: Telegram
-                discards undelivered updates after 24 hours and has no history
-                API, so the number is shown as soon as it is non-zero. */}
+            {
+}
             {row.webhookPendingCount > 0 && (
               <span className="text-xs text-warning-ink dark:text-warning-ink tabular-nums">
                 {t("webhook.pending", { count: row.webhookPendingCount })}
@@ -389,8 +377,6 @@ export default function TelegramAccountsPage() {
           columns={columns}
           rowKey={(row) => row.id}
           emptyState={{
-            // The brand mark reads as "nothing here yet" without being greyed
-            // into illegibility; opacity keeps the empty state quiet.
             icon: <TelegramLogoColor className="h-7 w-7 opacity-40" />,
             title: t("page.emptyTitle"),
             description: t("page.emptyDescription"),
@@ -466,8 +452,6 @@ function Stat({ label, value }: { label: string; value: string | number }) {
 
 function Chip({ label, tone }: { label: string; tone: "emerald" | "sky" }) {
   const tones = {
-    // Solid tone, white ink, the CardPill rule. A tinted fill under same-hue
-    // ink washes out, and these chips sit on both card and muted surfaces.
     emerald: "bg-healthy text-healthy-foreground",
     sky: "bg-muted text-muted-foreground",
   } as const;

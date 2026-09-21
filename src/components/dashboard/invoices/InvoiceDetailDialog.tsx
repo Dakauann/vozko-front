@@ -22,7 +22,6 @@ function formatBRL(value: number): string {
 
 type Translate = ReturnType<typeof useTranslations<"invoicesPage">>;
 
-/** A channel line's label is an addon key (e.g. whatsapp_channel); localize it, else show the raw label. */
 function lineLabel(item: InvoiceLineItem, t: Translate): string {
   if (item.kind === "PLAN") return item.label;
   const key = `lineItems.channelLabels.${item.label}` as Parameters<Translate>[0];

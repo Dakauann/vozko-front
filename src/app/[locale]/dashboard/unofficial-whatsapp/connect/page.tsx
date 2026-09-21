@@ -28,41 +28,12 @@ import { WhatsAppLogoColor } from "@/components/icons/channel-logos";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
-/**
- * How often the screen asks the host whether the code has been scanned.
- *
- * Two seconds because the customer is standing there with a phone in their hand.
- * This is the one place in the product where a polling interval is a UX decision
- * rather than a load decision: the whole screen is a wait, and a slow tick makes
- * a successful scan feel like a failure.
- */
 const POLL_MS = 2000;
 
 type Step = "disclosure" | "linking" | "connected";
 
-/**
- * The connect flow.
- *
- * The design problem here is not the QR code, it is the CONSENT. This is the
- * riskiest action in the product — an unofficial linked-device session that Meta
- * can disable, taking the customer's number with it — and every other connect
- * screen in this app is a token paste with no consequences. So the disclosure is
- * a step, not a footnote: the code does not exist until someone has read what
- * they are agreeing to, which is what PRODUCT.md principle 3 asks for and what
- * turns "I clicked connect" into "we decided to do this".
- *
- * After that the screen gets out of the way. One live code, one honest deadline,
- * and a state that changes by itself the moment the phone scans it.
- *
- * RECONNECTS reuse this same screen with `?instanceId=`: the uazapi contract
- * is that `/instance/init` (admin token) CREATES an instance while
- * `/instance/connect` (instance token) re-pairs the one it belongs to — so a
- * relink must seed the existing instance and never provision. Before this
- * carried the id, every "reconectar" click minted a brand-new instance.
- */
 export default function ConnectUnofficialWhatsAppPage() {
   return (
-    // useSearchParams demands a Suspense boundary during prerender.
     <Suspense fallback={null}>
       <ConnectFlow />
     </Suspense>
@@ -72,40 +43,19 @@ export default function ConnectUnofficialWhatsAppPage() {
 function ConnectFlow() {
   const t = useTranslations("unofficialWhatsapp");
   const router = useRouter();
-  // The instance being RE-linked. Present = skip provisioning entirely; the
-  // slot, its transcript, and its conversations all stay attached to this row.
   const reconnectId = useSearchParams().get("instanceId");
 
   const [step, setStep] = useState<Step>("disclosure");
   const [mode, setMode] = useState<ConnectMode>("qr");
   const [phone, setPhone] = useState("");
-  /**
-   * The operator's own name for the number being connected.
-   *
-   * Asked for HERE rather than only after linking, because this is the moment
-   * they know what the number is for — "Comercial SP", "Cobrança" — and a
-   * workspace connecting its third number has no way to tell them apart in the
-   * list until one is set. Optional: left empty, the provider's generated name
-   * stands in until the WhatsApp profile name arrives.
-   *
-   * Local to the CRM. It is never sent to WhatsApp and cannot affect the
-   * connected account or what a customer sees.
-   */
   const [displayName, setDisplayName] = useState("");
   const [challenge, setChallenge] = useState<LinkChallenge | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
 
-  // Held in a ref rather than state: the poller reads it every two seconds and
-  // must not be a dependency that restarts the interval on every tick.
   const instanceIdRef = useRef<string | null>(null);
 
-  /**
-   * The instance a reconnect targets, loaded up front so the screen can name
-   * the number being re-paired and so an already-live session short-circuits
-   * to "connected" instead of offering a pointless QR.
-   */
   const [reconnectTarget, setReconnectTarget] = useState<UnofficialWhatsAppInstance | null>(null);
   useEffect(() => {
     if (!reconnectId) return;
@@ -129,14 +79,6 @@ function ConnectFlow() {
     };
   }, [reconnectId, t]);
 
-  /**
-   * The workspace's number allowance, read before anything is offered.
-   *
-   * The server refuses an over-limit provision either way — that is the
-   * authority — but finding out AFTER reading a disclosure and pressing a button
-   * is a worse experience than being told up front. This screen is reachable by
-   * URL, so it cannot rely on the list page having disabled its link.
-   */
   const [allowance, setAllowance] = useState<UnofficialWhatsAppAllowance | null>(null);
 
   useEffect(() => {
@@ -150,11 +92,8 @@ function ConnectFlow() {
     };
   }, []);
 
-  // A reconnect re-pairs a slot the workspace already pays for, so the
-  // new-number capacity gate does not apply to it.
   const block = reconnectId ? null : allowanceBlock(allowance);
 
-  /** Provisions a slot, then asks for a code. Two calls, one operator action. */
   const beginLinking = useCallback(async () => {
     setBusy(true);
     setError(null);
@@ -165,8 +104,6 @@ function ConnectFlow() {
         displayName: displayName.trim() || undefined,
       });
       if (provisioned.error || !provisioned.instance) {
-        // Capacity is the failure the operator is most likely to hit, and it is
-        // not their fault — the message says so rather than reading as a bug.
         setError(provisioned.error ?? t("connect.provisionFailed"));
         setBusy(false);
         return;
@@ -189,13 +126,6 @@ function ConnectFlow() {
     setStep("linking");
   }, [mode, phone, displayName, t]);
 
-  /**
-   * Polls until the phone scans, then stops.
-   *
-   * Stopping matters: without the guard this keeps hitting the host forever on a
-   * screen an operator walked away from, and every one of those calls is a
-   * request against the customer's own session.
-   */
   useEffect(() => {
     if (step !== "linking") return;
 
@@ -215,14 +145,6 @@ function ConnectFlow() {
     return () => clearInterval(timer);
   }, [step]);
 
-  /**
-   * The countdown.
-   *
-   * The provider's deadline is real — two minutes for a QR, five for a pairing
-   * code — and a screen that stalls past it with no explanation is
-   * indistinguishable from a broken one. Showing the number turns "nothing is
-   * happening" into "this expires, and here is the button".
-   */
   useEffect(() => {
     if (step !== "linking" || !challenge?.expiresAt) {
       setSecondsLeft(null);
@@ -251,19 +173,14 @@ function ConnectFlow() {
       />
 
       <div className="mx-auto w-full max-w-3xl space-y-6">
-        {/* Capacity first, ahead of the control it governs — the same rail the
-            official channel's connect page uses, so an operator who has learnt
-            to read one meter has learnt to read both. When it is full this card
-            IS the gate, and its call to action routes to the add-ons. A
-            reconnect re-pairs an existing slot, so the meter stays out of its
-            way. */}
+        {
+}
         {step === "disclosure" && !reconnectId && (
           <UnofficialWhatsAppCapacityCard allowance={allowance} />
         )}
 
-        {/* No allowance, no flow: walking someone through a ban-risk warning for
-            a number they cannot connect wastes their time and buries the
-            blocker the card above already explains. */}
+        {
+}
         {step === "disclosure" && !block && (
           <DisclosureStep
             mode={mode}
@@ -316,13 +233,6 @@ function ConnectFlow() {
   );
 }
 
-/**
- * Step one: what you are agreeing to.
- *
- * The mode choice sits here rather than on the code screen because it changes
- * what the customer will be asked to do with their phone, and that is part of
- * the decision, not a setting to discover afterwards.
- */
 function DisclosureStep({
   mode,
   phone,
@@ -338,7 +248,6 @@ function DisclosureStep({
   mode: ConnectMode;
   phone: string;
   displayName: string;
-  /** Non-null when re-pairing an existing instance; "" while it loads. */
   reconnectName: string | null;
   busy: boolean;
   error: string | null;
@@ -357,15 +266,10 @@ function DisclosureStep({
 
       <ElevatedContainer className="space-y-5">
         {isReconnect ? (
-          // Re-pairing an existing slot: the name is settled, the transcript
-          // stays, and the screen says WHICH number this QR belongs to.
           <p className="rounded-[--radius] bg-muted px-3 py-2 text-sm text-foreground">
             {t("connect.reconnecting", { name: reconnectName || "…" })}
           </p>
         ) : (
-          /* Optional, and said so: an operator who does not care should not be
-             stopped by a field, and one who does should not have to find the
-             number again afterwards to name it. */
           <div className="space-y-1.5">
             <label htmlFor="uw-display-name" className="legend">
               {t("connect.displayNameLabel")}
@@ -436,12 +340,6 @@ function DisclosureStep({
   );
 }
 
-/**
- * A method choice.
- *
- * Selection is a tinted ground, a weighted label and the lamp bar — never colour
- * alone, per the state language in DESIGN.md §5.
- */
 function MethodCard({
   selected,
   title,
@@ -485,15 +383,6 @@ function MethodCard({
   );
 }
 
-/**
- * Step two: the live code.
- *
- * Everything on this screen except the code itself is deliberately quiet. The
- * customer is looking at their phone, and the operator is looking at the code —
- * so the code gets the sheet, the light and the whole centre, and the
- * instructions sit beside it rather than above it where they would push it below
- * the fold on a 1366×768 laptop.
- */
 function LinkingStep({
   challenge,
   mode,
@@ -518,8 +407,6 @@ function LinkingStep({
           <div
             className={cn(
               "relative flex aspect-square items-center justify-center rounded-xl border border-border bg-card p-3",
-              // An expired code is dimmed rather than removed: the operator's
-              // eye is already there, and an empty box reads as a crash.
               expired && "opacity-40",
             )}
           >
@@ -599,13 +486,6 @@ function LinkingStep({
   );
 }
 
-/**
- * Step three: done.
- *
- * Short on purpose. The work is finished and the operator has somewhere to be —
- * the screen names the number so they know the right one connected, and offers
- * the two places they would go next.
- */
 function ConnectedStep({
   label,
   onOpen,

@@ -13,11 +13,8 @@ import styles from "./landing.module.css";
 
 export type StageStep = { number: string; title: string; body: string };
 export type StageLabels = {
-  /** Short mono tag over the chapter title. */
   rail: string;
-  /** The chapter's own headline: the largest type in the section. */
   title: string;
-  /** One sentence under the headline, before the animation starts talking. */
   lede: string;
   aria: string;
   steps: StageStep[];
@@ -30,36 +27,17 @@ type StageSectionProps = {
   labels: StageLabels;
   controls: StageControlLabels;
   scene: SceneRenderer;
-  /** Which side the copy sits on at desktop widths. */
   side?: "left" | "right";
   overview?: ReactNode;
 };
 
-/**
- * A step is a move and then a pause, not one long slide. The move runs at the
- * speed the thing would really move — a card crosses a column in about a
- * second — and the reading time is spent standing still afterwards, so a
- * scene never plays in slow motion just because its copy is long.
- */
 const ACTION_SECONDS = 2.1;
-/** A move can never eat more than this share of its step. */
 const ACTION_SHARE = 0.45;
 
-/**
- * How long a step holds, derived from its own copy rather than guessed.
- * Brysbaert's 2019 meta-analysis (190 studies, 18,573 participants) puts
- * silent reading of English non-fiction at a mean of 238 wpm; 250 with a short
- * orienting beat lands close to that once the move at the head of the step is
- * counted too. Every step in a section runs at the pace of its longest one,
- * because the scenes divide their timeline into equal slices.
- */
 const WORDS_PER_MINUTE = 250;
 const ORIENT_SECONDS = 0.6;
-/** Nothing flashes past, and nothing outstays a reader who is already done. */
 const STEP_BOUNDS = [4.2, 7] as const;
-/** The end state is the payoff; it holds before the loop starts over. */
 const HOLD_SECONDS = 1.4;
-/** The scene dips out rather than snapping, so the restart reads as a replay. */
 const FADE_OUT_SECONDS = 0.45;
 const FADE_IN_SECONDS = 0.5;
 
@@ -80,7 +58,6 @@ const subscribeVisibility = (callback: () => void) => {
 const isPageVisible = () => !document.hidden;
 const serverVisible = () => true;
 
-/** Html mounts separate React roots; give reduced-motion scenes time to settle. */
 function SettleScene() {
   const sceneState = useThree();
   useEffect(() => {
@@ -97,7 +74,6 @@ function SettleScene() {
 
 type Loop = {
   progress: MotionValue<number>;
-  /** Scene opacity: dips at the wrap so the reset is never seen unwinding. */
   fade: MotionValue<number>;
   index: number;
   playing: boolean;
@@ -105,13 +81,6 @@ type Loop = {
   jump: (step: number) => void;
 };
 
-/**
- * The chapter plays itself: a step moves, a step waits, the next step moves.
- * One cycle walks the scene through its steps, holds on the finished state,
- * dips out and starts again. It only advances while the section is on screen
- * and the tab is in front, and it restarts from the first step whenever it
- * comes back into view, so a reader always meets the story at its beginning.
- */
 function useStageLoop(steps: StageStep[], active: boolean, reduced: boolean): Loop {
   const progress = useMotionValue(reduced ? 1 : 0);
   const fade = useMotionValue(1);
@@ -126,9 +95,6 @@ function useStageLoop(steps: StageStep[], active: boolean, reduced: boolean): Lo
   const cycle = run + HOLD_SECONDS + FADE_OUT_SECONDS;
 
   const apply = useCallback((elapsed: number) => {
-    // Progress advances only over the move at the head of each step; the rest
-    // of the step stands still on what just happened, so the reading time
-    // never stretches the motion.
     const step = Math.min(total - 1, Math.floor(elapsed / block));
     const moved = Math.min(1, Math.max(0, (elapsed - step * block) / action));
     progress.set(elapsed >= run ? 1 : (step + moved) / total);
@@ -140,17 +106,13 @@ function useStageLoop(steps: StageStep[], active: boolean, reduced: boolean): Lo
 
   useEffect(() => {
     if (reduced || !active) { entered.current = false; return; }
-    // Coming back into view rewinds: nobody should arrive at step 04.
     if (!entered.current) { entered.current = true; clock.current = 0; }
     let frame = 0;
     let last = 0;
     const tick = (now: number) => {
-      // The opening frame only paints; a tab restored after minutes away must
-      // not fast-forward the story on the frame it comes back.
       if (last) clock.current = (clock.current + Math.min(0.05, (now - last) / 1000)) % cycle;
       last = now;
       apply(clock.current);
-      // Paused, the chapter still paints once so a jump between steps lands.
       if (playing) frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
@@ -167,7 +129,6 @@ function useStageLoop(steps: StageStep[], active: boolean, reduced: boolean): Lo
   return { progress, fade, index, playing, toggle, jump };
 }
 
-/** One segment of the chapter's progress bar, filling across its own step. */
 function Tick({ progress, index, total, reduced }: { progress: MotionValue<number>; index: number; total: number; reduced: boolean }) {
   const scaleX = useTransform(progress, value => Math.min(1, Math.max(0, value * total - index)));
   return (
@@ -177,21 +138,12 @@ function Tick({ progress, index, total, reduced }: { progress: MotionValue<numbe
   );
 }
 
-/**
- * The stage every 3D chapter shares: a headline that says plainly what the
- * chapter is, a progress bar that runs the loop and can be steered, the scene
- * standing free on the section, and step copy that crossfades under it. The
- * board's trace ornament runs in behind the object, so the scene reads as the
- * end of the circuit.
- */
 export function StageSection({ id, labels, controls, scene, side = "left", overview }: StageSectionProps) {
   const t = useTranslations("landing");
   const host = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion() ?? false;
   const pageVisible = useSyncExternalStore(subscribeVisibility, isPageVisible, serverVisible);
   const { resolvedTheme } = useTheme();
-  // Mounted early so the canvas is warm before it is read; played only once the
-  // section is genuinely on screen.
   const mounted = useInView(host, { margin: "40% 0px 40% 0px" });
   const onScreen = useInView(host, { amount: 0.3 });
   const active = onScreen && pageVisible;
@@ -241,8 +193,8 @@ export function StageSection({ id, labels, controls, scene, side = "left", overv
         <div ref={host} className={styles.stageBody}>
           <p className={styles.stageLede}>{labels.lede}</p>
 
-          {/* The scene sits directly on the stage: no frame, no panel, so the
-              animation itself is the object on the page. */}
+          {
+}
           <div className={styles.stageScene}>
             <CircuitTracesWide
               tone="quiet"

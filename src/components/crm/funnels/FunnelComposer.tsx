@@ -33,38 +33,14 @@ export interface FunnelDraft {
 interface FunnelComposerProps {
   draft: FunnelDraft;
   onChange: (draft: FunnelDraft) => void;
-  /** Existing funnels whose columns can be copied in as a starting point. */
   sources: Pipeline[];
   busy?: boolean;
-  /** Rows that cannot be removed, keyed by stage id (editing an existing funnel). */
   lockedIds?: ReadonlySet<string>;
-  /** Hidden while editing: the columns are already there, nothing to prefill. */
   showTemplates?: boolean;
-  /**
-   * Hidden when the host already shows the name as its own heading.
-   *
-   * The detail pane does: the funnel's name IS the panel title, and repeating it
-   * in a field directly underneath printed the same word twice, one of them
-   * sitting on the field's floating label. The name is edited by clicking the
-   * title there, the way a lead is renamed in the CRM.
-   */
   showName?: boolean;
   nameError?: string;
 }
 
-/**
- * Name it, then draw it.
- *
- * The templates are deliberately DEMOTED. They used to be the whole creation
- * flow — pick a source, press create, receive a funnel someone else designed —
- * and the operator never saw the columns until the board rendered them. Here they
- * are one quiet row that FILLS the editor below, which is then edited like any
- * other draft. The product's own defaults are offered the same way, as a
- * suggestion, not as the path of least resistance.
- *
- * That inversion is the point of the surface: what gets built is what is on
- * screen when the button is pressed.
- */
 export function FunnelComposer({
   draft,
   onChange,
@@ -85,8 +61,6 @@ export function FunnelComposer({
     [draft, onChange],
   );
 
-  // The product's canonical four, read from the message catalogue so they arrive
-  // in the operator's language rather than as the server's lowercase keys.
   const productDefaults = useMemo(
     () => [
       tDefaults("received"),
@@ -111,9 +85,6 @@ export function FunnelComposer({
         source.id,
       );
       setLoadingSource(null);
-      // An empty source would silently clear the editor, which reads as the copy
-      // having failed. Leaving the draft alone and saying nothing changed is the
-      // honest outcome, and the operator still has their work.
       if (stages.length === 0) return;
       onChange({
         ...draft,
@@ -139,10 +110,6 @@ export function FunnelComposer({
             disabled={busy}
             controlSize="default"
             error={nameError}
-            // Only where the field is the first thing on a blank form. In the
-            // detail pane the name is not shown at all, and stealing focus on
-            // every funnel the operator clicks would scroll the pane and swallow
-            // the next keystroke.
             autoFocus
           />
           <p className="text-2xs leading-snug text-muted-foreground">
@@ -185,11 +152,6 @@ export function FunnelComposer({
   );
 }
 
-/**
- * "Start from" rather than "create from": both controls write into the editor and
- * then get out of the way. The replace warning appears only once there is work to
- * lose, so the common first-run case stays a single click.
- */
 function TemplateRow({
   busy,
   loadingSource,

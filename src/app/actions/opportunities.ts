@@ -123,9 +123,6 @@ export async function listOpportunityConversationsAction(
     return { links: response.data ?? [] };
 }
 
-// Reverse of listOpportunityConversationsAction: the deals linked to a conversation
-// entry, hydrated, so the conversation side panel can show them (HubSpot-style
-// "associated deals"). Workspace-scoped server-side.
 export async function listOpportunitiesForEntryAction(
     entryId: string,
     entryType: string,

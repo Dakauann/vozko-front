@@ -342,7 +342,6 @@ export default function RegisterClient() {
             setPasswordError(localized);
             setShowPasswordRules(true);
           } else if (result.code === "AUTH_EMAIL_ALREADY_EXISTS") {
-            // No field-level slot for email yet, top alert is enough.
           }
         } else {
           switch (result.statusCode) {
@@ -589,14 +588,8 @@ export default function RegisterClient() {
                 />
               </div>
 
-              {/*
-                Live password requirements checklist. Shown as soon as the
-                user focuses the password field (or after a failed submit)
-                so the rules backend will enforce are NEVER a surprise.
-                Each rule flips green with a check / red with an x as the
-                user types. Keeps the design rules: solid-color icon
-                wrapper + white icon, no same-hue-on-tinted-bg.
-              */}
+              {
+}
               {(showPasswordRules || password.length > 0) && (
                 <ul
                   aria-label={tRoot("auth.password.requirementsLabel")}

@@ -34,15 +34,6 @@ import { Panel, Skeleton } from "@/components/audience/shared";
 import { cleanTopics, editableTopics, TopicsEditor } from "@/components/audience/topics-editor";
 import { Warning, X } from "@/components/icons";
 
-/*
- * Settings (plan §13): on/off, model, vertical, the operator's instructions
- * (free text the classifier reads as context), the topic set editor, the
- * severity threshold, the daily cap, what the feature cost this month, and
- * the backfill launcher. A post can override most of this from its own
- * detail dialog; what is set here is the account-wide default. The backfill
- * is estimated and confirmed before it runs (plan §10): the confirmed number
- * travels back to the API, which refuses a stale one.
- */
 
 const LOCALE_TAG: Record<string, string> = { pt: "pt-BR", en: "en-US", es: "es-ES", de: "de-DE" };
 
@@ -53,7 +44,6 @@ export function CommentAnalysisSettingsPanel({
 }: {
   settings: CommentAnalysisSettings;
   onUpdated: (next: CommentAnalysisSettings) => void;
-  /** When true the topic editor scrolls into view (the topics panel's prompt). */
   focusTopics?: boolean;
 }) {
   const t = useTranslations("audience.settings");
@@ -66,8 +56,6 @@ export function CommentAnalysisSettingsPanel({
   const [models, setModels] = useState<string[]>([]);
   const [modelPricing, setModelPricing] = useState<ModelPricingInfo[] | undefined>();
 
-  // Draft fields: committed on blur/save so typing a threshold does not
-  // fire a request per keystroke.
   const [threshold, setThreshold] = useState(String(settings.severityThreshold));
   const [dailyCap, setDailyCap] = useState(String(settings.dailyCap));
   const [instructions, setInstructions] = useState(settings.instructions ?? "");
@@ -75,9 +63,6 @@ export function CommentAnalysisSettingsPanel({
   const [topicsDirty, setTopicsDirty] = useState(false);
   const topicsRef = useRef<HTMLDivElement>(null);
 
-  // Drafts follow a freshly saved settings object. Adjusted during render
-  // (the React "adjust state when a prop changes" pattern) rather than in
-  // an effect, so there is no extra commit with stale drafts.
   const [seen, setSeen] = useState(settings);
   if (seen !== settings) {
     setSeen(settings);
@@ -199,13 +184,8 @@ export function CommentAnalysisSettingsPanel({
         <p className="mt-1 text-xs text-muted-foreground">{t("vertical.hint")}</p>
       </Panel>
 
-      {/*
-        Replying (§6). Its own panel, not a row among the thresholds: this is
-        the one setting that makes the product write in the customer's voice
-        under their own posts, and the copy has to say exactly what it does.
-        Only "off" and "suggest" are offered — the API refuses "auto" while no
-        step posts on it, so offering it would be a switch that does nothing.
-      */}
+      {
+}
       <Panel title={t("replyPolicy.title")} description={t("replyPolicy.description")}>
         <ElevatedSelect
           label={t("replyPolicy.label")}
@@ -316,8 +296,6 @@ function BackfillPanel({ settings, nf }: { settings: CommentAnalysisSettings; nf
   const [backfill, setBackfill] = useState<CommentBackfill | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Poll a running backfill: it drains a page per minute under the
-  // provider's hourly budget, so the progress bar moves slowly and honestly.
   useEffect(() => {
     if (!backfill || backfill.status === "done" || backfill.status === "canceled" || backfill.status === "failed") return;
     const timer = window.setInterval(() => {

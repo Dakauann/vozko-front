@@ -25,8 +25,6 @@ import { useRef, useState, type ChangeEvent } from "react";
 import { uploadTemplateHeaderMediaAction } from "@/app/actions/whatsapp-templates";
 import type { TemplateCategory } from "@/lib/whatsapp-templates/types";
 
-// headerAcceptFor limits the file picker to the asset types WhatsApp accepts for
-// the selected header format, matching the backend validation.
 function headerAcceptFor(format?: string): string {
   switch (format) {
     case "IMAGE":
@@ -43,10 +41,6 @@ function headerAcceptFor(format?: string): string {
 interface ComponentEditorProps {
   component: DraggableComponent | null;
   onChange: (component: DraggableComponent) => void;
-  /**
-   * The template being built. Authentication templates are a different shape:
-   * Meta writes their body and footer, and their only button is the code one.
-   */
   category?: TemplateCategory;
 }
 
@@ -173,14 +167,11 @@ function HeaderEditor({
   const [headerUploading, setHeaderUploading] = useState(false);
   const [headerUploadError, setHeaderUploadError] = useState<string | null>(null);
 
-  // Upload the chosen header asset to our storage and drop the returned public
-  // URL straight into the example field, so the user never has to host it
-  // elsewhere. The create flow consumes that URL exactly like a pasted link.
   const handleHeaderMediaUpload = async (
     e: ChangeEvent<HTMLInputElement>,
   ) => {
     const file = e.target.files?.[0];
-    e.target.value = ""; // allow re-selecting the same file after an error
+    e.target.value = "";
     if (!file) return;
     setHeaderUploadError(null);
     setHeaderUploading(true);
@@ -340,9 +331,6 @@ function BodyEditor({
 }) {
   const t = useTranslations("whatsappTemplates.form.editor");
 
-  // Meta writes an authentication body itself, per language, and rejects one
-  // the business supplied. So there is nothing to type here: the only choice
-  // is whether Meta appends its own "do not share this code" line.
   if (category === "AUTHENTICATION") {
     return <AuthenticationBodyEditor component={component} updateData={updateData} />;
   }
@@ -442,7 +430,7 @@ function BodyEditor({
           </p>
           <div className="space-y-2">
             {varType === "positional"
-              ? 
+              ?
                 variables.map((varNum) => (
                   <div key={varNum} className="flex items-center gap-2">
                     <code className="bg-warning px-2 py-1 rounded text-xs font-mono text-warning-foreground shrink-0">
@@ -463,7 +451,7 @@ function BodyEditor({
                     />
                   </div>
                 ))
-              : 
+              :
                 variables.map((varName) => (
                   <div key={varName} className="flex items-center gap-2">
                     <code className="bg-warning px-2 py-1 rounded text-xs font-mono text-warning-foreground shrink-0">
@@ -506,8 +494,6 @@ function FooterEditor({
 }) {
   const t = useTranslations("whatsappTemplates.form.editor.footer");
 
-  // Same inversion as the body: an authentication footer is Meta's own
-  // "expires in N minutes" line, so the operator picks N rather than words.
   if (category === "AUTHENTICATION") {
     return <AuthenticationFooterEditor component={component} updateData={updateData} />;
   }
@@ -559,10 +545,6 @@ function ButtonsEditor({
     } else if (type === "COPY_CODE") {
       newButton.example = "";
     } else if (type === "OTP") {
-      // Meta supplies the label per language, so the text is left empty and
-      // the operator only picks the behaviour. COPY_CODE is the default
-      // because the other two need an app registered with Meta to autofill
-      // into, which a CRM cannot arrange on the customer's behalf.
       newButton.otp_type = "COPY_CODE";
     }
 
@@ -582,10 +564,6 @@ function ButtonsEditor({
     updateData({ buttons: newButtons });
   };
 
-  // An authentication template carries the code button and nothing else: Meta
-  // rejects a marketing-style button on one, and an OTP button on a marketing
-  // template. Offering only what the category allows keeps the operator out of
-  // a rejection they would have to decode from Meta.
   const buttonTypes =
     category === "AUTHENTICATION"
       ? [{ value: "OTP", label: t("types.otp"), icon: Copy }]
@@ -721,9 +699,8 @@ function ButtonsEditor({
                 />
               )}
 
-              {/* The code button has nothing to configure: Meta writes the
-                  label, and the code itself arrives at send time. The optional
-                  label override is offered because Meta accepts one. */}
+              {
+}
               {button.type === "OTP" && (
                 <div className="space-y-2">
                   <p className="text-xs text-muted-foreground">
@@ -779,14 +756,6 @@ function ButtonsEditor({
   );
 }
 
-/**
- * The body of an authentication template.
- *
- * Meta writes the sentence ("<CODE> is your verification code"), translates it
- * into every language the template is approved for, and rejects a body the
- * business supplied. So there is no text field here at all: the one decision is
- * whether Meta appends its own "for your security, do not share this code" line.
- */
 function AuthenticationBodyEditor({
   component,
   updateData,
@@ -822,10 +791,6 @@ function AuthenticationBodyEditor({
   );
 }
 
-/**
- * The footer of an authentication template: Meta's own "expires in N minutes"
- * line. The operator picks N, between 1 and 90, or leaves it off entirely.
- */
 function AuthenticationFooterEditor({
   component,
   updateData,
@@ -864,9 +829,6 @@ function AuthenticationFooterEditor({
             label={t("expiryMinutes")}
             value={String(minutes)}
             onChange={(e) => {
-              // Clamped rather than validated on submit: Meta's bounds are 1 to
-              // 90, and a number outside them is a rejection the operator would
-              // have to decode from Meta's own error.
               const next = Number(e.target.value);
               if (Number.isNaN(next)) return;
               updateData({

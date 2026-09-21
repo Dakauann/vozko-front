@@ -110,8 +110,6 @@ const SERVICE_LABELS: Record<string, string> = {
   top_up: "Recarga",
 };
 
-// Validated series tokens, entity-stable in both themes (same mapping the
-// admin metrics dashboard uses: WhatsApp --chart-1, AI --chart-5, calls --chart-4…).
 const SERVICE_COLORS: Record<string, string> = {
   whatsapp_campaign: "hsl(var(--chart-1))",
   voice_campaign: "hsl(var(--chart-5) / 0.7)",
@@ -732,7 +730,7 @@ export default function AdminFinancialDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* â”€â”€ Header + Period filters â”€â”€ */}
+      {}
       <div>
         <ElevatedContainer
           className="rounded-lg border border-border bg-card p-5 md:p-6"
@@ -797,7 +795,7 @@ export default function AdminFinancialDashboard() {
             </div>
           </div>
 
-          {/* Period selector */}
+          {}
           <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-border pt-5">
             <ElevatedPillToggle
               size="md"
@@ -857,7 +855,7 @@ export default function AdminFinancialDashboard() {
         </ElevatedContainer>
       </div>
 
-      {/* Error */}
+      {}
       {error && (
         <div>
           <ElevatedContainer className="rounded-lg border border-destructive bg-destructive p-4 text-sm text-destructive-foreground">
@@ -866,11 +864,8 @@ export default function AdminFinancialDashboard() {
         </div>
       )}
 
-      {/* The six figures this page exists to report, as one instrument strip.
-          They were six cards across two grids: each with an accent bar, a
-          filled icon tile and a drop shadow, which put three decorations and a
-          lifted surface on every number, and split one reading into two rows
-          for no reason the content gave. */}
+      {
+}
       <div>
         <InstrumentStrip
           loading={loading}
@@ -893,8 +888,6 @@ export default function AdminFinancialDashboard() {
               label: "Lucro operacional",
               value: formatCompactBRLDirect(totalPlatformProfitBRL),
               detail: `margem ${formatPercent(operationalMarginPct)}`,
-              // The one figure on the strip that carries a state rather than a
-              // quantity: a negative operating profit is a fault, not a number.
               tone: totalPlatformProfitBRL < 0 ? "fault" : "healthy",
               tooltip:
                 "Lucro líquido: receita menos custo, já descontados os estornos de serviço.",
@@ -922,7 +915,7 @@ export default function AdminFinancialDashboard() {
         />
       </div>
 
-      {/*  Reembolsos (isolated)  */}
+      {}
       {!loading && totalPeriodRefundsBRL > 0 && (
         <div>
           <ElevatedContainer
@@ -951,7 +944,7 @@ export default function AdminFinancialDashboard() {
         </div>
       )}
 
-      {/*  Ajuste manual (isolated)  */}
+      {}
       {!loading && manualAdjustment.txCount > 0 && (
         <div>
           <ElevatedContainer
@@ -991,7 +984,7 @@ export default function AdminFinancialDashboard() {
           </ElevatedContainer>
         </div>
       )}
-      {/* â”€â”€ Revenue vs Cost chart â”€â”€ */}
+      {}
       <div>
         <ElevatedContainer
           className="rounded-lg border border-border bg-card p-5"
@@ -1101,7 +1094,7 @@ export default function AdminFinancialDashboard() {
           )}
         </ElevatedContainer>
       </div>
-      {/*, Revenue by service (Pie) + Profit by service (Bar), */}
+      {}
       <div className="grid gap-4 lg:grid-cols-2">
         <ElevatedContainer
           className="rounded-lg border border-border bg-card p-5"
@@ -1321,7 +1314,7 @@ export default function AdminFinancialDashboard() {
         </ElevatedContainer>
       </div>
 
-      {/*, Product usage summary, */}
+      {}
       {!loading && productUsage && productUsage.byService.length > 0 && (
         <div>
           <ElevatedContainer
@@ -1373,7 +1366,7 @@ export default function AdminFinancialDashboard() {
         </div>
       )}
 
-      {/*, Plan contractions, */}
+      {}
       <div className="grid gap-4 lg:grid-cols-2">
         <ElevatedContainer
           className="rounded-lg border border-border bg-card p-5"
@@ -1545,7 +1538,7 @@ export default function AdminFinancialDashboard() {
         </ElevatedContainer>
       </div>
 
-      {/*, Recent transactions (debits & credits), */}
+      {}
       {!loading && recentTransactions.length > 0 && (
         <div>
           <ElevatedContainer
@@ -1673,7 +1666,7 @@ export default function AdminFinancialDashboard() {
           </ElevatedContainer>
         </div>
       )}
-      {/* â”€â”€ Workspace table â”€â”€ */}
+      {}
       <div>
         <DashboardTable
           data={rankingRows}

@@ -34,15 +34,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
-/**
- * One connected number.
- *
- * The page is ordered by what an operator opens it to find out, which is almost
- * never the settings: first "is this number healthy", then "is WhatsApp angry at
- * it", then the automation switches, and only then the pacing controls that
- * exist to keep it alive. Settings-first would put the least urgent thing at the
- * top of a page people open when something is wrong.
- */
 export default function UnofficialWhatsAppInstancePage() {
   const t = useTranslations("unofficialWhatsapp");
   const params = useParams();
@@ -73,26 +64,11 @@ export default function UnofficialWhatsAppInstancePage() {
     if (instanceId) void load();
   }, [instanceId, load]);
 
-  /**
-   * The operator's own label for this number, held as a draft while they type.
-   *
-   * Separate from the WhatsApp profile name on purpose: the push name is set on
-   * the customer's phone and can be anything, while this is how the CRM should
-   * refer to the number — "Comercial SP", "Cobrança". It is OURS: nothing here
-   * touches the WhatsApp account, and clearing it falls back to the profile
-   * name and then the number.
-   *
-   * A draft rather than a live patch because these toggles are optimistic and a
-   * text field is not: firing a request per keystroke would be a write per
-   * character and a race on the last one.
-   */
   const [nameDraft, setNameDraft] = useState<string | null>(null);
 
   const patch = useCallback(
     async (payload: UpdateInstancePayload) => {
       if (!instance) return;
-      // Optimistic, because these are toggles: waiting a round-trip before the
-      // switch moves makes every one of them feel broken.
       setInstance({ ...instance, ...(payload as Partial<UnofficialWhatsAppInstance>) });
       const result = await updateInstanceAction(instance.id, payload);
       if (result.error) {
@@ -137,8 +113,6 @@ export default function UnofficialWhatsAppInstancePage() {
     );
   }
 
-  // The operator's own label wins the title when they set one; otherwise the
-  // number, which is what they had before and what they recognise.
   const number = instance.phoneNumber ? `+${instance.phoneNumber}` : "";
   const label = instance.displayName || number || t("detail.unnamed");
   const subtitle =
@@ -195,8 +169,6 @@ export default function UnofficialWhatsAppInstancePage() {
                 canRelink(instance) && (
                   <Button
                     variant="primary"
-                    // The id is the whole fix: without it the connect screen
-                    // provisions a NEW instance instead of re-pairing this one.
                     onClick={() =>
                       router.push(
                         `/dashboard/unofficial-whatsapp/connect?instanceId=${instance.id}`,
@@ -213,12 +185,12 @@ export default function UnofficialWhatsAppInstancePage() {
         }
       />
 
-      {/* Health first: this page is opened when something is wrong. */}
+      {}
       <SessionPanel instance={instance} />
       <RestrictionNotice instance={instance} />
 
-      {/* A banned number cannot be recovered by anything on this page, so it
-          says so instead of leaving an operator trying buttons. */}
+      {
+}
       {instance.status === "BANNED" && (
         <div className="rounded-lg border border-border bg-muted p-4">
           <p className="text-sm font-semibold text-destructive-ink">{t("detail.bannedTitle")}</p>
@@ -226,12 +198,10 @@ export default function UnofficialWhatsAppInstancePage() {
         </div>
       )}
 
-      {/* Attendance first and full width: it is the decision that makes the
-          number do anything, and it owns its own save state. The two panels
-          below configure what happens around it. */}
-      {/* The operator's own name for this number.
-          Local to the CRM: it never reaches WhatsApp, so renaming here cannot
-          affect the connected account or what a customer sees. */}
+      {
+}
+      {
+}
       <ElevatedContainer className="space-y-3">
         <div>
           <h3 className="text-sm font-semibold text-foreground">
@@ -263,8 +233,6 @@ export default function UnofficialWhatsAppInstancePage() {
             }
             onClick={() => {
               if (nameDraft === null) return;
-              // Trimmed, and an empty string is a real value: it CLEARS the
-              // label so the number falls back to its profile name.
               void patch({ displayName: nameDraft.trim() });
               setNameDraft(null);
             }}
@@ -272,12 +240,8 @@ export default function UnofficialWhatsAppInstancePage() {
         </div>
       </ElevatedContainer>
 
-      {/* The department that owns this number.
-          Assigning one narrows the number to that team everywhere at once: its
-          conversations only appear in their inbox, only its members enter the
-          round-robin for inbound messages, and only they can open the number or
-          send from it. Nothing here is channel-specific — the same card assigns
-          departments elsewhere in the product. */}
+      {
+}
       {canUpdate && (
         <DepartmentAssignmentCard
           departmentId={instance.departmentId}
@@ -288,10 +252,6 @@ export default function UnofficialWhatsAppInstancePage() {
             }))
           }
           onAssigned={() => {
-            // Re-read rather than patch in place: assigning a department can
-            // take the number out of THIS operator's own scope, and the reload
-            // is what turns that into an honest "not found" instead of a page
-            // showing a number they no longer have.
             void load();
           }}
         />
@@ -332,7 +292,6 @@ export default function UnofficialWhatsAppInstancePage() {
   );
 }
 
-/** The health strip: state, and the two timestamps that explain it. */
 function SessionPanel({ instance }: { instance: UnofficialWhatsAppInstance }) {
   const t = useTranslations("unofficialWhatsapp");
 
@@ -379,15 +338,6 @@ function SessionPanel({ instance }: { instance: UnofficialWhatsAppInstance }) {
   );
 }
 
-/**
- * What happens to a conversation ONCE it is attended.
- *
- * Deliberately separate from the attendance panel above. Those three settings
- * are not "who answers" — analysis and auto-staging run whether or not an agent
- * replies, and group handling decides what even reaches the inbox. Mixing them
- * into the same list is what made the old panel read as five equal switches and
- * hid the fact that two of them did nothing without a selection.
- */
 function ConversationHandlingPanel({
   instance,
   canUpdate,
@@ -449,14 +399,6 @@ function ConversationHandlingPanel({
   );
 }
 
-/**
- * The controls that keep the number alive.
- *
- * Grouped and named as protection rather than as "advanced settings", because
- * that is what they are: pacing and a daily cap are the difference between a
- * working number and a banned one, and an operator who reads them as throughput
- * knobs will turn them the wrong way.
- */
 function SafetyPanel({
   instance,
   canUpdate,

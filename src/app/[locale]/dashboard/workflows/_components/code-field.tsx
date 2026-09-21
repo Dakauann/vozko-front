@@ -143,7 +143,7 @@ export function CodeField({
     monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
       target: monaco.languages.typescript.ScriptTarget.ES2018,
       allowNonTsExtensions: true,
-      lib: ["es2018"], // no DOM, sandbox has no window/document
+      lib: ["es2018"],
     });
     const uri = "ts:scriptvm-sandbox.d.ts";
     monaco.languages.typescript.javascriptDefaults.addExtraLib(
@@ -158,15 +158,12 @@ export function CodeField({
       (monacoRef.current?.KeyMod.CtrlCmd ?? 2048) |
         (monacoRef.current?.KeyCode.KeyS ?? 49),
       () => {
-        /* swallow; outer panel persists on change */
       },
     );
   };
 
   useEffect(() => {
     return () => {
-      // Nothing to teardown, Monaco keeps extraLibs in a global registry,
-      // and re-adding under the same URI replaces the previous entry.
     };
   }, []);
 

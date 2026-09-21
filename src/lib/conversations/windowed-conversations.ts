@@ -8,36 +8,13 @@ import type {
 import { resolveAutomationEnabled } from "./automation";
 import { windowKey } from "./window-deck";
 
-/**
- * Transcript state for the conversations open in floating windows.
- *
- * The centre pane keeps its own single `activeConversation` in the socket hook;
- * this is the parallel store for every conversation opened BESIDE it. Both are
- * fed by the same frames, and every frame the server sends is entry-addressed,
- * so routing is a map lookup rather than a "is this the current one?" guard.
- *
- * Pure and socket-free on purpose: the fiddly parts of a live thread — the
- * three ways a history batch can land, duplicate suppression, per-entry typing
- * — are the parts worth testing without a WebSocket in the room.
- */
 
 export interface WindowConversationState {
   conversation: ActiveConversation;
-  /** The first batch after subscribing is still in flight (thread skeleton). */
   loadingConversation: boolean;
-  /** An older page is in flight (scroll-up spinner). */
   loadingHistory: boolean;
-  /** The next history batch is an older page, so it prepends. */
   pendingLoadMore: boolean;
   typingUserIds: string[];
-  /**
-   * Whether the operator can actually SEE this conversation.
-   *
-   * False while the window is parked in the dock. It is what separates "open"
-   * from "being read": a minimized window keeps its subscription and keeps
-   * receiving, but nobody is looking at it, so its messages must not be
-   * receipted as read and they count towards its unread badge instead.
-   */
   visible: boolean;
 }
 
@@ -48,7 +25,6 @@ export interface OpenWindowConversationInput {
   entryType: EntryType;
   leadName?: string;
   leadNumber?: string;
-  /** Seeded from the inbox row so the window opens with the same face. */
   leadPicture?: string;
   windowOpen?: boolean;
   windowExpiresAt?: string | null;
@@ -56,10 +32,6 @@ export interface OpenWindowConversationInput {
   isGroup?: boolean;
 }
 
-/**
- * Message types the operator's own side produced. An outgoing message is never
- * "unread" for us, so it never joins a mark_read batch.
- */
 const OUTGOING_MESSAGE_TYPES = new Set([
   "operator",
   "ai_response",
@@ -68,7 +40,6 @@ const OUTGOING_MESSAGE_TYPES = new Set([
   "system",
 ]);
 
-/** The inbound messages in a batch that still need a read receipt. */
 export function incomingUnreadIds(messages: ConversationMessage[]): string[] {
   return messages
     .filter((m) => !m.read && !OUTGOING_MESSAGE_TYPES.has(m.message_type))
@@ -93,10 +64,6 @@ export function openWindowConversation(
   const key = windowKey(input.entryId, input.entryType);
   const existing = state.get(key);
 
-  // Reopening a window we still hold keeps its transcript: re-fetching a thread
-  // the operator just closed would blank a conversation they can already read.
-  // And with messages already on screen there is nothing to wait for, so the
-  // skeleton stays down rather than covering a readable thread.
   if (existing) {
     if (existing.conversation.messages.length > 0) {
       return existing.loadingConversation
@@ -131,13 +98,6 @@ export function openWindowConversation(
   });
 }
 
-/**
- * Parks or restores a window's VISIBILITY, which is what decides whether its
- * messages are being read.
- *
- * Restoring clears the badge: the operator is now looking at the thread, and
- * the caller sends the read receipts that go with it.
- */
 export function setWindowVisibility(
   state: WindowConversations,
   key: string,
@@ -155,7 +115,6 @@ export function setWindowVisibility(
   });
 }
 
-/** The messages in a window that still need a read receipt. */
 export function unreadIdsIn(w: WindowConversationState): string[] {
   return incomingUnreadIds(w.conversation.messages);
 }
@@ -183,7 +142,6 @@ export function markWindowLoadingMore(
   });
 }
 
-/** Clears in-flight flags for every window; used when the socket drops. */
 export function clearWindowLoading(
   state: WindowConversations,
 ): WindowConversations {
@@ -231,12 +189,6 @@ function patchConversation(
   return conversation === w.conversation ? w : { ...w, conversation };
 }
 
-/**
- * Folds one server frame into the open windows.
- *
- * Messages arriving here are expected to be normalized already — the hook owns
- * the wire-shape translation and this module owns the thread semantics.
- */
 export function applyWindowEvent(
   state: WindowConversations,
   event: WsServerEvent,
@@ -251,8 +203,6 @@ export function applyWindowEvent(
           ...c,
           lead_name: p.lead_name || c.lead_name,
           lead_number: p.lead_number || c.lead_number,
-          // Only when the server actually names one: an absent picture in a
-          // later frame means "unchanged", not "this contact has no face".
           lead_picture: p.lead_picture || c.lead_picture,
           lead_metadata: p.lead_metadata ?? c.lead_metadata,
           unread_count: p.unread_count ?? c.unread_count,
@@ -287,11 +237,6 @@ export function applyWindowEvent(
           return {
             ...c,
             messages,
-            // A window asks for its transcript twice (the subscribe reply and
-            // an explicit load_history), and one of those answers can come back
-            // empty because the server already sent those ids to this socket.
-            // An empty answer says nothing about whether older pages exist, so
-            // it must not retract a "there is more" we were already told.
             has_more:
               batch.length === 0 && c.messages.length > 0
                 ? c.has_more
@@ -315,10 +260,6 @@ export function applyWindowEvent(
           return {
             ...c,
             messages: [...c.messages, p.message],
-            // Arriving at a PARKED window is what an unread badge is for.
-            // A visible window is being read, and its receipt is sent
-            // instead, so counting there would show a badge on a thread the
-            // operator is looking at.
             unread_count:
               incoming && !w.visible ? c.unread_count + 1 : c.unread_count,
           };
@@ -399,16 +340,6 @@ export function applyWindowEvent(
       return closeWindowConversation(state, windowKey(p.entry_id, p.entry_type));
     }
 
-    /**
-     * The conversation left this operator's scope — it was assigned to someone
-     * else, and they may no longer see it.
-     *
-     * The server decides who gets this: never the person it was assigned to,
-     * and never anyone holding `conversations:view_others`, so a supervisor or
-     * workspace admin keeps their window. For everyone else the window closes,
-     * exactly as the row vanishes from their inbox. Leaving it open would keep
-     * a live thread on screen that its owner can no longer reply in.
-     */
     case "conversation:entry_removed": {
       const p = event.payload;
       return closeWindowConversation(state, windowKey(p.entry_id, p.entry_type));
@@ -419,11 +350,6 @@ export function applyWindowEvent(
   }
 }
 
-/**
- * A batch that is neither the first page nor an older page: the server replayed
- * a thread we already hold (a resubscribe after a reconnect). Keep what is on
- * screen, add whatever is genuinely new, and put it back in time order.
- */
 function mergeById(
   existing: ConversationMessage[],
   batch: ConversationMessage[],

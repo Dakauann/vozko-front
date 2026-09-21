@@ -67,10 +67,8 @@ export interface WhatsAppBusinessPhone {
     provider?: 'meta' | 'dialog360';
     metaPhoneNumberId?: string;
     dialog360ChannelId?: string;
-    /** Reason a 360dialog handover failed; shown when status is ONBOARDING_FAILED. */
     onboardingError?: string;
     wabaId: string;
-    /** Business/WABA name, joined server-side so the client renders it inline. */
     wabaName?: string;
     displayPhoneNumber: string;
     verifiedName?: string;

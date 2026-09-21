@@ -34,20 +34,6 @@ export interface DashboardNavbarProps {
   className?: string;
 }
 
-/**
- * The app bar — the Azure-shell topology.
- *
- * Full width, owning the top-left corner; the nav rail starts BELOW it. The
- * far-left group is the shell's identity line, read exactly the way the
- * reference reads "Azure Data Explorer | All dashboards": hamburger, brand
- * mark, a hairline divider, then the workspace the whole shell is scoped to.
- * The right side is the readout rack: balance, department, calendar, theme,
- * locale, account.
- *
- * Breadcrumbs no longer live here — the reference keeps the trail with the
- * page it describes, so it moved into the page header (ScopeBreadcrumb),
- * directly above the title it leads to.
- */
 export function DashboardNavbar({
   translationsNamespace = "dashboardNavbar",
   settingsLink = "/dashboard/profile",
@@ -86,18 +72,13 @@ export function DashboardNavbar({
   return (
     <header
       className={cn(
-        // Full width and above the rail: the bar owns the corner now, which is
-        // the Azure shell's defining move. z-40 keeps it over the rail (z-30);
-        // the mobile drawer and its veil still cover both.
         "fixed inset-x-0 top-0 z-40 flex h-12 items-center gap-2",
         "border-b border-sidebar-border bg-sidebar pl-1.5 pr-3 shadow-sm",
         className,
       )}
     >
-      {/* The hamburger. One affordance, two behaviours by viewport: on the
-          desktop shell it collapses the rail to its 52px icon strip; below md
-          it opens the drawer. Split into two buttons so each carries the right
-          accessible name. */}
+      {
+}
       <button
         type="button"
         onClick={toggleCollapsed}
@@ -123,7 +104,7 @@ export function DashboardNavbar({
         <BrandLogo size="sm" />
       </Link>
 
-      {/* The identity divider — the literal "|" of "Product | Scope". */}
+      {}
       <div
         aria-hidden="true"
         className="hidden h-5 w-px shrink-0 bg-border-strong md:block"

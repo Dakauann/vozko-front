@@ -4,7 +4,6 @@ export type ComponentType = 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS' | 'CALL_PER
 export type HeaderFormat = 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'LOCATION' | 'GIF';
 export type ButtonType = 'QUICK_REPLY' | 'URL' | 'PHONE_NUMBER' | 'COPY_CODE' | 'OTP';
 
-/** What an authentication template's code button does when tapped. */
 export type OtpType = 'COPY_CODE' | 'ONE_TAP' | 'ZERO_TAP';
 export type ParameterFormat = 'positional' | 'named';
 export type UsabilityStatus = 'ready' | 'missing_header_media' | 'not_approved';
@@ -15,10 +14,6 @@ export interface TemplateButton {
     url?: string;
     phone_number?: string;
     example?: string | string[];
-    /**
-     * Required when type is OTP. COPY_CODE is the only kind that needs no
-     * app-side integration, so it is the one the builder offers.
-     */
     otp_type?: OtpType;
 }
 
@@ -37,11 +32,6 @@ export interface TemplateComponent {
     parameters?: string[];
     buttons?: TemplateButton[];
     example?: TemplateComponentExample;
-    /**
-     * AUTHENTICATION only. Meta owns the wording of the security line (on BODY)
-     * and the expiry line (on FOOTER) and renders both per language, so these
-     * carry a flag and a number instead of text.
-     */
     add_security_recommendation?: boolean;
     code_expiration_minutes?: number;
 }
@@ -50,7 +40,6 @@ export interface WhatsAppTemplate {
     id: string;
     externalId: string;
     wabaId?: string;
-    /** Business/WABA name, joined server-side so the client renders it inline. */
     wabaName?: string;
     name: string;
     language: string;

@@ -1,13 +1,7 @@
-/**
- * @vitest-environment happy-dom
- */
 
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-// The media preview pulls in a Next server action (getMediaAction), which
-// transitively imports server-only modules. Stub it so the registry is testable
-// in the browser test env (real builds handle server actions specially).
 vi.mock("@/app/actions/medias", () => ({
   getMediaAction: vi.fn(() => Promise.resolve(null)),
 }));
@@ -45,12 +39,10 @@ describe("renderMessageContentPreview registry", () => {
       body: "<p>Segue em anexo</p>",
     });
     expect(screen.getByText("Fatura disponível")).toBeInTheDocument();
-    // HTML is stripped for the snippet.
     expect(screen.getByText("Segue em anexo")).toBeInTheDocument();
   });
 
   it("template: falls back to template_id when the display cache was stripped", () => {
-    // Regression: only template_id survives a save/reload, must NOT read as empty.
     renderPreview("action_send_template", { template_id: "hello_world" });
     expect(screen.getByText("hello_world")).toBeInTheDocument();
     expect(screen.queryByText("Nenhum template")).toBeNull();

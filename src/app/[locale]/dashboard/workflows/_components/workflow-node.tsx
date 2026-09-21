@@ -133,27 +133,12 @@ const ICON_MAP: Record<string, Icon> = {
 };
 
 
-// Each category carries ONE color: the solid tile behind the node's glyph.
-// Values are the design system's PLATE tokens — the hues re-tuned so a WHITE
-// glyph clears ≥3:1 in both themes — so the canvas re-palettes with the theme,
-// a category reads the same here as in a glyph tile elsewhere, and no plate
-// ever carries a dark icon on a dark fill. `ink` stays in the API for the
-// palette/config-panel consumers; it is white across the board now.
 const CATEGORY_STYLES: Record<NodeCategory, { color: string; ink: string }> = {
   trigger: { color: "hsl(var(--plate-2))", ink: "#ffffff" },
   action: { color: "hsl(var(--plate-1))", ink: "#ffffff" },
   ai: { color: "hsl(var(--plate-5))", ink: "#ffffff" },
   messaging: { color: "hsl(var(--plate-4))", ink: "#ffffff" },
   wait: { color: "hsl(var(--plate-3))", ink: "#ffffff" },
-  // condition shares the blue family with messaging (info vs plate-4) and is
-  // disambiguated by glyph + label, not by inventing an off-token hue.
-  //
-  // The two NON-plate fills take their own measured foreground instead of a
-  // hardcoded white. It matters for --info: its foreground is white in light
-  // but NEAR-BLACK in dark (200 10% 6%), because dark --info is a light blue —
-  // so every condition node was drawing white on pale blue in dark mode.
-  // --destructive-foreground happens to be white in both themes, but naming the
-  // token is what stops it drifting the way --info did.
   condition: { color: "hsl(var(--info))", ink: "hsl(var(--info-foreground))" },
   logic: { color: "hsl(var(--plate-neutral))", ink: "#ffffff" },
   end: {
@@ -164,15 +149,6 @@ const CATEGORY_STYLES: Record<NodeCategory, { color: string; ink: string }> = {
 };
 
 
-/**
- * The mark for one handle of the channel branch node.
- *
- * Brand marks come from channel-logos, which is the one place allowed to carry
- * a network's own colours — recolouring them is banned, and they are excluded
- * from every sweep for that reason. The two handles with no network behind them
- * get a neutral glyph instead of nothing, so every row keeps the same shape and
- * the labels stay aligned down the node.
- */
 function channelBranchMark(handleId: string): ReactNode {
   if (hasChannelMark(handleId)) {
     return <ChannelLogo channel={handleId} className="h-3 w-3" />;
@@ -222,34 +198,21 @@ export interface WorkflowNodeData {
   icon?: string;
   outputs?: HandleDefinition[];
   hasMissingRequired?: boolean;
-  /** Canvas search (Ctrl+F) flags, set transiently while searching. */
   searchMatch?: boolean;
   searchDim?: boolean;
   [key: string]: unknown;
 }
 
-// The interactive prompt node's non-tap outcomes. Options (tapped buttons/rows)
-// come from config; these three are the fixed catch-all branches. Handle-pad
-// tones are derived from the id by branchDotClass (shared with every other node).
 const INTERACTIVE_CATCH_ALLS: { id: string; label: string }[] = [
   { id: "no_match", label: "Sem correspondência" },
   { id: "no_reply", label: "Não respondeu" },
   { id: "send_failed", label: "Falha no envio" },
 ];
 
-// Rich "renders like the real thing" nodes (message send / buttons) need room
-// for the message preview.
 const INTERACTIVE_NODE_WIDTH = 232;
 
-// Logic / action / condition / trigger nodes are compact operation gates, they
-// carry a tight summary, not a message, so they read lighter and more vertical.
 const GENERIC_NODE_WIDTH = 200;
 
-// WhatsAppInteractiveNode renders the send-buttons/list node as the message would
-// actually land in WhatsApp (top), with one source handle aligned to each option
-// (and each catch-all), and a compact id bar at the bottom. Handle positions are
-// measured from the DOM so they track wrapping, i18n, and variable content with
-// no fixed row-height assumptions.
 function WhatsAppInteractiveNode({ id, data, selected }: NodeProps) {
   const nodeData = data as unknown as WorkflowNodeData;
   const parsed = useMemo(
@@ -257,9 +220,6 @@ function WhatsAppInteractiveNode({ id, data, selected }: NodeProps) {
     [nodeData.config],
   );
 
-  // Branch order matches render order: options (from config) then catch-alls.
-  // Each option is required (a tapped button must route somewhere); the three
-  // catch-alls are optional.
   const branches: ShellBranch[] = useMemo(
     () => [
       ...parsed.options.map((o) => ({ id: o.id, required: true })),
@@ -288,10 +248,10 @@ function WhatsAppInteractiveNode({ id, data, selected }: NodeProps) {
     >
       {({ registerRow }) => (
         <>
-          {/* FULL WhatsApp render (top); each option row owns a handle. */}
+          {}
           <WhatsAppMessagePreview parsed={parsed} rowRef={registerRow} />
 
-          {/* Workflow-only branches (not part of the message). */}
+          {}
           <BranchRows hasContentAbove>
             {INTERACTIVE_CATCH_ALLS.map((ca) => (
               <BranchRow
@@ -308,10 +268,6 @@ function WhatsAppInteractiveNode({ id, data, selected }: NodeProps) {
   );
 }
 
-// Message-sending nodes reuse the SAME shell as the buttons/list node: WhatsApp
-// (or channel) render on top, a single output handle, and the id bar on the
-// bottom, the whole point of InteractiveNodeShell. Their per-node top content
-// lives in node-previews/.
 const MESSAGE_NODE_TYPES = new Set<WorkflowNodeType>([
   "action_send_text",
   "action_send_email",
@@ -347,9 +303,6 @@ function MessageNode({ id, data, selected }: NodeProps) {
   );
 }
 
-// WorkflowNodeComponent is a pure dispatcher (no hooks) so it can pick a shell by
-// node kind without violating rules-of-hooks. Each shell calls its own hooks
-// unconditionally. A node's type never changes for a given instance.
 function WorkflowNodeComponent(props: NodeProps) {
   const nodeType = (props.data as unknown as WorkflowNodeData)?.nodeType;
   if (isInteractivePromptType(nodeType)) {
@@ -371,10 +324,6 @@ function GenericWorkflowNode({ id, data, selected }: NodeProps) {
   const isTrigger = category === "trigger";
   const isEnd = category === "end";
 
-  // Multi-output nodes (text_match cases, ai_agent tools, condition branches …)
-  // expose one branch per output id; the shell measures each row and aligns a
-  // handle to it (robust to wrapping, unlike a fixed row height). Single-output
-  // nodes get one default handle.
   const visibleOutputs = (nodeData.outputs ?? []).filter((o) => o.id);
   const hasMultipleOutputs = visibleOutputs.length >= 1;
   const branches: ShellBranch[] = hasMultipleOutputs
@@ -386,8 +335,6 @@ function GenericWorkflowNode({ id, data, selected }: NodeProps) {
   const flashAt =
     typeof nodeData._flashAt === "number" ? nodeData._flashAt : null;
 
-  // Only wrap real content, a node with no preview (e.g. transfer_department)
-  // must not render an empty padded div, which would leave a phantom top gap.
   const content = renderNodeContent(nodeType, nodeData.config);
 
   return (
@@ -456,16 +403,12 @@ function PreviewIcon({
   );
 }
 
-// renderNodeContent returns the content preview for a node, or null when the
-// node has none (so the caller can skip the padded wrapper and avoid an empty
-// gap). It is a plain function, not a component, it uses no hooks.
 function renderNodeContent(
   nodeType: WorkflowNodeType,
   config: Record<string, unknown>,
 ): ReactNode {
   if (!config) return null;
 
-  // Condition/branch nodes render a distinct DecisionBlock (see node-previews/).
   const conditionPreview = renderConditionContentPreview(nodeType, config);
   if (conditionPreview !== undefined) return conditionPreview;
 
@@ -491,9 +434,6 @@ function renderNodeContent(
         </div>
       );
 
-    // The message-sending nodes (send_text/sms/email/template/media) and
-    // action_send_whatsapp_button are handled before this switch (via
-    // renderMessageContentPreview and the WhatsAppInteractiveNode shell).
 
     case "action_ai_agent": {
       const agentName =

@@ -1,7 +1,3 @@
-// Pure, transport-only HTTP helpers: no cookies, no next/headers, no document.
-// Safe to import from BOTH client and server modules. The cookie-coupled
-// `apiAuthFetch` (server-side workspace/department header resolution) lives in
-// `client.ts` and must only be imported by server code.
 
 export function getApiBaseUrl(): string {
     return (

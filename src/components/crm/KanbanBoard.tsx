@@ -22,22 +22,12 @@ import {
   kanbanDragOverlayTransition,
 } from "@/components/crm/kanban-card";
 
-// A reusable kanban board for objects that move between columns (the deal board).
-// It renders each column through the shared KanbanColumnShell AND drives the SAME
-// drag gesture the conversation funnel uses, a pointer-drag that lifts the card
-// into a floating overlay (scale + wobble + deep shadow), leaves a dashed ghost in
-// place, highlights the hovered column, and pulses the target column green on drop
-// (kanban-card.tsx / KanbanColumnShell). It deliberately does NOT use the browser's
-// native HTML5 drag, so the two boards feel identical in motion. The CARD content
-// is supplied by the caller via `renderCard`; each object type keeps its own card
-// while sharing the column chrome, motion, empty state and add-card affordance.
 
 export interface KanbanColumnModel {
   id: string;
   name: string;
   color?: string;
   count: number;
-  // Optional line under the header (e.g. a deal column's summed value).
   headerExtra?: ReactNode;
 }
 
@@ -46,10 +36,7 @@ interface KanbanBoardProps<T> {
   itemsFor: (columnId: string) => T[];
   getItemId: (item: T) => string;
   renderCard: (item: T) => ReactNode;
-  // Fired when a card is dropped on a different column. Return nothing; the caller
-  // persists + reloads.
   onCardMove?: (item: T, fromColumnId: string, toColumnId: string) => void;
-  // Which column each item currently belongs to (to compute from/to on drop).
   columnOfItem: (item: T) => string;
   onAddCard?: (columnId: string) => void;
   emptyLabel?: string;
@@ -71,9 +58,6 @@ export default function KanbanBoard<T>({
   canEdit = true,
   className,
 }: KanbanBoardProps<T>) {
-  // The id of the card currently lifted out (rendered as a ghost in place), the
-  // column under the pointer (highlight), the columns mid-pulse (drop feedback),
-  // and the floating overlay's data. Mirrors the conversation funnel exactly.
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverCol, setDragOverCol] = useState<string | null>(null);
   const [pulsingCols, setPulsingCols] = useState<Set<string>>(new Set());
@@ -85,7 +69,6 @@ export default function KanbanBoard<T>({
   } | null>(null);
 
   const overlayElRef = useRef<HTMLDivElement>(null);
-  // A press that MIGHT become a drag (waiting to cross the 5px threshold).
   const pendingRef = useRef<{
     item: T;
     from: string;
@@ -93,13 +76,10 @@ export default function KanbanBoard<T>({
     startY: number;
     rect: DOMRect;
   } | null>(null);
-  // The active drag (threshold crossed).
   const dragRef = useRef<{ item: T; from: string; offsetX: number; offsetY: number } | null>(
     null,
   );
   const overColRef = useRef<string | null>(null);
-  // Set on pointerup after a real drag so the click that follows (which would open
-  // the card) is swallowed instead of firing.
   const justDraggedRef = useRef(false);
   const pulseTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
@@ -144,8 +124,6 @@ export default function KanbanBoard<T>({
     [onCardMove, columnOfItem],
   );
 
-  // Global pointer handlers: promote a press to a drag past 5px, move the overlay,
-  // hit-test the column under the pointer via `data-column-id`, and commit on drop.
   useEffect(() => {
     if (!onCardMove) return;
 
@@ -200,7 +178,7 @@ export default function KanbanBoard<T>({
       const target = overColRef.current;
 
       if (d) {
-        justDraggedRef.current = true; // swallow the trailing click
+        justDraggedRef.current = true;
         if (target && target !== d.from) {
           triggerPulse(target);
           onCardMove(d.item, d.from, target);
@@ -223,7 +201,6 @@ export default function KanbanBoard<T>({
     };
   }, [onCardMove, getItemId, triggerPulse]);
 
-  // Grabbing cursor + no text selection while a card is in flight.
   useEffect(() => {
     if (draggingId) {
       document.body.style.cursor = "grabbing";
@@ -239,8 +216,6 @@ export default function KanbanBoard<T>({
   }, [draggingId]);
 
   return (
-    // LayoutGroup lets a card morph across columns when it moves (shared layoutId),
-    // matching the conversation funnel's cross-column glide.
     <LayoutGroup>
       <div className={cn("flex h-full min-w-max gap-3 p-4", className)}>
         {columns.map((col) => {
@@ -273,8 +248,6 @@ export default function KanbanBoard<T>({
                 {items.map((item) => {
                   const id = getItemId(item);
 
-                  // The lifted card holds its place as a dashed ghost while the
-                  // floating overlay follows the pointer.
                   if (draggingId === id) {
                     return (
                       <motion.div key={id} layout="position" layoutId={id} className={kanbanCardGhostClass}>
@@ -321,19 +294,6 @@ export default function KanbanBoard<T>({
                 })}
 
                 {items.length === 0 ? (
-                  // Uma coluna vazia precisa de FIGURA.
-                  //
-                  // A bandeja cinza foi desenhada para ser o fundo de cartões
-                  // brancos ("quiet trays with white cards on them"); sem
-                  // nenhum cartão, o par figura/fundo perde a figura e a tela
-                  // vira um retângulo cinza com uma linha em itálico boiando no
-                  // meio. O alvo tracejado devolve a figura e, de quebra, diz o
-                  // que a coluna aceita — é a mesma forma que o cartão
-                  // fantasma deixa no lugar durante o arraste.
-                  //
-                  // A cor da etapa vai na aresta por style, como o
-                  // KanbanColumnShell já faz no isDragOver: é um valor vindo
-                  // de dados, não um token, então não há classe para ele.
                   <motion.div
                     key="__empty__"
                     initial={{ opacity: 0 }}
@@ -358,9 +318,8 @@ export default function KanbanBoard<T>({
         })}
       </div>
 
-      {/* Floating drag overlay, the card lifted out of the column, following the
-          pointer with the shared scale + wobble + deep-shadow spec. Rendered once,
-          fixed to the viewport, above everything, and non-interactive. */}
+      {
+}
       {overlay ? (
         <div
           ref={overlayElRef}

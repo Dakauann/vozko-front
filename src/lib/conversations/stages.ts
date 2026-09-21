@@ -12,9 +12,6 @@ export function listStages(campaignId?: string, campaignType?: string) {
     return apiClient<Stage[]>(`/stages${qs ? `?${qs}` : ''}`, { method: 'GET' });
 }
 
-// pipelineId puts the stage on a named funnel; without it the server attaches it
-// to the workspace default, which is what made it impossible to add a column to a
-// custom funnel from the CRM.
 export function createStage(name: string, color: string, description: string, campaignId?: string, campaignType?: string, pipelineId?: string) {
     return apiClient<Stage>('/stages', {
         method: 'POST',
@@ -48,15 +45,6 @@ export function reorderStages(stageIds: string[]) {
 }
 
 
-/**
- * Move a conversation onto a stage.
- *
- * `moveToFunnel` sends it to the funnel-change ROUTE rather than adding a flag
- * to the payload. The two endpoints run the same code; they differ only in the
- * permission they require (stages:assign vs stages:transfer), so which URL is
- * called IS the statement of intent, and a client cannot ask for a privileged
- * move on the unprivileged route.
- */
 export function assignStageToEntry(
     stageId: string,
     entryId: string,

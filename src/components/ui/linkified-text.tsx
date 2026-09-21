@@ -11,7 +11,6 @@ import {
 
 import { useTranslations } from "next-intl";
 
-// Single capturing group so String.split() yields URLs at odd indices.
 export const URL_REGEX =
   /(https?:\/\/[^\s<>"')\]]+|www\.[^\s<>"')\]]+\.[^\s<>"')\]]+)/gi;
 
@@ -33,7 +32,6 @@ function truncateUrl(raw: string, maxLen = 50): string {
   return raw.slice(0, maxLen - 1) + "…";
 }
 
-/** A single detected URL rendered as a link with a safety hover-card. */
 export function LinkPreview({ url }: { url: string }) {
   const t = useTranslations("common.linkWarning");
   const href = sanitizeUrl(url);
@@ -99,7 +97,6 @@ export default function LinkifiedText({
   children,
   className,
 }: LinkifiedTextProps) {
-  // split() with one capturing group => odd indices are the matched URLs.
   const parts = children.split(URL_REGEX);
 
   return (

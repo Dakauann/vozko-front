@@ -26,9 +26,6 @@ import {
     type LeadFilter,
 } from "@/lib/leads/filters";
 
-// The filter model decides WHICH leads an operator sees. A wrong predicate here
-// does not throw, it silently answers a different question — so these cover the
-// distinctions that are easy to collapse.
 
 describe("text predicates", () => {
     it("round-trips and clears on empty input", () => {
@@ -83,8 +80,6 @@ describe("set predicates", () => {
 });
 
 describe("tri-state booleans", () => {
-    // "no opinion" and "false" are different questions. Collapsing them is how a
-    // default-off toggle silently hides every blocked lead from the main list.
     it("distinguishes unset from false", () => {
         expect(readBoolean(emptyLeadFilter, LEAD_FILTER_FIELD.blocked)).toBeNull();
 
@@ -140,8 +135,6 @@ describe("range predicates", () => {
 });
 
 describe("URL round trip", () => {
-    // The URL is the state. A filter that cannot survive encode → decode is a
-    // filter that resets on refresh and cannot be shared.
     it("survives encoding into a query parameter", () => {
         let filter = withText(emptyLeadFilter, LEAD_FILTER_FIELD.memoryText, "boleto & prazo");
         filter = toggleInSet(filter, LEAD_FILTER_FIELD.memoryCategory, "objection");
@@ -189,8 +182,6 @@ describe("the field catalogue", () => {
 });
 
 describe("active predicates", () => {
-    // Chips ordered by insertion reshuffle themselves while the operator edits,
-    // which makes them unreadable and hard to click. Catalogue order is stable.
     it("lists in catalogue order, not insertion order", () => {
         let filter = toggleInSet(emptyLeadFilter, LEAD_FILTER_FIELD.memoryCategory, "deal");
         filter = withText(filter, LEAD_FILTER_FIELD.name, "ana");

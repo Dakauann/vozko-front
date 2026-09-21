@@ -47,7 +47,7 @@ export function ElevatedStepper({
       )}
       style={{ boxShadow: softSurfaceShadow }}
     >
-      {/* ── Progress rail ── */}
+      {}
       <div
         className={cn(
           "px-5 pt-5 pb-3 sm:px-8 sm:pt-8 sm:pb-6",
@@ -138,7 +138,7 @@ export function ElevatedStepper({
         </ol>
       </div>
 
-      {/* ── Mobile compact header ── */}
+      {}
       {compactOnMobile && activeStep ? (
         <div className="sm:hidden px-5 pt-5 pb-0">
           <p className="text-2xs font-semibold text-primary-ink">
@@ -155,7 +155,7 @@ export function ElevatedStepper({
         </div>
       ) : null}
 
-      {/* ── Step body ── */}
+      {}
       <div className="relative px-5 pb-5 pt-4 sm:px-8 sm:pb-8 sm:pt-4">
         <AnimatePresence mode="wait">
           <motion.div
@@ -170,7 +170,7 @@ export function ElevatedStepper({
         </AnimatePresence>
       </div>
 
-      {/* ── Footer (nav) ── */}
+      {}
       {footer ? (
         <div className="border-t border-border bg-muted px-5 py-4 sm:px-8">
           {footer}

@@ -3,11 +3,6 @@ import { describe, expect, it } from "vitest";
 import { cleanTopics, overrideDraftFrom, overrideDraftToPut } from "@/lib/audience/override";
 import type { CommentAnalysisSettings, CommentContainerSettings } from "@/lib/audience/types";
 
-/**
- * The override editor's two mappings. The invariant that matters: a field the
- * operator left empty must reach the API as `null` (inherit), never as a zero
- * value that would silently override the account.
- */
 
 const effective: CommentAnalysisSettings = {
     source: "instagram",
@@ -36,7 +31,6 @@ describe("overrideDraftFrom", () => {
             threshold: "",
             instructions: "",
             ownTopics: false,
-            // "other" is fixed and never editable.
             topics: [
                 { key: "saude", label: "Saúde" },
                 { key: "obras", label: "Obras" },

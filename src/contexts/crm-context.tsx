@@ -112,14 +112,6 @@ interface CrmContextValue {
     campaignType?: string,
     pipelineId?: string,
   ) => Promise<void>;
-  /**
-   * Every conversation stage in the workspace, grouped by funnel.
-   *
-   * Separate from `tags`, which is ONE funnel's stages and is what the stage
-   * assignment menus read. The inbox filter needs all of them: a workspace with
-   * several funnels had all but the resolved one unreachable, so filtering by a
-   * stage returned nothing while the conversations sat one funnel over.
-   */
   funnelStages: FunnelStages[];
   labels: Label[];
   reloadLabels: () => Promise<void>;
@@ -140,18 +132,8 @@ interface CrmContextValue {
     entryType: string,
     status: string,
   ) => void;
-  /**
-   * Pushes a lead rename into every list already rendered, across all of that
-   * lead's conversations. The server write has already happened; this is what
-   * makes the change visible without a reload.
-   */
   applyLeadRename: (leadId: string, name: string) => void;
 
-  /**
-   * Conversations open in floating windows, alongside the one the centre pane
-   * shows. Everything here is addressed by entry rather than by "the current
-   * conversation", which is what allows several at once.
-   */
   windowConversations: WindowConversations;
   windowFocusRequest: { key: string; nonce: number } | null;
   openConversationWindow: (input: OpenWindowConversationInput) => void;
@@ -224,15 +206,6 @@ export function CrmProvider({
 
 
   const reloadStages = useCallback(
-    /**
-     * Loads the stages of ONE funnel into `tags`.
-     *
-     * `tags` is what "Gerenciar Etapas", the table's stage filter and the bulk
-     * "Mover etapa" menu all read, so whichever funnel is passed here is the
-     * funnel the whole CRM shows. Passing none resolves to the campaign's funnel
-     * and then to the workspace default — the behaviour every caller used to get
-     * whether it wanted it or not.
-     */
     async (cId?: string, cType?: string, pipelineId?: string) => {
       const result = await listStagesAction(
         workspaceId || undefined,
@@ -247,10 +220,6 @@ export function CrmProvider({
     [workspaceId],
   );
 
-  // Loaded once per workspace and independent of which funnel is on screen: the
-  // inbox filter has to offer every funnel, not the resolved one. Fetched in the
-  // effect body with .then so the state write happens in the callback, which is
-  // what react-hooks/set-state-in-effect requires.
   useEffect(() => {
     if (!workspaceId) {
       setFunnelStages([]);

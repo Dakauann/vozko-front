@@ -9,12 +9,6 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-/**
- * The tune-test loop without leaving the edit flow: a header-rack action that
- * opens the compact simulator in a slide-over. Shared by every /edit page so
- * the affordance and the drawer cannot drift between them. It tests the last
- * SAVED version of the agent (the panel says so): edit → save → simulate.
- */
 export default function EditSimulatorAction({ agent }: { agent: Agent }) {
     const t = useTranslations("agentSimulator");
     const [open, setOpen] = useState(false);
@@ -62,7 +56,7 @@ export default function EditSimulatorAction({ agent }: { agent: Agent }) {
                             <X className="h-4 w-4" weight="bold" />
                         </button>
                     </div>
-                    {/* Mount on open so the panel's session fetches happen lazily. */}
+                    {}
                     {open && <AgentSimulatorPanel agentId={agent.id} agentName={agent.name} />}
                 </aside>
             </div>

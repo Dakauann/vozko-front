@@ -56,8 +56,6 @@ describe("ScheduledMessagesPanel", () => {
         expect(container).toBeEmptyDOMElement();
     });
 
-    // Delivered messages are already in the history above. Listing them here
-    // would make the panel a second, worse transcript.
     it("hides messages that already went out or were cancelled", () => {
         const { container } = renderPanel([
             message({ id: "a", status: "sent" }),
@@ -71,20 +69,11 @@ describe("ScheduledMessagesPanel", () => {
         expect(screen.getByText("Bom dia!")).toBeInTheDocument();
     });
 
-    /**
-     * The one that matters most.
-     *
-     * `dispatch_interrupted` means the process died between calling the provider
-     * and recording the result — the message may well have ARRIVED. Rendering it
-     * as a plain failure would invite the operator to send it a second time,
-     * which is the one outcome the whole feature is built to avoid.
-     */
     it("tells the operator an interrupted delivery is unconfirmed, not failed", () => {
         renderPanel([message({ status: "failed", failureReason: "dispatch_interrupted" })]);
 
         const copy = ptMessages.scheduledMessages.failures.dispatch_interrupted;
         expect(screen.getByText(copy)).toBeInTheDocument();
-        // It must not read like the definite failures.
         expect(screen.queryByText(ptMessages.scheduledMessages.failures.provider_error))
             .not.toBeInTheDocument();
     });
@@ -103,9 +92,6 @@ describe("ScheduledMessagesPanel", () => {
         }
     });
 
-    // Cancel can LOSE the race with the dispatcher. Refetching rather than
-    // optimistically removing is what stops the UI hiding a message the
-    // customer just received.
     it("refetches after a cancel instead of removing the row optimistically", async () => {
         const onChanged = vi.fn();
         renderPanel([message()], { onChanged });
@@ -123,7 +109,6 @@ describe("ScheduledMessagesPanel", () => {
         ).not.toBeInTheDocument();
     });
 
-    // A message already handed to a dispatcher cannot be pulled back.
     it("offers no cancel for a message that is already sending", () => {
         renderPanel([message({ status: "sending" })]);
         expect(

@@ -1,4 +1,3 @@
-/** Largest-remainder allocation keeps a waffle at exactly `cells` squares. */
 export function allocateWaffle(values: number[], cells = 100): number[] {
   const safe = values.map((value) => Number.isFinite(value) ? Math.max(0, value) : 0);
   const total = safe.reduce((sum, value) => sum + value, 0);
@@ -12,7 +11,6 @@ export function allocateWaffle(values: number[], cells = 100): number[] {
   return counts;
 }
 
-/** Colours stay attached to an entity even when sorting or filtering changes. */
 export function entityColorIndex(key: string, count = 5): number {
   let hash = 0;
   for (let i = 0; i < key.length; i++) hash = (Math.imul(hash, 31) + key.charCodeAt(i)) | 0;

@@ -2,15 +2,6 @@ import type { CrmFilter as LeadFilter } from '@/lib/crm/board';
 
 export type LeadEntryType = 'voice' | 'whatsapp';
 
-/**
- * The entry types a conversation can be OPENED for.
- *
- * Wider than LeadEntryType on purpose. A lead lookup is keyed on the two
- * channels whose entries are lead-shaped, while reading a transcript is
- * channel-neutral — every messaging channel stores its messages against
- * (entry_id, entry_type). Widening LeadEntryType instead would have let a lead
- * query be called with a channel it cannot answer for.
- */
 export type ConversationEntryType =
     | LeadEntryType
     | 'instagram'
@@ -78,17 +69,10 @@ export interface LeadListItem {
     lastActivityAt?: string | null;
     whatsappWindowOpen: boolean;
     windowExpiresAt?: string | null;
-    /** Active memories about this lead, and when we last learned something. */
     memories: number;
     lastMemoryAt?: string | null;
 }
 
-/**
- * Aggregate counts over the SAME filtered set the list returns (GET
- * /leads/facets). They back the counts next to each filter option, so a badge
- * always means "how many of the leads you are currently looking at", never "how
- * many are on this page".
- */
 export interface LeadFacets {
     total: number;
     blocked: number;
@@ -106,7 +90,6 @@ export interface LeadFacets {
     campaignStatuses: Record<string, number>;
 }
 
-/** Sort keys accepted by GET /leads, mirroring domain/lead.SortKey. */
 export const LEAD_SORT_KEYS = [
     'createdAt',
     'updatedAt',
@@ -127,7 +110,6 @@ export interface LeadSort {
     direction: LeadSortDirection;
 }
 
-/** Page sizes offered by the list footer. */
 export const LEAD_PAGE_SIZES = [20, 50, 100, 200] as const;
 
 export interface OldLeadsListParams {
@@ -140,12 +122,6 @@ export interface OldLeadsListParams {
     order?: 'asc' | 'desc';
 }
 
-/**
- * The advanced read query: a structured crmfilter expression plus sorting and
- * paging. `filter` is serialized into the same base64 `filter` parameter the
- * CRM board uses; `q` stays a plain parameter because a search box is not a
- * predicate the operator built, it is one we build for them.
- */
 export interface LeadsQueryParams {
     filter?: LeadFilter;
     q?: string;

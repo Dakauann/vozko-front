@@ -163,7 +163,6 @@ export default function TourGuide({
     try {
       localStorage.setItem(storageKey, "true");
     } catch {
-      // ignore
     }
   };
 
@@ -174,11 +173,11 @@ export default function TourGuide({
 
   const handleCallback = (data: { type: string; action: string; [key: string]: any }) => {
     if (data.type === EVENTS.TOUR_END || data.action === ACTIONS.SKIP || data.action === ACTIONS.CLOSE) {
-      try { localStorage.setItem(storageKey, "true"); } catch { /* ignore */ }
+      try { localStorage.setItem(storageKey, "true"); } catch {  }
       setDismissed(true);
     }
     if (data.action === ACTIONS.COMPLETE) {
-      try { localStorage.setItem(storageKey, "true"); } catch { /* ignore */ }
+      try { localStorage.setItem(storageKey, "true"); } catch {  }
       setDismissed(true);
     }
   };

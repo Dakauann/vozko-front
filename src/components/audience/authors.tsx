@@ -44,25 +44,11 @@ import {
 import { CaretRight, ShieldWarning, UsersThree, Warning } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
-/*
- * The "who commented bad things" table (plan §11.3, §13, §1).
- *
- * Ranked as the API ranks it: the ordering is a query parameter, the column
- * heads are the control, and the default opens on the worst reputations. A row
- * opens the AUTHOR VIEW rather than expanding in place, so "who is this person"
- * has one answer here, in the feed, and anywhere else an @ appears.
- *
- * The period changes what the ranking MEANS, not just what it filters: with a
- * window the standing in every column describes that window, so somebody
- * hostile last month and quiet since drops out of this week's list. The panel
- * opens on all time, which is also the server's cheap path.
- */
 
 const LOCALE_TAG: Record<string, string> = { pt: "pt-BR", en: "en-US", es: "es-ES", de: "de-DE" };
 
 type Scope = "flagged" | "all";
 
-/** The minimum-comments options. Enough to cut one-off commenters, no more. */
 const MIN_COMMENT_OPTIONS = [2, 5, 10, 25];
 
 const ANY = "__any";
@@ -95,14 +81,9 @@ export function CommentAnalysisAuthors({
   const [error, setError] = useState<string | null>(null);
   const [viewing, setViewing] = useState<CommentAuthor | null>(null);
 
-  // Fetches settle in the promise callback, never synchronously in the
-  // effect body; the previous page stays visible (dimmed) while the next
-  // one loads.
   const range = useMemo(() => (isPeriodReady(period) ? periodRange(period) : null), [period]);
 
   useEffect(() => {
-    // A half-typed custom range would reload the table on every keystroke and
-    // then be refused by the API, so it simply waits.
     if (!range) return;
     let cancelled = false;
     void listCommentAuthorsAction({
@@ -129,18 +110,12 @@ export function CommentAnalysisAuthors({
     };
   }, [accountId, scope, stance, minComments, sort, page, range]);
 
-  // Any narrowing sends the reader back to page one: page 4 of a list that
-  // just shrank to two pages is an empty table with no explanation.
   const narrow = <T,>(set: (value: T) => void) => (value: T) => {
     set(value);
     setPage(1);
     setLoading(true);
   };
 
-  // One key at a time: the API orders by a single key, so clicking a new head
-  // replaces the order rather than stacking onto it, and clicking the active
-  // head flips it. Each key opens on the direction that answers its own
-  // question first — worst reputation, most comments, most recent.
   const toggleSort = (key: string) => {
     setSort((cur) =>
       cur.key === key

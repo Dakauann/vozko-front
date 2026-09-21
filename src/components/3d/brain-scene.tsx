@@ -17,11 +17,11 @@ const PRIMARY_COLOR = new THREE.Color("#1d4ed8");
 const PRIMARY_EMISSIVE = new THREE.Color("#2563eb");
 const WIREFRAME_COLOR = new THREE.Color("#3b82f6");
 
-const GAP_RADIUS = 1.6; 
-const GAP_STRENGTH = 0.7; 
-const GAP_MAX_LOCAL = 12; 
-const LERP_IN = 0.06; 
-const LERP_OUT = 0.02; 
+const GAP_RADIUS = 1.6;
+const GAP_STRENGTH = 0.7;
+const GAP_MAX_LOCAL = 12;
+const LERP_IN = 0.06;
+const LERP_OUT = 0.02;
 
 function BrainModel({ mouseRef }: { mouseRef: { current: MousePos } }) {
   const groupRef = useRef<THREE.Group>(null);
@@ -79,7 +79,7 @@ function BrainModel({ mouseRef }: { mouseRef: { current: MousePos } }) {
         opacity: 0.12,
       });
       const wireMesh = new THREE.Mesh(wireGeo, wireMat);
-      wireMesh.raycast = () => {}; 
+      wireMesh.raycast = () => {};
       mesh.add(wireMesh);
     }
 
@@ -271,13 +271,13 @@ function GroundGlow({ isDark }: { isDark: boolean }) {
 function Lighting({ isDark }: { isDark: boolean }) {
   return (
     <>
-      {/* Ambient, lower in dark mode for moodier look */}
+      {}
       <ambientLight
         intensity={isDark ? 0.12 : 0.3}
         color={isDark ? "#1e3a8a" : "#ffffff"}
       />
 
-      {/* KEY: Uplight from below, hero signature */}
+      {}
       <spotLight
         position={[0, -5, 2]}
         angle={0.6}
@@ -289,7 +289,7 @@ function Lighting({ isDark }: { isDark: boolean }) {
         shadow-mapSize-height={1024}
       />
 
-      {/* FILL: Front-left */}
+      {}
       <pointLight
         position={[-3, 1, 3]}
         intensity={isDark ? 1.5 : 3}
@@ -298,14 +298,14 @@ function Lighting({ isDark }: { isDark: boolean }) {
         decay={2}
       />
 
-      {/* RIM: Top-right */}
+      {}
       <directionalLight
         position={[3, 4, -1]}
         intensity={isDark ? 0.8 : 1.5}
         color={isDark ? "#bfdbfe" : "#e0e7ff"}
       />
 
-      {/* BACK: Indigo contour */}
+      {}
       <pointLight
         position={[0, 0, -5]}
         intensity={isDark ? 0.8 : 1.2}
@@ -314,7 +314,7 @@ function Lighting({ isDark }: { isDark: boolean }) {
         decay={2}
       />
 
-      {/* ACCENT: Bottom bounce */}
+      {}
       <pointLight
         position={[2, -3, 1]}
         intensity={isDark ? 0.6 : 1}

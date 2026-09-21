@@ -49,19 +49,11 @@ import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { useToast } from "@/hooks/use-toast";
 import { useWorkspace } from "@/contexts/workspace-context";
 
-/**
- * VoIP is no longer sold, so call-channel addons and the entitlement they grant
- * never reach the catalogue, the active list or the capacity readouts — the API
- * may still return rows created before the feature was withdrawn.
- */
 const RETIRED_KINDS = new Set<AddonEntitlementKind>(["call_channels"]);
 
 const KIND_TILE: Record<AddonEntitlementKind, string> = {
   call_channels: "bg-muted",
   whatsapp_business_phones: "bg-healthy",
-  // Neutral rather than WhatsApp green: the network is the same, the transport
-  // is not, and the two must be distinguishable at a glance in a list where a
-  // workspace may hold both.
   unofficial_whatsapp_instances: "bg-chart-4",
 };
 
@@ -165,9 +157,6 @@ export default function UserAddonsCatalog() {
     void load();
   }, [load]);
 
-  // Fetch the exact "you pay now" quote from the backend whenever the dialog selection, cycle, or
-  // quantity changes, so the customer sees the prorated amount before confirming. The same math drives
-  // the actual charge, so the quote is authoritative (never recomputed on the client).
   React.useEffect(() => {
     if (!selected || !workspaceId) {
       setPreview(null);
@@ -526,9 +515,8 @@ export default function UserAddonsCatalog() {
                 </div>
               </div>
 
-              {/* Exact charge from the backend preview: what is debited from saldo now (prorated for a
-                  new monthly channel) vs the recurring amount on the day-23 invoice. Same math as the
-                  charge, so it is authoritative. Falls back to the full price while the quote loads. */}
+              {
+}
               <div className="space-y-2 rounded-[--radius] border border-border bg-background p-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-foreground">{t("purchase.payNow")}</span>

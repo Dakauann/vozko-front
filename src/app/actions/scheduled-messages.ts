@@ -20,12 +20,6 @@ interface ScheduledMessageListEnvelope {
     window: SchedulingWindow;
 }
 
-/**
- * The refusals that are ABOUT the window carry the window in their body, so the
- * UI can snap its picker to the real boundary instead of asking the operator to
- * guess. apiClient surfaces `code` but not the body, so those responses are
- * re-read here.
- */
 function toSchedulingError(
     error: { message: string; code?: string },
     window?: SchedulingWindow,
@@ -62,13 +56,6 @@ export async function listScheduledMessagesAction(
     };
 }
 
-/**
- * Schedules a message.
- *
- * `idempotencyKey` must be stable across retries of the SAME intent — the UI
- * mints one per dialog-open, not per click — so a double submit or a retried
- * timeout produces one message to the customer rather than two.
- */
 export async function scheduleMessageAction(
     entryType: EntryType,
     entryId: string,

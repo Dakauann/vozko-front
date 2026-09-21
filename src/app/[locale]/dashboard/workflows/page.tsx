@@ -185,8 +185,6 @@ export default function WorkflowsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleExportWorkflow = (id: string) => {
-    // Same workspace-scoping fix as the balance export: a navigation carries no
-    // X-Workspace-ID, so the API resolved the default workspace instead.
     openScoped(`${getApiBaseUrl()}/workflows/${encodeURIComponent(id)}/export`);
   };
 

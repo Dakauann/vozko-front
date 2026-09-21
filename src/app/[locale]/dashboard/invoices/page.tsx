@@ -201,7 +201,6 @@ export default function InvoicesPage() {
       setCopiedId(invoice.id);
       setTimeout(() => setCopiedId(null), 2000);
     } catch {
-      // Clipboard API may not be available in all contexts
     }
   };
 
@@ -460,7 +459,6 @@ export default function InvoicesPage() {
             break;
           }
         } catch {
-          // ignore polling errors
         }
       }
     };
@@ -840,7 +838,6 @@ export default function InvoicesPage() {
                             setPixCopied(true);
                             setTimeout(() => setPixCopied(false), 2000);
                           } catch {
-                            // clipboard may not be available
                           }
                         }}
                         className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"

@@ -39,14 +39,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
-/**
- * One Telegram bot.
- *
- * Telegram is an inbox channel: there are no posts and no comment moderation, so
- * this page carries the three things that actually matter here, webhook health,
- * who attends the inbox, and the deep links that are this channel's only way to
- * start an attributed conversation.
- */
 export default function TelegramAccountPage() {
   const t = useTranslations("telegram");
   const params = useParams();
@@ -162,9 +154,8 @@ export default function TelegramAccountPage() {
         }
       />
 
-      {/* Webhook health leads the page because it is the only thing here that
-          silently destroys data: Telegram discards undelivered updates after 24
-          hours and offers no history API to recover them. */}
+      {
+}
       <ElevatedContainer className="space-y-4">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-sm font-semibold text-foreground">{t("profile.webhookTitle")}</h2>
@@ -229,20 +220,16 @@ export default function TelegramAccountPage() {
         )}
       </ElevatedContainer>
 
-      {/* Who attends this inbox. Agent and workflow attendance run through the
-          same channel-agnostic services every other channel uses, so the panel is
-          the shared one. */}
+      {
+}
       <TelegramAutomationPanel account={account} onUpdated={setAccount} />
 
-      {/* Business pairing. Placed after automation because it changes HOW the
-          agent appears, not whether it runs, and because its most important
-          job is the can_reply warning, which only matters once an agent is
-          actually attending. */}
+      {
+}
       <TelegramBusinessPanel account={account} />
 
-      {/* Deep links: the channel's substitute for cold outbound. A bot cannot
-          message a customer first, but a link opens an already-attributed
-          conversation on the customer's first tap. */}
+      {
+}
       <ElevatedContainer className="space-y-4">
         <div className="space-y-1">
           <h2 className="text-sm font-semibold text-foreground">{t("links.title")}</h2>

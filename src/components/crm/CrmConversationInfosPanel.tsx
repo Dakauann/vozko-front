@@ -37,7 +37,6 @@ import CrmSegmentedToggle from "@/components/crm/CrmSegmentedToggle";
 import { type Opportunity, formatValueCents } from "@/lib/crm/opportunities";
 import { cn } from "@/lib/utils";
 
-// Status → meaning dot (color rides the dot only, never a same-colour tint behind it).
 const DEAL_STATUS_DOT: Record<string, string> = {
   open: "bg-primary",
   won: "bg-healthy",
@@ -51,27 +50,13 @@ interface CrmConversationInfosPanelProps {
   onClose: () => void;
   conversation: ActiveConversation | null;
   inboxEntry: InboxEntry | null;
-  /** Resolved CRM status from layout (new | ongoing | finished). */
   conversationStatus?: "new" | "ongoing" | "finished" | string | null;
   canBlock: boolean;
-  /** Mirrors `leads:update`; memories render read-only without it. */
   canManageMemories: boolean;
-  /** RBAC leads:update — the same permission memories use, named for this job. */
   canRenameLead: boolean;
-  /**
-   * Publishes a committed rename to the surrounding lists. The panel can only
-   * fix its own heading; the conversation row behind it, the search results and
-   * this lead's OTHER conversations all show the same name and would otherwise
-   * sit on the old one until a reload.
-   */
   onLeadRenamed?: (leadId: string, name: string) => void;
 }
 
-/**
- * Formats a stored E.164-ish Brazilian number (e.g. 5511998887777) into a
- * readable +55 (11) 99888-7777. Falls back to the raw value for anything that
- * doesn't match the expected shape.
- */
 function formatPhone(raw: string): string {
   const digits = raw.replace(/\D/g, "");
   const br = digits.startsWith("55") ? digits.slice(2) : digits;
@@ -91,11 +76,6 @@ function initialsOf(name: string | null | undefined, fallback: string): string {
   return parts.map((p) => p[0]?.toUpperCase() ?? "").join("") || "#";
 }
 
-/**
- * Context rail (industry pattern: HubSpot / Intercom / Zendesk / Front).
- * Default ~416px, expandable ~480px on large screens. Tabs avoid endless scroll.
- * Sticky identity header + scroll body; danger actions stay pinned bottom.
- */
 export default function CrmConversationInfosPanel({
   open,
   onClose,
@@ -115,31 +95,16 @@ export default function CrmConversationInfosPanel({
   const [blockedOverride, setBlockedOverride] = useState<boolean | null>(null);
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [tab, setTab] = useState<PanelTab>("contact");
-  /** Wider context rail (xl+), closer to HubSpot / Zendesk default. */
   const [expanded, setExpanded] = useState(false);
 
   const isWhatsApp = conversation?.entry_type === "whatsapp";
   const leadNumber = conversation?.lead_number ?? "";
   const [leadNameOverride, setLeadNameOverride] = useState<string | null>(null);
-  // The conversation object is refreshed by websocket/refetch, which lags a
-  // rename by a beat. The override makes the header show the new name the
-  // instant it is stored, and is dropped as soon as the server value catches up
-  // (or the operator switches conversation).
   const leadName = leadNameOverride ?? conversation?.lead_name ?? "";
   const leadId = inboxEntry?.lead_id ?? "";
 
-  /**
-   * A group chat rather than a person.
-   *
-   * It suppresses affordances rather than relabelling them. A group has no
-   * number to copy or dial, no lead to block, and no single person to
-   * attribute the thread to — so the identity block, the copy button and the
-   * danger zone all address someone who does not exist here, and offering them
-   * produces controls that can only fail.
-   */
   const isGroup = Boolean(conversation?.is_group ?? inboxEntry?.is_group);
 
-  /** The channel's own name, or null for anything with no brand (a voice call). */
   const channelName = channelLabel(conversation?.entry_type);
 
   useEffect(() => {
@@ -149,13 +114,6 @@ export default function CrmConversationInfosPanel({
     setLeadNameOverride(null);
   }, [inboxEntry?.entry_id, inboxEntry?.entry_type]);
 
-  // Derived, not synced through an effect. A tab that vanished under the
-  // operator must not leave the body blank — a group conversation followed by a
-  // private one would otherwise render nothing until they clicked something —
-  // and resolving it here means there is no frame in which the stale value is
-  // on screen.
-  // Tabs that stop existing for the current conversation fall back to contact:
-  // "group" when the chat is not a group, "memories" when it is (no lead).
   const activeTab: PanelTab =
     (!isGroup && tab === "group") || (isGroup && tab === "memories")
       ? "contact"
@@ -198,7 +156,6 @@ export default function CrmConversationInfosPanel({
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      /* clipboard unavailable, non-critical */
     }
   }, [leadNumber]);
 
@@ -252,8 +209,6 @@ export default function CrmConversationInfosPanel({
             },
           ]
         : []),
-      // A group has no lead, and memories are lead-scoped — same suppression
-      // rule as the identity affordances.
       ...(isGroup
         ? []
         : [
@@ -281,7 +236,6 @@ export default function CrmConversationInfosPanel({
     <aside
       aria-hidden={!open}
       className={cn(
-        // Mobile: slide-over. Desktop: inline context rail (industry ~360–480px).
         "absolute inset-y-0 right-0 z-30 flex h-full flex-col bg-card",
         "border-l border-border shadow-xl transition-[transform,width] duration-200 ease-out",
         "w-full max-w-md sm:max-w-lg",
@@ -289,7 +243,6 @@ export default function CrmConversationInfosPanel({
         open
           ? cn(
               "translate-x-0",
-              // Default 26rem (416px); expanded 30rem (480px) on xl, matches HubSpot/Zendesk rails.
               expanded
                 ? "lg:w-[26rem] xl:w-[30rem]"
                 : "lg:w-[24rem] xl:w-[26rem]",
@@ -297,7 +250,7 @@ export default function CrmConversationInfosPanel({
           : "translate-x-full lg:w-0 lg:translate-x-0 lg:overflow-hidden lg:border-l-0",
       )}
     >
-      {/* Sticky chrome: title + expand + close */}
+      {}
       <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border px-3 py-2.5">
         <h2 className="min-w-0 truncate text-sm font-semibold tracking-tight text-foreground">
           {t("title")}
@@ -337,7 +290,7 @@ export default function CrmConversationInfosPanel({
         </div>
       ) : (
         <>
-          {/* Sticky identity (compact horizontal, not a tall marketing hero) */}
+          {}
           <div className="shrink-0 border-b border-border px-3 py-3">
             {isBlocked && (
               <div className="mb-2.5 flex items-start gap-2 rounded-lg border border-border bg-muted px-2.5 py-2 text-destructive-ink">
@@ -370,12 +323,8 @@ export default function CrmConversationInfosPanel({
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                {/*
-                  A group's name belongs to the group on WhatsApp's side, not to
-                  a lead here — there is no lead row to rename — so groups keep
-                  the plain heading. Everything else is editable in place for
-                  anyone holding leads:update.
-                */}
+                {
+}
                 {leadId && !isGroup ? (
                   <EditableLeadName
                     leadId={leadId}
@@ -394,9 +343,8 @@ export default function CrmConversationInfosPanel({
                     {leadName || (isGroup ? t("unnamedGroup") : formatPhone(leadNumber))}
                   </p>
                 )}
-                {/* A group has no number. Rendering the copy affordance would
-                    offer an operator a phone number that cannot be dialled and
-                    belongs to nobody. */}
+                {
+}
                 {isGroup ? (
                   <p className="mt-0.5 truncate text-xs text-muted-foreground">
                     {t("groupSubtitle")}
@@ -422,11 +370,8 @@ export default function CrmConversationInfosPanel({
                   </button>
                 )}
                 <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                  {/* The channel this conversation actually arrived on.
-                      This used to be a two-way whatsapp-or-voice guess, so an
-                      Instagram, Telegram or unofficial-WhatsApp conversation was
-                      labelled "Voz" — a voice call it never was. The lookup
-                      lives beside the channel marks so every surface agrees. */}
+                  {
+}
                   <span className="inline-flex items-center gap-1 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-2xs font-semibold text-foreground">
                     {channelName ? (
                       <ChannelLogo
@@ -457,7 +402,7 @@ export default function CrmConversationInfosPanel({
             </div>
           </div>
 
-          {/* Scrollable tab body */}
+          {}
           <div className="min-h-0 flex-1 overflow-y-auto">
             {activeTab === "contact" && (
               <dl className="flex flex-col gap-px bg-border/60">
@@ -519,10 +464,8 @@ export default function CrmConversationInfosPanel({
                   )}
                 </InfoRow>
 
-                {/* Stage and label chips: one neutral ground, the colour in
-                    the DOT. These carried a 10% wash of an arbitrary user-
-                    picked colour with the same colour as 11px text — contrast
-                    unknowable by construction, and the exact banned pattern. */}
+                {
+}
                 {stage && (
                   <InfoRow label={t("stage")}>
                     <span className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-muted px-2 py-0.5 text-2xs font-medium text-foreground">
@@ -564,9 +507,6 @@ export default function CrmConversationInfosPanel({
 
             {activeTab === "group" && conversation && (
               <ConversationGroupSection
-                // Keyed by conversation: switching chats REMOUNTS this rather
-                // than leaving one group's roster, drafts and confirmations on
-                // screen while another loads.
                 key={conversation.entry_id}
                 entryId={conversation.entry_id}
                 active={open && activeTab === "group"}
@@ -575,8 +515,6 @@ export default function CrmConversationInfosPanel({
 
             {activeTab === "memories" && !isGroup && (
               <LeadMemoriesSection
-                // Keyed by lead: switching conversations remounts the section
-                // so one lead's list never flashes under another lead's name.
                 key={leadId || "no-lead"}
                 leadId={leadId || null}
                 canManage={canManageMemories}
@@ -627,8 +565,8 @@ export default function CrmConversationInfosPanel({
 
                 <div>
                   <div className="mb-2 flex items-center gap-1.5">
-                    {/* No accent plate behind a section glyph: accent means
-                        commit/selection, and this is a heading. */}
+                    {
+}
                     <TrendUp
                       weight="bold"
                       className="h-3.5 w-3.5 text-primary-ink"
@@ -677,10 +615,8 @@ export default function CrmConversationInfosPanel({
         </>
       )}
 
-      {/* Danger zone pinned.
-          Hidden for a group: blocking acts on a LEAD, and a group has none. The
-          equivalent act — leaving — lives in the group tab, where it can say
-          what it actually does. */}
+      {
+}
       {conversation && canBlock && !isGroup && (
         <div className="shrink-0 border-t border-border bg-card px-3 py-3">
           {isBlocked ? (

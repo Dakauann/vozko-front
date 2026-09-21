@@ -222,7 +222,7 @@ export default function AnalysisStatsPanel({
             </span>
           </div>
 
-          {/* Compact Summary Grid */}
+          {}
           <div className="grid grid-cols-2 gap-2 mb-4">
             <div className="flex items-center gap-2 p-2.5 rounded-lg bg-muted border border-border">
               <TrendUp weight="fill" className="h-4 w-4 text-healthy-ink" />
@@ -248,7 +248,7 @@ export default function AnalysisStatsPanel({
             </div>
           </div>
 
-          {/* Compact Sentiment Row */}
+          {}
           <div className="mb-4">
             <p className="text-2xs text-muted-foreground mb-2">
               {t("sentiment.title")}
@@ -278,7 +278,7 @@ export default function AnalysisStatsPanel({
             </div>
           </div>
 
-          {/* Compact Lead Qualification */}
+          {}
           <div className="mb-4">
             <p className="text-2xs text-muted-foreground mb-2">
               {t("qualification.title")}
@@ -314,7 +314,7 @@ export default function AnalysisStatsPanel({
             </div>
           </div>
 
-          {/* Compact Interest */}
+          {}
           <div>
             <p className="text-2xs text-muted-foreground mb-2">
               {t("interest.title")}
@@ -382,11 +382,9 @@ export default function AnalysisStatsPanel({
           </span>
         </div>
 
-        {/* Summary Stats */}
-        {/* Four analysis figures on one strip. They were four cards, each with
-            a hardcoded hex icon tile (#8b5cf6, #22c55e, #3b82f6, #6366f1) and
-            a staggered entrance — four palettes this design system does not
-            own, and four separate animations for numbers that arrive together. */}
+        {}
+        {
+}
         <div className="mb-8">
           <InstrumentStrip
             columns={4}
@@ -410,7 +408,7 @@ export default function AnalysisStatsPanel({
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          {/* Sentiment Analysis */}
+          {}
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <Smiley weight="bold" className="h-4 w-4" />
@@ -443,7 +441,7 @@ export default function AnalysisStatsPanel({
             </div>
           </div>
 
-          {/* Lead Qualification */}
+          {}
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <Fire weight="bold" className="h-4 w-4" />
@@ -474,7 +472,7 @@ export default function AnalysisStatsPanel({
             </div>
           </div>
 
-          {/* Interest Level */}
+          {}
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <Target weight="bold" className="h-4 w-4" />
@@ -505,7 +503,7 @@ export default function AnalysisStatsPanel({
             </div>
           </div>
 
-          {/* Attendance Quality */}
+          {}
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <TrendUp weight="bold" className="h-4 w-4" />

@@ -47,7 +47,7 @@ export function clearClientAuthCookies(): void {
     const hostname = window.location.hostname;
 
     const domainVariations: (string | undefined)[] = [
-        undefined, // No domain = current host only (most common for localhost)
+        undefined,
     ];
 
     const isLocalhost = hostname === 'localhost' ||

@@ -37,7 +37,6 @@ export function WorkspaceSwitcher({
   const [newName, setNewName] = React.useState("");
   const [createError, setCreateError] = React.useState("");
   const dropdownRef = React.useRef<HTMLDivElement>(null);
-  /** The portalled panel. Needed by the click-outside test — see below. */
   const panelRef = React.useRef<HTMLDivElement>(null);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const [menuPos, setMenuPos] = React.useState<{
@@ -46,7 +45,6 @@ export function WorkspaceSwitcher({
     width: number;
   } | null>(null);
 
-  // Measure from the trigger, not from a positioned ancestor: the spine clips.
   React.useLayoutEffect(() => {
     if (!isOpen) return;
     const place = () => {
@@ -55,7 +53,6 @@ export function WorkspaceSwitcher({
       const width = Math.max(r.width, 288);
       setMenuPos({
         top: r.bottom + 6,
-        // Keep the panel on screen when the trigger sits near an edge.
         left: Math.min(r.left, window.innerWidth - width - 8),
         width,
       });
@@ -97,7 +94,7 @@ export function WorkspaceSwitcher({
           page: pageNum,
           pageSize: PAGE_SIZE,
         });
-        if (fetchId !== fetchRef.current) return; 
+        if (fetchId !== fetchRef.current) return;
         if (!result.error) {
           setItems((prev) =>
             append ? [...prev, ...result.workspaces] : result.workspaces,
@@ -132,15 +129,6 @@ export function WorkspaceSwitcher({
   }, [isFetching, page, totalPages, debouncedSearch, loadWorkspaces]);
 
   React.useEffect(() => {
-    /*
-      The panel is portalled to document.body, so it is NOT a DOM descendant of
-      dropdownRef — that ref only wraps the trigger. Testing containment against
-      the trigger alone therefore reported "outside" for every click INSIDE the
-      panel, which is why clicking the search field closed the menu instantly:
-      mousedown fired, the menu unmounted, and the click never reached the input.
-
-      Both subtrees have to be excluded.
-    */
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
       const inTrigger = dropdownRef.current?.contains(target) ?? false;
@@ -204,13 +192,8 @@ export function WorkspaceSwitcher({
 
   return (
     <div className={cn("relative", fullWidth && "w-full")} ref={dropdownRef}>
-      {/*
-        The scope slot of the app bar's identity line — "Brand | Workspace",
-        the way the reference bar reads "Azure Data Explorer | All dashboards".
-        In the bar it is a quiet single-line trigger: the name IS the label,
-        with the accessible name carrying the legend. The drawer keeps the
-        stacked legend-over-name form (fullWidth), where vertical room is free.
-      */}
+      {
+}
       <button
         ref={triggerRef}
         onClick={() => setIsOpen(!isOpen)}
@@ -270,7 +253,7 @@ export function WorkspaceSwitcher({
                 className="z-[100] overflow-hidden rounded-lg border border-border bg-popover shadow-xl"
               >
             <div className="border-b border-border px-3 py-2.5 space-y-2">
-              {/* Search mode toggle */}
+              {}
               <div className="flex gap-1 rounded-lg bg-muted p-0.5">
                 <button
                   onClick={() => {
@@ -301,7 +284,7 @@ export function WorkspaceSwitcher({
                   {t("searchByEmail")}
                 </button>
               </div>
-              {/* Search input */}
+              {}
               <div className="flex items-center gap-2 rounded-[--radius] bg-muted px-3 py-2">
                 <MagnifyingGlass
                   className="h-4 w-4 text-muted-foreground"
@@ -354,15 +337,12 @@ export function WorkspaceSwitcher({
                         }}
                         className={cn(
                           "flex w-full items-center gap-3 rounded-[--radius] p-2.5 transition-all",
-                          // Neutral opaque ground; the glyph carries the green.
                           isSelected ? "bg-muted text-foreground" : "hover:bg-muted",
                         )}
                       >
                         <div
                           className={cn(
                             "flex h-8 w-8 items-center justify-center rounded-lg",
-                            // Lifts to --card so the tile still separates from
-                            // the selected row's own --muted ground.
                             isSelected ? "bg-card text-primary-ink" : "bg-muted text-muted-foreground",
                           )}
                         >

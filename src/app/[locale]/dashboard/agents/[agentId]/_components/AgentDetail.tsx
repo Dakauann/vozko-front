@@ -78,20 +78,6 @@ type Accent =
   | "violet"
   | "sky";
 
-/*
- * Accent recipes.
- *
- * `icon` was `bg-muted` for all seven accents while IconTile hardcodes
- * `text-white` on the glyph — a white mark on a pale grey plate, which is not
- * a subtle tile but an invisible one. Every icon on this page was a ghost
- * square. It is the exact failure the shared guardrail names: a block whose
- * colour comes from a prop, carrying a white glyph, the moment a caller
- * passes a neutral fill.
- *
- * These are the shared plates now, so the glyph colour comes from the plate
- * rather than from IconTile, and each accent lands on the colour its mark
- * means elsewhere in the product.
- */
 const accentClasses: Record<
   Accent,
   {

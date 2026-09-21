@@ -3,12 +3,10 @@
 import { BillingTag, Panel, type Verdict } from "./faq-chrome";
 import styles from "./faq.module.css";
 
-/* ── The 24-hour window, as a vertical clock ───────────────────────────── */
 
 export type ClockStep = {
   time: string;
   body: string;
-  /** Present when this moment has a price attached. */
   tag?: string;
   verdict?: Verdict;
 };
@@ -20,8 +18,6 @@ export type WindowClockLabels = {
   foot: string;
 };
 
-/** Which marks sit inside the open window, and what each one is. Design lives
- *  here; every word on the diagram comes from the locale file. */
 const CLOCK_SPEC = [
   { kind: "open", open: true },
   { kind: "billed", open: true },
@@ -59,7 +55,6 @@ export function WindowClock({ labels }: { labels: WindowClockLabels }) {
   );
 }
 
-/* ── The decision table ────────────────────────────────────────────────── */
 
 export type MatrixRow = {
   type: string;
@@ -79,14 +74,6 @@ export type BillingMatrixLabels = {
   rows: MatrixRow[];
 };
 
-/**
- * The reference the reader comes back for.
- *
- * Two dated columns rather than one "new pricing" list, because the question
- * people arrive with is "what changed" and a single column cannot answer it.
- * Rows that moved carry a faint warning ground and say so in a word, so the
- * change never rests on the tint alone.
- */
 export function BillingMatrix({ labels }: { labels: BillingMatrixLabels }) {
   return (
     <div className={styles.matrixScroll}>

@@ -28,25 +28,13 @@ import type {
 } from "@/lib/whatsapp-campaigns/types";
 
 interface CampaignsLeadsExportDialogProps {
-  /** Same recorte the summary tiles are showing. */
   type?: string;
   from: string;
   to: string;
-  /** The tiles themselves, used to show how many rows the file will hold. */
   metrics: WhatsAppCampaignMetrics | null;
   disabled?: boolean;
 }
 
-/**
- * Pull the leads behind the disparos tiles — every campaign in the period, in
- * one file.
- *
- * The statuses start on the three that make up "Envios" (enviados, entregues e
- * lidos), which is what an operator reading the tiles is asking for, and can be
- * changed to any subset. The period, type and department are not editable here:
- * they are whatever the tiles above are already showing, so the file and the
- * numbers can never disagree about what was asked.
- */
 export function CampaignsLeadsExportDialog({
   type,
   from,
@@ -64,16 +52,6 @@ export function CampaignsLeadsExportDialog({
     DISPATCHED_STATUSES,
   );
 
-  /**
-   * The row count comes from the funnel tiles, never from the "Envios"
-   * headline.
-   *
-   * They are not the same number and cannot be made the same: the headline is
-   * billed volume read from the ledger, while these buckets are the entries'
-   * current status. A campaign reset zeroes entry status but cannot erase a
-   * charge, so the headline runs ahead. Showing the honest, entry-derived count
-   * here means the number on this button is the number of lines in the file.
-   */
   const expectedRows = useMemo(() => {
     if (!metrics) return null;
     const perStatus: Record<WhatsAppCampaignPhoneStatus, number> = {
@@ -103,8 +81,6 @@ export function CampaignsLeadsExportDialog({
         from: from || undefined,
         to: to || undefined,
       },
-      // Every status selected is the same question as no filter at all, and the
-      // shorter query is the one the database can plan best.
       {
         statuses:
           selected.length === SEND_STATUSES.length ? undefined : selected,

@@ -5,14 +5,6 @@ import { useState } from "react";
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 
-/**
- * The two-step confirmation both destructive campaign actions use.
- *
- * Prepare issues a six-digit code, the operator types it back, confirm applies
- * it. Shared across channels and across reset/clear-history, because the flow is
- * identical and the code is the only thing standing between a misclick and
- * deleting a workspace's conversation history.
- */
 export function CampaignConfirmModal({
   open,
   title,
@@ -29,7 +21,6 @@ export function CampaignConfirmModal({
   open: boolean;
   title: string;
   description: string;
-  /** The code the prepare step issued. Shown so the operator can type it back. */
   code?: string;
   confirmLabel: string;
   cancelLabel: string;
@@ -43,9 +34,6 @@ export function CampaignConfirmModal({
 
   if (!open) return null;
 
-  // Compared here as well as on the server. The server check is the real one;
-  // this exists so the operator is told immediately rather than after a round
-  // trip that reads as a failure.
   const matches = code !== undefined && typed.trim() === code;
 
   return (
@@ -81,8 +69,6 @@ export function CampaignConfirmModal({
         <div className="flex justify-end gap-2">
           <Button variant="ghost" title={cancelLabel} onClick={onClose} disabled={pending} />
           <Button
-            // No destructive variant exists in the kit; the confirmation code
-            // above is what makes this deliberate, not the button colour.
             variant="primary"
             title={confirmLabel}
             onClick={() => onConfirm(typed.trim())}

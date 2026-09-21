@@ -332,7 +332,7 @@ export default function UsersPage() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Header */}
+      {}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -345,7 +345,7 @@ export default function UsersPage() {
         />
       </motion.div>
 
-      {/* Users Table */}
+      {}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -472,7 +472,7 @@ export default function UsersPage() {
         />
       </motion.div>
 
-      {/* Click outside to close dropdowns */}
+      {}
       {showRoleDropdown && (
         <div
           className="fixed inset-0 z-40"

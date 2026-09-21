@@ -1,11 +1,3 @@
-/**
- * Browser-side cookie helpers for non-httpOnly preference cookies (active
- * workspace / department, referral code). These replace the server-side
- * `next/headers` cookie writes so the code can run in client components.
- *
- * Auth cookies (accessToken/refreshToken) are httpOnly and set by the API, they
- * are NOT managed here.
- */
 
 function crossSubdomainSuffix(): string | null {
   if (typeof window === "undefined") return null;

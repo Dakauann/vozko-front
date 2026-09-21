@@ -39,7 +39,6 @@ import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
 
-/** WhatsApp caps the one-time code at 15 characters. Mirrors the server. */
 const AUTH_CODE_MAX_LENGTH = 15;
 
 interface DebugInfo {
@@ -74,12 +73,8 @@ export default function SendWhatsAppTemplatePage() {
     useState<string>("");
 
   const { can } = useWorkspace();
-  // The page has its own gate. The route it posts to is gated too — this only
-  // stops an operator filling in a form they were never allowed to submit.
   const canSend = can("whatsapp_templates", "send");
 
-  // One key for the life of this page. A double-submit or a retry after a
-  // dropped connection costs one message; a deliberate resend is a reload.
   const idempotencyKey = useRef<string>(
     typeof crypto !== "undefined" && "randomUUID" in crypto
       ? crypto.randomUUID()
@@ -116,9 +111,6 @@ export default function SendWhatsAppTemplatePage() {
     [template],
   );
 
-  // The shared reader, so this page asks for exactly the variables the server
-  // will substitute — including the one-time code of an authentication
-  // template, whose body carries no placeholder to derive it from.
   const bodyParamNames = useMemo(
     () => templateParamSlots(template).body,
     [template],
@@ -148,11 +140,6 @@ export default function SendWhatsAppTemplatePage() {
         } else if (result.template) {
           setTemplate(result.template);
 
-          // Sized from the SAME reader that renders the fields. Counting the
-          // body's placeholders here instead would size this array at zero for
-          // an authentication template, whose one field is the code and whose
-          // body has no placeholder — leaving a rendered input whose value
-          // nothing validates.
           const slots = templateParamSlots(result.template);
           setBodyParams(new Array(slots.body.length).fill(""));
           setHeaderTextParams(new Array(slots.header.length).fill(""));
@@ -198,9 +185,6 @@ export default function SendWhatsAppTemplatePage() {
       }
     });
 
-    // WhatsApp caps the one-time code at 15 characters, and the server refuses
-    // a longer one before it charges for the send. Same rule here so the
-    // operator sees it while typing rather than after pressing send.
     if (template?.category === "AUTHENTICATION") {
       const code = bodyParams[0]?.trim() ?? "";
       if (code.length > AUTH_CODE_MAX_LENGTH) {
@@ -227,9 +211,6 @@ export default function SendWhatsAppTemplatePage() {
     setSendSuccess(false);
 
     try {
-      // The same endpoint the CRM dialog uses. There is exactly one door to a
-      // paid template send, so this page cannot drift into billing, gating or
-      // recording the message differently from the dialog.
       const { conversation, error: sendError } = await startOfficialConversationAction(
         {
           businessPhoneId: selectedBusinessPhoneId,
@@ -267,8 +248,6 @@ export default function SendWhatsAppTemplatePage() {
           title: t("toast.sendSuccess"),
           description: t("toast.sendSuccessDesc"),
         });
-        // A send that opened a conversation belongs in the inbox, not on a
-        // confirmation screen the operator has to navigate away from.
         router.push(`/dashboard/crm?entryId=${conversation.entryId}&entryType=${conversation.entryType}`);
       }
     } catch {
@@ -334,9 +313,8 @@ export default function SendWhatsAppTemplatePage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <ElevatedContainer className="rounded-lg flex flex-col items-center gap-4 p-8 border border-border bg-card">
-          {/* This is a failure state, so the mark is the failure — not the
-              channel. A WhatsApp logo on a red plate reads as "WhatsApp is
-              broken" rather than "this template could not be loaded". */}
+          {
+}
           <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] tile-fault">
             <WarningCircle className="h-7 w-7" weight="fill" />
           </div>
@@ -409,7 +387,7 @@ export default function SendWhatsAppTemplatePage() {
       <form onSubmit={handleSubmit}>
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="space-y-6">
-            {/* Recipient Section */}
+            {}
             <div>
               <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
                 <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground mb-4">
@@ -462,7 +440,7 @@ export default function SendWhatsAppTemplatePage() {
               </ElevatedContainer>
             </div>
 
-            {/* Header Info Section (media or text params) */}
+            {}
             {(hasMediaHeader || headerParamNames.length > 0) && (
               <div>
                 <ElevatedContainer className="rounded-lg border border-border bg-card p-6">

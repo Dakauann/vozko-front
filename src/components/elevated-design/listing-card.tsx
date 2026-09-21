@@ -7,20 +7,6 @@ import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import ElevatedContainer from "./elevated-container";
 
-/*
- * Accent recipes.
- *
- * `light` is the GROUND a badge or pill sits on and it is the same opaque
- * --muted for every accent, deliberately. It used to be a 10% wash of the
- * accent's own hue carrying that hue's fill value as the label — the shape
- * this system bans, shipped from a shared map so it landed on every listing
- * card in the product at once. `text` is now the measured ink for that hue in
- * both themes rather than the fill value, which was tuned to sit under a white
- * button label and had nothing left for 11px text.
- *
- * `border` follows the ground: a hairline at --border, so the chip reads as one
- * material instead of a tinted box outlined in a second tint of the same tint.
- */
 const colorMap = {
   primary: {
     solid: "tile-brand",
@@ -136,28 +122,9 @@ interface IconBoxProps {
   animated?: boolean;
 }
 
-/**
- * Icon plate.
- *
- * Used 141 times across the product, so this component alone sets the tone.
- * It has now been wrong twice in opposite directions: first a gradient tile
- * with a white glyph, a drop shadow, a hover scale-and-rotate, an inner glow
- * AND an infinite shimmer sweep; then a pale plate carrying the glyph in a
- * darker shade of the plate's own hue — an orange mark on peach, a green mark
- * on mint. The second is quieter but it is the wash, and at 18px the mark and
- * its ground collapse into one smudge.
- *
- * It is the channel lockup now: the colour is the PLATE, opaque, and the glyph
- * is the foreground that colour ships with. Same shape as the WhatsApp mark
- * beside it, which is the one tile in the product that always read correctly.
- * Same props, so all 141 call sites are untouched; `animated` is accepted and
- * ignored, because there is no longer anything to animate.
- */
 const plateByColor: Record<string, string> = {
-  // The brand fill, for the tile that means the product's own primary object.
   primary: "tile-brand",
   slate: "tile-neutral",
-  // Semantic colours keep their meaning and their measured foreground.
   emerald: "tile-healthy",
   green: "tile-healthy",
   rose: "tile-fault",
@@ -165,8 +132,6 @@ const plateByColor: Record<string, string> = {
   amber: "tile-warning",
   orange: "tile-warning",
   yellow: "tile-warning",
-  // Category identity draws from the chart series, so a category reads the
-  // same in a tile as it does in the graph beside it.
   blue: "tile-1",
   indigo: "tile-1",
   cyan: "tile-4",
@@ -232,7 +197,7 @@ export function StatsCard({
 
   return (
     <ElevatedContainer className={cn(className)}>
-      {/* Background decoration */}
+      {}
       <div
         className={cn(
           "hidden",
@@ -497,7 +462,7 @@ export function ListingCard({
 
   return (
     <ElevatedContainer className={cn(className)}>
-      {/* Background decoration */}
+      {}
       <div
         className={cn(
           "hidden",
@@ -505,7 +470,7 @@ export function ListingCard({
         )}
       />
 
-      {/* Header */}
+      {}
       <div className="relative flex items-start justify-between gap-4 mb-4">
         <div className="flex items-center gap-3">
           {badge ? (
@@ -551,7 +516,7 @@ export function ListingCard({
         </div>
       </div>
 
-      {/* Category/Tags */}
+      {}
       {(category || tags) && (
         <div className="flex flex-wrap gap-1.5 mb-4">
           {category && <Badge label={category} color={categoryColor} />}
@@ -561,7 +526,7 @@ export function ListingCard({
         </div>
       )}
 
-      {/* Meta items */}
+      {}
       {metaItems && metaItems.length > 0 && (
         <div className="mb-4 space-y-1.5">
           {metaItems.map((meta, index) => (
@@ -587,7 +552,7 @@ export function ListingCard({
         </div>
       )}
 
-      {/* Description */}
+      {}
       {description && (
         <div className="mb-4 p-3 rounded-[--radius] bg-muted border border-border">
           <p className="text-sm text-muted-foreground line-clamp-2">
@@ -596,7 +561,7 @@ export function ListingCard({
         </div>
       )}
 
-      {/* Progress bar */}
+      {}
       {progress && (
         <div className="mb-4">
           {progress.label && (
@@ -623,7 +588,7 @@ export function ListingCard({
         </div>
       )}
 
-      {/* Stats grid */}
+      {}
       {stats && stats.length > 0 && (
         <div
           className={cn(
@@ -662,7 +627,7 @@ export function ListingCard({
         </div>
       )}
 
-      {/* Footer */}
+      {}
       <div className="flex items-center justify-between pt-4 border-t border-border">
         {footerText && (
           <p className="text-xs text-muted-foreground">{footerText}</p>
@@ -754,12 +719,12 @@ export function AddNewCard({
       )}
       style={{ minHeight }}
     >
-      
+
       <motion.div
         whileHover={undefined}
         transition={{ type: "spring", stiffness: 400, damping: 17 }}
       >
-        {/* should be relative */}
+        {}
         <IconBox color={accentColor} size="lg">
           {icon || <Plus className="h-7 w-7" weight="bold" />}
         </IconBox>
@@ -770,7 +735,7 @@ export function AddNewCard({
         <p className="text-sm text-muted-foreground mt-1">{description}</p>
       </div>
 
-      {/* Hover CTA */}
+      {}
       {ctaLabel && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}

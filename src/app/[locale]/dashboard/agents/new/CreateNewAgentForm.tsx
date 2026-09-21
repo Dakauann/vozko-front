@@ -121,12 +121,6 @@ const createAgentSchema = (t: (key: string) => string) => {
       name: z.string().trim().min(2, t("validation.nameRequired")),
       provider: z.string().min(1, t("validation.providerRequired")),
       messagingModel: z.string().min(1, t("validation.messagingModelRequired")),
-      // No minimum: an agent that only converses (answering from its prompt
-      // and its knowledge base) is a legitimate setup, and forcing an unused
-      // ability on it taught the operator that the list is a formality. Safe
-      // because an empty selection now reaches the model as an empty tool set;
-      // it used to arrive as "no preference", which the AI service answered
-      // with the entire tool registry.
       internalTools: z.array(toolBindingSchema),
       description: z.string().optional(),
       initialMessage: z.string().optional().default(""),
@@ -234,7 +228,6 @@ interface AvailableToolRowProps {
   t: (key: string) => string;
 }
 
-// Compact row for the "Available" panel: scan-and-add affordance.
 const AvailableToolRow = ({ tool, disabled, onAdd, t }: AvailableToolRowProps) => {
   const requiresConfig = tool.requiresConfig === true;
   const description = tool.displayDescription || tool.description;
@@ -295,8 +288,6 @@ interface SelectedToolItemProps {
   t: (key: string) => string;
 }
 
-// Rich item for the "Selected" panel: the per-tool configuration surface
-// (visibility, config status, parameters).
 const SelectedToolItem = ({
   tool,
   currentVisibility,
@@ -331,7 +322,7 @@ const SelectedToolItem = ({
 
   const toggleVisibility = (vis: ToolVisibility) => {
     const isEnabled = effectiveVisibility.includes(vis);
-    if (isEnabled && effectiveVisibility.length === 1) return; // keep at least one
+    if (isEnabled && effectiveVisibility.length === 1) return;
     const next = isEnabled
       ? effectiveVisibility.filter((v) => v !== vis)
       : [...effectiveVisibility, vis];
@@ -375,11 +366,8 @@ const SelectedToolItem = ({
             </button>
           </div>
 
-          {/* Visibility. Only "messaging" is user-controllable: post_conversation
-              is decided by the tool itself (the wrap-up analysis job picks its
-              tools by name, not by this flag), so exposing it as a toggle
-              suggested a control that does not exist. The value is still carried
-              through untouched on save. */}
+          {
+}
           {toolDefaultVisibility.includes("messaging") && (
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="text-2xs font-medium text-muted-foreground">
@@ -402,7 +390,7 @@ const SelectedToolItem = ({
             </div>
           )}
 
-          {/* Configuration status */}
+          {}
           {requiresConfig && (
             <div
               className={cn(
@@ -436,7 +424,7 @@ const SelectedToolItem = ({
             </div>
           )}
 
-          {/* Parameters (collapsed by default) */}
+          {}
           {parameterEntries.length > 0 && (
             <div>
               <button
@@ -1096,9 +1084,6 @@ export default function CreateNewAgentForm({
   const selectedMessagingModel = watch("messagingModel");
   const selectedInternalTools = watch("internalTools");
 
-  // Split the catalog into the two panels: "Available" honours the search +
-  // category filter; "Selected" always shows every bound tool (it's the config
-  // surface), in stable catalog order so rows don't jump while you tune them.
   const availableTools = useMemo(
     () =>
       filteredTools.filter(
@@ -1284,7 +1269,7 @@ export default function CreateNewAgentForm({
     setPendingMediaFiles(
       validFiles.map((file) => ({
         file,
-        description: file.name.replace(/\.[^/.]+$/, ""), // Remove extension as default description
+        description: file.name.replace(/\.[^/.]+$/, ""),
       })),
     );
     setMediaDialogOpen(true);
@@ -1886,7 +1871,7 @@ onStep={(_index, step) => {
           )}
         </div>
 
-        {/* Warning: selected template is missing header media */}
+        {}
         {selectedTemplateMissingMedia &&
           isAdmin &&
           selectedWhatsAppTemplate && (
@@ -1960,7 +1945,7 @@ onStep={(_index, step) => {
 
             return (
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                {/* Available, left on desktop, below on mobile */}
+                {}
                 <div className="order-2 flex flex-col overflow-hidden rounded-[--radius] border border-border bg-card lg:order-1">
                   <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
                     <h3 className="text-sm font-semibold text-foreground">
@@ -2027,7 +2012,7 @@ onStep={(_index, step) => {
                   </div>
                 </div>
 
-                {/* Selected, right on desktop, top on mobile */}
+                {}
                 <div className="order-1 flex flex-col overflow-hidden rounded-[--radius] border border-border bg-card lg:order-2">
                   <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
                     <h3 className="text-sm font-semibold text-foreground">
@@ -2423,7 +2408,7 @@ onStep={(_index, step) => {
         </DialogContent>
       </Dialog>
 
-      {/* Use specialized dialog for http_request tool, generic for others */}
+      {}
       {configuringTool?.name === "http_request" ? (
         <HttpRequestConfigDialog
           open={toolConfigDialogOpen}

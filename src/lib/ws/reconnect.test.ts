@@ -1,4 +1,3 @@
-// @vitest-environment node
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -9,15 +8,14 @@ describe("backoffDelay", () => {
         expect(backoffDelay(0, 1000, 30000)).toBe(1000);
         expect(backoffDelay(1, 1000, 30000)).toBe(2000);
         expect(backoffDelay(2, 1000, 30000)).toBe(4000);
-        expect(backoffDelay(5, 1000, 30000)).toBe(30000); // 32000 capped
-        expect(backoffDelay(50, 1000, 30000)).toBe(30000); // never overflows
+        expect(backoffDelay(5, 1000, 30000)).toBe(30000);
+        expect(backoffDelay(50, 1000, 30000)).toBe(30000);
     });
     it("clamps negative attempts", () => {
         expect(backoffDelay(-3, 1000, 30000)).toBe(1000);
     });
 });
 
-/** Minimal fake DOM target capturing listeners so tests can fire events. */
 function fakeTarget() {
     const listeners = new Map<string, Set<EventListener>>();
     return {
@@ -51,13 +49,11 @@ describe("createReconnectController", () => {
             doc: null,
         });
 
-        // 20 close→reconnect cycles: the old hooks died after 15.
         for (let i = 0; i < 20; i++) {
             c.scheduleReconnect();
             vi.runOnlyPendingTimers();
         }
         expect(connect).toHaveBeenCalledTimes(20);
-        // Backoff is capped, not unbounded.
         c.scheduleReconnect();
         expect(c.pendingDelay()).toBe(30000);
     });
@@ -85,12 +81,12 @@ describe("createReconnectController", () => {
             win: null,
             doc: null,
         });
-        c.scheduleReconnect(); // attempt 0 -> 1000
+        c.scheduleReconnect();
         vi.runOnlyPendingTimers();
-        c.scheduleReconnect(); // attempt 1 -> 2000
+        c.scheduleReconnect();
         expect(c.pendingDelay()).toBe(2000);
         c.resetBackoff();
-        c.scheduleReconnect(); // back to 1000
+        c.scheduleReconnect();
         expect(c.pendingDelay()).toBe(1000);
     });
 
@@ -105,14 +101,12 @@ describe("createReconnectController", () => {
             doc: { ...doc, get visibilityState() { return visible; } } as never,
         });
         c.start();
-        c.scheduleReconnect(); // pending backoff
+        c.scheduleReconnect();
         expect(c.pendingDelay()).not.toBeNull();
 
-        // Hidden -> a visibilitychange while still hidden does nothing.
         doc.fire("visibilitychange");
         expect(connect).not.toHaveBeenCalled();
 
-        // Becomes visible -> immediate reconnect, pending backoff cancelled.
         visible = "visible";
         doc.fire("visibilitychange");
         expect(connect).toHaveBeenCalledTimes(1);
@@ -152,7 +146,6 @@ describe("createReconnectController", () => {
         expect(win.count("online")).toBe(0);
         expect(doc.count("visibilitychange")).toBe(0);
         expect(c.pendingDelay()).toBeNull();
-        // Firing after stop is inert.
         win.fire("online");
         vi.runAllTimers();
         expect(connect).not.toHaveBeenCalled();

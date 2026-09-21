@@ -11,27 +11,17 @@ import type { WhatsAppCapacity } from "@/hooks/use-whatsapp-capacity";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
-/**
- * The shape the meter needs, independent of which channel supplies it.
- *
- * Narrower than WhatsAppCapacity on purpose: the official channel's value
- * carries onboarding-path detail this card never reads, and the unofficial one
- * has no such concept at all. Both satisfy this.
- */
 export interface CapacitySnapshot {
   loading: boolean;
   used: number;
   total: number;
-  /** The allowance that came with the plan or the platform grant. */
   planBase: number;
-  /** Units bought as add-ons. */
   addonUnits: number;
   remaining: number;
   hasPlan: boolean;
   atLimit: boolean;
 }
 
-/** The strings the card renders, resolved by the caller from its own namespace. */
 export interface CapacityLabels {
   label: string;
   breakdown: string;
@@ -45,7 +35,6 @@ export interface CapacityLabels {
 }
 
 const ADDONS_HREF = "/dashboard/addons";
-/** Above this, individual slot pips stop being legible; fall back to a bar. */
 const MAX_PIPS = 20;
 
 type CapacityState = "healthy" | "atLimit" | "noPlan";
@@ -56,14 +45,6 @@ function resolveState(capacity: CapacitySnapshot): CapacityState {
   return "healthy";
 }
 
-/**
- * WhatsAppCapacityCard renders the workspace's WhatsApp number allowance as a
- * calm, instrument-grade meter: one filled pip per number in use, empty pips for
- * free slots, and a context-aware call to action. When every slot is taken it
- * becomes the gate that routes the operator to buy more capacity.
- *
- * Purely presentational: pass the resolved value from `useWhatsAppCapacity`.
- */
 export function CapacityCard({
   capacity,
   labels,
@@ -73,12 +54,6 @@ export function CapacityCard({
 }: {
   capacity: CapacitySnapshot;
   labels: CapacityLabels;
-  /**
-   * Which channel's plate and mark to wear. The meter, the states and the
-   * calls to action are identical across channels — only the lockup and the
-   * words differ — so a second copy of this file would be a second place for
-   * the at-limit behaviour to drift.
-   */
   channel?: string;
   className?: string;
   variant?: "card" | "bare";
@@ -114,12 +89,8 @@ export function CapacityCard({
     <section className={shell} aria-label={t.label}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
-          {/* The product's own channel lockup, not a hand-built box.
-              Reaching for ChannelLogo here rendered the unofficial mark, which
-              carries its own `text-muted-foreground` — grey on the graphite
-              plate, which is nearly invisible. ChannelTile pairs each plate with
-              the white glyph it was designed for, and it is the same lockup the
-              inbox and the sidebar use. */}
+          {
+}
           <ChannelTile channel={channel} size="lg" />
           <div className="min-w-0">
             <p className="text-sm font-medium text-muted-foreground">
@@ -187,7 +158,6 @@ function CapacityMeter({
 }) {
   const fillClass = state === "atLimit" ? "bg-warning" : "bg-healthy";
 
-  // No allowance: a single muted track communicates "nothing to fill yet".
   if (state === "noPlan") {
     return (
       <div
@@ -201,7 +171,6 @@ function CapacityMeter({
     );
   }
 
-  // Small allowances read best as discrete slots: one pip per number.
   if (total <= MAX_PIPS) {
     const filled = Math.min(used, total);
     return (
@@ -239,7 +208,6 @@ function CapacityMeter({
     );
   }
 
-  // Large allowances: a continuous meter is cleaner than 40 hairline pips.
   const pct = total > 0 ? Math.min(100, Math.round((used / total) * 100)) : 0;
   return (
     <div
@@ -312,13 +280,6 @@ function StateHint({
   );
 }
 
-/**
- * The official channel's capacity meter.
- *
- * A thin wrapper: it resolves this channel's strings and hands the generic card
- * a snapshot. The meter, the pips, the at-limit gate and the call to action all
- * live in CapacityCard, so the unofficial channel cannot drift from it.
- */
 export default function WhatsAppCapacityCard({
   capacity,
   className,

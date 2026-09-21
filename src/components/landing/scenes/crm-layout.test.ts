@@ -14,13 +14,6 @@ import {
   top,
 } from "./crm-layout";
 
-/**
- * The CRM scene is laid out by hand in world units, so nothing but arithmetic
- * can tell us an element left its panel or landed on its neighbour. Both of
- * those shipped once: rows animated to an absolute x instead of the inbox's,
- * and every internal offset was measured from the stage origin, which only
- * works while a panel happens to sit on y=0.
- */
 const TAGS = 2;
 const LAYOUTS: Array<[string, CrmLayout]> = [
   ["wide", CRM_WIDE],

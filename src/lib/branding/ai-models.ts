@@ -8,7 +8,6 @@ function humanizeAlias(value?: string | null) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-// Human-readable label for a pricing catalog service id when no i18n key exists.
 export function formatPricingServiceFallback(service: string) {
   return humanizeAlias(service);
 }

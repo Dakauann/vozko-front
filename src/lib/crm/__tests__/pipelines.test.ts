@@ -20,9 +20,6 @@ describe("blockingBindings", () => {
         expect(blockingBindings(usage({ campaigns: 2, channels: 1, opportunities: 3 }))).toBe(6);
     });
 
-    // Conversations are movable, so they never block: naming a destination is
-    // how the operator deals with them. Folding them into this number would
-    // make every busy funnel look permanently undeletable.
     it("ignores conversations", () => {
         expect(blockingBindings(usage({ entries: 4000 }))).toBe(0);
     });
@@ -42,8 +39,6 @@ describe("refusalFromMessage", () => {
         expect(refusalFromMessage("Pipeline: Funnel Is STILL IN USE")).toBe("bound");
     });
 
-    // A guard added on the server that this build has not learned yet must fall
-    // through to the server's own words, never to an empty dialog.
     it("returns undefined for an unknown refusal", () => {
         expect(refusalFromMessage("pipeline: some future guard")).toBeUndefined();
     });
@@ -59,8 +54,6 @@ describe("nextStageColor", () => {
         expect(nextStageColor([STAGE_COLORS[0].toLowerCase()])).toBe(STAGE_COLORS[1]);
     });
 
-    // Past the palette every colour is taken. Wrapping keeps the funnel legible
-    // instead of stacking a thirteenth column on the twelfth's colour.
     it("wraps once every colour is in use", () => {
         const all = [...STAGE_COLORS];
         expect(nextStageColor(all)).toBe(STAGE_COLORS[all.length % STAGE_COLORS.length]);

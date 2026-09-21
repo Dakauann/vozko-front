@@ -150,7 +150,7 @@ export default function AdminUserBalancePage() {
     } finally {
       setLoadingSummary(false);
     }
-  }, [workspaceId]); 
+  }, [workspaceId]);
 
   useEffect(() => {
     fetchSummary();
@@ -191,11 +191,10 @@ export default function AdminUserBalancePage() {
         setTotalItems(result.meta.total_items);
       }
     } catch {
-      /* swallow */
     } finally {
       setLoadingTx(false);
     }
-  }, [currentPage, typeFilter, workspaceId]); 
+  }, [currentPage, typeFilter, workspaceId]);
 
   useEffect(() => {
     fetchTransactions();
@@ -222,7 +221,7 @@ export default function AdminUserBalancePage() {
 
       const payload = {
         resource_type: "money" as const,
-        amount: amount / exchangeRate, // BRL input → USD for API
+        amount: amount / exchangeRate,
         service_type: formServiceType,
         description: formDescription || undefined,
       };
@@ -266,7 +265,7 @@ export default function AdminUserBalancePage() {
 
   return (
     <main className="w-full space-y-6">
-      {/* ── Header ── */}
+      {}
       <div>
         <DashboardPageHeader
           back={{
@@ -292,7 +291,7 @@ export default function AdminUserBalancePage() {
         />
       </div>
 
-      {/* ── Resource Cards ── */}
+      {}
       <div>
         <div
           className="rounded-[--radius] border border-border bg-card p-6"
@@ -369,7 +368,7 @@ export default function AdminUserBalancePage() {
         </div>
       </div>
 
-      {/* ── Credit / Debit Form ── */}
+      {}
       <AnimatePresence>
         {showForm && (
           <motion.div
@@ -387,7 +386,7 @@ export default function AdminUserBalancePage() {
               </h3>
               <form onSubmit={handleSubmitOperation} className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                  {/* Operation Type */}
+                  {}
                   <div>
                     <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                       {t("form.operationType")}
@@ -420,7 +419,7 @@ export default function AdminUserBalancePage() {
                     </ElevatedSelect>
                   </div>
 
-                  {/* Service Type */}
+                  {}
                   <div>
                     <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                       {t("form.serviceType")}
@@ -440,7 +439,7 @@ export default function AdminUserBalancePage() {
                     </ElevatedSelect>
                   </div>
 
-                  {/* Amount */}
+                  {}
                   <div>
                     <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                       {t("form.amount")}
@@ -455,7 +454,7 @@ export default function AdminUserBalancePage() {
                     />
                   </div>
 
-                  {/* Description */}
+                  {}
                   <div>
                     <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                       {t("form.description")}
@@ -509,7 +508,7 @@ export default function AdminUserBalancePage() {
         )}
       </AnimatePresence>
 
-      {/* ── Filters ── */}
+      {}
       <div>
         <div
           className="rounded-[--radius] border border-border bg-card p-4"
@@ -549,7 +548,7 @@ export default function AdminUserBalancePage() {
         </div>
       </div>
 
-      {/* ── Transaction History ── */}
+      {}
       <div>
         <div
           className="rounded-[--radius] border border-border bg-card overflow-hidden"
@@ -659,7 +658,7 @@ export default function AdminUserBalancePage() {
             </div>
           )}
 
-          {/* Pagination */}
+          {}
           {totalPages > 1 && (
             <div className="flex items-center justify-between border-t border-border px-6 py-3">
               <p className="text-xs text-muted-foreground">

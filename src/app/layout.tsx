@@ -7,20 +7,6 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { getBrand } from "@/config/brand";
 
-/**
- * Two faces, two jobs (Vozko identity, from the brand board).
- *
- * Inter carries everything read at length — body, tables, controls — exactly
- * as the board specifies ("INTER / REGULAR: textos / informações").
- * `latin-ext` is required, not optional: pt-BR, de and es all need it.
- *
- * Oxanium is the display voice for "Títulos / Destaques": page titles, KPI
- * numerals, brand moments. It stands in for the board's literal wordmark face
- * (Orbitron), which ships no latin-ext subset and could drop to a fallback
- * mid-word in an accented title; Oxanium keeps the squared techno skeleton
- * with full locale coverage and a variable 200–800 weight range. Loaded as a
- * variable font so the weight steps cost no extra requests.
- */
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin", "latin-ext"],
@@ -38,8 +24,6 @@ export function generateMetadata(): Metadata {
   return {
     title: brand.legalName,
     description: `${brand.legalName} - Omnichannel communications automation platform with AI agents and call-center tooling`,
-    // Favicon comes from the brand CDN; there is no committed favicon.ico (the
-    // repo ships no brand), so this is the only tab icon source.
     icons: { icon: brand.logo.favicon },
   };
 }
@@ -52,21 +36,14 @@ export default function RootLayout({
   return (
     <html
       suppressHydrationWarning
-      // Product default is light. The use scene decides this, not taste:
-      // Brazilian operations floors under fluorescent light, full shifts, many
-      // 1366x768 laptops, text-dense queues read for hours. Dark is a
-      // first-class cool-slate scene, not an inversion. System can still
-      // override via next-themes; pinning color-scheme avoids a pure-black
-      // FOUC before the theme class hydrates on some browsers.
       className="light"
       style={{ colorScheme: "light" }}
     >
       <body
         className={`${inter.variable} ${oxanium.variable} font-sans antialiased bg-background text-foreground`}
       >
-        {/* The direction contract, emitted as a real HTML comment so it
-            survives the production build and stays auditable. A JSX comment
-            would be stripped by the compiler and audit nothing. */}
+        {
+}
         <div
           hidden
           dangerouslySetInnerHTML={{

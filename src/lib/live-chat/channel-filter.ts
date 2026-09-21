@@ -1,17 +1,5 @@
 import type { CampaignType, EntryType } from "@/lib/conversations/types";
 
-/**
- * The CRM's channel filter, as data.
- *
- * It used to be three inline ternaries in LiveChatClient — one deciding whether
- * the filter is a campaign channel, one deriving the campaignType, one deriving
- * the channelFilter — plus a fourth list for the buttons. Adding a channel meant
- * editing four places and hoping, and the failure mode is silent: miss the
- * channelFilter ternary and the new channel selects nothing while still looking
- * like a working filter.
- *
- * One table, three readers. Adding a channel is a row.
- */
 
 export type ChannelFilter =
     | "all"
@@ -20,30 +8,12 @@ export type ChannelFilter =
     | "telegram"
     | "unofficial_whatsapp";
 
-/**
- * How a filter narrows the inbox — and they are genuinely different mechanisms,
- * not a style choice:
- *
- *  - "all"      narrows nothing.
- *  - "campaign" narrows by campaign type, because WhatsApp Cloud
- *               conversations are reached through campaigns; this filter also
- *               shows the campaign picker.
- *  - "entry"    narrows by the conversation's entry_type. Instagram, Telegram
- *               and unofficial WhatsApp are channels you filter directly.
- *
- * Unofficial WhatsApp is "entry" even though it is ALSO a valid CampaignType.
- * Filtering by channel is what the operator asked the button for: show me the
- * conversations on this number. Campaign-level narrowing for it is a separate
- * feature with its own picker, not a different reading of this button.
- */
 export type ChannelFilterKind = "all" | "campaign" | "entry";
 
 export interface ChannelFilterSpec {
     value: ChannelFilter;
     kind: ChannelFilterKind;
-    /** Key into the page's translations; the label is never built here. */
     labelKey: string;
-    /** Permission that gates the option, when one does. */
     permission?: { resource: string; action: string };
 }
 
@@ -81,30 +51,14 @@ export function channelFilterSpec(filter: ChannelFilter): ChannelFilterSpec | un
     return BY_VALUE.get(filter);
 }
 
-/**
- * Whether this filter selects by campaign — which is also what decides if the
- * campaign picker is shown.
- *
- * Answered straight from the table now. It used to special-case "voice", which
- * had no row because it was never offered as a button yet was still reachable
- * as state; that channel no longer exists.
- */
 export function isCampaignChannel(filter: ChannelFilter): boolean {
     return channelFilterSpec(filter)?.kind === "campaign";
 }
 
-/** The campaignType this filter implies, if any. */
 export function campaignTypeFor(filter: ChannelFilter): CampaignType | undefined {
     return isCampaignChannel(filter) ? (filter as CampaignType) : undefined;
 }
 
-/**
- * The entry_type this filter narrows to, if any.
- *
- * Campaign filters return undefined on purpose: narrowing by BOTH campaign type
- * and entry type would ask the inbox for conversations that satisfy two
- * overlapping constraints, and the intersection is not what the button promises.
- */
 export function entryTypeFor(filter: ChannelFilter): EntryType | undefined {
     return channelFilterSpec(filter)?.kind === "entry"
         ? (filter as EntryType)

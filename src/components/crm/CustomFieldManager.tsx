@@ -40,7 +40,6 @@ const FIELD_TYPES: { value: CustomFieldType; label: string }[] = [
   { value: "multiselect", label: "Seleção múltipla" },
 ];
 
-// machine key from a label: lowercase, ascii-ish, underscores.
 function slugify(label: string): string {
   return label
     .trim()
@@ -284,7 +283,6 @@ function DraftForm({
           value={draft.type}
           onValueChange={(v) => setDraft({ ...draft, type: v as CustomFieldType })}
           className="w-full"
-          // A field's type is fixed after creation to avoid orphaning stored values.
           disabled={!!draft.id}
         >
           {FIELD_TYPES.map((t) => (

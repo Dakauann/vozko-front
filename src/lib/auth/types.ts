@@ -21,9 +21,7 @@ export interface User {
     role: string;
     emailVerified?: boolean;
     customerType: "company" | "individual";
-    /** Whether the user has a CPF/CNPJ on file (required before billing). */
     hasDocument?: boolean;
-    /** Masked CPF/CNPJ (last digits only), when set. */
     document?: string;
     plan?: UserPlan;
 }

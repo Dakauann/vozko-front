@@ -23,22 +23,12 @@ import {
 import { cn } from "@/lib/utils";
 
 type WorkingHoursEditorProps = {
-  /** null = sem horário configurado, que significa operação 24h. */
   value: WorkingHoursSpec | null;
   onChange: (next: WorkingHoursSpec | null) => void;
   disabled?: boolean;
-  /** Texto do estado desligado — difere entre workspace e departamento. */
   offHint: string;
 };
 
-/**
- * Editor de escala semanal, usado tanto pelo workspace quanto pelo
- * departamento.
- *
- * Controlado de propósito: quem salva é o card que o contém, porque os dois
- * lugares salvam por rotas diferentes. O que este componente garante é que o
- * documento entregue ao pai já passou pelas mesmas regras do servidor.
- */
 export function WorkingHoursEditor({
   value,
   onChange,
@@ -109,11 +99,8 @@ export function WorkingHoursEditor({
 
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm font-medium text-foreground">{t("weekLabel")}</p>
-            {/*
-              Preencher sete dias um a um é o trabalho chato desta tela, e a
-              escala real quase sempre repete de segunda a sexta. O atalho copia
-              o primeiro dia útil aberto para os outros quatro.
-            */}
+            {
+}
             <button
               type="button"
               disabled={disabled || !firstOpenWeekday(value)}
@@ -155,20 +142,12 @@ export function WorkingHoursEditor({
   );
 }
 
-/** O primeiro dia útil que já tem faixas — a origem da cópia. */
 function firstOpenWeekday(spec: WorkingHoursSpec): WorkingHoursDay | null {
   return (
     WORKING_HOURS_WEEKDAYS.find((day) => (spec.days[day] ?? []).length > 0) ?? null
   );
 }
 
-/**
- * Copia o primeiro dia útil aberto para segunda a sexta.
- *
- * Sábado e domingo ficam intocados de propósito: quem abre no fim de semana
- * costuma abrir em horário diferente, e sobrescrever isso silenciosamente
- * apagaria a exceção que a pessoa acabou de configurar.
- */
 function applyToWeekdays(spec: WorkingHoursSpec): WorkingHoursSpec {
   const source = firstOpenWeekday(spec);
   if (!source) return spec;
@@ -180,11 +159,6 @@ function applyToWeekdays(spec: WorkingHoursSpec): WorkingHoursSpec {
   return { ...spec, days };
 }
 
-/**
- * Garante que a zona já salva apareça na lista mesmo que não esteja na curadoria
- * — caso contrário abrir a tela mostraria um campo vazio e salvar trocaria a
- * escala de fuso sem ninguém pedir.
- */
 function timezoneOptions(current: string): string[] {
   if (!current || WORKING_HOURS_TIMEZONES.includes(current)) {
     return [...WORKING_HOURS_TIMEZONES];
@@ -212,11 +186,6 @@ function DayRow({ day, windows, issues, disabled, onChange }: DayRowProps) {
         i.index === index,
     );
 
-  // Um dia fechado não ganha lavagem cinza. `bg-muted/30` era um fundo com
-  // alfa — muda de cor conforme a superfície embaixo, que é justamente o que a
-  // receita de fundo opaco existe para evitar — e ainda competia com o cinza
-  // sólido que os chips usam para dizer "desligado". O switch desligado e a
-  // palavra "Fechado" comunicam o estado sem pintar nada.
   return (
     <div className="rounded-[--radius] border border-border bg-card px-3 py-2.5">
       <div className="flex items-center gap-3">
@@ -308,11 +277,6 @@ function DayRow({ day, windows, issues, disabled, onChange }: DayRowProps) {
   );
 }
 
-/**
- * `value` e `onChange` são omitidos dos props nativos de propósito: o nativo
- * entrega um evento e este campo entrega a string já pronta, e deixar as duas
- * assinaturas se cruzarem faz o tipo virar algo que nenhum chamador satisfaz.
- */
 function TimeField({
   value,
   onChange,

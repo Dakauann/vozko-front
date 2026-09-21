@@ -1,16 +1,3 @@
-/**
- * @vitest-environment happy-dom
- *
- * Regression coverage for the call session socket lifecycle. The bug this guards
- * against: the connection effect depended on the `token` string, so every
- * /auth/refresh (which rotates the token every few minutes) tore the socket
- * down and reopened it. Each teardown runs the backend session Shutdown, which
- * HANGS UP the agent's live call, and the reconnect opens a fresh session that
- * owns nothing. The agent's frontend was then left showing a call the backend no
- * longer had ("call no longer exists" on end), and they got rung while
- * "busy". The fix keys the effect on a stable hasToken boolean (login/logout),
- * not the token string; auth now rides the httpOnly cookie on the handshake.
- */
 
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -33,7 +20,6 @@ vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn(), info: vi.f
 
 import { useCallSessionWs } from "@/hooks/use-call-session-ws";
 
-/** Minimal WebSocket double that records every instance the hook opens. */
 class FakeWebSocket {
   static CONNECTING = 0;
   static OPEN = 1;
@@ -74,7 +60,6 @@ class FakeWebSocket {
   }
 }
 
-/** Advance past the 50ms connect timer and let the awaited token resolve. */
 async function flushConnect() {
   await act(async () => {
     await new Promise((r) => setTimeout(r, 70));
@@ -110,8 +95,6 @@ describe("useCallSessionWs socket lifecycle", () => {
     await flushConnect();
     expect(FakeWebSocket.instances).toHaveLength(1);
 
-    // Simulate a series of token refreshes. Each MUST ride the existing socket:
-    // tearing it down here is exactly what used to hang up the live call.
     rerender({ ...baseProps, token: "refreshed-1" });
     rerender({ ...baseProps, token: "refreshed-2" });
     rerender({ ...baseProps, token: "refreshed-3" });
@@ -154,7 +137,6 @@ describe("useCallSessionWs socket lifecycle", () => {
     const socket = FakeWebSocket.instances[0];
     socket.simulateOpen();
 
-    // Logout clears the token: hasToken flips true -> false, socket closes.
     rerender({ token: "", enabled: true });
     await flushConnect();
     expect(socket.closed).toBe(true);

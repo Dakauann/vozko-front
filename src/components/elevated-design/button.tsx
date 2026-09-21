@@ -36,7 +36,6 @@ type ButtonSize = "default" | "sm" | "lg" | "icon";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   title?: string;
-  /** Optional class for the title span (e.g. hide on small screens). */
   titleClassName?: string;
   link?: string;
   newTab?: boolean;
@@ -66,42 +65,19 @@ const variantAlias: Record<ButtonVariant, BaseVariant> = {
   "vsl-cta": "vsl",
 };
 
-// This is the app.s de-facto button (129 consumers). The neutral surfaces it
-// shares with ui/button.tsx come from button-surfaces.ts rather than being
-// spelled out again here — they were character-identical in both files until
-// `outline` quietly went a half pixel heavier than every field on the screen,
-// which is what two copies of a class string buys you.
-//
-// The variants below are the ones only this component has.
-//
-// Only `primary`, `vsl` and `action` carry a fill. Everything else is neutral —
-// a screen with several accent buttons has no primary action left on it.
 const variantClasses: Record<BaseVariant, string> = {
   primary: BUTTON_PRIMARY,
   secondary: BUTTON_SECONDARY,
-  // `group` is this component only: its icon slot styles off the parent state.
   outline: cn("group", BUTTON_OUTLINE),
   "outline-subtle": BUTTON_OUTLINE_SUBTLE,
   ghost: BUTTON_GHOST,
-  // The irreversible action. Shared with ui/button so "delete" looks the same
-  // wherever it is spelled; before this, danger controls here were the primary
-  // variant with `!important` fill overrides bolted on at the call site.
   destructive: BUTTON_DESTRUCTIVE,
-  // NOT BUTTON_PRIMARY: this one has never changed fill on press, only its
-  // shadow. Left as-is rather than folded in, because giving it the pressed
-  // colour is a visual change to the landing-page CTA, not a refactor.
   vsl: "bg-primary text-primary-foreground shadow-button-primary hover:bg-[hsl(var(--primary-hover))] hover:shadow-button-primary-hover active:shadow-button-primary",
-  // The primary surface plus its own metrics — same fill, same ramp.
   action: cn(BUTTON_PRIMARY, "min-h-[32px] px-3 gap-1.5 disabled:cursor-not-allowed"),
-  // The Azure command-bar button: flat at rest, label in foreground ink with
-  // the GLYPH carrying the brand — the reference's own signature ("+ New" with
-  // a coloured plus). For the action racks under page titles; never a fill.
   command:
     "bg-transparent text-foreground hover:bg-muted active:bg-[hsl(var(--accent-hover))]",
 };
 
-// The sm: prefixes are the touch floor, not a design step — below sm every
-// control sits under a thumb, so the phone height is the larger of the two.
 const sizeClasses: Record<ButtonSize, string> = {
   default: "min-h-[34px] px-3 py-1 text-sm leading-[18px] sm:min-h-[32px]",
   sm: "min-h-[34px] px-2.5 py-0.5 text-xs sm:min-h-[28px]",
@@ -153,14 +129,10 @@ const Button = ({
     link && /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(link),
   );
 
-  // One radius for every variant — 6px, off the shared ramp. Four different
-  // corner treatments across variants was never a system.
   const buttonClass = cn(
     "inline-flex items-center justify-center whitespace-nowrap rounded-[--radius] font-medium gap-1.5",
     "transition-[background-color,box-shadow,transform,color,border-color] duration-150",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-    // Flat neutral chip when disabled: no fill, no elevation, no lift. Leaving
-    // the shadow on is what keeps a disabled button looking pressable.
     "disabled:pointer-events-none disabled:border disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none",
     effectiveSize !== "icon" && "min-w-16",
     sizeClasses[effectiveSize],

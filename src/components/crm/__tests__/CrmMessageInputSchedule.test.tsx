@@ -60,8 +60,6 @@ function renderComposer(
 }
 
 describe("CrmMessageInput scheduling affordance", () => {
-    // Not wired means not offered. An affordance that does nothing is worse
-    // than its absence.
     it("hides the clock when the caller has not wired scheduling", () => {
         renderComposer();
         expect(screen.queryByLabelText(scheduleAria)).not.toBeInTheDocument();
@@ -72,21 +70,11 @@ describe("CrmMessageInput scheduling affordance", () => {
         expect(screen.getByLabelText(scheduleAria)).toBeInTheDocument();
     });
 
-    /**
-     * The backend refuses a schedule on a conversation it cannot reply to, so
-     * offering the clock there would be a promise we break. The composer is
-     * already disabled in that state for the same reason.
-     */
     it("hides the clock when the messaging window is closed", () => {
         renderComposer({ onSchedule: vi.fn(), windowOpen: false });
         expect(screen.queryByLabelText(scheduleAria)).not.toBeInTheDocument();
     });
 
-    /**
-     * The clock is reachable on an EMPTY composer. That is the point of the
-     * redesign: the dialog owns composition, so this is how an operator starts
-     * a scheduled message — not a second step after typing.
-     */
     it("stays available on an empty composer", () => {
         const onSchedule = vi.fn();
         renderComposer({ onSchedule });
@@ -118,8 +106,6 @@ describe("CrmMessageInput scheduling affordance", () => {
         expect(onSchedule).toHaveBeenCalledWith(
             expect.objectContaining({ text: "Bom dia!", signed: false }),
         );
-        // Scheduling consumes the draft exactly as sending does; leaving the text
-        // behind would invite the operator to send it again immediately.
         expect(textarea).toHaveValue("");
         expect(onSend).not.toHaveBeenCalled();
     });

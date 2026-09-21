@@ -20,11 +20,6 @@ export interface DashboardTableColumn<T> {
   className?: string;
   render?: (row: T, rowIndex: number) => ReactNode;
   accessor?: (row: T) => ReactNode;
-  /**
-   * Server-side sort key for this column. Present means the header is a
-   * control; absent means the column is not orderable, and says so by not
-   * looking clickable.
-   */
   sortKey?: string;
 }
 
@@ -36,12 +31,7 @@ export interface DashboardTableSort {
 }
 
 export interface DashboardTableSorting {
-  /** Active sorts, in priority order. */
   sorts: DashboardTableSort[];
-  /**
-   * Cycle a column. `additive` (shift-click) appends the column as a secondary
-   * key instead of replacing the current one.
-   */
   onToggle: (key: string, options: { additive: boolean }) => void;
 }
 
@@ -51,7 +41,6 @@ export interface DashboardTablePagination {
   pageSize: number;
   totalItems: number;
   onPageChange: (page: number) => void;
-  /** Offering page sizes turns the footer into a density control too. */
   pageSizeOptions?: readonly number[];
   onPageSizeChange?: (pageSize: number) => void;
 }
@@ -73,13 +62,7 @@ export interface DashboardTableSelection<T> {
   selectedKeys: Set<string>;
   onSelectionChange: (keys: Set<string>) => void;
   actions?: (selectedRows: T[]) => ReactNode;
-  // Localizable label for the selection bar count (defaults to English
-  // "N selected"). Lets pt-BR callers render e.g. "3 selecionadas".
   label?: (count: number) => ReactNode;
-  // Accessible names for the selection controls. They are drawn as bare
-  // buttons, so without these a screen reader announces "button" with no name
-  // and no checked state — on the one control that decides what a bulk action
-  // is about to touch. English defaults, overridable per caller like `label`.
   selectAllLabel?: string;
   selectRowLabel?: string;
 }
@@ -226,7 +209,7 @@ export function DashboardTable<T>({
         className,
       )}
     >
-      {/* ── Header: stats + search + actions ── */}
+      {}
       {hasHeader && (
         <div className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-2.5">
           {headerLeft}
@@ -260,7 +243,7 @@ export function DashboardTable<T>({
         </div>
       )}
 
-      {/* ── Selection bar ── */}
+      {}
       {hasSelection && selectedCount > 0 && (
         <div className="flex items-center gap-3 border-b border-border px-4 py-2">
           <span className="text-sm font-medium text-primary-ink">
@@ -272,14 +255,14 @@ export function DashboardTable<T>({
         </div>
       )}
 
-      {/* ── Toolbar (filters) ── */}
+      {}
       {hasToolbar && (
         <div className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-2.5">
           {toolbar}
         </div>
       )}
 
-      {/* ── Table ── */}
+      {}
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           {caption ? (
@@ -289,18 +272,14 @@ export function DashboardTable<T>({
           ) : null}
 
           <thead>
-            {/* The head is the one row that gets a quiet fill and the stronger
-                rule under it — that rule is what separates head from body once
-                the body rows are white. */}
+            {
+}
             <tr className="bg-muted border-b border-border-strong">
               {hasSelection && (
                 <th className="w-10 px-3 py-2" scope="col">
                   <button
                     type="button"
                     role="checkbox"
-                    // Tri-state: "mixed" is what makes the dash glyph mean
-                    // something to a screen reader instead of reading as
-                    // unchecked while the page shows a partial selection.
                     aria-checked={
                       allSelected ? true : someSelected ? "mixed" : false
                     }
@@ -383,18 +362,6 @@ export function DashboardTable<T>({
                               ? () => onRowClick(row, rowIndex)
                               : undefined
                           }
-                          /*
-                            No zebra. The previous attempt was
-                            `shouldBeDarker ? "bg-muted" : "bg-muted"` — both
-                            branches identical — so every row was grey AND the
-                            hover state was the same grey, meaning row hover
-                            did nothing at all on a 36-consumer table.
-
-                            Rows sit on the sheet; hover tints; selection takes
-                            the brand wash. Separation comes from the hairline
-                            rules on <tbody>, which is how both reference
-                            systems set a data table.
-                          */
                           className={cn(
                             "group bg-card transition-colors duration-150",
                             clickable && "cursor-pointer",
@@ -471,13 +438,12 @@ export function DashboardTable<T>({
         </table>
       </div>
 
-      {/* ── Empty state ── */}
+      {}
       {!hasData && !loading && (
         <div className="relative flex flex-col items-center justify-center overflow-hidden px-6 py-16 text-center">
           <LightPool />
-          {/* The brand's trace lines behind the plate — an empty state is an
-              identity surface, the one place in a table where ornament
-              doesn't sit behind data. */}
+          {
+}
           <CircuitTraces
             aria-hidden="true"
             className="pointer-events-none absolute left-1/2 top-2 h-40 w-40 -translate-x-1/2 sm:h-48 sm:w-48"
@@ -528,7 +494,7 @@ export function DashboardTable<T>({
         </div>
       )}
 
-      {/* ── Pagination footer ── */}
+      {}
       {hasPagination && (
         <div className="flex items-center justify-between border-t border-border bg-muted px-4 py-2">
           <div className="flex items-center gap-4">
@@ -563,8 +529,8 @@ export function DashboardTable<T>({
               </label>
             ) : null}
           </div>
-          {/* The page buttons go when there is one page; the footer stays,
-              because it still carries the count and the density control. */}
+          {
+}
           <div className={cn("flex gap-1", pagination.totalPages <= 1 && "hidden")}>
             <button
               onClick={() =>

@@ -8,9 +8,6 @@ import { ConditionFilterPreview } from "./condition-filter-preview";
 import { ConditionTextMatchPreview } from "./condition-text-match-preview";
 import { ConditionCheckLabelPreview } from "./condition-check-label-preview";
 
-// renderConditionContentPreview maps a condition/branch node to its DecisionBlock
-// content (rendered inside the generic node card, above the output rows). Returns
-// undefined for non-condition nodes so the caller falls through to its switch.
 export function renderConditionContentPreview(
   nodeType: WorkflowNodeType,
   config: Record<string, unknown>,

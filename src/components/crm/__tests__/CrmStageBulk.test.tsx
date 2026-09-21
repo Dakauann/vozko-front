@@ -7,7 +7,6 @@ import type { Label, Stage } from "@/lib/conversations/types";
 import type { CrmFilter } from "@/lib/crm/board";
 import { emptyCrmFilter, readFilterValues } from "@/lib/crm/board";
 
-// --- server-action doubles ---------------------------------------------------
 
 const getCrmEntriesAction = vi.fn();
 const crmBulkAction = vi.fn();
@@ -31,7 +30,6 @@ vi.mock("sonner", () => ({
 import CrmFilterBar from "../CrmFilterBar";
 import CrmListView from "../CrmListView";
 
-// --- fixtures ----------------------------------------------------------------
 
 const STAGES: Stage[] = [
   { id: "stage-a", name: "Proposta", color: "#00d09a", position: 0 },
@@ -50,7 +48,6 @@ function entry(id: string) {
   };
 }
 
-/** A page of `n` entries out of `total`, so the "select all" offer can appear. */
 function pageOf(n: number, total: number) {
   return {
     result: {
@@ -75,7 +72,6 @@ beforeEach(() => {
   crmBulkAction.mockResolvedValue({ result: { succeeded: 0, failed: [] } });
 });
 
-// --- the filter control ------------------------------------------------------
 
 describe("CrmFilterBar stage filter", () => {
   it("writes a `stage in [...]` predicate the backend already understands", async () => {
@@ -97,8 +93,6 @@ describe("CrmFilterBar stage filter", () => {
     fireEvent.click(await screen.findByText("Proposta"));
 
     expect(onChange).toHaveBeenCalled();
-    // The field/operator pair matters: `stage` + `in` is what the conversation
-    // descriptor compiles to the entry_stages membership subquery.
     expect(readFilterValues(current, "stage", "in")).toEqual(["stage-a"]);
   });
 
@@ -124,7 +118,6 @@ describe("CrmFilterBar stage filter", () => {
   });
 });
 
-// --- bulk over the whole filtered set ----------------------------------------
 
 describe("CrmListView bulk targeting", () => {
   const stageFilter: CrmFilter = {
@@ -149,7 +142,6 @@ describe("CrmListView bulk targeting", () => {
   }
 
   async function selectWholePage() {
-    // The header checkbox picks every rendered row.
     const boxes = await screen.findAllByRole("checkbox");
     fireEvent.click(boxes[0]);
   }
@@ -209,8 +201,6 @@ describe("CrmListView bulk targeting", () => {
 
     await waitFor(() => expect(crmBulkAction).toHaveBeenCalled());
     const payload = crmBulkAction.mock.calls[0][0];
-    // No ids: the server re-runs the filter under the caller's own scope, so the
-    // 320 rows that were never rendered are included.
     expect(payload.targets).toEqual([]);
     expect(payload.filter).toEqual(stageFilter);
     expect(confirm).toHaveBeenCalled();
@@ -241,7 +231,6 @@ describe("CrmListView bulk targeting", () => {
     fireEvent.click(await screen.findByText("Selecionar todas as 340 do filtro"));
     await screen.findByText("Todas as 340 conversas do filtro selecionadas");
 
-    // Unpicking a single row means the operator is naming rows again.
     const boxes = await screen.findAllByRole("checkbox");
     fireEvent.click(boxes[1]);
 

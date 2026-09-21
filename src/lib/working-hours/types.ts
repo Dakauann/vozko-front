@@ -1,40 +1,16 @@
-/**
- * Horário de funcionamento — o mesmo documento que o backend guarda em
- * `working_hours` (domain/working_hours.Spec).
- *
- * Vale para o workspace inteiro e para cada departamento. Enquanto existe, o
- * resgate da roleta faz duas coisas: não roda fora do horário, e conta o prazo
- * do atendente só nos minutos em que a operação está aberta — quem recebe uma
- * conversa 17:55 continua com os 15 minutos inteiros na manhã seguinte, em vez
- * de perder dez deles durante a noite.
- */
 
 export type WorkingHoursWindow = {
-    /** "HH:MM" em 24h. */
     start: string;
-    /**
-     * "HH:MM" em 24h, exclusivo. Um fim menor ou igual ao início atravessa a
-     * meia-noite: 22:00→02:00 é o turno da madrugada, e escrever assim mantém
-     * o turno como UMA linha em vez de duas metades em dois dias.
-     * "24:00" é aceito como fim do dia, então o dia inteiro é 00:00→24:00.
-     */
     end: string;
 };
 
-/** Chaves do dia como o backend as grava. */
 export type WorkingHoursDay = "sun" | "mon" | "tue" | "wed" | "thu" | "fri" | "sat";
 
 export type WorkingHoursSpec = {
-    /** Zona IANA, ex.: "America/Sao_Paulo". */
     timezone: string;
     days: Partial<Record<WorkingHoursDay, WorkingHoursWindow[]>>;
 };
 
-/**
- * Ordem de exibição: semana de trabalho primeiro, fim de semana no fim.
- * Diferente da ordem do documento (domingo primeiro), que é irrelevante para
- * quem está editando uma escala.
- */
 export const WORKING_HOURS_DAY_ORDER: readonly WorkingHoursDay[] = [
     "mon",
     "tue",
@@ -47,7 +23,6 @@ export const WORKING_HOURS_DAY_ORDER: readonly WorkingHoursDay[] = [
 
 export const MINUTES_PER_DAY = 24 * 60;
 
-/** Escala padrão ao ativar o horário pela primeira vez: comercial, seg–sex. */
 export function defaultWorkingHours(timezone: string): WorkingHoursSpec {
     const business: WorkingHoursWindow[] = [{ start: "09:00", end: "18:00" }];
     return {
@@ -62,7 +37,6 @@ export function defaultWorkingHours(timezone: string): WorkingHoursSpec {
     };
 }
 
-/** Zona do próprio navegador, com um padrão brasileiro quando não dá para saber. */
 export function browserTimezone(): string {
     try {
         return Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Sao_Paulo";
@@ -71,10 +45,6 @@ export function browserTimezone(): string {
     }
 }
 
-/**
- * Converte "HH:MM" em minutos desde a meia-noite, ou null se não for um horário.
- * Aceita "24:00" só como fim do dia, igual ao backend.
- */
 export function parseHHMM(value: string): number | null {
     const parts = value.trim().split(":");
     if (parts.length !== 2) return null;
@@ -93,7 +63,6 @@ export function formatHHMM(minutes: number): string {
     return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
-/** Códigos de erro — traduzidos na UI, não montados aqui. */
 export type WorkingHoursIssue =
     | { kind: "badTime"; day: WorkingHoursDay; index: number }
     | { kind: "emptyWindow"; day: WorkingHoursDay; index: number }
@@ -101,15 +70,6 @@ export type WorkingHoursIssue =
     | { kind: "noOpenTime" }
     | { kind: "noTimezone" };
 
-/**
- * As MESMAS regras que o servidor aplica, rodando antes do envio.
- *
- * O backend recusa uma escala inválida em vez de arredondá-la — uma janela que
- * o admin não consegue ver é uma janela que ninguém consegue depurar — então
- * validar aqui é o que transforma um 400 em uma mensagem embaixo do campo
- * errado. Qualquer divergência entre as duas listas aparece como um erro do
- * servidor que a UI jurava não ser possível.
- */
 export function validateWorkingHours(spec: WorkingHoursSpec): WorkingHoursIssue[] {
     const issues: WorkingHoursIssue[] = [];
 
@@ -121,8 +81,6 @@ export function validateWorkingHours(spec: WorkingHoursSpec): WorkingHoursIssue[
 
     for (const day of WORKING_HOURS_DAY_ORDER) {
         const windows = spec.days[day] ?? [];
-        // Intervalos em minutos absolutos, já com a virada de meia-noite
-        // resolvida, para que a checagem de sobreposição enxergue o turno real.
         const resolved: Array<{ start: number; end: number; index: number }> = [];
 
         windows.forEach((window, index) => {
@@ -133,8 +91,6 @@ export function validateWorkingHours(spec: WorkingHoursSpec): WorkingHoursIssue[
                 return;
             }
             if (start === end) {
-                // Ambíguo entre "fechado" e "aberto 24h". Quem quer o segundo
-                // escreve 00:00–24:00.
                 issues.push({ kind: "emptyWindow", day, index });
                 return;
             }
@@ -154,20 +110,12 @@ export function validateWorkingHours(spec: WorkingHoursSpec): WorkingHoursIssue[
     }
 
     if (!hasOpenTime) {
-        // Uma semana sem nenhuma janela congelaria todo prazo do escopo, e numa
-        // tela de semana vazia é indistinguível de "não configurado".
         issues.push({ kind: "noOpenTime" });
     }
 
     return issues;
 }
 
-/**
- * Resumo da escala para o chip de status do card.
- *
- * Devolve a forma, não a frase: quem traduz é a UI. Assim o resumo não precisa
- * de um `useTranslations` aqui dentro e continua testável sem i18n.
- */
 export type WorkingHoursSummary =
     | { kind: "alwaysOpen" }
     | { kind: "everyDay"; start: string; end: string }
@@ -187,9 +135,6 @@ export function summarizeWorkingHours(
     );
     if (openDays.length === 0) return { kind: "custom", openDays: 0 };
 
-    // Só vira um resumo curto quando TODOS os dias abertos têm exatamente uma
-    // faixa e ela é a mesma. Qualquer coisa além disso é "personalizada", em vez
-    // de um resumo que esconde a diferença que o operador precisa ver.
     const single = openDays.every((day) => (spec.days[day] ?? []).length === 1);
     if (!single) return { kind: "custom", openDays: openDays.length };
 
@@ -211,10 +156,8 @@ export function summarizeWorkingHours(
     return { kind: "custom", openDays: openDays.length };
 }
 
-/** Dias úteis, para a ação "aplicar a todos os dias úteis" do editor. */
 export const WORKING_HOURS_WEEKDAYS = WEEKDAYS;
 
-/** Zonas oferecidas na seleção. Brasil primeiro, porque é onde a operação está. */
 export const WORKING_HOURS_TIMEZONES: readonly string[] = [
     "America/Sao_Paulo",
     "America/Bahia",

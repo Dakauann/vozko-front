@@ -56,25 +56,6 @@ const variantAlias: Record<ButtonVariant, BaseVariant> = {
   "vsl-cta": "vsl",
 };
 
-/**
- * Heights, and why there are two sets of them.
- *
- * A field carrying a floating label has to stack two lines of type — the risen
- * label and the value — so it runs taller than the bare control it replaces.
- * How much taller was a judgement call, and the first one (44/48/56, straight
- * off Material's filled field) came back too heavy for a console: pinned to
- * 40 / 44 / 48 on 2026-09-01.
- *
- * The scale only fits because the value runs at leading-4 rather than the
- * default 20px line box. At 44px: 1px border + 21px pad + 16px line + 5px pad
- * + 1px border, with the risen 12px label occupying 4–19.6px. Four pixels of
- * clearance. Change any one of those numbers and the label lands on the value.
- *
- * A field with no label keeps the old compact heights. Toolbar search boxes,
- * inline filters and table-row editors pass a placeholder and nothing else;
- * there is no label to float, and 79 of the app's small fields sit in toolbars
- * where extra height would buy nothing at all.
- */
 const floatingSize: Record<ElevatedInputSize, string> = {
   sm: "h-10 pt-[19px] pb-[3px] text-sm leading-4",
   default: "h-11 pt-[21px] pb-[5px] text-sm leading-4",
@@ -87,30 +68,12 @@ const compactSize: Record<ElevatedInputSize, string> = {
   lg: "h-10 text-sm",
 };
 
-/** Where the risen label sits, per height. */
 const labelTop: Record<ElevatedInputSize, string> = {
   sm: "0.1875rem",
   default: "0.25rem",
   lg: "0.375rem",
 };
 
-/**
- * Where it WAITS: dead centre of the control.
- *
- * The obvious alternative — centre it on the VALUE's line box, so the rise is
- * a straight vertical lift — was built and rejected. The value sits low in the
- * box because the top padding is reserved for the risen label, so a label
- * parked on it lands ~8px below centre and an empty field reads as broken.
- * Material's own filled field does exactly that and gets away with it at 56px;
- * at 44px it just looks wrong.
- *
- * The rule that holds instead: an EMPTY control must look exactly as it would
- * with no floating mechanism at all. The label is the only thing in the box, so
- * it belongs in the middle of it. The rise then reads as the label getting out
- * of the way, which is what it is.
- *
- * Centre is the CSS default for the resting state, so there is nothing to set.
- */
 
 const basePadding: Record<ElevatedInputSize, string> = {
   sm: "px-3",
@@ -130,28 +93,6 @@ const iconPosition: Record<ElevatedInputSize, string> = {
   lg: "left-3",
 };
 
-/**
- * A field is a WELL IN DARK and a SHEET IN LIGHT.
- *
- * It was a --muted well in both, and in light that is a dated pattern: a grey
- * fill on a white card is the 2012 form input, and it measured 1.17:1 / APCA
- * Lc 8 against its own card — below the ~Lc 15 a fill needs to read as a plane
- * at all, so it landed as a stain on white rather than a surface. Light now
- * keeps the sheet and lets the 3:1 --control-edge do the bounding, which is
- * what it is for and what every current light-mode field does.
- *
- * Dark keeps the well. On graphite a lifted fill is right, and fill separation
- * there is structurally capped anyway — reaching Lc 18 against the card would
- * mean going to mid-grey — so dark leans on the border too.
- *
- * FOCUS DOES NOT MOVE THE GROUND. In light the field is already the top plane,
- * so there is nowhere to lift to. In dark it cannot lift: --muted is LIGHTER
- * than --card there, so the old `focus-visible:bg-card` was sinking the field
- * while claiming to raise it, and lifting to --accent-hover instead drops
- * --control-edge to 2.71:1, under the 3:1 the boundary owes. The border, the
- * 2px brand underline and the ring carry focus — all three of which only
- * started rendering once the inline box-shadow suppressing them was removed.
- */
 const FIELD = cn(
   "bg-card dark:bg-muted text-foreground border border-control-edge",
   "hover:border-[hsl(var(--muted-foreground)/0.5)]",
@@ -177,7 +118,6 @@ const inputVariantClasses: Record<BaseVariant, string> = {
   search: FIELD,
 };
 
-/** Error re-colours the edge and the underline; the message renders below. */
 const ERROR_FIELD = cn(
   "border-destructive hover:border-destructive",
   "focus-visible:border-destructive",
@@ -190,8 +130,6 @@ const disabledClasses =
 
 const iconColorByVariant: Record<BaseVariant, string> = {
   primary: "text-primary-foreground",
-  // A resting field is not commit, selection or focus, so its icon carries no
-  // brand ink — the focus underline is where the green arrives.
   secondary: "text-muted-foreground",
   outline: "text-muted-foreground",
   ghost: "text-muted-foreground",
@@ -230,21 +168,9 @@ const ElevatedInput = forwardRef<HTMLInputElement, ElevatedInputProps>(
     const inputId = id ?? fallbackId;
     const errorId = `${inputId}-error`;
 
-    // A field floats its label only when it HAS one. Everything else keeps the
-    // compact height and simply shows its placeholder at rest.
     const floatingLabel = label?.trim() ? label.trim() : undefined;
     const isFloating = Boolean(floatingLabel);
 
-    // The label mechanism is CSS, keyed off :placeholder-shown — which is also
-    // why the old 150ms autofill polling interval could be deleted outright
-    // rather than replaced. Chrome fires no event when it autofills, but an
-    // autofilled input is not :placeholder-shown, so the label is already up
-    // before the first frame paints.
-    //
-    // The contract that makes it work: a floating field ALWAYS carries a
-    // placeholder. A real hint stays transparent until focus, where it would
-    // otherwise collide with the resting label; a field with no hint gets a
-    // single space purely so the selector can flip.
     const nativePlaceholder = isFloating ? (placeholder ?? " ") : placeholder;
 
     const combinedRef = useCallback(
@@ -264,9 +190,6 @@ const ElevatedInput = forwardRef<HTMLInputElement, ElevatedInputProps>(
 
     const resolvedVariant = variantAlias[variant] ?? "secondary";
     const resolvedSize: ElevatedInputSize = controlSize ?? "default";
-    // A date/time input paints its own format hint and ignores `placeholder`
-    // entirely, so :placeholder-shown cannot be trusted to flip for it. Its
-    // label is pinned up, or it would sit on top of "dd/mm/aaaa".
     const isDateLike = [
       "date",
       "datetime-local",
@@ -323,12 +246,6 @@ const ElevatedInput = forwardRef<HTMLInputElement, ElevatedInputProps>(
             }
             className={cn(
               "peer block w-full font-medium transition-[background-color,border-color,box-shadow] duration-150 ease-out focus-visible:outline-none",
-              // On a floating field the LABEL is what occupies the value slot
-              // while empty, so the native placeholder stays invisible for as
-              // long as it would collide with it — which is exactly as long as
-              // the field is empty. It exists only to drive :placeholder-shown.
-              // A compact field shows its placeholder immediately; there, the
-              // hint is the only thing standing in for a label.
               isFloating
                 ? "placeholder:text-transparent"
                 : "placeholder:text-muted-foreground",
@@ -345,10 +262,8 @@ const ElevatedInput = forwardRef<HTMLInputElement, ElevatedInputProps>(
             )}
           />
 
-          {/* After the input on purpose: the label rides `peer ~` off the
-              input's own :placeholder-shown and :focus state, which needs it
-              to be a following sibling. htmlFor keeps the association real —
-              this is a label, never a placeholder standing in for one. */}
+          {
+}
           {isFloating ? (
             <label
               htmlFor={inputId}
@@ -375,9 +290,8 @@ const ElevatedInput = forwardRef<HTMLInputElement, ElevatedInputProps>(
           )}
         </div>
 
-        {/* The `error` prop used to be accepted, typed and thrown away — it
-            only ever flipped aria-invalid, so a form passing a message showed
-            a sighted user nothing. */}
+        {
+}
         {error ? (
           <p
             id={errorId}

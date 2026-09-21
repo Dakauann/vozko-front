@@ -17,16 +17,6 @@ import {
 import { Chip } from "@/components/audience/shared";
 import { PaperPlaneTilt, Sparkle, Warning } from "@/components/icons";
 
-/*
- * "Responder com IA" (§6).
- *
- * The draft is a draft. It arrives in an editable field, nothing sends itself,
- * and the send button says what it does. Publishing posts the text ON SCREEN,
- * not a fresh generation, so what the operator read is what the public sees.
- *
- * The reply is public and in the customer's voice, so the dialog says whose
- * words are about to be published and marks a draft the model wrote.
- */
 
 export function ReplyCommentDialog({
   comment,
@@ -102,7 +92,6 @@ export function ReplyCommentDialog({
             value={text}
             onChange={(e) => {
               setText(e.target.value);
-              // Once a person edits it, it is their text, not the model's.
               setFromModel(false);
             }}
             placeholder={t("placeholder")}

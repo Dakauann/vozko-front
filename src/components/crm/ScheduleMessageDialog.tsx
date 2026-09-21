@@ -33,12 +33,10 @@ import { scheduleMessageAction } from "@/app/actions/scheduled-messages";
 import { uploadConversationMediaAction } from "@/app/actions/conversations";
 import { useTranslations } from "next-intl";
 
-/** What the composer hands over when the operator opens the dialog with a draft. */
 export interface ScheduleDraft {
     text: string;
     mediaId?: string;
     mediaType?: MediaType;
-    /** Names an already-uploaded draft attachment in the chip. */
     mediaName?: string;
     replyToMessageId?: string;
     signed: boolean;
@@ -49,7 +47,6 @@ interface ScheduleMessageDialogProps {
     onOpenChange: (open: boolean) => void;
     entryType: EntryType;
     entryId: string;
-    /** Shown in the header so an operator working many queues knows the recipient. */
     recipientName?: string;
     window: SchedulingWindow | null;
     draft: ScheduleDraft;
@@ -65,7 +62,6 @@ interface Attachment {
     error?: string;
 }
 
-/** Preset offsets, in the order an operator reaches for them. */
 type PresetKey = "1h" | "3h" | "tomorrow" | "custom";
 
 const HOUR = 60 * 60 * 1000;
@@ -80,18 +76,10 @@ function presetInstant(key: Exclude<PresetKey, "custom">, now: Date): Date {
     return tomorrow;
 }
 
-/* Local date/time strings, in the operator's own timezone. */
 const pad = (n: number) => String(n).padStart(2, "0");
 const toLocalDate = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const toLocalTime = (d: Date) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 
-/**
- * Combines the two fields into an instant.
- *
- * `new Date(y, m, d, h, min)` reads the parts in the BROWSER's timezone, which
- * is what the operator meant when they typed 14:30. The payload then carries a
- * real offset and the server stores UTC.
- */
 function combine(date: string, time: string): Date | null {
     const [y, m, d] = date.split("-").map(Number);
     const [h, min] = time.split(":").map(Number);
@@ -109,14 +97,6 @@ function formatDuration(ms: number): string {
     return `${minutes}m`;
 }
 
-/**
- * Compose a message and park it for later.
- *
- * The dialog OWNS composition rather than previewing a draft the composer
- * already holds. That is the point: the clock is reachable on an empty
- * composer, so this is where the operator writes, attaches and signs. An
- * existing draft simply prefills it.
- */
 export default function ScheduleMessageDialog({
     open,
     onOpenChange,
@@ -129,11 +109,6 @@ export default function ScheduleMessageDialog({
 }: ScheduleMessageDialogProps) {
     const t = useTranslations("scheduledMessages");
 
-    // The dialog is mounted only while there is something to schedule (see
-    // CrmLayout), so every open is a fresh mount and initial state can come
-    // straight from props. That is what removes the reset-on-open effect —
-    // which, with `window` passed as an object literal, re-fired on every
-    // render and set state in a loop.
     const [liveWindow, setLiveWindow] = useState<SchedulingWindow | null>(schedulingWindow);
     const [text, setText] = useState(() => (draft.text ?? ""));
     const [signed, setSigned] = useState(draft.signed);
@@ -150,16 +125,12 @@ export default function ScheduleMessageDialog({
     );
     const [submitting, setSubmitting] = useState(false);
     const [serverError, setServerError] = useState<string | null>(null);
-    // One key per dialog-open, not per click: a retry is the SAME intention and
-    // must produce one message, not two.
     const [idempotencyKey] = useState(() => crypto.randomUUID());
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const bounds = useMemo(() => scheduleBounds(liveWindow), [liveWindow]);
 
-    // Default an hour out, pulled back if the window closes sooner. Opening
-    // already-invalid would make the operator's first action a correction.
     const [initialInstant] = useState(() => {
         const suggested = presetInstant("1h", new Date());
         const latest = scheduleBounds(schedulingWindow).latest;
@@ -194,9 +165,6 @@ export default function ScheduleMessageDialog({
         [applyInstant],
     );
 
-    // A preset the window cannot hold is shown DISABLED rather than hidden: an
-    // option that silently disappears reads as a bug, one that explains itself
-    // teaches the window.
     const presetOptions = useMemo(() => {
         const now = new Date();
         const keys: Exclude<PresetKey, "custom">[] = ["1h", "3h", "tomorrow"];
@@ -255,7 +223,6 @@ export default function ScheduleMessageDialog({
             entryType,
             entryId,
             {
-                // A voice note carries no caption on any of these channels.
                 text: isAudio ? "" : text.trim(),
                 scheduled_at: chosen.toISOString(),
                 media_id: attachment?.mediaId,
@@ -268,8 +235,6 @@ export default function ScheduleMessageDialog({
         setSubmitting(false);
 
         if (result.error) {
-            // The server refused. When it names a boundary, adopt it — ours was
-            // stale, and re-deriving it locally would repeat the mistake.
             if (result.error.window) setLiveWindow(result.error.window);
             setServerError(
                 result.error.code ? t(`errors.${result.error.code}`) : result.error.message,
@@ -302,9 +267,8 @@ export default function ScheduleMessageDialog({
                     <ElevatedDialogTitle>{t("dialog.title")}</ElevatedDialogTitle>
                     <ElevatedDialogDescription>
                         {recipientName ? `${t("dialog.to", { name: recipientName })} · ` : ""}
-                        {/* An expiry means a clock. Its absence on an OPEN window
-                            means the channel has none, and inventing a deadline
-                            is a lie the operator plans around. */}
+                        {
+}
                         {liveWindow?.expiresAt
                             ? t("dialog.description")
                             : t("dialog.descriptionNoWindow")}

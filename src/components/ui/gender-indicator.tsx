@@ -35,10 +35,6 @@ const GenderIndicator: React.FC<GenderIndicatorProps> = ({
         return {
           type: "male",
           label: "Masculino",
-          // One opaque ground for all three states; gender is identity, so the
-          // mark takes a chart ink rather than a status hue. The outgoing value
-          // was a malformed double-alpha class Tailwind never emitted, so this
-          // chip has been rendering with no ground at all.
           bgColor: "bg-muted",
           textColor: "ink-1",
           borderColor: "border-border",

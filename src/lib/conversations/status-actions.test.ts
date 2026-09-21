@@ -15,8 +15,6 @@ describe("nextConversationStatuses", () => {
     expect(nextConversationStatuses("ongoing")).toEqual(["finished"]);
   });
 
-  // Reopening happens when the customer writes again, not from a menu, so a
-  // finished conversation must not offer a move the server would refuse.
   it("offers nothing once it is finished", () => {
     expect(nextConversationStatuses("finished")).toEqual([]);
   });

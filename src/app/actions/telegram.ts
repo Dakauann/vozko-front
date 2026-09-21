@@ -49,13 +49,6 @@ export async function getTelegramAccountAction(accountId: string) {
     return { account: response.data };
 }
 
-/**
- * Connects a bot.
- *
- * The whole flow is this one call: no OAuth, no popup, no callback. The token is
- * write-only, it is never returned by any endpoint afterwards, so a caller
- * that loses it must mint a new one in BotFather.
- */
 export async function connectTelegramAccountAction(payload: ConnectTelegramPayload) {
     const response = await apiClient<TelegramAccount>('/telegram/accounts', {
         method: 'POST',
@@ -85,13 +78,6 @@ export async function disconnectTelegramAccountAction(accountId: string) {
     return { success: true };
 }
 
-/**
- * Re-points Telegram at our webhook.
- *
- * This is the repair action for the channel's worst failure. Undelivered updates
- * are discarded after 24 hours and there is no history API to recover them, so
- * an operator who sees a webhook warning needs a button, not a support ticket.
- */
 export async function reregisterTelegramWebhookAction(accountId: string) {
     const response = await apiClient<TelegramAccount>(`/telegram/accounts/${accountId}/webhook`, {
         method: 'POST',

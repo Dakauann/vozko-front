@@ -81,13 +81,8 @@ export function DepartmentSwitcher({
 
   return (
     <div className={cn("relative", fullWidth && "w-full")} ref={dropdownRef}>
-      {/*
-        A scope chip, not a card. Department filters the current view (workspace,
-        which scopes the whole app, lives at the spine head instead), so this
-        reads as one control in the bar's rack rather than a second identity.
-        The solid accent tile is gone: accent means state here, and a filter at
-        rest is not a state.
-      */}
+      {
+}
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="menu"
@@ -214,15 +209,12 @@ function DepartmentItem({
       onClick={onSelect}
       className={cn(
         "flex w-full items-center gap-3 rounded-[--radius] p-2.5 text-left transition-all",
-        // Neutral opaque ground; the glyph carries the green.
         isSelected ? "bg-muted text-foreground" : "hover:bg-muted",
       )}
     >
       <div
         className={cn(
           "flex h-8 w-8 items-center justify-center rounded-lg",
-          // The tile lifts to --card so it still separates from the selected
-          // row's own --muted ground.
           isSelected ? "bg-card text-primary-ink" : "bg-muted text-muted-foreground",
         )}
       >

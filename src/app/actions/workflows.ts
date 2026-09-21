@@ -103,10 +103,6 @@ export async function getNodeTypesAction() {
     return { definitions: response.data ?? [] };
 }
 
-// resolveHandlesAction asks the backend for each node's output handles (including
-// config-dependent ones and their optional flags). The backend is the single
-// source of truth, the editor renders what this returns, it does not recompute
-// handles or their optional/required status locally.
 export async function resolveHandlesAction(
     nodes: Array<{ id: string; type: WorkflowNodeType; config?: Record<string, unknown> }>,
 ) {
@@ -121,9 +117,6 @@ export async function resolveHandlesAction(
     return { handles: response.data?.handles ?? empty };
 }
 
-// validateGraphAction runs the full backend lint over a graph and returns the
-// structured issues + a `valid` flag (the SAME rules `activate` enforces), so the
-// editor can show exactly which nodes/handles are blocking before activation.
 export async function validateGraphAction(type: WorkflowNodeType | string, graph: WorkflowGraph) {
     const response = await apiClient<{ valid: boolean; issues: LintIssue[] }>(
         '/workflows/validate',

@@ -11,8 +11,6 @@ export interface CopilotMessageProps {
   streaming?: boolean;
 }
 
-// CopilotThinking renders the model's live chain-of-thought as a dimmed, italic,
-// collapsible block (Claude-Code style), visually distinct from the answer.
 export const CopilotThinking = memo(function CopilotThinking({
   text,
   streaming,

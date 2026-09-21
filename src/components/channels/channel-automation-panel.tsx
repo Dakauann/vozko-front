@@ -17,40 +17,15 @@ import { getWorkflowAction, listWorkflowsAction } from "@/app/actions/workflows"
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import { useTranslations } from "next-intl";
 
-/**
- * Who answers this account's conversations.
- *
- * An account is attended by an agent OR a workflow, never both, the same
- * exclusive choice the WhatsApp campaign form makes, so an operator configuring
- * several channels meets one mental model. Switching modes disables the other
- * side in the same write, which is what keeps "both enabled" unrepresentable.
- *
- * The two selectors are server-paginated and searched through the shared
- * usePaginatedSelect + ElevatedCommandSelect pair, so there is one selector
- * implementation in the product.
- *
- * Each control saves on change (there is no form to submit), so the panel owns
- * its saving / saved / error state instead of leaving the user guessing.
- *
- * It is channel-agnostic because the choice genuinely is: only the save call and
- * the translation namespace differ per channel. Copying it would mean fixing
- * every future bug in this flow once per channel.
- */
 
 type Mode = "agent" | "workflow";
 
-/** The subset of a channel account this panel reads and writes. */
 export interface ChannelAutomationAccount {
   id: string;
   agentId?: string | null;
   workflowId?: string | null;
   enableAgentResponses: boolean;
   enableWorkflow: boolean;
-  /**
-   * What happens AFTER a conversation goes quiet, independent of the
-   * agent-or-workflow choice above: a channel can analyse conversations it
-   * never answered.
-   */
   enableAnalysis?: boolean;
   enableAutoStaging?: boolean;
   enableAutoMemory?: boolean;
@@ -66,13 +41,6 @@ export interface ChannelAutomationPayload {
   enableAutoMemory?: boolean;
 }
 
-/**
- * The post-conversation passes, in the order an operator meets them.
- *
- * These were reachable only through the API on Instagram and Telegram: the
- * column existed, the resolver read it, and no screen ever set it. Analysis is
- * the one that costs money, so it leads and says so.
- */
 const HANDLING_TOGGLES = ["enableAnalysis", "enableAutoStaging", "enableAutoMemory"] as const;
 
 type HandlingKey = (typeof HANDLING_TOGGLES)[number];
@@ -83,32 +51,20 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
   onSave,
   translationNamespace,
   controlId = "channel-automation-enabled",
-  /*
-   * Opt-in, because unofficial WhatsApp already renders these three on its
-   * instance page alongside a fourth of its own. Showing them here too would
-   * give that channel two switches for one flag, which is worse than having
-   * none: the operator cannot tell which one won.
-   */
   showHandling = false,
 }: {
   account: T;
   onUpdated: (account: T) => void;
-  /** The channel's own update call. Returns the saved account, or an error. */
   onSave: (
     accountId: string,
     payload: ChannelAutomationPayload,
   ) => Promise<{ account?: T; error?: string }>;
-  /** e.g. "instagram.automation", every channel ships the same key set. */
   translationNamespace: string;
-  /** Distinct per channel so two panels on one page keep valid label targets. */
   controlId?: string;
-  /** Whether to render the post-conversation handling toggles. */
   showHandling?: boolean;
 }) {
   const t = useTranslations(translationNamespace);
 
-  // A saved workflow wins the initial mode: it is the more specific setup, and
-  // an account can only have one of the two enabled.
   const [mode, setMode] = useState<Mode>(
     account.enableWorkflow || (!account.agentId && account.workflowId) ? "workflow" : "agent",
   );
@@ -118,7 +74,6 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
     account.enableWorkflow || account.enableAgentResponses,
   );
   const [saving, setSaving] = useState(false);
-  // A flag, not a timestamp: it only drives the transient "Saved" label.
   const [justSaved, setJustSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [handling, setHandling] = useState<Record<HandlingKey, boolean>>({
@@ -137,8 +92,6 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
         value: agent.id,
         label: agent.name,
         description: agent.messagingModel,
-        // An inactive agent can be selected but will not answer, so the state is
-        // shown rather than hidden behind a successful-looking save.
         meta: agent.isActive ? undefined : t("agentInactive"),
       }),
       [t],
@@ -159,10 +112,6 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
     ),
   });
 
-  // The saved selection may live on a page the picker has not loaded, so its
-  // name is resolved directly and merged into the options, otherwise the field
-  // renders blank until the user happens to scroll to it. Both are keyed by id
-  // so a slow lookup can never label a different selection.
   const [resolvedAgent, setResolvedAgent] = useState<{ id: string; name: string } | null>(null);
   const [resolvedWorkflow, setResolvedWorkflow] = useState<{ id: string; name: string } | null>(
     null,
@@ -227,8 +176,6 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
     setSaving(false);
     if (result.error || !result.account) {
       setError(result.error ?? t("saveFailed"));
-      // Roll every control back to the server's truth, so the UI never shows a
-      // setting that was not persisted.
       setAgentId(account.agentId ?? null);
       setWorkflowId(account.workflowId ?? null);
       setEnabled(account.enableWorkflow || account.enableAgentResponses);
@@ -244,8 +191,6 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
   const handleModeChange = (next: Mode) => {
     if (next === mode) return;
     setMode(next);
-    // Switching modes turns the other side off in the same write: an account
-    // attended by both an agent and a workflow would answer twice.
     setEnabled(false);
     void save({ enableAgentResponses: false, enableWorkflow: false });
   };
@@ -259,9 +204,6 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
     } else {
       setWorkflowId(value);
     }
-    // Clearing the selection leaves nothing to answer with, so responses are
-    // turned off in the same write rather than leaving an impossible "on, but
-    // nothing selected".
     if (!value && enabled) {
       setEnabled(false);
       void save(
@@ -304,7 +246,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
           <h2 className="text-sm font-semibold text-foreground">{t("title")}</h2>
         </div>
 
-        {/* One live status line, so the panel's effect is never ambiguous. */}
+        {}
         <span
           aria-live="polite"
           className={cn(
@@ -325,7 +267,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
       </div>
 
       <div className="space-y-5 p-5">
-        {/* Agent or workflow, never both. */}
+        {}
         <div
           role="radiogroup"
           aria-label={t("modeLabel")}
@@ -417,18 +359,13 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
             id={controlId}
             checked={enabled}
             onCheckedChange={handleEnabledChange}
-            // Without a selection there is nothing to enable; the hint says why.
             disabled={saving || !selectedId}
             aria-label={t("enableLabel")}
           />
         </div>
 
-        {/*
-          What happens after a conversation goes quiet. Separated by a rule from
-          the agent/workflow choice above because it is a different decision: it
-          applies whether or not this channel answers anyone, and it is the half
-          that costs money.
-        */}
+        {
+}
         {showHandling ? (
           <div className="space-y-3 border-t border-border pt-4">
             <p className="text-xs font-medium text-muted-foreground">{t("handlingTitle")}</p>

@@ -178,7 +178,7 @@ export default function CreateSupportInboxForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Basic Info */}
+      {}
       <ElevatedContainer className="space-y-6">
         <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
           {t("basicInfoTitle")}
@@ -204,7 +204,7 @@ export default function CreateSupportInboxForm() {
         />
       </ElevatedContainer>
 
-      {/* Widget Color */}
+      {}
       <ElevatedContainer className="space-y-4">
         <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
           {t("widgetColorTitle")}
@@ -239,7 +239,7 @@ export default function CreateSupportInboxForm() {
         />
       </ElevatedContainer>
 
-      {/* AI Agent */}
+      {}
       <ElevatedContainer className="space-y-4">
         <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
           {t("aiAgentTitle")}
@@ -283,7 +283,7 @@ export default function CreateSupportInboxForm() {
         )}
       </ElevatedContainer>
 
-      {/* Allowed Origins */}
+      {}
       <ElevatedContainer className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
@@ -342,7 +342,7 @@ export default function CreateSupportInboxForm() {
         </div>
       </ElevatedContainer>
 
-      {/* Pre-Chat Fields */}
+      {}
       <ElevatedContainer className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
@@ -482,7 +482,7 @@ export default function CreateSupportInboxForm() {
         </div>
       </ElevatedContainer>
 
-      {/* Submit */}
+      {}
       <div className="flex items-center justify-end gap-3 pt-4">
         <Button
           type="button"

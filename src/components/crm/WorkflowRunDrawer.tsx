@@ -1,16 +1,5 @@
 "use client";
 
-/**
- * WorkflowRunDrawer, a read-only view of the workflow attending a conversation, with
- * the current node highlighted. It reuses the real workflow node renderers
- * (WorkflowNode/GroupNode) and their built-in current-node ring (isSimulating), so it
- * looks exactly like the editor, but with all editing/interaction disabled.
- *
- * It builds the graph the same way the editor does: getWorkflowAction (the graph) +
- * getNodeTypesAction (labels/icons) + resolveHandlesAction (the backend is the source of
- * truth for each node's output handles, so edges attach to the right handles). The
- * current node + run status come from the conversation's ai_handler.
- */
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -125,8 +114,6 @@ export function WorkflowRunDrawer({
         setState({ loading: false, error: wf.error ?? "Fluxo não encontrado" });
         return;
       }
-      // Resolve the real output handles for each node (source of truth), so edges to
-      // dynamic branches (AI agent, condition, interactive prompt) attach correctly.
       const wfNodes = wf.workflow.graph?.nodes ?? [];
       const { handles } = wfNodes.length
         ? await resolveHandlesAction(
@@ -225,8 +212,6 @@ export function WorkflowRunDrawer({
         label: e.label ?? undefined,
         animated: onPath,
         markerEnd: { type: MarkerType.ArrowClosed, width: 16, height: 16 },
-        // Same vivid strokes as the editor: rest on the strong hairline at 2,
-        // the on-path (brand green) edge at 2.5.
         style: {
           strokeWidth: onPath ? 2.5 : 2,
           stroke: onPath
@@ -239,13 +224,9 @@ export function WorkflowRunDrawer({
     return { nodes: rfNodes, edges: rfEdges };
   }, [state.workflow, state.defs, state.handles, currentNodeId]);
 
-  // Fit the view once the graph is ready AND the slide-in animation has settled, so
-  // ReactFlow measures the final container size (fitting mid-animation misplaces nodes).
   const instanceRef = useRef<ReactFlowInstance | null>(null);
   useEffect(() => {
     if (state.loading || state.error || nodes.length === 0) return;
-    // The sheet slide-in runs 500ms; fit after it settles so the graph fills the final
-    // container size (fitting mid-animation leaves nodes tiny or off-screen).
     const id = window.setTimeout(() => {
       instanceRef.current?.fitView({ padding: 0.2, duration: 300 });
     }, 560);

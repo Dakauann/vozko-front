@@ -10,20 +10,11 @@ import { useTranslations } from "next-intl";
 
 interface ScheduledMessagesPanelProps {
     messages: ScheduledMessage[];
-    /** Cancel is a send-shaped action, so it follows the composer's permission. */
     canManage: boolean;
     onChanged: () => void;
-    /** Re-opens the composer with this message's content, for a one-click resend. */
     onReuse: (message: ScheduledMessage) => void;
 }
 
-/**
- * The conversation's scheduled queue, above the composer.
- *
- * Shows what has not gone out yet and what failed. Delivered messages are
- * deliberately absent: they are already in the conversation above, and listing
- * them twice would make the panel a second, worse message history.
- */
 export default function ScheduledMessagesPanel({
     messages,
     canManage,
@@ -47,9 +38,6 @@ export default function ScheduledMessagesPanel({
             setCancelling(id);
             await cancelScheduledMessageAction(id);
             setCancelling(null);
-            // Refetch rather than optimistically removing: a cancel can LOSE the
-            // race with the dispatcher, and pretending otherwise would hide a
-            // message the customer just received.
             onChanged();
         },
         [onChanged],
@@ -116,9 +104,6 @@ function ScheduledMessageRow({
     const t = useTranslations("scheduledMessages");
     const failed = message.status === "failed";
 
-    // `dispatch_interrupted` is NOT a plain failure: the message may have been
-    // delivered and we simply could not confirm it. Its copy sends the operator
-    // to look at the conversation rather than to send again blind.
     const failureCopy = failed
         ? t(`failures.${message.failureReason ?? "provider_error"}`)
         : null;

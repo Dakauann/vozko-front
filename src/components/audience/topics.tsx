@@ -9,15 +9,9 @@ import { Hash, Lightning } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { BlockChart } from "@/components/charts/composition-charts";
 
-/*
- * Topics ranked by volume, each with its sentiment mix and average severity.
- * "other" climbing is the signal that the account's topic set is missing a
- * theme (plan §5.2); the panel says so instead of leaving it to be noticed.
- */
 
 const LOCALE_TAG: Record<string, string> = { pt: "pt-BR", en: "en-US", es: "es-ES", de: "de-DE" };
 
-/** Share of "other" from which the panel prompts for a new topic. */
 const OTHER_PROMPT_SHARE = 20;
 
 export function CommentAnalysisTopics({
@@ -81,9 +75,8 @@ export function CommentAnalysisTopics({
                   <div className="h-2 overflow-hidden rounded-full bg-muted" aria-hidden>
                     <div className="h-full rounded-full" style={{ width: `${max > 0 ? (s.count / max) * 100 : 0}%`, backgroundColor: color }} />
                   </div>
-                  {/* Sentiment mix under the volume bar: three segments with a
-                      2px surface gap, plus the numbers so it is never colour
-                      alone. */}
+                  {
+}
                   <div className="mt-1.5 flex items-center gap-3 text-2xs text-muted-foreground">
                     <div className="flex h-1.5 w-24 gap-0.5 overflow-hidden rounded-full" aria-hidden>
                       <span className="bg-healthy" style={{ width: `${percent(s.sentimentPositive, s.count)}%` }} />

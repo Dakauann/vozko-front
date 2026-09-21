@@ -39,11 +39,6 @@ export async function listLeadMemoriesAction(
     };
 }
 
-/**
- * Creates a memory. The backend deduplicates equivalent content (same fact,
- * different casing/spacing) and answers with the existing memory instead of a
- * duplicate, so a double submit is safe.
- */
 export async function createLeadMemoryAction(
     leadId: string,
     payload: { content: string; category: LeadMemoryCategory },

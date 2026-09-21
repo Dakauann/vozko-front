@@ -197,9 +197,6 @@ export function VariableCommandInput({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const cursorPositionRef = useRef<number>(0);
-  // When the user dismisses the popup (Esc / click-away) while the caret still
-  // sits right after "{{", remember it so the auto-open effect below does not
-  // instantly re-open it. Cleared once the caret moves off the "{{" trigger.
   const dismissedRef = useRef(false);
 
   const getInputElement = useCallback(() => {
@@ -284,8 +281,6 @@ export function VariableCommandInput({
         setOpen(true);
         return;
       }
-      // Esc typed while focus is still in the field (the popup auto-opened but
-      // did not steal focus) must close it, and stick.
       if (e.key === "Escape" && open) {
         e.preventDefault();
         e.stopPropagation();
@@ -303,15 +298,11 @@ export function VariableCommandInput({
     const cursorPos = cursorPositionRef.current;
     const textBeforeCursor = value.slice(0, cursorPos);
 
-    // Caret moved off the "{{" trigger: clear any prior dismissal so the next
-    // freshly-typed "{{" can auto-open again.
     if (!textBeforeCursor.endsWith("{{")) {
       dismissedRef.current = false;
       return;
     }
 
-    // Only auto-open when the user hasn't just dismissed this same trigger,
-    // otherwise Esc/click-away is undone on the very next render.
     if (!open && !dismissedRef.current) {
       setOpen(true);
     }
@@ -319,8 +310,6 @@ export function VariableCommandInput({
 
   const handleOpenChange = useCallback((next: boolean) => {
     setOpen(next);
-    // A close from Radix (Esc, click-away) must stick even while the caret is
-    // still right after "{{".
     if (!next) dismissedRef.current = true;
   }, []);
 
@@ -385,18 +374,6 @@ export function VariableCommandInput({
         <PopoverContent
           align="start"
           side="bottom"
-          // z-[200] matches ElevatedSelect's overlay layer, which is what any
-          // portalled content needs to clear a modal.
-          //
-          // PopoverContent's base is z-50, and Radix portals it to <body> — so
-          // it became a sibling of the node config panel, which is z-[70], and
-          // lost. The picker opened *behind* the panel that triggered it. The
-          // selects in the same panel never showed the bug because they already
-          // sit at 200; this just stops the variable picker being the one
-          // overlay that forgot.
-          //
-          // collisionPadding keeps it inside the viewport when the field it is
-          // attached to is near the panel's bottom edge, instead of clipping.
           collisionPadding={12}
           className="z-[200] w-[420px] p-0 shadow-2xl border-border"
           onOpenAutoFocus={(e) => {
@@ -404,9 +381,6 @@ export function VariableCommandInput({
             setTimeout(() => searchInputRef.current?.focus(), 0);
           }}
           onCloseAutoFocus={(e) => {
-            // Radix would return focus to the little trigger button. Instead,
-            // send focus back to the field the user was typing in and restore
-            // the caret where they left off (Esc / click-away / after inserting).
             e.preventDefault();
             const input = getInputElement();
             if (!input) return;
@@ -416,13 +390,12 @@ export function VariableCommandInput({
               try {
                 input.setSelectionRange(pos, pos);
               } catch {
-                /* number/email inputs disallow setSelectionRange, safe to ignore */
               }
             });
           }}
         >
           <Command shouldFilter={false} className="rounded-lg">
-            {/* Header */}
+            {}
             <div className="px-3 py-2.5 border-b">
               <div className="flex items-center gap-2 mb-2">
                 <div className="flex h-6 w-6 items-center justify-center rounded-md bg-muted">
@@ -506,25 +479,10 @@ export function VariableCommandInput({
                           key={v.template}
                           value={`${v.key} ${v.template} ${v.description}`}
                           onSelect={() => handleSelectVariable(v.template)}
-                          // The selection ground is NOT overridden here.
-                          //
-                          // It used to be `data-[selected=true]:bg-muted`, which
-                          // is invisible: --muted IS --popover in dark, so the
-                          // highlight measured 1.00:1 against the very panel it
-                          // was drawn on, and arrowing through the list moved
-                          // nothing on screen. CommandItem's own base already
-                          // carries --accent-hover, the ground the select items
-                          // moved to for exactly this reason; letting it through
-                          // is the whole fix.
                           className="mx-1 flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5"
                         >
-                          {/*
-                            The tile was `bg-muted` for all four categories —
-                            the same invisible ground, and branching four ways to
-                            reach one value. An outlined plate reads on the
-                            popover AND on the selected row, where a filled one
-                            would vanish into the highlight.
-                          */}
+                          {
+}
                           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border-strong">
                             <VarIcon
                               size={14}
@@ -560,7 +518,7 @@ export function VariableCommandInput({
               })}
             </CommandList>
 
-            {/* Footer hint */}
+            {}
             <div className="px-3 py-2 border-t bg-muted flex items-center justify-between">
               <div className="flex items-center gap-3 text-2xs text-muted-foreground">
                 <span className="flex items-center gap-1">

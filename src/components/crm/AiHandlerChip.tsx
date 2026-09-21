@@ -1,14 +1,5 @@
 "use client";
 
-/**
- * AiHandlerChip, shows which AI attends a conversation: a direct agent ("IA · <nome>")
- * or a workflow ("Fluxo · <nome>"), with a distinct muted "pausada" state when the AI is
- * turned off for the conversation. Follows the house Solid-Symbol rule (a solid opaque
- * accent tile with a white glyph), one Signal-Blue voice, no tint-behind-glyph.
- *
- * Used compact (size="sm") in the inbox list row and larger (size="md") in the chat
- * header. The workflow variant is a button that opens the read-only run viewer.
- */
 
 import { Robot, FlowArrow } from "@/components/icons";
 
@@ -18,12 +9,10 @@ import { cn } from "@/lib/utils";
 
 interface AiHandlerChipProps {
   handler?: AIHandler | null;
-  /** Per-conversation AI on/off (backend `automation_enabled`; null → on). */
   automationEnabled?: boolean | null;
   conversationStatus?: string | null;
   assignedUserId?: string | null;
   size?: "sm" | "md";
-  /** Opens the read-only workflow-run viewer. When set, the workflow chip is a button. */
   onOpenWorkflow?: (handler: AIHandler) => void;
   className?: string;
 }
@@ -52,26 +41,10 @@ export function AiHandlerChip({
   onOpenWorkflow,
   className,
 }: AiHandlerChipProps) {
-  // A human actively owning the thread attends it, not the AI; finished chats hide it.
   const assignee = String(assignedUserId ?? "").trim();
   const humanOwns = assignee.length > 0 && !assignee.startsWith("ai:");
   if (conversationStatus === "finished" || humanOwns) return null;
 
-  /*
-   * The handler is the ONLY evidence that an AI exists here.
-   *
-   * This used to fall back to a fabricated { kind: "agent" } whenever the
-   * payload carried no handler but isAiCurrentlyAttending() was true. That
-   * predicate ends in `return true` for any unassigned, unpaused conversation:
-   * it never asks whether an AI is configured. So a thread with no agent and no
-   * enabled workflow rendered a chip reading "IA · Agente", the word "Agente"
-   * being the hardcoded fallback below rather than anything's name.
-   *
-   * The backend sends ai_handler on every conversation payload and sets it to
-   * nil exactly when neither an agent nor a workflow is linked AND enabled.
-   * Trusting it means an absent handler hides the chip, which is the right
-   * direction to fail: showing nothing beats inventing an AI.
-   */
   const resolved: AIHandler | null =
     handler && (handler.kind === "agent" || handler.kind === "workflow") ? handler : null;
   if (!resolved) return null;

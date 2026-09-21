@@ -53,18 +53,10 @@ interface FormattedMessageTextProps {
   className?: string;
 }
 
-/**
- * Renders a message body with WhatsApp-style inline formatting
- * (*bold*, _italic_, ~strike~, `code`, ```block```) plus clickable links.
- *
- * URLs are extracted first so that underscores/tildes inside a link are never
- * mistaken for formatting markers; formatting is then applied to the gaps.
- */
 export default function FormattedMessageText({
   children,
   className,
 }: FormattedMessageTextProps) {
-  // split() with one capturing group => odd indices are the matched URLs.
   const parts = children.split(URL_REGEX);
 
   return (

@@ -35,7 +35,6 @@ import {
 import type { LeadFacets } from "@/lib/leads/types";
 import { cn } from "@/lib/utils";
 
-/** Option sets that only exist at runtime: campaigns, stages, labels. */
 export interface LeadFilterOptionSets {
   campaigns: FilterMultiSelectOption[];
   stages: FilterMultiSelectOption[];
@@ -50,20 +49,11 @@ export interface LeadsToolbarProps {
   onSearchChange: (search: string) => void;
   facets: LeadFacets | null;
   options: LeadFilterOptionSets;
-  /** Slot for the saved-views control, which owns its own data. */
   savedViews?: React.ReactNode;
 }
 
 const SEARCH_DEBOUNCE_MS = 350;
 
-/**
- * The leads filter bar.
- *
- * Three tiers, deliberately: a search box for the 80% case, the three checklist
- * filters an operator reaches for daily (channel, memory category, delivery
- * status) inline with their counts, and everything else one click away in the
- * panel. Putting nineteen controls on the page would be "complete" and unusable.
- */
 export default function LeadsToolbar({
   filter,
   onFilterChange,
@@ -75,8 +65,6 @@ export default function LeadsToolbar({
 }: LeadsToolbarProps) {
   const t = useTranslations("leadsPage");
 
-  // The input is local so typing stays instant; the URL (and therefore the
-  // request) only learns about it once the operator pauses.
   const [draft, setDraft] = useState(search);
   const committed = useRef(search);
 
@@ -96,7 +84,6 @@ export default function LeadsToolbar({
     return () => clearTimeout(timer);
   }, [draft, onSearchChange]);
 
-  /** Facet counts for one bucket, keyed by option value. */
   const facetCounts = (
     key: "memoryCategories" | "channels" | "campaignStatuses" | undefined,
   ): Record<string, number> | undefined => {
@@ -107,11 +94,6 @@ export default function LeadsToolbar({
   const optionLabel = (fieldLabelKey: string, value: string) =>
     t(`filters.options.${fieldLabelKey}.${value}`);
 
-  /**
-   * The catalogue, translated and hydrated with runtime option sets. One list
-   * feeds the panel, the quick filters and the chips, so a field can never be
-   * filterable in one of them and invisible in the others.
-   */
   const fields = useMemo<FilterFieldConfig[]>(() => {
     const runtime: Record<string, FilterMultiSelectOption[]> = {
       [LEAD_FILTER_FIELD.campaign]: options.campaigns,
@@ -139,7 +121,6 @@ export default function LeadsToolbar({
         loading: spec.control === "idset" ? options.loading : undefined,
       };
 
-      // The two booleans read better as their own words than as yes/no.
       if (spec.field === LEAD_FILTER_FIELD.blocked) {
         config.trueLabel = t("filters.options.blocked.true");
         config.falseLabel = t("filters.options.blocked.false");
@@ -250,13 +231,6 @@ export default function LeadsToolbar({
   );
 }
 
-/**
- * The active-filter row.
- *
- * Every constraint is visible and individually removable. A filter you can set
- * but cannot see is the reason people reload the page to "reset" a list, and a
- * count badge alone does not tell you WHICH four things are hiding your rows.
- */
 function LeadFilterChips({
   filter,
   onFilterChange,

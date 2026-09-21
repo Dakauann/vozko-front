@@ -62,7 +62,7 @@ const ALLOWED_TYPES = [
   "application/vnd.ms-excel",
 ];
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; 
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const MAX_DOCUMENTS = 120;
 
 function formatFileSize(bytes: number): string {
@@ -331,7 +331,7 @@ export default function KnowledgeBaseForm({
       }}
       className="space-y-6"
     >
-      {/* Step indicators */}
+      {}
       {mode === "create" && (
         <ElevatedContainer className="p-4">
           <div className="flex items-center justify-between">
@@ -350,7 +350,7 @@ export default function KnowledgeBaseForm({
         </ElevatedContainer>
       )}
 
-      {/* Step 1: Basic Info */}
+      {}
       {(currentStep === 1 || mode === "edit") && (
         <ElevatedContainer className="rounded-lg p-6 space-y-6 border border-border">
           <div className="flex items-center gap-3 mb-4">
@@ -389,7 +389,7 @@ export default function KnowledgeBaseForm({
         </ElevatedContainer>
       )}
 
-      {/* Step 2: Documents */}
+      {}
       {currentStep === 2 && mode === "create" && (
         <ElevatedContainer className="rounded-lg p-6 space-y-6 border border-border">
           <div className="flex items-center gap-3 mb-4">
@@ -409,7 +409,7 @@ export default function KnowledgeBaseForm({
             </span>
           </div>
 
-          {/* File drop zone */}
+          {}
           <div
             onDrop={
               pendingFiles.length >= MAX_DOCUMENTS ? undefined : handleDrop
@@ -461,7 +461,7 @@ export default function KnowledgeBaseForm({
             </div>
           </div>
 
-          {/* Pending files list */}
+          {}
           {pendingFiles.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -509,7 +509,7 @@ export default function KnowledgeBaseForm({
             </div>
           )}
 
-          {/* Upload progress */}
+          {}
           {isSubmitting && uploadProgress > 0 && (
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
@@ -531,7 +531,7 @@ export default function KnowledgeBaseForm({
         </ElevatedContainer>
       )}
 
-      {/* Action buttons */}
+      {}
       <div className="flex items-center justify-between gap-3">
         <div>
           {currentStep === 2 && mode === "create" && (

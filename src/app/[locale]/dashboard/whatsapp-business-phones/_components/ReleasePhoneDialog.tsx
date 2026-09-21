@@ -27,12 +27,8 @@ interface ReleasePhoneDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   phoneId: string;
-  /** Display number used for the typed confirmation guard. */
   phoneNumber: string;
-  /** WABA id, the confirmation fallback when a failed/unsynced number has no
-   *  display number, so the phone can still be removed. */
   wabaId?: string;
-  /** Friendly label shown in the warning copy. */
   phoneName: string;
   onSuccess: () => void;
 }
@@ -65,8 +61,6 @@ export function ReleasePhoneDialog({
   const [confirmValue, setConfirmValue] = useState("");
   const [result, setResult] = useState<ReleaseResult | null>(null);
 
-  // Confirm against the display number, or the WABA id when a failed/unsynced number
-  // has none, otherwise the button could never enable and the phone never removed.
   const confirmTarget = (phoneNumber?.trim() || wabaId?.trim()) ?? "";
   const targetDigits = onlyDigits(confirmTarget);
   const confirmed =
@@ -180,7 +174,7 @@ export function ReleasePhoneDialog({
                 </p>
               </div>
 
-              {/* Typed confirmation, the backend re-checks this too. */}
+              {}
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-foreground">
                   {t("release.confirmLabel", { number: confirmTarget })}

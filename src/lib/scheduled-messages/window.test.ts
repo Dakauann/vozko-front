@@ -9,14 +9,6 @@ import {
     validateScheduledAt,
 } from "./window";
 
-/**
- * This is the SAME case table as the Go test in
- * `vozko-back/domain/scheduled_message/entity_test.go`.
- *
- * That duplication is the point: the client disables what the server would
- * refuse, and the only way to keep the two honest is to make a divergence fail
- * a test on one side or the other.
- */
 
 const now = new Date("2026-08-12T12:00:00.000Z");
 const at = (ms: number) => new Date(now.getTime() + ms).toISOString();
@@ -29,8 +21,6 @@ describe("scheduleBounds", () => {
         expect(bounds.reason).toBe("window_closed");
     });
 
-    // THE case. Some channels report an expiry while CLOSED — it is a provider
-    // restriction countdown, not a deadline to schedule up to.
     it("gives no bound for a closed window that still reports an expiry", () => {
         const bounds = scheduleBounds({ open: false, expiresAt: at(6 * HOUR) }, now);
         expect(bounds.latest).toBeNull();
@@ -55,8 +45,6 @@ describe("scheduleBounds", () => {
         expect(bounds.latest?.getTime()).toBe(now.getTime() + MAX_SCHEDULE_HORIZON_MS);
     });
 
-    // The server already did this arithmetic and its answer is authoritative;
-    // deriving our own would be a second place for the boundary to live.
     it("prefers the server's latestAllowedAt over anything derived", () => {
         const bounds = scheduleBounds(
             { open: true, expiresAt: at(6 * HOUR), latestAllowedAt: at(3 * HOUR) },
@@ -111,8 +99,6 @@ describe("validateScheduledAt", () => {
         ).toEqual({ ok: false, code: "window_closed" });
     });
 
-    // A clockless channel must say "too far", not "past the window" — there is
-    // no window to have passed.
     it("refuses past the horizon on a clockless channel as too_far", () => {
         expect(
             validateScheduledAt(
@@ -123,7 +109,6 @@ describe("validateScheduledAt", () => {
         ).toEqual({ ok: false, code: "too_far" });
     });
 
-    // Both bounds are breached; the window is the one the operator can act on.
     it("reports a window breach ahead of a horizon breach", () => {
         expect(
             validateScheduledAt(

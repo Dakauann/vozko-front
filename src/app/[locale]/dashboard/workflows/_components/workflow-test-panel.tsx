@@ -76,8 +76,6 @@ export function WorkflowTestPanel({
     .reverse()
     .find((e): e is Extract<SimEvent, { type: "state" }> => e.type === "state");
 
-  // ESC closes the dialog, unless another layer (an open select/dropdown)
-  // already handled the key.
   useEffect(() => {
     const handleKeyDown = (e: globalThis.KeyboardEvent) => {
       if (e.key !== "Escape" || e.defaultPrevented) return;
@@ -97,7 +95,7 @@ export function WorkflowTestPanel({
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center">
-      {/* Scrim, dims the canvas behind the dialog and closes on click */}
+      {}
       <div
         className="absolute inset-0 bg-black/50"
         onClick={onClose}
@@ -109,7 +107,7 @@ export function WorkflowTestPanel({
         aria-label="Simulação"
         className="relative w-[min(720px,92vw)] h-[min(84vh,820px)] rounded-2xl border border-border bg-card shadow-2xl overflow-hidden flex flex-col"
       >
-      {/* ─── Header ──────────────────────────────────────── */}
+      {}
       <div className="flex items-center justify-between px-3 py-2.5 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2">
           <Robot size={16} weight="duotone" className="text-primary-ink" />
@@ -126,7 +124,7 @@ export function WorkflowTestPanel({
         />
       </div>
 
-      {/* ─── Event Stream ────────────────────────────────── */}
+      {}
       <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto px-3 py-2 space-y-2"
@@ -172,7 +170,7 @@ export function WorkflowTestPanel({
         )}
       </div>
 
-      {/* ─── State Variables (collapsible) ────────────────── */}
+      {}
       {latestState && (
         <div className="border-t border-border">
           <button
@@ -195,7 +193,7 @@ export function WorkflowTestPanel({
         </div>
       )}
 
-      {/* ─── Reply / Trigger Input ────────────────────── */}
+      {}
       {(status === "waiting_reply" || status === "waiting_trigger") && (
         <div className="border-t border-border px-3 py-2 flex-shrink-0">
           <div className="flex items-center gap-2">
@@ -223,7 +221,7 @@ export function WorkflowTestPanel({
         </div>
       )}
 
-      {/* ─── Action Bar ──────────────────────────────────── */}
+      {}
       <div className="flex items-center gap-2 px-3 py-2.5 border-t border-border flex-shrink-0">
         {!isActive ? (
           <ElevatedButton
@@ -322,7 +320,7 @@ function EventItem({ event }: { event: SimEvent }) {
         </div>
       );
     case "state":
-      return null; 
+      return null;
     case "error":
       return (
         <div className="flex items-center gap-1.5 text-xs text-destructive-ink py-1">

@@ -147,13 +147,10 @@ function toMutationInput(draft: PlanDraft, rate: number): PlanMutationInput {
     name: draft.name.trim(),
     description: draft.description.trim(),
     basePriceBRLCents: displayToCents(draft.basePriceBRL),
-    // VoIP was removed from the product, so this is no longer configurable.
-    // The key stays in the payload because the API still requires it.
     maxCallChannels: 1,
     maxTtsConcurrency: Number.parseInt(draft.maxTtsConcurrency, 10) || 0,
     includedWhatsAppBusinessPhones:
       Number.parseInt(draft.includedWhatsAppBusinessPhones, 10) || 0,
-    // Ramais were a SIP concept; no longer configurable, key kept for the API.
     maxBranches: 1,
     pricingItems: draftsToMutationInputs(draft.pricingItems, rate),
   };
@@ -733,15 +730,8 @@ export function AdminPlansManager() {
         />
       </div>
 
-      {/*
-        CONSOLE BAR.
-
-        Three stat cards for three integers, above a card holding two filters,
-        was four boxes of chrome carrying one line of information. The counts
-        are readouts, the filters are controls, and both belong on the same
-        strip — which is also the only place the operator looks before picking a
-        plan out of the register.
-      */}
+      {
+}
       <section className="well">
         <div className="flex flex-col gap-x-8 gap-y-4 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
           <dl className="flex flex-wrap items-end gap-x-8 gap-y-3">
@@ -795,14 +785,8 @@ export function AdminPlansManager() {
       </section>
 
       <div className="grid gap-4 xl:grid-cols-[288px_minmax(0,1fr)]">
-        {/*
-          THE REGISTER.
-
-          Not a stack of cards: a list of rows on one surface, each carrying the
-          three facts that identify a plan — what it is called, what it costs,
-          whether it still sells. Scanning twenty of those is a column of prices,
-          not twenty bordered boxes.
-        */}
+        {
+}
         <section className="well h-fit overflow-hidden">
           <header className="rule-engraved flex items-center justify-between gap-3 px-4 py-2.5">
             <p className="legend">{t("register")}</p>
@@ -832,7 +816,6 @@ export function AdminPlansManager() {
                       aria-current={isSelected ? "true" : undefined}
                       className={cn(
                         "flex w-full items-center gap-3 border-t border-border px-4 py-3 text-left transition-colors first:border-t-0",
-                        // The row already carries a lamp — that is the mark.
                         isSelected
                           ? "bg-muted text-foreground"
                           : "hover:bg-muted/50",
@@ -889,14 +872,8 @@ export function AdminPlansManager() {
           )}
         </section>
 
-        {/*
-          THE EDITOR.
-
-          One panel, divided by engraved rules and legended section by section,
-          instead of a stack of bordered sub-cards. The action bar sticks to the
-          top of the pane so save stays reachable from the pricing table at the
-          bottom, which is where the long edits happen.
-        */}
+        {
+}
         <section className="well overflow-hidden">
           {!draft ? null : (
             <>
@@ -1383,7 +1360,7 @@ function PricingItemsEditor({
         </span>
       }
       description={t("pricingItems.description")}
-     
+
       title={t("pricingItems.title")}
     >
       <p className="text-xs text-muted-foreground">
@@ -1472,6 +1449,8 @@ function PricingItemsEditor({
                       !percentage &&
                       (parseAmount(item.costBrl) === null ||
                         parseAmount(item.priceBrl) === null);
+                    const unpriced =
+                      !percentage && !customized && priceUsd === 0;
 
                     return (
                       <tr
@@ -1490,6 +1469,11 @@ function PricingItemsEditor({
                               </span>
                             ) : null}
                           </span>
+                          {unpriced ? (
+                            <span className="mt-1 block text-2xs font-normal text-muted-foreground">
+                              {t("pricingItems.unpriced")}
+                            </span>
+                          ) : null}
                           {priceBelowCost ? (
                             <span className="mt-1 block text-2xs font-normal text-warning-ink">
                               {t("pricingItems.priceBelowCost")}

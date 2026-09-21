@@ -13,13 +13,6 @@ import { getUnofficialCampaignAction } from "@/app/actions/unofficial-whatsapp-c
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-/**
- * Edit reuses the create form in "edit" mode.
- *
- * The same component rather than a second one, so a field added to a campaign
- * cannot appear on create and be missing on edit — which is exactly how a
- * setting becomes impossible to change after the fact.
- */
 export default function EditUnofficialCampaignPage({
   params,
 }: {

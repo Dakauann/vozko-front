@@ -1,22 +1,8 @@
-/**
- * Unofficial WhatsApp campaign types.
- *
- * These mirror `delivery/http/unofficial_whatsapp/campaign_dto.go`. They are
- * deliberately parallel to the official campaign's shapes so one set of
- * components renders both, with the three differences that ARE the product
- * difference:
- *
- *  - a **message spec** where the official campaign carries a `templateId`;
- *  - **pacing and cap** fields the Cloud API has no use for;
- *  - **nothing about money**. Meta charges nothing for a linked-device send, so
- *    no price, category or balance appears anywhere on this channel.
- */
 
 import type { CampaignMetrics, CampaignStatus } from "@/lib/campaigns/metrics";
 
 export type { CampaignMetrics, CampaignStatus };
 
-/** The send statuses this channel can produce. */
 export type UnofficialWhatsAppCampaignEntryStatus =
     | "PENDING"
     | "SENT"
@@ -26,10 +12,6 @@ export type UnofficialWhatsAppCampaignEntryStatus =
     | "NOT_ELIGIBLE_POSSIBLE_SPAM"
     | "SKIPPED_NOT_ON_WHATSAPP";
 
-/**
- * What one campaign sends. Maps 1:1 onto the channel's three send surfaces, so
- * a kind can never be picked that the backend has no way to deliver.
- */
 export type UnofficialWhatsAppMessageKind =
     | "text"
     | "image"
@@ -39,7 +21,6 @@ export type UnofficialWhatsAppMessageKind =
     | "menu";
 
 export interface UnofficialWhatsAppMenuOption {
-    /** Workflows branch on the id, never the label. */
     id: string;
     title: string;
     description?: string;
@@ -47,17 +28,9 @@ export interface UnofficialWhatsAppMenuOption {
 
 export interface UnofficialWhatsAppMessageSpec {
     kind: UnofficialWhatsAppMessageKind;
-    /**
-     * A LIST, and that is a ban-avoidance control rather than a convenience:
-     * identical bodies leaving one number at volume are what WhatsApp's spam
-     * heuristics weight, and this channel has no template to hide behind. One
-     * variant is picked per recipient, deterministically, so a resumed campaign
-     * never sends the same person two different messages.
-     */
     bodies: string[];
     mediaId?: string;
     fileName?: string;
-    /** Menu only. */
     style?: "buttons" | "list";
     footer?: string;
     button?: string;
@@ -73,13 +46,6 @@ export interface UnofficialWhatsAppCampaign {
     name: string;
     message: UnofficialWhatsAppMessageSpec;
 
-    /**
-     * The number's identity and live state, resolved server-side.
-     *
-     * `instanceSessionLive` is precomputed for the same reason the instance
-     * types.ts gives: the UI must never re-derive "connected" from a status
-     * string, or the Start button and the send path disagree.
-     */
     instanceLabel?: string;
     instanceStatus?: string;
     instanceSessionLive: boolean;
@@ -95,18 +61,11 @@ export interface UnofficialWhatsAppCampaign {
     preferAudio: boolean;
     aiModel?: string;
 
-    /** Pacing, copied from the number at creation and never faster than it. */
     sendDelayMinMs: number;
     sendDelayMaxMs: number;
-    /** 0 means "no campaign limit" — the number's own cap still applies. */
     dailyCap: number;
 
     status: CampaignStatus;
-    /**
-     * Why the SYSTEM paused this campaign. Without it an automatic pause looks
-     * identical to a manual one, and an operator restarts straight back into
-     * whatever stopped it.
-     */
     statusReason?: string;
 
     scheduledStart?: string | null;
@@ -124,18 +83,6 @@ export interface UnofficialWhatsAppCampaignTarget {
     metadata?: Record<string, string | number | boolean | null>;
 }
 
-/**
- * The administrator-only demonstration control: create a campaign that already
- * carries results, instead of blasting a real list to produce them.
- *
- * Sent on the way IN and never returned, because it is an instruction rather
- * than a property of the campaign - what became of it is readable from
- * `metrics`, exactly like any other campaign's. `sentPercent` lands on SENT,
- * which is what "this one went out" means here and the state a real entry
- * reaches the moment the provider accepts it; DELIVERED and READ are facts the
- * contact's phone reports afterwards. Whatever the two shares leave over stays
- * PENDING.
- */
 export interface UnofficialWhatsAppCampaignSeedOutcome {
     sentPercent: number;
     failedPercent: number;
@@ -164,7 +111,6 @@ export interface UnofficialWhatsAppCampaignPayload {
     scheduledStart?: string | null;
     archived?: boolean;
     targets?: UnofficialWhatsAppCampaignTarget[];
-    /** Ignored by the server for anyone who is not a platform administrator. */
     seedOutcome?: UnofficialWhatsAppCampaignSeedOutcome | null;
 }
 
@@ -174,10 +120,8 @@ export interface UnofficialWhatsAppCampaignEntry {
     leadId: string;
     number: string;
     name?: string;
-    /** Empty until the campaign has actually reached this person. */
     conversationId?: string;
     status: UnofficialWhatsAppCampaignEntryStatus;
-    /** Which body this person received, for a campaign running rotations. */
     variantIndex: number;
     errorCode?: number;
     errorMessage?: string;
@@ -198,7 +142,6 @@ export interface UnofficialWhatsAppCampaignListMeta {
     totalItems: number;
 }
 
-/** What the optional pre-flight list clean found. */
 export interface ValidateTargetsResult {
     campaignId: string;
     checked: number;

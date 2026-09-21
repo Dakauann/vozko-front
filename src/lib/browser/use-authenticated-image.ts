@@ -12,11 +12,6 @@ interface ImageState {
   onError: () => void;
 }
 
-/**
- * Loads a protected image through the shared refresh-on-401 transport. Native
- * <img> requests cannot refresh an expired access cookie, so they otherwise
- * remain broken until the page is reloaded.
- */
 export function useAuthenticatedImage(url: string): ImageState {
   const [state, setState] = useState<ImageState>({
     url: null,

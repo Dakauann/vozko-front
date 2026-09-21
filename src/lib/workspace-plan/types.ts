@@ -8,8 +8,6 @@ export interface PlanPricingItem {
   category: string;
   service: string;
   metric: string;
-  // Internal, admin-only: the backend strips costMicros/markupPct from customer plan responses
-  // (see vozko-go customer_billing_presenters.go), so they are ABSENT for end customers. Never render.
   costMicros?: number;
   priceMicros: number;
   markupPct?: number;

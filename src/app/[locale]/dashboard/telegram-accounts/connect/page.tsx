@@ -25,16 +25,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
-/**
- * Connecting a Telegram bot: the direct flow.
- *
- * Unlike WhatsApp and Instagram, nothing here hands off to a provider popup.
- * The operator does real work in another application (BotFather), comes back
- * with a token, and finishes on this page. That makes the token field a stop on
- * the same rail as the instructions rather than a form sitting beside them: it
- * cannot be completed until the three stops above it are done, and putting it
- * anywhere else invites a paste the operator has nothing to paste yet.
- */
 export default function ConnectTelegramPage() {
   const t = useTranslations("telegram");
   const tc = useTranslations("channels.connect");
@@ -47,8 +37,6 @@ export default function ConnectTelegramPage() {
   const [error, setError] = useState<string | null>(null);
   const [connected, setConnected] = useState<{ name: string } | null>(null);
 
-  // Permission is enforced server-side too; this only avoids showing a flow the
-  // operator cannot finish.
   useEffect(() => {
     if (!can("telegram_accounts", "create")) {
       router.replace("/dashboard/telegram-accounts");
@@ -56,9 +44,6 @@ export default function ConnectTelegramPage() {
   }, [can, router]);
 
   const trimmed = token.trim();
-  // Checked before the round trip: BotFather issues `<bot_id>:<secret>`, and a
-  // paste that is not that shape is almost always the bot's @username or the
-  // token with surrounding chat text still attached.
   const tokenLooksValid = useMemo(() => looksLikeBotToken(trimmed), [trimmed]);
   const showMalformed = trimmed !== "" && !tokenLooksValid;
 
@@ -80,10 +65,6 @@ export default function ConnectTelegramPage() {
       return;
     }
 
-    // Held on the page rather than redirected away. The operator has just
-    // finished a multi-application task and deserves to see it land, plus the
-    // bot's resolved name is the only confirmation that the right token was
-    // pasted.
     const name = result.account?.displayName ?? "";
     setToken("");
     setConnected({ name });
@@ -93,9 +74,6 @@ export default function ConnectTelegramPage() {
     });
   }, [tokenLooksValid, submitting, trimmed, toast, t]);
 
-  // "Ativo na hora" used to lead this list and restated `heroNote`, the notice
-  // directly above it, almost word for word. The notice is the pre-existing
-  // string and the more prominent placement, so the duplicate fact went.
   const facts = [
     {
       term: t("connect.facts.secure.title"),
@@ -201,8 +179,8 @@ export default function ConnectTelegramPage() {
                   )}
                 />
 
-                {/* Reserved so the block does not jump when validation appears
-                    under a field the operator is still typing into. */}
+                {
+}
                 <div className="min-h-[1.25rem]">
                   {showMalformed && (
                     <p
@@ -258,7 +236,6 @@ export default function ConnectTelegramPage() {
   );
 }
 
-/** A copyable command. Typing `/newbot` by hand is a needless failure point. */
 function CommandChip({ value }: { value: string }) {
   const [copied, setCopied] = useState(false);
 

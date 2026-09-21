@@ -1,13 +1,3 @@
-/**
- * The card menu on the kanban board.
- *
- * The bug this pins: the menu used to render inside the card, and a card is a
- * transformed `will-change: transform` element — its own stacking context — so
- * the menu could not paint over the cards below it, and the column's scroll
- * container clipped everything past the card's bottom edge. The last item,
- * "Mover para outro funil…", was the casualty: hidden behind the next card and
- * cut off by the column, so it could not be clicked.
- */
 
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
@@ -31,7 +21,6 @@ const STAGES: Stage[] = [
   { id: "stage-a", name: "Novo", color: "#2563eb", position: 0 },
 ] as unknown as Stage[];
 
-/** The move is only offered with at least two populated funnels to move between. */
 const FUNNELS: FunnelStages[] = [
   {
     pipelineId: "f1",
@@ -63,7 +52,6 @@ const LABELS: Label[] = [
   },
 ];
 
-/** Several cards in one column: the ones below are what the menu used to hide behind. */
 function entry(n: number): InboxEntry {
   return {
     entry_id: `e${n}`,

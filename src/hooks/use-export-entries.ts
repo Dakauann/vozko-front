@@ -10,7 +10,6 @@ import {
 import { downloadCsv } from "@/lib/browser/download";
 
 interface ExportFilters {
-    /** One or more send statuses. Empty means every status. */
     statuses?: string[];
     search?: string;
     stageId?: string;
@@ -24,10 +23,6 @@ interface ExportFilters {
     attendanceQualityMax?: number;
 }
 
-/**
- * Which conversations to export: one campaign, or every campaign in the
- * disparos recorte.
- */
 export type ExportScope =
     | { kind: "campaign"; campaignId: string }
     | { kind: "workspace"; type?: string; from?: string; to?: string };
@@ -47,13 +42,6 @@ function toQueryFilters(filters?: ExportFilters): Record<string, string | string
     return clean;
 }
 
-/**
- * Download a CSV export, for one campaign or for the whole disparos recorte.
- *
- * It used to take a `campaignType` of "voice" | "whatsapp" that nothing read —
- * a caller asking for "voice" got a WhatsApp export and no warning. The scope
- * argument on exportEntries is the real discriminator.
- */
 export function useExportEntries() {
     const [exporting, setExporting] = useState(false);
 

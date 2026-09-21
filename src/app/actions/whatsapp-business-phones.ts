@@ -112,11 +112,6 @@ export async function syncBusinessPhoneAction(phoneId: string) {
     return { data: response.data?.data ?? null, error: null };
 }
 
-/**
- * Re-runs the 360dialog Partner Hosted handover for a number stuck in
- * ONBOARDING_FAILED (for example after the account_sharing/numbers share failed).
- * Idempotent on the backend: it reuses any client created on a prior attempt.
- */
 export async function retryDialog360OnboardingAction(phoneId: string, workspaceId: string) {
     if (!workspaceId) {
         return {
@@ -125,9 +120,6 @@ export async function retryDialog360OnboardingAction(phoneId: string, workspaceI
         };
     }
 
-    // The backend retry endpoint requires BOTH phone_id and workspace_id (owner
-    // context). Omitting workspace_id returns 400 "workspace_id is required" before
-    // the handover ever runs, which is why the retry silently no-ops.
     const response = await apiClient<RetryOnboardingResponse>(
         `/onboard/360dialog/retry?phone_id=${encodeURIComponent(phoneId)}&workspace_id=${encodeURIComponent(workspaceId)}`,
         { method: 'POST' }
@@ -409,17 +401,10 @@ export async function getBusinessPhoneByIdAdminAction(phoneId: string) {
 }
 
 export interface WhatsAppOnboardingConfig {
-    /** Active onboarding provider: "meta" (native Cloud API) or "dialog360". */
     provider: string;
-    /** Whether the active onboarding path consumes a workspace phone-capacity slot. */
     requiresSlot: boolean;
 }
 
-/**
- * Reads the server's active onboarding mode (mirrors ENABLE_360DIALOG_ONBOARDING).
- * The capacity gate uses `requiresSlot` so it never blocks a slot-free native Meta
- * onboarding, while still gating the slot-billed 360dialog path.
- */
 export async function getWhatsAppOnboardingConfigAction(): Promise<{
     config: WhatsAppOnboardingConfig | null;
     error?: string | null;

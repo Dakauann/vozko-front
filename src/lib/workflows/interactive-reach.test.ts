@@ -9,8 +9,6 @@ import {
 } from "./interactive-reach";
 import type { ChannelInteractiveLimits } from "./types";
 
-// The real numbers, so a change to a channel's documented limits breaks a test
-// rather than silently changing what the editor promises an author.
 const WHATSAPP: ChannelInteractiveLimits = {
   maxOptionsButtons: 3,
   maxOptionsList: 10,
@@ -57,8 +55,6 @@ describe("reachFor", () => {
     expect(reaches.every((r) => r.status === "ok")).toBe(true);
   });
 
-  // The whole point of the annotation: the fourth button is fine on two
-  // channels and invisible on the third.
   it("drops the fourth button on WhatsApp but not on Instagram or Telegram", () => {
     const reaches = reachFor(
       { id: "quarta", title: "Quarta opção" },
@@ -86,15 +82,11 @@ describe("reachFor", () => {
     );
     expect(statusOn(reaches, "whatsapp")).toBe("truncated");
     expect(statusOn(reaches, "instagram")).toBe("truncated");
-    // Telegram documents no label limit, so nothing is promised or warned.
     expect(statusOn(reaches, "telegram")).toBe("ok");
   });
 
-  // Telegram's callback_data is documented in BYTES. An id of accented text
-  // overflows before its character count suggests, and a truncated payload
-  // would come back matching no branch.
   it("measures the option id in bytes, not characters", () => {
-    const id = "ç".repeat(40); // 40 characters, 80 bytes
+    const id = "ç".repeat(40);
     expect(byteLength(id)).toBe(80);
 
     const reaches = reachFor({ id, title: "x" }, 0, "buttons", ALL);
@@ -102,12 +94,10 @@ describe("reachFor", () => {
     expect(statusOn(reaches, "instagram")).toBe("ok");
   });
 
-  // An option the channel cannot send at all is worse news than one it will
-  // not show, which is worse than one it shows imperfectly.
   it("reports the most consequential verdict when several apply", () => {
     const reaches = reachFor(
       {
-        id: "x".repeat(250), // over WhatsApp's 200 and Telegram's 64
+        id: "x".repeat(250),
         title: "Um rótulo bem mais longo que vinte caracteres",
       },
       50,
@@ -120,8 +110,6 @@ describe("reachFor", () => {
 });
 
 describe("problemsFor", () => {
-  // Silence on a healthy option is the design: annotating every row equally
-  // would bury the one row that needs attention.
   it("says nothing about an option every channel renders", () => {
     expect(problemsFor({ id: "sim", title: "Sim" }, 0, "buttons", ALL)).toEqual(
       [],
@@ -136,8 +124,6 @@ describe("problemsFor", () => {
 });
 
 describe("authorableOptionCount", () => {
-  // The editor used to stop at three because that is WhatsApp's cap, which made
-  // Telegram's fourth option unauthorable.
   it("uses the most permissive connected channel", () => {
     expect(authorableOptionCount("buttons", ALL, 3)).toBe(100);
     expect(authorableOptionCount("list", { whatsapp: WHATSAPP }, 3)).toBe(10);

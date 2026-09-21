@@ -140,9 +140,7 @@ export interface ModelPricingInfo {
     name: string;
     promptPrice: number;
     completionPrice: number;
-    /** OpenRouter model creation time (Unix seconds). Powers the "New" badge. */
     created?: number;
-    /** Maximum context window in tokens. */
     contextLength?: number;
 }
 

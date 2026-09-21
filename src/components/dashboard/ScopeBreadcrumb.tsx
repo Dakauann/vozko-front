@@ -7,17 +7,6 @@ import { Link, usePathname } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
-/**
- * The breadcrumb trail, relocated from the app bar to the page it describes.
- *
- * The Azure shell keeps its trail with the content: the bar names the product
- * and the scope, and the path to the current screen sits directly above the
- * title it leads to. This renders that trail from the pathname alone, so the
- * page header can show it on every page without any call site passing props.
- *
- * The label map and segment logic are moved verbatim from the previous
- * navbar implementation — same translation namespace, same keys.
- */
 export function ScopeBreadcrumb({ className }: { className?: string }) {
   const t = useTranslations("dashboardNavbar");
   const pathname = usePathname();
@@ -29,8 +18,6 @@ export function ScopeBreadcrumb({ className }: { className?: string }) {
     campaigns: t("breadcrumbs.campaigns"),
     configuracoes: t("breadcrumbs.settings"),
     profile: t("breadcrumbs.profile"),
-    // Without a mapping the segment is titleised into "Unofficial Whatsapp",
-    // which is wrong in every locale including English.
     "unofficial-whatsapp": t("breadcrumbs.unofficial-whatsapp"),
     broadcasts: t("breadcrumbs.broadcasts"),
     connect: t("breadcrumbs.connect"),
@@ -60,7 +47,6 @@ export function ScopeBreadcrumb({ className }: { className?: string }) {
     }
   });
 
-  // A one-crumb trail points nowhere; the title below already names the page.
   if (breadcrumbs.length < 2) return null;
 
   return (
@@ -73,9 +59,8 @@ export function ScopeBreadcrumb({ className }: { className?: string }) {
     >
       {breadcrumbs.map((crumb, index) => (
         <React.Fragment key={crumb.href}>
-          {/* The separator hides with the crumb it separates: below sm the
-              intermediate crumbs are hidden, and a bare leading separator
-              pointing at nothing would render on every mobile screen. */}
+          {
+}
           {index > 0 && (
             <span
               aria-hidden="true"

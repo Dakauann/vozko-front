@@ -4,15 +4,6 @@ import type {
     CommentTopic,
 } from '@/lib/audience/types';
 
-/**
- * The per-post override editor's draft: what the form holds between the
- * loaded settings and the PUT. Kept out of the component so the two
- * mappings (settings → draft, draft → request) can be tested without React.
- *
- * "Inherit" is the empty value in every field: the "inherit" choice, an empty
- * string, a switched-off "own topics". The request sends `null` for those,
- * which the API reads as "no override on this field".
- */
 
 export type EnabledChoice = 'inherit' | 'on' | 'off';
 
@@ -25,12 +16,10 @@ export interface OverrideDraft {
     topics: CommentTopic[];
 }
 
-/** The editable rows: the fixed "other" topic is never shown as editable. */
 export function editableTopics(topics: CommentTopic[]): CommentTopic[] {
     return topics.filter((tp) => tp.key !== 'other');
 }
 
-/** Drops blank rows and trims; the keys are assigned by the back-end from the label. */
 export function cleanTopics(topics: CommentTopic[]): CommentTopic[] {
     return topics
         .filter((tp) => tp.label.trim() !== '')
@@ -45,8 +34,6 @@ export function overrideDraftFrom(cs: CommentContainerSettings | null): Override
         threshold: o?.severityThreshold != null ? String(o.severityThreshold) : '',
         instructions: o?.instructions ?? '',
         ownTopics: !!o?.topics,
-        // Own topics start from the effective set, so "make them my own" is
-        // an edit of what already applies rather than a blank list.
         topics: editableTopics(o?.topics ?? cs?.effective.topics ?? []),
     };
 }

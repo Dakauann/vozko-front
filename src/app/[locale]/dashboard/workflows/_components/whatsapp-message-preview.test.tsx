@@ -1,6 +1,3 @@
-/**
- * @vitest-environment happy-dom
- */
 
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
@@ -173,8 +170,6 @@ describe("WhatsAppMessagePreview", () => {
 });
 
 describe("centerWithin", () => {
-  // Build a fake offsetParent chain (jsdom has no layout) to verify the pure
-  // offset-summing math used to position handles at any zoom.
   function fakeEl(
     offsetTop: number,
     offsetHeight: number,

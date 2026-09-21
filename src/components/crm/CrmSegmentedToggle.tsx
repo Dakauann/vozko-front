@@ -17,14 +17,9 @@ interface CrmSegmentedToggleProps<T extends string> {
   value: T;
   onChange: (value: T) => void;
   className?: string;
-  /** Render without the sunk track, for use inside a ConsoleBank. */
   bare?: boolean;
 }
 
-/**
- * CRM toolbar pill toggle. Shared surface with date presets / live-chat filters
- * via ElevatedPillToggle (Signal Blue active segment).
- */
 export default function CrmSegmentedToggle<T extends string>({
   options,
   value,

@@ -39,24 +39,12 @@ interface WorkflowCopilotPanelProps {
   workflowType: WorkflowType;
   onGraph: (graph: WorkflowGraph) => void;
   onMeta?: (meta: { name?: string; description?: string; workflowType?: WorkflowType }) => void;
-  /** Snapshot of the canvas graph, used to re-hydrate the session on reconnect. */
   getGraph?: () => WorkflowGraph | null | undefined;
-  /** Collapses the card back to the FAB. The panel stays mounted, so the
-   * session and chat history survive the collapse. */
   onClose: () => void;
-  /** Expands the chat card again (wired to the FAB while collapsed). */
   onOpen: () => void;
-  /** When false the card collapses to the FAB; the panel stays mounted. */
   visible?: boolean;
 }
 
-/**
- * Round launcher for the copilot — the collapsed state of the floating
- * assistant. Also rendered by the editor before the panel first mounts, so
- * the copilot is reachable from the canvas at all times. The busy badge is
- * the one permitted loop here — like the typing indicator, it reports live
- * work in progress, so a collapsed copilot still says it is building.
- */
 export function WorkflowCopilotFab({
   onClick,
   busy = false,
@@ -144,9 +132,6 @@ export function WorkflowCopilotPanel({
   const [elapsed, setElapsed] = useState(0);
   const [advisoryOpen, setAdvisoryOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  // Whether to keep the view pinned to the bottom. True while the user sits at (or
-  // near) the bottom; flips to false the moment they scroll up, so we never yank
-  // them back down while they read, and re-arms when they return to the bottom.
   const stickToBottomRef = useRef(true);
 
   const handleChatScroll = () => {
@@ -155,8 +140,6 @@ export function WorkflowCopilotPanel({
     stickToBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 48;
   };
 
-  // Pin to bottom BEFORE paint (no flicker) and only when the user is following
-  // along, fixes both the streaming flicker and the "won't stay at the bottom".
   useLayoutEffect(() => {
     const el = scrollRef.current;
     if (el && stickToBottomRef.current) el.scrollTop = el.scrollHeight;
@@ -164,8 +147,6 @@ export function WorkflowCopilotPanel({
 
   const isBusy = status === "building" || status === "connecting";
 
-  // Tick a seconds counter while the agent works, so a long thinking turn never
-  // looks frozen (the model can think silently for tens of seconds).
   useEffect(() => {
     if (!isBusy) return;
     const start = Date.now();
@@ -190,7 +171,6 @@ export function WorkflowCopilotPanel({
   const blocking = issues.filter((i) => i.severity === "blocking");
   const advisory = issues.filter((i) => i.severity === "advisory");
 
-  // Most recent tool the agent ran (for the live "Executando: …" indicator).
   const lastTool = (() => {
     for (let i = chat.length - 1; i >= 0; i--) {
       if (chat[i].role === "tool") return chat[i].text.split(":")[0];
@@ -200,21 +180,16 @@ export function WorkflowCopilotPanel({
 
   return (
     <>
-      {/* Collapsed: only the launcher shows; the card below stays mounted
-          (hidden) so the session and chat history survive. */}
+      {
+}
       {!visible && <WorkflowCopilotFab onClick={onOpen} busy={isBusy} />}
     <div
       className={cn(
-        // Floating assistant card, no scrim: bounded footprint so the canvas
-        // stays visible above/around it while chatting. z-[60] sits under the
-        // NDV/simulator dialogs (z-[70]) and above the palette (z-40).
-        // Fixed 420px width on purpose (no resize handle): the card must never
-        // grow to cover the canvas the operator is steering.
         "fixed bottom-6 right-6 z-[60] flex w-[min(420px,92vw)] h-[min(68vh,620px)] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl",
         !visible && "hidden",
       )}
     >
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between px-3 py-2 border-b border-border">
         <div className="flex items-center gap-2 text-sm font-medium">
           <Sparkle size={16} weight="fill" className="text-primary-ink" />
@@ -287,7 +262,7 @@ export function WorkflowCopilotPanel({
               <ClockCounterClockwise size={16} />
             </button>
           )}
-          {/* Minimize, not destroy: collapses to the FAB, history persists. */}
+          {}
           <button
             onClick={onClose}
             className="text-muted-foreground hover:text-foreground"
@@ -303,9 +278,9 @@ export function WorkflowCopilotPanel({
         <WorkflowCopilotHistory workflowId={workflowId} />
       ) : (
         <>
-      {/* live copilot below */}
+      {}
 
-      {/* Model picker (searchable / paginated) */}
+      {}
       {models.length > 0 && (
         <div className="px-3 py-2 border-b border-border">
           <AIModelSelector
@@ -319,7 +294,7 @@ export function WorkflowCopilotPanel({
         </div>
       )}
 
-      {/* Status bar */}
+      {}
       <div className="flex items-center gap-2 px-3 py-1.5 text-xs border-b border-border text-muted-foreground">
         {status === "building" && (
           <CircleNotch size={13} className="animate-spin" />
@@ -347,7 +322,7 @@ export function WorkflowCopilotPanel({
         )}
       </div>
 
-      {/* Chat + issues log */}
+      {}
       <div
         ref={scrollRef}
         onScroll={handleChatScroll}
@@ -355,8 +330,8 @@ export function WorkflowCopilotPanel({
       >
         {chat.length === 0 && status !== "building" && (
           <>
-            {/* Brand trace lines behind the empty-state hint; anchored fully
-                inside the corner so the ornament never creates scroll. */}
+            {
+}
             <CircuitTraces
               tone="quiet"
               aria-hidden
@@ -425,7 +400,7 @@ export function WorkflowCopilotPanel({
         )}
       </div>
 
-      {/* Live "working" indicator, shows the agent is actively thinking/doing */}
+      {}
       {isBusy && (
         <div className="flex items-center gap-2 px-3 py-1.5 border-t border-border text-2xs text-muted-foreground">
           <span className="flex gap-0.5">
@@ -446,7 +421,7 @@ export function WorkflowCopilotPanel({
         </div>
       )}
 
-      {/* Composer */}
+      {}
       <div className="border-t border-border p-2">
         <ElevatedTextarea
           value={text}

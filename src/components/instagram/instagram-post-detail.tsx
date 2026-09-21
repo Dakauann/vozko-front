@@ -34,22 +34,11 @@ interface Props {
   onUpdated: (media: InstagramMedia) => void;
 }
 
-/**
- * Post detail: the asset, its metadata, and its paginated comment thread.
- *
- * Note what is deliberately absent, a caption editor. Instagram exposes no
- * endpoint to edit a published caption, so offering one would be a dead control.
- * The only supported post update is toggling comments.
- */
 export function InstagramPostDetail({ accountId, account, media, onClose, onUpdated }: Props) {
   const t = useTranslations("instagram");
   const { can } = useWorkspace();
-  // The analysis tab exists only for readers of the feature; the panel
-  // itself gates the override editor on the update permission.
   const canSeeAnalysis = can("audience", "read");
 
-  // Controlled so the split can follow the tab: the analysis tab carries
-  // charts and a form, which need the width the picture can spare.
   const [tab, setTab] = useState<"comments" | "automation" | "analysis">("comments");
   const wide = tab === "analysis";
   const carouselItems = media.isCarousel && media.children?.length ? media.children : [media];
@@ -92,16 +81,11 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
     [],
   );
 
-  // Refresh after a moderation action, where the spinner is wanted because the
-  // operator just did something and expects the list to react.
   const reload = useCallback(async () => {
     setLoading(true);
     applyFirstPage(await listInstagramCommentsAction(accountId, media.id));
   }, [accountId, media.id, applyFirstPage]);
 
-  /* First load. `loading` already starts true, so this effect sets no state
-     synchronously, it only lands the result once the request settles, and drops
-     it if the dialog moved to another post meanwhile. */
   useEffect(() => {
     let cancelled = false;
     void listInstagramCommentsAction(accountId, media.id).then((result) => {
@@ -112,7 +96,6 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
     };
   }, [accountId, media.id, applyFirstPage]);
 
-  // Escape closes, matching the rest of the dashboard's overlay behaviour.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -143,17 +126,11 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
     setTogglingComments(false);
   };
 
-  /* Portaled to <body> and stacked above every chrome layer (navbar z-40,
-     call strip and dropdowns z-50): rendered inline, those elements painted
-     over the scrim as bright patches. */
   return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-label={t("posts.detailTitle")}
-      /* A neutral dark scrim, NOT bg-foreground: `--foreground` is near-white in
-         dark mode, which turned the backdrop into a white wash, most visibly as a
-         bright band in the padding above the dialog. */
       className="fixed inset-0 z-[100] flex items-center justify-center bg-neutral-950/70 p-4"
       onClick={onClose}
     >
@@ -164,10 +141,8 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Asset. object-contain keeps portrait and landscape posts uncropped; the
-            panel owns a fixed share of the dialog so letterboxing shows as an even
-            surround rather than shifting the layout per image aspect ratio. On the
-            analysis tab the picture yields width to the panels beside it. */}
+        {
+}
         <div
           className={cn(
             "relative flex w-full shrink-0 items-center justify-center overflow-hidden bg-black transition-[width] duration-200 md:h-full",
@@ -231,8 +206,8 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
           )}
         </div>
 
-        {/* Meta + comments. min-h-0 is what allows the inner list to scroll rather
-            than stretching the flex row. */}
+        {
+}
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <header className="flex shrink-0 items-start gap-3 border-b border-border p-4">
             <InstagramAvatar
@@ -305,11 +280,8 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
               </p>
             )}
 
-            {/* The comments on this post and the automation that answers them
-                are two views of the same job, so they share the panel through
-                tabs, the same split the account page uses. Without this the
-                rule that replies here was configured somewhere the operator
-                could not see from the post. */}
+            {
+}
             <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="px-4 pb-4">
               <TabsList>
                 <TabsTrigger value="comments">{t("posts.tabComments")}</TabsTrigger>
@@ -332,9 +304,8 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
               </TabsContent>
 
               <TabsContent value="automation" className="mt-3">
-                {/* Scoped to this post: the panel shows rules attached to it plus
-                    the account-wide defaults that also run here, which is
-                    exactly what will fire on the next comment. */}
+                {
+}
                 <InstagramCommentRulesPanel
                   accountId={accountId}
                   mediaId={media.id}
@@ -344,9 +315,8 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
 
               {canSeeAnalysis ? (
                 <TabsContent value="analysis" className="mt-3">
-                  {/* What the classifier does with THIS post's comments: the
-                      account's settings with the post's own layered on, the
-                      post's numbers, and the override editor. */}
+                  {
+}
                   <CommentPostAnalysisPanel accountId={accountId} containerId={media.id} />
                 </TabsContent>
               ) : null}

@@ -3,14 +3,11 @@ export const ACTIVE_SUBSCRIPTION_REQUIRED_RECHARGE_ERROR =
 
 const FAILED_CREATE_INVOICE_ERROR = "failed to create invoice";
 
-// Machine code emitted by the API (WriteErrorWithCode) when the user has no CPF/CNPJ on file.
-// Asaas cannot create a charge for a document-less customer, so the API rejects up front with a 422.
 export const CUSTOMER_DOCUMENT_REQUIRED_CODE = "customer_document_required";
 
-// Message fragments used as a fallback when the machine code is unavailable (older API, proxy, etc.).
 const CUSTOMER_DOCUMENT_REQUIRED_HINTS = [
   CUSTOMER_DOCUMENT_REQUIRED_CODE,
-  "cpf/cnpj obrigat", // matches "CPF/CNPJ obrigatório" (accent-insensitive prefix)
+  "cpf/cnpj obrigat",
 ];
 
 export function isRechargeSubscriptionRequiredError(
@@ -26,10 +23,6 @@ export function isRechargeSubscriptionRequiredError(
     .includes(ACTIVE_SUBSCRIPTION_REQUIRED_RECHARGE_ERROR);
 }
 
-/**
- * True when a charge failed because the user has no CPF/CNPJ. Prefers the stable machine code and
- * falls back to the message text so the UI can prompt the user to add their document.
- */
 export function isCustomerDocumentRequiredError(
   code?: string | null,
   message?: string | null,

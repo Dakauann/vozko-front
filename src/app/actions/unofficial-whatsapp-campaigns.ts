@@ -1,11 +1,3 @@
-/**
- * Server actions for unofficial WhatsApp campaigns.
- *
- * Same `apiClient` idiom as every other action file in the project, and
- * deliberately the same function shapes as `whatsapp-campaigns.ts`, so a
- * component parameterised over the two channels can call either without
- * branching on shape.
- */
 
 import type {
     AddEntriesResult,
@@ -36,7 +28,6 @@ interface ListApiResponse<T> {
     meta: UnofficialWhatsAppCampaignListMeta;
 }
 
-/** A success envelope. The API wraps single objects in `data`. */
 interface Envelope<T> {
     data?: T;
 }
@@ -48,7 +39,6 @@ function unwrap<T>(payload?: Envelope<T> | T | null): T | undefined {
     return (payload as T) ?? undefined;
 }
 
-// ---------------------------------------------------------------- reads
 
 export async function listUnofficialCampaignsAction(params?: {
     page?: number;
@@ -138,7 +128,6 @@ export async function listUnofficialCampaignEntriesAction(
     };
 }
 
-// ---------------------------------------------------------------- writes
 
 export async function createUnofficialCampaignAction(payload: UnofficialWhatsAppCampaignPayload) {
     const response = await apiClient<Envelope<UnofficialWhatsAppCampaign>>(BASE, {
@@ -188,7 +177,6 @@ export async function unarchiveUnofficialCampaignAction(campaignId: string) {
     return { archived: false };
 }
 
-// ---------------------------------------------------------------- lifecycle
 
 async function lifecycle(campaignId: string, action: 'start' | 'pause' | 'stop') {
     const response = await apiClient(`${BASE}/${campaignId}/${action}`, { method: 'POST' });
@@ -212,12 +200,6 @@ export async function quickSendUnofficialCampaignAction(
     return { result: unwrap(response.data) };
 }
 
-/**
- * The optional pre-flight list clean.
- *
- * The send path checks every number anyway; this exists so an operator can see
- * how much of a purchased list is dead BEFORE committing to it.
- */
 export async function validateUnofficialCampaignTargetsAction(campaignId: string) {
     const response = await apiClient<Envelope<ValidateTargetsResult>>(
         `${BASE}/${campaignId}/validate`,
@@ -227,7 +209,6 @@ export async function validateUnofficialCampaignTargetsAction(campaignId: string
     return { result: unwrap(response.data) };
 }
 
-// ---------------------------------------------------------------- entries
 
 export async function addUnofficialCampaignEntriesAction(
     campaignId: string,
@@ -249,7 +230,6 @@ export async function deleteUnofficialCampaignEntryAction(campaignId: string, en
     return { deleted: true };
 }
 
-// ---------------------------------------------------------------- reset / clear
 
 export async function prepareResetUnofficialCampaignAction(campaignId: string) {
     const response = await apiClient<Envelope<{ resetCode: string; message: string }>>(
@@ -290,15 +270,7 @@ export async function confirmClearHistoryUnofficialCampaignAction(
     return { data: unwrap(response.data) };
 }
 
-// ---------------------------------------------------------------- export
 
-/**
- * Exports one campaign's recipients as CSV.
- *
- * Reuses the shared CSV fetcher rather than a second copy: it already carries
- * the download-error vocabulary the UI branches on — noEntries, tooLarge, busy —
- * and a second implementation would report a 413 as a generic failure.
- */
 export async function exportUnofficialCampaignEntriesAction(
     campaignId: string,
     filters?: Record<string, string | string[] | undefined>,

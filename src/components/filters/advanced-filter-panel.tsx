@@ -34,12 +34,6 @@ import {
 } from "@/lib/filters/controls";
 import { cn } from "@/lib/utils";
 
-/**
- * How a field is rendered. The same six shapes cover every filterable attribute
- * we have — which is the point: a list declares WHAT it can filter on and this
- * panel decides how to ask, so a new field costs one catalogue entry rather
- * than a new control, a new predicate writer and a new chip renderer.
- */
 export type FilterControlKind =
   | "text"
   | "enum"
@@ -53,13 +47,10 @@ export interface FilterFieldConfig {
   field: string;
   control: FilterControlKind;
   label: string;
-  /** Section id; must match one of `groups`. */
   group: string;
   options?: FilterMultiSelectOption[];
   placeholder?: string;
-  /** Runtime-loaded option sets (campaigns, stages, labels) render a hint. */
   loading?: boolean;
-  /** Overrides the generic yes/no wording, e.g. "Bloqueado" / "Ativo". */
   trueLabel?: string;
   falseLabel?: string;
 }
@@ -96,7 +87,6 @@ export interface AdvancedFilterPanelProps {
   className?: string;
 }
 
-/** Three-way switch: yes / no / no opinion. */
 function TriStateToggle({
   value,
   onChange,
@@ -261,13 +251,6 @@ function FieldControl({
   }
 }
 
-/**
- * A filter panel built from a field catalogue.
- *
- * Every control is fully controlled by `value`, so the panel hydrates straight
- * from a URL-restored filter with no internal mirror to keep in sync — the
- * usual source of "I cleared it but it came back".
- */
 export function AdvancedFilterPanel({
   value,
   onChange,

@@ -53,8 +53,6 @@ describe("LeadMemoriesSection", () => {
         deleteAction.mockReset().mockResolvedValue({});
     });
 
-    // An Instagram/Telegram conversation not yet bridged to a lead: the section
-    // must explain itself rather than fetch with an empty id.
     it("explains itself when the conversation has no lead", () => {
         renderSection({ leadId: null });
         expect(screen.getByText(t.noLead)).toBeInTheDocument();
@@ -64,8 +62,6 @@ describe("LeadMemoriesSection", () => {
     it("lists memories with content and attribution", async () => {
         renderSection();
         expect(await screen.findByText("Prefere boleto a PIX.")).toBeInTheDocument();
-        // The AI's writes are visible and attributed: that visibility is the
-        // feature's safety tripwire.
         expect(screen.getByText(/Agente Vendas/)).toBeInTheDocument();
         expect(listAction).toHaveBeenCalledWith("lead-1", undefined);
     });
@@ -101,8 +97,6 @@ describe("LeadMemoriesSection", () => {
                 category: "other",
             }),
         );
-        // Refetch rather than optimistic append: the backend may have
-        // deduplicated into an existing memory.
         await waitFor(() => expect(listAction).toHaveBeenCalledTimes(2));
     });
 

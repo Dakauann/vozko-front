@@ -18,23 +18,16 @@ interface ConfirmActionDialogProps {
   onOpenChange: (open: boolean) => void;
   title: string;
   description: string;
-  /** Optional richer body (e.g. a hint box). */
   children?: ReactNode;
   confirmLabel: string;
   cancelLabel: string;
   loadingLabel?: string;
   loading?: boolean;
-  /** Accent of the confirm button. Reversible actions stay neutral. */
   tone?: "primary" | "warning";
   icon?: ReactNode;
   onConfirm: () => void;
 }
 
-/**
- * A small, reusable confirmation for reversible phone actions (disconnect,
- * unassign). Destructive/irreversible removal has its own dedicated dialog with
- * a typed confirmation, this one is intentionally lighter.
- */
 export function ConfirmActionDialog({
   open,
   onOpenChange,

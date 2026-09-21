@@ -45,16 +45,6 @@ import {
 import { ChatCircle, ImageSquare, ShieldWarning, Warning, X } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
-/*
- * One person, everywhere (§2).
- *
- * Every @ in the tab opens THIS view, so "who is this and what do they keep
- * doing" has a single answer rather than one per surface. It holds the two
- * halves of that question: the posts they turn up on, and what they wrote.
- *
- * The limit the copy must respect: we know about COMMENTS. A like is not in
- * the comment webhook and is not stored, so nothing here counts "interactions".
- */
 
 const LOCALE_TAG: Record<string, string> = { pt: "pt-BR", en: "en-US", es: "es-ES", de: "de-DE" };
 
@@ -71,14 +61,10 @@ export function CommentAnalysisAuthorView({
 }: {
   accountId: string;
   topics: CommentTopic[];
-  /** Inherited from the tab, so the dialog answers for the same window. */
   period?: Period;
-  /** The row, when the caller already has it (the authors table). */
   author?: CommentAuthor;
-  /** The external id, when the caller only saw an @ (the feed). */
   authorExternalId?: string;
   onClose: () => void;
-  /** Lets a list that shows this author keep its own row in step. */
   onModeration?: (authorId: string, state: ModerationState) => void;
 }) {
   const t = useTranslations("audience.authorView");
@@ -93,8 +79,6 @@ export function CommentAnalysisAuthorView({
   const [containerId, setContainerId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Resolving the @: the feed knows a handle and an external id, the author
-  // endpoints take an author row id. One lookup bridges them.
   useEffect(() => {
     if (given || !authorExternalId) return;
     let cancelled = false;
@@ -239,7 +223,6 @@ export function CommentAnalysisAuthorView({
   );
 }
 
-/** The posts this person turns up on, worst first by their own behaviour there. */
 function AuthorPosts({
   author,
   range,
@@ -313,10 +296,6 @@ function AuthorPosts({
   );
 }
 
-/**
- * What this person wrote, optionally on one post. The list and its actions are
- * the feed's own endpoints, so hiding and replying behave identically here.
- */
 function AuthorComments({
   author,
   accountId,
@@ -385,7 +364,7 @@ function AuthorComments({
                 <SeverityBar severity={c.severity} compact />
               </span>
             </div>
-            {/* No "open the author" here: it is already open. */}
+            {}
             <CommentQuickActions
               className="mt-2"
               accountId={accountId}

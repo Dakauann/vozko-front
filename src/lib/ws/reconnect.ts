@@ -1,20 +1,3 @@
-/**
- * Shared WebSocket reconnection policy for the call-session + conversation hooks.
- *
- * Goals (production reliability):
- *  - Reconnect FOREVER with exponential backoff capped at maxDelay, never give
- *    up permanently (the old hooks stopped after N attempts, so a long
- *    background or flaky network left the socket dead).
- *  - Reconnect IMMEDIATELY when the tab becomes visible again or the network
- *    comes back online, the case where a backgrounded tab's socket was closed
- *    and the throttled backoff timer never fired.
- *  - `shouldReconnect` gates every attempt (enabled + authenticated + not an
- *    intentional disconnect), so we never loop when logged out or unmounted.
- *
- * The controller owns only timers + listeners; the hook owns the actual
- * `connect()` (which refreshes the token and opens the socket) and is expected
- * to be idempotent (no-op if already OPEN/CONNECTING).
- */
 
 export function backoffDelay(attempt: number, baseMs: number, maxMs: number): number {
     const a = attempt < 0 ? 0 : attempt;
@@ -24,17 +7,11 @@ export function backoffDelay(attempt: number, baseMs: number, maxMs: number): nu
 type Timer = ReturnType<typeof setTimeout>;
 
 export interface ReconnectController {
-    /** Schedule a backoff reconnect. Call from the socket's onclose. */
     scheduleReconnect(): void;
-    /** Reset backoff to zero. Call once a connection has stayed up a while. */
     resetBackoff(): void;
-    /** Cancel pending backoff and connect immediately (visibility/online). */
     reconnectNow(): void;
-    /** Attach visibility/online listeners. Does not connect by itself. */
     start(): void;
-    /** Remove listeners + cancel timers. Call on unmount/intentional disconnect. */
     stop(): void;
-    /** Pending backoff delay in ms, or null when no reconnect is scheduled. */
     pendingDelay(): number | null;
 }
 
@@ -44,13 +21,10 @@ type DocLike = Pick<Document, "addEventListener" | "removeEventListener"> & {
 };
 
 export interface ReconnectConfig {
-    /** Open a connection. Must be idempotent (no-op if already connected). */
     connect: () => void;
-    /** Whether a (re)connect should be attempted right now. */
     shouldReconnect: () => boolean;
     baseDelayMs?: number;
     maxDelayMs?: number;
-    /** Injectable for tests; defaults to global window/document when present. */
     win?: WinLike | null;
     doc?: DocLike | null;
 }

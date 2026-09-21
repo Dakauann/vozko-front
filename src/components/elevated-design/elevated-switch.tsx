@@ -36,11 +36,6 @@ const ElevatedSwitch = forwardRef<
             "peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border border-transparent transition-colors",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
             "disabled:cursor-not-allowed disabled:opacity-50",
-            // Reconciled with ui/switch.tsx. These two disagreed: that one
-            // filled with the brand, this one filled with plain --foreground
-            // and hardcoded a raw bg-gray-500 when disabled. Two switches in
-            // one product cannot mean different things by "on", so both now
-            // use the brand fill and a token for every state.
             "data-[state=checked]:bg-primary data-[state=unchecked]:bg-[hsl(var(--muted-foreground)/0.42)]",
             props.disabled &&
               "data-[state=checked]:bg-[hsl(var(--primary)/0.45)] data-[state=unchecked]:bg-muted",

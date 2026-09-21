@@ -81,7 +81,6 @@ import {
   softSurfaceWithInset,
 } from "@/components/elevated-design/shadow-presets";
 
-/** Quiet Infrastructure tokens (product register). */
 const COLORS = {
   signal: "hsl(var(--chart-1))",
   finished: "hsl(var(--healthy))",
@@ -109,7 +108,6 @@ type OpsFilterOption = {
   icon?: ReactNode;
 };
 
-/** Compact elevated select for the dense ops toolbar (Quiet Infrastructure). */
 function OpsFilterSelect({
   value,
   onValueChange,
@@ -171,9 +169,7 @@ function OpsFilterSelect({
   );
 }
 
-/** Width bands: hold the preferred multi-col layout until truly narrow. */
 type WidthBand = "wide" | "mid" | "stack";
-/** Height bands: shrink charts/padding before stacking sections. */
 type HeightBand = "roomy" | "tight" | "cramped";
 
 export type LiveOpsPanelProps = {
@@ -205,7 +201,6 @@ function useElementSize(ref: RefObject<HTMLElement | null>, enabled: boolean) {
 }
 
 function resolveWidthBand(w: number): WidthBand {
-  // Prefer keeping columns; only stack on phone-ish widths.
   if (w < 620) return "stack";
   if (w < 960) return "mid";
   return "wide";
@@ -953,7 +948,6 @@ export default function LiveOpsPanel({
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [heightPct, setHeightPct] = useState(DEFAULT_HEIGHT_PCT);
-  /** True = cover the entire browser viewport (fixed inset-0). */
   const [fullscreen, setFullscreen] = useState(false);
   const dragRef = useRef<{ startY: number; startPct: number } | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -1155,7 +1149,6 @@ export default function LiveOpsPanel({
     try {
       e.currentTarget.releasePointerCapture(e.pointerId);
     } catch {
-      /* ignore */
     }
   };
 
@@ -1262,7 +1255,7 @@ export default function LiveOpsPanel({
       aria-modal="true"
       aria-label={t("title")}
     >
-      {/* Toolbar: identity · mode · period · actions / filters · live */}
+      {}
       <header className="shrink-0 border-b border-border bg-card px-3 py-2 sm:px-4">
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground">
@@ -1383,7 +1376,7 @@ export default function LiveOpsPanel({
         </div>
       </header>
 
-      {/* Height/width-aware body: keep preferred columns until extreme sizes. */}
+      {}
       <div
         ref={bodyRef}
         className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto bg-muted"
@@ -1393,7 +1386,6 @@ export default function LiveOpsPanel({
             "mx-auto flex w-full flex-col",
             dense ? "gap-1.5 p-1.5 sm:p-2" : "gap-2 p-2 sm:gap-2.5 sm:p-3",
             fullscreen ? "max-w-[1800px] lg:p-4" : "max-w-none",
-            // When roomy, fill panel height so layout "owns" the vertical space.
             heightBand === "roomy" && widthBand !== "stack"
               ? "min-h-full"
               : null,
@@ -1405,7 +1397,7 @@ export default function LiveOpsPanel({
             </div>
           ) : null}
 
-          {/* KPI strip: keep 8-up as long as mid/wide */}
+          {}
           <div
             className={cn(
               "grid shrink-0 gap-1.5",
@@ -1467,7 +1459,7 @@ export default function LiveOpsPanel({
             </p>
           ) : null}
 
-          {/* Volume + status/direction: stay side-by-side from mid up */}
+          {}
           <div
             className={cn(
               "grid gap-2",
@@ -1524,7 +1516,7 @@ export default function LiveOpsPanel({
           </div>
 
           <>
-              {/* Secondary metrics */}
+              {}
               <div
                 className={cn(
                   "grid gap-2",
@@ -1786,7 +1778,7 @@ export default function LiveOpsPanel({
         </div>
       </div>
 
-      {/* Resize only in docked mode */}
+      {}
       {!fullscreen ? (
         <div
           className="group flex h-3 shrink-0 cursor-ns-resize items-center justify-center border-t border-border bg-card touch-none"

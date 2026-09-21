@@ -24,8 +24,6 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedButton from "@/components/elevated-design/button";
 import { cn } from "@/lib/utils";
 
-// A view saved as "workspace" is displayed as shared; the picker offers the two
-// meaningful choices (only me / whole team).
 function isSharedVisibility(v?: string): boolean {
   return v === "shared" || v === "workspace";
 }
@@ -33,12 +31,9 @@ function isSharedVisibility(v?: string): boolean {
 interface CrmSavedViewsProps {
   views: SavedView[];
   activeViewId: string | null;
-  // null selects the unsaved "Tudo" view (clears the filter, keeps groupBy).
   onSelect: (view: SavedView | null) => void;
-  // POSTs the current filter + groupBy under `name` with the chosen visibility.
   onSave: (name: string, visibility: SavedViewVisibility) => Promise<void> | void;
   onRename?: (id: string, name: string) => void;
-  // Overwrite the view's filter/groupBy with the board's current filter/groupBy.
   onUpdateToCurrent?: (id: string) => void;
   onSetVisibility?: (id: string, visibility: SavedViewVisibility) => void;
   onDelete?: (id: string) => void;
@@ -193,8 +188,6 @@ export default function CrmSavedViews({
   );
 }
 
-// A two-option visibility control (only me / whole team), styled like the view
-// tabs so the surface reads as one system.
 function VisibilityToggle({
   value,
   onChange,

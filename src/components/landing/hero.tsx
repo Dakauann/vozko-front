@@ -36,8 +36,8 @@ export function Hero({ labels }: { labels: HeroLabels }) {
             <span>{labels.titleLine2}</span>
           </motion.h1>
 
-          {/* The board's own trace bundle, at the scale it has in the identity:
-              the rising run that ends where the page's story begins. */}
+          {
+}
           <div className={styles.heroTrails} aria-hidden>
             <CircuitTraces dynamic seed={271} branches={7} className="h-full w-full" />
           </div>

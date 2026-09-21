@@ -13,12 +13,6 @@ interface CrmDialogProps {
   onClose: () => void;
   campaignId: string;
   campaignType: CampaignType;
-  /**
-   * Narrows campaignId to a CAMPAIGN rather than the channel's primary
-   * container. Only the unofficial WhatsApp channel has both — a conversation
-   * belongs to a number forever, while a campaign is one run across many — so
-   * everywhere else this stays undefined and nothing changes.
-   */
   containerKind?: ContainerKind;
   translations: CrmTranslations & {
     dialogTitle: string;
@@ -64,7 +58,7 @@ export default function CrmDialog({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          {/* Backdrop */}
+          {}
           <motion.div
             className="fixed inset-0 bg-black/20"
             initial={{ opacity: 0 }}
@@ -73,7 +67,7 @@ export default function CrmDialog({
             onClick={onClose}
           />
 
-          {/* Dialog panel */}
+          {}
           <motion.div
             className="fixed inset-0 z-10 flex flex-col overflow-hidden"
             initial={{ opacity: 0, scale: 0.97, y: 16 }}
@@ -86,7 +80,7 @@ export default function CrmDialog({
             }}
           >
             <div className="flex h-full flex-col overflow-hidden bg-card">
-              {/* ── Header ─────────────────────────────── */}
+              {}
               <div className="flex items-center justify-between border-b border-border bg-card px-5 py-3.5 flex-shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-[--radius] bg-healthy/100">
@@ -112,7 +106,7 @@ export default function CrmDialog({
                 </button>
               </div>
 
-              {/* ── CRM Body ───────────────────────────── */}
+              {}
               <div className="flex-1 min-h-0">
                 <CrmLayout
                   campaignId={campaignId}

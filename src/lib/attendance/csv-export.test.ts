@@ -7,7 +7,6 @@ import type {
 } from "@/lib/attendance/types";
 import { buildAttendanceOverviewCsv, type AttendanceCsvFilters } from "./csv-export";
 
-/** Identity translator: assertions read against stable keys, not copy. */
 const t = (key: string) => key;
 
 const FILTERS: AttendanceCsvFilters = {
@@ -93,8 +92,6 @@ function stageRow(partial: Partial<StageRow> = {}): StageRow {
     };
 }
 
-/** Two funnels owning a stage of the same name: the collision the block exists
- * to keep apart. */
 function stageBlock(stages: StageRow[] = [stageRow()]): OverviewStages {
     return {
         funnels: [
@@ -115,7 +112,6 @@ function stageBlock(stages: StageRow[] = [stageRow()]): OverviewStages {
     };
 }
 
-/** Stands in for the dashboard's label functions. */
 const display = {
     channel: (c: string) => (c === "unofficial_whatsapp" ? "WhatsApp (não oficial)" : c),
     actorKind: (k: string) => (k === "ai" ? "IA" : "Humano"),
@@ -133,8 +129,6 @@ function build(o = overview(), f = FILTERS) {
 }
 
 describe("buildAttendanceOverviewCsv", () => {
-    // The filter is the file's provenance: without it the numbers cannot be
-    // interpreted, or reproduced, a week after the download.
     it("records the applied filter in the file", () => {
         const { csvText } = build();
         expect(csvText).toContain("filters.dateFrom;2026-08-01");
@@ -158,8 +152,6 @@ describe("buildAttendanceOverviewCsv", () => {
         expect(csvText).toContain("columns.total;142;100");
     });
 
-    // A workspace without CSAT would otherwise export "rating 0" as though
-    // every customer had scored it zero.
     it("omits unavailable metrics rather than exporting zeros", () => {
         const { csvText } = build();
         expect(csvText).not.toContain("kpi.avgRating");
@@ -168,8 +160,6 @@ describe("buildAttendanceOverviewCsv", () => {
         expect(csvText).not.toContain("kpi.frtSlaPercent");
     });
 
-    // A period with no handle time still has the row: dropping it made the
-    // file's columns change shape between exports, which reads as a bug.
     it("keeps a measured-but-empty metric as a row with a blank value", () => {
         const { csvText } = build(
             overview({
@@ -195,8 +185,6 @@ describe("buildAttendanceOverviewCsv", () => {
         expect(csvText).not.toContain("unofficial_whatsapp");
     });
 
-    // Without the glossary the file's own totals look contradictory: status
-    // counts engaged threads while "total in scope" includes empty shells.
     it("appends the backend's metric definitions under their label", () => {
         const { csvText } = buildAttendanceOverviewCsv({
             overview: overview({
@@ -214,12 +202,9 @@ describe("buildAttendanceOverviewCsv", () => {
         });
         expect(csvText).toContain("sections.definitions");
         expect(csvText).toContain("Recorte do período;Conversas criadas no período");
-        // Empty definitions are not emitted as blank rows.
         expect(csvText).not.toContain("status_mapping;");
     });
 
-    // The definition keys come from the backend, so one it adds before the
-    // label exists must print unlabelled, not break the export.
     it("falls back to the raw key when a definition has no label", () => {
         const { csvText } = buildAttendanceOverviewCsv({
             overview: overview({
@@ -269,11 +254,9 @@ describe("buildAttendanceOverviewCsv", () => {
             }),
         );
         expect(csvText).toContain("Vendas;2;9;5;;;;1;0");
-        // The comma in the name must be quoted, not shift every later column.
         expect(csvText).toContain('Ana, Silva;ana@x.com;Humano;Online;4,5;4,8;91;2;1;12');
     });
 
-    // Names come from operator input and land in a spreadsheet.
     it("defuses a formula injected through a department name", () => {
         const { csvText } = build(
             overview({
@@ -291,9 +274,6 @@ describe("buildAttendanceOverviewCsv", () => {
         expect(build().csvText.charCodeAt(0)).toBe(0xfeff);
     });
 
-    // The panel's whole point is that "Agendamento" in one funnel is not
-    // "Agendamento" in another. A file that printed only stage names would
-    // reintroduce exactly the collision the grouping exists to prevent.
     it("names the funnel on every stage row", () => {
         const { csvText } = build(overview({ stages: stageBlock() }));
         expect(csvText).toContain("FUNIL UNIFECAF;Inscrição");
@@ -304,7 +284,6 @@ describe("buildAttendanceOverviewCsv", () => {
         const { csvText } = build(overview({ stages: stageBlock() }));
         const row = csvText.split("\n").find((l) => l.startsWith("FUNIL UNIFECAF;Inscrição"));
         expect(row).toBeDefined();
-        // engaged;shell, in that order, and the shells are not folded in.
         expect(row).toContain(";600;40;");
     });
 
@@ -319,8 +298,6 @@ describe("buildAttendanceOverviewCsv", () => {
         expect(csvText).not.toContain("sections.stages");
     });
 
-    // A stage name is operator input reaching a spreadsheet, same as a
-    // department name.
     it("defuses a formula injected through a stage name", () => {
         const { csvText } = build(
             overview({

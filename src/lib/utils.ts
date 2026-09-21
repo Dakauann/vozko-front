@@ -19,15 +19,6 @@ export function normalizeBrazilianPhone(raw: string): string | null {
   return null;
 }
 
-/**
- * Readable ink for an arbitrary solid fill (workspace labels, tags, calendar
- * events — colours the USER picks, so no token can guarantee the pair).
- * White on light hues (yellow, lime) measures under 2:1; hardcoding white was
- * producing invisible chips. Picks white or near-black by WCAG relative
- * luminance, the same way every mature label system (GitHub, Linear) does.
- * Accepts #rgb / #rrggbb; anything unparsable falls back to white, which is
- * the correct guess for the mid-to-dark colours pickers default to.
- */
 export function readableInkFor(color: string | null | undefined): string {
   if (!color) return "#ffffff";
   const hex = color.trim().replace(/^#/, "");
@@ -44,6 +35,5 @@ export function readableInkFor(color: string | null | undefined): string {
   };
   const luminance =
     0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4);
-  // 0.179 is the luminance at which white and black tie on WCAG contrast.
   return luminance > 0.179 ? "#0E1113" : "#ffffff";
 }

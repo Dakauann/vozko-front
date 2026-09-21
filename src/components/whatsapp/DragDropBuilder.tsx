@@ -38,10 +38,8 @@ export interface DraggableComponent {
       url?: string;
       phone_number?: string;
       example?: string;
-      /** Set on an OTP button: COPY_CODE, ONE_TAP or ZERO_TAP. */
       otp_type?: string;
     }>;
-    /** AUTHENTICATION only: the security line on BODY, the expiry on FOOTER. */
     add_security_recommendation?: boolean;
     code_expiration_minutes?: number;
     [key: string]: unknown;
@@ -108,17 +106,6 @@ export const DEFAULT_PALETTE: ComponentPaletteItem[] = [
   },
 ];
 
-/**
- * The palette an operator may build from, for a given category.
- *
- * Authentication templates are the narrow case: WhatsApp writes the body and
- * the footer and renders no header at all, so offering HEADER there would only
- * let someone build a template the server refuses. Call permission is a
- * marketing/utility device and has no meaning beside a one-time code either.
- *
- * The server enforces all of this regardless (ValidateAuthenticationTemplate);
- * this keeps the operator out of a rejection they would have to decode.
- */
 export function paletteForCategory(category: string): ComponentPaletteItem[] {
   if (category !== "AUTHENTICATION") return DEFAULT_PALETTE;
   return DEFAULT_PALETTE.filter(
@@ -243,8 +230,6 @@ export default function DragDropBuilder({
     if (paletteItem.singleton && components.some((c) => c.type === type)) {
       return false;
     }
-    // Call permission requests and regular buttons are mutually exclusive:
-    // WhatsApp renders the permission buttons itself.
     if (
       type === "CALL_PERMISSION_REQUEST" &&
       components.some((c) => c.type === "BUTTONS")
@@ -262,7 +247,7 @@ export default function DragDropBuilder({
 
   return (
     <div className="flex gap-6 h-full">
-      {/* Component Palette */}
+      {}
       <div className="w-64 flex-shrink-0" data-tour="wt-builder-palette">
         <div className="sticky top-0">
           <h3 className="text-sm font-semibold text-foreground mb-3">
@@ -287,11 +272,8 @@ export default function DragDropBuilder({
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    {/* `item.color` is an ink-N class (a text colour), so the
-                        old `bg-gradient-to-br ${item.color}` painted NO fill —
-                        a white glyph on a transparent tile, i.e. invisible.
-                        The ink-plate recipe is the system's glyph tile: quiet
-                        plate, category colour on the mark. */}
+                    {
+}
                     <div
                       className={`ink-plate flex h-10 w-10 flex-shrink-0 items-center justify-center ${item.color}`}
                     >
@@ -327,7 +309,7 @@ export default function DragDropBuilder({
         </div>
       </div>
 
-      {/* Builder Canvas */}
+      {}
       <div className="flex-1 min-w-0" data-tour="wt-builder-canvas">
         <h3 className="text-sm font-semibold text-foreground mb-3">
           {builderT("titles.builder")}

@@ -11,7 +11,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { foldSessionMemories } from "@/lib/agent-simulator/session-memories";
 import { simulateAgentTurnAction } from "@/app/actions/agent-simulator";
 
-/** The lead the session impersonates; their real memories are injected read-only. */
 export interface LeadContext {
     id: string;
     name: string;
@@ -52,32 +51,19 @@ function loadSession(agentId: string): SimulatorSessionState {
     }
 }
 
-/**
- * The simulator's whole conversation engine, shared by the full page and the
- * edit-page panel so the two can never drift: client-held transcript
- * (sessionStorage per agent), turn execution against the sandboxed endpoint,
- * retry that re-sends the failed line, session-memory folding (intercepted
- * manage_lead_memory calls become next-turn context), and the impersonated
- * lead whose change resets the conversation.
- */
 export function useSimulatorSession(agentId: string, options?: { genericErrorMessage?: string }) {
     const [session, setSession] = useState<SimulatorSessionState>(() => loadSession(agentId));
     const [pending, setPending] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [failedMessage, setFailedMessage] = useState<string | null>(null);
 
-    // send() reads the session through this ref, never through its closure:
-    // retry slices the failed line off and re-sends in the same tick, and a
-    // closure-captured transcript would put the failed line into history twice.
     const sessionRef = useRef(session);
     sessionRef.current = session;
 
-    // The transcript is the session; a reload keeps it, a reset clears it.
     useEffect(() => {
         try {
             window.sessionStorage.setItem(sessionKey(agentId), JSON.stringify(session));
         } catch {
-            // Storage full or unavailable: the session simply stops surviving reloads.
         }
     }, [agentId, session]);
 
@@ -118,8 +104,6 @@ export function useSimulatorSession(agentId: string, options?: { genericErrorMes
             setPending(false);
 
             if (turnError || !turn) {
-                // The failed line stays in the transcript (it was said) and the
-                // provider's own words become the diagnostic; retry re-sends it.
                 setError(turnError ?? options?.genericErrorMessage ?? "simulation failed");
                 setFailedMessage(message);
                 return false;
@@ -155,9 +139,6 @@ export function useSimulatorSession(agentId: string, options?: { genericErrorMes
 
     const retry = useCallback(() => {
         if (!failedMessage) return;
-        // Drop the failed user bubble: send() re-adds it. The ref is updated
-        // in the same tick so send() reads the sliced transcript, not React's
-        // not-yet-committed state.
         const sliced: SimulatorSessionState = {
             ...sessionRef.current,
             transcript: sessionRef.current.transcript.slice(0, -1),
@@ -171,21 +152,15 @@ export function useSimulatorSession(agentId: string, options?: { genericErrorMes
     }, [failedMessage, send]);
 
     const reset = useCallback(() => {
-        // Reset clears the conversation (and its temporary memories) but keeps
-        // the chosen lead: the common loop is "tweak, run the same scenario".
         setSession((prev) => ({ ...emptySession, lead: prev.lead }));
         setError(null);
         setFailedMessage(null);
         try {
             window.sessionStorage.removeItem(sessionKey(agentId));
         } catch {
-            /* nothing to clear */
         }
     }, [agentId]);
 
-    // Changing whose memories the agent sees invalidates everything already
-    // said, so picking (or clearing) a lead starts a fresh session with that
-    // context, never a hybrid transcript half-spoken to someone else.
     const setLeadContext = useCallback((lead: LeadContext | null) => {
         setSession({ ...emptySession, lead });
         setError(null);

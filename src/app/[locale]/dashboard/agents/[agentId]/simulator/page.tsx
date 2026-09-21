@@ -25,8 +25,6 @@ export default function AgentSimulatorPage({ params }: SimulatorPageProps) {
     const t = useTranslations("agentSimulator");
     const [state, setState] = useState<PageState>({ loading: true });
 
-    // load never touches state synchronously (initial state already reads
-    // loading); retry flips loading itself before re-running.
     const load = useCallback(() => {
         let cancelled = false;
 
@@ -40,8 +38,6 @@ export default function AgentSimulatorPage({ params }: SimulatorPageProps) {
                 setState({
                     loading: false,
                     agent: agentResult.agent,
-                    // The catalog only feeds display names; a failure degrades to
-                    // raw tool names rather than blocking the page.
                     tools: toolsResult.tools ?? [],
                 });
             },

@@ -65,53 +65,16 @@ export type EntryType =
     | 'support'
     | 'instagram'
     | 'telegram'
-    /**
-     * WhatsApp over a linked-device session rather than Meta's Cloud API.
-     *
-     * The same channel to a customer, a different transport to us: no template,
-     * no 24h window, real delivery receipts, editable messages. It is a separate
-     * entry type because the two share nothing on the send path — conflating
-     * them would route every reply through the Cloud API's template-and-balance
-     * machinery.
-     */
     | 'unofficial_whatsapp';
 
-/**
- * Instagram is deliberately absent here.
- *
- * A campaign is an outbound blast, and Instagram forbids cold outbound entirely,
- * a business can only reply inside a 24h window opened by the customer. So there is
- * no Instagram campaign to model, and adding one would invent a capability the
- * platform does not grant.
- */
 export type CampaignType = 'whatsapp' | 'support' | 'unofficial_whatsapp';
 
-/**
- * Which container a scoped inbox narrows to.
- *
- * Most channels have exactly one — a WhatsApp campaign, or the account row — and
- * leave this undefined. The unofficial WhatsApp channel has two genuinely
- * different ones: a conversation belongs to a NUMBER forever, while a campaign
- * is one run across many numbers.
- */
 export type ContainerKind = 'campaign' | undefined;
 
-/**
- * The channel a MESSAGE was carried on, which is what the inbox filters by.
- *
- * Distinct from EntryType: 'support' is an entry kind, not a message channel.
- * Declared once because it had been spelled out inline in three places, and
- * each new channel was added to some of them, so Telegram reached the inbox
- * with no filter option at all.
- */
 export type MessageChannel = 'whatsapp' | 'instagram' | 'telegram' | 'unofficial_whatsapp';
 
-/** The channels an operator can filter the inbox by, in display order. */
 export const FILTERABLE_MESSAGE_CHANNELS: readonly MessageChannel[] = [
     'whatsapp',
-    // Next to the official transport, not at the end: an operator filtering by
-    // "WhatsApp" needs to see immediately that there are two, because a reply
-    // leaves from a different number depending on which one they pick.
     'unofficial_whatsapp',
     'instagram',
     'telegram',
@@ -119,83 +82,26 @@ export const FILTERABLE_MESSAGE_CHANNELS: readonly MessageChannel[] = [
 
 export type WhatsAppCampaignTypeFilter = 'standard' | 'organic';
 
-/**
- * Kept as a named step even though it no longer rewrites anything.
- *
- * It existed to fold 'sip' into 'voice'. Both were telephony entry kinds and
- * neither exists any more, so every entry type now normalizes to itself. The
- * call sites stay pointed here rather than at a raw cast, so folding a future
- * transport into its channel is one edit again.
- */
 export function normalizeEntryType(entryType: EntryType): EntryType {
     return entryType;
 }
 
-/**
- * What a channel can actually do, in one place.
- *
- * Conversation UI is shared across channels, so a control that only makes sense
- * for one of them must ask here rather than testing the entry type inline,
- * otherwise every new channel means hunting for scattered conditionals, and a
- * control ends up offered for a channel that cannot honour it.
- */
 export const channelCapabilities = {
-    /**
-     * Telephony needs a dialable number. An Instagram contact is an IGSID with
-     * no phone number attached, so calling is not merely disabled, it is not a
-     * property of the channel.
-     */
     supportsCalling(entryType: EntryType): boolean {
         const t = normalizeEntryType(entryType);
-        // The unofficial transport's contact IS an E.164 number, unlike an
-        // IGSID or a Telegram user id, so a call session can reach it. This
-        // gates CALLING only; the WhatsApp call-permission flow is a Cloud API
-        // feature and stays gated on 'whatsapp' where it is used.
         return t === 'whatsapp' || t === 'unofficial_whatsapp';
     },
 
-    /**
-     * Whether an already-sent message can be corrected or unsent.
-     *
-     * Telegram alone permits it: editMessageText works on our own messages, and
-     * deleteMessage works for 48 hours. Offering the action on a channel that
-     * cannot honour it and then failing is worse than not offering it, which is
-     * why this is asked rather than assumed.
-     */
     supportsMessageEditing(entryType: EntryType): boolean {
         const t = normalizeEntryType(entryType);
-        // Telegram was the first; the unofficial WhatsApp transport is the
-        // second, because a linked-device session can edit and delete-for-all
-        // where the Cloud API cannot.
         return t === 'telegram' || t === 'unofficial_whatsapp';
     },
 
-    /**
-     * Whether the composer's disabled state is a CLOCK.
-     *
-     * WhatsApp and Instagram close on a 24h timer that reopens by itself when
-     * the customer writes again. Telegram in bot mode has no timer at all, the
-     * only thing that closes it is the customer blocking the bot, which never
-     * reopens on its own. The copy has to differ, so the question is asked here
-     * instead of inferred from a missing expiry.
-     */
     hasTimedOutboundWindow(entryType: EntryType): boolean {
         const t = normalizeEntryType(entryType);
-        // Deliberately NOT the unofficial transport: it has no clock at all.
-        // What closes its composer is a dead session, a WhatsApp restriction or
-        // a block — none of which reopens by itself, so a countdown would be a
-        // lie in all three cases.
         return t === 'whatsapp' || t === 'instagram';
     },
 
-    /**
-     * Whether AI agents can attend this conversation.
-     *
-     * Instagram gained agent attendance through the channel-agnostic AI reply
-     * service, which honours the same automation gating as WhatsApp: the
-     * account's "enable agent responses" switch, overridden per conversation by
-     * the automation toggle an operator flips when taking over.
-     */
     supportsAiHandling(entryType: EntryType): boolean {
         const t = normalizeEntryType(entryType);
         return (
@@ -212,19 +118,12 @@ export type MessageType =
     | 'tool_call'
     | 'tool_result'
     | 'audio'
-    // A non-audio attachment: image, video, document, sticker. The backend has
-    // emitted this since the unofficial WhatsApp channel landed; the union was
-    // never updated, so every place that branched on it was comparing against a
-    // type TypeScript believed impossible.
     | 'media'
     | 'system'
     | 'template'
     | 'call_permission_request'
     | 'call_permission_granted'
     | 'call_permission_rejected'
-    // Instagram-specific inbound shapes. A story reply/mention is a real
-    // conversational turn that carries the story context in metadata; a reaction
-    // and an unsupported message are markers.
     | 'story_reply'
     | 'story_mention'
     | 'reaction'
@@ -249,12 +148,6 @@ export interface MatchedMessage {
     page: number;
 }
 
-/**
- * AIHandler names the AI attending a conversation. `kind` is the effective handler
- * configured on the campaign; a running workflow also carries its live run + current
- * node. Whether the AI is paused for this conversation is the entry's
- * `automation_enabled` flag, not repeated here.
- */
 export interface AIHandler {
     kind: "agent" | "workflow";
     agent_id?: string;
@@ -269,13 +162,6 @@ export interface AIHandler {
     current_node_type?: string;
 }
 
-/**
- * Where an upcoming analysis has got to.
- *
- * "awaiting" is the conversation still being active: nothing is analysing yet
- * and nothing will until it settles. "queued" is the engine having it. They get
- * different words on screen because they are different facts.
- */
 export type AnalysisPhase = "awaiting" | "queued";
 
 export interface InboxEntry {
@@ -283,23 +169,8 @@ export interface InboxEntry {
     entry_type: EntryType;
     lead_id?: string;
     lead_name: string;
-    /**
-     * The CONTACT's picture, distinct from last_message_sender_avatar, which
-     * is whoever spoke last and becomes the operator's face the moment they
-     * reply. The backend has always sent lead_picture; the type never declared
-     * it, so every conversation list rendered initials.
-     */
     lead_picture?: string;
     lead_number: string;
-    /**
-     * True when the other side is a GROUP chat rather than a person.
-     *
-     * Not just a badge. A group has no number to dial, no lead to open and no
-     * single person to attribute the thread to, so several affordances have to
-     * be suppressed rather than relabelled — blocking, copying the number, and
-     * the lead-shaped fields in the context rail all address a person who does
-     * not exist here.
-     */
     is_group?: boolean;
     blocked?: boolean;
     entry_variables?: string[];
@@ -323,15 +194,6 @@ export interface InboxEntry {
     assigned_user_id?: string;
     assigned_username?: string;
     latest_analysis?: Analysis | null;
-    /**
-     * Where an upcoming analysis has got to.
-     *
-     * The two states must not share a word: "awaiting" means the conversation
-     * is still going and nothing is being analysed yet, "queued" means the
-     * engine has it. Independent of `latest_analysis`, which keeps showing the
-     * previous verdict while the next one is computed, and carried on the entry
-     * itself so a page reload still shows it.
-     */
     analysis_phase?: AnalysisPhase;
     conversation_status?: string;
     close_source?: string;
@@ -383,18 +245,6 @@ export interface ConversationMessage {
     entry_type: EntryType;
     channel: MessageChannel;
     message_type: MessageType;
-    /**
-     * Who sent this: the contact, or us.
-     *
-     * Stated by the backend rather than inferred from message_type, which is
-     * the kind of CONTENT. The two came apart on unofficial WhatsApp, where a
-     * reply the owner typed on their own phone arrives as an ordinary text —
-     * indistinguishable by type from the customer writing, and rendered as
-     * exactly that until this field existed.
-     *
-     * Absent on rows written before the column. Use `isOutgoingMessage`, which
-     * falls back to the old inference rather than assuming a side.
-     */
     direction?: 'INBOUND' | 'OUTBOUND';
     from: string;
     to: string;
@@ -501,7 +351,7 @@ export interface WsStartCallPayload {
 }
 
 export interface WsCallAudioPayload {
-    audio: string; 
+    audio: string;
     sample_rate?: number;
 }
 
@@ -561,28 +411,12 @@ export interface WsSubscribedPayload {
     entry_type: EntryType;
     lead_name: string;
     lead_number: string;
-    /**
-     * The contact's picture. Sent by the server on every subscribe; the type
-     * omitted it, so anything reading the conversation rather than the cached
-     * inbox row (a floating window, for one) had no face to show and fell back
-     * to an initial while the inbox beside it showed the photo.
-     */
     lead_picture?: string;
     lead_metadata?: EntryMetadata;
     unread_count: number;
     window_open?: boolean;
     window_expires_at?: string | null;
-    /** Why sending is blocked; empty when open. See WindowClosedReason. */
     window_closed_reason?: WindowClosedReason | null;
-    /**
-     * The per-conversation automation override, straight from the server.
-     *
-     * The server has always sent this; the type omitted it, so the subscribe
-     * handler read the cached inbox entry instead. That cache is campaign
-     * scoped, so a Telegram or Instagram conversation is usually absent from it,
-     * the value resolved to null, null is "inherit", and a paused
-     * conversation rendered as running.
-     */
     automation_enabled?: boolean | null;
 }
 
@@ -734,7 +568,7 @@ export interface WSCallWaitingSlotPayload {
 }
 
 export interface WsCallAudioOutPayload {
-    audio: string; 
+    audio: string;
     sample_rate: number;
 }
 
@@ -805,10 +639,7 @@ export type WsServerEvent =
 export interface WsAnalysisUpdatePayload {
     entry_id: string;
     entry_type: EntryType;
-    /** Absent on a "queued" frame: there is no verdict yet, and the one already
-     * on screen must not be overwritten with a blank. */
     analysis?: Analysis | null;
-    /** A new analysis is queued or running. */
     pending?: boolean;
 }
 
@@ -826,13 +657,6 @@ export type ConnectedUser = {
     connected_at: string
 };
 
-/**
- * Mirrors conversation.WindowClosedReason in the Go domain.
- *
- * `account_restricted` is the ONLY closed state that carries a time, and that
- * time is a countdown to when the restriction lifts — never a deadline to
- * schedule against.
- */
 export type WindowClosedReason =
     | "expired"
     | "no_inbound"
@@ -847,14 +671,6 @@ export interface ActiveConversation {
     entry_type: EntryType;
     campaign_id?: string;
     lead_name: string;
-    /**
-     * The contact's picture, carried on the conversation itself.
-     *
-     * The centre pane can read this off the cached inbox row because it always
-     * has one; a floating conversation may outlive its row (a filter change, a
-     * page of the inbox that never loaded), so it carries its own copy and
-     * shows the same face the list does.
-     */
     lead_picture?: string;
     lead_number: string;
     lead_metadata?: EntryMetadata;
@@ -865,13 +681,6 @@ export interface ActiveConversation {
     total?: number;
     window_open: boolean;
     window_expires_at: string | null;
-    /**
-     * Why sending is blocked, named by the server. Empty when the window is open.
-     *
-     * The composer used to INFER this from whether an expiry accompanied a
-     * closed window, which shipped a bug where every clockless channel claimed
-     * "the 24-hour window is closed" on a channel that has no such window.
-     */
     window_closed_reason?: WindowClosedReason | null;
     automation_enabled?: boolean | null;
     conversation_status?: string;
@@ -879,6 +688,5 @@ export interface ActiveConversation {
     close_reason?: string;
     closed_at?: string | null;
     ai_handler?: AIHandler | null;
-    /** See InboxEntry.is_group. Mirrored here so an open conversation knows. */
     is_group?: boolean;
 }

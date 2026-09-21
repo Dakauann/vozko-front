@@ -1043,9 +1043,9 @@ function WhatsAppCampaignDetailContent({
     if (!shouldAutoRefresh) return;
     const interval = setInterval(() => {
       refreshCampaign();
-      loadEntries(entriesPage, false); 
+      loadEntries(entriesPage, false);
       if (canReadAnalysis) loadAnalysisStats(false);
-    }, 15000); 
+    }, 15000);
     return () => clearInterval(interval);
   }, [
     shouldAutoRefresh,
@@ -1151,12 +1151,12 @@ function WhatsAppCampaignDetailContent({
         const increase = nowNext - prevNext;
 
         if (decrease > 0 && increase > 0) {
-          const transfers = Math.min(decrease, increase, 5); 
+          const transfers = Math.min(decrease, increase, 5);
           for (let j = 0; j < transfers; j++) {
             animationIdRef.current += 1;
             newFloatingMessages.push({
               id: `flow-${animationIdRef.current}-${i}-${j}`,
-              fromIndex: i + 1, // +1 because Total card is at index 0
+              fromIndex: i + 1,
               toIndex: i + 2,
               color: stageColors[currentKey],
             });
@@ -1302,7 +1302,7 @@ function WhatsAppCampaignDetailContent({
       setMonitoringAllEntries(merged);
       refreshCampaign();
       if (canReadAnalysis) loadAnalysisStats(false);
-    }, 20000); 
+    }, 20000);
     return () => clearInterval(interval);
   }, [
     isMonitoring,
@@ -1371,11 +1371,11 @@ function WhatsAppCampaignDetailContent({
         />
       </div>
 
-      {/* Dashboard Grid Layout - Campaign Info + AI Analysis */}
+      {}
       <div
         className={cn("grid gap-4", canReadAnalysis ? "lg:grid-cols-3" : "")}
       >
-        {/* Campaign Info - Takes 2 columns */}
+        {}
         <div
           className={cn(
             "rounded-[--radius] max-h-max border border-border bg-card p-6",
@@ -1428,7 +1428,7 @@ function WhatsAppCampaignDetailContent({
           </div>
 
           <div className="relative">
-            {/* Floating message animations */}
+            {}
             <AnimatePresence>
               {floatingMessages.map((msg, msgIdx) => {
                 const cardCount = 6;
@@ -1479,7 +1479,7 @@ function WhatsAppCampaignDetailContent({
             </AnimatePresence>
 
             <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6" data-tour="wd-metrics">
-              {/* Total */}
+              {}
               <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
                 <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-healthy opacity-[0.06] blur-2xl" />
                 <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg", channelPlate("whatsapp"))}>
@@ -1494,7 +1494,7 @@ function WhatsAppCampaignDetailContent({
                   </p>
                 </div>
               </div>
-              {/* Pending */}
+              {}
               <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
                 <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-muted opacity-[0.06] blur-2xl" />
                 <div className="tile-neutral flex h-10 w-10 items-center justify-center">
@@ -1509,7 +1509,7 @@ function WhatsAppCampaignDetailContent({
                   </p>
                 </div>
               </div>
-              {/* Sent */}
+              {}
               <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
                 <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-muted opacity-[0.06] blur-2xl" />
                 <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg", channelPlate("whatsapp"))}>
@@ -1529,7 +1529,7 @@ function WhatsAppCampaignDetailContent({
                   </p>
                 </div>
               </div>
-              {/* Delivered */}
+              {}
               <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
                 <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-muted opacity-[0.06] blur-2xl" />
                 <div className="tile-healthy flex h-10 w-10 items-center justify-center">
@@ -1544,7 +1544,7 @@ function WhatsAppCampaignDetailContent({
                   </p>
                 </div>
               </div>
-              {/* Read */}
+              {}
               <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
                 <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-muted opacity-[0.06] blur-2xl" />
                 <div className="tile-healthy flex h-10 w-10 items-center justify-center">
@@ -1559,7 +1559,7 @@ function WhatsAppCampaignDetailContent({
                   </p>
                 </div>
               </div>
-              {/* Failed */}
+              {}
               <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
                 <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-destructive opacity-[0.06] blur-2xl" />
                 <div className="tile-fault flex h-10 w-10 items-center justify-center">
@@ -1574,7 +1574,7 @@ function WhatsAppCampaignDetailContent({
                   </p>
                 </div>
               </div>
-              {/* Not Eligible (Possible Spam) */}
+              {}
               <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
                 <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-warning opacity-[0.06] blur-2xl" />
                 <div className="tile-warning flex h-10 w-10 items-center justify-center">
@@ -1731,13 +1731,13 @@ function WhatsAppCampaignDetailContent({
             compact
           />
         )}
-        {/* AI Analysis Stats - Compact */}
+        {}
       </div>
 
-      {/* Combined Filters */}
+      {}
       <div></div>
 
-      {/* Entry Filters Bar */}
+      {}
       <div data-tour="wd-entry-filters">
         <EntryFiltersBar
           campaignType="whatsapp"
@@ -1853,7 +1853,7 @@ function WhatsAppCampaignDetailContent({
                       key={contact.id || contact.number}
                       className="group relative rounded-[--radius] border border-border bg-card p-5 transition-all duration-200 hover:shadow-md hover:border-foreground/20"
                     >
-                      {/* Header Row */}
+                      {}
                       <div className="flex items-start justify-between gap-4 mb-4">
                         <div className="flex items-center gap-3">
                           {contact.id && (
@@ -1904,7 +1904,7 @@ function WhatsAppCampaignDetailContent({
                         </span>
                       </div>
 
-                      {/* Error info for failed entries */}
+                      {}
                       {errorDisplay?.show ? (
                         <div className="mb-3 rounded-lg border border-border bg-muted px-3 py-2 dark:border-border dark:bg-muted">
                           {errorDisplay.code !== null ? (
@@ -1918,7 +1918,7 @@ function WhatsAppCampaignDetailContent({
                         </div>
                       ) : null}
 
-                      {/* Stage */}
+                      {}
                       {contact.id && (
                         <div className="flex items-center gap-2 mb-3">
                           <EntryStageBadge
@@ -1944,7 +1944,7 @@ function WhatsAppCampaignDetailContent({
                         </div>
                       )}
 
-                      {/* Variables */}
+                      {}
                       {contact.variables && contact.variables.length > 0 && (
                         <details className="mb-3 group/vars">
                           <summary className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer list-none [&::-webkit-details-marker]:hidden">
@@ -1971,7 +1971,7 @@ function WhatsAppCampaignDetailContent({
                         </details>
                       )}
 
-                      {/* Metadata */}
+                      {}
                       {contact.metadata &&
                         Object.entries(contact.metadata).filter(
                           ([, v]) =>
@@ -2011,7 +2011,7 @@ function WhatsAppCampaignDetailContent({
                           </details>
                         )}
 
-                      {/* Footer */}
+                      {}
                       <div className="flex items-center gap-2 pt-3 border-t border-border">
                         <CalendarCheck
                           weight="fill"
@@ -2031,7 +2031,7 @@ function WhatsAppCampaignDetailContent({
                 )}
               </div>
 
-              {/* Pagination */}
+              {}
               {entriesTotalPages > 1 && (
                 <div className="flex items-center justify-center gap-2 mt-6">
                   <Button
@@ -2142,7 +2142,7 @@ function WhatsAppCampaignDetailContent({
         }}
       />
 
-      {/* Monitoring Mode Overlay */}
+      {}
       <AnimatePresence>
         {isMonitoring && (
           <MonitoringMode data-tour="wd-monitoring"

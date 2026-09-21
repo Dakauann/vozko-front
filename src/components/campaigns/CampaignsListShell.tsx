@@ -15,18 +15,6 @@ import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 
-/**
- * The campaign list page, minus the columns.
- *
- * Extracted so both campaign channels render the SAME page: the same header,
- * the same summary slot, the same search-and-status toolbar, the same stat
- * strip, the same empty and error states, the same pagination.
- *
- * What a channel supplies is what genuinely differs — which columns exist, what
- * the rows link to, what the strings say. Everything an operator recognises as
- * "the campaigns screen" lives here, once, so the two cannot drift apart the
- * first time one of them is touched.
- */
 
 export interface CampaignsListLabels {
   badge: string;
@@ -44,7 +32,6 @@ export interface CampaignsListLabels {
 export interface CampaignsListShellProps<T extends { id: string; status: string }> {
   labels: CampaignsListLabels;
   icon: ReactNode;
-  /** Tint for the header glyph, so each channel keeps its own identity. */
   headerColorClass?: string;
 
   rows: T[];
@@ -52,7 +39,6 @@ export interface CampaignsListShellProps<T extends { id: string; status: string 
   loading: boolean;
   error?: string | null;
 
-  /** Total across every page, not just the loaded one. */
   totalItems: number;
   totalPages: number;
   page: number;
@@ -64,18 +50,15 @@ export interface CampaignsListShellProps<T extends { id: string; status: string 
   statusFilter: string;
   onStatusFilterChange: (value: string) => void;
 
-  /** Contacts across the loaded page, for the stat strip. */
   contactCount: number;
 
   onRowClick: (row: T) => void;
   renderRowActions?: (row: T) => ReactNode;
 
-  /** The workspace summary bar. Rendered above the table when supplied. */
   summary?: ReactNode;
 
   canCreate: boolean;
   createHref: string;
-  /** Rendered between the header and the summary — session warnings, notices. */
   notice?: ReactNode;
 }
 

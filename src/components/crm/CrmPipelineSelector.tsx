@@ -45,27 +45,16 @@ export interface SelectedPipeline {
   name: string;
 }
 
-// Sentinel funnel id for the workspace-wide "Todos os funis" scope: responsável /
-// etiqueta are global attributes, so the board can group by them across EVERY pipeline
-// (HubSpot's "All Pipelines"). The backend reads an empty pipelineId as this scope.
 export const ALL_FUNNELS_ID = "__all__";
 
 interface CrmPipelineSelectorProps {
   value: SelectedPipeline | null;
   onChange: (pipeline: SelectedPipeline) => void;
   className?: string;
-  // Stage columns are pipeline-specific, so "Todos os funis" can't render them, the
-  // board axis being "etapa" disables the option (mirrors HubSpot greying it in board
-  // mode). Owner/label axes leave it enabled.
   disableAllFunnels?: boolean;
-  // Whether the caller may create funnels (stages:create). Off by default so a
-  // read-only surface never shows a door it cannot open.
   canCreate?: boolean;
 }
 
-// The unified Funil selector: one control listing BOTH atendimento (conversation)
-// funnels and vendas (opportunity) funnels. Selecting one drives which object the
-// board renders, the single most important piece of the "one Funil surface" UX.
 export default function CrmPipelineSelector({
   value,
   onChange,
@@ -79,8 +68,6 @@ export default function CrmPipelineSelector({
   const [creating, setCreating] = useState(false);
   const [conversation, setConversation] = useState<Pipeline[]>([]);
   const [opportunity, setOpportunity] = useState<Pipeline[]>([]);
-  // Bumped after a create so the lists reload and the new funnel appears without
-  // a page refresh.
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
@@ -99,8 +86,6 @@ export default function CrmPipelineSelector({
     };
   }, [reloadKey]);
 
-  // Creating a funnel selects it. Anything else would leave the operator looking
-  // at the funnel they were already on, wondering whether it worked.
   const handleCreate = useCallback(
     async (draft: FunnelDraft) => {
       setCreating(true);
@@ -154,8 +139,6 @@ export default function CrmPipelineSelector({
 
   const isAll = value?.id === ALL_FUNNELS_ID;
   const activeGroup = groups.find((g) => g.key === value?.objectType);
-  // Prefer the name from the loaded lists (resolves a URL-hydrated placeholder);
-  // fall back to the passed name, then a generic label.
   const activeName = isAll
     ? "Todos os funis"
     : (activeGroup?.pipelines.find((p) => p.id === value?.id)?.name ??
@@ -199,7 +182,7 @@ export default function CrmPipelineSelector({
         sideOffset={6}
         className="w-64 rounded-[--radius] border border-border bg-card p-1.5 shadow-2xl"
       >
-        {/* Workspace-wide scope: group responsável / etiqueta across every funnel. */}
+        {}
         <button
           type="button"
           disabled={disableAllFunnels}
@@ -260,7 +243,6 @@ export default function CrmPipelineSelector({
                     }}
                     className={cn(
                       "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition-colors",
-                      // Neutral opaque ground; the check carries the green.
                       isActive
                         ? "bg-muted font-medium text-foreground"
                         : "text-foreground hover:bg-muted",
@@ -280,11 +262,8 @@ export default function CrmPipelineSelector({
           </div>
         ) : null}
 
-        {/*
-          Creating a funnel used to be impossible from here: the only door was
-          creating a campaign, which stamped one as a side effect. POST /pipelines
-          existed all along with nothing wired to it.
-        */}
+        {
+}
         <div className="my-1 h-px bg-border" />
         {canCreate ? (
           <button
@@ -300,9 +279,8 @@ export default function CrmPipelineSelector({
             <span className="flex-1 truncate">{tFunnels("list.new")}</span>
           </button>
         ) : null}
-        {/* The way out to the full surface. Creating from the board is the quick
-            path; renaming, reordering, the default and deletion live on the page,
-            and without this row the only route there is the nav. */}
+        {
+}
         <Link
           href="/dashboard/funnels"
           onClick={() => setOpen(false)}
@@ -328,17 +306,6 @@ export default function CrmPipelineSelector({
   );
 }
 
-/**
- * Name it, then draw it — the same composer the Funis page uses, in a dialog.
- *
- * It used to be a name and a "which funnel do you want a copy of" select, which
- * meant a funnel could only ever be somebody else's process with a new label on
- * it. The columns are now written here, and the templates that were the whole
- * flow are one row inside the composer that fills the editor.
- *
- * Sharing the component with the page is the point: the board's shortcut and the
- * management surface cannot drift into two different ideas of what a funnel is.
- */
 function NewFunnelDialog({
   open,
   onOpenChange,
@@ -353,10 +320,6 @@ function NewFunnelDialog({
   onCreate: (draft: FunnelDraft) => void;
 }) {
   const t = useTranslations("funnels");
-  // Fresh state per open, so a cancelled attempt does not prefill the next one.
-  // The caller keys this component on `open`, which remounts it — cheaper and
-  // more honest than resetting from an effect, which fires a second render just
-  // to undo the first.
   const [draft, setDraft] = useState<FunnelDraft>(() => ({
     name: "",
     stages: [newDraftStage([])],
@@ -368,10 +331,8 @@ function NewFunnelDialog({
 
   return (
     <ElevatedDialog open={open} onOpenChange={onOpenChange}>
-      {/* Wider than the selector's other overlays and scrollable, because it
-          holds a real editor rather than two fields. The board stays visible
-          behind it, which is the reason this is a dialog here at all instead of
-          a trip to the Funis page mid-conversation. */}
+      {
+}
       <ElevatedDialogContent className="max-h-[86vh] max-w-2xl overflow-y-auto">
         <ElevatedDialogHeader>
           <ElevatedDialogTitle>{t("create.title")}</ElevatedDialogTitle>

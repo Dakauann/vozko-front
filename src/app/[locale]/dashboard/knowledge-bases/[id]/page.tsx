@@ -204,7 +204,7 @@ export default function KnowledgeBaseDetailPage() {
       ],
       "application/vnd.ms-excel": [".xls"],
     },
-    maxSize: 10 * 1024 * 1024, // 10MB per file
+    maxSize: 10 * 1024 * 1024,
     multiple: true,
     disabled: uploading || documents.length >= MAX_DOCUMENTS,
   });

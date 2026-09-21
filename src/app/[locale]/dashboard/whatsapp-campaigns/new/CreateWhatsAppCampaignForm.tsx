@@ -133,12 +133,6 @@ const extractTemplateVariables = (
 
   if (namedVars.length > 0) return namedVars;
 
-  // Nothing was written into this template's text, which for an authentication
-  // template is normal rather than empty: WhatsApp owns that body and the
-  // variable it substitutes is the one-time code. The shared reader is what
-  // knows that, and it answers with nothing for every other template, so this
-  // changes no existing campaign. Without it the wizard collects no column for
-  // the code and every entry is dispatched without one.
   return templateParamSlots(template).body.map((slot) => `{{${slot}}}`);
 };
 
@@ -360,7 +354,6 @@ export default function CreateWhatsAppCampaignForm({
   const [templateInfoConfirmed, setTemplateInfoConfirmed] = useState(
     mode === "edit",
   );
-  // Para levar o usuário até o switch quando ele for o motivo do bloqueio.
   const templateConfirmRef = useRef<HTMLDivElement>(null);
   const [highlightTemplateConfirm, setHighlightTemplateConfirm] =
     useState(false);
@@ -373,7 +366,6 @@ export default function CreateWhatsAppCampaignForm({
   );
   const [loadingModels, setLoadingModels] = useState(false);
   const modelsLoadedRef = useRef(!!aiModelsProp?.length);
-  // Conversation funnel (pipeline) this campaign routes to; editable in edit mode.
   const [pipelineOptions, setPipelineOptions] = useState<
     { id: string; name: string }[]
   >([]);
@@ -406,10 +398,6 @@ export default function CreateWhatsAppCampaignForm({
     }
   }, [isSubmitting, router]);
 
-  // Load conversation funnels for BOTH modes: a campaign is linked to a funnel
-  // when it is created, not only when it is edited. Creating used to offer stage
-  // groups here instead — a separate vocabulary for the same field, from back when
-  // a group was the only way to get a funnel at all.
   useEffect(() => {
     let active = true;
     listPipelinesAction("conversation").then(({ pipelines }) => {
@@ -1201,7 +1189,7 @@ export default function CreateWhatsAppCampaignForm({
         if (varMatch) {
           variableColumnIndices.push({
             index,
-            varIndex: parseInt(varMatch[1], 10) - 1, // 0-based
+            varIndex: parseInt(varMatch[1], 10) - 1,
           });
         }
       });
@@ -1475,11 +1463,6 @@ export default function CreateWhatsAppCampaignForm({
         description: t("validation.confirmTemplateFirst"),
         variant: "destructive",
       });
-      // Rolar até o switch: ele mora no painel lateral da prévia, que num
-      // desktop fica fora do campo de visão de quem acabou de clicar no botão
-      // lá embaixo, e num celular fica acima de toda a lista de contatos.
-      // Dizer "confirme o template" sem levar até lá deixa o usuário
-      // procurando.
       templateConfirmRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "center",
@@ -1620,8 +1603,6 @@ export default function CreateWhatsAppCampaignForm({
             !organic && scheduleEnabled && data.scheduledStart
               ? data.scheduledStart
               : undefined,
-          // The funnel this campaign's conversations live on. Omitted means the
-          // workspace default; the server resolves it either way.
           ...(selectedPipelineId ? { pipelineId: selectedPipelineId } : {}),
           phoneNumbers: organic
             ? []
@@ -1698,10 +1679,6 @@ export default function CreateWhatsAppCampaignForm({
     });
   };
 
-  // Walks an arbitrarily nested react-hook-form error node and returns the
-  // first human-readable message in it. Depth-bounded because the error tree
-  // carries `ref` objects that point back into the DOM, and following those
-  // would walk the whole document.
   const firstErrorMessage = (node: unknown, depth = 0): string | undefined => {
     if (node == null || depth > 4) return undefined;
     if (typeof node !== "object") return undefined;
@@ -1715,19 +1692,6 @@ export default function CreateWhatsAppCampaignForm({
     return undefined;
   };
 
-  // The first message a react-hook-form error produces has to name the field
-  // and, for a contact, WHICH contact.
-  //
-  // This used to read three fields by name and fall back to "corrija os erros
-  // no formulário". A campaign carries thousands of contacts across pages of
-  // fifty, so a generic message left the operator with no way to find the one
-  // row that is wrong: the field is marked, but it is on page 40 of a list they
-  // cannot search by error. Worse, an error on any field this did not
-  // enumerate — businessPhoneId, a contact's variables, a contact's name —
-  // produced a message that described nothing at all.
-  //
-  // Walking the tree instead of naming fields means a field added later is
-  // reported without anyone remembering to come back here.
   const describeFormError = (
     errors: Record<string, unknown>,
   ): { message: string; contactIndex?: number } => {
@@ -1744,23 +1708,12 @@ export default function CreateWhatsAppCampaignForm({
     const phoneErrors = errors.phoneNumbers;
     if (Array.isArray(phoneErrors)) {
       const index = phoneErrors.findIndex((e) => e != null);
-      // How many rows are broken, not just the first. Reporting one at a time
-      // turns a CSV with six bad rows into six round trips of fix, submit,
-      // discover the next one — with no way to know how many are left.
       const total = phoneErrors.filter((e) => e != null).length;
       if (index !== -1) {
         const entry = phoneErrors[index] as Record<
           string,
           { message?: string } | undefined
         >;
-        // Any sub-field at ANY depth, not just `number`.
-        //
-        // A flat Object.values scan missed two real shapes: `variables` holds
-        // an ARRAY of errors, one per template variable, and react-hook-form
-        // nests differently depending on how the field was registered. Missing
-        // the message meant falling back to "corrija os erros no formulário",
-        // which named the contact but not the problem — the operator was taken
-        // to the right row and still had to guess.
         const detail = firstErrorMessage(entry);
         const first = t("validation.contactHasError", {
           position: index + 1,
@@ -1775,13 +1728,10 @@ export default function CreateWhatsAppCampaignForm({
         };
       }
     }
-    // The array itself can carry the error (min length, max length).
     const arrayMessage = (phoneErrors as { message?: string } | undefined)
       ?.message;
     if (arrayMessage) return { message: arrayMessage };
 
-    // Nothing recognised: say so honestly and name the fields, rather than
-    // claim there is nothing wrong.
     const fields = Object.keys(errors).join(", ");
     return {
       message: fields
@@ -1799,9 +1749,6 @@ export default function CreateWhatsAppCampaignForm({
       variant: "destructive",
     });
 
-    // Take the operator to the offending contact instead of describing where
-    // it is. Any active filter is cleared first, or the page index would point
-    // into a different list than the one the position was computed from.
     if (contactIndex !== undefined) {
       setShowOnlyMissingVars(false);
       setSearchQuery("");
@@ -1811,11 +1758,6 @@ export default function CreateWhatsAppCampaignForm({
 
   return (
     <form
-      // handleSubmit returns a promise, and a throw inside the zod resolver
-      // rejects it rather than reaching onInvalid. React does not surface that
-      // anywhere the operator can see, so the click produced no request, no
-      // toast and no marked field — the exact "nothing happens" report. A
-      // submit must always end in feedback, even when the failure is a bug.
       onSubmit={(event) => {
         void handleSubmit(onSubmit, onInvalid)(event).catch((error) => {
           console.error("[campaign-form] submit failed", error);
@@ -1880,13 +1822,8 @@ export default function CreateWhatsAppCampaignForm({
               </p>
             </div>
 
-            {/*
-              One control, both modes. Creating a campaign used to offer "grupo de
-              etapas" while editing offered "funil" — the same column, campaigns
-              .pipeline_id, under two names on two screens. A stage group now
-              materializes its funnel the moment it is created, so the group list
-              and the funnel list had become the same set.
-            */}
+            {
+}
             <div>
               <ElevatedCommandSelect
                 label="Funil de atendimento"
@@ -1937,7 +1874,7 @@ export default function CreateWhatsAppCampaignForm({
                 />
                 <FieldError message={errors.templateId?.message} />
 
-                {/* Warning: selected template is missing header media */}
+                {}
                 {selectedTemplateMissingMedia &&
                   isAdmin &&
                   selectedTemplate && (
@@ -1971,7 +1908,7 @@ export default function CreateWhatsAppCampaignForm({
                     </div>
                   )}
 
-                {/* Show template variables info when a template is selected */}
+                {}
                 {selectedTemplate && templateVariables.length > 0 && (
                   <div className="mt-3 rounded-lg border border-border bg-muted p-4"data-tour="wc-template-variables">
                     <h4 className="text-sm font-semibold text-healthy-ink mb-2">
@@ -2395,9 +2332,8 @@ export default function CreateWhatsAppCampaignForm({
                       }}
                       label={t("validation.confirmTemplateLabel")}
                     />
-                    {/* Dito ANTES do clique, não só depois: o custo de
-                        descobrir a exigência é uma ida até o fim do formulário
-                        e de volta. */}
+                    {
+}
                     {mode === "create" && !templateInfoConfirmed ? (
                       <p className="mt-2 text-xs text-destructive-ink">
                         {t("validation.confirmTemplateRequired")}
@@ -2473,7 +2409,7 @@ export default function CreateWhatsAppCampaignForm({
             </div>
           )}
 
-          {/* Skipped lines warning */}
+          {}
           {skippedLines.length > 0 && (
             <div className="mb-4 rounded-[--radius] border border-border bg-muted px-4 py-3">
               <button
@@ -2562,7 +2498,7 @@ export default function CreateWhatsAppCampaignForm({
             </div>
           )}
 
-          {/* Missing variables warning */}
+          {}
           {(templateVariables.length > 0 || requiredCampaignVars.length > 0) &&
             missingVariablesCount > 0 && (
               <div className="mb-4 rounded-lg border border-border bg-muted p-4"data-tour="wc-missing-vars">
@@ -2595,7 +2531,7 @@ export default function CreateWhatsAppCampaignForm({
               </div>
             )}
 
-          {/* Search and filter */}
+          {}
           <div className="mb-4 flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <MagnifyingGlass
@@ -2780,10 +2716,8 @@ export default function CreateWhatsAppCampaignForm({
                       controlSize="sm"
                       placeholder={t("contacts.namePlaceholder")}
                     />
-                    {/* Only the number rendered its error, so a name over the
-                        120-character limit — the length a contact name pasted
-                        out of a CRM export reaches easily — failed the whole
-                        submit while the row showed nothing at all. */}
+                    {
+}
                     <FieldError
                       message={
                         errors.phoneNumbers?.[originalIndex]?.name?.message
@@ -2888,19 +2822,11 @@ export default function CreateWhatsAppCampaignForm({
           type="submit"
           variant="primary"
           title={mode === "edit" ? t("actions.update") : t("actions.create")}
-          // Desabilitado SÓ enquanto envia.
-          //
-          // Faltar a confirmação do template também desabilitava, e um botão
-          // desabilitado não explica nada: o clique não dispara request, não
-          // abre toast e não marca campo — o usuário preenchia tudo, clicava e
-          // não acontecia absolutamente nada. O switch que falta fica no painel
-          // lateral da prévia, longe do botão, então nem era óbvio olhar pra
-          // lá. Agora o submit roda e a guarda em onSubmit diz o que falta.
           disabled={isSubmitting}
         />
       </div>
 
-      {/* Template Header Media Edit Modal */}
+      {}
       {selectedTemplate && isAdmin && (
         <TemplateEditModal
           isOpen={mediaModalOpen}

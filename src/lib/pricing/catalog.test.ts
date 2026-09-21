@@ -1,4 +1,3 @@
-// @vitest-environment node
 
 import { describe, expect, it } from "vitest";
 import type { PricingItem } from "@/lib/pricing/types";
@@ -111,7 +110,6 @@ describe("mergePlanPricingDrafts", () => {
       (d) => d.service === "whatsapp_calls" && d.category === "telephony",
     );
     expect(wa).toBeDefined();
-    // 20000 micros * 6 = 0.12 BRL
     expect(Number.parseFloat(wa!.priceBrl)).toBeCloseTo(0.12, 5);
     expect(isDraftCustomized(wa!, 6)).toBe(true);
   });

@@ -1,4 +1,3 @@
-// @vitest-environment node
 
 import { describe, expect, it } from "vitest";
 import {
@@ -45,7 +44,6 @@ describe("BRL conversion at rate 6", () => {
   it("whatsapp_calls price 13333 micros ≈ R$ 0.08", () => {
     const brl = usdMicrosToBrl(13_333, rate);
     expect(brl).toBeCloseTo(0.079998, 5);
-    // Convert back: R$ 0.08 → micros
     expect(brlToUsdMicros(0.08, rate)).toBe(13_333);
   });
 
@@ -61,7 +59,6 @@ describe("BRL conversion at rate 6", () => {
   });
 
   it("utility message price", () => {
-    // 16667 micros = $0.016667 → R$ 0.100002
     const brl = usdMicrosToBrl(16_667, rate);
     expect(brl).toBeCloseTo(0.100002, 5);
     expect(parseBrlToUsdMicros(usdMicrosToBrlInput(16_667, rate), rate)).toBe(

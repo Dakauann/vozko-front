@@ -38,7 +38,6 @@ import {
 
 type AuthMode = "none" | "header_token" | "hmac";
 type CopyTarget = "url" | "secret" | "curl" | "body";
-/** Which of the two mutually exclusive ways of naming the conversation the examples show. */
 type EntryMode = "entry" | "phone";
 
 interface Draft {
@@ -51,16 +50,8 @@ interface Draft {
 const DEFAULT_TOKEN_HEADER = "X-Webhook-Token";
 const DEFAULT_SIGNATURE_HEADER = "X-Signature-256";
 
-/**
- * The only HTTP method the public receiver is registered for
- * (`delivery/http/workflowwebhook/routes.go`). The method select still offers
- * PUT and PATCH because saved webhooks may carry them, but a call with either
- * is refused by the router with a 405 before the workflow is ever reached — so
- * the panel says so rather than printing a snippet that cannot work.
- */
 const RECEIVER_METHOD = "POST";
 
-/** Bodies for the examples: compact for the shell command, indented for the field reference. */
 const COMPACT_BODY: Record<EntryMode, string> = {
   entry:
     '{"entry_id":"c7f1e2a0-9b3d-4a1e-8f2c-1d2e3f4a5b6c","entry_type":"whatsapp"}',
@@ -95,7 +86,6 @@ function draftsEqual(a: Draft, b: Draft): boolean {
   );
 }
 
-/** Mirrors the server's `resolveHeaderName`: an empty field means the per-mode default. */
 function resolveHeaderName(mode: AuthMode, provided: string): string {
   if (provided.trim()) return provided.trim();
   if (mode === "hmac") return DEFAULT_SIGNATURE_HEADER;
@@ -103,17 +93,6 @@ function resolveHeaderName(mode: AuthMode, provided: string): string {
   return "";
 }
 
-/**
- * Builds the call the operator hands their integrator, filled in from the
- * webhook as it is SAVED — not from the unsaved draft, which the server would
- * not honour yet.
- *
- * The HMAC form is a three-liner because the signature covers the exact bytes
- * sent and has to be computed before the request. That is the detail
- * integrations most often get wrong: a bare hex digest with no `sha256=`
- * prefix fails `VerifyPrefixedHMAC` and comes back as a bare 401, with nothing
- * on the wire saying why.
- */
 function buildCurl(opts: {
   url: string;
   method: string;
@@ -500,22 +479,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-/**
- * The call reference.
- *
- * The panel used to hand the operator a URL, a secret and a method and stop
- * there: everything needed to CONFIGURE the webhook and nothing needed to CALL
- * it. What was missing is what an integrator actually asks for — the exact
- * request, the two ways of naming the conversation, and what comes back — so
- * that is what the four panes carry, in that order.
- *
- * Tabs rather than stacked sections because this sits inside an already long
- * config column: four panes keep the block a fixed, scannable height, and only
- * one of them is ever the question being asked.
- *
- * Every value is filled in from the saved webhook rather than described in
- * prose, because a snippet the operator can paste into a ticket is the point.
- */
 function WebhookReference({
   webhook,
   dirty,
@@ -898,8 +861,6 @@ const ERROR_RESPONSES: StatusResponse[] = [
     code: "409",
     status: "",
     tone: "client",
-    // "Ativar" is the word on the editor's own button; "publicado" would send
-    // the operator looking for a control that does not exist.
     meaning: "O fluxo não está ativo — use Ativar no editor.",
   },
   {
@@ -970,14 +931,6 @@ function FieldRow({
   );
 }
 
-/**
- * An inline literal in running prose.
- *
- * The ground is `--background`, not `--muted`: these chips appear both on the
- * card and inside the muted wells of `NoticeLine`, and a muted chip on a muted
- * well is no chip at all. `--background` differs from BOTH `--card` and
- * `--muted` in either theme, so the same chip reads on every ground it lands on.
- */
 function Mono({ children }: { children: React.ReactNode }) {
   return (
     <code className="rounded bg-background px-1 py-0.5 font-mono text-[0.95em] text-foreground">
@@ -986,11 +939,6 @@ function Mono({ children }: { children: React.ReactNode }) {
   );
 }
 
-/**
- * A caution the operator has to read before the thing next to it will work.
- * Neutral ground with the warning ink in the glyph and text — the product's
- * rule against washing a hue behind its own ink.
- */
 function NoticeLine({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex items-start gap-1.5 rounded-[--radius] border border-border bg-muted px-2.5 py-2 text-warning-ink">

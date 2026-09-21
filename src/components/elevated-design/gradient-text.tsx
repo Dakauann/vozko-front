@@ -17,17 +17,6 @@ const GradientText: React.FC<GradientTextProps> = ({
   className,
   containerClassName,
 }) => {
-  /*
-    The gradient is retired; the component is not.
-
-    Gradient text is emphasis borrowed from decoration — it makes a heading
-    harder to read, it cannot be relied on for contrast, and it was fading the
-    tail of every heading it touched to 30% opacity. Emphasis in this system
-    comes from weight and size, which the size map below already provides.
-
-    The gradient props stay in the signature and are ignored, so the two live
-    call sites (settings and the admin metrics dashboard) need no edit.
-  */
   void gradientDirection;
   void startColor;
   void endColor;
