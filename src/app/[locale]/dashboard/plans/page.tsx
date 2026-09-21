@@ -1472,6 +1472,12 @@ function PricingItemsEditor({
                       !percentage &&
                       (parseAmount(item.costBrl) === null ||
                         parseAmount(item.priceBrl) === null);
+                    // Zero is "nobody has set this", not "this is free", and
+                    // only worth saying while the row is still at its default:
+                    // once an admin has touched it the "customized" badge is
+                    // the more useful thing to read.
+                    const unpriced =
+                      !percentage && !customized && priceUsd === 0;
 
                     return (
                       <tr
@@ -1490,6 +1496,16 @@ function PricingItemsEditor({
                               </span>
                             ) : null}
                           </span>
+                          {unpriced ? (
+                            // A row left at zero is not free, it is unset, and
+                            // an empty amount field says nothing about which.
+                            // The service message line ships this way on
+                            // purpose: Meta prices it per recipient market and
+                            // we will not invent the rate.
+                            <span className="mt-1 block text-2xs font-normal text-muted-foreground">
+                              {t("pricingItems.unpriced")}
+                            </span>
+                          ) : null}
                           {priceBelowCost ? (
                             <span className="mt-1 block text-2xs font-normal text-warning-ink">
                               {t("pricingItems.priceBelowCost")}

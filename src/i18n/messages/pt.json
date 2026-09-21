@@ -701,6 +701,7 @@
       "utility": "WhatsApp Utilidade",
       "marketing": "WhatsApp Marketing",
       "authentication": "WhatsApp Autenticação",
+      "service": "WhatsApp Serviço",
       "standard": "SMS",
       "whatsapp_calls": "Ligações (WhatsApp)",
       "scribe_v1v2": "STT (Batch)",
@@ -7117,13 +7118,15 @@
       "conversionNote": "Digite preços em BRL. Eles são convertidos por esta taxa e salvos em USD para billing.",
       "editRateLink": "Alterar taxa",
       "rateMissing": "É necessário ter a taxa de câmbio configurada para editar preços padrão.",
-      "storedAsUsd": "salvo em USD"
+      "storedAsUsd": "salvo em USD",
+        "unpriced": "Não precificado"
     },
     "services": {
       "whatsapp": {
         "utility": "Mensagens Utilitárias",
         "marketing": "Mensagens de Marketing",
-        "authentication": "Mensagens de Autenticação"
+        "authentication": "Mensagens de Autenticação",
+          "service": "Mensagens de Serviço"
       },
       "telephony": {
         "whatsapp_calls": "Ligações WhatsApp"
@@ -7289,6 +7292,7 @@
         "utility": "WhatsApp, Mensagens utilitárias",
         "marketing": "WhatsApp, Mensagens de marketing",
         "authentication": "WhatsApp, Mensagens de autenticação",
+          "service": "WhatsApp, Mensagens de serviço",
         "whatsapp_calls": "Chamadas WhatsApp",
         "standard": "Mensagens SMS",
         "default_markup": "Modelos de IA (LLM)"
@@ -7337,6 +7341,7 @@
       "conversionNote": "Mudar a taxa de câmbio depois não reescreve preços já salvos neste plano.",
       "rateRequired": "Carregue uma taxa de câmbio válida antes de editar preços unitários.",
       "priceBelowCost": "Preço abaixo do custo.",
+        "unpriced": "Sem preço definido. Não é cobrado.",
       "invalidAmount": "Valor inválido.",
       "notApplicable": "n/a"
     },
@@ -13049,7 +13054,7 @@
     "colWorkspace": "Área de trabalho",
     "colServiceMessages": "Mensagens de serviço",
     "colBillableSends": "Envios cobrados",
-    "colPerSend": "Por envio",
+    "colPerSend": "Serviço por envio cobrado",
     "caption": "Mensagens de serviço enviadas contra envios de template cobrados, no período e provedor selecionados.",
     "confirmedSuffix": "conf.",
     "noSends": "sem envios",

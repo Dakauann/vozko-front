@@ -478,6 +478,18 @@ export default function AdminPricingPage() {
                                         </p>
                                       ) : null}
                                     </div>
+                                  ) : item.priceMicros === 0 ? (
+                                    // A zero price is not "free", it is "nobody
+                                    // has set this yet". Rendering R$ 0,00 would
+                                    // say the opposite of the truth, and the
+                                    // line that needs this most is the service
+                                    // message one, whose rate Meta has not
+                                    // published in a form we can attach.
+                                    <div className="text-right">
+                                      <span className="text-sm font-semibold text-muted-foreground">
+                                        {t("defaults.unpriced")}
+                                      </span>
+                                    </div>
                                   ) : (
                                     <div className="text-right">
                                       <span className="text-sm font-semibold text-foreground tabular-nums">

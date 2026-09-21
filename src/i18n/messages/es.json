@@ -682,6 +682,7 @@
       "utility": "WhatsApp Utilidad",
       "marketing": "WhatsApp Marketing",
       "authentication": "WhatsApp Autenticación",
+      "service": "WhatsApp Servicio",
       "standard": "SMS",
       "whatsapp_calls": "Llamadas (WhatsApp)",
       "scribe_v1v2": "STT (Batch)",
@@ -5743,13 +5744,15 @@
       "conversionNote": "Escribe precios en BRL. Se convierten con esta tasa y se guardan en USD.",
       "editRateLink": "Cambiar tasa",
       "rateMissing": "Se requiere la tasa de cambio para editar precios predeterminados.",
-      "storedAsUsd": "guardado en USD"
+      "storedAsUsd": "guardado en USD",
+        "unpriced": "Sin precio"
     },
     "services": {
       "whatsapp": {
         "utility": "Mensajes Utilitarios",
         "marketing": "Mensajes de Marketing",
-        "authentication": "Mensajes de Autenticación"
+        "authentication": "Mensajes de Autenticación",
+          "service": "Mensajes de Servicio"
       },
       "telephony": {
         "whatsapp_calls": "Llamadas WhatsApp"
@@ -5915,6 +5918,7 @@
         "utility": "WhatsApp, Mensajes utilitarios",
         "marketing": "WhatsApp, Mensajes de marketing",
         "authentication": "WhatsApp, Mensajes de autenticación",
+          "service": "WhatsApp, Mensajes de servicio",
         "whatsapp_calls": "Llamadas de WhatsApp",
         "standard": "Mensajes SMS",
         "default_markup": "Modelos de IA (LLM)"
@@ -5961,6 +5965,7 @@
       "conversionNote": "Cambiar la tasa después no reescribe precios ya guardados en este plan.",
       "rateRequired": "Carga una tasa de cambio válida antes de editar precios unitarios.",
       "priceBelowCost": "El precio está por debajo del costo.",
+        "unpriced": "Sin precio definido. No se cobra.",
       "invalidAmount": "Monto inválido.",
       "notApplicable": "n/a"
     },
@@ -11505,7 +11510,7 @@
     "colWorkspace": "Área de trabajo",
     "colServiceMessages": "Mensajes de servicio",
     "colBillableSends": "Envíos facturados",
-    "colPerSend": "Por envío",
+    "colPerSend": "Servicio por envío facturado",
     "caption": "Mensajes de servicio enviados frente a envíos de plantilla facturados, en el período y proveedor seleccionados.",
     "confirmedSuffix": "conf.",
     "noSends": "sin envíos",
