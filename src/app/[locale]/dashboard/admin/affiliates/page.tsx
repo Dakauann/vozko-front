@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { useAuth } from "@/contexts/auth-context";
+import { isSystemAdmin } from "@/lib/auth/roles";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
 import {
@@ -41,10 +42,6 @@ const DEFAULT_META: PaginationMeta = {
   totalItems: 0,
   totalPages: 0,
 };
-
-function isSystemAdmin(role?: string | null) {
-  return role === "admin" || role === "ADMIN" || role === "administrator";
-}
 
 interface AdminAffiliatesApiResponse {
   items: Affiliate[];

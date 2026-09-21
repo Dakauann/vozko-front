@@ -5,8 +5,10 @@ import type {
     GetCallAnalyticsParams,
     GetPlanContractionsParams,
     GetProfitReportParams,
+    GetMetaServiceMessageCostParams,
     PlanContractionsReport,
     ProfitReport,
+    MetaServiceMessageCostReport,
 } from "@/lib/analytics/types";
 
 import { apiClient } from "@/lib/api/browser-client";
@@ -23,7 +25,12 @@ export type {
     PlanContractionsReport,
     ProfitReport,
     RecentSpending,
+    MetaServiceMessageCostReport,
+    MetaServiceMessageCostSortField,
+    MetaServiceMessageCostTotals,
+    ServiceMessageProvider,
     WorkspaceFinancialSnapshot,
+    WorkspaceMetaServiceMessageCost,
 } from "@/lib/analytics/types";
 
 function buildQueryString(params: Record<string, unknown>): string {
@@ -85,6 +92,14 @@ export async function getAdminOverviewAction(
 ): Promise<AnalyticsActionResult<AdminOverview>> {
     return fetchAnalytics<AdminOverview>(
         `/admin/analytics/overview${buildQueryString(params as unknown as Record<string, unknown>)}`,
+    );
+}
+
+export async function getMetaServiceMessageCostAction(
+    params: GetMetaServiceMessageCostParams,
+): Promise<AnalyticsActionResult<MetaServiceMessageCostReport>> {
+    return fetchAnalytics<MetaServiceMessageCostReport>(
+        `/admin/analytics/meta-service-message-cost${buildQueryString(params as unknown as Record<string, unknown>)}`,
     );
 }
 

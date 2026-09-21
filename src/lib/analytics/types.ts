@@ -240,3 +240,97 @@ export interface GetAdminOverviewParams {
     sortOrder?: AnalyticsSortDirection;
     recentLimit?: number;
 }
+
+/* ------------------------------------------- META SERVICE MESSAGE EXPOSURE */
+
+/**
+ * From 1 October 2026 Meta charges for service messages: the free-form replies
+ * an agent or the AI sends inside the 24 hour window. We absorb that and raise
+ * the price per campaign trigger instead, which only works if we can see, per
+ * workspace, how much messaging each one does against how much billable
+ * campaign volume it buys.
+ */
+
+/** Which provider hosts the numbers a count covers. "" means every provider. */
+export type ServiceMessageProvider = "" | "meta" | "dialog360" | "unattributed";
+
+export type MetaServiceMessageCostSortField =
+    | "ratio"
+    | "serviceMessages"
+    | "netBillableSends"
+    | "workspaceName";
+
+export interface WorkspaceMetaServiceMessageCost {
+    workspaceId: string;
+    workspaceName: string;
+    /** Distinct providers behind the counted messages. */
+    providers: string[];
+    /** What Meta will charge us for. */
+    serviceMessages: number;
+    /** Template sends the workspace paid for: debits minus refunds. */
+    netBillableSends: number;
+    /**
+     * The subset Meta itself stamped billable, rather than our inference.
+     * Zero for everything delivered before the pricing columns existed, so it
+     * climbs toward serviceMessages rather than starting there.
+     */
+    metaConfirmed: number;
+    /**
+     * Service messages per billable send.
+     *
+     * Absent when nothing was bought, which is NOT zero: it is the worst case
+     * on this page, and rendering it as 0,00 would say the exact opposite of
+     * what it means.
+     */
+    ratio?: number | null;
+}
+
+export interface MetaServiceMessageCostTotals {
+    serviceMessages: number;
+    netBillableSends: number;
+    ratio?: number | null;
+    workspacesCovered: number;
+    /** How much of serviceMessages Meta has confirmed itself. */
+    metaConfirmed: number;
+    /**
+     * How many of the counted messages Meta has given ANY verdict on.
+     * Not the same as metaConfirmed: a message Meta said was free inside the
+     * 72 hour entry point is answered but not confirmed. Coverage is what
+     * decides whether inferredOnly is still true.
+     */
+    metaAnswered: number;
+    /** Messages on campaigns with no business phone, so no provider is known. */
+    unattributedServiceMessages: number;
+}
+
+export interface PaginatedMetaServiceMessageCost {
+    items: WorkspaceMetaServiceMessageCost[];
+    page: number;
+    page_size: number;
+    total_items: number;
+    total_pages: number;
+}
+
+export interface MetaServiceMessageCostReport {
+    period: AnalyticsPeriod;
+    provider: ServiceMessageProvider;
+    totals: MetaServiceMessageCostTotals;
+    workspaces: PaginatedMetaServiceMessageCost;
+    /**
+     * True while the counts are our own reading of the message log rather than
+     * Meta's billing truth, which makes every figure an upper bound.
+     */
+    inferredOnly: boolean;
+}
+
+export interface GetMetaServiceMessageCostParams {
+    /** Both optional: sending neither asks for the current billing month. */
+    startDate?: string;
+    endDate?: string;
+    provider?: ServiceMessageProvider | "all";
+    search?: string;
+    page?: number;
+    pageSize?: number;
+    sortBy?: MetaServiceMessageCostSortField;
+    sortOrder?: AnalyticsSortDirection;
+}

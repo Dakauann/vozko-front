@@ -4,10 +4,7 @@ import { AdminAddonsManager } from "@/components/dashboard/addons/AdminAddonsMan
 import { CircleNotch } from "@/components/icons";
 import UserAddonsCatalog from "@/components/dashboard/addons/UserAddonsCatalog";
 import { useAuth } from "@/contexts/auth-context";
-
-function isSystemAdmin(role?: string | null) {
-  return role === "admin" || role === "ADMIN" || role === "administrator";
-}
+import { isSystemAdmin } from "@/lib/auth/roles";
 
 export default function DashboardAddonsManagePage() {
   const { user, isLoading } = useAuth();

@@ -41,6 +41,7 @@ import {
   Leaf,
   CurrencyDollar,
   Receipt,
+  Scales,
   Wrench,
   CalendarBlank,
   Lightning,
@@ -729,6 +730,16 @@ export const adminNavItems: NavItem[] = [
     icon: ChartBar,
     labelKey: "nav.adminOverview",
     href: "/dashboard/admin",
+    admin: true,
+    family: "platform",
+  },
+  {
+    // What Meta's 1 October 2026 service message charge costs us, per
+    // workspace. Sits next to Receita because it is the other half of the
+    // same question: what each account brings in against what it spends.
+    icon: Scales,
+    labelKey: "nav.adminMetaCosts",
+    href: "/dashboard/admin/meta-costs",
     admin: true,
     family: "platform",
   },

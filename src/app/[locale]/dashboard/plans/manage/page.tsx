@@ -4,10 +4,7 @@ import { AdminPlansManager } from "../page";
 import { CircleNotch } from "@/components/icons";
 import UserPlansCatalog from "@/components/dashboard/plans/UserPlansCatalog";
 import { useAuth } from "@/contexts/auth-context";
-
-function isSystemAdmin(role?: string | null) {
-  return role === "admin" || role === "ADMIN" || role === "administrator";
-}
+import { isSystemAdmin } from "@/lib/auth/roles";
 
 export default function DashboardPlansManagePage() {
   const { user, isLoading } = useAuth();
