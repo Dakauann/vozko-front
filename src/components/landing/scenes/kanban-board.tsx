@@ -30,7 +30,6 @@ export type KanbanCard = { title: string; meta: string; channel: "whatsapp" | "i
 export type KanbanSceneLabels = {
   columns: [string, string, string, string];
   cards: KanbanCard[];
-  /** What the thing moving the cards is called. */
   agent: string;
 };
 
@@ -41,7 +40,6 @@ const CHANNEL_MARK = {
 } as const;
 
 type Route = {
-  /** Column index at each stop, and the scroll window for each move. */
   stops: number[];
   windows: Window[];
   y: number;
@@ -55,7 +53,6 @@ type Layout = {
   extent: [number, number];
 };
 
-/** The colour bar's own width, and the clear space kept between it and the text. */
 const BAR_INSET = 0.15;
 const BAR_WIDTH = 0.07;
 const TEXT_GUTTER = 0.12;
@@ -68,7 +65,6 @@ const WIDE: Layout = {
   extent: [10.7, 6.4],
 };
 
-// Two rows preserve the four stages and leave enough card width for names.
 const COMPACT: Layout = {
   columns: [[-1.85, 2.2], [1.85, 2.2], [-1.85, -2.2], [1.85, -2.2]],
   slots: [1.05, 0.2, -0.65, -1.5],
@@ -77,19 +73,10 @@ const COMPACT: Layout = {
   extent: [7.6, 9.4],
 };
 
-/** Card rows, starting clear of the column header rather than under it. */
 const SLOT = [1.45, 0.25, -0.95, -2.15] as const;
-/** Header bar and title, measured down from the column's top edge. The title
- *  is centred on HEADER_TEXT, so that distance has to clear half a label at
- *  the largest font the ceiling allows, or the text rides over the column. */
 const HEADER_BAR = 0.5;
 const HEADER_TEXT = 0.26;
 
-// Six leads on the board, moving in the four quarters the copy steps own: one
-// card arrives, the AI sorts the next, the team pushes two along, and the last
-// move is the one that reaches Won. The windows never overlap: exactly one
-// card is in the air at a time, because the agent can only carry one, and two
-// cards crossing at once read as the board moving itself.
 const ROUTES: Route[] = [
   { stops: [0, 1, 2], windows: [[0.05, 0.17], [0.53, 0.64]], y: SLOT[0] },
   { stops: [0, 1], windows: [[0.30, 0.42]], y: SLOT[1] },
@@ -99,14 +86,11 @@ const ROUTES: Route[] = [
   { stops: [1], windows: [], y: SLOT[3] },
 ];
 
-/** Every move on the board, in the order the loop performs them. */
 const MOVES = ROUTES.flatMap((route, cardIndex) =>
   route.windows.map((window) => ({ cardIndex, window })),
 ).sort((a, b) => a.window[0] - b.window[0]);
-/** How early the agent reaches the card it is about to move. */
 const APPROACH = 0.08;
 
-/** Places the card and reports which stage it currently belongs to. */
 function placeCard(group: Group, route: Route, layout: Layout, progress: number) {
   const slot = layout.slots[SLOT.indexOf(route.y as typeof SLOT[number])];
   let [x, y] = layout.columns[route.stops[0]];
@@ -124,8 +108,6 @@ function placeCard(group: Group, route: Route, layout: Layout, progress: number)
       lift += arc(t) * 0.75;
       tilt += arc(t) * -0.05;
     }
-    // The card takes its new stage's colour halfway across, the way a card
-    // dropped in a column immediately reads as that column's.
     if (t >= 0.5) stage = route.stops[index + 1];
   });
   group.position.set(x, y + slot, 0.26 + lift);
@@ -157,8 +139,6 @@ function BoardCard({
   const [w, h, d] = layout.card;
   const Mark = CHANNEL_MARK[card.channel] ?? WhatsAppLogoColor;
   const mark = font(11);
-  // The text block starts where the colour bar ends, and stops short of the
-  // card's right edge, so it can never ride over either.
   const textLeft = -w / 2 + BAR_INSET + BAR_WIDTH / 2 + TEXT_GUTTER;
   const textRight = w / 2 - 0.16;
   return (
@@ -166,9 +146,8 @@ function BoardCard({
       <RoundedBox args={layout.card} radius={R.card} smoothness={3} castShadow>
         <Surface color={sheet(palette)} roughness={0.58} metalness={0.02} />
       </RoundedBox>
-      {/* The stage bar the product draws on the leading edge of a card. It
-          repaints as the card changes column, so its colour is never a promise
-          about where the card is going to end up. */}
+      {
+}
       <mesh position={[-w / 2 + BAR_INSET, 0, d / 2 + 0.015]}>
         <boxGeometry args={[BAR_WIDTH, h * 0.78, 0.025]} />
         <meshBasicMaterial ref={barRef} color={tone} />
@@ -187,9 +166,8 @@ function BoardCard({
             {card.meta}
           </p>
         )}
-        {/* The row an operator actually scans: which channel, and who owns it.
-            The mark keeps its real brand colours, so it is sized by its box
-            rather than by a class the brand component would override. */}
+        {
+}
         <span className="flex min-w-0 items-center justify-between gap-2" style={{ marginTop: font(compact ? 2 : 5) }}>
           <span className="inline-flex shrink-0" style={{ width: mark, height: mark }}>
             <Mark className="h-full w-full" />
@@ -234,17 +212,13 @@ export function KanbanBoardScene({
   const layout = compact ? COMPACT : WIDE;
   const boardScale = useFitScale(layout.extent[0], layout.extent[1]);
   const { font, px } = usePanelType(boardScale);
-  // New → contact → proposal → won: the funnel's own progression, cool to warm
-  // to committed, with the closed column on the brand green.
   const columnTone = [palette.accent.team, palette.accent.tag, palette.accent.wait, palette.accent.ai];
   const columnInk = [palette.ink.team, palette.ink.tag, palette.ink.wait, palette.ink.ai];
   const [colW, colH] = layout.column;
   const visible = labels.cards.slice(0, ROUTES.length);
   const cardH = layout.card[1];
   const agentR = compact ? 0.28 : 0.34;
-  /** How far above a card the agent holds it. */
   const reach = 0.42;
-  /** Where the agent waits between moves: above the first column, clear of the cards. */
   const home: [number, number] = compact ? [0, 0] : [layout.columns[0][0], SLOT[0] + cardH / 2 + 1.05];
 
   useDampedProgress(progress, reduced, (current, delta) => {
@@ -258,8 +232,6 @@ export function KanbanBoardScene({
       }
     });
 
-    // The agent goes to the card it is about to move, holds it across, and
-    // returns to its post. Cards are placed above, so their positions are current.
     let targetX = home[0];
     let targetY = home[1];
     let targetZ = 1.1;
@@ -290,7 +262,6 @@ export function KanbanBoardScene({
       );
     }
     if (grip.current) {
-      // The line down to the card it has hold of.
       const length = MathUtils.damp(grip.current.scale.y, Math.max(acting * reach, 0.001), 8, delta);
       grip.current.scale.y = length;
       grip.current.position.y = -length / 2 - 0.2;
@@ -341,8 +312,8 @@ export function KanbanBoardScene({
           />
         ))}
 
-        {/* The agent that works the board: it comes to a card, takes hold of it
-            and carries it to the next stage, then goes back to its post. */}
+        {
+}
         <group ref={agent} position={[home[0], home[1], 1.1]}>
           <mesh rotation={[Math.PI / 2, 0, 0]}>
             <cylinderGeometry args={[agentR + 0.06, agentR + 0.06, 0.18, 6]} />
@@ -352,8 +323,8 @@ export function KanbanBoardScene({
             <cylinderGeometry args={[agentR, agentR, 0.24, 6]} />
             <Surface color={sheet(palette)} roughness={0.6} />
           </mesh>
-          {/* The mark, not the word: a name floating on a token reads as a
-              placeholder, and the product already has an icon for this. */}
+          {
+}
           <Label position={[0, 0, 0.18]} width={px(agentR * 1.7)} className="flex select-none items-center justify-center">
             <Sparkle size={font(16)} color={palette.ink.ai} style={{ ["--icon-accent" as string]: palette.ink.ai }} />
             <span className="sr-only">{labels.agent}</span>

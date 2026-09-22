@@ -215,7 +215,6 @@ function StagePickerContent({
                 }}
                 className={cn(
                   "flex w-full items-center gap-2.5 rounded-[--radius] px-3 py-2 text-left text-sm transition-colors",
-                  // Neutral ground; the stage dot and the trailing glyph mark it.
                   isActive ? "bg-muted font-medium text-foreground" : "hover:bg-muted",
                   loading && "opacity-50 pointer-events-none",
                 )}

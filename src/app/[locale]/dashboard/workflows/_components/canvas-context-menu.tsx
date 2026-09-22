@@ -103,7 +103,7 @@ export function CanvasContextMenu({
       style={style}
       className="w-72 bg-background border border-border rounded-[--radius] shadow-2xl overflow-hidden flex flex-col"
     >
-      {/* Search */}
+      {}
       <div className="border-b border-border p-2">
         <div className="relative">
           <ElevatedInput
@@ -128,7 +128,7 @@ export function CanvasContextMenu({
         </div>
       </div>
 
-      {/* Node list */}
+      {}
       <div className="overflow-y-auto flex-1 p-1.5">
         {grouped.length === 0 && (
           <p className="text-xs text-muted-foreground text-center py-4">

@@ -33,12 +33,6 @@ export interface CallPermissionStatus {
     expires_at?: string | null;
 }
 
-/**
- * Reads whether the conversation's lead currently allows WhatsApp calls. Used to
- * gate the "call via WhatsApp" action, `can_call` is true only when permission is
- * granted and still valid. The backend is the source of truth (it also enforces it
- * when a call is placed); callers should treat any error as "cannot call".
- */
 export async function getCallPermissionStatusAction(
     entryType: EntryType,
     entryId: string,
@@ -102,10 +96,6 @@ export async function uploadConversationMediaAction(
     };
 }
 
-/**
- * Activity timeline for one conversation (CRM telemetry conversation_events).
- * Backend: GET /conversations/{entryType}/{entryId}/events
- */
 export async function listConversationEventsAction(
     entryType: EntryType,
     entryId: string,
@@ -185,16 +175,6 @@ export async function getConversationMediaAction(
     return response.data ?? null;
 }
 
-/**
- * Toggles the per-conversation automation override on any channel.
- *
- * Replaces the WhatsApp campaign-entry PATCH, which required a campaign id.
- * Instagram and Telegram conversations have none, so the caller resolved no id
- * and returned before issuing a request, the button did nothing, silently.
- *
- * `null` clears the override so the conversation inherits its account or
- * campaign setting again, which is distinct from an explicit `false`.
- */
 export async function setConversationAutomationAction(
     entryType: string,
     entryId: string,

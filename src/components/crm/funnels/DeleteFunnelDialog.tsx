@@ -21,32 +21,11 @@ import { blockingBindings, type Pipeline, type PipelineUsage } from "@/lib/crm/p
 
 interface DeleteFunnelDialogProps {
   funnel: Pipeline | null;
-  /** Same-kind funnels that can receive the conversations. */
   destinations: Pipeline[];
   onCancel: () => void;
   onConfirm: (moveEntriesTo?: string) => Promise<void>;
 }
 
-/**
- * Deleting a funnel, with the consequence stated before the button.
- *
- * The dialog reads the funnel's occupancy from the SAME endpoint the server's
- * guard reads, so what it promises and what the delete does cannot drift. That
- * is the whole reason it is a dialog with a load rather than a confirm string:
- * "are you sure" is worthless here, "this funnel holds 412 conversations, they
- * move to Cobrança" is a decision.
- *
- * Three outcomes, and only one of them shows a delete button:
- *
- * BLOCKED — a campaign, channel or deal still routes here. Nothing this dialog
- * can do fixes that, so it names the counts and sends the operator to the source
- * rather than offering an action that would only fail.
- *
- * MOVE — the funnel holds conversations. A destination is required, and the
- * button stays disabled until one is chosen; the sentence updates to name it.
- *
- * EMPTY — nothing to move, so it says what still goes: the columns.
- */
 export function DeleteFunnelDialog({
   funnel,
   destinations,
@@ -61,10 +40,6 @@ export function DeleteFunnelDialog({
 
   const funnelId = funnel?.id ?? null;
 
-  // The caller keys this component on the funnel, so every open starts from the
-  // useState defaults above. Resetting them here instead would be three
-  // synchronous setStates inside an effect — a cascading render, and a frame
-  // where the previous funnel's counts sit under the new funnel's name.
   useEffect(() => {
     if (!funnelId) return;
     let alive = true;
@@ -169,14 +144,8 @@ export function DeleteFunnelDialog({
   );
 }
 
-/**
- * The refusal, itemised. A single "in use" count would say blocked without
- * saying where to go, so each binding names its own surface.
- */
 function BlockedDetail({ usage }: { usage: PipelineUsage }) {
   const t = useTranslations("funnels.remove");
-  // Spelled out rather than built from a key, so every message id is a literal
-  // the extractor and the type checker can both see.
   const rows = [
     { key: "campaigns", n: usage.campaigns, label: t("blockedCampaigns", { count: usage.campaigns }) },
     { key: "channels", n: usage.channels, label: t("blockedChannels", { count: usage.channels }) },

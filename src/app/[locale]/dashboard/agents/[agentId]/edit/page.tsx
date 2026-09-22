@@ -21,14 +21,6 @@ interface PageProps {
     params: Promise<{ agentId: string }>;
 }
 
-/**
- * The edit-mode selector as a page. The operator is not asked to classify
- * themselves ("beginner? professional?") on every visit: the mode this agent
- * was last edited in — or, on first visit, the mode its own configuration
- * implies — leads as the marked row, so the common path is one click and the
- * choice never has to be re-reasoned. Two quiet rows, task-named, no
- * sell-copy: this is a fork in an operator's workday, not a pricing table.
- */
 export default function EditAgentChooserPage({ params }: PageProps) {
     const { agentId } = use(params);
     const router = useRouter();
@@ -60,8 +52,6 @@ export default function EditAgentChooserPage({ params }: PageProps) {
 function ModeList({ agent }: { agent: Agent }) {
     const tChooser = useTranslations("agents.edit.chooser");
 
-    // Remembered beats inferred; both resolve client-side, so the lead marker
-    // appears after mount (null during SSR keeps markup stable).
     const [lead, setLead] = useState<{ mode: AgentEditMode; remembered: boolean } | null>(null);
     useEffect(() => {
         const remembered = recallEditMode(agent.id);
@@ -95,8 +85,6 @@ function ModeList({ agent }: { agent: Agent }) {
         },
     ];
 
-    // The lead mode renders first: the marked row is also the first row, so
-    // keyboard and reading order agree with the visual emphasis.
     const ordered = lead
         ? [...modes].sort((a, b) => (a.mode === lead.mode ? -1 : b.mode === lead.mode ? 1 : 0))
         : modes;

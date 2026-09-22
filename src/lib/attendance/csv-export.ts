@@ -1,26 +1,3 @@
-/**
- * CSV export of the attendance metrics dashboard.
- *
- * Built in the BROWSER from the overview already in state, not from a second
- * request. Three reasons, in order of weight:
- *
- *  1. Load. The dashboard aggregates over conversations, messages, queue and
- *     presence events; an export endpoint would re-run all of it, and an
- *     operator clicking "export" a few times on a 90-day range would cost the
- *     database as much as a dozen page loads. Exporting what is already on
- *     screen costs zero queries.
- *  2. Truth. The file matches the numbers the operator is looking at, exactly.
- *     A re-query can return different data than the screen (the range is
- *     relative, records keep arriving) and produce an export that contradicts
- *     the dashboard it came from.
- *  3. The payload is already complete: GET /attendance/overview returns every
- *     section the page renders, so there is nothing extra to fetch.
- *
- * The row counts are in the hundreds (24 hourly points, departments, members),
- * which is why this is the right trade here and NOT for the leads export,
- * where thousands of rows are streamed from the server precisely because the
- * browser never had them.
- */
 
 import type {
     AttendanceOverview,
@@ -31,13 +8,6 @@ import type {
 } from "@/lib/attendance/types";
 import { buildCsvDocument, csvFilename, type CsvSection } from "@/lib/csv/csv";
 
-/**
- * The filter recorded in the file's header.
- *
- * Display values, never ids: an export whose provenance reads
- * "department: 7f3a-91c…" cannot be interpreted a week later, which defeats
- * the point of recording the filter at all.
- */
 export interface AttendanceCsvFilters {
     dateFrom: string;
     dateTo: string;
@@ -50,17 +20,8 @@ export interface AttendanceCsvFilters {
     workspaceName?: string;
 }
 
-/** Key lookup, bound by the caller to the metricsOps.export namespace. */
 export type CsvTranslate = (key: string) => string;
 
-/**
- * The dashboard's own label functions, passed in rather than reimplemented.
- *
- * Without them the file printed raw enum keys — "unofficial_whatsapp",
- * "human", "online" — where the screen shows "WhatsApp (não oficial)",
- * "Humano", "Online". An export that renames the things it exports is a
- * different report from the one the operator was reading.
- */
 export interface AttendanceCsvDisplay {
     channel: (channel: string) => string;
     actorKind: (kind: string) => string;
@@ -72,26 +33,11 @@ export interface AttendanceCsvInput {
     filters: AttendanceCsvFilters;
     t: CsvTranslate;
     display: AttendanceCsvDisplay;
-    /** Injected so the output is deterministic under test. */
     generatedAt?: Date;
 }
 
-/** One "metric,value" row. */
 type Metric = [key: string, value: number | string | null | undefined];
 
-/**
- * metricRows distinguishes the two kinds of "no value", because they mean
- * different things to whoever opens the file:
- *
- *   null      the metric exists and was not measured in this period → the row
- *             is emitted with an EMPTY cell. Dropping it instead made the
- *             file's shape change between exports (a period with no handle
- *             time was simply missing "Atendimento médio", which reads as a
- *             bug), and writing 0 would invent a measurement that never
- *             happened.
- *   undefined the backend did not send the field at all → no row, since there
- *             is nothing to report on.
- */
 function metricRows(t: CsvTranslate, metrics: Metric[]): (string | number | null)[][] {
     const rows: (string | number | null)[][] = [];
     for (const [key, value] of metrics) {
@@ -101,13 +47,6 @@ function metricRows(t: CsvTranslate, metrics: Metric[]): (string | number | null
     return rows;
 }
 
-/**
- * labelOrKey tolerates a missing translation.
- *
- * next-intl throws on an unknown key, and the definition keys come from the
- * backend, so a newly added one would otherwise break the whole export rather
- * than print one unlabelled row.
- */
 function labelOrKey(t: CsvTranslate, key: string, fallback: string): string {
     try {
         const label = t(key);
@@ -158,9 +97,6 @@ function kpiSection(t: CsvTranslate, overview: AttendanceOverview): CsvSection {
         ["kpi.avgHandleMins", k.avg_handle_mins],
         ["kpi.avgFrtMins", k.avg_frt_mins],
     ];
-    // Availability flags gate their metrics: a workspace without CSAT
-    // configured would otherwise export "rating 0" as if every customer
-    // scored it zero.
     if (k.csat_available) metrics.push(["kpi.avgRating", k.avg_rating]);
     if (k.sla_available) {
         metrics.push(["kpi.frtSlaPercent", k.frt_sla_percent]);
@@ -192,8 +128,6 @@ function hourlySection(t: CsvTranslate, overview: AttendanceOverview): CsvSectio
     return {
         title: t("sections.hourly"),
         header: [t("columns.hour"), t("columns.conversations")],
-        // Zero-padded so the hour sorts as a label and is not read as a number
-        // with a lost leading zero.
         rows: overview.hourly.map((p) => [String(p.hour).padStart(2, "0"), p.count]),
     };
 }
@@ -275,21 +209,11 @@ function channelSection(
     };
 }
 
-/**
- * The backend already ships the glossary the dashboard shows on hover. In the
- * file that context is otherwise lost, and the numbers invite exactly the
- * wrong reading: "Total no recorte" counts campaign shells while "Situação das
- * conversas" counts only threads with messages, so the two totals legitimately
- * disagree and look like an error without the definition next to them.
- */
 function definitionsSection(t: CsvTranslate, o: AttendanceOverview): CsvSection | null {
     const defs = o.definitions;
     if (!defs) return null;
     const rows = Object.entries(defs)
         .filter(([, text]) => typeof text === "string" && text.trim() !== "")
-        // Falls back to the raw key: the backend can add a definition before
-        // the label exists, and an unlabelled row still carries its text,
-        // which is the part that matters.
         .map(([key, text]) => [labelOrKey(t, `definitions.${key}`, key), text as string]);
     if (rows.length === 0) return null;
     return {
@@ -299,11 +223,6 @@ function definitionsSection(t: CsvTranslate, o: AttendanceOverview): CsvSection 
     };
 }
 
-/**
- * Sections that the backend marks unavailable are omitted, not zero-filled.
- * A workspace with no queue would otherwise export a full queue block of
- * zeros, which reads as "measured, and it was zero".
- */
 function detailSections(t: CsvTranslate, o: AttendanceOverview): CsvSection[] {
     const sections: CsvSection[] = [];
     const add = (titleKey: string, metrics: Metric[]) => {
@@ -399,14 +318,6 @@ function detailSections(t: CsvTranslate, o: AttendanceOverview): CsvSection[] {
     return sections;
 }
 
-/**
- * One row per stage, with its funnel named on every row.
- *
- * The funnel column is not redundancy. Duplicate stage names across funnels are
- * the normal case in this product, so a file keyed on stage name alone would
- * merge two different populations into one row and lose the very distinction the
- * panel exists to draw.
- */
 function stageSection(t: CsvTranslate, stages: OverviewStages | undefined): CsvSection | null {
     if (!stages?.available || !stages.funnels?.length) return null;
 
@@ -485,7 +396,6 @@ export function buildAttendanceOverviewCsv({
 
     sections.push(...detailSections(t, overview));
 
-    // Last, so the numbers come first and the glossary explains them after.
     const definitions = definitionsSection(t, overview);
     if (definitions) sections.push(definitions);
 

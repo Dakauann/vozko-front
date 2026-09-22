@@ -25,7 +25,6 @@ function errorResponse(status: number, message?: string) {
     });
 }
 
-/** The URL the action would have called, captured from the fetch it builds. */
 let requestedUrl = "";
 
 beforeEach(() => {
@@ -46,9 +45,6 @@ afterEach(() => {
 });
 
 describe("workspace lead export", () => {
-    // The card: the leads that were sent, delivered and read, in one pull. The
-    // backend reads a multi-status filter as a repeated parameter, so a joined
-    // string would silently become one unknown status and be rejected.
     it("repeats the status parameter once per selected status", async () => {
         await exportWhatsAppWorkspaceEntriesAction({
             statuses: ["SENT", "DELIVERED", "READ"],
@@ -95,8 +91,6 @@ describe("workspace lead export", () => {
 });
 
 describe("export failures", () => {
-    // Each of these tells the operator something different to do, so they must
-    // not collapse into one generic failure.
     it.each([
         [404, "noEntries"],
         [413, "tooLarge"],

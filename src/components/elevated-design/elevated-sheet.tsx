@@ -62,17 +62,8 @@ function ElevatedSheetContent({
       <SheetPrimitive.Content
         data-slot="elevated-sheet-content"
         className={cn(
-          // --card, not --background. A drawer is an elevated panel; setting it
-          // to the CANVAS colour made it a flat grey slab sitting on the page
-          // instead of a sheet lifted off it. Card is lighter than the canvas in
-          // light and lighter than it in dark, so this reads as a lift in both.
           "bg-card data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-[81] flex flex-col gap-4 transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
 
-          // One shadow declaration, not two. The line below this used to be an
-          // arbitrary `[box-shadow:inset...]` property, which is a plain
-          // box-shadow declaration and therefore REPLACED the six-layer drop
-          // shadow rather than adding to it — the drawer has been shipping with
-          // a 1px inset line and no elevation at all.
           "shadow-[0px_0.7066px_0.7066px_-0.6667px_rgba(0,0,0,0.08),0px_1.8066px_1.8066px_-1.3333px_rgba(0,0,0,0.08),0px_3.6218px_3.6218px_-2px_rgba(0,0,0,0.07),0px_6.8656px_6.8656px_-2.6667px_rgba(0,0,0,0.07),0px_13.6468px_13.6468px_-3.3333px_rgba(0,0,0,0.05),0px_30px_30px_-4px_rgba(0,0,0,0.02)]",
           side === "right" &&
             "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 h-full w-3/4 border-l border-border-strong sm:max-w-md rounded-l-2xl",
@@ -91,9 +82,6 @@ function ElevatedSheetContent({
           className={cn(
             "absolute right-6 top-6 rounded-full p-2 opacity-70 shadow-sm transition-all",
             "hover:bg-muted hover:opacity-100",
-            // Was an inline style={{boxShadow}}, which outranks every class and
-            // silently suppressed the ring below; and `outline-hidden` is v4
-            // syntax, so on Tailwind 3 it compiled to nothing.
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
             "disabled:pointer-events-none",
           )}

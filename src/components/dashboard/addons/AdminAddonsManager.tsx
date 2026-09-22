@@ -54,12 +54,6 @@ const KIND_LABELS: Record<AddonEntitlementKind, string> = {
   unofficial_whatsapp_instances: "Números WhatsApp não oficial",
 };
 
-/**
- * VoIP is no longer part of the product, so a call-channel addon cannot be
- * created, listed or sold. The kind stays in the type because the API still
- * returns it for rows created before the feature was withdrawn — those are
- * filtered out here rather than rendered as a purchasable capability.
- */
 const RETIRED_KINDS = new Set<AddonEntitlementKind>(["call_channels"]);
 
 function KindGlyph({ kind }: { kind: AddonEntitlementKind }) {
@@ -338,9 +332,8 @@ export function AdminAddonsManager() {
             <ElevatedSelectItem value="whatsapp_business_phones">
               {KIND_LABELS.whatsapp_business_phones}
             </ElevatedSelectItem>
-            {/* Without this option the kind is enforced by the server and
-                unsellable through the product: an administrator could not create
-                the definition, so no workspace could ever buy one. */}
+            {
+}
             <ElevatedSelectItem value="unofficial_whatsapp_instances">
               {KIND_LABELS.unofficial_whatsapp_instances}
             </ElevatedSelectItem>

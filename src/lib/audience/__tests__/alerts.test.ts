@@ -6,15 +6,6 @@ import es from "@/i18n/messages/es.json";
 import pt from "@/i18n/messages/pt.json";
 import type { AlertChannel, AlertMetric } from "@/lib/audience/types";
 
-/**
- * The alert vocabulary is shared with the server, which refuses an unknown
- * metric or channel. A label missing here renders the raw enum on a screen
- * whose whole job is to be unambiguous about what will wake somebody up.
- *
- * The metric list is duplicated from `domain/audience/alert.go` on
- * purpose: this test IS the check that the two have not drifted. The runtime
- * picker reads the list from the server rather than from here.
- */
 const METRICS: AlertMetric[] = [
     "comment_severity",
     "high_severity_count",
@@ -35,10 +26,7 @@ describe("alert rule labels", () => {
                 | undefined;
             expect(alerts, locale).toBeDefined();
             for (const metric of METRICS) {
-                // The short name goes in the picker.
                 expect(alerts?.metricNames?.[metric], `${locale}.alerts.metricNames.${metric}`).toBeTruthy();
-                // The sentence goes on the rule card and has to say what the
-                // rule will actually do.
                 expect(alerts?.metrics?.[metric], `${locale}.alerts.metrics.${metric}`).toBeTruthy();
             }
             for (const channel of CHANNELS) {
@@ -48,8 +36,6 @@ describe("alert rule labels", () => {
     });
 
     it("says the official channel costs money", () => {
-        // Not cosmetic: this is the only warning that arming a rule will spend
-        // balance on every firing.
         const alerts = (pt.audience as Record<string, unknown>).alerts as { officialHint?: string };
         expect(alerts.officialHint).toBeTruthy();
         expect(alerts.officialHint?.toLowerCase()).toContain("saldo");
@@ -58,8 +44,6 @@ describe("alert rule labels", () => {
     it("states the safety floors", () => {
         const alerts = (pt.audience as Record<string, unknown>).alerts as { limitsHint?: string };
         expect(alerts.limitsHint).toBeTruthy();
-        // The hint interpolates the server's own floors rather than repeating
-        // numbers that could drift from them.
         expect(alerts.limitsHint).toContain("{cooldown}");
         expect(alerts.limitsHint).toContain("{perDay}");
     });

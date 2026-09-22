@@ -258,7 +258,6 @@ export default function AdminWorkspaceBalancePage() {
         setTotalItems(result.meta.total_items);
       }
     } catch {
-      /* swallow */
     } finally {
       setLoadingTx(false);
     }
@@ -282,7 +281,6 @@ export default function AdminWorkspaceBalancePage() {
         setInvoiceTotal(result.total);
       }
     } catch {
-      /* swallow */
     } finally {
       setLoadingInvoices(false);
     }
@@ -314,7 +312,6 @@ export default function AdminWorkspaceBalancePage() {
             break;
           }
         } catch {
-          /* ignore */
         }
       }
     };
@@ -383,7 +380,7 @@ export default function AdminWorkspaceBalancePage() {
 
         const payload = {
           resource_type: "money" as const,
-          amount: amount / exchangeRate, // BRL input → USD for API
+          amount: amount / exchangeRate,
           service_type: formServiceType,
           description: formDescription || undefined,
         };
@@ -600,7 +597,7 @@ export default function AdminWorkspaceBalancePage() {
 
   return (
     <main className="w-full space-y-4">
-      {/* ── Header ── */}
+      {}
       <div>
         <DashboardPageHeader
           back={{
@@ -640,7 +637,7 @@ export default function AdminWorkspaceBalancePage() {
         />
       </div>
 
-      {/* ── Invoice / Debit Form ── */}
+      {}
       <AnimatePresence>
         {showForm !== null && (
           <motion.div
@@ -665,7 +662,7 @@ export default function AdminWorkspaceBalancePage() {
               </h3>
               <form onSubmit={handleSubmitOperation} className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {/* ── Invoice: billing type ── */}
+                  {}
                   {showForm === "invoice" && (
                     <div>
                       <label className="block text-xs font-medium text-muted-foreground mb-1.5">
@@ -690,7 +687,7 @@ export default function AdminWorkspaceBalancePage() {
                     </div>
                   )}
 
-                  {/* ── Debit: service type ── */}
+                  {}
                   {showForm === "debit" && (
                     <div>
                       <label className="block text-xs font-medium text-muted-foreground mb-1.5">
@@ -712,7 +709,7 @@ export default function AdminWorkspaceBalancePage() {
                     </div>
                   )}
 
-                  {/* ── Amount (BRL) ── */}
+                  {}
                   <div>
                     <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                       {t("form.amount")}
@@ -744,7 +741,7 @@ export default function AdminWorkspaceBalancePage() {
                       )}
                   </div>
 
-                  {/* ── Description ── */}
+                  {}
                   <div>
                     <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                       {t("form.description")}
@@ -798,7 +795,7 @@ export default function AdminWorkspaceBalancePage() {
         )}
       </AnimatePresence>
 
-      {/* ── Transaction History ── */}
+      {}
       <div>
         <DashboardTable<NormalizedTransaction>
           stats={[
@@ -917,7 +914,7 @@ export default function AdminWorkspaceBalancePage() {
         />
       </div>
 
-      {/* ── Invoices ── */}
+      {}
       <div>
         <div className="flex items-center gap-2 mb-3">
           <InvoiceIcon className="h-5 w-5 text-primary-ink" weight="bold" />
@@ -958,7 +955,7 @@ export default function AdminWorkspaceBalancePage() {
         />
       </div>
 
-      {/* ── Invoice Detail Dialog ── */}
+      {}
       <ElevatedDialog
         open={!!viewInvoice}
         onOpenChange={(open) => {
@@ -1047,7 +1044,6 @@ export default function AdminWorkspaceBalancePage() {
                             setPixCopied(true);
                             setTimeout(() => setPixCopied(false), 2000);
                           } catch {
-                            /* clipboard may not be available */
                           }
                         }}
                         className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
@@ -1112,7 +1108,7 @@ export default function AdminWorkspaceBalancePage() {
         </ElevatedDialogContent>
       </ElevatedDialog>
 
-      {/* ── Boleto Preview Dialog ── */}
+      {}
       <ElevatedDialog
         open={!!previewBoletoUrl}
         onOpenChange={(open) => !open && setPreviewBoletoUrl(null)}

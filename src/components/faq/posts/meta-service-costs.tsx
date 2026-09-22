@@ -24,26 +24,6 @@ import {
 import { parseIsoDate, type FaqPostEntry } from "@/content/faq";
 import styles from "../faq.module.css";
 
-/**
- * "Os novos custos do Meta", the FAQ's first post.
- *
- * The structure is the conversation, not the message. Meta's 1 October 2026
- * change is usually written up as a rate card, which answers the wrong
- * question: an operator does not want a price list, they want to know which of
- * the forty replies they sent this morning just cost something. So the post is
- * built around the 24-hour window, which is where the change actually lands,
- * and every section answers a single question about it: when the clock runs,
- * what three real conversations cost, which message types changed, and what
- * that looks like from inside an ordinary day.
- *
- * It deliberately stops short of pricing the reader's own month. A rate card
- * with a volume box invites the operator to budget a number this product does
- * not set and cannot promise, and the figure they leave with would be wrong
- * the moment Meta's rate or the exchange rate moves.
- *
- * Every fact is sourced in the Sources section. Nothing is claimed about this
- * product's own behaviour.
- */
 export function MetaServiceCostsPost({ entry }: { entry: FaqPostEntry }) {
   const t = useTranslations("faq.posts.metaServiceCosts");
   const format = useFormatter();
@@ -82,8 +62,8 @@ export function MetaServiceCostsPost({ entry }: { entry: FaqPostEntry }) {
         </div>
       </header>
 
-      {/* 1. Whose decision this is. Readers arrive assuming their provider put
-             prices up, and the article is useless until that is settled. */}
+      {
+}
       <Section title={t("announcement.title")} intro={t("announcement.body1")}>
         <p className={styles.body}>{t("announcement.body2")}</p>
         <p className={styles.body}>{t("announcement.body3")}</p>
@@ -97,7 +77,7 @@ export function MetaServiceCostsPost({ entry }: { entry: FaqPostEntry }) {
         </div>
       </Section>
 
-      {/* 2. The clock every rule hangs off. */}
+      {}
       <Section title={t("window.title")} intro={t("window.intro")}>
         <WindowClock labels={t.raw("window.clock") as WindowClockLabels} />
         <div className={styles.afterBlock}>
@@ -107,7 +87,7 @@ export function MetaServiceCostsPost({ entry }: { entry: FaqPostEntry }) {
         </div>
       </Section>
 
-      {/* 3. The demonstration: three ordinary days, priced. */}
+      {}
       <Section title={t("examples.title")} intro={t("examples.intro")}>
         <p className={styles.body} style={{ marginBottom: "clamp(1.35rem, 2.6vw, 1.85rem)" }}>
           {t("examples.body")}
@@ -119,7 +99,7 @@ export function MetaServiceCostsPost({ entry }: { entry: FaqPostEntry }) {
         </div>
       </Section>
 
-      {/* 4. The reference table people come back for. */}
+      {}
       <Section title={t("matrix.title")} intro={t("matrix.intro")}>
         <BillingMatrix labels={t.raw("matrix.table") as BillingMatrixLabels} />
         <div className={styles.afterBlock}>
@@ -135,12 +115,8 @@ export function MetaServiceCostsPost({ entry }: { entry: FaqPostEntry }) {
         </div>
       </Section>
 
-      {/* 5. What the change looks like from inside an ordinary day. The
-             section used to be a to-do list: register a payment method, spread
-             volume across numbers, audit the last thirty days. That is somebody
-             else's billing housekeeping dressed as advice, and it put this
-             product in the position of telling an operator how to manage a
-             Meta account. What is left states what the rule does. */}
+      {
+}
       <Section title={t("actions.title")} intro={t("actions.intro")}>
         <StepList
           steps={steps}
@@ -159,7 +135,7 @@ export function MetaServiceCostsPost({ entry }: { entry: FaqPostEntry }) {
         </div>
       </Section>
 
-      {/* 6. Where all of this comes from. */}
+      {}
       <Section title={t("sources.title")} intro={t("sources.intro")}>
         <SourceList sources={sources} />
         <p className={`${styles.note} ${styles.afterBlock}`}>

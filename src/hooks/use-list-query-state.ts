@@ -28,36 +28,20 @@ export interface ListQueryState<K extends string = string> {
   setFilter: (filter: CrmFilter) => void;
   setSearch: (search: string) => void;
   setSorts: (sorts: ListSort<K>[]) => void;
-  /** Cycle one column: unsorted → desc → asc → unsorted. */
   toggleSort: (key: K, options?: { additive?: boolean }) => void;
   setPage: (page: number) => void;
   setPageSize: (pageSize: number) => void;
-  /** Clear filters and search, keeping sort and page size. */
   clearFilters: () => void;
-  /** Back to the default view entirely. */
   reset: () => void;
 }
 
 export interface UseListQueryStateOptions<K extends string = string> {
-  /** Sort keys the list accepts; anything else in the URL is ignored. */
   sortKeys: readonly K[];
   defaultSorts?: ListSort<K>[];
   defaultPageSize?: number;
   pageSizes?: readonly number[];
 }
 
-/**
- * List state that lives in the URL.
- *
- * The URL is the state, not a mirror of it. That is what makes a filtered list
- * shareable, bookmarkable, survivable across a refresh, and navigable with the
- * browser's own back button — the four things a component-state-only filter bar
- * silently gives up, and the reason "send me the leads you're looking at" ends
- * in a screenshot.
- *
- * Generic over the sort vocabulary so any list can adopt it; the leads list is
- * the first caller.
- */
 export function useListQueryState<K extends string = string>({
   sortKeys,
   defaultSorts = [],
@@ -88,8 +72,6 @@ export function useListQueryState<K extends string = string>({
           direction: direction?.trim() === "asc" ? "asc" : "desc",
         } satisfies ListSort<K>;
       })
-      // A stale bookmark naming a key the list no longer offers degrades to the
-      // default order instead of an empty or mis-sorted page.
       .filter((sort) => sortKeys.includes(sort.key));
 
     return parsed.length > 0 ? parsed : defaultSorts;
@@ -107,13 +89,6 @@ export function useListQueryState<K extends string = string>({
     return parsed;
   }, [searchParams, defaultPageSize, pageSizes]);
 
-  /**
-   * Writes params, dropping any that hold their default so the URL stays
-   * readable — `?q=ana` rather than `?filter=&q=ana&sort=&page=1&pageSize=20`.
-   *
-   * `replace`, not `push`: typing in a search box must not bury the previous
-   * page under thirty history entries.
-   */
   const apply = useCallback(
     (changes: Record<string, string | number | null | undefined>) => {
       const next = new URLSearchParams(searchParams.toString());
@@ -134,8 +109,6 @@ export function useListQueryState<K extends string = string>({
     [pathname, router, searchParams],
   );
 
-  // Any change to WHAT is listed returns to page 1. Staying on page 7 of a
-  // result set that now has two pages is how a filter appears to return nothing.
   const setFilter = useCallback(
     (nextFilter: CrmFilter) => {
       apply({
@@ -172,8 +145,6 @@ export function useListQueryState<K extends string = string>({
         ? sorts.filter((sort) => sort.key !== key)
         : [];
 
-      // desc first: for dates and counts — which is most of what a list sorts
-      // by — "biggest/newest first" is the question being asked.
       let next: ListSort<K>[];
       if (!current) {
         next = [...others, { key, direction: "desc" }];

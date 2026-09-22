@@ -268,7 +268,7 @@ export default function AdminIssueDetailClient({
 
   return (
     <main className="w-full max-w-4xl mx-auto space-y-6 py-2">
-      {/* Back */}
+      {}
       <button
         type="button"
         onClick={() => router.push("/dashboard/issues/manage")}
@@ -278,7 +278,7 @@ export default function AdminIssueDetailClient({
         {t("admin.backToManage")}
       </button>
 
-      {/* Issue header */}
+      {}
       <div className="rounded-[--radius] border border-border bg-card p-6 space-y-4">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
@@ -306,7 +306,7 @@ export default function AdminIssueDetailClient({
             </div>
           </div>
 
-          {/* Status control */}
+          {}
           {!isClosed && (
             <div className="flex items-center gap-2 shrink-0">
               {updatingStatus && (
@@ -359,7 +359,7 @@ export default function AdminIssueDetailClient({
         )}
       </div>
 
-      {/* Responses */}
+      {}
       <div className="rounded-[--radius] border border-border bg-card overflow-hidden">
         <div className="px-6 py-4 border-b border-border">
           <h2 className="text-sm font-medium text-foreground">
@@ -417,7 +417,7 @@ export default function AdminIssueDetailClient({
           )}
         </div>
 
-        {/* Response form */}
+        {}
         {!isClosed && (
           <div className="border-t border-border p-4 space-y-3">
             {imagePreview && (

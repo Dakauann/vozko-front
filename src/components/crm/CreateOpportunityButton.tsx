@@ -20,9 +20,6 @@ interface CreateOpportunityButtonProps {
   className?: string;
 }
 
-// "Criar oportunidade" from a conversation: loads the sales pipeline + custom fields,
-// then OPENS the deal drawer pre-filled (lead as title, this chat linked) so the user
-// can fill value, owner, close date and any required custom fields before saving.
 export default function CreateOpportunityButton({
   entryId,
   entryType,

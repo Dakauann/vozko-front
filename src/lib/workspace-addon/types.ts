@@ -1,11 +1,3 @@
-/**
- * The entitlements an add-on can grant. Mirrors
- * domain/workspace/workspace_addon.EntitlementKind.
- *
- * Adding a kind on the server is not enough: this union is what lets an
- * administrator CREATE a definition for it and a workspace BUY one, so a kind
- * missing here is enforced by the backend and unsellable through the product.
- */
 export type AddonEntitlementKind =
   | "call_channels"
   | "whatsapp_business_phones"
@@ -22,8 +14,6 @@ export interface AddonDefinition {
   unitsPerQuantity: number;
   monthlyPriceMicros: number;
   annualPriceMicros: number;
-  // Internal, admin-only: the backend strips these from the customer /addons/available response
-  // (see vozko-go customer_billing_presenters.go), so they are ABSENT for end customers. Never render.
   monthlyCostMicros?: number;
   annualCostMicros?: number;
   isActive: boolean;
@@ -71,20 +61,12 @@ export interface PurchaseAddonInput {
   billingCycle: AddonBillingCycle;
 }
 
-/**
- * No-charge quote shown before confirming an addon purchase (from POST /addons/preview). All money is in
- * USD micros (the saldo currency); the UI converts to BRL. `chargeNowMicros` is the exact amount debited
- * from saldo now (the prorated activation stub for a new monthly channel); `recurringMicros` is the
- * steady-state per-cycle amount that lands on the unified monthly invoice. Price only, never cost.
- */
 export interface AddonPurchasePreview {
   chargeNowMicros: number;
   recurringMicros: number;
   billingCycle: AddonBillingCycle;
   prorated: boolean;
-  /** Days the up-front charge covers, from activation to the first billing anchor (the 23rd). */
   proratedDays: number;
-  /** Co-term period end = the first billing anchor (a 23rd); the recurring charge starts here. */
   periodEnd: string;
   nextInvoiceDate: string;
 }

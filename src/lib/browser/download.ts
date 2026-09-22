@@ -1,10 +1,3 @@
-/**
- * Hand a generated file to the browser as a download.
- *
- * The blob-url-anchor-click-revoke dance was written out separately in every
- * place that produced a file, so each copy got to forget the revoke and leak the
- * object url for the life of the tab. One copy, revoked once.
- */
 export function downloadTextFile(
     text: string,
     filename: string,

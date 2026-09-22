@@ -107,7 +107,7 @@ function InviteContent() {
         className="relative w-full max-w-md"
       >
         <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
-          {/* Logo/Brand */}
+          {}
           <div className="mb-8 text-center">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground shadow-sm">
               <Buildings className="h-8 w-8" weight="fill" />
@@ -117,7 +117,7 @@ function InviteContent() {
             </h1>
           </div>
 
-          {/* Checking / Loading */}
+          {}
           {(state === "checking" || authLoading) && (
             <div className="flex flex-col items-center gap-3 py-8">
               <div className="h-8 w-8 animate-spin rounded-full border border-border-strong border-t-transparent" />
@@ -125,7 +125,7 @@ function InviteContent() {
             </div>
           )}
 
-          {/* No token provided */}
+          {}
           {state === "no-token" && (
             <div className="flex flex-col items-center gap-4 py-6">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-warning text-warning-foreground">
@@ -146,7 +146,7 @@ function InviteContent() {
             </div>
           )}
 
-          {/* Not authenticated */}
+          {}
           {state === "not-authenticated" && (
             <div className="flex flex-col items-center gap-4 py-6">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
@@ -178,7 +178,7 @@ function InviteContent() {
             </div>
           )}
 
-          {/* Accepting */}
+          {}
           {state === "accepting" && (
             <div className="flex flex-col items-center gap-3 py-8">
               <div className="h-8 w-8 animate-spin rounded-full border border-border-strong border-t-transparent" />
@@ -186,7 +186,7 @@ function InviteContent() {
             </div>
           )}
 
-          {/* Accepted */}
+          {}
           {state === "accepted" && (
             <div className="flex flex-col items-center gap-4 py-6">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-healthy text-healthy-foreground">
@@ -201,7 +201,7 @@ function InviteContent() {
             </div>
           )}
 
-          {/* Error */}
+          {}
           {state === "error" && (
             <div className="flex flex-col items-center gap-4 py-6">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive text-destructive-foreground">

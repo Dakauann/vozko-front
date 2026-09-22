@@ -12,28 +12,9 @@ import { createPortal } from "react-dom";
 
 import { cn } from "@/lib/utils";
 
-// AnchoredMenu — a small menu that hangs off an element without living inside
-// it.
-//
-// The reason this exists: a menu rendered as a child of the thing that opens it
-// inherits that thing's clipping and its stacking context. On the kanban board
-// both work against it. A card is a transformed, `will-change: transform`
-// element, so it opens its own stacking context and no z-index inside it can
-// reach over the cards that paint after it; and the column body scrolls, so
-// anything hanging past the card's bottom edge is simply cut off. The menu went
-// behind the cards below and its last item — the funnel move — was clipped away
-// where nobody could click it.
-//
-// So the menu is measured against its anchor and rendered into <body>: fixed,
-// at the one layer portalled overlays share in this product (z-[200], the layer
-// ui/popover established), flipping above the anchor when the card sits low on
-// the screen and clamping to the viewport when it sits near an edge.
 
-/** Breathing room kept between the menu and the edge of the screen. */
 const VIEWPORT_MARGIN = 8;
-/** Below this much room underneath, hanging down is not worth it: flip up. */
 const MIN_SPACE_BELOW = 160;
-/** A menu never collapses to a sliver, even in a viewport with no room at all. */
 const MIN_HEIGHT = 120;
 
 type Placement = {
@@ -60,9 +41,6 @@ function place(
   const spaceBelow = vh - rect.bottom - gap - VIEWPORT_MARGIN;
   const spaceAbove = rect.top - gap - VIEWPORT_MARGIN;
 
-  // Down by default; up only when down is genuinely cramped AND up is roomier.
-  // Flipping on the first pixel of pressure makes the menu jump around for no
-  // reason the operator can see.
   if (spaceBelow >= MIN_SPACE_BELOW || spaceBelow >= spaceAbove) {
     return {
       left,
@@ -71,8 +49,6 @@ function place(
       maxHeight: Math.max(spaceBelow, MIN_HEIGHT),
     };
   }
-  // Pinned by its BOTTOM edge, so the flipped menu needs no height measurement
-  // and never renders once in the wrong place before correcting itself.
   return {
     left,
     width,
@@ -83,17 +59,11 @@ function place(
 
 export interface AnchoredMenuProps {
   open: boolean;
-  /** The element the menu hangs off — normally the button that opened it. */
   anchorRef: RefObject<HTMLElement | null>;
-  /** Called on Escape and on any click outside. */
   onClose: () => void;
-  /** Menu width in px; the positioning maths needs the number, not a class. */
   width?: number;
-  /** Distance between the anchor's edge and the menu. */
   gap?: number;
-  /** Which of the anchor's edges the menu lines up with. */
   align?: "start" | "end";
-  /** Accessible name for the menu. */
   label?: string;
   className?: string;
   children: ReactNode;
@@ -118,10 +88,6 @@ export function AnchoredMenu({
     setPlacement(place(anchor.getBoundingClientRect(), width, gap, align));
   }, [anchorRef, width, gap, align]);
 
-  // Measured in the layout phase so the menu paints where it belongs on the
-  // very first frame instead of flashing at the top-left corner. A closed menu
-  // keeps its last placement rather than clearing it: nothing renders from it
-  // while closed, and on reopen this runs again before the browser paints.
   useLayoutEffect(() => {
     if (open) reposition();
   }, [open, reposition]);
@@ -133,8 +99,6 @@ export function AnchoredMenu({
     };
     window.addEventListener("keydown", onKeyDown, true);
     window.addEventListener("resize", reposition);
-    // Capture, because the anchor lives in a scrolling column and a scroll
-    // event on that column does not bubble to the window.
     window.addEventListener("scroll", reposition, true);
     return () => {
       window.removeEventListener("keydown", onKeyDown, true);
@@ -149,8 +113,8 @@ export function AnchoredMenu({
 
   return createPortal(
     <>
-      {/* The catcher. A click anywhere else dismisses the menu and goes no
-          further, so the card underneath is not selected by the same click. */}
+      {
+}
       <div
         aria-hidden="true"
         data-testid="anchored-menu-backdrop"
@@ -176,9 +140,6 @@ export function AnchoredMenu({
           width: placement.width,
           maxHeight: placement.maxHeight,
         }}
-        // A portal keeps React-tree propagation: without these, every click and
-        // every pointer-down inside the menu would still reach the card that
-        // rendered it, selecting it or starting a drag.
         onClick={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}
         className={cn(

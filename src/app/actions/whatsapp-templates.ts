@@ -104,10 +104,6 @@ export async function createWhatsAppTemplateAction(payload: CreateTemplatePayloa
   });
 
   if (response.error) {
-    // The CODE travels with the message. The message alone cannot be
-    // translated — it is an English sentence from a Go sentinel — so a caller
-    // that only forwards it can never show the operator anything in their own
-    // language. See lib/whatsapp-templates/errors.ts.
     return {
       template: null,
       error: response.error.message,
@@ -148,10 +144,6 @@ export async function syncWhatsAppTemplateByIdAction(templateId: string) {
 }
 
 
-// sendWhatsAppTemplateMessageAction is gone. It posted to an ADMIN-only route
-// whose billing depended on a workspace happening to resolve from the request,
-// and which created no conversation and recorded no message. Paid sending now
-// has one door: startOfficialConversationAction in actions/whatsapp-outreach.ts.
 
 export async function updateWhatsAppTemplateHeaderMediaAction(
   templateId: string,

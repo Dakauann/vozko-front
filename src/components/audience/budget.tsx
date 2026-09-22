@@ -15,27 +15,6 @@ import {
 import { useWorkspace } from "@/contexts/workspace-context";
 import { cn } from "@/lib/utils";
 
-/*
- * The workspace's analysis settings, and what they are currently costing it:
- * how much may be analysed in a rolling day, how long a conversation must go
- * quiet first, how much of the budget is spent and what is queued behind it.
- *
- * It lives here, on the workspace-wide dashboard, and not inside either the
- * comment or the conversation half, for two reasons. It governs BOTH, so
- * putting it in one of them would imply it belonged to that subject. And the
- * conversation panel hides itself when nothing has been analysed, which is
- * precisely the moment somebody would be looking for the reason why.
- *
- * Before this the ceiling could only be edited on an Instagram account's page,
- * so a workspace running only WhatsApp had a limit governing its conversations
- * that it could neither see nor change, and the quiet period was a constant in
- * the binary, so changing it was a deploy.
- *
- * The queue is the number that makes the rest actionable. Reaching the ceiling
- * never discards work: the rows stay pending and the next pass takes them. What
- * a ceiling set too low actually costs is delay, so delay is what this reports,
- * rather than a loss that does not happen.
- */
 export function AnalysisBudgetPanel({
   usage,
   settings,
@@ -43,7 +22,6 @@ export function AnalysisBudgetPanel({
 }: {
   usage: AudienceUsage | null;
   settings: AudienceWorkspaceSettings | null;
-  /** Hands back what was saved so the page does not refetch to see its own edit. */
   onChanged?: (settings: AudienceWorkspaceSettings) => void;
 }) {
   const t = useTranslations("audience.budget");
@@ -73,13 +51,7 @@ export function AnalysisBudgetPanel({
   const spent = used >= limit;
   const share = Math.min(100, (used / limit) * 100);
 
-  // The ceiling is the constraint only when more is waiting than the window can
-  // still absorb. An exhausted budget with an empty queue is a fact, not a
-  // problem, and warning about it would teach the reader to ignore the warning.
   const constrained = waiting > remaining;
-  // Roughly how long the overflow waits, at this ceiling, assuming nothing new
-  // arrives. Whole hours: the arithmetic does not support finer than that, and
-  // pretending otherwise would read as a promise.
   const clearsInHours = constrained ? Math.max(1, Math.round(((waiting - remaining) / limit) * 24)) : 0;
 
   return (
@@ -100,20 +72,14 @@ export function AnalysisBudgetPanel({
           color={constrained ? "hsl(var(--destructive))" : "hsl(var(--chart-1))"}
         />
 
-        {/*
-          A rolling window has no reset to name, so when the budget IS spent the
-          honest thing to say is when the oldest counted analysis leaves the
-          window. "Tomorrow" would be a lie here.
-        */}
+        {
+}
         <p className="text-xs text-muted-foreground">
           {spent && freesAt ? t("freesAt", { when: freesAt }) : t("window")}
         </p>
 
-        {/*
-          The queue, and what it means. Two different sentences on purpose: a
-          queue that fits under the ceiling is the system working, and only the
-          one that does not fit is a number the operator should act on.
-        */}
+        {
+}
         {waiting > 0 && (
           <div
             className={cn(
@@ -140,13 +106,6 @@ export function AnalysisBudgetPanel({
   );
 }
 
-/*
- * The two controls, remounted whenever the server's values change.
- *
- * Keying the drafts off the server value rather than syncing them in an effect
- * is what stops the page's 60s poll from overwriting a half-typed number, and
- * it is also what the compiler's set-state-in-effect rule is pointing at.
- */
 function SettingsEditor({
   settings,
   onChanged,
@@ -185,19 +144,6 @@ function SettingField({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  /*
-   * The box shows the value actually IN FORCE, never an empty field.
-   *
-   * It used to show only what the WORKSPACE had set, which for a workspace that
-   * has set nothing is blank. So the ceiling field sat empty beside a meter
-   * reading "2 de 20.000", and the quiet period sat empty while the sweep was
-   * plainly waiting five minutes: both controls looked broken next to figures
-   * that plainly worked. A grey placeholder was not enough either, because a
-   * hint still reads as "nothing set".
-   *
-   * "Stored" and "in force" differ only until somebody edits one, and editing is
-   * exactly when that difference stops mattering.
-   */
   const stored = kind === "dailyCap" ? settings.dailyCap : settings.debounceMinutes;
   const effective = kind === "dailyCap" ? settings.effectiveDailyCap : settings.effectiveDebounceMinutes;
   const shown = stored > 0 ? stored : effective;
@@ -208,9 +154,6 @@ function SettingField({
 
   const commit = () => {
     const next = Number.parseInt(draft, 10);
-    // Compared against what is SHOWN, not what is stored. Otherwise merely
-    // focusing and leaving an inherited value would persist it as a deliberate
-    // choice nobody made.
     if (!Number.isFinite(next) || next === shown) {
       setDraft(String(shown));
       return;

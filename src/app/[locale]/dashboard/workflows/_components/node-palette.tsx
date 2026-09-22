@@ -28,10 +28,6 @@ const CATEGORY_ORDER: NodeCategory[] = [
   "visual",
 ];
 
-// The canvas is the work; the palette is a drawer onto it. Operators who know
-// the node types want the width back, and the ones building their first flow
-// want the drawer open — so the choice is remembered rather than reset on every
-// visit. Same reasoning as the agent create/edit chooser.
 const COLLAPSE_KEY = "workflow-palette-collapsed";
 
 interface NodePaletteProps {
@@ -42,13 +38,10 @@ export function NodePalette({ definitions }: NodePaletteProps) {
   const t = useTranslations("workflowsPage");
 
   const [collapsed, setCollapsed] = useState(false);
-  // Read after mount: localStorage is not available during SSR, and seeding
-  // state from it directly would hydrate-mismatch.
   useEffect(() => {
     try {
       setCollapsed(window.localStorage.getItem(COLLAPSE_KEY) === "1");
     } catch {
-      // Storage unavailable: the palette simply opens expanded.
     }
   }, []);
 
@@ -58,7 +51,6 @@ export function NodePalette({ definitions }: NodePaletteProps) {
       try {
         window.localStorage.setItem(COLLAPSE_KEY, next ? "1" : "0");
       } catch {
-        // Ignored: the toggle still works for this session.
       }
       return next;
     });
@@ -104,8 +96,6 @@ export function NodePalette({ definitions }: NodePaletteProps) {
     [filtered],
   );
 
-  // Every category present, ignoring the search filter: the collapsed rail is
-  // navigation, and a rail whose rungs disappear as you type is not navigation.
   const railCategories = useMemo(
     () =>
       CATEGORY_ORDER.map((cat) => ({
@@ -134,8 +124,8 @@ export function NodePalette({ definitions }: NodePaletteProps) {
         collapsed ? "w-12" : "w-64",
       )}
     >
-      {/* Header: the toggle lives here in both states, so the control does not
-          move when the drawer opens or closes. */}
+      {
+}
       <div
         className={cn(
           "flex items-center gap-2 border-b border-border p-3",
@@ -164,9 +154,6 @@ export function NodePalette({ definitions }: NodePaletteProps) {
       </div>
 
       {collapsed ? (
-        // Collapsed: a rail of category plates. It reclaims ~208px of canvas and
-        // still says what the drawer holds — clicking a rung opens it, so the
-        // palette stays one click away instead of one click plus a hunt.
         <nav
           aria-label={t("palette.title")}
           className="flex flex-1 flex-col items-center gap-1.5 overflow-y-auto py-2"
@@ -219,10 +206,8 @@ export function NodePalette({ definitions }: NodePaletteProps) {
               const styles = CATEGORY_STYLES[category];
               return (
                 <div key={category}>
-                  {/* The category's own plate colour as a 2px bar, so a group
-                      head is findable while scrolling without spending a second
-                      saturated block on every heading. `text-muted-black` used
-                      to sit here and is not a token — it painted nothing. */}
+                  {
+}
                   <p className="mb-1.5 flex items-center gap-1.5 px-1 text-2xs font-semibold text-muted-foreground">
                     <span
                       aria-hidden
@@ -245,10 +230,6 @@ export function NodePalette({ definitions }: NodePaletteProps) {
                           className={cn(
                             "group relative flex cursor-grab items-start gap-3 rounded-[--radius] border border-dashed border-border p-3",
                             "transition-colors duration-DEFAULT active:cursor-grabbing",
-                            // The old hover set `border-border` on top of
-                            // `border-border` — a no-op that read as a dead
-                            // control. The edge now actually moves, to the value
-                            // that clears 3:1 on the ground it lands on.
                             "hover:border-control-edge hover:bg-muted",
                             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                           )}
@@ -272,7 +253,7 @@ export function NodePalette({ definitions }: NodePaletteProps) {
                               </p>
                             )}
                           </div>
-                          {/* Grab affordance */}
+                          {}
                           <div className="absolute inset-y-0 right-1 flex items-center opacity-0 transition-opacity duration-DEFAULT group-hover:opacity-60">
                             <DotsSixVertical
                               size={14}

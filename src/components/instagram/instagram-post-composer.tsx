@@ -44,26 +44,9 @@ import { OverrideFields } from "@/components/audience/override-fields";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useTranslations } from "next-intl";
 
-/**
- * Publish a post, and optionally arm its comment automation in the same step.
- *
- * The automation is the reason the composer exists as one flow rather than two
- * screens: a comment-to-DM campaign is worthless if the rule is added minutes
- * after the post went live, because the first comments arrive immediately.
- *
- * Publishing is asynchronous on Instagram's side (container → poll → publish),
- * so the button stays busy until the backend has actually published and can
- * return the media id the rule needs.
- *
- * The comment analysis follows the same logic: a post's own analysis settings
- * (instructions about what the post is, its own topics, on/off) only make sense
- * if they are in place before the first comments land, so they are armed here
- * and written the moment the media id exists.
- */
 
 type PostKind = "feed" | "reels" | "stories";
 
-/** Mirrors the 25 MB ceiling enforced by the media upload use case. */
 const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 
 export function InstagramPostComposer({
@@ -87,15 +70,11 @@ export function InstagramPostComposer({
   const [ruleFields, setRuleFields] = useState<CommentRuleFieldsValue>({
     match: "contains",
     keywords: "",
-    // A comment-to-DM campaign is the reason this exists, so it is preselected.
     actions: ["private_reply"],
     publicText: "",
     privateText: "",
   });
 
-  // The post's own analysis settings, armed before it exists. The account's
-  // effective settings are loaded when the block opens, so every "inherit"
-  // placeholder says what it would inherit.
   const [withAnalysis, setWithAnalysis] = useState(false);
   const [accountAnalysis, setAccountAnalysis] = useState<CommentAnalysisSettings | null>(null);
   const [analysisDraft, setAnalysisDraft] = useState<OverrideDraft | null>(null);
@@ -117,28 +96,17 @@ export function InstagramPostComposer({
 
   const [publishing, setPublishing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Set when the post published but its rule or its analysis settings did not:
-  // the post is live and must not be re-published, so the dialog switches to
-  // reporting that precisely.
   const [ruleWarning, setRuleWarning] = useState<string | null>(null);
   const [analysisWarning, setAnalysisWarning] = useState<string | null>(null);
 
-  // Reels and Stories are video surfaces here; a feed post takes a JPEG.
   const isVideo = kind !== "feed";
 
-  // Same validation the rule dialog uses, so a rule armed here is exactly a rule
-  // created there.
   const ruleErrors = commentRuleFieldsErrors(ruleFields);
   const invalid = !mediaUrl.trim() || (withRule && !ruleErrors.valid);
 
-  // Uploading through our own media storage gives the public URL Instagram
-  // requires, so an operator picks a file instead of hunting for a hosted link.
   const handleFile = async (file: File | undefined) => {
     if (!file) return;
 
-    // The server caps uploads at 25 MB and rejects the request after the whole
-    // body has travelled. Checking here fails a 200 MB Reel instantly instead of
-    // after a long upload.
     if (file.size > MAX_UPLOAD_BYTES) {
       setError(t("fileTooLarge"));
       return;
@@ -147,9 +115,6 @@ export function InstagramPostComposer({
     setUploading(true);
     setError(null);
 
-    /* POST /medias requires all three fields, `media`, a non-empty `mediaType`,
-       and a non-empty `description`, and rejects the request outright otherwise.
-       Same shape every other uploader in the app sends. */
     const form = new FormData();
     form.append("media", file);
     form.append("mediaType", isVideo ? "video" : "image");
@@ -185,8 +150,6 @@ export function InstagramPostComposer({
       return;
     }
 
-    // The post is live from here on. A rule failure must never look like a
-    // publish failure, or the operator will try to publish again.
     if (withRule) {
       const rule: CommentRulePayload = {
         name: t("ruleName"),
@@ -206,8 +169,6 @@ export function InstagramPostComposer({
       }
     }
 
-    // Same rule for the analysis settings: the post is live, so a failure here
-    // is reported as exactly that and never as a publish failure.
     if (withAnalysis && analysisDraft) {
       const put = overrideDraftToPut(analysisDraft);
       const analysisResult = await putCommentContainerSettingsAction("instagram", accountId, result.media.id, put);
@@ -236,8 +197,6 @@ export function InstagramPostComposer({
         </ElevatedDialogHeader>
 
         {ruleWarning || analysisWarning ? (
-          // The post published; only the rule or the analysis settings failed.
-          // Say exactly that, and do not offer "publish" again.
           <div className="space-y-4 p-5">
             <p className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-warning-ink dark:text-warning-ink">
               <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" weight="fill" />
@@ -287,13 +246,11 @@ export function InstagramPostComposer({
                   ref={fileRef}
                   type="file"
                   hidden
-                  // JPEG for feed posts is Instagram's rule, not ours; the picker
-                  // enforces it so a rejected upload never reaches publish.
                   accept={isVideo ? "video/mp4,video/quicktime" : "image/jpeg"}
                   onChange={(e) => void handleFile(e.target.files?.[0])}
                 />
-                {/* Instagram's own constraint, stated before the failure rather
-                    than after: a PNG is rejected at publish time. */}
+                {
+}
                 <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
                   <Info className="mt-0.5 h-3 w-3 shrink-0" />
                   {isVideo ? t("videoHint") : t("imageHint")}
@@ -311,9 +268,8 @@ export function InstagramPostComposer({
                     placeholder={t("captionPlaceholder")}
                     className="resize-y"
                   />
-                  {/* Captions cannot be edited after publishing, Instagram has no
-                      such endpoint, so the operator is warned while it still
-                      matters. */}
+                  {
+}
                   <p className="flex items-start gap-1.5 text-xs text-warning-ink">
                     <Warning className="mt-0.5 h-3 w-3 shrink-0" />
                     {t("captionImmutable")}

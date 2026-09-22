@@ -34,9 +34,6 @@ export type ResourceType =
     | "instagram_accounts"
     | "audience"
     | "telegram_accounts"
-    // Two resources for one channel, matching the backend: connecting a number
-    // and blasting it are different privileges, and an attendant who may reply
-    // must not thereby be able to start a forty-thousand-number run.
     | "unofficial_whatsapp_instances"
     | "unofficial_whatsapp_campaigns"
     | "mcp";
@@ -58,10 +55,6 @@ export type ResourceAction =
     | "list_members"
     | "block"
     | "call"
-    // Moving a conversation to ANOTHER funnel, and transferring a live call.
-    // Distinct from "assign": sorting the funnel you work in is attendance,
-    // taking a conversation off one team's board and putting it on another's
-    // is not.
     | "transfer";
 
 export interface Workspace {

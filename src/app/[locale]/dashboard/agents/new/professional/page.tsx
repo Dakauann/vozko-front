@@ -7,10 +7,6 @@ import { useRememberCreateMode } from "@/lib/agents/edit-mode";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-/**
- * The complete create form on its own route, mirroring
- * agents/[agentId]/edit/professional.
- */
 export default function NewAgentProfessionalPage() {
   const router = useRouter();
   const t = useTranslations("agents.new");

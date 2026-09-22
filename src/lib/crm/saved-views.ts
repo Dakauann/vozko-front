@@ -3,15 +3,6 @@ import type { PipelineObjectType } from '@/lib/crm/pipelines';
 
 import { apiClient } from '@/lib/api/browser-client';
 
-// Mirrors domain/savedview.SavedView. A saved view is a named, shareable board
-// preset: a filter + groupBy (+ sort/columns/visibility) that the workspace can
-// switch between. `filter` is the crmfilter JSON object (not base64) since it
-// travels in the request body, not the query string.
-/**
- * What a view targets. Wider than PipelineObjectType because a lead list has no
- * pipeline: `lead` views are named segments (a filter + sort + columns), which
- * is exactly what a saved view already is minus the board axis.
- */
 export type SavedViewObjectType = PipelineObjectType | 'lead';
 
 export type SavedViewVisibility = 'private' | 'shared' | 'workspace';
@@ -32,8 +23,6 @@ export interface SavedView {
     position: number;
 }
 
-// The mutable slice a caller supplies when creating/updating a view. The server
-// owns id/isDefault/position.
 export interface SavedViewInput {
     name: string;
     objectType: SavedViewObjectType;

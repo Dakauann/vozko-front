@@ -40,13 +40,8 @@ const CommandInput = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => (
   <div className="border-b border-border p-2" cmdk-input-wrapper="">
-    {/*
-      The palette's search is a field like every other field in the system: a
-      recessed well that lifts to the sheet and takes the brand underline on
-      focus. It used to be a bare input on a bottom hairline drawn in --border,
-      which measures 1.36:1 against the popover on graphite — so in dark there
-      was no field there at all, just text floating in a panel.
-    */}
+    {
+}
     <div
       className={cn(
         "flex h-9 items-center gap-2 rounded-[--radius] border border-control-edge bg-card px-3 dark:bg-muted",
@@ -136,9 +131,6 @@ const CommandItem = React.forwardRef<
     ref={ref}
     className={cn(
       "relative flex cursor-pointer gap-2 select-none items-center rounded-[--radius] px-3 py-2.5 text-sm outline-none transition-colors",
-      // The row ground has to differ from the panel it sits on; --muted IS the
-      // panel in dark. Label stays --foreground — green is commit, selection
-      // and focus, and a keyboard highlight is none of the three.
       "data-[selected=true]:bg-[hsl(var(--accent-hover))] data-[selected=true]:text-foreground",
       "data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50",
       "[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",

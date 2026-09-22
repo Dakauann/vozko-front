@@ -20,10 +20,6 @@ describe("channel filter table", () => {
         });
     });
 
-    // The two WhatsApp transports must stay separate options. They share nothing
-    // on the send path — no template, no 24h window on the unofficial one — so a
-    // single "WhatsApp" filter would hide that difference exactly where an
-    // operator is deciding which conversation to open.
     it("keeps the two WhatsApp transports as distinct filters", () => {
         const values = CHANNEL_FILTERS.map((spec) => spec.value);
         expect(values).toContain("whatsapp");
@@ -49,8 +45,6 @@ describe("channel filter table", () => {
 });
 
 describe("narrowing", () => {
-    // The bug this guards: a channel added to the button list but missed in the
-    // entry-type derivation looks like a working filter and selects nothing.
     it("narrows every entry-kind filter by its entry type", () => {
         for (const spec of CHANNEL_FILTERS.filter((s) => s.kind === "entry")) {
             expect(entryTypeFor(spec.value), spec.value).toBe(spec.value);
@@ -76,9 +70,6 @@ describe("narrowing", () => {
         expect(isCampaignChannel("all")).toBe(false);
     });
 
-    // Exactly one narrowing per filter: asking the inbox for both a campaign
-    // type and an entry type would return their intersection, which is not what
-    // any of these buttons promises.
     it("never produces both narrowings at once", () => {
         const all: ChannelFilter[] = [
             "all",

@@ -9,9 +9,6 @@ import { NextIntlClientProvider } from "next-intl";
 import ptMessages from "@/i18n/messages/pt.json";
 import CrmConversationView from "../CrmConversationView";
 
-// The component calls useTranslations, so every render needs the intl provider.
-// Without it all 16 cases below died on "context from NextIntlClientProvider was
-// not found" before asserting anything.
 function render(ui: React.ReactElement) {
   return rtlRender(
     <NextIntlClientProvider locale="pt" messages={ptMessages}>
@@ -483,13 +480,6 @@ describe("CrmConversationView rendering", () => {
   });
 });
 
-// ── The stage ("Mover para") selector ────────────────────────────────────────
-//
-// A conversation holds exactly one stage, and that stage decides which funnel the
-// conversation is on. So the list has to offer the stages of the conversation's
-// OWN funnel — `entryAvailableTags`, resolved per campaign by the board's read
-// model — and fall back to the surrounding CRM's selected funnel only when the
-// caller supplies no per-entry list.
 
 const ENTRY_FUNNEL = [
   { stage_id: "ef-1", name: "triagem", color: "#3b82f6" },
@@ -530,8 +520,6 @@ describe("CrmConversationView stage selector", () => {
 
     expect(screen.getByText("triagem")).toBeInTheDocument();
     expect(screen.getByText("resolvido")).toBeInTheDocument();
-    // The default funnel's stages must not leak in: picking one would move the
-    // lead onto a funnel its own board does not render.
     expect(screen.queryByText("recebido")).toBeNull();
     expect(screen.queryByText("finalizado")).toBeNull();
   });
@@ -566,8 +554,6 @@ describe("CrmConversationView stage selector", () => {
       "ef-2",
       "ef-1",
     );
-    // One stage per conversation: the add/remove pair belonged to the old
-    // multi-tag model and must not fire.
     expect(onAssignStage).not.toHaveBeenCalled();
   });
 

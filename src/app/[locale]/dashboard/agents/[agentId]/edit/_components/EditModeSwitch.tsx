@@ -7,12 +7,6 @@ import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-t
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-/**
- * The mode choice, demoted from a full-screen fork to a labeled toggle inside
- * the work: the current editor is always visible (system status), and the
- * other one is one click away in either direction (control and freedom).
- * Labels name the TASK (guided/complete), never the operator's skill.
- */
 export default function EditModeSwitch({
     agentId,
     mode,

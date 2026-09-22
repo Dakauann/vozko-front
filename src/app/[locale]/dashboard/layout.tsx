@@ -17,9 +17,6 @@ import type { ReactNode } from "react";
 import { Suspense } from "react";
 import { WorkspaceProvider } from "@/contexts/workspace-context";
 
-// Both fallbacks must match the real chrome's geometry exactly, or the content
-// jumps when the real one resolves. Azure topology: the bar is full-width and
-// owns the corner; the rail starts below it.
 function SidebarFallback() {
   return (
     <aside className="fixed bottom-0 left-0 top-12 z-30 hidden w-[208px] border-r border-border bg-card md:block" />
@@ -37,9 +34,6 @@ export default function DashboardLayout({
 }: {
   children: ReactNode;
 }) {
-  // Auth is gated client-side by DashboardGate (the API is the real security
-  // boundary; every request is authenticated server-side). No server session
-  // read here.
   return (
     <DashboardGate>
       <WorkspaceProvider>
@@ -66,8 +60,8 @@ export default function DashboardLayout({
 
               <DashboardMainContent className="pt-12">
                 <DashboardCrmWrapper>
-                  {/* Full-bleed views (CRM, workflows) escape this with -m-6.
-                      The 6 must stay 6 or those views misalign. */}
+                  {
+}
                   <div className="p-3 sm:p-6">{children}</div>
                   <WhatsAppCallHost />
                 </DashboardCrmWrapper>

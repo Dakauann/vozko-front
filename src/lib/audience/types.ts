@@ -1,23 +1,8 @@
-/**
- * Comment analysis types.
- *
- * These mirror `delivery/http/commentanalysis/dto.go`. Stored values are
- * English slugs on both sides; the UI translates every enum label in all four
- * locales (see `i18n/messages/*.json` under `audience.enums`), and the
- * slugs never reach the screen untranslated.
- *
- * Two derived numbers are never model-produced and never computed here:
- * `severity` (0-100, from three ordinal dimensions) and `acceptanceScore`
- * (from the stance mix, damped for small samples). Both are computed in the
- * back-end domain so a chart and the number above it cannot disagree.
- */
 
 export type CommentSource = 'instagram';
 
-/** What the engine analyzed. */
 export type SubjectKind = "comment" | "conversation";
 
-/** Every channel supported by the channel-agnostic audience pipeline. */
 export type AudienceSource =
     | "instagram"
     | "whatsapp"
@@ -61,7 +46,6 @@ export const COMMENT_INTENTS: CommentIntent[] = [
 export const MODERATION_STATES: ModerationState[] = ['none', 'watched', 'muted', 'blocked'];
 export const VERTICALS: Vertical[] = ['gov', 'retail', 'services'];
 
-/** The severity from which a comment counts as "high" (mirrors the domain). */
 export const HIGH_SEVERITY_THRESHOLD = 60;
 
 export interface AnalyzedComment {
@@ -111,7 +95,6 @@ export interface AnalyzedComment {
     createdAt: string;
 }
 
-/** The §11.1 counters, flattened onto stats, trend points and authors. */
 export interface CommentCounters {
     total: number;
     analyzed: number;
@@ -148,11 +131,6 @@ export interface CommentCounters {
     distinctAuthors: number;
     flaggedAuthors: number;
 
-    // ---- Conversation subjects ----
-    //
-    // A slice can hold both kinds now, so these two say how much of it each
-    // block describes. Without them a reader cannot tell an all-comment slice
-    // from one where every conversation happened to be unlabelled.
     commentCount: number;
     conversationCount: number;
     conversationAnalyzed: number;
@@ -180,8 +158,6 @@ export interface CommentCounters {
     nextActionEscalate: number;
     nextActionContinue: number;
 
-    // Averaged over analysed CONVERSATIONS only: comments carry no such score
-    // and their zeros would drag a mixed slice toward nothing.
     attendanceQualityAvg: number;
     attendanceQualityMin: number;
     attendanceQualityMax: number;
@@ -199,13 +175,6 @@ export interface TopicStat {
     severityAvg: number;
 }
 
-/**
- * One subject the conversations kept coming back to.
- *
- * `key` is the canonical form the backend grouped on and is the identity, so a
- * chart keys its marks on it. `label` is a real example of how the model wrote
- * it, which is what a person should read.
- */
 export interface SubjectCount {
     key: string;
     label: string;
@@ -219,7 +188,6 @@ export interface CommentAnalysisStats extends CommentCounters {
 }
 
 export interface TrendPoint extends CommentCounters {
-    /** YYYY-MM-DD, UTC calendar day. */
     bucketDate: string;
     acceptanceScore: number;
 }
@@ -229,15 +197,6 @@ export interface TopicCount {
     count: number;
 }
 
-/*
- * Who this person appears to be (§5), inferred from their own comments. There
- * is no bio on the comment edge; this is what they have said.
- *
- * The evidence travels WITH the label on purpose. A chip that said only
- * "político" would be a claim about a real member of the public; one that says
- * how confident we are and how many comments it read is an inference the
- * reader can weigh, which is the only form this is safe to show in.
- */
 export type AuthorRole =
     | 'unknown'
     | 'politician'
@@ -259,11 +218,8 @@ export const AUTHOR_ROLES: AuthorRole[] = [
 
 export interface AuthorRoleInference {
     role: AuthorRole;
-    /** The shared ordinal rubric, never a percentage. */
     confidence: QualityLevel;
-    /** How many of the person's comments the inference read. */
     basedOnComments: number;
-    /** One sentence in the model's words, so an operator can disagree. */
     rationale?: string;
 }
 
@@ -278,31 +234,14 @@ export interface CommentAuthor {
     counters: CommentCounters;
     topTopics: TopicCount[];
     derivedStance: CommentStance;
-    /**
-     * Signed ledger: +1 a supporter comment, −0.5 a critic, −1 a hostile one,
-     * with an extra −1 per high-severity comment. Negative means the author has
-     * cost more than they gave. Computed in the domain, never in the UI.
-     */
     reputation: number;
     role: AuthorRoleInference;
-    /**
-     * Whether the server considers the inference strong enough to show. The
-     * UI must obey this rather than re-deriving the rule: the thresholds live
-     * in the domain, and two answers to "is this safe to display" is one too
-     * many.
-     */
     roleDisplayable: boolean;
     isFlagged: boolean;
     moderationState: ModerationState;
     updatedAt: string;
 }
 
-/**
- * One post an author has commented on (§2).
- *
- * `comments` means COMMENTS. Likes and other interactions are not in the
- * webhook and are not stored, so nothing here may be labelled "interações".
- */
 export interface AuthorContainer {
     source: CommentSource;
     accountId: string;
@@ -320,11 +259,9 @@ export interface AuthorContainer {
     lastCommentedAt: string;
 
     derivedStance: CommentStance;
-    /** The same signed ledger as CommentAuthor.reputation, for this post alone. */
     reputation: number;
 }
 
-/** The author plus a page of their posts, so a panel heading and its list arrive together. */
 export interface AuthorContainersPage {
     author: CommentAuthor;
     containers: AuthorContainer[];
@@ -341,22 +278,16 @@ export interface CommentAuthorDetail {
     total: number;
 }
 
-/*
- * Forwarding a comment and answering it (§3, §6).
- */
 
-/** One conversation a comment can be forwarded into. */
 export interface EscalationRecipient {
     entryId: string;
     entryType: string;
     name?: string;
     number?: string;
-    /** Whether a free-form message can reach them right now. Shown, not enforced. */
     windowOpen: boolean;
     lastMessageAt?: string;
 }
 
-/** What was actually sent, echoed back so the UI shows the real message. */
 export interface EscalationResult {
     commentId: string;
     author: string;
@@ -365,10 +296,6 @@ export interface EscalationResult {
     sentAt: string;
 }
 
-/**
- * What an account may say back. `auto` exists in the API but is refused by it
- * for now: this cut is suggest-only, so the UI must not offer it.
- */
 export type ReplyMode = 'off' | 'suggest' | 'auto';
 
 export const SELECTABLE_REPLY_MODES: ReplyMode[] = ['off', 'suggest'];
@@ -401,13 +328,11 @@ export interface CommentAnalysisSettings {
     topics: CommentTopic[];
     severityThreshold: number;
     dailyCap: number;
-    /** Free text the classifier reads as operator context (who the account is, what to watch for). */
     instructions?: string;
     replyPolicy: ReplyPolicy;
     updatedAt: string;
 }
 
-/** PATCH-shaped: absent fields are untouched. */
 export interface CommentAnalysisSettingsPatch {
     enabled?: boolean;
     model?: string;
@@ -424,7 +349,6 @@ export interface CommentAnalysisSpend {
     items: number;
     promptTokens: number;
     completionTokens: number;
-    /** USD micros, like every price in the product. */
     priceMicros: number;
 }
 
@@ -442,7 +366,6 @@ export interface CommentBackfill {
     estimatedComments: number;
     fetched: number;
     enqueued: number;
-    /** 0..1 */
     progress: number;
     error?: string;
     createdAt: string;
@@ -450,11 +373,6 @@ export interface CommentBackfill {
     finishedAt?: string;
 }
 
-/*
- * The channels the engine can analyse. Mirrors the backend's source set, and
- * is what a channel filter offers: a screen that spans channels iterates it
- * rather than hard-coding the list.
- */
 export const AUDIENCE_SOURCES: AudienceSource[] = [
     "instagram",
     "whatsapp",
@@ -465,14 +383,8 @@ export const AUDIENCE_SOURCES: AudienceSource[] = [
 export interface CommentListFilters {
     subjectId?: string;
     latestOnly?: boolean;
-    /**
-     * Empty means every account. The audience view is workspace-wide by
-     * default; only a screen scoped to one account sets this.
-     */
     accountId?: string;
-    /** Empty means every channel. */
     source?: AudienceSource | "";
-    /** Empty means every subject kind: comments AND conversations. */
     subjectKind?: SubjectKind[];
     containerId?: string;
     interest?: string;
@@ -488,7 +400,6 @@ export interface CommentListFilters {
     severityMax?: number;
     requiresAction?: boolean;
     authorExternalId?: string;
-    /** ISO date or date-time. */
     from?: string;
     to?: string;
     sort?: 'severity:desc' | 'severity:asc' | 'occurredAt:desc' | 'occurredAt:asc';
@@ -505,7 +416,6 @@ export interface PaginatedMeta {
 
 export const EMPTY_META: PaginatedMeta = { page: 1, pageSize: 20, totalPages: 0, totalItems: 0 };
 
-/** Empty counters, so a panel can render zeros before its first load. */
 export const EMPTY_COUNTERS: CommentCounters = {
     total: 0,
     analyzed: 0,
@@ -562,12 +472,6 @@ export const EMPTY_COUNTERS: CommentCounters = {
     messagesAvg: 0,
 };
 
-/**
- * A post's own settings. Every field is optional; an absent (or null) field
- * means "inherit from the account". The back-end deletes an override whose
- * fields are all absent, so "inherit everything" and "no override" are the
- * same state.
- */
 export interface CommentContainerOverride {
     source: CommentSource;
     accountId: string;
@@ -580,13 +484,11 @@ export interface CommentContainerOverride {
     updatedAt: string;
 }
 
-/** What the engine will actually use for a post: the account's settings with the override layered on. */
 export interface CommentContainerSettings {
     override: CommentContainerOverride | null;
     effective: CommentAnalysisSettings;
 }
 
-/** PUT-shaped: the whole override is replaced; a null field inherits. */
 export interface CommentContainerOverridePut {
     enabled: boolean | null;
     model: string | null;
@@ -595,14 +497,8 @@ export interface CommentContainerOverridePut {
     instructions: string | null;
 }
 
-/** Mirrors the domain's MaxInstructionsRunes. */
 export const MAX_INSTRUCTIONS_LENGTH = 2000;
 
-/*
- * Author ranking (§1). These keys mirror `domain/audience/author_sort.go`
- * one for one, and the API refuses anything else rather than defaulting, so a
- * typo here surfaces as a 400 instead of a silently different order.
- */
 export const AUTHOR_SORT_KEYS = [
     'reputation',
     'comments',
@@ -620,19 +516,8 @@ export interface AuthorSort {
     direction: 'asc' | 'desc';
 }
 
-/**
- * The table opens on the worst reputations, which is what the API does when no
- * sort is sent. Stated here too so the header renders its arrow on the first
- * paint instead of after the first click.
- */
 export const DEFAULT_AUTHOR_SORT: AuthorSort = { key: 'reputation', direction: 'asc' };
 
-/**
- * The direction a key opens on when it first becomes the sort: each one is the
- * direction that answers its own question. Reputation ascending puts the most
- * hostile first (a moderation table opens on who needs attention); the counts
- * and the dates open on "most" and "most recent".
- */
 export const AUTHOR_SORT_FIRST_DIRECTION: Record<AuthorSortKey, 'asc' | 'desc'> = {
     reputation: 'asc',
     comments: 'desc',
@@ -643,14 +528,6 @@ export const AUTHOR_SORT_FIRST_DIRECTION: Record<AuthorSortKey, 'asc' | 'desc'> 
     firstSeen: 'desc',
 };
 
-/**
- * The orderable columns of the authors table, in table order.
- *
- * A column's key IS its API sort key and the suffix of its
- * `audience.authors.columns.*` label, so a column cannot exist without
- * an ordering behind it or a label in front of it. Kept here rather than in the
- * component so the label coverage is testable without rendering React.
- */
 export const AUTHOR_TABLE_COLUMNS: { key: AuthorSortKey; numeric?: boolean }[] = [
     { key: 'reputation', numeric: true },
     { key: 'comments', numeric: true },
@@ -660,26 +537,13 @@ export const AUTHOR_TABLE_COLUMNS: { key: AuthorSortKey; numeric?: boolean }[] =
     { key: 'lastSeen' },
 ];
 
-/*
- * Alerts: "quando passar de X, me manda um WhatsApp".
- *
- * The vocabulary mirrors `domain/audience/alert.go`, and the SERVER is
- * the authority on two things the UI must not re-derive: whether a metric needs
- * a window, and which direction it alarms in. Both arrive from
- * /audience/alerts/options so a picker cannot describe a metric
- * differently from the evaluator that acts on it.
- */
 
 export type AlertMetric =
-    // Comment metrics.
     | 'comment_severity'
     | 'high_severity_count'
     | 'hostile_count'
     | 'comment_volume'
     | 'acceptance_score'
-    // Conversation metrics. Same machinery, a different subject, which is why
-    // the server sends subjectKind with each option rather than the client
-    // inferring it from the name.
     | 'attendance_quality'
     | 'escalation_count';
 
@@ -697,13 +561,7 @@ export interface AlertRule {
 
     metric: AlertMetric;
     threshold: number;
-    /** Only meaningful for a windowed metric; the server zeroes it otherwise. */
     windowMinutes: number;
-    /**
-     * How long a conversation must be before the rule will judge it. 0 is no
-     * floor. Only a per-conversation metric has one row to measure, and the
-     * server refuses the field on any other metric rather than ignoring it.
-     */
     minMessages: number;
 
     channel: AlertChannel;
@@ -716,7 +574,6 @@ export interface AlertRule {
     cooldownMinutes: number;
     maxPerDay: number;
 
-    /** The firing history is read-only: it is what the cooldown is checked against. */
     lastFiredAt?: string;
     firedToday: number;
     firedDay?: string;
@@ -726,7 +583,6 @@ export interface AlertRule {
     updatedAt: string;
 }
 
-/** The shape a client sends. The firing history is deliberately absent. */
 export interface AlertRuleDraft {
     name: string;
     enabled: boolean;
@@ -750,9 +606,7 @@ export interface AlertMetricOption {
     metric: AlertMetric;
     windowed: boolean;
     triggersWhenBelow: boolean;
-    /** Which subject the metric reads. The picker filters on it. */
     subjectKind: SubjectKind;
-    /** Whether a conversation-length floor applies to this metric. */
     supportsMinMessages: boolean;
 }
 
@@ -765,35 +619,18 @@ export interface AlertLimits {
     minWindowMinutes: number;
     defaultWindowMinutes: number;
     maxWindowMinutes: number;
-    /** Upper bound for a rule's conversation-length floor. */
     maxMinMessages: number;
-    /**
-     * How many facts an alert can supply. NOT a requirement on the template:
-     * one that declares fewer gets the first few, one that declares more has
-     * the rest padded, and one with no variables is fine.
-     */
     templateParamCount: number;
 }
 
-/** One number a channel can send an alert from. */
 export interface AlertSender {
     id: string;
-    /** What the operator recognises. Never an internal id. */
     label: string;
 }
 
-/**
- * Whether THIS workspace can use a channel right now.
- *
- * `channels` above is the product vocabulary and says nothing about the tenant.
- * Serving only that was the bug: a workspace with no connected number was
- * offered the unofficial channel, accepted it, and armed a rule that could
- * never fire.
- */
 export interface AlertChannelStatus {
     channel: AlertChannel;
     available: boolean;
-    /** Stable key to translate: "no_sender" or "not_enabled". */
     reason?: string;
     senders: AlertSender[];
 }
@@ -801,16 +638,7 @@ export interface AlertChannelStatus {
 export interface AlertVocabulary {
     metrics: AlertMetricOption[];
     channels: AlertChannel[];
-    /**
-     * Narrows `channels` to what this workspace can actually do. Empty when the
-     * deployment wired no directory, in which case the picker falls back to
-     * `channels` exactly as it did before.
-     */
     channelStatus?: AlertChannelStatus[];
     limits: AlertLimits;
-    /**
-     * What an alert can put into a template's variables, in the order a
-     * positional template is filled. A named template is matched by these keys.
-     */
     facts: string[];
 }

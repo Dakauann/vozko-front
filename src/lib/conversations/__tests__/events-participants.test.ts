@@ -7,15 +7,6 @@ import {
   type ConversationEvent,
 } from "@/lib/conversations/events";
 
-/**
- * Who did it, and between whom.
- *
- * The timeline knew every id involved and showed none of them: a reply read
- * "Human reply · Human" and a handoff read "Assigned", so nobody could tell who
- * had answered the customer or who had passed the conversation to whom. Names
- * now arrive resolved on the event; these cases pin the fallbacks that cover
- * rows written before that, and the rule that a raw uuid is never a name.
- */
 
 const ANA = "11111111-1111-4111-8111-111111111111";
 const BRUNO = "22222222-2222-4222-8222-222222222222";

@@ -14,13 +14,10 @@ export type PricingItemDraft = {
   category: string;
   service: string;
   metric: string;
-  /** BRL input string for cost (ignored when percentage metric). */
   costBrl: string;
-  /** BRL input string for customer price. */
   priceBrl: string;
   markupPct: string;
   currency: string;
-  /** Platform defaults used for "customized" badge and reset. */
   defaultCostMicros: number;
   defaultPriceMicros: number;
   defaultMarkupPct: number;
@@ -34,7 +31,6 @@ export function pricingItemKey(
   return `${category}|${service}|${metric}`;
 }
 
-/** Billable catalog rows only (exclude exchange_rate). */
 export function filterBillableDefaults(items: PricingItem[]): PricingItem[] {
   return items.filter((item) => item.category !== "exchange_rate");
 }
@@ -86,10 +82,6 @@ function draftFromMicros(
   };
 }
 
-/**
- * Merge plan pricing items onto the full platform catalog so new services
- * (e.g. whatsapp_calls) always appear, even on older plans.
- */
 export function mergePlanPricingDrafts(
   planItems: PlanPricingItem[] | undefined,
   defaults: PricingItem[],
@@ -131,7 +123,6 @@ export function mergePlanPricingDrafts(
     return draftFromMicros(d, d, resolvedRate);
   });
 
-  // Preserve any plan only rows not in defaults (defensive).
   for (const plan of planItems ?? []) {
     if (plan.category === "exchange_rate") continue;
     const key = pricingItemKey(plan.category, plan.service, plan.metric);
@@ -232,7 +223,6 @@ export function resetDraftToDefault(
   };
 }
 
-/** Stable category order for admin tables. */
 export const PRICING_CATEGORY_ORDER = [
   "tts",
   "stt",

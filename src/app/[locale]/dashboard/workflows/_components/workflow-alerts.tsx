@@ -18,15 +18,10 @@ import { cn } from "@/lib/utils";
 import type { LintIssue } from "@/lib/workflows/types";
 
 export interface WorkflowAlertsProps {
-  /** Graph passes every activation rule. */
   valid: boolean;
-  /** Structured lint issues from the backend (same rules as activation). */
   issues: LintIssue[];
-  /** A re-lint is in flight. */
   linting: boolean;
-  /** Friendly label for a node id, shown as the issue's context chip. */
   nodeLabel?: (nodeId: string) => string | undefined;
-  /** Select and center the node on the canvas. */
   onFocusNode?: (nodeId: string) => void;
 }
 
@@ -34,7 +29,6 @@ function isBlocking(issue: LintIssue): boolean {
   return issue.severity === "blocking";
 }
 
-// pt-BR plural for the summary line ("1 bloqueio" / "2 bloqueios").
 function count(n: number, one: string, many: string): string | null {
   if (n <= 0) return null;
   return `${n} ${n === 1 ? one : many}`;

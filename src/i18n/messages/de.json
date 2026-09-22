@@ -703,6 +703,7 @@
       "utility": "WhatsApp Utility",
       "marketing": "WhatsApp Marketing",
       "authentication": "WhatsApp Auth",
+      "service": "WhatsApp Service",
       "standard": "SMS",
       "whatsapp_calls": "Anrufe (WhatsApp)",
       "scribe_v1v2": "STT (Batch)",
@@ -6263,13 +6264,15 @@
       "conversionNote": "Preise in BRL eingeben. Umrechnung mit diesem Kurs, Speicherung in USD.",
       "editRateLink": "Kurs ändern",
       "rateMissing": "Wechselkurs erforderlich, bevor Standardpreise bearbeitet werden.",
-      "storedAsUsd": "als USD gespeichert"
+      "storedAsUsd": "als USD gespeichert",
+        "unpriced": "Kein Preis"
     },
     "services": {
       "whatsapp": {
         "utility": "Utility-Nachrichten",
         "marketing": "Marketing-Nachrichten",
-        "authentication": "Authentifizierungs-Nachrichten"
+        "authentication": "Authentifizierungs-Nachrichten",
+          "service": "Servicenachrichten"
       },
       "telephony": {
         "whatsapp_calls": "WhatsApp-Anrufe"
@@ -6435,6 +6438,7 @@
         "utility": "WhatsApp, Utility-Nachrichten",
         "marketing": "WhatsApp, Marketing-Nachrichten",
         "authentication": "WhatsApp, Authentifizierung",
+          "service": "WhatsApp, Servicenachrichten",
         "whatsapp_calls": "WhatsApp-Anrufe",
         "standard": "SMS-Nachrichten",
         "default_markup": "KI-Modelle (LLM)"
@@ -6481,6 +6485,7 @@
       "conversionNote": "Eine spätere Kursänderung schreibt gespeicherte Planpreise nicht um.",
       "rateRequired": "Laden Sie einen gültigen Wechselkurs, bevor Sie Einheitspreise bearbeiten.",
       "priceBelowCost": "Preis liegt unter den Kosten.",
+        "unpriced": "Kein Preis gesetzt. Wird nicht berechnet.",
       "invalidAmount": "Ungültiger Betrag.",
       "notApplicable": "n/a"
     },
@@ -12000,7 +12005,7 @@
     "colWorkspace": "Arbeitsbereich",
     "colServiceMessages": "Servicenachrichten",
     "colBillableSends": "Abgerechnete Sendungen",
-    "colPerSend": "Pro Sendung",
+    "colPerSend": "Service pro abgerechneter Sendung",
     "caption": "Gesendete Servicenachrichten gegenüber abgerechneten Vorlagensendungen, für den gewählten Zeitraum und Anbieter.",
     "confirmedSuffix": "best.",
     "noSends": "keine Sendungen",

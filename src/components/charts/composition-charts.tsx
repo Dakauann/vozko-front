@@ -44,23 +44,10 @@ export function BlockChart({ data, label, height = 180, legend = true }: {
 export interface BlockGroup {
   key: string;
   label: string;
-  /** Group-level colour; children are tinted steps of it. */
   color: string;
   children: ChartDatum[];
 }
 
-/**
- * A treemap with ONE level of grouping, for "every group at once".
- *
- * A flat treemap cannot serve this: two groups routinely own a block of the
- * same name — a workspace with several funnels really does have "em
- * atendimento" in each — and flattening them would draw two identical labels
- * with no way to tell which belongs to whom, or silently merge them.
- *
- * ECharts nests natively, so the group band carries the name and the blocks
- * inside it stay comparable by area ACROSS groups, which is the one thing a
- * per-group chart each in its own box cannot do.
- */
 export function GroupedBlockChart({ groups, label, height = 240 }: {
   groups: BlockGroup[]; label: string; height?: number;
 }) {
@@ -77,13 +64,6 @@ export function GroupedBlockChart({ groups, label, height = 240 }: {
         type: "treemap", left: 0, top: 0, right: 0, bottom: 0,
         roam: false, nodeClick: false, breadcrumb: { show: false },
         visibleMin: 0, sort: "desc",
-        // The group's name rides a band at the top of its own region rather
-        // than inside a child block, so it is never mistaken for a stage.
-        //
-        // It needs its OWN formatter. ECharts lets upperLabel inherit the
-        // leaf `label`, and that one is a rich template — inherited into a
-        // band with no `rich` of its own, it printed the markup verbatim:
-        // the band literally read "{name|Funil Anhanguera}".
         upperLabel: {
           show: true, height: 20, color: "hsl(var(--foreground))",
           fontSize: 11, fontWeight: 600, formatter: "{b}", overflow: "truncate",
@@ -97,17 +77,12 @@ export function GroupedBlockChart({ groups, label, height = 240 }: {
           },
         },
         levels: [
-          // The invisible root. Its band drew too, as an empty "{name|}".
           { itemStyle: { borderColor: "hsl(var(--border))", borderWidth: 0, gapWidth: 3 }, upperLabel: { show: false } },
           { itemStyle: { borderColor: "hsl(var(--card))", borderWidth: 3, gapWidth: 3 }, upperLabel: { show: true } },
           { itemStyle: { borderColor: "hsl(var(--card))", borderWidth: 1, gapWidth: 1 } },
         ],
         data: groups.map((group) => {
           const groupTotal = group.children.reduce((sum, item) => sum + Math.max(0, item.value), 0);
-          // A band narrower than its own name draws a stub: a funnel holding
-          // 2% of the workspace rendered as the two letters "At". Two letters
-          // are not a label, and the group is still named in the table twin
-          // and wherever the groups are listed in full.
           const nameable = total > 0 && groupTotal / total >= 0.08;
           return {
             id: group.key,
@@ -133,7 +108,6 @@ export function GroupedBlockChart({ groups, label, height = 240 }: {
   />;
 }
 
-/** Radial distance encodes share on an explicit common 0–100% scale. */
 export function RadialProfileChart({ data, total, label }: { data: ChartDatum[]; total: number; label: string }) {
   const t = useTranslations("denseCharts");
   const locale = useLocale();
@@ -147,27 +121,13 @@ export function RadialProfileChart({ data, total, label }: { data: ChartDatum[];
     radiusAxis: {
       min: 0, max: 100, interval: 25,
       axisLine: { show: false }, axisTick: { show: false },
-      // No numeric scale on the axis. Once the rose fills its whole slice the
-      // labels had nowhere to sit but on top of the fills, and putting them on
-      // little chips to survive that just laid clutter over the plot. The
-      // dashed rings still carry the quarters, and the share is printed inside
-      // its own wedge where the reader is already looking.
       axisLabel: { show: false },
       splitLine: { lineStyle: { color: "hsl(var(--border))", type: "dashed" } },
     },
     series: [{
       type: "bar", coordinateSystem: "polar",
-      // A Nightingale rose, not a ring of slivers: each category fills its
-      // whole angular slice and grows outward with its share, so the shape
-      // itself is the reading. At 54% width the wedges were thin spokes with
-      // dead air between them, which reads as a decoration rather than a
-      // composition. Neighbours are separated by a surface-coloured stroke —
-      // the gap, not a border, same rule the stacked bars follow.
       barWidth: "100%",
       roundCap: false,
-      // The share sits INSIDE its own wedge, near the rim. White on a
-      // mid-saturation status fill with a dark text outline reads on all of
-      // them, in both themes, without laying a chip over the plot.
       label: {
         show: true,
         position: "middle",
@@ -179,9 +139,6 @@ export function RadialProfileChart({ data, total, label }: { data: ChartDatum[];
         textBorderColor: "rgba(0,0,0,0.45)",
         textBorderWidth: 2,
       },
-      // A wedge too small to hold its own number drops the label rather than
-      // spilling it over its neighbour. The exact value is in the legend and
-      // the table either way.
       labelLayout: { hideOverlap: true },
       data: data.map((item) => ({
         name: item.label,

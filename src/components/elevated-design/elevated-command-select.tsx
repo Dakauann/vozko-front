@@ -251,10 +251,6 @@ const ElevatedCommandSelect = ({
                         "flex items-center gap-3 rounded-[--radius] px-2.5 py-2 text-sm text-foreground",
                         "data-[selected=true]:bg-muted data-[selected=true]:text-foreground",
                         "data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50",
-                        // The chosen option takes the tinted selected ground,
-                        // not a 4px stripe on its leading edge — a coloured
-                        // side-tab reads as a tab, and it forced every row to
-                        // square its corners inside a rounded menu.
                         currentValue === option.value &&
                           "bg-muted font-semibold text-foreground",
                       )}

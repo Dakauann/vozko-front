@@ -91,7 +91,7 @@ export function KnowledgeBaseSelector({
 
   return (
     <div className="space-y-4">
-      {/* Selected knowledge bases - shown like media items with trash button */}
+      {}
       {selectedKBs.length > 0 && (
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">
@@ -130,7 +130,7 @@ export function KnowledgeBaseSelector({
         </div>
       )}
 
-      {/* Available knowledge bases to add */}
+      {}
       {availableKBs.length > 0 && (
         <div className="space-y-2">
           {selectedKBs.length > 0 && (

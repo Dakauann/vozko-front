@@ -3,16 +3,12 @@ import styles from "./faq.module.css";
 
 export type ThreadTurn = {
   from: "customer" | "business";
-  /** Wall clock, as the operator reads it in the inbox. */
   clock: string;
   text: string;
   verdict: Verdict;
   tag: string;
   reason: string;
-  /** Approved templates get a dashed edge and a label: they are a different
-   *  object from a free-form reply, and the difference is the whole point. */
   template?: string;
-  /** A rule that opens above this turn: the window starting or closing. */
   banner?: string;
   bannerTone?: "neutral" | "free";
 };
@@ -28,23 +24,6 @@ export type ThreadData = {
   turns: ThreadTurn[];
 };
 
-/**
- * A real conversation, priced.
- *
- * Conversation on the left, bill on the right. The verdicts land in one
- * column, which is what makes the argument readable before a word is read:
- * four amber marks in a row, or a column of green ones.
- *
- * The bubbles are the CRM inbox's own: same fills, same radius, same clipped
- * top corner, same 3px channel edge, on the same canvas. The reader is being
- * asked to recognise a message they see all day, and a recoloured transcript
- * makes them translate before they can follow the argument.
- *
- * It renders complete and static. An earlier version played itself turn by
- * turn, and because a thread is taller than the viewport the observer meant to
- * start it never fired, so readers met a tall empty box instead of a
- * conversation. A reading page shows its content.
- */
 export function ConversationThread({
   data,
   labels,

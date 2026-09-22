@@ -32,11 +32,6 @@ interface CampaignsSummaryBarProps {
   onFromChange: (value: string) => void;
   onToChange: (value: string) => void;
   onClear: () => void;
-  /**
-   * Rendered in the header row, beside the period presets. A slot rather than a
-   * built-in button: this bar is shared with the voice variant, and it has no
-   * business knowing what a WhatsApp lead export is.
-   */
   action?: ReactNode;
 }
 
@@ -51,7 +46,6 @@ const toneClass: Record<Tone, string> = {
 const num = (value: number | undefined) =>
   (typeof value === "number" ? value : 0).toLocaleString("pt-BR");
 
-/** Tile caption with an optional info tooltip explaining what the number counts. */
 function TileLabel({ label, help }: { label: string; help?: string }) {
   return (
     <span className="flex items-center gap-1 text-2xs font-semibold text-muted-foreground">
@@ -68,13 +62,6 @@ function TileLabel({ label, help }: { label: string; help?: string }) {
   );
 }
 
-/**
- * Workspace-level rollup shown above the campaigns list. The headline metric
- * reflects the active date filter (campaign creation date); empty filter = all
- * time. WhatsApp headlines as "Envios" (billed sends); voice headlines as
- * "Chamadas conectadas" (billed connected calls). The headline is neutral (data,
- * not the action accent); failed/spam use their meaning colors like the table.
- */
 export function CampaignsSummaryBar({
   variant,
   metrics,
@@ -98,7 +85,7 @@ export function CampaignsSummaryBar({
       return;
     }
     if (next === "custom") {
-      return; // keep current bounds; reveal the date pickers
+      return;
     }
     const days = PRESETS.find((p) => p.key === next)?.days;
     if (days) {
@@ -114,15 +101,6 @@ export function CampaignsSummaryBar({
     help?: string;
   }[];
   if (variant === "whatsapp") {
-    // Delivery funnel. Each WhatsApp status is the entry's *latest* state, so the
-    // buckets are disjoint and the headline "Envios" (dispatches) = in-transit +
-    // delivered + read. We surface delivered/read (the bulk of the headline, and
-    // already in the payload) instead of only the transient SENT bucket, shown on
-    // its own as "Enviadas" it read as smaller than "Envios" and looked wrong.
-    // Tooltips spell out exactly what each bucket counts.
-    //
-    // Plus volume by template category (Marketing / Utility / Authentication):
-    // counts only, no pricing. Same current-status source as Envios.
     const by = m.byCategory;
     breakdown = [
       { label: t("delivered"), value: m.delivered, help: t("deliveredHelp") },
@@ -160,8 +138,6 @@ export function CampaignsSummaryBar({
     breakdown = [{ label: t("failed"), value: m.failed, tone: "danger" }];
   }
 
-  // Headline help is variant-specific so the copy stays honest: only WhatsApp has
-  // the in-transit/delivered/read funnel referenced by headlineSendsHelp.
   const headlineHelp =
     variant === "whatsapp" ? t("headlineSendsHelp") : undefined;
 

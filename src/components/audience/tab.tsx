@@ -24,15 +24,6 @@ import { CommentAnalysisSettingsPanel } from "@/components/audience/settings";
 import { EmptyState, Skeleton } from "@/components/audience/shared";
 import { Bell, ChartLineUp, ChatCircle, Gear, Hash, ShieldWarning, Sparkle, Warning } from "@/components/icons";
 
-/*
- * The "Audiência" tab of an Instagram account: the five panels of plan §13
- * behind one sub-navigation, with the settings the engine reads loaded once
- * and shared (the topic set names every chip on the page).
- *
- * Off by default. An account whose analysis is switched off sees one thing
- * here: what the feature does and the switch to turn it on, gated on the
- * update permission because turning it on starts billing.
- */
 
 type Section = "overview" | "topics" | "authors" | "feed" | "alerts" | "settings";
 
@@ -49,8 +40,6 @@ export function CommentAnalysisTab({ accountId }: { accountId: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [focusTopics, setFocusTopics] = useState(false);
-  // One period for the whole tab. Before this the stats cards and the tables
-  // under them could be answering about different spans of time.
   const [period, setPeriod] = useState<Period>(DEFAULT_PERIOD);
 
   useEffect(() => {
@@ -66,8 +55,6 @@ export function CommentAnalysisTab({ accountId }: { accountId: string }) {
     };
   }, [accountId]);
 
-  // refreshKey bumps after a settings save so the numbers reload without
-  // the effect calling anything that sets state synchronously.
   const [refreshKey, setRefreshKey] = useState(0);
   const enabled = settings?.enabled ?? false;
 
@@ -132,8 +119,6 @@ export function CommentAnalysisTab({ accountId }: { accountId: string }) {
     { value: "topics" as const, label: t("sections.topics"), icon: <Hash className="h-3.5 w-3.5" weight="fill" /> },
     { value: "authors" as const, label: t("sections.authors"), icon: <ShieldWarning className="h-3.5 w-3.5" weight="fill" /> },
     { value: "feed" as const, label: t("sections.feed"), icon: <ChatCircle className="h-3.5 w-3.5" weight="fill" /> },
-    // Alerts sit behind SEND, not update: arming an automated sender is
-    // granting sends, and the route enforces the same thing.
     ...(canSendAlerts
       ? [{ value: "alerts" as const, label: t("sections.alerts"), icon: <Bell className="h-3.5 w-3.5" weight="fill" /> }]
       : []),
@@ -153,8 +138,8 @@ export function CommentAnalysisTab({ accountId }: { accountId: string }) {
         collapseLabels="sm"
       />
 
-      {/* The period narrows what is MEASURED. Alerts and settings are
-          configuration, so a window would mean nothing there. */}
+      {
+}
       {section !== "settings" && section !== "alerts" ? (
         <PeriodPicker className="mb-4" value={period} onChange={setPeriod} />
       ) : null}

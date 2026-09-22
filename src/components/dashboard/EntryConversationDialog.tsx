@@ -123,10 +123,6 @@ function formatAnalysisDate(dateString: string, locale: string) {
   }).format(date);
 }
 
-// Each surface takes its own paired foreground rather than a literal white:
-// the pairs invert with the theme (--healthy-foreground is white in light mode
-// and near-black in dark), and `cold_lead` was white on --muted, which is L92%
-// in the default theme — the label was there but could not be read.
 const sentimentStyles: Record<string, { bg: string; text: string }> = {
   positive: { bg: "bg-healthy", text: "text-healthy-foreground" },
   neutral: { bg: "bg-muted", text: "text-foreground" },
@@ -637,7 +633,7 @@ export default function EntryConversationDialog({
             </div>
           ) : (
             <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0 overflow-hidden">
-              {/* Transcript */}
+              {}
               <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
                 {messages.length > 0 ? (
                   <div className="space-y-3 pr-2">
@@ -659,7 +655,7 @@ export default function EntryConversationDialog({
                 )}
               </div>
 
-              {/* Conversation analysis */}
+              {}
               {analysis && (
                 <div className="w-full lg:w-96 lg:min-h-0 flex-shrink-0 overflow-y-auto overflow-x-hidden">
                   <div className="space-y-4 pr-2">

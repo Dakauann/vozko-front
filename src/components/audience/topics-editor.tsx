@@ -7,17 +7,9 @@ import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { Plus, Trash } from "@/components/icons";
 
-/*
- * The topic set editor, shared by the account settings and the per-post
- * override so the two never drift: same rows, same limit, same "Outros"
- * footer. It is a controlled list; whoever renders it owns the draft and
- * decides when to save.
- */
 
 export const MAX_TOPICS = 30;
 
-// The list helpers live in lib/audience/override.ts (tested there)
-// and are re-exported so the two editors import one thing.
 export { cleanTopics, editableTopics } from "@/lib/audience/override";
 
 export function TopicsEditor({

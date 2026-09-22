@@ -31,13 +31,6 @@ import { InstagramProfileHeader } from "@/components/instagram/instagram-profile
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-/**
- * The Instagram-style profile page for one connected account.
- *
- * Everything is scoped to a single accountId so a workspace with several
- * connected accounts never mixes their posts or comments, and so a reply always
- * leaves from the account the post belongs to.
- */
 export default function InstagramAccountProfilePage({
   params,
 }: {
@@ -82,13 +75,6 @@ export default function InstagramAccountProfilePage({
     };
   }, [accountId]);
 
-  /**
-   * Paginates forward with the opaque cursor.
-   *
-   * `hasNext` is the only stop condition: a page shorter than the requested limit
-   * does not mean the end, because Instagram filters items out after applying the
-   * limit.
-   */
   const loadMore = useCallback(async () => {
     if (!hasNext || loadingMore) return;
     setLoadingMore(true);
@@ -109,9 +95,6 @@ export default function InstagramAccountProfilePage({
   };
 
   return (
-    // max-w-5xl matches the business phone detail page, and happens to be close to
-    // Instagram's own ~935px profile column, so the grid reads as a profile rather
-    // than stretching tiles across an ultrawide monitor.
     <div className="mx-auto w-full max-w-5xl">
       <div className="space-y-6">
         <DashboardPageHeader
@@ -162,11 +145,8 @@ export default function InstagramAccountProfilePage({
             <>
               <InstagramProfileHeader account={account} />
 
-              {/* Instagram's own profile splits content into tabs, and the two
-                  jobs here are genuinely different: browsing what was published
-                  versus configuring who answers. Stacking four equal panels made
-                  every section compete; tabs give each its own full width and put
-                  the posts, the reason people open this page, first. */}
+              {
+}
               <Tabs defaultValue="posts">
                 <TabsList>
                   <TabsTrigger value="posts" className="gap-1.5">
@@ -216,16 +196,15 @@ export default function InstagramAccountProfilePage({
                   </ElevatedContainer>
                 </TabsContent>
 
-                {/* Who answers, then what the rules are, the same order the
-                    backend resolves them in. */}
+                {
+}
                 <TabsContent value="automation" className="mt-4 space-y-6">
                   <InstagramAutomationPanel account={account} onUpdated={setAccount} />
                   <InstagramCommentRulesPanel accountId={accountId} />
                 </TabsContent>
 
-                {/* What the audience says, aggregated: the audience
-                    engine's dashboard for this account. Off by default; the
-                    tab explains itself when it is. */}
+                {
+}
                 <TabsContent value="audience" className="mt-4">
                   <CommentAnalysisTab accountId={accountId} />
                 </TabsContent>
@@ -237,8 +216,6 @@ export default function InstagramAccountProfilePage({
                   onClose={() => setComposing(false)}
                   onPublished={() => {
                     setComposing(false);
-                    // The new post is not in the loaded page; refetching is the
-                    // only way to show it in the right chronological slot.
                     router.refresh();
                   }}
                 />

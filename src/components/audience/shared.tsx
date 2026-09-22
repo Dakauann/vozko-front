@@ -16,16 +16,6 @@ import { ArrowDown, ArrowUp, IdentificationCard, Minus } from "@/components/icon
 import { VOZ_SERIES } from "@/components/charts/vozko";
 import { cn } from "@/lib/utils";
 
-/*
- * Shared pieces of the audience dashboard.
- *
- * Colour policy (dataviz): stance and sentiment are STATES, so they take
- * the status tokens (healthy / muted / warning / destructive), never the
- * series palette; topics are ENTITIES, so they take the series tokens in the
- * account's fixed topic order and a sixth topic folds into muted. Severity
- * is carried by the number and the label as well as the colour, so a
- * colour-blind reader loses nothing.
- */
 
 export const STANCE_COLOR: Record<CommentStance, string> = {
   supporter: "hsl(var(--healthy))",
@@ -47,7 +37,6 @@ export const SENTIMENT_COLOR: Record<CommentSentiment, string> = {
   negative: "hsl(var(--destructive))",
 };
 
-/** Series colour for a topic by its position in the account's set. */
 export function topicColor(topics: CommentTopic[], key: string): string {
   const index = topics.findIndex((t) => t.key === key);
   if (index < 0 || index >= VOZ_SERIES.length || key === "other") {
@@ -61,7 +50,6 @@ export function topicLabel(topics: CommentTopic[], key: string, otherLabel: stri
   return topics.find((t) => t.key === key)?.label ?? key;
 }
 
-/** Severity tone: the number is always shown; the tone only reinforces it. */
 export function severityTone(severity: number): "healthy" | "warning" | "destructive" | "muted" {
   if (severity >= HIGH_SEVERITY_THRESHOLD) return "destructive";
   if (severity >= 30) return "warning";
@@ -83,10 +71,6 @@ const TONE_TEXT: Record<ReturnType<typeof severityTone>, string> = {
   muted: "text-muted-foreground",
 };
 
-/**
- * The severity readout: number, a word for the band, and a bar. Three
- * channels, so red is never the only one carrying it.
- */
 export function SeverityBar({ severity, compact = false }: { severity: number; compact?: boolean }) {
   const t = useTranslations("audience.enums.severity");
   const tone = severityTone(severity);
@@ -102,13 +86,6 @@ export function SeverityBar({ severity, compact = false }: { severity: number; c
   );
 }
 
-/**
- * The reputation readout: the signed ledger for one author.
- *
- * Sign, arrow and colour all carry it, so the number reads the same to someone
- * who cannot separate the two hues. The ground stays neutral and the hue is the
- * mark, never a wash behind ink of its own colour.
- */
 export function ReputationReadout({ value, className }: { value: number; className?: string }) {
   const t = useTranslations("audience.authors");
   const tone = value < 0 ? "text-destructive-ink" : value > 0 ? "text-healthy-ink" : "text-muted-foreground";
@@ -168,19 +145,6 @@ export function IntentChip({ intent }: { intent: CommentIntent }) {
   return <Chip>{t(intent)}</Chip>;
 }
 
-/**
- * The inferred-role chip (§5).
- *
- * Everything about it is designed to read as an INFERENCE rather than a fact,
- * because it is a claim about a real member of the public: the label is
- * prefixed with "parece", the tooltip carries the confidence, the corpus size
- * and the model's own sentence, and the chip is neutral rather than coloured so
- * it never reads as a status the product is sure of.
- *
- * It renders nothing unless the SERVER says the inference is strong enough.
- * The thresholds live in the domain, and re-deriving them here would give the
- * product two answers to "is this safe to show".
- */
 export function AuthorRoleChip({
   role,
   displayable,
@@ -213,7 +177,6 @@ export function ModerationChip({ state }: { state: ModerationState }) {
   return <Chip className={tone}>{t(state)}</Chip>;
 }
 
-/** Section frame used by every panel of the tab. */
 export function Panel({
   title,
   description,

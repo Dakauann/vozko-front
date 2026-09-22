@@ -20,20 +20,6 @@ import { cn } from "@/lib/utils";
 import { normalizeRecipients } from "@/lib/unofficial-whatsapp/recipients";
 import { useTranslations } from "next-intl";
 
-/**
- * Reach a number that never wrote to us.
- *
- * The whole dialog is built around one warning, because this is the riskiest
- * ordinary action on the channel: messaging someone who never contacted you is
- * cold outbound, and on an unofficial number it is the fastest route to a ban
- * that nobody can reverse. The copy says so plainly rather than burying it —
- * an operator who understands why the number died is a different support
- * conversation from one who does not.
- *
- * The number is verified against WhatsApp server-side before anything is
- * written, so "not on WhatsApp" comes back as a normal, actionable answer
- * rather than as a failure.
- */
 export function StartConversationDialog({
   open,
   onOpenChange,
@@ -41,7 +27,6 @@ export function StartConversationDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Called with the new entry so the caller can route to it in the inbox. */
   onStarted: (entryId: string, entryType: string) => void;
 }) {
   const t = useTranslations("unofficialWhatsapp.startConversation");
@@ -57,15 +42,12 @@ export function StartConversationDialog({
     if (!open) return;
     void (async () => {
       const result = await listInstancesAction(1, 100);
-      // Only a live session can reach anyone; offering a disconnected number
-      // would fail after the operator typed everything.
       const live = result.instances.filter((instance) => instance.sessionLive);
       setInstances(live);
       if (live.length === 1) setInstanceId(live[0].id);
     })();
   }, [open]);
 
-  // Reset between openings, or the previous attempt's error greets the next one.
   useEffect(() => {
     if (open) return;
     setPhone("");
@@ -73,8 +55,6 @@ export function StartConversationDialog({
     setError(null);
   }, [open]);
 
-  // The shared parser, so a pasted number is normalised by exactly the rule
-  // the server will apply to it.
   const parsed = useMemo(() => normalizeRecipients(phone), [phone]);
   const validPhone = parsed.valid[0] ?? "";
   const canSubmit = Boolean(instanceId) && Boolean(validPhone) && !busy;
@@ -112,8 +92,8 @@ export function StartConversationDialog({
             </p>
           ) : (
             <>
-              {/* Only shown when there is a choice to make. A single connected
-                  number needs no picker, and rendering one implies otherwise. */}
+              {
+}
               {instances.length > 1 && (
                 <div className="space-y-2">
                   <span className="legend">{t("fromLabel")}</span>
@@ -152,8 +132,8 @@ export function StartConversationDialog({
                 </div>
               )}
 
-              {/* The number field owns its own feedback line rather than
-                  borrowing the dialog's rhythm with a negative margin. */}
+              {
+}
               <div className="space-y-1.5">
                 <ElevatedInput
                   label={t("phoneLabel")}
@@ -163,12 +143,8 @@ export function StartConversationDialog({
                   inputMode="tel"
                   className="w-full font-mono"
                 />
-                {/* What we will ACTUALLY dial, echoed back as it is typed.
-                    Operators paste from spreadsheets with dashes, parentheses
-                    and country prefixes in every arrangement, and without this
-                    the field silently swallows all of it and then either works
-                    or fails on submit. Showing the resolved number turns a
-                    guess into a check the operator can make before sending. */}
+                {
+}
                 {validPhone ? (
                   <p className="flex items-center gap-1.5 text-xs text-healthy-ink">
                     <CheckCircle className="h-3.5 w-3.5 shrink-0" weight="fill" aria-hidden />
@@ -179,8 +155,6 @@ export function StartConversationDialog({
                   <p
                     className={cn(
                       "text-xs",
-                      // Only scolds once there is enough typed to be wrong.
-                      // Turning red on the first keystroke is noise, not help.
                       parsed.invalid > 0 && phone.trim().length > 5
                         ? "text-warning-ink"
                         : "text-muted-foreground",
@@ -201,8 +175,8 @@ export function StartConversationDialog({
                 className="w-full"
               />
 
-              {/* The channel's central risk, stated where the action is taken
-                  rather than only on the settings page nobody reopens. */}
+              {
+}
               <div className="flex items-start gap-2.5 rounded-lg border border-border bg-muted p-3">
                 <Warning className="mt-0.5 h-4 w-4 shrink-0 text-warning-ink" aria-hidden />
                 <p className="text-xs leading-relaxed text-muted-foreground">{t("risk")}</p>

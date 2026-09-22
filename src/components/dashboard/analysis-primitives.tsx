@@ -4,11 +4,6 @@ import { Smiley, SmileyMeh, SmileySad } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
-// Stats-panel primitives shared by every analysis dashboard: the
-// conversation AnalysisStatsPanel and the audience
-// overview both render sentiment and breakdowns through these, so the two
-// cannot drift apart visually. No chart styling lives here; charts come
-// from components/charts/vozko.tsx.
 
 export type SentimentType = "positive" | "neutral" | "negative";
 

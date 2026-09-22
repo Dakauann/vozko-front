@@ -1,7 +1,3 @@
-/**
- * Close provenance helpers for live CRM (pill + inbox list).
- * Status stays new|ongoing|finished; source/reason explain who closed.
- */
 
 export type CloseSourceCode = "human" | "ai" | "system" | string;
 export type CloseReasonCode =
@@ -13,19 +9,14 @@ export type CloseReasonCode =
   | string;
 
 export type CloseProvenance = {
-  /** Short token for pill/list: silêncio | IA | atendente */
   short: string;
-  /** Human-readable closer */
   by: string;
-  /** Human-readable reason */
   reasonLabel: string;
-  /** True for system idle auto-close */
   isSilence: boolean;
   source: CloseSourceCode;
   reason: CloseReasonCode;
 };
 
-/** Resolve provenance from entry fields (or null if unknown / open). */
 export function resolveCloseProvenance(
   closeSource?: string | null,
   closeReason?: string | null,
@@ -39,7 +30,6 @@ export function resolveCloseProvenance(
 
   if (!source && !reason) return null;
 
-  // max_age first (also system source), absolute inactivity, not customer silence.
   if (reason === "max_age") {
     return {
       short: "inatividade",
@@ -50,7 +40,6 @@ export function resolveCloseProvenance(
       reason: "max_age",
     };
   }
-  // Deterministic workflow action node finish.
   if (reason === "workflow") {
     return {
       short: "fluxo",
@@ -91,7 +80,6 @@ export function resolveCloseProvenance(
       reason: reason || "manual",
     };
   }
-  // Unknown codes: still surface something useful
   if (source || reason) {
     return {
       short: source || reason,
@@ -106,21 +94,13 @@ export function resolveCloseProvenance(
 }
 
 export type ConversationStatusDisplay = {
-  /** Base lifecycle label */
   baseLabel: string;
-  /** Pill/list label including provenance when finished */
   label: string;
-  /** Dot color class (bg-*) */
   dotClassName: string;
-  /** Menu accent text class */
   menuAccentClassName: string;
   provenance: CloseProvenance | null;
 };
 
-/**
- * Status chip/list display. Finished + silence uses amber so auto-close
- * is visible without a fourth inbox tab.
- */
 export function getConversationStatusDisplay(
   status?: string | null,
   closeSource?: string | null,
@@ -150,7 +130,6 @@ export function getConversationStatusDisplay(
         label: provenance
           ? `Finalizada · ${provenance.short}`
           : "Finalizada",
-        // Silence/max-age: amber. Workflow: slate. AI: violet. Human: healthy token.
         dotClassName: isSilence || isMaxAge
           ? "bg-amber-500"
           : isWorkflow

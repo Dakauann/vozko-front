@@ -8,14 +8,6 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { cn } from "@/lib/utils";
 
-/*
- * One period control for the whole tab.
- *
- * A select rather than a pill row: there are six options and it sits in a
- * header that already carries a section switcher and a scope picker, and three
- * pill groups side by side is a toolbar nobody can read. The two date fields
- * appear only for `personalizado`, so the common case stays one control.
- */
 
 export function PeriodPicker({
   value,

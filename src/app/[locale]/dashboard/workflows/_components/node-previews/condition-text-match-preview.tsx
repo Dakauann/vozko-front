@@ -2,8 +2,6 @@
 
 import { DecisionBlock } from "./decision-block";
 
-// condition_text_match: routes an input by matching cases (switch/case). The
-// cases themselves are the node's output rows; here we show what's being routed.
 export function ConditionTextMatchPreview({
   config,
 }: {

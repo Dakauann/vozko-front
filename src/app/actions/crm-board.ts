@@ -144,14 +144,6 @@ export async function getPipelineUsageAction(
     return { usage: response.data ?? null };
 }
 
-/**
- * Delete a funnel.
- *
- * `code` is the server's refusal, surfaced separately from `error` so the dialog
- * can say which guard fired — the funnel is the default, something still routes
- * into it, the destination is missing or impossible — instead of printing an
- * English sentence from the domain into a Portuguese screen.
- */
 export async function deletePipelineAction(
     id: string,
     moveEntriesTo?: string,

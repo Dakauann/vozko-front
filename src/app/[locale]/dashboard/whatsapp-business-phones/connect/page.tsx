@@ -25,17 +25,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
-/**
- * Connecting a WhatsApp business phone: a handoff flow with a quota in front of
- * it.
- *
- * Capacity is the reason this page has a numbered rail at all. An operator with
- * no free slot cannot finish no matter how well the rest is explained, so
- * remaining capacity is stop one, ahead of the control it governs. The previous
- * version showed the same card but placed it above a hero that itself sat above
- * the steps, so the gate, the explanation and the action were three unrelated
- * blocks scrolling past each other.
- */
 export default function ConnectWhatsAppPage() {
   const t = useTranslations("whatsappBusinessPhones");
   const tc = useTranslations("channels.connect");
@@ -46,8 +35,6 @@ export default function ConnectWhatsAppPage() {
   const { user } = useAuth();
   const { currentWorkspace, can } = useWorkspace();
   const capacity = useWhatsAppCapacity();
-  // Blocked = we know for certain there is no free slot. Loading stays permissive
-  // (the button is disabled meanwhile) so we never flash a false gate.
   const capacityBlocked = capacity.ready && !capacity.canAdd;
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [popupConnected, setPopupConnected] = useState(false);
@@ -89,8 +76,6 @@ export default function ConnectWhatsAppPage() {
   }, []);
 
   const handleConnect = () => {
-    // Capacity gate: never launch Embedded Signup when there is no free slot. The
-    // UI already shows the buy CTA; this guards a stale click.
     if (capacityBlocked) {
       return;
     }
@@ -106,9 +91,6 @@ export default function ConnectWhatsAppPage() {
     const currentUrl = window.location.origin + window.location.pathname;
     const signupUrl = `${apiBaseUrl}/oauth/meta/embedded?workspace_id=${encodeURIComponent(currentWorkspace.id)}&redirect_url=${encodeURIComponent(currentUrl)}`;
 
-    // Open the Embedded Signup in a centered popup so the dashboard stays put.
-    // The popup posts its result back and closes; if it's blocked we fall back
-    // to a full-page redirect.
     const w = 520;
     const h = 720;
     const left = window.screenX + Math.max(0, (window.outerWidth - w) / 2);
@@ -148,21 +130,16 @@ export default function ConnectWhatsAppPage() {
       try {
         popup.close();
       } catch {
-        /* popup may already be closed */
       }
       if (data.status === "success") {
         toast({
           title: t("connect.success.toastTitle"),
           description: t("connect.success.toastDescription"),
         });
-        // Land on the completion screen rather than the list. The popup posts
-        // only a status, so the identifiers are omitted here; the ?status=
-        // fallback path still carries them.
         setPopupConnected(true);
       }
     };
 
-    // Detect the user closing the popup without finishing.
     const closeTimer = window.setInterval(() => {
       if (popup.closed) cleanup();
     }, 600);
@@ -261,9 +238,8 @@ export default function ConnectWhatsAppPage() {
         />
       ) : (
         <ConnectPanel className="space-y-6">
-          {/* A readout, ahead of the control it governs, but not a step: there
-              is nothing here for the operator to do. `bare` because a card
-              inside a panel is two frames saying the same thing. */}
+          {
+}
           <div className="rounded-lg border border-border bg-muted p-4">
             <WhatsAppCapacityCard capacity={capacity} variant="bare" />
           </div>
@@ -297,8 +273,8 @@ export default function ConnectWhatsAppPage() {
                   </span>
                 </div>
 
-                {/* What the Meta window will ask for, so the operator recognises
-                    the screens rather than guessing. */}
+                {
+}
                 <ul className="space-y-1.5 text-sm leading-relaxed text-muted-foreground">
                   <li>{t("connect.steps.step1")}</li>
                   <li>{t("connect.steps.step2")}</li>

@@ -1,6 +1,3 @@
-/**
- * @vitest-environment happy-dom
- */
 
 import type { Issue, IssueListMeta } from "@/lib/issues/types";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -188,7 +185,7 @@ describe("IssuesPage", () => {
   });
 
   it("shows loading state initially", () => {
-    listMock.mockReturnValue(new Promise(() => {})); 
+    listMock.mockReturnValue(new Promise(() => {}));
     render(<IssuesPage />);
     expect(screen.getByTestId("loading")).toBeInTheDocument();
   });

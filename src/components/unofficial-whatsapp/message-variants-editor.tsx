@@ -4,37 +4,9 @@ import { Plus, Trash } from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 
-/**
- * The variants block: several versions of one message, and the rules that keep
- * them interchangeable.
- *
- * Lifted out of CampaignMessageComposer rather than copied, because a second
- * surface now needs exactly this: a lead import can open example conversations,
- * and the first message of those is authored the same way, with the same
- * placeholder syntax and the same "every variant uses the same variables" rule.
- * Two copies would be two chances to disagree with the Go domain that validates
- * them.
- *
- * Why variants exist at all differs between the two callers, and neither reason
- * belongs in here:
- *
- *  - A campaign rotates them because identical bodies leaving one number at
- *    volume are what WhatsApp's spam heuristics weight.
- *  - A seeded import rotates them so two hundred example conversations do not
- *    read as one conversation copied two hundred times.
- *
- * So this component takes its own labels and says nothing about why.
- */
 
-/** Mirrors the Go domain's regex, so the counter and the backend agree. */
 const PLACEHOLDER = /\{\{(\d+)\}\}/g;
 
-/**
- * The positional variables one body uses, ascending and deduplicated.
- *
- * Named placeholders like {{nome}} are the PROVIDER's syntax, substituted from
- * its own lead store. We never render them, so they are not ours to count.
- */
 export function placeholdersIn(body: string): number[] {
   const found = new Set<number>();
   for (const match of body.matchAll(PLACEHOLDER)) {
@@ -44,14 +16,6 @@ export function placeholdersIn(body: string): number[] {
   return [...found].sort((a, b) => a - b);
 }
 
-/**
- * The highest placeholder across every variant: how many columns an import
- * needs.
- *
- * The highest rather than the count, because a body using {{1}} and {{3}} needs
- * three columns, not two. Across variants rather than per variant, because one
- * set of columns is collected for the whole run.
- */
 export function parameterCountIn(bodies: string[]): number {
   return bodies.reduce(
     (max, body) => Math.max(max, ...placeholdersIn(body), 0),
@@ -59,30 +23,20 @@ export function parameterCountIn(bodies: string[]): number {
   );
 }
 
-/**
- * Whether every variant uses the same placeholder SET, not just the same count.
- *
- * Not a nicety: a variant reading {{1}} beside one reading {{2}} would send a
- * raw "{{2}}" to everyone assigned the second, because only one column was
- * ever collected.
- */
 export function variantsAgree(bodies: string[]): boolean {
   if (bodies.length < 2) return true;
   const first = placeholdersIn(bodies[0]).join(",");
   return bodies.every((b) => placeholdersIn(b).join(",") === first);
 }
 
-/** The strings this editor renders. Supplied by the caller, never guessed. */
 export interface MessageVariantsLabels {
   title: string;
   help: string;
   addVariant: string;
   removeVariant: string;
-  /** Takes the 1-based index, e.g. "VARIANTE 2". */
   variantLabel: (index: number) => string;
   bodyPlaceholder: string;
   mismatch: string;
-  /** Takes the number of variables detected. */
   variablesDetected: (count: number) => string;
 }
 
@@ -90,7 +44,6 @@ export interface MessageVariantsEditorProps {
   bodies: string[];
   onChange: (next: string[]) => void;
   labels: MessageVariantsLabels;
-  /** How many variants may exist. The cap is the caller's policy, not ours. */
   max: number;
   disabled?: boolean;
   rows?: number;
@@ -116,8 +69,6 @@ export function MessageVariantsEditor({
   };
 
   const removeVariant = (index: number) => {
-    // Never drop to zero bodies: a message with no text is not a state the
-    // form should be able to reach.
     if (bodies.length <= 1) return;
     onChange(bodies.filter((_, i) => i !== index));
   };

@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import { parseTargetList } from "../TargetListEditor";
 
-/** Not Brazil-pinned: this is the unofficial channel's validator. */
 const anyE164 = (digits: string) => digits.length >= 10 && digits.length <= 15;
 
 describe("parseTargetList", () => {
@@ -34,8 +33,6 @@ describe("parseTargetList", () => {
     expect(out.targets[0].variables).toEqual(["R$ 90", "10/09"]);
   });
 
-  // Silently dropping a row is how a campaign quietly reaches 420 of 500 people
-  // and nobody can find the missing 80.
   it("reports duplicates rather than dropping them", () => {
     const out = parseTargetList("5584999990001\n+55 84 99999-0001", 0, anyE164);
     expect(out.targets).toHaveLength(1);
@@ -50,7 +47,6 @@ describe("parseTargetList", () => {
     expect(out.skipped.map((s) => s.line)).toEqual([2, 3]);
   });
 
-  // A row without enough values would send a raw {{2}} to a customer.
   it("rejects rows missing a required variable", () => {
     const out = parseTargetList(
       "5584999990001,Ana,R$ 90,10/09\n5584999990002,Bia",
@@ -70,7 +66,6 @@ describe("parseTargetList", () => {
   });
 
   it("keeps the order the operator supplied", () => {
-    // A partially-sent run is only comprehensible if the order is stable.
     const out = parseTargetList(
       "5584999990003\n5584999990001\n5584999990002",
       0,
@@ -83,9 +78,6 @@ describe("parseTargetList", () => {
     ]);
   });
 
-  // A pt-BR spreadsheet exports with semicolons precisely because the comma is
-  // the decimal separator. Splitting on comma would turn one amount into two
-  // columns and shift every variable after it.
   it("keeps a decimal comma inside a quoted value", () => {
     const out = parseTargetList(
       '5584999990001,Ana,"R$ 1.234,56"',
@@ -112,7 +104,6 @@ describe("parseTargetList", () => {
   });
 
   it("honours a stricter validator", () => {
-    // The official channel pins Brazil; the parser itself must not decide.
     const brazilOnly = (digits: string) => /^55\d{10,11}$/.test(digits);
     const out = parseTargetList("5584999990001\n12025550123", 0, brazilOnly);
     expect(out.targets).toHaveLength(1);

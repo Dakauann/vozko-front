@@ -82,11 +82,6 @@ function groupMessagesByChannel(messages: ConversationMessage[]) {
 }
 
 
-// The direction rules come from the module the UI actually uses. This file used
-// to re-declare them, which meant the tests could keep passing while the screen
-// was wrong — and it did: the copy and the original had both inferred direction
-// from the message type, and neither noticed that a reply typed on the owner's
-// own phone lands on the customer's side.
 function classifyMessage(
   msg: ConversationMessage,
   leadNumber: string,
@@ -229,7 +224,7 @@ describe("groupMessagesByDate", () => {
       makeMsg({ id: "2", created_at: "bad-date" }),
     ];
     const groups = groupMessagesByDate(msgs);
-    expect(groups).toHaveLength(1); 
+    expect(groups).toHaveLength(1);
     expect(groups[0].messages).toHaveLength(2);
   });
 });
@@ -446,7 +441,7 @@ describe("sender name display logic", () => {
       makeMsg({ id: "1", message_type: "user_message", from: "+1", to: OPERATOR_NUMBER }),
     ];
     const isOutgoing = isMessageOutgoing(msgs[0], LEAD_NUMBER);
-    const showSenderName = !isOutgoing && true; 
+    const showSenderName = !isOutgoing && true;
     expect(showSenderName).toBe(true);
   });
 
@@ -455,7 +450,7 @@ describe("sender name display logic", () => {
       makeMsg({ id: "1", message_type: "operator" }),
     ];
     const isOutgoing = isMessageOutgoing(msgs[0], LEAD_NUMBER);
-    const showSenderName = !isOutgoing; 
+    const showSenderName = !isOutgoing;
     expect(showSenderName).toBe(false);
   });
 

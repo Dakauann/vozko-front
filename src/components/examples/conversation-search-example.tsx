@@ -247,9 +247,9 @@ export function ConversationSearchExample({
 
   return (
     <div className="flex h-screen">
-      {/* ── Left Panel: Inbox with Search ─────────────────────────── */}
+      {}
       <div className="w-1/3 border-r flex flex-col">
-        {/* Connection Status */}
+        {}
         <div className="p-4 border-b">
           <div className="flex items-center gap-2">
             <div
@@ -265,7 +265,7 @@ export function ConversationSearchExample({
           </div>
         </div>
 
-        {/* Inbox Search Bar */}
+        {}
         <div className="p-4 border-b space-y-3">
           <div className="relative">
             <input
@@ -286,7 +286,7 @@ export function ConversationSearchExample({
             )}
           </div>
 
-          {/* Search Filters */}
+          {}
           <div className="flex flex-wrap gap-2">
             <select
               value={inboxSearchFilters.stage_name || ""}
@@ -346,7 +346,7 @@ export function ConversationSearchExample({
             </label>
           </div>
 
-          {/* Active Filters Display */}
+          {}
           {activeFilters.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {activeFilters.map((label, index) => (
@@ -360,12 +360,12 @@ export function ConversationSearchExample({
             </div>
           )}
 
-          {/* Search Error */}
+          {}
           {inboxSearchError && (
             <div className="text-sm text-destructive-ink">{inboxSearchError}</div>
           )}
 
-          {/* Search Status */}
+          {}
           {searching && (
             <div className="text-sm text-muted-foreground">Searching...</div>
           )}
@@ -376,7 +376,7 @@ export function ConversationSearchExample({
           )}
         </div>
 
-        {/* Inbox List */}
+        {}
         <div className="flex-1 overflow-y-auto">
           {displayedInbox.map((entry) => (
             <button
@@ -417,7 +417,7 @@ export function ConversationSearchExample({
           ))}
         </div>
 
-        {/* Pagination Controls */}
+        {}
         {searchResults && searchTotalPages > 1 && (
           <div className="p-3 border-t flex justify-between items-center">
             <button
@@ -441,11 +441,11 @@ export function ConversationSearchExample({
         )}
       </div>
 
-      {/* ── Right Panel: Conversation with Message Search ────────── */}
+      {}
       <div className="flex-1 flex flex-col">
         {activeConversation ? (
           <>
-            {/* Conversation Header with Message Search */}
+            {}
             <div className="p-4 border-b space-y-3">
               <div className="flex justify-between items-center">
                 <h2 className="text-lg font-semibold">
@@ -459,7 +459,7 @@ export function ConversationSearchExample({
                 )}
               </div>
 
-              {/* Message Search Bar */}
+              {}
               <div className="relative">
                 <input
                   type="text"
@@ -478,12 +478,12 @@ export function ConversationSearchExample({
                 )}
               </div>
 
-              {/* Message Search Error */}
+              {}
               {messageSearchError && (
                 <div className="text-sm text-destructive-ink">{messageSearchError}</div>
               )}
 
-              {/* Message Search Status */}
+              {}
               {searchingMessages && (
                 <div className="text-sm text-muted-foreground">
                   Searching messages...
@@ -500,10 +500,10 @@ export function ConversationSearchExample({
               )}
             </div>
 
-            {/* Message List or Search Results */}
+            {}
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {messageSearchResults
-                ? 
+                ?
                   messageSearchResults.map((message) => (
                     <div
                       key={message.id}
@@ -525,7 +525,7 @@ export function ConversationSearchExample({
                       </div>
                     </div>
                   ))
-                : 
+                :
                   activeConversation.messages.map((message) => (
                     <div
                       key={message.id}
@@ -543,7 +543,7 @@ export function ConversationSearchExample({
                   ))}
             </div>
 
-            {/* Message Search Pagination */}
+            {}
             {messageSearchResults && messageSearchTotalPages > 1 && (
               <div className="p-3 border-t flex justify-between items-center">
                 <button

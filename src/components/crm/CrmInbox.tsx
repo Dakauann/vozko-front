@@ -103,11 +103,6 @@ interface CrmInboxProps {
   entries: InboxEntry[];
   selectedEntryId: string | null;
   onSelect: (entryId: string, entryType: EntryType) => void;
-  /**
-   * Opens the conversation in its own floating window, beside whatever the
-   * centre pane is showing. Optional: where it is not wired the affordance is
-   * not rendered at all, rather than offered and inert.
-   */
   onOpenInWindow?: (entry: InboxEntry) => void;
   openInWindowLabel?: string;
   connectionStatus: ConnectionStatus;
@@ -118,17 +113,6 @@ interface CrmInboxProps {
   conversationStatusCounts?: Record<string, number>;
   loadingMore?: boolean;
   tags?: Stage[];
-  /**
-   * Every conversation stage in the workspace, grouped by funnel, for the
-   * filter only.
-   *
-   * `tags` above stays what it was: ONE funnel's stages, which is what the
-   * per-conversation "Mover para" menu offers. The FILTER needs all of them.
-   * With a single funnel's list an agent picks a stage no conversation in front
-   * of them carries and the inbox comes back empty, which is what UniFecaf hit:
-   * their filter only ever offered stages of a funnel they had renamed
-   * "NÃO USAR".
-   */
   funnelStages?: FunnelStages[];
   campaignType?: CampaignType;
   translations: {
@@ -179,7 +163,6 @@ interface CrmInboxProps {
 }
 
 
-// Sentinel for the "no responsible" option, mirroring the table filter.
 const RESPONSIBLE_UNASSIGNED = "__unassigned__";
 
 interface FilterState {
@@ -193,17 +176,11 @@ interface FilterState {
   minMessageCount: string;
   maxMessageCount: string;
   messageSearch: string;
-  // "" = Todos, RESPONSIBLE_UNASSIGNED = Sem responsável, else a member id.
   responsibleUserId: string;
 }
 
-/** Display label per filterable channel. Brand names are not translated. */
 const CHANNEL_FILTER_LABELS: Record<MessageChannel, string> = {
   whatsapp: "WhatsApp",
-  // Two WhatsApp transports reach one inbox, and a reply leaves from a
-  // different number depending on which. The label has to say which one it is,
-  // and it says it in plain words rather than "QR" or a vendor name, neither of
-  // which an operator has any reason to know.
   unofficial_whatsapp: "WhatsApp (não oficial)",
   instagram: "Instagram",
   telegram: "Telegram",
@@ -294,12 +271,8 @@ export default function CrmInbox({
   >(null);
   const { can, currentWorkspace } = useWorkspace();
   const blockedByDepartment = useBlockedByMissingDepartment();
-  // Read here rather than threaded through the translations prop bag: six call
-  // sites build that object, and two strings for one chip is not worth making
-  // every one of them change.
   const tAnalysis = useTranslations("crmAnalysis");
 
-  // Assignable members for the "Responsável" filter (Todos / Sem responsável / member).
   const [members, setMembers] = useState<AssignableMember[]>([]);
   useEffect(() => {
     const wsId = currentWorkspace?.id;
@@ -312,16 +285,12 @@ export default function CrmInbox({
       cancelled = true;
     };
   }, [currentWorkspace?.id]);
-  // The analysis moved behind the audience resource; "analysis" no longer gates
-  // any route, so checking it hid this from everyone who holds the real one.
   const canReadAnalysis = can("audience", "read");
   const inboxListRef = useRef<HTMLDivElement>(null);
   const loadMoreCalledRef = useRef(false);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const stateCounts = useMemo(() => {
-    // "Ativos" counts active work only (new + ongoing). Finalized conversations
-    // are counted on their own tab and never in the default view.
     const statusScopedTotal =
       (conversationStatusCounts?.["new"] ?? 0) +
       (conversationStatusCounts?.["ongoing"] ?? 0);
@@ -496,8 +465,6 @@ export default function CrmInbox({
     let result = entries;
 
     if (!onSearch) {
-      // "Ativos" (the default tab) shows every active conversation, i.e. all
-      // but finalized; the other tabs match their exact status.
       result = result.filter((e) =>
         stateFilter === "all"
           ? e.conversation_status !== "finished"
@@ -507,9 +474,6 @@ export default function CrmInbox({
 
     if (search.trim() && search.trim().length < 2) {
       const q = search.toLowerCase();
-      // Every one of these is `omitempty` on the wire, so a group with no name
-      // and no number arrives with the keys absent even though the type calls
-      // them `string`. Coalesce before the method call rather than trusting it.
       result = result.filter(
         (e) =>
           (e.lead_name || e.lead_number || "").toLowerCase().includes(q) ||
@@ -642,18 +606,6 @@ export default function CrmInbox({
 
   const activeFilterCount = countActiveFilters(filters);
 
-  /**
-   * The funnels the stage filter offers.
-   *
-   * Falls back to the single-funnel `tags` list when the grouped read is
-   * unavailable, so an older API or a failed fetch degrades to the previous
-   * behaviour instead of an empty filter. An empty dropdown reads as "this
-   * workspace has no stages", which is a worse lie than an incomplete list.
-   *
-   * Funnels with no stages are dropped here rather than on the server: the
-   * server lists them because the funnels page wants them, and an empty
-   * <optgroup> renders as a heading with nothing under it.
-   */
   const filterStageGroups = useMemo(() => {
     const grouped = funnelStages.filter((g) => g.stages.length > 0);
     if (grouped.length > 0) return grouped;
@@ -669,11 +621,6 @@ export default function CrmInbox({
     ];
   }, [funnelStages, availableTags]);
 
-  /**
-   * The same stages, flat, only so selecting one can recover its name for
-   * `stageName`. That is the fallback the payload uses when no id is sent, and
-   * it has to be the name of the stage actually chosen.
-   */
   const filterStageOptions = useMemo(
     () => filterStageGroups.flatMap((g) => g.stages),
     [filterStageGroups],
@@ -681,15 +628,8 @@ export default function CrmInbox({
 
   return (
     <div className="flex h-full flex-col bg-card">
-      {/*
-        The queue's scribble strip.
-
-        This was a 9px-tall green icon tile with a stacked title, a status dot
-        and a filled count bubble — about 76px of chrome above a list an
-        operator scrolls all shift. It is now one 28px legend line: the strip's
-        name, its live state as word plus pip, and the depth as a tabular
-        readout on the right. The vertical space goes to the queue.
-      */}
+      {
+}
       <div className="flex-shrink-0 border-b border-border">
         <div className="flex h-7 items-center gap-2 bg-muted px-3">
           <ChatCircleDots
@@ -719,7 +659,7 @@ export default function CrmInbox({
 
         <div className="px-3 py-2">
 
-        {/* Search + Filters toggle */}
+        {}
         <div className="flex items-center gap-1.5">
           <div className="relative flex-1">
             <MagnifyingGlass
@@ -756,7 +696,7 @@ export default function CrmInbox({
             )}
           </div>
 
-          {/* Filters toggle button */}
+          {}
           <button
             onClick={() => setFiltersOpen((v) => !v)}
             className={cn(
@@ -779,7 +719,7 @@ export default function CrmInbox({
           </button>
         </div>
 
-        {/* State filter buttons */}
+        {}
         <div className="flex items-center gap-1.5 mt-2.5 overflow-x-auto pb-0.5 -mb-0.5">
           {[
             {
@@ -828,7 +768,7 @@ export default function CrmInbox({
           ))}
         </div>
 
-        {/* Active search indicator */}
+        {}
         {(isServerSearchActive || searching) && (
           <div className="mt-2 flex items-center gap-2">
             {searching && (
@@ -856,7 +796,7 @@ export default function CrmInbox({
         </div>
       </div>
 
-      {/* ── Advanced Filters Panel ──────────────────────────────────────── */}
+      {}
       <AnimatePresence>
         {filtersOpen && (
           <motion.div
@@ -867,16 +807,10 @@ export default function CrmInbox({
             className="overflow-hidden border-b border-border bg-muted flex-shrink-0"
           >
             <div className="px-4 py-3 space-y-2.5">
-              {/* Row 1: Tag + Channel */}
+              {}
               <div className="flex gap-2">
-                {/* Stage filter, grouped by funnel.
-
-                    One <optgroup> per funnel and the stages as its options, so
-                    picking one filters by that exact stage the way the kanban
-                    already does. The flat list this replaced could only ever
-                    show the resolved funnel's stages, so in a workspace with
-                    several funnels the filter silently addressed stages no
-                    conversation on screen carried. */}
+                {
+}
                 <div className="flex-1 min-w-0">
                   <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
                     Etapa
@@ -911,7 +845,7 @@ export default function CrmInbox({
                   </select>
                 </div>
 
-                {/* Channel filter */}
+                {}
                 <div className="flex-1 min-w-0">
                   <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
                     Canal
@@ -936,7 +870,7 @@ export default function CrmInbox({
                 </div>
               </div>
 
-              {/* Row: Responsible */}
+              {}
               <div className="flex gap-2">
                 <div className="flex-1 min-w-0">
                   <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
@@ -965,7 +899,7 @@ export default function CrmInbox({
                 </div>
               </div>
 
-              {/* Row 2: Date range */}
+              {}
               <div className="flex gap-2">
                 <div className="flex-1 min-w-0">
                   <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
@@ -1007,7 +941,7 @@ export default function CrmInbox({
                 </div>
               </div>
 
-              {/* Row 3: Window + Unread */}
+              {}
               <div className="flex gap-2">
                 <div className="flex-1 min-w-0">
                   <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
@@ -1049,7 +983,7 @@ export default function CrmInbox({
                 </div>
               </div>
 
-              {/* Row 4: Message count range */}
+              {}
               <div className="flex gap-2">
                 <div className="flex-1 min-w-0">
                   <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
@@ -1089,7 +1023,7 @@ export default function CrmInbox({
                 </div>
               </div>
 
-              {/* Row 5: Dedicated message search */}
+              {}
               <div>
                 <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
                   Busca no conteúdo das mensagens
@@ -1105,7 +1039,7 @@ export default function CrmInbox({
                 />
               </div>
 
-              {/* Action buttons */}
+              {}
               <div className="flex items-center gap-2 pt-1">
                 <button
                   onClick={handleApplyFilters}
@@ -1127,13 +1061,13 @@ export default function CrmInbox({
         )}
       </AnimatePresence>
 
-      {/* ── Entry List ──────────────────────────────────────────────────── */}
+      {}
       <div
         ref={inboxListRef}
         onScroll={handleInboxScroll}
         className="flex-1 overflow-y-auto"
       >
-        {/* ── Search Results Panel (matched messages across entries) ──── */}
+        {}
         {isServerSearchActive && allMatchedMessages.length > 0 && (
           <div className="border-b border-border bg-muted">
             <div className="px-4 py-2 flex items-center justify-between">
@@ -1195,7 +1129,7 @@ export default function CrmInbox({
           </div>
         )}
 
-        {/* ── Conversation Entries ──────────────────────────────────────── */}
+        {}
         <AnimatePresence initial={false}>
           {displayEntries.length === 0 ? (
             <motion.div
@@ -1216,12 +1150,8 @@ export default function CrmInbox({
                   />
                 )}
               </div>
-              {/*
-                "No conversations yet" is a lie for a member the department
-                scope has excluded from everything: the workspace is not empty,
-                none of it is theirs. The notice renders only in that state and
-                explains what to do about it.
-              */}
+              {
+}
               {!isServerSearchActive && blockedByDepartment ? (
                 <NoDepartmentNotice compact />
               ) : (
@@ -1305,14 +1235,8 @@ export default function CrmInbox({
                     }}
                     className="group flex w-full items-start gap-3 px-4 py-3 text-left relative cursor-pointer"
                   >
-                    {/* Avatar. The person owns the circle and the channel is a
-                        badge on it, previously the channel glyph REPLACED the
-                        person, so a mixed inbox showed which network every row
-                        came from and who none of them were.
-
-                        The reply-window dot moves to the top: bottom-right is
-                        where a channel mark is conventionally read, and the two
-                        would otherwise sit on top of each other. */}
+                    {
+}
                     <div className="relative flex-shrink-0">
                       <ChannelAvatar
                         name={entry.lead_name || entry.lead_number}
@@ -1328,7 +1252,7 @@ export default function CrmInbox({
                       )}
                     </div>
 
-                    {/* Content */}
+                    {}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-baseline gap-2">
                         <span
@@ -1347,17 +1271,14 @@ export default function CrmInbox({
                         >
                           {relativeTime(entry.last_message_at)}
                         </span>
-                        {/* Appears on hover, and stays reachable by keyboard:
-                            a control that only exists under a pointer is not
-                            available to anyone tabbing the list. */}
+                        {
+}
                         {onOpenInWindow && (
                           <button
                             type="button"
                             aria-label={openInWindowLabel ?? "Open in a window"}
                             title={openInWindowLabel ?? "Open in a window"}
                             onClick={(e) => {
-                              // The row itself opens the conversation in the
-                              // centre pane; this must not also do that.
                               e.stopPropagation();
                               onOpenInWindow(entry);
                             }}
@@ -1367,7 +1288,7 @@ export default function CrmInbox({
                           </button>
                         )}
                       </div>
-                      {/* Row 2: full-width last-message preview + unread */}
+                      {}
                       <div className="mt-0.5 flex items-center gap-2">
                         <p
                           className={cn(
@@ -1388,13 +1309,11 @@ export default function CrmInbox({
                         )}
                       </div>
 
-                      {/* Row 3: meta, three DISTINCT visual types so status ≠ stage ≠ label.
-                          status = colored dot + muted text (lifecycle state);
-                          stage  = outlined chip with a color dot (pipeline position);
-                          label  = solid colored pill (tag). */}
+                      {
+}
                       <div className="mt-1.5 flex items-center gap-1.5">
                         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
-                          {/* status: lifecycle + close provenance when finished */}
+                          {}
                           <span
                             className={cn(
                               "inline-flex max-w-full items-center gap-1 text-2xs font-medium",
@@ -1413,10 +1332,8 @@ export default function CrmInbox({
                               {conversationStatusMeta.label}
                             </span>
                           </span>
-                          {/* Which AI attends this conversation (agent or workflow),
-                              with a muted "pausada" state. Human assignee wins; finished
-                              hides. Informational in the list; the header chip opens the
-                              read-only workflow view. */}
+                          {
+}
                           <AiHandlerChip
                             handler={entry.ai_handler}
                             automationEnabled={entry.automation_enabled}
@@ -1424,27 +1341,15 @@ export default function CrmInbox({
                             assignedUserId={entry.assigned_user_id}
                             size="sm"
                           />
-                          {/*
-                            An analysis is on its way.
-
-                            Shown beside the verdict rather than instead of it:
-                            a conversation being re-analysed still carries last
-                            revision's answer, and the hover card keeps showing
-                            it. Gated on the same permission as the verdict, so
-                            this never tells someone about work they cannot see
-                            the result of.
-                          */}
+                          {
+}
                           {canReadAnalysis && entry.analysis_phase && (
                             <span
                               title={tAnalysis(`${entry.analysis_phase}Hint`)}
                               className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-2xs font-medium text-muted-foreground shadow-sm"
                             >
-                              {/*
-                                A spinner only once something is actually
-                                running. While the conversation is still going
-                                nothing is being analysed, and a spinner there
-                                would be claiming work that has not started.
-                              */}
+                              {
+}
                               {entry.analysis_phase === "queued" ? (
                                 <CircleNotch className="h-3 w-3 animate-spin" weight="bold" />
                               ) : (
@@ -1455,7 +1360,7 @@ export default function CrmInbox({
                               </span>
                             </span>
                           )}
-                          {/* stage: pipeline position, refined outlined bubble + color dot */}
+                          {}
                           {entry.stage && (
                             <span className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-2xs font-medium text-foreground shadow-sm">
                               <span
@@ -1526,7 +1431,7 @@ export default function CrmInbox({
                           )}
                         </div>
 
-                        {/* Tag-move button + dropdown */}
+                        {}
                         {availableTags.length > 0 && (
                           <div className="relative flex-shrink-0">
                             {onEntryStageChange ? (
@@ -1544,7 +1449,7 @@ export default function CrmInbox({
                                 >
                                   <TagIcon weight="bold" className="h-3 w-3" />
                                 </button>
-                                {/* Tag dropdown */}
+                                {}
                                 {tagMenuEntryId ===
                                   `${entry.entry_type}-${entry.entry_id}` && (
                                   <>
@@ -1629,7 +1534,7 @@ export default function CrmInbox({
                         )}
                       </div>
 
-                      {/* Row 4: who's responsible (+ campaign), explicit and legible, one muted line */}
+                      {}
                       {(entry.assigned_username || entry.campaign_name) && (
                         <div className="mt-1 flex items-center gap-1.5 text-2xs text-muted-foreground">
                           {entry.assigned_username ? (
@@ -1649,7 +1554,7 @@ export default function CrmInbox({
                         </div>
                       )}
 
-                      {/* Label context menu (right-click) */}
+                      {}
                       {labelMenuEntryId ===
                         `${entry.entry_type}-${entry.entry_id}` && (
                         <>
@@ -1714,14 +1619,14 @@ export default function CrmInbox({
                     </div>
                   </div>
 
-                  {/* Analysis hover card removed from here, rendered via portal outside scroll container */}
+                  {}
                 </motion.div>
               );
             })
           )}
         </AnimatePresence>
 
-        {/* Search results loading indicator (infinite scroll) */}
+        {}
         {loadingSearchMore && isServerSearchActive && (
           <div className="flex items-center justify-center py-3">
             <framerMotion.div
@@ -1735,7 +1640,7 @@ export default function CrmInbox({
           </div>
         )}
 
-        {/* Inbox pagination loading indicator */}
+        {}
         {loadingMore && !isServerSearchActive && (
           <div className="flex items-center justify-center py-3">
             <framerMotion.div
@@ -1750,7 +1655,7 @@ export default function CrmInbox({
         )}
       </div>
 
-      {/* ── Floating Analysis Hover Card (portal-based, right-side flyout) ── */}
+      {}
       {canReadAnalysis && hoveredRect && hoveredAnalysisRef.current && (
         <AnalysisHoverCard
           analysis={hoveredAnalysisRef.current}

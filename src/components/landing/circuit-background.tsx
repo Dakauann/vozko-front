@@ -9,7 +9,6 @@ import styles from "./landing.module.css";
 
 type CircuitBackgroundProps = { branches?: number; cycleSeconds?: number; speed?: number };
 
-/** Independent decorative renderer: two draw calls, capped resolution and 24fps. */
 export function CircuitBackground({ branches = 22, cycleSeconds = 32, speed = 0.065 }: CircuitBackgroundProps) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const reduced = useReducedMotion();
@@ -30,7 +29,7 @@ export function CircuitBackground({ branches = 22, cycleSeconds = 32, speed = 0.
       try {
         renderer = new THREE.WebGLRenderer({ canvas: element, alpha: true, antialias: false, powerPreference: "low-power" });
       } catch {
-        return; // The static circuit below the canvas remains the fallback.
+        return;
       }
       renderer.setClearColor(0x000000, 0);
       const scene = new THREE.Scene();
@@ -150,7 +149,7 @@ export function CircuitBackground({ branches = 22, cycleSeconds = 32, speed = 0.
         renderer.dispose();
       };
     };
-    const launch = () => { void start().catch(() => { /* Keep the static fallback on import/render failure. */ }); };
+    const launch = () => { void start().catch(() => {  }); };
     if (typeof window.requestIdleCallback === "function") idle = window.requestIdleCallback(launch, { timeout: 1800 });
     else timer = window.setTimeout(launch, 400);
     return () => {

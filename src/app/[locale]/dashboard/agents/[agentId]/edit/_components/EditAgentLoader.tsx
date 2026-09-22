@@ -10,11 +10,6 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
-/**
- * Shared fetch + permission gate for every /edit page (chooser, beginner,
- * professional). One implementation so the three routes cannot drift on how
- * an agent loads, who may edit, or what a failure looks like.
- */
 export default function EditAgentLoader({
     agentId,
     children,

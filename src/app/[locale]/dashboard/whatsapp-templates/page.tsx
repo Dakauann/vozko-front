@@ -153,7 +153,6 @@ export default function WhatsAppTemplatesPage({
   toastRef.current = toast;
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  // Server-side filters ("all" = unset). Backend is the source of truth.
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [templates, setTemplates] = useState<WhatsAppTemplate[]>([]);
@@ -201,7 +200,6 @@ export default function WhatsAppTemplatesPage({
     void fetchData();
   }, [fetchData]);
 
-  // Debounce the search box, and reset to page 1 whenever the term changes.
   useEffect(() => {
     const handle = setTimeout(() => {
       setDebouncedSearch(searchQuery.trim());
@@ -210,7 +208,6 @@ export default function WhatsAppTemplatesPage({
     return () => clearTimeout(handle);
   }, [searchQuery]);
 
-  // Any filter change starts back at page 1.
   useEffect(() => {
     setPage(1);
   }, [statusFilter, categoryFilter]);
@@ -454,7 +451,7 @@ export default function WhatsAppTemplatesPage({
         </ElevatedContainer>
       )}
 
-      {/* Search + Stats bar */}
+      {}
       <div className="flex flex-wrap items-center gap-3 rounded-[--radius] border border-border bg-card px-5 py-3 shadow-sm">
         <div className="relative w-full max-w-xs">
           <ElevatedInput
@@ -556,7 +553,7 @@ export default function WhatsAppTemplatesPage({
         )}
       </div>
 
-      {/* Loading state */}
+      {}
       {loading ? (
         <DashboardTable<WhatsAppTemplate>
           data={[]}

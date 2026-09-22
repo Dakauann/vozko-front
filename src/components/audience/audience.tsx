@@ -34,16 +34,6 @@ import { CommentAnalysisFeed } from "@/components/audience/feed";
 import { Chip, EmptyState, Skeleton } from "@/components/audience/shared";
 import { ChartLineUp, ChatCircle, Gear, Hash, ShieldWarning, Sparkle } from "@/components/icons";
 
-/*
- * The workspace-wide audience dashboard (Métricas > Audiência): every
- * Instagram account in one place, optionally narrowed to one post, over a
- * chosen period. It reuses the account tab's panels verbatim; only the
- * scope picker is new, so a number here and the same number on the account
- * page cannot disagree.
- *
- * Authors are an account-level view (the API ranks them per account), so
- * that section steps aside while a post is selected.
- */
 
 type Section = "overview" | "topics" | "authors" | "feed";
 
@@ -67,7 +57,6 @@ export function CommentAnalysisAudience({
 }: {
   initialAccountId?: string;
   initialContainerId?: string;
-  /** Lets the page mirror the scope into the URL so a view can be shared. */
   onScopeChange?: (accountId: string, containerId: string | undefined) => void;
 }) {
   const t = useTranslations("audience");
@@ -85,33 +74,22 @@ export function CommentAnalysisAudience({
   const [posts, setPosts] = useState<InstagramMedia[]>([]);
   const [period, setPeriod] = useState<Period>(DEFAULT_PERIOD);
   const [section, setSection] = useState<Section>("overview");
-  // Empty means every channel, which is the default the page opens on.
   const [source, setSource] = useState<AudienceSource | "">("");
   const [kind, setKind] = useState<SubjectKind | typeof ALL_KINDS>(ALL_KINDS);
 
-  // Instagram's account and post pickers only mean something on Instagram, or
-  // when no channel is chosen and Instagram is one of the ones in view.
   const showsInstagramScope = (source === "" || source === "instagram") && accounts !== null && accounts.length > 0;
 
   const [settings, setSettings] = useState<CommentAnalysisSettings | null>(null);
   const [commentStats, setCommentStats] = useState<CommentAnalysisStats | null>(null);
   const [conversationStats, setConversationStats] = useState<CommentAnalysisStats | null>(null);
   const [previousStats, setPreviousStats] = useState<CommentAnalysisStats | null>(null);
-  // The workspace ceiling, read once per load. It belongs beside coverage: a
-  // budget that has been hit is the reason coverage would be low, and until now
-  // the only sign of it was analysis quietly stopping.
   const [usage, setUsage] = useState<AudienceUsage | null>(null);
-  // The settings the budget is measured against. Separate from usage because
-  // one is configuration and the other is consumption: the poll refreshes the
-  // spend every minute, while the settings only change when somebody edits them.
   const [workspaceSettings, setWorkspaceSettings] = useState<AudienceWorkspaceSettings | null>(null);
   const [refresh, setRefresh] = useState(0);
   const [commentTrend, setCommentTrend] = useState<TrendPoint[]>([]);
   const [conversationTrend, setConversationTrend] = useState<TrendPoint[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // Accounts and which of them have analysis configured, loaded once. The
-  // first enabled account is selected when the URL named none.
   useEffect(() => {
     let cancelled = false;
     void Promise.all([listInstagramAccountsAction(1, 50), listCommentAnalysisAccountsAction()]).then(([ig, ca]) => {
@@ -121,10 +99,6 @@ export function CommentAnalysisAudience({
       setConfigured(map);
       setAccounts(ig.accounts);
       if (ig.error) setError(ig.error);
-      // Deliberately NOT auto-selecting an account. The page opens on the whole
-      // workspace across every channel; picking the first Instagram account for
-      // the operator is what made this an Instagram page. A deep link that
-      // named an account still keeps it.
       setAccountId((current) => (current && ig.accounts.some((a) => a.id === current) ? current : ""));
     });
     return () => {
@@ -132,7 +106,6 @@ export function CommentAnalysisAudience({
     };
   }, []);
 
-  // Per account: its settings (the topic set names every chip) and its posts.
   useEffect(() => {
     if (!accountId) return;
     let cancelled = false;
@@ -152,20 +125,6 @@ export function CommentAnalysisAudience({
     };
   }, [accountId]);
 
-  /*
-   * Analyses land on their own schedule: a conversation goes quiet, its window
-   * elapses, and the batch runs minutes later. A page that only reads once
-   * therefore shows a backlog that never appears to drain, so the numbers are
-   * re-read on a slow tick rather than leaving the reader to guess whether
-   * nothing changed or nothing refreshed.
-   *
-   * This is the most expensive read on the page: one tick is several aggregate
-   * queries over the whole period, none of them cached. So it only runs while
-   * somebody is actually looking. A dashboard left open on a background tab
-   * used to keep asking all day, which is a real cost for an answer nobody is
-   * reading, and it refreshes immediately on return so coming back to the tab
-   * never shows stale numbers.
-   */
   useEffect(() => {
     const tick = () => {
       if (document.visibilityState !== "visible") return;
@@ -179,11 +138,6 @@ export function CommentAnalysisAudience({
     };
   }, []);
 
-  // The numbers for the current scope and period.
-  //
-  // No account is required. The engine scopes every read to the session's
-  // workspace, so an empty account means "everything this workspace analysed",
-  // which is what an audience view should open on.
   useEffect(() => {
     let cancelled = false;
     if (!isPeriodReady(period)) return;
@@ -196,19 +150,7 @@ export function CommentAnalysisAudience({
       from,
       to,
     };
-    /*
-     * A conversation can be analysed several times as it goes on, so the
-     * totals count each conversation ONCE, at its most recent verdict.
-     * Without this, a long conversation that went quiet three times would be
-     * three conversations in every percentage on the page.
-     */
     const baseFilters = { ...scope, latestOnly: true };
-    /*
-     * The daily series is the exception: it says what was learned on each day,
-     * so every analysis belongs to the day it ran on. Collapsing to the latest
-     * revision here would move a conversation off the day it was analysed and
-     * quietly rewrite history every time it is analysed again.
-     */
     const seriesFilters = scope;
     const duration = from ? Date.parse(to) - Date.parse(from) : 0;
 
@@ -228,8 +170,6 @@ export function CommentAnalysisAudience({
       kind === "comment" || !from
         ? Promise.resolve({ stats: null, error: null as string | null })
         : getAudienceStatsAction({ ...baseFilters, subjectKind: ["conversation"], from: new Date(Date.parse(from) - duration).toISOString(), to: from }),
-      // Not filtered by anything: the budget belongs to the workspace, not to
-      // the slice being looked at.
       getAudienceUsageAction(),
       getAudienceWorkspaceSettingsAction(),
     ]).then(([comments, conversations, commentSeries, conversationSeries, previous, budget, analysisSettings]) => {
@@ -268,8 +208,6 @@ export function CommentAnalysisAudience({
   const changeSource = (next: string) => {
     const value = next === ALL_CHANNELS ? "" : (next as AudienceSource);
     setSource(value);
-    // An Instagram account and post mean nothing on another channel, so the
-    // narrower scope is dropped rather than silently kept and ignored.
     if (value !== "" && value !== "instagram") {
       setAccountId("");
       setContainerId("");
@@ -326,17 +264,7 @@ export function CommentAnalysisAudience({
     );
   }
 
-  // No Instagram account is NOT an empty page any more. A workspace can analyse
-  // WhatsApp, Telegram, unofficial WhatsApp and voice conversations without ever
-  // connecting Instagram, and this view is the place those show up.
 
-  /*
-   * Topics and authors are ACCOUNT-scoped by the API: the topic set is an
-   * account's taxonomy and the author ranking is computed per account. They
-   * step aside when no account is selected rather than rendering empty, which
-   * would read as "this workspace has no authors" instead of "you have not
-   * narrowed to an account yet".
-   */
   const sections = [
     { value: "overview" as const, label: t("sections.overview"), icon: <ChartLineUp className="h-3.5 w-3.5" weight="fill" /> },
     ...(accountId ? [{ value: "topics" as const, label: t("sections.topics"), icon: <Hash className="h-3.5 w-3.5" weight="fill" /> }] : []),
@@ -350,13 +278,8 @@ export function CommentAnalysisAudience({
 
   return (
     <div className="space-y-4">
-      {/*
-        Scope row: channel, then the narrower pickers that only some channels
-        have. Channel comes FIRST because it is the widest cut and the one that
-        decides whether the pickers after it mean anything: an Instagram account
-        and a post are Instagram's, and a workspace that only runs WhatsApp
-        should not be asked about either.
-      */}
+      {
+}
       <div className="flex flex-wrap items-end gap-3">
         <div className="w-full sm:w-56">
           <ElevatedSelect label={ta("channel")} value={source || ALL_CHANNELS} onValueChange={changeSource}>
@@ -369,7 +292,7 @@ export function CommentAnalysisAudience({
           </ElevatedSelect>
         </div>
 
-        {/* Instagram's own scope. Hidden entirely on other channels. */}
+        {}
         {showsInstagramScope ? (
           <>
             <div className="w-full sm:w-56">
@@ -411,12 +334,8 @@ export function CommentAnalysisAudience({
 
       {error ? <div role="alert" className="rounded-[--radius] border border-border bg-muted px-3 py-2 text-sm text-destructive-ink">{error}</div> : null}
 
-      {/*
-        The "switched off" notice is now a HINT beside the data, not a wall in
-        front of it. An Instagram account with analysis off still has history
-        worth reading, and the workspace's other channels have nothing to do
-        with that switch.
-      */}
+      {
+}
       {accountId && settings && !settings.enabled ? (
         <div className="rounded-[--radius] border border-border bg-card">
           <EmptyState
@@ -444,18 +363,13 @@ export function CommentAnalysisAudience({
 
           {section === "overview" && (!error || commentStats || conversationStats) ? (
             <div className="flex flex-col gap-6">
-              {/*
-                The ceiling first: it governs both halves below, and when it is
-                spent it is the reason the rest of the page looks thin.
-              */}
+              {
+}
               <AnalysisBudgetPanel
                 usage={usage}
                 settings={workspaceSettings}
                 onChanged={(next) => {
                   setWorkspaceSettings(next);
-                  // The meter is drawn against the ceiling, so a saved ceiling
-                  // has to reach it now rather than on the next poll a minute
-                  // later. The spend itself is unchanged by the edit.
                   setUsage((current) =>
                     current && next.dailyCap > 0 ? { ...current, limit: next.dailyCap } : current,
                   );

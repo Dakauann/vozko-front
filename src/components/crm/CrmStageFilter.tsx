@@ -68,7 +68,7 @@ export default function CrmStageFilter({
       <AnimatePresence>
         {open && (
           <>
-            {/* Backdrop */}
+            {}
             <div
               className="fixed inset-0 z-40"
               onClick={() => setOpen(false)}
@@ -81,7 +81,7 @@ export default function CrmStageFilter({
               transition={{ duration: 0.15 }}
               className="absolute left-0 top-full z-50 mt-1.5 w-56 overflow-hidden rounded-[--radius] border border-border bg-card shadow-xl"
             >
-              {/* Header */}
+              {}
               <div className="flex items-center justify-between border-b border-border px-3 py-2">
                 <span className="text-2xs font-semibold text-muted-foreground">
                   Tags
@@ -96,7 +96,7 @@ export default function CrmStageFilter({
                 )}
               </div>
 
-              {/* Tag list */}
+              {}
               <div className="max-h-60 overflow-y-auto py-1">
                 {stages.length === 0 ? (
                   <p className="px-3 py-4 text-center text-xs text-muted-foreground">
@@ -113,11 +113,10 @@ export default function CrmStageFilter({
                           onClick={() => toggle(stage.id)}
                           className={cn(
                             "flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors duration-100",
-                            // Neutral ground; the checkbox is the mark.
                             isSelected ? "bg-muted" : "hover:bg-muted",
                           )}
                         >
-                          {/* Color dot */}
+                          {}
                           <span
                             className="h-3 w-3 rounded-full flex-shrink-0 ring-1 ring-black/5"
                             style={{ backgroundColor: stage.color }}
@@ -125,7 +124,7 @@ export default function CrmStageFilter({
                           <span className="flex-1 truncate text-xs font-medium text-foreground">
                             {stage.name}
                           </span>
-                          {/* Checkmark */}
+                          {}
                           <span
                             className={cn(
                               "flex h-4 w-4 items-center justify-center rounded-md border transition-all duration-150",

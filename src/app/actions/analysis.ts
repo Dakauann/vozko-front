@@ -236,21 +236,10 @@ export async function getNegativeSentimentAnalysesAction(
 }
 
 export async function getEntryAnalysisAction(entryId: string, entryType: AnalysisEntryType) {
-    // One conversation, asked for as a filter on the feed rather than through a
-    // dedicated endpoint.
-    //
-    // A conversation now has a timeline of analyses, one per revision of its
-    // transcript, so "its analysis" is the most recent one. The feed's default
-    // order is newest first, which is why a page of one is the right verdict
-    // rather than an arbitrary one of several.
     const queryString = buildQueryString({
         subjectKind: "conversation",
         source: entryType,
         subjectId: entryId,
-        // ANALYSED only. The engine writes the row at ENQUEUE time, so between
-        // the conversation going quiet and the batch running there is a row
-        // with no labels on it. That is a queue entry, not an analysis, and
-        // returning it made callers render a verdict that did not exist yet.
         status: "analyzed",
         pageSize: 1,
     });
@@ -267,17 +256,7 @@ export async function getEntryAnalysisAction(entryId: string, entryType: Analysi
     return { analysis: row ? toAnalysis(row) : null, error: null };
 }
 
-// ---- The audience API ----
-//
-// Conversation analyses moved into the unified analysis engine, which serves
-// them from /audience alongside comments. This file keeps the shapes its two
-// callers already speak and adapts at the boundary, so the migration is one
-// file rather than every screen that shows a verdict.
-//
-// The vocabulary changed with the engine: a channel is a `source`, a campaign
-// is a `containerId`, and a conversation is one `subjectKind` among others.
 
-/** The engine's row shape, as served by /audience. */
 interface AudienceRow {
     id: string;
     subjectKind: string;
@@ -296,7 +275,6 @@ interface AudienceRow {
     createdAt: string;
 }
 
-/** The engine's counters, as served by /audience/stats. */
 interface AudienceCounters {
     conversationCount?: number;
     conversationAnalyzed?: number;
@@ -325,8 +303,6 @@ interface AudienceCounters {
 function toAnalysis(row: AudienceRow): Analysis {
     return {
         id: row.id,
-        // The engine identifies a subject by its channel id; for a conversation
-        // that id IS the entry id.
         entryId: row.subjectId,
         entryType: row.source as AnalysisEntryType,
         interest: (row.interest ?? "") as Analysis["interest"],
@@ -344,11 +320,6 @@ function toAnalysis(row: AudienceRow): Analysis {
 
 function toStats(counters: AudienceCounters): AnalysisStats {
     return {
-        // totalAnalyses counts ANALYSED CONVERSATIONS, and both halves of that
-        // matter. A workspace that also analyses comments would otherwise see
-        // its comment volume in a conversation total, and conversationCount
-        // includes rows still queued or failed, which every average below
-        // would then be divided by.
         totalAnalyses: counters.conversationAnalyzed ?? counters.conversationCount ?? 0,
         avgAttendanceQuality: counters.attendanceQualityAvg ?? 0,
         minAttendanceQuality: counters.attendanceQualityMin ?? 0,
@@ -373,26 +344,12 @@ function toStats(counters: AudienceCounters): AnalysisStats {
     };
 }
 
-/** Shared query mapping, so the feed and the numbers above it agree. */
 function audienceQuery(params: AnalysisListParams | AnalysisStatsParams) {
     return {
         subjectKind: "conversation",
-        // These screens show ANALYSES. The engine's table is also its queue, so
-        // without this they would list conversations that are merely waiting,
-        // and count them in the totals above the list.
         status: "analyzed",
-        // One row per CONVERSATION, at its most recent verdict.
-        //
-        // A conversation is analysed again every time it goes quiet with new
-        // messages, so a campaign whose conversations ran over several days
-        // holds several analyses of each. These screens answer "how is each
-        // conversation doing", not "what did we learn and when", so without
-        // this a long conversation would be counted once per analysis and a
-        // campaign's totals would climb on their own. The daily trend is the
-        // one view that deliberately does NOT collapse them.
         latestOnly: "true",
         source: params.entryType,
-        // A campaign is the engine's container.
         containerId: params.whatsappCampaignId ?? params.campaignId,
         interest: params.interest,
         disposition: params.disposition,

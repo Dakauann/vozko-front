@@ -43,7 +43,6 @@ type Layout = {
   card: Vec3;
   tray: Vec3;
   trayAt: Point;
-  /** A phone reads top to bottom, so the queue sits above the ring, not beside it. */
   trayHorizontal: boolean;
   slot: number;
   labelWidth: number;
@@ -77,10 +76,6 @@ const COMPACT: Layout = {
 };
 
 const ANGLES = [90, 18, -54, -126, 162].map((deg) => (deg * Math.PI) / 180);
-/**
- * Presence is the only thing colour says here; the avatars stay neutral. Lia is
- * offline past the last-seen window, which is why the deal skips her seat.
- */
 const PRESENCE = ["online", "online", "offline", "stale", "online"] as const;
 const ARC_LENGTH = Math.PI * 0.4;
 
@@ -99,16 +94,12 @@ const trayAt = (slot: number, l: Layout): Vec3 =>
     : [l.trayAt[0], l.trayAt[1] + l.tray[1] / 2 - 1.0 - slot * l.slot, 0.3];
 
 type Flight = { card: number; seat: number; window: Window };
-// Round robin: the first three conversations go to Ana, Davi and Rui (Lia is
-// skipped). The rescue sweep then moves the conversation Ana never opened on
-// to Bia, the next member of the ring.
 const FLIGHTS: Flight[] = [
   { card: 0, seat: 0, window: [0.04, 0.22] },
   { card: 1, seat: 1, window: [0.28, 0.46] },
   { card: 2, seat: 3, window: [0.54, 0.72] },
   { card: 0, seat: 4, window: [0.82, 0.95] },
 ];
-/** (progress, degrees) keyframes for the dealer arc; it only ever moves clockwise. */
 const ARC_KEYS: Array<[number, number]> = [
   [0, 90],
   [0.26, 90],
@@ -212,8 +203,6 @@ function ConversationCard({
         </p>
       </Label>
       {statusRef && (
-        // Below the card, not above it: above, it landed on the attendant token
-        // the card had just been dealt to.
         <Label position={[0, -h / 2 - 0.25, d / 2 + 0.04]} width={w * 100} className="select-none text-center">
           <span
             ref={statusRef}
@@ -304,8 +293,8 @@ export function RouletteScene({
             <ringGeometry args={[table - 0.16, table, 96]} />
             <Surface color={palette.edge} roughness={0.85} metalness={0.05} />
           </mesh>
-          {/* The pointer is a marking ON the table, so it passes UNDER the
-              conversations resting on it rather than across them. */}
+          {
+}
           <mesh ref={dealer} position={[0, 0, -0.015]}>
             <torusGeometry args={[table - 0.08, 0.045, 8, 48, ARC_LENGTH]} />
             <meshBasicMaterial color={palette.accent.ai} />
@@ -316,7 +305,7 @@ export function RouletteScene({
           <Token key={member.name} index={index} member={member} palette={palette} layout={layout} font={font} />
         ))}
 
-        {/* The queue: what has not been dealt yet. */}
+        {}
         <Slab
           size={layout.tray}
           color={palette.board}

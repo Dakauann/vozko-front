@@ -2,7 +2,6 @@
 
 import { EnvelopeSimple } from "@/components/icons";
 
-// stripHtml flattens an HTML/plain email body to a one-line snippet for preview.
 function stripHtml(s: string): string {
   return s
     .replace(/<[^>]*>/g, " ")
@@ -11,8 +10,6 @@ function stripHtml(s: string): string {
     .trim();
 }
 
-// action_send_email: an envelope-style card (email is not a chat bubble): sender
-// strip on top, then subject, recipient and a short body snippet.
 export function SendEmailPreview({
   config,
 }: {

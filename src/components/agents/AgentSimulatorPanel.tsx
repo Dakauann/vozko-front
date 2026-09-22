@@ -1,15 +1,5 @@
 "use client";
 
-/**
- * Compact agent simulator: the simplified in-context variant of the full
- * /agents/[id]/simulator page, mounted beside the edit form so the tune-test
- * loop never leaves the page. Same engine (useSimulatorSession — transcript,
- * sandboxed turns, session memories, retry), deliberately smaller shell: no
- * inspector rail; tool calls expand inline instead.
- *
- * It tests the LAST SAVED version of the agent (the endpoint loads from the
- * database) and says so in its hint — unsaved form edits are not simulated.
- */
 
 import {
     ArrowCounterClockwise,
@@ -53,7 +43,6 @@ export default function AgentSimulatorPanel({ agentId, agentName }: AgentSimulat
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const reduceMotion = useReducedMotion();
 
-    // Display names only; a failed catalog fetch degrades to raw tool names.
     useEffect(() => {
         let cancelled = false;
         getAgentToolsAction().then(({ tools }) => {
@@ -92,11 +81,8 @@ export default function AgentSimulatorPanel({ agentId, agentName }: AgentSimulat
     }, [input, pending, send]);
 
     return (
-        // flex-1, not h-full: the host drawer stacks a close bar above this
-        // panel, and a 100%-height child would overflow past the viewport by
-        // exactly that bar's height (composer pushed off-screen).
         <div className="flex min-h-0 flex-1 flex-col bg-card">
-            {/* Header */}
+            {}
             <div className="flex shrink-0 items-center gap-2 border-b border-border px-3 py-2">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[--radius] border border-border bg-muted">
                     <TestTube className="h-3.5 w-3.5 text-primary-ink" weight="bold" />
@@ -153,7 +139,7 @@ export default function AgentSimulatorPanel({ agentId, agentName }: AgentSimulat
                 </Link>
             </div>
 
-            {/* Transcript */}
+            {}
             <div
                 ref={scrollRef}
                 role="log"
@@ -215,7 +201,7 @@ export default function AgentSimulatorPanel({ agentId, agentName }: AgentSimulat
                 )}
             </div>
 
-            {/* Composer */}
+            {}
             <div className="shrink-0 border-t border-border px-3 pb-2 pt-2">
                 {error && (
                     <div className="mb-2 flex items-start justify-between gap-2 rounded-lg border border-border border-t-destructive/60 bg-muted px-2.5 py-1.5">
@@ -267,7 +253,6 @@ export default function AgentSimulatorPanel({ agentId, agentName }: AgentSimulat
     );
 }
 
-/** No rail here, so the tool call carries its own disclosure. */
 function CompactToolRow({
     call,
     displayName,

@@ -17,27 +17,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowsLeftRight, ArrowRight, Warning } from "@/components/icons";
 import type { FunnelStages } from "@/app/actions/stages";
 
-/**
- * Move a conversation to a stage of ANOTHER funnel.
- *
- * Separate from the ordinary "Mover para" menu on purpose, and that separation
- * is the safety rule rather than decoration. The server refuses a cross-funnel
- * move unless the client says it meant it, because a stage list showing the
- * wrong funnel used to let a single click strand a lead on a board nobody
- * looks at. So a funnel change is its own deliberate act: pick the funnel,
- * then the stage inside it, then confirm.
- *
- * The destination stage is never assumed. A funnel's first column is a fine
- * guess for a new conversation and a bad one for a lead already halfway
- * through: dropping a qualified lead back onto "novo lead" silently undoes
- * work the operator can see but the CRM cannot.
- *
- * Shaped after CreateTemplateDialog, which is the house dialog: a `.tile-*`
- * plate carrying the glyph beside the title, sectioned body with `text-sm
- * font-semibold` heads, quiet `bg-muted border-border` panels, and a footer
- * divided by a rule. Colour appears only as a mark on a neutral ground, never
- * as a tint under ink of its own hue.
- */
 export function MoveToFunnelDialog({
   open,
   onOpenChange,
@@ -50,23 +29,11 @@ export function MoveToFunnelDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Every conversation funnel in the workspace, with its stages. */
   funnels: FunnelStages[];
   currentStageId: string | null;
   currentStageName?: string | null;
-  /** Who the conversation is with, so the confirmation names a person. */
   contactName?: string | null;
-  /**
-   * How many conversations this will move, when it is a bulk action.
-   *
-   * Undefined for the single-conversation case, which is the default. Set, the
-   * dialog drops the "De" line (the sources differ per row, so naming one would
-   * be a lie), counts the conversations in every sentence, and says outright
-   * that there is no undo. Same dialog rather than a near-identical second one:
-   * the decision being made is the same, only its blast radius differs.
-   */
   bulkCount?: number;
-  /** Applies the move. Resolves to an error message, or null on success. */
   onConfirm: (stageId: string) => Promise<string | null>;
 }) {
   const [selectedFunnelId, setSelectedFunnelId] = useState("");
@@ -77,25 +44,16 @@ export function MoveToFunnelDialog({
   const isBulk = typeof bulkCount === "number" && bulkCount > 0;
   const plural = isBulk && bulkCount !== 1;
 
-  /** The funnel the conversation is on now, found from the stage it holds. */
   const currentFunnel = useMemo(
     () => funnels.find((f) => f.stages.some((s) => s.id === currentStageId)) ?? null,
     [funnels, currentStageId],
   );
 
-  /**
-   * Only OTHER funnels are offered. Moving to the funnel it is already on is
-   * the ordinary stage menu's job, and listing it here would make this dialog
-   * look like the way to do both.
-   */
   const targets = useMemo(
     () =>
       funnels.filter(
         (f) =>
           f.stages.length > 0 &&
-          // In bulk there is no single current funnel to exclude: the selection
-          // spans several, and hiding one of them would make it unreachable for
-          // the rows that are not on it.
           (isBulk || f.pipelineId !== currentFunnel?.pipelineId),
       ),
     [funnels, currentFunnel, isBulk],
@@ -142,9 +100,8 @@ export function MoveToFunnelDialog({
   return (
     <ElevatedDialog open={open} onOpenChange={close}>
       <ElevatedDialogContent className="max-w-lg">
-        {/* The house header: a plate carrying the glyph, title and one line of
-            prose beside it. The plate is the `.tile-*` recipe, so the hue lives
-            in the glyph on a known ground rather than as a wash. */}
+        {
+}
         <ElevatedDialogHeader className="flex-row items-start gap-3 space-y-0">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[--radius] tile-info">
             <ArrowsLeftRight className="h-6 w-6" weight="bold" />
@@ -170,7 +127,7 @@ export function MoveToFunnelDialog({
           </p>
         ) : (
           <div className="space-y-5">
-            {/* ── Destino ─────────────────────────────────────────────── */}
+            {}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">Destino</h3>
 
@@ -179,8 +136,6 @@ export function MoveToFunnelDialog({
                 value={selectedFunnelId}
                 onValueChange={(v) => {
                   setSelectedFunnelId(v);
-                  // The stage never carries over between funnels: it belongs to
-                  // the old one and does not exist in the new one.
                   setSelectedStageId("");
                   setError(null);
                 }}
@@ -197,8 +152,8 @@ export function MoveToFunnelDialog({
                 ))}
               </ElevatedSelect>
 
-              {/* Revealed only once a funnel is chosen, so the two decisions
-                  read in order instead of as one compound choice. */}
+              {
+}
               {selectedFunnel ? (
                 <ElevatedSelect
                   label="Etapa"
@@ -212,9 +167,6 @@ export function MoveToFunnelDialog({
                     <ElevatedSelectItem
                       key={stage.id}
                       value={stage.id}
-                      // iconStyled={false} or the dot is mounted on a solid
-                      // brand plate, which puts the stage's own colour on top of
-                      // green and reads as a broken swatch rather than a mark.
                       iconStyled={false}
                       icon={
                         <span
@@ -230,17 +182,15 @@ export function MoveToFunnelDialog({
               ) : null}
             </div>
 
-            {/* ── O que muda ──────────────────────────────────────────── */}
+            {}
             {selectedStage ? (
               <div className="space-y-3">
                 <h3 className="text-sm font-semibold text-foreground">
                   O que muda
                 </h3>
 
-                {/* The whole move on one quiet panel, the same
-                    bg-muted/border-border the template dialog uses for its
-                    previews. The only colour is the destination stage's own
-                    dot: a mark on a neutral ground. */}
+                {
+}
                 <div className="flex items-center gap-3 rounded-[--radius] border border-border bg-muted px-3 py-2.5">
                   <div className="min-w-0 flex-1">
                     <p className="text-2xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -272,9 +222,8 @@ export function MoveToFunnelDialog({
                   </div>
                 </div>
 
-                {/* Said outright: the consequence is invisible from here, and
-                    the conversation simply stops appearing on the board the
-                    operator was looking at. */}
+                {
+}
                 <Alert variant="warning">
                   <Warning className="h-4 w-4" weight="fill" />
                   <AlertTitle>
@@ -301,8 +250,8 @@ export function MoveToFunnelDialog({
           </div>
         )}
 
-        {/* Footer on its own rule, as the template dialog does, so the commit
-            is separated from the choices rather than floating under them. */}
+        {
+}
         <div className="flex items-center justify-end gap-3 border-t border-border pt-4">
           <Button
             variant="ghost"

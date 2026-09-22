@@ -120,15 +120,15 @@ export function BecomeAffiliateForm() {
   const isStepValid = useCallback(
     (idx: number): boolean => {
       switch (idx) {
-        case 0: // Welcome, always valid
+        case 0:
           return true;
-        case 1: // Brand
+        case 1:
           return !errors.brandName && !errors.brandLogoUrl;
-        case 2: // Wallet
+        case 2:
           return !errors.asaasWalletId;
-        case 3: // Code (optional)
+        case 3:
           return !errors.code;
-        case 4: // Review, needs all valid
+        case 4:
           return Object.keys(errors).length === 0;
         default:
           return true;

@@ -1,14 +1,3 @@
-/**
- * Control-level reads and writes over a CrmFilter.
- *
- * A filter bar is a set of controls that each own one (field, operator) pair.
- * These helpers name the intent — "set the age floor", "clear the blocked
- * question" — so no control has to restate the operator convention, and every
- * list that adopts the filter model gets the same semantics for free.
- *
- * Object-agnostic on purpose: leads use them today, and the conversation and
- * opportunity bars can adopt them without a second implementation.
- */
 
 import {
     hasFilterPredicate,
@@ -58,7 +47,6 @@ export function toggleInSet(
     );
 }
 
-/** The two edges of a range control. */
 export type RangeBound = 'gte' | 'lte';
 
 export function readBound(
@@ -79,11 +67,6 @@ export function withBound(
     return withFilterPredicate(filter, field, bound, trimmed ? [trimmed] : []);
 }
 
-/**
- * Tri-state booleans. `null` means "no opinion", which is NOT the same as
- * false: filtering `blocked=false` hides nothing by default, but a control that
- * defaulted to false would silently hide every blocked lead.
- */
 export function readBoolean(filter: CrmFilter, field: string): boolean | null {
     if (hasFilterPredicate(filter, field, 'is_true')) return true;
     if (hasFilterPredicate(filter, field, 'is_false')) return false;
@@ -106,7 +89,6 @@ export function withBoolean(
     });
 }
 
-/** Presence: has any / has none / no opinion. */
 export function readPresence(filter: CrmFilter, field: string): boolean | null {
     if (hasFilterPredicate(filter, field, 'is_set')) return true;
     if (hasFilterPredicate(filter, field, 'is_empty')) return false;

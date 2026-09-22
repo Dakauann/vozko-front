@@ -11,12 +11,6 @@ import { getAgentOptionsAction } from "@/app/actions/agents";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-/**
- * Mirrors the official campaign's create page: the same header, the same
- * model-loading gate, the same loading and error containers. The AI model list
- * is fetched here rather than in the form so the form is not re-fetching it on
- * every keystroke-driven re-render.
- */
 export default function NewUnofficialCampaignPage() {
   const router = useRouter();
   const t = useTranslations("unofficialWhatsappCampaigns");

@@ -9,15 +9,6 @@ import { FAQ_POSTS, parseIsoDate } from "@/content/faq";
 import { LegendLine } from "./faq-chrome";
 import styles from "./faq.module.css";
 
-/**
- * The index.
- *
- * A ruled ledger rather than a grid of cards: with one post a card grid is a
- * single orphan tile, and with forty it is a wall of equal weight. A
- * hairline-divided list reads correctly at both counts, ranks by position the
- * way a table of contents does, and is the same material the landing already
- * uses to separate its chapters.
- */
 export function FaqIndex() {
   const t = useTranslations("faq.index");
   const tPosts = useTranslations("faq.posts");

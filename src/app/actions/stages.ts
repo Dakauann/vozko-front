@@ -14,14 +14,6 @@ import {
 import { apiClient } from "@/lib/api/browser-client";
 
 
-/**
- * Stages of ONE funnel.
- *
- * `pipelineId` names it directly and wins on the server. Without it the backend
- * resolves through the campaign and, with no campaign, lands on the workspace
- * default — which is why every stage list in the CRM used to show the default
- * funnel's stages no matter which funnel was on screen.
- */
 export async function listStagesAction(workspaceId?: string, campaignId?: string, campaignType?: string, pipelineId?: string): Promise<{ stages: Stage[]; error?: string }> {
     const wsHeaders: Record<string, string> = workspaceId ? { 'X-Workspace-ID': workspaceId } : {};
     const params = new URLSearchParams();
@@ -162,13 +154,6 @@ export async function getBatchEntryStagesAction(
     return { entryStages: response.data ?? {} };
 }
 
-/**
- * One funnel and the stages it holds.
- *
- * `pipelineId` is empty on the trailing group that carries stages whose funnel
- * is missing. Those still filter and are still assigned to live conversations,
- * so the server lists them rather than dropping them.
- */
 export interface FunnelStages {
     pipelineId: string;
     pipelineName: string;
@@ -177,15 +162,6 @@ export interface FunnelStages {
     stages: Stage[];
 }
 
-/**
- * Every conversation stage in the workspace, grouped by funnel.
- *
- * Distinct from listStagesAction, which resolves ONE funnel. That is right for
- * "what can this conversation be moved to" and wrong for "what can I filter the
- * whole inbox by": a workspace with several funnels had all but one of them
- * unreachable, so an agent filtering by a stage got an empty list while the
- * conversations sat one funnel over.
- */
 export async function listFunnelStagesAction(
     workspaceId?: string,
 ): Promise<{ funnels: FunnelStages[]; error?: string }> {

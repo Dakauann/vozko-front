@@ -22,7 +22,6 @@ import {
   onSessionExpired,
 } from "@/lib/api/browser-client";
 
-/** Throttle for identity re-checks on focus/visibility/online. */
 const IDENTITY_RECHECK_MIN_MS = 60 * 1000;
 
 interface UserMeResponse {
@@ -59,11 +58,6 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  /**
-   * True when identity could not be resolved due to a transient backend/network
-   * error (not an expired session). The dashboard gate uses this to show a retry
-   * screen instead of bouncing to /login, avoiding the historical redirect loop.
-   */
   serverError: boolean;
   refreshUser: (forceRefresh?: boolean) => Promise<void>;
   logout: () => Promise<void>;
@@ -91,11 +85,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
   }, []);
 
-  /**
-   * Resolve identity from the API. Auth rides the httpOnly cookie, so this is a
-   * plain `GET /user/me` through `apiClient` (which transparently refreshes on a
-   * 401). No timers, no proactive token rotation.
-   */
   const refreshUser = useCallback(
     async (forceRefresh: boolean = false) => {
       try {
@@ -103,7 +92,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setIsLoading(true);
         }
 
-        // Instant paint from the soft identity hint on repeat, non-forced checks.
         if (!forceRefresh && initialCheckDoneRef.current) {
           const cachedUser = getUserDataFromCookie();
           if (cachedUser && hasUserDataCookie()) {
@@ -112,8 +100,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }
 
-        // No session hint at all -> guest; skip the network round-trip (and avoid
-        // a pointless refresh attempt on public pages like /login).
         if (!hasUserDataCookie()) {
           setServerError(false);
           applyUser(null);
@@ -125,24 +111,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setServerError(false);
           applyUser(mapUserMe(data));
         } else if (error?.status === 401) {
-          // Session is gone; apiClient already attempted a refresh and failed.
-          // Ask Go to clear httpOnly cookies (JS cannot). Client-readable
-          // cookies are wiped locally so the UI stays guest without relying
-          // on an edge bounce that used to loop login ↔ dashboard.
           setServerError(false);
           try {
             await logoutRequest();
           } catch {
-            /* best-effort cookie revoke */
           }
           clearClientAuthCookies();
           applyUser(null);
         } else {
-          // Transient (5xx/network): keep the cached identity, never force logout.
           const cachedUser = getUserDataFromCookie();
           applyUser(cachedUser);
-          // Only a transient error with no cached identity is unrecoverable here;
-          // surface it as a retry screen rather than a login bounce.
           setServerError(!cachedUser);
         }
       } catch (error) {
@@ -162,7 +140,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (isLoggingOutRef.current) return;
     isLoggingOutRef.current = true;
 
-    // Tell every other tab to tear down its session too.
     notifySessionExpired();
 
     try {
@@ -170,8 +147,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true);
       clearClientAuthCookies();
 
-      // API revokes the session + clears httpOnly cookies; client-readable
-      // cookies were already cleared above.
       await logoutRequest();
     } catch (error) {
       console.error("[AuthContext] Error logging out:", error);
@@ -190,19 +165,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
       setIsLoading(false);
-      // Intentionally do NOT reset isLoggingOutRef: the page is navigating away,
-      // and keeping it true suppresses any last-moment callbacks.
     }
   }, []);
 
-  // Initial hydration.
   useEffect(() => {
     void refreshUser();
   }, [refreshUser]);
 
-  // Cross-tab + in-tab session expiry: when the client can no longer authenticate,
-  // log out here too, but only if we currently believe we are signed in (avoids a
-  // redirect loop on public pages).
   useEffect(() => {
     return onSessionExpired(() => {
       if (userRef.current) {
@@ -211,9 +180,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, [logout]);
 
-  // Re-validate identity when the user returns to the tab or reconnects. This is
-  // reactive (not a timer); a near-expired access cookie is refreshed by apiClient
-  // on the /user/me call.
   useEffect(() => {
     if (!userId) return;
 

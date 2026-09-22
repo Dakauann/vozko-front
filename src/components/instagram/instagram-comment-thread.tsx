@@ -21,21 +21,11 @@ interface Props {
   hasNext: boolean;
   loadingMore: boolean;
   canModerate: boolean;
-  /**
-   * The post's own comments_count, used only to explain an empty list.
-   *
-   * Instagram's comments_count counts EVERY comment, while the comments edge
-   * returns only top-level ones and additionally omits commenters whose accounts
-   * are private or restricted. So "2 comments" with nothing listed is a real,
-   * expected state, but a bare "no comments" message makes it look broken, so the
-   * mismatch is named explicitly instead.
-   */
   totalCount?: number;
   onLoadMore: () => void;
   onChanged: () => void;
 }
 
-/** How long after a comment a private reply is still allowed. */
 const PRIVATE_REPLY_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
 export function InstagramCommentThread({
@@ -62,8 +52,6 @@ export function InstagramCommentThread({
   }
 
   if (comments.length === 0) {
-    // A non-zero count with nothing to show is expected often enough that it needs
-    // its own explanation, otherwise it reads as a broken page.
     const hidden = (totalCount ?? 0) > 0;
     return (
       <div className="flex flex-col items-center gap-2 p-6 text-center">
@@ -96,8 +84,6 @@ export function InstagramCommentThread({
           </Button>
         </div>
       ) : (
-        // Instagram caps this edge at 50 per page, so the count is worth showing
-        // once the list is exhausted.
         <p className="p-3 text-center text-2xs text-muted-foreground">
           {t("comments.allLoaded", { count: comments.length })}
         </p>
@@ -127,16 +113,6 @@ function CommentRow({
   const [error, setError] = useState<string | null>(null);
   const [privateReplySent, setPrivateReplySent] = useState(false);
 
-  /**
-   * A private reply is only possible within 7 days of the comment, and only once.
-   * Checking the age here keeps the button from offering an action that would be
-   * rejected, and, more importantly, from burning the single allowance on a
-   * request that cannot succeed.
-   *
-   * The clock is read once per mount rather than during render: reading it on every
-   * render is impure, and it would also let the button vanish mid-interaction if a
-   * re-render happened to land on the far side of the 7-day boundary.
-   */
   const [mountedAt] = useState(() => Date.now());
   const withinPrivateReplyWindow =
     !!comment.timestamp &&
@@ -158,8 +134,6 @@ function CommentRow({
     } else if (mode === "private") {
       const result = await privateReplyInstagramCommentAction(accountId, comment.id, text.trim());
       if (result.error) {
-        // private_reply_used / private_reply_expired are normal states, so they
-        // get a specific explanation rather than a raw server message.
         setError(
           result.code === "private_reply_used"
             ? t("comments.privateReplyUsed")
@@ -232,8 +206,8 @@ function CommentRow({
                   {t("comments.reply")}
                 </button>
 
-                {/* Only offered inside the 7-day window and before the single
-                    allowance has been used. */}
+                {
+}
                 {withinPrivateReplyWindow && !privateReplySent && !comment.isOurs && (
                   <button
                     type="button"
@@ -262,9 +236,8 @@ function CommentRow({
               {comment.hidden ? <Eye size={14} /> : <EyeSlash size={14} />}
             </button>
 
-            {/* Instagram requires the comment author's token to delete, so this is
-                offered only for our own replies. For anyone else's comment, hiding
-                is the moderation action. */}
+            {
+}
             {comment.canDelete && (
               <button
                 type="button"

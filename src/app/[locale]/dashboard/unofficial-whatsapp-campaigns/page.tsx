@@ -64,9 +64,6 @@ export default function UnofficialWhatsAppCampaignsPage() {
     setLoading(true);
     setError(null);
     try {
-      // Search and status are sent to the SERVER rather than filtered in the
-      // browser: filtering a single page client-side silently hides matches on
-      // every other page, which reads as "the campaign is gone".
       const result = await listUnofficialCampaignsAction({
         page,
         pageSize: PAGE_SIZE,
@@ -87,13 +84,10 @@ export default function UnofficialWhatsAppCampaignsPage() {
 
   useEffect(() => {
     if (!currentWorkspace?.id) return;
-    // Debounced so typing in the search box does not fire a request per keypress.
     const timer = setTimeout(fetchCampaigns, 250);
     return () => clearTimeout(timer);
   }, [currentWorkspace?.id, currentDepartment, fetchCampaigns]);
 
-  // Any filter change returns to page 1: staying on page 4 of a narrower result
-  // set shows an empty table that looks like "no campaigns".
   useEffect(() => {
     setPage(1);
   }, [search, statusFilter]);

@@ -8,35 +8,18 @@ import { toast } from "sonner";
 import { renameLeadAction } from "@/app/actions/leads";
 import { cn } from "@/lib/utils";
 
-/** Mirrors the server's MaxLeadNameLength so the field stops before a 400. */
 const MAX_NAME_LENGTH = 120;
 
 type EditableLeadNameProps = {
     leadId: string;
-    /** Current name; null/empty means the lead is shown by its number. */
     name?: string | null;
-    /** Shown when there is no name — normally the phone number. */
     fallback: string;
-    /** RBAC: leads:update. Without it the name renders as plain text. */
     canEdit: boolean;
     onRenamed?: (name: string) => void;
     className?: string;
-    /** The CRM header needs a larger register than a table cell. */
     size?: "sm" | "md";
 };
 
-/**
- * A lead name you can edit in place.
- *
- * Modelled on how WhatsApp treats a contact name, because that is the mental
- * model operators already have: the name is just there, editing is one tap, the
- * keyboard commits, and clearing it falls back to the number rather than
- * leaving a blank where a person's name should be.
- *
- * Deliberately NOT a dialog. A rename is a one-field, instantly-reversible
- * change made while reading a conversation; a modal would take the conversation
- * off screen to edit a label attached to it.
- */
 export function EditableLeadName({
     leadId,
     name,
@@ -52,9 +35,6 @@ export function EditableLeadName({
     const [saving, setSaving] = React.useState(false);
     const inputRef = React.useRef<HTMLInputElement>(null);
 
-    // Re-seed when the lead changes underneath us (switching conversations
-    // reuses this component), but never while the operator is mid-edit — that
-    // would overwrite what they are typing with a websocket update.
     React.useEffect(() => {
         if (!editing) setDraft(name ?? "");
     }, [name, editing, leadId]);
@@ -77,10 +57,8 @@ export function EditableLeadName({
 
         if (result.error) {
             toast.error(result.error);
-            return; // stay in edit mode so the typing is not lost
+            return;
         }
-        // Echo the STORED name: the server trims and collapses whitespace, and
-        // the field should show what the next page load will show.
         const stored = result.lead?.name ?? "";
         setDraft(stored);
         onRenamed?.(stored);
@@ -112,9 +90,8 @@ export function EditableLeadName({
                 <span className={cn("truncate", !name?.trim() && "text-muted-foreground")}>
                     {display}
                 </span>
-                {/* The affordance stays out of the way until hover/focus: a
-                    pencil beside every name in a list is visual noise on a
-                    screen whose job is reading conversations, not editing them. */}
+                {
+}
                 <PencilSimple
                     className={cn(
                         "shrink-0 text-muted-foreground opacity-0 transition-opacity",
@@ -135,8 +112,6 @@ export function EditableLeadName({
                 maxLength={MAX_NAME_LENGTH}
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={(e) => {
-                    // Enter commits, Escape abandons — the two keys anyone
-                    // already expects from an inline field.
                     if (e.key === "Enter") {
                         e.preventDefault();
                         void commit();
@@ -146,10 +121,6 @@ export function EditableLeadName({
                         cancel();
                     }
                 }}
-                // Blur COMMITS rather than cancelling. Clicking away from a
-                // field you have just typed into reads as "done", and losing
-                // the edit there is the single most annoying thing an inline
-                // editor can do.
                 onBlur={() => void commit()}
                 placeholder={fallback}
                 aria-label={t("label")}
@@ -159,8 +130,8 @@ export function EditableLeadName({
                     size === "md" ? "text-sm" : "text-xs",
                 )}
             />
-            {/* Mousedown, not click: blur fires first on click and would commit
-                before cancel ever ran, making the X behave like a save. */}
+            {
+}
             <button
                 type="button"
                 onMouseDown={(e) => {

@@ -115,9 +115,6 @@ interface WorkflowEditorProps {
   workflow?: Workflow | null;
   definitions: NodeDefinition[];
   mode: "create" | "edit";
-  // Backend-resolved output handles per node id, resolved server-side at load so
-  // dynamic handles (and their edges) are present on first paint, no flash while
-  // the client re-resolves. Keyed by node id.
   initialHandles?: Record<string, HandleDefinition[]>;
   onWorkflowUpdate?: (workflow: Workflow) => void;
 }
@@ -218,11 +215,6 @@ function normalizeOutputs(
   }));
 }
 
-// NOTE: output handles (including config-dependent ones for ai_agent tool routes,
-// the response path, and text_match cases) and their optional/required flags are
-// owned by the backend and fetched via resolveHandlesAction. The frontend used to
-// recompute them here, and hardcoded `optional: true` for the AI response, which
-// diverged from the backend. That local computation is intentionally gone.
 
 function checkMissingRequired(
   def: NodeDefinition | undefined,
@@ -254,14 +246,9 @@ function domainToFlow(
   graph: WorkflowGraph | undefined,
   defMap: Map<string, NodeDefinition>,
   outputLabels: OutputLabels,
-  // Backend-resolved handles per node id (server-resolved on load). When present
-  // for a node, they're used so dynamic handles + their edges render on first
-  // paint; otherwise we fall back to the static catalog handles.
   handlesByNode: Record<string, HandleDefinition[]> = {},
 ): { nodes: Node[]; edges: Edge[] } {
   if (!graph) return { nodes: [], edges: [] };
-  // node id → its output handle ids, so edges can resolve an empty/legacy label
-  // to a real handle (see the edge mapping below).
   const handleIdsByNode = new Map<string, string[]>();
   const nodes: Node[] = (graph.nodes ?? []).map((n: WFNode) => {
     if (n.type === "group" || n.type === "decoration_background") {
@@ -285,9 +272,6 @@ function domainToFlow(
     }
 
     const def = defMap.get(n.type);
-    // Prefer backend-resolved handles (so dynamic handles + edges show on first
-    // paint); fall back to the static catalog handles. The frontend never
-    // computes handles itself.
     const outputs = normalizeOutputs(
       n.type,
       handlesByNode[n.id] ?? def?.outputs,
@@ -311,12 +295,6 @@ function domainToFlow(
     };
   });
   const edges: Edge[] = (graph.edges ?? []).map((e: WFEdge, i: number) => {
-    // A React Flow edge only renders if its sourceHandle matches a handle on the
-    // node. Older graphs (and edges saved before nodes had named handles) carry an
-    // empty label → undefined sourceHandle, which no longer matches now that nodes
-    // expose named handles (e.g. an AI agent's "default"/"erro"). Map an empty
-    // label to the node's "default" handle (or its sole handle) so the connection
-    // still draws. Resolving is purely visual; the saved label is unchanged.
     const sourceIds = handleIdsByNode.get(e.source) ?? [];
     let sourceHandle: string | undefined = e.label || undefined;
     if (!sourceHandle && sourceIds.length > 0) {
@@ -440,8 +418,6 @@ function nextNodeId() {
   return `node_${Date.now()}_${nodeIdCounter}`;
 }
 
-// Stable signature of the parts of a node the copilot can edit (config + label),
-// used to detect "the AI changed this node" so we can flash it.
 function copilotNodeSig(data: unknown): string {
   const d = (data ?? {}) as { config?: unknown; label?: unknown };
   return JSON.stringify({ c: d.config ?? null, l: d.label ?? null });
@@ -478,10 +454,6 @@ export function WorkflowEditor({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [showTestPanel, setShowTestPanel] = useState(false);
   const [showCopilot, setShowCopilot] = useState(false);
-  // Mount the copilot panel once (on first open) and keep it mounted afterwards ,
-  // toggling `showCopilot` only shows/hides it. This preserves the live WebSocket
-  // session and the chat history across close/reopen instead of tearing them
-  // down on unmount (the old `{showCopilot && …}` killed the session every close).
   const [copilotMounted, setCopilotMounted] = useState(false);
   const simulation = useWorkflowSimulation({
     workflowId: workflowState?.id ?? "",
@@ -503,8 +475,6 @@ export function WorkflowEditor({
     [definitions],
   );
 
-  // Which node types have config-dependent handles comes from the backend catalog
-  // (def.dynamicHandles), NOT a hardcoded list, the backend is the source of truth.
   const dynamicTypes = useMemo(
     () =>
       new Set(definitions.filter((d) => d.dynamicHandles).map((d) => d.type)),
@@ -559,11 +529,6 @@ export function WorkflowEditor({
   );
   const [nodes, setNodes, onNodesChange] = useNodesState(initial.nodes);
 
-  /**
-   * The graph's own extent, padded, so the room light pools around the work
-   * instead of around the origin. Falls back to a box at the origin for an
-   * empty canvas, and to a typical node size for one not yet measured.
-   */
   const graphBounds = useMemo(() => {
     const pad = 520;
     if (nodes.length === 0) return { x: -900, y: -650, width: 1800, height: 1300 };
@@ -584,10 +549,6 @@ export function WorkflowEditor({
   }, [nodes]);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
 
-  // Backend-resolved output handles, keyed by node id. The backend is the single
-  // source of truth for which handles a node has and whether each is optional ,
-  // the render effect overlays these onto the canvas. Seeded with the server-
-  // resolved handles so an existing workflow shows its handles + edges instantly.
   const [resolvedHandles, setResolvedHandles] = useState<
     Record<string, HandleDefinition[]>
   >(initialHandles ?? {});
@@ -601,9 +562,6 @@ export function WorkflowEditor({
     syncCurrent(nodes, edges);
   }, [nodes, edges, syncCurrent]);
 
-  // --- Copilot auto-layout plumbing ---------------------------------------
-  // Keep the latest committed nodes/edges reachable from async callbacks (ELK is
-  // async) without forcing those callbacks to be recreated every render.
   const latestNodesRef = useRef(nodes);
   const latestEdgesRef = useRef(edges);
   useEffect(() => {
@@ -611,15 +569,8 @@ export function WorkflowEditor({
     latestEdgesRef.current = edges;
   }, [nodes, edges]);
 
-  // Nodes that existed when the copilot opened, these are "user-owned" and the
-  // copilot auto-layout must never move them. Everything the copilot adds after
-  // that is "touched" and gets arranged. Captured once per copilot session.
   const copilotBaselineRef = useRef<Set<string> | null>(null);
-  // Guards against stale async layouts: a newer snapshot supersedes an older one.
   const applySeqRef = useRef(0);
-  // Copilot reveal-animation bookkeeping: which node ids have already played their
-  // entrance, the last config/label signature per node (to detect AI edits), and a
-  // monotonic counter so each detected edit triggers a fresh flash.
   const appearedIdsRef = useRef<Set<string>>(new Set());
   const appearedEdgeIdsRef = useRef<Set<string>>(new Set());
   const nodeSigRef = useRef<Map<string, string>>(new Map());
@@ -628,8 +579,6 @@ export function WorkflowEditor({
     if (showCopilot) {
       const cur = latestNodesRef.current;
       copilotBaselineRef.current = new Set(cur.map((n) => n.id));
-      // Existing nodes are already "present": don't entrance-animate them, and
-      // record their signatures so the first AI snapshot doesn't false-flash them.
       appearedIdsRef.current = new Set(cur.map((n) => n.id));
       appearedEdgeIdsRef.current = new Set(
         latestEdgesRef.current.map((e) => e.id),
@@ -642,22 +591,14 @@ export function WorkflowEditor({
     }
   }, [showCopilot]);
 
-  // Live-apply a graph streamed by the AI copilot onto the canvas. Snapshots
-  // first so the user can undo the AI's changes. Untouched (user-owned) nodes
-  // keep their current canvas positions; copilot-added nodes are auto-arranged
-  // (ELK, left-to-right) and anchored next to the nodes they connect to.
   const applyCopilotGraph = useCallback(
     (graph: WorkflowGraph) => {
       takeSnapshot();
-      // Pass the already-resolved handles so existing dynamic nodes keep their
-      // tool-route/case edges while the copilot streams (new nodes fall back to
-      // catalog handles and get their dynamic ones from the resolve effect).
       const flow = domainToFlow(graph, defMap, outputLabels, resolvedHandles);
       const baseline = copilotBaselineRef.current ?? new Set<string>();
       const currentPos = new Map(
         latestNodesRef.current.map((n) => [n.id, n.position]),
       );
-      // Preserve user-owned nodes exactly where they sit on the canvas.
       const preserved = flow.nodes.map((n) =>
         baseline.has(n.id) && currentPos.has(n.id)
           ? { ...n, position: currentPos.get(n.id)! }
@@ -667,9 +608,6 @@ export function WorkflowEditor({
         preserved.filter((n) => !baseline.has(n.id)).map((n) => n.id),
       );
 
-      // Tag entrance order (new nodes, staggered left-to-right) and a flash nonce
-      // (existing nodes whose config/label the AI just changed) so the canvas can
-      // reveal additions sequentially and blink edits in Signal Blue.
       const tag = (list: typeof preserved) => {
         const fresh = list
           .filter((n) => !appearedIdsRef.current.has(n.id))
@@ -694,8 +632,6 @@ export function WorkflowEditor({
         });
       };
 
-      // Tag new edges so the canvas draws connections in sequentially, the same
-      // way nodes reveal. Edges are identical across the layout branches below.
       const tagEdges = (eds: typeof flow.edges) => {
         const fresh = eds.filter((e) => !appearedEdgeIdsRef.current.has(e.id));
         const order = new Map(fresh.map((e, i) => [e.id, i] as const));
@@ -716,20 +652,15 @@ export function WorkflowEditor({
         setEdges(taggedEdges);
         return;
       }
-      // Once the freshly-added nodes have rendered and MEASURED, re-flow ONLY that
-      // touched cluster with their real heights, the first pass used estimated
-      // heights (unmeasured nodes), so spacing can be a touch off. This never moves
-      // existing/user-arranged nodes: layoutCopilotSubgraph only repositions the
-      // touched set and re-anchors it to the (untouched) flow it grew from.
       const relayoutTouchedWhenMeasured = (touched: Set<string>, s: number) => {
         if (touched.size === 0) return;
         let frames = 0;
         const tick = () => {
-          if (s !== applySeqRef.current) return; // superseded by a newer snapshot
+          if (s !== applySeqRef.current) return;
           const cur = latestNodesRef.current;
           const allMeasured = [...touched].every((id) => {
             const n = cur.find((x) => x.id === id);
-            return !n || n.measured?.height != null; // a removed node counts as done
+            return !n || n.measured?.height != null;
           });
           if (!allMeasured && frames < 30) {
             frames++;
@@ -758,7 +689,7 @@ export function WorkflowEditor({
         touchedIds,
       })
         .then((pos) => {
-          if (seq !== applySeqRef.current) return; // superseded by a newer snapshot
+          if (seq !== applySeqRef.current) return;
           setNodes(
             tag(
               preserved.map((n) =>
@@ -767,8 +698,6 @@ export function WorkflowEditor({
             ),
           );
           setEdges(taggedEdges);
-          // Correct the cluster's spacing once its new nodes measure (org-safe:
-          // touched nodes only, existing arrangement untouched).
           relayoutTouchedWhenMeasured(touchedIds, seq);
         })
         .catch(() => {
@@ -780,8 +709,6 @@ export function WorkflowEditor({
     [takeSnapshot, defMap, outputLabels, resolvedHandles, setNodes, setEdges],
   );
 
-  // Canvas "Tidy up", re-layout the ENTIRE workflow left-to-right (n8n-style),
-  // anchored in place. Group/decoration nodes are left untouched.
   const tidyUpGraph = useCallback(() => {
     const seq = ++applySeqRef.current;
     void layoutWholeFlow({
@@ -798,22 +725,14 @@ export function WorkflowEditor({
     });
   }, [setNodes, takeSnapshot]);
 
-  // Snapshot the live canvas for the copilot to re-hydrate the server session on
-  // (re)connect, so a dropped socket never rebuilds from an empty/last-saved graph
-  // and wipes what is on screen. Stable: reads the latest nodes/edges via refs.
   const getCopilotGraph = useCallback(
     () => flowToDomain(latestNodesRef.current, latestEdgesRef.current),
     [],
   );
 
-  // Live validity: re-lint the canvas (debounced, position-agnostic) with the
-  // EXACT rules the activation gate enforces, so the alerts dropdown always
-  // reflects the current graph as the user (or the copilot) edits it.
   const domainGraph = useMemo(() => flowToDomain(nodes, edges), [nodes, edges]);
   const lint = useWorkflowLint({ workflowType, graph: domainGraph });
 
-  // Friendly label for an alert's node chip: prefer the node's own label, fall
-  // back to its id (which the copilot names semantically, e.g. "ask_name").
   const nodeLabelById = useMemo(() => {
     const map = new Map<string, string>();
     for (const n of nodes) {
@@ -823,7 +742,6 @@ export function WorkflowEditor({
     return map;
   }, [nodes]);
 
-  // Select a node from an alert and pan/zoom the canvas to it.
   const focusNode = useCallback((nodeId: string) => {
     const node = latestNodesRef.current.find((n) => n.id === nodeId);
     if (!node) return;
@@ -842,9 +760,6 @@ export function WorkflowEditor({
     );
   }, []);
 
-  // ── Canvas search (Ctrl+F) ──────────────────────────────────────────────
-  // Distinct node types present on the canvas (excluding group backgrounds),
-  // with friendly labels, for the "filter by type" control.
   const searchTypes = useMemo(() => {
     const seen = new Map<string, string>();
     for (const n of nodes) {
@@ -857,9 +772,6 @@ export function WorkflowEditor({
       .sort((a, z) => a.label.localeCompare(z.label));
   }, [nodes, defMap]);
 
-  // Match any node by id, label, type, or configured value, optionally narrowed
-  // to a single type. Group/decoration backgrounds are excluded so they never
-  // get highlighted or dimmed.
   const searchMatches = useMemo(() => {
     if (!searchOpen) return [] as string[];
     return matchNodeIds(
@@ -880,12 +792,8 @@ export function WorkflowEditor({
       { type: searchTypeFilter },
     );
   }, [searchOpen, searchQuery, searchTypeFilter, nodes]);
-  // Stable key so the paint/cursor effects don't re-run on mere array identity.
   const searchMatchKey = searchMatches.join(",");
 
-  // Paint transient match/dim flags onto node data. These live only on node.data
-  // (never on config), so flowToDomain ignores them: save, lint and copilot sync
-  // are all unaffected. Self-clearing when search closes or the query empties.
   useEffect(() => {
     const active =
       searchOpen &&
@@ -913,8 +821,6 @@ export function WorkflowEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchOpen, searchQuery, searchTypeFilter, searchMatchKey, setNodes]);
 
-  // Reset the cursor whenever the match set changes; a lone match jumps into view
-  // automatically (multiple matches stay put and are cycled with Enter/arrows).
   useEffect(() => {
     if (!searchOpen) return;
     if (searchMatches.length === 1) {
@@ -954,8 +860,6 @@ export function WorkflowEditor({
     setSearchActiveIndex(-1);
   }, []);
 
-  // Apply workflow metadata the AI copilot sets (name/description/type) so a
-  // brand-new workflow built by the AI is named and savable.
   const applyCopilotMeta = useCallback(
     (meta: {
       name?: string;
@@ -969,9 +873,6 @@ export function WorkflowEditor({
     [],
   );
 
-  // Rename a node's id (e.g. n1 → ask_name). Rewires every connected edge and
-  // every {{oldId.…}}/{{oldId}} reference in other nodes' configs so nothing
-  // breaks. Returns an error string (shown in the panel) or null on success.
   const renameNode = useCallback(
     (oldId: string, rawNewId: string): string | null => {
       const newId = rawNewId.trim();
@@ -1036,8 +937,6 @@ export function WorkflowEditor({
     flowPos: { x: number; y: number };
   } | null>(null);
 
-  // Signature of the config that determines a dynamic node's handles, so we only
-  // re-ask the backend when something handle-affecting actually changes.
   const handleSig = useMemo(
     () =>
       nodes
@@ -1045,10 +944,6 @@ export function WorkflowEditor({
           const d = n.data as unknown as WorkflowNodeData;
           if (!dynamicTypes.has(d.nodeType)) return "";
           const c = d.config ?? {};
-          // Include every config key that affects a dynamic node's handle set:
-          // custom_tools (ai_agent), cases (text_match), and buttons/sections/
-          // interactive_type (send buttons/list). Omitting one means the backend
-          // is never re-asked and the handles go stale on edit.
           return `${n.id}:${d.nodeType}:${JSON.stringify(
             c.custom_tools ?? null,
           )}:${JSON.stringify(c.cases ?? null)}:${JSON.stringify(
@@ -1062,11 +957,6 @@ export function WorkflowEditor({
     [nodes, dynamicTypes],
   );
 
-  // Resolve effect: the backend is the single source of truth for dynamic output
-  // handles (ai_agent tool routes + response, text_match cases) and their optional
-  // flags. Fetch them (debounced) whenever the handle-affecting config changes;
-  // the render effect overlays the result. Uses the latest-nodes ref so this only
-  // re-runs when the signature actually changes, not on every node mutation.
   useEffect(() => {
     let cancelled = false;
     const tid = setTimeout(() => {
@@ -1092,10 +982,6 @@ export function WorkflowEditor({
     };
   }, [handleSig, dynamicTypes]);
 
-  // Render effect: overlay the backend-resolved handles (the single source of
-  // truth for the handle set AND each handle's optional/required flag) onto every
-  // node. Static nodes fall back to their catalog handles. Re-runs whenever the
-  // resolved handles arrive (see the resolve effect above) or i18n labels change.
   useEffect(() => {
     if (defMap.size === 0) return;
     setNodes((nds) =>
@@ -1266,8 +1152,6 @@ export function WorkflowEditor({
           config: defaultConfig,
           label,
           icon,
-          // Static catalog handles for now; the resolve effect overlays any
-          // config-dependent handles once this node is on the canvas.
           outputs: normalizeOutputs(
             nodeType as WorkflowNodeType,
             def?.outputs,
@@ -1336,8 +1220,6 @@ export function WorkflowEditor({
           config: { ...(def.defaultConfig ?? {}) },
           label: def.label,
           icon: def.icon,
-          // Static catalog handles for now; the resolve effect overlays any
-          // config-dependent handles once this node is on the canvas.
           outputs: normalizeOutputs(
             def.type as WorkflowNodeType,
             def.outputs,
@@ -1397,10 +1279,6 @@ export function WorkflowEditor({
             ...n.data,
             config,
             label: (config.display_name as string) || def?.label || d.label,
-            // Output handles are owned by the backend (resolved via the effect
-            // below). Keep the current handles here; if this config change affects
-            // them, the resolve effect refreshes them, the frontend never
-            // recomputes the handle set or its optional flags.
             outputs: d.outputs,
             hasMissingRequired: checkMissingRequired(def, config, d.nodeType),
           };
@@ -1429,8 +1307,6 @@ export function WorkflowEditor({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Node search overrides the browser find, and works even from inside an
-      // input, so it sits ahead of the "ignore while typing" guard below.
       if ((e.ctrlKey || e.metaKey) && (e.key === "f" || e.key === "F")) {
         e.preventDefault();
         openSearch();
@@ -1502,8 +1378,6 @@ export function WorkflowEditor({
             config: { ...defaultConfig },
             label,
             icon,
-            // Static catalog handles for now; the resolve effect overlays any
-            // config-dependent handles once this node is on the canvas.
             outputs: normalizeOutputs(nodeType, def?.outputs, outputLabels),
             hasMissingRequired: checkMissingRequired(
               def,
@@ -1611,9 +1485,6 @@ export function WorkflowEditor({
         toast.error(result.error);
       } else if (result.workflow) {
         toast.success(t("saved"));
-        // Keep the editor (and any open AI copilot session) mounted: update state
-        // in place and rewrite the URL shallowly instead of navigating, which
-        // would remount the page and drop the builder session.
         setWorkflowState(result.workflow);
         onWorkflowUpdate?.(result.workflow);
         if (typeof window !== "undefined") {
@@ -1701,7 +1572,7 @@ export function WorkflowEditor({
 
   return (
     <div className="flex flex-col h-[calc(100vh-3rem)] overflow-hidden">
-      {/* ─── Top Bar ──────────────────────────────────────────────────── */}
+      {}
       <div className="flex items-center gap-3 px-4 py-2.5 border-b border-border bg-card flex-shrink-0">
         <ElevatedButton
           variant="ghost"
@@ -1810,8 +1681,8 @@ export function WorkflowEditor({
           disabled={saving}
         />
 
-        {/* Secondary / destructive actions live in an overflow menu so the top
-            bar stays focused on the primary controls. */}
+        {
+}
         {workflowState && (
           <>
             <DropdownMenu>
@@ -1829,8 +1700,6 @@ export function WorkflowEditor({
                   <DropdownMenuItem
                     className="rounded-lg border-l-0"
                     onSelect={() =>
-                      // Scoped: a plain navigation carries no X-Workspace-ID,
-                      // so the API resolved the user's default workspace.
                       openScoped(
                         `${getApiBaseUrl()}/workflows/${encodeURIComponent(workflowState.id)}/export`,
                       )
@@ -1863,13 +1732,12 @@ export function WorkflowEditor({
         )}
       </div>
 
-      {/* ─── Canvas ──────────────────────────────────────────────────── */}
+      {}
       <div className="flex flex-1 overflow-hidden">
         <NodePalette definitions={availableDefinitions} />
 
-        {/* The canvas ground moved here from ReactFlow so the room light can
-            sit on it: a pane painting its own background would swallow the pool.
-            Quiet tone, because the operator's graph is the subject. */}
+        {
+}
         <div
           ref={reactFlowWrapper}
           className="relative flex-1 bg-background"
@@ -1918,10 +1786,8 @@ export function WorkflowEditor({
               size={1}
               color="hsl(var(--border-strong))"
             />
-            {/* The room light belongs to the BOARD, not to the screen: pinned to
-                the pane it slides across the graph as you pan, which reads as a
-                bug. Rendered into the viewport it pans and zooms with the nodes,
-                and a negative z-index keeps it under the edges and the nodes. */}
+            {
+}
             <ViewportPortal>
               <div
                 style={{
@@ -1945,14 +1811,14 @@ export function WorkflowEditor({
                 <MagnifyingGlass />
               </ControlButton>
             </Controls>
-            {/* Lifted clear of the copilot FAB, which owns the corner. */}
+            {}
             <MiniMap
               className="!bg-background !border-border border rounded !mb-20"
               nodeColor="hsl(var(--primary))"
               maskColor="hsl(var(--muted) / 0.7)"
             />
 
-            {/* Brand watermark */}
+            {}
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-[5] opacity-35 pointer-events-none select-none">
               <BrandLogo
                 useWhite={resolvedTheme === "dark"}
@@ -1975,7 +1841,7 @@ export function WorkflowEditor({
               </Panel>
             )}
 
-            {/* Node search (Ctrl+F) */}
+            {}
             {searchOpen && (
               <Panel position="top-center">
                 <WorkflowSearch
@@ -1994,7 +1860,7 @@ export function WorkflowEditor({
               </Panel>
             )}
 
-            {/* Undo / Redo */}
+            {}
             <Panel position="top-left">
               <div className="flex items-center gap-1 bg-background border border-border rounded-lg p-0.5 shadow-sm">
                 <button
@@ -2015,7 +1881,7 @@ export function WorkflowEditor({
             </Panel>
           </ReactFlow>
 
-          {/* Right-click context menu */}
+          {}
           {ctxMenu && (
             <CanvasContextMenu
               x={ctxMenu.x}
@@ -2027,12 +1893,10 @@ export function WorkflowEditor({
           )}
         </div>
 
-        {/* Side sheets (z-40) render before the dialogs (z-[70]) so the
-            stacking order is unambiguous: sheets sit on the page layer, the
-            dialogs float above everything with their own scrim. */}
-        {/* Floating assistant: before the first open the editor renders just
-            the FAB (keeps the copilot lazy-mounted); after that the panel owns
-            both states — expanded card, or the same FAB while collapsed. */}
+        {
+}
+        {
+}
         {!copilotMounted && (
           <WorkflowCopilotFab
             onClick={() => {
@@ -2054,8 +1918,8 @@ export function WorkflowEditor({
           />
         )}
 
-        {/* Centered dialogs, fixed-position: they take no flex width, so the
-            canvas stays full-bleed behind the scrim. */}
+        {
+}
         {selectedNode && (
           <NodeConfigPanel
             node={selectedNode}

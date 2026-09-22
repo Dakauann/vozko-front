@@ -4,43 +4,8 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-/**
- * Page shapes: the layout a list page takes, derived from what its data is.
- *
- * Every list page in this product had converged on one composition — a row of
- * metric cards, then a table — regardless of whether the page held eighty
- * invoices or six agents. That shape is the framework default, not a decision:
- * a card is a box drawn around a number that needed no box, and repeating the
- * box on all of them spends the page's vertical budget before the rows start.
- *
- * The replacement is not variety for its own sake. Repetition is what lets an
- * attendant move between pages without relearning them, so the shape only
- * changes where the content genuinely changes:
- *
- * - `ReadoutBar`  — LEDGER. Many rows, numeric, scanned and filtered. The
- *                   summary is engraved on one line so the rows get the page.
- * - `StatusRail`  — ROSTER. Entities carrying status, acted on one at a time.
- *                   The distribution is the filter, so the summary does work
- *                   instead of just reporting.
- * - `GalleryGrid` — GALLERY. Few items whose identity matters more than their
- *                   fields. No table at all; the card carries real content.
- *
- * All three are console furniture: legends engrave, rules divide, and the lamp
- * is reserved for lit state. None of them draws a box around a number.
- */
 
-/* --------------------------------------------------------------- SURFACES */
 
-/**
- * The readable foreground for a filled surface class.
- *
- * Every token surface owns a paired `-foreground` that inverts with the theme;
- * `text-white` does not. Tiles that take their background as a prop or from a
- * lookup had a literal `text-white` baked into the container instead, so any
- * entry that resolved to `bg-muted` painted white on L92% in the default theme
- * and the glyph vanished. Deriving the pair from the fill keeps every caller
- * correct without threading a second class through each one.
- */
 export function onSurface(bg: string): string {
   if (/\bbg-(?:muted|card|background|popover)\b/.test(bg)) {
     return "text-muted-foreground";
@@ -50,12 +15,9 @@ export function onSurface(bg: string): string {
   if (/\bbg-destructive\b/.test(bg)) return "text-destructive-foreground";
   if (/\bbg-primary\b/.test(bg)) return "text-primary-foreground";
   if (/\bbg-foreground\b/.test(bg)) return "text-background";
-  // Saturated fills with no token pair (raw palette, brand hexes) are dark
-  // enough for white, which is what they were already using.
   return "text-primary-foreground";
 }
 
-/* ------------------------------------------------------------------ LEDGER */
 
 export type ReadoutTone = "default" | "healthy" | "fault" | "warning";
 
@@ -79,23 +41,14 @@ export interface Readout {
   tone?: ReadoutTone;
 }
 
-/**
- * One engraved line of legend/readout pairs.
- *
- * Use above a dense table when the numbers are context, not controls. The
- * values are `.readout` (tabular figures) so a changing total does not shift
- * the labels beside it.
- */
 export function ReadoutBar({
   legend,
   readouts,
   right,
   className,
 }: {
-  /** Silkscreen label for the whole bar. Names the set, not the numbers. */
   legend?: string;
   readouts: Readout[];
-  /** Controls that belong to the set as a whole (export, date range). */
   right?: ReactNode;
   className?: string;
 }) {
@@ -140,42 +93,20 @@ export function ReadoutBar({
   );
 }
 
-/* -------------------------------------------------------------- INSTRUMENT */
 
 export interface Instrument {
   label: string;
   value: string;
-  /** One line of provenance under the figure — what it counts, not a claim. */
   detail?: string;
-  /** Long-form definition. Financial figures need one; most readouts do not. */
   tooltip?: string;
   tone?: ReadoutTone;
-  /** A compact visualization using this metric's actual observations. */
   chart?: ReactNode;
 }
 
-/**
- * A continuous strip of gauges for a page whose subject *is* its numbers.
- *
- * `ReadoutBar` is for numbers that give a table context. This is for numbers
- * that are the content — a financial overview, where each figure needs its own
- * scale and a line of provenance, and there is no table beneath to defer to.
- *
- * It is still not cards. The cards this replaces each carried a coloured accent
- * bar, a filled icon tile and a soft drop shadow, which is three decorations
- * per figure and a lifted surface in a system whose depth is engraved. Here the
- * strip is one panel, the figures are divided by the same hairline as every
- * other bank, and nothing is tinted that is not reporting a state.
- */
-/** How many gauges sit across the strip at full width. */
 const STRIP_COLUMNS: Record<2 | 3 | 4 | 8, string> = {
-  // Two is for a column that stays narrow on every viewport (a dialog
-  // pane), so it does not widen with the window.
   2: "grid-cols-2",
   3: "sm:grid-cols-2 xl:grid-cols-3",
   4: "sm:grid-cols-2 lg:grid-cols-4",
-  // Eight is an operations readout, not a financial one: the figures are small
-  // integers read at a glance, so they take the density rather than the scale.
   8: "grid-cols-2 sm:grid-cols-4 xl:grid-cols-8",
 };
 
@@ -189,15 +120,12 @@ export function InstrumentStrip({
   instruments: Instrument[];
   loading?: boolean;
   columns?: 2 | 3 | 4 | 8;
-  /** Operations density: smaller figure, tighter bank. */
   compact?: boolean;
   className?: string;
 }) {
   return (
     <div
       className={cn(
-        // A 1px border field with the cells sitting on it: the dividers between
-        // gauges are hairlines, and they do not double up at the seams.
         "grid gap-px border border-border bg-border",
         STRIP_COLUMNS[columns],
         className,
@@ -249,11 +177,6 @@ export function InstrumentStrip({
   );
 }
 
-/**
- * The affordance for a tooltip, drawn rather than borrowed from a glyph set —
- * it needs to sit at legend scale (10px) where an icon-set circle-i turns to
- * mud, and it needs to be focusable so the definition is reachable by keyboard.
- */
 function InfoGlyph() {
   return (
     <button
@@ -266,28 +189,14 @@ function InfoGlyph() {
   );
 }
 
-/* ------------------------------------------------------------------ ROSTER */
 
 export interface StatusSegment {
-  /** Filter value this bank selects. */
   key: string;
   label: string;
   count: number;
   tone?: ReadoutTone;
 }
 
-/**
- * A bank per status, each showing its share of the roster, each a filter.
- *
- * The cards this replaces reported the same three numbers and did nothing with
- * them: the operator read "3 com erro", then went to a separate dropdown to
- * actually see those three. Here the number *is* the control, and the rule at
- * the foot of each bank carries its proportion — so the shape of the roster is
- * legible before any number is read.
- *
- * State is never colour alone: the selected bank sinks to `bg-muted`, its label
- * goes semibold, and it carries `aria-pressed`.
- */
 export function StatusRail({
   segments,
   activeKey,
@@ -296,15 +205,12 @@ export function StatusRail({
   className,
 }: {
   segments: StatusSegment[];
-  /** `null` means no filter — the "all" bank is lit. */
   activeKey: string | null;
   onSelect: (key: string | null) => void;
   allLabel: string;
   className?: string;
 }) {
   const total = segments.reduce((sum, s) => sum + s.count, 0);
-  // The "all" bank carries a null key — it clears the filter rather than
-  // setting one — so it cannot reuse StatusSegment's string key.
   type Bank = Omit<StatusSegment, "key"> & { key: string | null };
   const banks: Bank[] = [
     { key: null, label: allLabel, count: total, tone: "default" },
@@ -321,7 +227,6 @@ export function StatusRail({
     >
       {banks.map((bank) => {
         const selected = activeKey === bank.key;
-        // Share of the roster. The "all" bank is always full — it is the whole.
         const share =
           bank.key === null || total === 0 ? 1 : bank.count / total;
         return (
@@ -333,9 +238,6 @@ export function StatusRail({
             className={cn(
               "group relative min-w-[7rem] flex-1 border-l border-border px-3 pb-2.5 pt-2 text-left transition-colors duration-DEFAULT first:border-l-0",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              // Neutral ground with a 2px brand rule along the bottom edge —
-              // the same inset-shadow idiom .focus-field uses, so the selected
-              // bank is marked rather than washed.
               selected
                 ? "bg-muted text-foreground shadow-[inset_0_-2px_0_0_hsl(var(--primary))]"
                 : "hover:bg-muted",
@@ -359,9 +261,8 @@ export function StatusRail({
               {bank.count}
             </span>
 
-            {/* Proportion, engraved at the foot of the bank. Unlit banks keep
-                the mark at reduced opacity so the shape stays readable while
-                only the selection reports as lit. */}
+            {
+}
             <span
               aria-hidden
               className="absolute inset-x-0 bottom-0 block h-0.5 rounded-full bg-border"
@@ -382,16 +283,7 @@ export function StatusRail({
   );
 }
 
-/* ----------------------------------------------------------------- GALLERY */
 
-/**
- * A grid for pages whose items are recognised, not scanned.
- *
- * The rule this enforces is what the card grid usually gets wrong: a card here
- * must carry the item's own content. A grid of identical icon-plus-title-plus-
- * one-line-description tiles is the table again, drawn worse and taking four
- * times the room — if that is all the item has, it belongs in a table.
- */
 export function GalleryGrid({
   children,
   className,
@@ -412,13 +304,6 @@ export function GalleryGrid({
   );
 }
 
-/**
- * One cell of a `GalleryGrid`.
- *
- * The grid is a 1px `bg-border` field and the cells sit on it, so the dividers
- * between them are the same engraved hairline the rest of the console uses —
- * not a gap, and not a border per card that doubles up at every seam.
- */
 export function GalleryCell({
   children,
   onClick,

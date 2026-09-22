@@ -10,18 +10,6 @@ import { cn } from "@/lib/utils";
 
 type T = (key: string) => string;
 
-/**
- * The campaign list columns.
- *
- * Mirrors the official campaign's list one column at a time, with the three
- * differences the channel actually has:
- *
- *  - the second line under the name is the NUMBER this campaign sends from,
- *    where the official shows its template;
- *  - there is no message-type column, because there are no template categories;
- *  - there is a "não está no WhatsApp" column, because only this channel can
- *    check a number before sending — and that count is list quality, not failure.
- */
 export function campaignColumns(t: T): DashboardTableColumn<UnofficialWhatsAppCampaign>[] {
   return [
     {
@@ -33,9 +21,8 @@ export function campaignColumns(t: T): DashboardTableColumn<UnofficialWhatsAppCa
             {row.name}
           </span>
           <span className="flex items-center gap-1.5 text-2xs text-muted-foreground">
-            {/* A live dot rather than words: the row is scanned, not read, and
-                whether the number can send is the fact that decides whether
-                Start will work. */}
+            {
+}
             <span
               aria-hidden
               className={cn(

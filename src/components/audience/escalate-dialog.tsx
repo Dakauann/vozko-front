@@ -19,19 +19,6 @@ import { Chip, Skeleton } from "@/components/audience/shared";
 import { Check, MagnifyingGlass, Warning, WhatsappLogo } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
-/*
- * "Encaminhar por WhatsApp" (§3).
- *
- * The recipient list is conversations the workspace ALREADY has open, which is
- * both the safe answer and the honest one: this is forwarding, not a way to
- * start messaging a stranger from the comment dashboard. The copy says so, and
- * a conversation whose send window has closed is shown with that fact rather
- * than hidden, because whether it can be delivered is the channel's call and
- * the operator may still want to queue it.
- *
- * Sending is an explicit act on a message the operator can read first: the
- * preview is the exact text the API will send, built by the same domain code.
- */
 
 export function EscalateCommentDialog({
   comment,
@@ -50,7 +37,6 @@ export function EscalateCommentDialog({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // One debounce, so typing a name is not one request per keystroke.
   const [debounced, setDebounced] = useState("");
   useEffect(() => {
     const id = setTimeout(() => setDebounced(query), 250);
@@ -73,10 +59,6 @@ export function EscalateCommentDialog({
   }, [debounced]);
 
   const preview = useMemo(() => {
-    // A local approximation of the message, shown so the operator knows what
-    // leaves. The API sends the domain's own version; the two agree because
-    // both are built from the same fields, and the response echoes the real
-    // text back after sending.
     const author = comment.authorHandle ? `@${comment.authorHandle}` : comment.authorExternalId;
     const lines = [t("preview.heading"), "", `${t("preview.author")}: ${author}`];
     if (comment.status === "analyzed") lines.push(`${t("preview.severity")}: ${comment.severity}`);

@@ -47,18 +47,6 @@ const STATUS_LABELS: Record<string, string> = {
   COMPLETED: "Concluída",
 };
 
-/**
- * A campaign's state, as a status dot.
- *
- * Lit for the two states that mean the campaign is doing something, unlit for
- * the two that mean it stopped — with the word next to it, so the state never
- * rests on the dot alone.
- *
- * `COMPLETED` used to draw `--lamp`, which is the brand hue. A finished
- * campaign is not an action to take, and spending the accent on it left the
- * strip with no colour that meant "this one wants you". It reads as settled
- * neutral now; only `RUNNING` earns a semantic colour.
- */
 const STATUS_LAMP: Record<string, string | null> = {
   RUNNING: "var(--healthy)",
   COMPLETED: "var(--muted-foreground)",
@@ -66,26 +54,6 @@ const STATUS_LAMP: Record<string, string | null> = {
   STOPPED: null,
 };
 
-/**
- * One workspace measure.
- *
- * Two things changed from the version this replaces, and both were reading
- * failures rather than taste.
- *
- * The track used to fill in `--lamp`, which resolves to the same value as
- * `--primary`. Every measure on the strip therefore rendered the same
- * saturated brand orange, so a response rate of 34% and one of 94% were the
- * same colour, and the accent — which is supposed to mean "commit" — was
- * spent four times before the operator touched anything. A rate now carries
- * its own semantic tone, and the brand hue is left to the actions.
- *
- * The track itself was a 3px hard-cornered bar: a VU meter drawn on a console
- * faceplate. It is a rounded 2px rule now, which is what a progress indicator
- * looks like in every system this product is measured against.
- *
- * A measure with no real denominator keeps an unfilled track. An open-window
- * count has no ceiling, and inventing one would be a lie drawn to scale.
- */
 type MeterTone = "neutral" | "healthy" | "warning" | "critical";
 
 const METER_TONE: Record<MeterTone, { fill: string; ink: string }> = {
@@ -95,7 +63,6 @@ const METER_TONE: Record<MeterTone, { fill: string; ink: string }> = {
   critical: { fill: "bg-destructive", ink: "text-destructive-ink" },
 };
 
-/** A rate reads as a grade; a bare count has nothing to be graded against. */
 function rateTone(level: number | null | undefined): MeterTone {
   if (level == null) return "neutral";
   if (level >= 75) return "healthy";
@@ -122,8 +89,8 @@ function Meter({
     <div className="min-w-0">
       <dt className="legend sm:truncate">{legend}</dt>
       <dd>
-        {/* Tight to its label, generous before the track: the number belongs to
-            the legend above it, not to the rule below it. */}
+        {
+}
         <span
           className={cn(
             "readout font-display mt-1.5 block text-3xl font-semibold leading-none tracking-[-0.03em]",
@@ -156,7 +123,6 @@ type QuickActionItem = {
   description: string;
   icon: typeof WhatsappLogo;
   href: string;
-  /** Category ink for the glyph — colour on the mark, not a filled tile. */
   ink: string;
 };
 
@@ -177,13 +143,6 @@ function LogSkeleton() {
   );
 }
 
-/**
- * The 7-day attendance glance — the metrics page's own KPI vocabulary,
- * summarised on the landing screen. Reuses the `metricsOps` translations and
- * the product-wide glyph→plate colours so every figure here reads exactly the
- * way it reads on the full page it links to. Data is the overview the page
- * already fetches; nothing new is queried.
- */
 function AttendanceGlance({
   overview,
   loading,
@@ -435,9 +394,6 @@ function UserDashboard() {
           }),
         );
       }
-      // The same 7-day overview the metrics page reads — the dashboard shows
-      // the workspace's attendance shape out of the box instead of sending the
-      // operator to a second screen for their first read of the day.
       if (canReadAttendance) {
         promises.push(
           getAttendanceOverviewAction({
@@ -494,12 +450,6 @@ function UserDashboard() {
   const formatNumber = (value: number) =>
     new Intl.NumberFormat(locale === "pt" ? "pt-BR" : locale).format(value);
 
-  /**
-   * The bridge reads four channels, and every one of them measures the
-   * workspace. The old strip also metered "ações rápidas: 3" and "módulos
-   * visíveis: 3" — the dashboard counting its own buttons and reporting it as
-   * an operational figure.
-   */
   const meters = useMemo(() => {
     const list: {
       legend: string;
@@ -533,7 +483,6 @@ function UserDashboard() {
             ? t("attendantsCount", { count: attendants.length })
             : t("noConsolidatedAvg"),
         level: aggregateRate,
-        // The only figure on the strip with a good and a bad direction.
         tone: attendants.length > 0 ? rateTone(aggregateRate) : "neutral",
       });
       list.push({
@@ -664,13 +613,8 @@ function UserDashboard() {
         />
       </div>
 
-      {/*
-        THE METER BRIDGE.
-
-        Everything the operator checks before touching anything, on one strip:
-        legend, level, figure. It replaces two rows of stat cards that between
-        them nested three levels of border inside a fourth.
-      */}
+      {
+}
       {meters.length > 0 ? (
         <section className="well overflow-hidden">
           <header className="rule-engraved flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-5 py-3">
@@ -693,27 +637,15 @@ function UserDashboard() {
         </section>
       ) : null}
 
-      {/*
-        ATTENDANCE, OUT OF THE BOX.
-
-        The same 7-day overview the metrics page charts, summarised where the
-        operator lands: five colourful KPI tiles (the product-wide glyph→plate
-        colours, so green means done here exactly as it does there) and the
-        status donut with the slice total in its hole. The full page is one
-        click away on the section header.
-      */}
+      {
+}
       {canReadAttendance && overview?.kpis ? (
         <AttendanceGlance overview={overview} loading={loading} />
       ) : null}
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_296px]">
-        {/*
-          THE LOG.
-
-          Campaigns were cards holding cards: a bordered card per campaign, each
-          containing two more bordered boxes for its two numbers. A log is rows,
-          and rows let you read six campaigns' contact counts as one column.
-        */}
+        {
+}
         {canReadWaCampaigns ? (
           <section className="well overflow-hidden">
             <header className="rule-engraved flex items-center justify-between gap-3 px-4 py-2.5">
@@ -831,10 +763,8 @@ function UserDashboard() {
         ) : null}
 
         <div className="space-y-4">
-          {/*
-            THE PATCH PANEL. Destinations, as a list of labelled rows — not
-            three same-size cards of icon plus heading plus body copy.
-          */}
+          {
+}
           <section className="well h-fit overflow-hidden">
             <header className="rule-engraved px-4 py-2.5">
               <p className="legend">{t("quickActions.sectionTitle")}</p>
@@ -913,7 +843,5 @@ function UserDashboard() {
 }
 
 export default function DashboardPage() {
-  // Root dashboard is always the standard workspace overview for every role,
-  // including platform admins. Admin financial view lives at /dashboard/admin.
   return <UserDashboard />;
 }

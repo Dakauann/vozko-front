@@ -25,7 +25,6 @@ interface ConversationAnalysisPanelProps {
   entryType: "whatsapp";
 }
 
-/** Solid tile + white glyph (DESIGN.md §5 Icons / Symbols). Never wash + same-hue text. */
 const SENTIMENT_CONFIG = {
   positive: {
     label: "Positivo",
@@ -88,18 +87,6 @@ const DISPOSITION_LABELS: Record<string, string> = {
   pending: "Pendente",
 };
 
-/*
- * What to show for a label this panel does not recognise.
- *
- * Every lookup below goes through a fallback rather than indexing the config
- * directly. The direct version threw: a row that is queued but not yet
- * classified carries empty labels, so SENTIMENT_CONFIG[""] was undefined and
- * reading .icon off it took down the whole CRM route, not just this panel.
- *
- * The status filter on the fetch is the real fix for that case. This is the
- * second line: a label the engine adds later (a new disposition, say) must
- * degrade to a neutral tile, never to a crash.
- */
 const UNKNOWN_SENTIMENT = { label: "—", icon: SmileyMeh, tile: "tile-muted" } as const;
 const UNKNOWN_INTEREST = { label: "—", tile: "tile-muted" } as const;
 const UNKNOWN_QUALIFICATION = { label: "—", icon: Target, tile: "tile-muted", bar: "bg-muted" } as const;
@@ -149,10 +136,6 @@ export default function ConversationAnalysisPanel({
       latestAnalysisUpdate.entry_id === entryId &&
       latestAnalysisUpdate.entry_type === entryType
     ) {
-      // A "queued" frame carries no analysis. Keeping the one on screen is the
-      // point: this conversation is being re-analysed and still has its
-      // previous verdict, so replacing it with nothing would read as the
-      // analysis having been lost rather than refreshed.
       if (latestAnalysisUpdate.analysis) {
         setAnalysis(latestAnalysisUpdate.analysis);
       }
@@ -170,7 +153,7 @@ export default function ConversationAnalysisPanel({
 
   return (
     <div className="absolute right-3 top-16 z-20 w-72 sm:w-80">
-      {/* Toggle button */}
+      {}
       <button
         onClick={() => setExpanded((v) => !v)}
         className={cn(
@@ -187,7 +170,7 @@ export default function ConversationAnalysisPanel({
           Análise
         </span>
 
-        {/* Mini symbols when collapsed: solid tile + white glyph */}
+        {}
         {!expanded && (
           <div className="flex items-center gap-1">
             <span
@@ -220,7 +203,7 @@ export default function ConversationAnalysisPanel({
         />
       </button>
 
-      {/* Expanded panel */}
+      {}
       <AnimatePresence>
         {expanded && (
           <motion.div
@@ -231,7 +214,7 @@ export default function ConversationAnalysisPanel({
             className="overflow-hidden rounded-b-xl border border-t-0 border-border bg-card shadow-lg"
           >
             <div className="max-h-[60vh] overflow-y-auto p-3 space-y-3">
-              {/* Attendance Quality Progress Bar */}
+              {}
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-2xs font-semibold text-muted-foreground">
@@ -258,7 +241,7 @@ export default function ConversationAnalysisPanel({
                 </div>
               </div>
 
-              {/* Meaning chips: solid fill + white text (no same-hue wash) */}
+              {}
               <div className="flex flex-wrap gap-1.5">
                 <span
                   className={cn(
@@ -300,7 +283,7 @@ export default function ConversationAnalysisPanel({
                 </span>
               </div>
 
-              {/* Summary */}
+              {}
               {analysis.summary && (
                 <div className="rounded-lg bg-muted p-2.5">
                   <p className="text-2xs font-semibold text-muted-foreground mb-1">
@@ -312,7 +295,7 @@ export default function ConversationAnalysisPanel({
                 </div>
               )}
 
-              {/* Footer meta */}
+              {}
               <div className="flex items-center justify-between pt-1 border-t border-border">
                 <span className="text-2xs text-muted-foreground">
                   {analysis.messageCount} mensagens analisadas

@@ -8,7 +8,6 @@ export type CircuitParameters = {
   steps?: number;
 };
 
-/** Reproducible when seeded; bounded geometry with orthogonal and 45° routes. */
 export function createCircuitRoutes({ seed = 17, width = 220, height = 220, branches = 8, steps = 5 }: CircuitParameters = {}): CircuitRoute[] {
   let state = seed >>> 0;
   const random = () => {

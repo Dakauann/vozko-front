@@ -1,7 +1,3 @@
-/**
- * Derive a compact "attendance of this conversation" summary from
- * conversation_events + current entry fields (events-only v1, no extra APIs).
- */
 
 import {
   normalizeActorKind,
@@ -15,22 +11,12 @@ import {
 
 export type AttendanceOwnerKind = "human" | "ai" | "system" | "unassigned";
 
-/**
- * Whether the entry's AI auto-reply toggle is on.
- * Matches backend IsAutomationEnabled: nil/undefined defaults to true.
- * Prefer {@link isAiCurrentlyAttending} for inbox badges (who is handling).
- */
 export function isAiAutoReplyEnabled(
   automationEnabled?: boolean | null,
 ): boolean {
   return automationEnabled !== false;
 }
 
-/**
- * Whether the conversation should show an "AI attending" chip.
- * Human assignee wins; finished chats hide the chip; AI only when
- * auto-reply is on and no human is owning the thread (or assignee is ai:…).
- */
 export function isAiCurrentlyAttending(input: {
   automationEnabled?: boolean | null;
   conversationStatus?: string | null;
@@ -40,13 +26,12 @@ export function isAiCurrentlyAttending(input: {
   if (!isAiAutoReplyEnabled(input.automationEnabled)) return false;
   const assignee = String(input.assignedUserId ?? "").trim();
   if (assignee.startsWith("ai:")) return true;
-  if (assignee) return false; // human owns the conversation
-  return true; // unassigned + auto-reply on → AI path
+  if (assignee) return false;
+  return true;
 }
 
 export interface ConversationAttendanceSummary {
   ownerKind: AttendanceOwnerKind;
-  /** Display name for current owner when known (human username). */
   ownerLabel: string | null;
   aiEnabled: boolean;
   assignmentEventCount: number;
@@ -59,7 +44,6 @@ export interface ConversationAttendanceSummary {
   aiReplyCount: number;
   transferEventCount: number;
   closeProvenance: CloseProvenance | null;
-  /** Most recent non-system agent-side actor kind (human | ai). */
   lastAgentKind: "human" | "ai" | null;
 }
 
@@ -101,7 +85,6 @@ export function buildConversationAttendanceSummary(input: {
   let lastAiEndReason: string | null = null;
   let lastAgentKind: "human" | "ai" | null = null;
 
-  // Events from API are typically newest-first; walk oldest→newest for "last".
   const chronological = [...events].sort(
     (a, b) =>
       new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
@@ -143,8 +126,6 @@ export function buildConversationAttendanceSummary(input: {
   let ownerKind: AttendanceOwnerKind = "unassigned";
   let ownerLabel: string | null = null;
 
-  // Owner = who is currently responsible, not merely whether the AI toggle is on.
-  // Human assignment always wins over the AI auto-reply flag.
   if (assignedId.startsWith("ai:") || normalizeActorKind(undefined, assignedId) === "ai") {
     ownerKind = "ai";
     ownerLabel = assignedName || null;
@@ -165,7 +146,6 @@ export function buildConversationAttendanceSummary(input: {
   return {
     ownerKind,
     ownerLabel,
-    // Toggle state (backend defaults null → true via IsAutomationEnabled).
     aiEnabled: isAiAutoReplyEnabled(automationEnabled),
     assignmentEventCount,
     aiSessionStarted,
@@ -181,7 +161,6 @@ export function buildConversationAttendanceSummary(input: {
   };
 }
 
-/** Campaign metrics deep-link path (locale-agnostic path segment). */
 export function attendanceMetricsHref(params: {
   campaignId?: string | null;
   campaignType?: string | null;

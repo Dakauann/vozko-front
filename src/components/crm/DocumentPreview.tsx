@@ -17,9 +17,6 @@ import dynamic from "next/dynamic";
 
 import Button from "../elevated-design/button";
 
-// reactjs-file-preview touches browser-only APIs (DOMMatrix) at module load, so
-// it must never evaluate during SSR (that throws "DOMMatrix is not defined" and
-// forces a client-render fallback). Load it client-only.
 const FilePreview = dynamic(() => import("reactjs-file-preview"), {
   ssr: false,
 });

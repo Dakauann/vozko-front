@@ -11,12 +11,6 @@ import {
     DEFAULT_AUTHOR_SORT,
 } from "@/lib/audience/types";
 
-/**
- * The author ranking vocabulary is shared with the API, which REFUSES an
- * unknown sort key with a 400 rather than defaulting. So a key that exists here
- * and not there (or a column with no label) is not a cosmetic slip: it is a
- * table that errors the moment someone clicks its header.
- */
 describe("author sort vocabulary", () => {
     it("gives every key a first direction", () => {
         for (const key of AUTHOR_SORT_KEYS) {
@@ -27,8 +21,6 @@ describe("author sort vocabulary", () => {
 
     it("defaults to a key the API knows", () => {
         expect(AUTHOR_SORT_KEYS).toContain(DEFAULT_AUTHOR_SORT.key);
-        // Ascending reputation: the moderation table opens on who needs
-        // attention, matching DefaultAuthorSort in the domain.
         expect(DEFAULT_AUTHOR_SORT).toEqual({ key: "reputation", direction: "asc" });
     });
 

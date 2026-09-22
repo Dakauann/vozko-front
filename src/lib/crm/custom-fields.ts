@@ -1,6 +1,3 @@
-// Client-safe types for workspace-defined custom fields (opportunities today,
-// leads/conversations later). Mirrors domain/customfield.Definition. Fetch calls
-// live in app/actions/custom-fields.ts.
 
 export type CustomFieldType =
     | 'text'
@@ -13,7 +10,7 @@ export type CustomFieldType =
 export interface CustomFieldDefinition {
     id: string;
     workspaceId: string;
-    objectType: string; // "opportunity" | "conversation" | "lead"
+    objectType: string;
     key: string;
     label: string;
     type: CustomFieldType;

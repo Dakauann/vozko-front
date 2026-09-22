@@ -71,7 +71,7 @@ function normalizeBalanceSummary(
     balances: [
       {
         resource_type: "money",
-        current_balance: (balance?.amount ?? 0) / 1_000_000, // USD micros to USD
+        current_balance: (balance?.amount ?? 0) / 1_000_000,
         total_credited: (apiResponse.totalMoneyCredits ?? 0) / 1_000_000,
         total_debited: (apiResponse.totalMoneyDebits ?? 0) / 1_000_000,
       },
@@ -312,13 +312,8 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
 
   return (
     <div className={cn("relative", className)} ref={containerRef}>
-      {/*
-        A panel readout, not a boxed widget. This sits in a 48px bar beside the
-        scope route, so it is a legend over a tabular figure — the amount is the
-        only thing that should draw the eye, and it holds its width as it ticks.
-        The old form (bordered card, amber R$ tile, coloured plan pill, solid
-        accent button) outweighed every other element in the bar.
-      */}
+      {
+}
       <div
         className={cn(
           "flex items-center gap-1.5 rounded-[--radius] px-1.5 py-1 transition-colors",
@@ -337,10 +332,6 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
               className="flex min-w-0 items-center gap-1.5 text-left"
             >
               {hasBalancePermission ? (
-                // One line, value-first. A stacked legend over the figure put a
-                // wide-tracked label above a short number in a 48px bar, which
-                // made the label outweigh the thing it names; the accessible
-                // name carries the label instead.
                 <span
                   className="readout truncate text-sm font-semibold leading-none text-foreground"
                   title={t("moneyLabel")}
@@ -360,7 +351,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                 />
               )}
 
-              {/* Plan state is a lamp dot plus a word, never colour alone. */}
+              {}
               {hasPlansPermission && hasVisiblePlan ? (
                 <span
                   className="rounded-[--radius] hidden max-w-[8rem] items-center gap-1 truncate border border-border px-1 py-px text-2xs font-medium text-muted-foreground md:inline-flex"
@@ -447,7 +438,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
             transition={{ duration: 0.15, ease: "easeOut" }}
             className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-[--radius] border border-border bg-card shadow-xl"
           >
-            {/* Header */}
+            {}
             <div className="border-b border-border px-4 py-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -740,7 +731,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                 <p className="text-sm text-destructive-ink">{rechargeError}</p>
               )}
 
-              {/* Generate button */}
+              {}
               <Button
                 variant="primary"
                 size="lg"
@@ -768,8 +759,6 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                         result.errorCode,
                       ),
                     );
-                    // Missing CPF/CNPJ is not a subscription problem, don't open the plan catalog;
-                    // the normalized message already tells the user to add their document.
                     if (
                       !isCustomerDocumentRequiredError(
                         result.errorCode,
@@ -844,7 +833,6 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                             setCopied(true);
                             setTimeout(() => setCopied(false), 2000);
                           } catch {
-                            /* clipboard may not be available */
                           }
                         }}
                         className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"

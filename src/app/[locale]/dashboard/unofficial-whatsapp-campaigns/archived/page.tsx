@@ -110,8 +110,6 @@ export default function ArchivedUnofficialCampaignsPage() {
       onRowClick={(row) =>
         router.push(`/dashboard/unofficial-whatsapp-campaigns/${row.id}`)
       }
-      // Archived campaigns are not created from here; the button would lead
-      // somewhere that immediately leaves this screen.
       canCreate={false}
       createHref="/dashboard/unofficial-whatsapp-campaigns/new"
       renderRowActions={(row) =>

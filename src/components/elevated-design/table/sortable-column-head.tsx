@@ -5,15 +5,6 @@ import { ReactNode } from "react";
 import { ArrowDown, ArrowUp, ArrowsDownUp } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
-/*
- * One sortable `<th>`, shared by every table that orders server-side.
- *
- * It exists so the affordance is identical wherever it appears: the same
- * neutral glyph on hover, the same arrow when active, the same `aria-sort`, and
- * the same shift-click for a secondary key. The cell owns none of its own
- * padding or type — the table passes those in, so a compact table and the
- * dashboard table look like themselves while behaving the same.
- */
 
 export type SortDirection = "asc" | "desc";
 
@@ -31,9 +22,7 @@ export function SortableColumnHead({
   buttonClassName,
 }: {
   label: ReactNode;
-  /** Absent means the column is not orderable, and says so by not looking clickable. */
   sortKey?: string;
-  /** Active sorts, in priority order. */
   sorts?: readonly ColumnSort[];
   onToggle?: (key: string, options: { additive: boolean }) => void;
   className?: string;
@@ -63,8 +52,8 @@ export function SortableColumnHead({
           )}
         >
           <span>{label}</span>
-          {/* The neutral glyph shows only on hover: a column that is not
-              sorted must not look like it is. */}
+          {
+}
           {active ? (
             active.direction === "asc" ? (
               <ArrowUp weight="bold" className="h-3 w-3" />
@@ -74,8 +63,8 @@ export function SortableColumnHead({
           ) : (
             <ArrowsDownUp weight="bold" className="h-3 w-3 opacity-0 transition-opacity group-hover/sort:opacity-60" />
           )}
-          {/* Rank, only while several keys are active, so a multi-key order is
-              readable rather than implied. */}
+          {
+}
           {active && (sorts?.length ?? 0) > 1 ? (
             <span className="text-2xs tabular-nums text-muted-foreground">{activeIndex + 1}</span>
           ) : null}

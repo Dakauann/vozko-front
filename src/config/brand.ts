@@ -1,10 +1,3 @@
-// White-label brand identity for the frontend.
-//
-// The codebase ships NO brand: every value is provided at build time via
-// NEXT_PUBLIC_BRAND_* environment variables (Next.js inlines these at build, so
-// each brand is its own build). There is no default. If a required variable is
-// missing, getBrand() throws, so an unbranded build fails loudly rather than
-// shipping placeholder identity. Assets are CDN URLs (no brand images in repo).
 
 export interface Brand {
   key: string;
@@ -26,8 +19,6 @@ export interface Brand {
   };
 }
 
-// NEXT_PUBLIC_* must be referenced as full static member expressions (not via a
-// computed key) so Next.js can inline them at build time.
 const RAW = {
   key: process.env.NEXT_PUBLIC_BRAND_KEY ?? "",
   name: process.env.NEXT_PUBLIC_BRAND_NAME,
@@ -48,10 +39,6 @@ const RAW = {
 
 let cached: Brand | null = null;
 
-/**
- * Resolve the active brand from NEXT_PUBLIC_BRAND_* env vars. Throws (listing
- * every missing var) if the build was not given a complete brand. Memoized.
- */
 export function getBrand(): Brand {
   if (cached) return cached;
 

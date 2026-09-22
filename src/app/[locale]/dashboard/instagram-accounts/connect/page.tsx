@@ -23,19 +23,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
-/**
- * Connecting an Instagram account: a handoff flow.
- *
- * The operator does exactly two things here. They confirm the account
- * qualifies, which is real work that may send them into the Instagram app, and
- * they launch. Everything after that happens inside Meta's window.
- *
- * The previous version described it as three steps and then placed the connect
- * button ABOVE them, in the hero, so the only control on the page came before
- * the sentence explaining that the account has to be a professional one first.
- * That ordering is the single biggest source of "connected but no messages
- * arrive": the prerequisite was readable only after the decision was made.
- */
 export default function ConnectInstagramPage() {
   const t = useTranslations("instagram");
   const tc = useTranslations("channels.connect");
@@ -77,8 +64,6 @@ export default function ConnectInstagramPage() {
     });
   });
 
-  // Permission is enforced server-side too; this just avoids showing a flow the
-  // user cannot finish.
   useEffect(() => {
     if (!can("instagram_accounts", "create")) {
       router.replace("/dashboard/instagram-accounts");
@@ -168,8 +153,8 @@ export default function ConnectInstagramPage() {
       ) : (
         <ConnectPanel>
           <ConnectTrack>
-            {/* First, because it is the one thing that can send the operator
-                away before they are able to finish. */}
+            {
+}
             <ConnectTrackStep
               index={1}
               title={t("connect.prerequisite.title")}
@@ -207,9 +192,8 @@ export default function ConnectInstagramPage() {
                   </span>
                 </div>
 
-                {/* What the window will ask for, so the operator recognises the
-                    screens instead of guessing whether they are on the right
-                    one. */}
+                {
+}
                 <ul className="max-w-prose space-y-1.5 text-sm leading-relaxed text-muted-foreground">
                   <li>{t("connect.steps.step1")}</li>
                   <li>{t("connect.steps.step2")}</li>

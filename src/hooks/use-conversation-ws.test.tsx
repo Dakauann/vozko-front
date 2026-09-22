@@ -1,13 +1,3 @@
-/**
- * @vitest-environment happy-dom
- *
- * Regression coverage for the live-chat socket lifecycle. The bug these guard
- * against: the connection effect used to depend on campaignId/campaignType and
- * on the connect/disconnect callback identities, so a re-render (or a campaign
- * switch, which is meant to ride the same socket via switchView) tore the socket
- * down and reconnected. Every reconnect rebuilds the socket, which is what showed
- * up as a flood of repeated "live-chat" requests in the network panel.
- */
 
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -17,8 +7,6 @@ const { hasUserDataCookie, playFn } = vi.hoisted(() => ({
   playFn: vi.fn(),
 }));
 
-// Workspace/department are read through context; expose them as mutable module
-// state so a test can flip the scope between renders.
 let mockWorkspace: { id: string } | null = { id: "ws-1" };
 let mockDepartment: { id: string } | null = null;
 
@@ -34,7 +22,6 @@ vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 
 import { useConversationWs } from "@/hooks/use-conversation-ws";
 
-/** Minimal WebSocket double that records every instance the hook opens. */
 class FakeWebSocket {
   static CONNECTING = 0;
   static OPEN = 1;
@@ -70,26 +57,21 @@ class FakeWebSocket {
     this.onclose?.({});
     for (const cb of this.listeners["close"] ?? []) cb({});
   }
-  /** Test helper: drive the socket to OPEN as a real server would. */
   simulateOpen() {
     this.readyState = FakeWebSocket.OPEN;
     this.onopen?.({});
   }
-  /** Test helper: push one server frame, exactly as the transport delivers it. */
   simulateMessage(event: unknown) {
     this.onmessage?.({ data: JSON.stringify(event) });
   }
 }
 
-/** Advance past the 50ms connect timer and let the awaited token resolve. */
 async function flushConnect() {
   await act(async () => {
     await new Promise((r) => setTimeout(r, 60));
   });
 }
 
-// Type as the hook's full options so rerender() can add optional fields like
-// campaignId/campaignType without tripping excess-property checks.
 const baseProps: Parameters<typeof useConversationWs>[0] = {
   token: "session-token",
   enabled: true,
@@ -123,9 +105,6 @@ describe("useConversationWs socket lifecycle", () => {
     await flushConnect();
     expect(FakeWebSocket.instances).toHaveLength(1);
 
-    // A burst of re-renders with identical connection scope must not touch the
-    // socket. If the effect re-ran it would disconnect + open a fresh socket,
-    // exactly the repeated "live-chat" requests reported.
     for (let i = 0; i < 5; i++) {
       rerender({ ...baseProps });
     }
@@ -141,7 +120,6 @@ describe("useConversationWs socket lifecycle", () => {
     await flushConnect();
     expect(FakeWebSocket.instances).toHaveLength(1);
 
-    // Campaign / filter switching rides the same socket via switchView().
     rerender({ ...baseProps, campaignId: "camp-1", campaignType: "whatsapp" });
     rerender({ ...baseProps, campaignId: "camp-2", campaignType: "unofficial_whatsapp" });
     await flushConnect();
@@ -156,7 +134,6 @@ describe("useConversationWs socket lifecycle", () => {
     await flushConnect();
     expect(FakeWebSocket.instances).toHaveLength(1);
 
-    // A genuine scope change must still rebuild the socket.
     mockWorkspace = { id: "ws-2" };
     rerender({ ...baseProps });
     await flushConnect();
@@ -191,14 +168,6 @@ describe("useConversationWs socket lifecycle", () => {
   });
 });
 
-/**
- * The server tags lead_name, lead_number and the last_message_* strings
- * `omitempty`, so an unnamed group arrives with those keys absent while
- * InboxEntry declares them as `string`. Inbox and search payloads used to land
- * in state untouched, and the first keystroke in the CRM search — which filters
- * locally until the query is long enough to hit the server — called
- * `entry.lead_number.toLowerCase()` on `undefined` and took the list down.
- */
 describe("useConversationWs entry defaults", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -213,7 +182,6 @@ describe("useConversationWs entry defaults", () => {
     vi.unstubAllGlobals();
   });
 
-  /** An entry as the wire actually delivers it: every empty string omitted. */
   const sparseEntry = {
     entry_id: "e-1",
     entry_type: "whatsapp",
@@ -222,8 +190,6 @@ describe("useConversationWs entry defaults", () => {
     window_open: true,
     automation_enabled: true,
     blocked: false,
-    // Carried by the server but named nowhere in normalizeEntry's allowlist —
-    // present here to prove the fill preserves what it does not know about.
     ai_handler: { kind: "agent", agent_id: "a-1", agent_active: true },
   };
 
@@ -253,7 +219,6 @@ describe("useConversationWs entry defaults", () => {
     expect(entry.lead_name).toBe("");
     expect(entry.lead_number).toBe("");
     expect(entry.last_message_preview).toBe("");
-    // The filter the crash lived in, run against the entry that caused it.
     expect(() =>
       [entry].filter((e) => e.lead_number.toLowerCase().includes("a")),
     ).not.toThrow();

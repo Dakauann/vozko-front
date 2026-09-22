@@ -135,7 +135,6 @@ export default function ProfilePage() {
       setEditingName(false);
       setNameInput("");
       setNameSaved(true);
-      // The spine and navbar read the name off AuthContext, not this page's copy.
       void refreshUser(true);
     } catch {
       setNameError(t("info.nameSaveError"));
@@ -144,8 +143,6 @@ export default function ProfilePage() {
     }
   };
 
-  // The name row is permanent, unlike the document form that disappears on save, so the
-  // confirmation tick has to retire itself rather than sit there for the rest of the session.
   useEffect(() => {
     if (!nameSaved) return;
     const timer = setTimeout(() => setNameSaved(false), 3000);
@@ -216,7 +213,6 @@ export default function ProfilePage() {
         setSessions(result.sessions);
       }
     } catch {
-      // ignore
     } finally {
       setSessionsLoading(false);
     }
@@ -230,7 +226,6 @@ export default function ProfilePage() {
         setSessions((prev) => prev.filter((s) => s.id !== sessionId));
       }
     } catch {
-      // ignore
     } finally {
       setRevokingSessionId(null);
     }
@@ -340,9 +335,6 @@ export default function ProfilePage() {
 
       const result = await uploadMediaAction(formData);
       if (result.error || !result.mediaUrl) {
-        // setSubmitError(t("response.error.imageUploadFailed"));
-        // setImagePreview(null);
-        // setImageUrl(null);
       } else {
         const updateResult = await updateUserPictureAction(result.mediaUrl);
         if (updateResult.success) {
@@ -350,7 +342,6 @@ export default function ProfilePage() {
         }
       }
     } catch {
-      // ignore
     } finally {
       setUploadingAvatar(false);
       if (fileInputRef.current) {
@@ -367,7 +358,6 @@ export default function ProfilePage() {
         setPicture(undefined);
       }
     } catch {
-      // ignore
     } finally {
       setUploadingAvatar(false);
     }
@@ -477,7 +467,7 @@ export default function ProfilePage() {
 
   return (
     <main className="w-full space-y-6">
-      {/* Page header */}
+      {}
       <div>
         <DashboardPageHeader
           icon={<UserCircle className="h-5 w-5" weight="fill" />}
@@ -486,14 +476,14 @@ export default function ProfilePage() {
         />
       </div>
 
-      {/* Avatar & Profile section */}
+      {}
       <div>
         <PanelSection
           title={t("avatar.title")}
           description={t("avatar.subtitle")}
         >
           <div className="flex items-center gap-6">
-            {/* Avatar preview */}
+            {}
             <div className="relative shrink-0">
               <div className="h-20 w-20 overflow-hidden rounded-[--radius] border border-border bg-muted">
                 {picture ? (
@@ -523,7 +513,7 @@ export default function ProfilePage() {
               )}
             </div>
 
-            {/* Upload controls */}
+            {}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <input
@@ -562,7 +552,7 @@ export default function ProfilePage() {
         </PanelSection>
       </div>
 
-      {/* Profile information */}
+      {}
       <div>
         <PanelSection
           title={t("info.title")}
@@ -729,7 +719,7 @@ export default function ProfilePage() {
         </PanelSection>
       </div>
 
-      {/* Document (CPF/CNPJ), required for billing */}
+      {}
       <div>
         <PanelSection
           title={t("document.title")}
@@ -783,14 +773,14 @@ export default function ProfilePage() {
         </PanelSection>
       </div>
 
-      {/* Security */}
+      {}
       <div>
         <PanelSection
           title={t("security.title")}
           description={t("security.subtitle")}
         >
           <div className="space-y-4">
-            {/* Password reset card */}
+            {}
             <div className="rounded-[--radius] border border-border bg-muted p-4">
               <AnimatePresence mode="wait">
                 {passwordResetStep === "idle" && (
@@ -1047,7 +1037,7 @@ export default function ProfilePage() {
               </AnimatePresence>
             </div>
 
-            {/* 2FA placeholder */}
+            {}
             <div className="rounded-[--radius] border border-border bg-muted p-4">
               <div className="flex items-start gap-3">
                 <Lock
@@ -1071,7 +1061,7 @@ export default function ProfilePage() {
         </PanelSection>
       </div>
 
-      {/* Active Sessions */}
+      {}
       <div>
         <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
           <div className="flex items-center justify-between mb-6">

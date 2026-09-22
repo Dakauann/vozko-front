@@ -50,8 +50,6 @@ export default function TemplateEditModal({
   isSaving = false,
 }: TemplateEditModalProps) {
   const t = useTranslations("whatsappTemplates.editModal");
-  // Status and category labels live at the namespace root, shared with the list
-  // and detail pages, so the same enum never renders two different ways.
   const tTemplates = useTranslations("whatsappTemplates");
   const [headerMediaUrl, setHeaderMediaUrl] = useState(
     template.headerMediaUrl || "",
@@ -87,18 +85,12 @@ export default function TemplateEditModal({
     headerFormat &&
     ["IMAGE", "VIDEO", "DOCUMENT", "GIF"].includes(headerFormat);
 
-  // Map the template's header format to the backend media type + a sensible
-  // file picker filter. The upload reuses the same /medias endpoint the rest of
-  // the app uses, returning a public URL we drop into the media URL field.
   const uploadMediaType =
     headerFormat === "VIDEO"
       ? "video"
       : headerFormat === "DOCUMENT"
         ? "document"
         : "image";
-  // Image accept is intentionally narrowed to what the backend's UploadMedia
-  // usecase actually stores for the "image" type (jpg/jpeg/png/webp). Allowing
-  // image/* would let users pick gif/heic/avif/svg and hit a server rejection.
   const uploadAccept =
     headerFormat === "VIDEO"
       ? "video/*"
@@ -135,7 +127,6 @@ export default function TemplateEditModal({
     if (file) {
       void handleFileUpload(file);
     }
-    // Reset so selecting the same file again still triggers onChange.
     e.target.value = "";
   };
 
@@ -169,7 +160,7 @@ export default function TemplateEditModal({
           onClick={(e) => e.stopPropagation()}
         >
           <ElevatedContainer className="bg-card rounded-[--radius] shadow-2xl overflow-hidden">
-            {/* Header */}
+            {}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border">
               <div className="flex items-center gap-3">
                 <IconBox color="green" size="sm">
@@ -192,9 +183,9 @@ export default function TemplateEditModal({
               </button>
             </div>
 
-            {/* Content */}
+            {}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 max-h-[calc(90vh-180px)] overflow-y-auto">
-              {/* Left: Preview */}
+              {}
               <div className="space-y-4">
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-muted text-muted-foreground shadow-lg">
@@ -213,7 +204,7 @@ export default function TemplateEditModal({
                 </div>
               </div>
 
-              {/* Right: Editor */}
+              {}
               <div className="space-y-4">
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-primary-foreground">
@@ -258,7 +249,7 @@ export default function TemplateEditModal({
                       </p>
                     </div>
 
-                    {/* Divider: URL or upload from computer */}
+                    {}
                     <div className="flex items-center gap-3">
                       <div className="h-px flex-1 bg-border" />
                       <span className="text-xs font-medium text-muted-foreground">
@@ -267,7 +258,7 @@ export default function TemplateEditModal({
                       <div className="h-px flex-1 bg-border" />
                     </div>
 
-                    {/* Upload from computer */}
+                    {}
                     <div
                       onClick={() =>
                         !isUploading && fileInputRef.current?.click()
@@ -384,7 +375,7 @@ export default function TemplateEditModal({
                   </div>
                 )}
 
-                {/* Template Info */}
+                {}
                 <div className="p-4 rounded-[--radius] bg-muted border border-border">
                   <h4 className="text-sm font-semibold text-foreground mb-3">
                     {t("templateInfo")}
@@ -440,7 +431,7 @@ export default function TemplateEditModal({
               </div>
             </div>
 
-            {/* Footer */}
+            {}
             <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-muted">
               <Button
                 variant="secondary"
@@ -488,7 +479,7 @@ function TemplatePreview({ template, headerMediaUrl }: TemplatePreviewProps) {
 
   return (
     <div className="flex flex-col h-full">
-      {/* WhatsApp Header */}
+      {}
       <div className="flex-shrink-0 bg-muted px-4 py-3">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card">
@@ -503,7 +494,7 @@ function TemplatePreview({ template, headerMediaUrl }: TemplatePreviewProps) {
         </div>
       </div>
 
-      {/* Chat Area */}
+      {}
       <div
         className="flex-1 bg-[#efeae2] p-4 min-h-[350px]"
         style={{
@@ -726,7 +717,7 @@ function ButtonsPreview({ component }: { component: TemplateComponent }) {
               {button.type === "URL" && (button.text || "Visit Website")}
               {button.type === "PHONE_NUMBER" && (button.text || "Call Us")}
               {button.type === "COPY_CODE" && "Copy Offer Code"}
-              {/* WhatsApp writes this label itself when none is given. */}
+              {}
               {button.type === "OTP" && (button.text || "Copy code")}
             </span>
           </div>

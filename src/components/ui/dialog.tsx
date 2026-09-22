@@ -21,9 +21,6 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      // Always paint a real dim layer. Blur-only overlays look like a pure
-      // white/black freeze when stuck open after soft navigation. Closed shells
-      // must never capture pointer events if unmount lags behind animation.
       "fixed inset-0 z-[80] bg-black/40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:pointer-events-none",
       className
     )}
@@ -91,8 +88,6 @@ const DialogTitle = React.forwardRef<
   <DialogPrimitive.Title
     ref={ref}
     className={cn(
-      // Overlay titles speak in the display voice ("Títulos/Destaques").
-      // Oxanium is semi-wide, so the negative tracking comes off.
       "font-display text-lg font-semibold leading-none tracking-[0.01em]",
       className
     )}

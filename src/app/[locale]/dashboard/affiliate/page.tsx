@@ -172,7 +172,7 @@ function AffiliateLanding({ onCta }: { onCta: () => void }) {
         description={t("header.description")}
       />
 
-      {/* Hero */}
+      {}
       <section
         className="relative overflow-hidden rounded-[--radius] border border-border bg-card p-6 sm:p-10"
         style={{ boxShadow: softSurfaceShadow }}
@@ -217,7 +217,7 @@ function AffiliateLanding({ onCta }: { onCta: () => void }) {
         </div>
       </section>
 
-      {/* Perks grid */}
+      {}
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {perks.map((perk) => {
           const Icon = perk.icon;
@@ -296,7 +296,7 @@ function AffiliateDashboard({
         })}
       />
 
-      {/* Stats grid */}
+      {}
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((card) => {
           const Icon = card.icon;
@@ -318,7 +318,7 @@ function AffiliateDashboard({
         })}
       </section>
 
-      {/* Referral link card */}
+      {}
       <section
         className="rounded-[--radius] border border-border bg-card p-6"
         style={{ boxShadow: softSurfaceShadow }}
@@ -378,7 +378,7 @@ function AffiliateDashboard({
         </div>
       </section>
 
-      {/* Quick links */}
+      {}
       <section className="grid gap-4 sm:grid-cols-2">
         <QuickLink
           href="/dashboard/affiliate/referrals"

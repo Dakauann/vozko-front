@@ -9,11 +9,7 @@ export type CrmViewMode = "classic" | "funnel" | "table";
 interface CrmViewSwitcherProps {
   mode: CrmViewMode;
   onChange: (mode: CrmViewMode) => void;
-  // "Tabela" (the data grid) exists only on the workspace-global CRM; the
-  // per-campaign attendance UI keeps just Lista (the WhatsApp-like inbox) and
-  // Kanban, so the classic inbox is never replaced.
   showTable?: boolean;
-  /** Render without the sunk track, for use inside a ConsoleBank. */
   bare?: boolean;
 }
 

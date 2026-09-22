@@ -7,37 +7,17 @@ import { cn } from "@/lib/utils";
 
 interface InlineEditProps {
   value: string;
-  /** Shown, muted, when the value is empty. Never a `placeholder` attribute on a
-   *  display element — this is the resting state, not a hint inside a field. */
   placeholder: string;
   onCommit: (value: string) => void;
   disabled?: boolean;
   maxLength?: number;
-  /** Accessible name for the field; also the pencil's tooltip. */
   label: string;
-  /** Open in edit mode on mount, for a row that was just created. */
   autoEdit?: boolean;
-  /** Typography, shared by the resting text and the field so nothing shifts. */
   className?: string;
-  /** Extra classes for the resting button only (truncation, width). */
   displayClassName?: string;
   pencil?: boolean;
 }
 
-/**
- * Text that is displayed until you click it, then edited in place.
- *
- * It exists because a composer built from labelled FIELDS does not look like the
- * thing it composes. A board column is a title with a colour beside it; drawing
- * one through a stack of inputs meant the operator designed in one visual
- * language and shipped in another, and the two never quite agreed. Here the
- * resting state IS the final look, and the field only appears for as long as
- * someone is typing into it.
- *
- * The commit rules are the ones people already expect from renaming a file:
- * Enter and blur commit, Escape reverts. Nothing is saved on every keystroke,
- * so an abandoned edit leaves no trace.
- */
 export function InlineEdit({
   value,
   placeholder,
@@ -53,7 +33,6 @@ export function InlineEdit({
   const [editing, setEditing] = useState(autoEdit);
   const [draft, setDraft] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
-  // Escape must not be undone by the blur that follows it.
   const abandoned = useRef(false);
 
   useEffect(() => {
@@ -129,8 +108,8 @@ export function InlineEdit({
       <span className={cn("truncate", empty && "text-muted-foreground")}>
         {empty ? placeholder : value}
       </span>
-      {/* Arrives on hover and on keyboard focus. Always visible, a pencil per
-          column turns the strip into a row of buttons. */}
+      {
+}
       {pencil ? (
         <PencilSimple
           className="h-3 w-3 flex-none text-muted-foreground opacity-0 transition-opacity group-hover/inline:opacity-100 group-focus-visible/inline:opacity-100"

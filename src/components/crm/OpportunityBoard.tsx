@@ -59,13 +59,8 @@ const OPP_STATUS_OPTIONS = [
 interface OpportunityBoardProps {
   workspaceId?: string;
   canEdit?: boolean;
-  // When set, the board renders THIS opportunity pipeline instead of self-resolving
-  // the default (used by the unified Funil selector to switch funnels).
   pipelineId?: string;
-  // Embedded in the unified board: hide the standalone "Funil de Vendas" header
-  // (the shared pipeline selector sits above it) but keep the totals + new-deal button.
   embedded?: boolean;
-  // Optional slot rendered next to the totals in embedded mode (e.g. the selector).
   headerSlot?: React.ReactNode;
 }
 
@@ -78,9 +73,6 @@ export default function OpportunityBoard({
 }: OpportunityBoardProps) {
   const t = useTranslations("crmBoard");
   const [columns, setColumns] = useState<OpportunityColumn[]>([]);
-  // Deals whose stage move is in flight, the card shows an in-place spinner (in
-  // the slot the overflow icon already reserves, so no layout shift) instead of a
-  // toast, and we clear it once the server confirms/reverts.
   const [movingIds, setMovingIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -116,13 +108,11 @@ export default function OpportunityBoard({
     setLoading(false);
   }, [pipelineId, filter]);
 
-  // Resolve the pipeline (the prop override, else the default) + custom fields once.
-  // The first board fetch self-heals the default pipeline when none is pinned.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       if (!pipelineIdProp) {
-        await getOpportunityBoardAction({ groupBy: "stage" }); // ensure default exists
+        await getOpportunityBoardAction({ groupBy: "stage" });
       }
       const [{ pipelines }, { fields }] = await Promise.all([
         listPipelinesAction("opportunity"),
@@ -153,7 +143,6 @@ export default function OpportunityBoard({
     };
   }, [workspaceId]);
 
-  // Debounced (re)load on filter / pipeline change.
   useEffect(() => {
     const t = setTimeout(() => void load(), 200);
     return () => clearTimeout(t);
@@ -194,12 +183,6 @@ export default function OpportunityBoard({
     setDrawerOpen(true);
   }, []);
 
-  // Card dropped on a different stage column (the shared KanbanBoard supplies the
-  // deal + from/to). Moving into a "lost" stage opens the drawer preset to that
-  // stage so the user provides the required reason instead of failing validation.
-  // Like the conversation funnel, the move is OPTIMISTIC: the card jumps columns
-  // immediately (framer then glides it) and we reconcile with the server after,
-  // reverting via a reload on error.
   const handleCardMove = useCallback(
     async (deal: Opportunity, fromColumnId: string, toColumnId: string) => {
       const column = columns.find((c) => c.id === toColumnId);
@@ -210,7 +193,6 @@ export default function OpportunityBoard({
       }
       const status: Opportunity["status"] = column.isWon ? "won" : "open";
 
-      // Optimistic: relocate the card + adjust both columns' count/value totals.
       setColumns((prev) =>
         prev.map((c) => {
           if (c.id === fromColumnId) {
@@ -233,7 +215,6 @@ export default function OpportunityBoard({
         }),
       );
 
-      // In-place loading: mark this card busy for the round-trip (no toast).
       setMovingIds((prev) => {
         const next = new Set(prev);
         next.add(deal.id);
@@ -253,19 +234,18 @@ export default function OpportunityBoard({
 
       if (err) {
         toast.error(err);
-        void load(); // revert to server truth (only surfaced state left is failures)
+        void load();
         return;
       }
-      void load(); // reconcile (server may re-sort / recompute)
+      void load();
     },
     [columns, openEdit, load],
   );
 
   return (
     <div className="flex h-full min-h-0 w-full flex-col bg-background">
-      {/* Header. In embedded (unified board) mode the shared pipeline selector sits
-          above, so we drop the standalone title/icon and lead with the selector slot
-          + totals, keeping the new-deal button. */}
+      {
+}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-card px-4 py-2.5">
         <div className="flex min-w-0 items-center gap-3">
           {embedded ? (
@@ -317,7 +297,7 @@ export default function OpportunityBoard({
         statusOptions={OPP_STATUS_OPTIONS}
       />
 
-      {/* Board */}
+      {}
       <div className="relative flex-1 min-h-0 overflow-x-auto overflow-y-hidden">
         {error ? (
           <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
@@ -332,8 +312,6 @@ export default function OpportunityBoard({
             ))}
           </div>
         ) : (
-          // The SAME reusable kanban shell the conversation board uses; only the card
-          // content differs (a deal card via renderCard).
           <KanbanBoard<Opportunity>
             columns={columns.map((c) => ({
               id: c.id,
@@ -398,11 +376,8 @@ export default function OpportunityBoard({
   );
 }
 
-// Status tints the tile + value so won/lost read instantly, WITHOUT a heavy
-// glyph, the tile carries the deal's initial, exactly like the funnel card
-// carries the lead's initial, so the two boards use one card language.
 const STATUS_TILE: Record<string, string | undefined> = {
-  open: undefined, // Signal Blue accent (CardTile default)
+  open: undefined,
   won: "hsl(var(--healthy))",
   lost: "hsl(var(--plate-neutral))",
 };
@@ -429,7 +404,6 @@ function DealCard({
   const rot = rotSignal(status, deal.updatedAt);
   const age = relativeAge(deal.createdAt);
 
-  // Up to three non-empty custom-field values, rendered as neutral chips.
   const customChips = customFields
     .map((def) => {
       const raw = deal.customFields?.[def.key];
@@ -446,8 +420,8 @@ function DealCard({
       aria-busy={isMoving}
       className={kanbanCardClass({ won, lost }, isMoving ? "opacity-70" : undefined)}
     >
-      {/* THE shared card, same component the conversation funnel renders. The deal
-          fills the slots with its own data: value in `body`, custom fields in `chips`. */}
+      {
+}
       <KanbanCard
         tile={
           <CardTile color={STATUS_TILE[status]}>

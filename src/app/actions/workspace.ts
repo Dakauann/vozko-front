@@ -216,12 +216,6 @@ export interface AssignableMembersResult {
     error?: string;
 }
 
-/**
- * Lists workspace members the caller may assign/transfer a conversation to,
- * scoped server-side by department access, with server-side search +
- * pagination. Each member carries its (visible) departments so the UI can
- * bucket the picker by department.
- */
 export async function listAssignableMembersAction(
     workspaceId: string,
     opts?: { search?: string; page?: number; pageSize?: number }

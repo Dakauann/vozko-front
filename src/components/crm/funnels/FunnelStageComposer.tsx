@@ -26,14 +26,6 @@ import { cn, readableInkFor } from "@/lib/utils";
 
 import { InlineEdit } from "./InlineEdit";
 
-/**
- * A column being drawn.
- *
- * `id` is the row's identity for React and for drag, never the server's opinion.
- * A row the operator just added carries a `draft:` id; a row loaded from an
- * existing funnel carries the stage id, and that is exactly how the save diff
- * later tells "create" from "update".
- */
 export interface DraftStage {
   id: string;
   name: string;
@@ -59,7 +51,6 @@ export function isDraftStage(stage: DraftStage): boolean {
   return stage.id.startsWith(DRAFT_PREFIX);
 }
 
-/** Turns a list of names into draft rows, for the composer's template row. */
 export function suggestedStages(labels: string[]): DraftStage[] {
   return labels.map((name, i) => {
     draftCounter += 1;
@@ -77,39 +68,13 @@ type ComposerView = "board" | "list";
 interface FunnelStageComposerProps {
   stages: DraftStage[];
   onChange: (stages: DraftStage[]) => void;
-  /** Rows that may not be removed — a stage still holding conversations. */
   lockedIds?: ReadonlySet<string>;
   disabled?: boolean;
-  /** Columns beyond this are refused; the board stops being scannable long before. */
   max?: number;
 }
 
 const DEFAULT_MAX = 24;
 
-/**
- * The funnel's columns, drawn rather than inherited.
- *
- * This is the component the whole surface exists for. A funnel used to arrive
- * seeded from a template with no way to say what its stages should be, so every
- * workspace ran the same four columns whatever their process was. Here the list
- * IS the process.
- *
- * It shows as a BOARD by default, on the CRM's own column furniture — same tray
- * width, same scribble-strip head, same colour lamp, same dashed tray for the
- * empty slot. Designing a board on a vertical form and then discovering what it
- * looks like is a round trip nobody should have to make: at 288px per column the
- * strip also tells the truth about how many stages fit on a screen, which is the
- * single most useful thing to know while adding the ninth one.
- *
- * The list view stays for the jobs the board is worse at — reordering ten columns,
- * or reading every description at once — and because a horizontal scroll region
- * is a poor keyboard target. Both edit the same draft.
- *
- * The FIRST column is the entry stage, and that is shown rather than configured.
- * A separate "which column receives arrivals" control would let the flag and the
- * order disagree — an entry stage sitting third on a board read left to right —
- * and the operator would have to hold both facts. Order is the only truth here.
- */
 export function FunnelStageComposer({
   stages,
   onChange,
@@ -119,8 +84,6 @@ export function FunnelStageComposer({
 }: FunnelStageComposerProps) {
   const t = useTranslations("funnels.stages");
   const [view, setView] = useState<ComposerView>("board");
-  // The column just added, so it opens straight into its name instead of
-  // waiting for a second click on a tray that says "Nome da etapa".
   const [autoEditId, setAutoEditId] = useState<string | null>(null);
   const order = useMemo(() => stages.map((s) => s.id), [stages]);
 
@@ -211,7 +174,6 @@ export function FunnelStageComposer({
   );
 }
 
-/* ------------------------------------------------------------------- BOARD */
 
 interface ViewProps {
   stages: DraftStage[];
@@ -223,19 +185,9 @@ interface ViewProps {
   lockedIds?: ReadonlySet<string>;
   disabled: boolean;
   atCap: boolean;
-  /** The column the operator just added, opened straight into its name field. */
   autoEditId: string | null;
 }
 
-/**
- * The board as it will be, minus the cards.
- *
- * Trays, widths and the scribble-strip head are the CRM's own
- * (`KanbanColumnShell`), deliberately not a lookalike: the point of drawing here
- * instead of in a form is that this IS the thing being made. The one departure
- * is the body, which holds the two fields that define a column rather than the
- * conversations that will sit in it.
- */
 function BoardView({
   stages,
   order,
@@ -270,8 +222,8 @@ function BoardView({
           />
         ))}
 
-        {/* The empty slot, as the board's own dashed tray. A button floating
-            beside the strip would sit outside the thing it adds to. */}
+        {
+}
         {!atCap ? (
           <button
             type="button"
@@ -324,11 +276,8 @@ function StageColumn({
       whileDrag={{ cursor: "grabbing", zIndex: 2 }}
       className="flex w-72 min-w-[288px] flex-shrink-0 flex-col rounded-lg border border-border bg-muted"
     >
-      {/* The scribble strip, exactly as the board draws it: handle, colour lamp,
-          name. The name is the TITLE here rather than a field in the body — a
-          column head with an input in it is not what the operator will see when
-          the board renders, and the whole point of composing on the board is
-          that the resting state is the final look. */}
+      {
+}
       <div className="flex items-center gap-2 border-b border-border px-2 py-2">
         <button
           type="button"
@@ -385,9 +334,8 @@ function StageColumn({
         </button>
       </div>
 
-      {/* The body carries what the board's own body cannot show: what the column
-          MEANS. It reads as a note on the tray and opens as a field on click,
-          the same gesture as the title above it. */}
+      {
+}
       <div className="flex flex-1 flex-col gap-2 p-2.5">
         {isEntry ? <EntryChip /> : null}
         <InlineEdit
@@ -406,9 +354,7 @@ function StageColumn({
   );
 }
 
-/* -------------------------------------------------------------------- LIST */
 
-/** The same draft, stacked. Better for long funnels and for the keyboard. */
 function ListView({
   stages,
   order,
@@ -491,8 +437,8 @@ function StageRow({
       className="bg-card"
     >
       <div className="flex items-start gap-2 px-1 py-2.5 sm:gap-3">
-        {/* The handle is the only grab target: dragging from anywhere on the row
-            would fight text selection in the two fields it contains. */}
+        {
+}
         <button
           type="button"
           aria-label={t("dragHandle", { name: stage.name || t("untitled") })}
@@ -572,12 +518,7 @@ function StageRow({
   );
 }
 
-/* ------------------------------------------------------------------ PIECES */
 
-/**
- * The empty state teaches the mechanism instead of reporting absence: what a
- * column is for, and that the first one is where conversations arrive.
- */
 function EmptyStages({
   onAdd,
   disabled,
@@ -610,11 +551,6 @@ function EmptyStages({
   );
 }
 
-/**
- * The entry marker states a consequence, not a status: this is where a new
- * conversation lands. Neutral ground with the accent in the glyph, the system's
- * rule for a mark that is not a selection.
- */
 function EntryChip() {
   const t = useTranslations("funnels.stages");
   return (
@@ -636,7 +572,6 @@ function ColorPicker({
   onChange: (color: string) => void;
   disabled: boolean;
   name: string;
-  /** The board head carries the colour as the CRM's 3px lamp, not as a chip. */
   shape?: "swatch" | "lamp";
 }) {
   const t = useTranslations("funnels.stages");
@@ -686,9 +621,8 @@ function ColorPicker({
                 )}
                 style={{ backgroundColor: color }}
               >
-                {/* The tick is drawn in the ink this swatch can actually carry.
-                    A fixed foreground disappears on half the palette: near-black
-                    on indigo, white on lime. */}
+                {
+}
                 {active ? (
                   <Check
                     className="h-3.5 w-3.5"

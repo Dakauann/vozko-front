@@ -35,11 +35,6 @@ type WorkspaceConfigTabProps = {
   onConfigChange: (config: WorkspaceConfig) => void;
 };
 
-/**
- * Owner-facing workspace policies. Every policy card ships collapsed
- * (solid icon tile, status solid icon tile, status
- * chip, caret, body only when expanded.
- */
 export function WorkspaceConfigTab({
   workspaceId,
   config,
@@ -82,7 +77,6 @@ export function WorkspaceConfigTab({
   );
 }
 
-// ── Shared card chrome ──────────────────────────────────────────────
 
 function ConfigCardShell({
   open,
@@ -123,16 +117,8 @@ function ConfigCardShell({
           </div>
         </div>
         <span className="flex shrink-0 items-center gap-2">
-          {/*
-            Par token-conhecido renderiza sólido (DESIGN.md, "Status chips &
-            notices"). Estava `bg-muted text-healthy-ink`: tinta verde sobre o
-            mesmo cinza do estado inativo, então os dois estados dividiam o
-            fundo e a diferença ficava só na cor do texto — pouco sinal para a
-            única coisa que o card comunica fechado.
-
-            O estado inativo continua no cinza opaco de propósito: "desligado"
-            é quieto, não é status.
-          */}
+          {
+}
           <span
             className={cn(
               "rounded-[--radius] px-2.5 py-1 text-2xs font-semibold",
@@ -157,7 +143,6 @@ function ConfigCardShell({
   );
 }
 
-// ── Assignment ──────────────────────────────────────────────────────────────
 
 const ROULETTE_DEFAULTS = {
   mode: "online" as RouletteMode,
@@ -171,16 +156,6 @@ const ROULETTE_LIMITS = {
   rescue: { min: 1, max: 1440 },
 };
 
-/**
- * Tudo que decide QUEM recebe uma conversa vive neste card.
- *
- * O card se chama "Distribuição", não "Atribuição a admins": a participação de
- * admins é UMA opção do pool, não o assunto do card, e usá-la como título fazia
- * o modo da roleta, a janela, o resgate e o horário parecerem detalhes de uma
- * preferência sobre administradores. A ordem também segue a decisão real —
- * primeiro COMO o pool é montado, depois quem entra nele, depois os ajustes que
- * só existem no modo escolhido.
- */
 function DistributionConfigCard({
   workspaceId,
   config,
@@ -190,7 +165,6 @@ function DistributionConfigCard({
   const [open, setOpen] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
 
-  // UI: checked = admins receive assignments (= !skipAdminAssignment)
   const adminsReceive = !(config?.skipAdminAssignment ?? false);
   const mode = config?.rouletteMode ?? ROULETTE_DEFAULTS.mode;
 
@@ -211,10 +185,6 @@ function DistributionConfigCard({
     setSaving(false);
   };
 
-  // The mode is a discrete choice, so it saves on change with optimistic
-  // rollback, the same as the admin switch above. The numeric fields below are
-  // not: they get an explicit Save, because a half-typed "4" in a window field
-  // must never reach the server as a policy.
   const handleModeChange = async (next: RouletteMode) => {
     if (!config || next === mode) return;
     setSaving(true);
@@ -272,12 +242,8 @@ function DistributionConfigCard({
         </div>
       </div>
 
-      {/*
-        Quem entra no pool é uma opção DENTRO da distribuição, e vem depois do
-        modo: o modo decide COMO o pool é montado, este switch decide quem é
-        elegível para ele. Na ordem inversa, uma preferência sobre admins
-        parecia governar todo o resto.
-      */}
+      {
+}
       <div className="flex items-center justify-between gap-4 rounded-[--radius] border border-border px-4 py-3">
         <div className="pr-4 min-w-0">
           <p className="text-sm font-medium text-foreground">
@@ -296,10 +262,6 @@ function DistributionConfigCard({
       </div>
 
       {mode === "last_seen" ? (
-        // Keyed on the saved policy so the panel remounts — and re-seeds its
-        // inputs from props — whenever the server's values change, instead of
-        // syncing them back with an effect. A save echoes what was stored, so
-        // the fields end up showing the clamped value the server actually kept.
         <RouletteLastSeenSettings
           key={rouletteSettingsKey(config)}
           workspaceId={workspaceId}
@@ -334,12 +296,6 @@ function RouletteModeOption({
       className={cn(
         "rounded-[--radius] border px-4 py-3 text-left transition-colors",
         "disabled:cursor-not-allowed disabled:opacity-60",
-        // Seleção é SÓLIDA (DESIGN.md, 2026-09-01), a mesma gramática do botão
-        // primário. O estado anterior era `border-primary bg-muted`: um fundo
-        // cinza com a borda verde, exatamente o padrão que a regra substituiu —
-        // medido, o item selecionado ficava mais apagado que o hover ao lado,
-        // então o modo em vigor lia mais fraco do que o que estava só sob o
-        // ponteiro.
         selected
           ? "border-primary bg-primary text-primary-foreground shadow-button-primary"
           : "border-border bg-card hover:border-primary/50",
@@ -353,11 +309,8 @@ function RouletteModeOption({
       >
         {title}
       </p>
-      {/*
-        No sólido a descrição não pode usar --muted-foreground: é uma tinta
-        medida para fundo neutro e sobre o verde ela desaparece. A própria tinta
-        do primário a 85% mantém a hierarquia sem trocar de cor.
-      */}
+      {
+}
       <p
         className={cn(
           "mt-0.5 text-xs",
@@ -379,7 +332,6 @@ function rouletteSettingsKey(config: WorkspaceConfig | null) {
   ].join("|");
 }
 
-/** Window + rescue. Only rendered in last_seen mode, where they mean something. */
 function RouletteLastSeenSettings({
   workspaceId,
   config,
@@ -406,9 +358,6 @@ function RouletteLastSeenSettings({
       (config.rouletteRescueAfterMinutes ?? ROULETTE_DEFAULTS.rescueMinutes) !==
         rescueMinutes);
 
-  // Clamped client-side with the same bounds the server uses, so the field can
-  // never display a value the server would have rewritten behind the admin's
-  // back.
   const clamp = (raw: string, min: number, max: number, fallback: number) => {
     const n = Math.round(Number(raw));
     if (!Number.isFinite(n)) return fallback;
@@ -546,20 +495,7 @@ function RouletteLastSeenSettings({
   );
 }
 
-// ── Working hours ───────────────────────────────────────────────────────────
 
-/**
- * O horário ganha o próprio card em vez de morar dentro da distribuição.
- *
- * São duas perguntas diferentes: "quem recebe" e "quando a operação está
- * aberta". Enfiar a segunda dentro da primeira era o mesmo erro que colocar o
- * modo da roleta debaixo de "atribuição a admins" — some do índice, e quem
- * procura horário de funcionamento não abre um card sobre distribuição.
- *
- * O card diz explicitamente o que a escala afeta hoje, e avisa quando não está
- * afetando nada — melhor do que uma tela que aceita a configuração em silêncio
- * e não faz efeito nenhum.
- */
 function WorkingHoursConfigCard({
   workspaceId,
   config,
@@ -574,9 +510,6 @@ function WorkingHoursConfigCard({
     (config?.rouletteMode ?? ROULETTE_DEFAULTS.mode) === "last_seen" &&
     (config?.rouletteRescueEnabled ?? ROULETTE_DEFAULTS.rescueEnabled);
 
-  // O resumo estrutural vira frase aqui, e não num helper com o tipo do `t`
-  // como parâmetro: passar a função de tradução adiante custa uma ginástica de
-  // tipos que não paga por si.
   let statusLabel: string;
   switch (summary.kind) {
     case "alwaysOpen":
@@ -608,12 +541,8 @@ function WorkingHoursConfigCard({
       statusLabel={statusLabel}
       statusActive={!!saved}
     >
-      {/*
-        O aviso usa o Alert (a receita `.notice`) em vez de um cinza à mão:
-        `bg-muted/40` era um fundo translúcido, e um fundo com alfa muda de cor
-        conforme a superfície embaixo — a razão pela qual a receita fixa UM
-        fundo opaco e gasta a cor no glifo e no título.
-      */}
+      {
+}
       {!rescueActive ? (
         <Alert variant="warning">
           <Warning weight="fill" className="h-4 w-4" />
@@ -633,11 +562,6 @@ function WorkingHoursConfigCard({
   );
 }
 
-/**
- * Remonta o editor quando o servidor devolve uma escala diferente, pelo mesmo
- * motivo de rouletteSettingsKey: re-semeia o rascunho a partir das props em vez
- * de sincronizar com um efeito.
- */
 function workingHoursKey(config: WorkspaceConfig | null) {
   return JSON.stringify(config?.workingHours ?? null);
 }
@@ -659,8 +583,6 @@ function WorkspaceWorkingHoursForm({
 
   const handleSave = async () => {
     setSaving(true);
-    // `null` é enviado de propósito: é o que remove a escala. Omitir o campo
-    // significaria "não mexa", e o botão nunca conseguiria desligar o horário.
     const result = await updateWorkspaceConfigAction(workspaceId, {
       workingHours: draft,
     });
@@ -701,7 +623,6 @@ function WorkspaceWorkingHoursForm({
   );
 }
 
-// ── Auto close ──────────────────────────────────────────────────────────────
 
 function AutoCloseConfigCard({
   workspaceId,
@@ -774,7 +695,7 @@ function AutoCloseConfigCard({
       statusLabel={anyOn ? t("configCard.active") : t("configCard.inactive")}
       statusActive={anyOn}
     >
-      {/* Policy A: waiting on customer */}
+      {}
       <div className="flex items-center justify-between gap-4 rounded-[--radius] border border-border px-4 py-3">
         <div className="pr-4 min-w-0">
           <p className="text-sm font-medium text-foreground">
@@ -818,7 +739,7 @@ function AutoCloseConfigCard({
         </label>
       </div>
 
-      {/* Policy C: absolute max age */}
+      {}
       <div className="flex items-center justify-between gap-4 rounded-[--radius] border border-border px-4 py-3">
         <div className="pr-4 min-w-0">
           <p className="text-sm font-medium text-foreground">

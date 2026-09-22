@@ -10,23 +10,6 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-/**
- * The create-mode chooser as a page, matching the edit chooser it forks from.
- *
- * It used to be two side-by-side marketing cards — a "Recomendado" pill, a
- * feature bullet list each, a display-size heading and a solid CTA button per
- * card — inside a single page that swapped the wizard in with useState. Two
- * things were wrong with that. The pattern was a pricing table, and this is a
- * fork in an operator's workday: they are picking a door, not evaluating a
- * purchase, and the bullets sold a decision they make in a second and can undo
- * at any point. And keeping both editors behind component state meant the mode
- * was not addressable — no deep link into the wizard, no back button that meant
- * anything, and a refresh dumped you back at the chooser mid-form.
- *
- * Now it mirrors the edit flow exactly: two quiet task-named rows here, and a
- * real route per editor. The mode the operator used last leads as the marked
- * row, so the common path is one click and the choice is never re-reasoned.
- */
 export default function NewAgentPage() {
   const router = useRouter();
   const t = useTranslations("agents.new");
@@ -52,8 +35,6 @@ export default function NewAgentPage() {
 function ModeList() {
   const tChooser = useTranslations("agents.new.chooser");
 
-  // Remembered beats the default. Resolved client-side, so the marker appears
-  // after mount — null during SSR keeps the markup stable.
   const [lead, setLead] = useState<{
     mode: AgentEditMode;
     remembered: boolean;
@@ -64,8 +45,7 @@ function ModeList() {
     setLead(
       remembered
         ? { mode: remembered, remembered: true }
-        : // Nothing remembered: the guided door leads. It is the one that
-          // explains itself, which is what a first agent needs.
+        :
           { mode: "beginner", remembered: false },
     );
   }, []);
@@ -93,8 +73,6 @@ function ModeList() {
     },
   ];
 
-  // The lead mode renders first, so keyboard and reading order agree with the
-  // visual emphasis instead of contradicting it.
   const ordered = lead
     ? [...modes].sort((a, b) =>
         a.mode === lead.mode ? -1 : b.mode === lead.mode ? 1 : 0,

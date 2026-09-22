@@ -70,7 +70,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
-/** Quiet, tinted status treatment (not bright solid fills), on brand. */
 function statusTone(status: TemplateStatus): {
   cls: string;
   icon: typeof CheckCircle;
@@ -101,7 +100,6 @@ function statusTone(status: TemplateStatus): {
   }
 }
 
-/** Category is data, not an action, use quiet data tints, never the Signal Blue accent. */
 function categoryTone(category: TemplateCategory): string {
   switch (category) {
     case "MARKETING":
@@ -135,9 +133,6 @@ function convertToDraggableComponents(
         format: component.format,
         text: component.text,
         variableExamples: component.parameters,
-        // Carried through, or opening an authentication template and saving it
-        // writes it back without its security line and expiry — the two things
-        // WhatsApp renders its body and footer from.
         add_security_recommendation: component.add_security_recommendation,
         code_expiration_minutes: component.code_expiration_minutes,
       },
@@ -156,8 +151,6 @@ function convertToDraggableComponents(
         url: btn.url,
         phone_number: btn.phone_number,
         example: Array.isArray(btn.example) ? btn.example[0] : btn.example,
-        // Same reason: without the kind, a reloaded code button is an OTP
-        // button that names nothing, which the server refuses on save.
         otp_type: btn.otp_type,
       }));
     }
@@ -331,7 +324,6 @@ export default function WhatsAppTemplateDetailPage() {
           setMyAccess(result.access);
         }
       } catch {
-        // Silently fail
       }
     };
 
@@ -604,7 +596,7 @@ export default function WhatsAppTemplateDetailPage() {
   return (
     <div className="mx-auto max-w-5xl p-6">
       <div className="space-y-6">
-        {/* Back link */}
+        {}
         <div>
           <Link
             href="/dashboard/whatsapp-templates"
@@ -615,7 +607,7 @@ export default function WhatsAppTemplateDetailPage() {
           </Link>
         </div>
 
-        {/* Identity + actions header */}
+        {}
         <div>
           <ElevatedContainer className="p-6">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
@@ -718,7 +710,7 @@ export default function WhatsAppTemplateDetailPage() {
           </ElevatedContainer>
         </div>
 
-        {/* Template preview */}
+        {}
         <div>
           <ElevatedContainer className="p-6">
             <h2 className="mb-5 font-display text-base font-semibold tracking-[0.01em] text-foreground">
@@ -737,7 +729,7 @@ export default function WhatsAppTemplateDetailPage() {
           </ElevatedContainer>
         </div>
 
-        {/* Details */}
+        {}
         <div>
           <ElevatedContainer className="p-6">
             <h2 className="mb-5 text-xs font-semibold text-muted-foreground">
@@ -806,7 +798,7 @@ export default function WhatsAppTemplateDetailPage() {
           </ElevatedContainer>
         </div>
 
-        {/* Header media */}
+        {}
         {hasMediaHeader && (
           <div>
             <ElevatedContainer className="p-6">
@@ -855,7 +847,7 @@ export default function WhatsAppTemplateDetailPage() {
           </div>
         )}
 
-        {/* Access granted-by (non-admin) */}
+        {}
         {!isSystemAdmin && myAccess?.grantor && (
           <div>
             <ElevatedContainer className="p-6">
@@ -881,7 +873,7 @@ export default function WhatsAppTemplateDetailPage() {
           </div>
         )}
 
-        {/* Workspace access management (system admin) */}
+        {}
         {isSystemAdmin && (
           <div>
             <ElevatedContainer className="p-6">
@@ -1036,7 +1028,7 @@ export default function WhatsAppTemplateDetailPage() {
           </div>
         )}
 
-        {/* Raw JSON (system admin) */}
+        {}
         {isSystemAdmin && (
           <div>
             <ElevatedContainer className="p-6">
@@ -1056,7 +1048,7 @@ export default function WhatsAppTemplateDetailPage() {
         )}
       </div>
 
-      {/* Edit Media Modal */}
+      {}
       <TemplateEditModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
@@ -1065,7 +1057,7 @@ export default function WhatsAppTemplateDetailPage() {
         isSaving={isSavingMedia}
       />
 
-      {/* Replicate Template Modal */}
+      {}
       {replicateOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div

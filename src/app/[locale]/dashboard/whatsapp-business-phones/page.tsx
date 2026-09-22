@@ -165,11 +165,7 @@ export default function WhatsAppBusinessPhonesPage({
   const [page, setPage] = useState(1);
   const [meta, setMeta] = useState<PageMeta | null>(null);
 
-  // Capacity: with server-side pagination the page is not the full list, so the hook
-  // fetches the workspace's active number count itself (same path the connect page uses).
   const capacity = useWhatsAppCapacity();
-  // Route past the connect flow only once we know there is no free slot (at limit
-  // or no allowance at all). While capacity is still loading we stay optimistic.
   const gateToAddons = capacity.ready && !capacity.canAdd;
   const addNumberHref = gateToAddons
     ? "/dashboard/addons"
@@ -177,10 +173,7 @@ export default function WhatsAppBusinessPhonesPage({
   const [loading, setLoading] = useState(true);
 
   const [isRefreshing, startRefresh] = useTransition();
-  // Debounced search term actually sent to the server (searchQuery is the raw input).
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  // Server-side filters ("all" = unset). The backend is the source of truth; nothing
-  // is filtered client-side.
   const [statusFilter, setStatusFilter] = useState("all");
   const [qualityFilter, setQualityFilter] = useState("all");
 
@@ -225,7 +218,6 @@ export default function WhatsAppBusinessPhonesPage({
     void fetchData();
   }, [fetchData]);
 
-  // Debounce the search box, and reset to page 1 whenever the term changes.
   useEffect(() => {
     const handle = setTimeout(() => {
       setDebouncedSearch(searchQuery.trim());
@@ -234,7 +226,6 @@ export default function WhatsAppBusinessPhonesPage({
     return () => clearTimeout(handle);
   }, [searchQuery]);
 
-  // Any filter change starts back at page 1.
   useEffect(() => {
     setPage(1);
   }, [statusFilter, qualityFilter]);
@@ -389,8 +380,6 @@ export default function WhatsAppBusinessPhonesPage({
         header: t("card.status"),
         render: (row) =>
           row.status === "PENDING" && row.provider === "dialog360" ? (
-            // Provisioning is async at 360dialog (~30-60s after redirect): show a clear
-            // "connecting" state instead of an empty-looking pending row.
             <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-warning px-2.5 py-0.5 text-xs font-medium text-warning-foreground">
               <CircleNotch className="h-3 w-3 animate-spin" weight="bold" />
               {t("status.connecting")}
@@ -661,7 +650,7 @@ export default function WhatsAppBusinessPhonesPage({
         </ElevatedContainer>
       )}
 
-      {/* User Info Box - Non-admin only */}
+      {}
       {!canManagePhones && !adminAllMode && (
         <ElevatedContainer className="p-4 bg-muted border-border">
           <div className="flex items-center gap-3">
@@ -674,7 +663,7 @@ export default function WhatsAppBusinessPhonesPage({
         </ElevatedContainer>
       )}
 
-      {/* Search + Stats bar */}
+      {}
       <div className="flex flex-wrap items-center gap-3 rounded-[--radius] border border-border bg-card px-5 py-3 shadow-sm">
         <div className="relative w-full max-w-xs">
           <ElevatedInput
@@ -778,7 +767,7 @@ export default function WhatsAppBusinessPhonesPage({
         )}
       </div>
 
-      {/* Loading state */}
+      {}
       {loading ? (
         <DashboardTable<WhatsAppBusinessPhone>
           data={[]}

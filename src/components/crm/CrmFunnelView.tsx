@@ -101,16 +101,7 @@ interface CrmFunnelViewProps {
     entryId: string,
     entryType: EntryType,
   ) => void;
-  /**
-   * Every conversation funnel with its stages, for the card's "move to another
-   * funnel" action.
-   *
-   * The board itself stays scoped to ONE funnel — its columns are that funnel's
-   * stages, and dragging between them is a within-funnel move. Leaving the
-   * board is the separate, explicit act this feeds.
-   */
   funnelStages?: FunnelStages[];
-  /** Applies a funnel change. Resolves to an error message, or null on success. */
   onMoveToFunnel?: (
     entryId: string,
     entryType: EntryType,
@@ -129,10 +120,6 @@ function FunnelCardBody({ entry }: { entry: InboxEntry }) {
   return (
     <KanbanCard
       strongTitle={hasUnread}
-      // The same avatar the inbox uses: the person owns the circle and the
-      // channel is a badge on it. The board previously showed a WhatsApp glyph
-      // or a bare initial, so an Instagram or Telegram card was indistinguishable
-      // from one with no channel at all.
       tile={
         <ChannelAvatar
           name={entry.lead_name || entry.lead_number}
@@ -227,9 +214,6 @@ function FunnelCard({
   onLabelMenuToggle,
 }: {
   entry: InboxEntry;
-  /** The column this card instance lives in, scopes the layoutId so the SAME
-   *  entry appearing in multiple columns (label/owner axes) doesn't collide and
-   *  fling horizontally under framer's shared-layout animation. */
   columnId: string;
   isSelected: boolean;
   onSelect: () => void;
@@ -247,36 +231,19 @@ function FunnelCard({
     entryId: string,
     entryType: EntryType,
   ) => void;
-  /**
-   * Opens the "move to another funnel" dialog for this card.
-   *
-   * Absent, the menu item is not rendered. The dialog itself lives at the view
-   * level rather than per card: one dialog for the board, not one per row.
-   */
   onRequestMoveToFunnel?: (entry: InboxEntry) => void;
   labelMenuOpen?: boolean;
   onLabelMenuToggle?: () => void;
 }) {
   const [isHovered, setIsHovered] = useState(false);
-  /** The three-dot trigger. The menu is portalled out of the card, so it needs
-   *  this to know where the card is on the screen. */
   const menuAnchorRef = useRef<HTMLButtonElement | null>(null);
   const { can } = useWorkspace();
-  // See CrmInbox: the analysis lives behind the audience resource now.
   const canReadAnalysis = can("audience", "read");
 
-  /** Whether labels are offered at all in the card menu. */
   const hasLabelActions = Boolean(
     availableLabels && availableLabels.length > 0 && onLabelMenuToggle,
   );
 
-  /**
-   * Whether the card has a menu worth opening.
-   *
-   * Anything in it counts. Tying this to labels alone is what made the funnel
-   * move unreachable on a workspace with none: the trigger never fired, so the
-   * action existed in the code and nowhere on the screen.
-   */
   const hasCardMenu = hasLabelActions || Boolean(onRequestMoveToFunnel);
 
   if (isDragGhost) {
@@ -314,19 +281,12 @@ function FunnelCard({
         { selected: isSelected },
         cn(
           "will-change-transform select-none",
-          // Names the hover scope the actions button reveals within, so hovering
-          // one card does not light up the button on every card in the column.
           "group/kanban-card",
           canDrag ? "cursor-grab active:cursor-grabbing" : "cursor-pointer",
         ),
       )}
       whileHover={kanbanCardHover}
       onContextMenu={(e) => {
-        // Opens when the card has ANY action, not only labels.
-        //
-        // This used to require availableLabels.length > 0, which quietly made
-        // every other action in here unreachable for a workspace that has not
-        // created labels: right-click did nothing at all.
         if (hasCardMenu) {
           e.preventDefault();
           e.stopPropagation();
@@ -336,13 +296,8 @@ function FunnelCard({
     >
       <FunnelCardBody entry={entry} />
 
-      {/* The visible way in.
-
-          Right-click alone is a shortcut nobody is told about: the card carried
-          no hint that a menu existed, so the actions in it may as well not have
-          shipped. This is the affordance; the context menu stays as the faster
-          path for people who find it. Shown on hover on a pointer device and
-          always on touch, where there is no hover and no right-click at all. */}
+      {
+}
       {hasCardMenu ? (
         <button
           type="button"
@@ -366,29 +321,23 @@ function FunnelCard({
         </button>
       ) : null}
 
-      {/* Card menu: labels, then the funnel move.
-
-          Portalled out of the card by AnchoredMenu rather than positioned
-          inside it. A card is a transformed, `will-change: transform` element,
-          so it is its own stacking context: this menu, rendered in there at
-          z-50, could not reach over the cards below it and went behind them.
-          The column body scrolls on top of that, which clipped the menu's lower
-          half — the funnel move — clean off the screen. */}
+      {
+}
       <AnchoredMenu
         open={Boolean(labelMenuOpen && hasCardMenu)}
         anchorRef={menuAnchorRef}
         onClose={() => onLabelMenuToggle?.()}
         label="Ações da conversa"
       >
-        {/* Labels are now one SECTION of this menu rather than all of it,
-            so they render only when the workspace has any. */}
+        {
+}
         {hasLabelActions && availableLabels ? (
           <>
             <div className="px-3 py-1.5 text-2xs font-semibold text-muted-foreground">
               Etiquetas
             </div>
-            {/* The labels scroll on their own so a workspace with forty of them
-                cannot push the funnel move below the fold. */}
+            {
+}
             <div className="max-h-44 overflow-y-auto">
               {availableLabels.map((label) => {
                 const isAssigned = entry.labels?.some(
@@ -437,12 +386,8 @@ function FunnelCard({
           </>
         ) : null}
 
-        {/* The funnel change.
-
-            Dragging a card between columns is a move WITHIN this funnel: the
-            columns are its stages, so leaving the board is deliberately not a
-            drag. It opens a dialog rather than acting on click, and the divider
-            only appears when there is something above it. */}
+        {
+}
         {onRequestMoveToFunnel ? (
           <>
             {hasLabelActions ? (
@@ -467,7 +412,7 @@ function FunnelCard({
         ) : null}
       </AnchoredMenu>
 
-      {/* Analysis hover card */}
+      {}
       {canReadAnalysis && entry.latest_analysis && (
         <AnalysisHoverCard
           analysis={entry.latest_analysis}
@@ -533,7 +478,6 @@ function FunnelColumn({
     entryType: EntryType,
   ) => void;
   labelMenuEntryId?: string | null;
-  /** Opens the funnel-move dialog for a card. Threaded from the view. */
   onRequestMoveToFunnel?: (entry: InboxEntry) => void;
   onLabelMenuToggle?: (entryKey: string) => void;
 }) {
@@ -567,7 +511,7 @@ function FunnelColumn({
 
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [hasMore, isLoading, entries.length]); 
+  }, [hasMore, isLoading, entries.length]);
 
   return (
     <KanbanColumnShell
@@ -622,13 +566,13 @@ function FunnelColumn({
         )}
       </AnimatePresence>
 
-      {/* Load More / Loading indicator */}
+      {}
       {isLoading && (
         <div className="flex items-center justify-center py-2">
           <div className="h-4 w-4 animate-spin rounded-full border border-foreground/20 border-t-primary" />
         </div>
       )}
-      {/* Sentinel for infinite scroll */}
+      {}
       {hasMore && !isLoading && (
         <div ref={sentinelRef} className="h-8 flex items-center justify-center">
           <span className="text-2xs text-muted-foreground">
@@ -700,22 +644,8 @@ export default function CrmFunnelView({
     new Map(),
   );
 
-  /**
-   * The card whose funnel is being changed, or null.
-   *
-   * One dialog for the whole board rather than one per card: a board renders
-   * hundreds of cards, and mounting a dialog inside each would build hundreds
-   * of them to show at most one.
-   */
   const [movingEntry, setMovingEntry] = useState<InboxEntry | null>(null);
 
-  /**
-   * Whether the card menu offers the funnel change at all.
-   *
-   * Same three conditions the thread applies: a handler, and at least two
-   * populated funnels to move between. A menu item that opens a dialog listing
-   * nothing is worse than no menu item.
-   */
   const canMoveAcrossFunnels =
     Boolean(onMoveToFunnel) &&
     funnelStages.filter((f) => f.stages.length > 0).length > 1;
@@ -1016,8 +946,8 @@ export default function CrmFunnelView({
       entry: InboxEntry,
       sourceStageId: string,
     ) => {
-      if (e.button !== 0) return; 
-      if (!onEntryStageChange) return; 
+      if (e.button !== 0) return;
+      if (!onEntryStageChange) return;
       const rect = e.currentTarget.getBoundingClientRect();
       pendingDragRef.current = {
         entry,
@@ -1173,7 +1103,7 @@ export default function CrmFunnelView({
 
   return (
     <div className="flex h-full flex-col">
-      {/* Reorder handle hint */}
+      {}
       <AnimatePresence>
         {isReordering && (
           <motion.div
@@ -1189,7 +1119,7 @@ export default function CrmFunnelView({
         )}
       </AnimatePresence>
 
-      {/* Funnel columns */}
+      {}
       <div
         ref={scrollContainerRef}
         className="flex-1 overflow-x-auto overflow-y-hidden"
@@ -1253,7 +1183,7 @@ export default function CrmFunnelView({
               );
             })}
 
-            {/* Unstaged column */}
+            {}
             <AnimatePresence>
               {(unstagedEntries.length > 0 ||
                 (funnelSummary?.get("__unstaged__") ?? 0) > 0) && (
@@ -1316,14 +1246,14 @@ export default function CrmFunnelView({
                         })}
                       </AnimatePresence>
 
-                      {/* Loading indicator for unstaged column */}
+                      {}
                       {loadingFunnelColumn === "__unstaged__" && (
                         <div className="flex items-center justify-center py-2">
                           <div className="h-4 w-4 animate-spin rounded-full border border-foreground/20 border-t-primary" />
                         </div>
                       )}
 
-                      {/* Load more for unstaged column */}
+                      {}
                       {(() => {
                         const unstagedTotal =
                           funnelColumns?.get("__unstaged__")?.totalItems ??
@@ -1359,7 +1289,7 @@ export default function CrmFunnelView({
         </LayoutGroup>
       </div>
 
-      {/* Drag overlay Ã¢â‚¬â€œ floating card that follows the pointer */}
+      {}
       {isDraggingCard && dragOverlayData && (
         <div
           ref={dragOverlayRef}
@@ -1380,9 +1310,8 @@ export default function CrmFunnelView({
         </div>
       )}
 
-      {/* One dialog for the whole board. The card menu only says which entry it
-          is for: a board renders hundreds of cards, and mounting a dialog inside
-          each would build hundreds to show at most one. */}
+      {
+}
       {canMoveAcrossFunnels && onMoveToFunnel && movingEntry ? (
         <MoveToFunnelDialog
           open

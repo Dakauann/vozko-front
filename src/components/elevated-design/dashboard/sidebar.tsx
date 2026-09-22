@@ -60,14 +60,6 @@ import {
   WhatsAppLogoColor,
 } from "@/components/icons/channel-logos";
 
-/**
- * Nav icons are Phosphor glyphs, except for the channel entries.
- *
- * WhatsApp and Instagram use their real brand marks: a channel in the nav is an
- * identity, and the green phone and the Instagram gradient are recognised before
- * the label is read. The brand components accept IconProps and ignore `weight`,
- * so they slot into the same call site.
- */
 type NavIcon = Icon | ComponentType<IconProps>;
 
 import { Link, usePathname } from "@/i18n/routing";
@@ -85,42 +77,12 @@ import { useWorkspace } from "@/contexts/workspace-context";
 import type { ResourceAction, ResourceType } from "@/lib/workspace/types";
 import { getBrand } from "@/config/brand";
 
-/** Which nav items (the per-row accordions) the operator left open. */
 const OPEN_ITEMS_KEY = "dashboard-open-families";
-/** Which section families (Atendimento, WhatsApp, …) the operator left open. */
 const OPEN_FAMILIES_KEY = "dashboard-open-nav-families";
 
-/**
- * useLayoutEffect on the client, useEffect on the server.
- *
- * The restore below has to land BEFORE the browser paints, or the spine paints
- * collapsed and then visibly jumps open. useLayoutEffect does exactly that, but
- * React warns when it runs during SSR, so it is swapped for the passive version
- * there (where it does nothing anyway).
- */
 const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? React.useLayoutEffect : React.useEffect;
 
-/**
- * A Set of open keys that survives a refresh, collapsed by default.
- *
- * Three things have to be true at once for this to feel stable, and each is a
- * separate mechanism:
- *
- * 1. NO HYDRATION MISMATCH. The initial value is an empty Set on the server AND
- *    on the client's first render, so the markup React hydrates against matches
- *    exactly. Reading localStorage in the useState initialiser would render open
- *    sections on the client against a collapsed server payload, which React
- *    reports as a hydration error and repairs by discarding the markup.
- *
- * 2. NO FLASH. The restore runs in a LAYOUT effect, which React flushes
- *    synchronously before the browser paints — so the first frame the operator
- *    sees is already the remembered shape, with no collapsed frame in between.
- *
- * 3. NO STUTTER. Restored sections must not replay their accordion. Callers gate
- *    the transition duration on `motionEnabled`, which flips one animation frame
- *    later, i.e. after that first paint.
- */
 function usePersistentOpenSet(storageKey: string) {
   const [open, setOpen] = React.useState<Set<string>>(new Set());
   const didRestore = React.useRef(false);
@@ -137,13 +99,11 @@ function usePersistentOpenSet(storageKey: string) {
         }
       }
     } catch {
-      // Private mode, quota, or corrupt JSON: collapsed is a fine fallback.
     }
     didRestore.current = true;
   }, [storageKey]);
 
   React.useEffect(() => {
-    // Guarded so the empty initial Set can never overwrite stored state.
     if (!didRestore.current) return;
     try {
       localStorage.setItem(storageKey, JSON.stringify(Array.from(open)));
@@ -159,13 +119,6 @@ function usePersistentOpenSet(storageKey: string) {
     });
   }, []);
 
-  /**
-   * Opens or shuts a list of keys in one write.
-   *
-   * Takes the keys rather than clearing the whole Set, so fold-all touches only
-   * what the operator can actually see: these sets are shared across products,
-   * and wiping them would silently reshape a product they are not looking at.
-   */
   const setMany = React.useCallback((keys: string[], shouldOpen: boolean) => {
     if (keys.length === 0) return;
     setOpen((prev) => {
@@ -194,9 +147,7 @@ export interface NavItem {
   hideForAdmin?: boolean;
   children?: NavItem[];
   family?: string;
-  /** Single required permission (legacy). */
   requiredPermission?: NavPermission;
-  /** Show if the user has ANY of these permissions (e.g. metrics parent). */
   requiredAnyOf?: NavPermission[];
 }
 
@@ -249,10 +200,6 @@ export const campanhasNavItems: NavItem[] = [
     requiredPermission: { resource: "conversations", action: "read" },
   },
   {
-    // Where a workspace designs its boards. It sits directly under Atendimento
-    // because that is the surface it configures, and it inherits the slot the
-    // retired "Grupos de etapas" entry used to hold — people had it bookmarked
-    // and went looking for it there.
     icon: Kanban,
     labelKey: "nav.funnels",
     href: "/dashboard/funnels",
@@ -264,7 +211,6 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.metrics",
     href: "/dashboard/attendance",
     family: "crm",
-    // Métricas opens for whoever can read either dashboard under it.
     requiredAnyOf: [
       { resource: "attendance", action: "read" },
       { resource: "audience", action: "read" },
@@ -284,9 +230,6 @@ export const campanhasNavItems: NavItem[] = [
         requiredPermission: { resource: "audience", action: "read" },
       },
       {
-        // Gated on send rather than read: arming one puts a message on the
-        // workspace's own WhatsApp, to a real person, which is the same
-        // permission the rules themselves carry.
         icon: Bell,
         labelKey: "nav.analysisAlerts",
         href: "/dashboard/analysis-alerts",
@@ -499,10 +442,6 @@ export const campanhasNavItems: NavItem[] = [
     ],
   },
   {
-    // The brand mark belongs to the FAMILY header (familyBrandIcon), which
-    // already renders it beside "Telegram". Repeating it on the item showed the
-    // logo twice in one group, Instagram uses a neutral glyph here for the
-    // same reason.
     icon: UserCircle,
     labelKey: "nav.telegram",
     href: "/dashboard/telegram-accounts",
@@ -524,9 +463,6 @@ export const campanhasNavItems: NavItem[] = [
     ],
   },
   {
-    // The channel logo is deliberately NOT used here: the spine already carries
-    // the official WhatsApp entry, and two identical marks in one group is how
-    // an operator picks the wrong number to send from.
     icon: DeviceMobile,
     labelKey: "nav.unofficialWhatsapp",
     href: "/dashboard/unofficial-whatsapp",
@@ -554,10 +490,6 @@ export const campanhasNavItems: NavItem[] = [
     ],
   },
   {
-    // Megaphone, echoing the official campaigns entry, and deliberately NOT the
-    // channel logo: the comment on the numbers group above already explains why
-    // two identical marks in one spine is how an operator picks the wrong
-    // number to send from.
     icon: Megaphone,
     labelKey: "nav.unofficialWhatsappCampaigns",
     href: "/dashboard/unofficial-whatsapp-campaigns",
@@ -620,7 +552,6 @@ export const campanhasNavItems: NavItem[] = [
       },
     ],
   },
-  // TODO: finish developing this section and add to layout
   {
     icon: Headset,
     labelKey: "nav.support",
@@ -734,9 +665,6 @@ export const adminNavItems: NavItem[] = [
     family: "platform",
   },
   {
-    // What Meta's 1 October 2026 service message charge costs us, per
-    // workspace. Sits next to Receita because it is the other half of the
-    // same question: what each account brings in against what it spends.
     icon: Scales,
     labelKey: "nav.adminMetaCosts",
     href: "/dashboard/admin/meta-costs",
@@ -911,7 +839,6 @@ function ProductSwitcher({
     };
   }, [isOpen]);
 
-  /** The spine is overflow-hidden; the menu has to live outside it. */
   const menuRef = React.useRef<HTMLDivElement>(null);
   const renderMenu = (body: React.ReactNode) =>
     typeof document !== "undefined" && isOpen && menuPos
@@ -935,10 +862,6 @@ function ProductSwitcher({
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      // The menu is PORTALED to document.body, so it is never inside
-      // dropdownRef — it must be checked separately or this mousedown
-      // handler unmounts the menu before a row's click can fire, which is
-      // exactly the bug that made product rows unclickable.
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(target) &&
@@ -951,9 +874,6 @@ function ProductSwitcher({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // The rail form: a square tile, lit only while its menu is open. No accent
-  // fill at rest — in this system the accent means "current", and the product
-  // switcher is a control, not a destination.
   if (!isExpanded) {
     return (
       <div ref={dropdownRef} className="relative">
@@ -985,11 +905,6 @@ function ProductSwitcher({
                   }}
                   className={cn(
                     "flex w-full items-center gap-2 px-2 py-1.5 text-left transition-colors",
-                    // A menu row keeps a NEUTRAL opaque ground and spends the
-                    // green on the mark — the lamp and the check. A solid
-                    // brand block per selected row inside a popover is more
-                    // signal than the choice is worth, and the row already
-                    // carries two affordances.
                     isSelected
                       ? "bg-muted text-foreground"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -1067,7 +982,6 @@ function ProductSwitcher({
                 }}
                 className={cn(
                   "flex w-full items-center gap-2 px-2 py-2 text-left transition-colors",
-                  // Neutral ground, green in the mark — same rule as above.
                   isSelected ? "bg-muted" : "hover:bg-muted",
                 )}
               >
@@ -1110,12 +1024,6 @@ function ProductSwitcher({
   );
 }
 
-/**
- * The mobile drawer slides, because a drawer arriving from offscreen is
- * reporting where it came from. The desktop spine does not: it is furniture and
- * it is simply there on load. The old staggered spring entrance made every
- * navigation feel like the app was booting.
- */
 const mobileContainerVariants: Variants = {
   hidden: { x: "-100%" },
   visible: {
@@ -1146,8 +1054,6 @@ function NavItemComponent({
   depth?: number;
   onToggle: (href: string) => void;
   openItems: Set<string>;
-  /** False for the paint that restores remembered families, so they appear
-      instantly instead of replaying their accordion on every refresh. */
   motionEnabled: boolean;
   t: ReturnType<typeof useTranslations>;
   isAdmin?: boolean;
@@ -1167,17 +1073,6 @@ function NavItemComponent({
     (child) =>
       pathname === child.href || pathname?.startsWith(child.href + "/"),
   );
-  /*
-    Auto-opening the family that contains the current route is deliberately
-    gone. It fought the remembered state on every single load: a family the
-    operator had collapsed on purpose sprang back open the moment they
-    navigated into it, so the spine could never actually stay the shape they
-    left it in.
-
-    Orientation does not depend on it — a family whose child is active still
-    lights its own row through `hasActiveChild`, so "you are in here" is
-    readable with the family shut.
-  */
 
   const handleClick = (e: React.MouseEvent) => {
     if (item.children && isExpanded) {
@@ -1191,24 +1086,12 @@ function NavItemComponent({
   return (
     <div className="w-full">
       <Link
-        // gets the first clickable item, normally list
         href={item.href}
         prefetch={false}
         aria-current={isActive ? "page" : undefined}
         className={cn(
           "sidebar-item group relative flex items-center rounded-[--radius] text-sm transition-colors",
           isExpanded ? "h-8 w-full pr-2" : "h-8 w-full justify-center",
-          // Selection is SOLID — the brand fill under its dark ink, the same
-          // grammar as the primary button. DESIGN.md names selection as one of
-          // the green's three sanctioned jobs, so this is the system asserting
-          // itself, not a new idea.
-          //
-          // What it replaces was measured and did not work. The tinted ground
-          // sat at 1.09:1 against the sidebar in light (APCA Lc 0.0) while the
-          // hover grey measured 1.17:1 — the selected row read FAINTER than the
-          // same row under the pointer, which is the exact failure the tint was
-          // adopted to fix. In dark both grounds measured Lc 0.0. Green ink on
-          // a green wash is also the one pattern this system bans outright.
           isLit
             ? "bg-primary text-primary-foreground shadow-button-primary hover:bg-[hsl(var(--primary-hover))]"
             : "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -1258,9 +1141,8 @@ function NavItemComponent({
           </>
         ) : (
           <span className="relative flex h-8 w-full items-center justify-center">
-            {/* In the rail the lamp sits on the spine edge, where the row's
-                left border would be, so "current" is still readable with the
-                label hidden. */}
+            {
+}
             <span
               className={cn(
                 "absolute left-0 top-1/2 -translate-y-1/2",
@@ -1289,8 +1171,8 @@ function NavItemComponent({
             }}
             className="overflow-hidden"
           >
-            {/* An engraved runner, not a coloured rail: children hang off the
-                parent's column the way a sub-scale hangs off a panel legend. */}
+            {
+}
             <div className="my-0.5 ml-[18px] space-y-px border-l border-border pl-1.5">
               {item.children
                 .filter((child) => {
@@ -1322,41 +1204,14 @@ function NavItemComponent({
   );
 }
 
-// Family identity is carried by the engraved section rule and its silkscreened
-// legend, not by a coloured dot per family. Six decorative hues competing down
-// the spine cost more than they told you, and colour in this system is reserved
-// for state — a palette of family dots makes "lit" harder to find.
-//
-// Channel families are the exception and keep their real brand mark (see
-// familyBrandIcon): that is product identity, not decoration.
 
-/**
- * A qualifier shown beside a family name.
- *
- * WhatsApp is the only family where WHICH integration you are looking at
- * matters: the current one is Meta's official Cloud API, and unofficial
- * providers are planned alongside it. Marking the official one now means the
- * distinction is already visible when the second appears, rather than an
- * unlabelled "WhatsApp" suddenly becoming ambiguous.
- *
- * A chip rather than a longer label: the family header is a 10px uppercase
- * line, and "WhatsApp Oficial" would push it toward wrapping in the narrower
- * locales.
- */
 const familyBadgeKey: Record<string, string> = {
   whatsapp: "families.badges.official",
-  // The counterpart this map was built for. Two WhatsApp families now sit next
-  // to each other in the spine, and the badge is the ONLY thing that separates
-  // them at a glance — an operator picking the wrong one sends from the wrong
-  // number, under the wrong rules, with a different risk profile.
   "unofficial-whatsapp": "families.badges.unofficial",
 };
 
 const familyBrandIcon: Record<string, NavIcon> = {
   whatsapp: WhatsAppLogoColor,
-  // It IS WhatsApp, so it carries the WhatsApp mark: swapping in a generic
-  // glyph would hide which channel this is. The badge, not the icon, is what
-  // distinguishes the transport.
   "unofficial-whatsapp": WhatsAppLogoColor,
   instagram: InstagramLogoColor,
   telegram: TelegramLogoColor,
@@ -1381,15 +1236,6 @@ function groupByFamily(
   return groups;
 }
 
-/**
- * Every section header and row accordion the operator could open RIGHT NOW.
- *
- * Derived by replaying the SAME filters the nav renders with, never from the
- * raw nav table. A fold-all that counted rows a permission hides would report
- * "something is open" about something invisible, and an unfold-all would write
- * keys that nothing can ever use — both of which turn the control into a button
- * whose label disagrees with the spine beside it.
- */
 function collapsibleKeys(
   items: NavItem[],
   isAdmin: boolean,
@@ -1399,9 +1245,6 @@ function collapsibleKeys(
   const families = new Set<string>();
   const rows: string[] = [];
 
-  // Children carry one extra rule that top-level rows do not — `admin` — so the
-  // two walks are deliberately not folded into one predicate. See the child
-  // filter in NavItemComponent, which this mirrors.
   const walkChildren = (children: NavItem[]) => {
     for (const child of children) {
       if (child.admin && !isAdmin) continue;
@@ -1427,18 +1270,6 @@ function collapsibleKeys(
   return { families: Array.from(families), rows };
 }
 
-/**
- * Fold or unfold every section at once.
- *
- * ONE control, not two, and it commits to whichever action the spine currently
- * needs: with anything open it folds, with everything shut it unfolds. Two
- * buttons would put a permanently dead one next to a live one in furniture an
- * operator reads all day, and the sidebar head has room for exactly one glyph
- * beside the product switcher without stealing width from the product name.
- *
- * It rides in the switcher row rather than in a strip of its own, so it costs
- * the nav no vertical space — the thing the spine is actually short of.
- */
 function FoldAllButton({
   anyOpen,
   onFoldAll,
@@ -1483,7 +1314,6 @@ function GroupedNavItems({
   isExpanded: boolean;
   onToggle: (href: string) => void;
   openItems: Set<string>;
-  /** Section families the operator has opened; everything else stays shut. */
   openFamilies: Set<string>;
   toggleFamily: (family: string) => void;
   motionEnabled: boolean;
@@ -1504,10 +1334,6 @@ function GroupedNavItems({
   return (
     <div className={cn("py-1", isExpanded ? "px-2" : "px-1.5")}>
       {groups.map((group, gi) => {
-        // A family only collapses where its header exists. In the rail there is
-        // no header to click, and an ungrouped run has no family to belong to,
-        // so both stay open — otherwise the operator would be left with rows
-        // they cannot reach and no control to reveal them.
         const collapsible = Boolean(group.family) && isExpanded;
         const familyOpen = collapsible
           ? openFamilies.has(group.family as string)
@@ -1515,18 +1341,12 @@ function GroupedNavItems({
 
         return (
           <div key={group.family ?? `ungrouped-${gi}`}>
-            {/*
-              The section legend rides its engraved rule, the way a console
-              legends the bank of strips beneath it. In the rail there is no
-              room for the words, so the rule alone keeps the grouping.
-            */}
+            {
+}
             {group.family && isExpanded && (
               <div className={cn("px-1 pb-1 pt-3", gi > 0 && "mt-1")}>
-                {/*
-                  The section legend is the control that opens the section. It
-                  keeps the rule it rides on, so the grouping still reads at a
-                  glance when every family is shut — which is the default.
-                */}
+                {
+}
                 <button
                   type="button"
                   onClick={() => toggleFamily(group.family as string)}
@@ -1537,18 +1357,13 @@ function GroupedNavItems({
                     React.createElement(familyBrandIcon[group.family], {
                       className: "h-3 w-3 flex-shrink-0",
                     })}
-                  {/* min-w-0 is what makes `truncate` actually shrink inside a
-                      flex row. Without it the name holds its full width and a
-                      longer badge than "Oficial" — "Não oficial", "Inoffiziell" —
-                      overlaps it instead of ellipsing the name. */}
+                  {
+}
                   <span className="min-w-0 truncate">
                     {t(`families.${group.family}`)}
                   </span>
                   {familyBadgeKey[group.family] && (
                     <span
-                      // The hint is derived from the badge key rather than
-                      // hardcoded, or every badge explains the OFFICIAL channel
-                      // — which on the unofficial one is exactly backwards.
                       title={t(`${familyBadgeKey[group.family]}Hint`)}
                       className="rounded-lg shrink-0 border border-border px-1 py-px text-2xs font-medium normal-case tracking-normal text-muted-foreground"
                     >
@@ -1626,15 +1441,8 @@ export function DashboardSidebar({
 
   const { isCollapsed, isMobileOpen, setMobileOpen } = useSidebar();
 
-  // Open unless the operator collapsed it. Hover no longer expands anything:
-  // navigation that appears on approach cannot be scanned, only hunted, and
-  // this rail is read continuously for a whole shift. The collapse control is
-  // the app bar's hamburger; the drawer state lives in the sidebar context so
-  // the same hamburger opens it below md.
   const isExpanded = !isCollapsed;
 
-  // Soft navigation must close the mobile drawer; otherwise the veil and drawer
-  // panel stay painted over the next route (reported as a blackout).
   React.useEffect(() => {
     setMobileOpen(false);
   }, [pathname, setMobileOpen]);
@@ -1682,16 +1490,11 @@ export function DashboardSidebar({
     }
   }, [visibleProducts, currentProduct.id]);
 
-  // Both the per-row accordions and the section families are collapsed by
-  // default and remember what the operator left open. See usePersistentOpenSet.
   const [openItems, toggleItem, setItemsOpen] =
     usePersistentOpenSet(OPEN_ITEMS_KEY);
   const [openFamilies, toggleFamily, setFamiliesOpen] =
     usePersistentOpenSet(OPEN_FAMILIES_KEY);
 
-  // What fold-all would act on: this product's nav plus the admin block, which
-  // renders from the same two open sets and would otherwise be left behind by a
-  // control that claims to fold everything.
   const foldable = React.useMemo(
     () =>
       collapsibleKeys(
@@ -1703,9 +1506,6 @@ export function DashboardSidebar({
     [currentProduct, adminItems, isAdmin, can, canAny],
   );
 
-  // Read off the VISIBLE keys, not off Set.size. The sets span products, so a
-  // section left open under another product would otherwise make this button
-  // offer to fold a spine that is already folded.
   const anyOpen =
     foldable.families.some((family) => openFamilies.has(family)) ||
     foldable.rows.some((href) => openItems.has(href));
@@ -1729,9 +1529,6 @@ export function DashboardSidebar({
     setCurrentProduct(product);
   };
 
-  // No head anymore: brand and workspace moved into the full-width app bar,
-  // which owns the corner in the Azure topology. The rail starts below the bar
-  // and opens directly with the product switcher and the nav.
   const renderSidebarContent = (mobile = false) => (
     <>
       <div
@@ -1750,10 +1547,8 @@ export function DashboardSidebar({
               products={visibleProducts}
             />
           </div>
-          {/* Absent in the rail, where no family header and no accordion is
-              drawn at all, and absent when this product has nothing that
-              folds: a control that cannot do anything is chrome, not an
-              affordance. */}
+          {
+}
           {(isExpanded || mobile) &&
             foldable.families.length + foldable.rows.length > 0 && (
               <FoldAllButton
@@ -1766,7 +1561,7 @@ export function DashboardSidebar({
         </div>
       </div>
 
-      {/* Scrollable container for both product nav and admin nav */}
+      {}
       <div className="scrollbar-sleek min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
         <GroupedNavItems
           items={currentProduct.navItems}
@@ -1810,9 +1605,8 @@ export function DashboardSidebar({
 
   const MobileSidebar = (
     <div className="md:hidden">
-      {/* The drawer opens from the app bar's hamburger — the same affordance
-          that collapses the rail on desktop. The old mid-screen edge tab is
-          gone: its function relocated to the bar, its floating chrome retired. */}
+      {
+}
       <AnimatePresence>
         {isMobileOpen && (
           <>
@@ -1866,12 +1660,8 @@ export function DashboardSidebar({
     <>
       {MobileSidebar}
 
-      {/*
-        The rail starts BELOW the full-width app bar — the Azure topology. The
-        bar owns the corner and carries brand + workspace; the rail carries
-        only navigation, so it opens directly with the product switcher. Its
-        collapse control is the bar's hamburger, so the rail needs no footer.
-      */}
+      {
+}
       <motion.aside
         initial={false}
         animate={{ width: isExpanded ? SPINE_WIDTH_OPEN : SPINE_WIDTH_RAIL }}

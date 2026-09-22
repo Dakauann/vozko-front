@@ -1,6 +1,3 @@
-/**
- * @vitest-environment node
- */
 
 import { describe, expect, it } from "vitest";
 
@@ -52,21 +49,17 @@ describe("matchNodeIds", () => {
   });
 
   it("returns every node that matches a generic term (for highlighting), in order", () => {
-    // A shared term highlights all matches; the caller dims the rest.
     expect(matchNodeIds("enviar", nodes)).toEqual(["ask_email", "greet"]);
   });
 
   it("does not match across two different fields", () => {
-    // "email texto" would only match if fields were concatenated without a gap.
     expect(matchNodeIds("email texto", nodes)).toEqual([]);
   });
 
   it("narrows to a single node type when a type filter is set", () => {
-    // The type filter alone returns every node of that type (empty query).
     expect(matchNodeIds("", nodes, { type: "action_send_text" })).toEqual([
       "greet",
     ]);
-    // Type + text must both hold.
     expect(
       matchNodeIds("enviar", nodes, { type: "action_send_email" }),
     ).toEqual(["ask_email"]);

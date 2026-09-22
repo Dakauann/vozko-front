@@ -1,10 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
-// POST /medias reads three multipart fields and rejects the request on the
-// first one missing. The picker used to send only "file", so every attempt to
-// attach anything to an unofficial campaign came back with
-// {"message":"Unable to get media type"} and the campaign could not be created.
 const uploadMediaAction = vi.fn();
 vi.mock("@/app/actions/medias", () => ({
   uploadMediaAction: (form: FormData) => uploadMediaAction(form),
@@ -47,16 +43,12 @@ describe("CampaignMediaPicker", () => {
     await waitFor(() => expect(uploadMediaAction).toHaveBeenCalledTimes(1));
     const form = uploadMediaAction.mock.calls[0][0] as FormData;
 
-    // The field NAMES are the contract; "file" is what the endpoint ignores.
     expect(form.get("media")).toBe(file);
     expect(form.get("mediaType")).toBe("video");
     expect(form.get("description")).toBe("promo.mp4");
     expect(form.get("file")).toBeNull();
   });
 
-  // The stored type must be the message kind, not a sniffed MIME type: the send
-  // path hands the provider Kind.MediaKind(), and a browser that reports an
-  // empty file.type would otherwise file a video under "document".
   it("stores the file under the campaign's own message kind", async () => {
     const file = new File(["x"], "sem-tipo", { type: "" });
     pick(file, "audio");

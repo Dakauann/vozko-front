@@ -201,7 +201,7 @@ export default function AnalysisFilters({
           "grid-cols-1 md:grid-cols-2 lg:grid-cols-4",
         )}
       >
-        {/* Has Analysis Toggle */}
+        {}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold text-muted-foreground">
@@ -243,7 +243,7 @@ export default function AnalysisFilters({
           </ElevatedSelect>
         </div>
 
-        {/* Interest Filter */}
+        {}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold text-muted-foreground">
@@ -282,7 +282,7 @@ export default function AnalysisFilters({
           </ElevatedSelect>
         </div>
 
-        {/* Disposition Filter */}
+        {}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold text-muted-foreground">
@@ -324,7 +324,7 @@ export default function AnalysisFilters({
           </ElevatedSelect>
         </div>
 
-        {/* Sentiment Filter */}
+        {}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold text-muted-foreground">
@@ -363,7 +363,7 @@ export default function AnalysisFilters({
           </ElevatedSelect>
         </div>
 
-        {/* Qualification Filter */}
+        {}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold text-muted-foreground">
@@ -402,7 +402,7 @@ export default function AnalysisFilters({
           </ElevatedSelect>
         </div>
 
-        {/* Attendance Quality Min */}
+        {}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold text-muted-foreground">
@@ -438,7 +438,7 @@ export default function AnalysisFilters({
           />
         </div>
 
-        {/* Attendance Quality Max */}
+        {}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold text-muted-foreground">
@@ -474,7 +474,7 @@ export default function AnalysisFilters({
           />
         </div>
 
-        {/* Action Buttons */}
+        {}
         {!hideActions && (
           <div className="flex flex-col gap-2 justify-end">
             <div className="flex gap-2">

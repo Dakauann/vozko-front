@@ -6,16 +6,6 @@ import {
     type MessageChannel,
 } from "./types";
 
-/**
- * The inbox filters by message channel, and that list had been spelled out
- * inline in four places. Each new channel was added to some of them: Telegram
- * reached the inbox with no filter option at all, and a Telegram row rendered a
- * telephone icon because the icon chain tested whatsapp, then instagram, then
- * fell through to the voice branch.
- *
- * These pin the list itself, so a channel that exists in the type but is absent
- * from the filter, or vice versa, fails here rather than in the UI.
- */
 
 describe("FILTERABLE_MESSAGE_CHANNELS", () => {
     it("offers every messaging channel the product supports", () => {
@@ -29,8 +19,6 @@ describe("FILTERABLE_MESSAGE_CHANNELS", () => {
         expect(seen.size).toBe(FILTERABLE_MESSAGE_CHANNELS.length);
     });
 
-    // Exhaustiveness: if MessageChannel gains a member and the list does not,
-    // this stops compiling rather than shipping an unfilterable channel.
     it("covers the MessageChannel union exhaustively", () => {
         const covered: Record<MessageChannel, true> = {
             whatsapp: true,
@@ -45,8 +33,6 @@ describe("FILTERABLE_MESSAGE_CHANNELS", () => {
 });
 
 describe("channel vs entry type", () => {
-    // They are different vocabularies and were conflated by the inline unions.
-    // 'support' is an entry kind with no message channel of its own.
     it("keeps entry-only kinds out of the channel filter", () => {
         for (const entryOnly of ["support"] as EntryType[]) {
             expect(FILTERABLE_MESSAGE_CHANNELS).not.toContain(

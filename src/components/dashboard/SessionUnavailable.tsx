@@ -7,14 +7,6 @@ import { logout as logoutRequest } from "@/lib/auth/auth-api";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-/**
- * Shown by the dashboard layout when resolveServerSession() returns a
- * serverError (transient 5xx / network failure). Redirecting to /login
- * in that state risks a bounce back if the proxy still sees valid cookies,
- * so this is the deliberate off-ramp: it stops the loop and gives the user
- * an explicit retry, plus a logout escape that clears cookies so they can
- * re-authenticate.
- */
 export default function SessionUnavailable() {
   const t = useTranslations("sessionUnavailable");
   const [loggingOut, setLoggingOut] = useState(false);
@@ -48,7 +40,6 @@ export default function SessionUnavailable() {
             try {
               await logoutRequest();
             } catch {
-              /* best-effort: navigate to login regardless */
             }
             window.location.href = "/login";
           }}

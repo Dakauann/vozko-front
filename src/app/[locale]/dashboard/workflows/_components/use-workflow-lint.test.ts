@@ -1,6 +1,3 @@
-/**
- * @vitest-environment node
- */
 
 import { describe, expect, it } from "vitest";
 import type { WorkflowGraph } from "@/lib/workflows/types";

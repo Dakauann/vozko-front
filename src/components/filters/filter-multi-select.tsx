@@ -18,11 +18,6 @@ import {
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
-/**
- * One option of a checklist filter. `count` is how many records carry this
- * value within the CURRENT filtered set — the server's facet count — and is
- * omitted when the caller has none to show.
- */
 export interface FilterMultiSelectOption {
   value: string;
   label: string;
@@ -39,14 +34,10 @@ export interface FilterMultiSelectProps {
   onClear: () => void;
   searchPlaceholder: string;
   emptyMessage: string;
-  /** Localized label for the "clear this control" affordance. */
   clearLabel?: string;
   className?: string;
 }
 
-// A quiet neutral dropdown checklist (Popover + cmdk). Reuses the same
-// primitives the house selects are built on; state shows as a count badge and
-// per-row checks, never a colored pill.
 export function FilterMultiSelect({
   triggerLabel,
   icon,
@@ -142,9 +133,6 @@ export function FilterMultiSelect({
                       {option.label}
                     </span>
                     {typeof option.count === "number" ? (
-                      // The count comes from the server's facet pass over the
-                      // SAME filtered set the rows come from, so "0" here means
-                      // "adding this narrows to nothing", not "no data".
                       <span className="shrink-0 text-2xs tabular-nums text-muted-foreground">
                         {option.count}
                       </span>

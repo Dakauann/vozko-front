@@ -168,11 +168,6 @@ describe("subscribed", () => {
   });
 });
 
-/**
- * The window must show the same face the inbox row does. It carries its own
- * copy rather than reading the cached row, because a floating conversation can
- * outlive its row — a filter change, or a page of the inbox that never loaded.
- */
 describe("the contact's picture", () => {
   it("opens with the picture the inbox row already had", () => {
     const state = openWindowConversation(emptyWindowConversations(), {
@@ -206,8 +201,6 @@ describe("the contact's picture", () => {
     );
   });
 
-  // The bug: a later frame without a picture blanked the face, so the window
-  // fell back to an initial while the inbox beside it still showed the photo.
   it("keeps the face when a later frame carries no picture", () => {
     let state = openWindowConversation(emptyWindowConversations(), {
       entryId: "e1",
@@ -365,13 +358,6 @@ describe("closing", () => {
     expect(windowConversation(state, B)).not.toBeNull();
   });
 
-  /**
-   * The conversation was assigned to someone else and left this operator's
-   * scope. The server only sends this to people who may no longer see it — not
-   * the new assignee, and not anyone holding `conversations:view_others`, so a
-   * supervisor's window stays put. For everyone else the window closes, the
-   * same way the row leaves their inbox.
-   */
   it("closes the window when the conversation is assigned away", () => {
     const state = applyWindowEvent(opened(), {
       type: "conversation:entry_removed",
@@ -379,7 +365,6 @@ describe("closing", () => {
     });
 
     expect(windowConversation(state, A)).toBeNull();
-    // And only that one.
     expect(windowConversation(state, B)).not.toBeNull();
   });
 
@@ -406,7 +391,6 @@ describe("incomingUnreadIds", () => {
   });
 });
 
-/** Test helper: what the hook does before sending a load_history frame. */
 function markLoadingMore(
   state: ReturnType<typeof emptyWindowConversations>,
 ): ReturnType<typeof emptyWindowConversations> {

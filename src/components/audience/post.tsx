@@ -24,18 +24,6 @@ import { OverrideFields } from "@/components/audience/override-fields";
 import { Chip, EmptyState, Panel, Skeleton } from "@/components/audience/shared";
 import { ArrowSquareOut, ChartLineUp, ChatCircle, Gear, Sparkle, Warning } from "@/components/icons";
 
-/*
- * A post's analysis, inside the post detail dialog: what the engine sees for
- * THIS post (the account's settings with the post's own layered on), the
- * post's numbers through the same overview and feed the account tab uses,
- * scoped to the post, and the override editor.
- *
- * The fallback is the back-end's (post override, then account, then off);
- * this panel only shows the two tiers side by side and edits the top one. A
- * field left blank inherits, and an override with every field blank is not
- * stored at all, so "inherit everything" and "no override" are one state.
- * The draft mappings live in lib/audience/override.ts, tested there.
- */
 
 const SOURCE: CommentSource = "instagram";
 const TREND_DAYS = 30;
@@ -74,8 +62,6 @@ export function CommentPostAnalysisPanel({ accountId, containerId }: { accountId
     };
   }, [accountId, containerId]);
 
-  // The numbers, scoped to the post: the same stats and rollup series the
-  // account tab shows, so a figure here and there cannot disagree.
   const enabled = settings?.effective.enabled ?? false;
   useEffect(() => {
     if (!enabled) return;
@@ -136,8 +122,8 @@ export function CommentPostAnalysisPanel({ accountId, containerId }: { accountId
         />
       ) : null}
 
-      {/* The dialog column is narrow on every viewport, so the overview
-          takes its single-column layout regardless of the window width. */}
+      {
+}
       {effective.enabled && section === "overview" ? <CommentAnalysisOverview stats={stats} trend={trend} loading={!stats} layout="narrow" topics={effective.topics} /> : null}
       {effective.enabled && section === "feed" ? <CommentAnalysisFeed accountId={accountId} containerId={containerId} topics={effective.topics} /> : null}
 
@@ -145,8 +131,8 @@ export function CommentPostAnalysisPanel({ accountId, containerId }: { accountId
         <EmptyState icon={<Sparkle weight="duotone" />} title={t("offTitle")} description={canConfigure ? t("offHintConfigure") : t("offHint")} />
       ) : null}
 
-      {/* The editor is always reachable while the post is off (it is how it
-          gets switched on) and sits behind the settings pill while on. */}
+      {
+}
       {canConfigure && (!effective.enabled || section === "settings") ? (
         <OverrideEditor accountId={accountId} containerId={containerId} settings={settings} onSaved={setSettings} />
       ) : null}
@@ -171,7 +157,6 @@ function OverrideEditor({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Drafts follow a freshly saved object (adjust-state-during-render).
   const [seen, setSeen] = useState(settings);
   if (seen !== settings) {
     setSeen(settings);

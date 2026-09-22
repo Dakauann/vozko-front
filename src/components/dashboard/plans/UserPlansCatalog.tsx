@@ -79,9 +79,6 @@ function formatDate(value: string | null | undefined, locale: string) {
   }).format(parsed);
 }
 
-// Date without the time, for prose where "31 de dez. de 2027, 23:59" would read awkwardly (e.g. the
-// renewal summary). The subscription's own currentPeriodEnd is the single source of truth for when it
-// renews, so the copy quotes it directly rather than asserting a fixed calendar day.
 function formatDateOnly(value: string | null | undefined, locale: string) {
   if (!value) {
     return "-";
@@ -381,14 +378,6 @@ export default function UserPlansCatalog() {
     selectedPlan?.plan.pricingItems,
   ).length;
 
-  /**
-   * Contract rules, resolved per plan.
-   *
-   * Every strip in the rack carries its own CTA now, so the rules that used to
-   * apply to "the selected plan" apply to each column. They are unchanged: the
-   * active plan is locked, and a subscribed workspace can only move up — a
-   * downgrade waits for the current period to close.
-   */
   const contractStateFor = React.useCallback(
     (item: PublicPlanDetails) => {
       const isCurrent = currentPlanId === item.plan.id;
@@ -424,8 +413,6 @@ export default function UserPlansCatalog() {
     [canCreateBilling, currentPlan, currentPlanId, hasCurrentSubscription, t],
   );
 
-  // The rack reads as a price ladder, so it runs cheapest to dearest regardless
-  // of which plan is featured; the featured strip is marked, not reordered.
   const rackPlans = React.useMemo(
     () =>
       [...filteredPlans].sort(
@@ -460,8 +447,6 @@ export default function UserPlansCatalog() {
     [t],
   );
 
-  // Every category any plan in the rack prices, so a plan that lacks one shows
-  // the gap on the same row instead of simply omitting the line.
   const compareCategories = React.useMemo(
     () =>
       [
@@ -718,14 +703,8 @@ export default function UserPlansCatalog() {
           />
         </motion.div>
 
-        {/*
-          MASTER SECTION.
-
-          What was three stat cards plus a large subscription card said the same
-          thing four times: which plan, what status, when it renews. One status
-          bar says it once, in reading order, with the figures in a single row of
-          readouts so the eye lands on values rather than on card chrome.
-        */}
+        {
+}
         <section className="well">
           <header className="rule-engraved flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-2.5">
             <p className="legend">
@@ -835,16 +814,8 @@ export default function UserPlansCatalog() {
           ) : null}
         </section>
 
-        {/*
-          THE RACK.
-
-          Plans are chosen by comparison, and a rail of cards makes that the
-          hardest thing to do: to check whether Scale includes more numbers than
-          Professional you had to select one, read it, select the other, and
-          remember. So the catalogue is a rack of parallel strips over shared
-          rows — every capability sits on one engraved line, and the answer is
-          read across instead of held in memory.
-        */}
+        {
+}
         <section className="well overflow-hidden">
           <header className="rule-engraved flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2.5">
             <div className="flex items-baseline gap-2.5">
@@ -898,7 +869,7 @@ export default function UserPlansCatalog() {
                           )}
                           scope="col"
                         >
-                          {/* The lit rail: which strip the readouts below belong to. */}
+                          {}
                           <span
                             aria-hidden
                             className="mb-4 block h-0.5 w-full rounded-full"
@@ -1067,7 +1038,7 @@ export default function UserPlansCatalog() {
           )}
         </section>
 
-        {/* The selected strip, expanded: what it costs to run, line by line. */}
+        {}
         {selectedPlan && selectedPlanBillableCount > 0 ? (
           <section className="well">
             <header className="rule-engraved flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-2.5">
@@ -1297,7 +1268,7 @@ export default function UserPlansCatalog() {
 
               return (
                 <div className="space-y-5">
-                  {/* ── Plan summary ── */}
+                  {}
                   <div className="rounded-[--radius] border border-border bg-background p-5">
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
@@ -1320,7 +1291,7 @@ export default function UserPlansCatalog() {
                     </div>
                   </div>
 
-                  {/* ── Billing cycle ── */}
+                  {}
                   <div className="space-y-2.5">
                     <p className="text-sm font-medium text-foreground">
                       {t("dialog.billingCycleTitle")}
@@ -1396,7 +1367,7 @@ export default function UserPlansCatalog() {
                     </div>
                   </div>
 
-                  {/* ── Payment method ── */}
+                  {}
                   <div className="space-y-2.5">
                     <p className="text-sm font-medium text-foreground">
                       {t("dialog.methodTitle")}
@@ -1462,7 +1433,7 @@ export default function UserPlansCatalog() {
                     </div>
                   </div>
 
-                  {/* ── Order summary ── */}
+                  {}
                   <div className="rounded-[--radius] border border-border bg-muted p-4 space-y-2">
                     <p className="text-xs font-semibold text-muted-foreground">
                       {t("dialog.orderSummary")}
@@ -1558,13 +1529,6 @@ const CATEGORY_SORT_ORDER: Record<string, number> = {
   llm: 5,
 };
 
-/**
- * Categories a customer must never be shown.
- *
- * `exchange_rate` is a system row, and `telephony` is the SIP catalogue left
- * over from the VoIP era — the product no longer sells call capacity, so a plan
- * must not advertise it even when the backend taxonomy still carries the rows.
- */
 const HIDDEN_CATEGORIES = new Set(["exchange_rate", "telephony"]);
 
 function billableItems(items: { category: string }[] | undefined) {
@@ -1591,13 +1555,6 @@ function formatBRLPrice(micros: number, exchangeRate: number) {
   }).format(brl);
 }
 
-/**
- * Category marks.
- *
- * Not filled tiles: a patch bay colour-codes with ink on the same plate, so
- * each category gets a chart ink and a glyph at label size, and the plate stays
- * the panel it is engraved on.
- */
 const CATEGORY_INK: Record<string, { ink: string; glyph: React.ReactNode }> = {
   whatsapp: { ink: "ink-2", glyph: <WhatsappLogo className="h-3.5 w-3.5" /> },
   sms: { ink: "ink-1", glyph: <ChatCircle className="h-3.5 w-3.5" /> },
@@ -1628,15 +1585,6 @@ export function CategoryMark({
   );
 }
 
-/**
- * The plan's price list.
- *
- * Prices are read by comparison — this line against the one below it, BRL
- * against USD — which a grid of bordered mini-cards actively prevents: every
- * amount starts at a different x. So it is one table, category by category,
- * with the figures right-aligned in tabular columns and the category names
- * engraved across the width rather than boxed.
- */
 export function PlanPricingTable({
   items,
   exchangeRate,
@@ -1653,8 +1601,6 @@ export function PlanPricingTable({
   t: ReturnType<typeof useTranslations<"plansPage">>;
 }) {
   const grouped = React.useMemo(() => {
-    // Drop internal and markup-based (percentage) rows: a customer sees final per-unit prices only,
-    // never our markup. The backend also strips markupPct/costMicros from customer plan responses.
     const filtered = items.filter(
       (i) =>
         !HIDDEN_CATEGORIES.has(i.category) &&
@@ -1771,7 +1717,7 @@ export function PlanPricingTable({
                             : formatPricingServiceFallback(item.service)}
                         </th>
                         <td className="px-3 py-2 text-xs text-muted-foreground">
-                          {/* An unmapped metric would otherwise print its i18n path. */}
+                          {}
                           {t.has(metricKey) ? t(metricKey) : item.metric}
                         </td>
                         <td className="readout px-3 py-2 text-right text-sm font-semibold text-foreground">
@@ -1792,13 +1738,6 @@ export function PlanPricingTable({
   );
 }
 
-/**
- * What the base price buys, in message counts.
- *
- * The call-minutes estimate that used to sit here was priced off SIP trunking;
- * it went with the rest of the VoIP surface. What remains is a readout, not a
- * set of stat cards — same figures, aligned in one column so they compare.
- */
 export function PlanEstimatesPanel({
   basePriceBRLCents,
   items,

@@ -70,16 +70,12 @@ describe("ScheduleMessageDialog", () => {
         vi.useRealTimers();
     });
 
-    // The dialog OWNS composition now. A draft prefills the editor; it is not
-    // a read-only preview of something the composer holds.
     it("prefills an editable message field from the draft", () => {
         renderDialog();
         expect(screen.getByLabelText(ptMessages.scheduledMessages.dialog.messageLabel))
             .toHaveValue("Bom dia!");
     });
 
-    // The whole reason the clock no longer needs a draft: this is where an
-    // operator starts a message.
     it("lets the operator write from scratch on an empty draft", () => {
         renderDialog({ draft: { text: "", signed: false } });
 
@@ -100,8 +96,6 @@ describe("ScheduleMessageDialog", () => {
         }
     });
 
-    // A preset the window cannot hold is disabled and says why, rather than
-    // vanishing — an option that disappears reads as a bug.
     it("disables a preset that falls outside the window", () => {
         renderDialog({ window: openWindow({ expiresAt: at(2 * HOUR), latestAllowedAt: at(2 * HOUR) }) });
         expect(
@@ -109,8 +103,6 @@ describe("ScheduleMessageDialog", () => {
         ).toBeDisabled();
     });
 
-    // An expiry means a clock. Its absence on an OPEN window means the channel
-    // has none, and inventing a deadline is a lie the operator plans around.
     it("says plainly when the channel has no 24-hour window", () => {
         renderDialog({ window: { open: true } });
         expect(
@@ -125,7 +117,6 @@ describe("ScheduleMessageDialog", () => {
         ).toBeInTheDocument();
     });
 
-    // A default the window cannot hold would open the dialog already invalid.
     it("opens with a valid default time", () => {
         renderDialog();
         expect(confirmButton()).not.toBeDisabled();
@@ -134,7 +125,6 @@ describe("ScheduleMessageDialog", () => {
     it("refuses a time past the window and says which boundary was hit", async () => {
         renderDialog();
 
-        // 6h window; 23:00 local on the same day is outside it.
         fireEvent.change(screen.getByLabelText(ptMessages.scheduledMessages.dialog.timeLabel), {
             target: { value: "23:59" },
         });
@@ -146,8 +136,6 @@ describe("ScheduleMessageDialog", () => {
         expect(scheduleAction).not.toHaveBeenCalled();
     });
 
-    // The whole point of the client-side rule: refuse locally rather than let
-    // the operator submit something the server will reject.
     it("does not submit a time it knows the server would refuse", () => {
         renderDialog();
 
@@ -190,11 +178,6 @@ describe("ScheduleMessageDialog", () => {
         await vi.waitFor(() => expect(onScheduled).toHaveBeenCalled());
     });
 
-    /**
-     * A retry is the SAME intention, so it must carry the SAME key: the server
-     * then returns the first result instead of scheduling a second message to
-     * the customer. One key per dialog-open, not per click, is what buys that.
-     */
     it("reuses one idempotency key across a failed submit and its retry", async () => {
         scheduleAction.mockResolvedValueOnce({
             scheduledMessage: null,
@@ -215,9 +198,6 @@ describe("ScheduleMessageDialog", () => {
         expect(retryKey).toBe(firstKey);
     });
 
-    // The in-flight guard is the other half: while a submit is outstanding the
-    // button is not clickable at all, so a double-click cannot even reach the
-    // server twice.
     it("blocks a second submit while the first is in flight", async () => {
         let release: (value: unknown) => void = () => {};
         scheduleAction.mockReturnValueOnce(
@@ -237,8 +217,6 @@ describe("ScheduleMessageDialog", () => {
         await vi.waitFor(() => expect(scheduleAction).toHaveBeenCalledTimes(1));
     });
 
-    // Clock skew, or a dialog left open past the boundary. The server's answer
-    // is authoritative and gets adopted rather than re-derived locally.
     it("surfaces a server refusal and adopts the boundary it reports", async () => {
         scheduleAction.mockResolvedValueOnce({
             scheduledMessage: null,
@@ -274,10 +252,6 @@ describe("ScheduleMessageDialog", () => {
     });
 
 
-    /**
-     * "ANY kind of message" — the dialog attaches its own media rather than
-     * only carrying what the composer happened to hold.
-     */
     describe("attachments", () => {
         function attach(file: File) {
             const input = document.querySelector('input[type="file"]') as HTMLInputElement;
@@ -321,8 +295,6 @@ describe("ScheduleMessageDialog", () => {
             expect(uploadAction.mock.calls[0][3]).toBe("image");
         });
 
-        // A voice note carries no caption on any of these channels, so the
-        // editor is disabled and the payload's text is empty.
         it("drops the caption for audio", async () => {
             renderDialog({ draft: { text: "algum texto", signed: false } });
             attach(new File(["x"], "audio.ogg", { type: "audio/ogg" }));
@@ -340,8 +312,6 @@ describe("ScheduleMessageDialog", () => {
             expect(scheduleAction.mock.calls[0][2]).toMatchObject({ text: "", media_type: "audio" });
         });
 
-        // Submitting mid-upload would schedule a message whose attachment has
-        // no id yet — a text-only send the operator did not ask for.
         it("blocks submitting while the upload is still in flight", async () => {
             let release: (v: unknown) => void = () => {};
             uploadAction.mockReturnValueOnce(new Promise((r) => { release = r; }));

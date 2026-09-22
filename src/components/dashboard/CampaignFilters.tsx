@@ -303,7 +303,7 @@ export default function CampaignFilters({
         className,
       )}
     >
-      {/* Header */}
+      {}
       <div
         className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
@@ -384,7 +384,7 @@ export default function CampaignFilters({
         </motion.div>
       </div>
 
-      {/* Expandable Content */}
+      {}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -395,7 +395,7 @@ export default function CampaignFilters({
             className="overflow-hidden"
           >
             <div className="px-4 pb-4 space-y-4">
-              {/* Mode Selector Tabs */}
+              {}
               <div className="flex items-center rounded-[--radius] border border-border bg-card p-1">
                 <button
                   type="button"
@@ -435,7 +435,7 @@ export default function CampaignFilters({
                 </button>
               </div>
 
-              {/* Filter Content based on Mode */}
+              {}
               <AnimatePresence mode="wait">
                 {values.mode === "analysis" ? (
                   <motion.div
@@ -482,7 +482,7 @@ export default function CampaignFilters({
                 )}
               </AnimatePresence>
 
-              {/* Clear All Button */}
+              {}
               {hasActiveFilters && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}

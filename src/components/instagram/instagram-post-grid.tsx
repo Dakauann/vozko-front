@@ -20,21 +20,6 @@ interface Props {
   onSelect: (media: InstagramMedia) => void;
 }
 
-/**
- * The post grid.
- *
- * Sizing is driven by `auto-fill` with a fixed tile range rather than a fixed
- * column count. A fixed `grid-cols-3` looks right at ~900px but degrades badly at
- * both ends: on a wide screen three tiles stretch to enormous squares, and with a
- * single post one tile occupies a third of the viewport while two empty cells sit
- * beside it. `auto-fill` + `minmax` keeps every tile within a sane size band and
- * simply fits more per row as space allows, which is also how Instagram's own grid
- * behaves on desktop.
- *
- * Thumbnails come from our own proxy: Instagram's media_url is a signed CDN link
- * that expires, so embedding it directly would produce images that break minutes
- * later.
- */
 export function InstagramPostGrid({
   accountId,
   posts,
@@ -100,8 +85,6 @@ function PostTile({
   onSelect: () => void;
   openLabel: string;
 }) {
-  // A reel is a VIDEO with mediaProductType REELS, there is no media_type=REELS,
-  // which is why isReel is precomputed server-side rather than derived here.
   const isVideo = media.mediaType === "VIDEO" || media.isReel;
   const useVideoPreview = isVideo && !media.thumbnailUrl;
   const { src, contentType, failed, onError } = useAuthenticatedImage(
@@ -145,14 +128,12 @@ function PostTile({
           className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
         />
       ) : !media.hasAsset || failed ? (
-        // media_url is OMITTED (not null) for copyrighted content, so a missing
-        // asset is an expected state rather than an error.
         <div className="grid size-full place-items-center text-muted-foreground">
           <ImageBroken className="h-6 w-6" weight="duotone" />
         </div>
       ) : null}
 
-      {/* Type markers, top-right like Instagram's own grid. */}
+      {}
       <div className="absolute right-2 top-2 flex gap-1">
         {media.isReel ? (
           <TileBadge>
@@ -170,8 +151,8 @@ function PostTile({
         )}
       </div>
 
-      {/* Engagement overlay. Uses a gradient rather than a flat wash so the counts
-          stay legible over both light and dark imagery. */}
+      {
+}
       <div
         className={cn(
           "pointer-events-none absolute inset-0 flex items-end justify-center gap-5 pb-3",

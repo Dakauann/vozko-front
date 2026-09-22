@@ -45,16 +45,9 @@ function dispatch(ev: ChatStreamEvent, h: StreamHandlers) {
     case "error":
       h.onError?.(p.error ?? "Erro ao gerar resposta");
       break;
-    // "iteration" / "assistant_done" are progress-only and ignored by the UI.
   }
 }
 
-/**
- * useChatStream consumes the copilot SSE protocol (POST + text/event-stream).
- * Native EventSource can't send auth headers, so we use fetch + ReadableStream.
- * send() streams a turn; approve()/reject() resolve a pending mutation; stop()
- * aborts the in-flight fetch.
- */
 export function useChatStream() {
   const [streaming, setStreaming] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
@@ -69,8 +62,6 @@ export function useChatStream() {
       const ctrl = new AbortController();
       abortRef.current = ctrl;
       try {
-        // Auth rides the httpOnly cookie (credentials: "include"); the browser
-        // attaches it on the SSE POST. On a 401 we refresh once and retry.
         const doFetch = () =>
           fetch(url, {
             method: "POST",
@@ -83,21 +74,17 @@ export function useChatStream() {
             signal: ctrl.signal,
           });
 
-        // Shared auth behavior: on a 401 this refreshes once and retries; if the
-        // refresh fails it broadcasts session-expired and returns the 401.
         const res = await fetchWithRefresh(doFetch);
         if (res.status === 401) {
           handlers.onError?.("Sessão expirada. Faça login novamente.");
           return;
         }
         if (!res.ok || !res.body) {
-          // Gate failures (402/403/404) arrive as a JSON error, not a stream.
           let msg = `Erro ${res.status}`;
           try {
             const j = await res.json();
             msg = j?.message || j?.error || msg;
           } catch {
-            /* keep default */
           }
           handlers.onError?.(msg);
           return;

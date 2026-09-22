@@ -1,27 +1,3 @@
-/**
- * Icon system.
- *
- * The app draws its icons from its own set — 208 drawings on a 24x24 grid,
- * 1.5 stroke, two colour layers. It replaced Tabler, which had replaced
- * Phosphor; both packages are gone from package.json.
- *
- * This module stays a COMPATIBILITY LAYER, not a re-export list. It keeps the
- * call signature the app already uses:
- *
- *   - the same export names the ~297 consumer files import;
- *   - a `weight` prop that is ACCEPTED AND IGNORED, so the ~2,300
- *     `weight="fill"|"bold"|"regular"` props across the app keep compiling;
- *   - `size`, `mirrored`, `color` and every other SVG prop, unchanged.
- *
- * Several names map to one drawing where the old set carried redundant
- * variants — Spinner / SpinnerGap / CircleNotch are one spinner now.
- *
- * Eleven exports that no file imported were dropped in this pass: Browser,
- * CaretLineLeft, DeviceMobileCamera, Equalizer, MicrophoneSlash, MusicNotes,
- * PhoneSlash, SimCard, SpeakerSlash, Vault. (Download stayed; it is aliased.)
- *
- * GENERATED — do not hand-edit. See ./svg/README.md.
- */
 export type { Icon, IconProps, IconWeight } from "./types";
 
 export {

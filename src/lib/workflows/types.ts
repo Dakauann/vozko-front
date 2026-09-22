@@ -3,15 +3,11 @@ export type WorkflowNodeType =
   | "trigger_first_message"
   | "trigger_message_received"
   | "trigger_webhook"
-  // Actions
   | "action_send_text"
   | "action_send_template"
   | "action_send_email"
   | "action_send_media"
   | "action_send_interactive"
-  // Retired wire value for the interactive prompt. The backend normalizes it on
-  // read, so it only reaches the client from a graph held in memory from before
-  // a save; the editor still recognises it so such a graph renders correctly.
   | "action_send_whatsapp_button"
   | "action_ai_agent"
   | "action_ai_extract"
@@ -30,7 +26,6 @@ export type WorkflowNodeType =
   | "action_assign_member"
   | "action_transfer_department"
   | "action_finish_conversation"
-  // Control flow
   | "wait_duration"
   | "wait_for_reply"
   | "wait_for_event"
@@ -42,7 +37,6 @@ export type WorkflowNodeType =
   | "condition_check_label"
   | "condition_channel"
   | "end"
-  // Visual
   | "group"
   | "decoration_background";
 
@@ -206,12 +200,12 @@ export interface ConfigFieldOption {
 export interface ConfigField {
   key: string;
   label: string;
-  type: string; 
+  type: string;
   placeholder?: string;
   description?: string;
   required?: boolean;
-  options?: ConfigFieldOption[]; 
-  optionsSource?: string; 
+  options?: ConfigFieldOption[];
+  optionsSource?: string;
   min?: number;
   max?: number;
   step?: number;
@@ -228,8 +222,6 @@ export interface OutputKeyDefinition {
   description: string;
 }
 
-// LintIssue mirrors the backend workflow.LintIssue, the single source of truth
-// for what is wrong with a graph (the same rules `activate` enforces).
 export interface LintIssue {
   code: string;
   severity: "blocking" | "advisory";
@@ -247,34 +239,20 @@ export interface NodeDefinition {
   label: string;
   description: string;
   icon: string;
-  // Base/static output handles (config-independent). Dynamic nodes also resolve a
-  // fuller, config-dependent set from the backend (see dynamicHandles).
   outputs?: HandleDefinition[];
-  // True when this node type's handles depend on its config (ai_agent tool routes,
-  // text_match cases). The editor learns which types are dynamic from THIS flag ,
-  // not a hardcoded list, and resolves their handles via /workflows/resolve-handles.
   dynamicHandles?: boolean;
   outputKeys?: OutputKeyDefinition[];
   defaultConfig: Record<string, unknown>;
   configSchema: ConfigField[] | null;
   resizable?: boolean;
-  // Per-channel rendering limits, keyed by entry type. Only the interactive
-  // prompt node sets this: one option list is rendered by several channels with
-  // different caps, so the editor needs the numbers to tell the author which
-  // options a given channel will actually show.
   channelLimits?: Record<string, ChannelInteractiveLimits>;
 }
 
-// What one channel will render for a single-choice prompt. Mirrors the
-// backend's channel.InteractiveLimits.
 export interface ChannelInteractiveLimits {
   maxOptionsButtons: number;
   maxOptionsList: number;
-  // 0 means the provider documents no label limit.
   maxLabelRunes: number;
-  // Bounds the option id. Bytes, not characters.
   maxPayloadBytes: number;
-  // Only WhatsApp list rows have a description slot.
   supportsDescriptions: boolean;
 }
 
@@ -350,8 +328,6 @@ export interface TestNodeResult {
 }
 
 
-/** The interactive prompt node, under either its current or its retired wire
- *  value. Used wherever the editor branches on "is this the options node". */
 export function isInteractivePromptType(nodeType: string): boolean {
   return (
     nodeType === "action_send_interactive" ||

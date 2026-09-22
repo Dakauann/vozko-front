@@ -110,14 +110,7 @@ import { WaffleChart } from "@/components/charts/dense-charts";
 import { TeamResponseChart } from "@/components/charts/team-response-chart";
 import { entityColorIndex, share } from "@/lib/charts/data";
 
-/* ── Chart colours ────────────────────────────────────────────────── */
 
-/* Token-driven, not hex: the previous values were Tailwind-default hexes that
-   ignored both the design system's validated series palette and dark mode
-   entirely — a green from one system beside an indigo from another. Status
-   encodings (finished / ongoing / pending) take the STATUS tokens, which is
-   what they measure; volume takes the series tokens. Both re-resolve when the
-   theme flips. */
 const COLORS = {
   signal: "hsl(var(--chart-1))",
   finished: "hsl(var(--healthy))",
@@ -138,7 +131,6 @@ const LOCALE_TAG: Record<string, string> = {
 
 type DatePreset = "7d" | "30d" | "90d" | "custom";
 
-/* ── Locale-aware formatters ─────────────────────────────────────── */
 
 function useMetricsFmt() {
   const locale = useLocale();
@@ -159,8 +151,6 @@ function useMetricsFmt() {
         if (v < 1) return `${Math.round(v * 60)}s`;
         return `${v.toLocaleString(tag, { maximumFractionDigits: 1 })} ${minUnit}`;
       },
-      // Whole days below one, so "0,3d in this stage" reads as "arrived today"
-      // rather than as a suspiciously precise fraction of a day.
       days: (v: number | null | undefined) => {
         if (v === null || v === undefined) return na;
         const digits = v < 10 ? 1 : 0;
@@ -195,7 +185,6 @@ function useActorKindLabel() {
   );
 }
 
-/* ── Shell pieces ─────────────────────────────────────────────────── */
 
 function Surface({
   children,
@@ -287,7 +276,6 @@ function ChartSkeleton({ height = 220 }: { height?: number }) {
   );
 }
 
-/* ── KPI strip ────────────────────────────────────────────────────── */
 
 type KpiDef = {
   key: string;
@@ -308,17 +296,6 @@ function KpiStrip({
 }: {
   kpis: OverviewKPIs | undefined;
   loading: boolean;
-  /**
-   * Whether a CONVERSATION-scoped filter (department, member, channel or
-   * campaign) is active.
-   *
-   * Only the new-leads tile reads it. Every other number here narrows with
-   * those filters; that one counts CRM contacts, which carry no department,
-   * assignee or channel until they have a conversation, so it deliberately
-   * answers to the date range alone. Saying so ON the tile matters, because a
-   * number that visibly refuses to move while its seven neighbours drop reads
-   * as a bug, and the explanation was sitting in a hover title nobody opens.
-   */
   scoped: boolean;
 }) {
   const t = useTranslations("metricsOps.attendance.kpi");
@@ -408,12 +385,8 @@ function KpiStrip({
 
   return (
     <div className="space-y-2.5">
-      {/* Eight operations KPIs as a colourful tile row. The instrument strip
-          this replaces reported eight integers in one grey band — correct,
-          and invisible. Each KPI now carries its glyph on its OWN plate from
-          the product-wide glyph→plate table, so the colour is a learnable
-          mark (green = done, amber = time, red = fault), the number is the
-          biggest thing on the tile, and the whole row reads at a squint. */}
+      {
+}
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 xl:grid-cols-8">
         {cards.map((c) => (
           <div
@@ -445,7 +418,7 @@ function KpiStrip({
         ))}
       </div>
 
-      {/* Campaign shells: not real chats, kept out of primary KPIs */}
+      {}
       {!loading && shell > 0 ? (
         <div
           className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-[--radius] border border-dashed border-border bg-muted px-3 py-2 text-xs text-muted-foreground"
@@ -479,26 +452,14 @@ function KpiStrip({
   );
 }
 
-/**
- * Brand colour per channel, for the share bar only.
- *
- * Not for the tile behind the glyph: one neutral ground with the identity in the
- * mark is the system rule, and a grid of saturated blocks is what it replaced.
- * The bar is a measurement, so colour there is carrying data rather than
- * decorating a container.
- */
 const CHANNEL_BAR: Record<string, string> = {
   whatsapp: "#25d366",
-  // Brand teal distinguishes the unofficial transport from WhatsApp green
-  // and follows the dashboard's light and dark themes.
   unofficial_whatsapp: "hsl(var(--chart-1))",
   instagram: "#e1306c",
   telegram: "#229ed9",
   voice: "#8b5cf6",
 };
 
-/** Display name per channel, falling back to the key only for a channel we have
- * genuinely never heard of rather than for every one we simply forgot. */
 function channelLabel(channel: string, tc: (key: string) => string): string {
   switch (channel) {
     case "whatsapp":
@@ -514,10 +475,6 @@ function channelLabel(channel: string, tc: (key: string) => string): string {
   }
 }
 
-/**
- * Channel composition: block area is conversation count, with stable channel
- * colours and exact counts/shares in the legend and accessible data table.
- */
 function ChannelMixChart({
   mix,
   loading,
@@ -533,9 +490,6 @@ function ChannelMixChart({
       .sort((a, b) => b.count - a.count)
       .map((c) => ({
         key: c.channel,
-        // A ternary chain that ended in the RAW KEY, so every channel added
-        // after WhatsApp and voice rendered "telegram" verbatim to the
-        // operator on a muted tile carrying a telephone glyph.
         name: channelLabel(c.channel, tc),
         value: c.count,
         pct: c.pct,
@@ -564,24 +518,6 @@ function SectionLabel({ title, subtitle }: { title: string; subtitle?: string })
   );
 }
 
-/**
- * The operational blocks.
- *
- * These were fourteen bordered boxes each holding one number. That is not a
- * dashboard, it is a spreadsheet with rounded corners, and it broke the page
- * shapes rule this product already wrote down for itself: none of them draws a
- * box around a number. Four numbers in four boxes also cannot be COMPARED
- * without the reader doing the arithmetic, which is the one job a chart exists
- * to do for them.
- *
- * Every block below now picks its form from the job its data does:
- *
- *   first response   four magnitudes on one scale     -> CompareBars
- *   messages         two directions of one exchange   -> SplitFlow
- *   reopen           one ratio against its whole      -> Meter
- *   templates        one share, plus raw volume       -> Meter + readouts
- *   AI               one population split by outcome  -> WaffleChart
- */
 function ExtendedOpsPanels({
   overview,
   loading,
@@ -626,9 +562,6 @@ function ExtendedOpsPanels({
                 height={150}
               />
             ) : (
-              /* Minutes on one shared scale, so "the AI answers in seconds and
-                 people in minutes" is a shape rather than a subtraction. The
-                 overall average is the emphasis; the rest is context. */
               <CompareBars
                 emphasisKey="avg"
                 rows={[
@@ -691,9 +624,8 @@ function ExtendedOpsPanels({
                     {fmt.num(msg.avg_messages_per_conversation ?? 0)}
                   </span>
                 </div>
-                {/* Inbound and outbound are one exchange with a direction, so
-                    they grow from a shared middle. Which way it leans is the
-                    finding; two separate numbers hid it. */}
+                {
+}
                 <SplitFlow
                   left={{
                     label: tl("fromCustomer"),
@@ -753,8 +685,8 @@ function ExtendedOpsPanels({
                     {reopen.reopen_rate != null ? fmt.pct(reopen.reopen_rate) : fmt.na}
                   </span>
                 </div>
-                {/* A ratio against its whole is a track, so the unreopened
-                    remainder is visible rather than implied. */}
+                {
+}
                 <Meter
                   value={reopen.reopen_rate ?? 0}
                   color={
@@ -778,7 +710,7 @@ function ExtendedOpsPanels({
       </div>
 
       <div className="grid items-start gap-3 xl:grid-cols-3">
-      {/* Compact companion panels: templates, channel composition and AI outcomes. */}
+      {}
       <div>
         <SectionLabel title={ts("templates")} subtitle={ts("templatesSub")} />
         <Surface>
@@ -877,8 +809,8 @@ function ExtendedOpsPanels({
             />
           ) : (
             <div className="grid gap-3">
-              {/* One session population split by outcome; square allocation
-                  is approximate, and the legend preserves exact counts. */}
+              {
+}
               <div className="min-w-0">
                 <WaffleChart
                   label={ts("aiTitle")}
@@ -916,7 +848,7 @@ function ExtendedOpsPanels({
                   </strong>
                 </p>
               </div>
-              {/* Rates retain the server's denominators and sample counts. */}
+              {}
               <div className="min-w-0">
                 <CompareBars
                   rows={[
@@ -948,7 +880,6 @@ function ExtendedOpsPanels({
   );
 }
 
-/* ── Charts ───────────────────────────────────────────────────────── */
 
 function HourlyVolumeChart({
   hourly,
@@ -1012,9 +943,8 @@ function HourlyVolumeChart({
       </div>
       <ChartContainer config={config} className="h-[240px] w-full">
         <BarChart data={data} margin={{ top: 4, right: 4, left: -12, bottom: 0 }}>
-          {/* One hue, faded toward the baseline — sequential stays one hue.
-              The peak hour flips to amber AND is named in the strip above, so
-              the emphasis never rests on colour alone. */}
+          {
+}
           <defs>
             <linearGradient id="hourlyGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="hsl(var(--chart-1))" />
@@ -1057,7 +987,6 @@ function HourlyVolumeChart({
   );
 }
 
-/** Compact close-source cell for tables (manual · IA · silence). Counts only. */
 function CloseOriginCell({
   human,
   ai,
@@ -1118,9 +1047,6 @@ function StatusCompositionChart({
   const total = dist?.total ?? 0;
   const slices = useMemo(() => {
     if (!dist || total === 0) return [];
-    /* Short names on purpose. The long forms are written for a table header
-       and a tooltip; drawn around a ring they ran off both edges at phone
-       width, and in the legend all three truncated to "Conversas …". */
     return [
       {
         key: "finished",
@@ -1146,11 +1072,6 @@ function StatusCompositionChart({
   const resolutionRate =
     total > 0 && dist ? Math.round((dist.finished / total) * 1000) / 10 : null;
 
-  /* The radial profile the audience screen uses, on the same three states.
-     Distance from the centre is the share on an explicit common 0-100% axis,
-     so the three are compared by LENGTH against a printed scale rather than by
-     judging the angle of a wedge, which people read badly. The hole of the old
-     donut carried the total; it now sits beside the chart as a real figure. */
   const profile = useMemo(
     () => slices.map((s) => ({ key: s.key, label: s.name, value: s.value, color: s.color })),
     [slices],
@@ -1169,20 +1090,16 @@ function StatusCompositionChart({
 
   return (
     <div className="grid min-h-[240px] grid-cols-1 items-center gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(160px,0.95fr)]">
-      {/* The audience screen's radial profile, on the same three states. The
-          donut it replaces asked the reader to judge three angles; here each
-          state is a bar from a common centre against a printed 0-100% scale,
-          so they compare by length. The total the hole used to carry is the
-          figure beside the chart, which is where a number belongs. */}
+      {
+}
       <div className="min-w-0">
         <RadialProfileChart
           data={profile}
           total={total}
           label={tl("conversationsLabel")}
         />
-        {/* Its own string. denseCharts.radialHint says "comentários
-            analisados", which is the audience screen's subject, not this
-            panel's. */}
+        {
+}
         <p className="mt-1 text-2xs text-muted-foreground">{tl("statusRadialHint")}</p>
       </div>
 
@@ -1201,17 +1118,14 @@ function StatusCompositionChart({
             })}
           </p>
         </div>
-        {/* The per-state counts and shares used to be repeated here as a bar
-            list. RadialProfileChart carries its own legend with both, so this
-            column keeps only what the chart does NOT say: the headline rate,
-            and how the finished ones were closed. */}
+        {
+}
         {!loading ? <OverallCloseOriginNote bySource={bySource} /> : null}
       </div>
     </div>
   );
 }
 
-/** Overall close origin, filter-scoped; pct from counts (never double-scale). */
 function OverallCloseOriginNote({
   bySource,
 }: {
@@ -1273,23 +1187,6 @@ function OverallCloseOriginNote({
   );
 }
 
-/**
- * Departments as blocks, sized by the work they carry.
- *
- * This was a horizontal stacked bar capped at eight rows. A treemap is the
- * right form for the question the panel actually asks — "who is carrying the
- * load" — because departments are NOMINAL: they have no order, so area is a
- * fairer encoding than a ranked axis, and a long tail of small departments
- * stays visible as small blocks instead of falling off the cap.
- *
- * The status split the stack used to carry is not lost: the detail table
- * beside this one prints finished / ongoing / waiting per department with
- * exact numbers, which is where a three-way breakdown is read anyway.
- *
- * Colour follows the DEPARTMENT, hashed from its id, so filtering the page
- * never repaints the survivors — a reader who learned "Cobrança is the indigo
- * one" keeps that.
- */
 function DepartmentStackedChart({
   rows,
   loading,
@@ -1505,7 +1402,6 @@ function TeamResolutionChart({
   );
 }
 
-/* ── Tables ───────────────────────────────────────────────────────── */
 
 function DepartmentDetailTable({
   rows,
@@ -1673,9 +1569,6 @@ function TeamDetailTable({
                   <div
                     className={cn(
                       "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg",
-                      // The product-wide plates: AI wears the automation
-                      // series, humans the organisation series — and each
-                      // plate carries its own measured glyph ink.
                       m.actor_kind === "ai" ? "tile-5" : "tile-2",
                     )}
                   >
@@ -1698,9 +1591,8 @@ function TeamDetailTable({
                 </div>
               </td>
               <td className="px-2 py-2.5">
-                {/* White-on-amber measured 2.4:1 — the exact pair the token
-                    system exists to prevent. The chip takes the plate recipe:
-                    an opaque fill with its own measured foreground. */}
+                {
+}
                 <span
                   className={cn(
                     "inline-flex rounded-[--radius] px-2 py-0.5 text-2xs font-semibold",
@@ -1779,39 +1671,7 @@ function TeamDetailTable({
   );
 }
 
-/* ── Funnels and stages ───────────────────────────────────────────────
-   Where the period's conversations are sitting, and how long they have been
-   sitting there.
 
-   Grouped by funnel, never flat. Duplicate stage names across funnels are the
-   normal case in this product (five production workspaces carry more than one
-   conversation funnel), so a flat list would add "Agendamento" from a dead
-   funnel to "Agendamento" from the live one and show a number belonging to
-   neither.
-
-   Colour carries exactly one meaning each, and nothing here is decoration:
-     chart-1                volume of engaged conversations (charts lead with
-                            the brand)
-     warning                the stalled share of that volume, the actionable
-                            part, and the only thing amber ever means here
-     chart-2                a funnel's share of the workspace: a different
-                            entity from a stage, so a different series slot
-     healthy / destructive  the funnel's own won and lost outcomes
-     the stage's own hex    as a square mark only, so the operator reads the
-                            chips they already know from the kanban without
-                            arbitrary user colour driving the chart
-─────────────────────────────────────────────────────────────────────── */
-
-/**
- * The bar palette, and it reads as one sentence down the funnel: brand green
- * while a lead is in flight, amber for the part of that volume which has
- * stalled, then the outcome's own token at the two stages a funnel ends in.
- *
- * A won stage rendered in the in-flight colour made the end of the path look
- * like more of the middle of it, and a lost stage looked like healthy volume.
- * Amber stays unambiguous because it is only ever the trailing segment of a
- * bar, and it is always labelled beneath it.
- */
 const STAGE_BAR = "hsl(var(--chart-1))";
 const STAGE_BAR_WON = "hsl(var(--healthy))";
 const STAGE_BAR_LOST = "hsl(var(--destructive))";
@@ -1826,9 +1686,6 @@ function stageBarColor(isWon: boolean, isLost: boolean): string {
 
 const HEX = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
 
-/** The stage's own kanban colour as a small square: the board's trace-pad
- * shape, and the one place arbitrary user colour is allowed in this panel.
- * Won and lost override it, because an outcome outranks a decoration. */
 function StageMark({
   color,
   isWon,
@@ -1854,8 +1711,6 @@ function StageMark({
   );
 }
 
-/** One legend/readout pair engraved on the panel. No box: a number in this
- * product does not get a card drawn around it. */
 function StageReadout({
   label,
   value,
@@ -1886,13 +1741,6 @@ function StageReadout({
   );
 }
 
-/**
- * Coverage, then the funnel league — and the league IS the picker.
- *
- * A separate control for choosing a funnel would have been a second thing to
- * read carrying none of its own information. Selecting a row here drives the
- * ladder beside it, and the row still shows everything it showed before.
- */
 function StageCoveragePanel({
   stages,
   loading,
@@ -1958,8 +1806,8 @@ function StageCoveragePanel({
           const name = f.funnel_name || tl("noFunnel");
           return (
             <li key={f.funnel_id || "__none"}>
-              {/* Selection is a real ground plus a mark, never a tint of the
-                  brand hue under ink of the same hue. */}
+              {
+}
               <button
                 type="button"
                 onClick={() => onSelectFunnel(f.funnel_id)}
@@ -2019,14 +1867,6 @@ function StageCoveragePanel({
   );
 }
 
-/**
- * The selected funnel, read in its own order.
- *
- * Position ascending, not volume descending: a funnel sorted by size stops
- * being a path, and "where do they stop moving" is only answerable when the
- * stages sit in the order leads actually travel them. The longest bar still
- * says which stage holds the most.
- */
 function StageLadder({
   funnel,
   loading,
@@ -2048,9 +1888,6 @@ function StageLadder({
     );
   }
 
-  // Bars compare engaged against engaged. Shells are a chip on the row rather
-  // than an extension of the bar: one 3.000-contact import would otherwise
-  // flatten every real stage beside it into a hairline.
   const maxEngaged = funnel.stages.reduce((m, s) => Math.max(m, s.engaged), 0);
   const peakId =
     funnel.stages.length >= 3 && maxEngaged > 0
@@ -2076,9 +1913,6 @@ function StageLadder({
       <ul className="space-y-3.5">
         {funnel.stages.map((s) => {
           const width = maxEngaged > 0 ? (s.engaged / maxEngaged) * 100 : 0;
-          // The stalled share sits INSIDE the same bar, at its trailing end:
-          // stalled conversations are part of the volume, and a second bar
-          // beside it would invite reading them as extra.
           const stalled = Math.min(s.stuck, s.engaged);
           const stalledPct = s.engaged > 0 ? (stalled / s.engaged) * 100 : 0;
           const showOldest =
@@ -2167,8 +2001,8 @@ function StageLadder({
                     >
                       <Hourglass className="h-3 w-3" weight="fill" aria-hidden />
                       {tl("stageStuck", { count: fmt.num(stalled) })}
-                      {/* The parentheses are drawn here, once. Carrying a pair
-                          inside the string too printed "(over 7d (default))". */}
+                      {
+}
                       <span className="font-normal">
                         {`(${
                           s.rot_days_set
@@ -2194,22 +2028,6 @@ function StageLadder({
     </div>
   );
 }
-/**
- * Every funnel and every stage at once, as area.
- *
- * This was a hand-rolled Marimekko, kept because a treemap scrambles stage
- * ORDER. In the running product that argument did not survive contact: the
- * ladder panel beside this one already reads one funnel IN ORDER, with names,
- * dwell and stalled counts, so order was never this panel's job. What this
- * panel owes is "where is everything", and it was failing at it — a funnel
- * holding nine conversations rendered as four unlabelled blocks reading
- * "3 4 1 1", which is not information.
- *
- * It is now the same nested treemap the audience screen uses. The funnel name
- * rides a band over its own region, so a stage name that exists in two funnels
- * ("em atendimento" is in most of them) is never ambiguous, and the blocks
- * stay comparable by area across funnels.
- */
 function StageBlocks({
   stages,
   loading,
@@ -2234,9 +2052,6 @@ function StageBlocks({
             key: s.stage_id,
             label: s.stage_name,
             value: s.engaged,
-            // Hue identifies the funnel; the step within it follows the
-            // stage's POSITION, which is ordered, so the ramp is legal and
-            // does not double-encode the area.
             color: s.is_won
               ? "hsl(var(--healthy))"
               : s.is_lost
@@ -2262,20 +2077,13 @@ function StageBlocks({
   return (
     <div>
       <GroupedBlockChart groups={groups} label={tl("stageCol")} height={260} />
-      {/* Its own copy. denseCharts.blockHint says "comentários classificados",
-          which is the audience screen's subject, not this panel's. */}
+      {
+}
       <p className="mt-1 text-2xs text-muted-foreground">{tl("stageBlockHint")}</p>
     </div>
   );
 }
 
-/**
- * Every funnel and every stage, as one reconcilable ledger.
- *
- * The funnel is a group header rather than a repeated cell — the same optgroup
- * shape the inbox stage filter took — so a stage is never read without the
- * funnel that owns it, and the unstaged remainder closes the arithmetic.
- */
 function StageDetailTable({
   stages,
   loading,
@@ -2296,10 +2104,6 @@ function StageDetailTable({
   }
 
   return (
-    /* Capped and scrolled. A workspace with several funnels lists every stage
-       of every one of them, which ran to dozens of rows and pushed the panels
-       under it off the screen. The head stays pinned so a row scrolled into
-       view still has its column names. */
     <div className="max-h-[420px] overflow-auto">
       <table className="w-full min-w-[640px] text-left text-sm">
         <thead className="sticky top-0 z-10 bg-card">
@@ -2325,8 +2129,8 @@ function StageDetailTable({
         <tbody>
           {stages.funnels.map((f) => (
             <Fragment key={f.funnel_id || "__none"}>
-              {/* A real step, not a half-alpha one: on graphite a muted band at
-                  60% collapses back into the card and the group vanishes. */}
+              {
+}
               <tr className="bg-muted">
                 <th
                   scope="row"
@@ -2438,7 +2242,6 @@ function StageDetailTable({
   );
 }
 
-/** The section. Owns exactly one thing: which funnel the ladder is showing. */
 function StageDistributionSection({
   stages,
   loading,
@@ -2450,9 +2253,6 @@ function StageDistributionSection({
   const [pickedFunnelId, setPickedFunnelId] = useState<string | null>(null);
 
   const funnels = stages?.funnels ?? [];
-  // Derived during render, not reset in an effect: when a filter change removes
-  // the funnel that was open, the ladder falls back to the busiest one on the
-  // same paint instead of flashing empty first.
   const activeFunnelId = funnels.some((f) => f.funnel_id === pickedFunnelId)
     ? pickedFunnelId
     : (funnels[0]?.funnel_id ?? null);
@@ -2489,8 +2289,8 @@ function StageDistributionSection({
       </div>
 
       <div className="mt-3 grid gap-3 xl:grid-cols-12">
-        {/* All funnels at once, as area. The ladder above reads one funnel in
-            depth; this is the only view that answers "where is everything". */}
+        {
+}
         <Surface className="min-w-0 xl:col-span-5">
           <SectionTitle
             icon={<Kanban className="h-4 w-4" weight="fill" />}
@@ -2501,9 +2301,8 @@ function StageDistributionSection({
           <StageBlocks stages={stages} loading={loading} />
         </Surface>
 
-        {/* min-w-0: a grid item defaults to min-width:auto, so the table's own
-            min-w-[640px] would push the whole column past the viewport instead
-            of scrolling inside its overflow container. It did, by 282px. */}
+        {
+}
         <Surface className="min-w-0 xl:col-span-7">
           <SectionTitle
             icon={<Stack className="h-4 w-4" weight="fill" />}
@@ -2518,7 +2317,6 @@ function StageDistributionSection({
   );
 }
 
-/* ── Page ─────────────────────────────────────────────────────────── */
 
 export default function AttendanceOpsPage() {
   const { currentWorkspace, can, permissionsLoading } = useWorkspace();
@@ -2528,14 +2326,11 @@ export default function AttendanceOpsPage() {
   const tl = useTranslations("metricsOps.attendance.labels");
   const tg = useTranslations("metricsOps.attendance.glossary");
   const texp = useTranslations("metricsOps.export");
-  // Shared with the tables below, so the export cannot drift from the screen.
   const actorKindLabel = useActorKindLabel();
   const presenceLabel = usePresenceLabel();
   const fmt = useMetricsFmt();
-  // Matches backend: GET /attendance/* → attendance:read
   const canRead = !permissionsLoading && can("attendance", "read");
   const searchParams = useSearchParams();
-  // Deep-link / monitor: ?campaignId=&campaignType=whatsapp
   const campaignId = searchParams.get("campaignId") || undefined;
   const campaignType =
     searchParams.get("campaignType") === "whatsapp"
@@ -2627,16 +2422,11 @@ export default function AttendanceOpsPage() {
     void load();
   }, [permissionsLoading, load]);
 
-  // Export reads the overview already in state: no second query, and the file
-  // is guaranteed to be the numbers on screen rather than whatever a re-fetch
-  // would have returned a moment later.
   const exportCsv = useCallback(() => {
     if (!overview) return;
     const { csvText, filename } = buildAttendanceOverviewCsv({
       overview,
       t: (key) => texp(key),
-      // The dashboard's own label functions, so the file says exactly what the
-      // screen says instead of leaking enum keys like "unofficial_whatsapp".
       display: {
         channel: (c) => channelLabel(c, tc),
         actorKind: actorKindLabel,
@@ -2645,8 +2435,6 @@ export default function AttendanceOpsPage() {
       filters: {
         dateFrom,
         dateTo,
-        // Resolved to names here, where the option lists live: an id in the
-        // file's header is unreadable by the time anyone opens it.
         departmentLabel:
           departmentId === "all"
             ? tc("all")
@@ -2686,7 +2474,6 @@ export default function AttendanceOpsPage() {
   ]);
 
   const kpis = overview?.kpis;
-  // Primary header count = engaged conversations (real threads with messages).
   const total =
     kpis?.engaged ??
     (kpis?.finished ?? 0) + (kpis?.ongoing ?? 0) + (kpis?.pending ?? 0);
@@ -2701,10 +2488,8 @@ export default function AttendanceOpsPage() {
 
   return (
     <div className="space-y-3">
-      {/* Page head on the canvas, Azure-style: trail, title, then the command
-          bar carrying export/refresh as flat commands. The filter row sits
-          directly below it, unboxed — a filter bar is chrome, not content,
-          and boxing it made the whole head one heavy card. */}
+      {
+}
       <div>
         <DashboardPageHeader
           badge={campaignId ? t("badgeCampaign") : t("badge")}
@@ -2718,9 +2503,8 @@ export default function AttendanceOpsPage() {
           icon={<ChartBar className="h-6 w-6" weight="fill" />}
           actions={
             <>
-              {/* Disabled until the overview has actually loaded: exporting
-                  a half-populated dashboard would produce a file of zeros
-                  indistinguishable from a genuinely empty period. */}
+              {
+}
               <Button
                 icon={<DownloadSimple className="h-4 w-4" weight="bold" />}
                 iconVisible
@@ -2818,10 +2602,8 @@ export default function AttendanceOpsPage() {
                 placeholder={tc("all")}
               >
                 <ElevatedSelectItem value="all">{tc("all")}</ElevatedSelectItem>
-                {/* Every channel that can appear in the mix above, or the
-                    filter silently cannot reach half the data it charts. Real
-                    brand marks rather than a generic glyph: the two WhatsApp
-                    transports are otherwise indistinguishable in a dropdown. */}
+                {
+}
                 <ElevatedSelectItem value="whatsapp">
                   <span className="inline-flex items-center gap-1.5">
                     <ChannelTile channel="whatsapp" size="sm" className="h-5 w-5" />
@@ -2862,7 +2644,7 @@ export default function AttendanceOpsPage() {
             </label>
           </div>
 
-          {/* Context chips */}
+          {}
           <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             <span className="rounded-[--radius] bg-muted px-2.5 py-1 font-medium text-foreground">
               {periodLabel}
@@ -2969,9 +2751,8 @@ export default function AttendanceOpsPage() {
             <ExtendedOpsPanels overview={overview} loading={loading} />
           </div>
 
-          {/* Placed before the department and team sections deliberately: those
-              answer "who handled it", this one answers "where did it stop",
-              which is the question a manager arrives with. */}
+          {
+}
           <StageDistributionSection
             stages={overview?.stages}
             loading={loading}

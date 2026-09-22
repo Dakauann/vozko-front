@@ -19,12 +19,6 @@ function FullScreenLoader() {
   );
 }
 
-/**
- * Client-side auth gate for the dashboard. The security boundary is the API
- * (every request is authenticated server-side); this only controls what the UI
- * shows: a loader while identity resolves, a retry screen on a transient backend
- * error, a redirect to /login when unauthenticated, and the app once signed in.
- */
 export default function DashboardGate({ children }: { children: ReactNode }) {
   const { user, isLoading, serverError } = useAuth();
   const router = useRouter();
@@ -37,6 +31,6 @@ export default function DashboardGate({ children }: { children: ReactNode }) {
 
   if (isLoading) return <FullScreenLoader />;
   if (serverError && !user) return <SessionUnavailable />;
-  if (!user) return <FullScreenLoader />; // redirecting to /login
+  if (!user) return <FullScreenLoader />;
   return <>{children}</>;
 }

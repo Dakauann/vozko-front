@@ -93,8 +93,6 @@ export function ModelPickerSheet({
   searchPlaceholder = "Pesquisar modelo ou provedor...",
   emptyMessage = "Nenhum modelo encontrado",
 }: ModelPickerSheetProps) {
-  // Captured once at mount via a lazy initializer (keeps render pure). A 30-day
-  // "New" window doesn't need sub-session precision, so a per-mount clock is fine.
   const [nowSeconds] = useState(() => Date.now() / 1000);
 
   const groups = useMemo<ModelGroup[]>(() => {
@@ -103,9 +101,6 @@ export function ModelPickerSheet({
 
     const newThreshold = nowSeconds - NEW_MODEL_WINDOW_DAYS * 24 * 60 * 60;
 
-    // `models` arrives in OpenRouter most-popular order. We group by provider on
-    // first appearance, so the most-popular provider leads and rows stay ranked
-    // within each group.
     const order: string[] = [];
     const byProvider = new Map<string, ModelGroup>();
 
@@ -153,9 +148,6 @@ export function ModelPickerSheet({
     <ElevatedSheet open={open} onOpenChange={onOpenChange}>
       <ElevatedSheetContent
         side="right"
-        // A row here carries a name, a context size, two prices and a check.
-        // At max-w-md every model name truncated; this gives the name room to
-        // finish before the numbers start.
         className="w-full gap-0 p-0 sm:max-w-xl lg:max-w-2xl motion-reduce:!animate-none motion-reduce:!transition-none"
       >
         <ElevatedSheetHeader className="gap-3 pr-16">
@@ -191,7 +183,6 @@ export function ModelPickerSheet({
                   "overflow-visible px-1",
                   "[&_[cmdk-group-heading]]:sticky [&_[cmdk-group-heading]]:top-0 [&_[cmdk-group-heading]]:z-10",
                   "[&_[cmdk-group-heading]]:bg-card [&_[cmdk-group-heading]]:py-1.5",
-                  // Normal-case provider names, not an uppercase tracked eyebrow.
                   "[&_[cmdk-group-heading]]:text-sm [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:normal-case [&_[cmdk-group-heading]]:tracking-normal [&_[cmdk-group-heading]]:text-foreground/70",
                 )}
               >
@@ -230,17 +221,14 @@ function ModelRow({
       onSelect={onSelect}
       className={cn(
         "my-0.5 flex items-center gap-3 rounded-[--radius] px-3 py-2.5",
-        // Keyboard highlight stays a quiet neutral so it's never mistaken for the
-        // chosen value (which gets the ring below). No left-stripe.
         "data-[selected=true]:bg-[hsl(var(--accent-hover))] data-[selected=true]:text-foreground",
         isSelected &&
           "bg-[hsl(var(--accent-hover))] ring-1 ring-inset ring-primary/25 data-[selected=true]:bg-[hsl(var(--accent-hover))]",
       )}
     >
-      {/* Brand logo on a neutral tile, keeping the provider's own color (DESIGN §5). */}
-      {/* Sheet in light, well in dark — the same call the field family made.
-          A column of grey tiles down the side of 344 rows was the loudest grey
-          in the drawer. */}
+      {}
+      {
+}
       <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[--radius] border border-border bg-card dark:bg-muted">
         <ModelBrandIcon modelId={model.id} size={18} />
       </span>

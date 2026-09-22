@@ -72,7 +72,6 @@ const CATEGORY_ICONS: Record<string, Icon> = {
   exchange_rate: Scales,
 };
 
-// Solid opaque tiles with white glyphs (DESIGN.md symbols rule).
 const CATEGORY_TILE: Record<string, string> = {
   tts: "bg-muted text-muted-foreground",
   stt: "bg-healthy text-healthy-foreground",
@@ -109,7 +108,6 @@ export default function AdminPricingPage() {
   const [activeTab, setActiveTab] = React.useState("defaults");
 
   const [editingId, setEditingId] = React.useState<string | null>(null);
-  /** BRL input while editing a default price row. */
   const [editValueBrl, setEditValueBrl] = React.useState("");
   const [saving, setSaving] = React.useState(false);
 
@@ -280,7 +278,7 @@ export default function AdminPricingPage() {
 
   return (
     <main className="w-full space-y-4">
-      {/* Header */}
+      {}
       <div>
         <DashboardPageHeader
           icon={<CurrencyDollar className="h-6 w-6" weight="fill" />}
@@ -289,7 +287,7 @@ export default function AdminPricingPage() {
         />
       </div>
 
-      {/* Tabs */}
+      {}
       <div>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
@@ -307,7 +305,7 @@ export default function AdminPricingPage() {
             </TabsTrigger>
           </TabsList>
 
-          {/* ── Defaults Tab ── */}
+          {}
           <TabsContent value="defaults">
             <div className="space-y-6">
               {rateNumber != null ? (
@@ -478,6 +476,12 @@ export default function AdminPricingPage() {
                                         </p>
                                       ) : null}
                                     </div>
+                                  ) : item.priceMicros === 0 ? (
+                                    <div className="text-right">
+                                      <span className="text-sm font-semibold text-muted-foreground">
+                                        {t("defaults.unpriced")}
+                                      </span>
+                                    </div>
                                   ) : (
                                     <div className="text-right">
                                       <span className="text-sm font-semibold text-foreground tabular-nums">
@@ -530,7 +534,7 @@ export default function AdminPricingPage() {
             </div>
           </TabsContent>
 
-          {/* ── Exchange Rate Tab ── */}
+          {}
           <TabsContent value="exchangeRate">
             <div className="rounded-[--radius] border border-border bg-card p-6 space-y-6 max-w-lg shadow-sm">
               <div className="flex items-center gap-3">
@@ -650,7 +654,7 @@ export default function AdminPricingPage() {
             </div>
           </TabsContent>
 
-          {/* ── Audit Log Tab ── */}
+          {}
           <TabsContent value="audit">
             <div className="rounded-[--radius] border border-border bg-card overflow-hidden shadow-sm">
               {auditLog.length === 0 ? (
@@ -824,7 +828,7 @@ export default function AdminPricingPage() {
               )}
             </div>
           </TabsContent>
-          {/* ── Calculator Tab ── */}
+          {}
         </Tabs>
       </div>
     </main>

@@ -10,8 +10,6 @@ import {
 } from "./csv";
 
 describe("safeCsvText", () => {
-    // Excel and Sheets execute a cell that starts with one of these, and the
-    // names reaching an export are typed by people.
     it.each(["=cmd|'/c calc'!A1", "+1+1", "-1+1", "@SUM(A1)", "\tx"])(
         "defuses the formula trigger %j",
         (payload) => {
@@ -35,12 +33,9 @@ describe("escapeCsvCell", () => {
     it("quotes the delimiter, quotes and newlines", () => {
         expect(escapeCsvCell("a;b")).toBe('"a;b"');
         expect(escapeCsvCell('he said "hi"')).toBe('"he said ""hi"""');
-        // Already flattened by safeCsvText, so it never needs a quoted newline.
         expect(escapeCsvCell("a\nb")).toBe("a b");
     });
 
-    // Quoting on the decimal mark would hand Excel text where the whole point
-    // is that the cell arrives as a number.
     it("does not quote the decimal mark", () => {
         expect(escapeCsvCell("Ana, Silva")).toBe("Ana, Silva");
         expect(escapeCsvCell(30.05)).toBe("30,05");
@@ -107,9 +102,6 @@ describe("csvFilename", () => {
         expect(csvFilename("atendimento", "2026-08-01", "2026-08-17")).toBe(
             "atendimento-2026-08-01-2026-08-17.csv",
         );
-        // Non-ASCII is dropped rather than transliterated, matching
-        // sanitizeFilenamePart on the server. What matters is that no path
-        // separator or header-breaking byte survives.
         const risky = csvFilename("rel atório/../x", undefined, "");
         expect(risky).toBe("rel-at-rio-..-x.csv");
         expect(risky).not.toMatch(/[/\\"\r\n]/);

@@ -29,54 +29,15 @@ import {
 } from "@/lib/unofficial-whatsapp/types";
 import { cn } from "@/lib/utils";
 
-/**
- * The group tab of the conversation context rail.
- *
- * It only ever appears for a group conversation, so nothing here has to reason
- * about a person: the panel's other tabs answer "who is this contact", and this
- * one answers the questions only a group raises — who is in it, who runs it, and
- * whether we may post.
- *
- * Two rules shape the whole component:
- *
- *  1. **Every admin control is gated on `weAreAdmin`.** That flag is the
- *     PROVIDER's answer about our connected number, computed server-side. A
- *     button we render without it is a button that is certain to fail, and
- *     learning "you are not an admin" from a red toast after the click is a
- *     worse experience than a control that was never offered.
- *  2. **Reads do not poll.** The server keeps a cached copy with its own
- *     staleness clock; mounting asks for it, and only the refresh button forces
- *     a live read. A panel that re-read on every render would spend the
- *     customer's own WhatsApp number's API budget on a screen whose content
- *     changes weekly — and traffic that looks automated is what gets an
- *     unofficial number banned.
- */
 
-/**
- * How many roster rows to render at a time.
- *
- * Sized to the common case: most groups have fewer members than this and never
- * show the "show more" control, while a 1024-member group renders twenty rows
- * instead of a thousand.
- */
 const MEMBER_PAGE_SIZE = 20;
 
 interface ConversationGroupSectionProps {
   entryId: string;
-  /** Whether the panel is on screen. Nothing is fetched while it is not. */
   active: boolean;
-  /** Refreshes the surrounding conversation after a rename lands. */
   onSubjectChange?: (subject: string) => void;
 }
 
-/**
- * One fetch, one state.
- *
- * A separate `loading` boolean beside `group` and `error` can represent
- * "loading AND already failed", which is not a state this panel has. Collapsing
- * them means the render below reads as three exclusive cases and cannot get
- * them out of step.
- */
 type GroupState =
   | { status: "loading" }
   | { status: "ready"; group: UnofficialWhatsAppGroup }
@@ -92,12 +53,6 @@ export default function ConversationGroupSection({
   const [state, setState] = useState<GroupState>({ status: "loading" });
   const [refreshing, setRefreshing] = useState(false);
 
-  // `editing` holds the drafts rather than a separate pair of state slots.
-  //
-  // Seeding drafts from the loaded group through an effect would resync them
-  // under an operator mid-edit every time a background refresh landed, wiping
-  // what they had typed. Opening the form snapshots the values instead, which
-  // is the only moment that snapshot is meaningful.
   const [editing, setEditing] = useState<{ subject: string; description: string } | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -105,17 +60,6 @@ export default function ConversationGroupSection({
   const [inviteCopied, setInviteCopied] = useState(false);
   const [loadingInvite, setLoadingInvite] = useState(false);
 
-  // How many roster rows are rendered.
-  //
-  // The API returns the WHOLE roster deliberately — admin actions have to be
-  // able to reach any member, and a paged endpoint would mean "promote someone
-  // on page 7" needs a search the provider does not offer. WhatsApp caps a group
-  // at 1024, so the payload is bounded and small; what is NOT bounded is the DOM,
-  // and a thousand rows in a 400px rail is a scroll nobody can use and a render
-  // nobody asked for.
-  //
-  // So: page the VIEW, not the request. Most groups are under this and never see
-  // the control at all.
   const [visibleMembers, setVisibleMembers] = useState(MEMBER_PAGE_SIZE);
 
   const [pendingMember, setPendingMember] = useState<string | null>(null);
@@ -124,10 +68,6 @@ export default function ConversationGroupSection({
 
   const group = state.status === "ready" ? state.group : null;
 
-  // One read, on mount, and only while visible. The `active` guard keeps a
-  // closed rail from fetching a roster nobody is looking at; the caller keys
-  // this component by conversation, so switching chats remounts it rather than
-  // needing an effect to reset every slot above.
   useEffect(() => {
     if (!active || !entryId) return;
 
@@ -162,9 +102,6 @@ export default function ConversationGroupSection({
   const handleSave = useCallback(async () => {
     if (!group || !editing || saving) return;
 
-    // ONLY what changed. Every field is optional server-side and an absent one
-    // means "leave it alone", so submitting the whole form would rewrite
-    // settings the operator never touched.
     const payload: { subject?: string; description?: string } = {};
     const subject = editing.subject.trim();
     const description = editing.description.trim();
@@ -203,9 +140,6 @@ export default function ConversationGroupSection({
         toast.error(t(`memberError.${action}`), { description: res.error });
         return;
       }
-      // The response is a FRESH read, not an echo of the request: a provider
-      // acknowledgement says only that the change was accepted, and the two
-      // diverge whenever it is partially applied.
       setState({ status: "ready", group: res.group });
       toast.success(t(`memberSuccess.${action}`, { name: participant.name }));
     },
@@ -215,9 +149,6 @@ export default function ConversationGroupSection({
   const handleInviteLink = useCallback(async () => {
     if (loadingInvite) return;
 
-    // Fetched on demand and never held in the page beyond this render: the link
-    // is a standing credential, and anyone who receives it can join the
-    // customer's group without approval.
     setLoadingInvite(true);
     const res = await getConversationGroupInviteLinkAction(entryId);
     setLoadingInvite(false);
@@ -232,7 +163,6 @@ export default function ConversationGroupSection({
       setInviteCopied(true);
       setTimeout(() => setInviteCopied(false), 2000);
     } catch {
-      /* clipboard unavailable; the link is on screen either way */
     }
   }, [entryId, loadingInvite, t]);
 
@@ -289,7 +219,7 @@ export default function ConversationGroupSection({
 
   return (
     <div className="flex flex-col gap-4 px-3 py-4">
-      {/* Identity + the two facts that decide what the rest of the CRM may do */}
+      {}
       <section className="rounded-lg border border-border bg-card p-3">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
@@ -399,9 +329,8 @@ export default function ConversationGroupSection({
               {t("youAreAdmin")}
             </Badge>
           )}
-          {/* Announce-only is the state most worth surfacing: it is why the
-              composer is disabled, and without saying so the input just looks
-              broken. */}
+          {
+}
           {group.adminsOnlyMessages && (
             <Badge tone={group.canPost ? "muted" : "warning"}>
               {group.canPost ? t("announceOnly") : t("cannotPost")}
@@ -412,7 +341,7 @@ export default function ConversationGroupSection({
         </div>
       </section>
 
-      {/* Invite link. Admin-only and fetched on demand — it is a credential. */}
+      {}
       {group.weAreAdmin && (
         <section>
           <button
@@ -438,8 +367,8 @@ export default function ConversationGroupSection({
         </section>
       )}
 
-      {/* Roster. Admins first — an operator scanning a group wants to know who
-          can act, not who joined in which order. */}
+      {
+}
       <section>
         <div className="mb-2 flex items-center gap-1.5">
           <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary">
@@ -516,9 +445,8 @@ export default function ConversationGroupSection({
         )}
       </section>
 
-      {/* Leaving is irreversible from our side and visible to everyone in the
-          group, so it confirms. The CONVERSATION stays either way: the
-          transcript is history, and leaving does not un-say what was said. */}
+      {
+}
       <section className="border-t border-border pt-3">
         {confirmingLeave ? (
           <div className="flex flex-col gap-2">
@@ -563,7 +491,6 @@ export default function ConversationGroupSection({
   );
 }
 
-/** A status chip. Tone rides the text and the border, never a same-hue fill. */
 function Badge({
   tone,
   icon,
@@ -592,8 +519,6 @@ function Badge({
   );
 }
 
-/** A compact icon button with an accessible name, used for the roster actions
- *  where a text label would not fit. */
 function IconAction({
   label,
   onClick,

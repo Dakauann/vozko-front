@@ -396,13 +396,13 @@ function EventCard({
       )}
       onClick={() => onEdit(event)}
     >
-      {/* Color bar */}
+      {}
       <div
         className="w-1 rounded-full shrink-0 self-stretch"
         style={{ backgroundColor: color }}
       />
 
-      {/* Content */}
+      {}
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-foreground truncate">
           {event.title}
@@ -457,7 +457,7 @@ function EventCard({
         )}
       </div>
 
-      {/* Actions */}
+      {}
       <div className="flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
         <button
           onClick={(e) => {
@@ -569,13 +569,13 @@ function EventForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-0">
-      {/* Color strip */}
+      {}
       <div
         className="h-1.5 w-full rounded-full mb-4"
         style={{ backgroundColor: color }}
       />
 
-      {/* Title, prominent borderless input */}
+      {}
       <div className="pb-3">
         <input
           value={title}
@@ -587,9 +587,9 @@ function EventForm({
         />
       </div>
 
-      {/* Icon-row fields */}
+      {}
       <div className="space-y-0.5">
-        {/* Date & Time */}
+        {}
         <div className="flex items-center gap-3 py-2.5 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
           <Clock
             size={18}
@@ -636,7 +636,7 @@ function EventForm({
           </div>
         </div>
 
-        {/* Google Meet */}
+        {}
         <div className="flex items-center gap-3 py-2.5 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
           <VideoCamera
             size={18}
@@ -674,7 +674,7 @@ function EventForm({
           </div>
         </div>
 
-        {/* Location */}
+        {}
         <div className="flex items-center gap-3 py-2.5 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
           <MapPin
             size={18}
@@ -689,7 +689,7 @@ function EventForm({
           />
         </div>
 
-        {/* Guests */}
+        {}
         <div className="flex items-center gap-3 py-2.5 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
           <Users
             size={18}
@@ -707,7 +707,7 @@ function EventForm({
           />
         </div>
 
-        {/* Guest permissions */}
+        {}
         {attendees.trim() && (
           <div className="ml-[30px] space-y-1.5 py-2 pl-1">
             <p className="text-2xs font-semibold text-muted-foreground">
@@ -746,7 +746,7 @@ function EventForm({
           </div>
         )}
 
-        {/* Description */}
+        {}
         <div className="flex items-start gap-3 py-2.5 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
           <TextAlignLeft
             size={18}
@@ -762,7 +762,7 @@ function EventForm({
           />
         </div>
 
-        {/* Color */}
+        {}
         <div className="flex items-center gap-3 py-2.5 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
           <Palette
             size={18}
@@ -788,7 +788,7 @@ function EventForm({
         </div>
       </div>
 
-      {/* Footer */}
+      {}
       <div className="flex items-center justify-between pt-4 mt-2 border-t border-border">
         <div>
           {onDelete && (

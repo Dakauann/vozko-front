@@ -62,8 +62,8 @@ const ChartGraphicCard: React.FC<ChartGraphicCardProps> = ({
   };
 
   const barHeights = {
-    before: [75, 111, 146, 102], // Heights for bars in before state
-    after: [75, 159, 75, 102], // Heights for bars in after state
+    before: [75, 111, 146, 102],
+    after: [75, 159, 75, 102],
   };
 
   const currentHeights = isAfterPhase ? barHeights.after : barHeights.before;

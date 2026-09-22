@@ -73,23 +73,12 @@ export async function disconnectInstagramAccountAction(accountId: string) {
     return { ok: true };
 }
 
-/**
- * Builds the full-page-redirect onboarding URL.
- *
- * This is the fallback transport; the primary one is useInstagramConnect, which
- * opens the same URL in a popup with `popup=1`. `redirect=1` makes the backend
- * perform the 302 to instagram.com itself, so this works as a plain link href.
- *
- * Business Login for Instagram needs no JS SDK and no config_id, unlike WhatsApp
- * Embedded Signup, it is just this URL.
- */
 export function instagramConnectUrl(returnPath?: string): string {
     const params = new URLSearchParams({ redirect: '1' });
     if (returnPath) params.set('returnPath', returnPath);
     return `${getApiBaseUrl()}/oauth/instagram/start?${params.toString()}`;
 }
 
-// ---------------------------------------------------------------- posts
 
 export async function listInstagramMediaAction(accountId: string, after?: string, limit = 24) {
     const params = new URLSearchParams({ limit: limit.toString() });
@@ -126,12 +115,6 @@ export async function createInstagramMediaAction(
     return { media: response.data };
 }
 
-/**
- * Toggles comments on a post.
- *
- * This is the only update Instagram supports on a published post, there is no
- * endpoint to edit a caption, so there is deliberately no updateCaption action.
- */
 export async function setInstagramCommentEnabledAction(
     accountId: string,
     mediaId: string,
@@ -145,12 +128,6 @@ export async function setInstagramCommentEnabledAction(
     return { commentEnabled: response.data?.commentEnabled ?? commentEnabled };
 }
 
-/**
- * Absolute URL of a post asset, served through our proxy.
- *
- * Used directly as an <img src>. It must not be replaced with Instagram's
- * media_url: that URL is signed and expires.
- */
 export function instagramAssetUrl(accountId: string, mediaId: string, thumb = false): string {
     const suffix = thumb ? '?thumb=1' : '';
     return withWorkspaceScope(
@@ -158,19 +135,10 @@ export function instagramAssetUrl(accountId: string, mediaId: string, thumb = fa
     );
 }
 
-/**
- * Proxy URL for an account's profile picture.
- *
- * Same reasoning as the asset proxy: profile_picture_url is a signed CDN link that
- * expires, so the value stored at connect time rots. The endpoint answers 404 when
- * the account has no photo, Instagram omits the field entirely in that case, so
- * callers must handle a failed load rather than assume an image exists.
- */
 export function instagramAvatarUrl(accountId: string): string {
     return withWorkspaceScope(`${getApiBaseUrl()}/instagram/accounts/${accountId}/avatar`);
 }
 
-// ---------------------------------------------------------------- comments
 
 export async function listInstagramCommentsAction(
     accountId: string,
@@ -207,12 +175,6 @@ export async function replyInstagramCommentAction(
     return { id: response.data?.id };
 }
 
-/**
- * Hides or unhides a comment.
- *
- * Hiding is the moderation action that works on anyone's comment; deletion needs
- * the comment author's token and therefore only works on our own replies.
- */
 export async function hideInstagramCommentAction(
     accountId: string,
     commentId: string,
@@ -235,14 +197,6 @@ export async function deleteInstagramCommentAction(accountId: string, commentId:
     return { ok: true };
 }
 
-/**
- * Sends a DM to the author of a public comment.
- *
- * Instagram permits exactly ONE per comment, ever, and only within 7 days of the
- * comment. The backend claims the allowance before calling Instagram, so a
- * duplicate attempt returns `private_reply_used` rather than silently consuming
- * it.
- */
 export async function privateReplyInstagramCommentAction(
     accountId: string,
     commentId: string,
@@ -258,7 +212,6 @@ export async function privateReplyInstagramCommentAction(
     return { ok: true };
 }
 
-// ---------------------------------------------------------------- comment rules
 
 export async function listCommentRulesAction(accountId: string) {
     const response = await apiClient<InstagramCommentRule[]>(

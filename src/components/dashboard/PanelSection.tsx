@@ -4,37 +4,11 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-/**
- * A section of a settings panel.
- *
- * Settings pages here were built as a vertical stack of identical cards, each
- * with a coloured icon tile, an h3 and a subtitle. That is the same-size-card
- * scaffold: five floating boxes, five sets of chrome, and no way to tell at a
- * glance which one you are in — the container repeated the structure the
- * heading was already carrying.
- *
- * A console panel does not stack boxes. It is one surface, divided by engraved
- * rules, with each division legended. So this renders a section head — legend,
- * title, optional description and actions — over a hairline, and lets the
- * content sit directly on the panel beneath it.
- *
- * `boxed` opts a section back into its own well, for the rare case where the
- * content genuinely is a separate object (a danger zone, a nested list).
- */
 export interface PanelSectionProps {
-  /** Silkscreen legend above the title. Names the group, not the action. */
   legend?: string;
-  /**
-   * ReactNode, not string: a panel whose subject can be renamed puts the rename
-   * on the heading rather than repeating the name in a field below it. The h2
-   * already rendered whatever it was given; only the type was narrower than the
-   * markup.
-   */
   title: ReactNode;
   description?: string;
-  /** Controls that act on this section, right-aligned in the head. */
   actions?: ReactNode;
-  /** Renders the section inside its own well instead of on the bare panel. */
   boxed?: boolean;
   className?: string;
   contentClassName?: string;
@@ -69,8 +43,8 @@ export function PanelSection({
             </p>
           ) : null}
         </div>
-        {/* Group naming rides as right-aligned meta, never as an eyebrow above
-            the heading — the heading carries its own weight. */}
+        {
+}
         {legend || actions ? (
           <div className="flex shrink-0 items-center gap-3">
             {legend ? <p className="legend">{legend}</p> : null}

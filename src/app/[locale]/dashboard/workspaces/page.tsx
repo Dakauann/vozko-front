@@ -513,7 +513,7 @@ export default function AdminWorkspacesPage() {
       transition={{ duration: 0.4 }}
       className="w-full space-y-4"
     >
-      {/* Header */}
+      {}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -526,7 +526,7 @@ export default function AdminWorkspacesPage() {
         />
       </motion.div>
 
-      {/* Workspaces Table */}
+      {}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -559,7 +559,7 @@ export default function AdminWorkspacesPage() {
           ]}
           headerLeft={
             <div className="flex items-center gap-2">
-              {/* Search Mode Toggle */}
+              {}
               <div className="flex items-center rounded-[--radius] border border-border bg-card overflow-hidden flex-shrink-0">
                 <button
                   onClick={() => {
@@ -592,7 +592,7 @@ export default function AdminWorkspacesPage() {
                   {t("search.modeEmail")}
                 </button>
               </div>
-              {/* Search Input */}
+              {}
               <ElevatedInput
                 label={
                   searchMode === "workspace"

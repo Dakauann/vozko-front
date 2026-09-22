@@ -114,8 +114,6 @@ function formatDate(value: string, locale: string): string {
   }).format(date);
 }
 
-// One neutral chip ground for every service; the category lives in the
-// ICON's ink (the system rule: colour is a mark, never the container).
 function getServiceMeta(serviceType: string) {
   switch (serviceType) {
     case "voice_call":
@@ -148,18 +146,6 @@ interface NormalizedTransaction {
   created_at: string;
 }
 
-/**
- * Which label a charge should carry.
- *
- * Single-target template sends share the `whatsapp_campaign` service type on
- * purpose — the WhatsApp charge rollup keys on it, and splitting the type would
- * silently drop those charges out of every existing report. But an operator
- * reading their statement is not being told about a campaign they never ran, so
- * the label is refined by the reference instead.
- *
- * The `waba:` prefix is what makes that safe: it is server-minted for exactly
- * this purpose and provably cannot collide with a campaign id.
- */
 function serviceLabelKeyFor(row: { service_type: string; reference_id?: string }): string {
   const reference = row.reference_id ?? "";
   if (reference.startsWith("waba:") || reference.startsWith("refund:waba:")) {
@@ -233,9 +219,6 @@ export default function BalancePage() {
         params.set("startDate", dateRange.start.toISOString());
       params.set("endDate", dateRange.end.toISOString());
       const qs = params.toString();
-      // openScoped, not window.open: a navigation sends no X-Workspace-ID, and
-      // without it the API falls back to the user's DEFAULT workspace — so this
-      // exported the wrong workspace's transactions while showing the right one.
       openScoped(`${getApiBaseUrl()}/user/balance/transactions/export?${qs}`);
     },
     [typeFilter, serviceFilter, dateRange],
@@ -301,7 +284,6 @@ export default function BalancePage() {
           setTotalItems(result.meta.total_items);
         }
       } catch {
-        /* swallow */
       } finally {
         if (!cancelled) setLoadingTx(false);
       }
@@ -413,7 +395,7 @@ export default function BalancePage() {
 
   return (
     <main className="w-full space-y-4">
-      {/* ── Header ── */}
+      {}
       <div>
         <DashboardPageHeader
           icon={<Wallet className="h-6 w-6" weight="fill" />}
@@ -422,7 +404,7 @@ export default function BalancePage() {
         />
       </div>
 
-      {/* ── Transaction History ── */}
+      {}
       <div>
         <DashboardTable<NormalizedTransaction>
           stats={[
@@ -478,7 +460,7 @@ export default function BalancePage() {
           loading={loadingTx}
           toolbar={
             <div className="flex flex-col gap-3 w-full">
-              {/* Row 1: label + presets + dropdowns */}
+              {}
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-2">
                   <FunnelSimple
@@ -597,7 +579,7 @@ export default function BalancePage() {
                 </div>
               </div>
 
-              {/* Row 2: Custom date/time range */}
+              {}
               {datePreset === "custom" && (
                 <div className="flex flex-wrap items-center gap-3">
                   <Clock

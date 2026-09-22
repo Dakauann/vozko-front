@@ -13,7 +13,6 @@ export interface ChartDatum {
   color: string;
 }
 
-// ZRender requires resolved colours, so CSS tokens are read again on theme changes.
 function resolveColors(value: unknown, styles: CSSStyleDeclaration): unknown {
   if (typeof value === "string") {
     return value.replace(/hsl\(var\((--[\w-]+)\)(?:\s*\/\s*([\d.]+))?\)/g, (_, token: string, alpha?: string) => {
@@ -122,7 +121,6 @@ export function WaffleChart({ data, label, compact = false }: { data: ChartDatum
   </div>;
 }
 
-/** A real dated series. Missing buckets break the path instead of inventing zeroes. */
 export function Sparkline({ points, label, color = "hsl(var(--chart-1))", domain, className }: {
   points: { date: string; value: number | null }[];
   label: string;

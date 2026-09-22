@@ -7,11 +7,6 @@ import { useRememberCreateMode } from "@/lib/agents/edit-mode";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-/**
- * The guided create wizard on its own route, mirroring
- * agents/[agentId]/edit/beginner. Addressable, refresh-safe, and its back
- * button returns to the chooser instead of unwinding component state.
- */
 export default function NewAgentBeginnerPage() {
   const router = useRouter();
   const t = useTranslations("agents.new");

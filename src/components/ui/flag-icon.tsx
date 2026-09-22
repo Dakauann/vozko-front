@@ -12,96 +12,96 @@ interface FlagIconProps {
 
 const LANGUAGE_TO_COUNTRY: Record<string, string> = {
   en: "US",
-  pt: "BR", // Portuguese - default to Brazil
-  es: "ES", // Spanish - default to Spain
-  fr: "FR", // French
-  de: "DE", // German
-  it: "IT", // Italian
-  ja: "JP", // Japanese
-  ko: "KR", // Korean
-  zh: "CN", // Chinese - default to China
-  ru: "RU", // Russian
-  ar: "SA", // Arabic - default to Saudi Arabia
-  hi: "IN", // Hindi - India
-  nl: "NL", // Dutch
-  sv: "SE", // Swedish
-  no: "NO", // Norwegian
-  da: "DK", // Danish
-  fi: "FI", // Finnish
-  pl: "PL", // Polish
-  tr: "TR", // Turkish
-  th: "TH", // Thai
-  vi: "VN", // Vietnamese
-  id: "ID", // Indonesian
-  ms: "MY", // Malay - Malaysia
-  tl: "PH", // Filipino/Tagalog
-  uk: "UA", // Ukrainian
-  cs: "CZ", // Czech
-  sk: "SK", // Slovak
-  hu: "HU", // Hungarian
-  ro: "RO", // Romanian
-  bg: "BG", // Bulgarian
-  hr: "HR", // Croatian
-  sr: "RS", // Serbian
-  sl: "SI", // Slovenian
-  et: "EE", // Estonian
-  lv: "LV", // Latvian
-  lt: "LT", // Lithuanian
-  mt: "MT", // Maltese
-  ga: "IE", // Irish Gaelic
-  cy: "GB", // Welsh
-  is: "IS", // Icelandic
-  ca: "ES", // Catalan - Spain
-  eu: "ES", // Basque - Spain
-  gl: "ES", // Galician - Spain
-  he: "IL", // Hebrew
-  fa: "IR", // Persian/Farsi
-  ur: "PK", // Urdu
-  bn: "BD", // Bengali
-  ta: "IN", // Tamil
-  te: "IN", // Telugu
-  ml: "IN", // Malayalam
-  kn: "IN", // Kannada
-  gu: "IN", // Gujarati
-  or: "IN", // Odia
-  pa: "IN", // Punjabi
-  as: "IN", // Assamese
-  ne: "NP", // Nepali
-  si: "LK", // Sinhala
-  my: "MM", // Burmese
-  km: "KH", // Khmer
-  lo: "LA", // Lao
-  ka: "GE", // Georgian
-  hy: "AM", // Armenian
-  az: "AZ", // Azerbaijani
-  kk: "KZ", // Kazakh
-  ky: "KG", // Kyrgyz
-  uz: "UZ", // Uzbek
-  tg: "TJ", // Tajik
-  mn: "MN", // Mongolian
-  be: "BY", // Belarusian
-  mk: "MK", // Macedonian
-  sq: "AL", // Albanian
-  bs: "BA", // Bosnian
-  me: "ME", // Montenegrin
-  lb: "LU", // Luxembourgish
-  rm: "CH", // Romansh - Switzerland
-  fur: "IT", // Friulian - Italy
-  sc: "IT", // Sardinian - Italy
-  co: "FR", // Corsican - France
-  br: "FR", // Breton - France
-  oc: "FR", // Occitan - France
-  an: "ES", // Aragonese - Spain
-  ast: "ES", // Asturian - Spain
-  ext: "ES", // Extremaduran - Spain
-  mwl: "PT", // Mirandese - Portugal
-  nap: "IT", // Neapolitan - Italy
-  scn: "IT", // Sicilian - Italy
-  vec: "IT", // Venetian - Italy
-  lij: "IT", // Ligurian - Italy
-  pms: "IT", // Piedmontese - Italy
-  lmo: "IT", // Lombard - Italy
-  egl: "IT", // Emilian-Romagnol - Italy
+  pt: "BR",
+  es: "ES",
+  fr: "FR",
+  de: "DE",
+  it: "IT",
+  ja: "JP",
+  ko: "KR",
+  zh: "CN",
+  ru: "RU",
+  ar: "SA",
+  hi: "IN",
+  nl: "NL",
+  sv: "SE",
+  no: "NO",
+  da: "DK",
+  fi: "FI",
+  pl: "PL",
+  tr: "TR",
+  th: "TH",
+  vi: "VN",
+  id: "ID",
+  ms: "MY",
+  tl: "PH",
+  uk: "UA",
+  cs: "CZ",
+  sk: "SK",
+  hu: "HU",
+  ro: "RO",
+  bg: "BG",
+  hr: "HR",
+  sr: "RS",
+  sl: "SI",
+  et: "EE",
+  lv: "LV",
+  lt: "LT",
+  mt: "MT",
+  ga: "IE",
+  cy: "GB",
+  is: "IS",
+  ca: "ES",
+  eu: "ES",
+  gl: "ES",
+  he: "IL",
+  fa: "IR",
+  ur: "PK",
+  bn: "BD",
+  ta: "IN",
+  te: "IN",
+  ml: "IN",
+  kn: "IN",
+  gu: "IN",
+  or: "IN",
+  pa: "IN",
+  as: "IN",
+  ne: "NP",
+  si: "LK",
+  my: "MM",
+  km: "KH",
+  lo: "LA",
+  ka: "GE",
+  hy: "AM",
+  az: "AZ",
+  kk: "KZ",
+  ky: "KG",
+  uz: "UZ",
+  tg: "TJ",
+  mn: "MN",
+  be: "BY",
+  mk: "MK",
+  sq: "AL",
+  bs: "BA",
+  me: "ME",
+  lb: "LU",
+  rm: "CH",
+  fur: "IT",
+  sc: "IT",
+  co: "FR",
+  br: "FR",
+  oc: "FR",
+  an: "ES",
+  ast: "ES",
+  ext: "ES",
+  mwl: "PT",
+  nap: "IT",
+  scn: "IT",
+  vec: "IT",
+  lij: "IT",
+  pms: "IT",
+  lmo: "IT",
+  egl: "IT",
 };
 
 const LOCALE_TO_COUNTRY: Record<string, string> = {
@@ -388,9 +388,9 @@ const FlagIcon: React.FC<FlagIconProps> = ({
   const countryName = getCountryName(finalCountryCode);
 
   const sizeClasses = {
-    sm: "text-base", // 16px
-    md: "text-xl", // 20px
-    lg: "text-2xl", // 24px
+    sm: "text-base",
+    md: "text-xl",
+    lg: "text-2xl",
   };
 
   return (

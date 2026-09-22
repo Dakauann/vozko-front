@@ -31,13 +31,9 @@ export interface WhatsAppCampaignMetrics {
     read: number;
     failed: number;
     notEligiblePossibleSpam: number;
-    // "Disparos": billed sends, total minus the buckets never charged for
-    // (pending, failed, spam-protection skips). CURRENT entry status, a
-    // campaign reset zeroes this. See StatusCounts.Dispatches on the backend.
     dispatches: number;
     completionRate: number;
     successRate: number;
-    /** Volume of dispatches split by template category (no money). */
     byCategory?: {
         marketing: number;
         utility: number;
@@ -51,7 +47,6 @@ export interface WhatsAppCampaign {
     type: WhatsAppCampaignType;
     templateId: string;
     templateName?: string;
-    /** MARKETING | UTILITY | AUTHENTICATION (list enrichment). */
     templateCategory?: string;
     businessPhoneId: string;
     departmentId?: string | null;
@@ -74,7 +69,6 @@ export interface WhatsAppCampaign {
     status: WhatsAppCampaignStatus;
     archived: boolean;
     resetCode?: string;
-    // Conversation funnel this campaign routes to (empty = workspace default).
     pipelineId?: string;
     phoneNumbers?: WhatsAppCampaignPhoneNumber[];
     metrics?: WhatsAppCampaignMetrics;

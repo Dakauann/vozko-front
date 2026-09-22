@@ -52,8 +52,6 @@ export async function fetchWorkspaces(opts?: {
         return { workspaces: [], error: error.message || "Failed to fetch workspaces" };
     }
 
-    // The backend returns either a bare array (unpaginated) or a paginated
-    // envelope; the old BFF route normalized both into { workspaces, page, ... }.
     if (Array.isArray(data)) {
         return { workspaces: data };
     }
@@ -189,8 +187,6 @@ export async function inviteMember(
     invite: WorkspaceInvite | null;
     error?: string;
 }> {
-    // The old BFF route forwarded only { email, role, roleId } to the backend and
-    // did NOT pass departmentIds through; that behavior is preserved here.
     void departmentIds;
     const body: Record<string, unknown> = { email };
     if (role) body.role = role;
@@ -358,8 +354,6 @@ export async function fetchAvailablePermissions(): Promise<{
         return { permissions: [], error: error.message || "Failed to fetch permissions" };
     }
 
-    // Normalize the backend envelope into AvailablePermission[], dropping empty
-    // optional maps (this reshape previously lived in the BFF route).
     const items = data?.permissions ?? [];
     const permissions: AvailablePermission[] = items.map((item) => ({
         resource: item.resource as AvailablePermission["resource"],

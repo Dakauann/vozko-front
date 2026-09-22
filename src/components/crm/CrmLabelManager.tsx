@@ -15,18 +15,18 @@ import { useTranslations } from "next-intl";
 
 
 const LABEL_COLORS = [
-  "#7C3AED", // violet
-  "#DC2626", // red
-  "#2563EB", // blue
-  "#059669", // emerald
-  "#D97706", // amber
-  "#DB2777", // pink
-  "#0891B2", // cyan
-  "#EA580C", // orange
-  "#65A30D", // lime
-  "#4F46E5", // indigo
-  "#0D9488", // teal
-  "#9333EA", // purple
+  "#7C3AED",
+  "#DC2626",
+  "#2563EB",
+  "#059669",
+  "#D97706",
+  "#DB2777",
+  "#0891B2",
+  "#EA580C",
+  "#65A30D",
+  "#4F46E5",
+  "#0D9488",
+  "#9333EA",
 ];
 
 

@@ -50,13 +50,13 @@ export type ElevatedDatePickerProps = {
   required?: boolean;
   inputClassName?: string;
   hasError?: boolean;
-  
+
   minDate?: Date;
-  
+
   maxDate?: Date;
-  
+
   minDateTomorrow?: boolean;
-  
+
   minDaysFromNow?: number;
   onChange?(value: string): void;
 };
@@ -150,9 +150,6 @@ export function ElevatedDatePicker({
         align="start"
         side="bottom"
         sideOffset={8}
-        // z-[200] is the floating-layer tier ElevatedSelect already uses: both
-        // portal to the body, so a popover left at z-50 renders UNDER any
-        // dialog (overlay z-[100], content z-[101]) that contains its trigger.
         className="z-[200] w-auto rounded-[--radius] border border-border bg-card p-4 shadow-xl"
       >
         <Calendar

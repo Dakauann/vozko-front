@@ -34,10 +34,6 @@ const BrandMark = ({
   useWhite?: boolean;
 }) => <BrandLogo useWhite={useWhite} size="sm" hideTextOnMobile />;
 
-// Public marketing pages (about / how-it-works / contact / pricing) were removed;
-// the bar stayed a clean sign-in surface. FAQ is the one link that came back
-// (2026-09-14), because it is help content people go looking for rather than
-// marketing pushed at them, and a support answer needs a findable address.
 
 const DARK_ON_TOP_ROUTES: string[] = [];
 
@@ -225,9 +221,8 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Centred nav zone. It sits in its own overlay so its position is
-              the bar's centre, not the midpoint between two clusters whose
-              widths change with the workspace name and the auth state. */}
+          {
+}
           <div className="pointer-events-none absolute inset-y-0 left-0 right-0 hidden items-center justify-center md:flex">
             <Link
               href="/faq"

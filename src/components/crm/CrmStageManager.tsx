@@ -17,18 +17,18 @@ import { useTranslations } from "next-intl";
 
 
 const STAGE_COLORS = [
-  "#3B82F6", // blue
-  "#10B981", // emerald
-  "#F59E0B", // amber
-  "#EF4444", // red
-  "#8B5CF6", // violet
-  "#EC4899", // pink
-  "#06B6D4", // cyan
-  "#F97316", // orange
-  "#84CC16", // lime
-  "#6366F1", // indigo
-  "#14B8A6", // teal
-  "#A855F7", // purple
+  "#3B82F6",
+  "#10B981",
+  "#F59E0B",
+  "#EF4444",
+  "#8B5CF6",
+  "#EC4899",
+  "#06B6D4",
+  "#F97316",
+  "#84CC16",
+  "#6366F1",
+  "#14B8A6",
+  "#A855F7",
 ];
 
 
@@ -38,11 +38,6 @@ interface CrmStageManagerProps {
   trigger?: ReactNode;
   campaignId?: string;
   campaignType?: string;
-  /**
-   * The funnel these stages belong to. A new stage joins it; without one the
-   * server attaches the stage to the workspace default funnel, which is how a
-   * column added while looking at a custom funnel used to land somewhere else.
-   */
   pipelineId?: string;
 }
 

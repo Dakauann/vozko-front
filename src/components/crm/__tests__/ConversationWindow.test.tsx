@@ -1,13 +1,3 @@
-/**
- * @vitest-environment jsdom
- *
- * The window frame itself: its title bar controls, and the fact that a
- * minimized window keeps its conversation rather than tearing it down.
- *
- * The thread and composer inside it are the same components the centre pane
- * uses and are covered by their own tests, so they are stubbed here — what is
- * under test is the frame around them.
- */
 
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
@@ -21,8 +11,6 @@ vi.mock("@/components/crm/CrmMessageInput", () => ({
   default: () => <div data-testid="composer" />,
 }));
 vi.mock("@/components/crm/CrmWallpaper", () => ({ default: () => null }));
-// Self-contained and locale-aware, with its own tests; here it only needs to
-// prove the window WIRES it to the right conversation.
 vi.mock("@/components/crm/AssignMemberPicker", () => ({
   default: ({ onAssign }: { onAssign: (userId: string) => void }) => (
     <button type="button" onClick={() => onAssign("u-7")}>
@@ -178,8 +166,6 @@ describe("ConversationWindow", () => {
     expect(props.onToggleMaximize).toHaveBeenCalledOnce();
   });
 
-  // A minimized window is still subscribed and still holds its transcript; only
-  // the body is hidden, so restoring it is instant and nothing was missed.
   it("hides the thread when minimized but still says who is waiting", () => {
     renderWindow({ geometry: geometry({ minimized: true }) });
 
@@ -188,8 +174,6 @@ describe("ConversationWindow", () => {
     expect(screen.getByRole("dialog", { name: "Ana Souza" })).toBeInTheDocument();
   });
 
-  // 44px of bar has room for a name or for three buttons and a second line of
-  // grey text, not both. Parked, the name wins.
   it("gives the name the room, dropping the number and the window controls", () => {
     renderWindow({ geometry: geometry({ minimized: true }) });
 
@@ -201,7 +185,6 @@ describe("ConversationWindow", () => {
     expect(
       screen.queryByRole("button", { name: "Maximizar" }),
     ).not.toBeInTheDocument();
-    // Closing is the one thing the bar itself cannot do.
     expect(screen.getByRole("button", { name: "Fechar janela" })).toBeInTheDocument();
   });
 
@@ -228,8 +211,6 @@ describe("ConversationWindow", () => {
     expect(screen.queryByText("0")).not.toBeInTheDocument();
   });
 
-  // Parked conversations line the bottom edge, so they read as set aside
-  // rather than as windows that happen to be short.
   it("sits where the dock parked it when minimized", () => {
     renderWindow({
       geometry: geometry({ minimized: true }),
@@ -271,8 +252,6 @@ describe("ConversationWindow", () => {
   });
 
   it("keeps its own box while parked, so restoring returns it there", () => {
-    // The docked box is presentation only; the geometry the deck holds is
-    // untouched, which is what makes restore land where the operator left it.
     const { props } = renderWindow({
       geometry: geometry({ minimized: true, x: 40, y: 60 }),
       dockedBox: { x: 900, y: 844, width: 260, height: 44 },
@@ -296,13 +275,7 @@ describe("ConversationWindow", () => {
     expect(props.onFocus).toHaveBeenCalled();
   });
 
-  /**
-   * A windowed conversation has to be WORKABLE. An operator who can only read
-   * and reply from a window, and has to go back to the centre pane to hand the
-   * conversation over or close it out, will stop using windows.
-   */
   describe("working the conversation from the window", () => {
-    // Radix opens its menu on pointerdown, not on click.
     const openActions = () =>
       fireEvent.pointerDown(
         screen.getByRole("button", { name: "Ações da conversa" }),
@@ -361,8 +334,6 @@ describe("ConversationWindow", () => {
       expect(onToggleAutomation).toHaveBeenCalledWith("e1", "whatsapp");
     });
 
-    // Permissions are the centre pane's, not a second set: an operator who may
-    // not hand a conversation over must not be offered it here either.
     it("offers nothing it is not allowed to do", () => {
       renderWindow();
       expect(

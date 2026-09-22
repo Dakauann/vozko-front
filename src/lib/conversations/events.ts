@@ -1,7 +1,3 @@
-/**
- * Conversation activity timeline (CRM telemetry).
- * Backend: GET /conversations/{entryType}/{entryId}/events
- */
 
 export type ConversationEventType =
   | "assigned"
@@ -47,14 +43,8 @@ export interface ConversationEvent {
   actor_kind?: ConversationActorKind;
   channel?: string;
   correlation_id?: string;
-  /** JSON string map of extra fields from the backend */
   details?: string;
   created_at: string;
-  /**
-   * Display names the backend resolves from the ids on read. Absent when the
-   * user or agent no longer exists; see resolveEventParticipants for the
-   * fallbacks.
-   */
   actor_name?: string;
   from_name?: string;
   to_name?: string;
@@ -136,18 +126,6 @@ export function eventMatchesFilter(
   return kind === filter;
 }
 
-/* ── Who did what, to whom ──────────────────────────────────────────────────
- *
- * Every timeline event knew the ids of the people involved and showed none of
- * them: a reply read "Human reply · Human" and a handoff read "Assigned",
- * without naming the operator who sent it or the two sides of the transfer.
- *
- * Names arrive already resolved on the event (actor_name / from_name / to_name,
- * filled server-side from the ids). The detail-key and memberNames fallbacks
- * below cover events written before that and any producer that spells the name
- * into details itself. A raw uuid is never a valid answer here — an unresolved
- * id renders as nothing, and the row falls back to its actor-kind badge.
- */
 
 const FROM_ID_KEYS = [
   "from_user_id",
@@ -177,14 +155,9 @@ const TO_NAME_KEYS = [
   "assignedToName",
   "assigned_to",
   "assignedTo",
-  // A voice transfer's target is not always a person: it can be an extension or
-  // a queue name, which the backend cannot resolve and which is already the
-  // display value. Listed after the user keys so a uuid target still resolves
-  // to a name below rather than being shown raw.
   "target",
 ];
 
-/** Detail keys the participant line owns, so no other renderer repeats them. */
 export const PARTICIPANT_DETAIL_KEYS = new Set([
   ...FROM_ID_KEYS,
   ...TO_ID_KEYS,
@@ -192,7 +165,6 @@ export const PARTICIPANT_DETAIL_KEYS = new Set([
   ...TO_NAME_KEYS,
 ]);
 
-/** Events that move a conversation from one owner to another. */
 const HANDOFF_EVENTS = new Set([
   "assigned",
   "auto_assigned",
@@ -213,7 +185,6 @@ export function isHandoffEvent(type: string): boolean {
 const UUID_LIKE =
   /^(ai:)?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** An id is never a name. Anything uuid-shaped, hex-blobby or empty is dropped. */
 function isDisplayableName(value: string | undefined | null): boolean {
   const v = (value ?? "").trim();
   if (!v) return false;
@@ -243,11 +214,8 @@ function firstName(
 }
 
 export interface EventParticipants {
-  /** Who performed the action. Null for system actions and unresolvable ids. */
   actor: string | null;
-  /** Who the conversation moved away from. */
   from: string | null;
-  /** Who the conversation moved to. */
   to: string | null;
 }
 

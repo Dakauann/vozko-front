@@ -208,7 +208,7 @@ export default function AdminUserDetailPage() {
 
   return (
     <main className="w-full space-y-6">
-      {/* Back button + Header */}
+      {}
       <div className="flex items-center gap-3">
         <Link href="/dashboard/users">
           <Button
@@ -236,14 +236,14 @@ export default function AdminUserDetailPage() {
         }
       />
 
-      {/* Profile Hero Card */}
+      {}
       <div>
         <div
           className="rounded-[--radius] border border-border bg-card p-6"
           style={{ boxShadow: softSurfaceShadow }}
         >
           <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
-            {/* Avatar */}
+            {}
             <div className="relative">
               {user.picture ? (
                 <Image
@@ -261,7 +261,7 @@ export default function AdminUserDetailPage() {
                   />
                 </div>
               )}
-              {/* Verified indicator */}
+              {}
               <div
                 className={cn(
                   "absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border border-card",
@@ -278,14 +278,14 @@ export default function AdminUserDetailPage() {
               </div>
             </div>
 
-            {/* Name + meta */}
+            {}
             <div className="flex-1 text-center sm:text-left">
               <h2 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground">
                 {user.username}
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">{user.email}</p>
               <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                {/* Role badge */}
+                {}
                 <span
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-2xs font-semibold",
@@ -297,7 +297,7 @@ export default function AdminUserDetailPage() {
                   {role.label}
                 </span>
 
-                {/* Customer type badge */}
+                {}
                 <span className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-2xs font-semibold text-primary-foreground">
                   <Buildings className="h-3.5 w-3.5" weight="fill" />
                   {user.customerType === "company"
@@ -305,7 +305,7 @@ export default function AdminUserDetailPage() {
                     : t("customerType.individual")}
                 </span>
 
-                {/* Email verified badge */}
+                {}
                 <span
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-2xs font-semibold",
@@ -329,10 +329,10 @@ export default function AdminUserDetailPage() {
         </div>
       </div>
 
-      {/* Detail Cards Grid */}
+      {}
       <div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Email */}
+          {}
           <InfoCard
             icon={<EnvelopeSimple className="h-5 w-5" weight="bold" />}
             iconBg="tile-neutral"
@@ -340,7 +340,7 @@ export default function AdminUserDetailPage() {
             value={user.email}
           />
 
-          {/* Username */}
+          {}
           <InfoCard
             icon={<User className="h-5 w-5" weight="bold" />}
             iconBg="tile-neutral"
@@ -348,7 +348,7 @@ export default function AdminUserDetailPage() {
             value={user.username}
           />
 
-          {/* Customer Type */}
+          {}
           <InfoCard
             icon={<Buildings className="h-5 w-5" weight="bold" />}
             iconBg="tile-neutral"
@@ -360,7 +360,7 @@ export default function AdminUserDetailPage() {
             }
           />
 
-          {/* Document (CPF/CNPJ) */}
+          {}
           {formattedDocument ? (
             <InfoCard
               icon={<IdentificationCard className="h-5 w-5" weight="bold" />}
@@ -382,7 +382,7 @@ export default function AdminUserDetailPage() {
             />
           )}
 
-          {/* User ID */}
+          {}
           <InfoCard
             icon={<IdentificationBadge className="h-5 w-5" weight="bold" />}
             iconBg="tile-neutral"
@@ -391,7 +391,7 @@ export default function AdminUserDetailPage() {
             mono
           />
 
-          {/* Role */}
+          {}
           <InfoCard
             icon={<Crown className="h-5 w-5" weight="bold" />}
             iconBg="tile-warning"
@@ -410,7 +410,7 @@ export default function AdminUserDetailPage() {
             }
           />
 
-          {/* Email Verified */}
+          {}
           <InfoCard
             icon={
               user.emailVerified ? (
@@ -426,7 +426,7 @@ export default function AdminUserDetailPage() {
             }
           />
 
-          {/* Created At */}
+          {}
           <InfoCard
             icon={<CalendarCheck className="h-5 w-5" weight="bold" />}
             iconBg="tile-brand"
@@ -434,7 +434,7 @@ export default function AdminUserDetailPage() {
             value={formatDateTime(user.createdAt)}
           />
 
-          {/* Updated At */}
+          {}
           <InfoCard
             icon={<Clock className="h-5 w-5" weight="bold" />}
             iconBg="tile-warning"

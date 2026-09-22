@@ -1,18 +1,9 @@
-/**
- * @vitest-environment happy-dom
- */
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ImportLeadsDialog } from "../ImportLeadsDialog";
 
-/**
- * The dialog's job around scripted seeding is to offer it to exactly the right
- * person, only where it can work, and never to send a request the server will
- * refuse. The server enforces all three independently; these pin the half the
- * operator actually sees.
- */
 
 vi.mock("next-intl", () => ({
   useTranslations: () => {
@@ -26,8 +17,6 @@ vi.mock("@/hooks/use-toast", () => ({
   useToast: () => ({ toast: toastMock }),
 }));
 
-// The CHANNEL permission. Separate from the platform role below, which is the
-// whole point of the gate being two questions rather than one.
 const canMock = vi.fn().mockReturnValue(true);
 vi.mock("@/contexts/workspace-context", () => ({
   useWorkspace: () => ({ can: canMock }),
@@ -48,7 +37,6 @@ vi.mock("@/lib/leads/template", () => ({
   downloadLeadImportTemplate: vi.fn(),
 }));
 
-// The workspace media library the opening's attachment is uploaded to.
 const uploadMediaActionMock = vi.fn();
 vi.mock("@/app/actions/medias", () => ({
   uploadMediaAction: (...args: unknown[]) => uploadMediaActionMock(...args),
@@ -58,8 +46,6 @@ vi.mock("@/lib/csv/parse", () => ({
   readDelimitedFile: vi.fn(),
 }));
 
-// The file is parsed in the browser; here it is supplied directly so the tests
-// are about the panel, not about CSV parsing (which has its own tests).
 let parsedRows: { line: number; number: string; name?: string }[] = [];
 vi.mock("@/lib/leads/import", async () => {
   const actual =
@@ -89,12 +75,6 @@ function renderDialog() {
   );
 }
 
-/**
- * Pretends the operator chose a file, which is what reveals the options.
- *
- * Queried off the document rather than the render container: Radix renders the
- * dialog into a portal on document.body, so the container is empty.
- */
 async function chooseAFile() {
   const input = document.querySelector(
     'input[type="file"]',
@@ -102,9 +82,6 @@ async function chooseAFile() {
   const file = new File(["telefone,nome\n"], "leads.csv", { type: "text/csv" });
   Object.defineProperty(input, "files", { value: [file] });
   fireEvent.change(input);
-  // The column mapping always appears once a file is chosen, whatever the
-  // caller's permissions are; waiting on the seeding checkbox would hang in the
-  // very case where its absence is the thing under test.
   await waitFor(() => screen.getByText("mapping.title"));
 }
 
@@ -130,9 +107,6 @@ beforeEach(() => {
   ];
 });
 
-// The panel depends on the checkbox above it, because the server refuses the
-// combination with a 400. An operator should not be able to compose a request
-// that cannot be honoured.
 it("hides the script panel until inbox seeding is ticked", async () => {
   renderDialog();
   await chooseAFile();
@@ -142,8 +116,6 @@ it("hides the script panel until inbox seeding is ticked", async () => {
   expect(screen.getByText("seedConversations.label")).toBeTruthy();
 });
 
-// The PLATFORM role, not the workspace one. A workspace owner passes `can()`
-// and is still not who this is for, because it spends the workspace's balance.
 it("hides the script panel from anyone who is not a platform admin", async () => {
   useAuthMock.mockReturnValue({ user: { id: "u-1", role: "user" } });
   renderDialog();
@@ -154,8 +126,6 @@ it("hides the script panel from anyone who is not a platform admin", async () =>
   expect(screen.queryByText("seedConversations.label")).toBeNull();
 });
 
-// Without the channel permission there is nothing to seed into, so neither
-// checkbox appears. Two gates, both of which must pass.
 it("hides both checkboxes without the channel permission", async () => {
   canMock.mockReturnValue(false);
   renderDialog();
@@ -181,8 +151,6 @@ describe("once the script panel is open", () => {
     return screen.getByText("confirm").closest("button") as HTMLButtonElement;
   }
 
-  // The same rule the server applies. The preview should not promise an
-  // outcome the import will refuse.
   it("blocks the import while the first message is empty", async () => {
     await openPanel();
     expect(importButton().disabled).toBe(true);
@@ -209,8 +177,6 @@ describe("once the script panel is open", () => {
     expect(screen.getByText("seedConversations.variantsMismatch")).toBeTruthy();
   });
 
-  // The count an operator needs BEFORE committing. Afterwards it only shows up
-  // as a scripted total smaller than the one they expected.
   it("warns how many rows have no name to render", async () => {
     parsedRows = [
       { line: 1, number: "5511999999999", name: "Marina" },
@@ -219,7 +185,6 @@ describe("once the script panel is open", () => {
     ];
     await openPanel();
 
-    // No warning while the opening does not use the name.
     fireEvent.change(firstMessageBox(), {
       target: { value: "Oi, tudo bem?" },
     });
@@ -250,14 +215,12 @@ describe("once the script panel is open", () => {
     expect(rows).toHaveLength(2);
     expect(onExisting).toBe("fill_empty");
     expect(seedInbox).toBe(true);
-    // Trimmed, and with the default thread length.
     expect(script).toEqual({
       bodies: ["Oi {{1}}, tudo bem?"],
       maxMessages: 4,
     });
   });
 
-  /** The picker's own input, which is the one added after the CSV input. */
   function attachmentInput() {
     const inputs = document.querySelectorAll('input[type="file"]');
     return inputs[inputs.length - 1] as HTMLInputElement;
@@ -271,8 +234,6 @@ describe("once the script panel is open", () => {
     await waitFor(() => expect(uploadMediaActionMock).toHaveBeenCalled());
   }
 
-  // The attachment is optional, and an operator who never opened the picker
-  // should send exactly the script this feature shipped as.
   it("sends no attachment when no file was picked", async () => {
     await openPanel();
     fireEvent.change(firstMessageBox(), { target: { value: "Oi {{1}}?" } });
@@ -289,7 +250,6 @@ describe("once the script panel is open", () => {
     fireEvent.change(firstMessageBox(), { target: { value: "Oi {{1}}?" } });
     await attachAFile();
 
-    // The field names are the upload endpoint's, which refuses anything else.
     const form = uploadMediaActionMock.mock.calls[0][0] as FormData;
     expect(form.get("mediaType")).toBe("image");
     expect(form.get("media")).toBeInstanceOf(File);
@@ -301,12 +261,9 @@ describe("once the script panel is open", () => {
 
     const [, , , script] = importLeadsActionMock.mock.calls[0];
     expect(script.attachment).toEqual({ mediaId: "media-1", kind: "image" });
-    // The bodies are the caption, not something the file replaced.
     expect(script.bodies).toEqual(["Oi {{1}}?"]);
   });
 
-  // A stale `true` can never be sent: the server refuses a script without
-  // seedInbox with a 400, and changing your mind should not meet it.
   it("drops the script when inbox seeding is unticked", async () => {
     await openPanel();
     fireEvent.change(firstMessageBox(), {
@@ -327,7 +284,6 @@ describe("once the script panel is open", () => {
   });
 });
 
-// An import that never opened the panel must send exactly what it always sent.
 it("sends no script when the panel was never opened", async () => {
   renderDialog();
   await chooseAFile();

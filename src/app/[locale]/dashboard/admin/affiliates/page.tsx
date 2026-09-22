@@ -231,9 +231,8 @@ function AdminAffiliatesTable() {
         icon={<UserCircle className="h-6 w-6" weight="fill" />}
       />
 
-      {/* ROSTER. The three cards here reported active/inactive and left the
-          operator to go find them in a filter that did not exist; the banks
-          report the same split and select it. */}
+      {
+}
       <StatusRail
         activeKey={statusFilter}
         allLabel={t("stats.total")}

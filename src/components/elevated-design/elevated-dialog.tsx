@@ -102,9 +102,6 @@ const ElevatedDialogHeader = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
-  // shrink-0 so a long body never squeezes the title down to nothing: the
-  // panel is a flex column, and flex items shrink before their container
-  // scrolls.
   <div
     className={cn("flex shrink-0 flex-col gap-2 text-left", className)}
     {...props}
@@ -112,24 +109,6 @@ const ElevatedDialogHeader = ({
 );
 ElevatedDialogHeader.displayName = "ElevatedDialogHeader";
 
-/**
- * The scrolling middle of a tall dialog.
- *
- * Optional, and only long dialogs need it. Without one the whole panel scrolls,
- * which is correct but takes the title and the buttons with it; with one the
- * body scrolls under a title and above a footer that stay put, and the panel's
- * own overflow never engages because its children fit.
- *
- * `min-h-0` is what makes that true: a flex item's default minimum size is its
- * content, so without it this box refuses to shrink, the panel overflows
- * instead, and nothing scrolls where it was meant to.
- *
- * The negative right margin pulls the scrollbar out to the panel edge while the
- * matching padding keeps the content inset, so a scrollbar never appears
- * floating in the middle of the padding. It mirrors the panel's own px-7; a
- * consumer that overrides that padding gets a slightly inset scrollbar rather
- * than a broken layout.
- */
 const ElevatedDialogBody = ({
   className,
   ...props

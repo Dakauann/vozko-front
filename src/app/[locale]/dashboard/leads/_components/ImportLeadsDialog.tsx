@@ -49,49 +49,22 @@ import {
 } from "@/components/campaigns/CampaignMediaPicker";
 import { cn } from "@/lib/utils";
 
-/** How many rejected lines are listed before the rest are summarised. */
 const REJECTED_PREVIEW = 15;
 
-/** "This column is not in my file." Radix selects cannot hold an empty value. */
 const NO_COLUMN = "none";
 
-/** Mirrors MaxScriptVariants in the Go domain. */
 const MAX_SEED_VARIANTS = 10;
 
-/** Mirrors ScriptMinMessages / ScriptMaxMessages. */
 const SEED_MESSAGE_OPTIONS = [2, 3, 4, 5, 6, 7, 8];
 
-/** The variable a seeded opening may carry: the lead's name. */
 const NAME_PLACEHOLDER = 1;
 
-/** Mirrors MaxScriptContextRunes in the Go domain, which truncates past it. */
 const SEED_CONTEXT_MAX = 600;
 
-/**
- * What the opening message may carry, and what each kind will accept.
- *
- * A subset of MediaKind.CanAttach in the Go domain: the API takes `voice` as
- * well, which the CRM renders identically to `audio`, so offering both here
- * would be two buttons for one outcome. The accept lists are the campaign
- * composer's, reused rather than re-guessed.
- */
 const SEED_MEDIA_KINDS = ["image", "video", "audio", "document", "sticker"] as const;
 
 type SeedMediaKind = (typeof SEED_MEDIA_KINDS)[number];
 
-/**
- * Import contacts from a spreadsheet.
- *
- * Three states, in order: choose a file, check the mapping and the counts, see
- * what happened. The middle one is the point of the whole dialog. An import is
- * a bulk write to the CRM, and the operator should know how many contacts are
- * new, how many the workspace already had, and which lines will be skipped
- * BEFORE anything is written, not after.
- *
- * The file is read in the browser and sent as rows. It never gets uploaded:
- * this is the customer's contact list, and it does not need to leave the
- * machine to be parsed and shown back to them.
- */
 export function ImportLeadsDialog({
   open,
   onOpenChange,
@@ -99,21 +72,13 @@ export function ImportLeadsDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Fired after a successful import so the list behind the dialog catches up. */
   onImported: () => void;
 }) {
   const t = useTranslations("leadsPage.import");
   const { toast } = useToast();
   const { can } = useWorkspace();
   const { user } = useAuth();
-  // The PLATFORM role, deliberately not useWorkspace().can(): `isPrivileged`
-  // there is true for a workspace OWNER, and writing AI conversations spends
-  // the workspace's balance on something only we should be handing out. The
-  // server checks claims.Role independently; this only keeps the UI honest.
   const isSystemAdmin = user?.role === "admin";
-  // Seeding is a channel privilege, not a lead one: opening conversations with
-  // numbers that never wrote in is what unofficial_whatsapp_instances:send
-  // governs.
   const canSeedInbox = can("unofficial_whatsapp_instances", "send");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -121,18 +86,10 @@ export function ImportLeadsDialog({
   const [file, setFile] = useState<LeadImportFile | null>(null);
   const [map, setMap] = useState<LeadColumnMap>({ number: 0, name: 1, age: null });
   const [onExisting, setOnExisting] = useState<"fill_empty" | "skip">("fill_empty");
-  // Opt-in, and deliberately not remembered between opens: it creates a
-  // conversation per row, which is a real change to what the inbox contains, so
-  // it should be chosen for each import rather than inherited from the last one.
   const [seedInbox, setSeedInbox] = useState(false);
-  // Scripting, and everything it needs. Not remembered between opens either:
-  // it spends money, so it is chosen per import rather than inherited.
   const [seedConversations, setSeedConversations] = useState(false);
   const [bodies, setBodies] = useState<string[]>([""]);
   const [seedContext, setSeedContext] = useState("");
-  // The attachment the opening carries, if any. Held apart from the bodies
-  // because it is optional: a script with no file is the plain text opening
-  // this feature shipped as.
   const [mediaKind, setMediaKind] = useState<SeedMediaKind>("image");
   const [mediaId, setMediaId] = useState<string | undefined>(undefined);
   const [mediaName, setMediaName] = useState<string | undefined>(undefined);
@@ -147,9 +104,6 @@ export function ImportLeadsDialog({
 
   const tooManyRows = (parsed?.rows.length ?? 0) > LEAD_IMPORT_MAX_ROWS;
 
-  // The script panel exists only where all three of its conditions hold. The
-  // server enforces the same three; this stops the form promising an outcome
-  // the import would refuse.
   const canScript = isSystemAdmin && canSeedInbox && seedInbox;
   const trimmedBodies = bodies.map((b) => b.trim()).filter(Boolean);
   const scriptIsValid =
@@ -158,7 +112,6 @@ export function ImportLeadsDialog({
     placeholdersIn(b).includes(NAME_PLACEHOLDER),
   );
   const scriptOn = canScript && seedConversations;
-  // How many rows will be seeded plain because there is no name to render.
   const unnamedRows =
     scriptOn && scriptUsesName ? countRowsWithoutName(parsed?.rows ?? []) : 0;
   const scriptBlocksImport = scriptOn && !scriptIsValid;
@@ -196,13 +149,9 @@ export function ImportLeadsDialog({
     const text = await readDelimitedFile(picked);
     const read = readLeadImportFile(text);
     setFile(read);
-    // The guess is a starting point the operator can correct, not a decision.
     setMap(read.guess);
   };
 
-  // The example file is built in one place and offered from two: here, and the
-  // leads page header. See lib/leads/template.ts for why the rows are what they
-  // are.
   const downloadTemplate = downloadLeadImportTemplate;
 
   const runImport = async () => {
@@ -218,9 +167,6 @@ export function ImportLeadsDialog({
             bodies: trimmedBodies,
             maxMessages,
             ...(seedContext.trim() ? { context: seedContext.trim() } : {}),
-            // Omitted rather than sent empty: the server drops an attachment
-            // naming no file anyway, and sending one would only describe a
-            // choice the administrator did not make.
             ...(mediaId ? { attachment: { mediaId, kind: mediaKind } } : {}),
           }
         : undefined,
@@ -240,9 +186,6 @@ export function ImportLeadsDialog({
     onImported();
   };
 
-  // Columns are offered by header name when the file has one, and by position
-  // when it does not. "Coluna 3" is still something an operator can match
-  // against the spreadsheet open beside them.
   const columnLabel = (index: number) =>
     file?.headers?.[index]?.trim() || t("mapping.column", { index: index + 1 });
 
@@ -261,7 +204,7 @@ export function ImportLeadsDialog({
             <ImportSummary result={result} />
           ) : (
             <div className="space-y-4">
-              {/* ── the file ─────────────────────────────────────────────── */}
+              {}
               <div className="flex flex-wrap items-center gap-2">
                 <Button
                   variant="secondary"
@@ -279,7 +222,6 @@ export function ImportLeadsDialog({
                   onChange={async (e) => {
                     const picked = e.target.files?.[0];
                     if (picked) await pickFile(picked);
-                    // Reset so re-picking the same file fires change again.
                     e.target.value = "";
                   }}
                 />
@@ -293,18 +235,15 @@ export function ImportLeadsDialog({
                 />
               </div>
 
-              {/* Which columns actually land, said before the file is chosen.
-                  The importer stores exactly three fields; a spreadsheet carrying
-                  "empresa" or "origem" maps none of them and those columns are
-                  dropped silently, which an operator only discovers afterwards by
-                  noticing the data is not there. */}
+              {
+}
               <p className="text-xs text-muted-foreground">
                 {t("recognisedColumns")}
               </p>
 
               {file ? (
                 <>
-                  {/* ── the mapping ──────────────────────────────────────── */}
+                  {}
                   <div className="space-y-2">
                     <p className="text-sm font-medium text-foreground">
                       {t("mapping.title")}
@@ -360,13 +299,12 @@ export function ImportLeadsDialog({
                       </ElevatedSelect>
                     </div>
 
-                    {/* Only three fields land on a lead. Saying so here stops an
-                        operator hunting for the e-mail column that has nowhere to
-                        go, and stops them believing it was imported silently. */}
+                    {
+}
                     <p className="text-xs text-muted-foreground">{t("mapping.onlyThese")}</p>
                   </div>
 
-                  {/* ── what will happen ─────────────────────────────────── */}
+                  {}
                   <div className="rounded-[--radius] border border-border bg-card px-3 py-2">
                     <p className="text-sm text-foreground">
                       {t("summary.counts", {
@@ -412,7 +350,7 @@ export function ImportLeadsDialog({
                     ) : null}
                   </div>
 
-                  {/* ── what to do about contacts already here ───────────── */}
+                  {}
                   <ElevatedSelect
                     label={t("existing.label")}
                     value={onExisting}
@@ -427,15 +365,8 @@ export function ImportLeadsDialog({
                   </ElevatedSelect>
                   <p className="text-xs text-muted-foreground">{t("existing.neverOverwrites")}</p>
 
-                  {/* ── open a conversation for each imported number ────────
-
-                      Hidden without the CHANNEL permission rather than shown and
-                      refused. Seeding opens conversations with numbers that never
-                      wrote in, which is unofficial_whatsapp_instances:send, not
-                      leads:create — an operator who may import but not start cold
-                      conversations should not be offered the option at all. The
-                      server enforces it regardless; this only keeps the UI
-                      honest. */}
+                  {
+}
                   {canSeedInbox ? (
                     <div className="space-y-3">
                       <label className="flex cursor-pointer items-start gap-2.5 text-sm text-foreground">
@@ -445,10 +376,6 @@ export function ImportLeadsDialog({
                           onCheckedChange={(next) => {
                             const on = next === true;
                             setSeedInbox(on);
-                            // Unticking this clears the script, so a stale `true`
-                            // can never be sent. The server refuses the
-                            // combination with a 400, and an operator who simply
-                            // changed their mind should not meet it.
                             if (!on) setSeedConversations(false);
                           }}
                         />
@@ -460,14 +387,8 @@ export function ImportLeadsDialog({
                         </span>
                       </label>
 
-                      {/* Write an example conversation into each one.
-
-                          Three conditions, all of which the server checks too:
-                          the platform role, the channel permission, and the
-                          checkbox above. Hidden rather than disabled for a
-                          non-admin: this is not a feature a workspace can be
-                          upsold into, so showing it would only raise a question
-                          support has to answer. */}
+                      {
+}
                       {canScript ? (
                         <div className="space-y-3 rounded-[--radius] border border-border bg-card/40 p-3">
                           <label className="flex cursor-pointer items-start gap-2.5 text-sm text-foreground">
@@ -529,15 +450,8 @@ export function ImportLeadsDialog({
                                 )}
                               />
 
-                              {/* The file the opening carries.
-
-                                  Under the variants rather than above them,
-                                  because the text is what the whole feature is
-                                  for: the bodies are the caption, and a picture
-                                  with no words under it leaves the model nothing
-                                  to answer. Changing the kind clears the file, so
-                                  an image can never be uploaded and then sent as
-                                  a document. */}
+                              {
+}
                               <div className="space-y-2 border-t border-border pt-3">
                                 <p className="text-sm font-medium text-foreground">
                                   {t("seedConversations.mediaTitle")}
@@ -593,11 +507,8 @@ export function ImportLeadsDialog({
                                 ))}
                               </ElevatedSelect>
 
-                              {/* An opening that renders the name cannot address
-                                  a row without one, so those are seeded as plain
-                                  empty chats. Said before committing, because
-                                  afterwards it only shows up as a scripted count
-                                  smaller than expected. */}
+                              {
+}
                               {unnamedRows > 0 ? (
                                 <p className="text-xs text-warning-ink">
                                   {t("seedConversations.unnamedRows", {
@@ -606,8 +517,8 @@ export function ImportLeadsDialog({
                                 </p>
                               ) : null}
 
-                              {/* What this costs and how far it goes, said once,
-                                  where the decision is made. */}
+                              {
+}
                               <p className="text-2xs text-muted-foreground">
                                 {t("seedConversations.costNotice", {
                                   max: MAX_SEEDED_CONVERSATIONS,
@@ -658,13 +569,6 @@ export function ImportLeadsDialog({
   );
 }
 
-/**
- * What the import actually did.
- *
- * Created and matched are shown as separate numbers, never summed. "500
- * importados" when 430 of them already existed is how an operator concludes the
- * import is broken and runs it three more times.
- */
 function ImportSummary({ result }: { result: LeadImportResult }) {
   const t = useTranslations("leadsPage.import");
 
@@ -717,22 +621,16 @@ function ImportSummary({ result }: { result: LeadImportResult }) {
         </p>
       ) : null}
 
-      {/* Blocked contacts import like any other, but a campaign built on this
-          list will not reach them. Better said now than discovered later as
-          silent non-delivery. */}
+      {
+}
       {result.blocked > 0 ? (
         <p className="text-xs text-warning-ink">
           {t("result.blocked", { count: result.blocked })}
         </p>
       ) : null}
 
-      {/* Seeding runs in the background, so this is worded as a promise. An
-          operator told the conversations exist, who then refreshes the inbox
-          and finds it unchanged, concludes the feature is broken.
-
-          The server's own message is a diagnostic and is not shown: it is
-          English, like every other string that endpoint returns, and this panel
-          is read in the operator's language. */}
+      {
+}
       {result.inboxSeedError ? (
         <p className="text-xs text-warning-ink">{t("result.inboxSeedFailed")}</p>
       ) : result.inboxSeedQueued ? (
@@ -741,9 +639,8 @@ function ImportSummary({ result }: { result: LeadImportResult }) {
         </p>
       ) : null}
 
-      {/* The scripted count is its own line, not folded into the one above,
-          because the two can disagree in the way that matters: every
-          conversation queued, and none of them scripted. */}
+      {
+}
       {result.scriptedSeedError ? (
         <p className="text-xs text-warning-ink">
           {t("result.scriptedSeedFailed")}

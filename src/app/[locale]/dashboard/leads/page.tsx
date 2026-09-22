@@ -65,8 +65,6 @@ function LeadsPageContent() {
   const t = useTranslations("leadsPage");
   const locale = useLocale();
 
-  // The URL is the state: a filtered, sorted, paged list is a link someone can
-  // send, bookmark and come back to.
   const query = useListQueryState<LeadSortKey>({
     sortKeys: LEAD_SORT_KEYS,
     defaultSorts: DEFAULT_SORTS,
@@ -79,9 +77,6 @@ function LeadsPageContent() {
   const canImportLeads = can("leads", "create");
   const [importOpen, setImportOpen] = useState(false);
 
-  // Bumped after an import so the list and its facet counts re-read. An import
-  // is the one action on this page that changes the SET being listed, so
-  // patching rows in place would leave the "Total" tile behind.
   const [reloadKey, setReloadKey] = useState(0);
   const [items, setItems] = useState<LeadListItem[]>([]);
   const [facets, setFacets] = useState<LeadFacets | null>(null);
@@ -100,12 +95,9 @@ function LeadsPageContent() {
 
   const { filter, search, sorts, page, pageSize } = query;
 
-  // Serialized so the effect re-runs on VALUE changes, not on the new object
-  // identity a URL read produces on every render.
   const filterKey = JSON.stringify(filter);
   const sortKey = sorts.map((s) => `${s.key}:${s.direction}`).join(",");
 
-  // The rows: re-read whenever anything about the request changes.
   useEffect(() => {
     let cancelled = false;
 
@@ -141,13 +133,6 @@ function LeadsPageContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterKey, search, sortKey, page, pageSize, reloadKey]);
 
-  // The counts: a separate effect on purpose, keyed to the FILTER alone.
-  //
-  // Facets describe the whole filtered set, so turning to page 2 or re-sorting
-  // cannot change a single one of them. Asking for them in the same effect as
-  // the rows meant every page turn re-ran four unbounded queries, one of which
-  // evaluates a correlated EXISTS per lead in the workspace, to receive the
-  // numbers already on screen.
   useEffect(() => {
     let cancelled = false;
 
@@ -165,9 +150,6 @@ function LeadsPageContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterKey, search, reloadKey]);
 
-  // Option sets for the id-based filters. Loaded once: they change far more
-  // slowly than the list, and re-fetching them per keystroke would triple the
-  // traffic of typing a name.
   useEffect(() => {
     let cancelled = false;
 
@@ -245,11 +227,6 @@ function LeadsPageContent() {
         header: t("table.name"),
         sortKey: "name",
         render: (row) => (
-          // Editable in place, the same component the CRM context rail uses, so
-          // renaming works identically wherever an operator meets the name.
-          // The em dash is the fallback here rather than the number: this table
-          // already has a number column beside it, and repeating it would read
-          // as two contacts on one row.
           <EditableLeadName
             leadId={row.id}
             name={row.name}
@@ -345,11 +322,6 @@ function LeadsPageContent() {
 
   const isFiltered = !isEmptyLeadFilter(filter) || search.trim() !== "";
 
-  // Stats read from the facet pass, so they describe the whole filtered set,
-  // not the twenty rows that happen to be on screen. They also hold their
-  // values while the ROWS reload: paging cannot change them, so blanking them
-  // to an ellipsis on every page turn would be reporting a recalculation that
-  // is not happening.
   const stats = [
     {
       label: t("summary.total"),
@@ -383,12 +355,8 @@ function LeadsPageContent() {
           actions={
             canImportLeads ? (
               <div className="flex flex-wrap items-center gap-2">
-                {/* The model file, offered before the flow rather than only
-                    inside it. An operator preparing a spreadsheet wants the
-                    format first; making them open the import dialog to find it
-                    means opening a dialog they are not ready to complete. Ghost
-                    beside the secondary import, so the commit still reads as the
-                    primary act here. */}
+                {
+}
                 <Button
                   variant="ghost"
                   size="sm"
@@ -495,8 +463,6 @@ function LeadsPageContent() {
 }
 
 export default function LeadsPage() {
-  // useSearchParams needs a Suspense boundary; the list is the fallback's
-  // subject, so a bare shell is enough to hold the layout while it resolves.
   return (
     <Suspense fallback={<div className="h-64 w-full animate-pulse rounded-[--radius] bg-muted" />}>
       <LeadsPageContent />

@@ -235,7 +235,7 @@ export default function ConversationFilters({
           "grid-cols-1 md:grid-cols-2 lg:grid-cols-4",
         )}
       >
-        {/* Has WhatsApp Messages Toggle (for voice campaigns) */}
+        {}
         {showWhatsAppFilter && (
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
@@ -280,7 +280,7 @@ export default function ConversationFilters({
           </div>
         )}
 
-        {/* Has Tool Calls Toggle */}
+        {}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold text-muted-foreground">
@@ -323,7 +323,7 @@ export default function ConversationFilters({
           </ElevatedSelect>
         </div>
 
-        {/* Tool Name Selection */}
+        {}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold text-muted-foreground">
@@ -354,7 +354,7 @@ export default function ConversationFilters({
           />
         </div>
 
-        {/* Message Type Filter */}
+        {}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold text-muted-foreground">
@@ -402,7 +402,7 @@ export default function ConversationFilters({
           </ElevatedSelect>
         </div>
 
-        {/* Channel Filter */}
+        {}
         {showChannelFilter && (
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
@@ -436,7 +436,7 @@ export default function ConversationFilters({
           </div>
         )}
 
-        {/* Min Message Count */}
+        {}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold text-muted-foreground">
@@ -470,7 +470,7 @@ export default function ConversationFilters({
           />
         </div>
 
-        {/* Max Message Count */}
+        {}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold text-muted-foreground">
@@ -504,7 +504,7 @@ export default function ConversationFilters({
           />
         </div>
 
-        {/* Action Buttons */}
+        {}
         {!hideActions && (
           <div className="flex flex-col gap-2 justify-end">
             <div className="flex gap-2">

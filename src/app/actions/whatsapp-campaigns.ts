@@ -107,11 +107,6 @@ export async function listWhatsAppCampaignsAction(page = 1, limit = 10, sort = '
     return { campaigns, meta };
 }
 
-/**
- * Workspace-level "disparos" (billed sends) rollup for WhatsApp campaigns,
- * aggregated across all campaigns whose creation date falls in [from, to]
- * (all-time when omitted). `type` narrows to "standard"/"organic".
- */
 export async function getWhatsAppCampaignsSummaryAction(params: {
     workspaceId?: string;
     type?: string;
@@ -473,11 +468,6 @@ export type CsvExportResult = {
     error: string | null;
 };
 
-/**
- * Build a query string, dropping empty values, and repeating a key per item for
- * array values — `status: ['SENT','READ']` becomes `status=SENT&status=READ`,
- * which is how the backend reads a multi-status filter.
- */
 function exportQueryString(filters?: Record<string, string | string[] | undefined>): string {
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(filters ?? {})) {
@@ -492,14 +482,6 @@ function exportQueryString(filters?: Record<string, string | string[] | undefine
     return params.toString();
 }
 
-/**
- * Fetch a CSV export endpoint.
- *
- * The response is raw CSV rather than JSON, so this uses fetch directly instead
- * of apiClient; auth rides the httpOnly cookie (credentials: include) with
- * refresh-on-401. Shared by the per-campaign and workspace-wide exports so the
- * two cannot disagree about how a filename or an error is read.
- */
 export async function fetchCsvExport(
     path: string,
     filters?: Record<string, string | string[] | undefined>,
@@ -520,8 +502,6 @@ async function fetchCsv(path: string, filters?: Record<string, string | string[]
         if (response.status === 404) {
             return { csvText: null, filename: '', error: 'noEntries' };
         }
-        // 413 and 429 are the two the operator can act on: narrow the period, or
-        // wait. They get their own codes so the UI can say which.
         if (response.status === 413) {
             return { csvText: null, filename: '', error: 'tooLarge' };
         }
@@ -550,16 +530,6 @@ export async function exportWhatsAppCampaignEntriesAction(
     return fetchCsv(`/whatsapp/campaigns/${campaignId}/entries/export`, filters);
 }
 
-/**
- * Export the leads behind the "Disparos WhatsApp" tiles — every campaign in the
- * period, in one file.
- *
- * Same recorte as getWhatsAppCampaignsSummaryAction (campaign creation date,
- * type, and the department scope carried on the request headers), so the file
- * and the numbers above it answer the same question. `statuses` chooses which
- * sends: the three dispatched ones for "enviados, entregues e lidos", or none
- * for everything.
- */
 export async function exportWhatsAppWorkspaceEntriesAction(params: {
     statuses?: string[];
     type?: string;

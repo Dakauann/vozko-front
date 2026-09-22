@@ -8,10 +8,6 @@ import rehypeHighlight from "rehype-highlight";
 
 import { cn } from "@/lib/utils";
 
-// ChatGPT-style fenced code block: a header (language + copy) over a dark,
-// syntax-highlighted body. Highlighting comes from rehype-highlight (highlight.js)
-// + the github-dark theme CSS imported in the root layout; we transparent-out the
-// theme's own background so our container's surface shows through.
 function CodeBlock({ language, children }: { language: string; children: ReactNode }) {
   const ref = useRef<HTMLPreElement>(null);
   const [copied, setCopied] = useState(false);
@@ -23,7 +19,6 @@ function CodeBlock({ language, children }: { language: string; children: ReactNo
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      /* clipboard unavailable */
     }
   };
 
@@ -84,7 +79,6 @@ const components: Components = {
     <th className="rounded-lg border border-border bg-muted px-2 py-1 text-left font-semibold">{children}</th>
   ),
   td: ({ children }) => <td className="rounded-lg border border-border px-2 py-1">{children}</td>,
-  // Inline code only, block code is handled by the `pre` override below.
   code: ({ className: codeClass, children, ...props }) => {
     const isBlock = /language-|hljs/.test(codeClass ?? "");
     if (isBlock) {
@@ -104,7 +98,6 @@ const components: Components = {
     );
   },
   pre: ({ children }) => {
-    // `children` is the highlighted <code> element; pull its language for the header.
     const codeEl = Array.isArray(children) ? children[0] : children;
     const codeClass =
       (codeEl && typeof codeEl === "object" && "props" in codeEl
@@ -129,5 +122,4 @@ function ChatMarkdownImpl({ content, className }: { content: string; className?:
   );
 }
 
-// Memoized so streaming re-renders only re-parse when content changes.
 export const ChatMarkdown = memo(ChatMarkdownImpl);

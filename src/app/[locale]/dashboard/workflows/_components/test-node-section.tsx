@@ -185,7 +185,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
           : "border-border bg-muted",
       )}
     >
-      {/* Header */}
+      {}
       <div
         className={cn(
           "flex items-center justify-between px-3 py-2",
@@ -216,14 +216,14 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
       </div>
 
       <div className="p-3 space-y-2.5">
-        {/* Error message */}
+        {}
         {result.error && (
           <div className="rounded-lg bg-muted/80 border border-border px-2.5 py-2 text-xs text-destructive-ink">
             {result.error}
           </div>
         )}
 
-        {/* HTTP status (for HTTP nodes) */}
+        {}
         {httpStatusCode != null && (
           <div className="flex items-center gap-2">
             <span className="text-2xs text-muted-foreground">
@@ -250,7 +250,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
           </div>
         )}
 
-        {/* Key output entries */}
+        {}
         {outputEntries.length > 0 && (
           <div className="rounded-lg border border-border bg-background p-2">
             <p className="text-2xs text-muted-foreground mb-1">
@@ -269,7 +269,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
           </div>
         )}
 
-        {/* Response body (for HTTP nodes) */}
+        {}
         {responseBody && (
           <div className="space-y-1">
             <button
@@ -299,7 +299,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
           </div>
         )}
 
-        {/* Interpolated config */}
+        {}
         {result.interpolated_config && (
           <div className="space-y-1">
             <button
@@ -322,7 +322,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
           </div>
         )}
 
-        {/* State after execution */}
+        {}
         {stateEntries.length > 0 && (
           <div className="space-y-1">
             <button
@@ -426,7 +426,7 @@ export function TestNodeSection({
 
   return (
     <div className="border border-border rounded-lg overflow-hidden">
-      {/* Header */}
+      {}
       <button
         type="button"
         onClick={handleExpand}
@@ -456,7 +456,7 @@ export function TestNodeSection({
         )}
       </button>
 
-      {/* Content */}
+      {}
       {expanded && (
         <div className="p-3 space-y-3">
           {disabled && disabledReason && (
@@ -465,7 +465,7 @@ export function TestNodeSection({
             </div>
           )}
 
-          {/* Loading state */}
+          {}
           {status === "analyzing" && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Spinner size={14} className="animate-spin" />
@@ -473,10 +473,10 @@ export function TestNodeSection({
             </div>
           )}
 
-          {/* Analysis result */}
+          {}
           {analysis && (
             <>
-              {/* Mode badge */}
+              {}
               <div
                 className={cn(
                   "flex items-start gap-2 rounded-lg px-3 py-2 text-xs",
@@ -507,7 +507,7 @@ export function TestNodeSection({
                 </div>
               </div>
 
-              {/* Mock fields */}
+              {}
               {analysis.mock_fields.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-xs font-medium text-muted-foreground">
@@ -548,7 +548,7 @@ export function TestNodeSection({
                 </div>
               )}
 
-              {/* Trigger variables (optional) */}
+              {}
               {analysis.can_run_direct && (
                 <details className="group">
                   <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
@@ -566,7 +566,7 @@ export function TestNodeSection({
                 </details>
               )}
 
-              {/* Test button */}
+              {}
               <div className="flex items-center gap-2">
                 <ElevatedButton
                   variant="primary"
@@ -606,10 +606,10 @@ export function TestNodeSection({
             </>
           )}
 
-          {/* Test result */}
+          {}
           {result && <TestResultDisplay result={result} />}
 
-          {/* Error display */}
+          {}
           {status === "error" && error && !result && (
             <div className="rounded-lg border border-border bg-muted p-3">
               <div className="flex items-center gap-2">

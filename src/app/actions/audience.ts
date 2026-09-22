@@ -31,9 +31,6 @@ import { EMPTY_COUNTERS, EMPTY_META } from '@/lib/audience/types';
 
 import { apiClient } from '@/lib/api/browser-client';
 
-// Thin apiClient wrappers in the shape of app/actions/analysis.ts: defaulted
-// empty results, `{ data, error }`, never a thrown error reaching a component.
-// The workspace is never sent; the API scopes every read to the session.
 
 interface PaginatedResponse<T> {
     data: T[];
@@ -107,7 +104,6 @@ export async function getCommentAnalysisTrendsAction(
     return { points: response.data ?? [] };
 }
 
-/** Daily activity for workspace-wide and mixed channel/type audience views. */
 export async function getAudienceTrendsAction(filters: CommentListFilters) {
     const response = await apiClient<TrendPoint[]>(
         `/audience/trends?${filtersToParams(filters).toString()}`,
@@ -123,13 +119,7 @@ export async function listCommentAuthorsAction(input: {
     stance?: CommentStance;
     moderation?: ModerationState;
     minComments?: number;
-    /** Resolves an @ seen in the feed to its author row (§2). */
     authorExternalId?: string;
-    /**
-     * The window, as instants. Sending one switches the server from the
-     * lifetime projection to regrouping the comments themselves, so the
-     * standing it returns describes the window rather than all time.
-     */
     from?: string;
     to?: string;
     sort?: AuthorSort;
@@ -187,10 +177,6 @@ export async function listAuthorContainersAction(
     return { result: response.data };
 }
 
-/**
- * Who a comment can be forwarded to: conversations this workspace already has
- * open. Deliberately not "any number" — forwarding is not cold outbound.
- */
 export async function listEscalationRecipientsAction(query = '', limit = 20) {
     const params = new URLSearchParams({ limit: String(limit) });
     if (query.trim()) params.set('query', query.trim());
@@ -219,7 +205,6 @@ export async function escalateCommentAction(
     return { result: response.data };
 }
 
-/** Drafts an answer. Drafting never posts. */
 export async function suggestCommentReplyAction(commentId: string) {
     const response = await apiClient<ReplySuggestion>(`/audience/${commentId}/reply/suggest`, {
         method: 'POST',
@@ -228,7 +213,6 @@ export async function suggestCommentReplyAction(commentId: string) {
     return { suggestion: response.data };
 }
 
-/** Publishes the operator's text. Nothing re-drafts at send time. */
 export async function postCommentReplyAction(commentId: string, text: string) {
     const response = await apiClient<ReplySuggestion>(`/audience/${commentId}/reply`, {
         method: 'POST',
@@ -334,9 +318,7 @@ export async function cancelCommentBackfillAction(id: string) {
     return { backfill: response.data };
 }
 
-// ---- accounts and per-post settings ----
 
-/** Every account of the workspace with analysis settings (enabled or not). */
 export async function listCommentAnalysisAccountsAction() {
     const response = await apiClient<CommentAnalysisSettings[]>('/audience/settings', {
         method: 'GET',
@@ -372,7 +354,6 @@ export async function putCommentContainerSettingsAction(
     return { settings: response.data };
 }
 
-/** Removes the post's own settings; it inherits the account's again. */
 export async function deleteCommentContainerSettingsAction(
     source: CommentSource,
     accountId: string,
@@ -386,21 +367,7 @@ export async function deleteCommentContainerSettingsAction(
     return { settings: response.data };
 }
 
-/*
- * Alert rules. Every one of these is gated on `audience:send`, because
- * arming an automated sender is granting sends.
- */
 
-/**
- * The account's alert rules, every channel unless one is named.
- *
- * The source defaulted to 'instagram', from when comments were the only thing
- * analysed. That turned "list this account's rules" into "list its Instagram
- * rules", so a conversation rule, and any rule watching ALL channels, was
- * filtered out of its own page and the screen read "nenhum alerta configurado"
- * with two rules sitting in the table. Omitting it now means no filter, which
- * is what the server already does with an empty source.
- */
 export async function listAlertRulesAction(accountId?: string, source?: AudienceSource) {
     const params = new URLSearchParams();
     if (source) params.set('source', source);
@@ -442,20 +409,12 @@ export async function deleteAlertRuleAction(id: string) {
     return {};
 }
 
-/** Sends one alert now. It does not consume the rule's cooldown or daily cap. */
 export async function testAlertRuleAction(id: string) {
     const response = await apiClient<void>(`/audience/alerts/${id}/test`, { method: 'POST' });
     if (response.error) return { error: response.error.message };
     return {};
 }
 
-/*
- * The audience surface: the same rows, not narrowed to comments.
- *
- * /audience pins itself to comments so those screens keep showing what
- * they always did. /audience serves every subject kind, which is what a view
- * called "audience" has to mean now that conversations live in the same engine.
- */
 export async function getAudienceStatsAction(filters: CommentListFilters) {
     const response = await apiClient<CommentAnalysisStats>(
         `/audience/stats?${filtersToParams(filters).toString()}`,
@@ -467,26 +426,10 @@ export async function getAudienceStatsAction(filters: CommentListFilters) {
     };
 }
 
-/**
- * How much of the workspace's rolling analysis budget is spent.
- *
- * Its own call rather than a field on stats: the budget belongs to the
- * workspace, not to the filtered slice, so folding it into stats would return
- * the same number several times per page load and imply it varied by filter.
- * One cheap read, once per load.
- */
 export interface AudienceUsage {
     used: number;
     limit: number;
-    /** When the oldest counted analysis leaves the window, so room frees up. */
     oldestAt?: string;
-    /**
-     * How much is queued and not yet classified, workspace-wide.
-     *
-     * The number that makes the other two actionable. Reaching the ceiling never
-     * discards work, it postpones it, so a limit set too low shows up as a queue
-     * that stops draining and nowhere else.
-     */
     waiting: number;
 }
 
@@ -501,23 +444,9 @@ export async function getAudienceUsageAction(): Promise<{
     return { usage: response.data ?? null };
 }
 
-/**
- * What the workspace decides about its own analysis.
- *
- * Both values are as STORED, where 0 means "never set". The screen needs that
- * to tell an unset window from one somebody deliberately set to five minutes,
- * so the resolved number rides along separately rather than replacing it.
- */
 export interface AudienceWorkspaceSettings {
     dailyCap: number;
     debounceMinutes: number;
-    /**
-     * The values actually IN FORCE, resolved by the server.
-     *
-     * The ceiling falls back through the workspace, then the channel accounts,
-     * then the product default. Resolving that here would be a second copy of
-     * the rule, free to disagree with the engine that enforces it.
-     */
     effectiveDailyCap: number;
     effectiveDebounceMinutes: number;
     minDebounceMinutes: number;
@@ -535,13 +464,6 @@ export async function getAudienceWorkspaceSettingsAction(): Promise<{
     return { settings: response.data ?? null };
 }
 
-/**
- * Change the ceiling, the quiet period, or both.
- *
- * A partial update: an omitted field is left alone, so the two controls on the
- * budget panel never overwrite each other. Workspace-wide by design, because the
- * budget is counted per workspace and the sweep is keyed on it.
- */
 export async function updateAudienceWorkspaceSettingsAction(
     input: { dailyCap?: number; debounceMinutes?: number },
 ): Promise<{ settings: AudienceWorkspaceSettings | null; error?: string }> {

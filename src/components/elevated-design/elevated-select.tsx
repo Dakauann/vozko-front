@@ -63,13 +63,6 @@ const ElevatedSelect = forwardRef<
         ? value !== null && String(value).length > 0
         : hasValue;
 
-    // The trigger floats its label once it holds a value, is open, or has
-    // focus. A Radix trigger is a button, so it has no :placeholder-shown for
-    // the CSS mechanism in elevated-input to read — this one stays driven by
-    // state, which is why `focused` survives here and was deleted there.
-    // A VALUE lifts the label, the same rule the input follows — not focus,
-    // and not the menu being open. While it rests it owns the value slot, so
-    // the trigger's own placeholder has to stand down or the two collide.
     const labelFloating = effectiveHasValue;
     const isFloating = Boolean(label);
 
@@ -104,18 +97,8 @@ const ElevatedSelect = forwardRef<
                 <CaretUp className="h-4 w-4" weight="bold" />
               </SelectPrimitive.ScrollUpButton>
 
-              {/*
-                p-1, matching ElevatedSelectContent below — this viewport was
-                the only one without it.
-
-                An item is a rounded-[--radius] block; the panel is rounded-lg
-                with a border. Edge to edge, the item's corners sit inside the
-                panel's squarer ones and the highlight reads as a stray rounded
-                rectangle stamped on the list — and two adjacent items look like
-                they have a seam between them, because each is drawing its own
-                rounded shape with nothing between. The 4px inset is what makes
-                the rounding read as one list instead of stacked cards.
-              */}
+              {
+}
               <SelectPrimitive.Viewport className="p-1">
                 {children}
               </SelectPrimitive.Viewport>
@@ -141,9 +124,6 @@ const ElevatedSelect = forwardRef<
       >
         <div className="relative w-full">
         {icon && (
-          // A resting control is not commit, selection or focus, so its icon
-          // carries no brand ink — this was text-primary-ink/60, which spent
-          // the accent on a control doing nothing.
           <span
             className={cn(
               "pointer-events-none absolute z-[1] flex items-center text-muted-foreground",
@@ -170,15 +150,9 @@ const ElevatedSelect = forwardRef<
               "flex w-full items-center justify-between gap-3 rounded-[--radius] border border-control-edge bg-card px-3 text-sm font-medium text-foreground dark:bg-muted",
               "transition-[background-color,border-color,box-shadow] duration-150",
               "hover:border-[hsl(var(--muted-foreground)/0.5)]",
-              // Same focus as every other field: the border, the 2px brand
-              // underline and the halo. The ground does not move — see
-              // elevated-input. Open counts as focus here; the menu is the
-              // control's active state.
               "focus-visible:outline-none focus-visible:border-control-edge focus-visible:shadow-[inset_0_-2px_0_0_hsl(var(--primary-edge))] focus-visible:ring-2 focus-visible:ring-primary/15",
               "data-[state=open]:border-control-edge data-[state=open]:shadow-[inset_0_-2px_0_0_hsl(var(--primary-edge))]",
               "disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:opacity-60",
-              // Matches the input's default floating step exactly — 44px, with
-              // the value on a 16px line so the risen label clears it.
               isFloating
                 ? "h-11 pb-[5px] pt-[21px] leading-4"
                 : "h-9 py-2",
@@ -194,10 +168,8 @@ const ElevatedSelect = forwardRef<
             </SelectPrimitive.Icon>
           </SelectPrimitive.Trigger>
 
-          {/* A Radix trigger is a button, so there is no :placeholder-shown for
-              the CSS in globals.css to read — this label is positioned by
-              state instead. Only the built-in trigger gets one; a caller
-              supplying its own `trigger` owns its own labelling. */}
+          {
+}
           {isFloating ? (
             <label
               className={cn(
@@ -267,21 +239,10 @@ const ElevatedSelectItem = forwardRef<
       ref={ref}
       className={cn(
         "relative flex w-full cursor-pointer select-none items-center gap-3 rounded-[--radius] px-3 py-2.5 text-sm outline-none transition-colors",
-        // border-l-primary set a border COLOUR on an element Tailwind's
-        // preflight gives border-width 0 — two classes that painted nothing.
-        // A coloured left stripe is a banned device here anyway.
-        //
-        // The ground moves off --muted because --muted IS --popover in dark,
-        // so the highlight measured 1.00:1 against its own panel. The label
-        // stays --foreground and the green stays in the check: hover is not
-        // one of the accent's three jobs, and on the deeper ground
-        // --primary-ink falls to 4.13:1 in light.
         "hover:bg-[hsl(var(--accent-hover))] hover:text-foreground",
         "focus:bg-[hsl(var(--accent-hover))] focus:text-foreground",
         "data-[state=checked]:bg-[hsl(var(--accent-hover))] data-[state=checked]:text-foreground",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-        // (rounded-[--radius] is already on the base line above; the duplicate
-        // that sat here did nothing but suggest the two were different.)
         className,
       )}
       {...props}

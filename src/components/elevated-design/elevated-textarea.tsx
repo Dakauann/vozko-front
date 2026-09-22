@@ -57,11 +57,6 @@ const variantAlias: Record<TextareaVariant, BaseVariant> = {
   "vsl-cta": "vsl",
 };
 
-/**
- * Two sets of padding, for the same reason as the input: a field carrying a
- * floating label has to leave room for the risen label above the first line of
- * text. A textarea with no label keeps the tighter block.
- */
 const floatingSize: Record<ElevatedTextareaSize, string> = {
   sm: "text-sm leading-5 pt-[19px] pb-2",
   default: "text-sm leading-5 pt-[21px] pb-2.5",
@@ -74,21 +69,12 @@ const compactSize: Record<ElevatedTextareaSize, string> = {
   lg: "text-base py-4",
 };
 
-/** Risen position, and — unlike an input — where the label WAITS.
- *
- *  A textarea is tall, so "centred" would drop the label into the middle of an
- *  empty box. It rests at the NATURAL top padding instead — where the first
- *  line would sit in a textarea that reserved no room for a risen label — so an
- *  empty one reads as an ordinary padded textarea. Parking it on the real first
- *  line (11px lower, behind the reserved padding) left it visibly floating. */
 const labelTop: Record<ElevatedTextareaSize, string> = {
   sm: "0.1875rem",
   default: "0.25rem",
   lg: "0.375rem",
 };
 
-/** The resting label sits ON the first text line: border + padding-top, plus
- *  half the difference between the line box and the label's own 18.2px. */
 const labelRest: Record<ElevatedTextareaSize, string> = {
   sm: "0.75rem",
   default: "1rem",
@@ -113,7 +99,6 @@ const iconPosition: Record<ElevatedTextareaSize, string> = {
   lg: "left-5 top-4",
 };
 
-/** Sheet in light, well in dark — see elevated-input for the reasoning. */
 const FIELD = cn(
   "bg-card dark:bg-muted text-foreground border border-control-edge",
   "hover:border-[hsl(var(--muted-foreground)/0.5)]",
@@ -192,8 +177,6 @@ const ElevatedTextarea = forwardRef<HTMLTextAreaElement, ElevatedTextareaProps>(
 
     const floatingLabel = label?.trim() ? label.trim() : undefined;
     const isFloating = Boolean(floatingLabel);
-    // See elevated-input: the label rides :placeholder-shown, so a floating
-    // field always carries a placeholder even when it has no hint to give.
     const nativePlaceholder = isFloating ? (placeholder ?? " ") : placeholder;
 
     const combinedRef = useCallback(
@@ -273,7 +256,6 @@ const ElevatedTextarea = forwardRef<HTMLTextAreaElement, ElevatedTextareaProps>(
             }
             className={cn(
               "peer block w-full font-medium transition-[background-color,border-color,box-shadow] duration-150 ease-out focus-visible:outline-none",
-              // See elevated-input: while empty, the label owns the value slot.
               isFloating
                 ? "placeholder:text-transparent"
                 : "placeholder:text-muted-foreground",
@@ -301,9 +283,8 @@ const ElevatedTextarea = forwardRef<HTMLTextAreaElement, ElevatedTextareaProps>(
             }}
           />
 
-          {/* Follows the textarea so `peer ~` can read its state. The label
-              waits on the first text line rather than the middle of the box —
-              a textarea's first line is not its centre. */}
+          {
+}
           {isFloating ? (
             <label
               htmlFor={textareaId}

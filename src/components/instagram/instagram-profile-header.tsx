@@ -13,30 +13,17 @@ import { translateAccountType } from "@/lib/instagram/account-type";
 import { useInstagramConnect } from "@/hooks/use-instagram-connect";
 import { useTranslations } from "next-intl";
 
-/**
- * The Instagram-style profile header: avatar, handle, stat row, capability chips.
- *
- * Mirrors Instagram's own layout (avatar left, posts/followers/following row) so an
- * operator immediately recognises which account they are working in, the thing
- * that matters most when a workspace has several connected.
- *
- * All colour comes from the shared accent palette (tinted background + matching
- * text) rather than raw Tailwind literals, so this page reads like the rest of the
- * dashboard.
- */
 export function InstagramProfileHeader({ account }: { account: InstagramAccount }) {
   const t = useTranslations("instagram");
   const { connect, isConnecting } = useInstagramConnect();
 
-  // Reconnecting cannot fix a disabled messaging toggle, so the two states are
-  // reported separately with different remedies.
   const messagingBroken = !account.needsReconnect && !account.messagingHealthy;
 
   return (
     <ElevatedContainer className="flex flex-col gap-5 p-6">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-        {/* Circular, as Instagram renders it, a square avatar here immediately
-            reads as "not the same account you see in the app". */}
+        {
+}
         <InstagramAvatar
           accountId={account.id}
           username={account.username}
@@ -73,16 +60,15 @@ export function InstagramProfileHeader({ account }: { account: InstagramAccount 
             <p className="-mt-2 truncate text-sm text-muted-foreground">{account.name}</p>
           )}
 
-          {/* Instagram's own stat order: posts, followers, following. */}
+          {}
           <dl className="flex flex-wrap items-baseline gap-x-8 gap-y-2">
             <Stat value={account.mediaCount} label={t("card.posts")} />
             <Stat value={account.followersCount} label={t("card.followers")} />
             <Stat value={account.followsCount} label={t("card.following")} />
           </dl>
 
-          {/* Capability chips reflect the scopes the user ACTUALLY granted,
-              individual permissions can be declined at consent time, so this is
-              the honest answer to "why can't I reply from here". */}
+          {
+}
           <div className="flex flex-wrap gap-1.5 pt-0.5">
             <CapabilityChip enabled={account.canSendMessages} label={t("capability.messages")} />
             <CapabilityChip enabled={account.canManageComments} label={t("capability.comments")} />
@@ -129,13 +115,6 @@ function Stat({ value, label }: { value: number; label: string }) {
   );
 }
 
-/**
- * A granted/declined capability.
- *
- * A leading dot carries the state rather than a strikethrough: struck-through text
- * reads as "removed" when the accurate meaning is "never granted", and it stays
- * legible at this size where a line through 11px text does not.
- */
 function CapabilityChip({ enabled, label }: { enabled: boolean; label: string }) {
   return (
     <span
@@ -158,7 +137,6 @@ function CapabilityChip({ enabled, label }: { enabled: boolean; label: string })
   );
 }
 
-/** Inline notice using the shared accent palette rather than raw colour literals. */
 function Notice({
   color,
   icon,

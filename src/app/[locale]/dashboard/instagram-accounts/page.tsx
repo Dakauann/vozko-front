@@ -42,14 +42,6 @@ import { useWorkspace } from "@/contexts/workspace-context";
 
 const ITEMS_PER_PAGE = 15;
 
-/**
- * Solid status pills, matching the WhatsApp business phones table.
- *
- * MESSAGING_OFF is not an Instagram account status, it is a derived state for an
- * account whose OAuth is healthy but whose "Allow access to messages" toggle is
- * off inside the Instagram app. It gets its own pill because the remedy differs
- * from a reconnect.
- */
 const STATUS_COLORS: Record<InstagramAccountStatus | "MESSAGING_OFF", string> = {
   PENDING: "bg-warning text-warning-foreground",
   CONNECTED: "bg-healthy text-healthy-foreground",
@@ -97,7 +89,6 @@ export default function InstagramAccountsPage() {
     void fetchAccounts(1, "");
   }, [fetchAccounts]);
 
-  /** Turns an onboarding outcome into a toast, whichever transport delivered it. */
   const reportResult = useCallback(
     (result: InstagramConnectResult) => {
       if (result.status === "cancelled") return;
@@ -126,11 +117,6 @@ export default function InstagramAccountsPage() {
 
   const { connect, isConnecting } = useInstagramConnect(reportResult);
 
-  /**
-   * The popup reports back via postMessage; a blocked popup falls back to a
-   * full-page redirect that returns the outcome in the query string. Both paths are
-   * handled so the user always gets feedback.
-   */
   useEffect(() => {
     const status = searchParams.get("instagram");
     if (!status) return;
@@ -165,13 +151,9 @@ export default function InstagramAccountsPage() {
   const statusKeyFor = (row: InstagramAccount): InstagramAccountStatus | "MESSAGING_OFF" =>
     row.status === "CONNECTED" && !row.messagingHealthy ? "MESSAGING_OFF" : row.status;
 
-  // Counted over the current page, the same way the phones list does it, these are
-  // an at-a-glance read of what is on screen, not workspace-wide totals.
   const connectedCount = accounts.filter(
     (a) => a.status === "CONNECTED" && a.messagingHealthy,
   ).length;
-  // Both failure modes land here: an expired token and a healthy token whose
-  // messaging toggle is off. They need different remedies but the same attention.
   const attentionCount = accounts.filter(
     (a) => a.needsReconnect || (a.status === "CONNECTED" && !a.messagingHealthy),
   ).length;
@@ -214,9 +196,8 @@ export default function InstagramAccountsPage() {
                   : t(`status.${row.status.toLowerCase()}`)}
               </span>
 
-              {/* The messaging toggle is an invisible failure: OAuth succeeds but no
-                  DM ever arrives, so it is called out inline rather than left as a
-                  green-looking row. */}
+              {
+}
               {key === "MESSAGING_OFF" && (
                 <span
                   className="flex max-w-[280px] items-start gap-1 text-xs text-warning-ink"
@@ -340,7 +321,7 @@ export default function InstagramAccountsPage() {
         }
       />
 
-      {/* Search + stats bar, same shape as the business phones list. */}
+      {}
       <div className="flex flex-wrap items-center gap-3 rounded-[--radius] border border-border bg-card px-5 py-3 shadow-sm">
         <div className="relative w-full max-w-xs">
           <ElevatedInput
@@ -464,7 +445,6 @@ export default function InstagramAccountsPage() {
   );
 }
 
-/** One inline stat in the toolbar, matching the business phones list. */
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="flex items-center gap-2">

@@ -14,10 +14,6 @@ import {
 
 const CHANNEL_NAMES: Record<string, string> = {
   whatsapp: "WhatsApp",
-  // Named, not left to the fallback: an unlisted channel renders its raw key
-  // ("unofficial_whatsapp") straight into the reach summary, and the two
-  // transports carry DIFFERENT interactive limits, so an operator reading this
-  // has to know which one a node will reach.
   unofficial_whatsapp: "WhatsApp (não oficial)",
   instagram: "Instagram",
   telegram: "Telegram",
@@ -40,12 +36,6 @@ function reasonFor(reach: ChannelReach): string {
   }
 }
 
-/**
- * The reach summary shown once above an option list.
- *
- * It states each connected channel's capacity in one quiet line so the numbers
- * are available without hunting, and so the per-option notes below can be terse.
- */
 export function ChannelReachLegend({
   style,
   channelLimits,
@@ -82,14 +72,6 @@ export function ChannelReachLegend({
   );
 }
 
-/**
- * Per-option note, rendered only when a channel would do something the author
- * did not ask for.
- *
- * Deliberately silent on a healthy option. Showing three confirmations on every
- * row would give every row identical weight and bury the one row that actually
- * needs attention, the whole point is that the exceptions are what stand out.
- */
 export function OptionChannelReach({
   option,
   index,
@@ -122,10 +104,6 @@ export function OptionChannelReach({
   );
 }
 
-/**
- * Shown under a list row's description field when channels exist that have no
- * description slot at all. WhatsApp is the only one that renders it.
- */
 export function DescriptionReachNote({
   channelLimits,
 }: {

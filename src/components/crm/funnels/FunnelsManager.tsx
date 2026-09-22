@@ -39,27 +39,10 @@ import { EditableFunnelName } from "./EditableFunnelName";
 import { FunnelComposer, MAX_FUNNEL_NAME, type FunnelDraft } from "./FunnelComposer";
 import { isDraftStage, newDraftStage } from "./FunnelStageComposer";
 
-/** The pane is either editing a saved funnel or drawing an unsaved one. */
 type Selection = { kind: "funnel"; id: string } | { kind: "new" } | null;
 
 const EMPTY_DRAFT: FunnelDraft = { name: "", stages: [] };
 
-/**
- * Funis: the surface where a workspace's boards are designed.
- *
- * Master and detail rather than a table with a modal, because the job here is
- * not "pick a row and confirm something" — it is drawing a process, switching to
- * another one to compare, and coming back. A modal per funnel would hide the list
- * you are comparing against, and a table would need a modal to show anything
- * useful about a row anyway.
- *
- * Stages are edited as a DRAFT and committed together. Per-keystroke writes were
- * the alternative and are wrong for this content: renaming three columns and
- * reordering them is one decision, an operator half way through it has a board
- * that means nothing, and a lost connection mid-edit would leave the funnel in a
- * shape nobody chose. The unsaved marker and a disabled save when nothing moved
- * are what make the deferred commit honest.
- */
 export function FunnelsManager() {
   const t = useTranslations("funnels");
   const { currentWorkspace, can } = useWorkspace();
@@ -89,8 +72,6 @@ export function FunnelsManager() {
     void (async () => {
       const all = await loadFunnels();
       if (cancelled) return;
-      // Land on something. An operator arriving at a management screen with an
-      // empty right pane has to make a choice before seeing anything at all.
       setSelection((current) =>
         current ?? (all[0] ? { kind: "funnel", id: all[0].id } : null),
       );
@@ -248,8 +229,6 @@ export function FunnelsManager() {
       </div>
 
       <DeleteFunnelDialog
-        // Keyed on the funnel so each open mounts with clean state: the previous
-        // funnel's counts must never sit under a new funnel's name.
         key={pendingDelete?.id ?? "none"}
         funnel={pendingDelete}
         destinations={
@@ -268,7 +247,6 @@ export function FunnelsManager() {
   );
 }
 
-/* ------------------------------------------------------------------- LIST */
 
 function FunnelGroup({
   label,
@@ -295,9 +273,8 @@ function FunnelGroup({
               selection?.kind === "funnel" && selection.id === funnel.id;
             return (
               <li key={funnel.id}>
-                {/* Neutral ground with the accent in the lamp. A solid brand
-                    block per row would fight the default star this row also
-                    carries, and selection would stop being the loudest thing. */}
+                {
+}
                 <button
                   type="button"
                   onClick={() => onSelect(funnel.id)}
@@ -342,7 +319,6 @@ function FunnelListSkeleton() {
   );
 }
 
-/* --------------------------------------------------------------- NEW PANE */
 
 function NewFunnelPane({
   sources,
@@ -428,7 +404,6 @@ function NewFunnelPane({
   );
 }
 
-/* ------------------------------------------------------------ DETAIL PANE */
 
 function FunnelDetailPane({
   funnel,
@@ -455,10 +430,6 @@ function FunnelDetailPane({
   const [serverStages, setServerStages] = useState<Stage[] | null>(null);
   const [draft, setDraft] = useState<FunnelDraft>(EMPTY_DRAFT);
   const [busy, setBusy] = useState(false);
-  // The saved shape, kept so "changed" is a comparison rather than a flag some
-  // handler has to remember to set. State and not a ref: it is READ during
-  // render to decide whether the commit bar shows, and a ref read at render time
-  // can hold a value the current paint never saw.
   const [baseline, setBaseline] = useState("");
 
   const loadStages = useCallback(async () => {
@@ -476,17 +447,11 @@ function FunnelDetailPane({
         id: s.id,
         name: s.name,
         description: s.description ?? "",
-        // A stage stored before colours were required has none. The palette's
-        // first entry stands in, rather than a literal repeated here that would
-        // drift the moment the palette changes.
         color: s.color || STAGE_COLORS[0],
       })),
     };
     setDraft(next);
     setBaseline(signature(next));
-    // Deliberately NOT keyed on funnel.name. Renaming commits on its own and
-    // updates the funnel, and reloading here on that change would wipe whatever
-    // columns the operator had drawn but not yet saved.
   }, [currentWorkspace?.id, funnel.id]);
 
   useEffect(() => {
@@ -504,9 +469,6 @@ function FunnelDetailPane({
   const namedStages = draft.stages.filter((s) => s.name.trim().length > 0);
   const canSave = canUpdate && dirty && namedStages.length > 0;
 
-  // Renaming commits on its own, immediately: it is one reversible field, and
-  // holding it behind the stages' commit bar would mean a rename could not be
-  // saved without also saving a half-drawn column.
   const rename = useCallback(
     async (name: string) => {
       const { error } = await updatePipelineAction(funnel.id, { name });
@@ -527,8 +489,6 @@ function FunnelDetailPane({
     setBusy(false);
     if (error) {
       toast.error(error);
-      // Reload either way: a partially applied commit must not leave the editor
-      // showing a shape the server does not have.
       await loadStages();
       return;
     }
@@ -600,14 +560,11 @@ function FunnelDetailPane({
             sources={siblings}
             busy={busy || !canUpdate}
             showTemplates={false}
-            // The name is the panel's own heading, editable there. Repeating it
-            // in a field here printed it twice.
             showName={false}
           />
 
-          {/* The commit bar appears with the first change instead of sitting
-              permanently disabled: a save button that is grey nine times out of
-              ten teaches people to stop looking at it. */}
+          {
+}
           {dirty ? (
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-[--radius] bg-muted px-3 py-2.5">
               <p className="text-sm text-muted-foreground">{t("detail.unsaved")}</p>
@@ -660,37 +617,13 @@ function NoFunnels({ onCreate }: { onCreate?: () => void }) {
   );
 }
 
-/* --------------------------------------------------------------- COMMIT */
 
-/**
- * The draft's shape as one string, for "has anything changed".
- *
- * Order is part of it, which is the whole reason a deep compare would not do:
- * dragging two columns past each other changes nothing about either row and
- * everything about the board.
- */
 function signature(draft: FunnelDraft): string {
-  // Columns only. The name is not part of this draft's commit — it renames on
-  // its own from the heading — so folding it in would light the unsaved bar for
-  // a change that has already been saved.
   return JSON.stringify(
     draft.stages.map((s) => [s.id, s.name.trim(), s.description.trim(), s.color]),
   );
 }
 
-/**
- * Apply the draft to the server, in the only order that is safe.
- *
- * Creates first, because the reorder at the end has to name every column and a
- * new one has no id until it exists. Deletes before the reorder, so the final
- * list is exactly what the board will show. The entry stage last, since it is
- * decided by position and position is not settled until the reorder lands.
- *
- * Returns the first failure's message. It does not roll back — there is no
- * transaction across these endpoints — so the caller reloads and shows the
- * operator what actually took, rather than an editor claiming a state the server
- * never reached.
- */
 async function commitFunnel(
   funnel: Pipeline,
   draft: FunnelDraft,

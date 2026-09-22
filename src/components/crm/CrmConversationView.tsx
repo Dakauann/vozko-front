@@ -271,7 +271,6 @@ function parseToolArguments(payload: string): Record<string, string> {
         }, {});
       }
     } catch {
-      // Tool calls are often persisted in Go's map[...] format.
     }
   }
 
@@ -375,7 +374,6 @@ function summarizeToolResult(payload: string): string {
         return truncateText(cleanToolValue(readableField), 120);
     }
   } catch {
-    // Result text is commonly plain language instead of JSON.
   }
 
   return truncateText(cleaned, 120);
@@ -501,8 +499,6 @@ function DownloadButton({
   );
 }
 
-// A stable pseudo-waveform (deterministic bar heights), the WhatsApp voice-note
-// look without decoding the audio. Fills with the accent up to the play progress.
 const WAVEFORM_BARS = Array.from({ length: 32 }, (_, i) =>
   0.35 + 0.65 * Math.abs(Math.sin(i * 1.7) * Math.cos(i * 0.6)),
 );
@@ -594,12 +590,12 @@ function AudioPlayer({ url }: { url: string }) {
 
   return (
     <div className="flex items-center gap-2.5 rounded-[--radius] bg-muted px-3 py-2 mb-1 min-w-[220px] max-w-[300px]">
-      {/* Hidden native audio element */}
+      {}
       <audio ref={audioRef} src={url} preload="metadata">
         <track kind="captions" />
       </audio>
 
-      {/* Play/Pause button */}
+      {}
       <button
         type="button"
         onClick={togglePlay}
@@ -612,7 +608,7 @@ function AudioPlayer({ url }: { url: string }) {
         )}
       </button>
 
-      {/* Waveform (seekable) + time */}
+      {}
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div
           ref={progressBarRef}
@@ -645,7 +641,7 @@ function AudioPlayer({ url }: { url: string }) {
         </div>
       </div>
 
-      {/* Download */}
+      {}
       <a
         href={url}
         target="_blank"
@@ -686,7 +682,7 @@ function ImageLightbox({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
       onClick={onClose}
     >
-      {/* Top-right controls */}
+      {}
       <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
         <a
           href={src}
@@ -787,7 +783,7 @@ function MediaBubble({
       return (
         <>
           <div className="group relative mb-1 w-fit cursor-pointer overflow-hidden rounded-[--radius]">
-            {/* Download button overlay */}
+            {}
             <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
               <DownloadButton url={resolvedUrl} />
             </div>
@@ -801,7 +797,7 @@ function MediaBubble({
             />
           </div>
 
-          {/* Fullscreen lightbox */}
+          {}
           <AnimatePresence>
             {lightboxOpen && (
               <ImageLightbox
@@ -817,7 +813,7 @@ function MediaBubble({
     case "video":
       return (
         <div className="group relative mb-1 w-fit overflow-hidden rounded-[--radius]">
-          {/* Download button overlay */}
+          {}
           <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
             <DownloadButton url={resolvedUrl} />
           </div>
@@ -886,13 +882,6 @@ function MediaBubble({
 }
 
 
-/**
- * The failure mark, and why.
- *
- * Hover and focus both open it: this is the only explanation of a failed send in
- * the thread, and putting it behind a pointer alone would make it unreachable
- * for anyone using a keyboard.
- */
 function FailedReceipt({ metadata }: { metadata?: unknown }) {
   const t = useTranslations("crmConversation");
   const failure = deliveryErrorFrom(metadata);
@@ -902,9 +891,6 @@ function FailedReceipt({ metadata }: { metadata?: unknown }) {
     ? t(`deliveryError.${key}`)
     : failure?.message || t("deliveryError.unknown");
 
-  // One sentence rather than a formatted block: the tooltip takes a string, and
-  // a single clear line is what an operator reads mid-queue anyway. The code
-  // trails it for anyone escalating to support, who will be asked for it.
   const tooltip = failure?.code
     ? `${t("deliveryError.title")}: ${reason} (${t("deliveryError.code", { code: failure.code })})`
     : `${t("deliveryError.title")}: ${reason}`;
@@ -938,10 +924,6 @@ function ReadReceipt({
   if (deliveryStatus) {
     switch (deliveryStatus) {
       case "failed":
-        // A bare triangle told an operator only that something went wrong, which
-        // is the one thing they had already worked out. The provider's reason is
-        // what separates "retype the number" from "someone has to fix billing",
-        // so it is on the mark itself rather than a click away.
         return <FailedReceipt metadata={metadata} />;
       case "read":
         return (
@@ -986,10 +968,6 @@ function ReadReceipt({
 }
 
 
-// Placeholder thread shown while a conversation's first message batch loads.
-// It mirrors the real message layout (same container, same bubble geometry and
-// alignment) so swapping in the real messages causes no layout shift, only a
-// crossfade. Reduced-motion users get a static placeholder.
 const SKELETON_BUBBLES: { side: "in" | "out"; width: string; height: string }[] =
   [
     { side: "in", width: "44%", height: "2.25rem" },
@@ -1012,7 +990,7 @@ function ConversationThreadSkeleton() {
       className="space-y-2 pt-3"
       aria-hidden="true"
     >
-      {/* Date-pill placeholder to match the real date separator */}
+      {}
       <div className="flex justify-center py-3">
         <div className="h-5 w-24 rounded-lg bg-black/[0.06] dark:bg-white/[0.07] animate-pulse motion-reduce:animate-none" />
       </div>
@@ -1227,7 +1205,7 @@ function EntryMetadataPanel({
               className="overflow-hidden"
             >
               <div className="mt-1 rounded-[--radius] bg-card px-4 py-3 shadow-sm space-y-2.5">
-                {/* Lead info */}
+                {}
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted">
                     <User
@@ -1262,7 +1240,7 @@ function EntryMetadataPanel({
                   </div>
                 </div>
 
-                {/* Variables */}
+                {}
                 {hasVariables && (
                   <>
                     <div className="border-t border-border pt-2">
@@ -1287,7 +1265,7 @@ function EntryMetadataPanel({
                   </>
                 )}
 
-                {/* Template sent */}
+                {}
                 {templateInfo && (
                   <div className="border-t border-border pt-2">
                     <button
@@ -1333,7 +1311,7 @@ function EntryMetadataPanel({
                   </div>
                 )}
 
-                {/* Entry ID (subtle) */}
+                {}
                 <div className="border-t border-border pt-2">
                   <p className="text-2xs text-muted-foreground font-mono truncate">
                     ID: {conversation.entry_id}
@@ -1376,24 +1354,7 @@ interface CrmConversationViewProps {
   tags?: Stage[];
   currentEntryTags?: { stage_id: string; name: string; color: string }[];
   entryAvailableTags?: { stage_id: string; name: string; color: string }[];
-  /**
-   * Every conversation funnel in the workspace with its stages, for the
-   * "move to another funnel" dialog only.
-   *
-   * The ordinary stage menu above deliberately offers ONE funnel's stages
-   * (`entryAvailableTags`, the entry's own), because a list that quietly mixed
-   * funnels is how a lead ends up stranded on a board nobody looks at. Changing
-   * funnel is a separate, explicit act, and this is what it picks from.
-   */
   funnelStages?: FunnelStages[];
-  /**
-   * Applies a funnel change. Resolves to an error message, or null on success.
-   *
-   * Separate from onEntryStageChange because the server treats it differently:
-   * a cross-funnel move must be requested outright, and only a person may make
-   * one. Absent this prop the affordance is not rendered at all, rather than
-   * offered and inert.
-   */
   onMoveToFunnel?: (
     entryId: string,
     entryType: EntryType,
@@ -1453,12 +1414,6 @@ export default function CrmConversationView({
   onRemoveLabel,
 }: CrmConversationViewProps) {
   const tCrm = useTranslations("crm");
-  /**
-   * A group thread, where the conversation's subject is the GROUP and each
-   * message came from a different member — so a bubble has to name and picture
-   * whoever wrote it. Everywhere else the subject IS the author and the header
-   * already shows them.
-   */
   const isGroupConversation = Boolean(conversation?.is_group);
   const containerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -1597,7 +1552,7 @@ export default function CrmConversationView({
   useEffect(() => {
     if (scrollToMessageTimestamp) {
       scrollLockRef.current = true;
-      scrolledToTimestampRef.current = null; 
+      scrolledToTimestampRef.current = null;
     }
   }, [scrollToMessageTimestamp]);
 
@@ -1734,8 +1689,8 @@ export default function CrmConversationView({
     return (
       <div className="relative flex h-full flex-col items-center justify-center gap-4 overflow-hidden bg-background px-8 text-center">
         <LightPool />
-        {/* The brand's trace lines — this panel is an identity surface, the
-            one place in the inbox where ornament sits behind no data. */}
+        {
+}
         <CircuitBoard tone="quiet" className="pointer-events-none absolute bottom-6 right-4 h-64 w-64 xl:h-80 xl:w-80" />
         <div className="relative flex h-20 w-20 items-center justify-center rounded-[--radius] bg-muted">
           <ImageIcon
@@ -1759,18 +1714,6 @@ export default function CrmConversationView({
 
   const currentTagId = currentEntryTags?.[0]?.stage_id ?? null;
 
-  /**
-   * The stages this conversation can actually move to.
-   *
-   * `entryAvailableTags` is the entry's OWN funnel, resolved per campaign by the
-   * board's read model. It wins. `tags` is the funnel the surrounding CRM has
-   * selected, and it is only a fallback for callers that pass no per-entry list.
-   *
-   * The precedence used to run the other way, which made this list wrong for every
-   * conversation on a custom funnel: it offered the default funnel's stages, and
-   * picking one moved the lead onto a funnel its own board does not render — so the
-   * lead vanished from the board instead of moving on it.
-   */
   const stageChoices: { id: string; name: string; color: string }[] =
     entryAvailableTags.length > 0
       ? entryAvailableTags.map((t) => ({
@@ -1780,23 +1723,6 @@ export default function CrmConversationView({
         }))
       : tags.map((t) => ({ id: t.id, name: t.name, color: t.color }));
 
-  /**
-   * One conversation holds exactly one stage, so this is a MOVE, never a toggle.
-   *
-   * The list used to run two different operations depending on which branch fed
-   * it — move on one, assign/remove on the other — a leftover from when stages
-   * were multi-select tags. `AssignStage` deletes the current row before inserting,
-   * so "add" and "move" were already the same write; only the UI still disagreed.
-   */
-  /**
-   * Whether the funnel change is offered at all.
-   *
-   * Three conditions, and each removes a way of offering something that cannot
-   * work: no handler means the caller did not wire it, no stage assignment
-   * permission means the operator may not move anything, and fewer than two
-   * populated funnels means there is nowhere to move to. An affordance that
-   * opens a dialog listing nothing is worse than no affordance.
-   */
   const canMoveAcrossFunnels =
     Boolean(onMoveToFunnel) &&
     Boolean(onEntryStageChange || onAssignStage) &&
@@ -1822,13 +1748,13 @@ export default function CrmConversationView({
   return (
     <div className="relative flex h-full flex-col">
 
-      {/* Analysis panel */}
+      {}
       <ConversationAnalysisPanel
         entryId={conversation.entry_id}
         entryType={conversation.entry_type as "whatsapp"}
       />
 
-      {/* Floating Tag Selector */}
+      {}
       {stageChoices.length > 0 && (
         <div className="absolute left-3 top-3 z-30">
           <div className="relative">
@@ -1871,12 +1797,12 @@ export default function CrmConversationView({
             <AnimatePresence>
               {stageSelectorOpen && (
                 <>
-                  {/* Backdrop */}
+                  {}
                   <div
                     className="fixed inset-0 z-30"
                     onClick={() => setTagSelectorOpen(false)}
                   />
-                  {/* Tag list */}
+                  {}
                   <motion.div
                     initial={{ opacity: 0, y: -8, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -1924,11 +1850,8 @@ export default function CrmConversationView({
                       })}
                     </div>
 
-                    {/* The funnel change lives at the foot of the stage menu
-                        rather than beside it: same intent ("put this
-                        conversation somewhere else"), reached from the same
-                        control, but a heavier act — so it is separated by a
-                        rule and opens a dialog instead of applying on click. */}
+                    {
+}
                     {canMoveAcrossFunnels ? (
                       <>
                         <div className="my-1 border-t border-border" />
@@ -1957,8 +1880,8 @@ export default function CrmConversationView({
         </div>
       )}
 
-      {/* onMoveToFunnel is checked here as well as inside canMoveAcrossFunnels
-          so the narrowing holds for the callback below. */}
+      {
+}
       {canMoveAcrossFunnels && onMoveToFunnel ? (
         <MoveToFunnelDialog
           open={moveToFunnelOpen}
@@ -1977,7 +1900,7 @@ export default function CrmConversationView({
         />
       ) : null}
 
-      {/* ── Floating Label Selector ──────────────────────────────── */}
+      {}
       {availableLabels.length > 0 && (
         <div className="absolute left-16 top-3 z-30">
           <div className="relative">
@@ -2082,7 +2005,7 @@ export default function CrmConversationView({
         </div>
       )}
 
-      {/* ── Message Search Bar ──────────────────────────────────── */}
+      {}
       <AnimatePresence>
         {searchOpen && (
           <motion.div
@@ -2116,7 +2039,7 @@ export default function CrmConversationView({
                 className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
               />
 
-              {/* Search status */}
+              {}
               {searchingMessages && (
                 <motion.div
                   className="h-4 w-4 rounded-full border border-healthy border-t-transparent flex-shrink-0"
@@ -2129,7 +2052,7 @@ export default function CrmConversationView({
                 />
               )}
 
-              {/* Result count + navigation arrows */}
+              {}
               {searchInput.trim().length >= 2 && !searchingMessages && (
                 <div className="flex items-center gap-1 flex-shrink-0">
                   <span className="text-2xs font-medium text-muted-foreground tabular-nums">
@@ -2160,7 +2083,7 @@ export default function CrmConversationView({
                 </div>
               )}
 
-              {/* Close */}
+              {}
               <button
                 onClick={handleCloseSearch}
                 className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-muted transition-colors flex-shrink-0"
@@ -2190,25 +2113,25 @@ export default function CrmConversationView({
         </motion.button>
       )}
 
-      {/* Messages Area */}
+      {}
       <div
         ref={containerRef}
         onScroll={handleScroll}
         className="relative flex-1 overflow-y-auto px-4 py-4 scroll-smooth"
       >
         <div className="mx-auto max-w-3xl space-y-1">
-          {/* Entry metadata panel (collapsible) */}
+          {}
           <EntryMetadataPanel conversation={conversation} />
 
-          {/* Initial-open placeholder: mirrors the thread layout so messages
-              swap in without a layout shift (see ConversationThreadSkeleton). */}
+          {
+}
           <AnimatePresence>
             {loadingConversation && conversation.messages.length === 0 && (
               <ConversationThreadSkeleton />
             )}
           </AnimatePresence>
 
-          {/* Loading indicator when fetching older messages */}
+          {}
           {loadingHistory && (
             <div className="flex items-center justify-center py-3">
               <div className="flex items-center gap-2 rounded-lg bg-card px-4 py-2 shadow-sm">
@@ -2229,14 +2152,14 @@ export default function CrmConversationView({
           )}
           {dateGroups.map((group, groupIndex) => (
             <div key={`${group.date}-${groupIndex}`}>
-              {/* Date separator */}
+              {}
               <div className="flex items-center justify-center py-3">
                 <span className="rounded-lg bg-card px-3 py-1 text-2xs font-medium text-muted-foreground shadow-sm">
                   {formatDateGroup(group.date)}
                 </span>
               </div>
 
-              {/* Messages grouped by channel runs */}
+              {}
               {(() => {
                 const channelRuns = groupMessagesByChannel(group.messages);
 
@@ -2310,16 +2233,6 @@ export default function CrmConversationView({
                           );
                         }
 
-                        /*
-                         * Instagram-specific inbound shapes.
-                         *
-                         * A story reply/mention needs the story context rendered
-                         * above the text, otherwise the operator sees a bare
-                         * sentence with no idea what it is replying to. An
-                         * unsupported message needs a visible placeholder because
-                         * Instagram sends the event with no renderable content,
-                         * silence would look like a bug.
-                         */
                         if (
                           messageType === "story_reply" ||
                           messageType === "story_mention"
@@ -2413,9 +2326,6 @@ export default function CrmConversationView({
                           );
                         }
 
-                        // One shared classifier, not a copy per surface: the
-                        // rule now has a legacy branch, and a second copy of it
-                        // is a second thing to keep in step.
                         const isOutgoing = isOutgoingMessage(
                           msg,
                           conversation.lead_number,
@@ -2529,17 +2439,6 @@ export default function CrmConversationView({
                           (msgIdx === 0 ||
                             (prevMsg && prevMsg.from !== msg.from));
 
-                        /* In a group the face belongs on the bubble, not just
-                           in the header: the header shows the GROUP, and who
-                           said a given thing is the one fact a name alone makes
-                           you re-read to find. Once per run of consecutive
-                           messages from the same person, like the name — a face
-                           on every bubble is noise, not information.
-
-                           A one-to-one conversation renders none of this: the
-                           other side is already named and pictured in the
-                           header, and repeating them beside every bubble only
-                           narrows the room the message has to breathe. */
                         const showAuthorAvatar =
                           isGroupConversation && showSenderName;
 
@@ -2561,7 +2460,7 @@ export default function CrmConversationView({
                               sameSidePrev ? "pt-[1px]" : "pt-1",
                             )}
                           >
-                            {/* Reply arrow, shown on the left of incoming messages, right of outgoing */}
+                            {}
                             {isOutgoing && onReply && (
                               <button
                                 type="button"
@@ -2576,10 +2475,6 @@ export default function CrmConversationView({
                               </button>
                             )}
                             {isGroupConversation && !isOutgoing && (
-                              /* The gutter is reserved even when no avatar is
-                                 drawn, so a run of messages from one person
-                                 keeps a single left edge instead of stepping in
-                                 and out under the first bubble. */
                               <div className="size-8 shrink-0 self-start">
                                 {showAuthorAvatar && (
                                   <ChannelAvatar
@@ -2610,7 +2505,7 @@ export default function CrmConversationView({
                                 !isOutgoing && sameSideNext && "rounded-bl-sm",
                               )}
                             >
-                              {/* Channel label, only on first message of a channel run */}
+                              {}
                               {showChannelLabel && (
                                 <div
                                   className={cn(
@@ -2634,7 +2529,7 @@ export default function CrmConversationView({
                                 </div>
                               )}
 
-                              {/* Sender name for incoming */}
+                              {}
                               {showSenderName && (
                                 <p
                                   className="text-2xs font-semibold mb-0.5 text-healthy-ink"
@@ -2643,7 +2538,7 @@ export default function CrmConversationView({
                                 </p>
                               )}
 
-                              {/* Quoted reply bubble */}
+                              {}
                               {msg.reply_to_message_id &&
                                 (() => {
                                   const repliedMsg = conversation.messages.find(
@@ -2697,7 +2592,7 @@ export default function CrmConversationView({
                                   );
                                 })()}
 
-                              {/* Media */}
+                              {}
                               {(msg.media_url || msg.media_id) &&
                                 msg.media_type && (
                                   <MediaBubble
@@ -2710,7 +2605,7 @@ export default function CrmConversationView({
                                   />
                                 )}
 
-                              {/* Template */}
+                              {}
                               {isTemplateMessage && msg.metadata && (
                                 <TemplateBubble
                                   metadata={
@@ -2719,14 +2614,14 @@ export default function CrmConversationView({
                                 />
                               )}
 
-                              {/* Text */}
+                              {}
                               {msg.text &&
                                 !isToolEventMessage &&
                                 !isTemplateMessage && (
                                   <CollapsibleMessageText text={msg.text} />
                                 )}
 
-                              {/* Time + Read receipt */}
+                              {}
                               <div
                                 className={cn(
                                   "flex items-center gap-1 mt-0.5",
@@ -2760,7 +2655,7 @@ export default function CrmConversationView({
                                 )}
                               </div>
                             </div>
-                            {/* Reply arrow for incoming messages, on the right */}
+                            {}
                             {!isOutgoing && onReply && (
                               <button
                                 type="button"
@@ -2784,7 +2679,7 @@ export default function CrmConversationView({
             </div>
           ))}
 
-          {/* Typing indicator */}
+          {}
           <AnimatePresence>
             {isTyping && (
               <motion.div
@@ -2804,7 +2699,7 @@ export default function CrmConversationView({
         </div>
       </div>
 
-      {/* Scroll-to-bottom button */}
+      {}
       <AnimatePresence>
         {showScrollDown && (
           <motion.button

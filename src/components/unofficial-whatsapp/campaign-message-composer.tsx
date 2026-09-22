@@ -19,20 +19,6 @@ import {
 } from "@/components/unofficial-whatsapp/message-variants-editor";
 import { useTranslations } from "next-intl";
 
-/**
- * The message composer — this channel's replacement for the template picker.
- *
- * There is no template on a linked-device session, so the operator authors the
- * message here. Two parts of this are load-bearing rather than cosmetic:
- *
- *  - **Variants.** Identical bodies leaving one number at volume are what
- *    WhatsApp's spam heuristics weight, and there is no template to hide behind.
- *    One variant is picked per recipient, so a 5.000-number run sends five texts
- *    rather than one text five thousand times. The UI says why.
- *  - **Same placeholders across variants.** Not merely the same count: a variant
- *    reading {{1}} beside one reading {{2}} would send a raw "{{2}}" to everyone
- *    assigned the second, because the importer collected one set of columns.
- */
 
 const KINDS: UnofficialWhatsAppMessageKind[] = [
   "text",
@@ -43,7 +29,6 @@ const KINDS: UnofficialWhatsAppMessageKind[] = [
   "menu",
 ];
 
-/** Kinds that cannot be delivered without an attachment. */
 const NEEDS_MEDIA: UnofficialWhatsAppMessageKind[] = [
   "image",
   "video",
@@ -53,17 +38,8 @@ const NEEDS_MEDIA: UnofficialWhatsAppMessageKind[] = [
 
 const MAX_VARIANTS = 10;
 
-/**
- * The placeholder rules live in MessageVariantsEditor now, because a lead
- * import authors its first message the same way and a second copy of them would
- * be a second chance to disagree with the Go domain.
- *
- * Re-exported so the campaign form's imports do not move, and so the one thing
- * that IS about a campaign spec — reading the bodies off it — stays here.
- */
 export { placeholdersIn, variantsAgree };
 
-/** The highest placeholder across every variant — how many columns an import needs. */
 export function parameterCount(spec: UnofficialWhatsAppMessageSpec): number {
   return parameterCountIn(spec.bodies);
 }
@@ -71,7 +47,6 @@ export function parameterCount(spec: UnofficialWhatsAppMessageSpec): number {
 export interface CampaignMessageComposerProps {
   value: UnofficialWhatsAppMessageSpec;
   onChange: (next: UnofficialWhatsAppMessageSpec) => void;
-  /** Rendered in the media slot; the media picker belongs to the host form. */
   mediaSlot?: React.ReactNode;
   disabled?: boolean;
 }
@@ -143,13 +118,6 @@ export function CampaignMessageComposer({
   );
 }
 
-/**
- * The menu editor.
- *
- * The option caps come from WhatsApp itself, not from us: three buttons is a
- * different message type from a ten-row list, which is why the style selector
- * changes the limit rather than the layout.
- */
 function MenuEditor({
   value,
   onChange,
@@ -244,8 +212,8 @@ function MenuEditor({
           <Plus className="h-3.5 w-3.5" weight="bold" />
           {t("form.addOption", { max })}
         </button>
-        {/* The cap is WhatsApp's, and saying whose it is stops it reading as an
-            arbitrary product limit somebody could ask us to raise. */}
+        {
+}
         <p className="text-2xs text-muted-foreground">{t("form.optionCapHelp", { max })}</p>
       </div>
     </div>

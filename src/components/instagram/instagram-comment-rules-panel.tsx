@@ -29,17 +29,6 @@ import { useTranslations } from "next-intl";
 
 import { InstagramCommentRuleDialog } from "./instagram-comment-rule-dialog";
 
-/**
- * Comment automation for one account.
- *
- * Rules are listed in the order they are evaluated, because the first match wins,
- * an operator who cannot see the order cannot predict which rule answers a
- * comment. A rule scoped to a post is labelled as such, so the two tiers
- * (this post / all posts) are never confused.
- *
- * `mediaId` limits the panel to one post: the same component then serves the
- * post detail dialog, where a rule is created already scoped to that post.
- */
 export function InstagramCommentRulesPanel({
   accountId,
   mediaId,
@@ -59,8 +48,6 @@ export function InstagramCommentRulesPanel({
   const [deletingRule, setDeletingRule] = useState<InstagramCommentRule | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
-  // `loading` starts true and is cleared when the fetch settles, so nothing is
-  // set synchronously during the effect.
   useEffect(() => {
     let cancelled = false;
     void listCommentRulesAction(accountId).then((result) => {
@@ -70,8 +57,6 @@ export function InstagramCommentRulesPanel({
         setRules([]);
       } else {
         setError(null);
-        // When scoped to a post, show that post's rules plus the account-wide
-        // defaults that also apply to it, that is exactly what will run.
         setRules(
           mediaId
             ? result.rules.filter((r) => !r.igMediaId || r.igMediaId === mediaId)
@@ -87,8 +72,6 @@ export function InstagramCommentRulesPanel({
 
   const handleToggle = async (rule: InstagramCommentRule, enabled: boolean) => {
     setBusyId(rule.id);
-    // Optimistic: the switch is the whole interaction, so waiting a round trip
-    // to move it feels broken.
     setRules((prev) => prev.map((r) => (r.id === rule.id ? { ...r, enabled } : r)));
     const result = await updateCommentRuleAction(accountId, rule.id, toPayload({ ...rule, enabled }));
     setBusyId(null);
@@ -156,8 +139,6 @@ export function InstagramCommentRulesPanel({
             ))}
           </div>
         ) : rules.length === 0 ? (
-          // The empty state teaches the feature: someone opening this panel has
-          // usually never seen comment automation before.
           <div className="rounded-[--radius] border border-dashed border-border py-8 text-center">
             <ChatCircleDots className="mx-auto h-7 w-7 text-muted-foreground" />
             <p className="mt-2 text-sm font-medium text-foreground">{t("emptyTitle")}</p>
@@ -183,7 +164,7 @@ export function InstagramCommentRulesPanel({
                   !rule.enabled && "bg-muted",
                 )}
               >
-                {/* Evaluation order is visible: the first match wins. */}
+                {}
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-muted text-2xs font-semibold tabular-nums text-muted-foreground">
                   {index + 1}
                 </span>
@@ -300,7 +281,6 @@ function ActionChip({ action, label }: { action: CommentRuleAction; label: strin
   );
 }
 
-/** Strips server-owned fields so a rule can be sent back as a payload. */
 export function toPayload(rule: InstagramCommentRule): CommentRulePayload {
   return {
     name: rule.name,

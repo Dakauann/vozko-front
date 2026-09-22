@@ -33,15 +33,6 @@ import CrmWallpaper from "./CrmWallpaper";
 import type { SendButtonWsInput } from "@/hooks/use-conversation-ws";
 import { cn } from "@/lib/utils";
 
-/**
- * One conversation, in its own window.
- *
- * The same thread and composer the centre pane uses, so a windowed
- * conversation is not a reduced copy of the real one — it reads and sends
- * identically. What it deliberately leaves out is the chrome that only makes
- * sense once: the contact panel, message search and the ops drawer stay in the
- * centre pane rather than being duplicated four times across the screen.
- */
 
 export interface ConversationWindowTranslations {
   conversation: React.ComponentProps<typeof CrmConversationView>["translations"];
@@ -54,14 +45,6 @@ export interface ConversationWindowTranslations {
   actions: ConversationWindowActionsTranslations;
 }
 
-/**
- * Everything a windowed conversation can be ACTED on with, as opposed to read.
- *
- * Passed in rather than reached for: the window is rendered by the deck, which
- * has no CRM context of its own, and a second source of truth for who may
- * assign or what stages exist is how two views of one conversation start
- * disagreeing.
- */
 export interface ConversationWindowEntryContext {
   assignedUserId?: string | null;
   currentStages?: { stage_id: string; name: string; color: string }[];
@@ -79,21 +62,8 @@ export interface ConversationWindowActionsBundle {
   canAssignLabel: boolean;
   togglingAutomation?: boolean;
   stages?: Stage[];
-  /**
-   * Every conversation funnel with its stages, for the "move to another
-   * funnel" dialog the thread renders. Absent it, the affordance is simply not
-   * shown, which is how a window used to differ from the centre pane.
-   */
   funnelStages?: FunnelStages[];
   labels?: Label[];
-  /**
-   * The parts that differ per conversation — who owns it, which stages and
-   * labels it carries.
-   *
-   * A function rather than values, because one bundle serves every open
-   * window: baking one conversation's owner into it would show the same
-   * responsável on all four.
-   */
   resolve: (
     entryId: string,
     entryType: EntryType,
@@ -116,13 +86,6 @@ export interface ConversationWindowActionsBundle {
     entryId: string,
     entryType: EntryType,
   ) => void;
-  /**
-   * Applies a funnel change. Resolves to an error message, or null on success.
-   *
-   * Same handler the centre pane gets, so a conversation offers the same
-   * controls wherever it is opened. A window that quietly lacked the option was
-   * read as a bug, not as a boundary.
-   */
   onMoveToFunnel?: (
     entryId: string,
     entryType: EntryType,
@@ -142,12 +105,6 @@ export interface ConversationWindowActionsBundle {
 
 interface ConversationWindowProps {
   geometry: WindowGeometry;
-  /**
-   * Where the dock parked this window, when it is minimized.
-   *
-   * The window keeps its own box while parked, so restoring it puts it back
-   * exactly where the operator left it instead of wherever the dock had it.
-   */
   dockedBox?: { x: number; y: number; width: number; height: number };
   state: WindowConversationState;
   translations: ConversationWindowTranslations;
@@ -173,7 +130,6 @@ interface ConversationWindowProps {
   onTyping: (isTyping: boolean) => void;
 }
 
-/** Where the pointer grabbed the window, so a drag does not snap its corner. */
 interface DragOrigin {
   pointerX: number;
   pointerY: number;
@@ -213,27 +169,20 @@ export default function ConversationWindow({
   const resizeRef = useRef<ResizeOrigin | null>(null);
 
   const { conversation } = state;
-  // Who owns this conversation, and which stages/labels it carries.
   const entryContext = actions.resolve(
     conversation.entry_id,
     conversation.entry_type,
   );
   const title = conversation.lead_name || conversation.lead_number || "…";
 
-  // A reply is answering THIS message in THIS thread; carrying it to whatever
-  // the window shows next would quote the wrong conversation.
   useEffect(() => {
     setReplyTo(null);
   }, [conversation.entry_id, conversation.entry_type]);
 
   const handleDragPointerDown = useCallback(
     (e: React.PointerEvent<HTMLElement>) => {
-      // Only a plain drag on the bar itself: the buttons in it must stay
-      // clickable rather than becoming drag handles.
       if (e.button !== 0) return;
       if ((e.target as HTMLElement).closest("button")) return;
-      // A maximized window has no free position, and a parked one is placed by
-      // the dock — dragging either would move a box nobody can see.
       if (geometry.maximized || geometry.minimized) return;
 
       dragRef.current = {
@@ -336,12 +285,8 @@ export default function ConversationWindow({
       onPointerDown={onFocus}
       className={cn(
         "pointer-events-auto fixed flex flex-col overflow-hidden rounded-[--radius] border border-border bg-card shadow-lg",
-        // The deck is the only thing that positions these, so geometry comes
-        // from style rather than from classes that would need a value per pixel.
       )}
       style={
-        // Parked: the dock owns the position, and the box shrinks to the
-        // title bar. Otherwise the window sits where it was placed or dragged.
         geometry.minimized && dockedBox
           ? {
               left: dockedBox.x,
@@ -367,9 +312,6 @@ export default function ConversationWindow({
         onPointerMove={handleDragPointerMove}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
-        // Parked, the whole bar is the way back in — the way a chat dock
-        // behaves. Only then, so a click on a real window's title bar does not
-        // fold it away by accident.
         onClick={
           geometry.minimized
             ? (e) => {
@@ -389,8 +331,6 @@ export default function ConversationWindow({
         className={cn(
           "flex shrink-0 items-center gap-2 border-b border-border bg-card px-2.5",
           geometry.minimized
-            // Parked, the bar IS the window, so the header fills it rather than
-            // leaving a strip of empty card below the name.
             ? "h-full cursor-pointer border-b-0"
             : geometry.maximized
               ? "h-11 cursor-default"
@@ -408,9 +348,8 @@ export default function ConversationWindow({
           <p className="truncate text-sm font-semibold text-foreground">
             {title}
           </p>
-          {/* The number is context for a conversation you are READING. Parked,
-              the bar has one job — say who is waiting — and a second line of
-              small grey text in 44px crowds out the name doing it. */}
+          {
+}
           {!geometry.minimized &&
           conversation.lead_name &&
           conversation.lead_number ? (
@@ -421,22 +360,19 @@ export default function ConversationWindow({
         </div>
 
         <div className="flex shrink-0 items-center gap-0.5">
-          {/* What a set-aside conversation most needs to tell you. */}
+          {}
           {geometry.minimized && conversation.unread_count > 0 && (
             <span className="mr-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-[--radius] bg-healthy px-1 text-2xs font-semibold text-healthy-foreground">
               {conversation.unread_count > 99 ? "99+" : conversation.unread_count}
             </span>
           )}
 
-          {/* Parked, the bar itself is the way back in, so it carries only the
-              one control that is not "restore me": close. Three buttons in
-              260px leaves the name nowhere to go. */}
+          {
+}
           {!geometry.minimized && (
             <>
-              {/* A windowed conversation has to be workable, not just
-                  readable, so the actions the centre pane offers come with it.
-                  Assigning keeps its own control — it is the one an operator
-                  reaches for most, and it is already a 32px trigger. */}
+              {
+}
               {actions.canAssign && actions.workspaceId && (
                 <AssignMemberPicker
                   workspaceId={actions.workspaceId}
@@ -495,8 +431,8 @@ export default function ConversationWindow({
         </div>
       </header>
 
-      {/* A minimized window keeps its subscription and its transcript; only the
-          body is hidden, so restoring it is instant and nothing was missed. */}
+      {
+}
       {!geometry.minimized && (
         <>
           <div className="relative isolate flex min-h-0 flex-1 flex-col">
@@ -510,9 +446,6 @@ export default function ConversationWindow({
                 loadingConversation={state.loadingConversation}
                 translations={t.conversation}
                 onReply={setReplyTo}
-                // Stage and label are rendered by the thread itself, the same
-                // way the centre pane gets them — reusing that rather than
-                // building a second, slightly different set of controls.
                 tags={actions.stages}
                 currentEntryTags={entryContext.currentStages}
                 entryAvailableTags={entryContext.availableStages}

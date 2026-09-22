@@ -9,13 +9,6 @@ import {
   canStop,
 } from "./statuses";
 
-/**
- * The status vocabulary and the lifecycle rules, pinned against the Go domain.
- *
- * Both are duplicated in the browser because the screen has to disable the
- * wrong buttons before a request is made. Duplicated rules drift, so the ones
- * that matter are asserted here.
- */
 describe("send statuses", () => {
   it("includes the skip bucket this channel alone can produce", () => {
     const values = UNOFFICIAL_SEND_STATUSES.map((s) => s.value);
@@ -23,7 +16,6 @@ describe("send statuses", () => {
   });
 
   it("never counts a skip or a failure as dispatched", () => {
-    // Mirrors StatusSet().Dispatched(), which removes the never-sent buckets.
     expect(UNOFFICIAL_DISPATCHED_STATUSES).not.toContain("SKIPPED_NOT_ON_WHATSAPP");
     expect(UNOFFICIAL_DISPATCHED_STATUSES).not.toContain("FAILED");
     expect(UNOFFICIAL_DISPATCHED_STATUSES).not.toContain("NOT_ELIGIBLE_POSSIBLE_SPAM");
@@ -41,8 +33,6 @@ describe("lifecycle guards", () => {
   it("mirrors ResolveTransition", () => {
     expect(canStart("STOPPED")).toBe(true);
     expect(canStart("PAUSED")).toBe(true);
-    // Re-running a finished campaign after a reset is normal; refusing it would
-    // make reset a dead end.
     expect(canStart("COMPLETED")).toBe(true);
     expect(canStart("RUNNING")).toBe(false);
 
@@ -82,8 +72,6 @@ describe("seededOutcomeCounts", () => {
     });
   });
 
-  // Flooring each bucket on its own left the third target PENDING on a real
-  // campaign, so the preview promised a split the server never produced.
   it("leaves nothing pending when the shares add up to 100", () => {
     expect(seededOutcomeCounts(3, 40, 60)).toEqual({
       sent: 1,

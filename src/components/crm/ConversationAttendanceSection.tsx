@@ -1,9 +1,5 @@
 "use client";
 
-/**
- * Shared fetch for conversation_events → attendance summary + activity timeline.
- * Avoids double-hitting GET …/events when the contact panel is open.
- */
 
 import {
   ArrowClockwise,
@@ -160,7 +156,6 @@ function dayKey(iso: string, localeTag: string): string {
   });
 }
 
-/** Keys that are technical identifiers, never show raw to the operator. */
 const DETAIL_SKIP_KEYS = new Set([
   "message_id",
   "messageId",
@@ -192,16 +187,10 @@ function looksLikeId(value: string): boolean {
   if (!v) return true;
   if (UUID_RE.test(v)) return true;
   if (/^ai:[0-9a-f-]{8,}$/i.test(v)) return true;
-  // long hex-ish tokens
   if (/^[0-9a-f]{16,}$/i.test(v)) return true;
   return false;
 }
 
-/**
- * Human-readable subtitle for a timeline event: what changed, not who changed
- * it. The people involved are rendered separately by the participant line, so
- * every from/to key is excluded here rather than showing up twice.
- */
 function detailLine(
   details: Record<string, string>,
   tDetails?: (key: string, values?: Record<string, string>) => string,
@@ -224,22 +213,17 @@ function detailLine(
 
   const parts: string[] = [];
 
-  // A stage move reads as the transition it was, not just where it landed:
-  // "recebido → em atendimento". The backend now names both sides, and fills
-  // them in on rows stored back when the event carried only uuids.
   const fromStage = details.from_stage_name?.trim();
   const toStage = (details.stage_name ?? details.to_stage_name)?.trim();
   if (fromStage && toStage && fromStage !== toStage) {
     return `${fromStage} → ${toStage}`;
   }
 
-  // Prefer explicit human labels first
   for (const key of preferred) {
     const raw = details[key]?.trim();
     if (!raw) continue;
     if (key === "trigger" && tDetails) {
       const mapped = tDetails(`trigger.${raw}` as "trigger.open");
-      // if next-intl returns the key path, fall back to raw
       parts.push(
         mapped.includes("trigger.") ? raw : mapped,
       );
@@ -251,7 +235,6 @@ function detailLine(
     }
   }
 
-  // Friendly leftover keys (no IDs, no participants)
   if (!parts.length) {
     for (const [key, value] of Object.entries(details)) {
       if (DETAIL_SKIP_KEYS.has(key)) continue;
@@ -343,7 +326,6 @@ export default function ConversationAttendanceSection({
   const [reloadToken, setReloadToken] = useState(0);
   const [memberNames, setMemberNames] = useState<Record<string, string>>({});
 
-  // Resolve assignment UUIDs → display names for timeline subtitles.
   useEffect(() => {
     if (!active || !currentWorkspace?.id) return;
     let cancelled = false;
@@ -544,7 +526,7 @@ export default function ConversationAttendanceSection({
 
   return (
     <div className={cn("space-y-5", className)}>
-      {/* ── Micro-summary ─────────────────────────────────────────── */}
+      {}
       <section className="space-y-3">
         <div className="flex min-w-0 items-center gap-2">
           <span
@@ -599,7 +581,7 @@ export default function ConversationAttendanceSection({
         </Link>
       </section>
 
-      {/* ── Activity timeline ─────────────────────────────────────── */}
+      {}
       <section className="space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2">
@@ -701,8 +683,6 @@ export default function ConversationAttendanceSection({
                       details,
                       memberNames,
                     );
-                    // A handoff with only one side known still says something
-                    // useful ("→ Bruno"), so the line renders on either.
                     const showHandoff =
                       isHandoffEvent(ev.event_type) &&
                       Boolean(who.from || who.to);
@@ -824,7 +804,6 @@ export default function ConversationAttendanceSection({
   );
 }
 
-/** Compact pill for conversation header / inbox row. */
 export function AttendanceOwnerBadge({
   kind,
   className,

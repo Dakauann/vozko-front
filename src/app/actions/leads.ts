@@ -33,11 +33,6 @@ const DEFAULT_LEADS_META: LeadsListMeta = {
 };
 
 export async function listLeadsAction(params: OldLeadsListParams = {}) {
-    // The flat legacy shape, expressed as the same structured query the leads
-    // page sends. One request builder and one response reader means `name=` can
-    // never come to mean two different things — and the hand-rolled reader this
-    // replaced had been unwrapping a `data.items` envelope the paginated
-    // endpoint stopped sending, so every caller silently got an empty list.
     let filter = emptyCrmFilter;
     if (params.number) filter = withText(filter, 'number', params.number);
     if (params.name) filter = withText(filter, 'name', params.name);
@@ -60,7 +55,6 @@ export async function listLeadsAction(params: OldLeadsListParams = {}) {
 
 export interface BlockLeadResult {
     blocked: boolean;
-    /** Whether the contact was also blocked/unblocked on WhatsApp via Meta. */
     metaApplied: boolean;
     error: string | null;
 }
@@ -271,13 +265,6 @@ export async function getEntryConversationAction(
     return { conversation: response.data ?? null, error: null };
 }
 
-/**
- * Serializes the advanced read query.
- *
- * One builder for both endpoints: the list and its facet counts MUST be asked
- * the same question, or the count beside a filter option describes a different
- * set than the rows below it.
- */
 function buildLeadsQuery(params: LeadsQueryParams): string {
     const qs = new URLSearchParams();
 
@@ -302,12 +289,6 @@ export interface LeadsQueryResult {
     error: string | null;
 }
 
-/**
- * The leads list, filtered by a structured crmfilter expression.
- *
- * Supersedes listLeadsV2Action's flat parameters; both hit the same endpoint,
- * which translates either shape into the same predicates server-side.
- */
 export async function listLeadsQueryAction(
     params: LeadsQueryParams = {},
 ): Promise<LeadsQueryResult> {
@@ -355,19 +336,10 @@ const EMPTY_LEAD_FACETS: LeadFacets = {
     campaignStatuses: {},
 };
 
-/**
- * Counts for the current filter. Failure degrades to zeroed buckets rather than
- * an error: the rows are what the operator asked for, and a missing badge is a
- * smaller problem than an error page over a working list.
- */
 export async function getLeadFacetsAction(
     params: LeadsQueryParams = {},
 ): Promise<{ facets: LeadFacets; error: string | null }> {
-    // Paging is irrelevant to an aggregate, and sending it would suggest
-    // otherwise to anyone reading the request log.
     const queryString = buildLeadsQuery({ filter: params.filter, q: params.q });
-    // The facets endpoint writes the aggregate object itself; only the paginated
-    // list endpoint wraps its payload in { data, meta }.
     const response = await apiClient<LeadFacets>(
         `/leads/facets${queryString ? `?${queryString}` : ''}`,
         { method: 'GET' },
@@ -391,14 +363,6 @@ export async function getLeadCampaignHistoryAction(leadId: string) {
     return { lead: response.data ?? null, error: null };
 }
 
-/**
- * Rename a lead.
- *
- * `name` is sent even when empty — that is the instruction to CLEAR the name so
- * the lead shows its number again, the way removing a contact's name works in
- * WhatsApp. The server distinguishes "field absent" (a malformed request) from
- * "field empty" (clear it), so the field is always present in the body.
- */
 export async function renameLeadAction(
     leadId: string,
     name: string,
@@ -415,88 +379,34 @@ export async function renameLeadAction(
     return { lead: response.data ?? null, error: null };
 }
 
-/** What an import did, as the operator needs it reported. */
 export interface LeadImportResult {
-    /** Leads the workspace did not have before. */
     created: number;
-    /** Rows whose number was already known here. */
     matched: number;
-    /** How many of the matched are blocked, and so unreachable by a campaign. */
     blocked: number;
     invalid: number;
     duplicate: number;
     rejected: { line: number; number: string; reason: string }[];
     rejectedTruncated?: number;
-    /**
-     * Numbers handed to the inbox seeding job, when the import asked for it.
-     *
-     * Queued, not seeded: the work runs in the background, so the UI has to
-     * word it as a promise. An operator told "500 conversas criadas" who then
-     * refreshes the inbox and sees nothing has been lied to.
-     */
     inboxSeedQueued?: number;
-    /** Why seeding could not be queued, when the leads themselves imported fine. */
     inboxSeedError?: string;
-    /**
-     * How many of those conversations will carry a written example thread.
-     *
-     * Always smaller than or equal to inboxSeedQueued: only the first
-     * MAX_SEEDED_CONVERSATIONS of an import cost anything, and every row after
-     * that still gets a plain empty chat.
-     */
     scriptedSeedQueued?: number;
-    /**
-     * Why the conversations will open blank when the import asked for scripted
-     * ones — most often because the caller is not a platform administrator.
-     *
-     * Separate from inboxSeedError, because the pair has to be able to say "the
-     * conversations were queued and none of them will have a script".
-     */
     scriptedSeedError?: string;
 }
 
-/**
- * The example-conversation script, as the import dialog collects it.
- *
- * Sent per import rather than stored: the act is per import, and a saved
- * template would be a settings screen nobody asked for.
- */
 export interface LeadImportSeedConversations {
-    /** The first message, in variants. One is picked per contact, by number. */
     bodies: string[];
-    /** The whole thread's length, counting that first message. */
     maxMessages: number;
-    /** Optional free text about what the business sells. */
     context?: string;
-    /**
-     * A file for the first message to carry, with `bodies` as its caption.
-     *
-     * Optional: omitted is the plain text opening. The id comes from the
-     * workspace media library (`POST /medias`) and never from a URL, and the
-     * server checks that it belongs to the importing workspace before any
-     * conversation is written.
-     */
     attachment?: LeadImportSeedAttachment;
 }
 
-/** The workspace media library asset a seeded opening carries. */
 export interface LeadImportSeedAttachment {
     mediaId: string;
-    /** image | video | audio | voice | document | sticker. */
     kind: string;
 }
 
-/** Row limit the API enforces. Mirrored so the UI can refuse before uploading. */
 export const LEAD_IMPORT_MAX_ROWS = 100000;
 
-/**
- * Import parsed contact rows as leads.
- *
- * The rows are sent as JSON, not as a file: the browser parses the CSV so the
- * operator can see the outcome before committing, and the contact data never
- * needs a round trip to be validated. The server re-validates and re-dedupes
- * regardless, because this endpoint is reachable without the dialog.
- */
 export async function importLeadsAction(
     rows: LeadImportRow[],
     onExisting: 'fill_empty' | 'skip' = 'fill_empty',
@@ -510,10 +420,6 @@ export async function importLeadsAction(
     const response = await apiClient<LeadImportResult>('/leads/import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        // seedConversations is OMITTED rather than sent as null when off: the
-        // server refuses a script without seedInbox with a 400, and a stale
-        // object on a request that unticked the box would fail an import the
-        // operator did not ask to change.
         body: JSON.stringify({
             rows,
             onExisting,

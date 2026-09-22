@@ -57,8 +57,6 @@ interface ChannelMeta {
   tile: string;
 }
 
-// Channel affordance = a solid opaque tile + white glyph (DESIGN §5). WhatsApp
-// keeps its reserved green; voice/sip/support use the neutral ink tile.
 function channelMeta(entryType: string): ChannelMeta {
   switch (entryType) {
     case "whatsapp":
@@ -82,9 +80,6 @@ function channelMeta(entryType: string): ChannelMeta {
   }
 }
 
-// The responsável cell: an initials avatar + name, mirroring AssignMemberPicker's
-// member affordance so ownership reads as one system across the CRM. A muted
-// em-dash when the entry is unassigned.
 function OwnerCell({ name }: { name: string | null }) {
   if (!name) return <span className="text-sm text-muted-foreground">—</span>;
   return (
@@ -109,8 +104,6 @@ function formatDate(value: string | undefined | null, locale: string): string {
   }).format(d);
 }
 
-// A quiet neutral checklist popover (Popover + cmdk), matching CrmFilterBar's
-// dropdowns so the bulk menus read as one system.
 interface BulkMenuProps {
   triggerLabel: string;
   icon: React.ReactNode;
@@ -205,14 +198,10 @@ interface BulkActionsBarProps {
   labelOptions: BulkOption[];
   bulkBusy: boolean;
   onBulk: (action: CrmBulkActionType, value: string) => void;
-  /** Opens the funnel-move dialog for the current selection. */
   onRequestBulkMoveToFunnel?: () => void;
   onClear: () => void;
 }
 
-// The selection action bar (rendered by DashboardTable when rows are picked).
-// A named component so it satisfies react/display-name and stays out of the
-// render-prop identity churn.
 function BulkActionsBar({
   canAssignStage,
   canAssignOwner,
@@ -240,13 +229,8 @@ function BulkActionsBar({
         />
       ) : null}
 
-      {/* Deliberately NOT a second entry in the menu above.
-
-          That menu applies on click, which is right for a stage inside the
-          funnel the rows are already on and wrong for a funnel change: the same
-          click would move every selected conversation off the board the operator
-          is looking at, with no undo. This one opens the dialog, which names the
-          count before it does anything. */}
+      {
+}
       {canAssignStage && onRequestBulkMoveToFunnel ? (
         <button
           type="button"
@@ -308,15 +292,6 @@ function BulkActionsBar({
   );
 }
 
-/**
- * The selection count, plus the escape hatch out of "this page only".
- *
- * Selecting the header checkbox picks the twenty rows that happen to be
- * rendered, which is almost never what someone means when they filter to a
- * stage and reach for a bulk action. So once the page IS fully picked and more
- * rows match, the count offers the whole set — the pattern every mail client and
- * CRM uses, in the one place the operator is already looking.
- */
 function SelectionCount({
   count,
   total,
@@ -349,8 +324,6 @@ function SelectionCount({
     );
   }
 
-  // Only worth offering once the page is exhausted and there is genuinely more
-  // behind it; otherwise the count says what it always said.
   const canOfferAll = count > 0 && count >= Math.min(pageSize, total) && total > count;
 
   return (
@@ -370,26 +343,12 @@ function SelectionCount({
 }
 
 export interface CrmListViewProps {
-  // The SAME CrmFilter that drives the board; the list shares it verbatim.
   filter: CrmFilter;
-  // Workspace-global conversation stages (context `tags`) for "Mover etapa".
   stages: Stage[];
   labels: Label[];
   workspaceId?: string;
   canAssignStage?: boolean;
-  /**
-   * Every conversation funnel with its stages, for the "move to another funnel"
-   * action on the selection bar.
-   *
-   * Selecting one row and using that bar IS the per-row path here: it is how
-   * stage, owner and label already work in this table, and a second per-row menu
-   * would be a second way to do the same thing. The dialog counts what is
-   * selected, so one conversation and two hundred read correctly.
-   */
   funnelStages?: FunnelStages[];
-  /** Whether this operator may move conversations to ANOTHER funnel
-   *  (stages:transfer). Separate from canAssignStage, which only covers
-   *  sorting within the funnel they already work in. */
   canMoveToFunnel?: boolean;
   canAssignOwner?: boolean;
   canAssignLabel?: boolean;
@@ -418,16 +377,10 @@ export default function CrmListView({
   const [stageByEntry, setStageByEntry] = useState<Record<string, EntryStage | null>>({});
   const [bulkBusy, setBulkBusy] = useState(false);
   const [members, setMembers] = useState<AssignableMember[]>([]);
-  // "Every conversation this filter matches", not just the page. Kept separate
-  // from selectedKeys because the set it names is not enumerable on the client —
-  // the server re-runs the filter. See selectAllMatching / runBulk.
   const [allMatching, setAllMatching] = useState(false);
 
   const reqRef = useRef(0);
 
-  // Workspace members, used to resolve each entry's responsável (AssignedUserID)
-  // to a name + initials. Loaded once per workspace; the list already loads its
-  // own entries/stages, so this keeps the view self-contained.
   useEffect(() => {
     if (!workspaceId) {
       setMembers([]);
@@ -448,9 +401,6 @@ export default function CrmListView({
     return map;
   }, [members]);
 
-  // Reset the page and any selection when the shared filter or the sort changes.
-  // Done during render (React's "adjust state when a prop changes" pattern), so
-  // it never cascades a committed extra render the way a setState-in-effect would.
   const [scope, setScope] = useState(
     () => `${encodeFilterParam(filter)}|${sortOrder}`,
   );
@@ -459,13 +409,9 @@ export default function CrmListView({
     setScope(currentScope);
     setPage(1);
     if (selectedKeys.size > 0) setSelectedKeys(new Set());
-    // A different filter is a different set. Carrying "all matching" across the
-    // change would silently re-aim the action at rows the operator never saw.
     if (allMatching) setAllMatching(false);
   }
 
-  // Enrich the page with each entry's current stage. The entries payload omits
-  // it, but the batch endpoint (grouped by entry type) supplies it cheaply.
   const enrichStages = useCallback(
     async (list: CrmBoardEntry[], reqId: number) => {
       const idsByType = new Map<EntryType, string[]>();
@@ -515,8 +461,6 @@ export default function CrmListView({
     if (list.length > 0) void enrichStages(list, reqId);
   }, [filter, page, sortOrder, enrichStages]);
 
-  // Debounced fetch: `load`'s identity changes with filter/page/sortOrder, so a
-  // burst (e.g. filter edit that also resets the page) collapses to one call.
   useEffect(() => {
     const t = setTimeout(() => void load(), 200);
     return () => clearTimeout(t);
@@ -527,8 +471,6 @@ export default function CrmListView({
     [entries, selectedKeys],
   );
 
-  // Any hand edit to the selection cancels "all matching": the operator is back
-  // to naming rows, and the two modes must never both look active.
   const changeSelection = useCallback((keys: Set<string>) => {
     setSelectedKeys(keys);
     setAllMatching(false);
@@ -539,15 +481,8 @@ export default function CrmListView({
     setAllMatching(false);
   }, []);
 
-  /** Whether the funnel-move dialog is open for the current selection. */
   const [movingSelection, setMovingSelection] = useState(false);
 
-  /**
-   * Whether the selection bar offers the funnel change at all.
-   *
-   * Same rule the thread and the board apply: two populated funnels, or there is
-   * nowhere to move to and the button would open a dialog listing nothing.
-   */
   const canMoveAcrossFunnels =
     canAssignStage &&
     canMoveToFunnel &&
@@ -560,9 +495,6 @@ export default function CrmListView({
     ): Promise<string | null> => {
       if (!value) return null;
 
-      // Two targeting modes, one request shape. Naming the filter instead of the
-      // ids is what lets "everyone in stage X" mean all of them rather than the
-      // twenty that happened to fit on this page.
       const targets = allMatching
         ? []
         : selectedEntries.map((e) => ({
@@ -595,8 +527,6 @@ export default function CrmListView({
       const ok = result?.succeeded ?? 0;
       const failed = result?.failed?.length ?? 0;
       if (result?.truncated) {
-        // The server caps one operation. Say so with both numbers, so the
-        // operator knows to repeat rather than assuming the job is done.
         toast.warning(
           `${ok} de ${result.matched ?? ok} atualizada(s) — limite por operação. Repita para continuar.`,
         );
@@ -714,8 +644,6 @@ export default function CrmListView({
           const uid = row.AssignedUserID?.trim();
           if (!uid) return <OwnerCell name={null} />;
           const m = membersById.get(uid);
-          // Assigned to someone outside the caller's assignable set (e.g. another
-          // department) still reads as "Atribuído", never a misleading em-dash.
           const name = m ? m.username?.trim() || m.email?.trim() || uid : "Atribuído";
           return <OwnerCell name={name} />;
         },
@@ -847,9 +775,8 @@ export default function CrmListView({
         }
       />
 
-      {/* The funnel move for the selection. `bulkCount` is what makes the copy
-          honest at both ends: one row reads "1 conversa", and "todo o filtro"
-          reads the server's total rather than the twenty rows on this page. */}
+      {
+}
       {canMoveAcrossFunnels && movingSelection ? (
         <MoveToFunnelDialog
           open

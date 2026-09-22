@@ -192,7 +192,6 @@ interface NodeConfigPanelProps {
   allEdges: Edge[];
   onClose: () => void;
   onConfigChange: (nodeId: string, config: Record<string, unknown>) => void;
-  /** Rename the node's structural id; returns an error string or null on success. */
   onRenameNode?: (oldId: string, newId: string) => string | null;
 }
 
@@ -238,9 +237,6 @@ export function NodeConfigPanel({
   const isSendTemplateNode = nodeType === "action_send_template";
   const isInteractivePromptNode = isInteractivePromptType(nodeType);
 
-  // The option limits of every connected channel, published to the option
-  // editors below. Empty for every other node type, which makes the reach
-  // annotations disappear rather than needing a per-field guard.
   const interactiveReach = useMemo(
     () => ({
       style: ((config.interactive_type as string) === "list"
@@ -253,9 +249,6 @@ export function NodeConfigPanel({
     [config.interactive_type, def?.channelLimits, isInteractivePromptNode],
   );
 
-  // Dialog card width, observed so the wide-layout sections keep responding
-  // to the real geometry (min(680px, 92vw), 760px at xl) now that the shell is
-  // the center card of the three-pane NDV composition.
   const cardRef = useRef<HTMLDivElement>(null);
   const [cardWidth, setCardWidth] = useState(680);
   useEffect(() => {
@@ -271,8 +264,6 @@ export function NodeConfigPanel({
   const isWidePanel = cardWidth >= 560;
   const isExtraWidePanel = cardWidth >= 920;
 
-  // ESC closes the dialog, unless another layer (an open select/dropdown, the
-  // canvas search) already handled the key.
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "Escape" || e.defaultPrevented) return;
@@ -399,8 +390,6 @@ export function NodeConfigPanel({
     [node.id, allNodes, allEdges, definitions],
   );
 
-  // Upstream connections feeding this node, one row per incoming edge (the
-  // left "Entrada" pane of the NDV composition).
   const inputConnections = useMemo(
     () =>
       allEdges
@@ -412,11 +401,6 @@ export function NodeConfigPanel({
     [allEdges, allNodes, node.id],
   );
 
-  // Output branches for the right "Saída" pane: the node's handle definitions
-  // (resolved dynamic handles from node data, else the static definition list),
-  // each with the downstream node(s) connected via matching sourceHandle.
-  // Edges on handles we don't know about (stale dynamic sets) still surface as
-  // their own branch rather than disappearing.
   const outputBranches = useMemo(() => {
     const branches = new Map<
       string,
@@ -447,17 +431,16 @@ export function NodeConfigPanel({
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center">
-      {/* Scrim, dims the canvas behind the dialog and closes on click */}
+      {}
       <div
         className="absolute inset-0 bg-black/50"
         onClick={onClose}
         aria-hidden="true"
       />
-      {/* n8n-style NDV composition: input pane · config card · output pane.
-          The side panes are recessed (shorter, lighter shadow) and their inner
-          edges tuck under the center card via its negative margins. */}
+      {
+}
       <div className="relative flex items-center justify-center">
-        {/* LEFT — upstream nodes feeding this node */}
+        {}
         <aside className="hidden lg:flex w-[280px] h-[min(78vh,800px)] flex-col overflow-hidden rounded-l-2xl border border-r-0 border-border bg-card shadow-lg">
           <div className="shrink-0 border-b border-border px-3 py-2.5 pr-6">
             <p className="text-xs font-semibold text-muted-foreground">
@@ -486,7 +469,7 @@ export function NodeConfigPanel({
           </div>
         </aside>
 
-        {/* CENTER — the config card, layered in front of both panes */}
+        {}
       <div
         ref={cardRef}
         role="dialog"
@@ -514,7 +497,7 @@ export function NodeConfigPanel({
       </div>
 
       <div className="p-3 space-y-4 overflow-y-auto flex-1">
-        {/* Display name, editable label for any node */}
+        {}
         <ElevatedInput
           label="Nome do nó"
           value={displayName}
@@ -525,7 +508,7 @@ export function NodeConfigPanel({
           controlSize="sm"
         />
 
-        {/* Group node config */}
+        {}
         {nodeType === "group" ? (
           <GroupConfigSection
             config={config}
@@ -534,7 +517,7 @@ export function NodeConfigPanel({
           />
         ) : (
           <>
-            {/* AI Agent source toggle (Agent vs Prompt), rendered first */}
+            {}
             {nodeType === "action_ai_agent" && (
               <AIAgentSection config={config} updateField={updateField} nc={nc} />
             )}
@@ -670,14 +653,12 @@ export function NodeConfigPanel({
                     const itype = (
                       (config.interactive_type as string) ?? "buttons"
                     ).trim();
-                    // Show only the fields relevant to the chosen format.
                     if (f.key === "buttons") {
                       return itype !== "list";
                     }
                     if (f.key === "list_button" || f.key === "sections") {
                       return itype === "list";
                     }
-                    // Media header only applies to the buttons format.
                     if (f.key === "header_media_url") {
                       return itype !== "list";
                     }
@@ -707,7 +688,7 @@ export function NodeConfigPanel({
                 ))
             )}
 
-            {/* Template parameter inputs (dynamic based on selected template) */}
+            {}
             {templateParams.length > 0 && (
               <TemplateParamsSection
                 params={templateParams}
@@ -723,7 +704,7 @@ export function NodeConfigPanel({
               </p>
             )}
 
-            {/* Media preview (dynamic based on selected media) */}
+            {}
             {currentMediaId && selectedMedia && (
               <MediaPreviewSection media={selectedMedia} />
             )}
@@ -757,8 +738,8 @@ export function NodeConfigPanel({
           </>
         )}
 
-        {/* Node ID, the structural reference the AI/engine uses (n1, n2…).
-            Always the last field; renaming rewires edges + {{id.…}} refs. */}
+        {
+}
         {onRenameNode && (
           <NodeIdField
             key={node.id}
@@ -769,7 +750,7 @@ export function NodeConfigPanel({
       </div>
       </div>
 
-        {/* RIGHT — output branches and their downstream nodes */}
+        {}
         <aside className="hidden lg:flex w-[280px] h-[min(78vh,800px)] flex-col overflow-hidden rounded-r-2xl border border-l-0 border-border bg-card shadow-lg">
           <div className="shrink-0 border-b border-border px-3 py-2.5 pl-6">
             <p className="text-xs font-semibold text-muted-foreground">
@@ -810,9 +791,6 @@ export function NodeConfigPanel({
   );
 }
 
-/** One upstream/downstream node row in the NDV side panes: the node's category
- *  glyph on its plate color, its label, and (optionally) the branch label of
- *  the edge that connects it. */
 function ConnectionNodeRow({
   node,
   definitions,
@@ -856,7 +834,6 @@ function NodeIdField({
   nodeId: string;
   onRename: (oldId: string, newId: string) => string | null;
 }) {
-  // Remounted per node via `key`, so initial state from props is always fresh.
   const [draft, setDraft] = useState(nodeId);
   const [error, setError] = useState<string | null>(null);
 
@@ -2418,7 +2395,6 @@ function useDynamicOptions(
           }
         }
       } catch {
-        // silently ignore
       }
       if (!cancelled) {
         setOptions(fetched);
@@ -2745,7 +2721,7 @@ function MediaSelectField({
     return () => {
       cancelled = true;
     };
-  }, [dynamicOptions]); 
+  }, [dynamicOptions]);
 
   const options = field.options?.length ? field.options : dynamicOptions;
   const safeOptions = options.filter((o) => o.value !== "");
@@ -2828,7 +2804,7 @@ function MediaSelectField({
       </ElevatedSelect>
       {error && <p className="text-2xs text-destructive-ink">{error}</p>}
 
-      {/* Inline upload area */}
+      {}
       <input
         ref={fileRef}
         type="file"
@@ -3045,7 +3021,7 @@ function ToolsField({
 
   return (
     <div className="space-y-3">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between">
         <div>
           <span className="text-xs font-medium text-foreground block">
@@ -3095,7 +3071,7 @@ function ToolsField({
                 : "border-border bg-card",
             )}
           >
-            {/* Tool header */}
+            {}
             <div
               className="flex items-center gap-2 px-3 py-2.5 cursor-pointer hover:bg-muted transition-colors"
               onClick={() => setExpandedIndex(isExpanded ? null : ti)}
@@ -3157,10 +3133,10 @@ function ToolsField({
               )}
             </div>
 
-            {/* Expanded tool config */}
+            {}
             {isExpanded && (
               <div className="border-t border-border bg-mist px-3 py-3 space-y-4">
-                {/* Basic info */}
+                {}
                 <div className="space-y-3">
                   <ElevatedInput
                     label="Nome da função *"
@@ -3186,7 +3162,7 @@ function ToolsField({
                   />
                 </div>
 
-                {/* Parameters section */}
+                {}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between border-t border-border pt-3">
                     <span className="text-xs font-medium text-foreground">
@@ -3393,15 +3369,6 @@ interface ButtonItem {
   CopyCode: string;
 }
 
-/**
- * InteractiveReachContext carries the interactive prompt's per-channel limits
- * down to the option editors.
- *
- * Context rather than props because the option editors are reached through
- * SchemaField's generic `field.type` dispatch, which every other field type
- * shares. Threading two interactive-only props through that dispatch would put
- * this node's concern in the path of a dozen unrelated fields.
- */
 const InteractiveReachContext = createContext<{
   style: PromptStyle;
   channelLimits: Record<string, ChannelInteractiveLimits>;
@@ -3444,10 +3411,6 @@ function ButtonsField({
 
   const hasCopyCode = buttons.some((b) => b.Type === "copy_code");
   const hasReply = buttons.some((b) => b.Type === "reply");
-  // The ceiling is the most permissive connected channel, not WhatsApp's three.
-  // Stopping at three would make it impossible to author the fourth option that
-  // Telegram renders perfectly well; the per-option notes below say which
-  // channels drop the overflow.
   const maxOptions = authorableOptionCount(style, channelLimits, 3);
   const isFull = buttons.length >= maxOptions;
 
@@ -3491,7 +3454,7 @@ function ButtonsField({
         <ChannelReachLegend style={style} channelLimits={channelLimits} />
       </div>
 
-      {/* Quick-add strip */}
+      {}
       {(canAddReply || canAddCopyCode) && (
         <div className="flex gap-1.5">
           {canAddReply && (
@@ -3517,7 +3480,7 @@ function ButtonsField({
         </div>
       )}
 
-      {/* Empty hint */}
+      {}
       {buttons.length === 0 && (
         <p className="text-2xs text-muted-foreground leading-relaxed">
           Adicione até{" "}
@@ -3529,7 +3492,7 @@ function ButtonsField({
         </p>
       )}
 
-      {/* Button cards */}
+      {}
       {buttons.map((btn, i) => (
         <div
           key={i}
@@ -3607,7 +3570,7 @@ function ButtonsField({
         </div>
       ))}
 
-      {/* Limit / constraint hints */}
+      {}
       {isFull && (
         <p className="text-2xs text-muted-foreground italic">
           Limite de {maxOptions} opções atingido
@@ -3630,11 +3593,6 @@ interface ListRowItem {
   description: string;
 }
 
-// ListSectionsField edits the interactive list's rows. It presents a flat list of
-// up to 10 options (WhatsApp's max) and persists them wrapped in a single section,
-// the shape the backend/executor expect ([{title, rows:[...]}]). Each row's id
-// is the STABLE routing key (auto-generated, never shown) that becomes the node's
-// output handle; the title/description are what the contact sees.
 function ListSectionsField({
   value,
   onChange,
@@ -3672,9 +3630,6 @@ function ListSectionsField({
   );
 
   const { style, channelLimits } = useInteractiveReach();
-  // Telegram renders far more than WhatsApp's ten list rows, so the ceiling is
-  // the most permissive connected channel and the overflow is annotated instead
-  // of being unauthorable.
   const maxOptions = authorableOptionCount(style, channelLimits, 10);
   const isFull = rows.length >= maxOptions;
 

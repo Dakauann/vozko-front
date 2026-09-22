@@ -62,8 +62,6 @@ describe("defaultWindowSize", () => {
     expect(small.height).toBeLessThanOrEqual(600);
   });
 
-  // The reason the shares exist: a real 2349x905 desk (the one this was found
-  // on) must not open a window that leaves the thread reading in a sliver.
   it("fills a wide, short desk sensibly", () => {
     const { width, height } = defaultWindowSize({ width: 2349, height: 905 });
 
@@ -93,8 +91,6 @@ describe("openWindow", () => {
 
     const [first, second] = deck.windows;
     expect(second.x).not.toBe(first.x);
-    // Side by side, not cascaded over each other: the whole point is reading
-    // two conversations at the same time.
     expect(Math.abs(second.x - first.x)).toBeGreaterThanOrEqual(
       defaultWindowSize(viewport).width,
     );
@@ -115,10 +111,6 @@ describe("openWindow", () => {
     expect(reopened.z).toBe(Math.max(...deck.windows.map((w) => w.z)));
   });
 
-  // The cap is enforced where the open conversations live (the socket hook),
-  // not here: two enforcement points would fight, the deck retiring a box for
-  // a conversation still open and rebuilding it on the next render. This layer
-  // lays out whatever it is given.
   it("gives every window of a full deck its own place on screen", () => {
     let deck = emptyDeck();
     for (let i = 1; i <= MAX_OPEN_WINDOWS; i++) {
@@ -128,8 +120,6 @@ describe("openWindow", () => {
     expect(deck.windows).toHaveLength(MAX_OPEN_WINDOWS);
     expect(isWindowOpen(deck, windowKey("e1", "whatsapp"))).toBe(true);
 
-    // No two windows may sit at the same spot: one exactly covering another
-    // reads as a window that lost its neighbour.
     const spots = deck.windows.map((w) => `${w.x},${w.y}`);
     expect(new Set(spots).size).toBe(MAX_OPEN_WINDOWS);
 
@@ -205,17 +195,10 @@ describe("the minimized dock", () => {
 
     const box = dockedBoxes(deck, viewport).get(windowKey("e1", "whatsapp"))!;
     expect(box.height).toBe(MINIMIZED_WINDOW_HEIGHT);
-    // Flush to the bottom, so it reads as parked rather than floating.
     expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);
     expect(viewport.height - (box.y + box.height)).toBeLessThanOrEqual(16);
   });
 
-  /**
-   * The bar carries a ChannelAvatar: a 32px circle with the channel badge hung
-   * 8px below it. Centred in the bar, that badge needs 32 + 8*2 of height or it
-   * gets sliced off by the bar's own overflow — which reads as a rendering
-   * fault, not as a design.
-   */
   it("is tall enough that the channel badge is not sliced off", () => {
     const AVATAR = 32;
     const BADGE_OVERHANG = 8;
@@ -241,7 +224,6 @@ describe("the minimized dock", () => {
 
     const boxes = [...dockedBoxes(deck, viewport).values()];
     expect(boxes).toHaveLength(3);
-    // All on one line, none on top of another.
     expect(new Set(boxes.map((b) => b.y)).size).toBe(1);
     expect(new Set(boxes.map((b) => b.x)).size).toBe(3);
     for (const b of boxes) {
@@ -254,12 +236,9 @@ describe("the minimized dock", () => {
     let deck = openWindow(emptyDeck(), lead(1), viewport);
     deck = setMinimized(deck, windowKey("e1", "whatsapp"), true);
 
-    // Enough for the bar itself plus the gap it sits in.
     expect(dockHeight(deck)).toBeGreaterThanOrEqual(MINIMIZED_WINDOW_HEIGHT);
   });
 
-  // The bug this pins: a restored window reached the bottom edge and sat on
-  // top of the dock it had just been pulled out of.
   it("leaves the open windows clear of the parked strip", () => {
     let deck = openWindow(emptyDeck(), lead(1), viewport);
     deck = openWindow(deck, lead(2), viewport);
@@ -268,7 +247,6 @@ describe("the minimized dock", () => {
     const room = dockHeight(deck);
     expect(room).toBeGreaterThan(0);
 
-    // What the deck lays its windows out in once the dock has its strip.
     const area = { width: viewport.width, height: viewport.height - room };
     deck = clampDeckToViewport(deck, area);
 
@@ -285,7 +263,6 @@ describe("the minimized dock", () => {
     expect(dockHeight(deck)).toBe(0);
   });
 
-  // Parking a window must not cost it the box it goes back to.
   it("restores a parked conversation to exactly where it was", () => {
     let deck = openWindow(emptyDeck(), lead(1), viewport);
     const key = windowKey("e1", "whatsapp");

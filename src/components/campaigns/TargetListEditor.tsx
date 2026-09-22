@@ -6,19 +6,6 @@ import { UploadSimple } from "@/components/icons";
 import { detectDelimiter, readDelimitedFile, splitCells } from "@/lib/csv/parse";
 import { cn } from "@/lib/utils";
 
-/**
- * The recipient list, with per-recipient variables.
- *
- * Shared across campaign channels because importing a list is the same job on
- * every transport: paste or upload, normalise, dedupe, report what was rejected.
- * What differs is only which numbers count as valid, so the validator arrives as
- * a prop — the official channel pins Brazil, while a linked-device session
- * reaches numbers anywhere.
- *
- * Rejected rows are REPORTED, never silently dropped. An operator told "500
- * imported" when 80 were malformed has no way to find the 80, and a campaign
- * that quietly reaches 420 people is one nobody can plan around.
- */
 
 export interface ParsedTarget {
   number: string;
@@ -40,17 +27,6 @@ export interface ParsedTargetList {
   missingVariables: number;
 }
 
-/**
- * Parses a pasted blob or an uploaded CSV.
- *
- * One parser for both, because operators paste a spreadsheet column as often as
- * they upload the file, and two parsers would disagree about what a quoted field
- * or a trailing separator means.
- *
- * Column order is fixed and documented in the UI: number, name, then one column
- * per variable. Inferring it from a header would be friendlier right up to the
- * first list whose header says something we did not expect.
- */
 export function parseTargetList(
   raw: string,
   requiredVariables: number,
@@ -85,9 +61,6 @@ export function parseTargetList(
     const name = cells[1] || undefined;
     const variables = cells.slice(2).filter((v) => v !== "");
 
-    // A row without enough values would send a raw {{2}} to a customer, so it is
-    // rejected here rather than at the API boundary where the operator has
-    // already left the screen.
     if (requiredVariables > 0 && variables.length < requiredVariables) {
       missingVariables += 1;
       skipped.push({ line: index + 1, raw: trimmed, reason: "missingVariables" });
@@ -117,7 +90,6 @@ export interface TargetListEditorLabels {
   variablesNeeded: (count: number) => string;
 }
 
-/** How many rejected lines are listed before the rest are summarised. */
 const SKIPPED_PREVIEW = 20;
 
 export function TargetListEditor({
@@ -135,13 +107,6 @@ export function TargetListEditor({
   isValidNumber: (digits: string) => boolean;
   labels: TargetListEditorLabels;
   disabled?: boolean;
-  /**
-   * Off when the host supplies its own Upload control.
-   *
-   * The official campaign puts Upload and Download in the section header rather
-   * than beside the textarea, and two upload buttons on one screen is a question
-   * about which one is the real one.
-   */
   showUploadButton?: boolean;
 }) {
   const [fileName, setFileName] = useState<string | null>(null);
@@ -177,11 +142,7 @@ export function TargetListEditor({
               const file = e.target.files?.[0];
               if (!file) return;
               setFileName(file.name);
-              // Read in the browser rather than uploading: the list is the
-              // customer's contact data, and it does not need a round trip to
-              // be parsed and shown back to them.
               update(await readDelimitedFile(file));
-              // Reset so re-picking the same file fires change again.
               e.target.value = "";
             }}
           />

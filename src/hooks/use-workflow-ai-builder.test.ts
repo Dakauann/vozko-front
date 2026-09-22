@@ -1,6 +1,3 @@
-/**
- * @vitest-environment happy-dom
- */
 
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -54,7 +51,6 @@ describe("useWorkflowAIBuilder", () => {
   it("connects to the edit route and pins workflow type on ready", async () => {
     const { hook, ws } = await mountConnected();
     expect(ws.url).toContain("/ws/workflows/wf1/ai-builder");
-    // Auth rides the httpOnly cookie now; no token in the URL.
     expect(ws.url).not.toContain("token=");
     expect(ws.url).toContain("workspace_id=ws1");
 
@@ -75,7 +71,6 @@ describe("useWorkflowAIBuilder", () => {
     const onGraph = vi.fn();
     const { hook, ws } = await mountConnected(onGraph);
     act(() => ws.emit({ type: "builder_ready", payload: {} }));
-    // A build must be active for the server's snapshot to reach the canvas.
     act(() => hook.result.current.sendPrompt("crie um fluxo"));
     const graph = { nodes: [{ id: "n1" }], edges: [] };
     act(() =>
@@ -97,8 +92,6 @@ describe("useWorkflowAIBuilder", () => {
     const onGraph = vi.fn();
     const { ws } = await mountConnected(onGraph);
     act(() => ws.emit({ type: "builder_ready", payload: {} }));
-    // The server re-sends a snapshot on connect; with no build running it must not
-    // touch the canvas (this is what used to erase the workflow on reconnect).
     act(() =>
       ws.emit({
         type: "graph_snapshot",
@@ -118,7 +111,6 @@ describe("useWorkflowAIBuilder", () => {
     expect(onGraph).toHaveBeenCalledWith(built);
     act(() => ws.emit({ type: "done", payload: { valid: true, summary: "ok" } }));
     onGraph.mockClear();
-    // Simulates the snapshot a reconnected/fresh session emits after the build.
     act(() =>
       ws.emit({
         type: "graph_snapshot",

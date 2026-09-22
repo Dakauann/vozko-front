@@ -74,8 +74,6 @@ export default function EditWorkflowPage({ params }: EditWorkflowPageProps) {
         return;
       }
 
-      // Resolve output handles up front so dynamic handles (and their edges) are
-      // present on first paint, the backend is the source of truth for the handle set.
       const wfNodes = workflowResult.workflow.graph?.nodes ?? [];
       const { handles: initialHandles } = wfNodes.length
         ? await resolveHandlesAction(

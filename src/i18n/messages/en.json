@@ -702,6 +702,7 @@
       "utility": "WhatsApp Utility",
       "marketing": "WhatsApp Marketing",
       "authentication": "WhatsApp Auth",
+      "service": "WhatsApp Service",
       "standard": "SMS",
       "whatsapp_calls": "Calls (WhatsApp)",
       "scribe_v1v2": "STT (Batch)",
@@ -7078,13 +7079,15 @@
       "conversionNote": "Type prices in BRL. They are converted at this rate and stored in USD for billing.",
       "editRateLink": "Change rate",
       "rateMissing": "Exchange rate is required before editing default prices.",
-      "storedAsUsd": "stored as USD"
+      "storedAsUsd": "stored as USD",
+        "unpriced": "Not priced"
     },
     "services": {
       "whatsapp": {
         "utility": "Utility Messages",
         "marketing": "Marketing Messages",
-        "authentication": "Authentication Messages"
+        "authentication": "Authentication Messages",
+          "service": "Service Messages"
       },
       "telephony": {
         "whatsapp_calls": "WhatsApp Calls"
@@ -7250,6 +7253,7 @@
         "utility": "WhatsApp, Utility messages",
         "marketing": "WhatsApp, Marketing messages",
         "authentication": "WhatsApp, Authentication messages",
+          "service": "WhatsApp, Service messages",
         "whatsapp_calls": "WhatsApp calls",
         "standard": "SMS messages",
         "default_markup": "AI models (LLM)"
@@ -7298,6 +7302,7 @@
       "conversionNote": "Changing the exchange rate later does not rewrite prices already saved on this plan.",
       "rateRequired": "Load a valid exchange rate before editing unit prices.",
       "priceBelowCost": "Price is below cost.",
+        "unpriced": "No price set. Not charged.",
       "invalidAmount": "Invalid amount.",
       "notApplicable": "n/a"
     },
@@ -12998,7 +13003,7 @@
     "colWorkspace": "Workspace",
     "colServiceMessages": "Service messages",
     "colBillableSends": "Billable sends",
-    "colPerSend": "Per send",
+    "colPerSend": "Service per billable send",
     "caption": "Service messages sent against billable template sends, for the selected period and provider.",
     "confirmedSuffix": "conf.",
     "noSends": "no sends",

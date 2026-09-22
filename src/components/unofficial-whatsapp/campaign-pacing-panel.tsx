@@ -4,21 +4,6 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import type { UnofficialWhatsAppInstance } from "@/lib/unofficial-whatsapp/types";
 import { useTranslations } from "next-intl";
 
-/**
- * Pacing and daily cap.
- *
- * This panel has no counterpart on the official channel and is not a settings
- * nicety: on a linked-device session a constant cadence is the most legible
- * automation signature there is, and the cost of looking automated is the
- * customer losing their WhatsApp number.
- *
- * Two rules are surfaced rather than hidden, because an operator who does not
- * understand them will "fix" the campaign by making it faster:
- *
- *  - a campaign may be SLOWER than its number, never faster;
- *  - the effective daily cap is the LOWER of the campaign's and the number's,
- *    and a new number's cap ramps over its first weeks.
- */
 export function CampaignPacingPanel({
   minMs,
   maxMs,
@@ -40,8 +25,6 @@ export function CampaignPacingPanel({
   const instanceCap = instance?.dailySendCap ?? 0;
   const warming = Boolean(instance?.warmupStartedAt);
 
-  // The effective cap, computed the same way the backend does, so the number on
-  // screen is the number that will actually be enforced.
   const effectiveCap =
     dailyCap > 0 && instanceCap > 0
       ? Math.min(dailyCap, instanceCap)

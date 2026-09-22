@@ -1,6 +1,3 @@
-/**
- * @vitest-environment happy-dom
- */
 
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
@@ -29,7 +26,6 @@ describe("WorkflowAlerts trigger", () => {
       name: "Sem alertas de validação",
     });
     expect(trigger).toBeInTheDocument();
-    // No numeric badge in the clean state.
     expect(trigger.textContent).not.toMatch(/\d/);
   });
 
@@ -60,7 +56,6 @@ describe("WorkflowAlerts dropdown", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Alertas:/ }));
 
-    // Both issue messages are shown once the panel opens.
     const row = await screen.findByText(
       "Conecte a saída obrigatória deste nó.",
     );
@@ -68,10 +63,8 @@ describe("WorkflowAlerts dropdown", () => {
     expect(
       screen.getByText("Este nó não é alcançável a partir do início."),
     ).toBeInTheDocument();
-    // The node chip uses the friendly label.
     expect(screen.getByText("Perguntar nome")).toBeInTheDocument();
 
-    // Clicking the row focuses that node on the canvas.
     fireEvent.click(row);
     expect(onFocusNode).toHaveBeenCalledWith("ask_name");
   });

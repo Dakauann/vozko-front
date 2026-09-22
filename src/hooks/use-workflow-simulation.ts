@@ -93,7 +93,6 @@ export function useWorkflowSimulation({
         setStateVars({});
         setStatus("connecting");
 
-        // Auth rides the httpOnly cookie on the WS handshake (same-site).
         const params = new URLSearchParams();
         if (workspaceId) params.set("workspace_id", workspaceId);
 
@@ -165,7 +164,6 @@ export function useWorkflowSimulation({
                     }
                 }
             } catch {
-                // ignore malformed messages
             }
         };
 

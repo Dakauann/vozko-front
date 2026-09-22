@@ -1,14 +1,5 @@
 "use client";
 
-/**
- * Elevated design-system chart primitives.
- *
- * Rendering follows the Vozko chart grammar defined in
- * `@/components/charts/vozko` (recessive grid/axis chrome, 2.5px line
- * marks with gradient dissolves, segmented-ring pies, rounded bars).
- * Change the grammar in that kit module, not here; this module only
- * wraps it behind loading/empty-state conveniences.
- */
 
 import {
   Area,
@@ -40,7 +31,6 @@ import React from "react";
 export interface ChartDataPoint {
   name: string;
   value: number;
-  /** Series color — pass a token such as `hsl(var(--chart-1))`, not a hex. */
   color: string;
 }
 
@@ -50,7 +40,6 @@ export interface TimeSeriesDataPoint {
 
 export interface AreaSeriesConfig {
   dataKey: string;
-  /** Series color — pass a token such as `hsl(var(--chart-1))`, not a hex. */
   color: string;
   name?: string;
 }
@@ -265,7 +254,6 @@ export const ElevatedPieChart: React.FC<ElevatedPieChartProps> = ({
   loading = false,
   emptyMessage = "No data available",
   height = 300,
-  /* Thin segmented ring per the voz grammar: inner ≈ outer − 12. */
   innerRadius = 83,
   outerRadius = 95,
   tooltipFormatter,

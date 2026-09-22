@@ -16,14 +16,7 @@ import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design
 import { AIModelSelector } from "@/components/elevated-design/ai-model-selector";
 import { editableTopics, TopicsEditor } from "@/components/audience/topics-editor";
 
-/*
- * The per-post override form, shared by the post detail dialog (editing a
- * live post) and the post composer (arming a post before it exists). Both
- * hold an OverrideDraft; this renders it against the account's effective
- * settings so every "inherit" placeholder says what would be inherited.
- */
 
-/** The model list, loaded once the form is actually shown. */
 export function useAiModelOptions(active: boolean) {
   const [models, setModels] = useState<string[]>([]);
   const [modelPricing, setModelPricing] = useState<ModelPricingInfo[] | undefined>();
@@ -49,11 +42,9 @@ export function OverrideFields({
   effective,
   disabled,
 }: {
-  /** Distinguishes the switch ids when two forms are mounted. */
   id: string;
   draft: OverrideDraft;
   onChange: (next: OverrideDraft) => void;
-  /** The account's settings, which is what a blank field inherits. */
   effective: CommentAnalysisSettings;
   disabled?: boolean;
 }) {

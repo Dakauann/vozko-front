@@ -1,15 +1,3 @@
-/**
- * @vitest-environment happy-dom
- *
- * End to end over the socket: several conversations open at once.
- *
- * These drive the hook the way the floating chat windows do — open two, feed
- * each its own server frames, send from one — and assert what the operator
- * would see. The pure reducer is covered separately in
- * lib/conversations/windowed-conversations.test; what is under test here is the
- * wiring: which frames reach which window, and which subscribe/unsubscribe
- * frames go back out.
- */
 
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -69,7 +57,6 @@ class FakeWebSocket {
   simulateMessage(event: unknown) {
     this.onmessage?.({ data: JSON.stringify(event) });
   }
-  /** Every frame of one type this client sent, decoded. */
   framesOfType(type: string) {
     return this.sent
       .map((raw) => JSON.parse(raw) as { type: string; payload: unknown })
@@ -145,15 +132,6 @@ describe("conversations open in windows", () => {
     expect(view.result.current.windowConversations.size).toBe(2);
   });
 
-  /**
-   * The bug this pins, seen in production: both windows opened blank.
-   *
-   * The server remembers which message ids it already sent each CONNECTION per
-   * entry and filters them out of a subscribe's history reply. The centre pane
-   * had already been shown those conversations on the same socket, so the
-   * window's subscribe answered with an empty list and the thread rendered
-   * empty. The window therefore asks for its transcript explicitly.
-   */
   it("asks for the transcript itself rather than relying on the subscribe reply", async () => {
     const { view, socket } = await mountOpenSocket();
 
@@ -181,8 +159,6 @@ describe("conversations open in windows", () => {
     });
 
     await act(async () => {
-      // What the server actually sends for a conversation this connection has
-      // already been shown: everything filtered out.
       socket.simulateMessage({
         type: "conversation:history",
         payload: {
@@ -193,7 +169,6 @@ describe("conversations open in windows", () => {
           page_size: 0,
         },
       });
-      // And the answer to the window's own request, which is not filtered.
       socket.simulateMessage({
         type: "conversation:history",
         payload: {
@@ -275,8 +250,6 @@ describe("conversations open in windows", () => {
       });
     });
 
-    // An empty answer says nothing about older pages; it must not retract the
-    // scroll-up affordance the operator was already offered.
     expect(
       view.result.current.windowConversations.get(windowKey("e1", "whatsapp"))!
         .conversation.has_more,
@@ -435,12 +408,6 @@ describe("conversations open in windows", () => {
     });
   });
 
-  /**
-   * The bug this pins: a PARKED window kept receipting everything it received,
-   * so conversations were marked read that nobody had looked at — including
-   * while the operator was working an entirely different conversation in the
-   * centre pane. Holding a subscription is not the same as reading it.
-   */
   describe("a parked window is not being read", () => {
     it("sends no read receipt while it sits in the dock", async () => {
       const { view, socket } = await mountOpenSocket();
@@ -571,7 +538,6 @@ describe("conversations open in windows", () => {
         entry_type: "whatsapp",
         message_ids: ["a1"],
       });
-      // And the badge clears, because the operator is now looking at it.
       expect(
         view.result.current.windowConversations.get(windowKey("e1", "whatsapp"))!
           .conversation.unread_count,
@@ -654,7 +620,6 @@ describe("conversations open in windows", () => {
     expect(view.result.current.windowConversations.size).toBe(0);
   });
 
-  // The refcount is the whole point: two views, one subscription.
   it("keeps the centre pane subscribed when a window on the same conversation closes", async () => {
     const { view, socket } = await mountOpenSocket();
 
@@ -686,7 +651,6 @@ describe("conversations open in windows", () => {
       view.result.current.subscribe("e2", "whatsapp");
     });
 
-    // e1 is still on screen in its window, so it must not be dropped.
     expect(socket.framesOfType("unsubscribe")).toEqual([]);
 
     await act(async () => {
@@ -743,8 +707,6 @@ describe("conversations open in windows", () => {
       view.result.current.closeConversationWindow("e1", "whatsapp");
     });
 
-    // One close must fully release it; otherwise the socket keeps streaming a
-    // conversation nothing is showing, for the life of the session.
     expect(socket.framesOfType("unsubscribe")).toEqual([
       { entry_id: "e1", entry_type: "whatsapp" },
     ]);
@@ -767,8 +729,6 @@ describe("conversations open in windows", () => {
     await act(async () => {
       socket.close();
     });
-    // The controller retries on a flat 1000ms for the first attempt
-    // (backoffDelay(0) with no jitter), plus the hook's own 50ms connect timer.
     await act(async () => {
       await new Promise((r) => setTimeout(r, 1200));
     });
@@ -803,17 +763,11 @@ describe("conversations open in windows", () => {
     expect(
       view.result.current.windowConversations.has(windowKey("e1", "whatsapp")),
     ).toBe(false);
-    // And the socket stops streaming the one that went away.
     expect(socket.framesOfType("unsubscribe")).toEqual([
       { entry_id: "e1", entry_type: "whatsapp" },
     ]);
   });
 
-  /**
-   * The feature is additive: an operator who never opens a window must see
-   * exactly the behaviour they saw before it existed. This pins that — the
-   * frames on the wire for a plain centre-pane session are unchanged.
-   */
   it("sends the same frames as before when no window is ever opened", async () => {
     const { view, socket } = await mountOpenSocket();
 
@@ -838,18 +792,6 @@ describe("conversations open in windows", () => {
     expect(view.result.current.windowConversations.size).toBe(0);
   });
 
-  /**
-   * The regression this pins, reported from the real app with NO windows open:
-   *
-   *   open A → a message arrives → marked read (right)
-   *   switch to B → a message arrives for A → A was ALSO marked read (wrong)
-   *
-   * Cause: subscriptions were refcounted, and `subscribe()` is called again
-   * every time an operator clicks the conversation they are already in. Each
-   * of those raised a counter that only one later switch decremented, so A
-   * never reached zero, `unsubscribe` was never sent, and A kept streaming —
-   * and being receipted — while the operator worked B.
-   */
   describe("leaving a conversation actually leaves it", () => {
     it("unsubscribes the previous conversation even after repeated clicks", async () => {
       const { view, socket } = await mountOpenSocket();
@@ -857,7 +799,6 @@ describe("conversations open in windows", () => {
       act(() => {
         view.result.current.subscribe("e1", "whatsapp");
       });
-      // The operator clicks the row they are already in. Twice.
       act(() => {
         view.result.current.subscribe("e1", "whatsapp");
         view.result.current.subscribe("e1", "whatsapp");
@@ -967,7 +908,6 @@ describe("conversations open in windows", () => {
       });
     });
 
-    // Opening an unrelated window must not disturb what the centre pane shows.
     act(() => {
       view.result.current.openConversationWindow({
         entryId: "e2",

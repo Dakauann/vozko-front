@@ -1,15 +1,5 @@
 "use client";
 
-/**
- * Browser -> API auth flows. These call the Go API directly with
- * `credentials: 'include'`; on login/register/refresh they send
- * `X-Auth-Mode: cookie` so the API sets the httpOnly session cookies and omits
- * the tokens from the JSON body. No tokens ever pass through JavaScript and there
- * is no Next.js server action in the path.
- *
- * Requires the API to run with COOKIE_DOMAIN set (parent domain in prod,
- * `localhost` in dev) so it can write the cookies.
- */
 
 import type { AuthResponse, User } from "@/lib/auth/types";
 import { REF_COOKIE_NAME } from "@/lib/affiliate/ref-cookie.client";
@@ -131,8 +121,6 @@ export async function register(payload: RegisterPayload): Promise<AuthResult> {
 }
 
 export async function logout(): Promise<void> {
-  // Best-effort: the API revokes the session and clears the cookies. The caller
-  // still clears client-readable cookies and navigates regardless.
   await postAuth("/auth/logout", {}, true).catch(() => undefined);
 }
 

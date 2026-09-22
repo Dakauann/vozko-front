@@ -21,29 +21,6 @@ import { ReplyCommentDialog } from "@/components/audience/reply-dialog";
 import { ArrowClockwise, EyeSlash, PaperPlaneTilt, Sparkle, UsersThree, WhatsappLogo } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
-/*
- * One action set for a comment, rendered identically wherever a comment
- * appears (§4).
- *
- * Before this, the feed offered retry and the authors tab offered hide and a
- * private reply, so what you could do about a comment depended on which tab you
- * happened to be looking at. The set lives here now, and a surface chooses only
- * which of them make sense in its context, never what they do or how they look.
- *
- * The confirmation rule the plan sets: outward-facing actions confirm,
- * reversible ones do not. A private reply is a message to a real person, so it
- * goes through a composer; hiding a comment and re-queueing an analysis are
- * reversible and fire on click.
- *
- * "Marcar autor" and "ver os posts do @" are ONE entry here rather than two:
- * both land in the author view, which carries the moderation control in its
- * toolbar and opens on that person's posts.
- *
- * The two outward-facing actions (answer publicly, forward on WhatsApp) are
- * gated on audience:send, which is a separate privilege from moderating
- * precisely because they speak in the customer's name. The route enforces it;
- * hiding the buttons only saves the operator a refusal they cannot act on.
- */
 
 export function CommentQuickActions({
   accountId,
@@ -57,14 +34,10 @@ export function CommentQuickActions({
 }: {
   accountId: string;
   comment: AnalyzedComment;
-  /** Whether this comment is already hidden, so the control reads as done. */
   hidden?: boolean;
   onHidden?: (comment: AnalyzedComment) => void;
-  /** Omitted where the author view is already open. */
   onOpenAuthor?: (authorExternalId: string) => void;
-  /** Omitted where a stale row would not be re-rendered anyway. */
   onRetried?: (comment: AnalyzedComment) => void;
-  /** Errors surface in the host panel's single error line, not per card. */
   onError?: (message: string) => void;
   className?: string;
 }) {
@@ -101,8 +74,8 @@ export function CommentQuickActions({
   return (
     <>
       <div className={cn("flex flex-wrap items-center gap-2", className)}>
-        {/* The public answer leads: on a comment that needs one, it is the
-            action the operator came for. */}
+        {
+}
         {canSend ? (
           <Button
             size="sm"
@@ -145,7 +118,7 @@ export function CommentQuickActions({
           title={t("privateReply")}
           onClick={() => setReplying(true)}
         />
-        {/* Re-analysing only makes sense for a row the model never finished. */}
+        {}
         {comment.status === "failed" ? (
           <Button
             size="sm"

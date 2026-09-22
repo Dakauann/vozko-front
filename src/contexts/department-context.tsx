@@ -27,12 +27,6 @@ interface DepartmentContextType {
   switchDepartment: (department: Department | null) => void;
   refreshDepartments: () => Promise<void>;
   isLocked: boolean;
-  /**
-   * The caller's OWN visibility. Every screen that can render an empty list
-   * needs it: without it "nothing here" and "none of this is yours" look
-   * identical, which is the single thing that turns a misconfigured member
-   * into a support thread.
-   */
   scope: DepartmentScope;
 }
 
@@ -140,9 +134,6 @@ export function DepartmentProvider({
     const request = (async () => {
       setIsLoading(true);
       try {
-        // Fetched together: a member in no department gets an EMPTY list from
-        // /departments, which on its own is indistinguishable from a workspace
-        // that has none. The scope is what tells the two apart.
         const [result, scopeResult] = await Promise.all([
           fetchDepartments(),
           fetchDepartmentScope(),

@@ -23,14 +23,6 @@ import { createCommentRuleAction, updateCommentRuleAction } from "@/app/actions/
 import { CommentRuleFields, commentRuleFieldsErrors } from "./comment-rule-fields";
 import { useTranslations } from "next-intl";
 
-/**
- * Create or edit one comment rule.
- *
- * The form is ordered as the sentence a marketer would say out loud:
- * "when a comment CONTAINS these words, DO these things." Actions reveal their
- * own message field only when selected, so the form shows exactly what the rule
- * needs and nothing else.
- */
 export function InstagramCommentRuleDialog({
   accountId,
   mediaId,
@@ -53,8 +45,6 @@ export function InstagramCommentRuleDialog({
   const [publicText, setPublicText] = useState(rule?.publicReplyText ?? "");
   const [privateText, setPrivateText] = useState(rule?.privateReplyText ?? "");
   const [enabled, setEnabled] = useState(rule?.enabled ?? true);
-  // A new rule inherits the post it was opened from; an existing rule keeps its
-  // own scope so editing never silently moves it.
   const [scopeToPost, setScopeToPost] = useState(
     rule ? !!rule.igMediaId : !!mediaId,
   );
@@ -62,8 +52,6 @@ export function InstagramCommentRuleDialog({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Validation comes from the shared helper, so the composer and this dialog
-  // accept exactly the same rules.
   const fieldErrors = commentRuleFieldsErrors({
     match,
     keywords,

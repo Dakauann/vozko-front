@@ -68,9 +68,6 @@ const languages = [
 
 type ParameterFormatState = "named" | "positional" | "none" | "mixed";
 
-// Mirrors the backend's source-of-truth inference: WhatsApp requires a single
-// parameter_format per template. Numbered ({{1}}) and named ({{name}}) styles
-// must not be mixed, or Meta rejects the template with INVALID_FORMAT.
 const computeParameterFormat = (
   components: DraggableComponent[],
 ): ParameterFormatState => {
@@ -94,8 +91,6 @@ export default function NewWhatsAppTemplatePage() {
   const { toast } = useToast();
   const router = useRouter();
   const t = useTranslations("whatsappTemplates");
-  // Scoped at the root because templateErrorMessage builds full keys
-  // ("whatsappTemplates.errors.<code>") and must stay usable from any surface.
   const tRoot = useTranslations();
   const { user } = useAuth();
   const { can } = useWorkspace();
@@ -117,10 +112,6 @@ export default function NewWhatsAppTemplatePage() {
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // The failure banner. Separate from `errors` (which marks individual fields)
-  // because this is the one message that explains WHY the save did not happen,
-  // and it has to survive until the operator dismisses it: the builder fills the
-  // screen, so anything transient is read by nobody.
   const [failure, setFailure] = useState<{
     title: string;
     message: string;
@@ -192,18 +183,6 @@ export default function NewWhatsAppTemplatePage() {
     return /\{\{[^}]+\}\}\s*\{\{[^}]+\}\}/.test(text);
   };
 
-  /**
-   * Takes the operator to the first thing that is wrong.
-   *
-   * A toast alone still leaves them hunting: the name field and the builder are
-   * far apart on this page, and a body/header/footer/button problem renders
-   * inside the builder column. Scrolling is what turns "something is wrong"
-   * into "this is wrong", which is the difference between a message and help.
-   *
-   * The field errors and the builder errors are two different anchors, so the
-   * lookup runs in the order the page is laid out rather than in the order the
-   * validator happened to find them.
-   */
   const scrollToFirstError = (problemKeys: string[]) => {
     const anchors: Record<string, string> = {
       name: "template-error-anchor-name",
@@ -221,17 +200,11 @@ export default function NewWhatsAppTemplatePage() {
     if (!el) return;
 
     el.scrollIntoView({ behavior: "smooth", block: "center" });
-    // Focus only where focus means something. Moving it onto a container would
-    // take the ring off whatever the operator was editing for no gain.
     if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
       el.focus({ preventScroll: true });
     }
   };
 
-  // Returns the errors it found, rather than a bare boolean: the caller needs
-  // the list to say what is wrong and which field to jump to, and reading the
-  // `errors` state straight after setErrors would read the PREVIOUS render's
-  // value.
   const validateForm = (): Record<string, string> => {
     const newErrors: Record<string, string> = {};
 
@@ -247,10 +220,6 @@ export default function NewWhatsAppTemplatePage() {
       newErrors.businessPhone = t("form.validation.businessPhoneRequired");
     }
 
-    // Authentication rules, mirroring ValidateAuthenticationTemplate on the
-    // server. The server is the source of truth and refuses all of this
-    // regardless; catching it here saves a round trip and points at the
-    // component rather than returning a sentence about one.
     if (category === "AUTHENTICATION") {
       if (components.some((c) => c.type === "HEADER")) {
         newErrors.header = t("form.validation.authNoHeader");
@@ -263,10 +232,6 @@ export default function NewWhatsAppTemplatePage() {
     }
 
     const bodyComponent = components.find((c) => c.type === "BODY");
-    // An authentication template's body belongs to Meta: it writes
-    // "<CODE> is your verification code", localized, and rejects a body the
-    // business supplied. So the component is still required, its text is not,
-    // and none of the variable rules below have anything to run against.
     const authorsOwnBody = category !== "AUTHENTICATION";
     if (!bodyComponent) {
       newErrors.body = t("form.validation.bodyRequired");
@@ -503,10 +468,6 @@ export default function NewWhatsAppTemplatePage() {
         type: comp.type as TemplateComponent["type"],
       };
 
-      // The two authentication flags ride on their own components: the security
-      // line on BODY, the expiry on FOOTER. Sent only when the operator set
-      // them, because Meta reads a present false as "no security line" rather
-      // than as "not an authentication template".
       if (comp.data.add_security_recommendation !== undefined) {
         templateComp.add_security_recommendation =
           comp.data.add_security_recommendation;
@@ -600,8 +561,6 @@ export default function NewWhatsAppTemplatePage() {
           if (btn.example) {
             button.example = btn.type === "URL" ? [btn.example] : btn.example;
           }
-          // Without the kind the server cannot tell which code button this is,
-          // and Meta refuses an OTP button that does not name one.
           if (btn.type === "OTP") {
             button.otp_type = (btn.otp_type as OtpType) || "COPY_CODE";
           }
@@ -618,21 +577,9 @@ export default function NewWhatsAppTemplatePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // This early return used to be silent.
-    //
-    // validateForm sets per-field errors and they DO render — but this form is
-    // a drag-and-drop builder with a preview column, and the field that failed
-    // is routinely off-screen, or inside a component editor that is not the
-    // open one. So the operator pressed "Criar", the page did not move, nothing
-    // appeared near the button, and the only honest reading was that the button
-    // was broken.
-    //
-    // Say something, then take them to it.
     const problems = validateForm();
     const problemKeys = Object.keys(problems);
     if (problemKeys.length > 0) {
-      // Every broken rule at once, and it stays up. Reporting only the first
-      // sends the operator round the loop once per problem.
       setFailure({
         title: t("toast.validationTitle"),
         message:
@@ -678,23 +625,12 @@ export default function NewWhatsAppTemplatePage() {
       const result = await createWhatsAppTemplateAction(payload);
 
       if (result.error) {
-        // The server's message is the FALLBACK, not the message. Codes we know
-        // are rendered in the operator's language; a Meta rejection keeps
-        // Meta's own sentence, which Meta already localised; anything
-        // unrecognised still shows the server text rather than nothing.
         setFailure({
           title: t("toast.createError"),
           message: templateErrorMessage(tRoot, result.errorCode, result.error),
           code: result.errorCode,
         });
       } else if (result.template?.status === "REJECTED") {
-        // Meta ACCEPTED the request and then refused the template, so this
-        // arrives as a success with a REJECTED status. It is a failure to the
-        // operator and has to read like one.
-        //
-        // rejected_reason is a Meta enum (INCORRECT_CATEGORY, and friends).
-        // Translated when we know it, shown raw when we do not, so a reason we
-        // have never seen still reaches the person who has to act on it.
         const reason = result.template.rejectedReason;
         setFailure({
           title: t("toast.createRejected"),
@@ -723,19 +659,6 @@ export default function NewWhatsAppTemplatePage() {
     }
   };
 
-  /**
-   * Switching category, with the buttons that no longer belong.
-   *
-   * The two families are mutually exclusive: only an authentication template may
-   * carry the one-time code button, and it may carry nothing else. Left alone,
-   * an operator who builds a marketing template and then switches to
-   * authentication keeps three quick replies the server will refuse, and the
-   * error names a button they can no longer see a way to remove — the palette
-   * has changed underneath them.
-   *
-   * Dropping only the buttons that became invalid, so switching back and forth
-   * does not quietly discard the rest of the template.
-   */
   const changeCategory = (next: TemplateCategory) => {
     setCategory(next);
 
@@ -749,18 +672,11 @@ export default function NewWhatsAppTemplatePage() {
       return { ...comp, data: { ...comp.data, buttons: kept } };
     };
 
-    // Components the new category cannot carry at all. WhatsApp renders no
-    // header on an authentication template and no call-permission prompt beside
-    // a one-time code, so switching to it drops both rather than leaving a
-    // template the server will refuse with an error pointing at a component the
-    // palette no longer shows.
     const allowed = new Set(paletteForCategory(next).map((p) => p.type));
 
     setComponents((current) =>
       current.filter((c) => allowed.has(c.type)).map(prune),
     );
-    // The editor renders from its own copy, so it has to be pruned too or it
-    // keeps offering buttons that are no longer in the template.
     setSelectedComponent((current) => {
       if (!current) return current;
       if (!allowed.has(current.type)) return null;
@@ -869,7 +785,7 @@ export default function NewWhatsAppTemplatePage() {
         onStep={handleTourStep}
       />
     <main className="w-full space-y-5">
-      {/* Header */}
+      {}
       <div>
         <DashboardPageHeader
           back={{
@@ -913,12 +829,10 @@ export default function NewWhatsAppTemplatePage() {
       </div>
 
       <form onSubmit={handleSubmit} className="flex gap-5 items-start">
-        {/* Left column: Form + Builder */}
+        {}
         <div className="flex-1 min-w-0 space-y-5">
-          {/* Why the save did not happen, above everything and staying put
-              until dismissed. Covers all three sources: our own validation,
-              a server refusal (ours or Meta's), and a template Meta accepted
-              and then rejected. */}
+          {
+}
           {failure && (
             <TemplateErrorBanner
               title={failure.title}
@@ -929,7 +843,7 @@ export default function NewWhatsAppTemplatePage() {
               dismissLabel={tRoot("common.close")}
             />
           )}
-          {/* Template Basic Info */}
+          {}
           <div data-tour="wt-template-info">
             <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
               <h2 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
@@ -1026,7 +940,7 @@ export default function NewWhatsAppTemplatePage() {
             </ElevatedContainer>
           </div>
 
-          {/* Template Builder */}
+          {}
           <div>
             <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
               <div className="flex items-center justify-between mb-4">
@@ -1064,7 +978,7 @@ export default function NewWhatsAppTemplatePage() {
                 </div>
               </div>
 
-              {/* Inline validation errors */}
+              {}
               <span id="template-error-anchor-builder" aria-hidden />
               {(errors.body ||
                 errors.header ||
@@ -1097,7 +1011,7 @@ export default function NewWhatsAppTemplatePage() {
             </ElevatedContainer>
           </div>
 
-          {/* Guidelines */}
+          {}
           <div>
             <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
               <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
@@ -1139,7 +1053,7 @@ export default function NewWhatsAppTemplatePage() {
           </div>
         </div>
 
-        {/* Right column: Sticky Preview */}
+        {}
         <div
           className="hidden xl:block w-[340px] flex-shrink-0 sticky top-6"
           data-tour="wt-preview"

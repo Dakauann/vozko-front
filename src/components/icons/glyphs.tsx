@@ -1,15 +1,3 @@
-/**
- * Icon glyphs — GENERATED, do not hand-edit.
- *
- * The app's own 208 drawings, 24x24, 1.5 stroke. Each carries two colour
- * layers: the base stroke follows `currentColor`, and the accent parts use
- * `--icon-accent` (set in globals.css to the brand's --primary-ink, which
- * already flips between themes).
- *
- * Source of truth: ./svg/*.svg. Regenerate with `emit_vozko.py` in
- * ~/icon-system. Names here are internal; ./index.tsx maps the vozko export
- * names onto them.
- */
 "use client";
 
 import * as React from "react";
@@ -18,57 +6,21 @@ import type { Icon } from "./types";
 
 const ACCENT = "var(--icon-accent, currentColor)";
 
-/**
- * Optical sizing.
- *
- * `strokeWidth` is expressed in viewBox units, so a fixed 1.5 on a 24 grid
- * renders as `1.5 * size / 24` device pixels. This app calls icons at 10-16px
- * far more than anywhere else (size={14} alone is 66 call sites), where a fixed
- * 1.5 lands at 0.88px — thinner than the Inter it sits beside, which is exactly
- * the washed-out look. Tabler had the same falloff and got away with it on
- * simpler geometry.
- *
- * So solve for constant APPARENT weight instead of constant nominal weight:
- * pick the device-pixel target, divide back out, clamp the ends so tiny icons
- * do not turn into blobs and 32px+ ones do not turn into hairlines.
- *
- * Not a flat apparent weight, though: a gentle ramp. Pure compensation would
- * make a 32px icon as thin as a 12px one, and large marks want a little more
- * presence. The `+ 0.35` tilts it so apparent weight rises slowly with size —
- * 1.2px at 12, 1.35px at 14, 1.5px at 24, 2px at 32.
- */
 function strokeFor(size: number): number {
   const w = 27.6 / size + 0.35;
   return Math.min(2.4, Math.max(1.5, Math.round(w * 100) / 100));
 }
 
-/** `size` is typed `number | string`; normalise before doing arithmetic. */
 function toPx(size: number | string): number {
   if (typeof size === "number") return size;
   return Number.parseFloat(size) || DEFAULT_SIZE;
 }
 
-/**
- * 16, not Tabler's 24. Only a couple of call sites omit `size`, and every one
- * of them sits inline with text where 24 was already too big.
- */
 const DEFAULT_SIZE = 16;
 
-/**
- * Same call signature the app already uses, so no consumer changes:
- *   - `size` sets width and height (default 16) and drives the stroke
- *   - `weight` is accepted and ignored, exactly as under Tabler
- *   - `mirrored` flips on X
- *   - `color` overrides the base stroke; the accent stays branded
- *
- * stroke-linecap / stroke-linejoin are plain presentation attributes, so a CSS
- * rule on the element still wins — that is what lets `.vz-icon--sharp` swap the
- * terminal profile without a second copy of the geometry.
- */
 function glyph(displayName: string, children: React.ReactNode): Icon {
   const Glyph: Icon = ({
     size = DEFAULT_SIZE,
-    // Destructured precisely so it is swallowed and never reaches the SVG.
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     weight: _weight,
     mirrored,
@@ -88,11 +40,6 @@ function glyph(displayName: string, children: React.ReactNode): Icon {
       aria-hidden="true"
       focusable="false"
       style={{
-        // Stroke goes through `style`, not the attribute, because it has to be
-        // TWO things at once: the per-size optical ramp (a number only JS
-        // knows) times the per-theme irradiation scale (a token only CSS
-        // knows). calc() is the only place those meet. Caller `style` spreads
-        // last, so an explicit override still wins.
         strokeWidth: `calc(${strokeFor(toPx(size))} * var(--icon-stroke-scale, 1))`,
         ...(mirrored ? { transform: "scaleX(-1)" } : null),
         ...style,

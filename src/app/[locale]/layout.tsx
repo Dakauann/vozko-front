@@ -61,9 +61,8 @@ export default async function LocaleLayout({ children, params }: Props) {
             <Suspense fallback={null}>
               <RefCapture />
             </Suspense>
-            {/* The page-reveal curtain is gone. Product loads into a task; an
-                operator navigating between queues should not watch a transition
-                play before the work appears. */}
+            {
+}
             <LayoutWrapper>{children}</LayoutWrapper>
             <SonnerToaster position="bottom-center" />
           </ViewportIntegrityProvider>

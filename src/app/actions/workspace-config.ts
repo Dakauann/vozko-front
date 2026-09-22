@@ -28,18 +28,10 @@ export async function updateWorkspaceConfigAction(
         autoCloseIdleAfterHours?: number;
         autoCloseMaxAgeEnabled?: boolean;
         autoCloseMaxAgeAfterHours?: number;
-        // Every field optional and sent only when changed: the server reads an
-        // absent field as "leave it alone".
         rouletteMode?: RouletteMode;
         rouletteLastSeenWindowHours?: number;
         rouletteRescueEnabled?: boolean;
         rouletteRescueAfterMinutes?: number;
-        /**
-         * Escala semanal. Três estados, e os três importam: ausente não mexe no
-         * que está salvo, `null` remove a escala (volta a operar 24h) e um
-         * documento substitui. Por isso o tipo é `| null` em vez de opcional
-         * puro — mandar `undefined` para desligar não desligaria nada.
-         */
         workingHours?: WorkingHoursSpec | null;
     }
 ): Promise<{ config: WorkspaceConfig | null; error?: string }> {
@@ -62,9 +54,6 @@ export async function fetchWorkspaceConfig(workspaceId: string): Promise<Workspa
 
 export async function adminUpdateWorkspaceConfigAction(
     workspaceId: string,
-    // Every field optional and sent only when changed: the server reads an
-    // absent field as "leave it alone", so posting the whole form would reset a
-    // workspace's number allowance on an unrelated edit.
     data: {
         campaignSpamProtectionDays?: number;
         includedUnofficialWhatsAppInstances?: number;

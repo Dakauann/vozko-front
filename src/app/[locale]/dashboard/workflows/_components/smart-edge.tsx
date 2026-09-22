@@ -329,8 +329,6 @@ export function SmartBezierEdge({
   data,
 }: EdgeProps) {
   const { getNodes } = useReactFlow();
-  // When the copilot adds a connection, draw it in with a small stagger (the
-  // same sequential reveal as added nodes). Existing edges have no _appearSeq.
   const appearSeq =
     data && typeof (data as { _appearSeq?: unknown })._appearSeq === "number"
       ? (data as { _appearSeq: number })._appearSeq
@@ -364,9 +362,6 @@ export function SmartBezierEdge({
     return resolveEdgeLabel(sourceNode, label);
   }, [label, sourceNode]);
 
-  // The edge's own stroke logic: resting edges ride the strong hairline so the
-  // graph reads at a glance; a selected/active edge is the one moment an edge
-  // spends the brand green. Other passed style props (opacity, …) flow through.
   const edgeStyle = {
     ...style,
     stroke: selected ? "hsl(var(--primary))" : "hsl(var(--border-strong))",
@@ -377,8 +372,8 @@ export function SmartBezierEdge({
     <>
       <g style={appearStyle}>
         <BaseEdge id={id} path={path} markerEnd={markerEnd} style={edgeStyle} />
-        {/* Flowing dot animation overlay. On a selected (green) edge the dash
-            switches to the on-primary ink so the motion stays visible. */}
+        {
+}
         <path
           d={path}
           fill="none"
@@ -437,9 +432,6 @@ export function SmartConnectionLine({
     "__drag_target__",
   );
 
-  // Drawing a connection is a commit gesture, so the in-progress trace is
-  // brand green, and its cursor terminal is a SQUARE trace pad (the same 9px
-  // pad the node handles wear), not a dot.
   return (
     <g>
       <path

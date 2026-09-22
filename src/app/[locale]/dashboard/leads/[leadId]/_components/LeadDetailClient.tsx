@@ -205,7 +205,7 @@ export default function LeadDetailClient({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Button
@@ -234,7 +234,7 @@ export default function LeadDetailClient({
         </div>
       </div>
 
-      {/* Lead status banner */}
+      {}
       <div>
         <div className="rounded-[--radius] border border-border bg-card p-5" style={{ boxShadow: softSurfaceShadow }}>
           <div className="flex flex-wrap items-center gap-3">
@@ -261,7 +261,7 @@ export default function LeadDetailClient({
         </div>
       </div>
 
-      {/* Tabbed content */}
+      {}
       <div>
         <div className="rounded-[--radius] border border-border bg-card p-6" style={{ boxShadow: softSurfaceShadow }}>
           <Tabs defaultValue="overview" className="w-full">
@@ -280,7 +280,7 @@ export default function LeadDetailClient({
               </TabsTrigger>
             </TabsList>
 
-            {/* Overview tab */}
+            {}
             <TabsContent value="overview" className="mt-6 space-y-4 focus-visible:outline-none">
               <div className="mb-2 flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground">
@@ -302,7 +302,7 @@ export default function LeadDetailClient({
               </div>
             </TabsContent>
 
-            {/* Memories tab — same component the inbox context rail renders. */}
+            {}
             <TabsContent value="memories" className="mt-6 focus-visible:outline-none">
               <div className="mb-2 flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground">
@@ -316,7 +316,7 @@ export default function LeadDetailClient({
               <LeadMemoriesSection leadId={leadId} canManage={canManageMemories} />
             </TabsContent>
 
-            {/* Campaigns tab */}
+            {}
             <TabsContent value="campaigns" className="mt-6 space-y-4 focus-visible:outline-none">
               <div className="mb-2 flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-healthy text-healthy-foreground">

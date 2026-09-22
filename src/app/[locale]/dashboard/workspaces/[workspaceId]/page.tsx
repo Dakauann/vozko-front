@@ -88,9 +88,6 @@ function microsToDisplay(micros: number): string {
   return (micros / MICROS).toFixed(6).replace(/0+$/, "").replace(/\.$/, "");
 }
 
-// The plate carries the glyph colour, so `fg` is vestigial and empty. Both the
-// fixed `text-white` and the `bg-muted` fallback that replaced it were wrong in
-// the same place: tts and telephony rendered a glyph nobody could see.
 const CATEGORY_META: Record<string, { icon: Icon; bg: string; fg: string }> = {
   tts: { icon: SpeakerHigh, bg: "tile-5", fg: "" },
   stt: { icon: Microphone, bg: "tile-4", fg: "" },
@@ -196,15 +193,6 @@ export default function AdminWorkspaceDetailPage() {
   const [error, setError] = React.useState<string | null>(null);
 
   const [wsConfig, setWsConfig] = React.useState<WorkspaceConfig | null>(null);
-  /**
-   * The unofficial-WhatsApp allowance, editable here and NOWHERE else.
-   *
-   * This screen is behind the platform-admin routes; the workspace's own
-   * settings page cannot express this field at all, because the tenant-facing
-   * update takes a different input type on the server. Granting capacity on
-   * hosts we pay for, on a channel where a connected number can get a customer
-   * banned, is a decision that belongs to us.
-   */
   const [includedInstances, setIncludedInstances] = React.useState<number | "">("");
   const [spamDays, setSpamDays] = React.useState<number | "">(0);
   const [savingConfig, setSavingConfig] = React.useState(false);
@@ -515,7 +503,7 @@ export default function AdminWorkspaceDetailPage() {
 
   return (
     <main className="w-full space-y-4">
-      {/* Back link */}
+      {}
       <Link
         href="/dashboard/workspaces"
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary-ink transition-colors"
@@ -524,7 +512,7 @@ export default function AdminWorkspaceDetailPage() {
         {t("header.backToWorkspaces")}
       </Link>
 
-      {/* Page Header */}
+      {}
       <div>
         <DashboardPageHeader
           icon={<Buildings className="h-6 w-6" weight="fill" />}
@@ -553,7 +541,7 @@ export default function AdminWorkspaceDetailPage() {
         />
       </div>
 
-      {/* Tabs */}
+      {}
       <div>
         <Tabs defaultValue="overview">
           <TabsList>
@@ -581,9 +569,9 @@ export default function AdminWorkspaceDetailPage() {
             </TabsTrigger>
           </TabsList>
 
-          {/* ── Overview Tab ── */}
+          {}
           <TabsContent value="overview">
-            {/* ── Spam Protection Config ── */}
+            {}
             <div
               className="rounded-[--radius] border border-border bg-card p-5 space-y-4 mb-4"
               style={{ boxShadow: softSurfaceShadow }}
@@ -649,7 +637,7 @@ export default function AdminWorkspaceDetailPage() {
               </div>
             </div>
 
-            {/* ── Unofficial WhatsApp allowance ── */}
+            {}
             <div
               className="rounded-[--radius] border border-border bg-card p-5 space-y-4 mb-4"
               style={{ boxShadow: softSurfaceShadow }}
@@ -669,10 +657,6 @@ export default function AdminWorkspaceDetailPage() {
                     value={includedInstances}
                     onChange={(e) => {
                       const val = Number(e.target.value);
-                      // Clamped to a non-negative integer here as well as on the
-                      // server, which REJECTS a negative rather than clamping:
-                      // silently turning a typo into zero would revoke a
-                      // workspace's whole allowance while reporting success.
                       setIncludedInstances(
                         Number.isNaN(val) ? "" : Math.max(0, Math.round(val)),
                       );
@@ -699,9 +683,6 @@ export default function AdminWorkspaceDetailPage() {
                   onClick={async () => {
                     if (includedInstances === "") return;
                     setSavingConfig(true);
-                    // ONLY this field. The server reads an absent field as
-                    // "leave it alone", so sending the whole form would rewrite
-                    // settings nobody touched.
                     const res = await adminUpdateWorkspaceConfigAction(
                       workspaceId,
                       { includedUnofficialWhatsAppInstances: includedInstances },
@@ -721,7 +702,7 @@ export default function AdminWorkspaceDetailPage() {
               </div>
             </div>
 
-            {/* ── Workspace Subscription ── */}
+            {}
             <div
               className="rounded-[--radius] border border-border bg-card p-5 space-y-4 mb-4"
               style={{ boxShadow: softSurfaceShadow }}
@@ -950,7 +931,7 @@ export default function AdminWorkspaceDetailPage() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {/* Info Card */}
+              {}
               <div
                 className="rounded-[--radius] border border-border bg-card p-5 space-y-4"
                 style={{ boxShadow: softSurfaceShadow }}
@@ -1014,7 +995,7 @@ export default function AdminWorkspaceDetailPage() {
                 </div>
               </div>
 
-              {/* Owner Card */}
+              {}
               <div
                 className="rounded-[--radius] border border-border bg-card p-5 space-y-4"
                 style={{ boxShadow: softSurfaceShadow }}
@@ -1075,7 +1056,7 @@ export default function AdminWorkspaceDetailPage() {
                 )}
               </div>
 
-              {/* Members Summary Card */}
+              {}
               <div
                 className="rounded-[--radius] border border-border bg-card p-5 space-y-4"
                 style={{ boxShadow: softSurfaceShadow }}
@@ -1145,7 +1126,7 @@ export default function AdminWorkspaceDetailPage() {
             </div>
           </TabsContent>
 
-          {/* ── Members Tab ── */}
+          {}
           <TabsContent value="members">
             <DashboardTable<WorkspaceMember>
               data={members}
@@ -1196,7 +1177,7 @@ export default function AdminWorkspaceDetailPage() {
             />
           </TabsContent>
 
-          {/* ── Invites Tab ── */}
+          {}
           <TabsContent value="invites">
             <DashboardTable<WorkspaceInvite>
               data={invites}
@@ -1233,7 +1214,7 @@ export default function AdminWorkspaceDetailPage() {
             />
           </TabsContent>
 
-          {/* ── Pricing Tab ── */}
+          {}
           <TabsContent value="pricing">
             {resolvedPricing.some((p) => p.category === "exchange_rate") && (
               <div className="flex items-start gap-3 rounded-[--radius] border border-warning/30 bg-warning/60 px-4 py-3 mb-4">

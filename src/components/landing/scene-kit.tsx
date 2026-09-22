@@ -6,50 +6,26 @@ import type { MotionValue } from "framer-motion";
 import { createContext, useContext, useRef, type CSSProperties, type ReactNode } from "react";
 import { MathUtils, type DirectionalLight, type MeshStandardMaterial } from "three";
 
-/**
- * Shared material vocabulary for every landing scene. The kanban board set the
- * look (paper cards with a coloured edge, sitting on recessed boards); every
- * other stage inherits these values instead of restating them.
- *
- * Both themes are real, and both take their values from the product's own
- * tokens (`globals.css`), not from a second palette invented for marketing:
- * a panel is a well in the canvas, a card is a sheet on top of it, and
- * elevation carries the separation. Accents are deeper in daylight because a
- * value tuned to glow on graphite goes invisible on white.
- */
 export type ScenePalette = {
   dark: boolean;
-  /** Panel and column bodies. */
   board: string;
-  /** The one column or panel that is raised above the rest. */
   boardRaised: string;
-  /** A recess: the workflow canvas, the roulette table. */
   well: string;
-  /** Paper: cards, records, tokens a person holds. */
   card: string;
-  /** A quieter sheet sitting on paper. */
   chip: string;
   cardInk: string;
   cardInkMuted: string;
-  /** Text sitting on `board`, not on paper. */
   panelInk: string;
   panelMuted: string;
-  /** Hairlines and inert connectors. */
   edge: string;
   rim: string;
-  /** An attendant who is out of the window. */
   offline: string;
   offlineInk: string;
-  /** A customer's message bubble on a panel. */
   bubble: string;
-  /** The brand-tinted ground behind something the AI is carrying. */
   wash: string;
-  /** A row echoed into the agent's context. */
   ghost: string;
   light: { ambient: number; key: number; fill: number; cool: number; point: number };
-  /** Accents as MATERIAL: rims, bars, the travelling packet. */
   accent: { ai: string; wait: string; team: string; tag: string };
-  /** The same roles as TEXT, at the product's `-ink` weights. */
   ink: { ai: string; wait: string; team: string; tag: string };
 };
 
@@ -78,8 +54,6 @@ const DARK: ScenePalette = {
 
 const LIGHT: ScenePalette = {
   dark: false,
-  // Daylight needs a deeper well than dark does: a white sheet only reads as
-  // an object on the canvas when the recess under it is genuinely darker.
   board: "#DAE2E6",
   boardRaised: "#E6ECEE",
   well: "#CCD7DC",
@@ -96,8 +70,6 @@ const LIGHT: ScenePalette = {
   bubble: "#D6DEE3",
   wash: "#C7E8D8",
   ghost: "#D6DEE3",
-  // Less ambient than dark so the key light's cast shadows survive; the
-  // product's own rule is that depth is carried by real shadow, not by fill.
   light: { ambient: 1.15, key: 3.7, fill: 0.32, cool: 0.22, point: 4 },
   accent: { ai: "#00A57A", wait: "#E1A70B", team: "#1877D4", tag: "#6D5AE0" },
   ink: { ai: "#007A5C", wait: "#8F4C06", team: "#0A4FA6", tag: "#4B35B8" },
@@ -107,38 +79,24 @@ export function scenePalette(dark: boolean): ScenePalette {
   return dark ? DARK : LIGHT;
 }
 
-/**
- * A card in the product's own terms: a white sheet in daylight, a raised panel
- * on graphite. Paper never survives a dark theme, so an object that is a sheet
- * in light has to become a lifted surface in dark rather than staying white.
- * Text on it takes `panelInk` / `panelMuted`, which are correct in both themes.
- */
 export function sheet(palette: ScenePalette) {
   return palette.dark ? palette.boardRaised : palette.card;
 }
 
-/** The recess a sheet sits in, one step below it in both themes. */
 export function sheetWell(palette: ScenePalette) {
   return palette.dark ? palette.well : palette.board;
 }
 
-/** A quieter block ON a sheet: a chip, a tag, an avatar ground. */
 export function sheetChip(palette: ScenePalette) {
   return palette.dark ? palette.bubble : palette.chip;
 }
 
-/** Channel marks are brand identity: never recoloured, never theme-swapped. */
 export const CHANNEL = {
   whatsapp: "#25D366",
   instagram: "#E1306C",
   telegram: "#2AABEE",
 } as const;
 
-/**
- * Corner radii, in world units, matched to the product's sharp control corner:
- * 6px on a ~300px sheet is about 2% of its width, so these stay tight. A
- * chunky 3D fillet reads as a different product.
- */
 export const R = {
   card: 0.05,
   rim: 0.06,
@@ -146,13 +104,6 @@ export const R = {
   chip: 0.04,
 } as const;
 
-/**
- * A wider lens, closer in. At 38° from eleven units the projection was nearly
- * orthographic: a card lifted off its board barely changed size, so nothing
- * read as being in front of anything. At 50° from under nine, the same lift
- * produces real convergence, and `useFitScale` reframes every scene for the
- * new viewport on its own.
- */
 export const STAGE_CAMERA = {
   position: [0, 0, 8.8] as [number, number, number],
   fov: 50,
@@ -160,40 +111,16 @@ export const STAGE_CAMERA = {
   far: 40,
 };
 
-/** Measured screen px per CSS px at that factor, constant across viewports. */
 const LABEL_SCREEN_RATIO = 1.152;
 
-/**
- * Panel text used to be printed into the scene with drei's `transform` mode,
- * which projects the DOM through a CSS 3D matrix. WebKit does not carry the
- * perspective across that preserve-3d chain: on iOS every label collapsed to
- * no height and drifted off the plate it belonged to, while Chromium was fine.
- * Labels are placed in screen space now, which every engine agrees on, and the
- * scene's own fit scale is what sizes them.
- *
- * drei scales a screen-space label by `distanceFactor / viewport.height`, so
- * this factor is exactly what keeps "100 CSS px is one world unit" true on
- * screen, which is the convention every scene's widths are written in.
- */
 const PanelScaleContext = createContext(1);
 
 export function PanelScale({ scale, children }: { scale: number; children: ReactNode }) {
   return <PanelScaleContext.Provider value={scale}>{children}</PanelScaleContext.Provider>;
 }
 
-/**
- * On a small canvas the on-screen target would demand a font several times the
- * design size, and since a label's box is measured in world units, that is the
- * text growing against the plate it sits on rather than the plate growing with
- * it. This ceiling is what stops it, so it is set by the tightest plate in any
- * scene: at 2.1 the kanban column header stood exactly on the column's top
- * edge, and the cards filled 83% of their own height. Measured in world units
- * (a label's box is its CSS pixels over 100), 1.85 leaves every label at least
- * 0.07 units of air.
- */
 const FONT_CEILING = 1.85;
 
-/** World-sized HTML for content printed on a moving panel (100 CSS px/unit). */
 export function usePanelType(sceneScale: number) {
   const { size, viewport } = useThree();
   const pixelsPerUnit = (size.height / viewport.height) * sceneScale;
@@ -234,7 +161,6 @@ export function smoothstep(value: number) {
   return clamped * clamped * (3 - 2 * clamped);
 }
 
-/** 0 at both ends of a window, 1 in the middle: the lift a card takes while it travels. */
 export function arc(value: number) {
   return Math.sin(value * Math.PI);
 }
@@ -243,41 +169,21 @@ export function lerp3(from: Vec3, to: Vec3, t: number): Vec3 {
   return [MathUtils.lerp(from[0], to[0], t), MathUtils.lerp(from[1], to[1], t), MathUtils.lerp(from[2], to[2], t)];
 }
 
-/**
- * True on phone-width canvases, where a scene laid out for a desktop frame
- * would shrink until its labels stopped being readable. Scenes answer it by
- * pulling their composition in, not by getting smaller.
- */
 export function useCompact() {
   const { size } = useThree();
   return size.width < 700;
 }
 
-/**
- * Scale that makes a scene of the given native extents fill the canvas on
- * whichever axis binds. The scene is the subject, so it grows to the space it
- * has instead of sitting small inside it; `margin` keeps its labels off the edge.
- */
 export function useFitScale(width: number, height: number, margin = 0.9) {
   const { viewport } = useThree();
-  // Lifted cards move towards the camera. Fitting only the z=0 plane crops
-  // their projected edges, especially when the canvas is short and wide.
   const depth = 1.8;
   const distance = STAGE_CAMERA.position[2];
   const fit = (span: number, extent: number) => (span * margin) / (extent + span * margin * depth / distance);
   return Math.min(fit(viewport.width, width), fit(viewport.height, height));
 }
 
-/** Anything larger than this backwards is the loop restarting, not the story. */
 const REWIND = 0.5;
 
-/**
- * Damps the chapter progress every frame, so a jump between steps arrives as a
- * move rather than a cut. The one jump it must not smooth is the loop wrapping
- * from its last frame back to its first: damping that plays the whole scene
- * backwards, so a rewind snaps instead, hidden under the stage's fade.
- * Reduced motion pins the scene at its final state.
- */
 export function useDampedProgress(
   progress: MotionValue<number>,
   reduced: boolean,
@@ -293,26 +199,15 @@ export function useDampedProgress(
   });
 }
 
-/**
- * The travelling light: an unseen source circling the stage like a planet,
- * carried far enough out that only its effect is visible. It never casts
- * shadows — the fixed key owns those, so the scene's own depth never swings
- * around — and it dips below the horizon on the far side, which is what makes
- * a band sweep across the objects instead of a highlight sitting still.
- */
 const ORBIT_RADIUS = 11;
-/** One lap in a minute and a half: a car circling the object, not a strobe. */
 const ORBIT_SECONDS = 90;
-/** A level orbit, so the light behaves like something driving around the stage. */
 const ORBIT_HEIGHT = 3.2;
-/** White: the travelling light is a light, not a second accent. */
 const ORBIT_COLOR = "#FFFFFF";
 
 function OrbitingLight({ intensity, phase = 0, reduced }: { intensity: number; phase?: number; reduced: boolean }) {
   const light = useRef<DirectionalLight>(null);
   useFrame((state) => {
     if (!light.current) return;
-    // Reduced motion keeps the light, and parks it where the scene reads best.
     const t = reduced ? 0.9 : (state.clock.elapsedTime / ORBIT_SECONDS) * Math.PI * 2;
     const angle = t + phase;
     light.current.position.set(Math.cos(angle) * ORBIT_RADIUS, ORBIT_HEIGHT, Math.sin(angle) * ORBIT_RADIUS);
@@ -338,13 +233,11 @@ export function StageLights({
   const { ambient, key, fill, cool: coolIntensity, point } = palette.light;
   return (
     <>
-      {/* No background colour: the canvas is transparent so the scene sits on
-          the section itself rather than inside a lighter rectangle. */}
+      {
+}
       <ambientLight intensity={ambient} />
-      {/* A directional light's shadow camera defaults to a ±5 box, and these
-          scenes are about ten units across, so most of the cast shadow was
-          being clipped away and the stage read flat. The frustum now covers
-          the whole stage, at a map fine enough for a card's edge. */}
+      {
+}
       <directionalLight
         position={[4.5, 7, 8]}
         intensity={key}
@@ -368,11 +261,6 @@ export function StageLights({
   );
 }
 
-/**
- * The material every lit surface in the scenes uses. One place, so the whole
- * page changes together. Physical, not stylised: a banded toon ramp was tried
- * here and rejected — the travelling light reads better against a real falloff.
- */
 export function Surface({
   color,
   roughness = 0.6,
@@ -412,7 +300,6 @@ export function Slab({ size, color, radius = R.card, roughness = 0.6, metalness 
   );
 }
 
-/** A coin facing the camera: avatars, tokens, anything that stands for a person. */
 export function Disc({
   radius,
   depth = 0.16,
@@ -436,12 +323,10 @@ export function Disc({
   );
 }
 
-/** A chat-bubble style block: size, ink and ground in one place. */
 export function labelStyle(fontSize: number, color: string, backgroundColor: string): CSSProperties {
   return { fontSize, color, backgroundColor };
 }
 
-/** The coloured edge a kanban card carries: a flat bar sitting on a slab face. */
 export function Bar({ position, size, color }: { position: Vec3; size: Vec3; color: string }) {
   return (
     <mesh position={position}>

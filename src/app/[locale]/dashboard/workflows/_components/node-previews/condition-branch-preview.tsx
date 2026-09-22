@@ -3,7 +3,6 @@
 import { EmptyPreview } from "../message-node-primitives";
 import { DecisionBlock, Op } from "./decision-block";
 
-// condition_branch: an if/else test → Verdadeiro / Falso branches (the rows).
 export function ConditionBranchPreview({
   config,
 }: {

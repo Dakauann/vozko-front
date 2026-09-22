@@ -62,14 +62,6 @@ interface CampaignHeaderProps {
   canStop?: boolean;
   canReset?: boolean;
   hasPermissionStart?: boolean;
-  /**
-   * Whether the viewer may HALT a running campaign.
-   *
-   * Separate from hasPermissionStart because the two are separate RBAC actions:
-   * being able to stop a runaway blast is a safety valve and must not require
-   * the privilege to launch one. Defaults to hasPermissionStart so callers that
-   * do not distinguish them keep their existing behaviour.
-   */
   hasPermissionStop?: boolean;
   hasPermissionUpdate?: boolean;
   hasActiveSubscription?: boolean;
@@ -80,26 +72,7 @@ interface CampaignHeaderProps {
   onLifecycle: (action: "start" | "pause" | "stop") => void;
   isMonitoring?: boolean;
   onToggleMonitoring?: () => void;
-  /**
-   * The transport chip shown beside the badge, e.g. "Não oficial".
-   *
-   * The spine already carries this on the family header, and it is the ONLY
-   * thing separating two WhatsApp families at a glance — but an operator who
-   * deep-links straight to a campaign never passes through the spine. Without
-   * it, the two campaign products are indistinguishable on the one screen where
-   * confusing them means sending from the wrong number under the wrong rules.
-   */
   transportBadge?: { label: string; hint?: string };
-  /**
-   * Channel-specific entries for the actions menu, rendered above Edit.
-   *
-   * A slot rather than another boolean prop per action: what belongs here is
-   * whatever a channel has that the others do not, and the alternative — a row
-   * of buttons under the header — adds a band of vertical space the official
-   * campaign does not have, so the two pages stop lining up.
-   *
-   * Receives `close` so an entry can dismiss the menu after acting.
-   */
   extraActions?: (close: () => void) => ReactNode;
   translations: CampaignHeaderTranslations;
 }
@@ -232,7 +205,6 @@ function WsStatusIndicator({
 
 
 interface ActionsDropdownProps {
-  /** Channel-specific entries, rendered above Edit. Receives a close callback. */
   extraActions?: (close: () => void) => ReactNode;
   isPending?: boolean;
   canReset?: boolean;
@@ -407,8 +379,6 @@ export default function CampaignHeader({
   const crmContext = useCrm();
   const wsStatus = crmContext.status;
 
-  // Halting falls back to the start privilege only where the caller does not
-  // distinguish them, so existing callers behave exactly as before.
   const canHalt = hasPermissionStop ?? hasPermissionStart;
 
   const badgeColor =
@@ -420,7 +390,7 @@ export default function CampaignHeader({
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      {/* Left: Back + Title + Status */}
+      {}
       <div className="flex items-center gap-2 min-w-0">
         <Button
           variant="ghost"
@@ -467,9 +437,9 @@ export default function CampaignHeader({
         </div>
       </div>
 
-      {/* Right: Actions */}
+      {}
       <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
-        {/* Monitoring Mode Toggle */}
+        {}
         {onToggleMonitoring && (
           <Button
             variant="outline-subtle"
@@ -485,7 +455,7 @@ export default function CampaignHeader({
           />
         )}
 
-        {/* CRM Button - Primary action */}
+        {}
         <Button
           variant="outline-subtle"
           title={t.crm}
@@ -495,7 +465,7 @@ export default function CampaignHeader({
           onClick={onShowCrm}
         />
 
-        {/* Lifecycle buttons */}
+        {}
         <div className="flex items-center gap-0.5">
           <TooltipWrapper
             content={t.noPermissionStart || "Sem permissão"}
@@ -582,7 +552,7 @@ export default function CampaignHeader({
           )}
         </div>
 
-        {/* More actions dropdown */}
+        {}
         <ActionsDropdown
           extraActions={extraActions}
           isPending={isPending}

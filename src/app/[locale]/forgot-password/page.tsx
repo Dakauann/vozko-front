@@ -21,15 +21,6 @@ import { useTranslations } from "next-intl";
 
 type Step = "email" | "token" | "success";
 
-/**
- * Password recovery, on login's plate.
- *
- * This page was shipped as a marketing card from a different visual world —
- * viewport noise texture, glow shadow, eyebrow badge, 3xl hero, a card that
- * slid in on mount — sitting one navigation away from the redesigned login.
- * It is now the same object as login: one quiet sheet, the brand at its head,
- * fields in order, one commit. The three-step flow is untouched.
- */
 export default function ForgotPasswordPage() {
   const t = useTranslations("forgotPassword");
   const router = useRouter();
@@ -83,8 +74,8 @@ export default function ForgotPasswordPage() {
 
   return (
     <main className="relative flex min-h-[calc(100vh-3rem)] items-center justify-center overflow-hidden bg-background px-4 py-10 sm:py-16">
-      {/* The brand's trace lines, same register as the login plate —
-          token-coloured, pulse honours prefers-reduced-motion. */}
+      {
+}
       <LightPool />
       <CircuitTraces className="pointer-events-none absolute -right-12 -top-12 hidden h-80 w-80 sm:block lg:-right-16 lg:-top-16 lg:h-[30rem] lg:w-[30rem]" />
       <DotMatrix className="pointer-events-none absolute bottom-10 left-8 hidden h-24 w-36 sm:block" />

@@ -103,7 +103,6 @@ export default function SettingsPage() {
         setSessions(result.sessions);
       }
     } catch {
-      // ignore
     } finally {
       setSessionsLoading(false);
     }
@@ -117,7 +116,6 @@ export default function SettingsPage() {
         setSessions((prev) => prev.filter((s) => s.id !== sessionId));
       }
     } catch {
-      // ignore
     } finally {
       setRevokingSessionId(null);
     }
@@ -857,7 +855,7 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Active Sessions Section */}
+          {}
           <div>
             <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
               <div className="flex items-center justify-between mb-6">

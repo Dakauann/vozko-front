@@ -25,7 +25,7 @@ export default function TemplateBubble({
 
   return (
     <div className="flex flex-col rounded-lg overflow-hidden bg-card border border-border max-w-[320px] shadow-sm">
-      {/* Header */}
+      {}
       {header && (
         <div className="px-3 pt-2.5">
           {header.format === "TEXT" && header.text && (
@@ -76,7 +76,7 @@ export default function TemplateBubble({
         </div>
       )}
 
-      {/* Body */}
+      {}
       {body?.text && (
         <div className="px-3 py-1.5">
           <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
@@ -85,7 +85,7 @@ export default function TemplateBubble({
         </div>
       )}
 
-      {/* Footer */}
+      {}
       {footer?.text && (
         <div className="px-3 pb-1.5">
           <p className="text-2xs text-muted-foreground leading-snug">
@@ -94,7 +94,7 @@ export default function TemplateBubble({
         </div>
       )}
 
-      {/* Buttons */}
+      {}
       {buttonsComp?.buttons && buttonsComp.buttons.length > 0 && (
         <div className="border-t border-border mt-1">
           {buttonsComp.buttons.map((btn, idx) => (
@@ -116,7 +116,7 @@ export default function TemplateBubble({
         </div>
       )}
 
-      {/* Template badge */}
+      {}
       <div className="px-3 py-1 bg-muted border-t border-border">
         <span className="text-2xs text-muted-foreground font-medium">
           Template: {metadata.template_name}

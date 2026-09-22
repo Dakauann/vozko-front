@@ -56,8 +56,6 @@ const COMPACT: Layout = {
   extent: [6.8, 7.2],
 };
 
-// The four things an agent is actually made of, each entering from its own
-// quarter and locking into the core.
 const MODULES: ModuleSpec[] = [
   { angle: 135, tone: "tag", window: [0.05, 0.2] },
   { angle: 45, tone: "team", window: [0.3, 0.45] },
@@ -68,10 +66,8 @@ const READY: Window = [0.92, 0.99];
 
 const rad = (deg: number) => (deg * Math.PI) / 180;
 const dockAt = (spec: ModuleSpec, l: Layout): Vec3 => [l.orbit * Math.cos(rad(spec.angle)), l.orbit * Math.sin(rad(spec.angle)), 0];
-/** Keep the entire assembly path inside the bench's framing. */
 const startAt = (spec: ModuleSpec, l: Layout): Vec3 => [(l.orbit + 0.6) * Math.cos(rad(spec.angle)), (l.orbit + 0.6) * Math.sin(rad(spec.angle)), -1.2];
 
-/** A six-sided prism. The workflow editor already speaks in hexagons for the agent. */
 function Hex({
   radius,
   depth,
@@ -138,7 +134,6 @@ export function AgentScene({
         group.scale.setScalar(Math.max(0.35 + 0.65 * u, 0.001));
       }
       const rim = rims.current[index];
-      // A part lights as it seats, then holds: it is now part of the agent.
       if (rim) rim.emissiveIntensity = u * (palette.dark ? 0.85 : 0.5);
       const beam = beams.current[index];
       if (beam) {
@@ -170,7 +165,7 @@ export function AgentScene({
     <PanelScale scale={scale}>
       <StageLights reduced={reduced} palette={palette} cool={palette.accent.tag} />
       <group ref={stage} scale={scale} rotation={[-0.14, 0.1, 0]}>
-        {/* The bench the agent is assembled on. */}
+        {}
         <Hex radius={layout.orbit + 1.15} depth={0.14} color={sheetWell(palette)} position={[0, 0, -0.32]} />
 
         {MODULES.map((spec, index) => (

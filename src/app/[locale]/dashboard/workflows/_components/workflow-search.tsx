@@ -26,24 +26,16 @@ export interface WorkflowSearchTypeOption {
 export interface WorkflowSearchProps {
   query: string;
   onQueryChange: (query: string) => void;
-  /** Number of nodes matching the query. */
   matchCount: number;
-  /** Current cursor within the matches (0-based), or -1 when none is focused. */
   activeIndex: number;
   onNext: () => void;
   onPrev: () => void;
   onClose: () => void;
-  /** Node types present on the canvas, for the "filter by type" control. */
   types: WorkflowSearchTypeOption[];
-  /** Active type filter (a node type value), or null for "any type". */
   typeFilter: string | null;
   onTypeFilterChange: (type: string | null) => void;
 }
 
-// A canvas find-bar (Ctrl+F). Matches any node by id, label, type, or configured
-// value, and can be narrowed to a single node type. A lone match is focused
-// automatically; multiple matches are all highlighted and cycled with Enter /
-// the arrows.
 export const WorkflowSearch = forwardRef<HTMLInputElement, WorkflowSearchProps>(
   function WorkflowSearch(
     {
@@ -109,7 +101,7 @@ export const WorkflowSearch = forwardRef<HTMLInputElement, WorkflowSearchProps>(
 
         <div className="mx-0.5 h-5 w-px shrink-0 bg-border" />
 
-        {/* Filter by node type */}
+        {}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button

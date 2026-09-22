@@ -53,24 +53,18 @@ import { cn } from "@/lib/utils";
 interface OpportunityDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  // null => create mode; an Opportunity => edit mode.
   opportunity: Opportunity | null;
   pipelineId: string;
   columns: OpportunityColumn[];
   customFields: CustomFieldDefinition[];
   workspaceId?: string;
-  // Default stage for a new deal (the initial column). Falls back to columns[0].
   defaultStageId?: string;
-  // Create-from-chat: pre-fill the title + link this conversation on create so the
-  // deal timeline carries the chat history.
   defaultTitle?: string;
   linkEntryId?: string;
   linkEntryType?: string;
   onSaved: () => void;
 }
 
-// ISO (yyyy-mm-dd) <-> the drawer's date input value. The API takes an RFC3339
-// timestamp; we send midnight UTC for the chosen day.
 function toDateInput(iso?: string | null): string {
   if (!iso) return "";
   const d = new Date(iso);
@@ -100,8 +94,6 @@ export default function OpportunityDrawer({
   const { user } = useAuth();
   const { can } = useWorkspace();
   const currentUserId = user?.id ?? "";
-  // RBAC: only members with the assign permission can hand a deal to someone else;
-  // everyone else is locked to themselves as the responsável.
   const canAssignOthers = can("conversations", "assign");
 
   const [title, setTitle] = useState("");
@@ -117,13 +109,11 @@ export default function OpportunityDrawer({
   const [members, setMembers] = useState<AssignableMember[]>([]);
   const [links, setLinks] = useState<OpportunityConversationLink[]>([]);
 
-  // Reset the form each time the drawer opens (or the target deal changes).
   useEffect(() => {
     if (!open) return;
     setTitle(opportunity?.title ?? defaultTitle ?? "");
     setValueInput(opportunity ? String((opportunity.valueCents ?? 0) / 100).replace(".", ",") : "");
     setStageId(opportunity?.stageId ?? defaultStageId ?? columns[0]?.id ?? "");
-    // New deals default to the creator as responsável; edits keep their owner.
     setOwnerId(opportunity?.ownerId ?? currentUserId);
     setCloseDate(toDateInput(opportunity?.closeDate));
     setSource(opportunity?.source ?? "");
@@ -142,8 +132,6 @@ export default function OpportunityDrawer({
     };
   }, [open, workspaceId]);
 
-  // Deal timeline: the WhatsApp/voice conversations linked to this deal (the Vozko
-  // moat, the chat history lives on the deal card). Only in edit mode.
   const reloadLinks = useCallback(async () => {
     if (!opportunity) {
       setLinks([]);
@@ -245,7 +233,6 @@ export default function OpportunityDrawer({
         source: source.trim() || undefined,
         closeDate: closeIso,
         customFields: Object.keys(custom).length ? custom : undefined,
-        // create-from-chat: carry the linked conversation onto the new deal.
         linkEntryId: linkEntryId || undefined,
         linkEntryType: linkEntryType || undefined,
       });
@@ -373,7 +360,6 @@ export default function OpportunityDrawer({
                 fullWidth
               />
             ) : (
-              // No permission to assign others: locked to the current user.
               <div>
                 <label className="pl-1 text-sm font-medium text-foreground">Responsável</label>
                 <div className="mt-1.5 flex items-center gap-2 rounded-lg border border-border bg-muted px-3 py-2 text-sm text-muted-foreground">
@@ -459,9 +445,6 @@ export default function OpportunityDrawer({
   );
 }
 
-// The deal timeline: the WhatsApp/voice conversations attached to this deal. Each
-// row links out to the conversation and can be unlinked. (A richer inline message
-// history can be layered on later; the linkage + jump-off is the moat.)
 function LinkedConversations({
   links,
   onUnlink,

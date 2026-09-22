@@ -48,41 +48,11 @@ import { Chip, EmptyState, Panel, Skeleton } from "@/components/audience/shared"
 import { Bell, PaperPlaneTilt, Plus, Trash, Warning } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
-/*
- * Configuring the alerts.
- *
- * The screen's job is to make the two things that can go wrong hard to do. It
- * shows the cooldown and the daily cap as first-class settings rather than
- * hiding them behind "avançado", because they are what stops one bad afternoon
- * becoming a hundred WhatsApp messages, and it says out loud that the official
- * channel spends money on a template.
- *
- * The server owns the vocabulary: which metrics exist, whether each needs a
- * window, which way it alarms, and the floors. This file asks for that rather
- * than restating it, so a picker can never describe a metric differently from
- * the evaluator that acts on it.
- */
 
 const LOCALE_TAG: Record<string, string> = { pt: "pt-BR", en: "en-US", es: "es-ES", de: "de-DE" };
 
-/*
- * The body of the template this screen offers to create.
- *
- * NOT a translated string. It is a payload sent to Meta, and its `{{1}}`
- * placeholders are WhatsApp's template syntax, which is not ICU: putting it in
- * the message catalogue made next-intl fail to parse it, which the locale test
- * caught. It is also language-neutral, being three variables the alert fills
- * itself in a fixed order (rule, measurement, where).
- */
 const PROPOSED_TEMPLATE_BODY = "🔔 {{1}}\n\n{{2}}\n\n{{3}}";
 
-/**
- * A new rule starts on a metric its subject can actually measure.
- *
- * Defaulting to comment_severity everywhere meant a conversation rule opened
- * pre-set to a metric the picker would not even list, so the first thing an
- * operator saw was an empty select.
- */
 const SUBJECT_DEFAULTS: Record<SubjectKind, { metric: AlertMetric; threshold: number }> = {
   comment: { metric: "comment_severity", threshold: 80 },
   conversation: { metric: "attendance_quality", threshold: 70 },
@@ -98,9 +68,6 @@ function emptyDraft(
     name: "",
     enabled: true,
     accountId,
-    // Undefined is the wildcard: every conversation channel. A new rule no
-    // longer silently inherits the page's list filter, which is what armed a
-    // rule on a channel nobody chose.
     source: undefined,
     metric: start.metric,
     threshold: start.threshold,
@@ -133,19 +100,6 @@ function draftOf(rule: AlertRule): AlertRuleDraft {
   };
 }
 
-/*
- * One alerts panel, two subjects.
- *
- * A rule is keyed on (source, account). For COMMENTS the account is the
- * Instagram account whose posts are being watched. For CONVERSATIONS there is no
- * such account, so the workspace stands in for it, which is the same
- * substitution the analysis engine already makes when it resolves a
- * conversation's settings.
- *
- * The subject decides which metrics are on offer. It is not inferred here: the
- * server sends subjectKind with every metric, so the picker and the evaluator
- * cannot disagree about what a metric reads.
- */
 export function CommentAnalysisAlerts({
   accountId,
   subjectKind = "comment",
@@ -219,9 +173,6 @@ export function CommentAnalysisAlerts({
     setError(result.error ?? null);
   };
 
-  // Channels this workspace cannot currently send on. Empty when the backend
-  // sent no status list, so a deployment that cannot answer flags nothing
-  // rather than flagging everything.
   const blockedChannels = useMemo(
     () =>
       new Set(
@@ -276,9 +227,8 @@ export function CommentAnalysisAlerts({
                       {rule.source ? tChannelName(rule.source) : t("fields.watchedChannelAll")}
                     </Chip>
                     <Chip>{t(`channels.${rule.channel}`)}</Chip>
-                    {/* A rule armed on a channel the workspace can no longer
-                        send on. Said on the row, because the alternative is
-                        finding out from LastError after it failed to fire. */}
+                    {
+}
                     {rule.enabled && blockedChannels.has(rule.channel) ? (
                       <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-1.5 py-0.5 text-2xs font-semibold text-warning-ink">
                         <Warning className="h-3 w-3" weight="fill" />
@@ -375,68 +325,29 @@ function AlertRuleDialog({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Only the metrics that read THIS subject. A comment metric armed on a
-  // WhatsApp rule saves, shows "Regra ativa", and never fires, because the
-  // channel produces no comments for it to measure.
   const metrics = (options?.metrics ?? []).filter((m) => m.subjectKind === subjectKind);
   const metric = metrics.find((m) => m.metric === draft.metric);
   const limits = options?.limits;
 
   const [phones, setPhones] = useState<WhatsAppBusinessPhone[]>([]);
-  // Tagged with the number they were loaded for. Templates are approved per
-  // number, so a list that outlived a change of number would offer templates
-  // this rule cannot send, and clearing it in an effect is the cascading render
-  // the compiler rejects. Tagging lets the render decide.
   const [templates, setTemplates] = useState<{ phoneId: string; items: WhatsAppTemplate[] }>({
     phoneId: "",
     items: [],
   });
   const official = draft.channel === "official";
 
-  /*
-   * What this workspace can actually send on.
-   *
-   * The picker used to offer both channels from a hardcoded list while only the
-   * OFFICIAL one was validated at save, so a workspace with no connected number
-   * could arm an unofficial rule that showed "Regra ativa" and died silently at
-   * the first firing. Both halves now read the same source the backend
-   * validates against, so the form and the save cannot disagree.
-   */
   const channelStatus = options?.channelStatus;
   const statusFor = (c: AlertChannel): AlertChannelStatus | undefined =>
     channelStatus?.find((s) => s.channel === c);
   const currentStatus = statusFor(draft.channel);
-  // No status list at all means the deployment could not answer, and the form
-  // behaves exactly as it did before rather than blocking every channel.
   const channelBlocked = Boolean(channelStatus?.length) && currentStatus?.available === false;
   const senders = currentStatus?.senders ?? [];
   const unofficialSenders = draft.channel === "unofficial" ? senders : [];
   const sendableTemplates = templates.phoneId === draft.businessPhoneId ? templates.items : [];
 
-  /*
-   * The number an unofficial rule sends from.
-   *
-   * Derived rather than defaulted into the draft, because the draft is what
-   * gets saved and a value that only exists in the select is a value the
-   * operator sees chosen and the server never receives. With exactly one
-   * connected number that is the answer; with several the operator has to say.
-   */
   const effectiveInstanceId =
     draft.instanceId ?? (unofficialSenders.length === 1 ? unofficialSenders[0].id : "");
 
-  /*
-   * Proposing a template, the same move the CRM's new-conversation dialog makes.
-   *
-   * An operator arriving here with no approved template is stuck: the official
-   * channel cannot send without one, and writing one that matches the alert's
-   * variables is a separate screen and a piece of knowledge nobody has. So the
-   * one shape that always fits is offered ready to submit.
-   *
-   * Positional variables on purpose. The alert fills its facts in a fixed order
-   * (rule, measurement, where, excerpt), so a three-variable body is filled
-   * correctly whatever the rule watches, and Meta wants an example for each or
-   * it rejects the template on submission rather than on review.
-   */
   const [proposing, setProposing] = useState(false);
   const [proposed, setProposed] = useState<string | null>(null);
   const [proposeError, setProposeError] = useState<string | null>(null);
@@ -449,8 +360,6 @@ function AlertRuleDialog({
       businessPhoneId: draft.businessPhoneId,
       name: "alerta_analise",
       language: "pt_BR",
-      // UTILITY, not MARKETING: these carry no promotional content and are
-      // billed at roughly a quarter, which is the same call the CRM makes.
       category: "UTILITY",
       components: starterComponents(PROPOSED_TEMPLATE_BODY, [
         t("propose.exampleRule"),
@@ -468,8 +377,6 @@ function AlertRuleDialog({
       return;
     }
     setProposed(result.template.name);
-    // The create endpoint answers with an id and a status and nothing else, so
-    // the template is re-read before it can be offered in the picker.
     const refreshed = await getWhatsAppTemplateByIdAction(result.template.id);
     if (refreshed.template && isTemplateSendable(refreshed.template)) {
       setTemplates((current) => ({
@@ -480,14 +387,6 @@ function AlertRuleDialog({
     }
   };
 
-  /*
-   * Templates follow the NUMBER, the same way the official new-conversation
-   * dialog resolves them: a template is approved against one business phone, so
-   * asking for "all templates" offers the operator ones this rule could never
-   * send. Reloaded when the number changes, and filtered to what is actually
-   * sendable (approved, and with its header media present) through the same
-   * isTemplateSendable the send dialog uses.
-   */
   const phoneForTemplates = official ? (draft.businessPhoneId ?? "") : "";
   useEffect(() => {
     if (!phoneForTemplates) return;
@@ -521,9 +420,6 @@ function AlertRuleDialog({
 
   const save = async () => {
     setSaving(true);
-    // The instance goes in resolved, so what the picker showed is what is
-    // stored. Only for the unofficial channel: the official one sends from a
-    // business phone and carries no instance.
     const payload: AlertRuleDraft = {
       ...draft,
       accountId,
@@ -575,9 +471,8 @@ function AlertRuleDialog({
             />
           </div>
 
-          {/* The floor exists only where there is one conversation to measure.
-              A two-message chat scores badly because it barely happened, not
-              because it was handled badly. */}
+          {
+}
           {metric?.supportsMinMessages ? (
             <div className="flex flex-col gap-1">
               <ElevatedInput
@@ -592,8 +487,8 @@ function AlertRuleDialog({
             </div>
           ) : null}
 
-          {/* The window only exists for a metric counted over a span. Showing it
-              otherwise would be a setting that does nothing. */}
+          {
+}
           {metric?.windowed ? (
             <ElevatedInput
               label={t("fields.window")}
@@ -610,9 +505,8 @@ function AlertRuleDialog({
             value={draft.source ?? ""}
             onValueChange={(v) => set("source", (v || undefined) as AudienceSource | undefined)}
           >
-            {/* The default, and the one an operator almost always means: a rule
-                per channel is four cooldowns and four daily caps for one
-                concern. */}
+            {
+}
             <ElevatedSelectItem value="">{t("fields.watchedChannelAll")}</ElevatedSelectItem>
             {AUDIENCE_SOURCES.filter((s) => s !== "instagram").map((s) => (
               <ElevatedSelectItem key={s} value={s}>
@@ -630,10 +524,6 @@ function AlertRuleDialog({
             >
               {(options?.channels ?? ["unofficial", "official"]).map((c) => {
                 const s = statusFor(c);
-                // Offered but disabled, with the reason on the row. Removing it
-                // silently would read as a missing feature; a greyed control
-                // with no explanation sends people to support instead of to
-                // the connect screen.
                 const blocked = Boolean(channelStatus?.length) && s?.available === false;
                 return (
                   <ElevatedSelectItem
@@ -659,8 +549,8 @@ function AlertRuleDialog({
             />
           </div>
 
-          {/* The channel cannot send. Said here, once, in words, next to the
-              control that caused it — not discovered days later in LastError. */}
+          {
+}
           {channelBlocked ? (
             <p className="flex items-start gap-2 rounded-[--radius] bg-muted px-3 py-2 text-2xs text-warning-ink">
               <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" weight="fill" />
@@ -668,9 +558,8 @@ function AlertRuleDialog({
             </p>
           ) : null}
 
-          {/* The unofficial channel had no sender picker at all, which is half
-              the bug: with several numbers connected, "whichever one this
-              workspace has" picked for the operator, silently. */}
+          {
+}
           {!official && unofficialSenders.length > 0 ? (
             <ElevatedSelect
               label={t("fields.instance")}
@@ -743,8 +632,8 @@ function AlertRuleDialog({
             </div>
           ) : null}
 
-          {/* Not hidden behind "advanced": these two are what keep one bad
-              afternoon from becoming a hundred messages. */}
+          {
+}
           <div className="grid grid-cols-2 gap-3">
             <ElevatedInput
               label={t("fields.cooldown")}
@@ -776,9 +665,8 @@ function AlertRuleDialog({
           </label>
           <p className="text-2xs text-muted-foreground">{t("briefHint")}</p>
 
-          {/* Arming is blocked, turning it OFF never is. Mirrors the backend
-              rule exactly: refusing the off switch would trap an operator with
-              an alert they cannot disable, which is worse than the bug. */}
+          {
+}
           <label className={cn("flex items-center justify-between gap-3 rounded-[--radius] border border-border px-3 py-2")}>
             <span className="text-sm text-foreground">{t("fields.enabled")}</span>
             <ElevatedSwitch

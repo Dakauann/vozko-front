@@ -8,31 +8,13 @@ import { cn } from "@/lib/utils";
 import { getBrand } from "@/config/brand";
 import { useLocale, useTranslations } from "next-intl";
 
-/**
- * Shared shell for the terms and privacy documents.
- *
- * Read mode inside the Console world. The previous pages stacked full-width
- * cards with a staggered fade on every block — decoration on a document nobody
- * reads for pleasure, and no way to find clause 14 without scrolling past
- * thirteen others.
- *
- * What a reader actually needs from a legal document is position: which clause
- * am I in, what else is there, and how do I cite this to someone. So the page is
- * a specimen sheet — an engraved index rail that tracks the current section, and
- * a single measured column of numbered clauses. Every section is an anchor, so a
- * link to §7 lands on §7.
- */
 export interface LegalDocumentProps {
-  /** i18n namespace holding title/intro/sections. */
   namespace: "termsOfService" | "privacyPolicy";
-  /** Section keys, in document order. Numbering follows this array. */
   sections: string[];
-  /** ISO date the document last changed. */
   lastUpdated: string;
   version: string;
 }
 
-/** ~200 wpm over the rendered clause text. */
 function useReadingMinutes(texts: string[]): number {
   return useMemo(() => {
     const words = texts.join(" ").split(/\s+/).filter(Boolean).length;
@@ -79,9 +61,6 @@ export default function LegalDocument({
 
   const formattedDate = useMemo(
     () =>
-      // Parsed as local midnight, not UTC: `new Date("2026-08-03")` is UTC and
-      // renders as the 2nd in every timezone behind Greenwich — including
-      // Brazil, where this document is read.
       new Date(`${lastUpdated}T00:00:00`).toLocaleDateString(locale, {
         year: "numeric",
         month: "long",
@@ -90,9 +69,6 @@ export default function LegalDocument({
     [lastUpdated, locale],
   );
 
-  // Track the clause currently under the reader. rootMargin pins the trigger
-  // near the top so a heading counts as "current" once it reaches reading
-  // position, not when it first peeks in from the bottom.
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -111,7 +87,7 @@ export default function LegalDocument({
 
   return (
     <main className="bg-background">
-      {/* Document head: what this is, how current it is, how long it takes. */}
+      {}
       <header className="rule-engraved bg-card">
         <div className="mx-auto w-full max-w-[1100px] px-4 pb-8 pt-8 sm:px-6 lg:px-8">
           <Link
@@ -130,9 +106,8 @@ export default function LegalDocument({
             {t("intro", values)}
           </p>
 
-          {/* Each legend names the value directly beneath it. An earlier pass
-              had the version in the label and the date in the value, which read
-              as two unrelated facts stacked on each other. */}
+          {
+}
           <dl className="mt-6 flex flex-wrap items-baseline gap-x-10 gap-y-3">
             {[
               { label: t("meta.version"), value: version },
@@ -153,7 +128,7 @@ export default function LegalDocument({
 
       <div className="mx-auto w-full max-w-[1100px] px-4 sm:px-6 lg:px-8">
         <div className="gap-12 py-10 lg:grid lg:grid-cols-[210px_minmax(0,1fr)] lg:items-start">
-          {/* Index rail: the reader's position in the document. */}
+          {}
           <nav
             aria-label={t("tableOfContents")}
             className="mb-8 lg:sticky lg:top-16 lg:mb-0 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto"
@@ -192,7 +167,7 @@ export default function LegalDocument({
             </ol>
           </nav>
 
-          {/* The document itself: one measured column, numbered for citation. */}
+          {}
           <article className="min-w-0">
             {clauses.map((c) => (
               <section

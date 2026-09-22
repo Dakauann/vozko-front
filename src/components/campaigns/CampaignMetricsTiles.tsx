@@ -15,21 +15,6 @@ import type { CampaignMetrics } from "@/lib/campaigns/metrics";
 import { channelPlate } from "@/components/channels/channel-tile";
 import { cn } from "@/lib/utils";
 
-/**
- * The metric tiles on a campaign detail header.
- *
- * Lifted from the Cloud API campaign's detail page so both products present the
- * same wall of numbers: an icon plate, a small caption, a display-face value,
- * and a soft accent blob behind the plate. A channel supplies its own plate
- * colour, so the unofficial channel reads as graphite where the official reads
- * as WhatsApp green — the two send under different rules and an operator who
- * cannot tell them apart cannot know what they are allowed to send.
- *
- * The one tile that is not shared is `skippedNotOnWhatsApp`: it renders only
- * when the metrics carry it, because a channel that cannot check a number
- * before sending has no honest value to put there and a zero would read as
- * "we checked and none were dead".
- */
 export interface CampaignMetricsLabels {
   total: string;
   pending: string;
@@ -46,11 +31,8 @@ interface Tile {
   label: string;
   value: number;
   icon: ReactNode;
-  /** Plate class for the icon box. */
   plate: string;
-  /** Colour of the blurred accent behind the plate. */
   accent: string;
-  /** Optional second line, e.g. a completion percentage. */
   hint?: string;
 }
 
@@ -62,9 +44,7 @@ export function CampaignMetricsTiles({
 }: {
   metrics?: CampaignMetrics | null;
   labels: CampaignMetricsLabels;
-  /** Drives the "total" tile's plate, so each channel keeps its identity. */
   channel?: string;
-  /** The channel's own mark for the total tile. */
   glyph: ReactNode;
 }) {
   const m = metrics;
@@ -141,9 +121,6 @@ export function CampaignMetricsTiles({
   }
 
   return (
-    // Six across, wrapping — the official campaign's density. Fitting every
-    // tile onto one row instead squeezes each until the caption wraps and the
-    // numbers stop being scannable, which is the whole job of this strip.
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
       {tiles.map((tile) => (
         <div

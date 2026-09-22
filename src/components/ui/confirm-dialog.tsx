@@ -20,8 +20,6 @@ import { cn } from "@/lib/utils";
 
 type ConfirmTone = "danger" | "default";
 
-// Seeded grain palettes for the header band. Danger runs deep rose so the modal
-// reads as consequential the instant it opens; default carries the Signal Blue.
 const DANGER_PALETTE: ColorGroup[] = [
   { colors: ["#fb7185", "#f43f5e"], weight: 40 },
   { colors: ["#f43f5e", "#e11d48"], weight: 30 },
@@ -36,10 +34,7 @@ const DEFAULT_PALETTE: ColorGroup[] = [
 ];
 
 export interface ConfirmDialogProps {
-  /** Uncontrolled usage: the element that opens the dialog (wrapped as the
-   *  trigger). Omit when driving `open`/`onOpenChange` yourself. */
   trigger?: React.ReactNode;
-  /** Controlled open state. Omit to let the trigger manage it. */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 
@@ -47,26 +42,12 @@ export interface ConfirmDialogProps {
   description?: React.ReactNode;
   confirmLabel?: string;
   cancelLabel?: string;
-  /**
-   * Runs on confirm. If it returns a promise the buttons show a busy state and
-   * the dialog stays open until it settles, closing on success and staying open
-   * (so the user can retry) if it throws.
-   */
   onConfirm: () => void | Promise<void>;
-  /** "danger" (default) is destructive: rose grain header + rose confirm button. */
   tone?: ConfirmTone;
-  /** Overrides the default tone icon inside the header medallion. */
   icon?: React.ReactNode;
-  /** Disables confirm (e.g. a "type the name to confirm" gate). */
   confirmDisabled?: boolean;
 }
 
-/**
- * The single confirmation modal for destructive and other consequential actions.
- * Built on the AlertDialog primitive (accessible, escapes any stacking context)
- * with a grainy gradient header that mirrors the feature dialog and signals the
- * danger. Reuse it everywhere instead of hand-rolling an AlertDialog per site.
- */
 export function ConfirmDialog({
   trigger,
   open,
@@ -102,8 +83,6 @@ export function ConfirmDialog({
       setBusy(false);
       setOpen(false);
     } catch {
-      // Keep the dialog open on failure so the user can retry; the caller is
-      // responsible for surfacing the error (e.g. a toast).
       setBusy(false);
     }
   };
@@ -112,13 +91,12 @@ export function ConfirmDialog({
     <AlertDialog
       open={isOpen}
       onOpenChange={(next) => {
-        // Don't let an outside click / Escape close the modal mid-action.
         if (!busy) setOpen(next);
       }}
     >
       {trigger && <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>}
       <AlertDialogContent className="max-w-md gap-0 overflow-hidden rounded-[--radius] p-0 sm:rounded-[--radius]">
-        {/* Grainy gradient header with a floating medallion icon. */}
+        {}
         <div className="relative h-28 w-full overflow-hidden">
           <GrainBackground
             palette={danger ? DANGER_PALETTE : DEFAULT_PALETTE}

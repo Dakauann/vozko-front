@@ -6,11 +6,6 @@ import type {
 
 import { apiClient } from "@/lib/api/browser-client";
 
-/**
- * Runs one sandboxed turn against the agent. The backend intercepts every
- * tool execution; the provider error text (when any) comes back verbatim:
- * "model deprecated" or "context too long" IS what the operator is here to see.
- */
 export async function simulateAgentTurnAction(
     agentId: string,
     payload: {

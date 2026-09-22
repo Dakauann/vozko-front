@@ -3,7 +3,6 @@
 import { EmptyPreview } from "../message-node-primitives";
 import { DecisionBlock } from "./decision-block";
 
-// condition_check_label: has / doesn't-have a given label → the branch rows.
 export function ConditionCheckLabelPreview({
   config,
 }: {

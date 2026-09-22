@@ -58,23 +58,6 @@ const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:4000";
 const RECONNECT_BASE_DELAY = 1000;
 const RECONNECT_MAX_DELAY = 30000;
 
-/**
- * Fills the string fields the server tags `omitempty` but the type declares as
- * plain `string`.
- *
- * `lead_name`, `lead_number` and the `last_message_*` trio are all omitted from
- * the JSON when empty, so an unnamed group or a channel entry with no phone
- * arrives with those keys ABSENT while `InboxEntry` promises a string. The
- * inbox and search payloads land in state directly — they do not pass through
- * `normalizeEntry` — so that gap reached the UI: one keystroke in the CRM
- * search ran `entry.lead_number.toLowerCase()` over such an entry and threw.
- *
- * A spread rather than an allowlist, deliberately. `normalizeEntry` names every
- * field it keeps and drops the rest, which is right for a live patch rebuilt
- * from a partial payload and wrong here — these entries are already the correct
- * shape, and rebuilding them would strip whatever the allowlist has not caught
- * up to (close provenance, `ai_handler`).
- */
 function withEntryStringDefaults(entry: InboxEntry): InboxEntry {
   return {
     ...entry,
@@ -175,12 +158,6 @@ interface UseConversationWsReturn {
     campaignType?: CampaignType,
     whatsappCampaignType?: WhatsAppCampaignTypeFilter,
     conversationStatus?: string,
-    /**
-     * Narrows campaignId to a CAMPAIGN rather than the channel's primary
-     * container. Only the unofficial WhatsApp channel has two — a conversation
-     * belongs to a number forever, while a campaign is one run across many —
-     * so everywhere else this stays undefined and nothing changes.
-     */
     containerKind?: ContainerKind,
   ) => void;
   latestAnalysisUpdate: WsAnalysisUpdatePayload | null;
@@ -192,18 +169,10 @@ interface UseConversationWsReturn {
   ) => void;
   applyLeadRename: (leadId: string, name: string) => void;
 
-  /**
-   * The conversations open in floating windows, keyed by entry.
-   *
-   * Separate from `activeConversation`, which stays what the centre pane
-   * shows. Both ride this one socket and are fed by the same frames.
-   */
   windowConversations: WindowConversations;
-  /** Bumped on every open, so the deck can raise an already-open window. */
   windowFocusRequest: { key: string; nonce: number } | null;
   openConversationWindow: (input: OpenWindowConversationInput) => void;
   closeConversationWindow: (entryId: string, entryType: EntryType) => void;
-  /** Parks or restores a window, which is what decides read vs unread. */
   setConversationWindowVisible: (
     entryId: string,
     entryType: EntryType,
@@ -293,9 +262,6 @@ export function useConversationWs({
     new Map(),
   );
   const [loadingHistory, setLoadingHistory] = useState(false);
-  // True only for the initial open of a conversation (subscribe → first
-  // history batch). Drives the thread skeleton; distinct from loadingHistory,
-  // which covers paginating older messages / jump-to-message.
   const [loadingConversation, setLoadingConversation] = useState(false);
   const loadingConversationTimerRef = useRef<ReturnType<
     typeof setTimeout
@@ -352,17 +318,11 @@ export function useConversationWs({
   const [latestAnalysisUpdate, setLatestAnalysisUpdate] =
     useState<WsAnalysisUpdatePayload | null>(null);
 
-  // Conversations open in floating windows, beside the one the centre pane
-  // shows. Their thread semantics live in lib/conversations/windowed-
-  // conversations, which is pure and tested without a socket; this hook only
-  // feeds it frames and owns the wire.
   const [windowConversations, setWindowConversations] =
     useState<WindowConversations>(emptyWindowConversations);
   const windowConversationsRef = useRef<WindowConversations>(
     windowConversations,
   );
-  // Lets the deck raise a window for a conversation opened again, which changes
-  // no conversation state and would otherwise be invisible.
   const [windowFocusRequest, setWindowFocusRequest] = useState<{
     key: string;
     nonce: number;
@@ -397,9 +357,6 @@ export function useConversationWs({
   });
   const connectRef = useRef<(() => void) | null>(null);
   const disconnectRef = useRef<(() => void) | null>(null);
-  // One reconnect controller for the socket's lifetime: infinite capped backoff
-  // + reconnect-on-visibility/online, so a backgrounded tab reconnects on return
-  // instead of staying dead. Gated by shouldReconnect (enabled + authenticated).
   if (controllerRef.current === null) {
     controllerRef.current = createReconnectController({
       connect: () => connectRef.current?.(),
@@ -547,21 +504,6 @@ export function useConversationWs({
     }
   }, []);
 
-  /**
-   * Which VIEWS are holding each open conversation.
-   *
-   * Views are named — "pane" for the centre pane, "window" for a floating one —
-   * rather than counted. A count is wrong here because subscribing is not a
-   * balanced operation: `subscribe()` is called again every time an operator
-   * clicks the conversation they are already in, and each of those would raise
-   * a counter that only ONE later switch decrements. The conversation then
-   * never reaches zero, `unsubscribe` is never sent, and it keeps streaming
-   * long after the operator has moved on — which is how a conversation nobody
-   * was looking at was still being marked read.
-   *
-   * A set of names makes re-subscribing idempotent, which is exactly what the
-   * caller means by it.
-   */
   type SubscriptionHolder = "pane" | "window";
   const subscriptionHoldersRef = useRef<
     Map<
@@ -578,9 +520,6 @@ export function useConversationWs({
       holders.add(holder);
       subscriptionHoldersRef.current.set(key, { entryId, entryType, holders });
 
-      // Sent on every retain, not only the first. Re-subscribing is cheap and
-      // idempotent server-side, and it is what delivers the `subscribed` frame
-      // the newly attached view needs to render.
       send("subscribe", { entry_id: entryId, entry_type: entryType });
     },
     [send],
@@ -615,10 +554,6 @@ export function useConversationWs({
           (msg.message_type as string) ??
           (msg.messageType as string) ??
           "user_message",
-        // Who sent it. Dropping this on the live push would leave a message
-        // correctly placed on reload and on the wrong side of the thread the
-        // moment it arrived — the worst of both, because it looks like a
-        // rendering race rather than a missing field.
         direction: (msg.direction as ConversationMessage["direction"]) ??
           (msg.Direction as ConversationMessage["direction"]),
         from: (msg.from as string) ?? "",
@@ -654,22 +589,6 @@ export function useConversationWs({
     [],
   );
 
-  /**
-   * Rebuilds one inbox row from a live websocket payload.
-   *
-   * It is an ALLOWLIST, and that is its hazard: a field nobody remembered to add
-   * here is silently dropped every time the server pushes an update, so the row
-   * degrades in a live session and comes back correct on a page refresh — which
-   * reads as a flickering bug rather than as a missing line of code.
-   *
-   * That has already happened twice. `lead_picture` was sent by the backend and
-   * never copied, so an avatar vanished the moment a message arrived; `is_group`
-   * was added and not copied, so a group conversation turned back into a person
-   * — losing its glyph, its Grupo tab, and gaining a block button that addresses
-   * a lead it does not have.
-   *
-   * When you add a field to InboxEntry, add it here too.
-   */
   const normalizeEntry = useCallback(
     (raw: Record<string, unknown>): InboxEntry => {
       return {
@@ -678,9 +597,6 @@ export function useConversationWs({
           (raw.entry_type as EntryType) ??
           (raw.entryType as EntryType) ??
           "whatsapp",
-        // lead_id is what the memories tab and lead actions key on. Losing it
-        // here is what made memories vanish the moment a live message replaced
-        // the HTTP-loaded entry.
         lead_id:
           (raw.lead_id as string) ?? (raw.leadId as string) ?? undefined,
         lead_name: (raw.lead_name as string) ?? (raw.leadName as string) ?? "",
@@ -690,8 +606,6 @@ export function useConversationWs({
           (raw.lead_picture as string) ??
           (raw.leadPicture as string) ??
           undefined,
-        // Omitted by the server when false, so `?? false` is the correct
-        // reading of an absent key rather than a defensive default.
         is_group: (raw.is_group as boolean) ?? (raw.isGroup as boolean) ?? false,
         blocked: (raw.blocked as boolean) ?? false,
         entry_variables:
@@ -761,10 +675,6 @@ export function useConversationWs({
           (raw.latest_analysis as InboxEntry["latest_analysis"]) ??
           (raw.latestAnalysis as InboxEntry["latest_analysis"]) ??
           undefined,
-        // Omitted from the payload when there is nothing coming, so the
-        // fallback is undefined rather than a carried-over value: a row rebuilt
-        // after a message must not inherit a stale phase from the entry it
-        // replaced.
         analysis_phase:
           (raw.analysis_phase as InboxEntry["analysis_phase"]) ??
           (raw.analysisPhase as InboxEntry["analysis_phase"]) ??
@@ -782,15 +692,6 @@ export function useConversationWs({
     [],
   );
 
-  /**
-   * Feeds one frame to the floating windows, in addition to whatever the
-   * centre pane does with it below.
-   *
-   * Messages are normalized first so the pure reducer never sees wire shapes,
-   * and inbound messages a window is showing get their read receipt here — a
-   * conversation is read when the operator can SEE it, which a window is just
-   * as much as the centre pane.
-   */
   const routeEventToWindows = useCallback(
     (event: WsServerEvent) => {
       if (windowConversationsRef.current.size === 0) return;
@@ -825,10 +726,6 @@ export function useConversationWs({
         windowConversationsRef.current = next;
         setWindowConversations(next);
 
-        // A frame can CLOSE a window — the conversation was assigned to
-        // someone else and left this operator's scope, or the server
-        // unsubscribed it. The subscription that window was holding has to go
-        // with it, or the socket keeps streaming a thread nothing is showing.
         if (next.size < before.size) {
           for (const [key, state] of before) {
             if (next.has(key)) continue;
@@ -844,17 +741,6 @@ export function useConversationWs({
       if (unreadIds.length === 0) return;
       const payload = event.payload as { entry_id: string; entry_type: EntryType };
 
-      /**
-       * A receipt means "the operator has SEEN this", so only a window that is
-       * actually on screen may send one.
-       *
-       * Holding the subscription is not the same as reading it. A window
-       * parked in the dock still receives everything, and receipting there
-       * marked conversations read that nobody had looked at — including,
-       * confusingly, while the operator was working a different conversation
-       * in the centre pane entirely. Those messages raise the window's unread
-       * badge instead, and the receipts go out when it is restored.
-       */
       const holder = next.get(windowKey(payload.entry_id, payload.entry_type));
       if (!holder?.visible) return;
 
@@ -919,9 +805,6 @@ export function useConversationWs({
           const updated = normalizeEntry(
             event.payload.entry as unknown as Record<string, unknown>,
           );
-          // An update that arrives without a lead_id must not unlink a lead the
-          // loaded entry already knows: the linkage only ever grows, it does
-          // not disappear because one broadcast omitted the field.
           const withLead = (old?: InboxEntry): InboxEntry =>
             updated.lead_id || !old?.lead_id
               ? updated
@@ -1329,7 +1212,7 @@ export function useConversationWs({
             return {
               ...prev,
               messages: merged,
-              has_more: prev.has_more, // keep user's scroll-up state
+              has_more: prev.has_more,
               ...(total !== undefined ? { total } : {}),
             };
           });
@@ -1737,18 +1620,6 @@ export function useConversationWs({
         case "conversation:analysis_update": {
           const { entry_id, entry_type, analysis, pending } = event.payload;
           setLatestAnalysisUpdate(event.payload);
-          /*
-           * The verdict and the pending flag move independently.
-           *
-           * A "queued" frame carries no analysis, so keeping the one already on
-           * the entry is the whole point: a conversation being re-analysed
-           * still has last revision's answer, and blanking it for the minutes
-           * until the batch runs would read as the analysis having been lost.
-           */
-          // This frame comes from the ENGINE, so its pending flag means queued,
-          // never the earlier "waiting for the conversation to settle" phase.
-          // A frame that says not-pending clears the phase entirely: the
-          // analysis it announces is the one that was being waited for.
           const applyAnalysis = (e: InboxEntry): InboxEntry => ({
             ...e,
             latest_analysis: analysis ?? e.latest_analysis,
@@ -1842,7 +1713,7 @@ export function useConversationWs({
     const existingSocket = wsRef.current;
     if (existingSocket) {
       try {
-        existingSocket.onclose = null; 
+        existingSocket.onclose = null;
         existingSocket.onerror = null;
         existingSocket.onmessage = null;
         existingSocket.onopen = null;
@@ -1854,14 +1725,10 @@ export function useConversationWs({
           existingSocket.close();
         }
       } catch {
-        /* ignore */
       }
       wsRef.current = null;
     }
 
-    // Auth rides the httpOnly cookie on the WS handshake (attached same-site by
-    // the browser); the access token is no longer placed in the URL. Session
-    // presence was already gated above via `token`.
     if (intentionalDisconnectRef.current || !connectionParamsRef.current.enabled) {
       isConnectingRef.current = false;
       return;
@@ -1898,8 +1765,6 @@ export function useConversationWs({
       const wasReconnect = everConnectedRef.current;
       everConnectedRef.current = true;
 
-      // Reset backoff only after the connection stays up a while, so a flapping
-      // socket doesn't reset to the base delay every cycle.
       const stableTimer = setTimeout(() => {
         controllerRef.current?.resetBackoff();
       }, 5000);
@@ -1913,9 +1778,6 @@ export function useConversationWs({
         }),
       );
 
-      // EVERY conversation still on screen comes back, not just the centre
-      // pane's: a dropped socket must not leave three open windows dead while
-      // the fourth one recovers.
       if (wasReconnect) {
         for (const { entryId, entryType } of subscriptionHoldersRef.current.values()) {
           ws.send(
@@ -1965,17 +1827,12 @@ export function useConversationWs({
       }
       setLoadingConversation(false);
 
-      // Same for the floating windows: a dropped socket must not leave four
-      // spinners turning forever. Their subscriptions are kept, so the
-      // reconnect above brings every one of them back.
       const settled = clearWindowLoading(windowConversationsRef.current);
       if (settled !== windowConversationsRef.current) {
         windowConversationsRef.current = settled;
         setWindowConversations(settled);
       }
 
-      // The controller decides whether/when to retry (infinite capped backoff,
-      // gated by shouldReconnect).
       controllerRef.current?.scheduleReconnect();
     };
   }, [handleServerEvent]);
@@ -2013,17 +1870,9 @@ export function useConversationWs({
     disconnectRef.current = disconnect;
   }, [disconnect]);
 
-  // Socket lifecycle is keyed ONLY on the stable connection scope
-  // (enabled + token presence + workspace + department). It deliberately does
-  // NOT depend on campaignId/campaignType, campaign and filter switches happen
-  // over the same socket via switchView(), so reconnecting on them would be a
-  // wasteful teardown. It also goes through connectRef/disconnectRef instead of
-  // the connect/disconnect callbacks so a re-render that changes their identity
-  // can never tear down and recreate the socket (the reconnect-on-render storm).
   const hasToken = !!token;
   useEffect(() => {
     if (enabled && hasToken && workspaceId) {
-      // Attach visibility/online reconnect listeners for the socket's life.
       controllerRef.current?.start();
       const connectTimeout = setTimeout(() => {
         connectRef.current?.();
@@ -2062,16 +1911,11 @@ export function useConversationWs({
         entry_type: entryType,
       };
 
-      // Retain BEFORE releasing the previous one: if both views were showing
-      // the same entry the count never touches zero, so no `unsubscribe` is
-      // sent for a conversation still on screen.
       retainSubscription(entryId, entryType, "pane");
       if (isSwitch) {
         releaseSubscription(previous.entry_id, previous.entry_type, "pane");
       }
 
-      // Show the thread skeleton while the first history batch loads, but not
-      // when re-opening a conversation we already have cached in memory.
       const active = activeConversationRef.current;
       const alreadyLoaded =
         active?.entry_id === entryId &&
@@ -2082,15 +1926,12 @@ export function useConversationWs({
           clearTimeout(loadingConversationTimerRef.current);
         }
         setLoadingConversation(true);
-        // Safety net: never leave the skeleton up forever if history never
-        // arrives (dropped socket, backend hiccup).
         loadingConversationTimerRef.current = setTimeout(() => {
           loadingConversationTimerRef.current = null;
           setLoadingConversation(false);
         }, 12000);
       }
 
-      // `subscribe` itself is sent by retainSubscription above.
     },
     [retainSubscription, releaseSubscription],
   );
@@ -2222,10 +2063,6 @@ export function useConversationWs({
     [send],
   );
 
-  // --- Conversations open in floating windows ---------------------------
-  //
-  // Every one of these is addressed by entry rather than by "whatever is
-  // current", which is what lets several be open and worked at once.
 
   const applyWindows = useCallback(
     (next: WindowConversations) => {
@@ -2243,9 +2080,6 @@ export function useConversationWs({
       const current = windowConversationsRef.current;
       const alreadyOpen = current.has(key);
 
-      // The cap lives here because this map is the list a window is derived
-      // from. A Map iterates in insertion order, so the first key is the one
-      // opened longest ago — the one that gives way.
       let next = current;
       let retired: { entryId: string; entryType: EntryType } | null = null;
       if (!alreadyOpen && current.size >= MAX_OPEN_WINDOWS) {
@@ -2263,26 +2097,9 @@ export function useConversationWs({
       applyWindows(openWindowConversation(next, input));
 
       if (retired) releaseSubscription(retired.entryId, retired.entryType, "window");
-      // A window already open is being re-focused, and it is already holding
-      // its subscription; retaining again would leak a holder that no close
-      // will ever release.
       if (!alreadyOpen) {
         retainSubscription(input.entryId, input.entryType, "window");
 
-        // Ask for the transcript explicitly rather than relying on the one
-        // that rides the subscribe reply.
-        //
-        // The server remembers which messages it has already sent each
-        // CONNECTION per entry, and filters them out of a subscribe's history.
-        // That is right when one socket shows one conversation — a re-subscribe
-        // then means "I still have these" — but a window is a SECOND view on
-        // the same socket, and it starts empty. Without this it opens blank for
-        // any conversation the centre pane has already shown.
-        //
-        // `load_history` is not filtered, and asking for what came before NOW
-        // is how you ask for the newest page. The reducer merges by message id,
-        // so this frame and the subscribe's own history can arrive in either
-        // order, or both, without duplicating a line.
         send("load_history", {
           entry_id: input.entryId,
           entry_type: input.entryType,
@@ -2290,8 +2107,6 @@ export function useConversationWs({
         });
       }
 
-      // Bumped even for a window already open, so picking that conversation
-      // again brings its window forward rather than appearing to do nothing.
       windowFocusNonceRef.current += 1;
       setWindowFocusRequest({ key, nonce: windowFocusNonceRef.current });
     },
@@ -2308,14 +2123,6 @@ export function useConversationWs({
     [applyWindows, releaseSubscription],
   );
 
-  /**
-   * Parks or restores a window, as far as READING is concerned.
-   *
-   * The deck owns whether a window is minimized; this is that fact reaching the
-   * socket, because it decides whether arriving messages are receipted as read
-   * or counted as unread. Restoring one sends the receipts that were held back
-   * while it sat in the dock.
-   */
   const setConversationWindowVisible = useCallback(
     (entryId: string, entryType: EntryType, visible: boolean) => {
       const key = windowKey(entryId, entryType);
@@ -2513,7 +2320,7 @@ export function useConversationWs({
       setLoadingKanbanColumn(stageId);
       setFunnelColumns((prev) => {
         const existing = prev.get(stageId);
-        if (!existing) return prev; 
+        if (!existing) return prev;
         const newMap = new Map(prev);
         newMap.set(stageId, { ...existing, loading: true });
         return newMap;
@@ -2552,19 +2359,6 @@ export function useConversationWs({
     [send],
   );
 
-  /**
-   * Reflects a lead rename across every list already on screen.
-   *
-   * A lead can own several conversations — official WhatsApp entries across
-   * campaigns and an unofficial WhatsApp conversation — and renaming the
-   * person means all of those lead-backed rows are now that name. Keyed on
-   * lead_id rather than entry_id for exactly that reason: renaming from one
-   * conversation and watching the row above it keep the old name would read as
-   * a failed save.
-   *
-   * Local only. The write already succeeded server-side by the time this runs;
-   * this is what spares the operator a reload.
-   */
   const applyLeadRename = useCallback((leadId: string, name: string) => {
     if (!leadId) return;
 
@@ -2573,9 +2367,6 @@ export function useConversationWs({
         entry.lead_id === leadId ? { ...entry, lead_name: name } : entry,
       );
 
-    // The open conversation carries no lead_id of its own, so it is matched
-    // through the refs rather than through the updaters above — a Set filled
-    // inside one setState updater is not reliably readable from another.
     const owned = new Set(
       [...inboxRef.current, ...(searchResultsRef.current ?? [])]
         .filter((entry) => entry.lead_id === leadId)
@@ -2645,7 +2436,6 @@ export function useConversationWs({
         previousSearchEntry,
       });
 
-      // Optimistic close provenance for human menu finish (server confirms via WS).
       const statusPatch =
         status === "finished"
           ? {
@@ -2730,9 +2520,6 @@ export function useConversationWs({
         (previousView.campaignType ?? "") === resolvedCampaignType &&
         (previousView.whatsAppCampaignType ?? "") ===
           resolvedWhatsAppCampaignType &&
-        // A container-kind change is a different set of conversations, so it is
-        // never "only the status changed" — treating it as one would keep the
-        // previous scope's inbox on screen.
         (previousView.containerKind ?? "") === resolvedContainerKind &&
         previousView.conversationStatus !== resolvedConversationStatus;
 

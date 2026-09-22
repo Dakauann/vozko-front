@@ -98,10 +98,8 @@ describe("SimulatorClient", () => {
         await sendMessage("quanto custa?");
 
         expect(await screen.findByText("Oi!")).toBeInTheDocument();
-        // Segments are separate bubbles: channel realism, not one blob.
         expect(screen.getByText("Como posso ajudar?")).toBeInTheDocument();
         expect(screen.getByText("quanto custa?")).toBeInTheDocument();
-        // The tool call sits inline, named for humans, marked simulated.
         expect(screen.getAllByText("Memória do lead").length).toBeGreaterThan(0);
         expect(screen.getAllByText(t.tool.simulated).length).toBeGreaterThan(0);
 
@@ -113,9 +111,6 @@ describe("SimulatorClient", () => {
         });
     });
 
-    // A knowledge-base search runs for real server-side. Labelling its result
-    // "simulado" would tell the operator the exact opposite of the truth, and
-    // hide the one thing they opened this page to check.
     it("marks a tool that really executed as executed, not simulated", async () => {
         simulateAction.mockResolvedValue({
             turn: turnResponse({
@@ -153,8 +148,6 @@ describe("SimulatorClient", () => {
                     { role: "assistant", content: "Como posso ajudar?" },
                 ],
                 leadId: undefined,
-                // The remembered fact from turn 1 rides into turn 2: the
-                // sandbox swallowed the write, the session replays it.
                 sessionMemories: [
                     { id: "sim00001", content: "Prefere boleto.", category: "" },
                 ],
@@ -167,7 +160,6 @@ describe("SimulatorClient", () => {
         renderSimulator();
         await sendMessage("oi");
 
-        // The provider's own words ARE the diagnostic this page exists for.
         expect(await screen.findByText("model deprecated: use x")).toBeInTheDocument();
 
         fireEvent.click(screen.getByText(t.retry));
@@ -186,8 +178,6 @@ describe("SimulatorClient", () => {
         await sendMessage("oi");
         await screen.findByText("Oi!");
 
-        // The rail renders twice (desktop inline + mobile slide-over), so text
-        // queries match both copies.
         fireEvent.click(screen.getAllByText(t.rail.tabs.xray)[0]);
         expect(screen.getAllByText("PROMPT-MONTADO").length).toBeGreaterThan(0);
         expect(screen.getAllByText("120 entrada · 40 saída").length).toBeGreaterThan(0);
@@ -200,7 +190,7 @@ describe("SimulatorClient", () => {
         await screen.findByText("Oi!");
 
         fireEvent.click(screen.getByText(t.reset));
-        expect(screen.getByText("Oi!")).toBeInTheDocument(); // still there
+        expect(screen.getByText("Oi!")).toBeInTheDocument();
 
         fireEvent.click(screen.getByLabelText(t.resetConfirmYes));
         await waitFor(() =>

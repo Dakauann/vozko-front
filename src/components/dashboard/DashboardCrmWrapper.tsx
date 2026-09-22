@@ -18,8 +18,6 @@ export default function DashboardCrmWrapper({
   const { currentDepartment } = useDepartment();
   const crmScopeKey = `${currentWorkspace?.id ?? "no-workspace"}:${currentDepartment?.id ?? "all-departments"}`;
 
-  // `token` is a session-presence signal for the conversation socket, not a real
-  // token (auth rides the httpOnly cookie). The user id flips on login/logout.
   return (
     <CrmProvider key={crmScopeKey} token={user?.id ?? ""} enabled>
       {children}

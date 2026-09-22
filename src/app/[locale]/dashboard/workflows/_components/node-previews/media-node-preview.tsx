@@ -9,9 +9,6 @@ import {
 } from "@/components/icons";
 import { getMediaAction } from "@/app/actions/medias";
 
-// useResolvedMedia resolves a media reference (direct URL or saved media id) to a
-// concrete url + type, fetching the saved media lazily. Shared by the neutral
-// MediaNodePreview (VoIP) and the WhatsApp media render (send-media).
 export function useResolvedMedia(
   mediaId: string | undefined,
   initialUrl: string | undefined,
@@ -40,9 +37,6 @@ export function useResolvedMedia(
   return { url, type, loading };
 }
 
-// MediaNodePreview resolves a media reference and renders an inline
-// thumbnail/player for image, video, audio or document. Used by the legacy VoIP
-// play-audio preview (neutral styling).
 export function MediaNodePreview({
   name,
   previewUrl: initialUrl,

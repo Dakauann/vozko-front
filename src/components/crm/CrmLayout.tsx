@@ -189,27 +189,16 @@ export interface CrmTranslations {
 interface CrmLayoutProps {
   campaignId?: string;
   campaignType?: CampaignType;
-  /**
-   * Narrows campaignId to a CAMPAIGN rather than the channel's primary
-   * container. Only the unofficial WhatsApp channel has both.
-   */
   containerKind?: ContainerKind;
-  /**
-   * Narrows the inbox to one channel, for channels that have no campaigns of
-   * their own. Undefined means "every channel".
-   */
   channelFilter?: EntryType;
   whatsappCampaignType?: WhatsAppCampaignTypeFilter;
   enabled?: boolean;
   embedded?: boolean;
   translations: CrmTranslations;
   toolbarExtra?: React.ReactNode;
-  /** Rendered immediately before the connected-users control (e.g. live ops metrics). */
   toolbarBeforeUsers?: React.ReactNode;
 }
 
-// A saved view may carry an axis the global board doesn't render (carteira /
-// custom); fall back to the stage axis so the switcher stays valid.
 function coerceGroupBy(value: string): CrmGroupBy {
   return value === "stage" ||
     value === "label" ||
@@ -219,18 +208,8 @@ function coerceGroupBy(value: string): CrmGroupBy {
     : "stage";
 }
 
-// Cards fetched per column page. Matches CrmFunnelView's hard-coded onLoadMore
-// page size so the board's first page and its "load more" pages stay aligned.
 const BOARD_PAGE_SIZE = 20;
 
-/**
- * Channel badge for the conversation header.
- *
- * An operator working several inboxes has to be able to tell at a glance where a
- * reply will be sent. This is a registry rather than a chain of ternaries so a
- * new channel is one entry and never silently falls through to the phone icon,
- * which is what "unknown" looks like here.
- */
 const CHANNEL_BADGES: Record<
   string,
   { className: string; Icon: typeof WhatsappLogo }
@@ -240,21 +219,10 @@ const CHANNEL_BADGES: Record<
     className: "bg-muted",
     Icon: InstagramLogo,
   },
-  // Telegram blue, the brand's own #229ED9 rather than the nearest Tailwind sky.
   telegram: { className: "bg-[#229ED9]", Icon: TelegramLogo },
-  // Same glyph as WhatsApp because it IS WhatsApp to the customer, but a
-  // muted-foreground chip rather than the healthy green: an operator has to be
-  // able to tell at a glance which transport a reply will leave on, since the
-  // two send from different numbers with different rules. Falling through to
-  // the default here would render a phone icon, which is what "unknown" looks
-  // like — the exact bug this registry exists to prevent.
   unofficial_whatsapp: { className: "bg-muted-foreground", Icon: WhatsappLogo },
 };
 
-// The predicate that isolates one board column, mirroring the backend
-// crmboard.withPredicate: stage/label/owner columns append an `in` predicate, the
-// owner "unassigned" swimlane an `is_empty`, and none/__all__ add nothing. Used to
-// page a single column through /crm/entries.
 function columnPredicate(
   groupBy: CrmGroupBy,
   columnId: string,
@@ -271,7 +239,6 @@ function columnPredicate(
   return { field: "stage", operator: "in", values: [columnId] };
 }
 
-// base filter AND (column predicate), matching the backend's per-column narrowing.
 function withColumnPredicate(
   base: CrmFilter,
   p: CrmFilterPredicate | null,
@@ -299,16 +266,11 @@ export default function CrmLayout({
   const tWindow = useTranslations("liveChat.conversationWindow");
   const tBoard = useTranslations("crmBoard");
   const [mobileShowConversation, setMobileShowConversation] = useState(false);
-  // Closed by default; opened on demand via the info button in the header.
   const [infoPanelOpen, setInfoPanelOpen] = useState(false);
-  // Read-only workflow-run viewer, opened from the header's Fluxo chip.
   const [workflowDrawerHandler, setWorkflowDrawerHandler] =
     useState<AIHandler | null>(null);
   const [viewMode, setViewMode] = useState<CrmViewMode>("classic");
-  // Board axis for the workspace-global (no-campaign) funnel. Stored in local
-  // state; the campaign WS funnel path is always grouped by stage and ignores it.
   const [groupBy, setGroupBy] = useState<CrmGroupBy>("stage");
-  // Global-board filter (from the filter bar / a saved view), synced to the URL.
   const [filter, setFilter] = useState<CrmFilter>(emptyCrmFilter);
   const [savedViews, setSavedViews] = useState<SavedView[]>([]);
   const [activeViewId, setActiveViewId] = useState<string | null>(null);
@@ -316,13 +278,8 @@ export default function CrmLayout({
   const defaultViewAppliedRef = useRef(false);
   const [boardColumns, setBoardColumns] = useState<CrmColumn[] | null>(null);
   const [activePipelineId, setActivePipelineId] = useState<string>("");
-  // The unified Funil selection: which pipeline (conversation OR opportunity) the
-  // board currently shows. Drives whether we render the conversation board or the
-  // deal board on the SAME surface.
   const [selectedPipeline, setSelectedPipeline] =
     useState<SelectedPipeline | null>(null);
-  // The workspace default conversation funnel, kept so we can snap back to a concrete
-  // funnel when the user switches to the stage axis while on "Todos os funis".
   const [defaultConvPipeline, setDefaultConvPipeline] = useState<{
     id: string;
     name: string;
@@ -418,33 +375,13 @@ export default function CrmLayout({
 
   const isCallBusy = useCallActive();
 
-  // A campaign is now an OPTIONAL scope, not a hard gate. With no campaign the
-  // board runs workspace-global, driven by GET /crm/board; with a campaign the
-  // existing WS funnel path is used.
   const hasCampaign = !!campaignId && !!campaignType;
   const isGlobalBoard = !hasCampaign && viewMode === "funnel";
-  // "Tabela" is a THIRD, additional view mode: a flat DashboardTable that shares
-  // the board filter. It never replaces the classic inbox ("Lista" / CrmInbox),
-  // which stays exactly as-is in both campaign and global modes.
   const isGlobalTable = !hasCampaign && viewMode === "table";
-  // The unified board shows the DEAL board whenever an opportunity pipeline is
-  // selected (global surface only), INDEPENDENT of viewMode, deals have their own
-  // board and no Lista/Tabela variants. Keeping it independent means the user's
-  // conversation viewMode (Lista/Kanban/Tabela) is preserved when they switch back.
   const showOpportunityBoard =
     !hasCampaign && selectedPipeline?.objectType === "opportunity";
 
-  // Scope breadcrumb copy. A funnel only scopes the Kanban / deal board; Chat and
-  // Tabela are inherently cross-funnel, so they always read "Todos os funis".
 
-  // The funnel every stage list in this surface is about.
-  //
-  // Same derivation the board uses for its columns, and that is the point: before
-  // this, the board resolved the selected funnel while "Gerenciar Etapas", the
-  // table's stage filter and the bulk "Mover etapa" menu all read the workspace
-  // default — so the columns on screen and the stage list beside them could
-  // disagree. "Todos os funis" is deliberately undefined: a cross-funnel scope has
-  // no single stage set, so the server's default resolution is the honest answer.
   const stagePipelineId =
     activePipelineId && activePipelineId !== ALL_FUNNELS_ID
       ? activePipelineId
@@ -463,8 +400,6 @@ export default function CrmLayout({
     reloadLabels,
   ]);
 
-  // Resolve the workspace-global conversation pipeline (default, else first) so
-  // the global board scopes to it. An empty id still returns all global stages.
   useEffect(() => {
     if (!enabled || hasCampaign) return;
     let cancelled = false;
@@ -473,13 +408,7 @@ export default function CrmLayout({
       if (cancelled) return;
       const def = pipelines.find((p) => p.isDefault) ?? pipelines[0];
       if (def) setDefaultConvPipeline({ id: def.id, name: def.name });
-      // Only fall back to the default when nothing is already selected. This effect
-      // resolves AFTER the network round-trip, so an unguarded set would clobber a
-      // funnel the URL-hydration effect restored synchronously ("selector shows X but
-      // the board renders the default on initial load").
       setActivePipelineId((prev) => prev || (def?.id ?? ""));
-      // Seed the unified selector with the default conversation funnel (unless the
-      // user has already picked one this session).
       setSelectedPipeline(
         (prev) =>
           prev ??
@@ -493,9 +422,6 @@ export default function CrmLayout({
     };
   }, [enabled, hasCampaign]);
 
-  // Fetch the global board columns for the current axis. The owner axis needs the
-  // workspace assignable members as its columns (plus the backend's trailing
-  // "Sem responsável" swimlane).
   const refetchBoard = useCallback(async () => {
     if (!isGlobalBoard) return;
     let owners: CrmBoardOwner[] = [];
@@ -510,8 +436,6 @@ export default function CrmLayout({
     }
     const { board } = await getCrmBoardAction({
       groupBy,
-      // "Todos os funis" (sentinel) → no pipeline scope: the backend reads an absent
-      // pipelineId as the workspace-wide view for the global owner/label axes.
       pipelineId:
         activePipelineId && activePipelineId !== ALL_FUNNELS_ID
           ? activePipelineId
@@ -523,22 +447,13 @@ export default function CrmLayout({
     setBoardColumns(board?.columns ?? []);
   }, [isGlobalBoard, groupBy, activePipelineId, currentWorkspace?.id, filter]);
 
-  // Unified Funil selector: pick a conversation OR opportunity pipeline. A
-  // conversation pipeline scopes the conversation board (activePipelineId); an
-  // opportunity pipeline flips the surface to the deal board. Switching to the deal
-  // board forces funnel mode (it has no list/table view).
   const handleSelectPipeline = useCallback((p: SelectedPipeline) => {
     setSelectedPipeline(p);
-    // Only conversation funnels drive the conversation board's pipeline scope; the
-    // viewMode is left untouched so switching funnels preserves Lista/Kanban/Tabela.
     if (p.objectType === "conversation") {
       setActivePipelineId(p.id);
     }
   }, []);
 
-  // Stage columns are pipeline-specific, so "Todos os funis" can't render them. If the
-  // user is on the global scope and switches to the etapa axis, snap back to a concrete
-  // funnel (the default) so the stage board always has real columns.
   useEffect(() => {
     if (
       groupBy === "stage" &&
@@ -554,8 +469,6 @@ export default function CrmLayout({
     }
   }, [groupBy, activePipelineId, defaultConvPipeline]);
 
-  // Initial load + reload on axis / pipeline / filter / mode change. Debounced
-  // so a burst of filter-bar edits collapses into a single board fetch.
   useEffect(() => {
     const t = setTimeout(() => {
       void refetchBoard();
@@ -563,8 +476,6 @@ export default function CrmLayout({
     return () => clearTimeout(t);
   }, [refetchBoard]);
 
-  // WS broadcasts (stage_update / entry_update, ...) mutate the shared inbox; a
-  // debounced refetch keeps the global board in sync without a bespoke channel.
   useEffect(() => {
     if (!isGlobalBoard) return;
     const t = setTimeout(() => {
@@ -573,7 +484,6 @@ export default function CrmLayout({
     return () => clearTimeout(t);
   }, [inbox, isGlobalBoard, refetchBoard]);
 
-  // Apply a saved view's filter + groupBy (+ pinned pipeline) in one shot.
   const applyView = useCallback((view: SavedView) => {
     setFilter(view.filter ?? emptyCrmFilter);
     setGroupBy(coerceGroupBy(view.groupBy));
@@ -581,8 +491,6 @@ export default function CrmLayout({
     setActiveViewId(view.id);
   }, []);
 
-  // Editing the filter bar or the axis diverges from the active saved view, so
-  // drop the active-view highlight; the URL still carries the raw filter/axis.
   const handleFilterChange = useCallback((next: CrmFilter) => {
     setFilter(next);
     setActiveViewId(null);
@@ -635,8 +543,6 @@ export default function CrmLayout({
     [reloadSavedViews],
   );
 
-  // Overwrite a saved view's filter + groupBy (+ pinned pipeline) with the board's
-  // current state, so "Atualizar com filtros atuais" persists what the user tuned.
   const handleUpdateViewToCurrent = useCallback(
     async (id: string) => {
       await updateSavedViewAction(id, {
@@ -678,9 +584,6 @@ export default function CrmLayout({
     [reloadSavedViews],
   );
 
-  // Load the workspace's conversation saved views for the global board, then apply
-  // the default view ONCE on first load unless the URL already deep-links a view
-  // or a raw filter (a shared link always wins over the personal default).
   useEffect(() => {
     if (!enabled || hasCampaign) return;
     void reloadSavedViews().then((views) => {
@@ -688,8 +591,6 @@ export default function CrmLayout({
       defaultViewAppliedRef.current = true;
       if (typeof window !== "undefined") {
         const params = new URLSearchParams(window.location.search);
-        // A deep link that already pins state (view / filter / funnel) wins over the
-        // default saved view, so its pinned pipeline can't clobber the restored funnel.
         if (params.get("v") || params.get("f") || params.get("p")) return;
       }
       const def = views.find((v) => v.isDefault);
@@ -697,8 +598,6 @@ export default function CrmLayout({
     });
   }, [enabled, hasCampaign, reloadSavedViews, applyView]);
 
-  // Hydrate groupBy / active view / filter from the URL once on mount so a
-  // shared link deep-links into the same board state.
   useEffect(() => {
     if (urlHydratedRef.current) return;
     urlHydratedRef.current = true;
@@ -712,8 +611,6 @@ export default function CrmLayout({
     if (f) setFilter(decodeFilterParam(f));
     const v = params.get("v");
     if (v) setActiveViewId(v);
-    // Deep-link the selected funnel (id + object type). The name resolves once the
-    // selector loads its pipeline lists; a placeholder keeps the trigger sensible.
     const p = params.get("p");
     const pt = params.get("pt");
     if (p && (pt === "conversation" || pt === "opportunity")) {
@@ -726,8 +623,6 @@ export default function CrmLayout({
     }
   }, [hasCampaign]);
 
-  // Reflect groupBy / active view / filter back into the URL (replace, no
-  // history spam) once hydration has run.
   useEffect(() => {
     if (
       !urlHydratedRef.current ||
@@ -756,8 +651,6 @@ export default function CrmLayout({
     void refetchBoard();
   }, [refetchBoard]);
 
-  // Adapt the fetched board columns into the shapes CrmFunnelView already renders:
-  // columns become "stages", entries become a funnel-column map + summary.
   const globalBoardStages = useMemo<Stage[]>(() => {
     if (!boardColumns) return [];
     return boardColumns.map((c, i) => ({
@@ -774,9 +667,6 @@ export default function CrmLayout({
     }));
   }, [boardColumns]);
 
-  // Per-column state for the global board. Seeded (page 1) from the board fetch,
-  // then grown by handleRequestGlobalColumn so a column with more than one page of
-  // cards can "load more" instead of silently capping at the first page.
   const [globalBoardFunnelColumns, setGlobalBoardFunnelColumns] = useState<
     Map<string, FunnelColumnState> | undefined
   >(undefined);
@@ -788,8 +678,6 @@ export default function CrmLayout({
     }
     const map = new Map<string, FunnelColumnState>();
     for (const col of boardColumns) {
-      // Go serializes an empty column's `entries` (a nil slice) as null, so guard
-      // before mapping, an empty stage/label/owner column must not crash the board.
       const colEntries = col.entries ?? [];
       const total = col.total ?? 0;
       map.set(col.id, {
@@ -804,12 +692,9 @@ export default function CrmLayout({
     setGlobalBoardFunnelColumns(map);
   }, [boardColumns]);
 
-  // Fetch and append the next page of ONE column via /crm/entries with the column
-  // predicate appended to the active filter (the same narrowing the board does
-  // server-side per column). Reuses the shared filter engine; no bespoke endpoint.
   const handleRequestGlobalColumn = useCallback(
     async (columnId: string, page = 1, pageSize = BOARD_PAGE_SIZE) => {
-      if (page <= 1) return; // page 1 already arrives with the board fetch
+      if (page <= 1) return;
       setGlobalBoardFunnelColumns((prev) => {
         if (!prev?.has(columnId)) return prev;
         const next = new Map(prev);
@@ -943,10 +828,6 @@ export default function CrmLayout({
 
   const filteredInbox = useMemo(() => {
     let list = inbox;
-    // Channels without campaigns (Instagram, Telegram) are selected by CHANNEL
-    // rather than by campaign type, so the toolbar's choice narrows the list
-    // here. WhatsApp and voice keep flowing through campaignType, which also
-    // drives the campaign sub-filters.
     if (channelFilter) {
       list = list.filter((entry) => entry.entry_type === channelFilter);
     }
@@ -964,13 +845,6 @@ export default function CrmLayout({
     [subscribe],
   );
 
-  /**
-   * Opens a conversation in its own window, without disturbing the centre pane.
-   *
-   * The inbox entry is passed through so the window has a name and a reply
-   * window to show immediately, rather than an empty title bar until the
-   * server's `subscribed` frame lands.
-   */
   const handleOpenInWindow = useCallback(
     (entry: InboxEntry) => {
       openConversationWindow({
@@ -988,15 +862,8 @@ export default function CrmLayout({
     [openConversationWindow],
   );
 
-  /**
-   * Room reserved at the bottom for parked conversations.
-   *
-   * The dock is fixed to the viewport, so without this it would sit on top of
-   * the centre pane's composer — the one control an operator needs most.
-   */
   const [dockHeightPx, setDockHeightPx] = useState(0);
 
-  /** The centre pane's own conversation, moved out into a window. */
   const handlePopOutActive = useCallback(() => {
     if (!activeConversation) return;
     openConversationWindow({
@@ -1013,23 +880,13 @@ export default function CrmLayout({
     });
   }, [activeConversation, openConversationWindow]);
 
-  // Cold outbound on the unofficial WhatsApp channel. Gated on the SEND
-  // permission rather than on update: replying is attendance, but messaging a
-  // stranger is the action that gets an unofficial number banned, so an
-  // attendant with full attendance rights does not get it by default.
   const canStartConversation = can("unofficial_whatsapp_instances", "send");
-  // A SECOND, independent gate. Folding the two would hand whoever may start an
-  // unofficial conversation the ability to spend the workspace's balance on an
-  // official one, and vice versa — they are different privileges because they
-  // are different risks.
   const canStartOfficial = can("whatsapp_templates", "send");
   const [startConversationOpen, setStartConversationOpen] = useState(false);
   const [startOfficialOpen, setStartOfficialOpen] = useState(false);
 
   const handleConversationStarted = useCallback(
     (entryId: string, entryType: string) => {
-      // Straight into the thread that was just opened, so the operator lands
-      // where they can type rather than hunting for it in the list.
       handleSelect(entryId, entryType as EntryType);
     },
     [handleSelect],
@@ -1055,7 +912,6 @@ export default function CrmLayout({
     [sendMessage, replyToMessage],
   );
 
-  /* ------------------------------ scheduling ------------------------------ */
 
   const [scheduleDraft, setScheduleDraft] = useState<ComposerDraft | null>(null);
   const [scheduledMessages, setScheduledMessages] = useState<ScheduledMessage[]>([]);
@@ -1068,8 +924,6 @@ export default function CrmLayout({
       setScheduledMessages([]);
       return;
     }
-    // Delivered messages are excluded: they are already in the history above,
-    // and listing them again would make the panel a second, worse transcript.
     listScheduledMessagesAction(scheduleEntryType, scheduleEntryId, [
       "pending",
       "sending",
@@ -1083,8 +937,6 @@ export default function CrmLayout({
     refreshScheduledMessages();
   }, [refreshScheduledMessages]);
 
-  // A dispatched message arrives as an ordinary new message, so the panel is
-  // stale by at most one frame rather than needing a websocket event of its own.
   const lastMessageId = activeConversation?.messages?.at(-1)?.id;
   useEffect(() => {
     if (lastMessageId) refreshScheduledMessages();
@@ -1098,9 +950,6 @@ export default function CrmLayout({
     [],
   );
 
-  // "Try again" on a failed message re-opens the dialog with its content, so
-  // the operator picks a new time rather than losing what they wrote. No new
-  // endpoint and no second composer path.
   const handleReuseScheduled = useCallback((message: ScheduledMessage) => {
     setScheduleDraft({
       text: message.text ?? "",
@@ -1189,9 +1038,6 @@ export default function CrmLayout({
 
   const handleEntryStageChange = useCallback(
     async (entryId: string, entryType: EntryType, newStageId: string) => {
-      // Report failures. The server now refuses a move onto a stage from another
-      // funnel (409), and a silently swallowed error left the operator clicking a
-      // card that never moved, with nothing said.
       const { error } = await assignStageToEntryAction(
         newStageId,
         entryId,
@@ -1200,25 +1046,10 @@ export default function CrmLayout({
       if (error) {
         toast.error(error);
       }
-      // No companion remove: assigning IS the move. The server deletes the current
-      // row before inserting the new one, so the old "assign then remove the
-      // previous stage" pair was redundant on success — and actively harmful on
-      // failure, because the remove ran anyway and left the lead with no stage at
-      // all. One conversation holds one stage; a move is one call.
     },
     [],
   );
 
-  /**
-   * Moves a conversation to a stage of ANOTHER funnel.
-   *
-   * A separate handler from handleEntryStageChange because the request is
-   * different: it carries the explicit cross-funnel authorisation the server
-   * demands, and only a person can trigger it. Returns the error rather than
-   * toasting it, so the dialog can keep itself open and show the failure beside
-   * the choice that caused it instead of closing over a move that did not
-   * happen.
-   */
   const handleMoveToFunnel = useCallback(
     async (
       entryId: string,
@@ -1260,9 +1091,6 @@ export default function CrmLayout({
     [],
   );
 
-  // Global-board drag on the LABEL axis: dropping a card on another label column
-  // adds the target label and drops the source one (same actions the card's
-  // right-click menu uses), then reconciles the board.
   const handleEntryLabelChange = useCallback(
     async (
       entryId: string,
@@ -1281,8 +1109,6 @@ export default function CrmLayout({
     [refetchBoard],
   );
 
-  // Global-board drag on the OWNER axis: dropping a card reassigns the responsável;
-  // the "Sem responsável" swimlane (__unassigned__) clears it.
   const handleEntryOwnerChange = useCallback(
     async (
       entryId: string,
@@ -1290,9 +1116,6 @@ export default function CrmLayout({
       newOwnerId: string,
       _oldOwnerId: string | null,
     ) => {
-      // Reassign to a real member. There is no backend path to CLEAR an owner via
-      // drag (assign_to requires a user_id), so dropping on the "Sem responsável"
-      // swimlane is a no-op; the board refetch snaps the optimistic card back.
       if (newOwnerId && newOwnerId !== "__unassigned__") {
         assignTo(entryId, entryType, newOwnerId);
       }
@@ -1330,9 +1153,6 @@ export default function CrmLayout({
 
   const handleToggleAi = useCallback(async () => {
     if (!activeConversation || togglingAi) return;
-    // Addressed by conversation, not by campaign. The previous version resolved
-    // a campaign id and returned early when it found none, which is every
-    // Instagram and Telegram conversation, so the button silently did nothing.
     const currentVal = activeConversation.automation_enabled;
     const newVal = currentVal === false ? true : false;
     setTogglingAi(true);
@@ -1342,7 +1162,6 @@ export default function CrmLayout({
         activeConversation.entry_id,
         newVal,
       );
-      // The WS entry_update event will sync the state
     } finally {
       setTogglingAi(false);
     }
@@ -1417,15 +1236,10 @@ export default function CrmLayout({
     }
   }, [activeConversation, requestingPermission]);
 
-  // Whether the lead has an active (granted, not expired) WhatsApp call
-  // permission. The backend is the source of truth and also enforces it at call
-  // time; we gate the WhatsApp call button on it and fail closed when unknown.
   const [callPermission, setCallPermission] =
     useState<CallPermissionStatus | null>(null);
   const [callPermissionLoading, setCallPermissionLoading] = useState(false);
 
-  // The lead's in-thread grant/reject arrives as a message; re-checking when the
-  // latest such message changes keeps the button fresh without polling.
   const callPermissionSignal = useMemo(() => {
     const messages = activeConversation?.messages ?? [];
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -1446,7 +1260,6 @@ export default function CrmLayout({
       return;
     }
     const entryType = normalizeEntryType(activeConversation.entry_type);
-    // Only WhatsApp conversations can place a WhatsApp call at all.
     if (entryType !== "whatsapp") {
       setCallPermission({ status: "none", can_call: false });
       return;
@@ -1457,7 +1270,6 @@ export default function CrmLayout({
     getCallPermissionStatusAction(entryType, entryId)
       .then((result) => {
         if (cancelled) return;
-        // Fail closed: an error or missing status leaves calling disabled.
         setCallPermission(result.status ?? { status: "none", can_call: false });
       })
       .finally(() => {
@@ -1556,42 +1368,15 @@ export default function CrmLayout({
     [activeConversation, setConversationStatus],
   );
 
-  // Toggle state for the robot button (backend: null defaults to true).
-  // Header owner badge uses assignee first; see AttendanceOwnerBadge below.
   const aiIsActive = activeConversation?.automation_enabled !== false;
 
-  /*
-   * Whether an AI actually exists on this conversation.
-   *
-   * `automation_enabled` alone is NOT that question. It is the per-conversation
-   * PAUSE override an operator flips when taking over, and the backend's nil
-   * ("no override, inherit the channel") is read as true everywhere. So a
-   * conversation nobody has paused, on a channel with no agent and no workflow,
-   * satisfied `aiIsActive` and the header announced "IA ativa" over a thread no
-   * AI has ever touched.
-   *
-   * `ai_handler` is the honest signal and is already on the wire: the backend
-   * builds it only when an agent or a workflow is both linked AND enabled, and
-   * sends nil otherwise. The toggle below keeps using aiIsActive, because for
-   * the toggle the pause state IS the question.
-   */
   const hasAiHandler =
     currentInboxEntry?.ai_handler?.kind === "agent" ||
     currentInboxEntry?.ai_handler?.kind === "workflow";
-  // Enabled for any conversation that supports AI attendance. It used to
-  // require a campaign id, which is the same assumption that made the handler
-  // return early, so on Instagram and Telegram the button was BOTH disabled
-  // and wired to a call that could never fire.
   const canToggleAi =
     !!activeConversation &&
     channelCapabilities.supportsAiHandling(activeConversation.entry_type);
 
-  /**
-   * Toggling the agent on a WINDOWED conversation.
-   *
-   * The centre pane's own toggle is addressed at `activeConversation`; this one
-   * takes the entry, because four windows can each be flipping their own.
-   */
   const [togglingWindowAutomation, setTogglingWindowAutomation] =
     useState(false);
   const handleWindowToggleAutomation = useCallback(
@@ -1607,7 +1392,6 @@ export default function CrmLayout({
           entryId,
           current === false,
         );
-        // The entry_update frame syncs every view that shows this conversation.
       } finally {
         setTogglingWindowAutomation(false);
       }
@@ -1615,13 +1399,6 @@ export default function CrmLayout({
     [togglingWindowAutomation, windowConversations],
   );
 
-  /**
-   * What a floating conversation can be worked with.
-   *
-   * Every permission, list and handler here is the SAME one the centre pane
-   * uses — a window is another view of the conversation, not a lesser one, so
-   * it must not develop its own idea of who may assign or which stages exist.
-   */
   const windowActions = useMemo(
     () => ({
       workspaceId: currentWorkspace?.id,
@@ -1635,8 +1412,6 @@ export default function CrmLayout({
       stages: tags,
       funnelStages,
       labels,
-      // Resolved per conversation: one bundle serves every open window, so the
-      // owner and the stages have to be looked up rather than baked in.
       resolve: (entryId: string, entryType: EntryType) => {
         const entry = inbox.find(
           (e) => e.entry_id === entryId && e.entry_type === entryType,
@@ -1679,7 +1454,7 @@ export default function CrmLayout({
 
   const conversationHeader = activeConversation ? (
     <div className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1.5 border-b border-border bg-card px-3 py-2.5 sm:px-4">
-      {/* Back button (mobile) */}
+      {}
       <button
         type="button"
         onClick={handleBack}
@@ -1689,11 +1464,8 @@ export default function CrmLayout({
         <CaretLeft weight="bold" className="h-4 w-4 text-muted-foreground" />
       </button>
 
-      {/* Avatar. The same rule the inbox and the board follow: the PERSON owns
-          the circle, their photo, or their initial, and the channel rides as a
-          badge. This header used to show the channel glyph alone, so the one
-          place an operator is actually talking to someone was the one place
-          that never showed who. */}
+      {
+}
       <ChannelAvatar
         name={activeConversation.lead_name || activeConversation.lead_number}
         pictureUrl={currentInboxEntry?.lead_picture}
@@ -1702,7 +1474,7 @@ export default function CrmLayout({
         size="md"
       />
 
-      {/* Info, grows to use free space */}
+      {}
       <div className="min-w-0 flex-1 basis-[10rem]">
         <div className="flex min-w-0 items-center gap-1.5">
           <p className="truncate text-sm font-semibold text-foreground">
@@ -1725,10 +1497,8 @@ export default function CrmLayout({
           ) : (
             <AttendanceOwnerBadge kind="unassigned" className="shrink-0" />
           )}
-          {/* Only for channels an agent or workflow can actually attend.
-              Instagram DMs are human-attended today, the inbound webhook records
-              the message and assigns an operator without invoking AI, so the chip
-              would announce automation that never runs. */}
+          {
+}
           {channelCapabilities.supportsAiHandling(
             activeConversation.entry_type as EntryType,
           ) && (
@@ -1748,9 +1518,9 @@ export default function CrmLayout({
         </p>
       </div>
 
-      {/* Actions stay compact on the right */}
+      {}
       <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2">
-        {/* Turn this conversation into a sales deal (linked to the chat). */}
+        {}
         {can("conversations", "update") && (
           <CreateOpportunityButton
             entryId={activeConversation.entry_id}
@@ -1762,8 +1532,8 @@ export default function CrmLayout({
           />
         )}
 
-        {/* Move this conversation into its own window, so the centre pane is
-            free for the next one. */}
+        {
+}
         <TooltipWrapper content={tWindow("openInWindow")}>
           <button
             type="button"
@@ -1775,7 +1545,7 @@ export default function CrmLayout({
           </button>
         </TooltipWrapper>
 
-        {/* Contact info panel toggle, only in classic mode, where the panel renders */}
+        {}
         {viewMode !== "funnel" && (
           <TooltipWrapper content={tContactPanel("toggleTooltip")}>
             <button
@@ -1797,7 +1567,7 @@ export default function CrmLayout({
           </TooltipWrapper>
         )}
 
-        {/* AI Toggle - Available for all campaign types */}
+        {}
         <TooltipWrapper
           content={t.conversation.aiToggleTooltip ?? "Toggle AI responses"}
         >
@@ -1924,7 +1694,7 @@ export default function CrmLayout({
           </div>
         )}
 
-        {/* Assign To dropdown */}
+        {}
         {can("conversations", "assign") && currentWorkspace?.id && (
           <AssignMemberPicker
             workspaceId={currentWorkspace.id}
@@ -1934,16 +1704,10 @@ export default function CrmLayout({
           />
         )}
 
-        {/* Call dropdown */}
+        {}
         <div className="relative" ref={callDropdownRef}>
-          {/* Outbound WhatsApp calling and the consent request all flow through
-            the call session, so the whole control is gated on call_session:use.
-            Hiding it avoids a button that silently no-ops for members without
-            the permission.
-
-            It is also gated on the channel: an Instagram contact has no phone
-            number, so offering a call would open a dropdown that can never
-            place one. */}
+          {
+}
           {can("call_session", "use") &&
             channelCapabilities.supportsCalling(
               activeConversation.entry_type as EntryType,
@@ -1969,11 +1733,8 @@ export default function CrmLayout({
 
           {callDropdownOpen && can("call_session", "use") && (
             <div className="absolute right-0 top-full mt-1 z-50 w-56 rounded-[--radius] border border-border bg-card shadow-lg py-1 animate-in fade-in slide-in-from-top-1 duration-150">
-              {/* WhatsApp call. A WhatsApp call is placed FROM one of the
-                workspace's connected numbers to the lead. We resolve the
-                business phone intelligently, the number this contact
-                already talks to us on, and only fall back to a picker when
-                it's genuinely ambiguous (several numbers, no prior WA chat). */}
+              {
+}
               {(() => {
                 if (loadingCallPhones) {
                   return <div role="status" className="px-3 py-2 text-xs text-muted-foreground">{tCommon("loading")}</div>;
@@ -2002,9 +1763,6 @@ export default function CrmLayout({
                 );
 
                 if (resolvedPhoneId) {
-                  // The lead must have granted (and not let expire) WhatsApp call
-                  // permission before we can place the call. Until then, keep the
-                  // action disabled and steer the operator to "request permission".
                   if (callPermissionLoading || !callPermission?.can_call) {
                     return (
                       <button
@@ -2106,9 +1864,8 @@ export default function CrmLayout({
                 );
               })()}
 
-              {/* Request call permission (WhatsApp). The request and the lead's
-                reply appear in the conversation thread. Gated on the dedicated
-                "call" permission, which the backend route also enforces. */}
+              {
+}
               {can("conversations", "call") && (
                 <>
                   <div className="my-1 border-t border-border" />
@@ -2148,31 +1905,18 @@ export default function CrmLayout({
           "flex flex-col overflow-hidden",
           embedded
             ? "h-full bg-card"
-            : // A rack cut into the panel, not a card floating on it: hairline
-              // rule, system radius, no drop shadow. The extra 40px of height comes
-              // back from the header bar shrinking 80px -> 48px.
+            :
               "h-[calc(100vh-188px)] min-h-[500px] rounded-[--radius] border border-border bg-card",
         )}
       >
-        {/*
-        THE CONSOLE BAR.
-
-        Was three stacked bands: a toolbar of four bordered control groups, a
-        scope breadcrumb repeating what those groups already showed lit, and the
-        column header below it. Now one bar of legended banks — the legend does
-        the grouping a border used to, so the panel stays continuous and the CRM
-        gets a band of height back.
-      */}
+        {
+}
         <div className="flex shrink-0 flex-col border-b border-border bg-card sm:flex-row sm:items-stretch">
-          {/* Below sm the two groups stack: a phone cannot hold both banks of a
-            console side by side, and forcing it made the whole page scroll
-            sideways by the width the action bank could not give up. */}
+          {
+}
           <div className="flex min-w-0 items-stretch overflow-x-auto sm:flex-1">
-            {/* Unified Funil selector: switch between atendimento (conversation) and
-              vendas (deal) funnels. A funnel only scopes a BOARD, so the selector is
-              shown on the Kanban (and the deal board), never on the flat Chat/Tabela
-              views, where picking a funnel does nothing (industry-standard: the funnel
-              switch lives on the board, not the inbox). */}
+            {
+}
             {!hasCampaign &&
               (viewMode === "funnel" || showOpportunityBoard) && (
                 <ConsoleBank legend={tBoard("bank.funnel")}>
@@ -2231,9 +1975,8 @@ export default function CrmLayout({
               <ConsoleBank legend={tBoard("bank.outbound")}>
                 {canStartOfficial && (
                   <TooltipWrapper content={tBoard("toolbar.startOfficialHint")}>
-                    {/* The official channel's own mark, because the two buttons
-                        differ only in which channel they reach — and one of them
-                        spends money. A shared glyph would make that a guess. */}
+                    {
+}
                     <ElevatedButton
                       variant="outline-subtle"
                       size="sm"
@@ -2250,10 +1993,8 @@ export default function CrmLayout({
                 <TooltipWrapper
                   content={tBoard("toolbar.startConversationHint")}
                 >
-                  {/* Named, not a bare glyph. This is the one control in the row that
-                      SENDS something rather than filtering or arranging what is already
-                      there, and an icon alone cannot carry that. The label folds away
-                      only below sm, where the row wraps anyway. */}
+                  {
+}
                   <ElevatedButton
                     variant="outline-subtle"
                     size="sm"
@@ -2325,9 +2066,8 @@ export default function CrmLayout({
           </div>
         </div>
 
-        {/* Saved views + filter bar for the workspace-global board AND table (both
-          read the same filter). Not shown for the classic inbox, which keeps its
-          own chrome untouched. */}
+        {
+}
         {(isGlobalBoard || isGlobalTable) && !showOpportunityBoard && (
           <>
             <CrmSavedViews
@@ -2368,16 +2108,13 @@ export default function CrmLayout({
           </>
         )}
 
-        {/* The parked-conversation dock is fixed to the viewport, so the board
-            gives up the strip it occupies rather than being covered by it. The
-            composer and the inbox's last rows move up with it. */}
+        {
+}
         <div
           className="relative flex flex-1 min-h-0 overflow-hidden transition-[padding] duration-150"
           style={dockHeightPx > 0 ? { paddingBottom: dockHeightPx } : undefined}
         >
           {showOpportunityBoard ? (
-            /* Same surface, deal object: the selector above flips the board to the
-             vendas funnel. OpportunityBoard owns its own filter bar + drawer. */
             <OpportunityBoard
               pipelineId={selectedPipeline?.id}
               workspaceId={currentWorkspace?.id}
@@ -2438,7 +2175,7 @@ export default function CrmLayout({
                 />
               </div>
 
-              {/* Conversation panel in kanban mode */}
+              {}
               {activeConversation && (
                 <div className="relative isolate w-[420px] flex-shrink-0 border-l border-border flex flex-col">
                   <CrmWallpaper />
@@ -2537,16 +2274,8 @@ export default function CrmLayout({
             </div>
           ) : (
             <>
-              {/*
-              The queue strip.
-
-              Each column in this rack is headed by its own scribble strip, the
-              way a bank of channels is legended on the desk. Previously the
-              three panes were unlabelled and separated only by a hairline, so
-              which region you were in had to be inferred from its contents —
-              the layout read as a generic three-pane chat client. Naming the
-              strips is what makes it a rack.
-            */}
+              {
+}
               <div
                 data-tour="live-chat-inbox"
                 className={cn(
@@ -2604,7 +2333,7 @@ export default function CrmLayout({
                 />
               </div>
 
-              {/* Conversation Panel */}
+              {}
               <div
                 data-tour="live-chat-conversation"
                 className={cn(
@@ -2619,9 +2348,8 @@ export default function CrmLayout({
                       : "hidden lg:flex",
                 )}
               >
-                {/* Spans the message list AND the composer, so the wallpaper is
-                  one surface across the seam between them. The header paints
-                  its own bg-card over the top of it. */}
+                {
+}
                 <CrmWallpaper />
                 {conversationHeader}
 
@@ -2731,9 +2459,8 @@ export default function CrmLayout({
         </div>
       </div>
 
-      {/* Mounted unconditionally rather than inside the toolbar branch: the
-          dialog owns its own open state, and unmounting it on close would
-          discard what the operator typed if the toolbar ever re-renders. */}
+      {
+}
       {canStartConversation && (
         <StartConversationDialog
           open={startConversationOpen}
@@ -2750,9 +2477,8 @@ export default function CrmLayout({
         />
       )}
 
-      {/* The draft IS the open state: the dialog exists exactly while there is
-          something to schedule, so closing it cannot leave a stale draft behind
-          for the next conversation the operator opens. */}
+      {
+}
       {scheduleDraft && scheduleEntryType && scheduleEntryId && (
         <ScheduleMessageDialog
           open
@@ -2771,8 +2497,8 @@ export default function CrmLayout({
         />
       )}
 
-      {/* The floating conversations. Renders nothing until one is opened, so
-          an operator who never uses them pays nothing for them. */}
+      {
+}
       <ConversationWindowDeck
         conversations={windowConversations}
         focusRequest={windowFocusRequest}

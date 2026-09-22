@@ -5,28 +5,7 @@ import { useId } from "react";
 
 import { cn } from "@/lib/utils";
 
-/**
- * Official channel marks in their real brand colours.
- *
- * Phosphor's WhatsappLogo/InstagramLogo are generic monochrome glyphs that take
- * their colour from `currentColor`. That is fine for a UI affordance, but a channel
- * badge is an identity signal: an operator scanning a mixed inbox recognises the
- * green phone and the Instagram gradient far faster than they read a label. These
- * are the actual marks, so they read as the product they represent.
- *
- * Instagram's brand is a gradient, not a colour, which is why it cannot simply be a
- * className. The gradient needs a document-unique id, two of these on one page
- * sharing an id would make the second silently inherit the first's stops, so the
- * id comes from useId().
- *
- * They take Phosphor's IconProps so they can be dropped in anywhere a Phosphor
- * icon is expected, notably the sidebar's nav table, but only `className` is
- * honoured. `weight` and `color` are accepted and ignored on purpose: these are
- * fixed brand artwork, and a brand mark that changes stroke weight or colour with
- * the surrounding UI is no longer the brand mark.
- */
 
-/** Instagram's official gradient, warm bottom-left to violet top-right. */
 export function InstagramLogoColor({ className }: IconProps) {
   const gradientId = useId();
 
@@ -55,7 +34,6 @@ export function InstagramLogoColor({ className }: IconProps) {
   );
 }
 
-/** WhatsApp's official mark in brand green (#25D366). */
 export function WhatsAppLogoColor({ className }: IconProps) {
   return (
     <svg
@@ -73,26 +51,6 @@ export function WhatsAppLogoColor({ className }: IconProps) {
   );
 }
 
-/**
- * The unofficial WhatsApp transport's mark.
- *
- * The SAME glyph as the official one, because to the customer it IS WhatsApp —
- * a different silhouette would be a lie about which app the message lands in.
- * What changes is the treatment: the brand green is replaced by a neutral ink
- * and the mark is ringed, so an operator scanning a mixed inbox sees "WhatsApp,
- * but not the official one" in a single glance.
- *
- * That distinction is not cosmetic. The two transports send from different
- * numbers under different rules — one has a 24-hour window and templates, the
- * other can be banned for cold outbound — so an operator who cannot tell them
- * apart cannot know what they are allowed to send. Before this existed,
- * ChannelLogo returned null for the unofficial channel and those conversations
- * carried no mark at all, which read as "no channel" rather than as a warning.
- *
- * Deliberately NOT green: DESIGN.md keeps brand marks in their real colours, and
- * an unofficial transport wearing the official brand's green is exactly the
- * confusion this mark exists to remove.
- */
 export function WhatsAppUnofficialLogo({ className }: IconProps) {
   return (
     <svg
@@ -107,14 +65,6 @@ export function WhatsAppUnofficialLogo({ className }: IconProps) {
   );
 }
 
-/**
- * Telegram's official mark.
- *
- * The brand is a circle in Telegram blue (#26A5E4) with a white paper plane, so
- * unlike WhatsApp's single-colour glyph the circle is drawn explicitly, a
- * currentColor-tinted Phosphor glyph reads as a generic send arrow rather than
- * as Telegram.
- */
 export function TelegramLogoColor({ className }: IconProps) {
   const gradientId = useId();
 
@@ -141,15 +91,6 @@ export function TelegramLogoColor({ className }: IconProps) {
   );
 }
 
-/**
- * The channels that have a brand mark.
- *
- * Beside ChannelLogo on purpose: this used to be a second hardcoded list inside
- * ChannelAvatar, and it drifted the moment a channel was added — unofficial
- * WhatsApp had a mark here and was still gated out of the avatar badge, so those
- * conversations showed a bare initial while every other channel showed its
- * network. One list, next to the switch it must agree with.
- */
 const CHANNELS_WITH_MARKS = new Set([
   "whatsapp",
   "unofficial_whatsapp",
@@ -157,24 +98,10 @@ const CHANNELS_WITH_MARKS = new Set([
   "telegram",
 ]);
 
-/** Whether this channel renders a mark, so callers can reserve space for it. */
 export function hasChannelMark(channel: string | null | undefined): boolean {
   return CHANNELS_WITH_MARKS.has(channel ?? "");
 }
 
-/**
- * The operator-facing NAME of a channel.
- *
- * Beside the mark for the same reason the mark list is beside the switch: every
- * surface that shows a channel has to agree on what to call it, and the ones
- * that answered the question inline got it wrong. The context rail asked
- * `entry_type === "whatsapp" ? "WhatsApp" : "Voz"`, so every Instagram, Telegram
- * and unofficial-WhatsApp conversation was labelled "Voz" — a voice call.
- *
- * The unofficial channel says WhatsApp, because that is the network the customer
- * is on; that it reaches us over a linked device is our concern, and the sub-label
- * carries it where it matters.
- */
 const CHANNEL_LABELS: Record<string, string> = {
   whatsapp: "WhatsApp",
   unofficial_whatsapp: "WhatsApp",
@@ -182,19 +109,10 @@ const CHANNEL_LABELS: Record<string, string> = {
   telegram: "Telegram",
 };
 
-/** The channel's display name, or null when it has none and the caller should
- *  fall back to whatever it used before. */
 export function channelLabel(channel: string | null | undefined): string | null {
   return CHANNEL_LABELS[channel ?? ""] ?? null;
 }
 
-/**
- * The mark for a conversation's channel.
- *
- * Kept as one lookup so every surface that shows a channel, the CRM inbox, the
- * conversation header, search results, stays consistent. Adding a channel is one
- * case here rather than a hunt through switch statements.
- */
 export function ChannelLogo({
   channel,
   className,
@@ -209,9 +127,6 @@ export function ChannelLogo({
       return <WhatsAppLogoColor className={className} />;
     case "telegram":
       return <TelegramLogoColor className={className} />;
-    // Same glyph as WhatsApp, neutral rather than green. Falling through to the
-    // default returned NULL here, so every unofficial conversation in the inbox
-    // rendered an empty badge and looked like it had no channel at all.
     case "unofficial_whatsapp":
       return <WhatsAppUnofficialLogo className={className} />;
     default:

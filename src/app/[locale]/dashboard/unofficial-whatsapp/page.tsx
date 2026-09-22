@@ -44,13 +44,6 @@ import { useWorkspace } from "@/contexts/workspace-context";
 
 const ITEMS_PER_PAGE = 15;
 
-/**
- * How often the list re-reads while a number is mid-link or in trouble.
- *
- * Only while something is actually in motion. A quiet, fully-connected list does
- * not poll at all: this page sits open on an operations floor all day, and a
- * timer that never stops is a request every few seconds forever.
- */
 const LIVE_REFRESH_MS = 8000;
 
 export default function UnofficialWhatsAppPage() {
@@ -91,9 +84,6 @@ export default function UnofficialWhatsAppPage() {
     [],
   );
 
-  // Re-read alongside the list, because both halves of "2 of 5" change when a
-  // number is added or removed. Cheap: two integers, and no provider call —
-  // the limit is a stored grant and the usage is a COUNT.
   const fetchAllowance = useCallback(async () => {
     const result = await getInstanceAllowanceAction();
     if (!result.error && result.allowance) setAllowance(result.allowance);
@@ -104,13 +94,6 @@ export default function UnofficialWhatsAppPage() {
     void fetchAllowance();
   }, [fetchInstances, fetchAllowance]);
 
-  /**
-   * Anything mid-link or in trouble is worth watching; a settled list is not.
-   *
-   * The session backstop on the server runs every fifteen minutes, so without
-   * this an operator watching a customer scan a QR would see a stale row for
-   * minutes and conclude the scan failed.
-   */
   const hasMovingParts = useMemo(
     () =>
       instances.some((instance) => {
@@ -148,21 +131,12 @@ export default function UnofficialWhatsAppPage() {
         title: t("actions.remove"),
         description: t("notice.removed", { name: instance.displayName }),
       });
-      // Removing a number frees its slot, so the counter must follow it down or
-      // the screen keeps claiming the workspace is full.
       void fetchInstances(page, search);
       void fetchAllowance();
     },
     [toast, t, fetchInstances, fetchAllowance, page, search],
   );
 
-  /**
-   * The "it is wedged" repair.
-   *
-   * The host enforces a cooldown between resets and refuses inside it, which is
-   * a normal answer rather than a fault — so the refusal is shown as
-   * information, not as an error toast the operator has to interpret.
-   */
   const handleReset = useCallback(
     async (instance: UnofficialWhatsAppInstance) => {
       setBusyId(instance.id);
@@ -191,9 +165,8 @@ export default function UnofficialWhatsAppPage() {
         header: t("table.number"),
         render: (instance) => (
           <div className="flex min-w-0 items-center gap-3">
-            {/* The real brand mark, in its real colour: channel-logos is
-                excluded from every palette sweep by name, because a mark that
-                recolours with the theme is no longer the mark. */}
+            {
+}
             <WhatsAppLogoColor className="h-5 w-5 shrink-0" />
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-foreground">
@@ -231,23 +204,11 @@ export default function UnofficialWhatsAppPage() {
     [t],
   );
 
-  /**
-   * Row actions, through the table's own slot rather than a hand-made column.
-   *
-   * Every one of them stops propagation. The row itself navigates to the detail
-   * page, so without it "Remove" both deleted the number AND opened the page of
-   * the thing it had just deleted — the previous version of this list did
-   * exactly that.
-   */
   const renderRowActions = useCallback(
     (instance: UnofficialWhatsAppInstance) => (
       <div className="flex items-center gap-1">
-        {/* The department that owns this number.
-            The same control the WhatsApp campaigns table uses, so assigning a
-            department reads identically wherever it appears. Assigning one is
-            what limits the number to that team: its conversations only reach
-            their inbox, only they enter the round-robin for it, and only they
-            can send from it. */}
+        {
+}
         {canUpdate && (
           <DepartmentRowSwitcher
             departmentId={instance.departmentId}
@@ -258,10 +219,6 @@ export default function UnofficialWhatsAppPage() {
               }))
             }
             onAssigned={() => {
-              // Re-read rather than patch in place: assigning a department can
-              // remove the number from THIS operator's own view, and a row that
-              // lingers after it stopped being theirs is worse than one that
-              // disappears.
               void fetchInstances(page, search);
             }}
           />
@@ -319,8 +276,6 @@ export default function UnofficialWhatsAppPage() {
     [t, canUpdate, canDelete, busyId, handleDelete, handleReset, router, fetchInstances, page, search],
   );
 
-  // The three numbers the toolbar reports. "Attention" is the one that earns its
-  // place: a number can be connected and still unable to start conversations.
   const connectedCount = useMemo(
     () => instances.filter((instance) => instance.sessionLive).length,
     [instances],
@@ -339,10 +294,8 @@ export default function UnofficialWhatsAppPage() {
         colorClass="text-healthy-ink"
         actions={
           <div className="flex items-center gap-2">
-            {/* The allowance counter, beside the action it governs.
-                Shown even when there is room: "2 of 5" is what makes running out
-                predictable, and a limit an operator only learns about at the
-                moment it stops them is a limit that reads as a bug. */}
+            {
+}
             {allowance && (
               <span
                 className={cn(
@@ -371,9 +324,6 @@ export default function UnofficialWhatsAppPage() {
                 title={t("page.connect")}
                 icon={<Plus weight="bold" className="h-4 w-4" />}
                 iconVisible
-                // Disabled from the SAME value the server enforces, so the
-                // button and the API cannot disagree about whether a connect
-                // would succeed.
                 disabled={Boolean(allowance && !allowance.canConnect)}
               />
             )}
@@ -381,25 +331,18 @@ export default function UnofficialWhatsAppPage() {
         }
       />
 
-      {/* The allowance, as the same meter the official channel uses: filled
-          pips for numbers in use, empty ones for free slots, and a call to
-          action that becomes "buy more" once it fills. One component for both
-          channels, so the at-limit behaviour cannot drift between them. */}
+      {
+}
       <UnofficialWhatsAppCapacityCard allowance={allowance} />
 
-      {/* A restricted number is connected and still cannot start conversations.
-          It is the state most likely to be missed, so it is lifted out of the
-          table rather than left as one chip among fifteen rows. */}
+      {
+}
       {restricted.map((instance) => (
         <RestrictionNotice key={instance.id} instance={instance} />
       ))}
 
-      {/* Search, the three counts, and a manual refresh on one bar — the same
-          toolbar Telegram and Instagram use, so an operator who manages several
-          channels does not relearn the page. The icon goes through
-          ElevatedInput's own `icon` prop, which computes the field's padding per
-          control size; an absolutely-positioned icon plus a hardcoded `pl-9`
-          misaligns the moment the size changes. */}
+      {
+}
       <div className="flex flex-wrap items-center gap-3 rounded-[--radius] border border-border bg-card px-5 py-3 shadow-sm">
         <div className="relative w-full max-w-xs">
           <ElevatedInput
@@ -453,9 +396,6 @@ export default function UnofficialWhatsAppPage() {
           columns={columns}
           rowKey={(row) => row.id}
           emptyState={{
-            // The OBJECT form, not a ReactNode: the table renders a node inside
-            // its own "Nenhum registro encontrado" shell, so a custom element
-            // arrives stacked under a second, contradictory heading.
             icon: <WhatsAppLogoColor className="h-7 w-7 opacity-40" />,
             title: search ? t("empty.noMatch") : t("empty.title"),
             description: search ? t("empty.noMatchHint") : t("empty.description"),
@@ -477,9 +417,8 @@ export default function UnofficialWhatsAppPage() {
         />
       ) : (
         <div className="space-y-4">
-          {/* !p-0 is required: ElevatedContainer hardcodes p-6, and without the
-              override the table sits inset from its own frame instead of
-              running edge to edge like every other list in the dashboard. */}
+          {
+}
           <ElevatedContainer className="overflow-hidden rounded-lg border border-border !p-0">
             <DashboardTable<UnofficialWhatsAppInstance>
               data={instances}

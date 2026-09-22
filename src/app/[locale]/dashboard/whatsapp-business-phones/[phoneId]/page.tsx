@@ -73,7 +73,6 @@ import { RegisterPhoneDialog } from "@/app/[locale]/dashboard/whatsapp-business-
 import { ReleasePhoneDialog } from "@/app/[locale]/dashboard/whatsapp-business-phones/_components/ReleasePhoneDialog";
 import { ConfirmActionDialog } from "@/app/[locale]/dashboard/whatsapp-business-phones/_components/ConfirmActionDialog";
 
-/** Quiet, tinted status treatment (not bright solid fills), on brand. */
 function statusTone(status: BusinessPhoneStatus): string {
   switch (status) {
     case "CONNECTED":
@@ -296,7 +295,6 @@ export default function BusinessPhoneDetailPage() {
         await hydrateAccessWorkspaces(result.items);
       }
     } catch {
-      // Silently fail
     } finally {
       setAccessLoading(false);
     }
@@ -318,7 +316,6 @@ export default function BusinessPhoneDetailPage() {
           setMyAccess(result.access);
         }
       } catch {
-        // Silently fail
       }
     };
 
@@ -412,8 +409,6 @@ export default function BusinessPhoneDetailPage() {
     }
   };
 
-  // Maps a raw name status to a known translation key, falling back to UNKNOWN so an
-  // empty/unsynced value never leaks the raw i18n key (e.g. "nameStatus.") to the UI.
   const NAME_STATUS_KEYS = new Set([
     "APPROVED",
     "AVAILABLE_WITHOUT_REVIEW",
@@ -443,9 +438,6 @@ export default function BusinessPhoneDetailPage() {
 
   const isConnected = phone.status === "CONNECTED";
   const isVerified = phone.codeVerificationStatus === "VERIFIED";
-  // 360dialog channels have no Meta-style "deregister but keep the number" pause; their
-  // only reversible option is cancelling the channel, which "Remove" and "Return to
-  // pool" already do. So Disconnect is hidden for them (it would just 401 on Meta).
   const isDialog360 = phone.provider === "dialog360";
   const phoneNumber = phone.displayPhoneNumber;
   const phoneLabel = phone.verifiedName || phone.displayPhoneNumber;
@@ -453,7 +445,7 @@ export default function BusinessPhoneDetailPage() {
   return (
     <div className="mx-auto max-w-5xl p-6">
       <div className="space-y-6">
-        {/* Back link */}
+        {}
         <div>
           <button
             type="button"
@@ -467,7 +459,7 @@ export default function BusinessPhoneDetailPage() {
           </button>
         </div>
 
-        {/* Identity + actions header */}
+        {}
         <div>
           <ElevatedContainer className="p-6">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
@@ -513,7 +505,7 @@ export default function BusinessPhoneDetailPage() {
                 </div>
               </div>
 
-              {/* Status-driven primary action + overflow */}
+              {}
               {canManage && (
                 <div className="flex shrink-0 items-center gap-2">
                   {!isVerified && (
@@ -618,11 +610,11 @@ export default function BusinessPhoneDetailPage() {
           </ElevatedContainer>
         </div>
 
-        {/* Details grid */}
+        {}
         <div>
           <ElevatedContainer className="p-6">
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-              {/* Status details */}
+              {}
               <div className="space-y-4">
                 <h3 className="text-xs font-semibold text-muted-foreground">
                   {t("detail.statusDetails")}
@@ -682,7 +674,7 @@ export default function BusinessPhoneDetailPage() {
                 </dl>
               </div>
 
-              {/* Identifiers */}
+              {}
               <div className="space-y-4">
                 <h3 className="text-xs font-semibold text-muted-foreground">
                   {t("detail.identifiers")}
@@ -730,7 +722,7 @@ export default function BusinessPhoneDetailPage() {
           </ElevatedContainer>
         </div>
 
-        {/* Business profile */}
+        {}
         <div>
           <ElevatedContainer className="p-6">
             <div className="mb-5 flex items-center justify-between">
@@ -824,7 +816,7 @@ export default function BusinessPhoneDetailPage() {
           </ElevatedContainer>
         </div>
 
-        {/* WhatsApp calling toggle */}
+        {}
         {isConnected && (
           <div>
             <ElevatedContainer className="p-6">
@@ -856,7 +848,7 @@ export default function BusinessPhoneDetailPage() {
           </div>
         )}
 
-        {/* Access granted-by (non-admin) */}
+        {}
         {!isSystemAdmin && myAccess?.grantor && (
           <div>
             <ElevatedContainer className="p-6">
@@ -882,7 +874,7 @@ export default function BusinessPhoneDetailPage() {
           </div>
         )}
 
-        {/* Workspace access (system admin, deprecated/read-only) */}
+        {}
         {isSystemAdmin && (
           <div>
             <ElevatedContainer className="p-6">
@@ -1008,7 +1000,7 @@ export default function BusinessPhoneDetailPage() {
         )}
       </div>
 
-      {/* Dialogs */}
+      {}
       <EditProfileDialog
         open={showEditProfileDialog}
         onOpenChange={setShowEditProfileDialog}

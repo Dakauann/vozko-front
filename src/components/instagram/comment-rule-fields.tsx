@@ -9,17 +9,6 @@ import type { CommentRuleAction, CommentRuleMatch } from "@/lib/instagram/types"
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
-/**
- * The comment-rule form, shared by the rule dialog and the post composer.
- *
- * Both surfaces configure the same object, so they must ask the same questions
- * in the same order, a rule created while publishing and one created later are
- * the same thing, and two different-looking forms would suggest otherwise.
- *
- * The order is the sentence a marketer says out loud: "when a comment CONTAINS
- * these words, DO these things." Each action reveals its own message field only
- * when selected, so the form never asks for text that goes unused.
- */
 
 export interface CommentRuleFieldsValue {
   match: CommentRuleMatch;
@@ -29,7 +18,6 @@ export interface CommentRuleFieldsValue {
   privateText: string;
 }
 
-/** Validation shared by both surfaces, so they accept exactly the same rules. */
 export function commentRuleFieldsErrors(value: CommentRuleFieldsValue) {
   const keywordList = value.keywords
     .split(",")
@@ -142,7 +130,6 @@ export function CommentRuleFields({
                     "flex w-full items-start gap-2.5 rounded-lg border p-3 text-left transition-colors",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     "disabled:cursor-not-allowed disabled:opacity-60",
-                    // Neutral ground, brand edge, green glyph — mark, not wash.
                     selected ? "border-primary-edge bg-muted text-foreground" : "border-border hover:bg-muted",
                   )}
                 >

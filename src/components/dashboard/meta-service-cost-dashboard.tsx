@@ -1,23 +1,5 @@
 "use client";
 
-/**
- * What October costs us, per customer.
- *
- * On 1 October 2026 Meta starts charging for service messages: the free-form
- * replies an agent or the AI sends inside the 24 hour window. We absorb that
- * and raise the price per campaign trigger instead. This page is the one input
- * to that pricing decision: per workspace, how much messaging each one does
- * against how much billable campaign volume it buys.
- *
- * It reports counts, not money, on purpose. Meta prices per recipient market,
- * so a count only becomes currency once a rate card and an exchange rate are
- * attached, and neither is ours to promise.
- *
- * All copy lives in the `metaCosts` namespace of the four locale files, and the
- * numbers are formatted for the active locale rather than hardcoded pt-BR. The
- * neighbouring admin-financial-dashboard does neither; this page is the pattern
- * to follow, not that one.
- */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -54,11 +36,6 @@ const PAGE_SIZE = 20;
 type PeriodPreset = "current" | "previous" | "custom";
 type ProviderFilter = "meta" | "dialog360" | "all" | "unattributed";
 
-/**
- * Translation keys for the two enums, so a label is never built by
- * concatenating a prefix onto a value. Every key here is greppable, which is
- * what lets a translator find them and a reviewer prove none is missing.
- */
 const PERIOD_KEYS: Record<PeriodPreset, string> = {
     current: "currentMonth",
     previous: "previousMonth",
@@ -72,13 +49,8 @@ const PROVIDER_KEYS: Record<ProviderFilter, string> = {
 };
 
 const PERIOD_PRESETS: PeriodPreset[] = ["current", "previous", "custom"];
-/**
- * The three worth offering as a control. "unattributed" is a data-quality
- * state the notice reports, not a view anyone navigates to on purpose.
- */
 const PROVIDER_CHOICES: ProviderFilter[] = ["meta", "dialog360", "all"];
 
-/** Calendar month boundaries, as the half-open range the backend expects. */
 function monthRange(offset: number): { startDate: string; endDate: string } {
     const now = new Date();
     const start = new Date(now.getFullYear(), now.getMonth() + offset, 1, 0, 0, 0, 0);
@@ -86,15 +58,6 @@ function monthRange(offset: number): { startDate: string; endDate: string } {
     return { startDate: start.toISOString(), endDate: end.toISOString() };
 }
 
-/**
- * The ratio as a bar against parity.
- *
- * Parity is the number that matters: at 1,00 a workspace sends as many service
- * messages as it buys billable sends, and a flat trigger increase stops
- * covering it. The bar is drawn against a scale of two so parity sits at the
- * midpoint and is marked, rather than being a number the reader has to compare
- * in their head.
- */
 function RatioBar({
     ratio,
     format,
@@ -126,7 +89,7 @@ function RatioBar({
                     )}
                     style={{ width: `${width}%` }}
                 />
-                {/* Parity marker at the midpoint of a scale of two. */}
+                {}
                 <div className="absolute inset-y-0 left-1/2 w-px bg-border" />
             </div>
             <span
@@ -145,9 +108,6 @@ export default function MetaServiceCostDashboard() {
     const t = useTranslations("metaCosts");
     const locale = useLocale();
 
-    // Grouping separators and the decimal comma differ per language, and these
-    // are the figures a pricing decision is made from. Formatting them for
-    // pt-BR regardless of the reader is how "1.058" becomes ambiguous.
     const integer = useMemo(
         () => new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }),
         [locale],
@@ -163,16 +123,6 @@ export default function MetaServiceCostDashboard() {
 
     const [report, setReport] = useState<MetaServiceMessageCostReport | null>(null);
     const [error, setError] = useState<string | null>(null);
-    /**
-     * Which request the state in `report` answers.
-     *
-     * Loading is derived from this rather than set at the top of the fetch
-     * effect, because a synchronous setState in an effect body cascades an
-     * extra render and the lint rule here rightly forbids it. Comparing the
-     * requested parameters to the answered ones is also simply more accurate:
-     * it is true on the first render, before any effect has run, and it cannot
-     * be left stuck on by an early return.
-     */
     const [answeredKey, setAnsweredKey] = useState<string | null>(null);
 
     const [periodPreset, setPeriodPreset] = useState<PeriodPreset>("current");
@@ -186,9 +136,6 @@ export default function MetaServiceCostDashboard() {
     const [sortBy, setSortBy] = useState<MetaServiceMessageCostSortField>("ratio");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
-    // Debounced so typing a workspace name does not fire one aggregate per
-    // keystroke. The query reads three million message rows; a request per
-    // character is how an admin page takes the database down.
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearch(search.trim());
@@ -201,14 +148,9 @@ export default function MetaServiceCostDashboard() {
         if (periodPreset === "current") return monthRange(0);
         if (periodPreset === "previous") return monthRange(-1);
 
-        // A half-filled custom range is not a request: the backend rejects one
-        // date without the other, so send neither until both are present and
-        // let the month default stand in the meantime.
         if (!customStart || !customEnd) return {};
 
         const start = new Date(`${customStart}T00:00:00`);
-        // Exclusive upper bound: the picker names a day, and the operator means
-        // that whole day, so the range runs to the start of the next one.
         const end = new Date(`${customEnd}T00:00:00`);
         end.setDate(end.getDate() + 1);
         return { startDate: start.toISOString(), endDate: end.toISOString() };
@@ -246,8 +188,6 @@ export default function MetaServiceCostDashboard() {
         };
     }, [params, requestKey]);
 
-    // Clicking a sorted column flips its direction; clicking a new one starts
-    // it descending, because every column here is read "who is highest".
     const handleSort = useCallback(
         (key: string) => {
             const field = key as MetaServiceMessageCostSortField;
@@ -262,9 +202,6 @@ export default function MetaServiceCostDashboard() {
     const meta = report?.workspaces;
     const rows = report?.workspaces.items ?? [];
 
-    // How much of the period Meta has given a verdict on. Null while there is
-    // nothing to be a share of, rather than 0%, which would read as "Meta has
-    // answered for none of a real total".
     const coveragePct = useMemo(() => {
         if (!totals || totals.serviceMessages <= 0) return null;
         return Math.floor((totals.metaAnswered / totals.serviceMessages) * 100);
@@ -337,9 +274,6 @@ export default function MetaServiceCostDashboard() {
                     <div className="tabular-nums text-foreground">
                         {integer.format(row.serviceMessages)}
                         {row.metaConfirmed > 0 && (
-                            // Meta's own verdict, shown under our inference rather than
-                            // replacing it: the gap between the two is the reader's cue
-                            // for how much of this figure is still an estimate.
                             <p className="mt-0.5 text-xs font-normal text-muted-foreground">
                                 {integer.format(row.metaConfirmed)} {t("confirmedSuffix")}
                             </p>
@@ -375,14 +309,6 @@ export default function MetaServiceCostDashboard() {
         [t, integer, ratioFormat],
     );
 
-    /**
-     * One line, not a paragraph.
-     *
-     * This used to spell out the whole free-entry-point rule, which is the kind
-     * of thing the reader needs once and then resents on every visit. What they
-     * need standing is the status of the number in front of them: estimate or
-     * confirmed, and how far along.
-     */
     const notice = useMemo(() => {
         if (!report) return null;
         const parts: string[] = [];

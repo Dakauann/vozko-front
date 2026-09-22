@@ -1,28 +1,6 @@
-/**
- * Códigos de erro de template — o mesmo vocabulário que o backend emite em
- * `domain/whatsapp/template/error_codes.go`.
- *
- * Existem porque a mensagem do servidor NÃO é texto de interface. Os sentinelas
- * do Go estão em inglês, escritos para quem lê log, e o produto é usado em
- * português: um template recusado por variável no lugar errado dizia ao
- * operador "body text cannot start with a variable - add text before it". O
- * cliente não tem como traduzir aquilo — a frase não é chave, e casar por texto
- * quebraria na primeira vez que alguém melhorasse a redação.
- *
- * O código é a chave. A UI procura a tradução, e cai na mensagem do servidor
- * quando encontra um código que ainda não conhece — então um erro novo do
- * backend degrada para inglês, não para o vazio.
- */
 
-/** Prefixo de toda chave de tradução deste vocabulário. */
 const I18N_PREFIX = "whatsappTemplates.errors";
 
-/**
- * Códigos que a UI traduz. Espelha KnownErrorCodes() do backend.
- *
- * Não é `string` solto de propósito: um código escrito errado aqui vira erro de
- * compilação, em vez de uma tradução que nunca aparece.
- */
 export const TEMPLATE_ERROR_CODES = [
     "template_unknown_error",
 
@@ -64,7 +42,6 @@ export const TEMPLATE_ERROR_CODES = [
     "template_call_permission_with_buttons",
     "template_multiple_call_permission",
 
-    // AUTHENTICATION templates: the one-time code rules.
     "template_otp_type_required",
     "template_invalid_otp_type",
     "template_multiple_otp_buttons",
@@ -106,33 +83,12 @@ export function isTemplateErrorCode(code: string | undefined): code is TemplateE
     return !!code && CODE_SET.has(code);
 }
 
-/**
- * Códigos cuja mensagem vem do PROVEDOR, não daqui.
- *
- * O WhatsApp já devolve `error_user_msg` no idioma do token, escrito para o
- * usuário final. Traduzir por cima seria substituir a frase específica ("Já
- * existe um modelo com esse nome") por uma genérica nossa — perder informação
- * para ganhar consistência de tom não é uma boa troca num erro.
- */
 const PROVIDER_AUTHORED: ReadonlySet<string> = new Set([
     "template_provider_rejected",
 ]);
 
 type Translator = (key: string, values?: Record<string, string>) => string;
 
-/**
- * A frase a mostrar para uma falha de template.
- *
- * Ordem, e cada passo existe por um motivo:
- *  1. código do provedor  → a mensagem do servidor, que é a do WhatsApp e já
- *     está no idioma do operador;
- *  2. código conhecido    → nossa tradução;
- *  3. código desconhecido → a mensagem do servidor (inglês, mas verdadeira);
- *  4. nada                → uma frase genérica, para nunca terminar em vazio.
- *
- * O passo 4 é o que corrige o sintoma relatado: antes, uma falha sem mensagem
- * tratável simplesmente não dizia nada.
- */
 export function templateErrorMessage(
     t: Translator,
     code: string | undefined,

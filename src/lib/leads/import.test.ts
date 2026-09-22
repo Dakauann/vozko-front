@@ -33,8 +33,6 @@ describe("readLeadImportFile", () => {
     });
 
     it("treats a first row containing a phone number as data, not a header", () => {
-        // Headerless exports are common, and eating the first row would silently
-        // drop a real contact.
         const file = readLeadImportFile(
             ["11987654321;Ana", "11987654322;Bruno"].join("\n"),
         );
@@ -88,8 +86,6 @@ describe("buildLeadImportRows", () => {
 
         expect(rows).toHaveLength(1);
         expect(invalid).toBe(1);
-        // Line 3: the header is line 1, so the bad row is where the spreadsheet
-        // says it is, not where it lands after the header is stripped.
         expect(rejected).toEqual([
             { line: 3, raw: "sem telefone;Bruno", reason: "invalid" },
         ]);
@@ -174,9 +170,6 @@ describe("countRowsWithoutName", () => {
     });
 
     it("counts only the rows that will actually be scripted", () => {
-        // Row 201 gets a plain empty chat either way, so reporting it as an
-        // unnamed row the operator should fix would be reporting on rows the
-        // feature never touches.
         const rows = Array.from({ length: 260 }, (_, i) => row(i + 1));
         expect(countRowsWithoutName(rows)).toBe(MAX_SEEDED_CONVERSATIONS);
     });

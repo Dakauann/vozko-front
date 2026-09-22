@@ -48,8 +48,6 @@ const statusColor: Record<string, string> = {
   COMPLETED: "bg-muted text-muted-foreground",
 };
 
-// Solid opaque tiles + white label, matches status chips and DESIGN.md
-// (never bg-x/10 + text-x wash).
 const CATEGORY_TONE: Record<string, string> = {
   MARKETING: "bg-muted text-muted-foreground",
   UTILITY: "bg-muted text-muted-foreground",

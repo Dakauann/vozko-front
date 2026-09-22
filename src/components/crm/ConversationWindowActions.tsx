@@ -15,16 +15,6 @@ import {
 } from "@/lib/conversations/status-actions";
 import { cn } from "@/lib/utils";
 
-/**
- * The conversation actions that do not fit a 384px title bar.
- *
- * A floating conversation has to be workable, not just readable — an operator
- * who can only reply from a window will not use windows. Stage and label live
- * inside the thread itself (CrmConversationView renders them, same as the
- * centre pane); assigning has its own compact control beside this one; what is
- * left — the reply status and whether the agent answers — comes here rather
- * than adding two more buttons to a bar that already carries five.
- */
 
 export interface ConversationWindowActionsTranslations {
   actions: string;
@@ -37,7 +27,6 @@ export interface ConversationWindowActionsTranslations {
 
 interface ConversationWindowActionsProps {
   conversationStatus?: string;
-  /** Null means the server has not said; it defaults to answering. */
   automationEnabled?: boolean | null;
   canSetStatus: boolean;
   canToggleAutomation: boolean;
@@ -60,10 +49,8 @@ export default function ConversationWindowActions({
   const statuses = canSetStatus
     ? nextConversationStatuses(conversationStatus)
     : [];
-  // The server treats a missing override as "the agent answers".
   const automationOn = automationEnabled !== false;
 
-  // Nothing this operator may do: no menu, rather than a menu of dead items.
   if (statuses.length === 0 && !canToggleAutomation) return null;
 
   const statusLabel = (status: NextConversationStatus) =>
@@ -106,9 +93,6 @@ export default function ConversationWindowActions({
         {canToggleAutomation && (
           <DropdownMenuItem
             onSelect={(e) => {
-              // The operator often flips this and then picks a status; keeping
-              // the menu open saves reopening it for the second half of one
-              // decision.
               e.preventDefault();
               onToggleAutomation();
             }}

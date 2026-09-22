@@ -38,20 +38,6 @@ import {
 import { Broadcast, ChatCircle, Pause, Warning } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
-/*
- * The classified feed: one card per comment with its chips and severity bar,
- * filters in one row above (dataviz interaction rule), and the failed-row
- * retry affordance the plan insists on: a comment the model kept dropping is
- * shown with its reason and a button, never silently gone.
- *
- * Every @ here opens the AUTHOR VIEW (§2): the same one the authors table
- * opens, so a hostile comment is one click from that person's whole history.
- *
- * The live feed (§7) is PAUSED by default and says how many rows are waiting.
- * Not a preference: a list that reorders while someone is reading it makes them
- * click the row that used to be under the cursor. Turning it on is a choice the
- * operator makes when they are watching rather than working.
- */
 
 const LOCALE_TAG: Record<string, string> = { pt: "pt-BR", en: "en-US", es: "es-ES", de: "de-DE" };
 
@@ -72,10 +58,8 @@ export function CommentAnalysisFeed({
   accountId: string;
   source?: AudienceSource;
   subjectKind?: SubjectKind;
-  /** When set, only this post's comments. */
   containerId?: string;
   topics: CommentTopic[];
-  /** Inherited from the tab, so every panel answers for the same window. */
   period?: Period;
 }) {
   const t = useTranslations("audience.feed");
@@ -116,8 +100,6 @@ export function CommentAnalysisFeed({
     onRows: (rows) => prependLive(rows),
   });
 
-  // Live rows are projections of the same row the list already draws, so they
-  // are merged into it rather than kept in a second list with its own actions.
   const prependLive = useCallback((rows: LiveAnalyzedComment[]) => {
     if (rows.length === 0) return;
     setItems((prev) => {
@@ -132,9 +114,6 @@ export function CommentAnalysisFeed({
           source: r.source,
           accountId: r.accountId,
           containerId: r.containerId,
-          // The socket carries the analysis, not the channel's own ids; the
-          // retry and hide actions key off the source comment id, so a live
-          // row uses the analysis id until the next read fills the rest in.
           subjectId: r.commentId,
           authorExternalId: r.authorExternalId,
           authorHandle: r.authorHandle,
@@ -165,10 +144,7 @@ export function CommentAnalysisFeed({
     });
   }, [source, subjectKind]);
 
-  // Taking the queue is the paused path's one action: the operator decides
-  // when the list is allowed to move.
   const showLive = useCallback(() => prependLive(drain()), [drain, prependLive]);
-  // The @ the reader clicked, resolved to its author row inside the view.
   const [viewing, setViewing] = useState<string | null>(null);
 
   const filters = useMemo<CommentListFilters>(() => {
@@ -196,8 +172,6 @@ export function CommentAnalysisFeed({
       if (intent !== ANY) f.intent = intent as CommentIntent;
       if (topic !== ANY) f.topic = topic;
     }
-    // A half-typed custom range is left off entirely rather than sent and
-    // refused; the panel simply keeps showing what it has.
     if (isPeriodReady(period)) Object.assign(f, periodRange(period));
     return f;
   }, [accountId, source, subjectKind, containerId, page, selectedView, stance, sentiment, intent, topic, period, conversationOnly]);
@@ -219,8 +193,6 @@ export function CommentAnalysisFeed({
     };
   }, [filters]);
 
-  // A filter change dims the current page until the next one settles; the
-  // loading flag is set here, in the handler, not in the effect.
   const resetPage = <T,>(setter: (v: T) => void) => (v: T) => {
     setter(v);
     setPage(1);

@@ -19,22 +19,10 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 interface LeadMemoriesSectionProps {
-    /** Null when the conversation is not bridged to a CRM lead yet. */
     leadId: string | null;
-    /** Mirrors `leads:update`; read-only rendering without it. */
     canManage: boolean;
 }
 
-/**
- * The lead's memory: facts the AI saved via its manage_lead_memory tool plus
- * notes operators added by hand: the SAME list the agent sees injected into
- * its prompt on every channel. Nothing the AI remembers is invisible here;
- * that visibility is the feature's safety tripwire.
- *
- * Self-fetching by design (deviation from ScheduledMessagesPanel's
- * parent-owned state): it renders both in the inbox context rail and on the
- * lead page, and parent-owning the fetch in two places would duplicate it.
- */
 export default function LeadMemoriesSection({ leadId, canManage }: LeadMemoriesSectionProps) {
     const t = useTranslations("leadMemories");
 
@@ -157,8 +145,6 @@ function CategoryPill({
             onClick={onClick}
             className={cn(
                 "rounded-[--radius] border px-2 py-0.5 text-2xs font-medium transition-colors max-sm:min-h-[34px]",
-                // A toggle chip is small enough to go solid, which is what the
-                // system does with any pair whose foreground is token-known.
                 active
                     ? "border-primary-edge bg-primary font-semibold text-primary-foreground"
                     : "border-border text-muted-foreground hover:text-foreground",

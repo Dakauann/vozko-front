@@ -22,15 +22,8 @@ export interface EntryFilterValues {
   errorCode?: string;
 }
 
-/**
- * The channels this bar filters for.
- *
- * The unofficial WhatsApp campaign stores a provider error code on its entries
- * exactly as the Cloud API campaign does, so it needs the same filter.
- */
 type CampaignType = "whatsapp" | "unofficial_whatsapp";
 
-/** Whether this channel records a provider error code worth filtering on. */
 function hasErrorCodes(campaignType: CampaignType): boolean {
   return campaignType === "whatsapp" || campaignType === "unofficial_whatsapp";
 }
@@ -189,7 +182,7 @@ export default function EntryFiltersBar({
       </div>
 
       <div className="flex flex-wrap items-end gap-3">
-        {/* Phone search */}
+        {}
         <div className="flex-1 min-w-[200px]">
           <ElevatedInput
             placeholder={t.searchPlaceholder}
@@ -201,7 +194,7 @@ export default function EntryFiltersBar({
           />
         </div>
 
-        {/* Status filter */}
+        {}
         <div className="min-w-[160px]">
           <ElevatedSelect
             value={values.status || "__all__"}
@@ -219,7 +212,7 @@ export default function EntryFiltersBar({
           </ElevatedSelect>
         </div>
 
-        {/* Stage filter */}
+        {}
         {canFilterByStage && (
           <div className="min-w-[160px]">
             <ElevatedSelect
@@ -246,10 +239,10 @@ export default function EntryFiltersBar({
           </div>
         )}
 
-        {/* Optional actions slot (e.g. manage tags button) */}
+        {}
         {renderActions}
 
-        {/* Error code filter – channels whose entries carry one */}
+        {}
         {hasErrorCodes(campaignType) && (
           <div className="min-w-[130px]">
             <ElevatedInput

@@ -19,7 +19,6 @@ import type { IconProps } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { useResolvedMedia } from "./media-node-preview";
 
-// Outgoing green bubble (a media message is a message the business sends).
 const WA_MEDIA_BUBBLE = "bg-[#d9fdd3] dark:bg-[#005c4b]";
 
 function fileNameFromUrl(url: string): string {
@@ -30,9 +29,6 @@ function hideOnError(e: { currentTarget: HTMLElement }) {
   e.currentTarget.style.display = "none";
 }
 
-// action_send_media: renders the media exactly as WhatsApp shows it (image,
-// video with a play overlay, a voice-note bar, or a document card) inside the
-// outgoing green bubble, with the caption below.
 export function SendMediaPreview({
   config,
 }: {
@@ -167,7 +163,6 @@ function WhatsAppMedia({
   }
 
   if (isAudio) {
-    // WhatsApp voice-note bar: play control, a track with a scrubber, mic + time.
     return (
       <div className="flex items-center gap-2 px-1.5 py-1.5">
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/70 dark:bg-white/15">
@@ -190,7 +185,6 @@ function WhatsAppMedia({
     );
   }
 
-  // Document card.
   const ext = (name.split(".").pop() || "arquivo").toUpperCase().slice(0, 10);
   return (
     <div className="flex items-center gap-2 rounded-md bg-black/[0.04] px-2 py-2 dark:bg-white/[0.06]">

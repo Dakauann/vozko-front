@@ -5,36 +5,16 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
-/**
- * Spine width, in pixels.
- *
- * DashboardMainContent's marginLeft MUST equal the spine's rendered width. Any
- * larger value leaves a strip of panel between the spine's right rule and the
- * content — invisible on padded pages, obvious on full-bleed views like the CRM
- * and live-chat. Both sides read these constants so they cannot drift apart.
- */
 export const SPINE_WIDTH_OPEN = 208;
 export const SPINE_WIDTH_RAIL = 52;
 
-// No HEADER_HEIGHT constant here on purpose. The bar is sized in rem (h-12),
-// and globals.css scales the root font to 87.5% between 1024-1440px, so it
-// renders ~42px there and 48px above 1600px. A px constant asserting one value
-// would be a lie in the range most of these users are on — and this file's
-// whole point is that a constant and the thing it describes cannot drift.
 
 const STORAGE_KEY = "sidebar-collapsed";
 
 interface SidebarContextType {
-  /** True when the spine is reduced to its icon rail. */
   isCollapsed: boolean;
   toggleCollapsed: () => void;
-  /** False until the stored preference has been read, to keep SSR stable. */
   hasMounted: boolean;
-  /**
-   * The mobile drawer. State lives here rather than inside the sidebar because
-   * the control that opens it — the app bar's hamburger, the Azure-shell
-   * affordance — renders in a different component than the drawer itself.
-   */
   isMobileOpen: boolean;
   setMobileOpen: (open: boolean) => void;
 }
@@ -48,8 +28,6 @@ const SidebarContext = React.createContext<SidebarContextType>({
 });
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
-  // Open is the default. The spine is labelled furniture an operator reads all
-  // day; it starts legible and collapses only if they ask for the width back.
   const [isCollapsed, setIsCollapsed] = React.useState(false);
   const [hasMounted, setHasMounted] = React.useState(false);
   const [isMobileOpen, setMobileOpen] = React.useState(false);
@@ -58,7 +36,6 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsCollapsed(localStorage.getItem(STORAGE_KEY) === "true");
     } catch {
-      // Ignore localStorage errors
     }
     setHasMounted(true);
   }, []);
@@ -69,7 +46,6 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
       try {
         localStorage.setItem(STORAGE_KEY, String(next));
       } catch {
-        // Ignore localStorage errors
       }
       return next;
     });

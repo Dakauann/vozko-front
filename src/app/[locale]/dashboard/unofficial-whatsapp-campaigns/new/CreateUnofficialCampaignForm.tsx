@@ -50,18 +50,6 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
 
-/**
- * Create / edit an unofficial WhatsApp campaign.
- *
- * Structurally the same form as the Cloud API campaign's, section for section
- * and component for component, because an operator who runs both products
- * should fill in the same fields in the same order. The template picker is
- * replaced by the message composer and the pacing panel — the two places where
- * this transport genuinely differs — and everything else is the official form's
- * own vocabulary: ElevatedCommandSelect over a paginated fetch, the
- * agent/workflow segmented toggle, the switch grid, the AI model selector, the
- * schedule toggle, and a CSV importer beside a live preview.
- */
 
 type FormValues = {
   name: string;
@@ -89,7 +77,6 @@ const EMPTY_PARSE: ParsedTargetList = {
   missingVariables: 0,
 };
 
-/** Not Brazil-pinned: this channel reaches numbers anywhere. */
 const isValidNumber = (digits: string) => digits.length >= 10 && digits.length <= 15;
 
 const FieldError = ({ message }: { message?: string }) =>
@@ -152,9 +139,6 @@ export default function CreateUnofficialCampaignForm({
   const [maxMs, setMaxMs] = useState(initialCampaign?.sendDelayMaxMs ?? 12000);
   const [dailyCap, setDailyCap] = useState(initialCampaign?.dailyCap ?? 0);
 
-  // The demonstration control. Opt-in and deliberately not remembered: it
-  // creates a campaign that CLAIMS to have run, which should be chosen every
-  // time rather than inherited from the last one.
   const [seedOutcome, setSeedOutcome] = useState(false);
   const [sentPercent, setSentPercent] = useState(40);
   const [failedPercent, setFailedPercent] = useState(10);
@@ -166,14 +150,10 @@ export default function CreateUnofficialCampaignForm({
   const enableAutoStaging = watch("enableAutoStaging");
   const enableAutoMemory = watch("enableAutoMemory");
 
-  // ---------------------------------------------------------------- selects
 
   const mapInstanceOption = useCallback(
     (instance: UnofficialWhatsAppInstance): ElevatedCommandOption => ({
       value: instance.id,
-      // The session state rides in the label: which number can actually send is
-      // the fact that decides whether Start will work, and burying it costs the
-      // operator a failed campaign to discover.
       label: instance.sessionLive
         ? instance.displayName
         : `${instance.displayName} — ${t("form.numberOffline")}`,
@@ -222,7 +202,6 @@ export default function CreateUnofficialCampaignForm({
     [instanceSelect.items, instanceId],
   );
 
-  // ---------------------------------------------------------------- targets
 
   const requiredVariables = parameterCount(message);
   const variantsOk = variantsAgree(message.bodies);
@@ -236,10 +215,6 @@ export default function CreateUnofficialCampaignForm({
     [rawTargets, requiredVariables],
   );
 
-  // The PLATFORM role, deliberately not useWorkspace().can(): a workspace owner
-  // passes every permission this screen applies and still must not create a
-  // campaign that claims results it never produced. The server drops the field
-  // independently; this only keeps the UI honest.
   const { user } = useAuth();
   const isSystemAdmin = user?.role === "admin";
   const canSeedOutcome = mode === "create" && isSystemAdmin;
@@ -252,13 +227,9 @@ export default function CreateUnofficialCampaignForm({
   );
 
   const issue = selectedInstance ? instanceIssue(selectedInstance) : null;
-  // A banned or half-provisioned number can only ever fail, so the form refuses
-  // it outright rather than letting the operator find out at Start.
   const numberUnusable = issue === "banned" || issue === "provision-failed";
 
   const handleDownloadCsvExample = () => {
-    // The example carries exactly the columns the parser reads, in order, so an
-    // operator can fill it in without guessing the shape.
     const header = ["numero", "nome", ...Array.from({ length: requiredVariables }, (_, i) => `variavel${i + 1}`)];
     const sample = ["5584999990001", "Ana", ...Array.from({ length: requiredVariables }, (_, i) => `valor${i + 1}`)];
     const csv = `${header.join(";")}\n${sample.join(";")}\n`;
@@ -271,7 +242,6 @@ export default function CreateUnofficialCampaignForm({
     URL.revokeObjectURL(url);
   };
 
-  // ---------------------------------------------------------------- submit
 
   const onSubmit = handleSubmit(async (values) => {
     if (!variantsOk || !bodiesFilled) {
@@ -373,8 +343,8 @@ export default function CreateUnofficialCampaignForm({
               <p className="mt-1 text-xs text-muted-foreground">
                 {t("form.numberDescription")}
               </p>
-              {/* Named, not merely disabled: reconnect, wait and
-                  nothing-can-be-done are different remedies. */}
+              {
+}
               {issue ? (
                 <p
                   className={cn(
@@ -413,8 +383,8 @@ export default function CreateUnofficialCampaignForm({
               </div>
             ) : null}
 
-            {/* The message composer stands where the template picker stands on
-                the official form: this channel has no templates. */}
+            {
+}
             <div className="border-t border-border pt-4">
               <p className="mb-3 text-sm font-medium text-foreground">
                 {t("form.messageTitle")}
@@ -654,9 +624,8 @@ export default function CreateUnofficialCampaignForm({
           </div>
         </ElevatedContainer>
 
-        {/* Preview, in the same slot the official form puts the template
-            preview: the operator reads what the customer will receive without
-            leaving the page. */}
+        {
+}
         <ElevatedContainer className="rounded-lg border border-border bg-card p-5 lg:sticky lg:top-16">
           <h2 className="mb-3 font-display text-lg font-semibold tracking-[0.01em] text-foreground">
             {t("form.previewTitle")}
@@ -763,12 +732,8 @@ export default function CreateUnofficialCampaignForm({
             }}
           />
 
-          {/* Create this campaign already carrying results.
-
-              Hidden rather than disabled for everyone else: it is not something
-              a workspace can be upsold into, so showing it would only raise a
-              question support has to answer. It sits under the list because it
-              is a fact about these recipients, not about the message. */}
+          {
+}
           {canSeedOutcome ? (
             <div className="mt-4 space-y-3 rounded-[--radius] border border-border bg-card/40 p-3">
               <div className="flex items-start justify-between gap-2">
@@ -808,8 +773,8 @@ export default function CreateUnofficialCampaignForm({
                       disabled={isSubmitting}
                     />
                   </div>
-                  {/* The three real numbers, not two percentages the operator
-                      has to multiply in their head. */}
+                  {
+}
                   <p className="text-xs text-muted-foreground">
                     {t("form.seedOutcomeSummary", seedCounts)}
                   </p>

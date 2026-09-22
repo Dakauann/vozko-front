@@ -66,8 +66,6 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
-  // Reagendamento: a focused "move to a new date/time" flow that keeps the original
-  // duration and all other fields, distinct from the full edit dialog.
   const [reschedulingEvent, setReschedulingEvent] =
     useState<CalendarEvent | null>(null);
   const [rescheduleStart, setRescheduleStart] = useState("");
@@ -277,7 +275,6 @@ export default function CalendarPage() {
   const handleReschedule = async () => {
     if (!reschedulingEvent || !rescheduleStart) return;
     setRescheduleSaving(true);
-    // Keep the original duration: the new end is the new start shifted by the same span.
     const durationMs =
       new Date(reschedulingEvent.endTime).getTime() -
       new Date(reschedulingEvent.startTime).getTime();
@@ -334,7 +331,7 @@ export default function CalendarPage() {
         }
       />
 
-      {/* No connection alert */}
+      {}
       {connected === false && (
         <ElevatedContainer className="border-border bg-muted dark:bg-muted">
           <div className="flex items-start gap-3 p-4">
@@ -362,11 +359,11 @@ export default function CalendarPage() {
         </ElevatedContainer>
       )}
 
-      {/* Main layout: Calendar grid + Agenda sidebar */}
+      {}
       <div className="flex gap-4">
-        {/* ── Calendar grid ──────────────────────────────────────── */}
+        {}
         <ElevatedContainer className="p-0 overflow-hidden flex-1 min-w-0">
-          {/* Month navigation */}
+          {}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
             <div className="flex items-center gap-1">
               <button
@@ -393,7 +390,7 @@ export default function CalendarPage() {
             </button>
           </div>
 
-          {/* Day headers */}
+          {}
           <div className="grid grid-cols-7">
             {dayNames.map((day) => (
               <div
@@ -405,7 +402,7 @@ export default function CalendarPage() {
             ))}
           </div>
 
-          {/* Day cells */}
+          {}
           {loading && connected !== false ? (
             <div className="flex items-center justify-center h-80 text-sm text-muted-foreground">
               {t("loading")}
@@ -470,9 +467,6 @@ export default function CalendarPage() {
                               key={evt.id}
                               className="w-full text-left flex items-center gap-1 px-1.5 py-0.5 rounded-md text-2xs leading-tight truncate transition-colors hover:opacity-85"
                               style={{
-                                // Solid event chip with computed ink — the
-                                // Azure-calendar look. The 7% same-hue wash it
-                                // replaces is the banned pattern.
                                 backgroundColor: evt.color || EVENT_COLORS[0],
                                 color: readableInkFor(evt.color || EVENT_COLORS[0]),
                               }}
@@ -511,10 +505,10 @@ export default function CalendarPage() {
           )}
         </ElevatedContainer>
 
-        {/* ── Agenda Sidebar ─────────────────────────────────────── */}
+        {}
         <div className="w-[320px] shrink-0 hidden lg:block">
           <ElevatedContainer className="p-0 overflow-hidden sticky top-4">
-            {/* Sidebar header */}
+            {}
             <div className="px-4 py-3 border-b border-border">
               <div className="flex items-center justify-between">
                 <div>
@@ -539,7 +533,7 @@ export default function CalendarPage() {
               </div>
             </div>
 
-            {/* Sidebar event list */}
+            {}
             <div
               ref={agendaRef}
               className="max-h-[calc(100vh-320px)] overflow-y-auto"
@@ -575,13 +569,13 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      {/* ── Create/Edit Event Dialog ────────────────────────────── */}
+      {}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-lg p-0 gap-0 overflow-hidden">
-          {/* Header with color strip */}
+          {}
           <div className="h-2 w-full" style={{ backgroundColor: formColor }} />
 
-          {/* Title */}
+          {}
           <div className="px-6 pt-4 pb-2">
             <input
               value={formTitle}
@@ -593,7 +587,7 @@ export default function CalendarPage() {
           </div>
 
           <div className="px-6 py-3 space-y-0.5 max-h-[60vh] overflow-y-auto">
-            {/* Date & Time */}
+            {}
             <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
               <Clock
                 size={18}
@@ -638,7 +632,7 @@ export default function CalendarPage() {
               </div>
             </div>
 
-            {/* Google Meet */}
+            {}
             <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
               <VideoCamera
                 size={18}
@@ -674,7 +668,7 @@ export default function CalendarPage() {
               </div>
             </div>
 
-            {/* Location */}
+            {}
             <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
               <MapPin
                 size={18}
@@ -689,7 +683,7 @@ export default function CalendarPage() {
               />
             </div>
 
-            {/* Guests */}
+            {}
             <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
               <Users
                 size={18}
@@ -704,7 +698,7 @@ export default function CalendarPage() {
               />
             </div>
 
-            {/* Guest permissions */}
+            {}
             {formAttendees.trim() && (
               <div className="ml-[30px] space-y-1.5 py-2 pl-1">
                 <p className="text-2xs font-semibold text-muted-foreground">
@@ -743,7 +737,7 @@ export default function CalendarPage() {
               </div>
             )}
 
-            {/* Description */}
+            {}
             <div className="flex items-start gap-3 py-2 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
               <TextAlignLeft
                 size={18}
@@ -759,7 +753,7 @@ export default function CalendarPage() {
               />
             </div>
 
-            {/* Color */}
+            {}
             <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
               <Palette
                 size={18}
@@ -784,7 +778,7 @@ export default function CalendarPage() {
             </div>
           </div>
 
-          {/* Footer */}
+          {}
           <div className="flex items-center justify-between px-6 py-3 border-t border-border bg-muted">
             <div>
               {editingEvent && (
@@ -816,7 +810,7 @@ export default function CalendarPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Reagendamento: focused new-date/time dialog that preserves the duration. */}
+      {}
       <Dialog
         open={!!reschedulingEvent}
         onOpenChange={(open) => {
@@ -897,13 +891,13 @@ function AgendaEventCard({
       className="group flex gap-3 px-4 py-3 hover:bg-muted transition-colors cursor-pointer"
       onClick={onEdit}
     >
-      {/* Color bar */}
+      {}
       <div
         className="w-1 rounded-full shrink-0 self-stretch"
         style={{ backgroundColor: color }}
       />
 
-      {/* Content */}
+      {}
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-foreground truncate">
           {event.title}
@@ -957,7 +951,7 @@ function AgendaEventCard({
         )}
       </div>
 
-      {/* Actions */}
+      {}
       <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
         <button
           onClick={(e) => {

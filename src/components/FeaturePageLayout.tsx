@@ -13,11 +13,6 @@ import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import Button from "@/components/elevated-design/button";
 import { featureConfigs, type FeaturePageKey } from "@/data/feature-overview";
 
-// A variant swaps the feature overview for a specific sub-route. `match` is
-// tested as a substring of the current pathname (locale-prefix agnostic); the
-// longest match wins. This lets one shared layout show route-appropriate content,
-// e.g. receptive/organic sub-routes get their own overview instead of the
-// outbound parent's.
 interface FeaturePageVariant {
   match: string;
   featureKey: FeaturePageKey;
@@ -46,15 +41,9 @@ export default function FeaturePageLayout({
   const config = featureConfigs[effectiveKey];
   const t = useTranslations("featurePages");
   const storageKey = `feature_overview_dismissed_${effectiveKey}`;
-  // Start closed. Opening with useState(true) then closing in useEffect painted a
-  // full-viewport dim veil (and Radix scroll-lock) on every layout mount , the
-  // pure black/white "blackout" users reported that is not the page-reveal curtain.
-  // Only open after we know this overview was not dismissed.
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    // Re-evaluate on every key change (e.g. navigating base → receptive within
-    // the same shared layout): open iff this specific overview wasn't dismissed.
     try {
       setOpen(localStorage.getItem(storageKey) !== "true");
     } catch {
@@ -67,7 +56,6 @@ export default function FeaturePageLayout({
     try {
       localStorage.setItem(storageKey, "true");
     } catch {
-      // ignore
     }
   };
 
@@ -93,16 +81,8 @@ export default function FeaturePageLayout({
             <ElevatedDialogTitle>{title}</ElevatedDialogTitle>
           </VisuallyHidden.Root>
           <div className="overflow-hidden rounded-[--radius]">
-            {/*
-              The generative colour-blob banner is gone. It was 176px of
-              decoration in a saturated palette that belonged to no part of this
-              system, shown on first visit to sixteen different features — the
-              loudest thing on screen, saying nothing.
-
-              What replaces it is the panel's own header: the feature's name as
-              a silkscreen legend on an engraved rule. It states which feature
-              you are being introduced to, and hands the room to the content.
-            */}
+            {
+}
             <div className="rule-engraved px-5 py-3">
               <span className="legend">{badge}</span>
             </div>

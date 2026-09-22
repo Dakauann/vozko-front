@@ -12,18 +12,9 @@ const spec = (...bodies: string[]): UnofficialWhatsAppMessageSpec => ({
   bodies,
 });
 
-/**
- * These mirror MessageSpec in the Go domain.
- *
- * They are duplicated in the browser deliberately — the operator has to be told
- * about a broken variant set while typing, not after a round trip — so the two
- * implementations have to agree, and these are the cases that pin that.
- */
 describe("placeholder detection", () => {
   it("finds positional variables and ignores named ones", () => {
     expect(placeholdersIn("oi {{1}} e {{2}}")).toEqual([1, 2]);
-    // Named placeholders are the PROVIDER's syntax, substituted from its own
-    // lead store. We never render them, so they are not ours to count.
     expect(placeholdersIn("use {{nome}}")).toEqual([]);
   });
 
@@ -38,7 +29,6 @@ describe("placeholder detection", () => {
 
 describe("parameterCount", () => {
   it("is the highest placeholder, not the count", () => {
-    // A gap matters: {{1}} and {{3}} needs three columns, not two.
     expect(parameterCount(spec("oi {{1}} e {{3}}"))).toBe(3);
   });
 
@@ -51,9 +41,6 @@ describe("parameterCount", () => {
   });
 });
 
-// variantsAgree takes BODIES rather than a spec, because a lead import authors
-// the same kind of message without one. parameterCount still takes the spec, so
-// its callers did not have to move.
 describe("variantsAgree", () => {
   it("accepts a single body", () => {
     expect(variantsAgree(["bom dia"])).toBe(true);
@@ -64,9 +51,6 @@ describe("variantsAgree", () => {
   });
 
   it("rejects the same COUNT of different variables", () => {
-    // The trap this exists for: one variant reading {{1}} beside one reading
-    // {{2}} would send a raw "{{2}}" to everyone assigned the second, because
-    // the importer only collected one column.
     expect(variantsAgree(["oi {{1}}", "ola {{2}}"])).toBe(false);
   });
 

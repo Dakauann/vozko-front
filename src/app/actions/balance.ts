@@ -42,7 +42,7 @@ function normalizeBalanceSummary(apiResponse: FullBalanceSummary): BalanceSummar
         balances: [
             {
                 resource_type: 'money',
-                current_balance: (balance?.amount ?? 0) / 1_000_000, // USD micros to USD
+                current_balance: (balance?.amount ?? 0) / 1_000_000,
                 total_credited: (apiResponse.totalMoneyCredits ?? 0) / 1_000_000,
                 total_debited: (apiResponse.totalMoneyDebits ?? 0) / 1_000_000,
             },
@@ -56,7 +56,7 @@ function normalizeTransaction(tx: Transaction) {
         workspace_id: tx.workspaceId,
         resource_type: tx.resourceType,
         transaction_type: tx.type,
-        amount: tx.amount / 1_000_000, // USD micros to USD
+        amount: tx.amount / 1_000_000,
         description: tx.description,
         service_type: tx.serviceType,
         reference_id: tx.referenceId ?? undefined,
