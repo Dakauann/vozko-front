@@ -6,35 +6,6 @@ import type {
 
 import { apiClient } from '@/lib/api/browser-client';
 
-export async function sendConversationMessageAction(
-    entryType: EntryType,
-    entryId: string,
-    text: string,
-    mediaId?: string,
-    mediaType?: MediaType,
-): Promise<{ message: ConversationMessage | null; error?: string }> {
-    const body: Record<string, unknown> = { text };
-    if (mediaId && mediaType) {
-        body.media_id = mediaId;
-        body.media_type = mediaType;
-    }
-
-    const response = await apiClient<ConversationMessage>(
-        `/conversations/${entryType}/${entryId}/messages`,
-        {
-            method: 'POST',
-            body: JSON.stringify(body),
-        },
-    );
-
-    console.log("sending: ", body, "response: ", response);
-
-    if (response.error) {
-        return { message: null, error: response.error.message };
-    }
-
-    return { message: response.data ?? null };
-}
 
 export async function requestCallPermissionAction(
     entryType: EntryType,
@@ -179,33 +150,6 @@ export async function listConversationEventsAction(
     };
 }
 
-export async function getConversationHistoryAction(
-    entryType: EntryType,
-    entryId: string,
-    page: number = 1,
-    limit: number = 50,
-): Promise<{
-    messages: ConversationMessage[];
-    has_more: boolean;
-    error?: string;
-}> {
-    const response = await apiClient<{
-        messages: ConversationMessage[];
-        has_more: boolean;
-    }>(
-        `/conversations/${entryType}/${entryId}/messages?page=${page}&limit=${limit}`,
-        { method: 'GET' },
-    );
-
-    if (response.error) {
-        return { messages: [], has_more: false, error: response.error.message };
-    }
-
-    return {
-        messages: response.data?.messages ?? [],
-        has_more: response.data?.has_more ?? false,
-    };
-}
 
 export async function getConversationMediaAction(
     entryType: EntryType,
