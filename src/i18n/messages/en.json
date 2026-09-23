@@ -1479,7 +1479,8 @@
       "archivedUnofficialWhatsappCampaigns": "Archived",
       "audience": "Audience",
       "funnels": "Funnels",
-      "analysisAlerts": "Alerts"
+      "analysisAlerts": "Alerts",
+      "reports": "Reports"
     },
     "badges": {
       "new": "New",
@@ -6708,6 +6709,43 @@
       "noAvailableMembers": "No available members to add",
       "noMembers": "No members in this department",
       "assignLabel": "Assign to departments"
+    },
+    "outcomeCapture": {
+      "label": "Outcome capture",
+      "cardDescription": "Ask the agent for an outcome when they finish, and measure close quality.",
+      "description": "With capture on, every close made by a person records the chosen outcome. Automatic, AI and workflow closes get a reserved code and stay out of the team count.",
+      "enabled": "Collect an outcome",
+      "enabledHint": "Turns collection on and starts counting from now.",
+      "requireOnFinish": "Require it to finish",
+      "requireOnFinishHint": "Without a chosen outcome, the conversation is not finished.",
+      "threshold": "Target for outcomes that resolve",
+      "thresholdHint": "Minimum share expected over the captured closes.",
+      "catalogue": "Outcomes",
+      "catalogueHint": "Mark as resolving the outcomes that truly close the demand. At least one is required.",
+      "emptyCatalogue": "No outcome registered. Click to add the first one.",
+      "addOutcome": "Add",
+      "removeOutcome": "Remove outcome",
+      "labelPlaceholder": "Name the agent sees",
+      "codePlaceholder": "code",
+      "isDurable": "resolves",
+      "statusOn": "On, {count} outcomes",
+      "statusOff": "Off",
+      "switchOnWarning": "On save, agents start choosing an outcome to finish. Counting starts now and nothing in the past is judged.",
+      "save": "Save",
+      "saveSuccess": "Outcome capture saved",
+      "saveError": "Could not save outcome capture",
+      "issues": {
+        "threshold": "The target must be between 0 and 100.",
+        "codeRequired": "Every outcome needs a code.",
+        "reserved": "Codes cannot start with an underscore.",
+        "duplicate": "There are repeated codes.",
+        "labelRequired": "Every outcome needs a name.",
+        "empty": "Register at least one outcome to turn capture on.",
+        "noDurable": "Mark at least one outcome as resolving."
+      },
+      "labelColumn": "Name",
+      "codeColumn": "Code",
+      "isDurableHint": "Mark this when the outcome truly closes the demand."
     }
   },
   "workspaceInvites": {
@@ -7080,14 +7118,14 @@
       "editRateLink": "Change rate",
       "rateMissing": "Exchange rate is required before editing default prices.",
       "storedAsUsd": "stored as USD",
-        "unpriced": "Not priced"
+      "unpriced": "Not priced"
     },
     "services": {
       "whatsapp": {
         "utility": "Utility Messages",
         "marketing": "Marketing Messages",
         "authentication": "Authentication Messages",
-          "service": "Service Messages"
+        "service": "Service Messages"
       },
       "telephony": {
         "whatsapp_calls": "WhatsApp Calls"
@@ -7253,7 +7291,7 @@
         "utility": "WhatsApp, Utility messages",
         "marketing": "WhatsApp, Marketing messages",
         "authentication": "WhatsApp, Authentication messages",
-          "service": "WhatsApp, Service messages",
+        "service": "WhatsApp, Service messages",
         "whatsapp_calls": "WhatsApp calls",
         "standard": "SMS messages",
         "default_markup": "AI models (LLM)"
@@ -7302,7 +7340,7 @@
       "conversionNote": "Changing the exchange rate later does not rewrite prices already saved on this plan.",
       "rateRequired": "Load a valid exchange rate before editing unit prices.",
       "priceBelowCost": "Price is below cost.",
-        "unpriced": "No price set. Not charged.",
+      "unpriced": "No price set. Not charged.",
       "invalidAmount": "Invalid amount.",
       "notApplicable": "n/a"
     },
@@ -8714,11 +8752,11 @@
         "mediaHelp": "Optional. The text above becomes the caption.",
         "mediaKind": "File type",
         "mediaKinds": {
-            "image": "Image",
-            "video": "Video",
-            "audio": "Audio",
-            "document": "Document",
-            "sticker": "Sticker"
+          "image": "Image",
+          "video": "Video",
+          "audio": "Audio",
+          "document": "Document",
+          "sticker": "Sticker"
         },
         "mediaUpload": "Upload a file",
         "mediaUploading": "Uploading...",
@@ -9396,7 +9434,15 @@
     "searchMessages": "Search messages",
     "searchMessagesPlaceholder": "Search messages...",
     "cancelReply": "Cancel reply",
-    "createNewStage": "Create new stage"
+    "createNewStage": "Create new stage",
+    "outcomeCapture": {
+      "cancel": "Back",
+      "confirm": "Finish conversation",
+      "description": "This workspace asks for an outcome before a conversation can be finished.",
+      "durable": "resolves",
+      "noCatalogue": "No outcome is configured in this workspace. Ask an administrator to set up the list.",
+      "title": "What was the outcome?"
+    }
   },
   "workflows": {
     "nodeConfig": {
@@ -9516,12 +9562,35 @@
       "dayUnit": "d"
     },
     "export": {
+      "executive": {
+        "atRisk": "Targets at risk",
+        "available": "Available",
+        "cluster": "Overall standing",
+        "elapsedPct": "% of period elapsed",
+        "offTrack": "Targets off track",
+        "onTrack": "Targets on track",
+        "openDaysDone": "Open days elapsed",
+        "openDaysLeft": "Open days left",
+        "openDaysTotal": "Open days in period",
+        "reason": "Reason",
+        "targetsSet": "Targets set",
+        "timezone": "Timezone"
+      },
       "button": "Export CSV",
       "title": "Attendance report",
       "yes": "Yes",
       "no": "No",
       "noDepartment": "No department",
       "sections": {
+        "backlogXray": "Backlog x-ray",
+        "period": "Period",
+        "projections": "Projections and targets",
+        "quality": "Outcome quality",
+        "reachability": "Reachability by channel",
+        "revenue": "Revenue",
+        "rework": "Rework",
+        "teamRanking": "Team ranking",
+        "trend": "Trend",
         "filters": "Applied filters",
         "kpis": "Indicators",
         "status": "Conversation status",
@@ -9541,6 +9610,48 @@
         "stagesTotals": "Stage coverage"
       },
       "columns": {
+        "actual": "Actual",
+        "attainPct": "% of target",
+        "avgMessages": "Messages per chat",
+        "avgTicketCents": "Average ticket (cents)",
+        "bestBucket": "Best bucket",
+        "bestValue": "Best value",
+        "bucket": "Bucket",
+        "captured": "With outcome",
+        "closedPct": "% outside window",
+        "closes": "Closes",
+        "currency": "Currency",
+        "deltaPct": "Change %",
+        "dimension": "Dimension",
+        "durable": "Durably resolved",
+        "durablePct": "% durably resolved",
+        "label": "Label",
+        "measured": "Measured base",
+        "memberClass": "Band",
+        "partial": "Partial period",
+        "pctOfTeamAvg": "% of team average",
+        "perOnlineHour": "Per online hour",
+        "perOpenDay": "Per open day",
+        "perOpenDayCents": "Per open day (cents)",
+        "prevClosedCents": "Previous period (cents)",
+        "projected": "Projected",
+        "projectedCents": "Projected (cents)",
+        "projectedFlag": "Is projected",
+        "rankMetricValue": "Metric value",
+        "reason": "Reason",
+        "reopenRate": "% reopened",
+        "reopened": "Reopened",
+        "revenueCents": "Revenue (cents)",
+        "reworkCostMicros": "Rework cost (micros)",
+        "reworkTemplates": "Templates resent",
+        "target": "Target",
+        "totalMessages": "Messages",
+        "unknown": "Unknown",
+        "valueCents": "Value (cents)",
+        "verdict": "Verdict",
+        "windowClosed": "Window closed",
+        "windowOpen": "Window open",
+        "wonCount": "Deals won",
         "filter": "Filter",
         "value": "Value",
         "metric": "Indicator",
@@ -9579,7 +9690,8 @@
         "avgDaysInStage": "Days parked (avg)",
         "oldestDaysInStage": "Days parked (oldest)",
         "stuck": "Stalled",
-        "stuckAfterDays": "Threshold (days)"
+        "stuckAfterDays": "Threshold (days)",
+        "generatedAtLabel": "Generated at"
       },
       "filters": {
         "generatedAt": "Generated at",
@@ -9700,7 +9812,42 @@
         "unstagedShell": "No message and no stage",
         "stuck": "Stalled conversations"
       },
-      "noFunnel": "No funnel"
+      "noFunnel": "No funnel",
+      "preparing": "Generating…",
+      "ready": "Report ready, the download has started",
+      "failed": "The report could not be generated",
+      "queued": "Queued",
+      "running": "Generating",
+      "expiredFile": "The file has expired. Request the report again.",
+      "failure": {
+        "unknown_kind": "This report type does not exist on this server.",
+        "unsupported_format": "This report is not available in that format.",
+        "too_many_rows": "The period has too many rows. Pick a shorter range.",
+        "render_failed": "Generation failed. Try again in a few minutes.",
+        "upload_failed": "The file was generated but could not be stored. Try again.",
+        "renderer_not_configured": "This report is not available on this server.",
+        "source_unavailable": "The data source did not respond. Try again.",
+        "cancelled": "Generation was cancelled.",
+        "workspace_required": "Pick a workspace before exporting."
+      },
+      "queuedTitle": "Report queued",
+      "queuedBody": "We are generating the file. It downloads on its own when it is ready, and it is kept under Reports.",
+      "truncated": "{shown} of {total} rows. The CSV carries the whole period.",
+      "rowTotal": "{total} rows",
+      "format": {
+        "csv": {
+          "label": "CSV (spreadsheet)",
+          "hint": "Every row in the period, to open in Excel."
+        },
+        "xlsx": {
+          "label": "Excel (.xlsx)",
+          "hint": "Every row in the period, already formatted."
+        },
+        "pdf": {
+          "label": "PDF (report)",
+          "hint": "The report with its charts, ready to send."
+        }
+      }
     },
     "attendance": {
       "badge": "Metrics · Service",
@@ -9791,7 +9938,21 @@
         "stageCoverage": "Coverage by funnel",
         "stageCoverageSub": "How much of the period sits in a stage, and in which funnel",
         "stageMosaic": "Volume by stage",
-        "stageMosaicSub": "Every funnel side by side · block area is the stage's volume"
+        "stageMosaicSub": "Every funnel side by side · block area is the stage's volume",
+        "tactical": "Tactical picture",
+        "tacticalSub": "How much of the period is spent and where each target lands",
+        "money": "Revenue in the period",
+        "moneySub": "Won opportunities attributed by their close date",
+        "history": "Historical trend",
+        "historySub": "The previous closed months, with the best one marked",
+        "backlog": "Backlog x-ray",
+        "backlogSub": "Who was left behind, for how long, and whether you can still reach them",
+        "quality": "Close quality",
+        "qualitySub": "How many closes recorded an outcome that actually resolves",
+        "teamXray": "Team x-ray",
+        "teamXraySub": "Output per day, per hour and against the human team average",
+        "rework": "Cost of rework",
+        "reworkSub": "Conversations that reopened after being closed, and what working them again cost"
       },
       "status": {
         "finished": "Conversations finished",
@@ -9947,6 +10108,261 @@
         "statusRadialHint": "Distance from the centre = share of the period's conversations (0–100%)",
         "stageBlockHint": "Block area = the stage's conversation volume",
         "deptBlockHint": "Block area = the department's conversation volume"
+      },
+      "executive": {
+        "periodTitle": "Business days this month",
+        "daysDone": "{done} of {total}",
+        "daysLeft": "{count} left",
+        "elapsedLabel": "{pct} of the period elapsed",
+        "clusterTitle": "Cluster",
+        "onTrackOf": "{onTrack} of {total} targets projecting",
+        "noTargetsSet": "No target set",
+        "timezoneNote": "Counted in {timezone}",
+        "noTargetsTitle": "No target for this period",
+        "noTargetsBody": "Without a target, the numbers on this page cannot say whether the month will land.",
+        "setTargets": "Set targets",
+        "targetsTitle": "Period targets",
+        "targetsDescription": "Targets for {period}, scope: {scope}",
+        "targetsScopeWorkspace": "Workspace",
+        "save": "Save",
+        "close": "Close",
+        "invalidValue": "Enter a number at or above zero",
+        "noTargetPlaceholder": "no target",
+        "unitMoney": "amount",
+        "unitPercent": "percentage",
+        "unitMinutes": "minutes",
+        "unitCount": "count",
+        "higherIsBetter": "higher is better",
+        "lowerIsBetter": "lower is better",
+        "target": "Target",
+        "projected": "Projection",
+        "actual": "Actual",
+        "perOpenDay": "Per business day",
+        "attainment": "Attainment",
+        "bestInWindow": "Best closed: {bucket} ({value}), between {from} and {to}",
+        "deltaHint": "Projection against the last closed month",
+        "unbucketed": "{count} finished conversations with no close date fell outside the series",
+        "revenueIn": "Revenue in {currency}",
+        "wonCount": "Won",
+        "avgTicket": "Average ticket",
+        "prevClosed": "Previous closed month",
+        "mixedCurrencies": "This workspace has more than one currency. Values are shown per currency and never summed.",
+        "unattributed": "{count} won opportunities with no close date were left out",
+        "unowned": "{count} won with no owner",
+        "backlogTotal": "{count} conversations in the backlog",
+        "measured": "base {count}",
+        "unknownCount": "{count} without that information",
+        "otherBucket": "Others",
+        "unknownBucket": "Not recorded",
+        "recordCompleteness": "Record completeness",
+        "reachability": "Service window",
+        "reachabilityHint": "Conversations whose 24h window has shut only reopen with a paid template.",
+        "windowClosed": "{closed} shut, {open} open",
+        "qualityOffTitle": "Outcome capture is off",
+        "configureCapture": "Configure in the workspace",
+        "thresholdNote": "The target for outcomes that resolve is {threshold} of the captured closes.",
+        "operator": "Operator",
+        "closes": "Closes",
+        "captured": "Captured",
+        "capturedHint": "Closes from the moment capture was switched on",
+        "durable": "Resolving",
+        "durablePct": "% resolving",
+        "riskAssessment": "Assessment",
+        "notScored": "not scored",
+        "adjacents": "Adjacent and system",
+        "teamTotal": "Team total",
+        "adjacentTotal": "Adjacent total",
+        "notCaptured": "{count} closes from before capture were left out",
+        "rankedBy": "Ranked by {metric}",
+        "teamAverage": "human average {value}",
+        "minSample": "classified from {count} closes",
+        "resolvedCol": "Resolved",
+        "perDayCol": "Per day",
+        "perDayHint": "Divided by the business days already elapsed",
+        "perHourCol": "Per hour",
+        "perHourHint": "Divided by the recorded online time of that agent",
+        "perHourSuffix": "/h",
+        "revenueCol": "Revenue",
+        "avgTicketCol": "Ticket",
+        "avgTicketHint": "Revenue divided by won opportunities",
+        "pctOfAvgCol": "% of average",
+        "pctOfAvgHint": "Against the human agent average",
+        "classCol": "Standing",
+        "metric": {
+          "ai_containment_rate": "Resolved by AI",
+          "avg_frt_mins": "First response",
+          "avg_handle_mins": "Average handling",
+          "avg_wait_mins": "Average wait",
+          "engaged": "Conversations with a message",
+          "entries_created": "Conversations opened",
+          "finished": "Finished conversations",
+          "new_leads": "New leads",
+          "outcome_durable_pct": "Outcomes that resolve",
+          "pending_stock": "Backlog stock",
+          "reopen_rate": "Reopen rate",
+          "resolution_pct": "Resolution rate",
+          "revenue_cents": "Revenue",
+          "won_count": "Won opportunities"
+        },
+        "verdict": {
+          "at_risk": "At risk",
+          "insufficient_data": "Not enough data",
+          "no_target": "No target",
+          "not_projected": "Not projected",
+          "off_track": "Off track",
+          "on_track": "On track"
+        },
+        "cluster": {
+          "critical": "Critical",
+          "excellence": "Excellence",
+          "improvement": "Improving",
+          "on_track": "On pace"
+        },
+        "memberClass": {
+          "below": "Below",
+          "critical": "Critical",
+          "elite": "Elite",
+          "insufficient_data": "Not enough data",
+          "solid": "Solid"
+        },
+        "rankMetric": {
+          "resolved": "Resolved",
+          "revenue_cents": "Revenue",
+          "volume": "Volume"
+        },
+        "dimension": {
+          "age": "Time in backlog",
+          "assignee": "Assignee",
+          "origin": "Origin",
+          "returning": "Returning contact",
+          "tenure": "Contact tenure"
+        },
+        "band": {
+          "0_1d": "Up to 1 day",
+          "12m_plus": "Over 12 months",
+          "1_3d": "1 to 3 days",
+          "1_6m": "1 to 6 months",
+          "30d_plus": "Over 30 days",
+          "3_7d": "3 to 7 days",
+          "6_12m": "6 to 12 months",
+          "7_30d": "7 to 30 days",
+          "first_contact": "First contact",
+          "returning": "Served before",
+          "under_1m": "Under 1 month"
+        },
+        "recordField": {
+          "age": "Age",
+          "name": "Name"
+        },
+        "periodReason": {
+          "invalid_schedule": "The stored working hours are invalid and cannot be used.",
+          "no_schedule": "Set the workspace working hours to measure the period in business days.",
+          "period_unavailable": "Period unavailable.",
+          "range_too_wide": "The requested range is too wide to count in business days.",
+          "schedule_never_opens": "The configured working hours never open in this period."
+        },
+        "projectionReason": {
+          "actual_unavailable": "The actual value for this metric is unavailable.",
+          "invalid_schedule": "The working hours are invalid.",
+          "metric_is_not_cumulative": "An average does not extend by daily run rate.",
+          "no_schedule": "Without working hours there is no projection.",
+          "period_unavailable": "With no measured period there is no projection.",
+          "range_too_wide": "Range too wide to project.",
+          "schedule_never_opens": "The configured schedule never opens in this period.",
+          "too_early_to_project": "Too early in the period to project."
+        },
+        "trendReason": {
+          "no_closed_buckets": "There is no closed month to compare against yet.",
+          "trend_repository_unavailable": "The historical series is unavailable."
+        },
+        "revenueReason": {
+          "revenue_mixed_currencies": "There is more than one currency in the period.",
+          "revenue_not_department_scoped": "Opportunities carry no department, so revenue cannot be filtered by one.",
+          "revenue_repository_unavailable": "Revenue is unavailable."
+        },
+        "xrayReason": {
+          "no_backlog": "There are no backlog conversations in this slice.",
+          "no_coverage": "This information is not filled in for the current backlog.",
+          "no_window_model": "This channel has no 24h window."
+        },
+        "qualityReason": {
+          "nothing_captured_yet": "No captured closes in this period yet.",
+          "outcome_capture_disabled": "Turn outcome capture on in the workspace to measure close quality.",
+          "outcome_capture_has_no_enabled_at": "Outcome capture is on but has no activation date, so there is no trustworthy denominator.",
+          "quality_repository_unavailable": "Close quality is unavailable."
+        },
+        "rankingReason": {
+          "no_human_team_rows": "No human agent in this slice.",
+          "no_team_rows": "No agent with conversations in this slice.",
+          "ranking_inputs_unavailable": "The team x-ray is unavailable."
+        },
+        "periodUnavailableTitle": "No business-day calendar",
+        "configureSchedule": "Configure working hours",
+        "reworkHint": "A closed conversation that reopens is work done twice. The cost counts the paid templates sent after the reopen.",
+        "reopenedCol": "Reopened",
+        "reopenedHint": "This person closes that reopened afterwards",
+        "reopenRateCol": "% reopens",
+        "reworkTemplatesCol": "Templates",
+        "reworkTemplatesHint": "Charged templates sent after the reopen",
+        "reworkCostCol": "Cost",
+        "reworkCostHint": "Total charged for templates sent after the reopen",
+        "unassignedRow": "No agent",
+        "avgMessagesCol": "Msgs/conv",
+        "avgMessagesHint": "Average messages per conversation assigned to this person",
+        "generatedAt": "Generated at {at}",
+        "reworkReason": {
+          "no_finished_closes": "No conversation was closed in this slice, so there is no rework to measure.",
+          "rework_cost_not_priced": "This workspace has no billing currency set, so the template cost stays unpriced.",
+          "rework_repository_unavailable": "Rework cost is unavailable."
+        },
+        "measuredHint": "How many conversations could be measured in this breakdown. Percentages are over this base, not over the whole backlog.",
+        "recordCompletenessHelp": "Of the contacts sitting in the backlog, how many have the basic fields filled. An empty record is a hard conversation to restart.",
+        "recordFieldsHelp": "Share of backlog contacts with each field filled.",
+        "addTarget": "Add a target",
+        "addTargetHelp": "Pick the indicator you want to follow this month.",
+        "noGoalsTitle": "No target for {period}",
+        "noGoalsBody": "Teams that measure well follow four to eight indicators, not all of them. Start with the ones that say whether the month lands.",
+        "suggested": "Suggested",
+        "currentValue": "Today",
+        "remove": "Remove",
+        "saveAll": "Save targets",
+        "savedAt": "Targets for {period}",
+        "pickMetric": "Pick an indicator",
+        "searchMetric": "Search indicators",
+        "allMetricsUsed": "Every indicator already has a target this period.",
+        "unsavedChanges": "{count} target(s) not saved",
+        "progressOf": "{actual} of {target}",
+        "cancel": "Cancel",
+        "metricHelp": {
+          "ai_containment_rate": "Sessions the AI closed without needing a person.",
+          "avg_frt_mins": "Time between someone taking the conversation and the first reply.",
+          "avg_handle_mins": "Time between the first reply and the close.",
+          "avg_wait_mins": "Time between the customer writing and the first reply landing.",
+          "engaged": "Conversations with at least one real message, excluding sends that got no reply.",
+          "entries_created": "Conversations opened in the period, answered or not.",
+          "finished": "Conversations the team closed in the period.",
+          "new_leads": "New contacts registered in the period, across the workspace.",
+          "outcome_durable_pct": "Closes with an outcome that actually resolves, over the captured closes.",
+          "pending_stock": "Conversations still open at the end of each month.",
+          "reopen_rate": "Conversations that reopened after being closed. Rework.",
+          "resolution_pct": "Closed divided by everything worked in the period.",
+          "revenue_cents": "Total value of won opportunities, by their close date.",
+          "won_count": "Opportunities marked won, by their close date."
+        },
+        "dimensionHelp": {
+          "age": "How long ago each backlog conversation was opened.",
+          "assignee": "Who owns the conversations sitting in the backlog.",
+          "origin": "Which campaign, number or account the backlog conversations came from.",
+          "returning": "Whether this contact already had a closed conversation on this channel.",
+          "tenure": "How long the contact has existed in your base, not the conversation."
+        },
+        "category": {
+          "volume": "Volume",
+          "timing": "Response times",
+          "quality": "Quality",
+          "revenue": "Revenue",
+          "other": "Other"
+        }
       }
     }
   },
@@ -10199,7 +10615,10 @@
       "workflowSearch": "Search automations...",
       "workflowEmpty": "No automations found.",
       "enableRequiresWorkflow": "Select a automation to enable automation.",
-      "activeNoteWorkflow": "New direct messages will trigger this automation, within Instagram’s 24-hour window. WhatsApp template and button nodes are skipped on this channel."
+      "activeNoteWorkflow": "New direct messages will trigger this automation, within Instagram’s 24-hour window. WhatsApp template and button nodes are skipped on this channel.",
+      "pipelineLabel": "Funnel for this channel",
+      "pipelineHint": "Conversations from this channel enter this funnel, at its first stage.",
+      "pipelineDefault": "Workspace default funnel"
     },
     "commentRules": {
       "title": "Comment automation",
@@ -11107,7 +11526,10 @@
       "activeNoteWorkflow": "New messages will trigger this automation. WhatsApp template and button nodes are ignored on this channel.",
       "agent": "Agent",
       "workflow": "Automation",
-      "none": "Manual"
+      "none": "Manual",
+      "pipelineLabel": "Funnel for this channel",
+      "pipelineHint": "Conversations from this channel enter this funnel, at its first stage.",
+      "pipelineDefault": "Workspace default funnel"
     },
     "business": {
       "title": "Business account (optional)",
@@ -11285,7 +11707,10 @@
       "saved": "Saved",
       "saveFailed": "Could not save. Try again.",
       "activeNote": "New messages will be answered by this agent. There is no 24-hour window on this channel, but replies only go out while the session is connected, and they respect the interval and daily cap set under Number protection.",
-      "activeNoteWorkflow": "New messages will trigger this workflow. Template and button nodes from the official API are ignored on this channel."
+      "activeNoteWorkflow": "New messages will trigger this workflow. Template and button nodes from the official API are ignored on this channel.",
+      "pipelineLabel": "Funnel for this channel",
+      "pipelineHint": "Conversations from this channel enter this funnel, at its first stage.",
+      "pipelineDefault": "Workspace default funnel"
     },
     "safety": {
       "title": "Number protection",
@@ -12587,7 +13012,7 @@
     "low": "Low",
     "high": "High"
   },
-  "faq":   {
+  "faq": {
     "nav": "FAQ",
     "index": {
       "title": "Questions and answers",
@@ -13015,5 +13440,44 @@
     "of": "of",
     "items": "workspaces",
     "loadError": "The report could not be loaded."
+  },
+  "reports": {
+    "badge": "Reports",
+    "title": "Reports",
+    "description": "The reports you asked for. Generation runs in the background; the file stays available for 7 days.",
+    "download": "Download",
+    "downloadFailed": "The file could not be downloaded",
+    "loadFailed": "The reports could not be loaded",
+    "rows": "{count, plural, one {# row} other {# rows}}",
+    "empty": {
+      "title": "No reports yet",
+      "description": "Request an export from Attendance, Balance or a campaign and it shows up here."
+    },
+    "filters": {
+      "kind": "Type",
+      "status": "Status",
+      "from": "From",
+      "to": "To"
+    },
+    "table": {
+      "report": "Report",
+      "status": "Status",
+      "size": "Size",
+      "requestedAt": "Requested",
+      "expiresAt": "Expires"
+    },
+    "kind": {
+      "attendance_overview": "Attendance",
+      "conversation_entries": "Conversations",
+      "balance_transactions": "Balance transactions",
+      "opportunities": "Opportunities"
+    },
+    "status": {
+      "queued": "Queued",
+      "running": "Generating",
+      "done": "Ready",
+      "failed": "Failed",
+      "expired": "Expired"
+    }
   }
 }

@@ -16,6 +16,7 @@ import type {
   WhatsAppCampaignTypeFilter,
   WsAnalysisUpdatePayload,
   WsSearchInboxPayload,
+  PendingOutcomeRequest,
 } from "@/lib/conversations/types";
 import {
   createContext,
@@ -131,7 +132,10 @@ interface CrmContextValue {
     entryId: string,
     entryType: string,
     status: string,
+    outcomeCode?: string,
   ) => void;
+  pendingOutcomeRequest: PendingOutcomeRequest | null;
+  clearPendingOutcomeRequest: () => void;
   applyLeadRename: (leadId: string, name: string) => void;
 
   windowConversations: WindowConversations;

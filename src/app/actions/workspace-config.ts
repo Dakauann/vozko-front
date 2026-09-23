@@ -1,4 +1,5 @@
 import type {
+    OutcomeCaptureSpec,
     RouletteMode,
     WorkspaceConfig
 } from '@/lib/workspace/workspace-config/types';
@@ -33,6 +34,7 @@ export async function updateWorkspaceConfigAction(
         rouletteRescueEnabled?: boolean;
         rouletteRescueAfterMinutes?: number;
         workingHours?: WorkingHoursSpec | null;
+        outcomeCapture?: OutcomeCaptureSpec | null;
     }
 ): Promise<{ config: WorkspaceConfig | null; error?: string }> {
     const response = await apiClient<WorkspaceConfig>(`/workspaces/${workspaceId}/config`, {

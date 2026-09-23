@@ -16,6 +16,7 @@ import type {
   WsAnalysisUpdatePayload,
   WsSearchInboxPayload,
   WsServerEvent,
+  PendingOutcomeRequest,
 } from "@/lib/conversations/types";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -166,7 +167,10 @@ interface UseConversationWsReturn {
     entryId: string,
     entryType: string,
     status: string,
+    outcomeCode?: string,
   ) => void;
+  pendingOutcomeRequest: PendingOutcomeRequest | null;
+  clearPendingOutcomeRequest: () => void;
   applyLeadRename: (leadId: string, name: string) => void;
 
   windowConversations: WindowConversations;
@@ -284,6 +288,8 @@ export function useConversationWs({
   const [conversationStatusCounts, setConversationStatusCounts] = useState<
     Record<string, number>
   >({});
+  const [pendingOutcomeRequest, setPendingOutcomeRequest] =
+    useState<PendingOutcomeRequest | null>(null);
 
   const [searchResults, setSearchResults] = useState<InboxEntry[] | null>(null);
   const [searching, setSearching] = useState(false);
@@ -1664,6 +1670,19 @@ export function useConversationWs({
               event.payload.entry_type,
               event.payload.previous_status,
             );
+            if (
+              event.payload.code === "outcome_required" ||
+              event.payload.code === "outcome_unknown"
+            ) {
+              setPendingOutcomeRequest({
+                entryId: event.payload.entry_id,
+                entryType: event.payload.entry_type,
+                status: event.payload.status,
+                message: event.payload.message,
+                outcomes: event.payload.outcomes ?? [],
+              });
+              break;
+            }
             toast.error(
               event.payload.message ||
                 "Não foi possível atualizar o status da conversa.",
@@ -2408,7 +2427,7 @@ export function useConversationWs({
   }, []);
 
   const setConversationStatus = useCallback(
-    (entryId: string, entryType: string, status: string) => {
+    (entryId: string, entryType: string, status: string, outcomeCode?: string) => {
       if (wsRef.current?.readyState !== WebSocket.OPEN) {
         toast.error("A conexão do chat não está pronta. Tente novamente.");
         return;
@@ -2495,10 +2514,15 @@ export function useConversationWs({
         entry_id: entryId,
         entry_type: entryType,
         status,
+        ...(outcomeCode ? { outcome_code: outcomeCode } : {}),
       });
     },
     [send],
   );
+
+  const clearPendingOutcomeRequest = useCallback(() => {
+    setPendingOutcomeRequest(null);
+  }, []);
 
   const switchView = useCallback(
     (
@@ -2567,6 +2591,8 @@ export function useConversationWs({
     inbox,
     connectedUsers,
     activeConversation,
+    pendingOutcomeRequest,
+    clearPendingOutcomeRequest,
     subscribe,
     unsubscribe,
     sendMessage,

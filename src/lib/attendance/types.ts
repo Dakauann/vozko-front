@@ -54,6 +54,8 @@ export interface AttendanceOverviewParams {
     campaignType?: string;
     channel?: string;
     includeAi?: boolean;
+    rankMetric?: string;
+    trendBuckets?: number;
 }
 
 export interface OverviewKPIs {
@@ -116,6 +118,9 @@ export interface MemberRow {
     finished_human?: number;
     finished_ai?: number;
     finished_system?: number;
+    total_messages?: number;
+    inbound_messages?: number;
+    avg_messages?: number | null;
 }
 
 export interface OverviewFRT {
@@ -263,6 +268,14 @@ export interface OverviewStages {
 }
 
 export interface MetricDefinitions {
+    period?: string;
+    projection?: string;
+    standing?: string;
+    trend?: string;
+    revenue?: string;
+    backlog_xray?: string;
+    quality?: string;
+    team_ranking?: string;
     period_scope: string;
     engaged?: string;
     shell?: string;
@@ -302,5 +315,289 @@ export interface AttendanceOverview {
     reopen: OverviewReopen;
     finished_by_source: OverviewFinishedBySource;
     stages: OverviewStages;
+    period: OverviewPeriod;
+    projections: MetricProjection[];
+    standing: OverviewStanding;
+    trend: OverviewTrend;
+    revenue: OverviewRevenue;
+    backlog_xray: OverviewBacklogXray;
+    quality: OverviewQuality;
+    team_ranking: OverviewTeamRanking;
+    rework: OverviewRework;
+    generated_at: string;
     definitions: MetricDefinitions;
+}
+
+export type Verdict =
+    | "on_track"
+    | "at_risk"
+    | "off_track"
+    | "no_target"
+    | "not_projected"
+    | "insufficient_data";
+
+export type MetricKind = "count" | "percent" | "minutes" | "money";
+
+export type MetricDirection = "higher" | "lower";
+
+export type MetricCategory = "volume" | "timing" | "quality" | "revenue" | "other";
+
+export const METRIC_CATEGORY_ORDER: readonly MetricCategory[] = [
+    "volume",
+    "timing",
+    "quality",
+    "revenue",
+    "other",
+];
+
+export interface MetricSpec {
+    key: string;
+    kind: MetricKind;
+    direction: MetricDirection;
+    cumulative: boolean;
+    targetable: boolean;
+    category?: MetricCategory;
+}
+
+export interface OverviewPeriod {
+    start: string;
+    end: string;
+    timezone: string;
+    open_days_total: number;
+    open_days_done: number;
+    open_days_left: number;
+    open_minutes: number;
+    elapsed_pct: number;
+    available: boolean;
+    reason?: string;
+}
+
+export interface MetricProjection {
+    metric_key: string;
+    kind: MetricKind;
+    direction: MetricDirection;
+    cumulative: boolean;
+    actual: number;
+    per_open_day: number | null;
+    projected: number | null;
+    target: number | null;
+    attain_pct: number | null;
+    verdict: Verdict;
+    available: boolean;
+    reason?: string;
+}
+
+export interface OverviewStanding {
+    targets_set: number;
+    on_track: number;
+    at_risk: number;
+    off_track: number;
+    on_track_pct: number;
+    cluster?: string;
+    available: boolean;
+    reason?: string;
+}
+
+export interface TrendPoint {
+    bucket: string;
+    value: number;
+    partial: boolean;
+    projected: boolean;
+}
+
+export interface TrendSeries {
+    metric_key: string;
+    kind: MetricKind;
+    direction: MetricDirection;
+    points: TrendPoint[];
+    best_bucket?: string;
+    best_value?: number | null;
+    window_from?: string;
+    window_to?: string;
+    prev_closed: number | null;
+    delta_pct: number | null;
+    available: boolean;
+    reason?: string;
+}
+
+export interface OverviewTrend {
+    series: TrendSeries[];
+    unbucketed: number;
+    available: boolean;
+    reason?: string;
+}
+
+export interface RevenueByCurrency {
+    currency: string;
+    value_cents: number;
+    won_count: number;
+    avg_ticket_cents: number | null;
+    per_open_day_cents: number | null;
+    projected_cents: number | null;
+    prev_closed_cents: number | null;
+    delta_pct: number | null;
+}
+
+export interface RevenueOwnerRow {
+    owner_id: string;
+    currency: string;
+    won_count: number;
+    value_cents: number;
+    avg_ticket_cents: number | null;
+}
+
+export interface OverviewRevenue {
+    currencies: RevenueByCurrency[];
+    by_owner: RevenueOwnerRow[];
+    unattributed: number;
+    unowned_count: number;
+    mixed_currencies: boolean;
+    available: boolean;
+    reason?: string;
+}
+
+export interface XrayBucket {
+    key: string;
+    label?: string;
+    count: number;
+    pct: number;
+}
+
+export interface XrayDimension {
+    dimension: string;
+    buckets: XrayBucket[];
+    measured: number;
+    unknown: number;
+    available: boolean;
+    reason?: string;
+}
+
+export interface RecordField {
+    key: string;
+    filled: number;
+    pct: number;
+}
+
+export interface RecordCompleteness {
+    fields: RecordField[];
+    measured: number;
+    fully_filled: number;
+    avg_fill_pct: number | null;
+    available: boolean;
+    reason?: string;
+}
+
+export interface Reachability {
+    channel: string;
+    measured: number;
+    window_open: number;
+    window_closed: number;
+    closed_pct: number;
+    available: boolean;
+    reason?: string;
+}
+
+export interface OverviewBacklogXray {
+    total: number;
+    origin: XrayDimension;
+    assignee: XrayDimension;
+    age: XrayDimension;
+    tenure: XrayDimension;
+    returning: XrayDimension;
+    record_completeness: RecordCompleteness;
+    reachability: Reachability[];
+    available: boolean;
+    reason?: string;
+}
+
+export interface QualityRow {
+    actor_id: string;
+    actor_kind: string;
+    display_name: string;
+    closes: number;
+    captured: number;
+    durable: number;
+    durable_pct: number | null;
+    verdict: Verdict | "";
+}
+
+export interface OverviewQuality {
+    threshold: number;
+    rows: QualityRow[];
+    adjacent: QualityRow[];
+    team: QualityRow;
+    enabled_at: string | null;
+    not_captured: number;
+    available: boolean;
+    reason?: string;
+}
+
+export type MemberClass =
+    | "elite"
+    | "solid"
+    | "below"
+    | "critical"
+    | "insufficient_data";
+
+export interface RankedMember extends MemberRow {
+    rank_metric_value: number;
+    per_open_day: number | null;
+    per_online_hour: number | null;
+    online_ms: number;
+    pct_of_team_avg: number | null;
+    revenue_cents: number | null;
+    currency?: string;
+    avg_ticket_cents: number | null;
+    won_count: number;
+    class?: MemberClass;
+}
+
+export interface TeamTotals {
+    members: number;
+    open: number;
+    pending: number;
+    resolved: number;
+    rank_metric_value: number;
+    per_open_day: number | null;
+    per_online_hour: number | null;
+    online_ms: number;
+    revenue_cents: number | null;
+    currency?: string;
+    avg_ticket_cents: number | null;
+    won_count: number;
+}
+
+export interface OverviewTeamRanking {
+    rank_metric_key: string;
+    min_sample: number;
+    team_average: number | null;
+    members: RankedMember[];
+    adjacent: RankedMember[];
+    totals: TeamTotals;
+    adjacent_totals: TeamTotals;
+    available: boolean;
+    reason?: string;
+}
+
+export interface ReworkRow {
+    actor_id: string;
+    actor_kind: string;
+    display_name: string;
+    finished: number;
+    reopened: number;
+    reopen_rate: number | null;
+    templates: number;
+    cost_micros: number;
+}
+
+export interface OverviewRework {
+    rows: ReworkRow[];
+    adjacent: ReworkRow[];
+    team: ReworkRow;
+    unassigned: ReworkRow;
+    currency?: string;
+    cost_available: boolean;
+    cost_reason?: string;
+    available: boolean;
+    reason?: string;
 }

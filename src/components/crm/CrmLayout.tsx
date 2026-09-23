@@ -126,6 +126,12 @@ import ElevatedButton from "../elevated-design/button";
 import { useTranslations } from "next-intl";
 import CrmConversationInfosPanel from "./CrmConversationInfosPanel";
 import { AttendanceOwnerBadge } from "./ConversationAttendanceSection";
+import type { PendingOutcomeRequest } from "@/lib/conversations/types";
+import { OutcomePickerDialog } from "./OutcomePickerDialog";
+import {
+  outcomeIsRequired,
+  useOutcomeCapture,
+} from "@/hooks/use-outcome-capture";
 
 export interface CrmTranslations {
   inbox: {
@@ -360,6 +366,8 @@ export default function CrmLayout({
     switchView,
     assignTo,
     setConversationStatus,
+    pendingOutcomeRequest,
+    clearPendingOutcomeRequest,
     applyLeadRename,
     windowConversations,
     windowFocusRequest,
@@ -1355,17 +1363,39 @@ export default function CrmLayout({
     [activeConversation, assignTo],
   );
 
+  const { capture: outcomeCapture } = useOutcomeCapture(currentWorkspace?.id);
+  const [outcomePrompt, setOutcomePrompt] = useState<PendingOutcomeRequest | null>(
+    null,
+  );
+
+  const requestConversationStatus = useCallback(
+    (entryId: string, entryType: string, nextStatus: string) => {
+      if (nextStatus === "finished" && outcomeIsRequired(outcomeCapture)) {
+        setOutcomePrompt({
+          entryId,
+          entryType: entryType as PendingOutcomeRequest["entryType"],
+          status: "finished",
+          message: "",
+          outcomes: outcomeCapture?.outcomes ?? [],
+        });
+        return;
+      }
+      setConversationStatus(entryId, entryType, nextStatus);
+    },
+    [outcomeCapture, setConversationStatus],
+  );
+
   const handleConversationStatusChange = useCallback(
     (nextStatus: "ongoing" | "finished") => {
       if (!activeConversation) return;
-      setConversationStatus(
+      requestConversationStatus(
         activeConversation.entry_id,
         activeConversation.entry_type,
         nextStatus,
       );
       setStatusMenuOpen(false);
     },
-    [activeConversation, setConversationStatus],
+    [activeConversation, requestConversationStatus],
   );
 
   const aiIsActive = activeConversation?.automation_enabled !== false;
@@ -1424,7 +1454,7 @@ export default function CrmLayout({
         };
       },
       onAssign: assignTo,
-      onSetStatus: setConversationStatus,
+      onSetStatus: requestConversationStatus,
       onToggleAutomation: handleWindowToggleAutomation,
       onEntryStageChange: handleEntryStageChange,
       onAssignStage: handleAssignStage,
@@ -1442,7 +1472,7 @@ export default function CrmLayout({
       labels,
       inbox,
       assignTo,
-      setConversationStatus,
+      requestConversationStatus,
       handleWindowToggleAutomation,
       handleEntryStageChange,
       handleAssignStage,
@@ -1900,6 +1930,18 @@ export default function CrmLayout({
 
   return (
     <>
+      <OutcomePickerDialog
+        request={outcomePrompt ?? pendingOutcomeRequest}
+        onConfirm={(entryId, entryType, status, outcomeCode) => {
+          setOutcomePrompt(null);
+          clearPendingOutcomeRequest();
+          setConversationStatus(entryId, entryType, status, outcomeCode);
+        }}
+        onCancel={() => {
+          setOutcomePrompt(null);
+          clearPendingOutcomeRequest();
+        }}
+      />
       <div
         className={cn(
           "flex flex-col overflow-hidden",

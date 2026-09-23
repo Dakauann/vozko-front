@@ -1880,7 +1880,8 @@
       "archivedUnofficialWhatsappCampaigns": "Arquivados",
       "audience": "Audiência",
       "funnels": "Funis",
-      "analysisAlerts": "Alertas"
+      "analysisAlerts": "Alertas",
+      "reports": "Relatórios"
     },
     "badges": {
       "new": "Novo",
@@ -6747,6 +6748,43 @@
       "noAvailableMembers": "Nenhum membro disponível para adicionar",
       "noMembers": "Nenhum membro neste departamento",
       "assignLabel": "Atribuir a departamentos"
+    },
+    "outcomeCapture": {
+      "label": "Registro de desfecho",
+      "cardDescription": "Peça ao atendente o desfecho no encerramento e meça a qualidade dos atendimentos.",
+      "description": "Com o registro ligado, cada encerramento feito por uma pessoa grava o desfecho escolhido. Encerramentos automáticos, da IA e de workflows recebem um código reservado e ficam fora da conta da equipe.",
+      "enabled": "Coletar desfecho",
+      "enabledHint": "Liga a coleta e passa a contar a partir de agora.",
+      "requireOnFinish": "Exigir no encerramento",
+      "requireOnFinishHint": "Sem um desfecho escolhido, a conversa não é encerrada.",
+      "threshold": "Meta de desfechos que resolvem",
+      "thresholdHint": "Percentual mínimo esperado sobre os encerramentos registrados.",
+      "catalogue": "Desfechos",
+      "catalogueHint": "Marque como resolve os desfechos que encerram a demanda de verdade. Pelo menos um é obrigatório.",
+      "emptyCatalogue": "Nenhum desfecho cadastrado. Clique para adicionar o primeiro.",
+      "addOutcome": "Adicionar",
+      "removeOutcome": "Remover desfecho",
+      "labelPlaceholder": "Nome visto pelo atendente",
+      "codePlaceholder": "codigo",
+      "isDurable": "resolve",
+      "statusOn": "Ligado, {count} desfechos",
+      "statusOff": "Desligado",
+      "switchOnWarning": "Ao salvar, os atendentes passam a escolher um desfecho para encerrar. A contagem começa agora e nada do passado é julgado.",
+      "save": "Salvar",
+      "saveSuccess": "Registro de desfecho salvo",
+      "saveError": "Não foi possível salvar o registro de desfecho",
+      "issues": {
+        "threshold": "A meta precisa estar entre 0 e 100.",
+        "codeRequired": "Todo desfecho precisa de um código.",
+        "reserved": "Códigos não podem começar com underline.",
+        "duplicate": "Há códigos repetidos.",
+        "labelRequired": "Todo desfecho precisa de um nome.",
+        "empty": "Cadastre pelo menos um desfecho para ligar a coleta.",
+        "noDurable": "Marque pelo menos um desfecho como resolve."
+      },
+      "labelColumn": "Nome",
+      "codeColumn": "Código",
+      "isDurableHint": "Marque quando este desfecho encerra a demanda de verdade."
     }
   },
   "workspaceInvites": {
@@ -7119,14 +7157,14 @@
       "editRateLink": "Alterar taxa",
       "rateMissing": "É necessário ter a taxa de câmbio configurada para editar preços padrão.",
       "storedAsUsd": "salvo em USD",
-        "unpriced": "Não precificado"
+      "unpriced": "Não precificado"
     },
     "services": {
       "whatsapp": {
         "utility": "Mensagens Utilitárias",
         "marketing": "Mensagens de Marketing",
         "authentication": "Mensagens de Autenticação",
-          "service": "Mensagens de Serviço"
+        "service": "Mensagens de Serviço"
       },
       "telephony": {
         "whatsapp_calls": "Ligações WhatsApp"
@@ -7292,7 +7330,7 @@
         "utility": "WhatsApp, Mensagens utilitárias",
         "marketing": "WhatsApp, Mensagens de marketing",
         "authentication": "WhatsApp, Mensagens de autenticação",
-          "service": "WhatsApp, Mensagens de serviço",
+        "service": "WhatsApp, Mensagens de serviço",
         "whatsapp_calls": "Chamadas WhatsApp",
         "standard": "Mensagens SMS",
         "default_markup": "Modelos de IA (LLM)"
@@ -7341,7 +7379,7 @@
       "conversionNote": "Mudar a taxa de câmbio depois não reescreve preços já salvos neste plano.",
       "rateRequired": "Carregue uma taxa de câmbio válida antes de editar preços unitários.",
       "priceBelowCost": "Preço abaixo do custo.",
-        "unpriced": "Sem preço definido. Não é cobrado.",
+      "unpriced": "Sem preço definido. Não é cobrado.",
       "invalidAmount": "Valor inválido.",
       "notApplicable": "n/a"
     },
@@ -8753,11 +8791,11 @@
         "mediaHelp": "Opcional. O texto acima vira a legenda do arquivo.",
         "mediaKind": "Tipo de arquivo",
         "mediaKinds": {
-            "image": "Imagem",
-            "video": "Vídeo",
-            "audio": "Áudio",
-            "document": "Documento",
-            "sticker": "Figurinha"
+          "image": "Imagem",
+          "video": "Vídeo",
+          "audio": "Áudio",
+          "document": "Documento",
+          "sticker": "Figurinha"
         },
         "mediaUpload": "Enviar arquivo",
         "mediaUploading": "Enviando...",
@@ -9447,7 +9485,15 @@
     "searchMessages": "Buscar mensagens",
     "searchMessagesPlaceholder": "Buscar nas mensagens...",
     "cancelReply": "Cancelar resposta",
-    "createNewStage": "Criar nova etapa"
+    "createNewStage": "Criar nova etapa",
+    "outcomeCapture": {
+      "cancel": "Voltar",
+      "confirm": "Encerrar conversa",
+      "description": "Este workspace pede um desfecho para encerrar a conversa.",
+      "durable": "resolve",
+      "noCatalogue": "Nenhum desfecho configurado neste workspace. Peça a um administrador para cadastrar a lista.",
+      "title": "Qual foi o desfecho?"
+    }
   },
   "workflows": {
     "nodeConfig": {
@@ -9567,12 +9613,35 @@
       "dayUnit": "d"
     },
     "export": {
+      "executive": {
+        "atRisk": "Metas em risco",
+        "available": "Disponível",
+        "cluster": "Situação geral",
+        "elapsedPct": "% do período decorrido",
+        "offTrack": "Metas fora da rota",
+        "onTrack": "Metas no caminho",
+        "openDaysDone": "Dias úteis decorridos",
+        "openDaysLeft": "Dias úteis restantes",
+        "openDaysTotal": "Dias úteis no período",
+        "reason": "Motivo",
+        "targetsSet": "Metas definidas",
+        "timezone": "Fuso horário"
+      },
       "button": "Exportar CSV",
       "title": "Relatório de atendimento",
       "yes": "Sim",
       "no": "Não",
       "noDepartment": "Sem departamento",
       "sections": {
+        "backlogXray": "Raio-x da fila",
+        "period": "Período",
+        "projections": "Projeções e metas",
+        "quality": "Qualidade do desfecho",
+        "reachability": "Alcance por canal",
+        "revenue": "Receita",
+        "rework": "Retrabalho",
+        "teamRanking": "Ranking do time",
+        "trend": "Tendência",
         "filters": "Filtros aplicados",
         "kpis": "Indicadores",
         "status": "Situação das conversas",
@@ -9592,6 +9661,48 @@
         "stagesTotals": "Cobertura de etapas"
       },
       "columns": {
+        "actual": "Realizado",
+        "attainPct": "% da meta",
+        "avgMessages": "Mensagens por conversa",
+        "avgTicketCents": "Ticket médio (centavos)",
+        "bestBucket": "Melhor período",
+        "bestValue": "Melhor valor",
+        "bucket": "Período",
+        "captured": "Com desfecho",
+        "closedPct": "% fora da janela",
+        "closes": "Encerramentos",
+        "currency": "Moeda",
+        "deltaPct": "Variação %",
+        "dimension": "Dimensão",
+        "durable": "Resolvidas de vez",
+        "durablePct": "% resolvidas de vez",
+        "label": "Rótulo",
+        "measured": "Base medida",
+        "memberClass": "Faixa",
+        "partial": "Período incompleto",
+        "pctOfTeamAvg": "% da média do time",
+        "perOnlineHour": "Por hora online",
+        "perOpenDay": "Por dia útil",
+        "perOpenDayCents": "Por dia útil (centavos)",
+        "prevClosedCents": "Período anterior (centavos)",
+        "projected": "Projeção",
+        "projectedCents": "Projeção (centavos)",
+        "projectedFlag": "É projeção",
+        "rankMetricValue": "Valor da métrica",
+        "reason": "Motivo",
+        "reopenRate": "% reabertas",
+        "reopened": "Reabertas",
+        "revenueCents": "Receita (centavos)",
+        "reworkCostMicros": "Custo do retrabalho (micros)",
+        "reworkTemplates": "Templates reenviados",
+        "target": "Meta",
+        "totalMessages": "Mensagens",
+        "unknown": "Sem informação",
+        "valueCents": "Valor (centavos)",
+        "verdict": "Situação",
+        "windowClosed": "Janela fechada",
+        "windowOpen": "Janela aberta",
+        "wonCount": "Negócios ganhos",
         "filter": "Filtro",
         "value": "Valor",
         "metric": "Indicador",
@@ -9630,7 +9741,8 @@
         "avgDaysInStage": "Dias parado (média)",
         "oldestDaysInStage": "Dias parado (mais antiga)",
         "stuck": "Travadas",
-        "stuckAfterDays": "Limite (dias)"
+        "stuckAfterDays": "Limite (dias)",
+        "generatedAtLabel": "Gerado em"
       },
       "filters": {
         "generatedAt": "Gerado em",
@@ -9751,7 +9863,42 @@
         "unstagedShell": "Sem mensagem e sem etapa",
         "stuck": "Conversas travadas"
       },
-      "noFunnel": "Sem funil"
+      "noFunnel": "Sem funil",
+      "preparing": "Gerando…",
+      "ready": "Relatório pronto, o download começou",
+      "failed": "Não foi possível gerar o relatório",
+      "queued": "Na fila",
+      "running": "Gerando",
+      "expiredFile": "O arquivo expirou. Peça o relatório de novo.",
+      "failure": {
+        "unknown_kind": "Este tipo de relatório não existe neste servidor.",
+        "unsupported_format": "Este relatório não sai neste formato.",
+        "too_many_rows": "O período tem linhas demais. Escolha um intervalo menor.",
+        "render_failed": "A geração falhou. Tente de novo em alguns minutos.",
+        "upload_failed": "O arquivo foi gerado mas não pôde ser guardado. Tente de novo.",
+        "renderer_not_configured": "Este relatório não está disponível neste servidor.",
+        "source_unavailable": "A fonte dos dados não respondeu. Tente de novo.",
+        "cancelled": "A geração foi cancelada.",
+        "workspace_required": "Escolha um workspace antes de exportar."
+      },
+      "queuedTitle": "Relatório na fila",
+      "queuedBody": "Estamos gerando o arquivo. Ele baixa sozinho quando ficar pronto, e fica guardado em Relatórios.",
+      "truncated": "{shown} de {total} linhas. O CSV traz o período inteiro.",
+      "rowTotal": "{total} linhas",
+      "format": {
+        "csv": {
+          "label": "CSV (planilha)",
+          "hint": "Todas as linhas do período, para abrir no Excel."
+        },
+        "xlsx": {
+          "label": "Excel (.xlsx)",
+          "hint": "Todas as linhas do período, já formatadas."
+        },
+        "pdf": {
+          "label": "PDF (relatório)",
+          "hint": "O relatório com os gráficos, pronto para enviar."
+        }
+      }
     },
     "attendance": {
       "badge": "Métricas · Atendimento",
@@ -9842,7 +9989,21 @@
         "stageCoverage": "Cobertura por funil",
         "stageCoverageSub": "Quanto do período está em etapa, e em qual funil",
         "stageMosaic": "Volume por etapa",
-        "stageMosaicSub": "Todos os funis lado a lado · a área do bloco é o volume da etapa"
+        "stageMosaicSub": "Todos os funis lado a lado · a área do bloco é o volume da etapa",
+        "tactical": "Cenário tático",
+        "tacticalSub": "Quanto do período já passou e onde cada meta deve fechar",
+        "money": "Receita do período",
+        "moneySub": "Oportunidades ganhas atribuídas pela data de fechamento",
+        "history": "Tendência histórica",
+        "historySub": "Os meses fechados anteriores, com o melhor deles marcado",
+        "backlog": "Raio-x da fila",
+        "backlogSub": "Quem ficou para trás, há quanto tempo e se ainda dá para falar com essa pessoa",
+        "quality": "Qualidade do encerramento",
+        "qualitySub": "Quantos encerramentos registraram um desfecho que resolve",
+        "teamXray": "Raio-x da equipe",
+        "teamXraySub": "Produção por dia, por hora e frente à média humana do time",
+        "rework": "Custo de retrabalho",
+        "reworkSub": "Conversas que voltaram a abrir depois de encerradas, e o que custou trabalhá-las de novo"
       },
       "status": {
         "finished": "Conversas concluídas",
@@ -9998,6 +10159,261 @@
         "statusRadialHint": "Distância do centro = proporção das conversas do período (0–100%)",
         "stageBlockHint": "Área do bloco = volume de conversas da etapa",
         "deptBlockHint": "Área do bloco = volume de conversas do departamento"
+      },
+      "executive": {
+        "periodTitle": "Dias úteis do mês",
+        "daysDone": "{done} de {total}",
+        "daysLeft": "faltam {count}",
+        "elapsedLabel": "{pct} do período percorrido",
+        "clusterTitle": "Cluster",
+        "onTrackOf": "{onTrack} de {total} metas projetando",
+        "noTargetsSet": "Nenhuma meta definida",
+        "timezoneNote": "Contado no fuso {timezone}",
+        "noTargetsTitle": "Nenhuma meta para este período",
+        "noTargetsBody": "Sem uma meta, os números desta página não dizem se o mês vai fechar.",
+        "setTargets": "Definir metas",
+        "targetsTitle": "Metas do período",
+        "targetsDescription": "Metas de {period} no escopo: {scope}",
+        "targetsScopeWorkspace": "Workspace",
+        "save": "Salvar",
+        "close": "Fechar",
+        "invalidValue": "Informe um número maior ou igual a zero",
+        "noTargetPlaceholder": "sem meta",
+        "unitMoney": "valor",
+        "unitPercent": "percentual",
+        "unitMinutes": "minutos",
+        "unitCount": "quantidade",
+        "higherIsBetter": "quanto maior, melhor",
+        "lowerIsBetter": "quanto menor, melhor",
+        "target": "Meta",
+        "projected": "Projeção",
+        "actual": "Real",
+        "perOpenDay": "Por dia útil",
+        "attainment": "Atingimento",
+        "bestInWindow": "Melhor fechado: {bucket} ({value}), entre {from} e {to}",
+        "deltaHint": "Projeção frente ao último mês fechado",
+        "unbucketed": "{count} conversas finalizadas sem data de encerramento ficaram fora da série",
+        "revenueIn": "Receita em {currency}",
+        "wonCount": "Ganhas",
+        "avgTicket": "Ticket médio",
+        "prevClosed": "Mês fechado anterior",
+        "mixedCurrencies": "Este workspace tem mais de uma moeda. Os valores são mostrados por moeda e nunca somados.",
+        "unattributed": "{count} oportunidades ganhas sem data de fechamento ficaram fora da conta",
+        "unowned": "{count} ganhas sem responsável",
+        "backlogTotal": "{count} conversas na fila",
+        "measured": "base {count}",
+        "unknownCount": "{count} sem essa informação",
+        "otherBucket": "Outros",
+        "unknownBucket": "Sem informação",
+        "recordCompleteness": "Qualidade cadastral",
+        "reachability": "Janela de atendimento",
+        "reachabilityHint": "Conversas cuja janela de 24h fechou só voltam com um template pago.",
+        "windowClosed": "{closed} fechadas, {open} abertas",
+        "qualityOffTitle": "Registro de desfecho desligado",
+        "configureCapture": "Configurar no workspace",
+        "thresholdNote": "A meta de desfechos que resolvem é de {threshold} sobre os encerramentos registrados.",
+        "operator": "Operador",
+        "closes": "Encerramentos",
+        "captured": "Registrados",
+        "capturedHint": "Encerramentos a partir do momento em que o registro foi ligado",
+        "durable": "Resolvem",
+        "durablePct": "% resolve",
+        "riskAssessment": "Avaliação",
+        "notScored": "sem nota",
+        "adjacents": "Adjacentes e sistema",
+        "teamTotal": "Total da equipe",
+        "adjacentTotal": "Total adjacentes",
+        "notCaptured": "{count} encerramentos anteriores ao registro ficaram fora da conta",
+        "rankedBy": "Ordenado por {metric}",
+        "teamAverage": "média humana {value}",
+        "minSample": "classifica a partir de {count} encerramentos",
+        "resolvedCol": "Resolvidas",
+        "perDayCol": "Por dia",
+        "perDayHint": "Dividido pelos dias úteis já percorridos",
+        "perHourCol": "Por hora",
+        "perHourHint": "Dividido pelo tempo online registrado do atendente",
+        "perHourSuffix": "/h",
+        "revenueCol": "Receita",
+        "avgTicketCol": "Ticket",
+        "avgTicketHint": "Receita dividida pelas oportunidades ganhas",
+        "pctOfAvgCol": "% da média",
+        "pctOfAvgHint": "Frente à média dos atendentes humanos",
+        "classCol": "Situação",
+        "metric": {
+          "ai_containment_rate": "Resolvido pela IA",
+          "avg_frt_mins": "Primeira resposta",
+          "avg_handle_mins": "Duração média",
+          "avg_wait_mins": "Espera média",
+          "engaged": "Conversas com mensagem",
+          "entries_created": "Conversas abertas",
+          "finished": "Conversas finalizadas",
+          "new_leads": "Leads novos",
+          "outcome_durable_pct": "Desfechos que resolvem",
+          "pending_stock": "Fila acumulada",
+          "reopen_rate": "Taxa de reabertura",
+          "resolution_pct": "Taxa de resolução",
+          "revenue_cents": "Receita",
+          "won_count": "Oportunidades ganhas"
+        },
+        "verdict": {
+          "at_risk": "No limite",
+          "insufficient_data": "Sem base",
+          "no_target": "Sem meta",
+          "not_projected": "Não projetável",
+          "off_track": "Sem projeção",
+          "on_track": "Projetando"
+        },
+        "cluster": {
+          "critical": "Crítico",
+          "excellence": "Excelência",
+          "improvement": "Melhoria",
+          "on_track": "No ritmo"
+        },
+        "memberClass": {
+          "below": "Abaixo",
+          "critical": "Crítico",
+          "elite": "Elite",
+          "insufficient_data": "Sem base",
+          "solid": "Sólido"
+        },
+        "rankMetric": {
+          "resolved": "Resolvidas",
+          "revenue_cents": "Receita",
+          "volume": "Volume"
+        },
+        "dimension": {
+          "age": "Tempo na fila",
+          "assignee": "Responsável",
+          "origin": "Origem",
+          "returning": "Contato recorrente",
+          "tenure": "Tempo de base"
+        },
+        "band": {
+          "0_1d": "Até 1 dia",
+          "12m_plus": "Mais de 12 meses",
+          "1_3d": "1 a 3 dias",
+          "1_6m": "1 a 6 meses",
+          "30d_plus": "Mais de 30 dias",
+          "3_7d": "3 a 7 dias",
+          "6_12m": "6 a 12 meses",
+          "7_30d": "7 a 30 dias",
+          "first_contact": "Primeiro contato",
+          "returning": "Já atendido antes",
+          "under_1m": "Menos de 1 mês"
+        },
+        "recordField": {
+          "age": "Idade",
+          "name": "Nome"
+        },
+        "periodReason": {
+          "invalid_schedule": "O horário de funcionamento gravado está inválido e não pode ser usado.",
+          "no_schedule": "Configure o horário de funcionamento do workspace para medir o período em dias úteis.",
+          "period_unavailable": "Período indisponível.",
+          "range_too_wide": "O intervalo pedido é largo demais para ser contado em dias úteis.",
+          "schedule_never_opens": "O horário de funcionamento configurado nunca abre neste período."
+        },
+        "projectionReason": {
+          "actual_unavailable": "O valor real desta métrica não está disponível.",
+          "invalid_schedule": "Horário de funcionamento inválido.",
+          "metric_is_not_cumulative": "Uma média não se projeta pelo ritmo diário.",
+          "no_schedule": "Sem horário de funcionamento, não há projeção.",
+          "period_unavailable": "Sem período medido, não há projeção.",
+          "range_too_wide": "Intervalo largo demais para projetar.",
+          "schedule_never_opens": "O horário configurado nunca abre neste período.",
+          "too_early_to_project": "Cedo demais no período para projetar."
+        },
+        "trendReason": {
+          "no_closed_buckets": "Ainda não há um mês fechado para comparar.",
+          "trend_repository_unavailable": "A série histórica não está disponível."
+        },
+        "revenueReason": {
+          "revenue_mixed_currencies": "Há mais de uma moeda no período.",
+          "revenue_not_department_scoped": "Oportunidades não têm departamento, então a receita não pode ser filtrada por departamento.",
+          "revenue_repository_unavailable": "A receita não está disponível."
+        },
+        "xrayReason": {
+          "no_backlog": "Não há conversas na fila neste recorte.",
+          "no_coverage": "Esta informação não está preenchida para a fila atual.",
+          "no_window_model": "Este canal não tem janela de 24h."
+        },
+        "qualityReason": {
+          "nothing_captured_yet": "Ainda não há encerramentos registrados neste período.",
+          "outcome_capture_disabled": "Ligue o registro de desfecho no workspace para medir a qualidade dos encerramentos.",
+          "outcome_capture_has_no_enabled_at": "O registro de desfecho está ligado mas sem data de ativação, então não há denominador confiável.",
+          "quality_repository_unavailable": "A qualidade dos encerramentos não está disponível."
+        },
+        "rankingReason": {
+          "no_human_team_rows": "Nenhum atendente humano neste recorte.",
+          "no_team_rows": "Nenhum atendente com conversas neste recorte.",
+          "ranking_inputs_unavailable": "O raio-x da equipe não está disponível."
+        },
+        "periodUnavailableTitle": "Sem calendário de dias úteis",
+        "configureSchedule": "Configurar horário de funcionamento",
+        "reworkHint": "Uma conversa encerrada que volta a abrir é trabalho feito duas vezes. O custo conta os templates pagos enviados depois da reabertura.",
+        "reopenedCol": "Reabertas",
+        "reopenedHint": "Encerramentos desta pessoa que voltaram a abrir depois",
+        "reopenRateCol": "% reabre",
+        "reworkTemplatesCol": "Templates",
+        "reworkTemplatesHint": "Templates cobrados enviados depois da reabertura",
+        "reworkCostCol": "Custo",
+        "reworkCostHint": "Soma cobrada pelos templates enviados depois da reabertura",
+        "unassignedRow": "Sem atendente",
+        "avgMessagesCol": "Msgs/conv",
+        "avgMessagesHint": "Média de mensagens por conversa atribuída a esta pessoa",
+        "generatedAt": "Gerado em {at}",
+        "reworkReason": {
+          "no_finished_closes": "Nenhuma conversa foi encerrada neste recorte, então não há retrabalho a medir.",
+          "rework_cost_not_priced": "Este workspace não tem moeda de cobrança definida, então o custo dos templates fica sem valor.",
+          "rework_repository_unavailable": "O custo de retrabalho não está disponível."
+        },
+        "measuredHint": "Quantas conversas puderam ser medidas nesta quebra. Os percentuais são sobre esta base, não sobre a fila inteira.",
+        "recordCompletenessHelp": "Dos contatos que estão na fila, quantos têm os campos básicos preenchidos. Um cadastro vazio é uma conversa difícil de retomar.",
+        "recordFieldsHelp": "Percentual de contatos da fila com cada campo preenchido.",
+        "addTarget": "Adicionar meta",
+        "addTargetHelp": "Escolha o indicador que você quer acompanhar neste mês.",
+        "noGoalsTitle": "Nenhuma meta para {period}",
+        "noGoalsBody": "Times que medem bem acompanham de quatro a oito indicadores, não todos. Comece pelos que dizem se o mês fecha.",
+        "suggested": "Sugeridos",
+        "currentValue": "Hoje",
+        "remove": "Remover",
+        "saveAll": "Salvar metas",
+        "savedAt": "Metas de {period}",
+        "pickMetric": "Escolher indicador",
+        "searchMetric": "Buscar indicador",
+        "allMetricsUsed": "Todos os indicadores já têm meta neste período.",
+        "unsavedChanges": "{count} meta(s) por salvar",
+        "progressOf": "{actual} de {target}",
+        "cancel": "Cancelar",
+        "metricHelp": {
+          "ai_containment_rate": "Sessões que a IA encerrou sem precisar de uma pessoa.",
+          "avg_frt_mins": "Tempo entre alguém assumir a conversa e a primeira resposta.",
+          "avg_handle_mins": "Tempo entre a primeira resposta e o encerramento.",
+          "avg_wait_mins": "Tempo entre o cliente falar e a primeira resposta chegar.",
+          "engaged": "Conversas com pelo menos uma mensagem real, excluindo disparos sem resposta.",
+          "entries_created": "Conversas abertas no período, com ou sem resposta.",
+          "finished": "Conversas que a equipe encerrou no período.",
+          "new_leads": "Contatos novos cadastrados no período, em todo o workspace.",
+          "outcome_durable_pct": "Encerramentos com um desfecho que resolve de verdade, sobre os encerramentos registrados.",
+          "pending_stock": "Conversas que continuam abertas ao fim de cada mês.",
+          "reopen_rate": "Conversas que voltaram a abrir depois de encerradas. Retrabalho.",
+          "resolution_pct": "Concluídas dividido por tudo que foi trabalhado no período.",
+          "revenue_cents": "Soma do valor das oportunidades ganhas, pela data de fechamento.",
+          "won_count": "Oportunidades marcadas como ganhas, pela data de fechamento."
+        },
+        "dimensionHelp": {
+          "age": "Há quanto tempo cada conversa da fila foi aberta.",
+          "assignee": "Quem é o responsável pelas conversas que ficaram na fila.",
+          "origin": "De qual campanha, número ou conta vieram as conversas que ficaram na fila.",
+          "returning": "Se este contato já teve uma conversa encerrada antes neste canal.",
+          "tenure": "Há quanto tempo o contato existe na sua base, não a conversa."
+        },
+        "category": {
+          "volume": "Volume",
+          "timing": "Tempos",
+          "quality": "Qualidade",
+          "revenue": "Receita",
+          "other": "Outros"
+        }
       }
     }
   },
@@ -10250,7 +10666,10 @@
       "workflowSearch": "Buscar automação...",
       "workflowEmpty": "Nenhum automação encontrado.",
       "enableRequiresWorkflow": "Selecione um automação para ativar a automação.",
-      "activeNoteWorkflow": "Novas mensagens diretas dispararão este automação, respeitando a janela de 24 horas do Instagram. Nós de template e botões do WhatsApp são ignorados neste canal."
+      "activeNoteWorkflow": "Novas mensagens diretas dispararão este automação, respeitando a janela de 24 horas do Instagram. Nós de template e botões do WhatsApp são ignorados neste canal.",
+      "pipelineLabel": "Funil deste canal",
+      "pipelineHint": "As conversas deste canal entram neste funil e na etapa inicial dele.",
+      "pipelineDefault": "Funil padrão do workspace"
     },
     "commentRules": {
       "title": "Automação de comentários",
@@ -11158,7 +11577,10 @@
       "activeNoteWorkflow": "Novas mensagens dispararão este automação. Nós de template e botões do WhatsApp são ignorados neste canal.",
       "agent": "Agente",
       "workflow": "Automação",
-      "none": "Manual"
+      "none": "Manual",
+      "pipelineLabel": "Funil deste canal",
+      "pipelineHint": "As conversas deste canal entram neste funil e na etapa inicial dele.",
+      "pipelineDefault": "Funil padrão do workspace"
     },
     "business": {
       "title": "Conta Business (opcional)",
@@ -11336,7 +11758,10 @@
       "saved": "Salvo",
       "saveFailed": "Não foi possível salvar. Tente novamente.",
       "activeNote": "Novas mensagens serão respondidas por este agente. Não há janela de 24 horas neste canal, mas as respostas só saem enquanto a sessão estiver conectada, e respeitam o intervalo e o limite diário definidos em Proteção do número.",
-      "activeNoteWorkflow": "Novas mensagens dispararão esta automação. Nós de template e botões da API oficial são ignorados neste canal."
+      "activeNoteWorkflow": "Novas mensagens dispararão esta automação. Nós de template e botões da API oficial são ignorados neste canal.",
+      "pipelineLabel": "Funil deste canal",
+      "pipelineHint": "As conversas deste canal entram neste funil e na etapa inicial dele.",
+      "pipelineDefault": "Funil padrão do workspace"
     },
     "safety": {
       "title": "Proteção do número",
@@ -12638,7 +13063,7 @@
     "low": "Baixa",
     "high": "Alta"
   },
-  "faq":   {
+  "faq": {
     "nav": "FAQ",
     "index": {
       "title": "Perguntas e respostas",
@@ -13066,5 +13491,44 @@
     "of": "de",
     "items": "áreas de trabalho",
     "loadError": "Não foi possível carregar o relatório."
+  },
+  "reports": {
+    "badge": "Relatórios",
+    "title": "Relatórios",
+    "description": "Os relatórios que você pediu. A geração acontece em segundo plano; o arquivo fica disponível por 7 dias.",
+    "download": "Baixar",
+    "downloadFailed": "Não foi possível baixar o arquivo",
+    "loadFailed": "Não foi possível carregar os relatórios",
+    "rows": "{count, plural, one {# linha} other {# linhas}}",
+    "empty": {
+      "title": "Nenhum relatório ainda",
+      "description": "Peça uma exportação em Atendimento, Saldo ou nas campanhas e ela aparece aqui."
+    },
+    "filters": {
+      "kind": "Tipo",
+      "status": "Situação",
+      "from": "De",
+      "to": "Até"
+    },
+    "table": {
+      "report": "Relatório",
+      "status": "Situação",
+      "size": "Tamanho",
+      "requestedAt": "Pedido em",
+      "expiresAt": "Expira em"
+    },
+    "kind": {
+      "attendance_overview": "Atendimento",
+      "conversation_entries": "Conversas",
+      "balance_transactions": "Transações de saldo",
+      "opportunities": "Oportunidades"
+    },
+    "status": {
+      "queued": "Na fila",
+      "running": "Gerando",
+      "done": "Pronto",
+      "failed": "Falhou",
+      "expired": "Expirado"
+    }
   }
 }

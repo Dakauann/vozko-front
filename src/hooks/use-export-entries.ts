@@ -1,13 +1,13 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 
 import {
     exportWhatsAppCampaignEntriesAction,
     exportWhatsAppWorkspaceEntriesAction,
-    type CsvExportResult,
+    type ExportQueueResult,
 } from "@/app/actions/whatsapp-campaigns";
-import { downloadCsv } from "@/lib/browser/download";
+import { useReportJob } from "@/hooks/use-report-job";
 
 interface ExportFilters {
     statuses?: string[];
@@ -43,22 +43,21 @@ function toQueryFilters(filters?: ExportFilters): Record<string, string | string
 }
 
 export function useExportEntries() {
-    const [exporting, setExporting] = useState(false);
+    const { running: exporting, track } = useReportJob();
 
     const exportEntries = useCallback(
         async (scope: ExportScope, filters?: ExportFilters): Promise<ExportOutcome> => {
-            setExporting(true);
-            try {
-                const queryFilters = toQueryFilters(filters);
+            const queryFilters = toQueryFilters(filters);
 
-                let result: CsvExportResult;
+            let queued: ExportQueueResult;
+            try {
                 if (scope.kind === "campaign") {
-                    result = await exportWhatsAppCampaignEntriesAction(
+                    queued = await exportWhatsAppCampaignEntriesAction(
                         scope.campaignId,
                         queryFilters,
                     );
                 } else {
-                    result = await exportWhatsAppWorkspaceEntriesAction({
+                    queued = await exportWhatsAppWorkspaceEntriesAction({
                         statuses: queryFilters.status as string[] | undefined,
                         type: scope.type,
                         from: scope.from,
@@ -66,23 +65,31 @@ export function useExportEntries() {
                         search: queryFilters.search as string | undefined,
                     });
                 }
-
-                if (result.error) {
-                    return { error: result.error };
-                }
-                if (!result.csvText) {
-                    return { error: "noEntries" };
-                }
-
-                downloadCsv(result.csvText, result.filename);
-                return { success: true };
             } catch {
                 return { error: "Failed to export" };
-            } finally {
-                setExporting(false);
             }
+
+            if (queued.error || !queued.job) {
+                return { error: queued.error ?? "Failed to export" };
+            }
+
+            const settled = await track(queued.job);
+            if (settled.status === "error") {
+                return { error: settled.error };
+            }
+            if (settled.status === "failed") {
+                return {
+                    error:
+                        settled.job.failureCode === "empty_result"
+                            ? "noEntries"
+                            : settled.job.failureCode === "too_many_rows"
+                              ? "tooLarge"
+                              : (settled.job.failureCode ?? "Failed to export"),
+                };
+            }
+            return { success: true };
         },
-        [],
+        [track],
     );
 
     return { exporting, exportEntries };

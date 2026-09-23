@@ -43,6 +43,7 @@ import {
   exportUnofficialCampaignEntriesAction,
   validateUnofficialCampaignTargetsAction,
 } from "@/app/actions/unofficial-whatsapp-campaigns";
+import { useReportJob } from "@/hooks/use-report-job";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -168,33 +169,40 @@ export default function UnofficialCampaignDetail({
     });
 
   const [showCrmDialog, setShowCrmDialog] = useState(false);
-  const [exporting, setExporting] = useState(false);
+  const { running: exporting, track } = useReportJob();
 
   const handleExport = async () => {
-    setExporting(true);
-    try {
-      const result = await exportUnofficialCampaignEntriesAction(campaign.id, {
-        status: entryFilters.status || undefined,
-        search: entryFilters.search || undefined,
+    const queued = await exportUnofficialCampaignEntriesAction(campaign.id, {
+      status: entryFilters.status || undefined,
+      search: entryFilters.search || undefined,
+    });
+
+    const failed = (reason: string) => {
+      toast({
+        title: t("actions.failed"),
+        description: t(`entries.exportError.${reason}`),
+        variant: "destructive",
       });
-      if (result.error || !result.csvText) {
-        toast({
-          title: t("actions.failed"),
-          description: t(`entries.exportError.${result.error ?? "generic"}`),
-          variant: "destructive",
-        });
-        return;
-      }
-      const url = URL.createObjectURL(
-        new Blob([result.csvText], { type: "text/csv;charset=utf-8" }),
+    };
+
+    if (queued.error || !queued.job) {
+      failed(queued.error ?? "generic");
+      return;
+    }
+
+    const settled = await track(queued.job);
+    if (settled.status === "error") {
+      failed("generic");
+      return;
+    }
+    if (settled.status === "failed") {
+      failed(
+        settled.job.failureCode === "empty_result"
+          ? "noEntries"
+          : settled.job.failureCode === "too_many_rows"
+            ? "tooLarge"
+            : "generic",
       );
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = result.filename || `${campaign.name}.csv`;
-      link.click();
-      URL.revokeObjectURL(url);
-    } finally {
-      setExporting(false);
     }
   };
 

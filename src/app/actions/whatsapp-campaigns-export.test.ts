@@ -14,8 +14,11 @@ import {
     exportWhatsAppWorkspaceEntriesAction,
 } from "@/app/actions/whatsapp-campaigns";
 
-function csvResponse(body: string, headers: Record<string, string> = {}) {
-    return new Response(body, { status: 200, headers });
+function queuedResponse(id = "job-1") {
+    return new Response(
+        JSON.stringify({ id, kind: "conversation_entries", format: "csv", status: "queued" }),
+        { status: 202, headers: { "Content-Type": "application/json" } },
+    );
 }
 
 function errorResponse(status: number, message?: string) {
@@ -34,7 +37,7 @@ beforeEach(() => {
         "fetch",
         vi.fn(async (url: string) => {
             requestedUrl = url;
-            return csvResponse("number,name\n5511,Ana\n");
+            return queuedResponse();
         }),
     );
     fetchWithRefresh.mockImplementation((run: () => Promise<Response>) => run());
@@ -92,15 +95,14 @@ describe("workspace lead export", () => {
 
 describe("export failures", () => {
     it.each([
-        [404, "noEntries"],
         [413, "tooLarge"],
-        [429, "busy"],
+        [503, "unavailable"],
     ])("maps %i to %s", async (status, expected) => {
         vi.stubGlobal("fetch", vi.fn(async () => errorResponse(status)));
 
         const result = await exportWhatsAppWorkspaceEntriesAction({});
 
-        expect(result.csvText).toBeNull();
+        expect(result.job).toBeNull();
         expect(result.error).toBe(expected);
     });
 
@@ -113,26 +115,25 @@ describe("export failures", () => {
     });
 });
 
-describe("filename", () => {
-    it("uses the name the server chose", async () => {
+describe("queued job", () => {
+    it("returns the job the server queued instead of a file", async () => {
+        const result = await exportWhatsAppWorkspaceEntriesAction({});
+
+        expect(result.error).toBeNull();
+        expect(result.job?.id).toBe("job-1");
+        expect(result.job?.status).toBe("queued");
+    });
+
+    it("treats a success with no job id as a failure", async () => {
         vi.stubGlobal(
             "fetch",
-            vi.fn(async () =>
-                csvResponse("number\n5511\n", {
-                    "Content-Disposition": 'attachment; filename="whatsapp-leads-2026-08-13.csv"',
-                }),
-            ),
+            vi.fn(async () => new Response("{}", { status: 202, headers: { "Content-Type": "application/json" } })),
         );
 
         const result = await exportWhatsAppWorkspaceEntriesAction({});
 
-        expect(result.filename).toBe("whatsapp-leads-2026-08-13.csv");
-    });
-
-    it("falls back to a dated name when the server sends no disposition", async () => {
-        const result = await exportWhatsAppWorkspaceEntriesAction({});
-
-        expect(result.filename).toMatch(/^whatsapp-campaign-export-\d{4}-\d{2}-\d{2}\.csv$/);
+        expect(result.job).toBeNull();
+        expect(result.error).toBe("Failed to export");
     });
 });
 

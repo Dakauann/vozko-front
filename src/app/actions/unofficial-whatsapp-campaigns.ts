@@ -12,7 +12,7 @@ import type {
 import type { CampaignMetrics } from '@/lib/campaigns/metrics';
 
 import { apiClient } from '@/lib/api/browser-client';
-import { fetchCsvExport } from '@/app/actions/whatsapp-campaigns';
+import { fetchCsvExport, type ExportQueueResult } from '@/app/actions/whatsapp-campaigns';
 
 const BASE = '/unofficial-whatsapp/campaigns';
 
@@ -274,6 +274,6 @@ export async function confirmClearHistoryUnofficialCampaignAction(
 export async function exportUnofficialCampaignEntriesAction(
     campaignId: string,
     filters?: Record<string, string | string[] | undefined>,
-) {
+): Promise<ExportQueueResult> {
     return fetchCsvExport(`${BASE}/${campaignId}/entries/export`, filters);
 }

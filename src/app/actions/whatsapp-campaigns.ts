@@ -15,6 +15,7 @@ import type {
 } from '@/lib/whatsapp-campaigns/types';
 import { fetchWithRefresh, getApiBaseUrl, scopeHeaders } from '@/lib/api/browser-client';
 
+import type { ReportJob } from '@/lib/reports/types';
 import { apiClient } from '@/lib/api/browser-client';
 
 const DEFAULT_WHATSAPP_CAMPAIGN_META: WhatsAppCampaignListMeta = {
@@ -462,9 +463,8 @@ export async function unarchiveWhatsAppCampaignAction(campaignId: string) {
     return { success: true, error: null };
 }
 
-export type CsvExportResult = {
-    csvText: string | null;
-    filename: string;
+export type ExportQueueResult = {
+    job: ReportJob | null;
     error: string | null;
 };
 
@@ -485,49 +485,44 @@ function exportQueryString(filters?: Record<string, string | string[] | undefine
 export async function fetchCsvExport(
     path: string,
     filters?: Record<string, string | string[] | undefined>,
-): Promise<CsvExportResult> {
-    return fetchCsv(path, filters);
+): Promise<ExportQueueResult> {
+    return queueExport(path, filters);
 }
 
-async function fetchCsv(path: string, filters?: Record<string, string | string[] | undefined>): Promise<CsvExportResult> {
+async function queueExport(
+    path: string,
+    filters?: Record<string, string | string[] | undefined>,
+): Promise<ExportQueueResult> {
     const queryString = exportQueryString(filters);
     const url = `${getApiBaseUrl()}${path}${queryString ? `?${queryString}` : ''}`;
 
     const response = await fetchWithRefresh(() =>
         fetch(url, { credentials: 'include', headers: scopeHeaders() }),
     );
+
     if (!response.ok) {
-        const body = await response.json().catch(() => null);
-        const msg = (body as { message?: string })?.message;
-        if (response.status === 404) {
-            return { csvText: null, filename: '', error: 'noEntries' };
-        }
+        const body = (await response.json().catch(() => null)) as { message?: string } | null;
         if (response.status === 413) {
-            return { csvText: null, filename: '', error: 'tooLarge' };
+            return { job: null, error: 'tooLarge' };
         }
-        if (response.status === 429) {
-            return { csvText: null, filename: '', error: 'busy' };
+        if (response.status === 503) {
+            return { job: null, error: 'unavailable' };
         }
-        return { csvText: null, filename: '', error: msg || 'Failed to export' };
+        return { job: null, error: body?.message || 'Failed to export' };
     }
 
-    const csvText = await response.text();
-
-    const disposition = response.headers.get('Content-Disposition');
-    let filename = `whatsapp-campaign-export-${new Date().toISOString().slice(0, 10)}.csv`;
-    if (disposition) {
-        const match = disposition.match(/filename="?([^";]+)"?/);
-        if (match?.[1]) filename = match[1];
+    const job = (await response.json().catch(() => null)) as ReportJob | null;
+    if (!job?.id) {
+        return { job: null, error: 'Failed to export' };
     }
-
-    return { csvText, filename, error: null };
+    return { job, error: null };
 }
 
 export async function exportWhatsAppCampaignEntriesAction(
     campaignId: string,
     filters?: Record<string, string | string[] | undefined>
-): Promise<CsvExportResult> {
-    return fetchCsv(`/whatsapp/campaigns/${campaignId}/entries/export`, filters);
+): Promise<ExportQueueResult> {
+    return queueExport(`/whatsapp/campaigns/${campaignId}/entries/export`, filters);
 }
 
 export async function exportWhatsAppWorkspaceEntriesAction(params: {
@@ -536,8 +531,8 @@ export async function exportWhatsAppWorkspaceEntriesAction(params: {
     from?: string;
     to?: string;
     search?: string;
-}): Promise<CsvExportResult> {
-    return fetchCsv('/whatsapp/campaigns/entries/export', {
+}): Promise<ExportQueueResult> {
+    return queueExport('/whatsapp/campaigns/entries/export', {
         status: params.statuses,
         type: params.type,
         from: params.from,

@@ -1204,7 +1204,8 @@
       "archivedUnofficialWhatsappCampaigns": "Archiviert",
       "audience": "Publikum",
       "funnels": "Funnels",
-      "analysisAlerts": "Alerts"
+      "analysisAlerts": "Alerts",
+      "reports": "Berichte"
     },
     "badges": {
       "new": "Neu",
@@ -5858,6 +5859,43 @@
       "noAvailableMembers": "Keine verfügbaren Mitglieder zum Hinzufügen",
       "noMembers": "Keine Mitglieder in dieser Abteilung",
       "assignLabel": "Abteilungen zuweisen"
+    },
+    "outcomeCapture": {
+      "label": "Ergebniserfassung",
+      "cardDescription": "Fragen Sie beim Beenden nach dem Ergebnis und messen Sie die Abschlussqualität.",
+      "description": "Mit aktiver Erfassung hält jeder von einer Person durchgeführte Abschluss das gewählte Ergebnis fest. Automatische, KI- und Workflow-Abschlüsse erhalten einen reservierten Code und bleiben außerhalb der Teamzählung.",
+      "enabled": "Ergebnis erfassen",
+      "enabledHint": "Schaltet die Erfassung ein und zählt ab jetzt.",
+      "requireOnFinish": "Zum Beenden verlangen",
+      "requireOnFinishHint": "Ohne gewähltes Ergebnis wird die Konversation nicht beendet.",
+      "threshold": "Ziel für tragende Ergebnisse",
+      "thresholdHint": "Mindestanteil, der über die erfassten Abschlüsse erwartet wird.",
+      "catalogue": "Ergebnisse",
+      "catalogueHint": "Markieren Sie als tragend, was das Anliegen wirklich abschließt. Mindestens eines ist erforderlich.",
+      "emptyCatalogue": "Kein Ergebnis hinterlegt. Klicken Sie, um das erste anzulegen.",
+      "addOutcome": "Hinzufügen",
+      "removeOutcome": "Ergebnis entfernen",
+      "labelPlaceholder": "Name, den der Bearbeiter sieht",
+      "codePlaceholder": "code",
+      "isDurable": "trägt",
+      "statusOn": "An, {count} Ergebnisse",
+      "statusOff": "Aus",
+      "switchOnWarning": "Nach dem Speichern wählen Bearbeiter ein Ergebnis zum Beenden. Die Zählung startet jetzt, nichts Vergangenes wird bewertet.",
+      "save": "Speichern",
+      "saveSuccess": "Ergebniserfassung gespeichert",
+      "saveError": "Ergebniserfassung konnte nicht gespeichert werden",
+      "issues": {
+        "threshold": "Das Ziel muss zwischen 0 und 100 liegen.",
+        "codeRequired": "Jedes Ergebnis braucht einen Code.",
+        "reserved": "Codes dürfen nicht mit einem Unterstrich beginnen.",
+        "duplicate": "Es gibt doppelte Codes.",
+        "labelRequired": "Jedes Ergebnis braucht einen Namen.",
+        "empty": "Hinterlegen Sie mindestens ein Ergebnis, um die Erfassung einzuschalten.",
+        "noDurable": "Markieren Sie mindestens ein Ergebnis als tragend."
+      },
+      "labelColumn": "Name",
+      "codeColumn": "Code",
+      "isDurableHint": "Markieren Sie, wenn dieses Ergebnis das Anliegen wirklich abschließt."
     }
   },
   "workspaceInvites": {
@@ -6265,14 +6303,14 @@
       "editRateLink": "Kurs ändern",
       "rateMissing": "Wechselkurs erforderlich, bevor Standardpreise bearbeitet werden.",
       "storedAsUsd": "als USD gespeichert",
-        "unpriced": "Kein Preis"
+      "unpriced": "Kein Preis"
     },
     "services": {
       "whatsapp": {
         "utility": "Utility-Nachrichten",
         "marketing": "Marketing-Nachrichten",
         "authentication": "Authentifizierungs-Nachrichten",
-          "service": "Servicenachrichten"
+        "service": "Servicenachrichten"
       },
       "telephony": {
         "whatsapp_calls": "WhatsApp-Anrufe"
@@ -6438,7 +6476,7 @@
         "utility": "WhatsApp, Utility-Nachrichten",
         "marketing": "WhatsApp, Marketing-Nachrichten",
         "authentication": "WhatsApp, Authentifizierung",
-          "service": "WhatsApp, Servicenachrichten",
+        "service": "WhatsApp, Servicenachrichten",
         "whatsapp_calls": "WhatsApp-Anrufe",
         "standard": "SMS-Nachrichten",
         "default_markup": "KI-Modelle (LLM)"
@@ -6485,7 +6523,7 @@
       "conversionNote": "Eine spätere Kursänderung schreibt gespeicherte Planpreise nicht um.",
       "rateRequired": "Laden Sie einen gültigen Wechselkurs, bevor Sie Einheitspreise bearbeiten.",
       "priceBelowCost": "Preis liegt unter den Kosten.",
-        "unpriced": "Kein Preis gesetzt. Wird nicht berechnet.",
+      "unpriced": "Kein Preis gesetzt. Wird nicht berechnet.",
       "invalidAmount": "Ungültiger Betrag.",
       "notApplicable": "n/a"
     },
@@ -7672,11 +7710,11 @@
         "mediaHelp": "Optional. Der Text oben wird zur Bildunterschrift.",
         "mediaKind": "Dateityp",
         "mediaKinds": {
-            "image": "Bild",
-            "video": "Video",
-            "audio": "Audio",
-            "document": "Dokument",
-            "sticker": "Sticker"
+          "image": "Bild",
+          "video": "Video",
+          "audio": "Audio",
+          "document": "Dokument",
+          "sticker": "Sticker"
         },
         "mediaUpload": "Datei hochladen",
         "mediaUploading": "Wird hochgeladen...",
@@ -8445,12 +8483,35 @@
       "dayUnit": " T."
     },
     "export": {
+      "executive": {
+        "atRisk": "Ziele in Gefahr",
+        "available": "Verfügbar",
+        "cluster": "Gesamtstand",
+        "elapsedPct": "% des Zeitraums vergangen",
+        "offTrack": "Ziele abseits der Spur",
+        "onTrack": "Ziele auf Kurs",
+        "openDaysDone": "Vergangene Arbeitstage",
+        "openDaysLeft": "Verbleibende Arbeitstage",
+        "openDaysTotal": "Arbeitstage im Zeitraum",
+        "reason": "Grund",
+        "targetsSet": "Gesetzte Ziele",
+        "timezone": "Zeitzone"
+      },
       "button": "CSV exportieren",
       "title": "Servicebericht",
       "yes": "Ja",
       "no": "Nein",
       "noDepartment": "Ohne Abteilung",
       "sections": {
+        "backlogXray": "Backlog-Röntgenbild",
+        "period": "Zeitraum",
+        "projections": "Prognosen und Ziele",
+        "quality": "Ergebnisqualität",
+        "reachability": "Erreichbarkeit pro Kanal",
+        "revenue": "Umsatz",
+        "rework": "Nacharbeit",
+        "teamRanking": "Team-Ranking",
+        "trend": "Trend",
         "filters": "Angewendete Filter",
         "kpis": "Kennzahlen",
         "status": "Status der Konversationen",
@@ -8470,6 +8531,48 @@
         "stagesTotals": "Phasenabdeckung"
       },
       "columns": {
+        "actual": "Ist",
+        "attainPct": "% des Ziels",
+        "avgMessages": "Nachrichten pro Chat",
+        "avgTicketCents": "Durchschnittsbon (Cent)",
+        "bestBucket": "Bester Zeitraum",
+        "bestValue": "Bester Wert",
+        "bucket": "Zeitraum",
+        "captured": "Mit Ergebnis",
+        "closedPct": "% außerhalb des Fensters",
+        "closes": "Abschlüsse",
+        "currency": "Währung",
+        "deltaPct": "Veränderung %",
+        "dimension": "Dimension",
+        "durable": "Dauerhaft gelöst",
+        "durablePct": "% dauerhaft gelöst",
+        "label": "Bezeichnung",
+        "measured": "Gemessene Basis",
+        "memberClass": "Klasse",
+        "partial": "Unvollständiger Zeitraum",
+        "pctOfTeamAvg": "% des Teamdurchschnitts",
+        "perOnlineHour": "Pro Online-Stunde",
+        "perOpenDay": "Pro Arbeitstag",
+        "perOpenDayCents": "Pro Arbeitstag (Cent)",
+        "prevClosedCents": "Vorheriger Zeitraum (Cent)",
+        "projected": "Prognose",
+        "projectedCents": "Prognose (Cent)",
+        "projectedFlag": "Ist Prognose",
+        "rankMetricValue": "Metrikwert",
+        "reason": "Grund",
+        "reopenRate": "% wieder geöffnet",
+        "reopened": "Wieder geöffnet",
+        "revenueCents": "Umsatz (Cent)",
+        "reworkCostMicros": "Nacharbeitskosten (Mikro)",
+        "reworkTemplates": "Erneut gesendete Vorlagen",
+        "target": "Ziel",
+        "totalMessages": "Nachrichten",
+        "unknown": "Unbekannt",
+        "valueCents": "Wert (Cent)",
+        "verdict": "Bewertung",
+        "windowClosed": "Fenster geschlossen",
+        "windowOpen": "Fenster offen",
+        "wonCount": "Gewonnene Deals",
         "filter": "Filter",
         "value": "Wert",
         "metric": "Kennzahl",
@@ -8508,7 +8611,8 @@
         "avgDaysInStage": "Tage stehend (Durchschnitt)",
         "oldestDaysInStage": "Tage stehend (älteste)",
         "stuck": "Festgefahren",
-        "stuckAfterDays": "Schwelle (Tage)"
+        "stuckAfterDays": "Schwelle (Tage)",
+        "generatedAtLabel": "Erstellt am"
       },
       "filters": {
         "generatedAt": "Erstellt am",
@@ -8629,7 +8733,42 @@
         "unstagedShell": "Ohne Nachricht und ohne Phase",
         "stuck": "Festgefahrene Konversationen"
       },
-      "noFunnel": "Ohne Funnel"
+      "noFunnel": "Ohne Funnel",
+      "preparing": "Wird erstellt…",
+      "ready": "Bericht fertig, der Download hat begonnen",
+      "failed": "Der Bericht konnte nicht erstellt werden",
+      "queued": "In der Warteschlange",
+      "running": "Wird erstellt",
+      "expiredFile": "Die Datei ist abgelaufen. Fordere den Bericht erneut an.",
+      "failure": {
+        "unknown_kind": "Diesen Berichtstyp gibt es auf diesem Server nicht.",
+        "unsupported_format": "Diesen Bericht gibt es nicht in diesem Format.",
+        "too_many_rows": "Der Zeitraum hat zu viele Zeilen. Wähle einen kürzeren Bereich.",
+        "render_failed": "Die Erstellung ist fehlgeschlagen. Versuche es in ein paar Minuten erneut.",
+        "upload_failed": "Die Datei wurde erstellt, konnte aber nicht gespeichert werden. Versuche es erneut.",
+        "renderer_not_configured": "Dieser Bericht ist auf diesem Server nicht verfügbar.",
+        "source_unavailable": "Die Datenquelle hat nicht geantwortet. Versuche es erneut.",
+        "cancelled": "Die Erstellung wurde abgebrochen.",
+        "workspace_required": "Wähle einen Workspace, bevor du exportierst."
+      },
+      "queuedTitle": "Bericht in der Warteschlange",
+      "queuedBody": "Wir erstellen die Datei. Sie lädt von selbst herunter, sobald sie fertig ist, und bleibt unter Berichte gespeichert.",
+      "truncated": "{shown} von {total} Zeilen. Die CSV enthält den ganzen Zeitraum.",
+      "rowTotal": "{total} Zeilen",
+      "format": {
+        "csv": {
+          "label": "CSV (Tabelle)",
+          "hint": "Alle Zeilen des Zeitraums, für Excel."
+        },
+        "xlsx": {
+          "label": "Excel (.xlsx)",
+          "hint": "Alle Zeilen des Zeitraums, bereits formatiert."
+        },
+        "pdf": {
+          "label": "PDF (Bericht)",
+          "hint": "Der Bericht mit seinen Diagrammen, fertig zum Senden."
+        }
+      }
     },
     "attendance": {
       "badge": "Metriken · Service",
@@ -8720,7 +8859,21 @@
         "stageCoverage": "Abdeckung nach Funnel",
         "stageCoverageSub": "Wie viel des Zeitraums in einer Phase steht, und in welchem Funnel",
         "stageMosaic": "Volumen nach Phase",
-        "stageMosaicSub": "Alle Funnel nebeneinander · die Blockfläche ist das Volumen der Phase"
+        "stageMosaicSub": "Alle Funnel nebeneinander · die Blockfläche ist das Volumen der Phase",
+        "tactical": "Taktische Lage",
+        "tacticalSub": "Wie viel des Zeitraums verbraucht ist und wo jedes Ziel landet",
+        "money": "Umsatz im Zeitraum",
+        "moneySub": "Gewonnene Opportunities nach ihrem Abschlussdatum zugeordnet",
+        "history": "Historischer Verlauf",
+        "historySub": "Die vorherigen abgeschlossenen Monate, der beste markiert",
+        "backlog": "Backlog-Durchleuchtung",
+        "backlogSub": "Wer liegen blieb, wie lange schon und ob er noch erreichbar ist",
+        "quality": "Abschlussqualität",
+        "qualitySub": "Wie viele Abschlüsse ein Ergebnis festgehalten haben, das trägt",
+        "teamXray": "Team-Durchleuchtung",
+        "teamXraySub": "Leistung pro Tag, pro Stunde und gegen den menschlichen Teamschnitt",
+        "rework": "Nacharbeitskosten",
+        "reworkSub": "Konversationen, die nach dem Abschluss wieder aufgingen, und was die erneute Bearbeitung kostete"
       },
       "status": {
         "finished": "Abgeschlossene Gespräche",
@@ -8876,6 +9029,261 @@
         "statusRadialHint": "Abstand vom Zentrum = Anteil der Konversationen im Zeitraum (0–100%)",
         "stageBlockHint": "Blockfläche = Konversationsvolumen der Phase",
         "deptBlockHint": "Blockfläche = Konversationsvolumen der Abteilung"
+      },
+      "executive": {
+        "periodTitle": "Arbeitstage im Monat",
+        "daysDone": "{done} von {total}",
+        "daysLeft": "noch {count}",
+        "elapsedLabel": "{pct} des Zeitraums verstrichen",
+        "clusterTitle": "Cluster",
+        "onTrackOf": "{onTrack} von {total} Zielen auf Kurs",
+        "noTargetsSet": "Kein Ziel gesetzt",
+        "timezoneNote": "Gezählt in {timezone}",
+        "noTargetsTitle": "Kein Ziel für diesen Zeitraum",
+        "noTargetsBody": "Ohne Ziel sagen die Zahlen auf dieser Seite nicht, ob der Monat aufgeht.",
+        "setTargets": "Ziele setzen",
+        "targetsTitle": "Ziele des Zeitraums",
+        "targetsDescription": "Ziele für {period}, Bereich: {scope}",
+        "targetsScopeWorkspace": "Workspace",
+        "save": "Speichern",
+        "close": "Schließen",
+        "invalidValue": "Bitte eine Zahl ab null angeben",
+        "noTargetPlaceholder": "kein Ziel",
+        "unitMoney": "Betrag",
+        "unitPercent": "Prozent",
+        "unitMinutes": "Minuten",
+        "unitCount": "Anzahl",
+        "higherIsBetter": "höher ist besser",
+        "lowerIsBetter": "niedriger ist besser",
+        "target": "Ziel",
+        "projected": "Hochrechnung",
+        "actual": "Ist",
+        "perOpenDay": "Pro Arbeitstag",
+        "attainment": "Zielerreichung",
+        "bestInWindow": "Bester Abschluss: {bucket} ({value}), zwischen {from} und {to}",
+        "deltaHint": "Hochrechnung gegen den letzten abgeschlossenen Monat",
+        "unbucketed": "{count} beendete Konversationen ohne Abschlussdatum fielen aus der Reihe",
+        "revenueIn": "Umsatz in {currency}",
+        "wonCount": "Gewonnen",
+        "avgTicket": "Durchschnittsticket",
+        "prevClosed": "Vorheriger abgeschlossener Monat",
+        "mixedCurrencies": "Dieser Workspace hat mehr als eine Währung. Werte werden je Währung gezeigt und nie summiert.",
+        "unattributed": "{count} gewonnene Opportunities ohne Abschlussdatum blieben außen vor",
+        "unowned": "{count} gewonnen ohne Verantwortlichen",
+        "backlogTotal": "{count} Konversationen im Rückstand",
+        "measured": "Basis {count}",
+        "unknownCount": "{count} ohne diese Angabe",
+        "otherBucket": "Andere",
+        "unknownBucket": "Nicht erfasst",
+        "recordCompleteness": "Datenqualität",
+        "reachability": "Servicefenster",
+        "reachabilityHint": "Konversationen mit geschlossenem 24h-Fenster öffnen sich nur über eine kostenpflichtige Vorlage.",
+        "windowClosed": "{closed} geschlossen, {open} offen",
+        "qualityOffTitle": "Ergebniserfassung ist aus",
+        "configureCapture": "Im Workspace einrichten",
+        "thresholdNote": "Das Ziel für tragende Ergebnisse liegt bei {threshold} der erfassten Abschlüsse.",
+        "operator": "Bearbeiter",
+        "closes": "Abschlüsse",
+        "captured": "Erfasst",
+        "capturedHint": "Abschlüsse ab dem Zeitpunkt der Aktivierung",
+        "durable": "Tragend",
+        "durablePct": "% tragend",
+        "riskAssessment": "Bewertung",
+        "notScored": "ohne Bewertung",
+        "adjacents": "Angrenzend und System",
+        "teamTotal": "Team gesamt",
+        "adjacentTotal": "Angrenzend gesamt",
+        "notCaptured": "{count} Abschlüsse von vor der Erfassung blieben außen vor",
+        "rankedBy": "Sortiert nach {metric}",
+        "teamAverage": "menschlicher Schnitt {value}",
+        "minSample": "Einstufung ab {count} Abschlüssen",
+        "resolvedCol": "Gelöst",
+        "perDayCol": "Pro Tag",
+        "perDayHint": "Geteilt durch die bereits verstrichenen Arbeitstage",
+        "perHourCol": "Pro Stunde",
+        "perHourHint": "Geteilt durch die erfasste Onlinezeit des Bearbeiters",
+        "perHourSuffix": "/h",
+        "revenueCol": "Umsatz",
+        "avgTicketCol": "Ticket",
+        "avgTicketHint": "Umsatz geteilt durch gewonnene Opportunities",
+        "pctOfAvgCol": "% des Schnitts",
+        "pctOfAvgHint": "Gegen den Schnitt der menschlichen Bearbeiter",
+        "classCol": "Einstufung",
+        "metric": {
+          "ai_containment_rate": "Von der KI gelöst",
+          "avg_frt_mins": "Erste Antwort",
+          "avg_handle_mins": "Durchschnittliche Dauer",
+          "avg_wait_mins": "Durchschnittliche Wartezeit",
+          "engaged": "Konversationen mit Nachricht",
+          "entries_created": "Geöffnete Konversationen",
+          "finished": "Beendete Konversationen",
+          "new_leads": "Neue Leads",
+          "outcome_durable_pct": "Tragende Ergebnisse",
+          "pending_stock": "Rückstandsbestand",
+          "reopen_rate": "Wiedereröffnungsquote",
+          "resolution_pct": "Lösungsquote",
+          "revenue_cents": "Umsatz",
+          "won_count": "Gewonnene Opportunities"
+        },
+        "verdict": {
+          "at_risk": "Gefährdet",
+          "insufficient_data": "Zu wenig Daten",
+          "no_target": "Kein Ziel",
+          "not_projected": "Nicht hochrechenbar",
+          "off_track": "Nicht auf Kurs",
+          "on_track": "Auf Kurs"
+        },
+        "cluster": {
+          "critical": "Kritisch",
+          "excellence": "Exzellenz",
+          "improvement": "Verbesserung",
+          "on_track": "Im Takt"
+        },
+        "memberClass": {
+          "below": "Darunter",
+          "critical": "Kritisch",
+          "elite": "Elite",
+          "insufficient_data": "Zu wenig Daten",
+          "solid": "Solide"
+        },
+        "rankMetric": {
+          "resolved": "Gelöst",
+          "revenue_cents": "Umsatz",
+          "volume": "Volumen"
+        },
+        "dimension": {
+          "age": "Zeit im Rückstand",
+          "assignee": "Zuständig",
+          "origin": "Herkunft",
+          "returning": "Wiederkehrender Kontakt",
+          "tenure": "Kontaktalter"
+        },
+        "band": {
+          "0_1d": "Bis 1 Tag",
+          "12m_plus": "Über 12 Monate",
+          "1_3d": "1 bis 3 Tage",
+          "1_6m": "1 bis 6 Monate",
+          "30d_plus": "Über 30 Tage",
+          "3_7d": "3 bis 7 Tage",
+          "6_12m": "6 bis 12 Monate",
+          "7_30d": "7 bis 30 Tage",
+          "first_contact": "Erstkontakt",
+          "returning": "Schon betreut",
+          "under_1m": "Unter 1 Monat"
+        },
+        "recordField": {
+          "age": "Alter",
+          "name": "Name"
+        },
+        "periodReason": {
+          "invalid_schedule": "Die gespeicherten Arbeitszeiten sind ungültig und nicht verwendbar.",
+          "no_schedule": "Legen Sie die Arbeitszeiten des Workspace fest, um den Zeitraum in Arbeitstagen zu messen.",
+          "period_unavailable": "Zeitraum nicht verfügbar.",
+          "range_too_wide": "Der angefragte Bereich ist zu weit, um in Arbeitstagen gezählt zu werden.",
+          "schedule_never_opens": "Die konfigurierten Arbeitszeiten öffnen in diesem Zeitraum nie."
+        },
+        "projectionReason": {
+          "actual_unavailable": "Der Ist-Wert dieser Kennzahl ist nicht verfügbar.",
+          "invalid_schedule": "Die Arbeitszeiten sind ungültig.",
+          "metric_is_not_cumulative": "Ein Durchschnitt lässt sich nicht über die Tagesrate hochrechnen.",
+          "no_schedule": "Ohne Arbeitszeiten gibt es keine Hochrechnung.",
+          "period_unavailable": "Ohne gemessenen Zeitraum gibt es keine Hochrechnung.",
+          "range_too_wide": "Bereich zu weit für eine Hochrechnung.",
+          "schedule_never_opens": "Die konfigurierten Zeiten öffnen in diesem Zeitraum nie.",
+          "too_early_to_project": "Zu früh im Zeitraum für eine Hochrechnung."
+        },
+        "trendReason": {
+          "no_closed_buckets": "Es gibt noch keinen abgeschlossenen Monat zum Vergleich.",
+          "trend_repository_unavailable": "Die historische Reihe ist nicht verfügbar."
+        },
+        "revenueReason": {
+          "revenue_mixed_currencies": "Im Zeitraum gibt es mehr als eine Währung.",
+          "revenue_not_department_scoped": "Opportunities haben keine Abteilung, daher lässt sich der Umsatz nicht danach filtern.",
+          "revenue_repository_unavailable": "Umsatz ist nicht verfügbar."
+        },
+        "xrayReason": {
+          "no_backlog": "In diesem Ausschnitt gibt es keine Konversationen im Rückstand.",
+          "no_coverage": "Diese Angabe ist für den aktuellen Rückstand nicht gepflegt.",
+          "no_window_model": "Dieser Kanal hat kein 24h-Fenster."
+        },
+        "qualityReason": {
+          "nothing_captured_yet": "In diesem Zeitraum wurden noch keine Abschlüsse erfasst.",
+          "outcome_capture_disabled": "Schalten Sie die Ergebniserfassung im Workspace ein, um die Abschlussqualität zu messen.",
+          "outcome_capture_has_no_enabled_at": "Die Erfassung ist an, aber ohne Aktivierungsdatum, daher fehlt ein belastbarer Nenner.",
+          "quality_repository_unavailable": "Abschlussqualität ist nicht verfügbar."
+        },
+        "rankingReason": {
+          "no_human_team_rows": "Kein menschlicher Bearbeiter in diesem Ausschnitt.",
+          "no_team_rows": "Kein Bearbeiter mit Konversationen in diesem Ausschnitt.",
+          "ranking_inputs_unavailable": "Die Team-Durchleuchtung ist nicht verfügbar."
+        },
+        "periodUnavailableTitle": "Kein Arbeitstagskalender",
+        "configureSchedule": "Arbeitszeiten einrichten",
+        "reworkHint": "Eine abgeschlossene Konversation, die wieder aufgeht, ist doppelte Arbeit. Die Kosten zählen die kostenpflichtigen Vorlagen nach der Wiedereröffnung.",
+        "reopenedCol": "Wieder offen",
+        "reopenedHint": "Abschlüsse dieser Person, die danach wieder aufgingen",
+        "reopenRateCol": "% wieder offen",
+        "reworkTemplatesCol": "Vorlagen",
+        "reworkTemplatesHint": "Berechnete Vorlagen nach der Wiedereröffnung",
+        "reworkCostCol": "Kosten",
+        "reworkCostHint": "Summe für Vorlagen nach der Wiedereröffnung",
+        "unassignedRow": "Ohne Bearbeiter",
+        "avgMessagesCol": "Nachr./Konv.",
+        "avgMessagesHint": "Durchschnittliche Nachrichten je Konversation dieser Person",
+        "generatedAt": "Erstellt am {at}",
+        "reworkReason": {
+          "no_finished_closes": "In diesem Ausschnitt wurde keine Konversation abgeschlossen, es gibt also keine Nacharbeit zu messen.",
+          "rework_cost_not_priced": "Dieser Workspace hat keine Abrechnungswährung, daher bleiben die Vorlagenkosten unbewertet.",
+          "rework_repository_unavailable": "Nacharbeitskosten sind nicht verfügbar."
+        },
+        "measuredHint": "Wie viele Konversationen in dieser Aufschlüsselung messbar waren. Die Prozente beziehen sich auf diese Basis, nicht auf den ganzen Rückstand.",
+        "recordCompletenessHelp": "Wie viele der Kontakte im Rückstand die Basisfelder gefüllt haben. Ein leerer Datensatz ist ein schwer wieder aufzunehmendes Gespräch.",
+        "recordFieldsHelp": "Anteil der Rückstandskontakte mit jeweils gefülltem Feld.",
+        "addTarget": "Ziel hinzufügen",
+        "addTargetHelp": "Wählen Sie die Kennzahl, die Sie diesen Monat verfolgen wollen.",
+        "noGoalsTitle": "Kein Ziel für {period}",
+        "noGoalsBody": "Teams, die gut messen, verfolgen vier bis acht Kennzahlen, nicht alle. Beginnen Sie mit denen, die sagen, ob der Monat aufgeht.",
+        "suggested": "Vorgeschlagen",
+        "currentValue": "Heute",
+        "remove": "Entfernen",
+        "saveAll": "Ziele speichern",
+        "savedAt": "Ziele für {period}",
+        "pickMetric": "Kennzahl wählen",
+        "searchMetric": "Kennzahlen suchen",
+        "allMetricsUsed": "Jede Kennzahl hat in diesem Zeitraum bereits ein Ziel.",
+        "unsavedChanges": "{count} Ziel(e) nicht gespeichert",
+        "progressOf": "{actual} von {target}",
+        "cancel": "Abbrechen",
+        "metricHelp": {
+          "ai_containment_rate": "Sitzungen, die die KI ohne Person abgeschlossen hat.",
+          "avg_frt_mins": "Zeit zwischen Übernahme der Konversation und erster Antwort.",
+          "avg_handle_mins": "Zeit zwischen erster Antwort und Abschluss.",
+          "avg_wait_mins": "Zeit zwischen der Kundennachricht und der ersten Antwort.",
+          "engaged": "Konversationen mit mindestens einer echten Nachricht, ohne Versände ohne Antwort.",
+          "entries_created": "Im Zeitraum geöffnete Konversationen, beantwortet oder nicht.",
+          "finished": "Konversationen, die das Team im Zeitraum abgeschlossen hat.",
+          "new_leads": "Neue Kontakte im Zeitraum, im gesamten Workspace.",
+          "outcome_durable_pct": "Abschlüsse mit einem tragenden Ergebnis, über die erfassten Abschlüsse.",
+          "pending_stock": "Konversationen, die am Monatsende noch offen sind.",
+          "reopen_rate": "Konversationen, die nach dem Abschluss wieder aufgingen. Nacharbeit.",
+          "resolution_pct": "Abgeschlossen geteilt durch alles im Zeitraum Bearbeitete.",
+          "revenue_cents": "Summe der gewonnenen Opportunities, nach Abschlussdatum.",
+          "won_count": "Als gewonnen markierte Opportunities, nach Abschlussdatum."
+        },
+        "dimensionHelp": {
+          "age": "Wie lange jede Rückstandskonversation schon offen ist.",
+          "assignee": "Wem die Konversationen im Rückstand gehören.",
+          "origin": "Aus welcher Kampagne, Nummer oder welchem Konto die Rückstandskonversationen stammen.",
+          "returning": "Ob dieser Kontakt auf diesem Kanal schon eine abgeschlossene Konversation hatte.",
+          "tenure": "Wie lange der Kontakt in Ihrer Basis existiert, nicht die Konversation."
+        },
+        "category": {
+          "volume": "Volumen",
+          "timing": "Zeiten",
+          "quality": "Qualität",
+          "revenue": "Umsatz",
+          "other": "Sonstige"
+        }
       }
     }
   },
@@ -9128,7 +9536,10 @@
       "workflowSearch": "Automatisierungen suchen...",
       "workflowEmpty": "Keine Automatisierungen gefunden.",
       "enableRequiresWorkflow": "Wählen Sie einen Automatisierung, um die Automatisierung zu aktivieren.",
-      "activeNoteWorkflow": "Neue Direktnachrichten lösen diesen Automatisierung aus, innerhalb des 24-Stunden-Fensters von Instagram. WhatsApp-Vorlagen- und Button-Knoten werden auf diesem Kanal übersprungen."
+      "activeNoteWorkflow": "Neue Direktnachrichten lösen diesen Automatisierung aus, innerhalb des 24-Stunden-Fensters von Instagram. WhatsApp-Vorlagen- und Button-Knoten werden auf diesem Kanal übersprungen.",
+      "pipelineLabel": "Funnel für diesen Kanal",
+      "pipelineHint": "Gespräche aus diesem Kanal landen in diesem Funnel, in seiner ersten Stufe.",
+      "pipelineDefault": "Standard-Funnel des Workspace"
     },
     "commentRules": {
       "title": "Kommentar-Automatisierung",
@@ -10036,7 +10447,10 @@
       "activeNoteWorkflow": "Neue Nachrichten lösen diesen Automatisierung aus. WhatsApp-Vorlagen- und Button-Knoten werden auf diesem Kanal ignoriert.",
       "agent": "Agent",
       "workflow": "Automatisierung",
-      "none": "Manuell"
+      "none": "Manuell",
+      "pipelineLabel": "Funnel für diesen Kanal",
+      "pipelineHint": "Gespräche aus diesem Kanal landen in diesem Funnel, in seiner ersten Stufe.",
+      "pipelineDefault": "Standard-Funnel des Workspace"
     },
     "business": {
       "title": "Business-Konto (optional)",
@@ -10276,7 +10690,10 @@
       "saved": "Gespeichert",
       "saveFailed": "Speichern fehlgeschlagen. Bitte erneut versuchen.",
       "activeNote": "Neue Nachrichten werden von diesem Agenten beantwortet. Auf diesem Kanal gibt es kein 24-Stunden-Fenster, aber Antworten gehen nur raus, solange die Sitzung verbunden ist, und sie halten sich an Intervall und Tageslimit unter Nummernschutz.",
-      "activeNoteWorkflow": "Neue Nachrichten lösen diesen Workflow aus. Vorlagen- und Button-Knoten der offiziellen API werden auf diesem Kanal ignoriert."
+      "activeNoteWorkflow": "Neue Nachrichten lösen diesen Workflow aus. Vorlagen- und Button-Knoten der offiziellen API werden auf diesem Kanal ignoriert.",
+      "pipelineLabel": "Funnel für diesen Kanal",
+      "pipelineHint": "Gespräche aus diesem Kanal landen in diesem Funnel, in seiner ersten Stufe.",
+      "pipelineDefault": "Standard-Funnel des Workspace"
     },
     "safety": {
       "title": "Number protection",
@@ -11589,7 +12006,7 @@
     "low": "Niedrig",
     "high": "Hoch"
   },
-  "faq":   {
+  "faq": {
     "nav": "FAQ",
     "index": {
       "title": "Fragen und Antworten",
@@ -12017,5 +12434,54 @@
     "of": "von",
     "items": "Arbeitsbereiche",
     "loadError": "Der Bericht konnte nicht geladen werden."
+  },
+  "crm": {
+    "outcomeCapture": {
+      "cancel": "Zurück",
+      "confirm": "Konversation beenden",
+      "description": "Dieser Workspace verlangt ein Ergebnis, bevor eine Konversation beendet wird.",
+      "durable": "trägt",
+      "noCatalogue": "In diesem Workspace ist kein Ergebnis hinterlegt. Bitten Sie eine Administration, die Liste anzulegen.",
+      "title": "Wie ging es aus?"
+    }
+  },
+  "reports": {
+    "badge": "Berichte",
+    "title": "Berichte",
+    "description": "Die Berichte, die du angefordert hast. Die Erstellung läuft im Hintergrund; die Datei bleibt 7 Tage verfügbar.",
+    "download": "Herunterladen",
+    "downloadFailed": "Die Datei konnte nicht heruntergeladen werden",
+    "loadFailed": "Die Berichte konnten nicht geladen werden",
+    "rows": "{count, plural, one {# Zeile} other {# Zeilen}}",
+    "empty": {
+      "title": "Noch keine Berichte",
+      "description": "Fordere einen Export in Betreuung, Guthaben oder bei einer Kampagne an, dann erscheint er hier."
+    },
+    "filters": {
+      "kind": "Typ",
+      "status": "Status",
+      "from": "Von",
+      "to": "Bis"
+    },
+    "table": {
+      "report": "Bericht",
+      "status": "Status",
+      "size": "Größe",
+      "requestedAt": "Angefordert",
+      "expiresAt": "Läuft ab"
+    },
+    "kind": {
+      "attendance_overview": "Betreuung",
+      "conversation_entries": "Gespräche",
+      "balance_transactions": "Guthaben-Transaktionen",
+      "opportunities": "Opportunities"
+    },
+    "status": {
+      "queued": "In der Warteschlange",
+      "running": "Wird erstellt",
+      "done": "Fertig",
+      "failed": "Fehlgeschlagen",
+      "expired": "Abgelaufen"
+    }
   }
 }
