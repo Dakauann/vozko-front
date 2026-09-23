@@ -2821,6 +2821,7 @@ export default function AttendanceOpsPage() {
             />
           </div>
 
+          {/*
           <div>
             <SectionLabel
               icon={<ClockCounterClockwise className="h-4 w-4" weight="fill" />}
@@ -2834,6 +2835,7 @@ export default function AttendanceOpsPage() {
               fmt={fmt}
             />
           </div>
+          */}
 
           <div>
             <SectionLabel

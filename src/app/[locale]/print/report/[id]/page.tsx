@@ -319,6 +319,7 @@ export default function ReportPrintPage() {
         />
       </section>
 
+      {/*
       <section className="space-y-3 break-inside-avoid">
         <SectionLabel
           icon={<ClockCounterClockwise className="h-4 w-4" weight="fill" />}
@@ -328,6 +329,7 @@ export default function ReportPrintPage() {
         />
         <ReworkSection fmt={fmt} rework={overview.rework} loading={false} />
       </section>
+      */}
     </main>
   );
 }
