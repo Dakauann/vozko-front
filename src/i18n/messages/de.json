@@ -6740,6 +6740,9 @@
         "scribe_realtime": "Sprache-zu-Text (Echtzeit)",
         "utility": "WhatsApp, Utility-Nachrichten",
         "marketing": "WhatsApp, Marketing-Nachrichten",
+        "authentication": "WhatsApp, Authentifizierung",
+        "service": "WhatsApp, Servicenachrichten",
+        "eleven_v3": "Text-zu-Sprache (v3)",
         "whatsapp_calls": "WhatsApp-Anrufe",
         "standard": "SMS-Nachrichten",
         "default_markup": "KI-Modelle (LLM)"

@@ -7619,6 +7619,9 @@
         "scribe_realtime": "Speech-to-Text (Realtime)",
         "utility": "WhatsApp, Utility messages",
         "marketing": "WhatsApp, Marketing messages",
+        "authentication": "WhatsApp, Authentication messages",
+        "service": "WhatsApp, Service messages",
+        "eleven_v3": "Text-to-Speech (v3)",
         "whatsapp_calls": "WhatsApp calls",
         "standard": "SMS messages",
         "default_markup": "AI models (LLM)"

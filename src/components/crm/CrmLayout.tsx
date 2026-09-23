@@ -444,6 +444,7 @@ export default function CrmLayout({
     }
     const { board } = await getCrmBoardAction({
       groupBy,
+      whatsappCampaignType,
       pipelineId:
         activePipelineId && activePipelineId !== ALL_FUNNELS_ID
           ? activePipelineId
@@ -453,7 +454,14 @@ export default function CrmLayout({
       pageSize: BOARD_PAGE_SIZE,
     });
     setBoardColumns(board?.columns ?? []);
-  }, [isGlobalBoard, groupBy, activePipelineId, currentWorkspace?.id, filter]);
+  }, [
+    isGlobalBoard,
+    groupBy,
+    activePipelineId,
+    currentWorkspace?.id,
+    filter,
+    whatsappCampaignType,
+  ]);
 
   const handleSelectPipeline = useCallback((p: SelectedPipeline) => {
     setSelectedPipeline(p);
@@ -715,6 +723,7 @@ export default function CrmLayout({
       );
       const { result } = await getCrmEntriesAction({
         filter: colFilter,
+        whatsappCampaignType,
         page,
         pageSize,
         sortOrder: "desc",
@@ -733,7 +742,7 @@ export default function CrmLayout({
         return next;
       });
     },
-    [filter, groupBy],
+    [filter, groupBy, whatsappCampaignType],
   );
 
   const globalBoardSummary = useMemo(() => {

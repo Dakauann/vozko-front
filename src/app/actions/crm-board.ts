@@ -29,6 +29,9 @@ function fetchCrmBoard(params: FetchCrmBoardParams) {
     qs.set('groupBy', params.groupBy);
     if (params.pipelineId) qs.set('pipelineId', params.pipelineId);
     qs.set('filter', encodeBase64(JSON.stringify(params.filter ?? emptyCrmFilter)));
+    if (params.whatsappCampaignType) {
+        qs.set('whatsappCampaignType', params.whatsappCampaignType);
+    }
     if (params.owners && params.owners.length > 0) {
         qs.set('owners', JSON.stringify(params.owners));
     }
@@ -55,6 +58,9 @@ export async function getCrmBoardAction(
 function fetchCrmEntries(params: FetchCrmEntriesParams) {
     const qs = new URLSearchParams();
     qs.set('filter', encodeBase64(JSON.stringify(params.filter ?? emptyCrmFilter)));
+    if (params.whatsappCampaignType) {
+        qs.set('whatsappCampaignType', params.whatsappCampaignType);
+    }
     if (params.sortField) qs.set('sortField', params.sortField);
     if (params.sortOrder) qs.set('sortOrder', params.sortOrder);
     if (params.page) qs.set('page', String(params.page));

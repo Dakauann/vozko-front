@@ -6220,6 +6220,9 @@
         "scribe_realtime": "Voz a Texto (Tiempo real)",
         "utility": "WhatsApp, Mensajes utilitarios",
         "marketing": "WhatsApp, Mensajes de marketing",
+        "authentication": "WhatsApp, Mensajes de autenticación",
+        "service": "WhatsApp, Mensajes de servicio",
+        "eleven_v3": "Texto a Voz (v3)",
         "whatsapp_calls": "Llamadas de WhatsApp",
         "standard": "Mensajes SMS",
         "default_markup": "Modelos de IA (LLM)"

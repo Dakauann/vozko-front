@@ -7658,6 +7658,9 @@
         "scribe_realtime": "Voz para Texto (Tempo real)",
         "utility": "WhatsApp, Mensagens utilitárias",
         "marketing": "WhatsApp, Mensagens de marketing",
+        "authentication": "WhatsApp, Mensagens de autenticação",
+        "service": "WhatsApp, Mensagens de serviço",
+        "eleven_v3": "Texto para Voz (v3)",
         "whatsapp_calls": "Chamadas WhatsApp",
         "standard": "Mensagens SMS",
         "default_markup": "Modelos de IA (LLM)"

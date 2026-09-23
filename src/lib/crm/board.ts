@@ -1,4 +1,4 @@
-import type { InboxEntry } from '@/lib/conversations/types';
+import type { InboxEntry, WhatsAppCampaignTypeFilter } from '@/lib/conversations/types';
 
 export type CrmFilterConjunction = 'and' | 'or';
 
@@ -138,6 +138,7 @@ export interface FetchCrmBoardParams {
     groupBy: CrmGroupBy;
     pipelineId?: string;
     filter?: CrmFilter;
+    whatsappCampaignType?: WhatsAppCampaignTypeFilter;
     owners?: CrmBoardOwner[];
     page?: number;
     pageSize?: number;
@@ -147,6 +148,7 @@ export interface FetchCrmBoardParams {
 
 export interface FetchCrmEntriesParams {
     filter?: CrmFilter;
+    whatsappCampaignType?: WhatsAppCampaignTypeFilter;
     sortField?: string;
     sortOrder?: string;
     page?: number;

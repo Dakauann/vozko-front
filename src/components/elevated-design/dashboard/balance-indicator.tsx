@@ -180,6 +180,9 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
     Boolean(currentPlanName) && subscriptionStatus === "active";
   const hasVisiblePlan =
     Boolean(currentPlanName) && subscriptionStatus !== "expired";
+  const canRecharge =
+    hasBalancePermission && hasRechargeEligiblePlan && canContractPlan;
+  const canOpenCatalog = hasPlansPermission && canContractPlan;
   const subscriptionStatusLabel = subscriptionStatus
     ? plansT(`status.${subscriptionStatus}`)
     : null;
@@ -402,23 +405,16 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
               </button>
             ) : null}
 
-            {(hasBalancePermission && hasRechargeEligiblePlan) ||
-            (hasPlansPermission && canContractPlan) ? (
+            {canRecharge || canOpenCatalog ? (
               <button
                 type="button"
-                onClick={
-                  hasBalancePermission && hasRechargeEligiblePlan
-                    ? openRechargeDialog
-                    : openPlanCatalogDialog
-                }
+                onClick={canRecharge ? openRechargeDialog : openPlanCatalogDialog}
                 className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[--radius] border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 aria-label={
-                  hasBalancePermission && hasRechargeEligiblePlan
-                    ? t("actions.addFunds")
-                    : gateT("openCatalog")
+                  canRecharge ? t("actions.addFunds") : gateT("openCatalog")
                 }
               >
-                {hasBalancePermission && hasRechargeEligiblePlan ? (
+                {canRecharge ? (
                   <Plus className="h-3.5 w-3.5" weight="bold" />
                 ) : (
                   <Package className="h-3.5 w-3.5" weight="regular" />

@@ -11,12 +11,14 @@ import type {
 } from "@/lib/whatsapp-campaigns/types";
 import {
   archiveWhatsAppCampaignAction,
+  assignWhatsAppCampaignDepartmentAction,
   listWhatsAppCampaignsAction,
 } from "@/app/actions/whatsapp-campaigns";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
+import { DepartmentRowSwitcher } from "@/components/dashboard/DepartmentRowSwitcher";
 import {
   DashboardTable,
   type DashboardTableColumn,
@@ -92,6 +94,24 @@ export default function OrganicCampaignsPage() {
     if (!result.error) {
       setCampaigns((prev) => prev.filter((c) => c.id !== campaignId));
     }
+  };
+
+  const handleAssignDepartment = async (
+    campaignId: string,
+    departmentId: string,
+  ) => {
+    const result = await assignWhatsAppCampaignDepartmentAction(
+      campaignId,
+      departmentId,
+    );
+    if (!result.error && result.campaign) {
+      setCampaigns((prev) =>
+        prev.map((campaign) =>
+          campaign.id === campaignId ? (result.campaign ?? campaign) : campaign,
+        ),
+      );
+    }
+    return result;
   };
 
   const filteredCampaigns = campaigns.filter((campaign) => {
@@ -292,17 +312,28 @@ export default function OrganicCampaignsPage() {
           </ElevatedSelect>
         }
         renderRowActions={(row) => (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleArchive(row.id);
-            }}
-            className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-muted transition-colors"
-          >
-            <Archive className="h-3.5 w-3.5" weight="bold" />
-            {t("card.archive")}
-          </button>
+          <>
+            <DepartmentRowSwitcher
+              departmentId={row.departmentId}
+              onAssign={(departmentId) =>
+                handleAssignDepartment(row.id, departmentId).then((result) => ({
+                  item: result.campaign,
+                  error: result.error,
+                }))
+              }
+            />
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleArchive(row.id);
+              }}
+              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-muted transition-colors"
+            >
+              <Archive className="h-3.5 w-3.5" weight="bold" />
+              {t("card.archive")}
+            </button>
+          </>
         )}
         pagination={
           meta.totalPages > 1
