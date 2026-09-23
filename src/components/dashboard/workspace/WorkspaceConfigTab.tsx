@@ -4,6 +4,7 @@ import * as React from "react";
 import {
   CaretDown,
   ChatCircleDots,
+  CheckCircle,
   CircleNotch,
   FloppyDisk,
   Clock,
@@ -22,6 +23,7 @@ import type {
 } from "@/lib/workspace/workspace-config/types";
 import { updateWorkspaceConfigAction } from "@/app/actions/workspace-config";
 import { WorkingHoursEditor } from "@/components/dashboard/working-hours/WorkingHoursEditor";
+import { OutcomeCaptureCard } from "@/components/dashboard/workspace/OutcomeCaptureCard";
 import {
   summarizeWorkingHours,
   validateWorkingHours,
@@ -58,6 +60,11 @@ export function WorkspaceConfigTab({
           {t("configTab.sections.attendance")}
         </p>
         <DistributionConfigCard
+          workspaceId={workspaceId}
+          config={config}
+          onConfigChange={onConfigChange}
+        />
+        <OutcomeCaptureConfigCard
           workspaceId={workspaceId}
           config={config}
           onConfigChange={onConfigChange}
@@ -495,6 +502,39 @@ function RouletteLastSeenSettings({
   );
 }
 
+
+function OutcomeCaptureConfigCard({
+  workspaceId,
+  config,
+  onConfigChange,
+}: WorkspaceConfigTabProps) {
+  const t = useTranslations("workspaceSettings.outcomeCapture");
+  const [open, setOpen] = React.useState(false);
+
+  const capture = config?.outcomeCapture ?? null;
+  const active = Boolean(capture?.enabled);
+  const statusLabel = active
+    ? t("statusOn", { count: String(capture?.outcomes?.length ?? 0) })
+    : t("statusOff");
+
+  return (
+    <ConfigCardShell
+      open={open}
+      onToggle={() => setOpen((v) => !v)}
+      icon={<CheckCircle weight="fill" className="h-4.5 w-4.5" />}
+      title={t("label")}
+      description={t("cardDescription")}
+      statusLabel={statusLabel}
+      statusActive={active}
+    >
+      <OutcomeCaptureCard
+        workspaceId={workspaceId}
+        config={config}
+        onConfigChange={onConfigChange}
+      />
+    </ConfigCardShell>
+  );
+}
 
 function WorkingHoursConfigCard({
   workspaceId,

@@ -118,6 +118,11 @@ export async function getAttendanceOverviewAction(
         campaign_id: params.campaignId,
         campaign_type: params.campaignType,
         channel: params.channel,
+        rank_metric: params.rankMetric,
+        trend_buckets:
+            params.trendBuckets === undefined
+                ? undefined
+                : String(params.trendBuckets),
         include_ai:
             params.includeAi === undefined
                 ? undefined

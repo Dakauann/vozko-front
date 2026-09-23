@@ -21,6 +21,8 @@ export type ResourceType =
     | "members"
     | "assignments"
     | "attendance"
+    | "attendance_targets"
+    | "reports"
     | "usage"
     | "support_inboxes"
     | "issues"

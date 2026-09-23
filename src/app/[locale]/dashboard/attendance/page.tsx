@@ -65,7 +65,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import type {
   AttendanceOverview,
@@ -86,9 +86,10 @@ import type {
   StatusDistribution,
 } from "@/lib/attendance/types";
 import { getAttendanceOverviewAction } from "@/app/actions/attendance";
+import { useReportJob } from "@/hooks/use-report-job";
+import { useToast } from "@/hooks/use-toast";
+import type { AttendanceReportParams } from "@/lib/reports/types";
 import { listMembersAction } from "@/app/actions/workspace";
-import { buildAttendanceOverviewCsv } from "@/lib/attendance/csv-export";
-import { downloadCsv } from "@/lib/browser/download";
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { ElevatedDatePicker } from "@/components/elevated-design/elevated-date-picker";
@@ -109,172 +110,34 @@ import {
 import { WaffleChart } from "@/components/charts/dense-charts";
 import { TeamResponseChart } from "@/components/charts/team-response-chart";
 import { entityColorIndex, share } from "@/lib/charts/data";
-
-
-const COLORS = {
-  signal: "hsl(var(--chart-1))",
-  finished: "hsl(var(--healthy))",
-  ongoing: "hsl(var(--info))",
-  pending: "hsl(var(--warning))",
-  open: "hsl(var(--chart-4))",
-  closeHuman: "hsl(var(--healthy))",
-  closeAI: "hsl(var(--chart-5))",
-  closeSystem: "hsl(var(--warning))",
-} as const;
-
-const LOCALE_TAG: Record<string, string> = {
-  pt: "pt-BR",
-  en: "en-US",
-  es: "es-ES",
-  de: "de-DE",
-};
+import {
+  ATTENDANCE_COLORS as COLORS,
+  LOCALE_TAG,
+  ChartSkeleton,
+  EmptyChart,
+  SectionLabel,
+  SectionTitle,
+  Surface,
+  useActorKindLabel,
+  useMetricsFmt,
+  usePresenceLabel,
+} from "@/components/dashboard/attendance/primitives";
+import {
+  BacklogXraySection,
+  PeriodProgressStrip,
+  ProjectionGrid,
+  QualitySection,
+  RevenueCard,
+  ReworkSection,
+  TeamRankingTable,
+  TrendSection,
+} from "@/components/dashboard/attendance/executive-panels";
+import { TargetsDialog } from "@/components/dashboard/attendance/targets-dialog";
+import { Target } from "@/components/icons";
 
 type DatePreset = "7d" | "30d" | "90d" | "custom";
 
-
-function useMetricsFmt() {
-  const locale = useLocale();
-  const tc = useTranslations("metricsOps.common");
-  const tag = LOCALE_TAG[locale] ?? "en-US";
-  const na = tc("na");
-  const minUnit = tc("minUnit");
-  const dayUnit = tc("dayUnit");
-  return useMemo(
-    () => ({
-      na,
-      num: (v: number | null | undefined) => {
-        if (v === null || v === undefined) return "0";
-        return v.toLocaleString(tag);
-      },
-      mins: (v: number | null | undefined) => {
-        if (v === null || v === undefined) return na;
-        if (v < 1) return `${Math.round(v * 60)}s`;
-        return `${v.toLocaleString(tag, { maximumFractionDigits: 1 })} ${minUnit}`;
-      },
-      days: (v: number | null | undefined) => {
-        if (v === null || v === undefined) return na;
-        const digits = v < 10 ? 1 : 0;
-        return `${v.toLocaleString(tag, { maximumFractionDigits: digits })}${dayUnit}`;
-      },
-      pct: (v: number | null | undefined) => {
-        if (v === null || v === undefined) return na;
-        return `${v.toLocaleString(tag, { maximumFractionDigits: 1 })}%`;
-      },
-    }),
-    [tag, na, minUnit, dayUnit],
-  );
-}
-
-function usePresenceLabel() {
-  const tc = useTranslations("metricsOps.common");
-  return useCallback(
-    (p: string) => {
-      if (p === "online") return tc("online");
-      if (p === "on_call") return tc("onCall");
-      return tc("offline");
-    },
-    [tc],
-  );
-}
-
-function useActorKindLabel() {
-  const tc = useTranslations("metricsOps.common");
-  return useCallback(
-    (kind: string) => (kind === "ai" ? tc("ai") : tc("human")),
-    [tc],
-  );
-}
-
-
-function Surface({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <section
-      className={cn(
-        "min-w-0 rounded-[--radius] border border-border bg-card p-3",
-        className,
-      )}
-      style={{ boxShadow: softSurfaceShadow }}
-    >
-      {children}
-    </section>
-  );
-}
-
-function SectionTitle({
-  icon,
-  iconBg,
-  title,
-  subtitle,
-  action,
-}: {
-  icon: ReactNode;
-  iconBg: string;
-  title: string;
-  subtitle?: string;
-  action?: ReactNode;
-}) {
-  return (
-    <div className="mb-2.5 flex items-start justify-between gap-3">
-      <div className="flex min-w-0 items-start gap-2.5">
-        <div
-          className={cn(
-            "flex h-7 w-7 shrink-0 items-center justify-center rounded-[--radius]",
-            iconBg,
-          )}
-        >
-          {icon}
-        </div>
-        <div className="min-w-0">
-          <h2 className="text-sm font-semibold tracking-tight text-foreground">
-            {title}
-          </h2>
-          {subtitle ? (
-            <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
-              {subtitle}
-            </p>
-          ) : null}
-        </div>
-      </div>
-      {action}
-    </div>
-  );
-}
-
-function EmptyChart({
-  icon,
-  message,
-  height = 220,
-}: {
-  icon: ReactNode;
-  message: string;
-  height?: number;
-}) {
-  return (
-    <div
-      className="flex flex-col items-center justify-center text-muted-foreground"
-      style={{ height }}
-    >
-      <div className="mb-2 opacity-40">{icon}</div>
-      <p className="text-sm">{message}</p>
-    </div>
-  );
-}
-
-function ChartSkeleton({ height = 220 }: { height?: number }) {
-  return (
-    <div
-      className="animate-pulse rounded-[--radius] bg-muted"
-      style={{ height }}
-      aria-hidden
-    />
-  );
-}
+const DEFAULT_TARGET_CURRENCY = "BRL";
 
 
 type KpiDef = {
@@ -501,21 +364,6 @@ function ChannelMixChart({
   if (loading) return <ChartSkeleton height={180} />;
   if (!data.some((item) => item.value > 0)) return <EmptyChart icon={<ChartPie className="h-8 w-8" weight="fill" />} message={tl("noChannelMix")} height={180} />;
   return <BlockChart data={blocks} label={tl("channelTotalConversations")} height={160} />;
-}
-
-function SectionLabel({ title, subtitle }: { title: string; subtitle?: string }) {
-  return (
-    <div className="mb-2 flex items-end justify-between gap-3">
-      <div>
-        <h2 className="text-sm font-semibold tracking-tight text-foreground">
-          {title}
-        </h2>
-        {subtitle ? (
-          <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
-        ) : null}
-      </div>
-    </div>
-  );
 }
 
 function ExtendedOpsPanels({
@@ -2326,10 +2174,17 @@ export default function AttendanceOpsPage() {
   const tl = useTranslations("metricsOps.attendance.labels");
   const tg = useTranslations("metricsOps.attendance.glossary");
   const texp = useTranslations("metricsOps.export");
+  const { running: exporting, request: requestReport } = useReportJob();
+  const { toast } = useToast();
+  const te = useTranslations("metricsOps.attendance.executive");
   const actorKindLabel = useActorKindLabel();
   const presenceLabel = usePresenceLabel();
   const fmt = useMetricsFmt();
   const canRead = !permissionsLoading && can("attendance", "read");
+  const canWriteTargets =
+    !permissionsLoading && can("attendance_targets", "update");
+  const locale = useLocale();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const campaignId = searchParams.get("campaignId") || undefined;
   const campaignType =
@@ -2351,6 +2206,10 @@ export default function AttendanceOpsPage() {
   const [overview, setOverview] = useState<AttendanceOverview | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [rankMetric, setRankMetric] = useState("resolved");
+  const [targetsOpen, setTargetsOpen] = useState(false);
+  const targetCurrency =
+    overview?.revenue?.currencies?.[0]?.currency ?? DEFAULT_TARGET_CURRENCY;
 
   useEffect(() => {
     let cancelled = false;
@@ -2397,6 +2256,7 @@ export default function AttendanceOpsPage() {
       campaignId,
       campaignType,
       includeAi,
+      rankMetric,
     });
     if (r.error) {
       setError(r.error);
@@ -2415,6 +2275,7 @@ export default function AttendanceOpsPage() {
     campaignId,
     campaignType,
     includeAi,
+    rankMetric,
   ]);
 
   useEffect(() => {
@@ -2422,19 +2283,23 @@ export default function AttendanceOpsPage() {
     void load();
   }, [permissionsLoading, load]);
 
-  const exportCsv = useCallback(() => {
+  const exportCsv = useCallback(async () => {
     if (!overview) return;
-    const { csvText, filename } = buildAttendanceOverviewCsv({
-      overview,
-      t: (key) => texp(key),
-      display: {
-        channel: (c) => channelLabel(c, tc),
-        actorKind: actorKindLabel,
-        presence: presenceLabel,
-      },
-      filters: {
+    const outcome = await requestReport({
+      kind: "attendance_overview",
+      format: "csv",
+      locale,
+      params: {
         dateFrom,
         dateTo,
+        departmentId: departmentId === "all" ? undefined : departmentId,
+        memberId: memberId === "all" ? undefined : memberId,
+        channel: channel === "all" ? undefined : channel,
+        campaignId,
+        campaignType,
+        includeAi,
+        rankMetric,
+        workspaceName: currentWorkspace?.name,
         departmentLabel:
           departmentId === "all"
             ? tc("all")
@@ -2443,23 +2308,32 @@ export default function AttendanceOpsPage() {
           memberId === "all"
             ? tc("all")
             : (() => {
-                const m = members.find((x) => x.userId === memberId);
-                return m ? m.username || m.email : memberId;
+                const member = members.find((x) => x.userId === memberId);
+                return member ? member.username || member.email : memberId;
               })(),
         channelLabel: channel === "all" ? tc("all") : tc(channel),
-        includeAi,
-        campaignId,
-        campaignType,
-        workspaceName: currentWorkspace?.name,
-      },
+      } satisfies AttendanceReportParams,
     });
-    downloadCsv(csvText, filename);
+
+    if (outcome.status === "done") {
+      toast({ title: texp("ready") });
+      return;
+    }
+    toast({
+      title: texp("failed"),
+      description:
+        outcome.status === "failed"
+          ? texp(`failure.${outcome.job.failureCode ?? "render_failed"}`)
+          : outcome.error,
+      variant: "destructive",
+    });
   }, [
     overview,
+    requestReport,
+    toast,
+    locale,
     texp,
     tc,
-    actorKindLabel,
-    presenceLabel,
     dateFrom,
     dateTo,
     departmentId,
@@ -2468,6 +2342,7 @@ export default function AttendanceOpsPage() {
     members,
     channel,
     includeAi,
+    rankMetric,
     campaignId,
     campaignType,
     currentWorkspace?.name,
@@ -2505,15 +2380,28 @@ export default function AttendanceOpsPage() {
             <>
               {
 }
+              {canWriteTargets ? (
+                <Button
+                  icon={<Target className="h-4 w-4" weight="bold" />}
+                  iconVisible
+                  title={te("targetsTitle")}
+                  variant="command"
+                  onClick={() => setTargetsOpen(true)}
+                >
+                  <span className="max-sm:sr-only">{te("targetsTitle")}</span>
+                </Button>
+              ) : null}
               <Button
                 icon={<DownloadSimple className="h-4 w-4" weight="bold" />}
                 iconVisible
                 title={texp("button")}
                 variant="command"
-                onClick={exportCsv}
-                disabled={loading || !overview}
+                onClick={() => void exportCsv()}
+                disabled={loading || exporting || !overview}
               >
-                <span className="max-sm:sr-only">{texp("button")}</span>
+                <span className="max-sm:sr-only">
+                  {exporting ? texp("preparing") : texp("button")}
+                </span>
               </Button>
               <Button
                 icon={<ArrowClockwise className="h-4 w-4" weight="bold" />}
@@ -2676,6 +2564,18 @@ export default function AttendanceOpsPage() {
                     count: fmt.num(overview?.by_department?.length),
                   })}
             </span>
+            {!loading && overview?.generated_at ? (
+              <span
+                className="rounded-[--radius] bg-muted px-2.5 py-1"
+                title={overview.generated_at}
+              >
+                {te("generatedAt", {
+                  at: new Date(overview.generated_at).toLocaleString(
+                    LOCALE_TAG[locale] ?? "en-US",
+                  ),
+                })}
+              </span>
+            ) : null}
           </div>
 
           <div className="mt-4">
@@ -2748,6 +2648,59 @@ export default function AttendanceOpsPage() {
           </div>
 
           <div>
+            <SectionLabel title={ts("tactical")} subtitle={ts("tacticalSub")} />
+            <div className="space-y-3">
+              <PeriodProgressStrip
+                period={overview?.period}
+                standing={overview?.standing}
+                loading={loading}
+                fmt={fmt}
+                onConfigureSchedule={() =>
+                  router.push(`/${locale}/dashboard/workspace`)
+                }
+              />
+              <ProjectionGrid
+                projections={overview?.projections}
+                loading={loading}
+                fmt={fmt}
+                currency={targetCurrency}
+                onEditTargets={
+                  canWriteTargets ? () => setTargetsOpen(true) : undefined
+                }
+              />
+            </div>
+          </div>
+
+          <div>
+            <SectionLabel title={ts("money")} subtitle={ts("moneySub")} />
+            <RevenueCard
+              revenue={overview?.revenue}
+              loading={loading}
+              fmt={fmt}
+            />
+          </div>
+
+          <div>
+            <SectionLabel title={ts("history")} subtitle={ts("historySub")} />
+            <TrendSection
+              trend={overview?.trend}
+              loading={loading}
+              fmt={fmt}
+              currency={targetCurrency}
+            />
+          </div>
+
+          <div>
+            <SectionLabel title={ts("backlog")} subtitle={ts("backlogSub")} />
+            <BacklogXraySection
+              backlog={overview?.backlog_xray}
+              loading={loading}
+              fmt={fmt}
+              channelLabel={(c) => channelLabel(c, tc)}
+            />
+          </div>
+
+          <div>
             <ExtendedOpsPanels overview={overview} loading={loading} />
           </div>
 
@@ -2790,6 +2743,40 @@ export default function AttendanceOpsPage() {
                 />
               </Surface>
             </div>
+          </div>
+
+          <div>
+            <SectionLabel title={ts("quality")} subtitle={ts("qualitySub")} />
+            <QualitySection
+              quality={overview?.quality}
+              loading={loading}
+              fmt={fmt}
+              onConfigure={
+                currentWorkspace?.id
+                  ? () => router.push(`/${locale}/dashboard/workspace`)
+                  : undefined
+              }
+            />
+          </div>
+
+          <div>
+            <SectionLabel title={ts("rework")} subtitle={ts("reworkSub")} />
+            <ReworkSection
+              rework={overview?.rework}
+              loading={loading}
+              fmt={fmt}
+            />
+          </div>
+
+          <div>
+            <SectionLabel title={ts("teamXray")} subtitle={ts("teamXraySub")} />
+            <TeamRankingTable
+              ranking={overview?.team_ranking}
+              loading={loading}
+              fmt={fmt}
+              rankMetric={rankMetric}
+              onRankMetricChange={setRankMetric}
+            />
           </div>
 
           <div>
@@ -2878,6 +2865,39 @@ export default function AttendanceOpsPage() {
           </div>
         </>
       )}
+
+      {canWriteTargets ? (
+        <TargetsDialog
+          open={targetsOpen}
+          onOpenChange={setTargetsOpen}
+          period={dateTo.slice(0, 7)}
+          defaultCurrency={targetCurrency}
+          projections={overview?.projections}
+          scope={
+            memberId !== "all"
+              ? {
+                  scope: "member",
+                  scopeId: memberId,
+                  scopeLabel:
+                    members.find((m) => m.userId === memberId)?.username ??
+                    memberId,
+                }
+              : departmentId !== "all"
+                ? {
+                    scope: "department",
+                    scopeId: departmentId,
+                    scopeLabel:
+                      departments.find((d) => d.id === departmentId)?.name ??
+                      departmentId,
+                  }
+                : {
+                    scope: "workspace",
+                    scopeLabel: currentWorkspace?.name ?? tc("all"),
+                  }
+          }
+          onSaved={() => void load()}
+        />
+      ) : null}
     </div>
   );
 }

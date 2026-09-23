@@ -23,6 +23,7 @@ import {
   PhoneCall,
   Waveform,
   Bell,
+  FileText,
   Megaphone,
   Robot,
   Gear,
@@ -215,6 +216,7 @@ export const campanhasNavItems: NavItem[] = [
       { resource: "attendance", action: "read" },
       { resource: "audience", action: "read" },
       { resource: "audience", action: "send" },
+      { resource: "reports", action: "read" },
     ],
     children: [
       {
@@ -234,6 +236,12 @@ export const campanhasNavItems: NavItem[] = [
         labelKey: "nav.analysisAlerts",
         href: "/dashboard/analysis-alerts",
         requiredPermission: { resource: "audience", action: "send" },
+      },
+      {
+        icon: FileText,
+        labelKey: "nav.reports",
+        href: "/dashboard/reports",
+        requiredPermission: { resource: "reports", action: "read" },
       },
     ],
   },

@@ -474,6 +474,13 @@ export interface WsUnsubscribedPayload {
     entry_type: EntryType;
 }
 
+export interface ConversationOutcome {
+    code: string;
+    label: string;
+    isDurable: boolean;
+    position: number;
+}
+
 export interface WsErrorPayload {
     code: string;
     message: string;
@@ -481,6 +488,15 @@ export interface WsErrorPayload {
     entry_type?: EntryType;
     status?: 'new' | 'ongoing' | 'finished';
     previous_status?: 'new' | 'ongoing' | 'finished';
+    outcomes?: ConversationOutcome[];
+}
+
+export interface PendingOutcomeRequest {
+    entryId: string;
+    entryType: EntryType;
+    status: 'new' | 'ongoing' | 'finished';
+    message: string;
+    outcomes: ConversationOutcome[];
 }
 
 export interface WsStageUpdatePayload {
