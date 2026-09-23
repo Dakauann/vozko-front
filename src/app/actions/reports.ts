@@ -77,8 +77,9 @@ export async function listReportsAction(
     if (response.error) {
         return { data: null, error: response.error.message };
     }
+    const reports = response.data?.reports ?? [];
     return {
-        data: { reports: response.data?.reports ?? [], total: response.data?.total ?? 0 },
+        data: { reports, total: response.data?.total ?? reports.length },
         error: null,
     };
 }

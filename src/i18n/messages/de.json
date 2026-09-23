@@ -8750,6 +8750,24 @@
         "source_unavailable": "Die Datenquelle hat nicht geantwortet. Versuche es erneut.",
         "cancelled": "Die Erstellung wurde abgebrochen.",
         "workspace_required": "Wähle einen Workspace, bevor du exportierst."
+      },
+      "queuedTitle": "Bericht in der Warteschlange",
+      "queuedBody": "Wir erstellen die Datei. Sie lädt von selbst herunter, sobald sie fertig ist, und bleibt unter Berichte gespeichert.",
+      "truncated": "{shown} von {total} Zeilen. Die CSV enthält den ganzen Zeitraum.",
+      "rowTotal": "{total} Zeilen",
+      "format": {
+        "csv": {
+          "label": "CSV (Tabelle)",
+          "hint": "Alle Zeilen des Zeitraums, für Excel."
+        },
+        "xlsx": {
+          "label": "Excel (.xlsx)",
+          "hint": "Alle Zeilen des Zeitraums, bereits formatiert."
+        },
+        "pdf": {
+          "label": "PDF (Bericht)",
+          "hint": "Der Bericht mit seinen Diagrammen, fertig zum Senden."
+        }
       }
     },
     "attendance": {
@@ -9258,6 +9276,13 @@
           "origin": "Aus welcher Kampagne, Nummer oder welchem Konto die Rückstandskonversationen stammen.",
           "returning": "Ob dieser Kontakt auf diesem Kanal schon eine abgeschlossene Konversation hatte.",
           "tenure": "Wie lange der Kontakt in Ihrer Basis existiert, nicht die Konversation."
+        },
+        "category": {
+          "volume": "Volumen",
+          "timing": "Zeiten",
+          "quality": "Qualität",
+          "revenue": "Umsatz",
+          "other": "Sonstige"
         }
       }
     }
@@ -9511,7 +9536,10 @@
       "workflowSearch": "Automatisierungen suchen...",
       "workflowEmpty": "Keine Automatisierungen gefunden.",
       "enableRequiresWorkflow": "Wählen Sie einen Automatisierung, um die Automatisierung zu aktivieren.",
-      "activeNoteWorkflow": "Neue Direktnachrichten lösen diesen Automatisierung aus, innerhalb des 24-Stunden-Fensters von Instagram. WhatsApp-Vorlagen- und Button-Knoten werden auf diesem Kanal übersprungen."
+      "activeNoteWorkflow": "Neue Direktnachrichten lösen diesen Automatisierung aus, innerhalb des 24-Stunden-Fensters von Instagram. WhatsApp-Vorlagen- und Button-Knoten werden auf diesem Kanal übersprungen.",
+      "pipelineLabel": "Funnel für diesen Kanal",
+      "pipelineHint": "Gespräche aus diesem Kanal landen in diesem Funnel, in seiner ersten Stufe.",
+      "pipelineDefault": "Standard-Funnel des Workspace"
     },
     "commentRules": {
       "title": "Kommentar-Automatisierung",
@@ -10419,7 +10447,10 @@
       "activeNoteWorkflow": "Neue Nachrichten lösen diesen Automatisierung aus. WhatsApp-Vorlagen- und Button-Knoten werden auf diesem Kanal ignoriert.",
       "agent": "Agent",
       "workflow": "Automatisierung",
-      "none": "Manuell"
+      "none": "Manuell",
+      "pipelineLabel": "Funnel für diesen Kanal",
+      "pipelineHint": "Gespräche aus diesem Kanal landen in diesem Funnel, in seiner ersten Stufe.",
+      "pipelineDefault": "Standard-Funnel des Workspace"
     },
     "business": {
       "title": "Business-Konto (optional)",
@@ -10659,7 +10690,10 @@
       "saved": "Gespeichert",
       "saveFailed": "Speichern fehlgeschlagen. Bitte erneut versuchen.",
       "activeNote": "Neue Nachrichten werden von diesem Agenten beantwortet. Auf diesem Kanal gibt es kein 24-Stunden-Fenster, aber Antworten gehen nur raus, solange die Sitzung verbunden ist, und sie halten sich an Intervall und Tageslimit unter Nummernschutz.",
-      "activeNoteWorkflow": "Neue Nachrichten lösen diesen Workflow aus. Vorlagen- und Button-Knoten der offiziellen API werden auf diesem Kanal ignoriert."
+      "activeNoteWorkflow": "Neue Nachrichten lösen diesen Workflow aus. Vorlagen- und Button-Knoten der offiziellen API werden auf diesem Kanal ignoriert.",
+      "pipelineLabel": "Funnel für diesen Kanal",
+      "pipelineHint": "Gespräche aus diesem Kanal landen in diesem Funnel, in seiner ersten Stufe.",
+      "pipelineDefault": "Standard-Funnel des Workspace"
     },
     "safety": {
       "title": "Number protection",

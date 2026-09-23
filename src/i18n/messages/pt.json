@@ -9880,6 +9880,24 @@
         "source_unavailable": "A fonte dos dados não respondeu. Tente de novo.",
         "cancelled": "A geração foi cancelada.",
         "workspace_required": "Escolha um workspace antes de exportar."
+      },
+      "queuedTitle": "Relatório na fila",
+      "queuedBody": "Estamos gerando o arquivo. Ele baixa sozinho quando ficar pronto, e fica guardado em Relatórios.",
+      "truncated": "{shown} de {total} linhas. O CSV traz o período inteiro.",
+      "rowTotal": "{total} linhas",
+      "format": {
+        "csv": {
+          "label": "CSV (planilha)",
+          "hint": "Todas as linhas do período, para abrir no Excel."
+        },
+        "xlsx": {
+          "label": "Excel (.xlsx)",
+          "hint": "Todas as linhas do período, já formatadas."
+        },
+        "pdf": {
+          "label": "PDF (relatório)",
+          "hint": "O relatório com os gráficos, pronto para enviar."
+        }
       }
     },
     "attendance": {
@@ -10388,6 +10406,13 @@
           "origin": "De qual campanha, número ou conta vieram as conversas que ficaram na fila.",
           "returning": "Se este contato já teve uma conversa encerrada antes neste canal.",
           "tenure": "Há quanto tempo o contato existe na sua base, não a conversa."
+        },
+        "category": {
+          "volume": "Volume",
+          "timing": "Tempos",
+          "quality": "Qualidade",
+          "revenue": "Receita",
+          "other": "Outros"
         }
       }
     }
@@ -10641,7 +10666,10 @@
       "workflowSearch": "Buscar automação...",
       "workflowEmpty": "Nenhum automação encontrado.",
       "enableRequiresWorkflow": "Selecione um automação para ativar a automação.",
-      "activeNoteWorkflow": "Novas mensagens diretas dispararão este automação, respeitando a janela de 24 horas do Instagram. Nós de template e botões do WhatsApp são ignorados neste canal."
+      "activeNoteWorkflow": "Novas mensagens diretas dispararão este automação, respeitando a janela de 24 horas do Instagram. Nós de template e botões do WhatsApp são ignorados neste canal.",
+      "pipelineLabel": "Funil deste canal",
+      "pipelineHint": "As conversas deste canal entram neste funil e na etapa inicial dele.",
+      "pipelineDefault": "Funil padrão do workspace"
     },
     "commentRules": {
       "title": "Automação de comentários",
@@ -11549,7 +11577,10 @@
       "activeNoteWorkflow": "Novas mensagens dispararão este automação. Nós de template e botões do WhatsApp são ignorados neste canal.",
       "agent": "Agente",
       "workflow": "Automação",
-      "none": "Manual"
+      "none": "Manual",
+      "pipelineLabel": "Funil deste canal",
+      "pipelineHint": "As conversas deste canal entram neste funil e na etapa inicial dele.",
+      "pipelineDefault": "Funil padrão do workspace"
     },
     "business": {
       "title": "Conta Business (opcional)",
@@ -11727,7 +11758,10 @@
       "saved": "Salvo",
       "saveFailed": "Não foi possível salvar. Tente novamente.",
       "activeNote": "Novas mensagens serão respondidas por este agente. Não há janela de 24 horas neste canal, mas as respostas só saem enquanto a sessão estiver conectada, e respeitam o intervalo e o limite diário definidos em Proteção do número.",
-      "activeNoteWorkflow": "Novas mensagens dispararão esta automação. Nós de template e botões da API oficial são ignorados neste canal."
+      "activeNoteWorkflow": "Novas mensagens dispararão esta automação. Nós de template e botões da API oficial são ignorados neste canal.",
+      "pipelineLabel": "Funil deste canal",
+      "pipelineHint": "As conversas deste canal entram neste funil e na etapa inicial dele.",
+      "pipelineDefault": "Funil padrão do workspace"
     },
     "safety": {
       "title": "Proteção do número",

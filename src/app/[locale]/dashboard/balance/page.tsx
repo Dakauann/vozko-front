@@ -7,7 +7,6 @@ import {
   Calendar,
   Clock,
   CurrencyDollar,
-  DownloadSimple,
   FunnelSimple,
   Lightning,
   Phone,
@@ -30,8 +29,6 @@ import {
   getMyBalanceAction,
   listMyTransactionsAction,
 } from "@/app/actions/balance";
-import { openScoped } from "@/lib/browser/scoped-download-url";
-import { getApiBaseUrl } from "@/lib/api/browser-client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
@@ -39,16 +36,16 @@ import {
   DashboardTable,
   type DashboardTableColumn,
 } from "@/components/elevated-design/table/dashboard-table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { format, startOfMonth, subDays } from "date-fns";
 import { getExchangeRateAction } from "@/app/actions/pricing";
 import { useLocale, useTranslations } from "next-intl";
+import { ExportMenu } from "@/components/reports/export-menu";
+import { useReportJob } from "@/hooks/use-report-job";
+import { useToast } from "@/hooks/use-toast";
+import type { BalanceReportParams, ReportFormat } from "@/lib/reports/types";
+
+const BALANCE_EXPORT_FORMATS: readonly ReportFormat[] = ["csv", "xlsx", "pdf"];
 
 
 type DatePreset =
@@ -157,7 +154,14 @@ function serviceLabelKeyFor(row: { service_type: string; reference_id?: string }
 
 export default function BalancePage() {
   const t = useTranslations("balancePage");
+  const texp = useTranslations("metricsOps.export");
   const locale = useLocale();
+  const { toast } = useToast();
+  const { running: exporting, request: requestReport } = useReportJob({
+    onQueued: () => {
+      toast({ title: texp("queuedTitle"), description: texp("queuedBody") });
+    },
+  });
 
   const [summary, setSummary] = useState<BalanceSummary | null>(null);
   const [loadingSummary, setLoadingSummary] = useState(true);
@@ -210,18 +214,33 @@ export default function BalancePage() {
   }, []);
 
   const handleExport = useCallback(
-    (format: "csv" | "xlsx") => {
-      const params = new URLSearchParams();
-      params.set("format", format);
-      if (typeFilter !== "all") params.set("type", typeFilter);
-      if (serviceFilter !== "all") params.set("serviceType", serviceFilter);
-      if (dateRange.start)
-        params.set("startDate", dateRange.start.toISOString());
-      params.set("endDate", dateRange.end.toISOString());
-      const qs = params.toString();
-      openScoped(`${getApiBaseUrl()}/user/balance/transactions/export?${qs}`);
+    async (format: ReportFormat) => {
+      const outcome = await requestReport({
+        kind: "balance_transactions",
+        format,
+        locale,
+        params: {
+          type: typeFilter === "all" ? undefined : typeFilter,
+          serviceType: serviceFilter === "all" ? undefined : serviceFilter,
+          startDate: dateRange.start?.toISOString(),
+          endDate: dateRange.end.toISOString(),
+        } satisfies BalanceReportParams,
+      });
+
+      if (outcome.status === "done") {
+        toast({ title: texp("ready") });
+        return;
+      }
+      toast({
+        title: texp("failed"),
+        description:
+          outcome.status === "failed"
+            ? texp(`failure.${outcome.job.failureCode ?? "render_failed"}`)
+            : outcome.error,
+        variant: "destructive",
+      });
     },
-    [typeFilter, serviceFilter, dateRange],
+    [typeFilter, serviceFilter, dateRange, requestReport, locale, texp, toast],
   );
 
   useEffect(() => {
@@ -560,22 +579,11 @@ export default function BalancePage() {
                     </ElevatedSelectItem>
                   </ElevatedSelect>
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors">
-                        <DownloadSimple className="h-3.5 w-3.5" weight="bold" />
-                        {t("export.label")}
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleExport("csv")}>
-                        {t("export.csv")}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleExport("xlsx")}>
-                        {t("export.xlsx")}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <ExportMenu
+                    formats={BALANCE_EXPORT_FORMATS}
+                    onSelect={(format) => void handleExport(format)}
+                    busy={exporting}
+                  />
                 </div>
               </div>
 

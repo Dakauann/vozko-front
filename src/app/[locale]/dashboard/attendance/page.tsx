@@ -4,24 +4,31 @@ import {
   ArrowClockwise,
   Buildings,
   ChartBar,
+  ChartLineUp,
   ChartPie,
+  ChatsCircle,
   CheckCircle,
   Clock,
-  DownloadSimple,
+  ClockCounterClockwise,
   FlowArrow,
   Headset,
   Hourglass,
   Kanban,
   Lightning,
+  CurrencyDollar,
+  PaperPlaneTilt,
   PhoneIncoming,
   Pulse,
   Robot,
+  SealCheck,
   Stack,
+  Target,
   Timer,
   TrendUp,
   UserCircle,
   UserMinus,
   Users,
+  UsersThree,
   WhatsappLogo,
 } from "@/components/icons";
 import { GLYPH_PLATE } from "@/components/icons/glyph-plates";
@@ -88,7 +95,8 @@ import type {
 import { getAttendanceOverviewAction } from "@/app/actions/attendance";
 import { useReportJob } from "@/hooks/use-report-job";
 import { useToast } from "@/hooks/use-toast";
-import type { AttendanceReportParams } from "@/lib/reports/types";
+import type { AttendanceReportParams, ReportFormat } from "@/lib/reports/types";
+import { ExportMenu } from "@/components/reports/export-menu";
 import { listMembersAction } from "@/app/actions/workspace";
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
@@ -133,7 +141,8 @@ import {
   TrendSection,
 } from "@/components/dashboard/attendance/executive-panels";
 import { TargetsDialog } from "@/components/dashboard/attendance/targets-dialog";
-import { Target } from "@/components/icons";
+
+const ATTENDANCE_EXPORT_FORMATS: readonly ReportFormat[] = ["csv", "pdf"];
 
 type DatePreset = "7d" | "30d" | "90d" | "custom";
 
@@ -392,7 +401,12 @@ function ExtendedOpsPanels({
   return (
     <div className="space-y-3">
       <div>
-        <SectionLabel title={ts("times")} subtitle={ts("timesSub")} />
+        <SectionLabel
+              icon={<Timer className="h-4 w-4" weight="fill" />}
+              iconBg={GLYPH_PLATE.Timer}
+              title={ts("times")}
+              subtitle={ts("timesSub")}
+            />
         <div className="grid gap-3 xl:grid-cols-12">
           <Surface className="xl:col-span-6">
             <SectionTitle
@@ -560,7 +574,12 @@ function ExtendedOpsPanels({
       <div className="grid items-start gap-3 xl:grid-cols-3">
       {}
       <div>
-        <SectionLabel title={ts("templates")} subtitle={ts("templatesSub")} />
+        <SectionLabel
+              icon={<PaperPlaneTilt className="h-4 w-4" weight="fill" />}
+              iconBg={GLYPH_PLATE.PaperPlaneTilt}
+              title={ts("templates")}
+              subtitle={ts("templatesSub")}
+            />
         <Surface>
           <SectionTitle
             icon={<WhatsappLogo className="h-4 w-4" weight="fill" />}
@@ -626,7 +645,12 @@ function ExtendedOpsPanels({
       </div>
 
       <div>
-        <SectionLabel title={ts("channels")} subtitle={ts("channelsSub")} />
+        <SectionLabel
+              icon={<ChatsCircle className="h-4 w-4" weight="fill" />}
+              iconBg={GLYPH_PLATE.ChatsCircle}
+              title={ts("channels")}
+              subtitle={ts("channelsSub")}
+            />
         <Surface>
           <SectionTitle
             icon={<ChartPie className="h-4 w-4" weight="fill" />}
@@ -639,7 +663,12 @@ function ExtendedOpsPanels({
       </div>
 
       <div>
-        <SectionLabel title={ts("ai")} subtitle={ts("aiSub")} />
+        <SectionLabel
+              icon={<Robot className="h-4 w-4" weight="fill" />}
+              iconBg={GLYPH_PLATE.Robot}
+              title={ts("ai")}
+              subtitle={ts("aiSub")}
+            />
         <Surface>
           <SectionTitle
             icon={<Robot className="h-4 w-4" weight="fill" />}
@@ -2108,7 +2137,12 @@ function StageDistributionSection({
 
   return (
     <div>
-      <SectionLabel title={ts("stages")} subtitle={ts("stagesSub")} />
+      <SectionLabel
+              icon={<Kanban className="h-4 w-4" weight="fill" />}
+              iconBg={GLYPH_PLATE.Kanban}
+              title={ts("stages")}
+              subtitle={ts("stagesSub")}
+            />
       <div className="grid gap-3 xl:grid-cols-12">
         <Surface className="xl:col-span-4">
           <SectionTitle
@@ -2174,8 +2208,12 @@ export default function AttendanceOpsPage() {
   const tl = useTranslations("metricsOps.attendance.labels");
   const tg = useTranslations("metricsOps.attendance.glossary");
   const texp = useTranslations("metricsOps.export");
-  const { running: exporting, request: requestReport } = useReportJob();
   const { toast } = useToast();
+  const { running: exporting, request: requestReport } = useReportJob({
+    onQueued: () => {
+      toast({ title: texp("queuedTitle"), description: texp("queuedBody") });
+    },
+  });
   const te = useTranslations("metricsOps.attendance.executive");
   const actorKindLabel = useActorKindLabel();
   const presenceLabel = usePresenceLabel();
@@ -2283,11 +2321,11 @@ export default function AttendanceOpsPage() {
     void load();
   }, [permissionsLoading, load]);
 
-  const exportCsv = useCallback(async () => {
+  const exportReport = useCallback(async (format: ReportFormat) => {
     if (!overview) return;
     const outcome = await requestReport({
       kind: "attendance_overview",
-      format: "csv",
+      format,
       locale,
       params: {
         dateFrom,
@@ -2391,18 +2429,12 @@ export default function AttendanceOpsPage() {
                   <span className="max-sm:sr-only">{te("targetsTitle")}</span>
                 </Button>
               ) : null}
-              <Button
-                icon={<DownloadSimple className="h-4 w-4" weight="bold" />}
-                iconVisible
-                title={texp("button")}
-                variant="command"
-                onClick={() => void exportCsv()}
-                disabled={loading || exporting || !overview}
-              >
-                <span className="max-sm:sr-only">
-                  {exporting ? texp("preparing") : texp("button")}
-                </span>
-              </Button>
+              <ExportMenu
+                formats={ATTENDANCE_EXPORT_FORMATS}
+                onSelect={(format) => void exportReport(format)}
+                busy={exporting}
+                disabled={loading || !overview}
+              />
               <Button
                 icon={<ArrowClockwise className="h-4 w-4" weight="bold" />}
                 iconVisible
@@ -2616,7 +2648,12 @@ export default function AttendanceOpsPage() {
       ) : (
         <>
           <div>
-            <SectionLabel title={ts("volume")} subtitle={ts("volumeSub")} />
+            <SectionLabel
+              icon={<ChartBar className="h-4 w-4" weight="fill" />}
+              iconBg={GLYPH_PLATE.ChartBar}
+              title={ts("volume")}
+              subtitle={ts("volumeSub")}
+            />
             <div className="grid gap-3 xl:grid-cols-12">
               <Surface className="xl:col-span-7">
                 <SectionTitle
@@ -2648,7 +2685,12 @@ export default function AttendanceOpsPage() {
           </div>
 
           <div>
-            <SectionLabel title={ts("tactical")} subtitle={ts("tacticalSub")} />
+            <SectionLabel
+              icon={<Target className="h-4 w-4" weight="fill" />}
+              iconBg={GLYPH_PLATE.Target}
+              title={ts("tactical")}
+              subtitle={ts("tacticalSub")}
+            />
             <div className="space-y-3">
               <PeriodProgressStrip
                 period={overview?.period}
@@ -2672,7 +2714,12 @@ export default function AttendanceOpsPage() {
           </div>
 
           <div>
-            <SectionLabel title={ts("money")} subtitle={ts("moneySub")} />
+            <SectionLabel
+              icon={<CurrencyDollar className="h-4 w-4" weight="fill" />}
+              iconBg={GLYPH_PLATE.CurrencyDollar}
+              title={ts("money")}
+              subtitle={ts("moneySub")}
+            />
             <RevenueCard
               revenue={overview?.revenue}
               loading={loading}
@@ -2681,7 +2728,12 @@ export default function AttendanceOpsPage() {
           </div>
 
           <div>
-            <SectionLabel title={ts("history")} subtitle={ts("historySub")} />
+            <SectionLabel
+              icon={<ChartLineUp className="h-4 w-4" weight="fill" />}
+              iconBg={GLYPH_PLATE.ChartLineUp}
+              title={ts("history")}
+              subtitle={ts("historySub")}
+            />
             <TrendSection
               trend={overview?.trend}
               loading={loading}
@@ -2691,7 +2743,12 @@ export default function AttendanceOpsPage() {
           </div>
 
           <div>
-            <SectionLabel title={ts("backlog")} subtitle={ts("backlogSub")} />
+            <SectionLabel
+              icon={<Hourglass className="h-4 w-4" weight="fill" />}
+              iconBg={GLYPH_PLATE.Hourglass}
+              title={ts("backlog")}
+              subtitle={ts("backlogSub")}
+            />
             <BacklogXraySection
               backlog={overview?.backlog_xray}
               loading={loading}
@@ -2746,7 +2803,12 @@ export default function AttendanceOpsPage() {
           </div>
 
           <div>
-            <SectionLabel title={ts("quality")} subtitle={ts("qualitySub")} />
+            <SectionLabel
+              icon={<SealCheck className="h-4 w-4" weight="fill" />}
+              iconBg={GLYPH_PLATE.SealCheck}
+              title={ts("quality")}
+              subtitle={ts("qualitySub")}
+            />
             <QualitySection
               quality={overview?.quality}
               loading={loading}
@@ -2760,7 +2822,12 @@ export default function AttendanceOpsPage() {
           </div>
 
           <div>
-            <SectionLabel title={ts("rework")} subtitle={ts("reworkSub")} />
+            <SectionLabel
+              icon={<ClockCounterClockwise className="h-4 w-4" weight="fill" />}
+              iconBg={GLYPH_PLATE.ClockCounterClockwise}
+              title={ts("rework")}
+              subtitle={ts("reworkSub")}
+            />
             <ReworkSection
               rework={overview?.rework}
               loading={loading}
@@ -2769,7 +2836,12 @@ export default function AttendanceOpsPage() {
           </div>
 
           <div>
-            <SectionLabel title={ts("teamXray")} subtitle={ts("teamXraySub")} />
+            <SectionLabel
+              icon={<Pulse className="h-4 w-4" weight="fill" />}
+              iconBg={GLYPH_PLATE.Pulse}
+              title={ts("teamXray")}
+              subtitle={ts("teamXraySub")}
+            />
             <TeamRankingTable
               ranking={overview?.team_ranking}
               loading={loading}
@@ -2780,7 +2852,12 @@ export default function AttendanceOpsPage() {
           </div>
 
           <div>
-            <SectionLabel title={ts("team")} subtitle={ts("teamSub")} />
+            <SectionLabel
+              icon={<UsersThree className="h-4 w-4" weight="fill" />}
+              iconBg={GLYPH_PLATE.UsersThree}
+              title={ts("team")}
+              subtitle={ts("teamSub")}
+            />
             <div className="grid gap-3 xl:grid-cols-12">
               <Surface className="xl:col-span-5">
                 <SectionTitle

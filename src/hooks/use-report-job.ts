@@ -26,10 +26,18 @@ export type ReportRequestOutcome =
 
 interface UseReportJobOptions {
     autoDownload?: boolean;
+
+    onQueued?: (job: ReportJob) => void;
 }
 
 export function useReportJob(options: UseReportJobOptions = {}) {
     const autoDownload = options.autoDownload ?? true;
+
+    const onQueued = useRef(options.onQueued);
+
+    useEffect(() => {
+        onQueued.current = options.onQueued;
+    }, [options.onQueued]);
 
     const [job, setJob] = useState<ReportJob | null>(null);
     const [running, setRunning] = useState(false);
@@ -127,6 +135,9 @@ export function useReportJob(options: UseReportJobOptions = {}) {
     const settle = useCallback(
         async (job: ReportJob): Promise<ReportRequestOutcome> => {
             if (!cancelled.current) setJob(job);
+            if (!isTerminalReportStatus(job.status)) {
+                onQueued.current?.(job);
+            }
 
             const outcome = isTerminalReportStatus(job.status)
                 ? job.status === "done"
@@ -184,5 +195,5 @@ export function useReportJob(options: UseReportJobOptions = {}) {
         [clearTimer, settle],
     );
 
-    return { job, running, error, request, track, wait, download };
+    return { job, running, error, request, track, download };
 }

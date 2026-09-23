@@ -166,21 +166,37 @@ export function SectionTitle({
 }
 
 export function SectionLabel({
+  icon,
+  iconBg,
   title,
   subtitle,
 }: {
+  icon?: ReactNode;
+  iconBg?: string;
   title: string;
   subtitle?: string;
 }) {
   return (
     <div className="mb-2 flex items-end justify-between gap-3">
-      <div>
-        <h2 className="text-sm font-semibold tracking-tight text-foreground">
-          {title}
-        </h2>
-        {subtitle ? (
-          <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
+      <div className="flex min-w-0 items-start gap-2.5">
+        {icon ? (
+          <div
+            className={cn(
+              "flex h-7 w-7 shrink-0 items-center justify-center rounded-[--radius]",
+              iconBg,
+            )}
+          >
+            {icon}
+          </div>
         ) : null}
+        <div className="min-w-0">
+          <h2 className="text-sm font-semibold tracking-tight text-foreground">
+            {title}
+          </h2>
+          {subtitle ? (
+            <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
+          ) : null}
+        </div>
       </div>
     </div>
   );

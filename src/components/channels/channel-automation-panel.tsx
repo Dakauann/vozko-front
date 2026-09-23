@@ -13,6 +13,12 @@ import type { AgentListItem } from "@/lib/agents/types";
 import type { Workflow } from "@/lib/workflows/types";
 import { cn } from "@/lib/utils";
 import { getAgentByIdAction, listAgentsAction } from "@/app/actions/agents";
+import { listPipelinesAction } from "@/app/actions/crm-board";
+import {
+  ElevatedSelect,
+  ElevatedSelectItem,
+} from "@/components/elevated-design/elevated-select";
+import type { Pipeline } from "@/lib/crm/pipelines";
 import { getWorkflowAction, listWorkflowsAction } from "@/app/actions/workflows";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import { useTranslations } from "next-intl";
@@ -29,11 +35,13 @@ export interface ChannelAutomationAccount {
   enableAnalysis?: boolean;
   enableAutoStaging?: boolean;
   enableAutoMemory?: boolean;
+  pipelineId?: string | null;
 }
 
 export interface ChannelAutomationPayload {
   agentId?: string | null;
   workflowId?: string | null;
+  pipelineId?: string | null;
   enableAgentResponses?: boolean;
   enableWorkflow?: boolean;
   enableAnalysis?: boolean;
@@ -70,6 +78,8 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
   );
   const [agentId, setAgentId] = useState<string | null>(account.agentId ?? null);
   const [workflowId, setWorkflowId] = useState<string | null>(account.workflowId ?? null);
+  const [pipelineId, setPipelineId] = useState<string | null>(account.pipelineId ?? null);
+  const [pipelines, setPipelines] = useState<Pipeline[]>([]);
   const [enabled, setEnabled] = useState(
     account.enableWorkflow || account.enableAgentResponses,
   );
@@ -111,6 +121,16 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
       [],
     ),
   });
+
+  useEffect(() => {
+    let active = true;
+    void listPipelinesAction("conversation").then((result) => {
+      if (active) setPipelines(result.pipelines);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const [resolvedAgent, setResolvedAgent] = useState<{ id: string; name: string } | null>(null);
   const [resolvedWorkflow, setResolvedWorkflow] = useState<{ id: string; name: string } | null>(
@@ -226,6 +246,11 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
   const handleHandlingChange = (key: HandlingKey, next: boolean) => {
     setHandling((current) => ({ ...current, [key]: next }));
     void save({ [key]: next });
+  };
+
+  const handlePipelineChange = (next: string) => {
+    setPipelineId(next);
+    void save({ pipelineId: next });
   };
 
   const active = enabled && !!selectedId;
@@ -363,6 +388,27 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
             aria-label={t("enableLabel")}
           />
         </div>
+
+        {pipelines.length > 0 ? (
+          <div className="space-y-1.5 border-t border-border pt-4">
+            <label htmlFor={`${controlId}-pipeline`} className="text-sm text-foreground">
+              {t("pipelineLabel")}
+            </label>
+            <p className="text-xs text-muted-foreground">{t("pipelineHint")}</p>
+            <ElevatedSelect
+              value={pipelineId ?? ""}
+              onValueChange={(next: string) => handlePipelineChange(next)}
+              disabled={saving}
+            >
+              <ElevatedSelectItem value="">{t("pipelineDefault")}</ElevatedSelectItem>
+              {pipelines.map((pipeline) => (
+                <ElevatedSelectItem key={pipeline.id} value={pipeline.id}>
+                  {pipeline.name}
+                </ElevatedSelectItem>
+              ))}
+            </ElevatedSelect>
+          </div>
+        ) : null}
 
         {
 }

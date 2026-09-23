@@ -3,9 +3,9 @@
 import { Fragment, useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import {
+  Area,
+  AreaChart,
   CartesianGrid,
-  Line,
-  LineChart,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -32,7 +32,14 @@ import type {
   XrayDimension,
 } from "@/lib/attendance/types";
 
-import { Meter, vozGrid, vozXAxis, vozYAxis } from "@/components/charts/vozko";
+import {
+  Meter,
+  VozAreaGradient,
+  vozGrid,
+  vozLineMark,
+  vozXAxis,
+  vozYAxis,
+} from "@/components/charts/vozko";
 import {
   ChartSkeleton,
   Surface,
@@ -371,6 +378,7 @@ function TrendChart({
   }, [series.points]);
 
   const label = te(`metric.${series.metric_key}`);
+  const gradientId = `trend-${series.metric_key}`;
 
   return (
     <Surface>
@@ -425,7 +433,10 @@ function TrendChart({
       ) : (
         <div style={{ height: 180 }}>
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
+            <AreaChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
+              <defs>
+                <VozAreaGradient id={gradientId} color="hsl(var(--chart-1))" />
+              </defs>
               <CartesianGrid {...vozGrid} vertical={false} />
               <XAxis dataKey="bucket" {...vozXAxis} />
               <YAxis {...vozYAxis} width={52} />
@@ -437,6 +448,11 @@ function TrendChart({
                 />
               ) : null}
               <Tooltip
+                cursor={{
+                  stroke: "hsl(var(--muted-foreground))",
+                  strokeWidth: 1,
+                  strokeDasharray: "3 3",
+                }}
                 content={({ active, payload, label: bucket }) => {
                   if (!active || !payload?.length) return null;
                   return (
@@ -464,26 +480,26 @@ function TrendChart({
                   );
                 }}
               />
-              <Line
+              <Area
                 type="monotone"
                 dataKey="actual"
                 stroke="hsl(var(--chart-1))"
-                strokeWidth={2}
-                dot={{ r: 2 }}
+                fill={`url(#voz-fill-${gradientId})`}
                 connectNulls
                 isAnimationActive={false}
+                {...vozLineMark}
               />
-              <Line
+              <Area
                 type="monotone"
                 dataKey="projected"
                 stroke="hsl(var(--chart-1))"
-                strokeWidth={2}
                 strokeDasharray="4 3"
-                dot={{ r: 4, fill: "hsl(var(--card))" }}
+                fill="none"
                 connectNulls
                 isAnimationActive={false}
+                {...vozLineMark}
               />
-            </LineChart>
+            </AreaChart>
           </ResponsiveContainer>
         </div>
       )}

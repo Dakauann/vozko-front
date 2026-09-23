@@ -8,7 +8,12 @@ import type {
   AttendanceTarget,
   TargetScope,
 } from "@/lib/attendance/targets/types";
-import type { MetricProjection, MetricSpec } from "@/lib/attendance/types";
+import {
+  METRIC_CATEGORY_ORDER,
+  type MetricCategory,
+  type MetricProjection,
+  type MetricSpec,
+} from "@/lib/attendance/types";
 
 import {
   deleteAttendanceTargetAction,
@@ -60,6 +65,23 @@ async function fetchSnapshot(period: string): Promise<Snapshot> {
     targets: targetsResult.targets,
     error: metricsResult.error ?? targetsResult.error,
   };
+}
+
+function isSpec(spec: MetricSpec | undefined): spec is MetricSpec {
+  return spec !== undefined;
+}
+
+function groupByCategory(specs: MetricSpec[]): [MetricCategory, MetricSpec[]][] {
+  const groups = new Map<MetricCategory, MetricSpec[]>();
+  for (const spec of specs) {
+    const category = spec.category ?? "other";
+    const bucket = groups.get(category);
+    if (bucket) bucket.push(spec);
+    else groups.set(category, [spec]);
+  }
+  return Array.from(groups.entries()).sort(
+    ([a], [b]) => METRIC_CATEGORY_ORDER.indexOf(a) - METRIC_CATEGORY_ORDER.indexOf(b),
+  );
 }
 
 function storedToInput(spec: MetricSpec, target: AttendanceTarget): string {
@@ -159,6 +181,16 @@ export function TargetsDialog({
         return te(`metric.${spec.key}`).toLowerCase().includes(term);
       });
   }, [snapshot, goalKeys, search, te]);
+
+  const availableByCategory = useMemo(
+    () => groupByCategory(availableMetrics),
+    [availableMetrics],
+  );
+
+  const goalsByCategory = useMemo(
+    () => groupByCategory(goalKeys.map((key) => specByKey.get(key)).filter(isSpec)),
+    [goalKeys, specByKey],
+  );
 
   const valueFor = useCallback(
     (key: string) => {
@@ -313,10 +345,14 @@ export function TargetsDialog({
                 </div>
               ) : null}
 
-              <ul className="space-y-2">
-                {goalKeys.map((key) => {
-                  const spec = specByKey.get(key);
-                  if (!spec) return null;
+              {goalsByCategory.map(([category, specs]) => (
+                <section key={category} className="space-y-1.5">
+                  <p className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {te(`category.${category}`)}
+                  </p>
+                  <ul className="space-y-2">
+                {specs.map((spec) => {
+                  const key = spec.key;
                   const projection = actualByKey.get(key);
                   const value = valueFor(key);
                   const numericTarget = value === "" ? null : inputToStored(spec, value);
@@ -403,7 +439,9 @@ export function TargetsDialog({
                     </li>
                   );
                 })}
-              </ul>
+                  </ul>
+                </section>
+              ))}
 
               {picking ? (
                 <div className="rounded-[--radius] border border-border px-3 py-2.5">
@@ -424,24 +462,33 @@ export function TargetsDialog({
                       {te("allMetricsUsed")}
                     </p>
                   ) : (
-                    <ul className="mt-2 max-h-52 space-y-1 overflow-y-auto">
-                      {availableMetrics.map((spec) => (
-                        <li key={spec.key}>
-                          <button
-                            type="button"
-                            onClick={() => addGoal(spec.key)}
-                            className="w-full rounded-[--radius] px-2 py-1.5 text-left transition-colors hover:bg-muted"
-                          >
-                            <span className="block text-sm text-foreground">
-                              {te(`metric.${spec.key}`)}
-                            </span>
-                            <span className="block text-2xs text-muted-foreground">
-                              {te(`metricHelp.${spec.key}`)}
-                            </span>
-                          </button>
-                        </li>
+                    <div className="mt-2 max-h-64 space-y-3 overflow-y-auto">
+                      {availableByCategory.map(([category, specs]) => (
+                        <section key={category}>
+                          <p className="px-2 pb-1 text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
+                            {te(`category.${category}`)}
+                          </p>
+                          <ul className="space-y-1">
+                            {specs.map((spec) => (
+                              <li key={spec.key}>
+                                <button
+                                  type="button"
+                                  onClick={() => addGoal(spec.key)}
+                                  className="w-full rounded-[--radius] px-2 py-1.5 text-left transition-colors hover:bg-muted"
+                                >
+                                  <span className="block text-sm text-foreground">
+                                    {te(`metric.${spec.key}`)}
+                                  </span>
+                                  <span className="block text-2xs text-muted-foreground">
+                                    {te(`metricHelp.${spec.key}`)}
+                                  </span>
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </section>
                       ))}
-                    </ul>
+                    </div>
                   )}
                   <div className="mt-2 flex justify-end">
                     <Button

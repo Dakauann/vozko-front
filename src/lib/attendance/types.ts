@@ -340,12 +340,23 @@ export type MetricKind = "count" | "percent" | "minutes" | "money";
 
 export type MetricDirection = "higher" | "lower";
 
+export type MetricCategory = "volume" | "timing" | "quality" | "revenue" | "other";
+
+export const METRIC_CATEGORY_ORDER: readonly MetricCategory[] = [
+    "volume",
+    "timing",
+    "quality",
+    "revenue",
+    "other",
+];
+
 export interface MetricSpec {
     key: string;
     kind: MetricKind;
     direction: MetricDirection;
     cumulative: boolean;
     targetable: boolean;
+    category?: MetricCategory;
 }
 
 export interface OverviewPeriod {

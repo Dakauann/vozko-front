@@ -4,26 +4,26 @@ import Footer from "@/components/footer";
 import Navbar from "@/components/elevated-design/navbar";
 import { usePathname } from "next/navigation";
 
-const DASHBOARD_ROUTES = ["/dashboard"];
+const CHROMELESS_ROUTES = ["/dashboard", "/print"];
 
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  const isDashboardRoute = DASHBOARD_ROUTES.some((route) => {
+  const isChromeless = CHROMELESS_ROUTES.some((route) => {
     if (!pathname) return false;
 
     return (
       pathname === route ||
       pathname.startsWith(`${route}/`) ||
-      /^\/[a-z]{2}\/dashboard(\/|$)/.test(pathname)
+      new RegExp(`^/[a-z]{2}${route}(/|$)`).test(pathname)
     );
   });
 
   return (
     <>
-      {!isDashboardRoute && <Navbar />}
+      {!isChromeless && <Navbar />}
       {children}
-      {!isDashboardRoute && <Footer />}
+      {!isChromeless && <Footer />}
     </>
   );
 }

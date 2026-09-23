@@ -9829,6 +9829,24 @@
         "source_unavailable": "The data source did not respond. Try again.",
         "cancelled": "Generation was cancelled.",
         "workspace_required": "Pick a workspace before exporting."
+      },
+      "queuedTitle": "Report queued",
+      "queuedBody": "We are generating the file. It downloads on its own when it is ready, and it is kept under Reports.",
+      "truncated": "{shown} of {total} rows. The CSV carries the whole period.",
+      "rowTotal": "{total} rows",
+      "format": {
+        "csv": {
+          "label": "CSV (spreadsheet)",
+          "hint": "Every row in the period, to open in Excel."
+        },
+        "xlsx": {
+          "label": "Excel (.xlsx)",
+          "hint": "Every row in the period, already formatted."
+        },
+        "pdf": {
+          "label": "PDF (report)",
+          "hint": "The report with its charts, ready to send."
+        }
       }
     },
     "attendance": {
@@ -10337,6 +10355,13 @@
           "origin": "Which campaign, number or account the backlog conversations came from.",
           "returning": "Whether this contact already had a closed conversation on this channel.",
           "tenure": "How long the contact has existed in your base, not the conversation."
+        },
+        "category": {
+          "volume": "Volume",
+          "timing": "Response times",
+          "quality": "Quality",
+          "revenue": "Revenue",
+          "other": "Other"
         }
       }
     }
@@ -10590,7 +10615,10 @@
       "workflowSearch": "Search automations...",
       "workflowEmpty": "No automations found.",
       "enableRequiresWorkflow": "Select a automation to enable automation.",
-      "activeNoteWorkflow": "New direct messages will trigger this automation, within Instagram’s 24-hour window. WhatsApp template and button nodes are skipped on this channel."
+      "activeNoteWorkflow": "New direct messages will trigger this automation, within Instagram’s 24-hour window. WhatsApp template and button nodes are skipped on this channel.",
+      "pipelineLabel": "Funnel for this channel",
+      "pipelineHint": "Conversations from this channel enter this funnel, at its first stage.",
+      "pipelineDefault": "Workspace default funnel"
     },
     "commentRules": {
       "title": "Comment automation",
@@ -11498,7 +11526,10 @@
       "activeNoteWorkflow": "New messages will trigger this automation. WhatsApp template and button nodes are ignored on this channel.",
       "agent": "Agent",
       "workflow": "Automation",
-      "none": "Manual"
+      "none": "Manual",
+      "pipelineLabel": "Funnel for this channel",
+      "pipelineHint": "Conversations from this channel enter this funnel, at its first stage.",
+      "pipelineDefault": "Workspace default funnel"
     },
     "business": {
       "title": "Business account (optional)",
@@ -11676,7 +11707,10 @@
       "saved": "Saved",
       "saveFailed": "Could not save. Try again.",
       "activeNote": "New messages will be answered by this agent. There is no 24-hour window on this channel, but replies only go out while the session is connected, and they respect the interval and daily cap set under Number protection.",
-      "activeNoteWorkflow": "New messages will trigger this workflow. Template and button nodes from the official API are ignored on this channel."
+      "activeNoteWorkflow": "New messages will trigger this workflow. Template and button nodes from the official API are ignored on this channel.",
+      "pipelineLabel": "Funnel for this channel",
+      "pipelineHint": "Conversations from this channel enter this funnel, at its first stage.",
+      "pipelineDefault": "Workspace default funnel"
     },
     "safety": {
       "title": "Number protection",
