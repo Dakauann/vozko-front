@@ -261,7 +261,7 @@ export default function ReportsPage() {
         columns={columns}
         rowKey={(job) => job.id}
         toolbar={
-          <div className="flex flex-wrap items-end gap-2">
+          <div className="grid w-full grid-cols-1 items-end gap-2 sm:grid-cols-2 xl:grid-cols-4">
             <ElevatedSelect
               value={kind}
               onValueChange={(value) => {
