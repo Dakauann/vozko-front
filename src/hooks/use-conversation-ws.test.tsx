@@ -238,4 +238,31 @@ describe("useConversationWs entry defaults", () => {
     expect(entry?.lead_number).toBe("");
     expect(entry?.ai_handler).toEqual(sparseEntry.ai_handler);
   });
+
+  // Losing a conversation (reassigned to someone else, handed back to an agent)
+  // takes it off every list and closes it: the server stops sending its
+  // messages and would refuse a reply.
+  it("drops a conversation the user just lost everywhere, including the open pane", async () => {
+    const { hook, socket } = await openSocket();
+    await act(async () => {
+      socket.simulateMessage({ type: "conversation:inbox", payload: { entries: [sparseEntry], page: 1, total_pages: 1, total_items: 1 } });
+      socket.simulateMessage({ type: "conversation:search_results", payload: { entries: [sparseEntry], page: 1, total_pages: 1, total_items: 1 } });
+    });
+    await act(async () => {
+      hook.result.current.subscribe("e-1", "whatsapp");
+      socket.simulateMessage({
+        type: "conversation:subscribed",
+        payload: { entry_id: "e-1", entry_type: "whatsapp", messages: [], has_more: false, unread_count: 0, window_open: true, window_expires_at: null },
+      });
+    });
+    expect(hook.result.current.activeConversation?.entry_id).toBe("e-1");
+
+    await act(async () => {
+      socket.simulateMessage({ type: "conversation:entry_removed", payload: { entry_id: "e-1", entry_type: "whatsapp", reason: "assigned" } });
+    });
+
+    expect(hook.result.current.inbox).toHaveLength(0);
+    expect(hook.result.current.searchResults).toHaveLength(0);
+    expect(hook.result.current.activeConversation).toBeNull();
+  });
 });

@@ -31,7 +31,7 @@ export type ConversationEventType =
   | "call_linked"
   | string;
 
-export type ConversationActorKind = "human" | "ai" | "system" | string;
+export type ConversationActorKind = "human" | "ai" | "workflow" | "system" | string;
 
 export interface ConversationEvent {
   id: string;
@@ -88,8 +88,9 @@ export function normalizeActorKind(
   actorId: string,
 ): ConversationActorKind {
   const k = (kind ?? "").toLowerCase();
-  if (k === "human" || k === "ai" || k === "system") return k;
+  if (k === "human" || k === "ai" || k === "workflow" || k === "system") return k;
   if (actorId.startsWith("ai:")) return "ai";
+  if (actorId.startsWith("workflow:")) return "workflow";
   if (actorId === "system" || actorId === "") return "system";
   return "human";
 }
@@ -183,13 +184,13 @@ export function isHandoffEvent(type: string): boolean {
 }
 
 const UUID_LIKE =
-  /^(ai:)?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  /^(ai:|workflow:)?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function isDisplayableName(value: string | undefined | null): boolean {
   const v = (value ?? "").trim();
   if (!v) return false;
   if (UUID_LIKE.test(v)) return false;
-  if (/^ai:/i.test(v)) return false;
+  if (/^(ai|workflow):/i.test(v)) return false;
   if (/^[0-9a-f]{16,}$/i.test(v)) return false;
   return v !== "system";
 }

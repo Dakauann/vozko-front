@@ -134,3 +134,36 @@ describe("voice transfer targets", () => {
     expect(who.to).toBe("bruno");
   });
 });
+
+describe("workflow actors", () => {
+  const FLOW = "44444444-4444-4444-8444-444444444444";
+
+  it("names the workflow that handed a conversation off", () => {
+    const who = participants(
+      ev({
+        event_type: "assigned",
+        actor_id: `workflow:${FLOW}`,
+        actor_kind: "workflow",
+        actor_name: "Triagem",
+        from_name: "Triagem",
+        to_name: "ana",
+      }),
+    );
+    expect(who).toEqual({ actor: "Triagem", from: "Triagem", to: "ana" });
+  });
+
+  it("never prints a raw workflow id as a name", () => {
+    const who = participants(
+      ev({
+        event_type: "assigned",
+        actor_id: `workflow:${FLOW}`,
+        actor_kind: "workflow",
+        details: JSON.stringify({ from_user_id: `workflow:${FLOW}`, to_user_id: ANA }),
+      }),
+      { [ANA]: "ana", [`workflow:${FLOW}`]: `workflow:${FLOW}` },
+    );
+    expect(who.actor).toBeNull();
+    expect(who.from).toBeNull();
+    expect(who.to).toBe("ana");
+  });
+});

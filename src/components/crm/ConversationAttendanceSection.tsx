@@ -9,6 +9,7 @@ import {
   ChartBar,
   CheckCircle,
   ClockCounterClockwise,
+  FlowArrow,
   Phone,
   Queue,
   Robot,
@@ -27,6 +28,8 @@ import {
   type AssignableMember,
 } from "@/app/actions/workspace";
 import type { EntryType } from "@/lib/conversations/types";
+import { closeOutcomeLabel } from "@/lib/conversations/close-outcome";
+import { useOutcomeCapture } from "@/hooks/use-outcome-capture";
 import {
   eventMatchesFilter,
   isHandoffEvent,
@@ -196,6 +199,7 @@ function detailLine(
   tDetails?: (key: string, values?: Record<string, string>) => string,
 ): string | null {
   const preferred = [
+    "close_outcome_label",
     "stage_name",
     "stageName",
     "to_stage_name",
@@ -259,6 +263,7 @@ function ownerTile(kind: AttendanceOwnerKind): {
   Icon: typeof UserCircle;
 } {
   if (kind === "ai") return { tile: "tile-warning", Icon: Robot };
+  if (kind === "workflow") return { tile: "tile-warning", Icon: FlowArrow };
   if (kind === "unassigned") return { tile: "tile-neutral", Icon: UserMinus };
   return { tile: "tile-brand", Icon: UserCircle };
 }
@@ -290,6 +295,7 @@ export interface ConversationAttendanceSectionProps {
   conversationStatus?: string | null;
   closeSource?: string | null;
   closeReason?: string | null;
+  closeOutcome?: string | null;
   campaignId?: string | null;
   campaignType?: string | null;
   className?: string;
@@ -305,6 +311,7 @@ export default function ConversationAttendanceSection({
   conversationStatus,
   closeSource,
   closeReason,
+  closeOutcome,
   campaignId,
   campaignType,
   className,
@@ -314,6 +321,7 @@ export default function ConversationAttendanceSection({
   const locale = useLocale();
   const localeTag = LOCALE_TAG[locale] ?? "en-US";
   const { currentWorkspace } = useWorkspace();
+  const { capture: outcomeCapture } = useOutcomeCapture(currentWorkspace?.id);
 
   const [events, setEvents] = useState<ConversationEvent[]>([]);
   const [page, setPage] = useState(1);
@@ -455,6 +463,11 @@ export default function ConversationAttendanceSection({
         ? tSummary("ownerAiNamed", { name: summary.ownerLabel })
         : tSummary("ownerAi");
     }
+    if (summary.ownerKind === "workflow") {
+      return summary.ownerLabel
+        ? tSummary("ownerWorkflowNamed", { name: summary.ownerLabel })
+        : tSummary("ownerWorkflow");
+    }
     return summary.ownerLabel
       ? tSummary("ownerHumanNamed", { name: summary.ownerLabel })
       : tSummary("ownerHuman");
@@ -516,6 +529,12 @@ export default function ConversationAttendanceSection({
       label: tSummary("closedBy"),
       value: `${summary.closeProvenance.by} · ${summary.closeProvenance.reasonLabel}`,
     });
+    const outcome = closeOutcomeLabel(closeOutcome, outcomeCapture, (key) =>
+      tSummary(`reservedOutcome.${key}`),
+    );
+    if (outcome) {
+      summaryRows.push({ label: tSummary("closeOutcome"), value: outcome });
+    }
   }
   if (summary.transferEventCount > 0) {
     summaryRows.push({
@@ -719,7 +738,7 @@ export default function ConversationAttendanceSection({
                             <span
                               className={cn(
                                 "inline-flex rounded-full px-1.5 py-px font-semibold",
-                                kind === "ai"
+                                kind === "ai" || kind === "workflow"
                                   ? "bg-warning text-warning-foreground"
                                   : kind === "system"
                                     ? "bg-muted text-muted-foreground"
@@ -728,9 +747,11 @@ export default function ConversationAttendanceSection({
                             >
                               {kind === "ai"
                                 ? t("actorAi")
-                                : kind === "system"
-                                  ? t("actorSystem")
-                                  : t("actorHuman")}
+                                : kind === "workflow"
+                                  ? t("actorWorkflow")
+                                  : kind === "system"
+                                    ? t("actorSystem")
+                                    : t("actorHuman")}
                             </span>
                             {who.actor ? (
                               <span
@@ -812,21 +833,25 @@ export function AttendanceOwnerBadge({
   className?: string;
 }) {
   const t = useTranslations("crmContactPanel.attendance");
+  const isWorkflow = kind === "workflow";
   const isAi = kind === "ai" || kind === "ai_active";
+  const isAutomation = isAi || isWorkflow;
   const label =
     kind === "ai_active"
       ? t("badgeAiActive")
       : isAi
         ? t("badgeAi")
-        : kind === "unassigned"
-          ? t("badgeUnassigned")
-          : t("badgeHuman");
+        : isWorkflow
+          ? t("badgeWorkflow")
+          : kind === "unassigned"
+            ? t("badgeUnassigned")
+            : t("badgeHuman");
 
   return (
     <span
       className={cn(
         "inline-flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-2xs font-semibold",
-        isAi
+        isAutomation
           ? "bg-warning text-warning-foreground"
           : kind === "unassigned"
             ? "bg-muted text-muted-foreground"
@@ -834,7 +859,9 @@ export function AttendanceOwnerBadge({
         className,
       )}
     >
-      {isAi ? (
+      {isWorkflow ? (
+        <FlowArrow className="h-3 w-3" weight="fill" />
+      ) : isAi ? (
         <Robot className="h-3 w-3" weight="fill" />
       ) : (
         <UserCircle className="h-3 w-3" weight="fill" />

@@ -4,6 +4,7 @@
 import { Robot, FlowArrow } from "@/components/icons";
 
 import type { AIHandler } from "@/lib/conversations/types";
+import { assigneeKind } from "@/lib/conversations/assignee";
 import { isAiAutoReplyEnabled } from "@/lib/conversations/attendance-summary";
 import { cn } from "@/lib/utils";
 
@@ -41,8 +42,7 @@ export function AiHandlerChip({
   onOpenWorkflow,
   className,
 }: AiHandlerChipProps) {
-  const assignee = String(assignedUserId ?? "").trim();
-  const humanOwns = assignee.length > 0 && !assignee.startsWith("ai:");
+  const humanOwns = assigneeKind(assignedUserId) === "human";
   if (conversationStatus === "finished" || humanOwns) return null;
 
   const resolved: AIHandler | null =

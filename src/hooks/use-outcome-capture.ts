@@ -1,10 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-
 import type { OutcomeCaptureSpec } from "@/lib/workspace/workspace-config/types";
 
-import { getWorkspaceConfigAction } from "@/app/actions/workspace-config";
+import { useWorkspaceConfig } from "@/hooks/use-workspace-config";
 
 export interface OutcomeCaptureState {
   capture: OutcomeCaptureSpec | null;
@@ -34,26 +32,6 @@ export function outcomeIsRequired(
 }
 
 export function useOutcomeCapture(workspaceId: string | undefined): OutcomeCaptureState {
-  const [capture, setCapture] = useState<OutcomeCaptureSpec | null>(null);
-  const [loadedWorkspace, setLoadedWorkspace] = useState<string | null>(null);
-
-  const load = useCallback(async (id: string) => {
-    const result = await getWorkspaceConfigAction(id);
-    return result.config?.outcomeCapture ?? null;
-  }, []);
-
-  useEffect(() => {
-    if (!workspaceId) return;
-    let cancelled = false;
-    void load(workspaceId).then((policy) => {
-      if (cancelled) return;
-      setCapture(policy);
-      setLoadedWorkspace(workspaceId);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [workspaceId, load]);
-
-  return { capture, loaded: loadedWorkspace === workspaceId };
+  const { config, loaded } = useWorkspaceConfig(workspaceId);
+  return { capture: config?.outcomeCapture ?? null, loaded };
 }

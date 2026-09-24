@@ -1,6 +1,6 @@
 
+import { assigneeKind, isAutomationAssignee } from "@/lib/conversations/assignee";
 import {
-  normalizeActorKind,
   parseEventDetails,
   type ConversationEvent,
 } from "@/lib/conversations/events";
@@ -9,7 +9,7 @@ import {
   type CloseProvenance,
 } from "@/lib/conversations/close-provenance";
 
-export type AttendanceOwnerKind = "human" | "ai" | "system" | "unassigned";
+export type AttendanceOwnerKind = "human" | "ai" | "workflow" | "system" | "unassigned";
 
 export function isAiAutoReplyEnabled(
   automationEnabled?: boolean | null,
@@ -24,10 +24,8 @@ export function isAiCurrentlyAttending(input: {
 }): boolean {
   if (input.conversationStatus === "finished") return false;
   if (!isAiAutoReplyEnabled(input.automationEnabled)) return false;
-  const assignee = String(input.assignedUserId ?? "").trim();
-  if (assignee.startsWith("ai:")) return true;
-  if (assignee) return false;
-  return true;
+  const holder = assigneeKind(input.assignedUserId);
+  return holder === null || isAutomationAssignee(input.assignedUserId);
 }
 
 export interface ConversationAttendanceSummary {
@@ -126,8 +124,9 @@ export function buildConversationAttendanceSummary(input: {
   let ownerKind: AttendanceOwnerKind = "unassigned";
   let ownerLabel: string | null = null;
 
-  if (assignedId.startsWith("ai:") || normalizeActorKind(undefined, assignedId) === "ai") {
-    ownerKind = "ai";
+  const holder = assigneeKind(assignedId);
+  if (holder === "ai" || holder === "workflow") {
+    ownerKind = holder;
     ownerLabel = assignedName || null;
   } else if (assignedId || assignedName) {
     ownerKind = "human";

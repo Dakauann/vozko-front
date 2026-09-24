@@ -83,6 +83,7 @@ import { extractAgentVariableNames } from "@/lib/agents/extract-variable-names";
 import { ElevatedSwitch as Switch } from "@/components/elevated-design/elevated-switch";
 import TemplateEditModal from "@/components/whatsapp/TemplateEditModal";
 import ToolConfigDialog from "./ToolConfigDialog";
+import { hasToolSettings } from "@/lib/agents/tool-settings";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import type { WhatsAppTemplate } from "@/lib/whatsapp-templates/types";
 import { cn } from "@/lib/utils";
@@ -229,7 +230,7 @@ interface AvailableToolRowProps {
 }
 
 const AvailableToolRow = ({ tool, disabled, onAdd, t }: AvailableToolRowProps) => {
-  const requiresConfig = tool.requiresConfig === true;
+  const requiresConfig = hasToolSettings(tool);
   const description = tool.displayDescription || tool.description;
   const name = tool.displayName || tool.name;
 
@@ -308,6 +309,7 @@ const SelectedToolItem = ({
   const effectiveVisibility = currentVisibility ?? toolDefaultVisibility;
 
   const requiresConfig = tool.requiresConfig === true;
+  const hasSettings = hasToolSettings(tool);
   const hasConfig = currentConfig && Object.keys(currentConfig).length > 0;
   const requiredConfigFields = new Set(tool.requiredConfig ?? []);
   const isConfigComplete =
@@ -342,7 +344,7 @@ const SelectedToolItem = ({
                 <span className="truncate text-sm font-medium text-foreground">
                   {name}
                 </span>
-                {requiresConfig && (
+                {hasSettings && (
                   <span className="inline-flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-2xs font-medium text-primary-ink">
                     <Gear weight="fill" className="h-3 w-3" />
                     {t("tools.configurable")}
@@ -391,7 +393,7 @@ const SelectedToolItem = ({
           )}
 
           {}
-          {requiresConfig && (
+          {hasSettings && (
             <div
               className={cn(
                 "flex items-center justify-between gap-3 rounded-lg border px-3 py-2",

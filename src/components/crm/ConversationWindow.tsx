@@ -24,6 +24,7 @@ import {
 import { ArrowsInSimple, ArrowsOut, Minus, X } from "@/components/icons";
 import { ChannelAvatar } from "@/components/channels/channel-avatar";
 import AssignMemberPicker from "./AssignMemberPicker";
+import type { HandBackTarget } from "@/lib/conversations/hand-back";
 import ConversationWindowActions, {
   type ConversationWindowActionsTranslations,
 } from "./ConversationWindowActions";
@@ -50,6 +51,7 @@ export interface ConversationWindowEntryContext {
   currentStages?: { stage_id: string; name: string; color: string }[];
   availableStages?: { stage_id: string; name: string; color: string }[];
   currentLabels?: InboxEntryLabel[];
+  handBack?: HandBackTarget | null;
 }
 
 export interface ConversationWindowActionsBundle {
@@ -75,6 +77,7 @@ export interface ConversationWindowActionsBundle {
     status: NextConversationStatus,
   ) => void;
   onToggleAutomation: (entryId: string, entryType: EntryType) => void;
+  onHandBack?: (entryId: string, entryType: EntryType) => void;
   onEntryStageChange?: (
     entryId: string,
     entryType: EntryType,
@@ -384,6 +387,16 @@ export default function ConversationWindow({
                       conversation.entry_type,
                       userId,
                     )
+                  }
+                  handBack={entryContext.handBack ?? null}
+                  onHandBack={
+                    actions.onHandBack
+                      ? () =>
+                          actions.onHandBack?.(
+                            conversation.entry_id,
+                            conversation.entry_type,
+                          )
+                      : undefined
                   }
                 />
               )}

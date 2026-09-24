@@ -456,6 +456,7 @@
       "title": "Attendance",
       "badgeHuman": "Human",
       "badgeAi": "AI",
+      "badgeWorkflow": "Workflow",
       "badgeAiActive": "AI active",
       "badgeUnassigned": "Unassigned",
       "ownerUnassigned": "No attendant assigned",
@@ -463,6 +464,8 @@
       "ownerHumanNamed": "Human · {name}",
       "ownerAi": "AI attendant",
       "ownerAiNamed": "AI · {name}",
+      "ownerWorkflow": "Workflow",
+      "ownerWorkflowNamed": "Workflow · {name}",
       "aiToggle": "Automation",
       "aiOn": "On",
       "aiOff": "Off",
@@ -473,6 +476,12 @@
       "repliesValue": "Human {human} · AI {ai}",
       "lastAiOutcome": "Last AI outcome",
       "closedBy": "Closed by",
+      "closeOutcome": "Outcome",
+      "reservedOutcome": {
+        "systemAutoClose": "Closed automatically",
+        "aiUnspecified": "AI, no outcome",
+        "workflowUnspecified": "Workflow, no outcome"
+      },
       "transfers": "Transfers",
       "loading": "…",
       "viewMetrics": "Open service metrics",
@@ -502,6 +511,7 @@
       "filterTransfer": "Transfer",
       "actorHuman": "Human",
       "actorAi": "AI",
+      "actorWorkflow": "Workflow",
       "actorSystem": "System",
       "byActor": "by {name}",
       "handoffUnassigned": "Unassigned",
@@ -2578,6 +2588,7 @@
         }
       },
       "toolConfig": {
+        "defaultOption": "Default",
         "title": "Configure Ability",
         "description": "Configure the parameters for {toolName}",
         "infoTitle": "About this tool",
@@ -6713,11 +6724,11 @@
     "outcomeCapture": {
       "label": "Outcome capture",
       "cardDescription": "Ask the agent for an outcome when they finish, and measure close quality.",
-      "description": "With capture on, every close made by a person records the chosen outcome. Automatic, AI and workflow closes get a reserved code and stay out of the team count.",
+      "description": "With capture on, every close records an outcome from the list: a person picks one when finishing, the AI picks one in the Finish conversation tool, and a workflow in the Finish conversation node. Automatic closes for inactivity get a reserved code. The team count only includes closes made by people.",
       "enabled": "Collect an outcome",
       "enabledHint": "Turns collection on and starts counting from now.",
       "requireOnFinish": "Require it to finish",
-      "requireOnFinishHint": "Without a chosen outcome, the conversation is not finished.",
+      "requireOnFinishHint": "Without a chosen outcome, the conversation is not finished, whether by a person, the AI or a workflow.",
       "threshold": "Target for outcomes that resolve",
       "thresholdHint": "Minimum share expected over the captured closes.",
       "catalogue": "Outcomes",
@@ -13482,5 +13493,26 @@
       "failed": "Failed",
       "expired": "Expired"
     }
+  },
+  "crmHandBack": {
+    "title": "Hand back to {name}?",
+    "descriptionLeaves": "{name} takes this conversation back and it leaves your list. Admins still see it.",
+    "descriptionStays": "{name} takes this conversation back. It stays visible to you.",
+    "confirm": "Hand back",
+    "cancel": "Cancel"
+  },
+  "handOffRules": {
+    "title": "Who receives the conversation in this workspace",
+    "online": "Roulette among whoever is online now.",
+    "lastSeen": "Roulette among whoever was active in the last {hours} h; with nobody in that window, among whoever is online.",
+    "department": "Only people in the chosen department receive it or, with none chosen, in the conversation's department.",
+    "adminsSkipped": "Admins are left out of the roulette.",
+    "adminsIncluded": "Admins take part in the roulette too.",
+    "rescue": "With no reply in {minutes} min, the conversation moves to the next person.",
+    "rescueWorkingHours": "With no reply in {minutes} min, the conversation moves to the next person, within working hours.",
+    "noRescue": "No automatic reassignment if the person does not reply.",
+    "queue": "With nobody available, the conversation goes to the team queue and stays with whoever opens it first.",
+    "paused": "Automation is paused on this conversation after the transfer.",
+    "settingsLink": "Change in workspace settings"
   }
 }

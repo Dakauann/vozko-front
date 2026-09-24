@@ -456,6 +456,7 @@
       "title": "Atención",
       "badgeHuman": "Humano",
       "badgeAi": "IA",
+      "badgeWorkflow": "Flujo",
       "badgeAiActive": "IA activa",
       "badgeUnassigned": "Sin asignar",
       "ownerUnassigned": "Sin atendente asignado",
@@ -463,6 +464,8 @@
       "ownerHumanNamed": "Humano · {name}",
       "ownerAi": "Atendente IA",
       "ownerAiNamed": "IA · {name}",
+      "ownerWorkflow": "Flujo",
+      "ownerWorkflowNamed": "Flujo · {name}",
       "aiToggle": "Automatización",
       "aiOn": "Activo",
       "aiOff": "Inactivo",
@@ -473,6 +476,12 @@
       "repliesValue": "Humano {human} · IA {ai}",
       "lastAiOutcome": "Último resultado de IA",
       "closedBy": "Cerrado por",
+      "closeOutcome": "Desenlace",
+      "reservedOutcome": {
+        "systemAutoClose": "Cerrada automáticamente",
+        "aiUnspecified": "IA, sin desenlace",
+        "workflowUnspecified": "Workflow, sin desenlace"
+      },
       "transfers": "Transferencias",
       "loading": "…",
       "viewMetrics": "Abrir métricas de atención",
@@ -502,6 +511,7 @@
       "filterTransfer": "Transferencia",
       "actorHuman": "Humano",
       "actorAi": "IA",
+      "actorWorkflow": "Flujo",
       "actorSystem": "Sistema",
       "byActor": "por {name}",
       "handoffUnassigned": "Sin responsable",
@@ -2208,6 +2218,7 @@
         }
       },
       "toolConfig": {
+        "defaultOption": "Predeterminado",
         "title": "Configurar Habilidad",
         "description": "Configura los parámetros de la herramienta {toolName}",
         "infoTitle": "Acerca de esta herramienta",
@@ -5343,11 +5354,11 @@
     "outcomeCapture": {
       "label": "Registro de desenlace",
       "cardDescription": "Pida al agente el desenlace al cerrar y mida la calidad de las atenciones.",
-      "description": "Con el registro activo, cada cierre hecho por una persona guarda el desenlace elegido. Los cierres automáticos, de la IA y de workflows reciben un código reservado y quedan fuera de la cuenta del equipo.",
+      "description": "Con el registro activo, cada cierre guarda un desenlace de la lista: la persona lo elige al cerrar, la IA en la herramienta Finalizar conversación y el workflow en el nodo Finalizar conversación. Los cierres automáticos por inactividad reciben un código reservado. La cuenta del equipo solo incluye cierres hechos por personas.",
       "enabled": "Registrar desenlace",
       "enabledHint": "Activa el registro y empieza a contar desde ahora.",
       "requireOnFinish": "Exigir al cerrar",
-      "requireOnFinishHint": "Sin un desenlace elegido, la conversación no se cierra.",
+      "requireOnFinishHint": "Sin un desenlace elegido, la conversación no se cierra, ya sea por una persona, la IA o un workflow.",
       "threshold": "Meta de desenlaces que resuelven",
       "thresholdHint": "Porcentaje mínimo esperado sobre los cierres registrados.",
       "catalogue": "Desenlaces",
@@ -11989,5 +12000,26 @@
       "failed": "Falló",
       "expired": "Expirado"
     }
+  },
+  "crmHandBack": {
+    "title": "¿Devolver a {name}?",
+    "descriptionLeaves": "{name} vuelve a atender esta conversación y sale de tu lista. Los administradores siguen viéndola.",
+    "descriptionStays": "{name} vuelve a atender esta conversación. Sigue visible para ti.",
+    "confirm": "Devolver",
+    "cancel": "Cancelar"
+  },
+  "handOffRules": {
+    "title": "Quién recibe la conversación en este workspace",
+    "online": "Ruleta entre quienes están en línea ahora.",
+    "lastSeen": "Ruleta entre quienes estuvieron activos en las últimas {hours} h; sin nadie en ese período, entre quienes están en línea.",
+    "department": "Solo la recibe quien es del departamento elegido o, sin elección, del departamento de la conversación.",
+    "adminsSkipped": "Los admins no entran en la ruleta.",
+    "adminsIncluded": "Los admins también entran en la ruleta.",
+    "rescue": "Sin respuesta en {minutes} min, la conversación pasa a la siguiente persona.",
+    "rescueWorkingHours": "Sin respuesta en {minutes} min, la conversación pasa a la siguiente persona, dentro del horario de atención.",
+    "noRescue": "Sin reasignación automática si la persona no responde.",
+    "queue": "Sin nadie disponible, la conversación va a la cola del equipo y queda con quien la abra primero.",
+    "paused": "La automatización se pausa en esta conversación después de la transferencia.",
+    "settingsLink": "Cambiar en la configuración del workspace"
   }
 }

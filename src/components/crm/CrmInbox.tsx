@@ -17,7 +17,6 @@ import {
   Funnel,
   MagnifyingGlass,
   Tag as TagIcon,
-  User,
   X,
 } from "@/components/icons";
 import type {
@@ -33,6 +32,13 @@ import type {
 import type { FunnelStages } from "@/app/actions/stages";
 import { getConversationStatusDisplay } from "@/lib/conversations/close-provenance";
 import { AiHandlerChip } from "@/components/crm/AiHandlerChip";
+import { AssigneeGlyph } from "@/components/crm/AssigneeGlyph";
+import {
+  RESPONSIBLE_AI,
+  RESPONSIBLE_UNASSIGNED,
+  RESPONSIBLE_WORKFLOW,
+  responsibleFilterPayload,
+} from "@/lib/conversations/responsible-filter";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import AnalysisHoverCard from "@/components/crm/AnalysisHoverCard";
@@ -163,7 +169,6 @@ interface CrmInboxProps {
 }
 
 
-const RESPONSIBLE_UNASSIGNED = "__unassigned__";
 
 interface FilterState {
   stageId: string;
@@ -369,10 +374,7 @@ export default function CrmInbox({
         payload.max_message_count = Number(filters.maxMessageCount);
       if (filters.messageSearch.trim())
         payload.message_search = filters.messageSearch.trim();
-      if (filters.responsibleUserId === RESPONSIBLE_UNASSIGNED)
-        payload.responsible_unassigned = true;
-      else if (filters.responsibleUserId)
-        payload.responsible_user_id = filters.responsibleUserId;
+      Object.assign(payload, responsibleFilterPayload(filters.responsibleUserId));
       if (effectiveStatus !== "all")
         payload.conversation_status = effectiveStatus;
       return payload;
@@ -402,7 +404,8 @@ export default function CrmInbox({
         payload.max_message_count ||
         payload.message_search ||
         payload.responsible_user_id ||
-        payload.responsible_unassigned;
+        payload.responsible_unassigned ||
+        payload.responsible_kind;
       if (hasContent) {
         onSearch(payload);
       } else {
@@ -890,6 +893,8 @@ export default function CrmInbox({
                     <option value={RESPONSIBLE_UNASSIGNED}>
                       Sem responsável
                     </option>
+                    <option value={RESPONSIBLE_AI}>IA</option>
+                    <option value={RESPONSIBLE_WORKFLOW}>Fluxo</option>
                     {members.map((m) => (
                       <option key={m.userId} value={m.userId}>
                         {m.username?.trim() || m.email?.trim() || m.userId}
@@ -1539,7 +1544,10 @@ export default function CrmInbox({
                         <div className="mt-1 flex items-center gap-1.5 text-2xs text-muted-foreground">
                           {entry.assigned_username ? (
                             <span className="inline-flex min-w-0 max-w-[60%] items-center gap-1">
-                              <User weight="bold" className="h-3 w-3 flex-shrink-0" />
+                              <AssigneeGlyph
+                                assignedUserId={entry.assigned_user_id}
+                                className="h-3 w-3 flex-shrink-0"
+                              />
                               <span className="truncate font-semibold text-foreground/80">
                                 {entry.assigned_username}
                               </span>

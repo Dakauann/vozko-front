@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { toast } from "sonner";
 
+import { assigneeKind } from "@/lib/conversations/assignee";
+
 import {
   ArrowsClockwise,
   ArrowsLeftRight,
@@ -643,6 +645,9 @@ export default function CrmListView({
         render: (row) => {
           const uid = row.AssignedUserID?.trim();
           if (!uid) return <OwnerCell name={null} />;
+          const holder = assigneeKind(uid);
+          if (holder === "ai") return <OwnerCell name="IA" />;
+          if (holder === "workflow") return <OwnerCell name="Fluxo" />;
           const m = membersById.get(uid);
           const name = m ? m.username?.trim() || m.email?.trim() || uid : "Atribuído";
           return <OwnerCell name={name} />;

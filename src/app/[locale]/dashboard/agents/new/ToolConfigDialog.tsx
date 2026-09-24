@@ -18,13 +18,22 @@ import {
   ElevatedSelect,
   ElevatedSelectItem,
 } from "@/components/elevated-design/elevated-select";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { IconBox } from "@/components/elevated-design/listing-card";
 import { buildInitialToolConfig } from "@/lib/agents/tool-config-defaults";
+import { fetchDepartments } from "@/lib/department/client";
+import { handsOffToPeople } from "@/lib/agents/tool-settings";
+import { HandOffRulesSummary } from "@/components/dashboard/workspace/HandOffRulesSummary";
+import { useWorkspace } from "@/contexts/workspace-context";
+import {
+  EMPTY_CHOICE,
+  emptyChoiceLabel,
+  fromSelectValue,
+} from "@/lib/forms/optional-select";
 import { useTranslations } from "next-intl";
 
 interface ToolConfigDialogProps {
@@ -100,9 +109,32 @@ function ToolConfigDialogContent({
     [tool.requiredConfig],
   );
 
+  const { currentWorkspace } = useWorkspace();
+
   const schemaEntries = useMemo(() => {
     return Object.entries(configSchema);
   }, [configSchema]);
+
+  // Choices that depend on the workspace load when the dialog opens, from the
+  // same source the workflow editor uses.
+  const needsDepartments = useMemo(
+    () => schemaEntries.some(([, s]) => s.optionsSource === "departments"),
+    [schemaEntries],
+  );
+  const [departmentOptions, setDepartmentOptions] = useState<
+    Array<{ value: string; label: string }>
+  >([]);
+  useEffect(() => {
+    if (!open || !needsDepartments) return;
+    let live = true;
+    fetchDepartments().then((res) => {
+      if (!live) return;
+      setDepartmentOptions(res.departments.map((d) => ({ value: d.id, label: d.name })));
+    });
+    return () => {
+      live = false;
+    };
+  }, [open, needsDepartments]);
 
   const requiredFieldLabels = useMemo(() => {
     return Array.from(requiredFields).map((key) => {
@@ -222,7 +254,14 @@ function ToolConfigDialogContent({
       </span>
     );
 
-    if (schema.options?.length) {
+    const choices = schema.options?.length
+      ? schema.options
+      : schema.optionsSource === "departments"
+        ? departmentOptions
+        : null;
+    if (choices) {
+      const current = value !== undefined && value !== null ? String(value) : "";
+      const emptyLabel = emptyChoiceLabel({ required: isRequired, placeholder: t("defaultOption") });
       return (
         <div key={key} className="space-y-2">
           <label className="block text-sm text-foreground">
@@ -232,16 +271,20 @@ function ToolConfigDialogContent({
             </span>
           </label>
           <ElevatedSelect
-            value={value !== undefined && value !== null ? String(value) : ""}
-            onValueChange={(nextValue) => {
+            value={current}
+            onValueChange={(picked) => {
+              const nextValue = fromSelectValue(picked);
               handleFieldChange(
                 key,
-                schema.type === "number" ? Number(nextValue) : nextValue,
+                schema.type === "number" && nextValue !== "" ? Number(nextValue) : nextValue,
               );
             }}
-            placeholder={defaultPlaceholder}
+            placeholder={emptyLabel ?? defaultPlaceholder}
           >
-            {schema.options.map((option) => (
+            {emptyLabel && current !== "" ? (
+              <ElevatedSelectItem value={EMPTY_CHOICE}>{emptyLabel}</ElevatedSelectItem>
+            ) : null}
+            {choices.map((option) => (
               <ElevatedSelectItem key={option.value} value={option.value}>
                 {option.label}
               </ElevatedSelectItem>
@@ -425,6 +468,8 @@ function ToolConfigDialogContent({
               </p>
             )}
           </div>
+
+          {handsOffToPeople(tool) && <HandOffRulesSummary workspaceId={currentWorkspace?.id} />}
         </div>
 
         <DialogFooter className="gap-2 border-t border-border bg-card px-6 py-4">

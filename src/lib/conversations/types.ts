@@ -198,6 +198,7 @@ export interface InboxEntry {
     conversation_status?: string;
     close_source?: string;
     close_reason?: string;
+    close_outcome?: string;
     closed_at?: string | null;
     ai_handler?: AIHandler | null;
 }
@@ -331,6 +332,7 @@ export interface WsSearchInboxPayload {
     conversation_status?: 'new' | 'ongoing' | 'finished';
     responsible_user_id?: string;
     responsible_unassigned?: boolean;
+    responsible_kind?: "ai" | "workflow";
     page?: number;
     page_size?: number;
 }
@@ -609,6 +611,7 @@ export interface WsConversationStatusUpdatePayload {
     status: string;
     close_source?: string;
     close_reason?: string;
+    close_outcome?: string;
     closed_at?: string | null;
 }
 
@@ -702,6 +705,7 @@ export interface ActiveConversation {
     conversation_status?: string;
     close_source?: string;
     close_reason?: string;
+    close_outcome?: string;
     closed_at?: string | null;
     ai_handler?: AIHandler | null;
     is_group?: boolean;

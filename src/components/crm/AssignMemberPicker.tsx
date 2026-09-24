@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { CircleNotch, UserCirclePlus } from "@/components/icons";
+import { CircleNotch, FlowArrow, Robot, UserCirclePlus } from "@/components/icons";
 import { useLocale } from "next-intl";
 
 import {
@@ -19,6 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import TooltipWrapper from "@/components/ui/tooltip-wrapper";
+import type { HandBackTarget } from "@/lib/conversations/hand-back";
 import { cn } from "@/lib/utils";
 import {
   listAssignableMembersAction,
@@ -35,6 +36,7 @@ const STRINGS = {
     empty: "Nenhum membro encontrado",
     noDepartment: "Sem departamento",
     current: "Atual",
+    handBack: "Devolver para",
     adminHint:
       "Administradores aparecem quando participam da distribuição automática.",
   },
@@ -44,6 +46,7 @@ const STRINGS = {
     empty: "No members found",
     noDepartment: "No department",
     current: "Current",
+    handBack: "Hand back to",
     adminHint: "Admins appear when they take part in the automatic distribution.",
   },
   es: {
@@ -52,6 +55,7 @@ const STRINGS = {
     empty: "Ningún miembro encontrado",
     noDepartment: "Sin departamento",
     current: "Actual",
+    handBack: "Devolver a",
     adminHint:
       "Los administradores aparecen cuando participan en la distribución automática.",
   },
@@ -61,6 +65,7 @@ const STRINGS = {
     empty: "Keine Mitglieder gefunden",
     noDepartment: "Ohne Abteilung",
     current: "Aktuell",
+    handBack: "Zurückgeben an",
     adminHint:
       "Administratoren erscheinen, wenn sie an der automatischen Verteilung teilnehmen.",
   },
@@ -73,6 +78,9 @@ interface AssignMemberPickerProps {
   assignedUserId?: string | null;
   onlineUserIds?: Set<string>;
   onAssign: (userId: string) => void;
+  /** The agent or workflow a person's conversation can go back to, if any. */
+  handBack?: HandBackTarget | null;
+  onHandBack?: () => void;
 }
 
 function displayName(m: AssignableMember): string {
@@ -84,6 +92,8 @@ export default function AssignMemberPicker({
   assignedUserId,
   onlineUserIds,
   onAssign,
+  handBack,
+  onHandBack,
 }: AssignMemberPickerProps) {
   const locale = useLocale();
   const tx: Strings = STRINGS[locale as keyof typeof STRINGS] ?? STRINGS.en;
@@ -186,6 +196,11 @@ export default function AssignMemberPicker({
     [onAssign],
   );
 
+  const handleHandBack = useCallback(() => {
+    setOpen(false);
+    onHandBack?.();
+  }, [onHandBack]);
+
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <TooltipWrapper content={tx.tooltip}>
@@ -222,6 +237,26 @@ export default function AssignMemberPicker({
             className="text-sm"
           />
           <CommandList ref={listRef} onScroll={handleScroll} className="max-h-64">
+            {handBack && onHandBack ? (
+              <CommandGroup>
+                <CommandItem
+                  value="__hand_back__"
+                  onSelect={handleHandBack}
+                  className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-xs text-foreground data-[selected=true]:bg-muted data-[selected=true]:font-medium"
+                >
+                  <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-warning text-warning-foreground">
+                    {handBack.kind === "workflow" ? (
+                      <FlowArrow weight="fill" className="h-3.5 w-3.5" />
+                    ) : (
+                      <Robot weight="fill" className="h-3.5 w-3.5" />
+                    )}
+                  </span>
+                  <span className="flex-1 truncate">
+                    {tx.handBack} {handBack.name}
+                  </span>
+                </CommandItem>
+              </CommandGroup>
+            ) : null}
             {members.length === 0 && !loading ? (
               <CommandEmpty>{tx.empty}</CommandEmpty>
             ) : null}

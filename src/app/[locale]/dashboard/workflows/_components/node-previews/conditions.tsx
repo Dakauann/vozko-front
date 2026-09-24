@@ -6,7 +6,10 @@ import type { WorkflowNodeType } from "@/lib/workflows/types";
 import { ConditionBranchPreview } from "./condition-branch-preview";
 import { ConditionFilterPreview } from "./condition-filter-preview";
 import { ConditionTextMatchPreview } from "./condition-text-match-preview";
-import { ConditionCheckLabelPreview } from "./condition-check-label-preview";
+import {
+  ConditionCheckLabelPreview,
+  ConditionPickPreview,
+} from "./condition-check-label-preview";
 
 export function renderConditionContentPreview(
   nodeType: WorkflowNodeType,
@@ -21,6 +24,8 @@ export function renderConditionContentPreview(
       return <ConditionTextMatchPreview config={config} />;
     case "condition_check_label":
       return <ConditionCheckLabelPreview config={config} />;
+    case "condition_check_stage":
+      return <ConditionPickPreview config={config} field="stage_id" emptyLabel="Sem etapa" />;
     default:
       return undefined;
   }

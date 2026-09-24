@@ -91,7 +91,16 @@ import { listWorkflowsAction } from "@/app/actions/workflows";
 import { listKnowledgeBasesAction } from "@/app/actions/knowledge-bases";
 import { listLabelsAction } from "@/app/actions/labels";
 import { listMembersAction } from "@/app/actions/workspace";
+import { getWorkspaceConfigAction } from "@/app/actions/workspace-config";
+import { HandOffRulesSummary } from "@/components/dashboard/workspace/HandOffRulesSummary";
+import { listPipelinesAction } from "@/app/actions/crm-board";
+import { listStagesAction } from "@/app/actions/stages";
 import { fetchDepartments } from "@/lib/department/client";
+import {
+  EMPTY_CHOICE,
+  emptyChoiceLabel,
+  fromSelectValue,
+} from "@/lib/forms/optional-select";
 import { fetchGoogleConnection } from "@/lib/calendar/client";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import type { ModelPricingInfo } from "@/lib/agents/types";
@@ -177,6 +186,10 @@ function getSourceEmptyMessage(source?: string) {
       return "Nenhum template encontrado";
     case "workflows":
       return "Nenhum workflow encontrado";
+    case "outcomes":
+      return "Nenhum desfecho cadastrado no workspace";
+    case "stages":
+      return "Nenhuma etapa nos funis do workspace";
     default:
       return "Nenhuma opção encontrada";
   }
@@ -686,6 +699,10 @@ export function NodeConfigPanel({
                     />
                   </InteractiveReachContext.Provider>
                 ))
+            )}
+
+            {nodeType === "action_transfer_department" && (
+              <HandOffRulesSummary workspaceId={workspaceId} />
             )}
 
             {}
@@ -2325,7 +2342,7 @@ function useDynamicOptions(
       return;
     }
 
-    if (source === "members" && !workspaceId) {
+    if ((source === "members" || source === "outcomes" || source === "stages") && !workspaceId) {
       setOptions([]);
       setLoading(false);
       return;
@@ -2375,6 +2392,39 @@ function useDynamicOptions(
               fetched = res.departments.map((d) => ({
                 value: d.id,
                 label: d.name,
+              }));
+            }
+            break;
+          }
+          case "stages": {
+            if (!workspaceId) {
+              break;
+            }
+            const { pipelines } = await listPipelinesAction("conversation");
+            const ordered = [...pipelines].sort((a, b) => a.position - b.position);
+            const perPipeline = await Promise.all(
+              ordered.map(async (pipeline) => {
+                const { stages } = await listStagesAction(workspaceId, undefined, undefined, pipeline.id);
+                return [...stages]
+                  .sort((a, b) => a.position - b.position)
+                  .map((st) => ({ value: st.id, label: `${pipeline.name} · ${st.name}` }));
+              }),
+            );
+            if (!cancelled) {
+              fetched = perPipeline.flat();
+            }
+            break;
+          }
+          case "outcomes": {
+            if (!workspaceId) {
+              break;
+            }
+            const res = await getWorkspaceConfigAction(workspaceId);
+            const capture = res.config?.outcomeCapture;
+            if (!cancelled && capture?.enabled) {
+              fetched = capture.outcomes.map((o) => ({
+                value: o.code,
+                label: o.label,
               }));
             }
             break;
@@ -2645,13 +2695,16 @@ function SelectField({
     );
   }
 
+  const emptyLabel = emptyChoiceLabel(field);
+
   return (
     <div className="space-y-1">
       <ElevatedSelect
         label={label}
         placeholder={loading ? nc("loading") : (field.placeholder ?? "")}
         value={strVal}
-        onValueChange={(v) => {
+        onValueChange={(picked) => {
+          const v = fromSelectValue(picked);
           const opt = safeOptions.find((o) => o.value === v);
           onChange(
             v,
@@ -2659,6 +2712,9 @@ function SelectField({
           );
         }}
       >
+        {emptyLabel && strVal !== "" ? (
+          <ElevatedSelectItem value={EMPTY_CHOICE}>{emptyLabel}</ElevatedSelectItem>
+        ) : null}
         {safeOptions.map((opt) => (
           <ElevatedSelectItem key={opt.value} value={opt.value}>
             {opt.label}

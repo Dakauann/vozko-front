@@ -80,6 +80,8 @@ export interface ToolConfigSchemaField {
     displayDescription?: string;
     defaultValue?: unknown;
     options?: Array<{ value: string; label: string }>;
+    /** A list the client loads for the choice, e.g. "departments". */
+    optionsSource?: string;
     required: boolean;
 }
 

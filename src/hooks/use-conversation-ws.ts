@@ -163,6 +163,7 @@ interface UseConversationWsReturn {
   ) => void;
   latestAnalysisUpdate: WsAnalysisUpdatePayload | null;
   assignTo: (entryId: string, entryType: string, userId: string) => void;
+  forgetEntry: (entryId: string, entryType: EntryType) => void;
   setConversationStatus: (
     entryId: string,
     entryType: string,
@@ -958,12 +959,14 @@ export function useConversationWs({
             status,
             close_source,
             close_reason,
+            close_outcome,
             closed_at,
           } = event.payload;
           const closePatch = {
             conversation_status: status,
             ...(close_source !== undefined ? { close_source } : {}),
             ...(close_reason !== undefined ? { close_reason } : {}),
+            ...(close_outcome !== undefined ? { close_outcome } : {}),
             ...(closed_at !== undefined ? { closed_at } : {}),
           };
           setInbox((prev) => {
@@ -1071,6 +1074,23 @@ export function useConversationWs({
             const newSummary = new Map(prev);
             return newSummary;
           });
+          setSearchResults((prev) =>
+            prev
+              ? prev.filter(
+                  (e) => !(e.entry_id === entry_id && e.entry_type === entry_type),
+                )
+              : prev,
+          );
+          // The conversation is no longer this user's: the server stopped its
+          // messages and would refuse a reply, so the open pane closes.
+          if (
+            activeSubscriptionRef.current?.entry_id === entry_id &&
+            activeSubscriptionRef.current?.entry_type === entry_type
+          ) {
+            setActiveConversation(null);
+            activeSubscriptionRef.current = null;
+            stopLoadingConversation();
+          }
           break;
         }
 
@@ -2378,6 +2398,19 @@ export function useConversationWs({
     [send],
   );
 
+  // Drops a conversation this client just gave away (e.g. handed back to the
+  // AI). The server cannot push entry_removed to someone who lost access, so
+  // it is fed through the same path a pushed removal takes.
+  const forgetEntry = useCallback(
+    (entryId: string, entryType: EntryType) => {
+      handleServerEvent({
+        type: "conversation:entry_removed",
+        payload: { entry_id: entryId, entry_type: entryType, reason: "handed_back" },
+      });
+    },
+    [handleServerEvent],
+  );
+
   const applyLeadRename = useCallback((leadId: string, name: string) => {
     if (!leadId) return;
 
@@ -2640,6 +2673,7 @@ export function useConversationWs({
     switchView,
     latestAnalysisUpdate,
     assignTo,
+    forgetEntry,
     setConversationStatus,
     applyLeadRename,
     windowConversations,

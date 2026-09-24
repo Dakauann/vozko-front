@@ -128,6 +128,7 @@ interface CrmContextValue {
   ) => void;
   latestAnalysisUpdate: WsAnalysisUpdatePayload | null;
   assignTo: (entryId: string, entryType: string, userId: string) => void;
+  forgetEntry: (entryId: string, entryType: EntryType) => void;
   setConversationStatus: (
     entryId: string,
     entryType: string,

@@ -29,6 +29,7 @@ import { blockLeadAction } from "@/app/actions/leads";
 import { EditableLeadName } from "@/components/leads/EditableLeadName";
 import { listOpportunitiesForEntryAction } from "@/app/actions/opportunities";
 import { ChannelLogo, channelLabel } from "@/components/icons/channel-logos";
+import { AssigneeGlyph } from "@/components/crm/AssigneeGlyph";
 import ConversationAttendanceSection from "@/components/crm/ConversationAttendanceSection";
 import ConversationGroupSection from "@/components/crm/ConversationGroupSection";
 import LeadMemoriesSection from "@/components/crm/LeadMemoriesSection";
@@ -384,7 +385,11 @@ export default function CrmConversationInfosPanel({
                     {channelName ?? t("channelVoice")}
                   </span>
                   {assignedUsername ? (
-                    <span className="inline-flex max-w-[10rem] truncate rounded-[--radius] bg-muted px-2 py-0.5 text-2xs font-medium text-muted-foreground">
+                    <span className="inline-flex max-w-[10rem] items-center gap-1 truncate rounded-[--radius] bg-muted px-2 py-0.5 text-2xs font-medium text-muted-foreground">
+                      <AssigneeGlyph
+                        assignedUserId={inboxEntry?.assigned_user_id}
+                        className="h-3 w-3 flex-shrink-0"
+                      />
                       {assignedUsername}
                     </span>
                   ) : null}
@@ -456,7 +461,13 @@ export default function CrmConversationInfosPanel({
 
                 <InfoRow label={t("assignedAgent")}>
                   {assignedUsername ? (
-                    <span className="text-foreground">{assignedUsername}</span>
+                    <span className="inline-flex items-center gap-1 text-foreground">
+                      <AssigneeGlyph
+                        assignedUserId={inboxEntry?.assigned_user_id}
+                        className="h-3 w-3 flex-shrink-0"
+                      />
+                      {assignedUsername}
+                    </span>
                   ) : (
                     <span className="text-muted-foreground">
                       {t("unassigned")}
@@ -543,6 +554,9 @@ export default function CrmConversationInfosPanel({
                   }
                   closeReason={
                     conversation.close_reason ?? inboxEntry?.close_reason
+                  }
+                  closeOutcome={
+                    conversation.close_outcome ?? inboxEntry?.close_outcome
                   }
                   campaignId={inboxEntry?.campaign_id}
                   campaignType={conversation.entry_type}

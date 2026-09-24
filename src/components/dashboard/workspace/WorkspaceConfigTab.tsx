@@ -21,6 +21,7 @@ import type {
   RouletteMode,
   WorkspaceConfig,
 } from "@/lib/workspace/workspace-config/types";
+import { ROULETTE_DEFAULTS, ROULETTE_LIMITS } from "@/lib/workspace/workspace-config/roulette";
 import { updateWorkspaceConfigAction } from "@/app/actions/workspace-config";
 import { WorkingHoursEditor } from "@/components/dashboard/working-hours/WorkingHoursEditor";
 import { OutcomeCaptureCard } from "@/components/dashboard/workspace/OutcomeCaptureCard";
@@ -151,17 +152,6 @@ function ConfigCardShell({
 }
 
 
-const ROULETTE_DEFAULTS = {
-  mode: "online" as RouletteMode,
-  windowHours: 48,
-  rescueEnabled: true,
-  rescueMinutes: 15,
-};
-
-const ROULETTE_LIMITS = {
-  window: { min: 1, max: 168 },
-  rescue: { min: 1, max: 1440 },
-};
 
 function DistributionConfigCard({
   workspaceId,

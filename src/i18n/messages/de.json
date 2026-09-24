@@ -456,6 +456,7 @@
       "title": "Betreuung",
       "badgeHuman": "Mensch",
       "badgeAi": "KI",
+      "badgeWorkflow": "Workflow",
       "badgeAiActive": "KI aktiv",
       "badgeUnassigned": "Nicht zugewiesen",
       "ownerUnassigned": "Kein Betreuer zugewiesen",
@@ -463,6 +464,8 @@
       "ownerHumanNamed": "Mensch · {name}",
       "ownerAi": "KI-Betreuer",
       "ownerAiNamed": "KI · {name}",
+      "ownerWorkflow": "Workflow",
+      "ownerWorkflowNamed": "Workflow · {name}",
       "aiToggle": "Automatisierung",
       "aiOn": "An",
       "aiOff": "Aus",
@@ -473,6 +476,12 @@
       "repliesValue": "Mensch {human} · KI {ai}",
       "lastAiOutcome": "Letztes KI-Ergebnis",
       "closedBy": "Geschlossen von",
+      "closeOutcome": "Ergebnis",
+      "reservedOutcome": {
+        "systemAutoClose": "Automatisch beendet",
+        "aiUnspecified": "KI, ohne Ergebnis",
+        "workflowUnspecified": "Workflow, ohne Ergebnis"
+      },
       "transfers": "Weiterleitungen",
       "loading": "…",
       "viewMetrics": "Service-Metriken öffnen",
@@ -502,6 +511,7 @@
       "filterTransfer": "Weiterleitung",
       "actorHuman": "Mensch",
       "actorAi": "KI",
+      "actorWorkflow": "Workflow",
       "actorSystem": "System",
       "byActor": "von {name}",
       "handoffUnassigned": "Nicht zugewiesen",
@@ -2291,6 +2301,7 @@
         }
       },
       "toolConfig": {
+        "defaultOption": "Standard",
         "title": "Fähigkeit konfigurieren",
         "description": "Konfigurieren Sie die Parameter für {toolName}",
         "infoTitle": "Über dieses Tool",
@@ -5863,11 +5874,11 @@
     "outcomeCapture": {
       "label": "Ergebniserfassung",
       "cardDescription": "Fragen Sie beim Beenden nach dem Ergebnis und messen Sie die Abschlussqualität.",
-      "description": "Mit aktiver Erfassung hält jeder von einer Person durchgeführte Abschluss das gewählte Ergebnis fest. Automatische, KI- und Workflow-Abschlüsse erhalten einen reservierten Code und bleiben außerhalb der Teamzählung.",
+      "description": "Mit aktiver Erfassung hält jeder Abschluss ein Ergebnis aus der Liste fest: eine Person wählt es beim Beenden, die KI im Werkzeug Konversation beenden und ein Workflow im Knoten Konversation beenden. Automatische Abschlüsse wegen Inaktivität erhalten einen reservierten Code. Die Teamzählung umfasst nur Abschlüsse durch Personen.",
       "enabled": "Ergebnis erfassen",
       "enabledHint": "Schaltet die Erfassung ein und zählt ab jetzt.",
       "requireOnFinish": "Zum Beenden verlangen",
-      "requireOnFinishHint": "Ohne gewähltes Ergebnis wird die Konversation nicht beendet.",
+      "requireOnFinishHint": "Ohne gewähltes Ergebnis wird die Konversation nicht beendet, weder von einer Person noch von der KI oder einem Workflow.",
       "threshold": "Ziel für tragende Ergebnisse",
       "thresholdHint": "Mindestanteil, der über die erfassten Abschlüsse erwartet wird.",
       "catalogue": "Ergebnisse",
@@ -12486,5 +12497,26 @@
       "failed": "Fehlgeschlagen",
       "expired": "Abgelaufen"
     }
+  },
+  "crmHandBack": {
+    "title": "An {name} zurückgeben?",
+    "descriptionLeaves": "{name} übernimmt dieses Gespräch wieder und es verschwindet aus deiner Liste. Admins sehen es weiterhin.",
+    "descriptionStays": "{name} übernimmt dieses Gespräch wieder. Es bleibt für dich sichtbar.",
+    "confirm": "Zurückgeben",
+    "cancel": "Abbrechen"
+  },
+  "handOffRules": {
+    "title": "Wer die Konversation in diesem Workspace erhält",
+    "online": "Roulette unter allen, die gerade online sind.",
+    "lastSeen": "Roulette unter allen, die in den letzten {hours} h aktiv waren; ist in diesem Zeitraum niemand aktiv, unter allen, die online sind.",
+    "department": "Nur Personen der gewählten Abteilung erhalten sie oder, ohne Auswahl, der Abteilung der Konversation.",
+    "adminsSkipped": "Admins nehmen nicht am Roulette teil.",
+    "adminsIncluded": "Admins nehmen ebenfalls am Roulette teil.",
+    "rescue": "Ohne Antwort nach {minutes} Min. geht die Konversation an die nächste Person.",
+    "rescueWorkingHours": "Ohne Antwort nach {minutes} Min. geht die Konversation an die nächste Person, innerhalb der Geschäftszeiten.",
+    "noRescue": "Keine automatische Weitergabe, wenn die Person nicht antwortet.",
+    "queue": "Ist niemand verfügbar, kommt die Konversation in die Team-Warteschlange und bleibt bei der Person, die sie zuerst öffnet.",
+    "paused": "Die Automatisierung wird in dieser Konversation nach der Übergabe pausiert.",
+    "settingsLink": "In den Workspace-Einstellungen ändern"
   }
 }

@@ -180,7 +180,7 @@ export async function setConversationAutomationAction(
     entryId: string,
     automationEnabled: boolean | null,
 ) {
-    const response = await apiClient<{ success: boolean }>(
+    const response = await apiClient<{ assigned_user_id?: string }>(
         `/conversations/${entryType}/${entryId}/automation`,
         {
             method: 'PATCH',
@@ -189,7 +189,9 @@ export async function setConversationAutomationAction(
     );
 
     if (response.error) {
-        return { error: response.error.message };
+        return { error: response.error.message, assignedUserId: null };
     }
-    return { error: null };
+    // Switching automation moves ownership: pausing releases what the agent
+    // or workflow held, resuming hands the conversation back to it.
+    return { error: null, assignedUserId: response.data?.assigned_user_id ?? "" };
 }

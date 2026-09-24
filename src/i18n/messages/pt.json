@@ -456,6 +456,7 @@
       "title": "Atendimento",
       "badgeHuman": "Humano",
       "badgeAi": "IA",
+      "badgeWorkflow": "Fluxo",
       "badgeAiActive": "IA ativa",
       "badgeUnassigned": "Sem atendente",
       "ownerUnassigned": "Nenhum atendente atribuído",
@@ -463,6 +464,8 @@
       "ownerHumanNamed": "Humano · {name}",
       "ownerAi": "Atendente IA",
       "ownerAiNamed": "IA · {name}",
+      "ownerWorkflow": "Fluxo",
+      "ownerWorkflowNamed": "Fluxo · {name}",
       "aiToggle": "Automação",
       "aiOn": "Ligado",
       "aiOff": "Desligado",
@@ -473,6 +476,12 @@
       "repliesValue": "Humano {human} · IA {ai}",
       "lastAiOutcome": "Último resultado da IA",
       "closedBy": "Encerrado por",
+      "closeOutcome": "Desfecho",
+      "reservedOutcome": {
+        "systemAutoClose": "Encerrada automaticamente",
+        "aiUnspecified": "IA sem desfecho",
+        "workflowUnspecified": "Workflow sem desfecho"
+      },
       "transfers": "Transferências",
       "loading": "…",
       "viewMetrics": "Abrir métricas de atendimento",
@@ -502,6 +511,7 @@
       "filterTransfer": "Transferência",
       "actorHuman": "Humano",
       "actorAi": "IA",
+      "actorWorkflow": "Fluxo",
       "actorSystem": "Sistema",
       "byActor": "por {name}",
       "handoffUnassigned": "Sem responsável",
@@ -2527,6 +2537,7 @@
         }
       },
       "toolConfig": {
+        "defaultOption": "Padrão",
         "title": "Configurar Habilidade",
         "description": "Configure os parâmetros da ferramenta {toolName}",
         "infoTitle": "Sobre esta ferramenta",
@@ -6752,11 +6763,11 @@
     "outcomeCapture": {
       "label": "Registro de desfecho",
       "cardDescription": "Peça ao atendente o desfecho no encerramento e meça a qualidade dos atendimentos.",
-      "description": "Com o registro ligado, cada encerramento feito por uma pessoa grava o desfecho escolhido. Encerramentos automáticos, da IA e de workflows recebem um código reservado e ficam fora da conta da equipe.",
+      "description": "Com o registro ligado, cada encerramento grava um desfecho da lista: a pessoa escolhe ao encerrar, a IA escolhe na ferramenta Finalizar conversa e o workflow no nó Finalizar conversa. Encerramentos automáticos por inatividade recebem um código reservado. A conta da equipe só inclui encerramentos feitos por pessoas.",
       "enabled": "Coletar desfecho",
       "enabledHint": "Liga a coleta e passa a contar a partir de agora.",
       "requireOnFinish": "Exigir no encerramento",
-      "requireOnFinishHint": "Sem um desfecho escolhido, a conversa não é encerrada.",
+      "requireOnFinishHint": "Sem um desfecho escolhido, a conversa não é encerrada, seja por uma pessoa, pela IA ou por um workflow.",
       "threshold": "Meta de desfechos que resolvem",
       "thresholdHint": "Percentual mínimo esperado sobre os encerramentos registrados.",
       "catalogue": "Desfechos",
@@ -13533,5 +13544,26 @@
       "failed": "Falhou",
       "expired": "Expirado"
     }
+  },
+  "crmHandBack": {
+    "title": "Devolver para {name}?",
+    "descriptionLeaves": "{name} volta a atender esta conversa e ela sai da sua lista. Administradores continuam vendo.",
+    "descriptionStays": "{name} volta a atender esta conversa. Ela continua visível para você.",
+    "confirm": "Devolver",
+    "cancel": "Cancelar"
+  },
+  "handOffRules": {
+    "title": "Quem recebe a conversa neste workspace",
+    "online": "Roleta entre quem está online agora.",
+    "lastSeen": "Roleta entre quem esteve ativo nas últimas {hours} h; sem ninguém nesse período, entre quem está online.",
+    "department": "Só recebe quem é do departamento escolhido ou, sem escolha, do departamento da conversa.",
+    "adminsSkipped": "Admins não entram na roleta.",
+    "adminsIncluded": "Admins também entram na roleta.",
+    "rescue": "Sem resposta em {minutes} min, a conversa passa para a próxima pessoa.",
+    "rescueWorkingHours": "Sem resposta em {minutes} min, a conversa passa para a próxima pessoa, dentro do horário de atendimento.",
+    "noRescue": "Sem repasse automático se a pessoa não responder.",
+    "queue": "Sem ninguém disponível, a conversa vai para a fila da equipe e fica com quem abrir primeiro.",
+    "paused": "A automação é pausada nesta conversa depois da transferência.",
+    "settingsLink": "Alterar nas configurações do workspace"
   }
 }

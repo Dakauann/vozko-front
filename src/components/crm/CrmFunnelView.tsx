@@ -12,7 +12,6 @@ import {
   Check,
   Circle,
   DotsThree,
-  User,
 } from "@/components/icons";
 import type {
   EntryType,
@@ -25,6 +24,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { reorderStagesAction } from "@/app/actions/stages";
 import AnalysisHoverCard from "@/components/crm/AnalysisHoverCard";
+import { AssigneeGlyph } from "@/components/crm/AssigneeGlyph";
 import KanbanColumnShell from "@/components/crm/KanbanColumnShell";
 import { ChannelAvatar } from "@/components/channels/channel-avatar";
 import {
@@ -163,7 +163,12 @@ function FunnelCardBody({ entry }: { entry: InboxEntry }) {
             <CardPill
               tone="info"
               className="max-w-[50%]"
-              icon={<User weight="bold" className="h-2.5 w-2.5 flex-shrink-0" />}
+              icon={
+                <AssigneeGlyph
+                  assignedUserId={entry.assigned_user_id}
+                  className="h-2.5 w-2.5 flex-shrink-0"
+                />
+              }
             >
               {entry.assigned_username}
             </CardPill>

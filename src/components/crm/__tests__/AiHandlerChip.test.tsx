@@ -66,6 +66,18 @@ describe("AiHandlerChip", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
+  it("stays while the workflow itself holds the conversation", () => {
+    render(
+      <AiHandlerChip
+        handler={{ kind: "workflow", workflow_id: "w1", workflow_name: "Régua NR" }}
+        automationEnabled={null}
+        conversationStatus="ongoing"
+        assignedUserId="workflow:w1"
+      />,
+    );
+    expect(screen.getByText("Régua NR")).toBeTruthy();
+  });
+
   it("hides on a finished conversation", () => {
     const { container } = render(
       <AiHandlerChip

@@ -12,6 +12,13 @@ import type {
   WhatsAppCampaignTypeFilter,
 } from "@/lib/conversations/types";
 import { getConversationStatusDisplay } from "@/lib/conversations/close-provenance";
+import { assigneeKind } from "@/lib/conversations/assignee";
+import {
+  handBackTarget,
+  leavesViewerAfterHandBack,
+  type HandBackTarget,
+} from "@/lib/conversations/hand-back";
+import { HandBackConfirmDialog } from "@/components/crm/HandBackConfirmDialog";
 import type {
   FunnelColumnState,
   SendButtonWsInput,
@@ -365,6 +372,7 @@ export default function CrmLayout({
     reloadLabels,
     switchView,
     assignTo,
+    forgetEntry,
     setConversationStatus,
     pendingOutcomeRequest,
     clearPendingOutcomeRequest,
@@ -1168,21 +1176,70 @@ export default function CrmLayout({
   const [statusMenuOpen, setStatusMenuOpen] = useState(false);
   const statusMenuRef = useRef<HTMLDivElement>(null);
 
+  const canViewOthers = can("conversations", "view_others");
+  const [handBackRequest, setHandBackRequest] = useState<{
+    entryId: string;
+    entryType: EntryType;
+    target: HandBackTarget;
+  } | null>(null);
+
+  const handBackTargetFor = useCallback(
+    (entryId: string, entryType: EntryType) => {
+      const entry = inbox.find(
+        (e) => e.entry_id === entryId && e.entry_type === entryType,
+      );
+      return entry ? handBackTarget(entry) : null;
+    },
+    [inbox],
+  );
+
+  // Switching automation moves ownership on the server: pausing releases what
+  // the agent or workflow held, resuming hands the conversation back to it.
+  // Whoever hands it back without seeing others' conversations loses the row;
+  // the server tells them too, dropping it here just spares the round trip.
+  const switchAutomation = useCallback(
+    async (entryId: string, entryType: EntryType, enabled: boolean) => {
+      const result = await setConversationAutomationAction(entryType, entryId, enabled);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      if (leavesViewerAfterHandBack(result.assignedUserId ?? "", canViewOthers)) {
+        forgetEntry(entryId, entryType);
+      }
+    },
+    [canViewOthers, forgetEntry],
+  );
+
+  const requestHandBack = useCallback(
+    (entryId: string, entryType: EntryType) => {
+      const target = handBackTargetFor(entryId, entryType);
+      if (target) setHandBackRequest({ entryId, entryType, target });
+    },
+    [handBackTargetFor],
+  );
+
+  const confirmHandBack = useCallback(async () => {
+    if (!handBackRequest) return;
+    await switchAutomation(handBackRequest.entryId, handBackRequest.entryType, true);
+  }, [handBackRequest, switchAutomation]);
+
   const handleToggleAi = useCallback(async () => {
     if (!activeConversation || togglingAi) return;
-    const currentVal = activeConversation.automation_enabled;
-    const newVal = currentVal === false ? true : false;
+    const entryId = activeConversation.entry_id;
+    const entryType = activeConversation.entry_type as EntryType;
+    const turningOn = activeConversation.automation_enabled === false;
+    if (turningOn && handBackTargetFor(entryId, entryType)) {
+      requestHandBack(entryId, entryType);
+      return;
+    }
     setTogglingAi(true);
     try {
-      await setConversationAutomationAction(
-        activeConversation.entry_type,
-        activeConversation.entry_id,
-        newVal,
-      );
+      await switchAutomation(entryId, entryType, turningOn);
     } finally {
       setTogglingAi(false);
     }
-  }, [activeConversation, togglingAi]);
+  }, [activeConversation, togglingAi, handBackTargetFor, requestHandBack, switchAutomation]);
 
   useEffect(() => {
     if (!callDropdownOpen) return;
@@ -1424,18 +1481,19 @@ export default function CrmLayout({
       const current = windowConversations.get(
         `${entryType}-${entryId}`,
       )?.conversation.automation_enabled;
+      const turningOn = current === false;
+      if (turningOn && handBackTargetFor(entryId, entryType)) {
+        requestHandBack(entryId, entryType);
+        return;
+      }
       setTogglingWindowAutomation(true);
       try {
-        await setConversationAutomationAction(
-          entryType,
-          entryId,
-          current === false,
-        );
+        await switchAutomation(entryId, entryType, turningOn);
       } finally {
         setTogglingWindowAutomation(false);
       }
     },
-    [togglingWindowAutomation, windowConversations],
+    [togglingWindowAutomation, windowConversations, handBackTargetFor, requestHandBack, switchAutomation],
   );
 
   const windowActions = useMemo(
@@ -1460,9 +1518,11 @@ export default function CrmLayout({
           currentStages: entry?.stage ? [entry.stage] : [],
           availableStages: entry?.available_stages ?? [],
           currentLabels: entry?.labels ?? [],
+          handBack: entry ? handBackTarget(entry) : null,
         };
       },
       onAssign: assignTo,
+      onHandBack: requestHandBack,
       onSetStatus: requestConversationStatus,
       onToggleAutomation: handleWindowToggleAutomation,
       onEntryStageChange: handleEntryStageChange,
@@ -1483,6 +1543,7 @@ export default function CrmLayout({
       assignTo,
       requestConversationStatus,
       handleWindowToggleAutomation,
+      requestHandBack,
       handleEntryStageChange,
       handleAssignStage,
       handleMoveToFunnel,
@@ -1522,13 +1583,7 @@ export default function CrmLayout({
           {currentInboxEntry?.assigned_user_id ||
           currentInboxEntry?.assigned_username ? (
             <AttendanceOwnerBadge
-              kind={
-                String(currentInboxEntry.assigned_user_id ?? "").startsWith(
-                  "ai:",
-                )
-                  ? "ai"
-                  : "human"
-              }
+              kind={assigneeKind(currentInboxEntry.assigned_user_id) ?? "human"}
               className="shrink-0"
             />
           ) : aiIsActive && hasAiHandler ? (
@@ -1740,6 +1795,13 @@ export default function CrmLayout({
             assignedUserId={currentInboxEntry?.assigned_user_id ?? null}
             onlineUserIds={onlineUserIdSet}
             onAssign={handleAssignTo}
+            handBack={currentInboxEntry ? handBackTarget(currentInboxEntry) : null}
+            onHandBack={() =>
+              requestHandBack(
+                activeConversation.entry_id,
+                activeConversation.entry_type as EntryType,
+              )
+            }
           />
         )}
 
@@ -1950,6 +2012,15 @@ export default function CrmLayout({
           setOutcomePrompt(null);
           clearPendingOutcomeRequest();
         }}
+      />
+      <HandBackConfirmDialog
+        open={handBackRequest !== null}
+        onOpenChange={(open) => {
+          if (!open) setHandBackRequest(null);
+        }}
+        target={handBackRequest?.target ?? null}
+        canViewOthers={canViewOthers}
+        onConfirm={confirmHandBack}
       />
       <div
         className={cn(
