@@ -1,4 +1,5 @@
 import type { CrmFilter } from '@/lib/crm/board';
+import { normalizeActorKind } from '@/lib/conversations/events';
 
 
 export type OpportunityStatus = 'open' | 'won' | 'lost';
@@ -18,6 +19,8 @@ export interface Opportunity {
     lostReasonId?: string;
     source?: string;
     closeDate?: string | null;
+    createdBy?: string;
+    closedBy?: string;
     customFields?: Record<string, unknown> | null;
     createdAt: string;
     updatedAt: string;
@@ -89,7 +92,6 @@ export interface CreateOpportunityInput {
     source?: string;
     closeDate?: string | null;
     customFields?: Record<string, unknown>;
-    conversationAssigneeId?: string;
     linkEntryId?: string;
     linkEntryType?: string;
 }
@@ -101,17 +103,37 @@ export interface UpdateOpportunityInput {
     ownerId?: string;
     carteiraId?: string;
     source?: string;
-    closeDate?: string | null;
     customFields?: Record<string, unknown>;
     stageId?: string;
-    status?: OpportunityStatus;
     lostReasonId?: string;
 }
 
 export interface MoveOpportunityInput {
     stageId: string;
-    status?: OpportunityStatus;
     lostReasonId?: string;
+}
+
+export type OpportunityEventType =
+    | 'created'
+    | 'stage_moved'
+    | 'won'
+    | 'lost'
+    | 'reopened'
+    | 'value_changed'
+    | 'owner_changed'
+    | 'linked';
+
+export interface OpportunityEvent {
+    id: string;
+    opportunityId: string;
+    type: OpportunityEventType;
+    actorId: string;
+    fromStageId?: string;
+    toStageId?: string;
+    valueCents: number;
+    currency: string;
+    details?: Record<string, unknown>;
+    createdAt: string;
 }
 
 export interface OpportunityConversationLink {
@@ -120,6 +142,58 @@ export interface OpportunityConversationLink {
     entryType: string;
 }
 
+
+export interface DealActorLabels {
+    ai: string;
+    workflow: string;
+    system: string;
+    unknownMember: string;
+}
+
+export function dealActorName(
+    actorId: string | undefined,
+    members: ReadonlyMap<string, string>,
+    labels: DealActorLabels,
+): string | null {
+    const id = (actorId ?? '').trim();
+    if (!id) return null;
+    switch (normalizeActorKind(undefined, id)) {
+        case 'ai':
+            return labels.ai;
+        case 'workflow':
+            return labels.workflow;
+        case 'system':
+            return labels.system;
+    }
+    return members.get(id) ?? labels.unknownMember;
+}
+
+export function dealEventText(
+    event: OpportunityEvent,
+    actorName: string,
+    stageNames: ReadonlyMap<string, string>,
+): string {
+    const stage = (id?: string) => (id && stageNames.get(id)) || 'etapa removida';
+    const value = formatValueCents(event.valueCents, event.currency);
+    switch (event.type) {
+        case 'created':
+            return `${actorName} criou o negócio`;
+        case 'stage_moved':
+            return `${actorName} moveu de ${stage(event.fromStageId)} para ${stage(event.toStageId)}`;
+        case 'won':
+            return `${actorName} marcou como ganho (${value})`;
+        case 'lost':
+            return `${actorName} marcou como perdido`;
+        case 'reopened':
+            return `${actorName} reabriu o negócio`;
+        case 'value_changed':
+            return `${actorName} alterou o valor para ${value}`;
+        case 'owner_changed':
+            return `${actorName} trocou o responsável`;
+        case 'linked':
+            return `${actorName} vinculou uma conversa`;
+    }
+}
 
 export function formatValueCents(cents: number, currency = 'BRL'): string {
     return new Intl.NumberFormat('pt-BR', {
@@ -138,15 +212,6 @@ export function formatValueCompact(cents: number, currency = 'BRL'): string {
 }
 
 
-export function daysUntil(iso?: string | null): number | null {
-    if (!iso) return null;
-    const then = new Date(iso).getTime();
-    if (Number.isNaN(then)) return null;
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
-    return Math.round((then - startOfToday.getTime()) / 86_400_000);
-}
-
 export function idleDays(iso?: string | null): number {
     if (!iso) return 0;
     const then = new Date(iso).getTime();
@@ -155,19 +220,6 @@ export function idleDays(iso?: string | null): number {
 }
 
 export type DealSignalTone = "success" | "warning" | "danger" | "info" | "neutral";
-
-export function closeDateSignal(
-    closeDate: string | null | undefined,
-    status: OpportunityStatus,
-): { tone: DealSignalTone; label: string } | null {
-    if (status !== "open") return null;
-    const d = daysUntil(closeDate);
-    if (d === null) return null;
-    if (d < 0) return { tone: "danger", label: d === -1 ? "Venceu ontem" : `Atrasada ${Math.abs(d)}d` };
-    if (d === 0) return { tone: "warning", label: "Fecha hoje" };
-    if (d <= 3) return { tone: "warning", label: `Fecha em ${d}d` };
-    return { tone: "info", label: shortDate(closeDate!) };
-}
 
 export function rotSignal(
     status: OpportunityStatus,

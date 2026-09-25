@@ -938,8 +938,6 @@ export default function LiveOpsPanel({
   const [departmentId, setDepartmentId] = useState("all");
   const [memberId, setMemberId] = useState("all");
   const [channel, setChannel] = useState("all");
-  const [direction, setDirection] = useState("all");
-  const [callType, setCallType] = useState("all");
   const [departments, setDepartments] = useState<Department[]>([]);
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
   const [heightPct, setHeightPct] = useState(DEFAULT_HEIGHT_PCT);
@@ -1068,9 +1066,11 @@ export default function LiveOpsPanel({
   const error = failed?.error instanceof Error ? failed.error.message : null;
   const lastUpdated = summary?.generated_at ? new Date(summary.generated_at) : null;
 
-  useEffect(() => {
+  const [openBefore, setOpenBefore] = useState(open);
+  if (openBefore !== open) {
+    setOpenBefore(open);
     if (!open) setFullscreen(false);
-  }, [open]);
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -1419,15 +1419,6 @@ export default function LiveOpsPanel({
               );
             })}
           </div>
-
-          {(kpis?.shell_backlog ?? 0) > 0 ? (
-            <p className="shrink-0 text-2xs text-muted-foreground">
-              {tk("shellLabel")}: {fmt.num(kpis?.shell_backlog)} ·{" "}
-              {tk("entriesCreated", {
-                count: fmt.num(kpis?.entries_created ?? 0),
-              })}
-            </p>
-          ) : null}
 
           {}
           <div

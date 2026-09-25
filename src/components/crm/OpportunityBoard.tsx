@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   ArrowsClockwise,
-  CalendarBlank,
   CircleNotch,
   DotsThreeVertical,
   HourglassMedium,
@@ -38,7 +37,7 @@ import {
   type CrmFilter,
 } from "@/lib/crm/board";
 import {
-  closeDateSignal,
+  dealActorName,
   formatValueCents,
   formatValueCompact,
   relativeAge,
@@ -156,6 +155,16 @@ export default function OpportunityBoard({
     return map;
   }, [members]);
 
+  const ownerLabels = useMemo(
+    () => ({
+      ai: t("deals.owner.ai"),
+      workflow: t("deals.owner.workflow"),
+      system: t("deals.owner.system"),
+      unknownMember: t("deals.owner.unknownMember"),
+    }),
+    [t],
+  );
+
   const boardTotals = useMemo(() => {
     let count = 0;
     let value = 0;
@@ -187,11 +196,11 @@ export default function OpportunityBoard({
     async (deal: Opportunity, fromColumnId: string, toColumnId: string) => {
       const column = columns.find((c) => c.id === toColumnId);
       if (!column) return;
-      if (column.isLost) {
+      if (column.isLost || (column.isWon && deal.valueCents <= 0)) {
+        if (column.isWon) toast.info(t("deals.wonNeedsValue"));
         openEdit({ ...deal, stageId: toColumnId });
         return;
       }
-      const status: Opportunity["status"] = column.isWon ? "won" : "open";
 
       setColumns((prev) =>
         prev.map((c) => {
@@ -208,7 +217,7 @@ export default function OpportunityBoard({
               ...c,
               total: c.total + 1,
               valueTotal: c.valueTotal + deal.valueCents,
-              entries: [{ ...deal, stageId: toColumnId, status }, ...(c.entries ?? [])],
+              entries: [{ ...deal, stageId: toColumnId }, ...(c.entries ?? [])],
             };
           }
           return c;
@@ -221,10 +230,7 @@ export default function OpportunityBoard({
         return next;
       });
 
-      const { error: err } = await moveOpportunityAction(deal.id, {
-        stageId: toColumnId,
-        status,
-      });
+      const { error: err } = await moveOpportunityAction(deal.id, { stageId: toColumnId });
 
       setMovingIds((prev) => {
         const next = new Set(prev);
@@ -239,7 +245,7 @@ export default function OpportunityBoard({
       }
       void load();
     },
-    [columns, openEdit, load],
+    [columns, openEdit, load, t],
   );
 
   return (
@@ -340,7 +346,7 @@ export default function OpportunityBoard({
             renderCard={(deal) => (
               <DealCard
                 deal={deal}
-                ownerName={deal.ownerId ? membersById.get(deal.ownerId) ?? "Atribuído" : null}
+                ownerName={dealActorName(deal.ownerId, membersById, ownerLabels)}
                 customFields={customFields}
                 isMoving={movingIds.has(deal.id)}
                 onClick={() => openEdit(deal)}
@@ -400,7 +406,6 @@ function DealCard({
   const won = status === "won";
   const lost = status === "lost";
 
-  const closeSignal = closeDateSignal(deal.closeDate, status);
   const rot = rotSignal(status, deal.updatedAt);
   const age = relativeAge(deal.createdAt);
 
@@ -473,14 +478,6 @@ function DealCard({
                 icon={<User weight="bold" className="h-2.5 w-2.5 flex-shrink-0" />}
               >
                 {ownerName}
-              </CardPill>
-            ) : null}
-            {closeSignal ? (
-              <CardPill
-                tone={closeSignal.tone}
-                icon={<CalendarBlank weight="bold" className="h-2.5 w-2.5 flex-shrink-0" />}
-              >
-                {closeSignal.label}
               </CardPill>
             ) : null}
             {rot ? (

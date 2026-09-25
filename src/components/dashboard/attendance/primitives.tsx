@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, type ReactNode } from "react";
+import { useCallback, useMemo, type ReactNode, type Ref } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
@@ -128,38 +128,26 @@ export function Surface({
   );
 }
 
+// Card-level heading. The chapter above it already carries the glyph plate, so
+// a card names itself in type alone; a second plate per card was noise.
 export function SectionTitle({
-  icon,
-  iconBg,
   title,
   subtitle,
   action,
 }: {
-  icon: ReactNode;
-  iconBg: string;
   title: string;
   subtitle?: string;
   action?: ReactNode;
 }) {
   return (
-    <div className="mb-2.5 flex items-start justify-between gap-3">
-      <div className="flex min-w-0 items-start gap-2.5">
-        <div
-          className={cn(
-            "flex h-7 w-7 shrink-0 items-center justify-center rounded-[--radius]",
-            iconBg,
-          )}
-        >
-          {icon}
-        </div>
-        <div className="min-w-0">
-          <h2 className="text-sm font-semibold tracking-tight text-foreground">
-            {title}
-          </h2>
-          {subtitle ? (
-            <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
-          ) : null}
-        </div>
+    <div className="mb-3 flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <h3 className="text-sm font-semibold tracking-tight text-foreground">
+          {title}
+        </h3>
+        {subtitle ? (
+          <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
+        ) : null}
       </div>
       {action}
     </div>
@@ -171,35 +159,78 @@ export function SectionLabel({
   iconBg,
   title,
   subtitle,
+  id,
 }: {
   icon?: ReactNode;
   iconBg?: string;
   title: string;
   subtitle?: string;
+  id?: string;
 }) {
   return (
-    <div className="mb-2 flex items-end justify-between gap-3">
-      <div className="flex min-w-0 items-start gap-2.5">
-        {icon ? (
-          <div
-            className={cn(
-              "flex h-7 w-7 shrink-0 items-center justify-center rounded-[--radius]",
-              iconBg,
-            )}
-          >
-            {icon}
-          </div>
-        ) : null}
-        <div className="min-w-0">
-          <h2 className="text-sm font-semibold tracking-tight text-foreground">
-            {title}
-          </h2>
-          {subtitle ? (
-            <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
-          ) : null}
+    <div className="mb-3 flex min-w-0 items-start gap-2.5">
+      {icon ? (
+        <div
+          className={cn(
+            "flex h-8 w-8 shrink-0 items-center justify-center rounded-[--radius]",
+            iconBg,
+          )}
+        >
+          {icon}
         </div>
+      ) : null}
+      <div className="min-w-0">
+        <h2
+          id={id}
+          className="font-display text-base font-semibold leading-tight tracking-[0.01em] text-foreground"
+        >
+          {title}
+        </h2>
+        {subtitle ? (
+          <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
+        ) : null}
       </div>
     </div>
+  );
+}
+
+// One metric family, as the backend groups it: a labelled region whose cards
+// sit on a tight 12px rhythm while chapters stand apart on the page's larger one.
+export function Chapter({
+  id,
+  icon,
+  iconBg,
+  title,
+  subtitle,
+  children,
+  className,
+  ref,
+}: {
+  id: string;
+  icon?: ReactNode;
+  iconBg?: string;
+  title: string;
+  subtitle?: string;
+  children: ReactNode;
+  className?: string;
+  ref?: Ref<HTMLElement>;
+}) {
+  const headingId = `${id}-heading`;
+  return (
+    <section
+      ref={ref}
+      aria-labelledby={headingId}
+      className={cn("flex min-w-0 flex-col", className)}
+    >
+      <SectionLabel
+        id={headingId}
+        icon={icon}
+        iconBg={iconBg}
+        title={title}
+        subtitle={subtitle}
+      />
+      <div className="flex min-w-0 flex-1 flex-col gap-3">{children}</div>
+    </section>
   );
 }
 

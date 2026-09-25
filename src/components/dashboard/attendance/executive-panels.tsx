@@ -20,6 +20,7 @@ import type {
   OverviewPeriod,
   OverviewQuality,
   OverviewRevenue,
+  RevenueSourceRow,
   OverviewRework,
   OverviewStanding,
   OverviewTeamRanking,
@@ -642,9 +643,19 @@ export function RevenueCard({
                 </div>
               ) : null}
             </dl>
+            <RevenueSources
+              rows={revenue.by_source.filter((source) => source.currency === row.currency)}
+              fmt={fmt}
+            />
           </Surface>
         ))}
       </div>
+
+      {revenue.won_without_value > 0 ? (
+        <p className="rounded-[--radius] bg-muted px-3 py-2 text-2xs text-muted-foreground">
+          {te("wonWithoutValue", { count: fmt.num(revenue.won_without_value) })}
+        </p>
+      ) : null}
 
       {revenue.unattributed > 0 || revenue.unowned_count > 0 ? (
         <p className="text-2xs text-muted-foreground">
@@ -657,6 +668,38 @@ export function RevenueCard({
             : ""}
         </p>
       ) : null}
+    </div>
+  );
+}
+
+function RevenueSources({ rows, fmt }: { rows: RevenueSourceRow[]; fmt: MetricsFmt }) {
+  const { te } = useExecutiveTranslations();
+  if (rows.length === 0) return null;
+  const total = rows.reduce((sum, row) => sum + row.value_cents, 0);
+
+  return (
+    <div className="mt-3 space-y-1.5 border-t border-border pt-2">
+      <p className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {te("bySource")}
+      </p>
+      {rows.map((row) => (
+        <div key={row.source} className="space-y-0.5">
+          <div className="flex items-baseline justify-between gap-2 text-2xs">
+            <span className="text-muted-foreground">
+              {te(`revenueSource.${row.source}`)} · {fmt.num(row.won_count)}
+            </span>
+            <span className="readout tabular-nums text-foreground">
+              {fmt.money(row.value_cents, row.currency)}
+            </span>
+          </div>
+          <div className="h-1 overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-primary"
+              style={{ width: `${total > 0 ? (row.value_cents / total) * 100 : 0}%` }}
+            />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -842,7 +885,7 @@ export function BacklogXraySection({
           {backlog.reachability.map((row) => (
             <div
               key={row.channel}
-              className="rounded-[--radius] border border-border bg-muted/30 px-3 py-2"
+              className="rounded-[--radius] bg-muted px-3 py-2"
             >
               <div className="flex items-baseline justify-between gap-2">
                 <span className="text-2xs font-semibold text-foreground">
@@ -1161,7 +1204,7 @@ export function TeamRankingTable({
             className={cn(
               "rounded-[--radius] px-2 py-1 text-2xs font-semibold",
               rankMetric === option
-                ? "bg-primary text-primary-ink"
+                ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground",
             )}
           >

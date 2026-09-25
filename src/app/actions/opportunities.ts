@@ -8,6 +8,7 @@ import type {
     Opportunity,
     OpportunityBoard,
     OpportunityConversationLink,
+    OpportunityEvent,
     OpportunityListResult,
     UpdateOpportunityInput,
 } from '@/lib/crm/opportunities';
@@ -111,6 +112,14 @@ export async function getOpportunityAction(
     const response = await apiClient<Opportunity>(`/opportunities/${id}`, { method: 'GET' });
     if (response.error) return { opportunity: null, error: response.error.message };
     return { opportunity: response.data ?? null };
+}
+
+export async function listOpportunityEventsAction(
+    id: string,
+): Promise<{ events: OpportunityEvent[]; error?: string }> {
+    const response = await apiClient<OpportunityEvent[]>(`/opportunities/${id}/events`, { method: 'GET' });
+    if (response.error) return { events: [], error: response.error.message };
+    return { events: response.data ?? [] };
 }
 
 export async function listOpportunityConversationsAction(

@@ -25,7 +25,7 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { IconBox } from "@/components/elevated-design/listing-card";
 import { buildInitialToolConfig } from "@/lib/agents/tool-config-defaults";
-import { fetchDepartments } from "@/lib/department/client";
+import { loadToolOptions, toggleChoice, type ToolOption } from "@/lib/agents/tool-option-sources";
 import { handsOffToPeople } from "@/lib/agents/tool-settings";
 import { HandOffRulesSummary } from "@/components/dashboard/workspace/HandOffRulesSummary";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -115,26 +115,28 @@ function ToolConfigDialogContent({
     return Object.entries(configSchema);
   }, [configSchema]);
 
-  // Choices that depend on the workspace load when the dialog opens, from the
-  // same source the workflow editor uses.
-  const needsDepartments = useMemo(
-    () => schemaEntries.some(([, s]) => s.optionsSource === "departments"),
+  const optionSources = useMemo(
+    () =>
+      Array.from(
+        new Set(schemaEntries.map(([, s]) => s.optionsSource).filter((source): source is string => !!source)),
+      ).sort(),
     [schemaEntries],
   );
-  const [departmentOptions, setDepartmentOptions] = useState<
-    Array<{ value: string; label: string }>
-  >([]);
+  const sourcesKey = optionSources.join(",");
+  const [sourceOptions, setSourceOptions] = useState<Record<string, ToolOption[]>>({});
   useEffect(() => {
-    if (!open || !needsDepartments) return;
+    if (!open || !sourcesKey) return;
     let live = true;
-    fetchDepartments().then((res) => {
-      if (!live) return;
-      setDepartmentOptions(res.departments.map((d) => ({ value: d.id, label: d.name })));
-    });
+    for (const source of sourcesKey.split(",")) {
+      void loadToolOptions(source).then((options) => {
+        if (!live || !options) return;
+        setSourceOptions((prev) => ({ ...prev, [source]: options }));
+      });
+    }
     return () => {
       live = false;
     };
-  }, [open, needsDepartments]);
+  }, [open, sourcesKey]);
 
   const requiredFieldLabels = useMemo(() => {
     return Array.from(requiredFields).map((key) => {
@@ -254,10 +256,37 @@ function ToolConfigDialogContent({
       </span>
     );
 
+    if (schema.type === "array" && schema.options?.length) {
+      const order = schema.options.map((option) => option.value);
+      const chosen = new Set(Array.isArray(value) ? value.map(String) : []);
+      return (
+        <fieldset key={key} className="space-y-2">
+          <legend className="block text-sm text-foreground">
+            {labelText}
+            <span className="block text-xs text-muted-foreground mt-1">{fieldDescription}</span>
+          </legend>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {schema.options.map((option) => (
+              <label key={option.value} className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
+                <input
+                  type="checkbox"
+                  checked={chosen.has(option.value)}
+                  onChange={() => handleFieldChange(key, toggleChoice(value, option.value, order))}
+                  className="h-4 w-4 rounded border-foreground/20 text-primary-ink focus:ring-ring"
+                />
+                {option.label}
+              </label>
+            ))}
+          </div>
+          {error && <p className="text-xs font-semibold text-destructive-ink">{error}</p>}
+        </fieldset>
+      );
+    }
+
     const choices = schema.options?.length
       ? schema.options
-      : schema.optionsSource === "departments"
-        ? departmentOptions
+      : schema.optionsSource
+        ? sourceOptions[schema.optionsSource] ?? []
         : null;
     if (choices) {
       const current = value !== undefined && value !== null ? String(value) : "";

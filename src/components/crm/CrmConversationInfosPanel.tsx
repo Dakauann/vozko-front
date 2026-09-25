@@ -35,8 +35,10 @@ import ConversationGroupSection from "@/components/crm/ConversationGroupSection"
 import LeadMemoriesSection from "@/components/crm/LeadMemoriesSection";
 import ConversationPathChart from "@/components/crm/ConversationPathChart";
 import CrmSegmentedToggle from "@/components/crm/CrmSegmentedToggle";
-import { type Opportunity, formatValueCents } from "@/lib/crm/opportunities";
+import { type Opportunity, dealActorName, formatValueCents } from "@/lib/crm/opportunities";
 import { cn } from "@/lib/utils";
+
+const NO_MEMBERS: ReadonlyMap<string, string> = new Map();
 
 const DEAL_STATUS_DOT: Record<string, string> = {
   open: "bg-primary",
@@ -89,6 +91,15 @@ export default function CrmConversationInfosPanel({
   onLeadRenamed,
 }: CrmConversationInfosPanelProps) {
   const t = useTranslations("crmContactPanel");
+  const dealOwnerLabels = useMemo(
+    () => ({
+      ai: t("dealOwnerAI"),
+      workflow: t("dealOwnerWorkflow"),
+      system: t("dealOwnerSystem"),
+      unknownMember: t("dealOwnerTeam"),
+    }),
+    [t],
+  );
 
   const [blocking, setBlocking] = useState(false);
   const [confirmingBlock, setConfirmingBlock] = useState(false);
@@ -618,6 +629,13 @@ export default function CrmConversationInfosPanel({
                               </span>
                             )}
                           </div>
+                          {o.ownerId ? (
+                            <p className="mt-0.5 pl-4 text-2xs text-muted-foreground">
+                              {t("dealOwner", {
+                                name: dealActorName(o.ownerId, NO_MEMBERS, dealOwnerLabels) ?? "",
+                              })}
+                            </p>
+                          ) : null}
                         </div>
                       ))}
                     </div>

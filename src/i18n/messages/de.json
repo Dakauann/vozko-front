@@ -224,7 +224,15 @@
       "list_models": "KI-Modelle",
       "list_voices": "Stimmen",
       "list_departments": "Abteilungen",
-      "list_agent_tools": "Agent-Tools"
+      "list_agent_tools": "Agent-Tools",
+      "attendance_metrics": "Service-Kennzahlen",
+      "attendance_trend": "Monatsverlauf",
+      "attendance_team": "Team-Ranking",
+      "attendance_backlog": "Backlog-Röntgenbild",
+      "conversation_insights": "Gesprächsanalysen",
+      "calculate": "Berechnung",
+      "query_dataset": "Datenabfrage",
+      "render_chart": "Diagramm"
     },
     "threadsLegend": "Unterhaltungen",
     "greeting": "Woran arbeiten wir?",
@@ -232,7 +240,12 @@
     "starterCreateAgent": "Einen Inkasso-Agenten erstellen",
     "starterModels": "Welche Modelle sind verfügbar?",
     "starterAgentTools": "Die Werkzeuge eines Agenten prüfen",
-    "conversationLegend": "Unterhaltung"
+    "conversationLegend": "Unterhaltung",
+    "chart": {
+      "other": "Sonstige",
+      "showTable": "Tabelle",
+      "showChart": "Diagramm"
+    }
   },
   "leadMemories": {
     "title": "Erinnerungen",
@@ -569,7 +582,12 @@
     "expandPanel": "Panel ausklappen",
     "noOpportunities": "Noch keine Opportunities",
     "groupSubtitle": "Gruppenunterhaltung",
-    "unnamedGroup": "Gruppe"
+    "unnamedGroup": "Gruppe",
+    "dealOwner": "Verantwortlich: {name}",
+    "dealOwnerAI": "KI-Agent",
+    "dealOwnerWorkflow": "Workflow",
+    "dealOwnerSystem": "System",
+    "dealOwnerTeam": "Team"
   },
   "metadata": {
     "title": "{brandLegalName}",
@@ -8436,7 +8454,14 @@
       "won": "Deal gewonnen! 🎉",
       "moved": "Verkaufschance verschoben.",
       "retry": "Erneut versuchen",
-      "noValue": "Kein Wert festgelegt"
+      "noValue": "Kein Wert festgelegt",
+      "wonNeedsValue": "Gib den Wert des Deals ein, um ihn als gewonnen zu markieren.",
+      "owner": {
+        "ai": "KI-Agent",
+        "workflow": "Workflow",
+        "system": "System",
+        "unknownMember": "Zugewiesen"
+      }
     },
     "bank": {
       "channel": "Kanal",
@@ -8817,12 +8842,7 @@
         "avgHandleHint": "Wie lange das Team im Durchschnitt braucht, um ein Gespräch abzuschließen",
         "frt": "1. Antwort",
         "frtShort": "Nach Zuweisung",
-        "frtHint": "Von Zuweisung bis erster Antwort",
-        "shellLabel": "Kampagnen-Shells",
-        "shellShort": "Einträge ohne Nachrichten",
-        "shellHint": "Massen-Kampagnen/API-Einträge ohne Nachrichten. Keine echten Chats, nicht in den Haupt-KPIs.",
-        "shellOfScoped": "{shells} von {total} Einträgen im Zeitraum",
-        "entriesCreated": "{count} Einträge im Zeitraum erstellt"
+        "frtHint": "Von Zuweisung bis erster Antwort"
       },
       "sections": {
         "volume": "Volumen und Status",
@@ -8837,6 +8857,8 @@
         "frtSub": "Von der Übernahme bis zur ersten Antwort",
         "messages": "Nachrichten pro Unterhaltung",
         "messagesSub": "Durchschnittliches Nachrichtenaufkommen in Unterhaltungen",
+        "messaging": "Nachrichten",
+        "messagingSub": "Wie viele Nachrichten jede Unterhaltung austauscht und wie viel davon Vorlagen sind",
         "reopen": "Wiedereröffnet",
         "reopenSub": "Gespräche nach dem Schließen wieder geöffnet",
         "finishedHow": "Wie sie geschlossen wurden",
@@ -8917,8 +8939,6 @@
         "resolutionDesc": "Gelöste Gespräche ÷ (offene + wartende + gelöste) pro Person",
         "engaged": "Aktiv (mit Nachrichten)",
         "engagedDesc": "Einträge mit mind. einer Nachricht, echte Gespräche der KPIs",
-        "shell": "Shell",
-        "shellDesc": "Kampagnen-Einträge ohne Nachrichten; separat angezeigt, nicht als unbeantworteter Chat",
         "stageStuck": "Festgefahren",
         "stageStuckDesc": "Offene Konversationen, die länger als die Schwelle der Phase (oder 7 Tage, wenn keine gesetzt ist) in derselben Phase stehen.",
         "stageParked": "Steht seit",
@@ -9002,9 +9022,6 @@
         "templateShareHint": "Templates am gesamten Outbound (Team + KI + Template)",
         "channelTotalConversations": "Aktive Gespräche im Zeitraum",
         "ofPeriodConversations": "der aktiven Gespräche",
-        "shellChip": "{count} Shells (ohne Nachrichten)",
-        "shellChipHint": "Kampagnen-Einträge ohne Nachrichten, zählen nicht als Service",
-        "avgIncludingShells": "Inkl. Shells: {avg} Msgs/Eintrag",
         "finishedEventsTelemetry": "{count} Abschluss-Events (Telemetrie; kann alte Shells enthalten)",
         "noFunnel": "Ohne Funnel",
         "noFunnelHint": "Phasen, die zu keinem Funnel gehören",
@@ -9015,8 +9032,6 @@
         "funnelCol": "Funnel",
         "engagedCol": "Konversationen",
         "engagedColTitle": "Konversationen mit mindestens einer Nachricht",
-        "shellCol": "Ohne Nachricht",
-        "shellColTitle": "Kampagnen- oder Import-Einträge in der Phase, die nie eine Nachricht erhalten haben",
         "shareCol": "Vom Funnel",
         "shareColTitle": "Anteil der Phase am aktiven Gesamtwert ihres eigenen Funnels",
         "parkedCol": "Steht seit",
@@ -9024,7 +9039,6 @@
         "stuckCol": "Festgefahren",
         "stuckColTitle": "Offene Konversationen über der Schwelle der Phase",
         "stageEngaged": "{count} Konversationen",
-        "stageShell": "+{count} ohne Nachricht",
         "stageStuck": "{count} festgefahren",
         "stuckAfter": "über {days} T.",
         "stuckAfterDefault": "über {days} T., Standard",
@@ -9215,7 +9229,6 @@
         },
         "revenueReason": {
           "revenue_mixed_currencies": "Im Zeitraum gibt es mehr als eine Währung.",
-          "revenue_not_department_scoped": "Opportunities haben keine Abteilung, daher lässt sich der Umsatz nicht danach filtern.",
           "revenue_repository_unavailable": "Umsatz ist nicht verfügbar."
         },
         "xrayReason": {
@@ -9300,6 +9313,34 @@
           "quality": "Qualität",
           "revenue": "Umsatz",
           "other": "Sonstige"
+        },
+        "bySource": "Nach Herkunft",
+        "revenueSource": {
+          "human": "Team",
+          "ai": "KI-Agenten",
+          "workflow": "Workflows",
+          "unowned": "Ohne Verantwortliche"
+        },
+        "wonWithoutValue": "{count} gewonnene Deals ohne Wert fließen nicht in den Umsatz ein."
+      },
+      "assistant": {
+        "open": "KI fragen",
+        "title": "Service-Analyst",
+        "description": "Antwortet mit den Zahlen dieser Seite, im Rahmen deiner Berechtigungen.",
+        "scope": "Analysiert",
+        "allDepartments": "Alle Abteilungen",
+        "allMembers": "Ganzes Team",
+        "allChannels": "Alle Kanäle",
+        "newChat": "Neue Analyse",
+        "openFull": "Im Chat öffnen",
+        "greeting": "Was möchtest du über den Kundenservice verstehen?",
+        "footnote": "Abfragen nutzen dieselben Daten und Grenzen wie diese Seite. Prüfe wichtige Entscheidungen in den Dashboards.",
+        "starters": {
+          "summary": "Fasse diesen Zeitraum zusammen und vergleiche ihn mit dem vorherigen",
+          "team": "Wer im Team braucht Aufmerksamkeit und warum?",
+          "trend": "Zeige den Monatsverlauf der abgeschlossenen Gespräche im letzten Jahr",
+          "backlog": "Was staut sich gerade im Backlog?",
+          "why": "Warum schließen Kunden nicht ab? Nutze die Gesprächsanalysen"
         }
       }
     }

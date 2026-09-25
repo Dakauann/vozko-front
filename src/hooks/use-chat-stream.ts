@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 
 import { fetchWithRefresh, getApiBaseUrl, scopeHeaders } from "@/lib/api/browser-client";
-import type { ChatStreamEvent, PendingAction } from "@/lib/aichat/types";
+import type { ChatChart, ChatStreamEvent, ChatView, PendingAction } from "@/lib/aichat/types";
 
 const API_BASE = getApiBaseUrl();
 
@@ -12,6 +12,7 @@ export interface StreamHandlers {
   onReasoning?: (text: string) => void;
   onReasoningDone?: () => void;
   onTool?: (name: string, summary: string, ok: boolean) => void;
+  onChart?: (chart: ChatChart) => void;
   onProposal?: (action: PendingAction) => void;
   onAwaitingApproval?: (actionId: string) => void;
   onDone?: () => void;
@@ -32,6 +33,9 @@ function dispatch(ev: ChatStreamEvent, h: StreamHandlers) {
       break;
     case "tool":
       h.onTool?.(p.name ?? "", p.summary ?? "", !!p.ok);
+      break;
+    case "chart":
+      if (ev.payload) h.onChart?.(ev.payload as unknown as ChatChart);
       break;
     case "tool_proposal":
       h.onProposal?.({ id: p.id ?? "", toolName: p.toolName ?? "", args: p.args, summary: p.summary });
@@ -128,8 +132,8 @@ export function useChatStream() {
   );
 
   const send = useCallback(
-    (threadId: string, content: string, model: string, handlers: StreamHandlers) =>
-      runStream(`${API_BASE}/chat/threads/${threadId}/messages`, { content, model }, handlers),
+    (threadId: string, content: string, model: string, handlers: StreamHandlers, view?: ChatView) =>
+      runStream(`${API_BASE}/chat/threads/${threadId}/messages`, { content, model, view }, handlers),
     [runStream],
   );
 

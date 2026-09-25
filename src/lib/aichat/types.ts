@@ -32,10 +32,55 @@ export interface ChatMessageList {
   pageSize: number;
 }
 
+export type ChatChartType =
+  | "bar"
+  | "horizontal_bar"
+  | "stacked_bar"
+  | "line"
+  | "area"
+  | "stacked_area"
+  | "pie"
+  | "donut"
+  | "scatter"
+  | "radar"
+  | "table";
+
+export type ChatValueKind = "text" | "date" | "number" | "percent" | "minutes" | "money";
+
+export interface ChatChartSeries {
+  key: string;
+  label: string;
+  kind: ChatValueKind;
+  values: (number | null)[];
+}
+
+export interface ChatChart {
+  type: ChatChartType;
+  title: string;
+  subtitle?: string;
+  xLabel: string;
+  xKind: ChatValueKind;
+  categories?: string[];
+  xValues?: (number | null)[];
+  series: ChatChartSeries[];
+}
+
+export const CHART_OTHER_CATEGORY = "__other__";
+
+export interface ChatView {
+  surface: "attendance";
+  dateFrom?: string;
+  dateTo?: string;
+  departmentId?: string;
+  memberId?: string;
+  channel?: string;
+}
+
 export interface ToolActivity {
   name: string;
   summary: string;
   ok: boolean;
+  chart?: ChatChart;
 }
 
 export interface PendingAction {
@@ -53,6 +98,7 @@ export interface ChatStreamEvent {
     | "reasoning_done"
     | "assistant_done"
     | "tool"
+    | "chart"
     | "tool_proposal"
     | "awaiting_approval"
     | "done"

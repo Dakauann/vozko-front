@@ -6,7 +6,6 @@ import {
   ChartBar,
   ChartLineUp,
   ChartPie,
-  ChatsCircle,
   CheckCircle,
   Clock,
   ClockCounterClockwise,
@@ -21,6 +20,7 @@ import {
   Pulse,
   Robot,
   SealCheck,
+  Sparkle,
   Stack,
   Target,
   Timer,
@@ -29,7 +29,6 @@ import {
   UserMinus,
   Users,
   UsersThree,
-  WhatsappLogo,
 } from "@/components/icons";
 import { GLYPH_PLATE } from "@/components/icons/glyph-plates";
 import {
@@ -96,7 +95,7 @@ import type {
 import { useQueryClient } from "@tanstack/react-query";
 import { useAttendanceSection } from "@/hooks/use-attendance-section";
 import { useInView } from "@/hooks/use-in-view";
-import { attendanceSectionsKey, type SummarySection } from "@/lib/attendance/sections";
+import { attendanceSectionsKey } from "@/lib/attendance/sections";
 import { SectionState } from "@/components/dashboard/attendance/section-state";
 import { useReportJob } from "@/hooks/use-report-job";
 import { useToast } from "@/hooks/use-toast";
@@ -112,7 +111,7 @@ import type { WorkspaceMember } from "@/lib/workspace/types";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 import { cn } from "@/lib/utils";
-import { ChannelTile, channelPlate } from "@/components/channels/channel-tile";
+import { ChannelTile } from "@/components/channels/channel-tile";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useLocale, useTranslations } from "next-intl";
 import {
@@ -127,8 +126,8 @@ import {
   ATTENDANCE_COLORS as COLORS,
   LOCALE_TAG,
   ChartSkeleton,
+  Chapter,
   EmptyChart,
-  SectionLabel,
   SectionTitle,
   Surface,
   useActorKindLabel,
@@ -146,6 +145,8 @@ import {
   TrendSection,
 } from "@/components/dashboard/attendance/executive-panels";
 import { TargetsDialog } from "@/components/dashboard/attendance/targets-dialog";
+import { AttendanceAssistant } from "@/components/dashboard/attendance/attendance-assistant";
+import type { ChatView } from "@/lib/aichat/types";
 
 const ATTENDANCE_EXPORT_FORMATS: readonly ReportFormat[] = ["csv", "pdf"];
 
@@ -176,6 +177,7 @@ function KpiStrip({
   scoped: boolean;
 }) {
   const t = useTranslations("metricsOps.attendance.kpi");
+  const ts = useTranslations("metricsOps.attendance.sections");
   const tc = useTranslations("metricsOps.common");
   const fmt = useMetricsFmt();
   const cards: KpiDef[] = [
@@ -256,76 +258,70 @@ function KpiStrip({
     },
   ];
 
-  const shell = kpis?.shell_backlog ?? 0;
-  const totalScoped = kpis?.total_scoped ?? 0;
-  const entriesCreated = kpis?.entries_created ?? 0;
+  // The summary section answers two different questions: how many
+  // conversations sit in each state, and how long they take. Each family is
+  // one sheet split by hairlines, so the grouping is read before any number.
+  const volume = cards.filter((c) => !TIME_KPIS.has(c.key));
+  const times = cards.filter((c) => TIME_KPIS.has(c.key));
 
   return (
-    <div className="space-y-2.5">
-      {
+    <div className="grid gap-3 xl:grid-cols-[minmax(0,5fr)_minmax(0,3fr)]">
+      <KpiGroup title={ts("volume")} cards={volume} loading={loading} />
+      <KpiGroup title={ts("times")} cards={times} loading={loading} />
+    </div>
+  );
 }
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 xl:grid-cols-8">
+
+const TIME_KPIS = new Set(["tme", "tma", "frt"]);
+
+function KpiGroup({
+  title,
+  cards,
+  loading,
+}: {
+  title: string;
+  cards: KpiDef[];
+  loading: boolean;
+}) {
+  return (
+    <section aria-label={title} className="min-w-0">
+      <h3 className="mb-1.5 text-2xs font-semibold text-muted-foreground">{title}</h3>
+      <dl
+        className={cn(
+          "grid gap-px overflow-hidden rounded-[--radius] border border-border bg-border",
+          "grid-cols-2 [&>*:last-child:nth-child(odd)]:col-span-2",
+          cards.length > 3
+            ? "sm:grid-cols-5 sm:[&>*:last-child:nth-child(odd)]:col-span-1"
+            : "sm:grid-cols-3 sm:[&>*:last-child:nth-child(odd)]:col-span-1",
+        )}
+        style={{ boxShadow: softSurfaceShadow }}
+      >
         {cards.map((c) => (
-          <div
-            key={c.key}
-            title={c.hint}
-            className="rounded-lg border border-border bg-card p-3 shadow-sm"
-          >
-            <div className="flex items-center gap-2">
+          <div key={c.key} title={c.hint} className="min-w-0 bg-card px-3 py-2.5">
+            <dt className="flex items-center gap-2">
               <span
                 className={cn(
-                  "flex h-7 w-7 shrink-0 items-center justify-center rounded-[--radius]",
+                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-[--radius]",
                   c.bg,
                 )}
               >
-                <c.icon className="h-4 w-4" weight="fill" />
+                <c.icon className="h-3.5 w-3.5" weight="fill" />
               </span>
-              <p className="truncate text-2xs font-semibold text-muted-foreground">
+              <span className="truncate text-2xs font-semibold text-muted-foreground">
                 {c.label}
-              </p>
-            </div>
-            <div className="mt-1.5 flex items-center justify-between gap-1">
-            <p className="readout truncate font-display text-2xl font-semibold tracking-tight text-foreground">
-              {c.value}
-            </p>
-            {!loading ? c.visual : null}
-            </div>
-            <p className="truncate text-2xs text-muted-foreground">{c.short}</p>
+              </span>
+            </dt>
+            <dd className="mt-2 flex items-center justify-between gap-1">
+              <span className="readout truncate font-display text-2xl font-semibold tracking-tight text-foreground">
+                {c.value}
+              </span>
+              {!loading ? c.visual : null}
+            </dd>
+            <dd className="mt-0.5 truncate text-2xs text-muted-foreground">{c.short}</dd>
           </div>
         ))}
-      </div>
-
-      {}
-      {!loading && shell > 0 ? (
-        <div
-          className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-[--radius] border border-dashed border-border bg-muted px-3 py-2 text-xs text-muted-foreground"
-          title={t("shellHint")}
-        >
-          <span className="font-semibold text-muted-foreground">
-            {t("shellLabel")}
-          </span>
-          <span className="tabular-nums text-foreground">
-            {fmt.num(shell)}{" "}
-            <span className="font-normal text-muted-foreground">
-              {t("shellShort")}
-            </span>
-          </span>
-          {totalScoped > 0 ? (
-            <span className="tabular-nums">
-              {t("shellOfScoped", {
-                shells: fmt.num(shell),
-                total: fmt.num(totalScoped),
-              })}
-            </span>
-          ) : null}
-          {entriesCreated > 0 ? (
-            <span className="tabular-nums">
-              {t("entriesCreated", { count: fmt.num(entriesCreated) })}
-            </span>
-          ) : null}
-        </div>
-      ) : null}
-    </div>
+      </dl>
+    </section>
   );
 }
 
@@ -380,21 +376,191 @@ function ChannelMixChart({
   return <BlockChart data={blocks} label={tl("channelTotalConversations")} height={160} />;
 }
 
-function ExtendedOpsPanels({
-  overview,
+function FrtPanel({
+  frt,
   loading,
 }: {
-  overview: SummarySection | undefined;
+  frt: OverviewFRT | undefined;
   loading: boolean;
 }) {
-  const ts = useTranslations("metricsOps.attendance.sections");
   const tl = useTranslations("metricsOps.attendance.labels");
   const tc = useTranslations("metricsOps.common");
   const fmt = useMetricsFmt();
-  const frt: OverviewFRT | undefined = overview?.frt;
-  const ai: OverviewAI | undefined = overview?.ai;
-  const msg: OverviewMessaging | undefined = overview?.messaging;
-  const reopen: OverviewReopen | undefined = overview?.reopen;
+
+  if (loading) return <ChartSkeleton height={150} />;
+  if (!frt?.available) {
+    return (
+      <EmptyChart
+        icon={<Lightning className="h-8 w-8" weight="fill" />}
+        message={tl("noDataPeriod")}
+        height={150}
+      />
+    );
+  }
+  return (
+    <CompareBars
+      emphasisKey="avg"
+      rows={[
+        {
+          key: "avg",
+          label: tl("overallAvg"),
+          value: frt.avg_mins,
+          display: fmt.mins(frt.avg_mins),
+          hint: tl("basedOnSessions", { count: fmt.num(frt.sample_count) }),
+        },
+        {
+          key: "median",
+          label: tl("median"),
+          value: frt.median_mins,
+          display: fmt.mins(frt.median_mins),
+        },
+        {
+          key: "human",
+          label: tl("people"),
+          value: frt.human_avg_mins,
+          display: fmt.mins(frt.human_avg_mins),
+          hint: tl("sessionsCount", { count: fmt.num(frt.human_samples) }),
+          color: "hsl(var(--chart-2))",
+        },
+        {
+          key: "ai",
+          label: tc("ai"),
+          value: frt.ai_avg_mins,
+          display: fmt.mins(frt.ai_avg_mins),
+          hint: tl("sessionsCount", { count: fmt.num(frt.ai_samples) }),
+          color: "hsl(var(--chart-5))",
+        },
+      ]}
+    />
+  );
+}
+
+// A headline readout shared by the single-number panels: label left, figure
+// right on one baseline, so every panel in a chapter reads the same way.
+function PanelReadout({
+  label,
+  value,
+  tone = "default",
+}: {
+  label: string;
+  value: string;
+  tone?: "default" | "warning";
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-2">
+      <span className="text-2xs font-semibold text-muted-foreground">{label}</span>
+      <span
+        className={cn(
+          "readout font-display text-xl font-semibold tabular-nums",
+          tone === "warning" ? "text-warning-ink" : "text-foreground",
+        )}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function MessagesPanel({
+  msg,
+  loading,
+}: {
+  msg: OverviewMessaging | undefined;
+  loading: boolean;
+}) {
+  const tl = useTranslations("metricsOps.attendance.labels");
+  const fmt = useMetricsFmt();
+
+  if (loading) return <ChartSkeleton height={130} />;
+  if (!msg?.available) {
+    return (
+      <EmptyChart
+        icon={<ChartBar className="h-8 w-8" weight="fill" />}
+        message={tl("noDataPeriod")}
+        height={130}
+      />
+    );
+  }
+  return (
+    <div className="space-y-3">
+      <PanelReadout
+        label={tl("avgPerConversation")}
+        value={fmt.num(msg.avg_messages_per_conversation ?? 0)}
+      />
+      <SplitFlow
+        left={{
+          label: tl("fromCustomer"),
+          value: msg.avg_inbound ?? 0,
+          display: fmt.num(msg.avg_inbound ?? 0),
+        }}
+        right={{
+          label: tl("fromTeam"),
+          value: msg.avg_outbound ?? 0,
+          display: fmt.num(msg.avg_outbound ?? 0),
+        }}
+      />
+      <p className="text-2xs text-muted-foreground">
+        {tl("conversationsWithMessages", {
+          count: fmt.num(msg.conversations_with_messages),
+        })}
+      </p>
+    </div>
+  );
+}
+
+function ReopenPanel({
+  reopen,
+  loading,
+}: {
+  reopen: OverviewReopen | undefined;
+  loading: boolean;
+}) {
+  const tl = useTranslations("metricsOps.attendance.labels");
+  const fmt = useMetricsFmt();
+
+  if (loading) return <ChartSkeleton height={130} />;
+  if (!reopen?.available) {
+    return (
+      <EmptyChart
+        icon={<Pulse className="h-8 w-8" weight="fill" />}
+        message={tl("noReopenHistory")}
+        height={130}
+      />
+    );
+  }
+  const high = (reopen.reopen_rate ?? 0) >= 15;
+  return (
+    <div className="space-y-3">
+      <PanelReadout
+        label={tl("reopenPct")}
+        value={reopen.reopen_rate != null ? fmt.pct(reopen.reopen_rate) : fmt.na}
+        tone={high ? "warning" : "default"}
+      />
+      <Meter
+        value={reopen.reopen_rate ?? 0}
+        color={high ? "hsl(var(--warning))" : "hsl(var(--chart-1))"}
+        size="lg"
+        label={tl("reopenPct")}
+      />
+      <p className="text-2xs text-muted-foreground">
+        {tl("reopenedOfFinished", {
+          reopened: fmt.num(reopen.reopened_count),
+          finished: fmt.num(reopen.finished_count ?? reopen.finished_event_count),
+        })}
+      </p>
+    </div>
+  );
+}
+
+function TemplatesPanel({
+  msg,
+  loading,
+}: {
+  msg: OverviewMessaging | undefined;
+  loading: boolean;
+}) {
+  const tl = useTranslations("metricsOps.attendance.labels");
+  const fmt = useMetricsFmt();
 
   const templateShare = (() => {
     const templates = msg?.template_messages ?? 0;
@@ -403,365 +569,142 @@ function ExtendedOpsPanels({
     return Math.min(100, (templates / outboundTotal) * 100);
   })();
 
+  if (loading) return <ChartSkeleton height={110} />;
   return (
-    <div className="space-y-3">
-      <div>
-        <SectionLabel
-              icon={<Timer className="h-4 w-4" weight="fill" />}
-              iconBg={GLYPH_PLATE.Timer}
-              title={ts("times")}
-              subtitle={ts("timesSub")}
-            />
-        <div className="grid gap-3 xl:grid-cols-12">
-          <Surface className="xl:col-span-6">
-            <SectionTitle
-              icon={<Lightning className="h-4 w-4" weight="fill" />}
-              iconBg={GLYPH_PLATE.Lightning}
-              title={ts("frtTitle")}
-              subtitle={ts("frtSub")}
-            />
-            {loading ? (
-              <ChartSkeleton height={150} />
-            ) : !frt?.available ? (
-              <EmptyChart
-                icon={<Lightning className="h-8 w-8" weight="fill" />}
-                message={tl("noDataPeriod")}
-                height={150}
-              />
-            ) : (
-              <CompareBars
-                emphasisKey="avg"
-                rows={[
-                  {
-                    key: "avg",
-                    label: tl("overallAvg"),
-                    value: frt.avg_mins,
-                    display: fmt.mins(frt.avg_mins),
-                    hint: tl("basedOnSessions", { count: fmt.num(frt.sample_count) }),
-                  },
-                  {
-                    key: "median",
-                    label: tl("median"),
-                    value: frt.median_mins,
-                    display: fmt.mins(frt.median_mins),
-                  },
-                  {
-                    key: "human",
-                    label: tl("people"),
-                    value: frt.human_avg_mins,
-                    display: fmt.mins(frt.human_avg_mins),
-                    hint: tl("sessionsCount", { count: fmt.num(frt.human_samples) }),
-                    color: "hsl(var(--chart-2))",
-                  },
-                  {
-                    key: "ai",
-                    label: tc("ai"),
-                    value: frt.ai_avg_mins,
-                    display: fmt.mins(frt.ai_avg_mins),
-                    hint: tl("sessionsCount", { count: fmt.num(frt.ai_samples) }),
-                    color: "hsl(var(--chart-5))",
-                  },
-                ]}
-              />
-            )}
-          </Surface>
-
-          <Surface className="xl:col-span-3">
-            <SectionTitle
-              icon={<ChartBar className="h-4 w-4" weight="fill" />}
-              iconBg={GLYPH_PLATE.ChartBar}
-              title={ts("messages")}
-              subtitle={ts("messagesSub")}
-            />
-            {loading ? (
-              <ChartSkeleton height={130} />
-            ) : !msg?.available ? (
-              <EmptyChart
-                icon={<ChartBar className="h-8 w-8" weight="fill" />}
-                message={tl("noDataPeriod")}
-                height={130}
-              />
-            ) : (
-              <div className="space-y-3">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-2xs font-semibold text-muted-foreground">
-                    {tl("avgPerConversation")}
-                  </span>
-                  <span className="readout font-display text-xl font-semibold text-foreground">
-                    {fmt.num(msg.avg_messages_per_conversation ?? 0)}
-                  </span>
-                </div>
-                {
-}
-                <SplitFlow
-                  left={{
-                    label: tl("fromCustomer"),
-                    value: msg.avg_inbound ?? 0,
-                    display: fmt.num(msg.avg_inbound ?? 0),
-                  }}
-                  right={{
-                    label: tl("fromTeam"),
-                    value: msg.avg_outbound ?? 0,
-                    display: fmt.num(msg.avg_outbound ?? 0),
-                  }}
-                />
-                <p className="text-2xs text-muted-foreground">
-                  {tl("conversationsWithMessages", {
-                    count: fmt.num(msg.conversations_with_messages),
-                  })}
-                  {msg.avg_messages_all_scoped != null &&
-                  msg.avg_messages_all_scoped !== msg.avg_messages_per_conversation
-                    ? ` · ${tl("avgIncludingShells", {
-                        avg: fmt.num(msg.avg_messages_all_scoped),
-                      })}`
-                    : ""}
-                </p>
-              </div>
-            )}
-          </Surface>
-
-          <Surface className="xl:col-span-3">
-            <SectionTitle
-              icon={<Pulse className="h-4 w-4" weight="fill" />}
-              iconBg={GLYPH_PLATE.Pulse}
-              title={ts("reopen")}
-              subtitle={ts("reopenSub")}
-            />
-            {loading ? (
-              <ChartSkeleton height={130} />
-            ) : !reopen?.available ? (
-              <EmptyChart
-                icon={<Pulse className="h-8 w-8" weight="fill" />}
-                message={tl("noReopenHistory")}
-                height={130}
-              />
-            ) : (
-              <div className="space-y-3">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-2xs font-semibold text-muted-foreground">
-                    {tl("reopenPct")}
-                  </span>
-                  <span
-                    className={cn(
-                      "readout font-display text-xl font-semibold",
-                      (reopen.reopen_rate ?? 0) >= 15
-                        ? "text-warning-ink"
-                        : "text-foreground",
-                    )}
-                  >
-                    {reopen.reopen_rate != null ? fmt.pct(reopen.reopen_rate) : fmt.na}
-                  </span>
-                </div>
-                {
-}
-                <Meter
-                  value={reopen.reopen_rate ?? 0}
-                  color={
-                    (reopen.reopen_rate ?? 0) >= 15
-                      ? "hsl(var(--warning))"
-                      : "hsl(var(--chart-1))"
-                  }
-                  size="lg"
-                  label={tl("reopenPct")}
-                />
-                <p className="text-2xs text-muted-foreground">
-                  {tl("reopenedOfFinished", {
-                    reopened: fmt.num(reopen.reopened_count),
-                    finished: fmt.num(reopen.finished_count ?? reopen.finished_event_count),
-                  })}
-                </p>
-              </div>
-            )}
-          </Surface>
-        </div>
+    <div className="grid gap-4 sm:grid-cols-2">
+      <div className="min-w-0">
+        <PanelReadout
+          label={tl("templateShareOfOutbound")}
+          value={templateShare != null ? fmt.pct(templateShare) : fmt.na}
+        />
+        <Meter
+          value={templateShare ?? 0}
+          color="hsl(var(--chart-4))"
+          size="lg"
+          className="mt-2"
+          label={tl("templateShareOfOutbound")}
+        />
+        <p className="mt-1.5 text-2xs text-muted-foreground">
+          {tl("templateShareHint")}
+        </p>
       </div>
-
-      <div className="grid items-start gap-3 xl:grid-cols-3">
-      {}
-      <div>
-        <SectionLabel
-              icon={<PaperPlaneTilt className="h-4 w-4" weight="fill" />}
-              iconBg={GLYPH_PLATE.PaperPlaneTilt}
-              title={ts("templates")}
-              subtitle={ts("templatesSub")}
-            />
-        <Surface>
-          <SectionTitle
-            icon={<WhatsappLogo className="h-4 w-4" weight="fill" />}
-            iconBg={channelPlate("whatsapp")}
-            title={ts("templatesTitle")}
-            subtitle={ts("templatesTitleSub")}
-          />
-          {loading ? (
-            <ChartSkeleton height={110} />
-          ) : (
-            <div className="grid gap-3">
-              <div className="min-w-0">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-2xs font-semibold text-muted-foreground">
-                    {tl("templateShareOfOutbound")}
-                  </span>
-                  <span className="readout font-display text-xl font-semibold text-foreground">
-                    {templateShare != null ? fmt.pct(templateShare) : fmt.na}
-                  </span>
-                </div>
-                <Meter
-                  value={templateShare ?? 0}
-                  color="hsl(var(--chart-4))"
-                  size="lg"
-                  className="mt-2"
-                  label={tl("templateShareOfOutbound")}
-                />
-                <p className="mt-1.5 text-2xs text-muted-foreground">
-                  {tl("templateShareHint")}
-                </p>
-              </div>
-              <div className="min-w-0">
-                <CompareBars
-                  rows={[
-                    {
-                      key: "sent",
-                      label: tl("templatesSent"),
-                      value: msg?.template_messages ?? 0,
-                      display: fmt.num(msg?.template_messages ?? 0),
-                      hint: tl("templatesSentHint"),
-                      color: "hsl(var(--chart-4))",
-                    },
-                    {
-                      key: "convs",
-                      label: tl("conversationsWithTemplateLabel"),
-                      value: msg?.conversations_with_template ?? 0,
-                      display: fmt.num(msg?.conversations_with_template ?? 0),
-                      color: "hsl(var(--chart-2))",
-                    },
-                  ]}
-                />
-                <p className="mt-2 text-2xs text-muted-foreground">
-                  {tl("avgTemplate")}:{" "}
-                  <strong className="readout tabular-nums text-foreground">
-                    {msg?.avg_template != null ? fmt.num(msg.avg_template) : fmt.na}
-                  </strong>{" "}
-                  · {tl("avgTemplateHint")}
-                </p>
-              </div>
-            </div>
-          )}
-        </Surface>
-      </div>
-
-      <div>
-        <SectionLabel
-              icon={<ChatsCircle className="h-4 w-4" weight="fill" />}
-              iconBg={GLYPH_PLATE.ChatsCircle}
-              title={ts("channels")}
-              subtitle={ts("channelsSub")}
-            />
-        <Surface>
-          <SectionTitle
-            icon={<ChartPie className="h-4 w-4" weight="fill" />}
-            iconBg={GLYPH_PLATE.ChartPie}
-            title={ts("channelsUsed")}
-            subtitle={ts("channelsUsedSub")}
-          />
-          <ChannelMixChart mix={overview?.channel_mix} loading={loading} />
-        </Surface>
-      </div>
-
-      <div>
-        <SectionLabel
-              icon={<Robot className="h-4 w-4" weight="fill" />}
-              iconBg={GLYPH_PLATE.Robot}
-              title={ts("ai")}
-              subtitle={ts("aiSub")}
-            />
-        <Surface>
-          <SectionTitle
-            icon={<Robot className="h-4 w-4" weight="fill" />}
-            iconBg={GLYPH_PLATE.Robot}
-            title={ts("aiTitle")}
-            subtitle={ts("aiTitleSub")}
-          />
-          {loading ? (
-            <ChartSkeleton height={110} />
-          ) : !ai?.available ? (
-            <EmptyChart
-              icon={<Robot className="h-8 w-8" weight="fill" />}
-              message={tl("noDataPeriod")}
-              height={110}
-            />
-          ) : (
-            <div className="grid gap-3">
-              {
-}
-              <div className="min-w-0">
-                <WaffleChart
-                  label={ts("aiTitle")}
-                  data={[
-                    {
-                      key: "contained",
-                      label: tl("resolvedByAi"),
-                      value: ai.contained,
-                      color: "hsl(var(--healthy))",
-                    },
-                    {
-                      key: "handed",
-                      label: tl("handedToHuman"),
-                      value: ai.handed_off,
-                      color: "hsl(var(--chart-2))",
-                    },
-                    {
-                      key: "abandoned",
-                      label: tl("aiAbandoned"),
-                      value: ai.abandoned,
-                      color: "hsl(var(--warning))",
-                    },
-                    {
-                      key: "open",
-                      label: tl("stillActive"),
-                      value: ai.open_sessions,
-                      color: "hsl(var(--muted-foreground) / 0.55)",
-                    },
-                  ]}
-                />
-                <p className="mt-2 text-2xs text-muted-foreground">
-                  {tl("aiSessions")}:{" "}
-                  <strong className="readout tabular-nums text-foreground">
-                    {fmt.num(ai.sessions)}
-                  </strong>
-                </p>
-              </div>
-              {}
-              <div className="min-w-0">
-                <CompareBars
-                  rows={[
-                    {
-                      key: "containment",
-                      label: tl("aiContainmentRate"),
-                      value: ai.containment_rate,
-                      display: fmt.pct(ai.containment_rate),
-                      hint: tl("withoutHuman", { count: fmt.num(ai.contained) }),
-                      color: "hsl(var(--healthy))",
-                    },
-                    {
-                      key: "handoff",
-                      label: tl("aiHandoffRate"),
-                      value: ai.handoff_rate,
-                      display: fmt.pct(ai.handoff_rate),
-                      hint: tl("transfers", { count: fmt.num(ai.handed_off) }),
-                      color: "hsl(var(--chart-2))",
-                    },
-                  ]}
-                />
-              </div>
-            </div>
-          )}
-        </Surface>
-      </div>
+      <div className="min-w-0">
+        <CompareBars
+          rows={[
+            {
+              key: "sent",
+              label: tl("templatesSent"),
+              value: msg?.template_messages ?? 0,
+              display: fmt.num(msg?.template_messages ?? 0),
+              hint: tl("templatesSentHint"),
+              color: "hsl(var(--chart-4))",
+            },
+            {
+              key: "convs",
+              label: tl("conversationsWithTemplateLabel"),
+              value: msg?.conversations_with_template ?? 0,
+              display: fmt.num(msg?.conversations_with_template ?? 0),
+              color: "hsl(var(--chart-2))",
+            },
+          ]}
+        />
+        <p className="mt-2 text-2xs text-muted-foreground">
+          {tl("avgTemplate")}:{" "}
+          <strong className="readout tabular-nums text-foreground">
+            {msg?.avg_template != null ? fmt.num(msg.avg_template) : fmt.na}
+          </strong>{" "}
+          · {tl("avgTemplateHint")}
+        </p>
       </div>
     </div>
   );
 }
 
+function AiPanel({
+  ai,
+  loading,
+}: {
+  ai: OverviewAI | undefined;
+  loading: boolean;
+}) {
+  const ts = useTranslations("metricsOps.attendance.sections");
+  const tl = useTranslations("metricsOps.attendance.labels");
+  const fmt = useMetricsFmt();
+
+  if (loading) return <ChartSkeleton height={110} />;
+  if (!ai?.available) {
+    return (
+      <EmptyChart
+        icon={<Robot className="h-8 w-8" weight="fill" />}
+        message={tl("noDataPeriod")}
+        height={110}
+      />
+    );
+  }
+  return (
+    <div className="grid gap-4 sm:grid-cols-2">
+      <div className="min-w-0">
+        <WaffleChart
+          label={ts("aiTitle")}
+          data={[
+            {
+              key: "contained",
+              label: tl("resolvedByAi"),
+              value: ai.contained,
+              color: "hsl(var(--healthy))",
+            },
+            {
+              key: "handed",
+              label: tl("handedToHuman"),
+              value: ai.handed_off,
+              color: "hsl(var(--chart-2))",
+            },
+            {
+              key: "abandoned",
+              label: tl("aiAbandoned"),
+              value: ai.abandoned,
+              color: "hsl(var(--warning))",
+            },
+            {
+              key: "open",
+              label: tl("stillActive"),
+              value: ai.open_sessions,
+              color: "hsl(var(--muted-foreground) / 0.55)",
+            },
+          ]}
+        />
+        <p className="mt-2 text-2xs text-muted-foreground">
+          {tl("aiSessions")}:{" "}
+          <strong className="readout tabular-nums text-foreground">
+            {fmt.num(ai.sessions)}
+          </strong>
+        </p>
+      </div>
+      <div className="min-w-0">
+        <CompareBars
+          rows={[
+            {
+              key: "containment",
+              label: tl("aiContainmentRate"),
+              value: ai.containment_rate,
+              display: fmt.pct(ai.containment_rate),
+              hint: tl("withoutHuman", { count: fmt.num(ai.contained) }),
+              color: "hsl(var(--healthy))",
+            },
+            {
+              key: "handoff",
+              label: tl("aiHandoffRate"),
+              value: ai.handoff_rate,
+              display: fmt.pct(ai.handoff_rate),
+              hint: tl("transfers", { count: fmt.num(ai.handed_off) }),
+              color: "hsl(var(--chart-2))",
+            },
+          ]}
+        />
+      </div>
+    </div>
+  );
+}
 
 function HourlyVolumeChart({
   hourly,
@@ -825,8 +768,6 @@ function HourlyVolumeChart({
       </div>
       <ChartContainer config={config} className="h-[240px] w-full">
         <BarChart data={data} margin={{ top: 4, right: 4, left: -12, bottom: 0 }}>
-          {
-}
           <defs>
             <linearGradient id="hourlyGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="hsl(var(--chart-1))" />
@@ -972,21 +913,17 @@ function StatusCompositionChart({
 
   return (
     <div className="grid min-h-[240px] grid-cols-1 items-center gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(160px,0.95fr)]">
-      {
-}
       <div className="min-w-0">
         <RadialProfileChart
           data={profile}
           total={total}
           label={tl("conversationsLabel")}
         />
-        {
-}
         <p className="mt-1 text-2xs text-muted-foreground">{tl("statusRadialHint")}</p>
       </div>
 
-      <div className="space-y-2.5">
-        <div className="rounded-[--radius] border border-border bg-background px-3 py-2">
+      <div className="divide-y divide-border sm:border-l sm:border-border sm:pl-4">
+        <div className="pb-3">
           <p className="text-2xs font-semibold text-muted-foreground">
             {tl("pctFinished")}
           </p>
@@ -1000,8 +937,6 @@ function StatusCompositionChart({
             })}
           </p>
         </div>
-        {
-}
         {!loading ? <OverallCloseOriginNote bySource={bySource} /> : null}
       </div>
     </div>
@@ -1027,7 +962,7 @@ function OverallCloseOriginNote({
         })}%`
       : "0%";
   return (
-    <div className="mt-3 rounded-[--radius] border border-border bg-background px-3 py-2.5">
+    <div className="pt-3">
       <p className="text-2xs font-semibold text-muted-foreground">
         {tl("closeOriginCol")}
       </p>
@@ -1473,8 +1408,6 @@ function TeamDetailTable({
                 </div>
               </td>
               <td className="px-2 py-2.5">
-                {
-}
                 <span
                   className={cn(
                     "inline-flex rounded-[--radius] px-2 py-0.5 text-2xs font-semibold",
@@ -1688,8 +1621,6 @@ function StageCoveragePanel({
           const name = f.funnel_name || tl("noFunnel");
           return (
             <li key={f.funnel_id || "__none"}>
-              {
-}
               <button
                 type="button"
                 onClick={() => onSelectFunnel(f.funnel_id)}
@@ -1883,8 +1814,6 @@ function StageLadder({
                     >
                       <Hourglass className="h-3 w-3" weight="fill" aria-hidden />
                       {tl("stageStuck", { count: fmt.num(stalled) })}
-                      {
-}
                       <span className="font-normal">
                         {`(${
                           s.rot_days_set
@@ -1892,11 +1821,6 @@ function StageLadder({
                             : tl("stuckAfterDefault", { days: s.stuck_after_days })
                         })`}
                       </span>
-                    </span>
-                  ) : null}
-                  {s.shell > 0 ? (
-                    <span className="tabular-nums" title={tl("shellColTitle")}>
-                      {tl("stageShell", { count: fmt.num(s.shell) })}
                     </span>
                   ) : null}
                 </div>
@@ -1959,8 +1883,6 @@ function StageBlocks({
   return (
     <div>
       <GroupedBlockChart groups={groups} label={tl("stageCol")} height={260} />
-      {
-}
       <p className="mt-1 text-2xs text-muted-foreground">{tl("stageBlockHint")}</p>
     </div>
   );
@@ -1994,9 +1916,6 @@ function StageDetailTable({
             <th className="px-2 py-2 text-right" title={tl("engagedColTitle")}>
               {tl("engagedCol")}
             </th>
-            <th className="px-2 py-2 text-right" title={tl("shellColTitle")}>
-              {tl("shellCol")}
-            </th>
             <th className="px-2 py-2 text-right" title={tl("shareColTitle")}>
               {tl("shareCol")}
             </th>
@@ -2011,8 +1930,6 @@ function StageDetailTable({
         <tbody>
           {stages.funnels.map((f) => (
             <Fragment key={f.funnel_id || "__none"}>
-              {
-}
               <tr className="bg-muted">
                 <th
                   scope="row"
@@ -2023,9 +1940,6 @@ function StageDetailTable({
                 </th>
                 <td className="readout px-2 py-1.5 text-right text-2xs font-semibold tabular-nums text-foreground">
                   {fmt.num(f.engaged)}
-                </td>
-                <td className="px-2 py-1.5 text-right text-2xs tabular-nums text-muted-foreground">
-                  {f.shell > 0 ? fmt.num(f.shell) : "—"}
                 </td>
                 <td className="px-2 py-1.5 text-right text-2xs tabular-nums text-muted-foreground">
                   {fmt.pct(f.pct_of_staged)}
@@ -2066,9 +1980,6 @@ function StageDetailTable({
                     {fmt.num(s.engaged)}
                   </td>
                   <td className="px-2 py-2.5 text-right tabular-nums text-muted-foreground">
-                    {s.shell > 0 ? fmt.num(s.shell) : "—"}
-                  </td>
-                  <td className="px-2 py-2.5 text-right tabular-nums text-muted-foreground">
                     {fmt.pct(s.pct_of_funnel)}
                   </td>
                   <td
@@ -2098,7 +2009,7 @@ function StageDetailTable({
               ))}
             </Fragment>
           ))}
-          {stages.unstaged_engaged > 0 || stages.unstaged_shell > 0 ? (
+          {stages.unstaged_engaged > 0 ? (
             <tr className="border-t border-border-strong">
               <th
                 scope="row"
@@ -2109,9 +2020,6 @@ function StageDetailTable({
               </th>
               <td className="px-2 py-2.5 text-right font-semibold tabular-nums text-muted-foreground">
                 {fmt.num(stages.unstaged_engaged)}
-              </td>
-              <td className="px-2 py-2.5 text-right tabular-nums text-muted-foreground">
-                {stages.unstaged_shell > 0 ? fmt.num(stages.unstaged_shell) : "—"}
               </td>
               <td className="px-2 py-2.5" />
               <td className="px-2 py-2.5" />
@@ -2141,18 +2049,10 @@ function StageDistributionSection({
   const activeFunnel = funnels.find((f) => f.funnel_id === activeFunnelId);
 
   return (
-    <div>
-      <SectionLabel
-              icon={<Kanban className="h-4 w-4" weight="fill" />}
-              iconBg={GLYPH_PLATE.Kanban}
-              title={ts("stages")}
-              subtitle={ts("stagesSub")}
-            />
+    <>
       <div className="grid gap-3 xl:grid-cols-12">
         <Surface className="xl:col-span-4">
           <SectionTitle
-            icon={<Kanban className="h-4 w-4" weight="fill" />}
-            iconBg={GLYPH_PLATE.Kanban}
             title={ts("stageCoverage")}
             subtitle={ts("stageCoverageSub")}
           />
@@ -2166,8 +2066,6 @@ function StageDistributionSection({
 
         <Surface className="xl:col-span-8">
           <SectionTitle
-            icon={<FlowArrow className="h-4 w-4" weight="fill" />}
-            iconBg={GLYPH_PLATE.FlowArrow}
             title={ts("stageChart")}
             subtitle={ts("stageChartSub")}
           />
@@ -2175,32 +2073,24 @@ function StageDistributionSection({
         </Surface>
       </div>
 
-      <div className="mt-3 grid gap-3 xl:grid-cols-12">
-        {
-}
+      <div className="grid gap-3 xl:grid-cols-12">
         <Surface className="min-w-0 xl:col-span-5">
           <SectionTitle
-            icon={<Kanban className="h-4 w-4" weight="fill" />}
-            iconBg={GLYPH_PLATE.Kanban}
             title={ts("stageMosaic")}
             subtitle={ts("stageMosaicSub")}
           />
           <StageBlocks stages={stages} loading={loading} />
         </Surface>
 
-        {
-}
         <Surface className="min-w-0 xl:col-span-7">
           <SectionTitle
-            icon={<Stack className="h-4 w-4" weight="fill" />}
-            iconBg={GLYPH_PLATE.Stack}
             title={ts("stageTable")}
             subtitle={ts("stageTableSub")}
           />
           <StageDetailTable stages={stages} loading={loading} />
         </Surface>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -2226,6 +2116,7 @@ export default function AttendanceOpsPage() {
   const canRead = !permissionsLoading && can("attendance", "read");
   const canWriteTargets =
     !permissionsLoading && can("attendance_targets", "update");
+  const canAsk = canRead && can("ai_chat", "create");
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -2248,6 +2139,7 @@ export default function AttendanceOpsPage() {
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
   const [rankMetric, setRankMetric] = useState("resolved");
   const [targetsOpen, setTargetsOpen] = useState(false);
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const sectionParams = useMemo<AttendanceOverviewParams>(
@@ -2265,12 +2157,12 @@ export default function AttendanceOpsPage() {
     [dateFrom, dateTo, departmentId, memberId, channel, campaignId, campaignType, includeAi, rankMetric],
   );
 
-  const [trendRef, trendInView] = useInView<HTMLDivElement>();
-  const [backlogRef, backlogInView] = useInView<HTMLDivElement>();
-  const [stagesRef, stagesInView] = useInView<HTMLDivElement>();
-  const [departmentsRef, departmentsInView] = useInView<HTMLDivElement>();
-  const [rankingRef, rankingInView] = useInView<HTMLDivElement>();
-  const [membersRef, membersInView] = useInView<HTMLDivElement>();
+  const [trendRef, trendInView] = useInView<HTMLElement>();
+  const [backlogRef, backlogInView] = useInView<HTMLElement>();
+  const [stagesRef, stagesInView] = useInView<HTMLElement>();
+  const [departmentsRef, departmentsInView] = useInView<HTMLElement>();
+  const [rankingRef, rankingInView] = useInView<HTMLElement>();
+  const [membersRef, membersInView] = useInView<HTMLElement>();
 
   const summaryQuery = useAttendanceSection("summary", sectionParams, { enabled: canRead });
   const trendQuery = useAttendanceSection("trend", sectionParams, { enabled: canRead && trendInView });
@@ -2286,10 +2178,11 @@ export default function AttendanceOpsPage() {
   const targetCurrency =
     summary?.revenue?.currencies?.[0]?.currency ?? DEFAULT_TARGET_CURRENCY;
 
+  const workspaceId = currentWorkspace?.id;
   const refreshSections = useCallback(() => {
-    if (!currentWorkspace?.id) return;
-    void queryClient.invalidateQueries({ queryKey: attendanceSectionsKey(currentWorkspace.id) });
-  }, [queryClient, currentWorkspace?.id]);
+    if (!workspaceId) return;
+    void queryClient.invalidateQueries({ queryKey: attendanceSectionsKey(workspaceId) });
+  }, [queryClient, workspaceId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -2398,10 +2291,34 @@ export default function AttendanceOpsPage() {
           ? tl("last30d")
           : tl("last90d");
 
+  const assistantView = useMemo<ChatView>(
+    () => ({
+      surface: "attendance",
+      dateFrom,
+      dateTo,
+      departmentId: departmentId === "all" ? undefined : departmentId,
+      memberId: memberId === "all" ? undefined : memberId,
+      channel: channel === "all" ? undefined : channel,
+    }),
+    [dateFrom, dateTo, departmentId, memberId, channel],
+  );
+  const ta = useTranslations("metricsOps.attendance.assistant");
+  const selectedMember = members.find((m) => m.userId === memberId);
+  const assistantScope = {
+    period: periodLabel,
+    department:
+      departmentId === "all"
+        ? ta("allDepartments")
+        : (departments.find((d) => d.id === departmentId)?.name ?? departmentId),
+    member:
+      memberId === "all"
+        ? ta("allMembers")
+        : (selectedMember?.username || selectedMember?.email || memberId),
+    channel: channel === "all" ? ta("allChannels") : tc(channel),
+  };
+
   return (
-    <div className="space-y-3">
-      {
-}
+    <div className="space-y-10">
       <div>
         <DashboardPageHeader
           badge={campaignId ? t("badgeCampaign") : t("badge")}
@@ -2415,8 +2332,17 @@ export default function AttendanceOpsPage() {
           icon={<ChartBar className="h-6 w-6" weight="fill" />}
           actions={
             <>
-              {
-}
+              {canAsk ? (
+                <Button
+                  icon={<Sparkle className="h-4 w-4" weight="fill" />}
+                  iconVisible
+                  title={ta("open")}
+                  variant="command"
+                  onClick={() => setAssistantOpen(true)}
+                >
+                  <span className="max-sm:sr-only">{ta("open")}</span>
+                </Button>
+              ) : null}
               {canWriteTargets ? (
                 <Button
                   icon={<Target className="h-4 w-4" weight="bold" />}
@@ -2521,8 +2447,6 @@ export default function AttendanceOpsPage() {
                 placeholder={tc("all")}
               >
                 <ElevatedSelectItem value="all">{tc("all")}</ElevatedSelectItem>
-                {
-}
                 <ElevatedSelectItem value="whatsapp">
                   <span className="inline-flex items-center gap-1.5">
                     <ChannelTile channel="whatsapp" size="sm" className="h-5 w-5" />
@@ -2563,7 +2487,6 @@ export default function AttendanceOpsPage() {
             </label>
           </div>
 
-          {}
           <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             <span className="rounded-[--radius] bg-muted px-2.5 py-1 font-medium text-foreground">
               {periodLabel}
@@ -2573,14 +2496,6 @@ export default function AttendanceOpsPage() {
                 ? tc("loading")
                 : tl("conversationsInSlice", { count: fmt.num(total) })}
             </span>
-            {!loading && (kpis?.shell_backlog ?? 0) > 0 ? (
-              <span
-                className="rounded-[--radius] bg-muted px-2.5 py-1"
-                title={tl("shellChipHint")}
-              >
-                {tl("shellChip", { count: fmt.num(kpis?.shell_backlog) })}
-              </span>
-            ) : null}
             {team ? (
               <span className="rounded-[--radius] bg-muted px-2.5 py-1">
                 {tl("agentsCount", { count: fmt.num(team.by_member?.length) })}
@@ -2605,7 +2520,7 @@ export default function AttendanceOpsPage() {
             ) : null}
           </div>
 
-          <div className="mt-4">
+          <div className="mt-5">
             <SectionState query={summaryQuery}>
               <KpiStrip
                 kpis={kpis}
@@ -2638,94 +2553,57 @@ export default function AttendanceOpsPage() {
         </div>
       ) : (
         <>
-          <div>
-            <SectionLabel
-              icon={<ChartBar className="h-4 w-4" weight="fill" />}
-              iconBg={GLYPH_PLATE.ChartBar}
-              title={ts("volume")}
-              subtitle={ts("volumeSub")}
-            />
-            <div className="grid gap-3 xl:grid-cols-12">
-              <Surface className="xl:col-span-7">
-                <SectionTitle
-                  icon={<ChartBar className="h-4 w-4" weight="fill" />}
-                  iconBg={GLYPH_PLATE.ChartBar}
-                  title={ts("hourly")}
-                  subtitle={ts("hourlySub")}
-                />
-                <SectionState query={summaryQuery}>
-                  <HourlyVolumeChart hourly={summary?.hourly} loading={loading} />
-                </SectionState>
-              </Surface>
-
-              <Surface className="xl:col-span-5">
-                <SectionTitle
-                  icon={<ChartPie className="h-4 w-4" weight="fill" />}
-                  iconBg={GLYPH_PLATE.ChartPie}
-                  title={ts("status")}
-                  subtitle={ts("statusSub")}
-                />
-                <SectionState query={summaryQuery}>
-                  <StatusCompositionChart
-                    dist={summary?.status_distribution}
-                    bySource={summary?.finished_by_source}
-                    loading={loading}
-                  />
-                </SectionState>
-              </Surface>
-            </div>
-          </div>
-
-          <div>
-            <SectionLabel
-              icon={<Target className="h-4 w-4" weight="fill" />}
-              iconBg={GLYPH_PLATE.Target}
-              title={ts("tactical")}
-              subtitle={ts("tacticalSub")}
-            />
+          {/* Targets and results: where the period will land, what it earned,
+              and how it compares with the closed months before it. */}
+          <Chapter
+            id="att-tactical"
+            icon={<Target className="h-4 w-4" weight="fill" />}
+            iconBg={GLYPH_PLATE.Target}
+            title={ts("tactical")}
+            subtitle={ts("tacticalSub")}
+          >
             <SectionState query={summaryQuery}>
-              <div className="space-y-3">
-                <PeriodProgressStrip
-                  period={summary?.period}
-                  standing={summary?.standing}
-                  loading={loading}
-                  fmt={fmt}
-                  onConfigureSchedule={() =>
-                    router.push(`/${locale}/dashboard/workspace`)
-                  }
-                />
-                <ProjectionGrid
-                  projections={summary?.projections}
-                  loading={loading}
-                  fmt={fmt}
-                  currency={targetCurrency}
-                  onEditTargets={
-                    canWriteTargets ? () => setTargetsOpen(true) : undefined
-                  }
-                />
-              </div>
+              <PeriodProgressStrip
+                period={summary?.period}
+                standing={summary?.standing}
+                loading={loading}
+                fmt={fmt}
+                onConfigureSchedule={() =>
+                  router.push(`/${locale}/dashboard/workspace`)
+                }
+              />
+              <ProjectionGrid
+                projections={summary?.projections}
+                loading={loading}
+                fmt={fmt}
+                currency={targetCurrency}
+                onEditTargets={
+                  canWriteTargets ? () => setTargetsOpen(true) : undefined
+                }
+              />
             </SectionState>
-          </div>
+          </Chapter>
 
-          <div>
-            <SectionLabel
-              icon={<CurrencyDollar className="h-4 w-4" weight="fill" />}
-              iconBg={GLYPH_PLATE.CurrencyDollar}
-              title={ts("money")}
-              subtitle={ts("moneySub")}
-            />
+          <Chapter
+            id="att-money"
+            icon={<CurrencyDollar className="h-4 w-4" weight="fill" />}
+            iconBg={GLYPH_PLATE.CurrencyDollar}
+            title={ts("money")}
+            subtitle={ts("moneySub")}
+          >
             <SectionState query={summaryQuery}>
               <RevenueCard revenue={summary?.revenue} loading={loading} fmt={fmt} />
             </SectionState>
-          </div>
+          </Chapter>
 
-          <div ref={trendRef}>
-            <SectionLabel
-              icon={<ChartLineUp className="h-4 w-4" weight="fill" />}
-              iconBg={GLYPH_PLATE.ChartLineUp}
-              title={ts("history")}
-              subtitle={ts("historySub")}
-            />
+          <Chapter
+            id="att-history"
+            ref={trendRef}
+            icon={<ChartLineUp className="h-4 w-4" weight="fill" />}
+            iconBg={GLYPH_PLATE.ChartLineUp}
+            title={ts("history")}
+            subtitle={ts("historySub")}
+          >
             <SectionState query={trendQuery}>
               <TrendSection
                 trend={trendQuery.data?.trend}
@@ -2734,83 +2612,55 @@ export default function AttendanceOpsPage() {
                 currency={targetCurrency}
               />
             </SectionState>
-          </div>
+          </Chapter>
 
-          <div ref={backlogRef}>
-            <SectionLabel
-              icon={<Hourglass className="h-4 w-4" weight="fill" />}
-              iconBg={GLYPH_PLATE.Hourglass}
-              title={ts("backlog")}
-              subtitle={ts("backlogSub")}
-            />
-            <SectionState query={backlogQuery}>
-              <BacklogXraySection
-                backlog={backlogQuery.data?.backlog_xray}
-                loading={backlogQuery.isPending}
-                fmt={fmt}
-                channelLabel={(c) => channelLabel(c, tc)}
-              />
-            </SectionState>
-          </div>
-
-          <div>
+          {/* Conversation flow: when and where conversations arrive, which
+              state they are in, and how often a close did not hold. */}
+          <Chapter
+            id="att-volume"
+            icon={<ChartBar className="h-4 w-4" weight="fill" />}
+            iconBg={GLYPH_PLATE.ChartBar}
+            title={ts("volume")}
+            subtitle={ts("volumeSub")}
+          >
             <SectionState query={summaryQuery}>
-              <ExtendedOpsPanels overview={summary} loading={loading} />
-            </SectionState>
-          </div>
-
-          <div ref={stagesRef}>
-            <SectionState query={stagesQuery}>
-              <StageDistributionSection
-                stages={stagesQuery.data?.stages}
-                loading={stagesQuery.isPending}
-              />
-            </SectionState>
-          </div>
-
-          <div ref={departmentsRef}>
-            <SectionLabel
-              title={ts("departments")}
-              subtitle={ts("departmentsSub")}
-            />
-            <SectionState query={teamQuery}>
               <div className="grid gap-3 xl:grid-cols-12">
-                <Surface className="xl:col-span-5">
+                <Surface className="xl:col-span-8">
+                  <SectionTitle title={ts("hourly")} subtitle={ts("hourlySub")} />
+                  <HourlyVolumeChart hourly={summary?.hourly} loading={loading} />
+                </Surface>
+                <Surface className="xl:col-span-4">
                   <SectionTitle
-                    icon={<Buildings className="h-4 w-4" weight="fill" />}
-                    iconBg={GLYPH_PLATE.Buildings}
-                    title={ts("deptChart")}
-                    subtitle={ts("deptChartSub")}
+                    title={ts("channelsUsed")}
+                    subtitle={ts("channelsUsedSub")}
                   />
-                  <DepartmentStackedChart
-                    rows={team?.by_department}
-                    loading={teamQuery.isPending}
+                  <ChannelMixChart mix={summary?.channel_mix} loading={loading} />
+                </Surface>
+              </div>
+              <div className="grid gap-3 xl:grid-cols-12">
+                <Surface className="xl:col-span-8">
+                  <SectionTitle title={ts("status")} subtitle={ts("statusSub")} />
+                  <StatusCompositionChart
+                    dist={summary?.status_distribution}
+                    bySource={summary?.finished_by_source}
+                    loading={loading}
                   />
                 </Surface>
-
-                <Surface className="xl:col-span-7">
-                  <SectionTitle
-                    icon={<Buildings className="h-4 w-4" weight="fill" />}
-                    iconBg={GLYPH_PLATE.Buildings}
-                    title={ts("deptTable")}
-                    subtitle={ts("deptTableSub")}
-                  />
-                  <DepartmentDetailTable
-                    rows={team?.by_department}
-                    loading={teamQuery.isPending}
-                  />
+                <Surface className="xl:col-span-4">
+                  <SectionTitle title={ts("reopen")} subtitle={ts("reopenSub")} />
+                  <ReopenPanel reopen={summary?.reopen} loading={loading} />
                 </Surface>
               </div>
             </SectionState>
-          </div>
+          </Chapter>
 
-          <div>
-            <SectionLabel
-              icon={<SealCheck className="h-4 w-4" weight="fill" />}
-              iconBg={GLYPH_PLATE.SealCheck}
-              title={ts("quality")}
-              subtitle={ts("qualitySub")}
-            />
+          <Chapter
+            id="att-quality"
+            icon={<SealCheck className="h-4 w-4" weight="fill" />}
+            iconBg={GLYPH_PLATE.SealCheck}
+            title={ts("quality")}
+            subtitle={ts("qualitySub")}
+          >
             <SectionState query={summaryQuery}>
               <QualitySection
                 quality={summary?.quality}
@@ -2823,7 +2673,172 @@ export default function AttendanceOpsPage() {
                 }
               />
             </SectionState>
+          </Chapter>
+
+          {/* Who answers: human response speed beside what the AI resolves
+              alone, so the two halves of the service read as a pair. */}
+          <div className="grid gap-8 xl:grid-cols-2 xl:gap-3">
+            <Chapter
+              id="att-times"
+              icon={<Timer className="h-4 w-4" weight="fill" />}
+              iconBg={GLYPH_PLATE.Timer}
+              title={ts("times")}
+              subtitle={ts("timesSub")}
+            >
+              <SectionState query={summaryQuery}>
+                <Surface className="flex-1">
+                  <SectionTitle title={ts("frtTitle")} subtitle={ts("frtSub")} />
+                  <FrtPanel frt={summary?.frt} loading={loading} />
+                </Surface>
+              </SectionState>
+            </Chapter>
+
+            <Chapter
+              id="att-ai"
+              icon={<Robot className="h-4 w-4" weight="fill" />}
+              iconBg={GLYPH_PLATE.Robot}
+              title={ts("ai")}
+              subtitle={ts("aiSub")}
+            >
+              <SectionState query={summaryQuery}>
+                <Surface className="flex-1">
+                  <SectionTitle title={ts("aiTitle")} subtitle={ts("aiTitleSub")} />
+                  <AiPanel ai={summary?.ai} loading={loading} />
+                </Surface>
+              </SectionState>
+            </Chapter>
           </div>
+
+          <Chapter
+            id="att-messaging"
+            icon={<PaperPlaneTilt className="h-4 w-4" weight="fill" />}
+            iconBg={GLYPH_PLATE.PaperPlaneTilt}
+            title={ts("messaging")}
+            subtitle={ts("messagingSub")}
+          >
+            <SectionState query={summaryQuery}>
+              <div className="grid gap-3 xl:grid-cols-12">
+                <Surface className="xl:col-span-4">
+                  <SectionTitle title={ts("messages")} subtitle={ts("messagesSub")} />
+                  <MessagesPanel msg={summary?.messaging} loading={loading} />
+                </Surface>
+                <Surface className="xl:col-span-8">
+                  <SectionTitle title={ts("templates")} subtitle={ts("templatesSub")} />
+                  <TemplatesPanel msg={summary?.messaging} loading={loading} />
+                </Surface>
+              </div>
+            </SectionState>
+          </Chapter>
+
+          {/* Open work right now: the backlog, then where leads sit in the
+              funnels. Both are measured against now, not the period. */}
+          <Chapter
+            id="att-backlog"
+            ref={backlogRef}
+            icon={<Hourglass className="h-4 w-4" weight="fill" />}
+            iconBg={GLYPH_PLATE.Hourglass}
+            title={ts("backlog")}
+            subtitle={ts("backlogSub")}
+          >
+            <SectionState query={backlogQuery}>
+              <BacklogXraySection
+                backlog={backlogQuery.data?.backlog_xray}
+                loading={backlogQuery.isPending}
+                fmt={fmt}
+                channelLabel={(c) => channelLabel(c, tc)}
+              />
+            </SectionState>
+          </Chapter>
+
+          <Chapter
+            id="att-stages"
+            ref={stagesRef}
+            icon={<Kanban className="h-4 w-4" weight="fill" />}
+            iconBg={GLYPH_PLATE.Kanban}
+            title={ts("stages")}
+            subtitle={ts("stagesSub")}
+          >
+            <SectionState query={stagesQuery}>
+              <StageDistributionSection
+                stages={stagesQuery.data?.stages}
+                loading={stagesQuery.isPending}
+              />
+            </SectionState>
+          </Chapter>
+
+          {/* The team section, read from the organisation down to the person:
+              departments, the ranked team, then every member in detail. */}
+          <Chapter
+            id="att-departments"
+            ref={departmentsRef}
+            icon={<Buildings className="h-4 w-4" weight="fill" />}
+            iconBg={GLYPH_PLATE.Buildings}
+            title={ts("departments")}
+            subtitle={ts("departmentsSub")}
+          >
+            <SectionState query={teamQuery}>
+              <div className="grid gap-3 xl:grid-cols-12">
+                <Surface className="xl:col-span-5">
+                  <SectionTitle title={ts("deptChart")} subtitle={ts("deptChartSub")} />
+                  <DepartmentStackedChart
+                    rows={team?.by_department}
+                    loading={teamQuery.isPending}
+                  />
+                </Surface>
+                <Surface className="xl:col-span-7">
+                  <SectionTitle title={ts("deptTable")} subtitle={ts("deptTableSub")} />
+                  <DepartmentDetailTable
+                    rows={team?.by_department}
+                    loading={teamQuery.isPending}
+                  />
+                </Surface>
+              </div>
+            </SectionState>
+          </Chapter>
+
+          <Chapter
+            id="att-team-xray"
+            ref={rankingRef}
+            icon={<Pulse className="h-4 w-4" weight="fill" />}
+            iconBg={GLYPH_PLATE.Pulse}
+            title={ts("teamXray")}
+            subtitle={ts("teamXraySub")}
+          >
+            <SectionState query={teamQuery}>
+              <TeamRankingTable
+                ranking={team?.team_ranking}
+                loading={teamQuery.isPending}
+                fmt={fmt}
+                rankMetric={rankMetric}
+                onRankMetricChange={setRankMetric}
+              />
+            </SectionState>
+          </Chapter>
+
+          <Chapter
+            id="att-team"
+            ref={membersRef}
+            icon={<UsersThree className="h-4 w-4" weight="fill" />}
+            iconBg={GLYPH_PLATE.UsersThree}
+            title={ts("team")}
+            subtitle={ts("teamSub")}
+          >
+            <SectionState query={teamQuery}>
+              <div className="grid gap-3 xl:grid-cols-12">
+                <Surface className="xl:col-span-5">
+                  <SectionTitle title={ts("teamRank")} subtitle={ts("teamRankSub")} />
+                  <TeamChart rows={team?.by_member} loading={teamQuery.isPending} />
+                </Surface>
+                <Surface className="xl:col-span-7">
+                  <SectionTitle title={ts("teamDetail")} subtitle={ts("teamDetailSub")} />
+                  <TeamDetailTable
+                    rows={team?.by_member}
+                    loading={teamQuery.isPending}
+                  />
+                </Surface>
+              </div>
+            </SectionState>
+          </Chapter>
 
           {/*
           <div>
@@ -2840,62 +2855,6 @@ export default function AttendanceOpsPage() {
             />
           </div>
           */}
-
-          <div ref={rankingRef}>
-            <SectionLabel
-              icon={<Pulse className="h-4 w-4" weight="fill" />}
-              iconBg={GLYPH_PLATE.Pulse}
-              title={ts("teamXray")}
-              subtitle={ts("teamXraySub")}
-            />
-            <SectionState query={teamQuery}>
-              <TeamRankingTable
-                ranking={team?.team_ranking}
-                loading={teamQuery.isPending}
-                fmt={fmt}
-                rankMetric={rankMetric}
-                onRankMetricChange={setRankMetric}
-              />
-            </SectionState>
-          </div>
-
-          <div ref={membersRef}>
-            <SectionLabel
-              icon={<UsersThree className="h-4 w-4" weight="fill" />}
-              iconBg={GLYPH_PLATE.UsersThree}
-              title={ts("team")}
-              subtitle={ts("teamSub")}
-            />
-            <SectionState query={teamQuery}>
-            <div className="grid gap-3 xl:grid-cols-12">
-              <Surface className="xl:col-span-5">
-                <SectionTitle
-                  icon={<Users className="h-4 w-4" weight="fill" />}
-                  iconBg={GLYPH_PLATE.Users}
-                  title={ts("teamRank")}
-                  subtitle={ts("teamRankSub")}
-                />
-                <TeamChart
-                  rows={team?.by_member}
-                  loading={teamQuery.isPending}
-                />
-              </Surface>
-
-              <Surface className="xl:col-span-7">
-                <SectionTitle
-                  icon={<Users className="h-4 w-4" weight="fill" />}
-                  iconBg={GLYPH_PLATE.Users}
-                  title={ts("teamDetail")}
-                  subtitle={ts("teamDetailSub")}
-                />
-                <TeamDetailTable
-                  rows={team?.by_member}
-                  loading={teamQuery.isPending}
-                />
-              </Surface>
-            </div>
-            </SectionState>
-          </div>
 
           <div>
             <Surface className="!py-3">
@@ -2926,10 +2885,6 @@ export default function AttendanceOpsPage() {
                 <p>
                   <strong className="text-foreground">{tg("engaged")}</strong> ·{" "}
                   {tg("engagedDesc")}
-                </p>
-                <p>
-                  <strong className="text-foreground">{tg("shell")}</strong> ·{" "}
-                  {tg("shellDesc")}
                 </p>
                 <p>
                   <strong className="text-foreground">{tg("reopen")}</strong> ·{" "}
@@ -2983,6 +2938,14 @@ export default function AttendanceOpsPage() {
                   }
           }
           onSaved={refreshSections}
+        />
+      ) : null}
+      {canAsk ? (
+        <AttendanceAssistant
+          open={assistantOpen}
+          onOpenChange={setAssistantOpen}
+          view={assistantView}
+          scope={assistantScope}
         />
       ) : null}
     </div>

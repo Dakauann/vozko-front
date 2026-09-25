@@ -224,7 +224,15 @@
       "list_models": "Modelos de IA",
       "list_voices": "Voces",
       "list_departments": "Departamentos",
-      "list_agent_tools": "Herramientas de agente"
+      "list_agent_tools": "Herramientas de agente",
+      "attendance_metrics": "Indicadores de atención",
+      "attendance_trend": "Evolución mensual",
+      "attendance_team": "Ranking del equipo",
+      "attendance_backlog": "Radiografía del backlog",
+      "conversation_insights": "Análisis de conversaciones",
+      "calculate": "Cálculo",
+      "query_dataset": "Consulta de datos",
+      "render_chart": "Gráfico"
     },
     "threadsLegend": "Conversaciones",
     "greeting": "¿En qué vamos a trabajar?",
@@ -232,7 +240,12 @@
     "starterCreateAgent": "Crear un agente de cobranza",
     "starterModels": "¿Qué modelos están disponibles?",
     "starterAgentTools": "Revisar las herramientas de un agente",
-    "conversationLegend": "Conversación"
+    "conversationLegend": "Conversación",
+    "chart": {
+      "other": "Otros",
+      "showTable": "Tabla",
+      "showChart": "Gráfico"
+    }
   },
   "leadMemories": {
     "title": "Memorias",
@@ -569,7 +582,12 @@
     "expandPanel": "Expandir panel",
     "noOpportunities": "Sin oportunidades aún",
     "groupSubtitle": "Conversación en grupo",
-    "unnamedGroup": "Grupo"
+    "unnamedGroup": "Grupo",
+    "dealOwner": "Responsable: {name}",
+    "dealOwnerAI": "Agente de IA",
+    "dealOwnerWorkflow": "Flujo",
+    "dealOwnerSystem": "Sistema",
+    "dealOwnerTeam": "Equipo"
   },
   "metadata": {
     "title": "{brandLegalName}",
@@ -7949,7 +7967,14 @@
       "won": "¡Negocio ganado! 🎉",
       "moved": "Oportunidad movida.",
       "retry": "Intentar de nuevo",
-      "noValue": "Sin valor definido"
+      "noValue": "Sin valor definido",
+      "wonNeedsValue": "Indica el valor del negocio para marcarlo como ganado.",
+      "owner": {
+        "ai": "Agente de IA",
+        "workflow": "Flujo",
+        "system": "Sistema",
+        "unknownMember": "Asignado"
+      }
     },
     "bank": {
       "channel": "Canal",
@@ -8330,12 +8355,7 @@
         "avgHandleHint": "Cuánto tiempo tarda el equipo en promedio para concluir una conversación",
         "frt": "1.ª respuesta",
         "frtShort": "Tras la asignación",
-        "frtHint": "Desde la asignación hasta la primera respuesta",
-        "shellLabel": "Shells de campaña",
-        "shellShort": "entradas sin ningún mensaje",
-        "shellHint": "Creadas en masa por campaña/API sin mensajes. No son chats reales, fuera de los KPIs principales.",
-        "shellOfScoped": "{shells} de {total} entradas del período",
-        "entriesCreated": "{count} entradas creadas en el período"
+        "frtHint": "Desde la asignación hasta la primera respuesta"
       },
       "sections": {
         "volume": "Volumen y situación",
@@ -8350,6 +8370,8 @@
         "frtSub": "Desde que alguien asume hasta la primera respuesta",
         "messages": "Mensajes por conversación",
         "messagesSub": "Volumen medio de mensajes de conversación",
+        "messaging": "Mensajes",
+        "messagingSub": "Cuántos mensajes intercambia cada conversación y cuánto de eso son plantillas",
         "reopen": "Reabiertas",
         "reopenSub": "Conversaciones reabiertas después de cerrar",
         "finishedHow": "Cómo se cerraron",
@@ -8430,8 +8452,6 @@
         "resolutionDesc": "Conversaciones resueltas ÷ (abiertas + pendientes + resueltas) por persona",
         "engaged": "Engajada",
         "engagedDesc": "Entradas con al menos un mensaje, conversaciones reales de los KPIs",
-        "shell": "Shell",
-        "shellDesc": "Entradas de campaña sin mensajes; se muestran aparte, no como chat sin respuesta",
         "stageStuck": "Estancadas",
         "stageStuckDesc": "Conversaciones abiertas detenidas en la misma etapa más allá del límite de esa etapa (o 7 días si no define ninguno).",
         "stageParked": "Detenido",
@@ -8515,9 +8535,6 @@
         "templateShareHint": "Plantillas respecto al total de mensajes de salida (equipo + IA + plantilla)",
         "channelTotalConversations": "Conversaciones engajadas en el recorte",
         "ofPeriodConversations": "de las conversaciones engajadas",
-        "shellChip": "{count} shells (sin mensajes)",
-        "shellChipHint": "Entradas de campaña sin mensajes, no cuentan como atención",
-        "avgIncludingShells": "Incluyendo shells: {avg} msgs/entrada",
         "finishedEventsTelemetry": "{count} eventos de cierre (telemetría; puede incluir shells antiguos)",
         "noFunnel": "Sin embudo",
         "noFunnelHint": "Etapas que no pertenecen a ningún embudo",
@@ -8528,8 +8545,6 @@
         "funnelCol": "Embudo",
         "engagedCol": "Conversaciones",
         "engagedColTitle": "Conversaciones con al menos un mensaje",
-        "shellCol": "Sin mensaje",
-        "shellColTitle": "Entradas de campaña o importación detenidas en la etapa que nunca recibieron mensaje",
         "shareCol": "Del embudo",
         "shareColTitle": "Participación de la etapa en el total con actividad de su embudo",
         "parkedCol": "Detenido",
@@ -8537,7 +8552,6 @@
         "stuckCol": "Estancadas",
         "stuckColTitle": "Conversaciones abiertas detenidas más allá del límite de la etapa",
         "stageEngaged": "{count} conversaciones",
-        "stageShell": "+{count} sin mensaje",
         "stageStuck": "{count} estancadas",
         "stuckAfter": "más de {days}d",
         "stuckAfterDefault": "más de {days}d, predeterminado",
@@ -8728,7 +8742,6 @@
         },
         "revenueReason": {
           "revenue_mixed_currencies": "Hay más de una moneda en el período.",
-          "revenue_not_department_scoped": "Las oportunidades no tienen departamento, así que los ingresos no se pueden filtrar por uno.",
           "revenue_repository_unavailable": "Los ingresos no están disponibles."
         },
         "xrayReason": {
@@ -8813,6 +8826,34 @@
           "quality": "Calidad",
           "revenue": "Ingresos",
           "other": "Otros"
+        },
+        "bySource": "Por origen",
+        "revenueSource": {
+          "human": "Equipo",
+          "ai": "Agentes de IA",
+          "workflow": "Flujos",
+          "unowned": "Sin responsable"
+        },
+        "wonWithoutValue": "{count} negocios ganados sin valor no entran en los ingresos."
+      },
+      "assistant": {
+        "open": "Preguntar a la IA",
+        "title": "Analista de atención",
+        "description": "Responde con los números de esta página, respetando tu acceso.",
+        "scope": "Analizando",
+        "allDepartments": "Todos los departamentos",
+        "allMembers": "Todo el equipo",
+        "allChannels": "Todos los canales",
+        "newChat": "Nuevo análisis",
+        "openFull": "Abrir en el chat",
+        "greeting": "¿Qué quieres entender sobre la atención?",
+        "footnote": "Las consultas usan los mismos datos y límites de esta página. Verifica las decisiones importantes en los paneles.",
+        "starters": {
+          "summary": "Resume este período y compáralo con el anterior",
+          "team": "¿Quién del equipo necesita atención y por qué?",
+          "trend": "Muestra la evolución mensual de conversaciones finalizadas en el último año",
+          "backlog": "¿Qué se está acumulando en el backlog ahora?",
+          "why": "¿Por qué los clientes no cierran? Usa los análisis de las conversaciones"
         }
       }
     }

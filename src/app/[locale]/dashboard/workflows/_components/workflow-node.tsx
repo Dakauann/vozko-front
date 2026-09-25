@@ -52,6 +52,7 @@ import {
   Hash,
   Shuffle,
   CheckCircle,
+  CurrencyDollar,
   WebhooksLogo,
 } from "@/components/icons";
 import type { Icon } from "@/components/icons";
@@ -131,6 +132,7 @@ const ICON_MAP: Record<string, Icon> = {
   Hash,
   Shuffle,
   CheckCircle,
+  CurrencyDollar,
   Webhooks: WebhooksLogo,
 };
 

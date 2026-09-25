@@ -94,6 +94,7 @@ import { listMembersAction } from "@/app/actions/workspace";
 import { getWorkspaceConfigAction } from "@/app/actions/workspace-config";
 import { HandOffRulesSummary } from "@/components/dashboard/workspace/HandOffRulesSummary";
 import { listPipelinesAction } from "@/app/actions/crm-board";
+import type { PipelineObjectType } from "@/lib/crm/pipelines";
 import { listStagesAction } from "@/app/actions/stages";
 import { fetchDepartments } from "@/lib/department/client";
 import {
@@ -158,6 +159,20 @@ function upsertById<T extends { id: string }>(current: T[], incoming: T[]) {
   return Array.from(next.values());
 }
 
+async function pipelineStageOptions(workspaceId: string, objectType: PipelineObjectType) {
+  const { pipelines } = await listPipelinesAction(objectType);
+  const ordered = [...pipelines].sort((a, b) => a.position - b.position);
+  const perPipeline = await Promise.all(
+    ordered.map(async (pipeline) => {
+      const { stages } = await listStagesAction(workspaceId, undefined, undefined, pipeline.id);
+      return [...stages]
+        .sort((a, b) => a.position - b.position)
+        .map((st) => ({ value: st.id, label: `${pipeline.name} · ${st.name}` }));
+    }),
+  );
+  return perPipeline.flat();
+}
+
 function getSourceSearchPlaceholder(
   source: string | undefined,
   nc: (key: string) => string,
@@ -190,6 +205,10 @@ function getSourceEmptyMessage(source?: string) {
       return "Nenhum desfecho cadastrado no workspace";
     case "stages":
       return "Nenhuma etapa nos funis do workspace";
+    case "opportunity_pipelines":
+      return "Nenhum funil de negócios no workspace";
+    case "opportunity_stages":
+      return "Nenhuma etapa nos funis de negócios do workspace";
     default:
       return "Nenhuma opção encontrada";
   }
@@ -2396,22 +2415,26 @@ function useDynamicOptions(
             }
             break;
           }
-          case "stages": {
+          case "stages":
+          case "opportunity_stages": {
             if (!workspaceId) {
               break;
             }
-            const { pipelines } = await listPipelinesAction("conversation");
-            const ordered = [...pipelines].sort((a, b) => a.position - b.position);
-            const perPipeline = await Promise.all(
-              ordered.map(async (pipeline) => {
-                const { stages } = await listStagesAction(workspaceId, undefined, undefined, pipeline.id);
-                return [...stages]
-                  .sort((a, b) => a.position - b.position)
-                  .map((st) => ({ value: st.id, label: `${pipeline.name} · ${st.name}` }));
-              }),
+            const options = await pipelineStageOptions(
+              workspaceId,
+              source === "stages" ? "conversation" : "opportunity",
             );
             if (!cancelled) {
-              fetched = perPipeline.flat();
+              fetched = options;
+            }
+            break;
+          }
+          case "opportunity_pipelines": {
+            const { pipelines } = await listPipelinesAction("opportunity");
+            if (!cancelled) {
+              fetched = [...pipelines]
+                .sort((a, b) => a.position - b.position)
+                .map((pipeline) => ({ value: pipeline.id, label: pipeline.name }));
             }
             break;
           }

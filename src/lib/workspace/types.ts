@@ -38,7 +38,8 @@ export type ResourceType =
     | "telegram_accounts"
     | "unofficial_whatsapp_instances"
     | "unofficial_whatsapp_campaigns"
-    | "mcp";
+    | "mcp"
+    | "ai_chat";
 
 export type ResourceAction =
     | "create"

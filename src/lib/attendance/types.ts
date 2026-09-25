@@ -446,9 +446,20 @@ export interface RevenueOwnerRow {
     avg_ticket_cents: number | null;
 }
 
+export type RevenueSource = "human" | "ai" | "workflow" | "unowned";
+
+export interface RevenueSourceRow {
+    source: RevenueSource;
+    currency: string;
+    won_count: number;
+    value_cents: number;
+}
+
 export interface OverviewRevenue {
     currencies: RevenueByCurrency[];
     by_owner: RevenueOwnerRow[];
+    by_source: RevenueSourceRow[];
+    won_without_value: number;
     unattributed: number;
     unowned_count: number;
     mixed_currencies: boolean;

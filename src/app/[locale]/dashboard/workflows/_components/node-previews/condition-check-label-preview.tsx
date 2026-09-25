@@ -20,6 +20,31 @@ export function ConditionPickPreview({
   return <DecisionBlock>{picked}</DecisionBlock>;
 }
 
+const DEAL_STATUS_LABELS: Record<string, string> = {
+  open: "Negócio aberto",
+  won: "Negócio ganho",
+  lost: "Negócio perdido",
+};
+
+export function ConditionCheckOpportunityPreview({
+  config,
+}: {
+  config: Record<string, unknown>;
+}) {
+  switch (config.check) {
+    case "status":
+      return DEAL_STATUS_LABELS[String(config.status)] ? (
+        <DecisionBlock>{DEAL_STATUS_LABELS[String(config.status)]}</DecisionBlock>
+      ) : (
+        <EmptyPreview label="Sem situação" />
+      );
+    case "stage":
+      return <ConditionPickPreview config={config} field="stage_id" emptyLabel="Sem etapa do negócio" />;
+    default:
+      return <DecisionBlock>Tem negócio</DecisionBlock>;
+  }
+}
+
 export function ConditionCheckLabelPreview({
   config,
 }: {

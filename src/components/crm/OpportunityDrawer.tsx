@@ -39,12 +39,14 @@ import {
 import type { OpportunityConversationLink } from "@/lib/crm/opportunities";
 import { listAssignableMembersAction, type AssignableMember } from "@/app/actions/workspace";
 import {
+  dealActorName,
   formatValueCents,
   parseBRLToCents,
+  type DealActorLabels,
   type Opportunity,
   type OpportunityColumn,
-  type OpportunityStatus,
 } from "@/lib/crm/opportunities";
+import OpportunityHistory from "@/components/crm/OpportunityHistory";
 import type { CustomFieldDefinition } from "@/lib/crm/custom-fields";
 import { useAuth } from "@/contexts/auth-context";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -65,16 +67,14 @@ interface OpportunityDrawerProps {
   onSaved: () => void;
 }
 
-function toDateInput(iso?: string | null): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toISOString().slice(0, 10);
-}
-function fromDateInput(value: string): string | null {
-  if (!value) return null;
-  return `${value}T00:00:00Z`;
-}
+const ACTOR_LABELS: DealActorLabels = {
+  ai: "Agente de IA",
+  workflow: "Fluxo",
+  system: "Sistema",
+  unknownMember: "Membro removido",
+};
+
+const closedAtFormat = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
 
 export default function OpportunityDrawer({
   open,
@@ -100,7 +100,6 @@ export default function OpportunityDrawer({
   const [valueInput, setValueInput] = useState("");
   const [stageId, setStageId] = useState("");
   const [ownerId, setOwnerId] = useState("");
-  const [closeDate, setCloseDate] = useState("");
   const [source, setSource] = useState("");
   const [lostReason, setLostReason] = useState("");
   const [custom, setCustom] = useState<Record<string, unknown>>({});
@@ -115,7 +114,6 @@ export default function OpportunityDrawer({
     setValueInput(opportunity ? String((opportunity.valueCents ?? 0) / 100).replace(".", ",") : "");
     setStageId(opportunity?.stageId ?? defaultStageId ?? columns[0]?.id ?? "");
     setOwnerId(opportunity?.ownerId ?? currentUserId);
-    setCloseDate(toDateInput(opportunity?.closeDate));
     setSource(opportunity?.source ?? "");
     setLostReason(opportunity?.lostReasonId ?? "");
     setCustom({ ...(opportunity?.customFields ?? {}) });
@@ -167,21 +165,22 @@ export default function OpportunityDrawer({
     () => columns.find((c) => c.id === stageId),
     [columns, stageId],
   );
-  const derivedStatus: OpportunityStatus = selectedColumn?.isWon
-    ? "won"
-    : selectedColumn?.isLost
-      ? "lost"
-      : "open";
-  const needsLostReason = derivedStatus === "lost";
+  const needsLostReason = !!selectedColumn?.isLost;
+  const needsValue = !!selectedColumn?.isWon;
 
-  const memberOptions = useMemo(
-    () =>
-      members.map((m) => ({
-        value: m.userId,
-        label: m.username?.trim() || m.email?.trim() || m.userId,
-      })),
+  const memberNames = useMemo(
+    () => new Map(members.map((m) => [m.userId, m.username?.trim() || m.email?.trim() || m.userId])),
     [members],
   );
+  const stageNames = useMemo(() => new Map(columns.map((c) => [c.id, c.name])), [columns]);
+
+  const memberOptions = useMemo(() => {
+    const options = members.map((m) => ({ value: m.userId, label: memberNames.get(m.userId) ?? m.userId }));
+    if (ownerId && !memberNames.has(ownerId)) {
+      options.unshift({ value: ownerId, label: dealActorName(ownerId, memberNames, ACTOR_LABELS) ?? ownerId });
+    }
+    return options;
+  }, [members, memberNames, ownerId]);
 
   const setCustomValue = useCallback((key: string, value: unknown) => {
     setCustom((prev) => {
@@ -201,9 +200,12 @@ export default function OpportunityDrawer({
       toast.error("Informe o motivo da perda para mover para uma etapa de perdido.");
       return;
     }
-    setSaving(true);
     const valueCents = parseBRLToCents(valueInput);
-    const closeIso = fromDateInput(closeDate);
+    if (needsValue && valueCents <= 0) {
+      toast.error("Informe o valor do negócio para marcá-lo como ganho.");
+      return;
+    }
+    setSaving(true);
 
     if (isEdit && opportunity) {
       const { opportunity: updated, error } = await updateOpportunityAction(opportunity.id, {
@@ -211,10 +213,8 @@ export default function OpportunityDrawer({
         valueCents,
         ownerId,
         source: source.trim(),
-        closeDate: closeIso,
         customFields: custom,
         stageId,
-        status: derivedStatus,
         lostReasonId: needsLostReason ? lostReason.trim() : "",
       });
       setSaving(false);
@@ -231,7 +231,6 @@ export default function OpportunityDrawer({
         valueCents,
         ownerId: ownerId || undefined,
         source: source.trim() || undefined,
-        closeDate: closeIso,
         customFields: Object.keys(custom).length ? custom : undefined,
         linkEntryId: linkEntryId || undefined,
         linkEntryType: linkEntryType || undefined,
@@ -308,6 +307,7 @@ export default function OpportunityDrawer({
               onChange={(e) => setValueInput(e.target.value)}
               placeholder="0,00"
               inputMode="decimal"
+              error={needsValue && parseBRLToCents(valueInput) <= 0 ? "Obrigatório para ganho" : undefined}
             />
             {valueInput ? (
               <p className="mt-1 flex items-center gap-1 pl-1 text-xs text-muted-foreground">
@@ -374,13 +374,6 @@ export default function OpportunityDrawer({
             )}
           </div>
 
-          <ElevatedDatePicker
-            id="opp-close-date"
-            label="Previsão de fechamento"
-            value={closeDate}
-            onChange={(v) => setCloseDate(v)}
-          />
-
           <ElevatedInput
             id="opp-source"
             label="Origem"
@@ -407,7 +400,19 @@ export default function OpportunityDrawer({
             </div>
           ) : null}
 
+          {opportunity ? <DealAuthorship opportunity={opportunity} members={memberNames} /> : null}
+
           {isEdit ? <LinkedConversations links={links} onUnlink={handleUnlink} /> : null}
+
+          {opportunity ? (
+            <OpportunityHistory
+              opportunityId={opportunity.id}
+              updatedAt={opportunity.updatedAt}
+              members={memberNames}
+              stageNames={stageNames}
+              actorLabels={ACTOR_LABELS}
+            />
+          ) : null}
         </div>
 
         <div className="flex items-center justify-between gap-2 border-t border-border px-6 py-4">
@@ -442,6 +447,39 @@ export default function OpportunityDrawer({
         </div>
       </ElevatedSheetContent>
     </ElevatedSheet>
+  );
+}
+
+function DealAuthorship({
+  opportunity,
+  members,
+}: {
+  opportunity: Opportunity;
+  members: ReadonlyMap<string, string>;
+}) {
+  const createdBy = dealActorName(opportunity.createdBy, members, ACTOR_LABELS);
+  const closedBy = dealActorName(opportunity.closedBy, members, ACTOR_LABELS);
+  const closedAt = opportunity.status !== "open" && opportunity.closeDate ? closedAtFormat.format(new Date(opportunity.closeDate)) : null;
+  if (!createdBy && !closedAt) return null;
+
+  return (
+    <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 border-t border-border pt-4 text-xs">
+      {createdBy ? (
+        <>
+          <dt className="text-muted-foreground">Criado por</dt>
+          <dd className="text-foreground">{createdBy}</dd>
+        </>
+      ) : null}
+      {closedAt ? (
+        <>
+          <dt className="text-muted-foreground">{opportunity.status === "won" ? "Ganho em" : "Perdido em"}</dt>
+          <dd className="text-foreground">
+            {closedAt}
+            {closedBy ? ` por ${closedBy}` : null}
+          </dd>
+        </>
+      ) : null}
+    </dl>
   );
 }
 

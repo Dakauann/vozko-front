@@ -8,6 +8,7 @@ import { ConditionFilterPreview } from "./condition-filter-preview";
 import { ConditionTextMatchPreview } from "./condition-text-match-preview";
 import {
   ConditionCheckLabelPreview,
+  ConditionCheckOpportunityPreview,
   ConditionPickPreview,
 } from "./condition-check-label-preview";
 
@@ -26,6 +27,8 @@ export function renderConditionContentPreview(
       return <ConditionCheckLabelPreview config={config} />;
     case "condition_check_stage":
       return <ConditionPickPreview config={config} field="stage_id" emptyLabel="Sem etapa" />;
+    case "condition_check_opportunity":
+      return <ConditionCheckOpportunityPreview config={config} />;
     default:
       return undefined;
   }

@@ -224,7 +224,15 @@
       "list_models": "AI models",
       "list_voices": "Voices",
       "list_departments": "Departments",
-      "list_agent_tools": "Agent tools"
+      "list_agent_tools": "Agent tools",
+      "attendance_metrics": "Attendance metrics",
+      "attendance_trend": "Monthly trend",
+      "attendance_team": "Team ranking",
+      "attendance_backlog": "Backlog X-ray",
+      "conversation_insights": "Conversation analyses",
+      "calculate": "Calculation",
+      "query_dataset": "Data lookup",
+      "render_chart": "Chart"
     },
     "threadsLegend": "Conversations",
     "greeting": "What are we working on?",
@@ -232,7 +240,12 @@
     "starterCreateAgent": "Create a collections agent",
     "starterModels": "Which models are available?",
     "starterAgentTools": "Review an agent's tools",
-    "conversationLegend": "Conversation"
+    "conversationLegend": "Conversation",
+    "chart": {
+      "other": "Other",
+      "showTable": "Table",
+      "showChart": "Chart"
+    }
   },
   "leadMemories": {
     "title": "Memories",
@@ -569,7 +582,12 @@
     "expandPanel": "Expand panel",
     "noOpportunities": "No opportunities yet",
     "groupSubtitle": "Group conversation",
-    "unnamedGroup": "Group"
+    "unnamedGroup": "Group",
+    "dealOwner": "Owner: {name}",
+    "dealOwnerAI": "AI agent",
+    "dealOwnerWorkflow": "Workflow",
+    "dealOwnerSystem": "System",
+    "dealOwnerTeam": "Team"
   },
   "metadata": {
     "title": "{brandLegalName}",
@@ -9515,7 +9533,14 @@
       "won": "Deal won! 🎉",
       "moved": "Opportunity moved.",
       "retry": "Try again",
-      "noValue": "No value set"
+      "noValue": "No value set",
+      "wonNeedsValue": "Enter the deal value to mark it as won.",
+      "owner": {
+        "ai": "AI agent",
+        "workflow": "Workflow",
+        "system": "System",
+        "unknownMember": "Assigned"
+      }
     },
     "bank": {
       "channel": "Channel",
@@ -9896,12 +9921,7 @@
         "avgHandleHint": "How long the team takes on average to finish a conversation",
         "frt": "1st response",
         "frtShort": "After assignment",
-        "frtHint": "From assignment to first reply",
-        "shellLabel": "Campaign shells",
-        "shellShort": "entries without any message",
-        "shellHint": "Bulk campaign/API creates with zero messages. Not live chats, excluded from primary KPIs.",
-        "shellOfScoped": "{shells} of {total} period entries",
-        "entriesCreated": "{count} entries created in period"
+        "frtHint": "From assignment to first reply"
       },
       "sections": {
         "volume": "Volume and status",
@@ -9916,6 +9936,8 @@
         "frtSub": "From ownership to first reply",
         "messages": "Messages per conversation",
         "messagesSub": "Average conversation message volume",
+        "messaging": "Messaging",
+        "messagingSub": "How many messages each conversation exchanges and how much of it is templates",
         "reopen": "Reopened",
         "reopenSub": "Conversations reopened after closing",
         "finishedHow": "How they were closed",
@@ -9996,8 +10018,6 @@
         "resolutionDesc": "Conversations resolved ÷ (open + pending + resolved) per person",
         "engaged": "Engaged",
         "engagedDesc": "Entries with at least one message, real conversations used in KPIs",
-        "shell": "Shell",
-        "shellDesc": "Campaign entries with zero messages; shown separately, not as unanswered chats",
         "stageStuck": "Stalled",
         "stageStuckDesc": "Open conversations sitting in the same stage past that stage's threshold (or 7 days when it defines none).",
         "stageParked": "Parked for",
@@ -10081,9 +10101,6 @@
         "templateShareHint": "Templates as a share of all outbound messages (team + AI + template)",
         "channelTotalConversations": "Engaged conversations in range",
         "ofPeriodConversations": "of engaged conversations",
-        "shellChip": "{count} shells (no messages)",
-        "shellChipHint": "Campaign entries with no messages, not counted as attendance conversations",
-        "avgIncludingShells": "Including shells: {avg} msgs/entry",
         "finishedEventsTelemetry": "{count} finish events logged (telemetry, may include old shells)",
         "noFunnel": "No funnel",
         "noFunnelHint": "Stages that belong to no funnel",
@@ -10094,8 +10111,6 @@
         "funnelCol": "Funnel",
         "engagedCol": "Conversations",
         "engagedColTitle": "Conversations with at least one message",
-        "shellCol": "No message",
-        "shellColTitle": "Campaign or import entries parked in the stage that were never messaged",
         "shareCol": "Of funnel",
         "shareColTitle": "The stage's share of its own funnel's engaged total",
         "parkedCol": "Parked for",
@@ -10103,7 +10118,6 @@
         "stuckCol": "Stalled",
         "stuckColTitle": "Open conversations sitting past the stage's threshold",
         "stageEngaged": "{count} conversations",
-        "stageShell": "+{count} with no message",
         "stageStuck": "{count} stalled",
         "stuckAfter": "over {days}d",
         "stuckAfterDefault": "over {days}d, default",
@@ -10294,7 +10308,6 @@
         },
         "revenueReason": {
           "revenue_mixed_currencies": "There is more than one currency in the period.",
-          "revenue_not_department_scoped": "Opportunities carry no department, so revenue cannot be filtered by one.",
           "revenue_repository_unavailable": "Revenue is unavailable."
         },
         "xrayReason": {
@@ -10379,6 +10392,34 @@
           "quality": "Quality",
           "revenue": "Revenue",
           "other": "Other"
+        },
+        "bySource": "By source",
+        "revenueSource": {
+          "human": "Team",
+          "ai": "AI agents",
+          "workflow": "Workflows",
+          "unowned": "No owner"
+        },
+        "wonWithoutValue": "{count} won deals with no value are left out of revenue."
+      },
+      "assistant": {
+        "open": "Ask AI",
+        "title": "Attendance analyst",
+        "description": "Answers with this page's numbers, within your access.",
+        "scope": "Analyzing",
+        "allDepartments": "All departments",
+        "allMembers": "Whole team",
+        "allChannels": "All channels",
+        "newChat": "New analysis",
+        "openFull": "Open in chat",
+        "greeting": "What do you want to understand about attendance?",
+        "footnote": "Queries use the same data and limits as this page. Check important decisions against the dashboards.",
+        "starters": {
+          "summary": "Summarize this period and compare it with the previous one",
+          "team": "Who on the team needs attention, and why?",
+          "trend": "Show the monthly trend of finished conversations over the last year",
+          "backlog": "What is piling up in the backlog right now?",
+          "why": "Why aren't customers closing? Use the conversation analyses"
         }
       }
     }
