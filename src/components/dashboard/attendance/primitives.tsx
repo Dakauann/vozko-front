@@ -260,12 +260,23 @@ export function EmptyChart({
 }
 
 export function ChartSkeleton({ height = 220 }: { height?: number }) {
+  const tc = useTranslations("metricsOps.common");
+  const label = tc("loading");
   return (
     <div
-      className="animate-pulse rounded-[--radius] bg-muted"
+      aria-busy="true"
+      className="flex flex-col items-center justify-center gap-2.5 rounded-[--radius] bg-muted/50 px-6"
       style={{ height }}
-      aria-hidden
-    />
+    >
+      <div
+        role="progressbar"
+        aria-label={label}
+        className="h-1.5 w-full max-w-[16rem] overflow-hidden rounded-full bg-muted"
+      >
+        <div className="h-full w-full origin-left scale-x-[0.35] rounded-full bg-primary animate-progress-creep motion-reduce:animate-none" />
+      </div>
+      <span className="text-2xs text-muted-foreground">{label}</span>
+    </div>
   );
 }
 

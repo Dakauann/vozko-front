@@ -81,7 +81,7 @@ export default function WhatsAppCallHost() {
       role="status"
       aria-live="polite"
       className={cn(
-        "fixed bottom-4 right-4 z-50 flex items-center gap-3",
+        "fixed bottom-4 right-4 z-[65] flex items-center gap-3",
         "rounded-[--radius] border border-border bg-card px-3 py-2 shadow-2xl",
       )}
     >

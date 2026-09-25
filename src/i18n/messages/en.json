@@ -320,7 +320,58 @@
         "away": "Away"
       }
     },
-    "toolDenied": "no permission"
+    "toolDenied": "no permission",
+    "dock": {
+      "title": "Assistant",
+      "description": "Ask in plain words. Answers only use what you are allowed to see.",
+      "greeting": "How can I help?",
+      "footnote": "Queries use the same data and limits as the rest of the app. Check important decisions against the dashboards.",
+      "tabLabel": "AI",
+      "open": "Ask AI",
+      "minimize": "Minimize",
+      "fullscreen": "Full screen",
+      "exitFullscreen": "Exit full screen",
+      "resize": "Drag to resize",
+      "newChat": "New analysis",
+      "openFull": "Open in chat",
+      "groups": {
+        "attendance": {
+          "title": "Attendance",
+          "items": {
+            "summary": "How did this period compare with the previous one?",
+            "team": "Who on the team needs attention, and why?",
+            "trend": "How did completed conversations evolve over the last year?",
+            "backlog": "Which conversations are waiting for a reply right now?",
+            "why": "Why aren't customers closing deals?"
+          }
+        },
+        "campaigns": {
+          "title": "Campaigns",
+          "items": {
+            "results": "How did my sending campaigns do this month?",
+            "failures": "Why are messages from my campaigns failing?",
+            "best": "Which campaign got the most replies in the period?"
+          }
+        },
+        "customers": {
+          "title": "Customers",
+          "items": {
+            "asked": "What did customers ask for most this month?",
+            "objections": "Which objections come up most in conversations?",
+            "hot": "How many customers are ready to buy this week?"
+          }
+        },
+        "agents": {
+          "title": "AI agents",
+          "items": {
+            "list": "Which AI agents do I have active?",
+            "create": "Create a collections agent",
+            "tools": "Review what an agent can do",
+            "models": "Which AI models can I use?"
+          }
+        }
+      }
+    }
   },
   "leadMemories": {
     "title": "Memories",
@@ -10607,31 +10658,20 @@
         "noRevenueBody": "When an opportunity is marked as won, its revenue shows up here, split by currency.",
         "revenueUnavailableTitle": "Revenue unavailable",
         "trendUnavailableTitle": "Trend unavailable",
-        "backlogUnavailableTitle": "X-ray unavailable"
+        "backlogUnavailableTitle": "X-ray unavailable",
+        "hiddenPerDay": "Per day appears once working hours are configured",
+        "hiddenRevenue": "Revenue and ticket appear once opportunities are won in the period",
+        "noOnlineTime": "No online time recorded in the period",
+        "noWonDeals": "No opportunities won in the period"
       },
       "assistant": {
-        "open": "Ask AI",
         "title": "Attendance analyst",
         "description": "Ask in plain words. Answers use this page's numbers and your access.",
         "scope": "Analyzing",
         "allDepartments": "All departments",
         "allMembers": "Whole team",
         "allChannels": "All channels",
-        "newChat": "New analysis",
-        "openFull": "Open in chat",
-        "greeting": "What do you want to understand about attendance?",
-        "footnote": "Queries use the same data and limits as this page. Check important decisions against the dashboards.",
-        "starters": {
-          "summary": "How did this period compare with the previous one?",
-          "team": "Who on the team needs attention, and why?",
-          "trend": "How did completed conversations evolve over the last year?",
-          "backlog": "Which conversations are waiting for a reply right now?",
-          "why": "Why aren't customers closing deals?"
-        },
-        "minimize": "Minimize",
-        "fullscreen": "Full screen",
-        "exitFullscreen": "Exit full screen",
-        "resize": "Drag to resize"
+        "greeting": "What do you want to understand about attendance?"
       }
     }
   },

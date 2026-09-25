@@ -510,8 +510,10 @@ turn at rest, 1.6s while the assistant works, when the chart glyph's bars also
 move). USER-DIRECTED (2026-09-25). Monochrome brand green only, never a
 rainbow; the face stays `bg-card` with a `border-border-strong` edge and the
 glyph carries the colour. Under `prefers-reduced-motion` the sweep and bars stop
-and a static lit arc remains. Every AI entry point (the attendance analyst, the
-workflow copilot) uses this one launcher; do not add glow anywhere else.
+and a static lit arc remains. Every AI entry point uses this one launcher: the app-wide assistant as a tab on
+the middle of the right edge (peeking 22px, glyph showing, on hover devices; full
+tab on touch), and the workflow copilot as the round corner button. Do not add
+glow anywhere else.
 
 ## Components
 

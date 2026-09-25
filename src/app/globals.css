@@ -706,7 +706,7 @@ input:-webkit-autofill:active {
   .vz-ai-ring,
   .vz-ai-halo {
     position: absolute;
-    border-radius: 9999px;
+    border-radius: inherit;
     z-index: -1;
     pointer-events: none;
     background: conic-gradient(

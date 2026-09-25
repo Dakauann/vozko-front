@@ -27,6 +27,7 @@ import type {
   OverviewTrend,
   QualityRow,
   RankedMember,
+  TeamTotals,
   ReworkRow,
   TrendSeries,
   Verdict,
@@ -1091,15 +1092,32 @@ export function QualitySection({
   );
 }
 
+type RankingColumn = {
+  key: string;
+  label: string;
+  hint?: string;
+  value: (row: RankedMember) => string | null;
+  total: (totals: TeamTotals) => string | null;
+  missing?: string;
+};
+
+function Missing({ reason }: { reason?: string }) {
+  return (
+    <span className="text-muted-foreground" title={reason} aria-label={reason}>
+      —
+    </span>
+  );
+}
+
 function RankingRows({
   rows,
-  fmt,
+  columns,
   muted,
   te,
   showClass,
 }: {
   rows: RankedMember[];
-  fmt: MetricsFmt;
+  columns: RankingColumn[];
   muted?: boolean;
   showClass: boolean;
   te: (key: string, values?: Record<string, string>) => string;
@@ -1113,35 +1131,14 @@ function RankingRows({
         >
           <td className="px-2 py-2 text-muted-foreground">{index + 1}</td>
           <td className="px-2 py-2">{row.display_name}</td>
-          <td className="readout px-2 py-2 text-right tabular-nums">
-            {fmt.num(row.resolved)}
-          </td>
-          <td className="readout px-2 py-2 text-right tabular-nums">
-            {row.per_open_day === null ? fmt.na : fmt.rate(row.per_open_day, "")}
-          </td>
-          <td className="readout px-2 py-2 text-right tabular-nums">
-            {row.per_online_hour === null
-              ? fmt.na
-              : fmt.rate(row.per_online_hour, te("perHourSuffix"))}
-          </td>
-          <td className="readout px-2 py-2 text-right tabular-nums">
-            {row.revenue_cents === null
-              ? fmt.na
-              : fmt.money(row.revenue_cents, row.currency)}
-          </td>
-          <td className="readout px-2 py-2 text-right tabular-nums">
-            {row.avg_ticket_cents === null
-              ? fmt.na
-              : fmt.money(row.avg_ticket_cents, row.currency)}
-          </td>
-          <td className="readout px-2 py-2 text-right tabular-nums">
-            {row.avg_messages === null || row.avg_messages === undefined
-              ? fmt.na
-              : fmt.rate(row.avg_messages, "")}
-          </td>
-          <td className="readout px-2 py-2 text-right tabular-nums">
-            {fmt.pct(row.pct_of_team_avg)}
-          </td>
+          {columns.map((column) => {
+            const value = column.value(row);
+            return (
+              <td key={column.key} className="readout px-2 py-2 text-right tabular-nums">
+                {value ?? <Missing reason={column.missing} />}
+              </td>
+            );
+          })}
           {showClass ? (
             <td className="px-2 py-2 text-right">
               {row.class ? (
@@ -1154,9 +1151,7 @@ function RankingRows({
                   {te(`memberClass.${row.class}`)}
                 </span>
               ) : (
-                <span className="text-2xs text-muted-foreground">
-                  {te("notScored")}
-                </span>
+                <span className="text-2xs text-muted-foreground">{te("notScored")}</span>
               )}
             </td>
           ) : (
@@ -1174,12 +1169,14 @@ export function TeamRankingTable({
   fmt,
   rankMetric,
   onRankMetricChange,
+  onConfigureSchedule,
 }: {
   ranking: OverviewTeamRanking | undefined;
   loading: boolean;
   fmt: MetricsFmt;
   rankMetric: string;
   onRankMetricChange: (value: string) => void;
+  onConfigureSchedule?: () => void;
 }) {
   const { te } = useExecutiveTranslations();
 
@@ -1187,6 +1184,76 @@ export function TeamRankingTable({
   if (!ranking) return <BlockUnavailable />;
 
   const options = ["resolved", "volume", "revenue_cents"];
+  const everyone = [...ranking.members, ...ranking.adjacent];
+  const reported = (pick: (row: RankedMember) => number | null | undefined) =>
+    everyone.some((row) => pick(row) !== null && pick(row) !== undefined);
+  const hasPerDay = reported((row) => row.per_open_day);
+  const hasRevenue = reported((row) => row.revenue_cents);
+
+  const allColumns: (RankingColumn & { shown: boolean })[] = [
+    {
+      key: "resolved",
+      label: te("resolvedCol"),
+      value: (row) => fmt.num(row.resolved),
+      total: (totals) => fmt.num(totals.resolved),
+      shown: true,
+    },
+    {
+      key: "perDay",
+      label: te("perDayCol"),
+      hint: te("perDayHint"),
+      value: (row) => (row.per_open_day === null ? null : fmt.rate(row.per_open_day, "")),
+      total: (totals) => (totals.per_open_day === null ? null : fmt.rate(totals.per_open_day, "")),
+      shown: hasPerDay,
+    },
+    {
+      key: "perHour",
+      label: te("perHourCol"),
+      hint: te("perHourHint"),
+      value: (row) => (row.per_online_hour === null ? null : fmt.rate(row.per_online_hour, te("perHourSuffix"))),
+      total: (totals) => (totals.per_online_hour === null ? null : fmt.rate(totals.per_online_hour, te("perHourSuffix"))),
+      missing: te("noOnlineTime"),
+      shown: true,
+    },
+    {
+      key: "revenue",
+      label: te("revenueCol"),
+      value: (row) => (row.revenue_cents === null ? null : fmt.money(row.revenue_cents, row.currency)),
+      total: (totals) => (totals.revenue_cents === null ? null : fmt.money(totals.revenue_cents, totals.currency)),
+      missing: te("noWonDeals"),
+      shown: hasRevenue,
+    },
+    {
+      key: "ticket",
+      label: te("avgTicketCol"),
+      hint: te("avgTicketHint"),
+      value: (row) => (row.avg_ticket_cents === null ? null : fmt.money(row.avg_ticket_cents, row.currency)),
+      total: (totals) => (totals.avg_ticket_cents === null ? null : fmt.money(totals.avg_ticket_cents, totals.currency)),
+      missing: te("noWonDeals"),
+      shown: hasRevenue,
+    },
+    {
+      key: "messages",
+      label: te("avgMessagesCol"),
+      hint: te("avgMessagesHint"),
+      value: (row) => (row.avg_messages === null || row.avg_messages === undefined ? null : fmt.rate(row.avg_messages, "")),
+      total: () => "",
+      shown: true,
+    },
+    {
+      key: "pctOfAvg",
+      label: te("pctOfAvgCol"),
+      hint: te("pctOfAvgHint"),
+      value: (row) => fmt.pct(row.pct_of_team_avg),
+      total: () => "",
+      shown: true,
+    },
+  ];
+  const columns = allColumns.filter((column) => column.shown);
+  const hidden = [!hasPerDay ? te("hiddenPerDay") : null, !hasRevenue ? te("hiddenRevenue") : null].filter(
+    (reason): reason is string => reason !== null,
+  );
+  const width = columns.length + 3;
 
   const header: ReactNode = (
     <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
@@ -1221,9 +1288,7 @@ export function TeamRankingTable({
     return (
       <Surface>
         {header}
-        <UnavailableNote
-          message={te(`rankingReason.${ranking.reason || "no_team_rows"}`)}
-        />
+        <UnavailableNote message={te(`rankingReason.${ranking.reason || "no_team_rows"}`)} />
       </Surface>
     );
   }
@@ -1231,65 +1296,47 @@ export function TeamRankingTable({
   return (
     <Surface>
       {header}
+      {hidden.length > 0 ? (
+        <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-[--radius] bg-muted px-3 py-2 text-xs text-muted-foreground">
+          <span>{hidden.join(" · ")}</span>
+          {!hasPerDay && onConfigureSchedule ? (
+            <button
+              type="button"
+              onClick={onConfigureSchedule}
+              className="font-semibold text-primary-ink underline underline-offset-2"
+            >
+              {te("configureSchedule")}
+            </button>
+          ) : null}
+        </div>
+      ) : null}
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px] text-xs">
+        <table className="w-full min-w-[640px] text-sm">
           <thead className="text-2xs uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="px-2 py-2 text-left">#</th>
               <th className="px-2 py-2 text-left">{te("operator")}</th>
-              <th className="px-2 py-2 text-right">{te("resolvedCol")}</th>
-              <th className="px-2 py-2 text-right" title={te("perDayHint")}>
-                {te("perDayCol")}
-              </th>
-              <th className="px-2 py-2 text-right" title={te("perHourHint")}>
-                {te("perHourCol")}
-              </th>
-              <th className="px-2 py-2 text-right">{te("revenueCol")}</th>
-              <th className="px-2 py-2 text-right" title={te("avgTicketHint")}>
-                {te("avgTicketCol")}
-              </th>
-              <th className="px-2 py-2 text-right" title={te("avgMessagesHint")}>
-                {te("avgMessagesCol")}
-              </th>
-              <th className="px-2 py-2 text-right" title={te("pctOfAvgHint")}>
-                {te("pctOfAvgCol")}
-              </th>
+              {columns.map((column) => (
+                <th key={column.key} className="px-2 py-2 text-right" title={column.hint}>
+                  {column.label}
+                </th>
+              ))}
               <th className="px-2 py-2 text-right">{te("classCol")}</th>
             </tr>
           </thead>
           <tbody>
-            <RankingRows rows={ranking.members} fmt={fmt} te={te} showClass />
+            <RankingRows rows={ranking.members} columns={columns} te={te} showClass />
             <tr className="border-t-2 border-border font-semibold">
               <td className="px-2 py-2" />
               <td className="px-2 py-2">{te("teamTotal")}</td>
-              <td className="readout px-2 py-2 text-right tabular-nums">
-                {fmt.num(ranking.totals.resolved)}
-              </td>
-              <td className="readout px-2 py-2 text-right tabular-nums">
-                {ranking.totals.per_open_day === null
-                  ? fmt.na
-                  : fmt.rate(ranking.totals.per_open_day, "")}
-              </td>
-              <td className="readout px-2 py-2 text-right tabular-nums">
-                {ranking.totals.per_online_hour === null
-                  ? fmt.na
-                  : fmt.rate(ranking.totals.per_online_hour, te("perHourSuffix"))}
-              </td>
-              <td className="readout px-2 py-2 text-right tabular-nums">
-                {ranking.totals.revenue_cents === null
-                  ? fmt.na
-                  : fmt.money(ranking.totals.revenue_cents, ranking.totals.currency)}
-              </td>
-              <td className="readout px-2 py-2 text-right tabular-nums">
-                {ranking.totals.avg_ticket_cents === null
-                  ? fmt.na
-                  : fmt.money(
-                      ranking.totals.avg_ticket_cents,
-                      ranking.totals.currency,
-                    )}
-              </td>
-              <td className="px-2 py-2" />
-              <td className="px-2 py-2" />
+              {columns.map((column) => {
+                const value = column.total(ranking.totals);
+                return (
+                  <td key={column.key} className="readout px-2 py-2 text-right tabular-nums">
+                    {value ?? <Missing reason={column.missing} />}
+                  </td>
+                );
+              })}
               <td className="px-2 py-2" />
             </tr>
 
@@ -1297,26 +1344,20 @@ export function TeamRankingTable({
               <Fragment>
                 <tr className="border-t border-border bg-muted/40">
                   <td
-                    colSpan={10}
+                    colSpan={width}
                     className="px-2 py-1.5 text-2xs font-semibold uppercase tracking-wide text-muted-foreground"
                   >
                     {te("adjacents")}
                   </td>
                 </tr>
-                <RankingRows
-                  rows={ranking.adjacent}
-                  fmt={fmt}
-                  muted
-                  te={te}
-                  showClass={false}
-                />
+                <RankingRows rows={ranking.adjacent} columns={columns} muted te={te} showClass={false} />
                 <tr className="border-t border-border font-semibold text-muted-foreground">
                   <td className="px-2 py-2" />
                   <td className="px-2 py-2">{te("adjacentTotal")}</td>
                   <td className="readout px-2 py-2 text-right tabular-nums">
                     {fmt.num(ranking.adjacent_totals.resolved)}
                   </td>
-                  <td className="px-2 py-2" colSpan={7} />
+                  <td className="px-2 py-2" colSpan={width - 3} />
                 </tr>
               </Fragment>
             ) : null}

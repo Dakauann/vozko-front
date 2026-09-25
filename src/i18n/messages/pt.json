@@ -320,7 +320,58 @@
         "away": "Ausente"
       }
     },
-    "toolDenied": "sem permissão"
+    "toolDenied": "sem permissão",
+    "dock": {
+      "title": "Assistente",
+      "description": "Pergunte em palavras simples. As respostas usam só o que você tem permissão para ver.",
+      "greeting": "Em que posso ajudar?",
+      "footnote": "As consultas usam os mesmos dados e limites do sistema. Confira decisões importantes nos painéis.",
+      "tabLabel": "IA",
+      "open": "Perguntar à IA",
+      "minimize": "Minimizar",
+      "fullscreen": "Tela cheia",
+      "exitFullscreen": "Sair da tela cheia",
+      "resize": "Arraste para redimensionar",
+      "newChat": "Nova análise",
+      "openFull": "Abrir no chat",
+      "groups": {
+        "attendance": {
+          "title": "Atendimento",
+          "items": {
+            "summary": "Como foi este período comparado ao anterior?",
+            "team": "Quem da equipe precisa de atenção e por quê?",
+            "trend": "Como evoluíram os atendimentos concluídos no último ano?",
+            "backlog": "Quais conversas estão esperando resposta agora?",
+            "why": "Por que os clientes não estão fechando negócio?"
+          }
+        },
+        "campaigns": {
+          "title": "Campanhas",
+          "items": {
+            "results": "Como foram minhas campanhas de disparo neste mês?",
+            "failures": "Por que mensagens das minhas campanhas estão falhando?",
+            "best": "Qual campanha teve mais respostas no período?"
+          }
+        },
+        "customers": {
+          "title": "Clientes",
+          "items": {
+            "asked": "O que os clientes mais pediram neste mês?",
+            "objections": "Quais objeções mais aparecem nas conversas?",
+            "hot": "Quantos clientes estão prontos para comprar nesta semana?"
+          }
+        },
+        "agents": {
+          "title": "Agentes de IA",
+          "items": {
+            "list": "Quais agentes de IA eu tenho ativos?",
+            "create": "Criar um agente de cobrança",
+            "tools": "Revisar o que um agente consegue fazer",
+            "models": "Quais modelos de IA posso usar?"
+          }
+        }
+      }
+    }
   },
   "leadMemories": {
     "title": "Memórias",
@@ -10658,31 +10709,20 @@
         "noRevenueBody": "Quando uma oportunidade for marcada como ganha, a receita aparece aqui, separada por moeda.",
         "revenueUnavailableTitle": "Receita indisponível",
         "trendUnavailableTitle": "Tendência indisponível",
-        "backlogUnavailableTitle": "Raio-x indisponível"
+        "backlogUnavailableTitle": "Raio-x indisponível",
+        "hiddenPerDay": "Por dia aparece com o horário de funcionamento configurado",
+        "hiddenRevenue": "Receita e ticket aparecem quando houver oportunidades ganhas no período",
+        "noOnlineTime": "Sem tempo online registrado no período",
+        "noWonDeals": "Sem oportunidades ganhas no período"
       },
       "assistant": {
-        "open": "Perguntar à IA",
         "title": "Analista de atendimento",
         "description": "Pergunte em palavras simples. As respostas usam os números desta página e o seu acesso.",
         "scope": "Analisando",
         "allDepartments": "Todos os departamentos",
         "allMembers": "Toda a equipe",
         "allChannels": "Todos os canais",
-        "newChat": "Nova análise",
-        "openFull": "Abrir no chat",
-        "greeting": "O que você quer entender sobre o atendimento?",
-        "footnote": "As consultas usam os mesmos dados e limites da página. Confira decisões importantes nos painéis.",
-        "starters": {
-          "summary": "Como foi este período comparado ao anterior?",
-          "team": "Quem da equipe precisa de atenção e por quê?",
-          "trend": "Como evoluíram os atendimentos concluídos no último ano?",
-          "backlog": "Quais conversas estão esperando resposta agora?",
-          "why": "Por que os clientes não estão fechando negócio?"
-        },
-        "minimize": "Minimizar",
-        "fullscreen": "Tela cheia",
-        "exitFullscreen": "Sair da tela cheia",
-        "resize": "Arraste para redimensionar"
+        "greeting": "O que você quer entender sobre o atendimento?"
       }
     }
   },

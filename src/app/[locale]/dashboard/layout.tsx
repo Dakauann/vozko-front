@@ -13,6 +13,7 @@ import DashboardGate from "@/components/dashboard/DashboardGate";
 import { DashboardNavbar } from "@/components/elevated-design/dashboard/dashboard-navbar";
 import { DepartmentProvider } from "@/contexts/department-context";
 import WhatsAppCallHost from "@/components/dashboard/WhatsAppCallHost";
+import { AssistantDock } from "@/components/ai-chat/assistant-dock";
 import type { ReactNode } from "react";
 import { Suspense } from "react";
 import { WorkspaceProvider } from "@/contexts/workspace-context";
@@ -64,6 +65,7 @@ export default function DashboardLayout({
 }
                   <div className="p-3 sm:p-6">{children}</div>
                   <WhatsAppCallHost />
+                  <AssistantDock />
                 </DashboardCrmWrapper>
               </DashboardMainContent>
             </div>

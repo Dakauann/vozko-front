@@ -256,6 +256,10 @@ export default {
 				full: '9999px'
 			},
 			keyframes: {
+				'progress-creep': {
+					from: { transform: 'scaleX(0.04)' },
+					to: { transform: 'scaleX(0.92)' }
+				},
 				'accordion-down': {
 					from: {
 						height: '0'
@@ -299,6 +303,7 @@ export default {
 				that the eye reads it as motion instead of a jump.
 			*/
 			animation: {
+				'progress-creep': 'progress-creep 14s cubic-bezier(0.16,1,0.3,1) forwards',
 				'accordion-down': 'accordion-down 0.2s cubic-bezier(0.1,0.9,0.2,1)',
 				'accordion-up': 'accordion-up 0.2s cubic-bezier(0.1,0.9,0.2,1)',
 				/* Loops, and allowed to: it reports live work in progress,

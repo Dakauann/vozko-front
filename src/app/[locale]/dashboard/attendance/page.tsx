@@ -154,7 +154,7 @@ import {
   TrendSection,
 } from "@/components/dashboard/attendance/executive-panels";
 import { TargetsDialog } from "@/components/dashboard/attendance/targets-dialog";
-import { AttendanceAssistant } from "@/components/dashboard/attendance/attendance-assistant";
+import { usePublishAssistantContext } from "@/components/ai-chat/assistant-context";
 import type { ChatView } from "@/lib/aichat/types";
 
 const ATTENDANCE_EXPORT_FORMATS: readonly ReportFormat[] = ["csv", "pdf"];
@@ -2026,7 +2026,6 @@ export default function AttendanceOpsPage() {
   const canRead = !permissionsLoading && can("attendance", "read");
   const canWriteTargets =
     !permissionsLoading && can("attendance_targets", "update");
-  const canAsk = canRead && can("ai_chat", "create");
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -2284,6 +2283,7 @@ export default function AttendanceOpsPage() {
     channel: channel === "all" ? ta("allChannels") : tc(channel),
     campaign: campaignId ? (campaigns.find((c) => c.id === campaignId)?.name ?? campaignId) : undefined,
   };
+  usePublishAssistantContext(canRead ? { kind: "attendance", view: assistantView, scope: assistantScope } : null);
 
   return (
     <div className="space-y-6">
@@ -2789,6 +2789,7 @@ export default function AttendanceOpsPage() {
                 fmt={fmt}
                 rankMetric={rankMetric}
                 onRankMetricChange={setRankMetric}
+                onConfigureSchedule={() => router.push(`/${locale}/dashboard/workspace`)}
               />
             </SectionState>
           </Chapter>
@@ -2916,12 +2917,6 @@ export default function AttendanceOpsPage() {
                   }
           }
           onSaved={refreshSections}
-        />
-      ) : null}
-      {canAsk ? (
-        <AttendanceAssistant
-          view={assistantView}
-          scope={assistantScope}
         />
       ) : null}
     </div>

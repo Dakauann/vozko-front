@@ -320,7 +320,58 @@
         "away": "Abwesend"
       }
     },
-    "toolDenied": "keine Berechtigung"
+    "toolDenied": "keine Berechtigung",
+    "dock": {
+      "title": "Assistent",
+      "description": "Frag in einfachen Worten. Antworten nutzen nur, was du sehen darfst.",
+      "greeting": "Wobei kann ich helfen?",
+      "footnote": "Abfragen nutzen dieselben Daten und Grenzen wie der Rest der App. Prüfe wichtige Entscheidungen in den Dashboards.",
+      "tabLabel": "KI",
+      "open": "KI fragen",
+      "minimize": "Minimieren",
+      "fullscreen": "Vollbild",
+      "exitFullscreen": "Vollbild beenden",
+      "resize": "Zum Ändern der Größe ziehen",
+      "newChat": "Neue Analyse",
+      "openFull": "Im Chat öffnen",
+      "groups": {
+        "attendance": {
+          "title": "Kundenservice",
+          "items": {
+            "summary": "Wie lief dieser Zeitraum im Vergleich zum vorherigen?",
+            "team": "Wer im Team braucht Aufmerksamkeit und warum?",
+            "trend": "Wie haben sich abgeschlossene Gespräche im letzten Jahr entwickelt?",
+            "backlog": "Welche Gespräche warten gerade auf eine Antwort?",
+            "why": "Warum schließen Kunden keine Geschäfte ab?"
+          }
+        },
+        "campaigns": {
+          "title": "Kampagnen",
+          "items": {
+            "results": "Wie liefen meine Versandkampagnen diesen Monat?",
+            "failures": "Warum schlagen Nachrichten meiner Kampagnen fehl?",
+            "best": "Welche Kampagne hatte im Zeitraum die meisten Antworten?"
+          }
+        },
+        "customers": {
+          "title": "Kunden",
+          "items": {
+            "asked": "Wonach haben Kunden diesen Monat am meisten gefragt?",
+            "objections": "Welche Einwände tauchen in Gesprächen am häufigsten auf?",
+            "hot": "Wie viele Kunden sind diese Woche kaufbereit?"
+          }
+        },
+        "agents": {
+          "title": "KI-Agenten",
+          "items": {
+            "list": "Welche KI-Agenten habe ich aktiv?",
+            "create": "Einen Inkasso-Agenten erstellen",
+            "tools": "Prüfen, was ein Agent kann",
+            "models": "Welche KI-Modelle kann ich nutzen?"
+          }
+        }
+      }
+    }
   },
   "leadMemories": {
     "title": "Erinnerungen",
@@ -9528,31 +9579,20 @@
         "noRevenueBody": "Sobald eine Opportunity als gewonnen markiert ist, erscheint ihr Umsatz hier, nach Währung getrennt.",
         "revenueUnavailableTitle": "Umsatz nicht verfügbar",
         "trendUnavailableTitle": "Trend nicht verfügbar",
-        "backlogUnavailableTitle": "Röntgenbild nicht verfügbar"
+        "backlogUnavailableTitle": "Röntgenbild nicht verfügbar",
+        "hiddenPerDay": "Pro Tag erscheint, sobald Öffnungszeiten konfiguriert sind",
+        "hiddenRevenue": "Umsatz und Ticket erscheinen, sobald im Zeitraum Opportunities gewonnen werden",
+        "noOnlineTime": "Keine Online-Zeit im Zeitraum erfasst",
+        "noWonDeals": "Keine gewonnenen Opportunities im Zeitraum"
       },
       "assistant": {
-        "open": "KI fragen",
         "title": "Service-Analyst",
         "description": "Frag in einfachen Worten. Die Antworten nutzen die Zahlen dieser Seite und deine Berechtigungen.",
         "scope": "Analysiert",
         "allDepartments": "Alle Abteilungen",
         "allMembers": "Ganzes Team",
         "allChannels": "Alle Kanäle",
-        "newChat": "Neue Analyse",
-        "openFull": "Im Chat öffnen",
-        "greeting": "Was möchtest du über den Kundenservice verstehen?",
-        "footnote": "Abfragen nutzen dieselben Daten und Grenzen wie diese Seite. Prüfe wichtige Entscheidungen in den Dashboards.",
-        "starters": {
-          "summary": "Wie lief dieser Zeitraum im Vergleich zum vorherigen?",
-          "team": "Wer im Team braucht Aufmerksamkeit und warum?",
-          "trend": "Wie haben sich abgeschlossene Gespräche im letzten Jahr entwickelt?",
-          "backlog": "Welche Gespräche warten gerade auf eine Antwort?",
-          "why": "Warum schließen Kunden keine Geschäfte ab?"
-        },
-        "minimize": "Minimieren",
-        "fullscreen": "Vollbild",
-        "exitFullscreen": "Vollbild beenden",
-        "resize": "Zum Ändern der Größe ziehen"
+        "greeting": "Was möchtest du über den Kundenservice verstehen?"
       }
     }
   },
