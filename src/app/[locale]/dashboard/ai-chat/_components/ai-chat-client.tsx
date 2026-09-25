@@ -158,11 +158,11 @@ export function AIChatClient() {
             </h1>
           ) : (
             <div className="mx-auto flex max-w-3xl flex-col gap-6">
-              {chat.messages.map((m) => (
+              {chat.messages.map((m, i) => (
                 <MessageBubble
                   key={m.id}
                   message={m}
-                  streaming={chat.streaming}
+                  live={chat.streaming && i === chat.messages.length - 1}
                   onApprove={(id) => void chat.resolveAction(id, "approve", model)}
                   onReject={(id) => void chat.resolveAction(id, "reject", model)}
                   labels={labels}

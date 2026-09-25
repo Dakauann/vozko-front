@@ -1,3 +1,5 @@
+import type { SubjectCount } from '@/lib/audience/types';
+
 export type AnalysisEntryType = 'voice' | 'whatsapp';
 
 export type AnalysisInterest = 'interested' | 'not_interested' | 'undecided';
@@ -101,6 +103,8 @@ export interface AnalysisStats {
     qualificationHotLead: number;
     qualificationWarmLead: number;
     qualificationColdLead: number;
+
+    subjects: SubjectCount[];
 }
 
 export interface AnalysisStatsResponse {

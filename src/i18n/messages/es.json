@@ -225,14 +225,18 @@
       "list_voices": "Voces",
       "list_departments": "Departamentos",
       "list_agent_tools": "Herramientas de agente",
-      "attendance_metrics": "Indicadores de atención",
-      "attendance_trend": "Evolución mensual",
-      "attendance_team": "Ranking del equipo",
-      "attendance_backlog": "Radiografía del backlog",
-      "conversation_insights": "Análisis de conversaciones",
-      "calculate": "Cálculo",
-      "query_dataset": "Consulta de datos",
-      "render_chart": "Gráfico"
+      "attendance_metrics": "Números del período",
+      "attendance_trend": "Mes a mes",
+      "attendance_team": "Desempeño del equipo",
+      "attendance_backlog": "Conversaciones esperando respuesta",
+      "conversation_insights": "Lo que dijeron los clientes",
+      "calculate": "Haciendo las cuentas",
+      "query_dataset": "Detallando los datos",
+      "render_chart": "Armando el gráfico",
+      "attendance_stages": "Etapas del embudo",
+      "attendance_rework": "Conversaciones reabiertas",
+      "attendance_live": "Ahora mismo",
+      "campaign_dispatch": "Resultado de los envíos"
     },
     "threadsLegend": "Conversaciones",
     "greeting": "¿En qué vamos a trabajar?",
@@ -244,8 +248,79 @@
     "chart": {
       "other": "Otros",
       "showTable": "Tabla",
-      "showChart": "Gráfico"
-    }
+      "showChart": "Gráfico",
+      "columns": {
+        "finished": "Concluidas",
+        "engaged": "Conversaciones",
+        "entries_created": "Nuevas entradas",
+        "new_leads": "Nuevos contactos",
+        "won_count": "Ventas",
+        "revenue_cents": "Ingresos",
+        "resolution_pct": "Tasa de resolución",
+        "ai_containment_rate": "Resueltas por la IA",
+        "reopen_rate": "Tasa de reapertura",
+        "outcome_durable_pct": "Resueltas del todo",
+        "avg_frt_mins": "Tiempo hasta la 1.ª respuesta",
+        "avg_wait_mins": "Tiempo de espera",
+        "avg_handle_mins": "Duración de la atención",
+        "month": "Mes",
+        "hour": "Hora",
+        "conversations": "Conversaciones",
+        "channel": "Canal",
+        "share_pct": "Participación",
+        "name": "Nombre",
+        "kind": "Tipo",
+        "rank_value": "Resultado",
+        "resolved": "Resueltas",
+        "volume": "Volumen",
+        "open": "Abiertas",
+        "pending": "En espera",
+        "avg_response_mins": "Tiempo de respuesta",
+        "rating": "Valoración",
+        "avg_ticket_cents": "Ticket medio",
+        "per_open_day": "Por día hábil",
+        "per_online_hour": "Por hora en línea",
+        "total_messages": "Mensajes",
+        "avg_messages": "Mensajes por conversación",
+        "presence": "Estado",
+        "department": "Departamento",
+        "finished_human": "Concluidas por el equipo",
+        "finished_ai": "Concluidas por la IA",
+        "ongoing": "En curso",
+        "funnel": "Embudo",
+        "stage": "Etapa",
+        "total": "Total",
+        "pct_of_funnel": "% del embudo",
+        "avg_days_in_stage": "Días en la etapa",
+        "oldest_days_in_stage": "Más antigua (días)",
+        "stuck": "Detenidas",
+        "reopened": "Reabiertas",
+        "templates": "Plantillas enviadas",
+        "subject": "Tema",
+        "day": "Día",
+        "sent": "Enviadas",
+        "delivered": "Entregadas",
+        "read": "Leídas",
+        "replied": "Respuestas",
+        "campaign": "Campaña",
+        "base": "Contactos en la base",
+        "failed": "Fallidas"
+      },
+      "values": {
+        "whatsapp": "WhatsApp",
+        "instagram": "Instagram",
+        "telegram": "Telegram",
+        "unofficial_whatsapp": "WhatsApp (código QR)",
+        "human": "Persona",
+        "ai": "IA",
+        "workflow": "Automatización",
+        "system": "Sistema",
+        "online": "En línea",
+        "offline": "Desconectado",
+        "away": "Ausente"
+      }
+    },
+    "toolDenied": "sin permiso"
   },
   "leadMemories": {
     "title": "Memorias",
@@ -8035,7 +8110,10 @@
       "dayUnit": "d",
       "sectionError": "No se pudo cargar esta sección.",
       "sectionBusy": "Hay demasiadas consultas a la vez. Inténtalo de nuevo en unos segundos.",
-      "retry": "Intentar de nuevo"
+      "retry": "Intentar de nuevo",
+      "filters": "Filtros",
+      "clearFilters": "Limpiar filtros",
+      "moreActions": "Más acciones"
     },
     "export": {
       "executive": {
@@ -8357,6 +8435,128 @@
         "frtShort": "Tras la asignación",
         "frtHint": "Desde la asignación hasta la primera respuesta"
       },
+      "dispatch": {
+        "title": "Envío de la campaña",
+        "sub": "De la base al interés, sobre toda la campaña · plantilla {template}",
+        "campaignFilter": "Campaña",
+        "allCampaigns": "Todas",
+        "scopeCampaign": "Toda la campaña",
+        "scopePeriod": "En el período",
+        "unknown": "No disponible",
+        "noAccess": "No tienes permiso para ver los envíos de esta campaña",
+        "stage": {
+          "base": {
+            "label": "Base",
+            "rate": "contactos en la campaña",
+            "rateAll": "contactos incluidos en el período"
+          },
+          "sent": {
+            "label": "Enviados",
+            "rate": "{pct} de la base"
+          },
+          "delivered": {
+            "label": "Entregados",
+            "rate": "{pct} de los enviados"
+          },
+          "read": {
+            "label": "Leídos",
+            "rate": "{pct} de los entregados"
+          },
+          "replied": {
+            "label": "Respuestas",
+            "rate": "{pct} de los leídos"
+          },
+          "interested": {
+            "label": "Interesados",
+            "rate": "{pct} de las respuestas"
+          },
+          "failed": {
+            "label": "Fallos",
+            "rate": "{pct} de la base"
+          }
+        },
+        "conversions": {
+          "label": "Conversiones",
+          "rate": "negocios ganados en el período"
+        },
+        "funnel": {
+          "title": "Embudo de la campaña",
+          "sub": "Cada etapa sobre la base",
+          "ofBase": "de la base"
+        },
+        "daily": {
+          "title": "Evolución diaria",
+          "sub": "Primer envío, entrega, lectura y respuesta de cada contacto",
+          "sent": "Enviados",
+          "delivered": "Entregados",
+          "read": "Leídos",
+          "replied": "Respuestas",
+          "trackedSince": "Línea de tiempo registrada desde {date}; los envíos anteriores solo aparecen en el embudo",
+          "notTracked": "Esta campaña aún no tiene línea de tiempo registrada; el embudo viene del estado actual de cada contacto",
+          "clamped": "Mostrando los últimos {days} días del período",
+          "empty": "Ningún envío, entrega, lectura o respuesta en el período"
+        },
+        "status": {
+          "title": "Estado de los mensajes",
+          "sub": "Situación actual de cada contacto de la base",
+          "delivered": "Entregados",
+          "awaiting": "Esperando entrega",
+          "failed": "Fallidos",
+          "pending": "En cola",
+          "notEligible": "Omitidos (evitando spam)",
+          "reasons": "Motivos de fallo",
+          "reason": "Motivo",
+          "count": "Cant.",
+          "noFailures": "Ningún fallo registrado",
+          "center": "enviados"
+        },
+        "outcome": {
+          "title": "Resultado de la atención",
+          "sub": "Clasificación de la IA en las conversaciones de la campaña",
+          "analyzed": "{count} conversaciones analizadas",
+          "empty": "Ninguna conversación analizada aún",
+          "noAccess": "No tienes permiso para ver el análisis de IA"
+        },
+        "reasons": {
+          "title": "Principales motivos de contacto",
+          "sub": "Temas identificados por la IA",
+          "reason": "Motivo",
+          "count": "Conversaciones",
+          "share": "%",
+          "empty": "Ningún motivo identificado"
+        },
+        "tags": {
+          "title": "Etiquetas más usadas",
+          "sub": "Contactos de la campaña por etiqueta",
+          "tag": "Etiqueta",
+          "count": "Contactos",
+          "share": "% de la base",
+          "empty": "Ninguna etiqueta aplicada"
+        },
+        "subAll": "Contactos incluidos en campañas en el período, con el resultado de cada campaña",
+        "campaignsCount": {
+          "label": "Campañas",
+          "rate": "con contactos en el período"
+        },
+        "compare": {
+          "title": "Campañas en el período",
+          "sub": "Haz clic en una campaña para abrir su envío",
+          "campaign": "Campaña",
+          "base": "Base",
+          "sent": "Enviados",
+          "delivery": "Entrega",
+          "read": "Lectura",
+          "reply": "Respuesta",
+          "failed": "Fallos",
+          "total": "Total",
+          "empty": "Ninguna campaña con contactos en el período"
+        },
+        "empty": {
+          "title": "Ningún contacto en campañas",
+          "all": "Ningún contacto fue incluido en campañas de envío en este período.",
+          "campaign": "Esta campaña aún no tiene contactos en la base."
+        }
+      },
       "sections": {
         "volume": "Volumen y situación",
         "volumeSub": "Cuándo ocurren las conversaciones y en qué etapa están",
@@ -8389,7 +8589,7 @@
         "departments": "Departamentos",
         "departmentsSub": "Volumen y tiempos por departamento de la campaña",
         "deptChart": "Conversaciones por departamento",
-        "deptChartSub": "Área del bloque = volumen de conversaciones del departamento",
+        "deptChartSub": "Conversaciones de cada departamento en el recorte, de mayor a menor",
         "deptTable": "Tiempos por departamento",
         "deptTableSub": "Espera hasta la 1.ª respuesta y duración media",
         "team": "Equipo",
@@ -8834,12 +9034,19 @@
           "workflow": "Flujos",
           "unowned": "Sin responsable"
         },
-        "wonWithoutValue": "{count} negocios ganados sin valor no entran en los ingresos."
+        "wonWithoutValue": "{count} negocios ganados sin valor no entran en los ingresos.",
+        "blockUnavailableTitle": "Bloque no disponible",
+        "blockUnavailableBody": "Este bloque no llegó en la respuesta del servidor. Actualiza la página para intentarlo de nuevo.",
+        "noRevenueTitle": "Ninguna oportunidad ganada en el período",
+        "noRevenueBody": "Cuando una oportunidad se marque como ganada, sus ingresos aparecerán aquí, separados por moneda.",
+        "revenueUnavailableTitle": "Ingresos no disponibles",
+        "trendUnavailableTitle": "Tendencia no disponible",
+        "backlogUnavailableTitle": "Radiografía no disponible"
       },
       "assistant": {
         "open": "Preguntar a la IA",
         "title": "Analista de atención",
-        "description": "Responde con los números de esta página, respetando tu acceso.",
+        "description": "Pregunta con palabras simples. Las respuestas usan los números de esta página y tu acceso.",
         "scope": "Analizando",
         "allDepartments": "Todos los departamentos",
         "allMembers": "Todo el equipo",
@@ -8849,12 +9056,16 @@
         "greeting": "¿Qué quieres entender sobre la atención?",
         "footnote": "Las consultas usan los mismos datos y límites de esta página. Verifica las decisiones importantes en los paneles.",
         "starters": {
-          "summary": "Resume este período y compáralo con el anterior",
+          "summary": "¿Cómo fue este período comparado con el anterior?",
           "team": "¿Quién del equipo necesita atención y por qué?",
-          "trend": "Muestra la evolución mensual de conversaciones finalizadas en el último año",
-          "backlog": "¿Qué se está acumulando en el backlog ahora?",
-          "why": "¿Por qué los clientes no cierran? Usa los análisis de las conversaciones"
-        }
+          "trend": "¿Cómo evolucionaron las conversaciones concluidas en el último año?",
+          "backlog": "¿Qué conversaciones están esperando respuesta ahora?",
+          "why": "¿Por qué los clientes no están cerrando negocios?"
+        },
+        "minimize": "Minimizar",
+        "fullscreen": "Pantalla completa",
+        "exitFullscreen": "Salir de pantalla completa",
+        "resize": "Arrastra para cambiar el tamaño"
       }
     }
   },

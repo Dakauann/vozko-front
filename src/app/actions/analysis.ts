@@ -7,6 +7,7 @@ import type {
     AnalysisStats,
     AnalysisStatsParams,
 } from '@/lib/analysis/types';
+import type { SubjectCount } from '@/lib/audience/types';
 
 import { apiClient } from "@/lib/api/browser-client";
 
@@ -39,6 +40,7 @@ const DEFAULT_STATS: AnalysisStats = {
     qualificationHotLead: 0,
     qualificationWarmLead: 0,
     qualificationColdLead: 0,
+    subjects: [],
 };
 
 function buildQueryString(params: Record<string, string | number | undefined>): string {
@@ -298,6 +300,7 @@ interface AudienceCounters {
     qualificationHotLead?: number;
     qualificationWarmLead?: number;
     qualificationColdLead?: number;
+    subjects?: SubjectCount[];
 }
 
 function toAnalysis(row: AudienceRow): Analysis {
@@ -341,6 +344,7 @@ function toStats(counters: AudienceCounters): AnalysisStats {
         qualificationHotLead: counters.qualificationHotLead ?? 0,
         qualificationWarmLead: counters.qualificationWarmLead ?? 0,
         qualificationColdLead: counters.qualificationColdLead ?? 0,
+        subjects: counters.subjects ?? [],
     };
 }
 

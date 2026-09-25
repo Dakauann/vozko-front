@@ -225,14 +225,18 @@
       "list_voices": "Voices",
       "list_departments": "Departments",
       "list_agent_tools": "Agent tools",
-      "attendance_metrics": "Attendance metrics",
-      "attendance_trend": "Monthly trend",
-      "attendance_team": "Team ranking",
-      "attendance_backlog": "Backlog X-ray",
-      "conversation_insights": "Conversation analyses",
-      "calculate": "Calculation",
-      "query_dataset": "Data lookup",
-      "render_chart": "Chart"
+      "attendance_metrics": "Period numbers",
+      "attendance_trend": "Month by month",
+      "attendance_team": "Team performance",
+      "attendance_backlog": "Conversations waiting for a reply",
+      "conversation_insights": "What customers said",
+      "calculate": "Doing the math",
+      "query_dataset": "Looking closer at the data",
+      "render_chart": "Building the chart",
+      "attendance_stages": "Funnel stages",
+      "attendance_rework": "Reopened conversations",
+      "attendance_live": "Right now",
+      "campaign_dispatch": "Campaign sending results"
     },
     "threadsLegend": "Conversations",
     "greeting": "What are we working on?",
@@ -244,8 +248,79 @@
     "chart": {
       "other": "Other",
       "showTable": "Table",
-      "showChart": "Chart"
-    }
+      "showChart": "Chart",
+      "columns": {
+        "finished": "Completed",
+        "engaged": "Conversations",
+        "entries_created": "New entries",
+        "new_leads": "New contacts",
+        "won_count": "Sales",
+        "revenue_cents": "Revenue",
+        "resolution_pct": "Resolution rate",
+        "ai_containment_rate": "Solved by AI",
+        "reopen_rate": "Reopen rate",
+        "outcome_durable_pct": "Solved for good",
+        "avg_frt_mins": "Time to first reply",
+        "avg_wait_mins": "Wait time",
+        "avg_handle_mins": "Handling time",
+        "month": "Month",
+        "hour": "Hour",
+        "conversations": "Conversations",
+        "channel": "Channel",
+        "share_pct": "Share",
+        "name": "Name",
+        "kind": "Type",
+        "rank_value": "Result",
+        "resolved": "Resolved",
+        "volume": "Volume",
+        "open": "Open",
+        "pending": "Waiting",
+        "avg_response_mins": "Response time",
+        "rating": "Rating",
+        "avg_ticket_cents": "Average ticket",
+        "per_open_day": "Per business day",
+        "per_online_hour": "Per online hour",
+        "total_messages": "Messages",
+        "avg_messages": "Messages per conversation",
+        "presence": "Status",
+        "department": "Department",
+        "finished_human": "Completed by the team",
+        "finished_ai": "Completed by AI",
+        "ongoing": "In progress",
+        "funnel": "Funnel",
+        "stage": "Stage",
+        "total": "Total",
+        "pct_of_funnel": "% of funnel",
+        "avg_days_in_stage": "Days in stage",
+        "oldest_days_in_stage": "Oldest (days)",
+        "stuck": "Stalled",
+        "reopened": "Reopened",
+        "templates": "Templates sent",
+        "subject": "Topic",
+        "day": "Day",
+        "sent": "Sent",
+        "delivered": "Delivered",
+        "read": "Read",
+        "replied": "Replies",
+        "campaign": "Campaign",
+        "base": "Contacts in the base",
+        "failed": "Failed"
+      },
+      "values": {
+        "whatsapp": "WhatsApp",
+        "instagram": "Instagram",
+        "telegram": "Telegram",
+        "unofficial_whatsapp": "WhatsApp (QR code)",
+        "human": "Person",
+        "ai": "AI",
+        "workflow": "Automation",
+        "system": "System",
+        "online": "Online",
+        "offline": "Offline",
+        "away": "Away"
+      }
+    },
+    "toolDenied": "no permission"
   },
   "leadMemories": {
     "title": "Memories",
@@ -9601,7 +9676,10 @@
       "dayUnit": "d",
       "sectionError": "This section could not be loaded.",
       "sectionBusy": "Too many reports are running at once. Try again in a few seconds.",
-      "retry": "Try again"
+      "retry": "Try again",
+      "filters": "Filters",
+      "clearFilters": "Clear filters",
+      "moreActions": "More actions"
     },
     "export": {
       "executive": {
@@ -9923,6 +10001,128 @@
         "frtShort": "After assignment",
         "frtHint": "From assignment to first reply"
       },
+      "dispatch": {
+        "title": "Campaign dispatch",
+        "sub": "From base to interest, over the whole campaign · template {template}",
+        "campaignFilter": "Campaign",
+        "allCampaigns": "All",
+        "scopeCampaign": "Whole campaign",
+        "scopePeriod": "In the period",
+        "unknown": "Unavailable",
+        "noAccess": "You do not have permission to see this campaign's dispatch",
+        "stage": {
+          "base": {
+            "label": "Base",
+            "rate": "contacts in the campaign",
+            "rateAll": "contacts added in the period"
+          },
+          "sent": {
+            "label": "Sent",
+            "rate": "{pct} of the base"
+          },
+          "delivered": {
+            "label": "Delivered",
+            "rate": "{pct} of sent"
+          },
+          "read": {
+            "label": "Read",
+            "rate": "{pct} of delivered"
+          },
+          "replied": {
+            "label": "Replies",
+            "rate": "{pct} of read"
+          },
+          "interested": {
+            "label": "Interested",
+            "rate": "{pct} of replies"
+          },
+          "failed": {
+            "label": "Failures",
+            "rate": "{pct} of the base"
+          }
+        },
+        "conversions": {
+          "label": "Conversions",
+          "rate": "deals won in the period"
+        },
+        "funnel": {
+          "title": "Campaign funnel",
+          "sub": "Every stage over the base",
+          "ofBase": "of the base"
+        },
+        "daily": {
+          "title": "Daily evolution",
+          "sub": "First send, delivery, read and reply of each contact",
+          "sent": "Sent",
+          "delivered": "Delivered",
+          "read": "Read",
+          "replied": "Replies",
+          "trackedSince": "Timeline recorded since {date}; earlier sends only appear in the funnel",
+          "notTracked": "This campaign has no recorded timeline yet; the funnel comes from each contact's current status",
+          "clamped": "Showing the last {days} days of the period",
+          "empty": "No sends, deliveries, reads or replies in the period"
+        },
+        "status": {
+          "title": "Message status",
+          "sub": "Where each contact in the base stands now",
+          "delivered": "Delivered",
+          "awaiting": "Awaiting delivery",
+          "failed": "Failed",
+          "pending": "Queued",
+          "notEligible": "Skipped (spam guard)",
+          "reasons": "Failure reasons",
+          "reason": "Reason",
+          "count": "Qty.",
+          "noFailures": "No failures recorded",
+          "center": "sent"
+        },
+        "outcome": {
+          "title": "Attendance outcome",
+          "sub": "AI classification of the campaign's conversations",
+          "analyzed": "{count} conversations analyzed",
+          "empty": "No conversation analyzed yet",
+          "noAccess": "You do not have permission to see the AI analysis"
+        },
+        "reasons": {
+          "title": "Top contact reasons",
+          "sub": "Subjects identified by the AI",
+          "reason": "Reason",
+          "count": "Conversations",
+          "share": "%",
+          "empty": "No reason identified"
+        },
+        "tags": {
+          "title": "Most used tags",
+          "sub": "Campaign contacts by tag",
+          "tag": "Tag",
+          "count": "Contacts",
+          "share": "% of base",
+          "empty": "No tag applied"
+        },
+        "subAll": "Contacts added to campaigns in the period, with each campaign's result",
+        "campaignsCount": {
+          "label": "Campaigns",
+          "rate": "with contacts in the period"
+        },
+        "compare": {
+          "title": "Campaigns in the period",
+          "sub": "Click a campaign to open its dispatch",
+          "campaign": "Campaign",
+          "base": "Base",
+          "sent": "Sent",
+          "delivery": "Delivery",
+          "read": "Read",
+          "reply": "Reply",
+          "failed": "Failures",
+          "total": "Total",
+          "empty": "No campaign with contacts in the period"
+        },
+        "empty": {
+          "title": "No campaign contacts",
+          "all": "No contact was added to dispatch campaigns in this period.",
+          "campaign": "This campaign has no contacts in its base yet."
+        }
+      },
       "sections": {
         "volume": "Volume and status",
         "volumeSub": "When conversations happen and their stage",
@@ -9955,7 +10155,7 @@
         "departments": "Departments",
         "departmentsSub": "Volume and times by campaign department",
         "deptChart": "Conversations by department",
-        "deptChartSub": "Block area = the department's conversation volume",
+        "deptChartSub": "Each department's conversations in the slice, largest first",
         "deptTable": "Times by department",
         "deptTableSub": "Wait until 1st reply and average duration",
         "team": "Team",
@@ -10400,12 +10600,19 @@
           "workflow": "Workflows",
           "unowned": "No owner"
         },
-        "wonWithoutValue": "{count} won deals with no value are left out of revenue."
+        "wonWithoutValue": "{count} won deals with no value are left out of revenue.",
+        "blockUnavailableTitle": "Block unavailable",
+        "blockUnavailableBody": "This block did not come back from the server. Refresh the page to try again.",
+        "noRevenueTitle": "No opportunity won in the period",
+        "noRevenueBody": "When an opportunity is marked as won, its revenue shows up here, split by currency.",
+        "revenueUnavailableTitle": "Revenue unavailable",
+        "trendUnavailableTitle": "Trend unavailable",
+        "backlogUnavailableTitle": "X-ray unavailable"
       },
       "assistant": {
         "open": "Ask AI",
         "title": "Attendance analyst",
-        "description": "Answers with this page's numbers, within your access.",
+        "description": "Ask in plain words. Answers use this page's numbers and your access.",
         "scope": "Analyzing",
         "allDepartments": "All departments",
         "allMembers": "Whole team",
@@ -10415,12 +10622,16 @@
         "greeting": "What do you want to understand about attendance?",
         "footnote": "Queries use the same data and limits as this page. Check important decisions against the dashboards.",
         "starters": {
-          "summary": "Summarize this period and compare it with the previous one",
+          "summary": "How did this period compare with the previous one?",
           "team": "Who on the team needs attention, and why?",
-          "trend": "Show the monthly trend of finished conversations over the last year",
-          "backlog": "What is piling up in the backlog right now?",
-          "why": "Why aren't customers closing? Use the conversation analyses"
-        }
+          "trend": "How did completed conversations evolve over the last year?",
+          "backlog": "Which conversations are waiting for a reply right now?",
+          "why": "Why aren't customers closing deals?"
+        },
+        "minimize": "Minimize",
+        "fullscreen": "Full screen",
+        "exitFullscreen": "Exit full screen",
+        "resize": "Drag to resize"
       }
     }
   },

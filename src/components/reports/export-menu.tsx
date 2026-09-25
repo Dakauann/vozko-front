@@ -55,25 +55,43 @@ export function ExportMenu({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="min-w-[13rem]">
-        {formats.map((format) => {
-          const FormatIcon = FORMAT_ICON[format];
-          return (
-            <DropdownMenuItem
-              key={format}
-              onSelect={() => onSelect(format)}
-              className="flex cursor-pointer items-start gap-2.5"
-            >
-              <FormatIcon className="mt-0.5 h-4 w-4 shrink-0" weight="bold" />
-              <span className="min-w-0">
-                <span className="block text-sm">{t(`format.${format}.label`)}</span>
-                <span className="block text-2xs text-muted-foreground">
-                  {t(`format.${format}.hint`)}
-                </span>
-              </span>
-            </DropdownMenuItem>
-          );
-        })}
+        <ExportMenuItems formats={formats} onSelect={onSelect} disabled={disabled || busy} />
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+export function ExportMenuItems({
+  formats,
+  onSelect,
+  disabled = false,
+}: {
+  formats: readonly ReportFormat[];
+  onSelect: (format: ReportFormat) => void;
+  disabled?: boolean;
+}) {
+  const t = useTranslations("metricsOps.export");
+  return (
+    <>
+      {formats.map((format) => {
+        const FormatIcon = FORMAT_ICON[format];
+        return (
+          <DropdownMenuItem
+            key={format}
+            disabled={disabled}
+            onSelect={() => onSelect(format)}
+            className="flex cursor-pointer items-start gap-2.5"
+          >
+            <FormatIcon className="mt-0.5 h-4 w-4 shrink-0" weight="bold" />
+            <span className="min-w-0">
+              <span className="block text-sm">{t(`format.${format}.label`)}</span>
+              <span className="block text-2xs text-muted-foreground">
+                {t(`format.${format}.hint`)}
+              </span>
+            </span>
+          </DropdownMenuItem>
+        );
+      })}
+    </>
   );
 }

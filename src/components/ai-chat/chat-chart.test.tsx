@@ -61,6 +61,15 @@ describe("ChatChartView", () => {
     expect(screen.getByText(chartLabels.other)).toBeInTheDocument();
   });
 
+  it("shows people words instead of internal names", () => {
+    renderChart({ ...base, type: "table", xLabel: "month", series: [{ key: "avg_frt_mins", label: "avg_frt_mins", kind: "minutes", values: [12.5, null] }] });
+    const table = screen.getByRole("table");
+    expect(table).toHaveTextContent(chartLabels.columns.avg_frt_mins);
+    expect(table).toHaveTextContent(chartLabels.columns.month);
+    expect(table).not.toHaveTextContent("avg_frt_mins");
+    expect(table).not.toHaveTextContent("2026-08");
+  });
+
   it("mounts a scatter on numeric x values", () => {
     renderChart({ ...base, type: "scatter", categories: undefined, xKind: "number", xValues: [1, 2] });
     expect(screen.getByText("Finalizadas por mês")).toBeInTheDocument();

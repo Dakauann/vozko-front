@@ -1,19 +1,14 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-
 import { fetchAttendanceSection } from "@/app/actions/attendance";
 import { useWorkspace } from "@/contexts/workspace-context";
+import { useSectionQuery } from "@/hooks/use-section-query";
 import {
   attendanceSectionKey,
-  sectionRetryDelay,
-  shouldRetrySection,
   type AttendanceSection,
+  type AttendanceSectionPayloads,
 } from "@/lib/attendance/sections";
 import type { AttendanceOverviewParams } from "@/lib/attendance/types";
-
-const SECTION_STALE_MS = 60_000;
-const SECTION_GC_MS = 5 * 60_000;
 
 export function useAttendanceSection<S extends AttendanceSection>(
   section: S,
@@ -23,15 +18,10 @@ export function useAttendanceSection<S extends AttendanceSection>(
   const { currentWorkspace } = useWorkspace();
   const workspaceId = currentWorkspace?.id ?? "";
 
-  return useQuery({
+  return useSectionQuery<AttendanceSectionPayloads[S]>({
     queryKey: attendanceSectionKey(workspaceId, section, params),
-    queryFn: ({ signal }) => fetchAttendanceSection(section, params, signal),
+    queryFn: (signal) => fetchAttendanceSection(section, params, signal),
     enabled: options.enabled && workspaceId !== "",
-    staleTime: SECTION_STALE_MS,
-    gcTime: SECTION_GC_MS,
-    refetchOnWindowFocus: false,
     refetchInterval: options.refetchInterval,
-    retry: shouldRetrySection,
-    retryDelay: sectionRetryDelay,
   });
 }

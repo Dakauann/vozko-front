@@ -74,6 +74,9 @@ export interface ChatView {
   departmentId?: string;
   memberId?: string;
   channel?: string;
+  campaignId?: string;
+  campaignType?: string;
+  includeAi?: boolean;
 }
 
 export interface ToolActivity {
@@ -98,6 +101,7 @@ export interface ChatStreamEvent {
     | "reasoning_done"
     | "assistant_done"
     | "tool"
+    | "tool_start"
     | "chart"
     | "tool_proposal"
     | "awaiting_approval"

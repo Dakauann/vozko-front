@@ -15,13 +15,13 @@ import {
   Kanban,
   Lightning,
   CurrencyDollar,
+  DotsThree,
+  SlidersHorizontal,
   PaperPlaneTilt,
   PhoneIncoming,
   Pulse,
   Robot,
   SealCheck,
-  Sparkle,
-  Stack,
   Target,
   Timer,
   TrendUp,
@@ -71,7 +71,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import type {
   AttendanceOverview,
@@ -100,8 +100,20 @@ import { SectionState } from "@/components/dashboard/attendance/section-state";
 import { useReportJob } from "@/hooks/use-report-job";
 import { useToast } from "@/hooks/use-toast";
 import type { AttendanceReportParams, ReportFormat } from "@/lib/reports/types";
-import { ExportMenu } from "@/components/reports/export-menu";
+import { ExportMenuItems } from "@/components/reports/export-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { listMembersAction } from "@/app/actions/workspace";
+import { listWhatsAppCampaignsAction } from "@/app/actions/whatsapp-campaigns";
+import type { WhatsAppCampaign } from "@/lib/whatsapp-campaigns/types";
+import { dispatchReportsKey } from "@/lib/whatsapp-campaigns/dispatch-report";
+import { DispatchReportChapter } from "@/components/dashboard/attendance/dispatch-report";
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { ElevatedDatePicker } from "@/components/elevated-design/elevated-date-picker";
@@ -114,12 +126,9 @@ import { cn } from "@/lib/utils";
 import { ChannelTile } from "@/components/channels/channel-tile";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useLocale, useTranslations } from "next-intl";
-import {
-  BlockChart,
-  GroupedBlockChart,
-  RadialProfileChart,
-} from "@/components/charts/composition-charts";
 import { WaffleChart } from "@/components/charts/dense-charts";
+import { DonutBreakdown } from "@/components/charts/donut-breakdown";
+import { ShareRows } from "@/components/charts/share-rows";
 import { TeamResponseChart } from "@/components/charts/team-response-chart";
 import { entityColorIndex, share } from "@/lib/charts/data";
 import {
@@ -189,7 +198,7 @@ function KpiStrip({
       hint: t("finishedHint"),
       icon: CheckCircle,
       bg: GLYPH_PLATE.CheckCircle,
-      visual: <ProgressRing value={share(kpis?.finished ?? 0, (kpis?.finished ?? 0) + (kpis?.ongoing ?? 0) + (kpis?.pending ?? 0))} label={t("finished")} size={34} strokeWidth={4} color={COLORS.finished}><span /></ProgressRing>,
+      visual: <ProgressRing value={share(kpis?.finished ?? 0, (kpis?.finished ?? 0) + (kpis?.ongoing ?? 0) + (kpis?.pending ?? 0))} label={t("finished")} size={36} strokeWidth={4} color={COLORS.finished}><span /></ProgressRing>,
     },
     {
       key: "ongoing",
@@ -199,7 +208,7 @@ function KpiStrip({
       hint: t("ongoingHint"),
       icon: Pulse,
       bg: GLYPH_PLATE.Pulse,
-      visual: <ProgressRing value={share(kpis?.ongoing ?? 0, (kpis?.finished ?? 0) + (kpis?.ongoing ?? 0) + (kpis?.pending ?? 0))} label={t("ongoing")} size={34} strokeWidth={4} color={COLORS.ongoing}><span /></ProgressRing>,
+      visual: <ProgressRing value={share(kpis?.ongoing ?? 0, (kpis?.finished ?? 0) + (kpis?.ongoing ?? 0) + (kpis?.pending ?? 0))} label={t("ongoing")} size={36} strokeWidth={4} color={COLORS.ongoing}><span /></ProgressRing>,
     },
     {
       key: "pending",
@@ -209,7 +218,7 @@ function KpiStrip({
       hint: t("pendingHint"),
       icon: Hourglass,
       bg: GLYPH_PLATE.Hourglass,
-      visual: <ProgressRing value={share(kpis?.pending ?? 0, (kpis?.finished ?? 0) + (kpis?.ongoing ?? 0) + (kpis?.pending ?? 0))} label={t("pending")} size={34} strokeWidth={4} color={COLORS.pending}><span /></ProgressRing>,
+      visual: <ProgressRing value={share(kpis?.pending ?? 0, (kpis?.finished ?? 0) + (kpis?.ongoing ?? 0) + (kpis?.pending ?? 0))} label={t("pending")} size={36} strokeWidth={4} color={COLORS.pending}><span /></ProgressRing>,
     },
     {
       key: "unassigned",
@@ -258,9 +267,6 @@ function KpiStrip({
     },
   ];
 
-  // The summary section answers two different questions: how many
-  // conversations sit in each state, and how long they take. Each family is
-  // one sheet split by hairlines, so the grouping is read before any number.
   const volume = cards.filter((c) => !TIME_KPIS.has(c.key));
   const times = cards.filter((c) => TIME_KPIS.has(c.key));
 
@@ -285,7 +291,7 @@ function KpiGroup({
 }) {
   return (
     <section aria-label={title} className="min-w-0">
-      <h3 className="mb-1.5 text-2xs font-semibold text-muted-foreground">{title}</h3>
+      <h3 className="mb-2 text-xs font-semibold text-muted-foreground">{title}</h3>
       <dl
         className={cn(
           "grid gap-px overflow-hidden rounded-[--radius] border border-border bg-border",
@@ -297,27 +303,27 @@ function KpiGroup({
         style={{ boxShadow: softSurfaceShadow }}
       >
         {cards.map((c) => (
-          <div key={c.key} title={c.hint} className="min-w-0 bg-card px-3 py-2.5">
+          <div key={c.key} title={c.hint} className="min-w-0 bg-card px-4 py-3">
             <dt className="flex items-center gap-2">
               <span
                 className={cn(
-                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-[--radius]",
+                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-[--radius]",
                   c.bg,
                 )}
               >
-                <c.icon className="h-3.5 w-3.5" weight="fill" />
+                <c.icon className="h-4 w-4" weight="fill" />
               </span>
-              <span className="truncate text-2xs font-semibold text-muted-foreground">
+              <span className="truncate text-xs font-semibold text-muted-foreground">
                 {c.label}
               </span>
             </dt>
             <dd className="mt-2 flex items-center justify-between gap-1">
-              <span className="readout truncate font-display text-2xl font-semibold tracking-tight text-foreground">
+              <span className="readout truncate font-display text-[1.75rem] leading-none font-semibold tracking-tight text-foreground">
                 {c.value}
               </span>
               {!loading ? c.visual : null}
             </dd>
-            <dd className="mt-0.5 truncate text-2xs text-muted-foreground">{c.short}</dd>
+            <dd className="mt-1.5 truncate text-xs text-muted-foreground">{c.short}</dd>
           </div>
         ))}
       </dl>
@@ -357,23 +363,32 @@ function ChannelMixChart({
 }) {
   const tc = useTranslations("metricsOps.common");
   const tl = useTranslations("metricsOps.attendance.labels");
-  const data = useMemo(() => {
+  const fmt = useMetricsFmt();
+  const slices = useMemo(() => {
     if (!mix?.length) return [];
     return [...mix]
       .sort((a, b) => b.count - a.count)
       .map((c) => ({
         key: c.channel,
-        name: channelLabel(c.channel, tc),
+        label: channelLabel(c.channel, tc),
         value: c.count,
-        pct: c.pct,
-        bar: CHANNEL_BAR[c.channel] ?? "hsl(var(--muted-foreground))",
+        color: CHANNEL_BAR[c.channel] ?? "hsl(var(--muted-foreground))",
       }));
   }, [mix, tc]);
-  const blocks = useMemo(() => data.map((item) => ({ key: item.key, label: item.name, value: item.value, color: item.bar })), [data]);
+  const total = slices.reduce((sum, slice) => sum + slice.value, 0);
 
-  if (loading) return <ChartSkeleton height={180} />;
-  if (!data.some((item) => item.value > 0)) return <EmptyChart icon={<ChartPie className="h-8 w-8" weight="fill" />} message={tl("noChannelMix")} height={180} />;
-  return <BlockChart data={blocks} label={tl("channelTotalConversations")} height={160} />;
+  if (loading) return <ChartSkeleton height={260} />;
+  if (total === 0) return <EmptyChart icon={<ChartPie className="h-8 w-8" weight="fill" />} message={tl("noChannelMix")} height={260} />;
+  return (
+    <DonutBreakdown
+      slices={slices}
+      total={total}
+      centerValue={fmt.num(total)}
+      centerLabel={tl("channelTotalConversations")}
+      formatValue={fmt.num}
+      formatShare={fmt.pct}
+    />
+  );
 }
 
 function FrtPanel({
@@ -571,7 +586,7 @@ function TemplatesPanel({
 
   if (loading) return <ChartSkeleton height={110} />;
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
       <div className="min-w-0">
         <PanelReadout
           label={tl("templateShareOfOutbound")}
@@ -642,7 +657,7 @@ function AiPanel({
     );
   }
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
       <div className="min-w-0">
         <WaffleChart
           label={ts("aiTitle")}
@@ -739,13 +754,13 @@ function HourlyVolumeChart({
     conversas: { label: tl("conversationsLabel"), color: COLORS.signal },
   };
 
-  if (loading) return <ChartSkeleton height={240} />;
+  if (loading) return <ChartSkeleton height={260} />;
   if (total === 0) {
     return (
       <EmptyChart
         icon={<ChartBar className="h-9 w-9" weight="fill" />}
         message={tl("noConversationVolume")}
-        height={240}
+        height={260}
       />
     );
   }
@@ -766,7 +781,7 @@ function HourlyVolumeChart({
           </span>
         ) : null}
       </div>
-      <ChartContainer config={config} className="h-[240px] w-full">
+      <ChartContainer config={config} className="h-[260px] w-full">
         <BarChart data={data} margin={{ top: 4, right: 4, left: -12, bottom: 0 }}>
           <defs>
             <linearGradient id="hourlyGrad" x1="0" y1="0" x2="0" y2="1">
@@ -868,77 +883,46 @@ function StatusCompositionChart({
   const tl = useTranslations("metricsOps.attendance.labels");
   const fmt = useMetricsFmt();
   const total = dist?.total ?? 0;
-  const slices = useMemo(() => {
-    if (!dist || total === 0) return [];
-    return [
-      {
-        key: "finished",
-        name: st("finishedShort"),
-        value: dist.finished,
-        color: COLORS.finished,
-      },
-      {
-        key: "ongoing",
-        name: st("ongoingShort"),
-        value: dist.ongoing,
-        color: COLORS.ongoing,
-      },
-      {
-        key: "pending",
-        name: st("pendingShort"),
-        value: dist.pending,
-        color: COLORS.pending,
-      },
-    ].filter((s) => s.value > 0);
-  }, [dist, total, st]);
-
   const resolutionRate =
     total > 0 && dist ? Math.round((dist.finished / total) * 1000) / 10 : null;
 
-  const profile = useMemo(
-    () => slices.map((s) => ({ key: s.key, label: s.name, value: s.value, color: s.color })),
-    [slices],
-  );
-
-  if (loading) return <ChartSkeleton height={240} />;
-  if (!slices.length) {
+  if (loading) return <ChartSkeleton height={260} />;
+  if (!dist || total === 0) {
     return (
       <EmptyChart
         icon={<ChartPie className="h-9 w-9" weight="fill" />}
         message={tl("noStatusData")}
-        height={240}
+        height={260}
       />
     );
   }
 
   return (
-    <div className="grid min-h-[240px] grid-cols-1 items-center gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(160px,0.95fr)]">
-      <div className="min-w-0">
-        <RadialProfileChart
-          data={profile}
-          total={total}
-          label={tl("conversationsLabel")}
-        />
-        <p className="mt-1 text-2xs text-muted-foreground">{tl("statusRadialHint")}</p>
-      </div>
-
-      <div className="divide-y divide-border sm:border-l sm:border-border sm:pl-4">
-        <div className="pb-3">
-          <p className="text-2xs font-semibold text-muted-foreground">
-            {tl("pctFinished")}
-          </p>
-          <p className="mt-0.5 font-display text-2xl font-semibold tabular-nums text-foreground">
+    <div className="space-y-3">
+      <DonutBreakdown
+        slices={[
+          { key: "finished", label: st("finishedShort"), value: dist.finished, color: COLORS.finished },
+          { key: "ongoing", label: st("ongoingShort"), value: dist.ongoing, color: COLORS.ongoing },
+          { key: "pending", label: st("pendingShort"), value: dist.pending, color: COLORS.pending },
+        ]}
+        total={total}
+        centerValue={fmt.num(total)}
+        centerLabel={tl("conversationsLabel")}
+        formatValue={fmt.num}
+        formatShare={fmt.pct}
+      />
+      <div className="border-t border-border pt-3">
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="text-xs font-semibold text-muted-foreground">{tl("pctFinished")}</span>
+          <span className="readout font-display text-xl font-semibold tabular-nums text-foreground">
             {fmt.pct(resolutionRate)}
-          </p>
-          <p className="text-2xs text-muted-foreground">
-            {tl("ofConversations", {
-              finished: fmt.num(dist?.finished),
-              total: fmt.num(total),
-            })}
-          </p>
+          </span>
         </div>
-        {!loading ? <OverallCloseOriginNote bySource={bySource} /> : null}
+        <p className="text-2xs text-muted-foreground">
+          {tl("ofConversations", { finished: fmt.num(dist.finished), total: fmt.num(total) })}
+        </p>
       </div>
+      <OverallCloseOriginNote bySource={bySource} />
     </div>
   );
 }
@@ -962,7 +946,7 @@ function OverallCloseOriginNote({
         })}%`
       : "0%";
   return (
-    <div className="pt-3">
+    <div className="border-t border-border pt-3">
       <p className="text-2xs font-semibold text-muted-foreground">
         {tl("closeOriginCol")}
       </p>
@@ -1028,6 +1012,9 @@ function DepartmentStackedChart({
       .sort((a, b) => b.value - a.value);
   }, [rows, noDept]);
 
+  const fmt = useMetricsFmt();
+  const total = blocks.reduce((sum, block) => sum + block.value, 0);
+
   if (loading) return <ChartSkeleton height={260} />;
   if (!blocks.length) {
     return (
@@ -1039,12 +1026,7 @@ function DepartmentStackedChart({
     );
   }
 
-  return (
-    <div>
-      <BlockChart data={blocks} label={tc("department")} height={220} />
-      <p className="mt-1 text-2xs text-muted-foreground">{tl("deptBlockHint")}</p>
-    </div>
-  );
+  return <ShareRows rows={blocks} total={total} formatValue={fmt.num} formatShare={fmt.pct} />;
 }
 
 function TeamChart({ rows, loading }: { rows: MemberRow[] | undefined; loading: boolean }) {
@@ -1834,60 +1816,6 @@ function StageLadder({
     </div>
   );
 }
-function StageBlocks({
-  stages,
-  loading,
-}: {
-  stages: OverviewStages | undefined;
-  loading: boolean;
-}) {
-  const tl = useTranslations("metricsOps.attendance.labels");
-
-  const groups = useMemo(() => {
-    if (!stages?.funnels?.length) return [];
-    return stages.funnels
-      .filter((f) => f.engaged > 0)
-      .map((f, fi) => {
-        const hue = `var(--chart-${(fi % 5) + 1})`;
-        const cells = f.stages.filter((s) => s.engaged > 0);
-        return {
-          key: f.funnel_id || "__none",
-          label: f.funnel_name || tl("noFunnel"),
-          color: `hsl(${hue} / 0.18)`,
-          children: cells.map((s, si) => ({
-            key: s.stage_id,
-            label: s.stage_name,
-            value: s.engaged,
-            color: s.is_won
-              ? "hsl(var(--healthy))"
-              : s.is_lost
-                ? "hsl(var(--destructive))"
-                : `hsl(${hue} / ${(1 - (si / Math.max(1, cells.length - 1)) * 0.55).toFixed(2)})`,
-          })),
-        };
-      })
-      .filter((g) => g.children.length > 0);
-  }, [stages, tl]);
-
-  if (loading) return <ChartSkeleton height={260} />;
-  if (!groups.length) {
-    return (
-      <EmptyChart
-        icon={<Stack className="h-9 w-9" weight="fill" />}
-        message={tl("noStageData")}
-        height={260}
-      />
-    );
-  }
-
-  return (
-    <div>
-      <GroupedBlockChart groups={groups} label={tl("stageCol")} height={260} />
-      <p className="mt-1 text-2xs text-muted-foreground">{tl("stageBlockHint")}</p>
-    </div>
-  );
-}
-
 function StageDetailTable({
   stages,
   loading,
@@ -2050,12 +1978,9 @@ function StageDistributionSection({
 
   return (
     <>
-      <div className="grid gap-3 xl:grid-cols-12">
+      <div className="grid gap-3 lg:grid-cols-2 xl:grid-cols-12">
         <Surface className="xl:col-span-4">
-          <SectionTitle
-            title={ts("stageCoverage")}
-            subtitle={ts("stageCoverageSub")}
-          />
+          <SectionTitle title={ts("stageCoverage")} subtitle={ts("stageCoverageSub")} />
           <StageCoveragePanel
             stages={stages}
             loading={loading}
@@ -2065,31 +1990,15 @@ function StageDistributionSection({
         </Surface>
 
         <Surface className="xl:col-span-8">
-          <SectionTitle
-            title={ts("stageChart")}
-            subtitle={ts("stageChartSub")}
-          />
+          <SectionTitle title={ts("stageChart")} subtitle={ts("stageChartSub")} />
           <StageLadder funnel={activeFunnel} loading={loading} />
         </Surface>
       </div>
 
-      <div className="grid gap-3 xl:grid-cols-12">
-        <Surface className="min-w-0 xl:col-span-5">
-          <SectionTitle
-            title={ts("stageMosaic")}
-            subtitle={ts("stageMosaicSub")}
-          />
-          <StageBlocks stages={stages} loading={loading} />
-        </Surface>
-
-        <Surface className="min-w-0 xl:col-span-7">
-          <SectionTitle
-            title={ts("stageTable")}
-            subtitle={ts("stageTableSub")}
-          />
-          <StageDetailTable stages={stages} loading={loading} />
-        </Surface>
-      </div>
+      <Surface className="min-w-0">
+        <SectionTitle title={ts("stageTable")} subtitle={ts("stageTableSub")} />
+        <StageDetailTable stages={stages} loading={loading} />
+      </Surface>
     </>
   );
 }
@@ -2110,6 +2019,7 @@ export default function AttendanceOpsPage() {
     },
   });
   const te = useTranslations("metricsOps.attendance.executive");
+  const td = useTranslations("metricsOps.attendance.dispatch");
   const actorKindLabel = useActorKindLabel();
   const presenceLabel = usePresenceLabel();
   const fmt = useMetricsFmt();
@@ -2125,6 +2035,26 @@ export default function AttendanceOpsPage() {
     searchParams.get("campaignType") === "whatsapp"
       ? searchParams.get("campaignType")!
       : undefined;
+  const pathname = usePathname();
+  const canReadCampaigns = !permissionsLoading && can("whatsapp_campaigns", "read");
+  const canReadAnalysis = !permissionsLoading && can("analysis", "read");
+  const dispatchCampaignId = campaignType === "whatsapp" ? campaignId : undefined;
+  const [campaigns, setCampaigns] = useState<WhatsAppCampaign[]>([]);
+  const selectCampaign = useCallback(
+    (id: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (id === "all") {
+        params.delete("campaignId");
+        params.delete("campaignType");
+      } else {
+        params.set("campaignId", id);
+        params.set("campaignType", "whatsapp");
+      }
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
   const [preset, setPreset] = useState<DatePreset>("7d");
   const [dateFrom, setDateFrom] = useState(() =>
@@ -2139,7 +2069,6 @@ export default function AttendanceOpsPage() {
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
   const [rankMetric, setRankMetric] = useState("resolved");
   const [targetsOpen, setTargetsOpen] = useState(false);
-  const [assistantOpen, setAssistantOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const sectionParams = useMemo<AttendanceOverviewParams>(
@@ -2179,10 +2108,26 @@ export default function AttendanceOpsPage() {
     summary?.revenue?.currencies?.[0]?.currency ?? DEFAULT_TARGET_CURRENCY;
 
   const workspaceId = currentWorkspace?.id;
+  const conversions = summary?.revenue?.available
+    ? summary.revenue.currencies.reduce((total, row) => total + row.won_count, 0)
+    : null;
+
   const refreshSections = useCallback(() => {
     if (!workspaceId) return;
     void queryClient.invalidateQueries({ queryKey: attendanceSectionsKey(workspaceId) });
+    void queryClient.invalidateQueries({ queryKey: dispatchReportsKey(workspaceId) });
   }, [queryClient, workspaceId]);
+
+  useEffect(() => {
+    if (!workspaceId || !canReadCampaigns) return;
+    let cancelled = false;
+    listWhatsAppCampaignsAction(1, 100, "desc", workspaceId).then((r) => {
+      if (!cancelled) setCampaigns((r.campaigns ?? []).filter((c) => c.type !== "organic"));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [workspaceId, canReadCampaigns]);
 
   useEffect(() => {
     let cancelled = false;
@@ -2205,9 +2150,28 @@ export default function AttendanceOpsPage() {
     };
   }, [currentWorkspace?.id]);
 
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const activeFilters = [
+    departmentId !== "all",
+    memberId !== "all",
+    channel !== "all",
+    Boolean(dispatchCampaignId),
+    !includeAi,
+  ].filter(Boolean).length;
+  const clearFilters = useCallback(() => {
+    setDepartmentId("all");
+    setMemberId("all");
+    setChannel("all");
+    setIncludeAi(true);
+    selectCampaign("all");
+  }, [selectCampaign]);
+
   const applyPreset = useCallback((p: DatePreset) => {
     setPreset(p);
-    if (p === "custom") return;
+    if (p === "custom") {
+      setFiltersOpen(true);
+      return;
+    }
     const days = p === "7d" ? 6 : p === "30d" ? 29 : 89;
     setDateFrom(format(subDays(new Date(), days), "yyyy-MM-dd"));
     setDateTo(format(new Date(), "yyyy-MM-dd"));
@@ -2299,8 +2263,11 @@ export default function AttendanceOpsPage() {
       departmentId: departmentId === "all" ? undefined : departmentId,
       memberId: memberId === "all" ? undefined : memberId,
       channel: channel === "all" ? undefined : channel,
+      campaignId,
+      campaignType,
+      includeAi,
     }),
-    [dateFrom, dateTo, departmentId, memberId, channel],
+    [dateFrom, dateTo, departmentId, memberId, channel, campaignId, campaignType, includeAi],
   );
   const ta = useTranslations("metricsOps.attendance.assistant");
   const selectedMember = members.find((m) => m.userId === memberId);
@@ -2315,12 +2282,14 @@ export default function AttendanceOpsPage() {
         ? ta("allMembers")
         : (selectedMember?.username || selectedMember?.email || memberId),
     channel: channel === "all" ? ta("allChannels") : tc(channel),
+    campaign: campaignId ? (campaigns.find((c) => c.id === campaignId)?.name ?? campaignId) : undefined,
   };
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6">
       <div>
         <DashboardPageHeader
+          layout="inline"
           badge={campaignId ? t("badgeCampaign") : t("badge")}
           description={
             currentWorkspace
@@ -2332,51 +2301,6 @@ export default function AttendanceOpsPage() {
           icon={<ChartBar className="h-6 w-6" weight="fill" />}
           actions={
             <>
-              {canAsk ? (
-                <Button
-                  icon={<Sparkle className="h-4 w-4" weight="fill" />}
-                  iconVisible
-                  title={ta("open")}
-                  variant="command"
-                  onClick={() => setAssistantOpen(true)}
-                >
-                  <span className="max-sm:sr-only">{ta("open")}</span>
-                </Button>
-              ) : null}
-              {canWriteTargets ? (
-                <Button
-                  icon={<Target className="h-4 w-4" weight="bold" />}
-                  iconVisible
-                  title={te("targetsTitle")}
-                  variant="command"
-                  onClick={() => setTargetsOpen(true)}
-                >
-                  <span className="max-sm:sr-only">{te("targetsTitle")}</span>
-                </Button>
-              ) : null}
-              <ExportMenu
-                formats={ATTENDANCE_EXPORT_FORMATS}
-                onSelect={(format) => void exportReport(format)}
-                busy={exporting}
-                disabled={loading || !summary}
-              />
-              <Button
-                icon={<ArrowClockwise className="h-4 w-4" weight="bold" />}
-                iconVisible
-                title={tc("refresh")}
-                variant="command"
-                onClick={refreshSections}
-                disabled={loading}
-              />
-            </>
-          }
-        />
-
-        <div className="mt-3 flex flex-col gap-3 lg:flex-row lg:items-end lg:gap-3">
-            <div className="min-w-0 flex-1">
-              <p className="mb-1.5 text-2xs font-semibold text-muted-foreground">
-                {tc("period")}
-              </p>
               <ElevatedPillToggle
                 aria-label={tc("period")}
                 size="md"
@@ -2389,138 +2313,187 @@ export default function AttendanceOpsPage() {
                   { value: "custom", label: tc("custom") },
                 ]}
               />
-              {preset === "custom" ? (
-                <div className="mt-2 grid max-w-md grid-cols-2 gap-2">
-                  <ElevatedDatePicker
-                    id="ops-date-from"
-                    label={tc("start")}
-                    value={dateFrom}
-                    onChange={setDateFrom}
+
+              <Popover open={filtersOpen} onOpenChange={setFiltersOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    icon={<SlidersHorizontal className="h-4 w-4" weight="bold" />}
+                    iconVisible
+                    title={activeFilters > 0 ? `${tc("filters")} (${activeFilters})` : tc("filters")}
+                    variant={activeFilters > 0 ? "secondary" : "command"}
                   />
-                  <ElevatedDatePicker
-                    id="ops-date-to"
-                    label={tc("end")}
-                    value={dateTo}
-                    onChange={setDateTo}
-                  />
-                </div>
-              ) : null}
-            </div>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-[min(92vw,22rem)] space-y-2.5 p-3">
+                  {preset === "custom" ? (
+                    <div className="grid grid-cols-2 gap-2">
+                      <ElevatedDatePicker id="ops-date-from" label={tc("start")} value={dateFrom} onChange={setDateFrom} />
+                      <ElevatedDatePicker id="ops-date-to" label={tc("end")} value={dateTo} onChange={setDateTo} />
+                    </div>
+                  ) : null}
 
-            <div className="w-full lg:w-[160px]">
-              <ElevatedSelect
-                label={tc("department")}
-                value={departmentId}
-                onValueChange={setDepartmentId}
-                placeholder={tc("all")}
-              >
-                <ElevatedSelectItem value="all">{tc("all")}</ElevatedSelectItem>
-                {departments.map((d) => (
-                  <ElevatedSelectItem key={d.id} value={d.id}>
-                    {d.name}
-                  </ElevatedSelectItem>
-                ))}
-              </ElevatedSelect>
-            </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <ElevatedSelect
+                      label={tc("department")}
+                      value={departmentId}
+                      onValueChange={setDepartmentId}
+                      placeholder={tc("all")}
+                    >
+                      <ElevatedSelectItem value="all">{tc("all")}</ElevatedSelectItem>
+                      {departments.map((d) => (
+                        <ElevatedSelectItem key={d.id} value={d.id}>
+                          {d.name}
+                        </ElevatedSelectItem>
+                      ))}
+                    </ElevatedSelect>
 
-            <div className="w-full lg:w-[180px]">
-              <ElevatedSelect
-                label={tc("member")}
-                value={memberId}
-                onValueChange={setMemberId}
-                placeholder={tc("all")}
-              >
-                <ElevatedSelectItem value="all">{tc("all")}</ElevatedSelectItem>
-                {members.map((m) => (
-                  <ElevatedSelectItem key={m.userId} value={m.userId}>
-                    {m.username || m.email}
-                  </ElevatedSelectItem>
-                ))}
-              </ElevatedSelect>
-            </div>
+                    <ElevatedSelect
+                      label={tc("member")}
+                      value={memberId}
+                      onValueChange={setMemberId}
+                      placeholder={tc("all")}
+                    >
+                      <ElevatedSelectItem value="all">{tc("all")}</ElevatedSelectItem>
+                      {members.map((m) => (
+                        <ElevatedSelectItem key={m.userId} value={m.userId}>
+                          {m.username || m.email}
+                        </ElevatedSelectItem>
+                      ))}
+                    </ElevatedSelect>
 
-            <div className="w-full lg:w-[150px]">
-              <ElevatedSelect
-                label={tc("channel")}
-                value={channel}
-                onValueChange={setChannel}
-                placeholder={tc("all")}
-              >
-                <ElevatedSelectItem value="all">{tc("all")}</ElevatedSelectItem>
-                <ElevatedSelectItem value="whatsapp">
-                  <span className="inline-flex items-center gap-1.5">
-                    <ChannelTile channel="whatsapp" size="sm" className="h-5 w-5" />
-                    {tc("whatsapp")}
-                  </span>
-                </ElevatedSelectItem>
-                <ElevatedSelectItem value="unofficial_whatsapp">
-                  <span className="inline-flex items-center gap-1.5">
-                    <ChannelTile channel="unofficial_whatsapp" size="sm" className="h-5 w-5" />
-                    {tc("unofficialWhatsapp")}
-                  </span>
-                </ElevatedSelectItem>
-                <ElevatedSelectItem value="instagram">
-                  <span className="inline-flex items-center gap-1.5">
-                    <ChannelTile channel="instagram" size="sm" className="h-5 w-5" />
-                    {tc("instagram")}
-                  </span>
-                </ElevatedSelectItem>
-                <ElevatedSelectItem value="telegram">
-                  <span className="inline-flex items-center gap-1.5">
-                    <ChannelTile channel="telegram" size="sm" className="h-5 w-5" />
-                    {tc("telegram")}
-                  </span>
-                </ElevatedSelectItem>
-              </ElevatedSelect>
-            </div>
+                    <ElevatedSelect
+                      label={tc("channel")}
+                      value={channel}
+                      onValueChange={setChannel}
+                      placeholder={tc("all")}
+                    >
+                      <ElevatedSelectItem value="all">{tc("all")}</ElevatedSelectItem>
+                      <ElevatedSelectItem value="whatsapp">
+                        <span className="inline-flex items-center gap-1.5">
+                          <ChannelTile channel="whatsapp" size="sm" className="h-5 w-5" />
+                          {tc("whatsapp")}
+                        </span>
+                      </ElevatedSelectItem>
+                      <ElevatedSelectItem value="unofficial_whatsapp">
+                        <span className="inline-flex items-center gap-1.5">
+                          <ChannelTile channel="unofficial_whatsapp" size="sm" className="h-5 w-5" />
+                          {tc("unofficialWhatsapp")}
+                        </span>
+                      </ElevatedSelectItem>
+                      <ElevatedSelectItem value="instagram">
+                        <span className="inline-flex items-center gap-1.5">
+                          <ChannelTile channel="instagram" size="sm" className="h-5 w-5" />
+                          {tc("instagram")}
+                        </span>
+                      </ElevatedSelectItem>
+                      <ElevatedSelectItem value="telegram">
+                        <span className="inline-flex items-center gap-1.5">
+                          <ChannelTile channel="telegram" size="sm" className="h-5 w-5" />
+                          {tc("telegram")}
+                        </span>
+                      </ElevatedSelectItem>
+                    </ElevatedSelect>
 
-            <label className="flex h-[42px] cursor-pointer items-center gap-2 rounded-[--radius] border border-border bg-card px-3 text-sm lg:shrink-0">
-              <input
-                type="checkbox"
-                checked={includeAi}
-                onChange={(e) => setIncludeAi(e.target.checked)}
-                className="h-3.5 w-3.5 rounded border-border text-primary-ink focus:ring-ring"
+                    {canReadCampaigns && campaigns.length > 0 ? (
+                      <ElevatedSelect
+                        label={td("campaignFilter")}
+                        value={dispatchCampaignId ?? "all"}
+                        onValueChange={selectCampaign}
+                        placeholder={td("allCampaigns")}
+                      >
+                        <ElevatedSelectItem value="all">{td("allCampaigns")}</ElevatedSelectItem>
+                        {campaigns.map((c) => (
+                          <ElevatedSelectItem key={c.id} value={c.id}>
+                            {c.name}
+                          </ElevatedSelectItem>
+                        ))}
+                      </ElevatedSelect>
+                    ) : null}
+                  </div>
+
+                  <div className="flex items-center justify-between gap-2 border-t border-border pt-2.5">
+                    <label className="flex cursor-pointer items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={includeAi}
+                        onChange={(e) => setIncludeAi(e.target.checked)}
+                        className="h-3.5 w-3.5 rounded border-border text-primary-ink focus:ring-ring"
+                      />
+                      <span className="whitespace-nowrap font-medium text-foreground">{tl("showAi")}</span>
+                    </label>
+                    <Button
+                      variant="ghost"
+                      title={tc("clearFilters")}
+                      onClick={clearFilters}
+                      disabled={activeFilters === 0}
+                    />
+                  </div>
+                </PopoverContent>
+              </Popover>
+
+              <Button
+                icon={<ArrowClockwise className="h-4 w-4" weight="bold" />}
+                iconVisible
+                aria-label={tc("refresh")}
+                variant="command"
+                onClick={refreshSections}
+                disabled={loading}
               />
-              <span className="whitespace-nowrap font-medium text-foreground">
-                {tl("showAi")}
-              </span>
-            </label>
-          </div>
 
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            <span className="rounded-[--radius] bg-muted px-2.5 py-1 font-medium text-foreground">
-              {periodLabel}
-            </span>
-            <span className="rounded-[--radius] bg-muted px-2.5 py-1">
-              {loading
-                ? tc("loading")
-                : tl("conversationsInSlice", { count: fmt.num(total) })}
-            </span>
-            {team ? (
-              <span className="rounded-[--radius] bg-muted px-2.5 py-1">
-                {tl("agentsCount", { count: fmt.num(team.by_member?.length) })}
-              </span>
-            ) : null}
-            {team ? (
-              <span className="rounded-[--radius] bg-muted px-2.5 py-1">
-                {tl("departmentsCount", { count: fmt.num(team.by_department?.length) })}
-              </span>
-            ) : null}
-            {!loading && summary?.generated_at ? (
-              <span
-                className="rounded-[--radius] bg-muted px-2.5 py-1"
-                title={summary.generated_at}
-              >
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    icon={<DotsThree className="h-4 w-4" weight="bold" />}
+                    iconVisible
+                    aria-label={exporting ? texp("preparing") : tc("moreActions")}
+                    variant="command"
+                  />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-[14rem]">
+                  {canWriteTargets ? (
+                    <>
+                      <DropdownMenuItem onSelect={() => setTargetsOpen(true)} className="flex cursor-pointer items-center gap-2.5">
+                        <Target className="h-4 w-4 shrink-0" weight="bold" />
+                        <span className="text-sm">{te("targetsTitle")}</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  ) : null}
+                  <ExportMenuItems
+                    formats={ATTENDANCE_EXPORT_FORMATS}
+                    onSelect={(format) => void exportReport(format)}
+                    disabled={exporting || loading || !summary}
+                  />
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          }
+        />
+
+        <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-2xs text-muted-foreground">
+          <span className="font-semibold text-foreground">{periodLabel}</span>
+          <span aria-hidden>·</span>
+          <span>{loading ? tc("loading") : tl("conversationsInSlice", { count: fmt.num(total) })}</span>
+          {team ? (
+            <>
+              <span aria-hidden>·</span>
+              <span>{tl("agentsCount", { count: fmt.num(team.by_member?.length) })}</span>
+              <span aria-hidden>·</span>
+              <span>{tl("departmentsCount", { count: fmt.num(team.by_department?.length) })}</span>
+            </>
+          ) : null}
+          {!loading && summary?.generated_at ? (
+            <>
+              <span aria-hidden>·</span>
+              <span title={summary.generated_at}>
                 {te("generatedAt", {
-                  at: new Date(summary.generated_at).toLocaleString(
-                    LOCALE_TAG[locale] ?? "en-US",
-                  ),
+                  at: new Date(summary.generated_at).toLocaleString(LOCALE_TAG[locale] ?? "en-US"),
                 })}
               </span>
-            ) : null}
-          </div>
+            </>
+          ) : null}
+        </p>
 
-          <div className="mt-5">
+          <div className="mt-3">
             <SectionState query={summaryQuery}>
               <KpiStrip
                 kpis={kpis}
@@ -2553,8 +2526,18 @@ export default function AttendanceOpsPage() {
         </div>
       ) : (
         <>
-          {/* Targets and results: where the period will land, what it earned,
-              and how it compares with the closed months before it. */}
+          {canReadCampaigns && (channel === "all" || channel === "whatsapp") ? (
+            <DispatchReportChapter
+              campaignId={dispatchCampaignId}
+              departmentId={departmentId === "all" ? undefined : departmentId}
+              dateFrom={dateFrom}
+              dateTo={dateTo}
+              conversions={conversions}
+              canReadAnalysis={canReadAnalysis}
+              onSelectCampaign={selectCampaign}
+            />
+          ) : null}
+
           <Chapter
             id="att-tactical"
             icon={<Target className="h-4 w-4" weight="fill" />}
@@ -2614,8 +2597,6 @@ export default function AttendanceOpsPage() {
             </SectionState>
           </Chapter>
 
-          {/* Conversation flow: when and where conversations arrive, which
-              state they are in, and how often a close did not hold. */}
           <Chapter
             id="att-volume"
             icon={<ChartBar className="h-4 w-4" weight="fill" />}
@@ -2624,21 +2605,12 @@ export default function AttendanceOpsPage() {
             subtitle={ts("volumeSub")}
           >
             <SectionState query={summaryQuery}>
-              <div className="grid gap-3 xl:grid-cols-12">
-                <Surface className="xl:col-span-8">
+              <div className="grid gap-3 lg:grid-cols-2 xl:grid-cols-12">
+                <Surface className="lg:col-span-2 xl:col-span-6">
                   <SectionTitle title={ts("hourly")} subtitle={ts("hourlySub")} />
                   <HourlyVolumeChart hourly={summary?.hourly} loading={loading} />
                 </Surface>
-                <Surface className="xl:col-span-4">
-                  <SectionTitle
-                    title={ts("channelsUsed")}
-                    subtitle={ts("channelsUsedSub")}
-                  />
-                  <ChannelMixChart mix={summary?.channel_mix} loading={loading} />
-                </Surface>
-              </div>
-              <div className="grid gap-3 xl:grid-cols-12">
-                <Surface className="xl:col-span-8">
+                <Surface className="xl:col-span-3">
                   <SectionTitle title={ts("status")} subtitle={ts("statusSub")} />
                   <StatusCompositionChart
                     dist={summary?.status_distribution}
@@ -2646,9 +2618,9 @@ export default function AttendanceOpsPage() {
                     loading={loading}
                   />
                 </Surface>
-                <Surface className="xl:col-span-4">
-                  <SectionTitle title={ts("reopen")} subtitle={ts("reopenSub")} />
-                  <ReopenPanel reopen={summary?.reopen} loading={loading} />
+                <Surface className="xl:col-span-3">
+                  <SectionTitle title={ts("channelsUsed")} subtitle={ts("channelsUsedSub")} />
+                  <ChannelMixChart mix={summary?.channel_mix} loading={loading} />
                 </Surface>
               </div>
             </SectionState>
@@ -2662,22 +2634,28 @@ export default function AttendanceOpsPage() {
             subtitle={ts("qualitySub")}
           >
             <SectionState query={summaryQuery}>
-              <QualitySection
-                quality={summary?.quality}
-                loading={loading}
-                fmt={fmt}
-                onConfigure={
-                  currentWorkspace?.id
-                    ? () => router.push(`/${locale}/dashboard/workspace`)
-                    : undefined
-                }
-              />
+              <div className="grid items-start gap-3 xl:grid-cols-12">
+                <Surface className="xl:col-span-3">
+                  <SectionTitle title={ts("reopen")} subtitle={ts("reopenSub")} />
+                  <ReopenPanel reopen={summary?.reopen} loading={loading} />
+                </Surface>
+                <div className="min-w-0 xl:col-span-9">
+                  <QualitySection
+                    quality={summary?.quality}
+                    loading={loading}
+                    fmt={fmt}
+                    onConfigure={
+                      currentWorkspace?.id
+                        ? () => router.push(`/${locale}/dashboard/workspace`)
+                        : undefined
+                    }
+                  />
+                </div>
+              </div>
             </SectionState>
           </Chapter>
 
-          {/* Who answers: human response speed beside what the AI resolves
-              alone, so the two halves of the service read as a pair. */}
-          <div className="grid gap-8 xl:grid-cols-2 xl:gap-3">
+          <div className="grid gap-6 xl:grid-cols-3 xl:gap-3">
             <Chapter
               id="att-times"
               icon={<Timer className="h-4 w-4" weight="fill" />}
@@ -2707,31 +2685,27 @@ export default function AttendanceOpsPage() {
                 </Surface>
               </SectionState>
             </Chapter>
-          </div>
 
-          <Chapter
-            id="att-messaging"
-            icon={<PaperPlaneTilt className="h-4 w-4" weight="fill" />}
-            iconBg={GLYPH_PLATE.PaperPlaneTilt}
-            title={ts("messaging")}
-            subtitle={ts("messagingSub")}
-          >
-            <SectionState query={summaryQuery}>
-              <div className="grid gap-3 xl:grid-cols-12">
-                <Surface className="xl:col-span-4">
+            <Chapter
+              id="att-messaging"
+              icon={<PaperPlaneTilt className="h-4 w-4" weight="fill" />}
+              iconBg={GLYPH_PLATE.PaperPlaneTilt}
+              title={ts("messaging")}
+              subtitle={ts("messagingSub")}
+            >
+              <SectionState query={summaryQuery}>
+                <Surface>
                   <SectionTitle title={ts("messages")} subtitle={ts("messagesSub")} />
                   <MessagesPanel msg={summary?.messaging} loading={loading} />
                 </Surface>
-                <Surface className="xl:col-span-8">
+                <Surface className="flex-1">
                   <SectionTitle title={ts("templates")} subtitle={ts("templatesSub")} />
                   <TemplatesPanel msg={summary?.messaging} loading={loading} />
                 </Surface>
-              </div>
-            </SectionState>
-          </Chapter>
+              </SectionState>
+            </Chapter>
+          </div>
 
-          {/* Open work right now: the backlog, then where leads sit in the
-              funnels. Both are measured against now, not the period. */}
           <Chapter
             id="att-backlog"
             ref={backlogRef}
@@ -2739,6 +2713,11 @@ export default function AttendanceOpsPage() {
             iconBg={GLYPH_PLATE.Hourglass}
             title={ts("backlog")}
             subtitle={ts("backlogSub")}
+            meta={
+              backlogQuery.data?.backlog_xray?.available
+                ? te("backlogTotal", { count: fmt.num(backlogQuery.data.backlog_xray.total) })
+                : undefined
+            }
           >
             <SectionState query={backlogQuery}>
               <BacklogXraySection
@@ -2746,6 +2725,7 @@ export default function AttendanceOpsPage() {
                 loading={backlogQuery.isPending}
                 fmt={fmt}
                 channelLabel={(c) => channelLabel(c, tc)}
+                showTotal={false}
               />
             </SectionState>
           </Chapter>
@@ -2766,8 +2746,6 @@ export default function AttendanceOpsPage() {
             </SectionState>
           </Chapter>
 
-          {/* The team section, read from the organisation down to the person:
-              departments, the ranked team, then every member in detail. */}
           <Chapter
             id="att-departments"
             ref={departmentsRef}
@@ -2778,14 +2756,14 @@ export default function AttendanceOpsPage() {
           >
             <SectionState query={teamQuery}>
               <div className="grid gap-3 xl:grid-cols-12">
-                <Surface className="xl:col-span-5">
+                <Surface className="xl:col-span-4">
                   <SectionTitle title={ts("deptChart")} subtitle={ts("deptChartSub")} />
                   <DepartmentStackedChart
                     rows={team?.by_department}
                     loading={teamQuery.isPending}
                   />
                 </Surface>
-                <Surface className="xl:col-span-7">
+                <Surface className="xl:col-span-8">
                   <SectionTitle title={ts("deptTable")} subtitle={ts("deptTableSub")} />
                   <DepartmentDetailTable
                     rows={team?.by_department}
@@ -2825,11 +2803,11 @@ export default function AttendanceOpsPage() {
           >
             <SectionState query={teamQuery}>
               <div className="grid gap-3 xl:grid-cols-12">
-                <Surface className="xl:col-span-5">
+                <Surface className="xl:col-span-4">
                   <SectionTitle title={ts("teamRank")} subtitle={ts("teamRankSub")} />
                   <TeamChart rows={team?.by_member} loading={teamQuery.isPending} />
                 </Surface>
-                <Surface className="xl:col-span-7">
+                <Surface className="xl:col-span-8">
                   <SectionTitle title={ts("teamDetail")} subtitle={ts("teamDetailSub")} />
                   <TeamDetailTable
                     rows={team?.by_member}
@@ -2839,6 +2817,7 @@ export default function AttendanceOpsPage() {
               </div>
             </SectionState>
           </Chapter>
+
 
           {/*
           <div>
@@ -2855,7 +2834,6 @@ export default function AttendanceOpsPage() {
             />
           </div>
           */}
-
           <div>
             <Surface className="!py-3">
               <p className="mb-2 text-2xs font-semibold text-muted-foreground">
@@ -2942,8 +2920,6 @@ export default function AttendanceOpsPage() {
       ) : null}
       {canAsk ? (
         <AttendanceAssistant
-          open={assistantOpen}
-          onOpenChange={setAssistantOpen}
           view={assistantView}
           scope={assistantScope}
         />

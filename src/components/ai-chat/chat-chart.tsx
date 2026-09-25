@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   Area,
   AreaChart,
@@ -34,7 +34,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { useMetricsFmt } from "@/components/dashboard/attendance/primitives";
-import { chartRows, formatChartValue, seriesKey, type ChartRow } from "@/lib/aichat/chart";
+import { chartRows, formatChartValue, humanizeChart, seriesKey, type ChartRow } from "@/lib/aichat/chart";
 import { CHART_OTHER_CATEGORY, type ChatChart, type ChatValueKind } from "@/lib/aichat/types";
 import { cn } from "@/lib/utils";
 
@@ -46,8 +46,19 @@ function seriesColor(index: number): string {
   return `hsl(var(--chart-${index + 1}))`;
 }
 
-export function ChatChartView({ chart }: { chart: ChatChart }) {
+export function ChatChartView({ chart: raw }: { chart: ChatChart }) {
   const t = useTranslations("aiChatPage.chart");
+  const locale = useLocale();
+  const chart = useMemo(() => {
+    const monthFormat = new Intl.DateTimeFormat(locale, { month: "short", year: "numeric", timeZone: "UTC" });
+    const dayFormat = new Intl.DateTimeFormat(locale, { day: "2-digit", month: "short", timeZone: "UTC" });
+    return humanizeChart(raw, {
+      column: (key) => (t.has(`columns.${key}`) ? t(`columns.${key}`) : undefined),
+      value: (key) => (t.has(`values.${key}`) ? t(`values.${key}`) : undefined),
+      month: (ym) => monthFormat.format(new Date(`${ym}-01T00:00:00Z`)),
+      day: (ymd) => dayFormat.format(new Date(`${ymd}T00:00:00Z`)),
+    });
+  }, [raw, t, locale]);
   const fmt = useMetricsFmt();
   const [asTable, setAsTable] = useState(chart.type === "table");
   const rows = useMemo(() => chartRows(chart, t("other")), [chart, t]);

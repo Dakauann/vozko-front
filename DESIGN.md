@@ -503,6 +503,16 @@ This is a USER-DIRECTED exception to "nothing in the periphery loops"
 `prefers-reduced-motion` the pulse overlay removes itself entirely, leaving
 the static art.
 
+**The AI launcher exception.** The assistant's launcher (`AssistantLauncher`,
+`.vz-ai-launcher` in `globals.css`) is the one element allowed to glow: a single
+signal-green light sweeps its ring (typed `@property --vz-ai-angle`, 4.8s per
+turn at rest, 1.6s while the assistant works, when the chart glyph's bars also
+move). USER-DIRECTED (2026-09-25). Monochrome brand green only, never a
+rainbow; the face stays `bg-card` with a `border-border-strong` edge and the
+glyph carries the colour. Under `prefers-reduced-motion` the sweep and bars stop
+and a static lit arc remains. Every AI entry point (the attendance analyst, the
+workflow copilot) uses this one launcher; do not add glow anywhere else.
+
 ## Components
 
 **Buttons — two implementations, one grammar.** `ui/button.tsx` (cva:

@@ -11,6 +11,7 @@ export interface StreamHandlers {
   onDelta?: (text: string) => void;
   onReasoning?: (text: string) => void;
   onReasoningDone?: () => void;
+  onToolStart?: (name: string) => void;
   onTool?: (name: string, summary: string, ok: boolean) => void;
   onChart?: (chart: ChatChart) => void;
   onProposal?: (action: PendingAction) => void;
@@ -33,6 +34,9 @@ function dispatch(ev: ChatStreamEvent, h: StreamHandlers) {
       break;
     case "tool":
       h.onTool?.(p.name ?? "", p.summary ?? "", !!p.ok);
+      break;
+    case "tool_start":
+      h.onToolStart?.(p.name ?? "");
       break;
     case "chart":
       if (ev.payload) h.onChart?.(ev.payload as unknown as ChatChart);

@@ -2,11 +2,9 @@
 
 import type { ReactNode } from "react";
 
-import { AttendanceSectionError } from "@/lib/attendance/sections";
+import { isBusySectionError } from "@/lib/analytics/section-query";
 
 import { SectionError } from "./primitives";
-
-const BUSY_STATUS = 503;
 
 export interface SectionQueryState {
   isError: boolean;
@@ -17,6 +15,5 @@ export interface SectionQueryState {
 
 export function SectionState({ query, children }: { query: SectionQueryState; children: ReactNode }) {
   if (!query.isError) return <>{children}</>;
-  const busy = query.error instanceof AttendanceSectionError && query.error.status === BUSY_STATUS;
-  return <SectionError busy={busy} onRetry={() => void query.refetch()} retrying={query.isFetching} />;
+  return <SectionError busy={isBusySectionError(query.error)} onRetry={() => void query.refetch()} retrying={query.isFetching} />;
 }

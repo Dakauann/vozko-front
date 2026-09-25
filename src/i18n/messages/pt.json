@@ -225,14 +225,18 @@
       "list_voices": "Vozes",
       "list_departments": "Departamentos",
       "list_agent_tools": "Ferramentas de agente",
-      "attendance_metrics": "Indicadores de atendimento",
-      "attendance_trend": "Evolução mensal",
-      "attendance_team": "Ranking da equipe",
-      "attendance_backlog": "Raio X do backlog",
-      "conversation_insights": "Análises das conversas",
-      "calculate": "Cálculo",
-      "query_dataset": "Consulta aos dados",
-      "render_chart": "Gráfico"
+      "attendance_metrics": "Números do período",
+      "attendance_trend": "Evolução mês a mês",
+      "attendance_team": "Desempenho da equipe",
+      "attendance_backlog": "Conversas esperando resposta",
+      "conversation_insights": "O que os clientes disseram",
+      "calculate": "Fazendo as contas",
+      "query_dataset": "Detalhando os dados",
+      "render_chart": "Montando o gráfico",
+      "attendance_stages": "Etapas do funil",
+      "attendance_rework": "Conversas reabertas",
+      "attendance_live": "Atendimento agora",
+      "campaign_dispatch": "Resultado dos disparos"
     },
     "threadsLegend": "Conversas",
     "greeting": "No que vamos trabalhar?",
@@ -244,8 +248,79 @@
     "chart": {
       "other": "Outros",
       "showTable": "Tabela",
-      "showChart": "Gráfico"
-    }
+      "showChart": "Gráfico",
+      "columns": {
+        "finished": "Concluídas",
+        "engaged": "Conversas",
+        "entries_created": "Novas entradas",
+        "new_leads": "Novos contatos",
+        "won_count": "Vendas",
+        "revenue_cents": "Receita",
+        "resolution_pct": "Taxa de resolução",
+        "ai_containment_rate": "Resolvidas pela IA",
+        "reopen_rate": "Taxa de reabertura",
+        "outcome_durable_pct": "Resolvidas de vez",
+        "avg_frt_mins": "Tempo até a 1ª resposta",
+        "avg_wait_mins": "Tempo de espera",
+        "avg_handle_mins": "Duração do atendimento",
+        "month": "Mês",
+        "hour": "Hora",
+        "conversations": "Conversas",
+        "channel": "Canal",
+        "share_pct": "Participação",
+        "name": "Nome",
+        "kind": "Tipo",
+        "rank_value": "Resultado",
+        "resolved": "Resolvidas",
+        "volume": "Volume",
+        "open": "Em aberto",
+        "pending": "Aguardando",
+        "avg_response_mins": "Tempo de resposta",
+        "rating": "Avaliação",
+        "avg_ticket_cents": "Ticket médio",
+        "per_open_day": "Por dia útil",
+        "per_online_hour": "Por hora online",
+        "total_messages": "Mensagens",
+        "avg_messages": "Mensagens por conversa",
+        "presence": "Status",
+        "department": "Departamento",
+        "finished_human": "Concluídas pela equipe",
+        "finished_ai": "Concluídas pela IA",
+        "ongoing": "Em andamento",
+        "funnel": "Funil",
+        "stage": "Etapa",
+        "total": "Total",
+        "pct_of_funnel": "% do funil",
+        "avg_days_in_stage": "Dias na etapa",
+        "oldest_days_in_stage": "Mais antiga (dias)",
+        "stuck": "Paradas",
+        "reopened": "Reabertas",
+        "templates": "Modelos enviados",
+        "subject": "Assunto",
+        "day": "Dia",
+        "sent": "Enviadas",
+        "delivered": "Entregues",
+        "read": "Lidas",
+        "replied": "Respostas",
+        "campaign": "Campanha",
+        "base": "Contatos na base",
+        "failed": "Falhas"
+      },
+      "values": {
+        "whatsapp": "WhatsApp",
+        "instagram": "Instagram",
+        "telegram": "Telegram",
+        "unofficial_whatsapp": "WhatsApp (QR code)",
+        "human": "Pessoa",
+        "ai": "IA",
+        "workflow": "Automação",
+        "system": "Sistema",
+        "online": "Online",
+        "offline": "Offline",
+        "away": "Ausente"
+      }
+    },
+    "toolDenied": "sem permissão"
   },
   "leadMemories": {
     "title": "Memórias",
@@ -9652,7 +9727,10 @@
       "dayUnit": "d",
       "sectionError": "Não foi possível carregar esta seção.",
       "sectionBusy": "Muitas consultas ao mesmo tempo. Tente de novo em alguns segundos.",
-      "retry": "Tentar novamente"
+      "retry": "Tentar novamente",
+      "filters": "Filtros",
+      "clearFilters": "Limpar filtros",
+      "moreActions": "Mais ações"
     },
     "export": {
       "executive": {
@@ -9974,6 +10052,128 @@
         "frtShort": "Após receber a conversa",
         "frtHint": "Do momento em que alguém assume até a primeira resposta"
       },
+      "dispatch": {
+        "title": "Disparo da campanha",
+        "sub": "Da base ao interesse, sobre a campanha inteira · template {template}",
+        "campaignFilter": "Campanha",
+        "allCampaigns": "Todas",
+        "scopeCampaign": "Campanha inteira",
+        "scopePeriod": "No período",
+        "unknown": "Indisponível",
+        "noAccess": "Sem permissão para ver os disparos desta campanha",
+        "stage": {
+          "base": {
+            "label": "Base",
+            "rate": "contatos na campanha",
+            "rateAll": "contatos incluídos no período"
+          },
+          "sent": {
+            "label": "Enviadas",
+            "rate": "{pct} da base"
+          },
+          "delivered": {
+            "label": "Entregues",
+            "rate": "{pct} das enviadas"
+          },
+          "read": {
+            "label": "Lidas",
+            "rate": "{pct} das entregues"
+          },
+          "replied": {
+            "label": "Respostas",
+            "rate": "{pct} das lidas"
+          },
+          "interested": {
+            "label": "Interessados",
+            "rate": "{pct} das respostas"
+          },
+          "failed": {
+            "label": "Falhas",
+            "rate": "{pct} da base"
+          }
+        },
+        "conversions": {
+          "label": "Conversões",
+          "rate": "negócios ganhos no período"
+        },
+        "funnel": {
+          "title": "Funil da campanha",
+          "sub": "Cada etapa sobre a base",
+          "ofBase": "da base"
+        },
+        "daily": {
+          "title": "Evolução por dia",
+          "sub": "Primeiro envio, entrega, leitura e resposta de cada contato",
+          "sent": "Enviadas",
+          "delivered": "Entregues",
+          "read": "Lidas",
+          "replied": "Respostas",
+          "trackedSince": "Linha do tempo registrada desde {date}; envios anteriores aparecem só no funil",
+          "notTracked": "Esta campanha ainda não tem linha do tempo registrada; o funil vem do status atual de cada contato",
+          "clamped": "Mostrando os últimos {days} dias do período",
+          "empty": "Nenhum envio, entrega, leitura ou resposta no período"
+        },
+        "status": {
+          "title": "Status das mensagens",
+          "sub": "Situação atual de cada contato da base",
+          "delivered": "Entregues",
+          "awaiting": "Aguardando entrega",
+          "failed": "Falharam",
+          "pending": "Na fila",
+          "notEligible": "Ignoradas (evitando spam)",
+          "reasons": "Motivos de falha",
+          "reason": "Motivo",
+          "count": "Qtd.",
+          "noFailures": "Nenhuma falha registrada",
+          "center": "enviadas"
+        },
+        "outcome": {
+          "title": "Resultado do atendimento",
+          "sub": "Classificação da IA nas conversas da campanha",
+          "analyzed": "{count} conversas analisadas",
+          "empty": "Nenhuma conversa analisada ainda",
+          "noAccess": "Sem permissão para ver a análise de IA"
+        },
+        "reasons": {
+          "title": "Principais motivos de contato",
+          "sub": "Assuntos identificados pela IA",
+          "reason": "Motivo",
+          "count": "Conversas",
+          "share": "%",
+          "empty": "Nenhum motivo identificado"
+        },
+        "tags": {
+          "title": "Etiquetas mais usadas",
+          "sub": "Contatos da campanha por etiqueta",
+          "tag": "Etiqueta",
+          "count": "Contatos",
+          "share": "% da base",
+          "empty": "Nenhuma etiqueta aplicada"
+        },
+        "subAll": "Contatos incluídos em campanhas no período, com o resultado de cada campanha",
+        "campaignsCount": {
+          "label": "Campanhas",
+          "rate": "com contatos no período"
+        },
+        "compare": {
+          "title": "Campanhas no período",
+          "sub": "Clique em uma campanha para abrir o disparo dela",
+          "campaign": "Campanha",
+          "base": "Base",
+          "sent": "Enviadas",
+          "delivery": "Entrega",
+          "read": "Leitura",
+          "reply": "Resposta",
+          "failed": "Falhas",
+          "total": "Total",
+          "empty": "Nenhuma campanha com contatos no período"
+        },
+        "empty": {
+          "title": "Nenhum contato em campanhas",
+          "all": "Nenhum contato foi incluído em campanhas de disparo neste período.",
+          "campaign": "Esta campanha ainda não tem contatos na base."
+        }
+      },
       "sections": {
         "volume": "Volume e situação",
         "volumeSub": "Quando as conversas acontecem e em que estágio estão",
@@ -10006,7 +10206,7 @@
         "departments": "Departamentos",
         "departmentsSub": "Volume e tempos por departamento da campanha",
         "deptChart": "Conversas por departamento",
-        "deptChartSub": "Área do bloco = volume de conversas do departamento",
+        "deptChartSub": "Conversas de cada departamento no recorte, da maior para a menor",
         "deptTable": "Tempos por departamento",
         "deptTableSub": "Espera até a 1ª resposta e duração média",
         "team": "Equipe",
@@ -10451,12 +10651,19 @@
           "workflow": "Fluxos",
           "unowned": "Sem responsável"
         },
-        "wonWithoutValue": "{count} negócios ganhos sem valor informado não entram na receita."
+        "wonWithoutValue": "{count} negócios ganhos sem valor informado não entram na receita.",
+        "blockUnavailableTitle": "Bloco indisponível",
+        "blockUnavailableBody": "Este bloco não veio na resposta do servidor. Atualize a página para tentar de novo.",
+        "noRevenueTitle": "Nenhuma oportunidade ganha no período",
+        "noRevenueBody": "Quando uma oportunidade for marcada como ganha, a receita aparece aqui, separada por moeda.",
+        "revenueUnavailableTitle": "Receita indisponível",
+        "trendUnavailableTitle": "Tendência indisponível",
+        "backlogUnavailableTitle": "Raio-x indisponível"
       },
       "assistant": {
         "open": "Perguntar à IA",
         "title": "Analista de atendimento",
-        "description": "Responde com os números desta página, respeitando o seu acesso.",
+        "description": "Pergunte em palavras simples. As respostas usam os números desta página e o seu acesso.",
         "scope": "Analisando",
         "allDepartments": "Todos os departamentos",
         "allMembers": "Toda a equipe",
@@ -10466,12 +10673,16 @@
         "greeting": "O que você quer entender sobre o atendimento?",
         "footnote": "As consultas usam os mesmos dados e limites da página. Confira decisões importantes nos painéis.",
         "starters": {
-          "summary": "Resuma este período e compare com o anterior",
+          "summary": "Como foi este período comparado ao anterior?",
           "team": "Quem da equipe precisa de atenção e por quê?",
-          "trend": "Mostre a evolução mensal de conversas finalizadas no último ano",
-          "backlog": "O que está acumulando no backlog agora?",
-          "why": "Por que os clientes não estão fechando? Use as análises das conversas"
-        }
+          "trend": "Como evoluíram os atendimentos concluídos no último ano?",
+          "backlog": "Quais conversas estão esperando resposta agora?",
+          "why": "Por que os clientes não estão fechando negócio?"
+        },
+        "minimize": "Minimizar",
+        "fullscreen": "Tela cheia",
+        "exitFullscreen": "Sair da tela cheia",
+        "resize": "Arraste para redimensionar"
       }
     }
   },

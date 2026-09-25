@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import Button from "@/components/elevated-design/button";
+import { Info, WarningCircle } from "@/components/icons";
 
 export const ATTENDANCE_COLORS = {
   signal: "hsl(var(--chart-1))",
@@ -118,7 +119,7 @@ export function Surface({
   return (
     <section
       className={cn(
-        "min-w-0 rounded-[--radius] border border-border bg-card p-3",
+        "min-w-0 rounded-[--radius] border border-border bg-card p-4",
         className,
       )}
       style={{ boxShadow: softSurfaceShadow }}
@@ -128,8 +129,6 @@ export function Surface({
   );
 }
 
-// Card-level heading. The chapter above it already carries the glyph plate, so
-// a card names itself in type alone; a second plate per card was noise.
 export function SectionTitle({
   title,
   subtitle,
@@ -142,7 +141,7 @@ export function SectionTitle({
   return (
     <div className="mb-3 flex items-start justify-between gap-3">
       <div className="min-w-0">
-        <h3 className="text-sm font-semibold tracking-tight text-foreground">
+        <h3 className="text-base font-semibold tracking-tight text-foreground">
           {title}
         </h3>
         {subtitle ? (
@@ -160,48 +159,52 @@ export function SectionLabel({
   title,
   subtitle,
   id,
+  meta,
 }: {
   icon?: ReactNode;
   iconBg?: string;
   title: string;
   subtitle?: string;
   id?: string;
+  meta?: ReactNode;
 }) {
   return (
-    <div className="mb-3 flex min-w-0 items-start gap-2.5">
+    <div className="mb-2.5 flex min-w-0 items-center gap-2">
       {icon ? (
         <div
           className={cn(
-            "flex h-8 w-8 shrink-0 items-center justify-center rounded-[--radius]",
+            "flex h-6 w-6 shrink-0 items-center justify-center rounded-[--radius] [&_svg]:h-3.5 [&_svg]:w-3.5",
             iconBg,
           )}
         >
           {icon}
         </div>
       ) : null}
-      <div className="min-w-0">
+      <div className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
         <h2
           id={id}
-          className="font-display text-base font-semibold leading-tight tracking-[0.01em] text-foreground"
+          className="shrink-0 font-display text-base font-semibold leading-tight tracking-[0.01em] text-foreground"
         >
           {title}
         </h2>
         {subtitle ? (
-          <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
+          <p className="min-w-0 truncate text-xs text-muted-foreground" title={subtitle}>
+            {subtitle}
+          </p>
         ) : null}
       </div>
+      {meta ? <div className="shrink-0 text-xs text-muted-foreground">{meta}</div> : null}
     </div>
   );
 }
 
-// One metric family, as the backend groups it: a labelled region whose cards
-// sit on a tight 12px rhythm while chapters stand apart on the page's larger one.
 export function Chapter({
   id,
   icon,
   iconBg,
   title,
   subtitle,
+  meta,
   children,
   className,
   ref,
@@ -211,6 +214,7 @@ export function Chapter({
   iconBg?: string;
   title: string;
   subtitle?: string;
+  meta?: ReactNode;
   children: ReactNode;
   className?: string;
   ref?: Ref<HTMLElement>;
@@ -228,6 +232,7 @@ export function Chapter({
         iconBg={iconBg}
         title={title}
         subtitle={subtitle}
+        meta={meta}
       />
       <div className="flex min-w-0 flex-1 flex-col gap-3">{children}</div>
     </section>
@@ -314,6 +319,41 @@ export function UnavailableNote({
     <p className={cn("py-3 text-xs text-muted-foreground", className)}>
       {message}
     </p>
+  );
+}
+
+export function SectionNotice({
+  title,
+  message,
+  tone = "info",
+  action,
+}: {
+  title: string;
+  message?: string;
+  tone?: "info" | "warning";
+  action?: { label: string; onClick: () => void };
+}) {
+  const Icon = tone === "warning" ? WarningCircle : Info;
+  return (
+    <div
+      role="status"
+      className="flex flex-wrap items-center gap-3 rounded-[--radius] border border-border bg-card px-3 py-2.5 sm:flex-nowrap"
+      style={{ boxShadow: softSurfaceShadow }}
+    >
+      <span
+        className={cn(
+          "flex h-8 w-8 shrink-0 items-center justify-center rounded-[--radius]",
+          tone === "warning" ? "bg-warning/15 text-warning-ink" : "bg-muted text-muted-foreground",
+        )}
+      >
+        <Icon className="h-4 w-4" weight="fill" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-foreground">{title}</p>
+        {message ? <p className="mt-0.5 text-xs text-muted-foreground">{message}</p> : null}
+      </div>
+      {action ? <Button variant="secondary" title={action.label} onClick={action.onClick} /> : null}
+    </div>
   );
 }
 

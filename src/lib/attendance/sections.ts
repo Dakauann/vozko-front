@@ -44,21 +44,11 @@ export interface AttendanceSectionPayloads {
 
 export type SectionQueryParams = Record<string, string>;
 
-const BUSY_STATUS = 503;
-const BUSY_RETRIES = 3;
-const BUSY_RETRY_DELAY_MS = 5_000;
-const TRANSIENT_RETRIES = 1;
-const TRANSIENT_RETRY_DELAY_MS = 1_000;
-
-export class AttendanceSectionError extends Error {
-  readonly status?: number;
-
-  constructor(message: string, status?: number) {
-    super(message);
-    this.name = "AttendanceSectionError";
-    this.status = status;
-  }
-}
+export {
+  SectionError as AttendanceSectionError,
+  sectionRetryDelay,
+  shouldRetrySection,
+} from "@/lib/analytics/section-query";
 
 export function sectionQueryParams(
   section: AttendanceSection,
@@ -100,18 +90,3 @@ export function attendanceSectionsKey(workspaceId: string) {
   return ["attendance-section", workspaceId] as const;
 }
 
-function isTransient(status: number | undefined): boolean {
-  return status === undefined || status >= 500;
-}
-
-export function shouldRetrySection(failureCount: number, error: unknown): boolean {
-  const status = error instanceof AttendanceSectionError ? error.status : undefined;
-  if (status === BUSY_STATUS) return failureCount < BUSY_RETRIES;
-  if (isTransient(status)) return failureCount < TRANSIENT_RETRIES;
-  return false;
-}
-
-export function sectionRetryDelay(_failureCount: number, error: unknown): number {
-  const status = error instanceof AttendanceSectionError ? error.status : undefined;
-  return status === BUSY_STATUS ? BUSY_RETRY_DELAY_MS : TRANSIENT_RETRY_DELAY_MS;
-}

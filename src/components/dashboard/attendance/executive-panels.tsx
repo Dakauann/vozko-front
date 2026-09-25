@@ -41,8 +41,10 @@ import {
   vozXAxis,
   vozYAxis,
 } from "@/components/charts/vozko";
+import { ShareRows } from "@/components/charts/share-rows";
 import {
   ChartSkeleton,
+  SectionNotice,
   Surface,
   UnavailableNote,
   type MetricsFmt,
@@ -99,6 +101,11 @@ function formatMetricValue(
   }
 }
 
+function BlockUnavailable() {
+  const { te } = useExecutiveTranslations();
+  return <SectionNotice tone="warning" title={te("blockUnavailableTitle")} message={te("blockUnavailableBody")} />;
+}
+
 function VerdictDot({ verdict }: { verdict: Verdict | "" | undefined }) {
   return (
     <span
@@ -127,27 +134,16 @@ export function PeriodProgressStrip({
   const { te, tc } = useExecutiveTranslations();
 
   if (loading) return <ChartSkeleton height={72} />;
-  if (!period) return null;
+  if (!period) return <BlockUnavailable />;
 
   if (!period.available) {
     return (
-      <Surface>
-        <p className="text-sm font-semibold text-foreground">
-          {te("periodUnavailableTitle")}
-        </p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {te(`periodReason.${period.reason || "period_unavailable"}`)}
-        </p>
-        {onConfigureSchedule ? (
-          <button
-            type="button"
-            onClick={onConfigureSchedule}
-            className="mt-2 text-xs font-semibold text-primary-ink underline underline-offset-2"
-          >
-            {te("configureSchedule")}
-          </button>
-        ) : null}
-      </Surface>
+      <SectionNotice
+        tone="warning"
+        title={te("periodUnavailableTitle")}
+        message={te(`periodReason.${period.reason || "period_unavailable"}`)}
+        action={onConfigureSchedule ? { label: te("configureSchedule"), onClick: onConfigureSchedule } : undefined}
+      />
     );
   }
 
@@ -226,6 +222,104 @@ export function PeriodProgressStrip({
   );
 }
 
+function PaceBar({ projection }: { projection: MetricProjection }) {
+  const { te } = useExecutiveTranslations();
+  const projected = projection.cumulative ? projection.projected : null;
+  const scale = Math.max(projection.actual, projection.target ?? 0, projected ?? 0) * 1.08 || 1;
+  const at = (value: number) => `${Math.min(100, Math.max(0, (value / scale) * 100))}%`;
+  const color = toneColor(verdictTone(projection.verdict));
+
+  return (
+    <div className="relative mt-3 h-3 rounded-full bg-muted" role="img" aria-label={te("attainment")}>
+      {projected !== null && projected > projection.actual ? (
+        <div
+          className="absolute inset-y-0 left-0 rounded-full opacity-35"
+          style={{ width: at(projected), backgroundColor: color }}
+        />
+      ) : null}
+      <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: at(projection.actual), backgroundColor: color }} />
+      {projection.target !== null ? (
+        <div
+          className="absolute -inset-y-1 w-0.5 -translate-x-1/2 rounded-full bg-foreground"
+          style={{ left: at(projection.target) }}
+          title={te("target")}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function ProjectionCard({
+  projection,
+  fmt,
+  currency,
+}: {
+  projection: MetricProjection;
+  fmt: MetricsFmt;
+  currency?: string;
+}) {
+  const { te } = useExecutiveTranslations();
+  const tone = verdictTone(projection.verdict);
+  const value = (v: number | null) => formatMetricValue(fmt, projection.kind, v, currency);
+  const stats = [
+    { key: "target", label: te("target"), value: value(projection.target) },
+    ...(projection.cumulative
+      ? [
+          { key: "projected", label: te("projected"), value: value(projection.projected) },
+          { key: "perOpenDay", label: te("perOpenDay"), value: value(projection.per_open_day) },
+        ]
+      : []),
+    { key: "attainment", label: te("attainment"), value: fmt.pct(projection.attain_pct) },
+  ];
+
+  return (
+    <Surface className="flex flex-col">
+      <div className="flex items-start justify-between gap-2">
+        <p
+          className="cursor-help text-2xs font-semibold uppercase tracking-wide text-muted-foreground"
+          title={te(`metricHelp.${projection.metric_key}`)}
+        >
+          {te(`metric.${projection.metric_key}`)}
+        </p>
+        <span
+          className={cn(
+            "inline-flex shrink-0 items-center gap-1.5 rounded-[--radius] bg-muted px-2 py-0.5 text-2xs font-semibold",
+            toneTextClass(tone),
+          )}
+        >
+          <VerdictDot verdict={projection.verdict} />
+          {te(`verdict.${projection.verdict}`)}
+        </span>
+      </div>
+
+      <p className="readout mt-1 font-display text-3xl font-semibold tracking-tight tabular-nums text-foreground">
+        {value(projection.actual)}
+      </p>
+      {projection.reason ? (
+        <p className="text-2xs leading-snug text-muted-foreground">{te(`projectionReason.${projection.reason}`)}</p>
+      ) : null}
+
+      <PaceBar projection={projection} />
+
+      <div className="mt-auto pt-3.5">
+        <dl
+          className={cn(
+            "grid gap-px overflow-hidden rounded-[--radius] border border-border bg-border text-2xs",
+            stats.length > 2 ? "grid-cols-4" : "grid-cols-2",
+          )}
+        >
+          {stats.map((stat) => (
+            <div key={stat.key} className="min-w-0 bg-card px-2 py-1.5">
+              <dt className="truncate text-muted-foreground">{stat.label}</dt>
+              <dd className="readout truncate text-sm font-semibold tabular-nums text-foreground">{stat.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </Surface>
+  );
+}
+
 export function ProjectionGrid({
   projections,
   loading,
@@ -250,97 +344,18 @@ export function ProjectionGrid({
 
   if (targeted.length === 0) {
     return (
-      <Surface>
-        <p className="text-sm font-semibold text-foreground">
-          {te("noTargetsTitle")}
-        </p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {te("noTargetsBody")}
-        </p>
-        {onEditTargets ? (
-          <button
-            type="button"
-            onClick={onEditTargets}
-            className="mt-2 text-xs font-semibold text-primary-ink underline underline-offset-2"
-          >
-            {te("setTargets")}
-          </button>
-        ) : null}
-      </Surface>
+      <SectionNotice
+        title={te("noTargetsTitle")}
+        message={te("noTargetsBody")}
+        action={onEditTargets ? { label: te("setTargets"), onClick: onEditTargets } : undefined}
+      />
     );
   }
 
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       {targeted.map((projection) => (
-        <Surface key={projection.metric_key}>
-          <div className="flex items-start justify-between gap-2">
-            <p
-              className="cursor-help text-2xs font-semibold uppercase tracking-wide text-muted-foreground"
-              title={te(`metricHelp.${projection.metric_key}`)}
-            >
-              {te(`metric.${projection.metric_key}`)}
-            </p>
-            <span className="flex items-center gap-1.5 text-2xs font-semibold">
-              <VerdictDot verdict={projection.verdict} />
-              <span className={toneTextClass(verdictTone(projection.verdict))}>
-                {te(`verdict.${projection.verdict}`)}
-              </span>
-            </span>
-          </div>
-          {projection.reason ? (
-            <p className="mt-1 text-2xs leading-snug text-muted-foreground">
-              {te(`projectionReason.${projection.reason}`)}
-            </p>
-          ) : null}
-
-          <p className="readout mt-1.5 text-xl font-semibold tabular-nums text-foreground">
-            {formatMetricValue(fmt, projection.kind, projection.actual, currency)}
-          </p>
-
-          <dl className="mt-2 space-y-1 text-2xs">
-            <div className="flex items-baseline justify-between gap-2">
-              <dt className="text-muted-foreground">{te("target")}</dt>
-              <dd className="readout tabular-nums text-foreground">
-                {formatMetricValue(fmt, projection.kind, projection.target, currency)}
-              </dd>
-            </div>
-            {projection.cumulative ? (
-              <div className="flex items-baseline justify-between gap-2">
-                <dt className="text-muted-foreground">{te("projected")}</dt>
-                <dd className="readout tabular-nums text-foreground">
-                  {projection.projected === null
-                    ? fmt.na
-                    : formatMetricValue(
-                        fmt,
-                        projection.kind,
-                        projection.projected,
-                        currency,
-                      )}
-                </dd>
-              </div>
-            ) : null}
-            {projection.cumulative && projection.per_open_day !== null ? (
-              <div className="flex items-baseline justify-between gap-2">
-                <dt className="text-muted-foreground">{te("perOpenDay")}</dt>
-                <dd className="readout tabular-nums text-foreground">
-                  {formatMetricValue(
-                    fmt,
-                    projection.kind,
-                    projection.per_open_day,
-                    currency,
-                  )}
-                </dd>
-              </div>
-            ) : null}
-            <div className="flex items-baseline justify-between gap-2">
-              <dt className="text-muted-foreground">{te("attainment")}</dt>
-              <dd className="readout tabular-nums text-foreground">
-                {fmt.pct(projection.attain_pct)}
-              </dd>
-            </div>
-          </dl>
-        </Surface>
+        <ProjectionCard key={projection.metric_key} projection={projection} fmt={fmt} currency={currency} />
       ))}
     </div>
   );
@@ -432,7 +447,7 @@ function TrendChart({
           message={te(`trendReason.${series.reason || "no_closed_buckets"}`)}
         />
       ) : (
-        <div style={{ height: 180 }}>
+        <div style={{ height: 200 }}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
               <defs>
@@ -522,21 +537,20 @@ export function TrendSection({
   const { te } = useExecutiveTranslations();
 
   if (loading) return <ChartSkeleton height={200} />;
-  if (!trend) return null;
+  if (!trend) return <BlockUnavailable />;
 
   if (!trend.available || trend.series.length === 0) {
     return (
-      <Surface>
-        <UnavailableNote
-          message={te(`trendReason.${trend.reason || "trend_repository_unavailable"}`)}
-        />
-      </Surface>
+      <SectionNotice
+        title={te("trendUnavailableTitle")}
+        message={te(`trendReason.${trend.reason || "trend_repository_unavailable"}`)}
+      />
     );
   }
 
   return (
     <div className="space-y-3">
-      <div className="grid gap-3 xl:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {trend.series.map((series) => (
           <TrendChart
             key={series.metric_key}
@@ -567,16 +581,20 @@ export function RevenueCard({
   const { te } = useExecutiveTranslations();
 
   if (loading) return <ChartSkeleton height={160} />;
-  if (!revenue) return null;
+  if (!revenue) return <BlockUnavailable />;
 
   if (!revenue.available) {
     return (
-      <Surface>
-        <UnavailableNote
-          message={te(`revenueReason.${revenue.reason || "revenue_repository_unavailable"}`)}
-        />
-      </Surface>
+      <SectionNotice
+        tone="warning"
+        title={te("revenueUnavailableTitle")}
+        message={te(`revenueReason.${revenue.reason || "revenue_repository_unavailable"}`)}
+      />
     );
+  }
+
+  if (revenue.currencies.length === 0) {
+    return <SectionNotice title={te("noRevenueTitle")} message={te("noRevenueBody")} />;
   }
 
   return (
@@ -728,7 +746,10 @@ function XrayDimensionCard({
           {te("measured", { count: fmt.num(dimension.measured) })}
         </span>
       </div>
-      <p className="mb-2 text-2xs leading-snug text-muted-foreground">
+      <p
+        className="mb-3 truncate text-2xs text-muted-foreground"
+        title={te(`dimensionHelp.${dimension.dimension}`)}
+      >
         {te(`dimensionHelp.${dimension.dimension}`)}
       </p>
 
@@ -738,27 +759,19 @@ function XrayDimensionCard({
           className="py-2"
         />
       ) : (
-        <ul className="space-y-1.5">
-          {dimension.buckets.map((bucket) => {
+        <ShareRows
+          formatValue={fmt.num}
+          formatShare={fmt.pct}
+          rows={dimension.buckets.map((bucket) => {
             const fallback = bucket.label || bucket.key;
-            const label = labelFor
-              ? labelFor(bucket.key, fallback)
-              : fallback;
-            return (
-              <li key={bucket.key}>
-                <div className="flex items-baseline justify-between gap-2 text-2xs">
-                  <span className="min-w-0 truncate text-foreground" title={label}>
-                    {label}
-                  </span>
-                  <span className="readout shrink-0 tabular-nums text-muted-foreground">
-                    {fmt.num(bucket.count)} · {fmt.pct(bucket.pct)}
-                  </span>
-                </div>
-                <Meter value={bucket.pct} size="sm" className="mt-1" label={label} />
-              </li>
-            );
+            return {
+              key: bucket.key,
+              label: labelFor ? labelFor(bucket.key, fallback) : fallback,
+              value: bucket.count,
+              share: bucket.pct,
+            };
           })}
-        </ul>
+        />
       )}
 
       {dimension.unknown > 0 ? (
@@ -775,24 +788,25 @@ export function BacklogXraySection({
   loading,
   fmt,
   channelLabel,
+  showTotal = true,
 }: {
   backlog: OverviewBacklogXray | undefined;
   loading: boolean;
   fmt: MetricsFmt;
   channelLabel: (channel: string) => string;
+  showTotal?: boolean;
 }) {
   const { te } = useExecutiveTranslations();
 
   if (loading) return <ChartSkeleton height={220} />;
-  if (!backlog) return null;
+  if (!backlog) return <BlockUnavailable />;
 
   if (!backlog.available) {
     return (
-      <Surface>
-        <UnavailableNote
-          message={te(`xrayReason.${backlog.reason || "no_backlog"}`)}
-        />
-      </Surface>
+      <SectionNotice
+        title={te("backlogUnavailableTitle")}
+        message={te(`xrayReason.${backlog.reason || "no_backlog"}`)}
+      />
     );
   }
 
@@ -811,9 +825,11 @@ export function BacklogXraySection({
 
   return (
     <div className="space-y-3">
-      <p className="text-2xs text-muted-foreground">
-        {te("backlogTotal", { count: fmt.num(backlog.total) })}
-      </p>
+      {showTotal ? (
+        <p className="text-2xs text-muted-foreground">
+          {te("backlogTotal", { count: fmt.num(backlog.total) })}
+        </p>
+      ) : null}
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         <XrayDimensionCard dimension={backlog.origin} fmt={fmt} labelFor={entityLabel} />
@@ -836,7 +852,7 @@ export function BacklogXraySection({
               })}
             </span>
           </div>
-          <p className="mb-2 text-2xs leading-snug text-muted-foreground">
+          <p className="mb-3 truncate text-2xs text-muted-foreground" title={te("recordCompletenessHelp")}>
             {te("recordCompletenessHelp")}
           </p>
           {!backlog.record_completeness.available ? (
@@ -848,27 +864,24 @@ export function BacklogXraySection({
             />
           ) : (
             <>
-              <p className="readout text-xl font-semibold tabular-nums text-foreground">
-                {fmt.pct(backlog.record_completeness.avg_fill_pct)}
-              </p>
-              <p className="mt-0.5 text-2xs text-muted-foreground">
-                {te("recordFieldsHelp")}
-              </p>
-              <ul className="mt-2 space-y-1.5">
-                {backlog.record_completeness.fields.map((field) => (
-                  <li key={field.key}>
-                    <div className="flex items-baseline justify-between gap-2 text-2xs">
-                      <span className="text-foreground">
-                        {te(`recordField.${field.key}`)}
-                      </span>
-                      <span className="readout tabular-nums text-muted-foreground">
-                        {fmt.num(field.filled)} · {fmt.pct(field.pct)}
-                      </span>
-                    </div>
-                    <Meter value={field.pct} size="sm" className="mt-1" />
-                  </li>
-                ))}
-              </ul>
+              <div className="mb-2.5 flex items-baseline gap-2">
+                <span className="readout font-display text-2xl font-semibold tabular-nums text-foreground">
+                  {fmt.pct(backlog.record_completeness.avg_fill_pct)}
+                </span>
+                <span className="truncate text-2xs text-muted-foreground" title={te("recordFieldsHelp")}>
+                  {te("recordFieldsHelp")}
+                </span>
+              </div>
+              <ShareRows
+                formatValue={fmt.num}
+                formatShare={fmt.pct}
+                rows={backlog.record_completeness.fields.map((field) => ({
+                  key: field.key,
+                  label: te(`recordField.${field.key}`),
+                  value: field.filled,
+                  share: field.pct,
+                }))}
+              />
             </>
           )}
         </Surface>
@@ -988,32 +1001,21 @@ export function QualitySection({
   const { te } = useExecutiveTranslations();
 
   if (loading) return <ChartSkeleton height={220} />;
-  if (!quality) return null;
+  if (!quality) return <BlockUnavailable />;
 
   if (!quality.available) {
     return (
-      <Surface>
-        <p className="text-sm font-semibold text-foreground">
-          {te("qualityOffTitle")}
-        </p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {te(`qualityReason.${quality.reason || "outcome_capture_disabled"}`)}
-        </p>
-        {quality.not_captured > 0 ? (
-          <p className="mt-1 text-2xs text-muted-foreground">
-            {te("notCaptured", { count: fmt.num(quality.not_captured) })}
-          </p>
-        ) : null}
-        {onConfigure ? (
-          <button
-            type="button"
-            onClick={onConfigure}
-            className="mt-2 text-xs font-semibold text-primary-ink underline underline-offset-2"
-          >
-            {te("configureCapture")}
-          </button>
-        ) : null}
-      </Surface>
+      <SectionNotice
+        tone="warning"
+        title={te("qualityOffTitle")}
+        message={[
+          te(`qualityReason.${quality.reason || "outcome_capture_disabled"}`),
+          quality.not_captured > 0 ? te("notCaptured", { count: fmt.num(quality.not_captured) }) : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+        action={onConfigure ? { label: te("configureCapture"), onClick: onConfigure } : undefined}
+      />
     );
   }
 
@@ -1182,7 +1184,7 @@ export function TeamRankingTable({
   const { te } = useExecutiveTranslations();
 
   if (loading) return <ChartSkeleton height={260} />;
-  if (!ranking) return null;
+  if (!ranking) return <BlockUnavailable />;
 
   const options = ["resolved", "volume", "revenue_cents"];
 
@@ -1385,7 +1387,7 @@ export function ReworkSection({
   const { te } = useExecutiveTranslations();
 
   if (loading) return <ChartSkeleton height={200} />;
-  if (!rework) return null;
+  if (!rework) return <BlockUnavailable />;
 
   if (!rework.available) {
     return (

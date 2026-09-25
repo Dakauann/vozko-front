@@ -6,7 +6,8 @@ import { createChatThreadAction, getChatMessagesAction } from "@/app/actions/aic
 import { useChatStream } from "@/hooks/use-chat-stream";
 import type { ChatChart, ChatThread, ChatView, PendingAction } from "@/lib/aichat/types";
 
-import { hydrate, type Segment, type UIMessage } from "./message-list";
+import { hydrate, type UIMessage } from "./message-list";
+import { finishTool, startTool, type Segment } from "./segments";
 
 interface Options {
   view?: ChatView;
@@ -45,9 +46,11 @@ export function useChatConversation({ view, createError, onThreadCreated, onTurn
     () =>
       patchLastAssistant((m) => ({
         ...m,
-        segments: (m.segments ?? []).map((s) =>
-          s.kind === "thinking" || s.kind === "text" ? { ...s, streaming: false } : s,
-        ),
+        segments: (m.segments ?? []).map((s) => {
+          if (s.kind === "thinking" || s.kind === "text") return { ...s, streaming: false };
+          if (s.kind === "tool" && s.running) return { ...s, running: false };
+          return s;
+        }),
       })),
     [patchLastAssistant],
   );
@@ -70,8 +73,9 @@ export function useChatConversation({ view, createError, onThreadCreated, onTurn
           }
           return segs;
         }),
+      onToolStart: (name: string) => patchSegments((segs) => startTool(segs, name)),
       onTool: (name: string, summary: string, ok: boolean) =>
-        patchSegments((segs) => [...segs, { kind: "tool", name, summary, ok }]),
+        patchSegments((segs) => finishTool(segs, name, summary, ok)),
       onChart: (chart: ChatChart) => patchSegments((segs) => [...segs, { kind: "chart", chart }]),
       onDelta: (text: string) =>
         patchSegments((segs) => {
@@ -83,7 +87,10 @@ export function useChatConversation({ view, createError, onThreadCreated, onTurn
         }),
       onProposal: (action: PendingAction) => patchLastAssistant((m) => ({ ...m, pending: action })),
       onAwaitingApproval: () => finalizeStreaming(),
-      onError: (msg: string) => setError(msg),
+      onError: (msg: string) => {
+        finalizeStreaming();
+        setError(msg);
+      },
       onDone: () => {
         finalizeStreaming();
         onTurnFinished?.();

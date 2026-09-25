@@ -682,6 +682,100 @@ input:-webkit-autofill:active {
     .vz-circuit-grow { animation: none; }
     .vz-circuit-retire { display: none; }
   }
+
+  /*
+    The AI launcher.
+
+    A second user-directed exception (2026-09-25) to "glow is not a material":
+    the assistant's launcher carries one signal-green light sweeping its ring,
+    the way an instrument shows it is live. It is scoped to the launcher only,
+    stays monochrome brand green (never a rainbow), sweeps slowly at rest and
+    faster while the assistant works, when the chart glyph's bars move too.
+    Under prefers-reduced-motion the sweep stops and the bars stand still,
+    leaving a static lit arc.
+
+    Mechanics: the sweep angle is a typed custom property (@property below);
+    an unregistered property is a string and would never interpolate. The ring
+    and its blurred copy sit behind the face (z-index -1 inside an isolated
+    stacking context), so the face covers all but a 2px edge.
+  */
+  .vz-ai-launcher {
+    isolation: isolate;
+  }
+
+  .vz-ai-ring,
+  .vz-ai-halo {
+    position: absolute;
+    border-radius: 9999px;
+    z-index: -1;
+    pointer-events: none;
+    background: conic-gradient(
+      from var(--vz-ai-angle),
+      hsl(var(--primary) / 0) 0deg,
+      hsl(var(--primary) / 0) 150deg,
+      hsl(var(--primary) / 0.55) 250deg,
+      hsl(var(--primary)) 320deg,
+      hsl(var(--lamp)) 350deg,
+      hsl(var(--primary) / 0) 360deg
+    );
+    animation: vz-ai-sweep 4.8s linear infinite;
+  }
+
+  .vz-ai-ring {
+    inset: -2px;
+  }
+
+  .vz-ai-halo {
+    inset: -7px;
+    filter: blur(12px);
+    opacity: 0.45;
+    transition: opacity 320ms cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  .vz-ai-launcher:hover .vz-ai-halo,
+  .vz-ai-launcher:focus-visible .vz-ai-halo,
+  .vz-ai-launcher[data-busy="true"] .vz-ai-halo {
+    opacity: 0.8;
+  }
+
+  .vz-ai-launcher[data-busy="true"] .vz-ai-ring,
+  .vz-ai-launcher[data-busy="true"] .vz-ai-halo {
+    animation-duration: 1.6s;
+  }
+
+  @keyframes vz-ai-sweep {
+    to {
+      --vz-ai-angle: 360deg;
+    }
+  }
+
+  .vz-ai-bar {
+    transform-box: fill-box;
+    transform-origin: bottom;
+  }
+
+  .vz-ai-launcher[data-busy="true"] .vz-ai-bar {
+    animation: vz-ai-bar 720ms cubic-bezier(0.45, 0, 0.55, 1) infinite alternate;
+  }
+
+  @keyframes vz-ai-bar {
+    from { transform: scaleY(0.35); }
+    to { transform: scaleY(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vz-ai-ring,
+    .vz-ai-halo,
+    .vz-ai-launcher[data-busy="true"] .vz-ai-bar {
+      animation: none;
+    }
+  }
+}
+
+@property --vz-ai-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
 }
 
 /* Workflow edge flowing animation */

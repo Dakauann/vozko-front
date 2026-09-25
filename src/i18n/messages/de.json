@@ -225,14 +225,18 @@
       "list_voices": "Stimmen",
       "list_departments": "Abteilungen",
       "list_agent_tools": "Agent-Tools",
-      "attendance_metrics": "Service-Kennzahlen",
-      "attendance_trend": "Monatsverlauf",
-      "attendance_team": "Team-Ranking",
-      "attendance_backlog": "Backlog-Röntgenbild",
-      "conversation_insights": "Gesprächsanalysen",
-      "calculate": "Berechnung",
-      "query_dataset": "Datenabfrage",
-      "render_chart": "Diagramm"
+      "attendance_metrics": "Zahlen des Zeitraums",
+      "attendance_trend": "Monat für Monat",
+      "attendance_team": "Leistung des Teams",
+      "attendance_backlog": "Gespräche, die auf Antwort warten",
+      "conversation_insights": "Was Kunden gesagt haben",
+      "calculate": "Rechnet nach",
+      "query_dataset": "Schaut genauer in die Daten",
+      "render_chart": "Erstellt das Diagramm",
+      "attendance_stages": "Funnel-Phasen",
+      "attendance_rework": "Wieder geöffnete Gespräche",
+      "attendance_live": "Gerade jetzt",
+      "campaign_dispatch": "Ergebnis der Kampagnenversände"
     },
     "threadsLegend": "Unterhaltungen",
     "greeting": "Woran arbeiten wir?",
@@ -244,8 +248,79 @@
     "chart": {
       "other": "Sonstige",
       "showTable": "Tabelle",
-      "showChart": "Diagramm"
-    }
+      "showChart": "Diagramm",
+      "columns": {
+        "finished": "Abgeschlossen",
+        "engaged": "Gespräche",
+        "entries_created": "Neue Einträge",
+        "new_leads": "Neue Kontakte",
+        "won_count": "Verkäufe",
+        "revenue_cents": "Umsatz",
+        "resolution_pct": "Lösungsquote",
+        "ai_containment_rate": "Von der KI gelöst",
+        "reopen_rate": "Wiedereröffnungsquote",
+        "outcome_durable_pct": "Dauerhaft gelöst",
+        "avg_frt_mins": "Zeit bis zur 1. Antwort",
+        "avg_wait_mins": "Wartezeit",
+        "avg_handle_mins": "Bearbeitungsdauer",
+        "month": "Monat",
+        "hour": "Stunde",
+        "conversations": "Gespräche",
+        "channel": "Kanal",
+        "share_pct": "Anteil",
+        "name": "Name",
+        "kind": "Art",
+        "rank_value": "Ergebnis",
+        "resolved": "Gelöst",
+        "volume": "Volumen",
+        "open": "Offen",
+        "pending": "Wartend",
+        "avg_response_mins": "Antwortzeit",
+        "rating": "Bewertung",
+        "avg_ticket_cents": "Durchschnittlicher Auftragswert",
+        "per_open_day": "Pro Arbeitstag",
+        "per_online_hour": "Pro Online-Stunde",
+        "total_messages": "Nachrichten",
+        "avg_messages": "Nachrichten pro Gespräch",
+        "presence": "Status",
+        "department": "Abteilung",
+        "finished_human": "Vom Team abgeschlossen",
+        "finished_ai": "Von der KI abgeschlossen",
+        "ongoing": "In Bearbeitung",
+        "funnel": "Funnel",
+        "stage": "Phase",
+        "total": "Gesamt",
+        "pct_of_funnel": "% des Funnels",
+        "avg_days_in_stage": "Tage in der Phase",
+        "oldest_days_in_stage": "Älteste (Tage)",
+        "stuck": "Festgefahren",
+        "reopened": "Wieder geöffnet",
+        "templates": "Gesendete Vorlagen",
+        "subject": "Thema",
+        "day": "Tag",
+        "sent": "Gesendet",
+        "delivered": "Zugestellt",
+        "read": "Gelesen",
+        "replied": "Antworten",
+        "campaign": "Kampagne",
+        "base": "Kontakte in der Basis",
+        "failed": "Fehlgeschlagen"
+      },
+      "values": {
+        "whatsapp": "WhatsApp",
+        "instagram": "Instagram",
+        "telegram": "Telegram",
+        "unofficial_whatsapp": "WhatsApp (QR-Code)",
+        "human": "Person",
+        "ai": "KI",
+        "workflow": "Automatisierung",
+        "system": "System",
+        "online": "Online",
+        "offline": "Offline",
+        "away": "Abwesend"
+      }
+    },
+    "toolDenied": "keine Berechtigung"
   },
   "leadMemories": {
     "title": "Erinnerungen",
@@ -8522,7 +8597,10 @@
       "dayUnit": " T.",
       "sectionError": "Dieser Bereich konnte nicht geladen werden.",
       "sectionBusy": "Zu viele Auswertungen gleichzeitig. Versuche es in ein paar Sekunden erneut.",
-      "retry": "Erneut versuchen"
+      "retry": "Erneut versuchen",
+      "filters": "Filter",
+      "clearFilters": "Filter zurücksetzen",
+      "moreActions": "Weitere Aktionen"
     },
     "export": {
       "executive": {
@@ -8844,6 +8922,128 @@
         "frtShort": "Nach Zuweisung",
         "frtHint": "Von Zuweisung bis erster Antwort"
       },
+      "dispatch": {
+        "title": "Kampagnenversand",
+        "sub": "Von der Basis bis zum Interesse, über die ganze Kampagne · Vorlage {template}",
+        "campaignFilter": "Kampagne",
+        "allCampaigns": "Alle",
+        "scopeCampaign": "Ganze Kampagne",
+        "scopePeriod": "Im Zeitraum",
+        "unknown": "Nicht verfügbar",
+        "noAccess": "Keine Berechtigung, den Versand dieser Kampagne zu sehen",
+        "stage": {
+          "base": {
+            "label": "Basis",
+            "rate": "Kontakte in der Kampagne",
+            "rateAll": "im Zeitraum hinzugefügte Kontakte"
+          },
+          "sent": {
+            "label": "Gesendet",
+            "rate": "{pct} der Basis"
+          },
+          "delivered": {
+            "label": "Zugestellt",
+            "rate": "{pct} der gesendeten"
+          },
+          "read": {
+            "label": "Gelesen",
+            "rate": "{pct} der zugestellten"
+          },
+          "replied": {
+            "label": "Antworten",
+            "rate": "{pct} der gelesenen"
+          },
+          "interested": {
+            "label": "Interessiert",
+            "rate": "{pct} der Antworten"
+          },
+          "failed": {
+            "label": "Fehler",
+            "rate": "{pct} der Basis"
+          }
+        },
+        "conversions": {
+          "label": "Abschlüsse",
+          "rate": "im Zeitraum gewonnene Deals"
+        },
+        "funnel": {
+          "title": "Kampagnentrichter",
+          "sub": "Jede Stufe bezogen auf die Basis",
+          "ofBase": "der Basis"
+        },
+        "daily": {
+          "title": "Tägliche Entwicklung",
+          "sub": "Erster Versand, Zustellung, Lesen und Antwort je Kontakt",
+          "sent": "Gesendet",
+          "delivered": "Zugestellt",
+          "read": "Gelesen",
+          "replied": "Antworten",
+          "trackedSince": "Zeitachse erfasst seit {date}; frühere Sendungen erscheinen nur im Trichter",
+          "notTracked": "Für diese Kampagne ist noch keine Zeitachse erfasst; der Trichter stammt aus dem aktuellen Status jedes Kontakts",
+          "clamped": "Es werden die letzten {days} Tage des Zeitraums gezeigt",
+          "empty": "Keine Sendungen, Zustellungen, Lesungen oder Antworten im Zeitraum"
+        },
+        "status": {
+          "title": "Nachrichtenstatus",
+          "sub": "Aktueller Stand jedes Kontakts der Basis",
+          "delivered": "Zugestellt",
+          "awaiting": "Zustellung ausstehend",
+          "failed": "Fehlgeschlagen",
+          "pending": "In der Warteschlange",
+          "notEligible": "Übersprungen (Spamschutz)",
+          "reasons": "Fehlergründe",
+          "reason": "Grund",
+          "count": "Anz.",
+          "noFailures": "Keine Fehler erfasst",
+          "center": "gesendet"
+        },
+        "outcome": {
+          "title": "Ergebnis der Betreuung",
+          "sub": "KI-Einstufung der Unterhaltungen der Kampagne",
+          "analyzed": "{count} Unterhaltungen analysiert",
+          "empty": "Noch keine Unterhaltung analysiert",
+          "noAccess": "Keine Berechtigung, die KI-Analyse zu sehen"
+        },
+        "reasons": {
+          "title": "Häufigste Kontaktgründe",
+          "sub": "Von der KI erkannte Themen",
+          "reason": "Grund",
+          "count": "Unterhaltungen",
+          "share": "%",
+          "empty": "Kein Grund erkannt"
+        },
+        "tags": {
+          "title": "Meistgenutzte Etiketten",
+          "sub": "Kampagnenkontakte nach Etikett",
+          "tag": "Etikett",
+          "count": "Kontakte",
+          "share": "% der Basis",
+          "empty": "Kein Etikett vergeben"
+        },
+        "subAll": "Im Zeitraum zu Kampagnen hinzugefügte Kontakte, mit dem Ergebnis jeder Kampagne",
+        "campaignsCount": {
+          "label": "Kampagnen",
+          "rate": "mit Kontakten im Zeitraum"
+        },
+        "compare": {
+          "title": "Kampagnen im Zeitraum",
+          "sub": "Klicke auf eine Kampagne, um ihren Versand zu öffnen",
+          "campaign": "Kampagne",
+          "base": "Basis",
+          "sent": "Gesendet",
+          "delivery": "Zustellung",
+          "read": "Gelesen",
+          "reply": "Antwort",
+          "failed": "Fehler",
+          "total": "Summe",
+          "empty": "Keine Kampagne mit Kontakten im Zeitraum"
+        },
+        "empty": {
+          "title": "Keine Kampagnenkontakte",
+          "all": "In diesem Zeitraum wurde kein Kontakt zu Versandkampagnen hinzugefügt.",
+          "campaign": "Diese Kampagne hat noch keine Kontakte in ihrer Basis."
+        }
+      },
       "sections": {
         "volume": "Volumen und Status",
         "volumeSub": "Wann Gespräche stattfinden und in welchem Stadium",
@@ -8876,7 +9076,7 @@
         "departments": "Abteilungen",
         "departmentsSub": "Volumen und Zeiten nach Kampagnenabteilung",
         "deptChart": "Gespräche nach Abteilung",
-        "deptChartSub": "Blockfläche = Konversationsvolumen der Abteilung",
+        "deptChartSub": "Unterhaltungen jeder Abteilung im Ausschnitt, absteigend",
         "deptTable": "Zeiten nach Abteilung",
         "deptTableSub": "Wartezeit bis 1. Antwort und Ø Dauer",
         "team": "Team",
@@ -9321,12 +9521,19 @@
           "workflow": "Workflows",
           "unowned": "Ohne Verantwortliche"
         },
-        "wonWithoutValue": "{count} gewonnene Deals ohne Wert fließen nicht in den Umsatz ein."
+        "wonWithoutValue": "{count} gewonnene Deals ohne Wert fließen nicht in den Umsatz ein.",
+        "blockUnavailableTitle": "Block nicht verfügbar",
+        "blockUnavailableBody": "Dieser Block kam nicht vom Server zurück. Lade die Seite neu, um es erneut zu versuchen.",
+        "noRevenueTitle": "Keine gewonnene Opportunity im Zeitraum",
+        "noRevenueBody": "Sobald eine Opportunity als gewonnen markiert ist, erscheint ihr Umsatz hier, nach Währung getrennt.",
+        "revenueUnavailableTitle": "Umsatz nicht verfügbar",
+        "trendUnavailableTitle": "Trend nicht verfügbar",
+        "backlogUnavailableTitle": "Röntgenbild nicht verfügbar"
       },
       "assistant": {
         "open": "KI fragen",
         "title": "Service-Analyst",
-        "description": "Antwortet mit den Zahlen dieser Seite, im Rahmen deiner Berechtigungen.",
+        "description": "Frag in einfachen Worten. Die Antworten nutzen die Zahlen dieser Seite und deine Berechtigungen.",
         "scope": "Analysiert",
         "allDepartments": "Alle Abteilungen",
         "allMembers": "Ganzes Team",
@@ -9336,12 +9543,16 @@
         "greeting": "Was möchtest du über den Kundenservice verstehen?",
         "footnote": "Abfragen nutzen dieselben Daten und Grenzen wie diese Seite. Prüfe wichtige Entscheidungen in den Dashboards.",
         "starters": {
-          "summary": "Fasse diesen Zeitraum zusammen und vergleiche ihn mit dem vorherigen",
+          "summary": "Wie lief dieser Zeitraum im Vergleich zum vorherigen?",
           "team": "Wer im Team braucht Aufmerksamkeit und warum?",
-          "trend": "Zeige den Monatsverlauf der abgeschlossenen Gespräche im letzten Jahr",
-          "backlog": "Was staut sich gerade im Backlog?",
-          "why": "Warum schließen Kunden nicht ab? Nutze die Gesprächsanalysen"
-        }
+          "trend": "Wie haben sich abgeschlossene Gespräche im letzten Jahr entwickelt?",
+          "backlog": "Welche Gespräche warten gerade auf eine Antwort?",
+          "why": "Warum schließen Kunden keine Geschäfte ab?"
+        },
+        "minimize": "Minimieren",
+        "fullscreen": "Vollbild",
+        "exitFullscreen": "Vollbild beenden",
+        "resize": "Zum Ändern der Größe ziehen"
       }
     }
   },

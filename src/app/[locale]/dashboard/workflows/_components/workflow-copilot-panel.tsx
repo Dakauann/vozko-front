@@ -22,6 +22,7 @@ import {
 } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { CircuitTraces } from "@/components/brand/circuit";
+import { AssistantLauncher } from "@/components/ai-chat/assistant-launcher";
 import ElevatedButton from "@/components/elevated-design/button";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { AIModelSelector } from "@/components/elevated-design/ai-model-selector";
@@ -53,23 +54,7 @@ export function WorkflowCopilotFab({
   busy?: boolean;
 }) {
   const label = busy ? "Copiloto trabalhando…" : "Copiloto de IA";
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={label}
-      title={label}
-      className="fixed bottom-6 right-6 z-[60] flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-shadow hover:shadow-xl"
-    >
-      <Sparkle size={20} weight="fill" />
-      {busy && (
-        <span
-          aria-hidden="true"
-          className="absolute -right-0.5 -top-0.5 h-3 w-3 animate-dot-pulse rounded-full bg-warning ring-2 ring-background"
-        />
-      )}
-    </button>
-  );
+  return <AssistantLauncher label={label} busy={busy} onClick={onClick} />;
 }
 
 export function WorkflowCopilotPanel({

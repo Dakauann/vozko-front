@@ -14,23 +14,24 @@ interface DashboardPageHeaderProps {
   actions?: ReactNode;
   back?: { onClick: () => void; label: string };
   colorClass?: string;
+  layout?: "stacked" | "inline";
 }
 
-export function DashboardPageHeader({
+function HeaderHeading({
   icon,
-  badge,
+  heading,
   description,
-  title,
-  actions,
   back,
-}: DashboardPageHeaderProps) {
-  const heading = title ?? badge;
-
+  descriptionClassName,
+}: {
+  icon: ReactNode;
+  heading: string;
+  description: string;
+  back?: { onClick: () => void; label: string };
+  descriptionClassName: string;
+}) {
   return (
-    <div className="relative overflow-hidden border-b border-border pb-0">
-      {
-}
-      <CircuitTracesWide tone="quiet" className="pointer-events-none absolute inset-y-2 right-0 hidden w-[min(38%,460px)] lg:block" />
+    <>
       {back ? (
         <button
           type="button"
@@ -51,18 +52,54 @@ export function DashboardPageHeader({
         >
           {icon}
         </span>
-        {
-}
         <h1 className="truncate font-display text-xl font-semibold leading-tight tracking-[0.01em] text-foreground">
           {heading}
         </h1>
       </div>
 
-      {description && (
-        <p className="mt-0.5 max-w-2xl text-sm leading-snug text-muted-foreground">
-          {description}
-        </p>
-      )}
+      {description && <p className={descriptionClassName}>{description}</p>}
+    </>
+  );
+}
+
+export function DashboardPageHeader({
+  icon,
+  badge,
+  description,
+  title,
+  actions,
+  back,
+  layout = "stacked",
+}: DashboardPageHeaderProps) {
+  const heading = title ?? badge;
+
+  if (layout === "inline") {
+    return (
+      <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2 border-b border-border pb-2.5">
+        <div className="min-w-0 flex-1">
+          <HeaderHeading
+            icon={icon}
+            heading={heading}
+            description={description}
+            back={back}
+            descriptionClassName="mt-0.5 truncate text-xs text-muted-foreground"
+          />
+        </div>
+        {actions ? <div className="flex shrink-0 items-center gap-1.5">{actions}</div> : null}
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative overflow-hidden border-b border-border pb-0">
+      <CircuitTracesWide tone="quiet" className="pointer-events-none absolute inset-y-2 right-0 hidden w-[min(38%,460px)] lg:block" />
+      <HeaderHeading
+        icon={icon}
+        heading={heading}
+        description={description}
+        back={back}
+        descriptionClassName="mt-0.5 max-w-2xl text-sm leading-snug text-muted-foreground"
+      />
 
       {actions ? (
         <div className="mt-2.5 flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-hide">

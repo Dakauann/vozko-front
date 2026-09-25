@@ -44,3 +44,28 @@ export function chartRows(chart: ChatChart, otherLabel: string): ChartRow[] {
     return row;
   });
 }
+
+export interface ChartDictionary {
+  column: (key: string) => string | undefined;
+  value: (key: string) => string | undefined;
+  month: (yearMonth: string) => string;
+  day: (date: string) => string;
+}
+
+const YEAR_MONTH = /^\d{4}-\d{2}$/;
+const DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+export function humanizeChart(chart: ChatChart, dict: ChartDictionary): ChatChart {
+  const category = (raw: string) => {
+    if (raw === CHART_OTHER_CATEGORY) return raw;
+    if (chart.xKind === "date" && YEAR_MONTH.test(raw)) return dict.month(raw);
+    if (chart.xKind === "date" && DATE.test(raw)) return dict.day(raw);
+    return dict.value(raw) ?? raw;
+  };
+  return {
+    ...chart,
+    xLabel: dict.column(chart.xLabel) ?? chart.xLabel,
+    categories: chart.categories?.map(category),
+    series: chart.series.map((s) => ({ ...s, label: dict.column(s.label) ?? s.label })),
+  };
+}

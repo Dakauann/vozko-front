@@ -1,12 +1,14 @@
 "use client";
 
 import { memo, useRef, useState, type ReactNode } from "react";
-import { Check, Copy } from "@/components/icons";
+import { ArrowRight, Check, Copy } from "@/components/icons";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 
 import { cn } from "@/lib/utils";
+import { keepAppLinks, resolveAppLink } from "@/lib/aichat/app-links";
+import { Link } from "@/i18n/routing";
 
 function CodeBlock({ language, children }: { language: string; children: ReactNode }) {
   const ref = useRef<HTMLPreElement>(null);
@@ -53,16 +55,31 @@ const components: Components = {
   ul: ({ children }) => <ul className="my-2 list-disc space-y-1 pl-5">{children}</ul>,
   ol: ({ children }) => <ol className="my-2 list-decimal space-y-1 pl-5">{children}</ol>,
   li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-  a: ({ children, href }) => (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="font-medium text-primary-ink underline underline-offset-2 hover:text-primary-ink/80"
-    >
-      {children}
-    </a>
-  ),
+  a: ({ children, href }) => {
+    const link = resolveAppLink(href);
+    if (!link) return <span>{children}</span>;
+    if (link.kind === "internal") {
+      return (
+        <Link
+          href={link.path}
+          className="inline-flex items-center gap-1 font-medium text-primary-ink underline underline-offset-2 hover:text-primary-ink/80"
+        >
+          {children}
+          <ArrowRight weight="bold" className="h-3 w-3" aria-hidden />
+        </Link>
+      );
+    }
+    return (
+      <a
+        href={link.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="font-medium text-primary-ink underline underline-offset-2 hover:text-primary-ink/80"
+      >
+        {children}
+      </a>
+    );
+  },
   strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
   blockquote: ({ children }) => (
     <blockquote className="my-2 rounded-lg bg-muted px-3 py-1.5 text-muted-foreground">
@@ -115,6 +132,7 @@ function ChatMarkdownImpl({ content, className }: { content: string; className?:
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[[rehypeHighlight, { detect: true, ignoreMissing: true }]]}
         components={components}
+        urlTransform={keepAppLinks}
       >
         {content}
       </ReactMarkdown>

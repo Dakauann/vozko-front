@@ -11,6 +11,9 @@ import {
   ChartBar,
   ChartLine,
   ChatsCircle,
+  ArrowClockwise,
+  Funnel,
+  Pulse,
   CircleNotch,
   Database,
   Hourglass,
@@ -18,6 +21,7 @@ import {
   ListBullets,
   ListNumbers,
   MagnifyingGlass,
+  PaperPlaneTilt,
   Microphone,
   PencilSimple,
   Plus,
@@ -28,10 +32,11 @@ import {
 } from "@/components/icons";
 import { ChatMarkdown } from "@/components/elevated-design/chat-markdown";
 import { ModelBrandIcon } from "@/components/elevated-design/model-brand-icon";
-import type { ChatChart, ChatMessage, PendingAction } from "@/lib/aichat/types";
+import type { ChatMessage, PendingAction } from "@/lib/aichat/types";
 import { cn } from "@/lib/utils";
 
 import { ChatChartView } from "./chat-chart";
+import { isThinkingBetweenSteps, type Segment } from "./segments";
 
 const TOOL_ICON: Record<string, Icon> = {
   create_agent: Plus,
@@ -48,6 +53,10 @@ const TOOL_ICON: Record<string, Icon> = {
   attendance_trend: ChartLine,
   attendance_team: Users,
   attendance_backlog: Hourglass,
+  attendance_stages: Funnel,
+  attendance_rework: ArrowClockwise,
+  attendance_live: Pulse,
+  campaign_dispatch: PaperPlaneTilt,
   conversation_insights: ChatsCircle,
   calculate: Calculator,
   query_dataset: Database,
@@ -56,11 +65,7 @@ const TOOL_ICON: Record<string, Icon> = {
 
 const KNOWN_TOOLS = new Set(Object.keys(TOOL_ICON));
 
-export type Segment =
-  | { kind: "thinking"; text: string; streaming?: boolean }
-  | { kind: "tool"; name: string; summary: string; ok: boolean }
-  | { kind: "chart"; chart: ChatChart }
-  | { kind: "text"; text: string; streaming?: boolean };
+export type { Segment };
 
 export type UIMessage = ChatMessage & {
   segments?: Segment[];
@@ -87,6 +92,7 @@ export interface BubbleLabels {
   approve: string;
   reject: string;
   toolFailed: string;
+  toolDenied: string;
   toolLabel: (name: string) => string;
 }
 
@@ -105,19 +111,20 @@ export function useBubbleLabels(): BubbleLabels {
     approve: t("approve"),
     reject: t("reject"),
     toolFailed: t("toolFailed"),
+    toolDenied: t("toolDenied"),
     toolLabel,
   };
 }
 
 export function MessageBubble({
   message,
-  streaming,
+  live,
   onApprove,
   onReject,
   labels,
 }: {
   message: UIMessage;
-  streaming: boolean;
+  live: boolean;
   onApprove: (actionId: string) => void;
   onReject: (actionId: string) => void;
   labels: BubbleLabels;
@@ -134,7 +141,7 @@ export function MessageBubble({
 
   const segs = message.segments ?? [];
   const hasSegs = segs.length > 0;
-  const isStreamingThis = streaming && !hasSegs && !message.content && !message.pending;
+  const working = live && !message.pending && isThinkingBetweenSteps(segs);
 
   return (
     <div className="flex gap-3">
@@ -152,8 +159,12 @@ export function MessageBubble({
           segs.map((seg, i) => <SegmentView key={i} seg={seg} labels={labels} />)
         ) : message.content ? (
           <ChatMarkdown content={message.content} />
-        ) : isStreamingThis ? (
-          <TypingDots label={labels.generatingResponse} />
+        ) : null}
+        {working ? (
+          <span role="status" className="flex items-center gap-2 text-xs text-muted-foreground">
+            <TypingDots label={labels.generatingResponse} />
+            {labels.thinkingLive}
+          </span>
         ) : null}
         {message.pending ? (
           <ApprovalCard
@@ -173,7 +184,7 @@ function SegmentView({ seg, labels }: { seg: Segment; labels: BubbleLabels }) {
     case "thinking":
       return <ThinkingBlock text={seg.text} streaming={seg.streaming} labels={labels} />;
     case "tool":
-      return <ToolLine name={seg.name} summary={seg.summary} ok={seg.ok} labels={labels} />;
+      return <ToolLine name={seg.name} summary={seg.summary} ok={seg.ok} running={seg.running} labels={labels} />;
     case "chart":
       return <ChatChartView chart={seg.chart} />;
     default:
@@ -225,13 +236,16 @@ function ToolLine({
   name,
   summary,
   ok,
+  running,
   labels,
 }: {
   name: string;
   summary: string;
   ok: boolean;
+  running?: boolean;
   labels: BubbleLabels;
 }) {
+  const note = toolNote(summary, ok, labels);
   const TileIcon = TOOL_ICON[name] ?? Wrench;
   return (
     <div
@@ -240,13 +254,13 @@ function ToolLine({
         ok ? "text-muted-foreground" : "text-destructive-ink",
       )}
     >
-      <TileIcon weight="bold" className="h-3.5 w-3.5 flex-shrink-0" />
-      <span className="flex-shrink-0">{labels.toolLabel(name)}</span>
-      {summary ? (
-        <span className="truncate opacity-80">· {summary}</span>
-      ) : ok ? null : (
-        <span className="opacity-80">· {labels.toolFailed}</span>
+      {running ? (
+        <CircleNotch weight="bold" className="h-3.5 w-3.5 flex-shrink-0 animate-spin motion-reduce:animate-none" aria-hidden />
+      ) : (
+        <TileIcon weight="bold" className="h-3.5 w-3.5 flex-shrink-0" />
       )}
+      <span className={cn("flex-shrink-0", running && "text-foreground")}>{labels.toolLabel(name)}</span>
+      {running ? null : note ? <span className="truncate opacity-80">· {note}</span> : null}
     </div>
   );
 }
@@ -336,4 +350,13 @@ export function TypingDots({ label }: { label: string }) {
       ))}
     </span>
   );
+}
+
+const STATUS_CODES = new Set(["ok", "error", "denied", "permissão negada"]);
+
+function toolNote(summary: string, ok: boolean, labels: BubbleLabels): string | null {
+  if (summary === "denied" || summary === "permissão negada") return labels.toolDenied;
+  if (!ok) return labels.toolFailed;
+  if (!summary || STATUS_CODES.has(summary)) return null;
+  return summary;
 }
