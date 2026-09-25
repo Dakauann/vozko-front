@@ -32,11 +32,11 @@ import {
 } from "@/components/icons";
 import { ChatMarkdown } from "@/components/elevated-design/chat-markdown";
 import { ModelBrandIcon } from "@/components/elevated-design/model-brand-icon";
-import type { ChatMessage, PendingAction } from "@/lib/aichat/types";
+import type { ChatChart, ChatMessage, PendingAction } from "@/lib/aichat/types";
 import { cn } from "@/lib/utils";
 
 import { ChatChartView } from "./chat-chart";
-import { isThinkingBetweenSteps, type Segment } from "./segments";
+import { isThinkingBetweenSteps, layoutSegments, type Block, type Segment } from "./segments";
 
 const TOOL_ICON: Record<string, Icon> = {
   create_agent: Plus,
@@ -156,7 +156,7 @@ export function MessageBubble({
       )}
       <div className="min-w-0 flex-1 space-y-2 pt-0.5">
         {hasSegs ? (
-          segs.map((seg, i) => <SegmentView key={i} seg={seg} labels={labels} />)
+          layoutSegments(segs).map((block, i) => <SegmentView key={i} seg={block} labels={labels} />)
         ) : message.content ? (
           <ChatMarkdown content={message.content} />
         ) : null}
@@ -179,14 +179,14 @@ export function MessageBubble({
   );
 }
 
-function SegmentView({ seg, labels }: { seg: Segment; labels: BubbleLabels }) {
+function SegmentView({ seg, labels }: { seg: Block; labels: BubbleLabels }) {
   switch (seg.kind) {
     case "thinking":
       return <ThinkingBlock text={seg.text} streaming={seg.streaming} labels={labels} />;
     case "tool":
       return <ToolLine name={seg.name} summary={seg.summary} ok={seg.ok} running={seg.running} labels={labels} />;
-    case "chart":
-      return <ChatChartView chart={seg.chart} />;
+    case "charts":
+      return <ChartGrid charts={seg.charts} />;
     default:
       return (
         <div className="text-sm">
@@ -359,4 +359,15 @@ function toolNote(summary: string, ok: boolean, labels: BubbleLabels): string | 
   if (!ok) return labels.toolFailed;
   if (!summary || STATUS_CODES.has(summary)) return null;
   return summary;
+}
+
+function ChartGrid({ charts }: { charts: ChatChart[] }) {
+  if (charts.length === 1) return <ChatChartView chart={charts[0]} />;
+  return (
+    <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr))]">
+      {charts.map((chart, i) => (
+        <ChatChartView key={i} chart={chart} />
+      ))}
+    </div>
+  );
 }

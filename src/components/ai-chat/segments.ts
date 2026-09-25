@@ -24,3 +24,29 @@ export function isThinkingBetweenSteps(segs: Segment[]): boolean {
   if ((last.kind === "text" || last.kind === "thinking") && last.streaming) return false;
   return true;
 }
+
+export type Block = Exclude<Segment, { kind: "chart" }> | { kind: "charts"; charts: ChatChart[] };
+
+export function layoutSegments(segs: Segment[]): Block[] {
+  const blocks: Block[] = [];
+  let tools: Block[] = [];
+  let charts: ChatChart[] = [];
+
+  const flush = () => {
+    blocks.push(...tools);
+    if (charts.length > 0) blocks.push({ kind: "charts", charts });
+    tools = [];
+    charts = [];
+  };
+
+  for (const seg of segs) {
+    if (seg.kind === "chart") charts.push(seg.chart);
+    else if (seg.kind === "tool") tools.push(seg);
+    else {
+      flush();
+      blocks.push(seg);
+    }
+  }
+  flush();
+  return blocks;
+}

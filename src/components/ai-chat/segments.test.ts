@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { finishTool, isThinkingBetweenSteps, startTool, type Segment } from "./segments";
+import { finishTool, isThinkingBetweenSteps, layoutSegments, startTool, type Segment } from "./segments";
 
 describe("tool segments", () => {
   it("shows a tool as running the moment it starts, then settles the same line", () => {
@@ -34,5 +34,30 @@ describe("isThinkingBetweenSteps", () => {
     expect(isThinkingBetweenSteps([text(true)])).toBe(false);
     expect(isThinkingBetweenSteps([{ kind: "thinking", text: "", streaming: true }])).toBe(false);
     expect(isThinkingBetweenSteps(startTool([], "x"))).toBe(false);
+  });
+});
+
+describe("layoutSegments", () => {
+  const chart = (title: string): Segment => ({
+    kind: "chart",
+    chart: { type: "bar", title, xLabel: "x", xKind: "text", categories: ["a"], series: [] },
+  });
+  const tool: Segment = { kind: "tool", name: "render_chart", summary: "ok", ok: true };
+  const text: Segment = { kind: "text", text: "Veja:" };
+
+  it("puts the charts of one step side by side, with their tool lines above them", () => {
+    const blocks = layoutSegments([text, tool, chart("A"), tool, chart("B"), { kind: "text", text: "Resumo" }]);
+    expect(blocks.map((b) => b.kind)).toEqual(["text", "tool", "tool", "charts", "text"]);
+    const grid = blocks[3];
+    expect(grid.kind === "charts" && grid.charts.map((c) => c.title)).toEqual(["A", "B"]);
+  });
+
+  it("keeps charts separated by words in their own places", () => {
+    const blocks = layoutSegments([chart("A"), text, chart("B")]);
+    expect(blocks.map((b) => b.kind)).toEqual(["charts", "text", "charts"]);
+  });
+
+  it("leaves segments without charts untouched", () => {
+    expect(layoutSegments([text, tool])).toEqual([text, tool]);
   });
 });
