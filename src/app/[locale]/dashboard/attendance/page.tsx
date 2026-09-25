@@ -76,6 +76,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import type {
   AttendanceOverview,
+  AttendanceOverviewParams,
   ChannelSlice,
   DepartmentRow,
   MemberRow,
@@ -92,7 +93,11 @@ import type {
   StageFunnelGroup,
   StatusDistribution,
 } from "@/lib/attendance/types";
-import { getAttendanceOverviewAction } from "@/app/actions/attendance";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAttendanceSection } from "@/hooks/use-attendance-section";
+import { useInView } from "@/hooks/use-in-view";
+import { attendanceSectionsKey, type SummarySection } from "@/lib/attendance/sections";
+import { SectionState } from "@/components/dashboard/attendance/section-state";
 import { useReportJob } from "@/hooks/use-report-job";
 import { useToast } from "@/hooks/use-toast";
 import type { AttendanceReportParams, ReportFormat } from "@/lib/reports/types";
@@ -379,7 +384,7 @@ function ExtendedOpsPanels({
   overview,
   loading,
 }: {
-  overview: AttendanceOverview | null;
+  overview: SummarySection | undefined;
   loading: boolean;
 }) {
   const ts = useTranslations("metricsOps.attendance.sections");
@@ -2241,13 +2246,50 @@ export default function AttendanceOpsPage() {
   const [includeAi, setIncludeAi] = useState(true);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
-  const [overview, setOverview] = useState<AttendanceOverview | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [rankMetric, setRankMetric] = useState("resolved");
   const [targetsOpen, setTargetsOpen] = useState(false);
+  const queryClient = useQueryClient();
+
+  const sectionParams = useMemo<AttendanceOverviewParams>(
+    () => ({
+      dateFrom,
+      dateTo,
+      departmentId: departmentId === "all" ? undefined : departmentId,
+      memberId: memberId === "all" ? undefined : memberId,
+      channel: channel === "all" ? undefined : channel,
+      campaignId,
+      campaignType,
+      includeAi,
+      rankMetric,
+    }),
+    [dateFrom, dateTo, departmentId, memberId, channel, campaignId, campaignType, includeAi, rankMetric],
+  );
+
+  const [trendRef, trendInView] = useInView<HTMLDivElement>();
+  const [backlogRef, backlogInView] = useInView<HTMLDivElement>();
+  const [stagesRef, stagesInView] = useInView<HTMLDivElement>();
+  const [departmentsRef, departmentsInView] = useInView<HTMLDivElement>();
+  const [rankingRef, rankingInView] = useInView<HTMLDivElement>();
+  const [membersRef, membersInView] = useInView<HTMLDivElement>();
+
+  const summaryQuery = useAttendanceSection("summary", sectionParams, { enabled: canRead });
+  const trendQuery = useAttendanceSection("trend", sectionParams, { enabled: canRead && trendInView });
+  const backlogQuery = useAttendanceSection("backlog", sectionParams, { enabled: canRead && backlogInView });
+  const stagesQuery = useAttendanceSection("stages", sectionParams, { enabled: canRead && stagesInView });
+  const teamQuery = useAttendanceSection("team", sectionParams, {
+    enabled: canRead && (departmentsInView || rankingInView || membersInView),
+  });
+
+  const summary = summaryQuery.data;
+  const team = teamQuery.data;
+  const loading = summaryQuery.isPending;
   const targetCurrency =
-    overview?.revenue?.currencies?.[0]?.currency ?? DEFAULT_TARGET_CURRENCY;
+    summary?.revenue?.currencies?.[0]?.currency ?? DEFAULT_TARGET_CURRENCY;
+
+  const refreshSections = useCallback(() => {
+    if (!currentWorkspace?.id) return;
+    void queryClient.invalidateQueries({ queryKey: attendanceSectionsKey(currentWorkspace.id) });
+  }, [queryClient, currentWorkspace?.id]);
 
   useEffect(() => {
     let cancelled = false;
@@ -2278,51 +2320,8 @@ export default function AttendanceOpsPage() {
     setDateTo(format(new Date(), "yyyy-MM-dd"));
   }, []);
 
-  const load = useCallback(async () => {
-    if (!canRead) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    const r = await getAttendanceOverviewAction({
-      dateFrom,
-      dateTo,
-      departmentId: departmentId === "all" ? undefined : departmentId,
-      memberId: memberId === "all" ? undefined : memberId,
-      channel: channel === "all" ? undefined : channel,
-      campaignId,
-      campaignType,
-      includeAi,
-      rankMetric,
-    });
-    if (r.error) {
-      setError(r.error);
-      setOverview(null);
-    } else {
-      setOverview(r.overview);
-    }
-    setLoading(false);
-  }, [
-    canRead,
-    dateFrom,
-    dateTo,
-    departmentId,
-    memberId,
-    channel,
-    campaignId,
-    campaignType,
-    includeAi,
-    rankMetric,
-  ]);
-
-  useEffect(() => {
-    if (permissionsLoading) return;
-    void load();
-  }, [permissionsLoading, load]);
-
   const exportReport = useCallback(async (format: ReportFormat) => {
-    if (!overview) return;
+    if (!summary) return;
     const outcome = await requestReport({
       kind: "attendance_overview",
       format,
@@ -2366,7 +2365,7 @@ export default function AttendanceOpsPage() {
       variant: "destructive",
     });
   }, [
-    overview,
+    summary,
     requestReport,
     toast,
     locale,
@@ -2386,7 +2385,7 @@ export default function AttendanceOpsPage() {
     currentWorkspace?.name,
   ]);
 
-  const kpis = overview?.kpis;
+  const kpis = summary?.kpis;
   const total =
     kpis?.engaged ??
     (kpis?.finished ?? 0) + (kpis?.ongoing ?? 0) + (kpis?.pending ?? 0);
@@ -2433,14 +2432,14 @@ export default function AttendanceOpsPage() {
                 formats={ATTENDANCE_EXPORT_FORMATS}
                 onSelect={(format) => void exportReport(format)}
                 busy={exporting}
-                disabled={loading || !overview}
+                disabled={loading || !summary}
               />
               <Button
                 icon={<ArrowClockwise className="h-4 w-4" weight="bold" />}
                 iconVisible
                 title={tc("refresh")}
                 variant="command"
-                onClick={() => void load()}
+                onClick={refreshSections}
                 disabled={loading}
               />
             </>
@@ -2582,27 +2581,23 @@ export default function AttendanceOpsPage() {
                 {tl("shellChip", { count: fmt.num(kpis?.shell_backlog) })}
               </span>
             ) : null}
-            <span className="rounded-[--radius] bg-muted px-2.5 py-1">
-              {loading
-                ? tc("loading")
-                : tl("agentsCount", {
-                    count: fmt.num(overview?.by_member?.length),
-                  })}
-            </span>
-            <span className="rounded-[--radius] bg-muted px-2.5 py-1">
-              {loading
-                ? tc("loading")
-                : tl("departmentsCount", {
-                    count: fmt.num(overview?.by_department?.length),
-                  })}
-            </span>
-            {!loading && overview?.generated_at ? (
+            {team ? (
+              <span className="rounded-[--radius] bg-muted px-2.5 py-1">
+                {tl("agentsCount", { count: fmt.num(team.by_member?.length) })}
+              </span>
+            ) : null}
+            {team ? (
+              <span className="rounded-[--radius] bg-muted px-2.5 py-1">
+                {tl("departmentsCount", { count: fmt.num(team.by_department?.length) })}
+              </span>
+            ) : null}
+            {!loading && summary?.generated_at ? (
               <span
                 className="rounded-[--radius] bg-muted px-2.5 py-1"
-                title={overview.generated_at}
+                title={summary.generated_at}
               >
                 {te("generatedAt", {
-                  at: new Date(overview.generated_at).toLocaleString(
+                  at: new Date(summary.generated_at).toLocaleString(
                     LOCALE_TAG[locale] ?? "en-US",
                   ),
                 })}
@@ -2611,23 +2606,19 @@ export default function AttendanceOpsPage() {
           </div>
 
           <div className="mt-4">
-            <KpiStrip
-              kpis={kpis}
-              loading={loading}
-              scoped={
-                departmentId !== "all" ||
-                memberId !== "all" ||
-                channel !== "all" ||
-                Boolean(campaignId)
-              }
-            />
+            <SectionState query={summaryQuery}>
+              <KpiStrip
+                kpis={kpis}
+                loading={loading}
+                scoped={
+                  departmentId !== "all" ||
+                  memberId !== "all" ||
+                  channel !== "all" ||
+                  Boolean(campaignId)
+                }
+              />
+            </SectionState>
           </div>
-
-          {error ? (
-            <div className="mt-3 rounded-[--radius] border border-border bg-muted px-3 py-2 text-sm text-destructive-ink">
-              {error}
-            </div>
-          ) : null}
       </div>
 
       {!canRead && !permissionsLoading ? (
@@ -2662,10 +2653,9 @@ export default function AttendanceOpsPage() {
                   title={ts("hourly")}
                   subtitle={ts("hourlySub")}
                 />
-                <HourlyVolumeChart
-                  hourly={overview?.hourly}
-                  loading={loading}
-                />
+                <SectionState query={summaryQuery}>
+                  <HourlyVolumeChart hourly={summary?.hourly} loading={loading} />
+                </SectionState>
               </Surface>
 
               <Surface className="xl:col-span-5">
@@ -2675,11 +2665,13 @@ export default function AttendanceOpsPage() {
                   title={ts("status")}
                   subtitle={ts("statusSub")}
                 />
-                <StatusCompositionChart
-                  dist={overview?.status_distribution}
-                  bySource={overview?.finished_by_source}
-                  loading={loading}
-                />
+                <SectionState query={summaryQuery}>
+                  <StatusCompositionChart
+                    dist={summary?.status_distribution}
+                    bySource={summary?.finished_by_source}
+                    loading={loading}
+                  />
+                </SectionState>
               </Surface>
             </div>
           </div>
@@ -2691,26 +2683,28 @@ export default function AttendanceOpsPage() {
               title={ts("tactical")}
               subtitle={ts("tacticalSub")}
             />
-            <div className="space-y-3">
-              <PeriodProgressStrip
-                period={overview?.period}
-                standing={overview?.standing}
-                loading={loading}
-                fmt={fmt}
-                onConfigureSchedule={() =>
-                  router.push(`/${locale}/dashboard/workspace`)
-                }
-              />
-              <ProjectionGrid
-                projections={overview?.projections}
-                loading={loading}
-                fmt={fmt}
-                currency={targetCurrency}
-                onEditTargets={
-                  canWriteTargets ? () => setTargetsOpen(true) : undefined
-                }
-              />
-            </div>
+            <SectionState query={summaryQuery}>
+              <div className="space-y-3">
+                <PeriodProgressStrip
+                  period={summary?.period}
+                  standing={summary?.standing}
+                  loading={loading}
+                  fmt={fmt}
+                  onConfigureSchedule={() =>
+                    router.push(`/${locale}/dashboard/workspace`)
+                  }
+                />
+                <ProjectionGrid
+                  projections={summary?.projections}
+                  loading={loading}
+                  fmt={fmt}
+                  currency={targetCurrency}
+                  onEditTargets={
+                    canWriteTargets ? () => setTargetsOpen(true) : undefined
+                  }
+                />
+              </div>
+            </SectionState>
           </div>
 
           <div>
@@ -2720,86 +2714,94 @@ export default function AttendanceOpsPage() {
               title={ts("money")}
               subtitle={ts("moneySub")}
             />
-            <RevenueCard
-              revenue={overview?.revenue}
-              loading={loading}
-              fmt={fmt}
-            />
+            <SectionState query={summaryQuery}>
+              <RevenueCard revenue={summary?.revenue} loading={loading} fmt={fmt} />
+            </SectionState>
           </div>
 
-          <div>
+          <div ref={trendRef}>
             <SectionLabel
               icon={<ChartLineUp className="h-4 w-4" weight="fill" />}
               iconBg={GLYPH_PLATE.ChartLineUp}
               title={ts("history")}
               subtitle={ts("historySub")}
             />
-            <TrendSection
-              trend={overview?.trend}
-              loading={loading}
-              fmt={fmt}
-              currency={targetCurrency}
-            />
+            <SectionState query={trendQuery}>
+              <TrendSection
+                trend={trendQuery.data?.trend}
+                loading={trendQuery.isPending}
+                fmt={fmt}
+                currency={targetCurrency}
+              />
+            </SectionState>
           </div>
 
-          <div>
+          <div ref={backlogRef}>
             <SectionLabel
               icon={<Hourglass className="h-4 w-4" weight="fill" />}
               iconBg={GLYPH_PLATE.Hourglass}
               title={ts("backlog")}
               subtitle={ts("backlogSub")}
             />
-            <BacklogXraySection
-              backlog={overview?.backlog_xray}
-              loading={loading}
-              fmt={fmt}
-              channelLabel={(c) => channelLabel(c, tc)}
-            />
+            <SectionState query={backlogQuery}>
+              <BacklogXraySection
+                backlog={backlogQuery.data?.backlog_xray}
+                loading={backlogQuery.isPending}
+                fmt={fmt}
+                channelLabel={(c) => channelLabel(c, tc)}
+              />
+            </SectionState>
           </div>
 
           <div>
-            <ExtendedOpsPanels overview={overview} loading={loading} />
+            <SectionState query={summaryQuery}>
+              <ExtendedOpsPanels overview={summary} loading={loading} />
+            </SectionState>
           </div>
 
-          {
-}
-          <StageDistributionSection
-            stages={overview?.stages}
-            loading={loading}
-          />
+          <div ref={stagesRef}>
+            <SectionState query={stagesQuery}>
+              <StageDistributionSection
+                stages={stagesQuery.data?.stages}
+                loading={stagesQuery.isPending}
+              />
+            </SectionState>
+          </div>
 
-          <div>
+          <div ref={departmentsRef}>
             <SectionLabel
               title={ts("departments")}
               subtitle={ts("departmentsSub")}
             />
-            <div className="grid gap-3 xl:grid-cols-12">
-              <Surface className="xl:col-span-5">
-                <SectionTitle
-                  icon={<Buildings className="h-4 w-4" weight="fill" />}
-                  iconBg={GLYPH_PLATE.Buildings}
-                  title={ts("deptChart")}
-                  subtitle={ts("deptChartSub")}
-                />
-                <DepartmentStackedChart
-                  rows={overview?.by_department}
-                  loading={loading}
-                />
-              </Surface>
+            <SectionState query={teamQuery}>
+              <div className="grid gap-3 xl:grid-cols-12">
+                <Surface className="xl:col-span-5">
+                  <SectionTitle
+                    icon={<Buildings className="h-4 w-4" weight="fill" />}
+                    iconBg={GLYPH_PLATE.Buildings}
+                    title={ts("deptChart")}
+                    subtitle={ts("deptChartSub")}
+                  />
+                  <DepartmentStackedChart
+                    rows={team?.by_department}
+                    loading={teamQuery.isPending}
+                  />
+                </Surface>
 
-              <Surface className="xl:col-span-7">
-                <SectionTitle
-                  icon={<Buildings className="h-4 w-4" weight="fill" />}
-                  iconBg={GLYPH_PLATE.Buildings}
-                  title={ts("deptTable")}
-                  subtitle={ts("deptTableSub")}
-                />
-                <DepartmentDetailTable
-                  rows={overview?.by_department}
-                  loading={loading}
-                />
-              </Surface>
-            </div>
+                <Surface className="xl:col-span-7">
+                  <SectionTitle
+                    icon={<Buildings className="h-4 w-4" weight="fill" />}
+                    iconBg={GLYPH_PLATE.Buildings}
+                    title={ts("deptTable")}
+                    subtitle={ts("deptTableSub")}
+                  />
+                  <DepartmentDetailTable
+                    rows={team?.by_department}
+                    loading={teamQuery.isPending}
+                  />
+                </Surface>
+              </div>
+            </SectionState>
           </div>
 
           <div>
@@ -2809,16 +2811,18 @@ export default function AttendanceOpsPage() {
               title={ts("quality")}
               subtitle={ts("qualitySub")}
             />
-            <QualitySection
-              quality={overview?.quality}
-              loading={loading}
-              fmt={fmt}
-              onConfigure={
-                currentWorkspace?.id
-                  ? () => router.push(`/${locale}/dashboard/workspace`)
-                  : undefined
-              }
-            />
+            <SectionState query={summaryQuery}>
+              <QualitySection
+                quality={summary?.quality}
+                loading={loading}
+                fmt={fmt}
+                onConfigure={
+                  currentWorkspace?.id
+                    ? () => router.push(`/${locale}/dashboard/workspace`)
+                    : undefined
+                }
+              />
+            </SectionState>
           </div>
 
           {/*
@@ -2837,29 +2841,32 @@ export default function AttendanceOpsPage() {
           </div>
           */}
 
-          <div>
+          <div ref={rankingRef}>
             <SectionLabel
               icon={<Pulse className="h-4 w-4" weight="fill" />}
               iconBg={GLYPH_PLATE.Pulse}
               title={ts("teamXray")}
               subtitle={ts("teamXraySub")}
             />
-            <TeamRankingTable
-              ranking={overview?.team_ranking}
-              loading={loading}
-              fmt={fmt}
-              rankMetric={rankMetric}
-              onRankMetricChange={setRankMetric}
-            />
+            <SectionState query={teamQuery}>
+              <TeamRankingTable
+                ranking={team?.team_ranking}
+                loading={teamQuery.isPending}
+                fmt={fmt}
+                rankMetric={rankMetric}
+                onRankMetricChange={setRankMetric}
+              />
+            </SectionState>
           </div>
 
-          <div>
+          <div ref={membersRef}>
             <SectionLabel
               icon={<UsersThree className="h-4 w-4" weight="fill" />}
               iconBg={GLYPH_PLATE.UsersThree}
               title={ts("team")}
               subtitle={ts("teamSub")}
             />
+            <SectionState query={teamQuery}>
             <div className="grid gap-3 xl:grid-cols-12">
               <Surface className="xl:col-span-5">
                 <SectionTitle
@@ -2869,8 +2876,8 @@ export default function AttendanceOpsPage() {
                   subtitle={ts("teamRankSub")}
                 />
                 <TeamChart
-                  rows={overview?.by_member}
-                  loading={loading}
+                  rows={team?.by_member}
+                  loading={teamQuery.isPending}
                 />
               </Surface>
 
@@ -2882,11 +2889,12 @@ export default function AttendanceOpsPage() {
                   subtitle={ts("teamDetailSub")}
                 />
                 <TeamDetailTable
-                  rows={overview?.by_member}
-                  loading={loading}
+                  rows={team?.by_member}
+                  loading={teamQuery.isPending}
                 />
               </Surface>
             </div>
+            </SectionState>
           </div>
 
           <div>
@@ -2951,7 +2959,7 @@ export default function AttendanceOpsPage() {
           onOpenChange={setTargetsOpen}
           period={dateTo.slice(0, 7)}
           defaultCurrency={targetCurrency}
-          projections={overview?.projections}
+          projections={summary?.projections}
           scope={
             memberId !== "all"
               ? {
@@ -2974,7 +2982,7 @@ export default function AttendanceOpsPage() {
                     scopeLabel: currentWorkspace?.name ?? tc("all"),
                   }
           }
-          onSaved={() => void load()}
+          onSaved={refreshSections}
         />
       ) : null}
     </div>

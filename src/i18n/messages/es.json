@@ -8007,7 +8007,10 @@
       "unofficialWhatsapp": "WhatsApp (no oficial)",
       "instagram": "Instagram",
       "telegram": "Telegram",
-      "dayUnit": "d"
+      "dayUnit": "d",
+      "sectionError": "No se pudo cargar esta sección.",
+      "sectionBusy": "Hay demasiadas consultas a la vez. Inténtalo de nuevo en unos segundos.",
+      "retry": "Intentar de nuevo"
     },
     "export": {
       "executive": {

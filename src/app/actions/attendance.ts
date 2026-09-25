@@ -1,5 +1,4 @@
 import type {
-    AttendanceOverview,
     AttendanceOverviewParams,
     AttendanceStatsParams,
     AttendanceStatsResponse,
@@ -9,6 +8,12 @@ import type {
 } from '@/lib/attendance/types';
 
 import { apiClient } from "@/lib/api/browser-client";
+import {
+    AttendanceSectionError,
+    sectionQueryParams,
+    type AttendanceSection,
+    type AttendanceSectionPayloads,
+} from "@/lib/attendance/sections";
 
 
 const EMPTY_ATTENDANTS: AttendantStats[] = [];
@@ -107,45 +112,21 @@ export async function getResponseTimeDistributionAction(params: AttendanceStatsP
     };
 }
 
-export async function getAttendanceOverviewAction(
-    params: AttendanceOverviewParams = {},
-) {
-    const queryString = buildQueryString({
-        date_from: params.dateFrom,
-        date_to: params.dateTo,
-        department_id: params.departmentId,
-        member_id: params.memberId,
-        campaign_id: params.campaignId,
-        campaign_type: params.campaignType,
-        channel: params.channel,
-        rank_metric: params.rankMetric,
-        trend_buckets:
-            params.trendBuckets === undefined
-                ? undefined
-                : String(params.trendBuckets),
-        include_ai:
-            params.includeAi === undefined
-                ? undefined
-                : params.includeAi
-                  ? 'true'
-                  : 'false',
-    });
+export async function fetchAttendanceSection<S extends AttendanceSection>(
+    section: S,
+    params: AttendanceOverviewParams,
+    signal?: AbortSignal,
+): Promise<AttendanceSectionPayloads[S]> {
+    const query = new URLSearchParams(sectionQueryParams(section, params)).toString();
+    const url = `/attendance/overview/${section}${query ? `?${query}` : ''}`;
 
-    const url = `/attendance/overview${queryString}`;
-
-    const response = await apiClient<AttendanceOverview>(url, {
-        method: 'GET',
-    });
+    const response = await apiClient<AttendanceSectionPayloads[S]>(url, { method: 'GET', signal });
 
     if (response.error) {
-        return {
-            overview: null as AttendanceOverview | null,
-            error: response.error.message,
-        };
+        throw new AttendanceSectionError(response.error.message, response.error.status);
     }
-
-    return {
-        overview: response.data ?? null,
-        error: null,
-    };
+    if (!response.data) {
+        throw new AttendanceSectionError(`attendance section ${section} came back empty`);
+    }
+    return response.data;
 }

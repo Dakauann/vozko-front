@@ -34,6 +34,18 @@ function timeoutSignal(ms: number): { signal: AbortSignal; clear: () => void } {
   return { signal: controller.signal, clear: () => clearTimeout(id) };
 }
 
+function anySignal(signals: AbortSignal[]): AbortSignal {
+  const controller = new AbortController();
+  for (const signal of signals) {
+    if (signal.aborted) {
+      controller.abort(signal.reason);
+      break;
+    }
+    signal.addEventListener("abort", () => controller.abort(signal.reason), { once: true });
+  }
+  return controller.signal;
+}
+
 function assertBrowser(fn: string): void {
   if (typeof window !== "undefined") return;
   const message = `[browser-client] ${fn}() was called on the server. Auth is browser-only; call it from an effect/handler, never during render/SSR.`;
@@ -193,7 +205,7 @@ export async function apiClient<T>(
     return fetch(url, {
       ...options,
       credentials: "include",
-      signal: options.signal ?? t.signal,
+      signal: options.signal ? anySignal([options.signal, t.signal]) : t.signal,
       headers: {
         ...(isFormData ? {} : { "Content-Type": "application/json" }),
         ...scopeHeaders(),

@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
+import Button from "@/components/elevated-design/button";
 
 export const ATTENDANCE_COLORS = {
   signal: "hsl(var(--chart-1))",
@@ -282,5 +283,28 @@ export function UnavailableNote({
     <p className={cn("py-3 text-xs text-muted-foreground", className)}>
       {message}
     </p>
+  );
+}
+
+export function SectionError({
+  busy,
+  onRetry,
+  retrying,
+}: {
+  busy: boolean;
+  onRetry: () => void;
+  retrying: boolean;
+}) {
+  const t = useTranslations("metricsOps.common");
+  return (
+    <div
+      role="alert"
+      className="flex flex-wrap items-center justify-between gap-3 rounded-[--radius] border border-border bg-muted px-3 py-2 text-sm"
+    >
+      <span className="text-destructive-ink">
+        {busy ? t("sectionBusy") : t("sectionError")}
+      </span>
+      <Button variant="secondary" title={t("retry")} onClick={onRetry} disabled={retrying} />
+    </div>
   );
 }

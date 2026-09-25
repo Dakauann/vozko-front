@@ -9624,7 +9624,10 @@
       "unofficialWhatsapp": "WhatsApp (não oficial)",
       "instagram": "Instagram",
       "telegram": "Telegram",
-      "dayUnit": "d"
+      "dayUnit": "d",
+      "sectionError": "Não foi possível carregar esta seção.",
+      "sectionBusy": "Muitas consultas ao mesmo tempo. Tente de novo em alguns segundos.",
+      "retry": "Tentar novamente"
     },
     "export": {
       "executive": {

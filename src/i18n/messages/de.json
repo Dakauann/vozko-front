@@ -8494,7 +8494,10 @@
       "unofficialWhatsapp": "WhatsApp (inoffiziell)",
       "instagram": "Instagram",
       "telegram": "Telegram",
-      "dayUnit": " T."
+      "dayUnit": " T.",
+      "sectionError": "Dieser Bereich konnte nicht geladen werden.",
+      "sectionBusy": "Zu viele Auswertungen gleichzeitig. Versuche es in ein paar Sekunden erneut.",
+      "retry": "Erneut versuchen"
     },
     "export": {
       "executive": {
