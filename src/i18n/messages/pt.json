@@ -371,6 +371,22 @@
           }
         }
       }
+    },
+    "yes": "Sim",
+    "no": "Não",
+    "fields": {
+      "name": "Nome",
+      "description": "Descrição",
+      "initialMessage": "Mensagem inicial",
+      "useInitialMessage": "Enviar mensagem inicial",
+      "messagingPrompt": "Instruções do agente",
+      "messagingModel": "Modelo",
+      "provider": "Provedor",
+      "avatarUrl": "Foto",
+      "isActive": "Ativo",
+      "addTools": "Ferramentas adicionadas",
+      "removeTools": "Ferramentas removidas",
+      "tools": "Ferramentas"
     }
   },
   "leadMemories": {

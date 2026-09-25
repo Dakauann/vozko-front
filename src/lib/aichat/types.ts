@@ -86,11 +86,17 @@ export interface ToolActivity {
   chart?: ChatChart;
 }
 
+export interface ProposalField {
+  key: string;
+  value: string;
+}
+
 export interface PendingAction {
   id: string;
   toolName: string;
   args?: Record<string, unknown>;
   summary?: string;
+  fields?: ProposalField[];
 }
 
 export interface ChatStreamEvent {

@@ -371,6 +371,22 @@
           }
         }
       }
+    },
+    "yes": "Ja",
+    "no": "Nein",
+    "fields": {
+      "name": "Name",
+      "description": "Beschreibung",
+      "initialMessage": "Begrüßungsnachricht",
+      "useInitialMessage": "Begrüßungsnachricht senden",
+      "messagingPrompt": "Anweisungen für den Agenten",
+      "messagingModel": "Modell",
+      "provider": "Anbieter",
+      "avatarUrl": "Foto",
+      "isActive": "Aktiv",
+      "addTools": "Hinzugefügte Tools",
+      "removeTools": "Entfernte Tools",
+      "tools": "Tools"
     }
   },
   "leadMemories": {

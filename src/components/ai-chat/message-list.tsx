@@ -33,6 +33,7 @@ import {
 import { ChatMarkdown } from "@/components/elevated-design/chat-markdown";
 import { ModelBrandIcon } from "@/components/elevated-design/model-brand-icon";
 import type { ChatChart, ChatMessage, PendingAction } from "@/lib/aichat/types";
+import { humanizeFieldKey, proposalRows, type ProposalDictionary } from "@/lib/aichat/proposal";
 import { cn } from "@/lib/utils";
 
 import { ChatChartView } from "./chat-chart";
@@ -94,6 +95,7 @@ export interface BubbleLabels {
   toolFailed: string;
   toolDenied: string;
   toolLabel: (name: string) => string;
+  proposal: ProposalDictionary;
 }
 
 export function useBubbleLabels(): BubbleLabels {
@@ -102,6 +104,11 @@ export function useBubbleLabels(): BubbleLabels {
   const toolLabel = useCallback(
     (name: string) => (KNOWN_TOOLS.has(name) ? tTools(name) : name.replace(/_/g, " ")),
     [tTools],
+  );
+  const tFields = useTranslations("aiChatPage.fields");
+  const fieldLabel = useCallback(
+    (key: string) => (tFields.has(key) ? tFields(key) : humanizeFieldKey(key)),
+    [tFields],
   );
   return {
     thinking: t("thinking"),
@@ -113,6 +120,7 @@ export function useBubbleLabels(): BubbleLabels {
     toolFailed: t("toolFailed"),
     toolDenied: t("toolDenied"),
     toolLabel,
+    proposal: { label: fieldLabel, yes: t("yes"), no: t("no") },
   };
 }
 
@@ -278,6 +286,7 @@ function ApprovalCard({
 }) {
   const [busy, setBusy] = useState<null | "approve" | "reject">(null);
   const TileIcon = TOOL_ICON[pending.toolName] ?? Wrench;
+  const rows = proposalRows(pending.fields, labels.proposal);
   return (
     <div className="rounded-lg border border-border bg-muted p-3.5">
       <div className="flex items-start gap-3">
@@ -288,7 +297,16 @@ function ApprovalCard({
           <p className="text-sm font-semibold leading-snug text-foreground">
             {labels.toolLabel(pending.toolName)}
           </p>
-          {pending.summary ? (
+          {rows.length > 0 ? (
+            <dl className="mt-2 grid gap-x-3 gap-y-1.5 text-xs leading-relaxed [grid-template-columns:minmax(0,auto)_minmax(0,1fr)]">
+              {rows.map((row) => (
+                <div key={row.key} className="contents">
+                  <dt className="text-muted-foreground">{row.label}</dt>
+                  <dd className="whitespace-pre-wrap break-words text-foreground">{row.value}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : pending.fields === undefined && pending.summary ? (
             <p className="mt-1 break-words text-xs leading-relaxed text-muted-foreground">
               {pending.summary}
             </p>

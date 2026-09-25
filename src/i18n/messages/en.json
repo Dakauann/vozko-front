@@ -371,6 +371,22 @@
           }
         }
       }
+    },
+    "yes": "Yes",
+    "no": "No",
+    "fields": {
+      "name": "Name",
+      "description": "Description",
+      "initialMessage": "Opening message",
+      "useInitialMessage": "Send opening message",
+      "messagingPrompt": "Agent instructions",
+      "messagingModel": "Model",
+      "provider": "Provider",
+      "avatarUrl": "Photo",
+      "isActive": "Active",
+      "addTools": "Tools added",
+      "removeTools": "Tools removed",
+      "tools": "Tools"
     }
   },
   "leadMemories": {
