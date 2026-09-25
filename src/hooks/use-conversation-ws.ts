@@ -563,6 +563,7 @@ export function useConversationWs({
           "user_message",
         direction: (msg.direction as ConversationMessage["direction"]) ??
           (msg.Direction as ConversationMessage["direction"]),
+        sent_by: (msg.sent_by ?? msg.sentBy ?? null) as ConversationMessage["sent_by"],
         from: (msg.from as string) ?? "",
         to: (msg.to as string) ?? "",
         text: (msg.text as string) ?? "",
@@ -1247,16 +1248,7 @@ export function useConversationWs({
             activeSubscriptionRef.current?.entry_id === entry_id &&
             activeSubscriptionRef.current?.entry_type === entry_type
           ) {
-            const outgoingTypes = new Set([
-              "operator",
-              "ai_response",
-              "tool_call",
-              "tool_result",
-              "system",
-            ]);
-            const unreadIds = historyMessages
-              .filter((m) => !m.read && !outgoingTypes.has(m.message_type))
-              .map((m) => m.id);
+            const unreadIds = incomingUnreadIds(historyMessages);
             if (unreadIds.length > 0) {
               send("mark_read", {
                 entry_id,
@@ -1286,17 +1278,7 @@ export function useConversationWs({
               };
             });
 
-            const outgoingTypes = new Set([
-              "operator",
-              "ai_response",
-              "tool_call",
-              "tool_result",
-              "system",
-            ]);
-            if (
-              !normalized.read &&
-              !outgoingTypes.has(normalized.message_type)
-            ) {
+            if (incomingUnreadIds([normalized]).length > 0) {
               send("mark_read", {
                 entry_id,
                 entry_type,

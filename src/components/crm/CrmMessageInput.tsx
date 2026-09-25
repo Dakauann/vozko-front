@@ -79,6 +79,7 @@ interface CrmMessageInputProps {
   windowExpiresAt: string | null;
   windowClosedReason?: WindowClosedReason | null;
   onSchedule?: (draft: ComposerDraft) => void;
+  onScheduleTemplate?: () => void;
   disabled?: boolean;
   disabledReason?: string;
   replyToMessage?: ConversationMessage | null;
@@ -150,6 +151,7 @@ export default function CrmMessageInput({
   windowExpiresAt,
   windowClosedReason,
   onSchedule,
+  onScheduleTemplate,
   disabled = false,
   disabledReason,
   replyToMessage,
@@ -843,6 +845,17 @@ export default function CrmMessageInput({
                   disabled={disabled}
                   aria-label={scheduleT("composer.scheduleAria")}
                   title={scheduleT("composer.scheduleAria")}
+                  className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent"
+                >
+                  <Clock weight="bold" className="h-5 w-5" />
+                </button>
+              ) : onScheduleTemplate && !windowOpen ? (
+                <button
+                  type="button"
+                  onClick={onScheduleTemplate}
+                  disabled={disabled}
+                  aria-label={scheduleT("composer.scheduleTemplateAria")}
+                  title={scheduleT("composer.scheduleTemplateAria")}
                   className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent"
                 >
                   <Clock weight="bold" className="h-5 w-5" />

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ownerLineNamesTheAutomation,
   buildConversationAttendanceSummary,
   isAiCurrentlyAttending,
 } from "./attendance-summary";
@@ -32,5 +33,24 @@ describe("isAiCurrentlyAttending", () => {
     expect(isAiCurrentlyAttending({ assignedUserId: "5f0c-user" })).toBe(false);
     expect(isAiCurrentlyAttending({ assignedUserId: "ai:agent-1", automationEnabled: false })).toBe(false);
     expect(isAiCurrentlyAttending({ assignedUserId: "ai:agent-1", conversationStatus: "finished" })).toBe(false);
+  });
+});
+
+// The inbox card names the owner on its last line; when that owner is the
+// running agent or workflow, the IA/Fluxo chip would say the same thing twice.
+describe("ownerLineNamesTheAutomation", () => {
+  it("is true when a running agent or workflow owns the conversation", () => {
+    expect(ownerLineNamesTheAutomation("ai:agent-1", true)).toBe(true);
+    expect(ownerLineNamesTheAutomation("workflow:wf-1", undefined)).toBe(true);
+  });
+
+  it("keeps the chip where it is the only sign of automation", () => {
+    expect(ownerLineNamesTheAutomation("", true)).toBe(false);
+    expect(ownerLineNamesTheAutomation(null, true)).toBe(false);
+    expect(ownerLineNamesTheAutomation("user-1", true)).toBe(false);
+  });
+
+  it("keeps the chip while the owning automation is paused, to show it", () => {
+    expect(ownerLineNamesTheAutomation("ai:agent-1", false)).toBe(false);
   });
 });

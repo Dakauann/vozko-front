@@ -26,20 +26,9 @@ import {
     isValidTemplateName,
     normalizeTemplateName,
     starterComponents,
-    type SendQuote,
     type TemplateStarter,
 } from "@/lib/whatsapp-outreach/types";
-import { exchangeRateFromMicros, formatMicrosAsBrl } from "@/lib/pricing/currency";
-import { getExchangeRateAction } from "@/app/actions/pricing";
-import {
-    hasMediaHeader,
-    isTemplateSendable,
-    renderTemplateText,
-    templateUsability,
-    templateBodyText,
-    templateParamSlots,
-    templateSummary,
-} from "@/lib/whatsapp-templates/params";
+import { hasMediaHeader } from "@/lib/whatsapp-templates/params";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
@@ -47,14 +36,16 @@ import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-com
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { TemplateConversationPreview } from "@/components/whatsapp/template-conversation-preview";
+import { TemplateVariableFields } from "@/components/whatsapp/template-variable-fields";
+import { useTemplateComposer } from "@/hooks/use-template-composer";
 import type { TemplateMessageMetadata } from "@/lib/conversations/types";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import type { WhatsAppTemplate } from "@/lib/whatsapp-templates/types";
 import { cn } from "@/lib/utils";
-import { createWhatsAppTemplateAction, getWhatsAppTemplateByIdAction, listWhatsAppTemplatesAction } from "@/app/actions/whatsapp-templates";
+import { createWhatsAppTemplateAction, getWhatsAppTemplateByIdAction } from "@/app/actions/whatsapp-templates";
 import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones";
 import { normalizeRecipients } from "@/lib/unofficial-whatsapp/recipients";
-import { quoteTemplateSendAction, startOfficialConversationAction } from "@/app/actions/whatsapp-outreach";
+import { startOfficialConversationAction } from "@/app/actions/whatsapp-outreach";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
@@ -77,35 +68,35 @@ export function StartOfficialConversationDialog({
 
     const [phones, setPhones] = useState<WhatsAppBusinessPhone[]>([]);
     const [phoneId, setPhoneId] = useState("");
-    const [templates, setTemplates] = useState<WhatsAppTemplate[]>([]);
-    const [templatesLoading, setTemplatesLoading] = useState(false);
-    const [templateId, setTemplateId] = useState("");
     const [recipient, setRecipient] = useState("");
     const [name, setName] = useState("");
-    const [bodyValues, setBodyValues] = useState<string[]>([]);
-    const [headerValues, setHeaderValues] = useState<string[]>([]);
-    const [quote, setQuote] = useState<SendQuote | null>(null);
-    const [exchangeRate, setExchangeRate] = useState<number | null>(null);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<{ code: string; message: string } | null>(null);
 
     const idempotencyKey = useRef<string>("");
 
-    const template = useMemo(
-        () => templates.find((candidate) => candidate.id === templateId) ?? null,
-        [templates, templateId],
-    );
-    const slots = useMemo(() => templateParamSlots(template), [template]);
+    const composer = useTemplateComposer({ businessPhoneId: phoneId, enabled: open });
+    const {
+        templateId,
+        template,
+        slots,
+        bodyValues,
+        headerValues,
+        templatesLoading,
+        readyTemplates,
+        pendingCount,
+        missingValues,
+        previewMetadata,
+        templateOptions,
+        quote,
+        priceLabel,
+        reset: resetComposer,
+        reload: reloadTemplates,
+        upsertTemplate,
+    } = composer;
 
     const parsed = useMemo(() => normalizeRecipients(recipient), [recipient]);
     const resolvedNumber = parsed.valid[0] ?? "";
-
-    const readyTemplates = useMemo(() => templates.filter(isTemplateSendable), [templates]);
-    const pendingCount = templates.length - readyTemplates.length;
-
-    const missingValues =
-        slots.body.some((_, i) => !bodyValues[i]?.trim()) ||
-        slots.header.some((_, i) => !headerValues[i]?.trim());
 
     const canSubmit =
         Boolean(phoneId) && Boolean(templateId) && Boolean(resolvedNumber) && !missingValues && !busy;
@@ -121,20 +112,9 @@ export function StartOfficialConversationDialog({
         setMode("send");
         setRecipient("");
         setName("");
-        setTemplateId("");
-        setBodyValues([]);
-        setHeaderValues([]);
-        setQuote(null);
+        resetComposer();
         setError(null);
-    }, [open]);
-
-    useEffect(() => {
-        if (!open) return;
-        void (async () => {
-            const rate = await getExchangeRateAction();
-            setExchangeRate(exchangeRateFromMicros(rate.item?.priceMicros));
-        })();
-    }, [open]);
+    }, [open, resetComposer]);
 
     useEffect(() => {
         if (!open) return;
@@ -145,61 +125,6 @@ export function StartOfficialConversationDialog({
             if (connected.length === 1) setPhoneId(connected[0].id);
         })();
     }, [open]);
-
-    const loadTemplates = useCallback(async (forPhone: string) => {
-        if (!forPhone) return;
-        setTemplatesLoading(true);
-        const result = await listWhatsAppTemplatesAction({ businessPhoneId: forPhone, pageSize: 100 });
-        setTemplates(result.templates ?? []);
-        setTemplatesLoading(false);
-    }, []);
-
-    useEffect(() => {
-        if (!open || !phoneId) return;
-        setTemplateId("");
-        void loadTemplates(phoneId);
-    }, [open, phoneId, loadTemplates]);
-
-    useEffect(() => {
-        setBodyValues(new Array(slots.body.length).fill(""));
-        setHeaderValues(new Array(slots.header.length).fill(""));
-    }, [templateId, slots.body.length, slots.header.length]);
-
-    useEffect(() => {
-        if (!templateId || !phoneId) {
-            setQuote(null);
-            return;
-        }
-        let cancelled = false;
-        void (async () => {
-            const result = await quoteTemplateSendAction(templateId, phoneId);
-            if (!cancelled) setQuote(result.quote);
-        })();
-        return () => {
-            cancelled = true;
-        };
-    }, [templateId, phoneId]);
-
-    const previewMetadata: TemplateMessageMetadata | null = useMemo(() => {
-        if (!template) return null;
-        const filled = (template.components ?? []).map((component) => {
-            const type = component.type?.toUpperCase();
-            if (type === "BODY") {
-                return { ...component, text: renderTemplateText(component.text, bodyValues, slots.body) };
-            }
-            if (type === "HEADER" && component.format?.toUpperCase() === "TEXT") {
-                return { ...component, text: renderTemplateText(component.text, headerValues, slots.header) };
-            }
-            return component;
-        });
-        return {
-            template_name: template.name,
-            language: template.language,
-            category: template.category,
-            components: filled as TemplateMessageMetadata["components"],
-            header_media_url: template.headerMediaUrl ?? undefined,
-        };
-    }, [template, bodyValues, headerValues, slots]);
 
     const submit = useCallback(async () => {
         setBusy(true);
@@ -239,26 +164,6 @@ export function StartOfficialConversationDialog({
         slots.body.length, slots.header.length, onStarted, onOpenChange, t,
     ]);
 
-    const templateOptions = useMemo(
-        () =>
-            templates.map((candidate) => {
-                const usability = templateUsability(candidate);
-                return {
-                    value: candidate.id,
-                    label: candidate.name,
-                    description: templateSummary(candidate),
-                    disabled: usability !== "ready",
-                    meta: (
-                        <span className="readout text-[11px] text-muted-foreground">
-                            {usability === "ready"
-                                ? tTemplates(`category.${candidate.category.toLowerCase()}`)
-                                : t(`usability.${usability}`)}
-                        </span>
-                    ),
-                };
-            }),
-        [templates, t],
-    );
 
 
     const [starter, setStarter] = useState<TemplateStarter | null>(null);
@@ -331,12 +236,12 @@ export function StartOfficialConversationDialog({
             return;
         }
         setSubmittedForReview(result.template.name);
-        void loadTemplates(phoneId);
+        reloadTemplates();
         const refreshed = await getWhatsAppTemplateByIdAction(result.template.id);
         if (refreshed.template) {
-            setTemplates((current) => [refreshed.template as WhatsAppTemplate, ...current.filter((c) => c.id !== refreshed.template!.id)]);
+            upsertTemplate(refreshed.template as WhatsAppTemplate);
         }
-    }, [phoneId, newName, newBody, newExamples, t, loadTemplates]);
+    }, [phoneId, newName, newBody, newExamples, t, reloadTemplates, upsertTemplate]);
 
     const backToSend = useCallback(() => {
         setMode("send");
@@ -345,7 +250,6 @@ export function StartOfficialConversationDialog({
     }, []);
 
 
-    const priceLabel = formatMicrosAsBrl(quote?.priceMicros, exchangeRate);
 
     return (
         <ElevatedDialog open={open} onOpenChange={onOpenChange}>
@@ -382,7 +286,7 @@ export function StartOfficialConversationDialog({
                                         <ElevatedCommandSelect
                                             label={t("templateLabel")}
                                             value={templateId}
-                                            onValueChange={setTemplateId}
+                                            onValueChange={composer.selectTemplate}
                                             options={templateOptions}
                                             disabled={!phoneId || templatesLoading}
                                             isLoading={templatesLoading}
@@ -489,39 +393,13 @@ export function StartOfficialConversationDialog({
 
                                     {
 }
-                                    {(slots.header.length > 0 || slots.body.length > 0) && (
-                                        <div className="space-y-3">
-                                            <span className="legend">{t("variablesLabel")}</span>
-                                            {slots.header.map((slot, index) => (
-                                                <ElevatedInput
-                                                    key={`header-${index}`}
-                                                    label={t("headerVariable", {
-                                                        name: slots.named ? slot : String(index + 1),
-                                                    })}
-                                                    value={headerValues[index] ?? ""}
-                                                    onChange={(event) => {
-                                                        const next = [...headerValues];
-                                                        next[index] = event.target.value;
-                                                        setHeaderValues(next);
-                                                    }}
-                                                    className="w-full"
-                                                />
-                                            ))}
-                                            {slots.body.map((slot, index) => (
-                                                <ElevatedInput
-                                                    key={`body-${index}`}
-                                                    label={slots.named ? slot : t("bodyVariable", { name: String(index + 1) })}
-                                                    value={bodyValues[index] ?? ""}
-                                                    onChange={(event) => {
-                                                        const next = [...bodyValues];
-                                                        next[index] = event.target.value;
-                                                        setBodyValues(next);
-                                                    }}
-                                                    className="w-full"
-                                                />
-                                            ))}
-                                        </div>
-                                    )}
+                                    <TemplateVariableFields
+                                        slots={slots}
+                                        bodyValues={bodyValues}
+                                        headerValues={headerValues}
+                                        onBodyChange={composer.setBodyValue}
+                                        onHeaderChange={composer.setHeaderValue}
+                                    />
 
                                   </div>
 

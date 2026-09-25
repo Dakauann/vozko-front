@@ -56,8 +56,8 @@ import {
 
 import type { AgentToolDefinition } from "@/lib/agents/types";
 import {
-  isAgentMessage as isAgentMsg,
   isOutgoingMessage,
+  senderBadge,
 } from "@/lib/conversations/direction";
 
 import { ChannelAvatar } from "@/components/channels/channel-avatar";
@@ -2330,11 +2330,7 @@ export default function CrmConversationView({
                           msg,
                           conversation.lead_number,
                         );
-                        const isAgentMessage = isAgentMsg(
-                          msg,
-                          conversation.lead_number,
-                        );
-                        const isOperatorMessage = messageType === "operator";
+                        const badge = senderBadge(msg, conversation.lead_number);
                         const isToolEventMessage = isToolMessage(msg);
                         const isTemplateMessage = messageType === "template";
 
@@ -2399,34 +2395,12 @@ export default function CrmConversationView({
                         const prevOutgoing = prevMsg
                           ? isToolMessage(prevMsg)
                             ? null
-                            : ["operator", "ai_response"].includes(
-                                prevMsg.message_type ??
-                                  (
-                                    prevMsg as unknown as {
-                                      messageType?: string;
-                                    }
-                                  ).messageType ??
-                                  "",
-                              ) ||
-                              ((prevMsg.message_type === "audio" ||
-                                prevMsg.media_type) &&
-                                prevMsg.to === conversation.lead_number)
+                            : isOutgoingMessage(prevMsg, conversation.lead_number)
                           : null;
                         const nextOutgoing = nextMsg
                           ? isToolMessage(nextMsg)
                             ? null
-                            : ["operator", "ai_response"].includes(
-                                nextMsg.message_type ??
-                                  (
-                                    nextMsg as unknown as {
-                                      messageType?: string;
-                                    }
-                                  ).messageType ??
-                                  "",
-                              ) ||
-                              ((nextMsg.message_type === "audio" ||
-                                nextMsg.media_type) &&
-                                nextMsg.to === conversation.lead_number)
+                            : isOutgoingMessage(nextMsg, conversation.lead_number)
                           : null;
 
                         const sameSidePrev =
@@ -2628,19 +2602,21 @@ export default function CrmConversationView({
                                   isOutgoing ? "justify-end" : "justify-start",
                                 )}
                               >
-                                {isAgentMessage && (
-                                  <span className="rounded-md bg-muted px-1.5 py-0.5 text-2xs font-semibold  text-muted-foreground">
-                                    AI
-                                  </span>
-                                )}
-                                {isOperatorMessage && (
-                                  <span className="rounded-md bg-primary px-1.5 py-0.5 text-2xs font-semibold  text-primary-foreground">
-                                    Operador
+                                {badge && (
+                                  <span
+                                    className={cn(
+                                      "rounded-md px-1.5 py-0.5 text-2xs font-semibold",
+                                      badge === "human"
+                                        ? "bg-primary text-primary-foreground"
+                                        : "bg-muted text-muted-foreground",
+                                    )}
+                                  >
+                                    {tCrm(`messageSender.${badge}`)}
                                   </span>
                                 )}
                                 {isTemplateMessage && (
                                   <span className="rounded-md bg-healthy px-1.5 py-0.5 text-2xs font-semibold  text-healthy-foreground">
-                                    Template
+                                    {tCrm("messageSender.template")}
                                   </span>
                                 )}
                                 <span className="text-2xs text-muted-foreground">

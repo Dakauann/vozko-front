@@ -38,6 +38,7 @@ vi.mock("@/contexts/workspace-context", () => ({
 
 const composerTranslations = ptMessages.whatsappCampaignsPage.detail.crm.input;
 const scheduleAria = ptMessages.scheduledMessages.composer.scheduleAria;
+const scheduleTemplateAria = ptMessages.scheduledMessages.composer.scheduleTemplateAria;
 
 function renderComposer(
     props: Partial<React.ComponentProps<typeof CrmMessageInput>> = {},
@@ -129,5 +130,32 @@ describe("CrmMessageInput scheduling affordance", () => {
         expect(onSchedule).toHaveBeenCalledWith(
             expect.objectContaining({ replyToMessageId: "msg-9" }),
         );
+    });
+
+    it("offers a template schedule once the window has closed", () => {
+        const onScheduleTemplate = vi.fn();
+        renderComposer({ onSchedule: vi.fn(), onScheduleTemplate, windowOpen: false });
+
+        const clock = screen.getByLabelText(scheduleTemplateAria);
+        expect(clock).not.toBeDisabled();
+        fireEvent.click(clock);
+        expect(onScheduleTemplate).toHaveBeenCalled();
+    });
+
+    it("keeps the free-text clock while the window is open", () => {
+        renderComposer({ onSchedule: vi.fn(), onScheduleTemplate: vi.fn() });
+
+        expect(screen.getByLabelText(scheduleAria)).toBeInTheDocument();
+        expect(screen.queryByLabelText(scheduleTemplateAria)).not.toBeInTheDocument();
+    });
+
+    it("offers no template schedule to someone who may not send templates", () => {
+        renderComposer({ onSchedule: vi.fn(), windowOpen: false });
+        expect(screen.queryByLabelText(scheduleTemplateAria)).not.toBeInTheDocument();
+    });
+
+    it("disables the template schedule without the send permission", () => {
+        renderComposer({ onScheduleTemplate: vi.fn(), windowOpen: false, disabled: true });
+        expect(screen.getByLabelText(scheduleTemplateAria)).toBeDisabled();
     });
 });

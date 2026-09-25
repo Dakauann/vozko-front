@@ -1,5 +1,6 @@
 import type {
     ScheduleMessagePayload,
+    ScheduleTemplatePayload,
     ScheduledMessage,
     ScheduledMessageStatus,
     SchedulingError,
@@ -59,7 +60,7 @@ export async function listScheduledMessagesAction(
 export async function scheduleMessageAction(
     entryType: EntryType,
     entryId: string,
-    payload: ScheduleMessagePayload,
+    payload: ScheduleMessagePayload | ScheduleTemplatePayload,
     idempotencyKey: string,
 ): Promise<{
     scheduledMessage: ScheduledMessage | null;

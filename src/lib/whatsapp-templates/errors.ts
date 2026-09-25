@@ -5,6 +5,9 @@ export const TEMPLATE_ERROR_CODES = [
     "template_unknown_error",
 
     "template_not_found",
+    "template_access_denied",
+    "template_header_media_outside_storage",
+    "template_phone_outside_workspace",
     "template_already_exists",
     "template_external_id_required",
     "template_category_unavailable",

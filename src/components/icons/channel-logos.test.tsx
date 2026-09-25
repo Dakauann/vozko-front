@@ -12,8 +12,8 @@ describe("channel marks", () => {
   });
 
   it("claims no mark for channels it cannot draw", () => {
-    expect(hasChannelMark("support")).toBe(false);
-    expect(ChannelLogo({ channel: "support" })).toBeNull();
+    expect(hasChannelMark("fax")).toBe(false);
+    expect(ChannelLogo({ channel: "fax" })).toBeNull();
     expect(hasChannelMark(null)).toBe(false);
     expect(hasChannelMark(undefined)).toBe(false);
   });

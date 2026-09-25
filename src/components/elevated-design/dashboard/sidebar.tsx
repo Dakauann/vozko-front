@@ -61,6 +61,8 @@ import {
   WhatsAppLogoColor,
 } from "@/components/icons/channel-logos";
 
+import { EloMark } from "@/components/ai-chat/elo-mark";
+
 type NavIcon = Icon | ComponentType<IconProps>;
 
 import { Link, usePathname } from "@/i18n/routing";
@@ -253,7 +255,7 @@ export const campanhasNavItems: NavItem[] = [
     requiredPermission: { resource: "conversations", action: "read" },
   },
   {
-    icon: Sparkle,
+    icon: EloMark,
     labelKey: "nav.aiChat",
     href: "/dashboard/ai-chat",
     family: "ai",
@@ -1090,6 +1092,7 @@ function NavItemComponent({
   };
   const effectiveFamily = item.family ?? parentFamily;
   const isLit = Boolean(isActive || hasActiveChild);
+  const isAssistant = item.href === "/dashboard/ai-chat";
 
   return (
     <div className="w-full">
@@ -1100,12 +1103,30 @@ function NavItemComponent({
         className={cn(
           "sidebar-item group relative flex items-center rounded-[--radius] text-sm transition-colors",
           isExpanded ? "h-8 w-full pr-2" : "h-8 w-full justify-center",
+          isAssistant && "vz-ai-launcher",
+          isAssistant && isLit && "[--elo-accent:currentColor]",
           isLit
             ? "bg-primary text-primary-foreground shadow-button-primary hover:bg-[hsl(var(--primary-hover))]"
-            : "text-muted-foreground hover:bg-muted hover:text-foreground",
+            : isAssistant ? "text-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground",
         )}
         onClick={handleClick}
       >
+        {isAssistant ? (
+          <>
+            {/* Keep the sweep inside the row so the scrolling sidebar cannot clip it. */}
+            <span
+              aria-hidden
+              className="vz-ai-ring"
+              style={{
+                inset: 0,
+                background: isLit
+                  ? "conic-gradient(from var(--vz-ai-angle), transparent 150deg, hsl(var(--primary-foreground) / 0.65) 320deg, transparent 360deg)"
+                  : undefined,
+              }}
+            />
+            <span aria-hidden className={cn("pointer-events-none absolute inset-[2px] -z-[1] rounded-[calc(var(--radius)-2px)] transition-colors", isLit ? "bg-primary group-hover:bg-primary-hover" : "bg-card group-hover:bg-muted")} />
+          </>
+        ) : null}
         {isExpanded ? (
           <>
             <span

@@ -44,8 +44,10 @@ import { useQuery } from "@tanstack/react-query";
 import type { ComposerDraft } from "./CrmMessageInput";
 import CrmConversationView from "./CrmConversationView";
 import ScheduleMessageDialog from "./ScheduleMessageDialog";
+import ScheduleTemplateDialog from "./ScheduleTemplateDialog";
 import ScheduledMessagesPanel from "./ScheduledMessagesPanel";
-import type { ScheduledMessage } from "@/lib/scheduled-messages/types";
+import type { ScheduledMessage, SchedulingWindow } from "@/lib/scheduled-messages/types";
+import type { TemplateComposerInitial } from "@/hooks/use-template-composer";
 import { listScheduledMessagesAction } from "@/app/actions/scheduled-messages";
 import CrmWallpaper from "./CrmWallpaper";
 import ConversationWindowDeck from "./ConversationWindowDeck";
@@ -134,6 +136,7 @@ import { useTranslations } from "next-intl";
 import CrmConversationInfosPanel from "./CrmConversationInfosPanel";
 import { AttendanceOwnerBadge } from "./ConversationAttendanceSection";
 import type { PendingOutcomeRequest } from "@/lib/conversations/types";
+import { readConversationDeepLink } from "@/lib/conversations/deep-link";
 import { OutcomePickerDialog } from "./OutcomePickerDialog";
 import {
   outcomeIsRequired,
@@ -870,6 +873,14 @@ export default function CrmLayout({
     [subscribe],
   );
 
+  const deepLinkHandledRef = useRef(false);
+  useEffect(() => {
+    if (!enabled || hasCampaign || status !== "connected" || deepLinkHandledRef.current) return;
+    deepLinkHandledRef.current = true;
+    const link = readConversationDeepLink(window.location.search);
+    if (link) handleSelect(link.entryId, link.entryType);
+  }, [enabled, hasCampaign, status, handleSelect]);
+
   const handleOpenInWindow = useCallback(
     (entry: InboxEntry) => {
       openConversationWindow({
@@ -939,7 +950,11 @@ export default function CrmLayout({
 
 
   const [scheduleDraft, setScheduleDraft] = useState<ComposerDraft | null>(null);
+  const [templateSchedule, setTemplateSchedule] = useState<{
+    initial?: TemplateComposerInitial;
+  } | null>(null);
   const [scheduledMessages, setScheduledMessages] = useState<ScheduledMessage[]>([]);
+  const [schedulingWindow, setSchedulingWindow] = useState<SchedulingWindow | null>(null);
 
   const scheduleEntryType = activeConversation?.entry_type;
   const scheduleEntryId = activeConversation?.entry_id;
@@ -954,7 +969,9 @@ export default function CrmLayout({
       "sending",
       "failed",
     ]).then((result) => {
-      if (!result.error) setScheduledMessages(result.scheduledMessages);
+      if (result.error) return;
+      setScheduledMessages(result.scheduledMessages);
+      setSchedulingWindow(result.window);
     });
   }, [scheduleEntryId, scheduleEntryType]);
 
@@ -975,7 +992,27 @@ export default function CrmLayout({
     [],
   );
 
+  const canScheduleTemplates =
+    activeConversation?.entry_type === "whatsapp" &&
+    can("conversations", "send") &&
+    can("whatsapp_templates", "send");
+
+  const openTemplateSchedule = useCallback(() => {
+    setScheduleDraft(null);
+    setTemplateSchedule({});
+  }, []);
+
   const handleReuseScheduled = useCallback((message: ScheduledMessage) => {
+    if (message.template) {
+      setTemplateSchedule({
+        initial: {
+          templateId: message.template.id,
+          bodyParams: message.template.bodyParams,
+          headerParams: message.template.headerParams,
+        },
+      });
+      return;
+    }
     setScheduleDraft({
       text: message.text ?? "",
       mediaId: message.mediaId,
@@ -2350,6 +2387,7 @@ export default function CrmLayout({
                   <ScheduledMessagesPanel
                     messages={scheduledMessages}
                     canManage={can("conversations", "send")}
+                    canManageTemplates={canScheduleTemplates}
                     onChanged={refreshScheduledMessages}
                     onReuse={handleReuseScheduled}
                   />
@@ -2362,6 +2400,9 @@ export default function CrmLayout({
                     onTyping={handleTyping}
                     onSchedule={
                       can("conversations", "send") ? setScheduleDraft : undefined
+                    }
+                    onScheduleTemplate={
+                      canScheduleTemplates ? openTemplateSchedule : undefined
                     }
                     windowOpen={activeConversation.window_open}
                     windowExpiresAt={activeConversation.window_expires_at}
@@ -2526,6 +2567,7 @@ export default function CrmLayout({
                   <ScheduledMessagesPanel
                     messages={scheduledMessages}
                     canManage={can("conversations", "send")}
+                    canManageTemplates={canScheduleTemplates}
                     onChanged={refreshScheduledMessages}
                     onReuse={handleReuseScheduled}
                   />
@@ -2538,6 +2580,9 @@ export default function CrmLayout({
                     onTyping={handleTyping}
                     onSchedule={
                       can("conversations", "send") ? setScheduleDraft : undefined
+                    }
+                    onScheduleTemplate={
+                      canScheduleTemplates ? openTemplateSchedule : undefined
                     }
                     windowOpen={activeConversation.window_open}
                     windowExpiresAt={activeConversation.window_expires_at}
@@ -2615,6 +2660,25 @@ export default function CrmLayout({
             expiresAt: activeConversation?.window_expires_at ?? null,
           }}
           draft={scheduleDraft}
+          onScheduled={handleScheduled}
+          onUseTemplate={canScheduleTemplates ? openTemplateSchedule : undefined}
+        />
+      )}
+
+      {templateSchedule && scheduleEntryType && scheduleEntryId && (
+        <ScheduleTemplateDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) setTemplateSchedule(null);
+          }}
+          entryType={scheduleEntryType}
+          entryId={scheduleEntryId}
+          businessPhoneId={
+            inbox.find((e) => e.entry_id === scheduleEntryId)?.business_phone_id ?? ""
+          }
+          recipientName={activeConversation?.lead_name}
+          window={schedulingWindow}
+          initial={templateSchedule.initial}
           onScheduled={handleScheduled}
         />
       )}

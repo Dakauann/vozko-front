@@ -24,7 +24,6 @@ export type ResourceType =
     | "attendance_targets"
     | "reports"
     | "usage"
-    | "support_inboxes"
     | "issues"
     | "roles"
     | "workflows"

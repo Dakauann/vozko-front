@@ -236,10 +236,56 @@
       "attendance_stages": "Etapas do funil",
       "attendance_rework": "Conversas reabertas",
       "attendance_live": "Atendimento agora",
-      "campaign_dispatch": "Resultado dos disparos"
+      "campaign_dispatch": "Resultado dos disparos",
+      "search_conversations": "Buscando conversas",
+      "read_conversation": "Lendo a conversa",
+      "search_leads": "Buscando contatos",
+      "get_lead": "Detalhes do contato",
+      "list_knowledge_bases": "Bases de conhecimento",
+      "search_knowledge": "Consultando a base de conhecimento",
+      "list_templates": "Modelos de mensagem",
+      "list_pipelines": "Funis e etapas",
+      "list_labels": "Etiquetas",
+      "list_calendar_events": "Agenda",
+      "list_workflows": "Automações",
+      "add_lead_memory": "Registrar memória do contato",
+      "update_lead_memory": "Corrigir memória do contato",
+      "move_conversation_stage": "Mover conversa de etapa",
+      "move_conversation_funnel": "Mover conversa para outro funil",
+      "apply_label": "Colocar etiqueta",
+      "remove_label": "Tirar etiqueta",
+      "create_label": "Criar etiqueta",
+      "send_message": "Enviar mensagem",
+      "schedule_message": "Agendar mensagem",
+      "cancel_scheduled_message": "Cancelar mensagem agendada",
+      "send_template": "Enviar modelo do WhatsApp",
+      "list_assignable_members": "Equipe disponível",
+      "assign_conversation": "Passar conversa",
+      "transfer_conversation": "Transferir para departamento",
+      "pause_workflow": "Pausar automação",
+      "activate_workflow": "Ativar automação",
+      "create_calendar_event": "Criar compromisso",
+      "create_pipeline": "Criar funil",
+      "create_stage": "Criar etapa",
+      "rename_stage": "Renomear etapa",
+      "reorder_stages": "Reordenar etapas",
+      "set_initial_stage": "Definir etapa inicial",
+      "list_deal_pipelines": "Funis de vendas",
+      "list_deals": "Negócios",
+      "create_deal": "Criar negócio",
+      "move_deal": "Mover negócio",
+      "link_deal": "Ligar conversa ao negócio",
+      "list_business_phones": "Números do WhatsApp",
+      "create_template": "Criar modelo do WhatsApp",
+      "preview_campaign_import": "Conferindo a planilha",
+      "create_campaign": "Criar campanha",
+      "start_campaign": "Iniciar campanha",
+      "create_knowledge_base": "Criar base de conhecimento",
+      "add_knowledge_document": "Adicionar arquivo à base",
+      "offer_action": "Próximo passo"
     },
     "threadsLegend": "Conversas",
-    "greeting": "No que vamos trabalhar?",
+    "greeting": "Olá, sou a Elo. Vamos trabalhar em quê?",
     "starterListAgents": "Listar meus agentes",
     "starterCreateAgent": "Criar um agente de cobrança",
     "starterModels": "Quais modelos estão disponíveis?",
@@ -322,12 +368,12 @@
     },
     "toolDenied": "sem permissão",
     "dock": {
-      "title": "Assistente",
+      "title": "Elo",
       "description": "Pergunte em palavras simples. As respostas usam só o que você tem permissão para ver.",
       "greeting": "Em que posso ajudar?",
       "footnote": "As consultas usam os mesmos dados e limites do sistema. Confira decisões importantes nos painéis.",
-      "tabLabel": "IA",
-      "open": "Perguntar à IA",
+      "tabLabel": "Elo",
+      "open": "Pergunte à Elo",
       "minimize": "Minimizar",
       "fullscreen": "Tela cheia",
       "exitFullscreen": "Sair da tela cheia",
@@ -386,7 +432,118 @@
       "isActive": "Ativo",
       "addTools": "Ferramentas adicionadas",
       "removeTools": "Ferramentas removidas",
-      "tools": "Ferramentas"
+      "tools": "Ferramentas",
+      "conversation": "Conversa",
+      "contact": "Contato",
+      "content": "Texto",
+      "category": "Tipo",
+      "stage": "Etapa",
+      "label": "Etiqueta",
+      "text": "Mensagem",
+      "scheduledAt": "Quando",
+      "template": "Modelo",
+      "variables": "Variáveis",
+      "cost": "Custo",
+      "member": "Responsável",
+      "department": "Departamento",
+      "workflow": "Automação",
+      "title": "Título",
+      "start": "Início",
+      "end": "Fim",
+      "pipeline": "Funil",
+      "order": "Nova ordem",
+      "stages": "Etapas",
+      "deal": "Negócio",
+      "value": "Valor",
+      "headerText": "Cabeçalho",
+      "headerMedia": "Mídia do cabeçalho",
+      "body": "Texto",
+      "footer": "Rodapé",
+      "quickReplies": "Respostas rápidas",
+      "phone": "Número de envio",
+      "contacts": "Contatos",
+      "estimatedCost": "Custo estimado",
+      "finalCost": "Custo total",
+      "balance": "Saldo",
+      "campaign": "Campanha",
+      "knowledgeBase": "Base de conhecimento",
+      "file": "Arquivo"
+    },
+    "attachments": {
+      "legend": "Arquivos anexados",
+      "add": "Anexar arquivos",
+      "uploading": "Enviando",
+      "remove": "Remover {name}",
+      "errors": {
+        "tooMany": "Você pode anexar até 5 arquivos por mensagem.",
+        "tooLarge": "Cada arquivo pode ter no máximo 25 MB.",
+        "empty": "Esse arquivo está vazio.",
+        "upload": "Não foi possível enviar o arquivo. Tente de novo."
+      }
+    },
+    "decided": {
+      "approved": "Aprovado",
+      "rejected": "Recusado",
+      "expired": "Não vale mais: a conversa seguiu adiante"
+    },
+    "assistantRole": "Sua assistente de IA no workspace",
+    "description": "Posso ajudar você a entender conversas, explorar resultados e gerenciar seu workspace. Escolha por onde começar ou me pergunte abaixo.",
+    "searchHistory": "Buscar conversas",
+    "noSearchResults": "Nenhuma conversa encontrada.",
+    "historyHint": "Suas conversas com a Elo, em um só lugar.",
+    "historyError": "Não foi possível carregar as conversas. Recarregue a página.",
+    "deleteError": "Não foi possível excluir a conversa. Tente novamente.",
+    "disclaimer": "A Elo pode cometer erros. Revise informações importantes e alterações propostas.",
+    "assistantName": "Elo",
+    "eloPlaceholder": "Converse com a Elo…",
+    "actions": {
+      "usage": "{used} de {total} do seu plano",
+      "ready": "Leva menos de dois minutos.",
+      "connected": "Pronto, conectado. Pode pedir de novo ao assistente.",
+      "addMore": "Adicionar mais",
+      "balance": "Saldo atual: {amount}",
+      "blocker": {
+        "at_limit": "Você já usa tudo o que o plano inclui.",
+        "no_permission": "Só um administrador do workspace pode fazer isso.",
+        "unavailable": "Não foi possível verificar agora. Tente de novo em instantes.",
+        "no_subscription": "É preciso uma assinatura ativa.",
+        "needs_official_whatsapp": "Conecte um número do WhatsApp oficial primeiro."
+      },
+      "kinds": {
+        "connect_whatsapp_business": {
+          "title": "Conectar um número do WhatsApp oficial",
+          "description": "Modelos, campanhas e envios cobrados precisam de um número verificado pela Meta.",
+          "cta": "Conectar número"
+        },
+        "connect_unofficial_whatsapp": {
+          "title": "Conectar o WhatsApp pelo QR code",
+          "description": "Use o WhatsApp do celular da equipe, sem aprovação da Meta.",
+          "cta": "Conectar agora"
+        },
+        "connect_instagram": {
+          "title": "Conectar o Instagram",
+          "description": "Responda directs e comentários da conta profissional aqui.",
+          "cta": "Conectar Instagram"
+        },
+        "connect_telegram": {
+          "title": "Conectar o Telegram",
+          "description": "Atenda pelo seu bot do Telegram na mesma caixa de entrada.",
+          "cta": "Conectar Telegram"
+        },
+        "top_up_balance": {
+          "title": "Recarregar o saldo",
+          "description": "Modelos, campanhas e o assistente usam o saldo do workspace.",
+          "cta": "Recarregar"
+        },
+        "manage_subscription": {
+          "title": "Regularizar a assinatura",
+          "description": "Números, modelos e campanhas voltam a funcionar com a assinatura ativa.",
+          "cta": "Ver planos"
+        }
+      }
+    },
+    "previews": {
+      "scheduledFor": "Agendada para {when}"
     }
   },
   "leadMemories": {
@@ -552,6 +709,7 @@
         "customer": "Cliente",
         "team": "Time",
         "ai": "IA",
+        "automation": "Automação",
         "media": "Mídia",
         "tools": "Ferramentas"
       },
@@ -709,7 +867,18 @@
           "manual": "Manual",
           "auto": "Automático",
           "roulette": "Roleta",
-          "transfer": "Transferência"
+          "transfer": "Transferência",
+          "inbound_rr": "Roleta",
+          "bulk": "Em massa",
+          "system": "Sistema",
+          "rescue": "Repasse por falta de resposta",
+          "rescue_exhausted": "Sem ninguém para o repasse",
+          "automation_governed": "Atendida pela automação",
+          "automation_handoff": "Transferida pela automação",
+          "automation_handoff_rr": "Transferida pela automação (roleta)",
+          "automation_released": "Automação pausada, fila da equipe",
+          "automation_taken_over": "Assumida ao pausar a automação",
+          "automation_resumed": "Devolvida para a automação"
         }
       }
     },
@@ -1987,15 +2156,12 @@
       "liveChat": "Chat",
       "metrics": "Métricas",
       "attendanceOps": "Atendimento",
-      "aiChat": "Chat IA",
+      "aiChat": "Elo",
       "archivedAgents": "Agentes Arquivados",
       "archivedWhatsappCampaigns": "Arquivados",
       "organicCampaigns": "Receptivas",
       "organicCampaignsList": "Lista",
       "createOrganicCampaign": "Nova Receptiva",
-      "supportInboxes": "Caixas",
-      "supportInboxesList": "Lista",
-      "createSupportInbox": "Nova Caixa",
       "stageGroups": "Funil",
       "leads": "Leads",
       "plans": "Planos",
@@ -3091,7 +3257,10 @@
       "template_authentication_no_header": "Modelos de autenticação não podem ter cabeçalho. O WhatsApp não exibe um.",
       "template_authentication_body_not_editable": "Em modelos de autenticação o WhatsApp escreve a mensagem. Você não pode incluir texto próprio.",
       "template_authentication_footer_not_editable": "O rodapé de um modelo de autenticação é a linha de validade do WhatsApp. Você não pode incluir texto próprio.",
-      "template_authentication_code_too_long": "O código não pode ter mais de 15 caracteres."
+      "template_authentication_code_too_long": "O código não pode ter mais de 15 caracteres.",
+      "template_access_denied": "Este workspace não tem acesso a esse modelo.",
+      "template_header_media_outside_storage": "A mídia do cabeçalho precisa ser um arquivo da biblioteca de mídias do workspace.",
+      "template_phone_outside_workspace": "Esse número do WhatsApp não pertence a este workspace."
     },
     "header": {
       "badge": "WhatsApp Business",
@@ -6800,7 +6969,6 @@
       "whatsapp_templates": "Modelos WhatsApp",
       "business_phones": "Telefones Comerciais",
       "message_shortcuts": "Atalhos de Mensagem",
-      "support_inboxes": "Caixas de Entrada de Suporte",
       "workflows": "Automações",
       "calendar": "Calendário",
       "stages": "Etapas",
@@ -6853,7 +7021,6 @@
       "whatsapp_templates": "Crie e edite modelos de mensagens aprovados pelo WhatsApp",
       "business_phones": "Visualize os números de telefone comerciais da área de trabalho",
       "message_shortcuts": "Criar atalhos de mensagem, visualizar atalhos de mensagem, editar atalhos de mensagem e excluir atalhos de mensagem",
-      "support_inboxes": "Criar, visualizar, editar e excluir caixas de entrada de suporte",
       "workflows": "Criar, visualizar automações e execuções, editar e excluir automações",
       "calendar": "Criar, visualizar, editar e excluir eventos do calendário",
       "stage_groups": "Crie e leia funis de etapas (agrupamentos) reutilizáveis",
@@ -8020,121 +8187,6 @@
       "title": "Erro ao carregar registros"
     }
   },
-  "supportInboxesPage": {
-    "header": {
-      "badge": "Caixas de Suporte",
-      "description": "Gerencie suas caixas de suporte e widgets de chat embutíveis."
-    },
-    "newButton": "Nova Caixa",
-    "columns": {
-      "name": "Nome",
-      "greeting": "Saudação",
-      "aiAgent": "Agente IA",
-      "origins": "Origens Permitidas",
-      "createdAt": "Criado em"
-    },
-    "enabled": "Ativo",
-    "disabled": "Inativo",
-    "allOrigins": "Todas as origens",
-    "origins": "origens",
-    "archive": "Arquivar",
-    "stats": {
-      "total": "Total de Caixas",
-      "withAgent": "Com Agente IA"
-    },
-    "search": {
-      "placeholder": "Pesquisar caixas..."
-    },
-    "empty": {
-      "title": "Nenhuma caixa de suporte ainda",
-      "description": "Crie sua primeira caixa de suporte para começar a receber mensagens."
-    },
-    "error": {
-      "title": "Erro ao carregar caixas"
-    },
-    "new": {
-      "backButton": "Voltar para Caixas",
-      "badge": "Nova Caixa",
-      "title": "Criar Caixa de Suporte",
-      "description": "Configure uma nova caixa de suporte com um widget de chat que você pode embutir em qualquer site.",
-      "loading": "Carregando..."
-    },
-    "form": {
-      "basicInfoTitle": "Informações Básicas",
-      "name": "Nome da Caixa",
-      "greetingMessage": "Mensagem de Boas-vindas",
-      "widgetColorTitle": "Cor do Widget",
-      "widgetColorDescription": "Escolha a cor de destaque do widget de chat.",
-      "aiAgentTitle": "Agente IA",
-      "enableAgent": "Ativar respostas de IA",
-      "enableAgentDescription": "Permitir que um agente de IA responda automaticamente às mensagens de suporte.",
-      "selectAgent": "Selecionar Agente",
-      "searchAgent": "Pesquisar agentes...",
-      "noAgents": "Nenhum agente encontrado",
-      "originsTitle": "Origens Permitidas",
-      "originsDescription": "Restrinja quais sites podem embutir este widget. Deixe vazio para permitir todos.",
-      "addOrigin": "Adicionar Origem",
-      "origin": "Origem",
-      "noOriginsNote": "Sem restrições de origem, widget pode ser embutido em qualquer lugar.",
-      "preChatTitle": "Campos de Pré-chat",
-      "preChatDescription": "Colete informações dos visitantes antes de iniciar uma conversa.",
-      "addField": "Adicionar Campo",
-      "field": "Campo",
-      "fieldName": "Chave do Campo",
-      "fieldLabel": "Rótulo de Exibição",
-      "fieldType": "Tipo",
-      "fieldRequired": "Obrigatório",
-      "fieldOptions": "Opções",
-      "fieldOptionsPlaceholder": "Opção 1, Opção 2, Opção 3",
-      "fieldOptionsHint": "Lista de opções separadas por vírgula.",
-      "noFieldsNote": "Sem campos de pré-chat, conversa inicia imediatamente.",
-      "fieldTypes": {
-        "text": "Texto",
-        "email": "E-mail",
-        "textarea": "Área de Texto",
-        "select": "Seleção"
-      },
-      "cancel": "Cancelar",
-      "create": "Criar Caixa",
-      "creating": "Criando...",
-      "errorTitle": "Erro",
-      "successTitle": "Sucesso",
-      "successMessage": "Caixa de suporte criada com sucesso.",
-      "validation": {
-        "nameRequired": "O nome da caixa é obrigatório.",
-        "originUrl": "Deve ser uma URL válida (ex: https://exemplo.com).",
-        "fieldNameRequired": "A chave do campo é obrigatória.",
-        "fieldLabelRequired": "O rótulo de exibição é obrigatório."
-      }
-    },
-    "detail": {
-      "back": "Voltar para Caixas",
-      "createdAt": "Criado em {date}",
-      "settingsTitle": "Configurações da Caixa",
-      "name": "Nome",
-      "greeting": "Saudação",
-      "noGreeting": "Sem saudação definida",
-      "aiAgent": "Agente IA",
-      "agentEnabled": "Ativo",
-      "agentDisabled": "Inativo",
-      "widgetColor": "Cor do Widget",
-      "origins": "Origens Permitidas",
-      "allOrigins": "Todas as origens permitidas",
-      "preChatFields": "Campos de Pré-chat",
-      "required": "Obrigatório",
-      "embedTitle": "Código de Incorporação",
-      "embedDescription": "Copie o trecho abaixo e cole no HTML do seu site, antes da tag de fechamento body.",
-      "copy": "Copiar",
-      "copied": "Copiado!",
-      "previewTitle": "Pré-visualização do Widget",
-      "previewDescription": "É assim que o widget de chat aparecerá no seu site.",
-      "previewOnline": "Online",
-      "previewPreChatIntro": "Preencha o formulário para iniciar uma conversa.",
-      "previewSelect": "Selecione uma opção...",
-      "previewStart": "Iniciar Conversa",
-      "previewPlaceholder": "Digite uma mensagem..."
-    }
-  },
   "issuesPage": {
     "header": {
       "badge": "Suporte",
@@ -9272,19 +9324,6 @@
         "Permissões por recurso para controlar quem pode criar e editar eventos"
       ]
     },
-    "supportInboxes": {
-      "badge": "SUPORTE",
-      "title": "Caixas de Entrada de Suporte",
-      "subtitle": "Crie caixas de entrada dedicadas para cada canal de suporte",
-      "dismissButton": "Prosseguir",
-      "features": [
-        "Caixas de entrada personalizadas para diferentes canais de suporte",
-        "Distribuição automática de conversas por round-robin entre membros",
-        "Organize solicitações por departamento e atribua membros específicos",
-        "Filtros e busca em todas as conversas ativas e arquivadas",
-        "Arquive caixas de entrada resolvidas para manter o workspace organizado"
-      ]
-    },
     "workspace": {
       "badge": "WORKSPACE",
       "title": "Configuração do Workspace",
@@ -9656,6 +9695,14 @@
     "title": "A plataforma de agentes de IA para comunicação empresarial"
   },
   "crm": {
+    "messageSender": {
+      "human": "Operador",
+      "ai": "IA",
+      "workflow": "Fluxo",
+      "campaign": "Campanha",
+      "external": "Celular",
+      "template": "Template"
+    },
     "searchMessages": "Buscar mensagens",
     "searchMessagesPlaceholder": "Buscar nas mensagens...",
     "cancelReply": "Cancelar resposta",
@@ -10732,7 +10779,7 @@
         "noWonDeals": "Sem oportunidades ganhas no período"
       },
       "assistant": {
-        "title": "Analista de atendimento",
+        "title": "Elo",
         "description": "Pergunte em palavras simples. As respostas usam os números desta página e o seu acesso.",
         "scope": "Analisando",
         "allDepartments": "Todos os departamentos",
@@ -12209,7 +12256,8 @@
   },
   "scheduledMessages": {
     "composer": {
-      "scheduleAria": "Agendar mensagem"
+      "scheduleAria": "Agendar mensagem",
+      "scheduleTemplateAria": "Agendar template"
     },
     "dialog": {
       "title": "Agendar mensagem",
@@ -12238,14 +12286,16 @@
         "tomorrow": "Amanhã, 09:00",
         "custom": "Personalizado"
       },
-      "uploading": "Enviando arquivo..."
+      "uploading": "Enviando arquivo...",
+      "useTemplate": "Agendar um template aprovado em vez disso"
     },
     "panel": {
       "title": "{count} mensagem(ns) agendada(s)",
       "failedAt": "Falhou — era para {when}",
       "mediaOnly": "Anexo sem texto",
       "cancel": "Cancelar agendamento",
-      "reuse": "Tentar de novo"
+      "reuse": "Tentar de novo",
+      "template": "Template {name}"
     },
     "errors": {
       "window_closed": "A janela de atendimento está fechada. Não é possível agendar nesta conversa.",
@@ -12254,13 +12304,41 @@
       "too_far": "Esse horário está longe demais. O limite é de 30 dias.",
       "not_found": "Esse agendamento não existe mais.",
       "not_pending": "Esse agendamento já saiu da fila e não pode mais ser alterado.",
-      "invalid_request": "Não foi possível agendar com esses dados."
+      "invalid_request": "Não foi possível agendar com esses dados.",
+      "template_forbidden": "Você não tem permissão para enviar templates.",
+      "templates_unsupported": "Este canal não envia templates.",
+      "template_params": "Preencha todas as variáveis do template.",
+      "template_unavailable": "Este template não pode ser enviado deste número agora.",
+      "contact_blocked": "Este contato está bloqueado.",
+      "spam_window": "Este contato recebeu um template deste número há pouco tempo. Aguarde o fim da proteção contra spam.",
+      "number_unavailable": "O número desta conversa não está conectado ou não pertence a este workspace."
     },
     "failures": {
       "window_closed": "A janela fechou antes do envio. A mensagem não foi entregue.",
       "entry_unavailable": "A conversa ou a conta não estava mais disponível. A mensagem não foi entregue.",
       "provider_error": "O canal recusou o envio. A mensagem não foi entregue.",
-      "dispatch_interrupted": "Não foi possível confirmar a entrega. Verifique a conversa acima antes de enviar de novo."
+      "dispatch_interrupted": "Não foi possível confirmar a entrega. Verifique a conversa acima antes de enviar de novo.",
+      "permission_revoked": "Quem agendou não tem mais permissão para enviar templates. Nada foi cobrado.",
+      "template_unavailable": "O template não estava mais disponível no horário do envio. Nada foi cobrado.",
+      "contact_ineligible": "O contato estava bloqueado ou dentro da proteção contra spam. Nada foi cobrado.",
+      "insufficient_balance": "Não havia saldo no horário do envio. Nada foi cobrado.",
+      "billing_unavailable": "A cobrança não estava disponível (assinatura ou preço). Nada foi cobrado.",
+      "outcome_unknown": "O WhatsApp não confirmou o envio. Ele pode ter sido entregue e foi cobrado. Verifique a conversa antes de enviar de novo."
+    },
+    "templateDialog": {
+      "title": "Agendar template",
+      "description": "Templates aprovados podem ser enviados mesmo com a janela fechada. A cobrança acontece no horário do envio.",
+      "templateLabel": "Template",
+      "templateSearch": "Buscar template",
+      "templateEmpty": "Nenhum template encontrado",
+      "noTemplates": "Nenhum template aprovado para este número.",
+      "noNumber": "Não foi possível identificar o número desta conversa.",
+      "charge": "Será cobrado {price} no envio.",
+      "chargeUnknown": "Será cobrado no envio, pelo preço da categoria do template.",
+      "insufficientNow": "O saldo de hoje não cobre este envio. Recarregue antes do horário agendado ou o envio vai falhar.",
+      "previewLabel": "Prévia",
+      "previewEmpty": "Escolha um template para ver a prévia.",
+      "confirm": "Agendar template"
     }
   },
   "conversationWindow": {

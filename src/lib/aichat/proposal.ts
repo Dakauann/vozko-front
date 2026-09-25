@@ -1,4 +1,4 @@
-import type { ProposalField } from "./types";
+import type { PendingAction, ProposalField, StoredProposal } from "./types";
 
 export interface ProposalDictionary {
   label: (key: string) => string;
@@ -31,4 +31,18 @@ function plainValue(value: string, dict: ProposalDictionary): string {
   if (value === "true") return dict.yes;
   if (value === "false") return dict.no;
   return value;
+}
+
+export function pendingFromStored(stored: StoredProposal | undefined): PendingAction | null {
+  if (!stored) return null;
+  return { id: stored.id, toolName: stored.toolName, fields: stored.fields, preview: stored.preview, status: stored.status };
+}
+
+export function isOpenProposal(action: PendingAction | null | undefined): boolean {
+  return !!action && (action.status === undefined || action.status === "pending");
+}
+
+export function expireOpen(action: PendingAction | null | undefined): PendingAction | null {
+  if (!action) return null;
+  return isOpenProposal(action) ? { ...action, status: "expired" } : action;
 }

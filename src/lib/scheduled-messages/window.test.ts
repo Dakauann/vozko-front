@@ -6,6 +6,7 @@ import {
     canSchedule,
     marginBeforeWindowCloses,
     scheduleBounds,
+    templateSchedulingWindow,
     validateScheduledAt,
 } from "./window";
 
@@ -150,5 +151,30 @@ describe("marginBeforeWindowCloses", () => {
                 expiresAt: at(6 * HOUR),
             }),
         ).toBeNull();
+    });
+});
+
+describe("templateSchedulingWindow", () => {
+    it("opens a closed conversation to templates up to the server's bound", () => {
+        const window = templateSchedulingWindow(
+            { open: false, templateLatestAllowedAt: at(MAX_SCHEDULE_HORIZON_MS) },
+        );
+        expect(validateScheduledAt(new Date(now.getTime() + 48 * HOUR), window, now)).toEqual({ ok: true });
+    });
+
+    it("never reports a template as past the free-text window", () => {
+        const window = templateSchedulingWindow({
+            open: true,
+            expiresAt: at(6 * HOUR),
+            latestAllowedAt: at(6 * HOUR),
+            templateLatestAllowedAt: at(MAX_SCHEDULE_HORIZON_MS),
+        });
+        expect(validateScheduledAt(new Date(now.getTime() + 48 * HOUR), window, now)).toEqual({ ok: true });
+        expect(marginBeforeWindowCloses(new Date(now.getTime() + HOUR), window)).toBeNull();
+    });
+
+    it("stays closed when the server gave no template bound", () => {
+        expect(canSchedule(templateSchedulingWindow({ open: true, expiresAt: at(6 * HOUR) }))).toBe(false);
+        expect(canSchedule(templateSchedulingWindow(null))).toBe(false);
     });
 });

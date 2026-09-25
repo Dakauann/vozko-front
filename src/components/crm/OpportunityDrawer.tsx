@@ -6,7 +6,6 @@ import {
   ArrowSquareOut,
   ChatCircleDots,
   CurrencyDollar,
-  Headset,
   LinkSimpleBreak,
   Trash,
   TrendUp,
@@ -37,6 +36,7 @@ import {
   unlinkOpportunityConversationAction,
 } from "@/app/actions/opportunities";
 import type { OpportunityConversationLink } from "@/lib/crm/opportunities";
+import { conversationHref, isEntryType } from "@/lib/conversations/deep-link";
 import { listAssignableMembersAction, type AssignableMember } from "@/app/actions/workspace";
 import {
   dealActorName,
@@ -494,8 +494,6 @@ function LinkedConversations({
     switch (entryType) {
       case "whatsapp":
         return { label: "WhatsApp", icon: <WhatsappLogo weight="fill" className="h-3.5 w-3.5 text-white" />, tile: "bg-[#25d366] text-white" };
-      case "support":
-        return { label: "Suporte", icon: <Headset weight="fill" className="h-3.5 w-3.5 text-background" />, tile: "bg-foreground/80 text-background" };
       default:
         return { label: entryType, icon: <ChatCircleDots weight="fill" className="h-3.5 w-3.5 text-background" />, tile: "bg-foreground/80 text-background" };
     }
@@ -526,7 +524,7 @@ function LinkedConversations({
                 <p className="truncate font-mono text-2xs text-muted-foreground">{l.entryId}</p>
               </div>
               <a
-                href={`/dashboard/live-chat?entry=${encodeURIComponent(l.entryId)}`}
+                href={conversationHref(l.entryId, isEntryType(l.entryType) ? l.entryType : "whatsapp")}
                 title="Abrir conversa"
                 className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >

@@ -11,11 +11,12 @@ import {
 } from "@/components/elevated-design/table/dashboard-table";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import type { KnowledgeBase } from "@/lib/knowledge-base/types";
+import { formatBytes, megabytesToBytes } from "@/lib/format/bytes";
 import { apiClient } from "@/lib/api/browser-client";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
 async function fetchKnowledgeBases(): Promise<{
@@ -50,6 +51,7 @@ const statusColor: Record<string, string> = {
 
 export default function KnowledgeBasesPage() {
   const t = useTranslations("knowledgeBase");
+  const locale = useLocale();
   const { can, currentWorkspace, isLoading: workspaceLoading } = useWorkspace();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
@@ -151,7 +153,7 @@ export default function KnowledgeBasesPage() {
         header: t("stats.size"),
         render: (row) => (
           <span className="text-sm font-semibold tabular-nums text-foreground">
-            {row.totalSizeMB?.toFixed(1) ?? "0"} MB
+            {formatBytes(megabytesToBytes(row.totalSizeMB), locale)}
           </span>
         ),
       },
@@ -165,7 +167,7 @@ export default function KnowledgeBasesPage() {
         ),
       },
     ],
-    [t],
+    [t, locale],
   );
 
   return (

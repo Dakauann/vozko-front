@@ -10,7 +10,6 @@ import {
   ArrowsClockwise,
   ArrowsLeftRight,
   ChatCircleDots,
-  Headset,
   Stack,
   Tag,
   UsersThree,
@@ -66,12 +65,6 @@ function channelMeta(entryType: string): ChannelMeta {
         label: "WhatsApp",
         icon: <WhatsappLogo weight="fill" className="h-3.5 w-3.5 text-white" />,
         tile: "bg-[#25d366] text-white",
-      };
-    case "support":
-      return {
-        label: "Suporte",
-        icon: <Headset weight="fill" className="h-3.5 w-3.5 text-white" />,
-        tile: "bg-foreground/80 text-background",
       };
     default:
       return {

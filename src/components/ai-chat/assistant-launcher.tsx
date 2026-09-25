@@ -2,6 +2,8 @@
 
 import { forwardRef } from "react";
 
+import { EloMark } from "./elo-mark";
+
 import { cn } from "@/lib/utils";
 
 const BARS = [
@@ -14,7 +16,7 @@ const PLACEMENT = {
   corner:
     "bottom-4 right-4 h-14 w-14 rounded-full hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:bottom-6 sm:right-6",
   edge:
-    "right-0 top-1/2 h-28 w-9 -translate-y-1/2 flex-col gap-2 rounded-l-xl [@media(hover:hover)]:translate-x-[calc(100%-22px)] [@media(hover:hover)]:hover:translate-x-0 [@media(hover:hover)]:focus-visible:translate-x-0 [@media(hover:hover)]:data-[busy=true]:translate-x-0",
+    "right-0 top-1/2 h-28 w-9 -translate-y-1/2 flex-col gap-2 rounded-l-xl",
 } as const;
 
 function ChartGlyph() {
@@ -66,9 +68,9 @@ export const AssistantLauncher = forwardRef<
       <span aria-hidden className="vz-ai-halo" />
       <span aria-hidden className="vz-ai-ring" />
       <span aria-hidden className="absolute inset-0 rounded-[inherit] border border-border-strong bg-card" />
-      <ChartGlyph />
+      {edge ? <EloMark className="relative h-5 w-5 text-foreground" /> : <ChartGlyph />}
       {edge && tabLabel ? (
-        <span aria-hidden className="relative text-2xs font-semibold tracking-[0.08em] [writing-mode:vertical-rl]">
+        <span aria-hidden className="relative whitespace-nowrap text-2xs font-semibold text-foreground [writing-mode:vertical-rl]">
           {tabLabel}
         </span>
       ) : null}

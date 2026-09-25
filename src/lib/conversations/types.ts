@@ -62,12 +62,11 @@ export interface InboxEntryLabel {
 
 export type EntryType =
     | 'whatsapp'
-    | 'support'
     | 'instagram'
     | 'telegram'
     | 'unofficial_whatsapp';
 
-export type CampaignType = 'whatsapp' | 'support' | 'unofficial_whatsapp';
+export type CampaignType = 'whatsapp' | 'unofficial_whatsapp';
 
 export type ContainerKind = 'campaign' | undefined;
 
@@ -105,7 +104,7 @@ export const channelCapabilities = {
     supportsAiHandling(entryType: EntryType): boolean {
         const t = normalizeEntryType(entryType);
         return (
-            t === 'whatsapp' || t === 'support' ||
+            t === 'whatsapp' ||
             t === 'instagram' || t === 'telegram' || t === 'unofficial_whatsapp'
         );
     },
@@ -247,6 +246,7 @@ export interface ConversationMessage {
     channel: MessageChannel;
     message_type: MessageType;
     direction?: 'INBOUND' | 'OUTBOUND';
+    sent_by?: { kind: string; id: string } | null;
     from: string;
     to: string;
     text: string;

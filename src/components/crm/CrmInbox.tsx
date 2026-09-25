@@ -33,6 +33,7 @@ import type { FunnelStages } from "@/app/actions/stages";
 import { getConversationStatusDisplay } from "@/lib/conversations/close-provenance";
 import { AiHandlerChip } from "@/components/crm/AiHandlerChip";
 import { AssigneeGlyph } from "@/components/crm/AssigneeGlyph";
+import { ownerLineNamesTheAutomation } from "@/lib/conversations/attendance-summary";
 import {
   RESPONSIBLE_AI,
   RESPONSIBLE_UNASSIGNED,
@@ -1339,13 +1340,15 @@ export default function CrmInbox({
                           </span>
                           {
 }
-                          <AiHandlerChip
-                            handler={entry.ai_handler}
-                            automationEnabled={entry.automation_enabled}
-                            conversationStatus={entry.conversation_status}
-                            assignedUserId={entry.assigned_user_id}
-                            size="sm"
-                          />
+                          {!ownerLineNamesTheAutomation(entry.assigned_user_id, entry.automation_enabled) && (
+                            <AiHandlerChip
+                              handler={entry.ai_handler}
+                              automationEnabled={entry.automation_enabled}
+                              conversationStatus={entry.conversation_status}
+                              assignedUserId={entry.assigned_user_id}
+                              size="sm"
+                            />
+                          )}
                           {
 }
                           {canReadAnalysis && entry.analysis_phase && (

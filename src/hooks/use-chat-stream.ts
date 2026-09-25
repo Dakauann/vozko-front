@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 
 import { fetchWithRefresh, getApiBaseUrl, scopeHeaders } from "@/lib/api/browser-client";
-import type { ChatChart, ChatStreamEvent, ChatView, PendingAction } from "@/lib/aichat/types";
+import type { ActionCard, ChatChart, ChatStreamEvent, ChatView, PendingAction } from "@/lib/aichat/types";
 
 const API_BASE = getApiBaseUrl();
 
@@ -14,13 +14,14 @@ export interface StreamHandlers {
   onToolStart?: (name: string) => void;
   onTool?: (name: string, summary: string, ok: boolean) => void;
   onChart?: (chart: ChatChart) => void;
+  onCard?: (card: ActionCard) => void;
   onProposal?: (action: PendingAction) => void;
   onAwaitingApproval?: (actionId: string) => void;
   onDone?: () => void;
   onError?: (error: string) => void;
 }
 
-function dispatch(ev: ChatStreamEvent, h: StreamHandlers) {
+export function dispatchStreamEvent(ev: ChatStreamEvent, h: StreamHandlers) {
   const p = ev.payload ?? {};
   switch (ev.type) {
     case "assistant_delta":
@@ -41,8 +42,11 @@ function dispatch(ev: ChatStreamEvent, h: StreamHandlers) {
     case "chart":
       if (ev.payload) h.onChart?.(ev.payload as unknown as ChatChart);
       break;
+    case "action_card":
+      if (ev.payload) h.onCard?.(ev.payload as unknown as ActionCard);
+      break;
     case "tool_proposal":
-      h.onProposal?.({ id: p.id ?? "", toolName: p.toolName ?? "", args: p.args, summary: p.summary });
+      h.onProposal?.({ id: p.id ?? "", toolName: p.toolName ?? "", args: p.args, summary: p.summary, fields: p.fields, preview: p.preview });
       break;
     case "awaiting_approval":
       h.onAwaitingApproval?.(p.actionId ?? "");
@@ -119,7 +123,7 @@ export function useChatStream() {
             } catch {
               continue;
             }
-            dispatch(ev, handlers);
+            dispatchStreamEvent(ev, handlers);
           }
         }
       } catch (e) {
@@ -136,8 +140,8 @@ export function useChatStream() {
   );
 
   const send = useCallback(
-    (threadId: string, content: string, model: string, handlers: StreamHandlers, view?: ChatView) =>
-      runStream(`${API_BASE}/chat/threads/${threadId}/messages`, { content, model, view }, handlers),
+    (threadId: string, content: string, model: string, handlers: StreamHandlers, view?: ChatView, attachments: string[] = []) =>
+      runStream(`${API_BASE}/chat/threads/${threadId}/messages`, { content, model, view, attachments }, handlers),
     [runStream],
   );
 

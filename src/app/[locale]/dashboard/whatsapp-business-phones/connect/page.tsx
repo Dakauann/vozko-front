@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowLeft, ArrowSquareOut, Lock } from "@/components/icons";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import Button from "@/components/elevated-design/button";
@@ -18,6 +18,7 @@ import {
 import { WhatsAppLogoColor } from "@/components/icons/channel-logos";
 import WhatsAppCapacityCard from "@/components/dashboard/addons/WhatsAppCapacityCard";
 import { useWhatsAppCapacity } from "@/hooks/use-whatsapp-capacity";
+import { useWhatsAppEmbeddedSignup } from "@/hooks/use-whatsapp-embedded-signup";
 import Image from "next/image";
 import { useAuth } from "@/contexts/auth-context";
 import { useTheme } from "next-themes";
@@ -33,10 +34,9 @@ export default function ConnectWhatsAppPage() {
   const { resolvedTheme } = useTheme();
   const { toast } = useToast();
   const { user } = useAuth();
-  const { currentWorkspace, can } = useWorkspace();
+  const { can } = useWorkspace();
   const capacity = useWhatsAppCapacity();
   const capacityBlocked = capacity.ready && !capacity.canAdd;
-  const [isRedirecting, setIsRedirecting] = useState(false);
   const [popupConnected, setPopupConnected] = useState(false);
   const badgeSrc =
     resolvedTheme === "dark"
@@ -71,80 +71,26 @@ export default function ConnectWhatsAppPage() {
     }
   }, [isSuccess, isError, toast, t]);
 
-  const apiBaseUrl = useMemo(() => {
-    return process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
-  }, []);
-
-  const handleConnect = () => {
-    if (capacityBlocked) {
-      return;
-    }
-    if (!currentWorkspace?.id) {
+  const signup = useWhatsAppEmbeddedSignup((outcome) => {
+    if (outcome === "success") {
+      toast({
+        title: t("connect.success.toastTitle"),
+        description: t("connect.success.toastDescription"),
+      });
+      setPopupConnected(true);
+    } else if (outcome === "no_workspace") {
       toast({
         title: t("connect.error.toastTitle"),
         description: t("connect.noWorkspace"),
         variant: "destructive",
       });
-      return;
     }
+  });
+  const isRedirecting = signup.connecting;
 
-    const currentUrl = window.location.origin + window.location.pathname;
-    const signupUrl = `${apiBaseUrl}/oauth/meta/embedded?workspace_id=${encodeURIComponent(currentWorkspace.id)}&redirect_url=${encodeURIComponent(currentUrl)}`;
-
-    const w = 520;
-    const h = 720;
-    const left = window.screenX + Math.max(0, (window.outerWidth - w) / 2);
-    const top = window.screenY + Math.max(0, (window.outerHeight - h) / 2);
-    const popup = window.open(
-      signupUrl,
-      "wa-embedded",
-      `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`,
-    );
-
-    if (!popup) {
-      setIsRedirecting(true);
-      window.location.href = signupUrl;
-      return;
-    }
-
-    setIsRedirecting(true);
-
-    let apiOrigin = "";
-    try {
-      apiOrigin = new URL(apiBaseUrl).origin;
-    } catch {
-      apiOrigin = "";
-    }
-
-    const cleanup = () => {
-      window.removeEventListener("message", onMessage);
-      window.clearInterval(closeTimer);
-      setIsRedirecting(false);
-    };
-
-    const onMessage = (event: MessageEvent) => {
-      if (apiOrigin && event.origin !== apiOrigin) return;
-      const data = event.data as { source?: string; status?: string };
-      if (!data || data.source !== "wa-embedded") return;
-      cleanup();
-      try {
-        popup.close();
-      } catch {
-      }
-      if (data.status === "success") {
-        toast({
-          title: t("connect.success.toastTitle"),
-          description: t("connect.success.toastDescription"),
-        });
-        setPopupConnected(true);
-      }
-    };
-
-    const closeTimer = window.setInterval(() => {
-      if (popup.closed) cleanup();
-    }, 600);
-
-    window.addEventListener("message", onMessage);
+  const handleConnect = () => {
+    if (capacityBlocked) return;
+    signup.start();
   };
 
   if (user && !can("business_phones", "create")) {

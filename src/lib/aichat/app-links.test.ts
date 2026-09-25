@@ -9,6 +9,19 @@ describe("resolveAppLink", () => {
     expect(resolveAppLink(`campaign:${id}`)).toEqual({ kind: "internal", path: `/dashboard/whatsapp-campaigns/${id}` });
   });
 
+  it("turns a conversation reference into the live chat with that conversation open", () => {
+    expect(resolveAppLink(`conversation:instagram:${id}`)).toEqual({
+      kind: "internal",
+      path: `/dashboard/live-chat?entry=${id}&type=instagram`,
+    });
+  });
+
+  it("refuses a conversation reference with an unknown channel or a crafted id", () => {
+    for (const href of [`conversation:fax:${id}`, "conversation:whatsapp:../x", `conversation:${id}`, "conversation:whatsapp:a?b=c"]) {
+      expect(resolveAppLink(href)).toBeNull();
+    }
+  });
+
   it("keeps ordinary web links as external links", () => {
     expect(resolveAppLink("https://www.gov.br/receita")).toEqual({ kind: "external", href: "https://www.gov.br/receita" });
   });
@@ -33,6 +46,7 @@ describe("resolveAppLink", () => {
 describe("keepAppLinks", () => {
   it("lets campaign references through the markdown sanitizer and still strips scripts", () => {
     expect(keepAppLinks(`campaign:${id}`)).toBe(`campaign:${id}`);
+    expect(keepAppLinks(`conversation:whatsapp:${id}`)).toBe(`conversation:whatsapp:${id}`);
     expect(keepAppLinks("javascript:alert(1)")).toBe("");
   });
 });

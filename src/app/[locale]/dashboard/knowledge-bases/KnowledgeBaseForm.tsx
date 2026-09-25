@@ -23,7 +23,8 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { formatBytes } from "@/lib/format/bytes";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -64,12 +65,6 @@ const ALLOWED_TYPES = [
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const MAX_DOCUMENTS = 120;
-
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
 
 const StepIndicator = ({
   step,
@@ -115,6 +110,7 @@ export default function KnowledgeBaseForm({
 }: KnowledgeBaseFormProps) {
   const router = useRouter();
   const t = useTranslations("knowledgeBase");
+  const locale = useLocale();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
@@ -493,7 +489,7 @@ export default function KnowledgeBaseForm({
                         {pf.name}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {formatFileSize(pf.size)}
+                        {formatBytes(pf.size, locale)}
                       </p>
                     </div>
                     <button

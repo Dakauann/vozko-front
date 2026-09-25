@@ -15,6 +15,7 @@ import {
 } from "recharts";
 
 import type { Analysis } from "@/lib/analysis/types";
+import { messageMix } from "@/lib/conversations/message-mix";
 import type { ConversationMessage } from "@/lib/conversations/types";
 import { vozGrid, vozXAxis, vozYAxis } from "@/components/charts/vozko";
 import { cn } from "@/lib/utils";
@@ -35,6 +36,7 @@ const MIX = {
   customer: "hsl(var(--chart-1))",
   team: "hsl(var(--chart-4))",
   ai: "hsl(var(--chart-3))",
+  automation: "hsl(var(--chart-2))",
   media: "hsl(var(--chart-5))",
   tools: "hsl(var(--muted-foreground))",
 } as const;
@@ -125,47 +127,12 @@ export default function ConversationPathChart({
 
   const threadStats = useMemo(() => {
     const list = messages ?? [];
-    let customer = 0;
-    let team = 0;
-    let ai = 0;
-    let media = 0;
-    let tools = 0;
     let whatsapp = 0;
     let failedDelivery = 0;
 
     for (const m of list) {
       if (m.channel === "whatsapp") whatsapp += 1;
       if (m.delivery_status === "failed") failedDelivery += 1;
-      if (m.media_type || m.media_id) media += 1;
-
-      switch (m.message_type) {
-        case "user_message":
-          customer += 1;
-          break;
-        case "ai_response":
-          ai += 1;
-          break;
-        case "operator":
-        case "template":
-          team += 1;
-          break;
-        case "tool_call":
-        case "tool_result":
-          tools += 1;
-          break;
-        case "audio":
-          if (
-            m.from &&
-            m.from !== "system" &&
-            !String(m.from).startsWith("agent")
-          )
-            customer += 1;
-          else team += 1;
-          media += 1;
-          break;
-        default:
-          break;
-      }
     }
 
     const times = list
@@ -178,11 +145,7 @@ export default function ConversationPathChart({
       firstAt != null && lastAt != null ? Math.max(0, lastAt - firstAt) : null;
 
     return {
-      customer,
-      team,
-      ai,
-      media,
-      tools,
+      ...messageMix(list),
       whatsapp,
       failedDelivery,
       total: list.length,
@@ -208,6 +171,11 @@ export default function ConversationPathChart({
         name: t("mix.ai"),
         count: threadStats.ai,
         color: MIX.ai,
+      },
+      {
+        name: t("mix.automation"),
+        count: threadStats.automation,
+        color: MIX.automation,
       },
       {
         name: t("mix.media"),

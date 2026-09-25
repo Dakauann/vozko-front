@@ -389,6 +389,18 @@ describe("incomingUnreadIds", () => {
       ]),
     ).toEqual(["m1"]);
   });
+
+  it("reads the sender before the message type", () => {
+    expect(
+      incomingUnreadIds([
+        msg("m1", { media_type: "image", sent_by: { kind: "workflow", id: "workflow:w1" } }),
+        msg("m2", { message_type: "audio", sent_by: { kind: "external", id: "" } }),
+        msg("m3", { message_type: "media", sent_by: { kind: "contact", id: "" } }),
+        msg("m4", { message_type: "system" }),
+        msg("m5", { sent_by: { kind: "system", id: "" } }),
+      ]),
+    ).toEqual(["m3"]);
+  });
 });
 
 function markLoadingMore(

@@ -19,6 +19,7 @@ function message(overrides: Partial<ScheduledMessage> = {}): ScheduledMessage {
         entryId: "entry-1",
         entryType: "whatsapp",
         createdByUserId: "user-1",
+        kind: "text",
         text: "Bom dia!",
         signed: false,
         scheduledAt: "2026-08-13T17:30:00.000Z",
@@ -38,6 +39,7 @@ function renderPanel(
             <ScheduledMessagesPanel
                 messages={messages}
                 canManage
+                canManageTemplates
                 onChanged={vi.fn()}
                 onReuse={vi.fn()}
                 {...props}
@@ -128,5 +130,44 @@ describe("ScheduledMessagesPanel", () => {
     it("labels a media-only message rather than showing an empty row", () => {
         renderPanel([message({ text: undefined, mediaId: "med-1", mediaType: "image" })]);
         expect(screen.getByText(ptMessages.scheduledMessages.panel.mediaOnly)).toBeInTheDocument();
+    });
+
+    it("shows a template by its name and preview", () => {
+        renderPanel([
+            message({
+                kind: "template",
+                text: undefined,
+                template: { id: "tpl-1", name: "follow_up", preview: "Oi Ana, tudo certo?" },
+            }),
+        ]);
+        expect(screen.getByText("Template follow_up")).toBeInTheDocument();
+        expect(screen.getByText("Oi Ana, tudo certo?")).toBeInTheDocument();
+    });
+
+    it("hides a template's cancel from someone who may not send templates", () => {
+        renderPanel(
+            [message({ kind: "template", text: undefined, template: { id: "tpl-1", name: "follow_up" } })],
+            { canManageTemplates: false },
+        );
+        expect(screen.queryByLabelText(ptMessages.scheduledMessages.panel.cancel)).not.toBeInTheDocument();
+    });
+
+    it("still lets that person cancel free text", () => {
+        renderPanel([message()], { canManageTemplates: false });
+        expect(screen.getByLabelText(ptMessages.scheduledMessages.panel.cancel)).toBeInTheDocument();
+    });
+
+    it("explains a template that failed for lack of balance", () => {
+        renderPanel([
+            message({
+                kind: "template",
+                status: "failed",
+                failureReason: "insufficient_balance",
+                template: { id: "tpl-1", name: "follow_up" },
+            }),
+        ]);
+        expect(
+            screen.getByText(ptMessages.scheduledMessages.failures.insufficient_balance),
+        ).toBeInTheDocument();
     });
 });

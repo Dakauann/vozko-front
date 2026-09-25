@@ -17,6 +17,7 @@ import { DraggableComponent } from "./DragDropBuilder";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { getBrand } from "@/config/brand";
+import { fillVariables } from "@/lib/whatsapp-templates/preview";
 
 interface WhatsAppPreviewProps {
   components: DraggableComponent[];
@@ -239,7 +240,7 @@ function HeaderPreview({ component }: { component: DraggableComponent }) {
 }
 
 function BodyPreview({ component }: { component: DraggableComponent }) {
-  const { text } = component.data;
+  const { text, variableExamples } = component.data;
 
   if (!text) {
     return (
@@ -249,13 +250,7 @@ function BodyPreview({ component }: { component: DraggableComponent }) {
     );
   }
 
-  const renderText = text
-    .replace(/\{\{1\}\}/g, "John")
-    .replace(/\{\{2\}\}/g, "Smith")
-    .replace(/\{\{3\}\}/g, "Premium")
-    .replace(/\{\{name\}\}/gi, "John")
-    .replace(/\{\{lastname\}\}/gi, "Smith")
-    .replace(/\{\{product\}\}/gi, "Premium");
+  const renderText = fillVariables(text, variableExamples);
 
   return (
     <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">

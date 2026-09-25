@@ -11,12 +11,38 @@ import {
   ChartBar,
   ChartLine,
   ChatsCircle,
+  ArrowRight,
+  ArrowsLeftRight,
+  CalendarBlank,
+  ClockCountdown,
+  NotePencil,
+  PaperPlaneRight,
+  Pause,
+  Play,
+  TagSimple,
+  UserPlus,
+  XCircle,
+  ChatText,
+  EnvelopeSimple,
+  FileText,
+  FlowArrow,
+  Handshake,
+  Kanban,
+  Tag,
+  IdentificationCard,
+  UserCircle,
   ArrowClockwise,
   Funnel,
   Pulse,
   CircleNotch,
   Database,
   Hourglass,
+  DeviceMobile,
+  FileCsv,
+  Megaphone,
+  PlayCircle,
+  Files,
+  UploadSimple,
   type Icon,
   ListBullets,
   ListNumbers,
@@ -32,8 +58,17 @@ import {
 } from "@/components/icons";
 import { ChatMarkdown } from "@/components/elevated-design/chat-markdown";
 import { ModelBrandIcon } from "@/components/elevated-design/model-brand-icon";
-import type { ChatChart, ChatMessage, PendingAction } from "@/lib/aichat/types";
-import { humanizeFieldKey, proposalRows, type ProposalDictionary } from "@/lib/aichat/proposal";
+import { EloAvatar } from "./elo-mark";
+import { hasProposalPreview, ProposalPreview } from "@/components/ai-chat/proposal-preview";
+import { ActionCardView } from "@/components/ai-chat/action-card";
+import type { ChatChart, ChatMessage, PendingAction, ProposalStatus } from "@/lib/aichat/types";
+import {
+  humanizeFieldKey,
+  isOpenProposal,
+  pendingFromStored,
+  proposalRows,
+  type ProposalDictionary,
+} from "@/lib/aichat/proposal";
 import { cn } from "@/lib/utils";
 
 import { ChatChartView } from "./chat-chart";
@@ -62,6 +97,52 @@ const TOOL_ICON: Record<string, Icon> = {
   calculate: Calculator,
   query_dataset: Database,
   render_chart: ChartBar,
+  search_conversations: MagnifyingGlass,
+  read_conversation: ChatText,
+  search_leads: UserCircle,
+  get_lead: IdentificationCard,
+  list_knowledge_bases: FileText,
+  search_knowledge: FileText,
+  list_templates: EnvelopeSimple,
+  list_pipelines: Kanban,
+  list_labels: Tag,
+  list_calendar_events: CalendarBlank,
+  list_workflows: FlowArrow,
+  add_lead_memory: NotePencil,
+  update_lead_memory: NotePencil,
+  move_conversation_stage: ArrowRight,
+  move_conversation_funnel: ArrowsLeftRight,
+  apply_label: Tag,
+  remove_label: TagSimple,
+  create_label: Tag,
+  send_message: PaperPlaneRight,
+  schedule_message: ClockCountdown,
+  cancel_scheduled_message: XCircle,
+  send_template: EnvelopeSimple,
+  list_assignable_members: Users,
+  assign_conversation: UserPlus,
+  transfer_conversation: ArrowsLeftRight,
+  pause_workflow: Pause,
+  activate_workflow: Play,
+  create_calendar_event: CalendarBlank,
+  create_pipeline: Kanban,
+  create_stage: Plus,
+  rename_stage: PencilSimple,
+  reorder_stages: ListNumbers,
+  set_initial_stage: ArrowRight,
+  list_deal_pipelines: Kanban,
+  list_deals: Handshake,
+  create_deal: Handshake,
+  move_deal: ArrowRight,
+  link_deal: Handshake,
+  list_business_phones: DeviceMobile,
+  create_template: EnvelopeSimple,
+  preview_campaign_import: FileCsv,
+  create_campaign: Megaphone,
+  start_campaign: PlayCircle,
+  create_knowledge_base: Files,
+  add_knowledge_document: UploadSimple,
+  offer_action: ArrowRight,
 };
 
 const KNOWN_TOOLS = new Set(Object.keys(TOOL_ICON));
@@ -74,15 +155,17 @@ export type UIMessage = ChatMessage & {
 };
 
 export function hydrate(m: ChatMessage): UIMessage {
-  if (!m.reasoning && !(m.tools && m.tools.length > 0)) return m;
+  const pending = pendingFromStored(m.proposal);
+  if (!m.reasoning && !(m.tools && m.tools.length > 0)) return { ...m, pending };
   const segments: Segment[] = [];
   if (m.reasoning) segments.push({ kind: "thinking", text: m.reasoning });
   for (const tool of m.tools ?? []) {
     segments.push({ kind: "tool", name: tool.name, summary: tool.summary, ok: tool.ok });
     if (tool.chart) segments.push({ kind: "chart", chart: tool.chart });
+    if (tool.card) segments.push({ kind: "card", card: tool.card });
   }
   if (m.content) segments.push({ kind: "text", text: m.content });
-  return { ...m, segments };
+  return { ...m, segments, pending };
 }
 
 export interface BubbleLabels {
@@ -96,6 +179,7 @@ export interface BubbleLabels {
   toolDenied: string;
   toolLabel: (name: string) => string;
   proposal: ProposalDictionary;
+  decided: Record<DecidedStatus, string>;
 }
 
 export function useBubbleLabels(): BubbleLabels {
@@ -121,16 +205,19 @@ export function useBubbleLabels(): BubbleLabels {
     toolDenied: t("toolDenied"),
     toolLabel,
     proposal: { label: fieldLabel, yes: t("yes"), no: t("no") },
+    decided: { approved: t("decided.approved"), rejected: t("decided.rejected"), expired: t("decided.expired") },
   };
 }
 
 export function MessageBubble({
+  elo = false,
   message,
   live,
   onApprove,
   onReject,
   labels,
 }: {
+  elo?: boolean;
   message: UIMessage;
   live: boolean;
   onApprove: (actionId: string) => void;
@@ -142,6 +229,19 @@ export function MessageBubble({
       <div className="flex justify-end">
         <div className="rounded-lg max-w-[85%] whitespace-pre-wrap break-words border border-border bg-muted px-3.5 py-2.5 text-sm leading-relaxed text-foreground">
           {message.content}
+          {message.attachments && message.attachments.length > 0 ? (
+            <ul className="mt-2 flex flex-wrap gap-1.5 whitespace-normal">
+              {message.attachments.map((file) => (
+                <li
+                  key={file.mediaId}
+                  className="flex max-w-full items-center gap-1.5 rounded-[--radius] border border-border bg-card px-2 py-1 text-xs"
+                >
+                  <FileText className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" aria-hidden />
+                  <span className="truncate">{file.name}</span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
       </div>
     );
@@ -153,7 +253,7 @@ export function MessageBubble({
 
   return (
     <div className="flex gap-3">
-      {message.model ? (
+      {elo ? <EloAvatar className="mt-0.5 h-8 w-8" /> : message.model ? (
         <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center ink-plate">
           <ModelBrandIcon modelId={message.model} size={15} />
         </span>
@@ -163,6 +263,7 @@ export function MessageBubble({
         </span>
       )}
       <div className="min-w-0 flex-1 space-y-2 pt-0.5">
+        {elo ? <p className="text-xs font-semibold text-foreground">Elo</p> : null}
         {hasSegs ? (
           layoutSegments(segs).map((block, i) => <SegmentView key={i} seg={block} labels={labels} />)
         ) : message.content ? (
@@ -195,6 +296,8 @@ function SegmentView({ seg, labels }: { seg: Block; labels: BubbleLabels }) {
       return <ToolLine name={seg.name} summary={seg.summary} ok={seg.ok} running={seg.running} labels={labels} />;
     case "charts":
       return <ChartGrid charts={seg.charts} />;
+    case "card":
+      return <ActionCardView card={seg.card} />;
     default:
       return (
         <div className="text-sm">
@@ -284,7 +387,6 @@ function ApprovalCard({
   onReject: (actionId: string) => void;
   labels: BubbleLabels;
 }) {
-  const [busy, setBusy] = useState<null | "approve" | "reject">(null);
   const TileIcon = TOOL_ICON[pending.toolName] ?? Wrench;
   const rows = proposalRows(pending.fields, labels.proposal);
   return (
@@ -306,45 +408,71 @@ function ApprovalCard({
                 </div>
               ))}
             </dl>
-          ) : pending.fields === undefined && pending.summary ? (
-            <p className="mt-1 break-words text-xs leading-relaxed text-muted-foreground">
-              {pending.summary}
-            </p>
           ) : null}
         </div>
       </div>
-      <div className="mt-3 flex flex-col gap-2.5 border-t border-border pt-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-        <span className="text-xs font-medium text-primary-ink">{labels.approvalHint}</span>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            disabled={busy !== null}
-            onClick={() => {
-              setBusy("reject");
-              onReject(pending.id);
-            }}
-            className="rounded-[--radius] inline-flex items-center gap-1.5 border border-control-edge bg-card px-3.5 py-2 text-sm font-medium text-foreground transition-colors duration-DEFAULT hover:bg-muted disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            {busy === "reject" ? (
-              <CircleNotch weight="bold" className="h-3.5 w-3.5 animate-spin" />
-            ) : null}
-            {labels.reject}
-          </button>
-          <button
-            type="button"
-            disabled={busy !== null}
-            onClick={() => {
-              setBusy("approve");
-              onApprove(pending.id);
-            }}
-            className="inline-flex items-center gap-1.5 rounded-[--radius] bg-primary px-3.5 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-DEFAULT hover:bg-primary-hover active:bg-primary-active disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            {busy === "approve" ? (
-              <CircleNotch weight="bold" className="h-3.5 w-3.5 animate-spin" />
-            ) : null}
-            {labels.approve}
-          </button>
+      {hasProposalPreview(pending.preview) ? (
+        <div className="mt-3">
+          <ProposalPreview preview={pending.preview} />
         </div>
+      ) : null}
+      {isOpenProposal(pending) ? (
+        <ApprovalActions pending={pending} onApprove={onApprove} onReject={onReject} labels={labels} />
+      ) : (
+        <p className="mt-3 border-t border-border pt-3 text-xs font-medium text-muted-foreground">
+          {labels.decided[pending.status as DecidedStatus]}
+        </p>
+      )}
+    </div>
+  );
+}
+
+type DecidedStatus = Exclude<ProposalStatus, "pending">;
+
+function ApprovalActions({
+  pending,
+  onApprove,
+  onReject,
+  labels,
+}: {
+  pending: PendingAction;
+  onApprove: (actionId: string) => void;
+  onReject: (actionId: string) => void;
+  labels: BubbleLabels;
+}) {
+  const [busy, setBusy] = useState<null | "approve" | "reject">(null);
+  return (
+    <div className="mt-3 flex flex-col gap-2.5 border-t border-border pt-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+      <span className="text-xs font-medium text-primary-ink">{labels.approvalHint}</span>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          disabled={busy !== null}
+          onClick={() => {
+            setBusy("reject");
+            onReject(pending.id);
+          }}
+          className="rounded-[--radius] inline-flex items-center gap-1.5 border border-control-edge bg-card px-3.5 py-2 text-sm font-medium text-foreground transition-colors duration-DEFAULT hover:bg-muted disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {busy === "reject" ? (
+            <CircleNotch weight="bold" className="h-3.5 w-3.5 animate-spin" />
+          ) : null}
+          {labels.reject}
+        </button>
+        <button
+          type="button"
+          disabled={busy !== null}
+          onClick={() => {
+            setBusy("approve");
+            onApprove(pending.id);
+          }}
+          className="inline-flex items-center gap-1.5 rounded-[--radius] bg-primary px-3.5 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-DEFAULT hover:bg-primary-hover active:bg-primary-active disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {busy === "approve" ? (
+            <CircleNotch weight="bold" className="h-3.5 w-3.5 animate-spin" />
+          ) : null}
+          {labels.approve}
+        </button>
       </div>
     </div>
   );

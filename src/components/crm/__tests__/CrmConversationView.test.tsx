@@ -207,7 +207,7 @@ describe("CrmConversationView rendering", () => {
       />,
     );
     expect(screen.getByText("AI answer")).toBeInTheDocument();
-    expect(screen.getByText("AI")).toBeInTheDocument();
+    expect(screen.getByText("IA")).toBeInTheDocument();
   });
 
   it("renders system messages centered", () => {

@@ -11,6 +11,7 @@ import { useTranslations } from "next-intl";
 interface ScheduledMessagesPanelProps {
     messages: ScheduledMessage[];
     canManage: boolean;
+    canManageTemplates: boolean;
     onChanged: () => void;
     onReuse: (message: ScheduledMessage) => void;
 }
@@ -18,6 +19,7 @@ interface ScheduledMessagesPanelProps {
 export default function ScheduledMessagesPanel({
     messages,
     canManage,
+    canManageTemplates,
     onChanged,
     onReuse,
 }: ScheduledMessagesPanelProps) {
@@ -75,7 +77,7 @@ export default function ScheduledMessagesPanel({
                             <ScheduledMessageRow
                                 key={message.id}
                                 message={message}
-                                canManage={canManage}
+                                canManage={message.kind === "template" ? canManageTemplates : canManage}
                                 cancelling={cancelling === message.id}
                                 onCancel={handleCancel}
                                 onReuse={onReuse}
@@ -129,9 +131,22 @@ function ScheduledMessageRow({
                     </span>
                 </div>
 
-                <p className="mt-0.5 line-clamp-2 whitespace-pre-wrap text-2xs text-muted-foreground">
-                    {message.text || t("panel.mediaOnly")}
-                </p>
+                {message.template ? (
+                    <>
+                        <p className="mt-0.5 text-2xs font-medium text-foreground">
+                            {t("panel.template", { name: message.template.name })}
+                        </p>
+                        {message.template.preview ? (
+                            <p className="mt-0.5 line-clamp-2 whitespace-pre-wrap text-2xs text-muted-foreground">
+                                {message.template.preview}
+                            </p>
+                        ) : null}
+                    </>
+                ) : (
+                    <p className="mt-0.5 line-clamp-2 whitespace-pre-wrap text-2xs text-muted-foreground">
+                        {message.text || t("panel.mediaOnly")}
+                    </p>
+                )}
 
                 {failureCopy ? (
                     <p className="mt-1 text-2xs text-warning-ink">{failureCopy}</p>

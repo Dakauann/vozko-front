@@ -80,3 +80,11 @@ export function marginBeforeWindowCloses(
     if (!window?.open || !expires) return null;
     return expires.getTime() - at.getTime();
 }
+
+export function templateSchedulingWindow(
+    window: SchedulingWindow | null | undefined,
+): SchedulingWindow {
+    const latest = window?.templateLatestAllowedAt;
+    if (!latest) return { open: false };
+    return { open: true, expiresAt: null, latestAllowedAt: latest };
+}

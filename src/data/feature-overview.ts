@@ -14,7 +14,6 @@ import {
   Lightning,
   Plugs,
   PhoneCall,
-  Headset,
   CalendarBlank,
   Shield,
   ChartBar,
@@ -238,22 +237,6 @@ export const featureConfigs: Record<string, FeatureOverviewConfig> = {
     seed: 333,
   },
 
-  supportInboxes: {
-    features: [
-      { icon: Headset, textKey: "supportInboxes.features.0" },
-      { icon: ArrowsClockwise, textKey: "supportInboxes.features.1" },
-      { icon: Users, textKey: "supportInboxes.features.2" },
-      { icon: Monitor, textKey: "supportInboxes.features.3" },
-      { icon: FileText, textKey: "supportInboxes.features.4" },
-    ],
-    palette: [
-      { colors: ["#f59e0b", "#d97706"], weight: 35 },
-      { colors: ["#fbbf24", "#fcd34d"], weight: 25 },
-      { colors: ["#b45309", "#92400e"], weight: 25 },
-      { colors: ["#fef3c7", "#fde68a"], weight: 15 },
-    ],
-    seed: 444,
-  },
 
   workspace: {
     features: [

@@ -157,9 +157,6 @@ function channelBranchMark(handleId: string): ReactNode {
   if (hasChannelMark(handleId)) {
     return <ChannelLogo channel={handleId} className="h-3 w-3" />;
   }
-  if (handleId === "support") {
-    return <Headset className="h-3 w-3 text-muted-foreground" weight="fill" />;
-  }
   return <Broadcast className="h-3 w-3 text-muted-foreground" weight="fill" />;
 }
 

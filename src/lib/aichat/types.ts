@@ -8,10 +8,18 @@ export interface ChatThread {
   createdAt: string;
 }
 
+export interface ChatAttachment {
+  mediaId: string;
+  name: string;
+  kind: string;
+}
+
 export interface ChatMessage {
   id: string;
   role: ChatRole;
   content: string;
+  attachments?: ChatAttachment[];
+  proposal?: StoredProposal;
   model?: string;
   reasoning?: string;
   tools?: ToolActivity[];
@@ -79,16 +87,57 @@ export interface ChatView {
   includeAi?: boolean;
 }
 
+export type ActionKind =
+  | "connect_whatsapp_business"
+  | "connect_unofficial_whatsapp"
+  | "connect_instagram"
+  | "connect_telegram"
+  | "top_up_balance"
+  | "manage_subscription";
+
+export type CapabilityBlocker = "no_permission" | "at_limit" | "no_subscription" | "unavailable" | "needs_official_whatsapp";
+
+export interface CapabilityStatus {
+  capability: string;
+  count: number;
+  usage?: { used: number; total: number };
+  canAdd: boolean;
+  blocker?: CapabilityBlocker;
+}
+
+export interface ActionCard {
+  kind: ActionKind;
+  status?: CapabilityStatus;
+  balanceMicros: number;
+  subscriptionActive: boolean;
+}
+
 export interface ToolActivity {
   name: string;
   summary: string;
   ok: boolean;
   chart?: ChatChart;
+  card?: ActionCard;
 }
 
 export interface ProposalField {
   key: string;
   value: string;
+}
+
+export type ProposalStatus = "pending" | "approved" | "rejected" | "expired";
+
+export interface ProposalPreview {
+  kind: string;
+  data: unknown;
+}
+
+export interface StoredProposal {
+  id: string;
+  toolName: string;
+  fields: ProposalField[];
+  preview?: ProposalPreview;
+  status: ProposalStatus;
 }
 
 export interface PendingAction {
@@ -97,6 +146,8 @@ export interface PendingAction {
   args?: Record<string, unknown>;
   summary?: string;
   fields?: ProposalField[];
+  preview?: ProposalPreview;
+  status?: ProposalStatus;
 }
 
 export interface ChatStreamEvent {
@@ -109,6 +160,7 @@ export interface ChatStreamEvent {
     | "tool"
     | "tool_start"
     | "chart"
+    | "action_card"
     | "tool_proposal"
     | "awaiting_approval"
     | "done"
@@ -121,6 +173,8 @@ export interface ChatStreamEvent {
     id?: string;
     toolName?: string;
     args?: Record<string, unknown>;
+    fields?: ProposalField[];
+    preview?: ProposalPreview;
     actionId?: string;
     tool?: string;
     content?: string;

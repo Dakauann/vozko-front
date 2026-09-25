@@ -6,6 +6,7 @@ import type {
 } from "./types";
 
 import { resolveAutomationEnabled } from "./automation";
+import { isFromContact } from "./direction";
 import { windowKey } from "./window-deck";
 
 
@@ -32,17 +33,9 @@ export interface OpenWindowConversationInput {
   isGroup?: boolean;
 }
 
-const OUTGOING_MESSAGE_TYPES = new Set([
-  "operator",
-  "ai_response",
-  "tool_call",
-  "tool_result",
-  "system",
-]);
-
 export function incomingUnreadIds(messages: ConversationMessage[]): string[] {
   return messages
-    .filter((m) => !m.read && !OUTGOING_MESSAGE_TYPES.has(m.message_type))
+    .filter((m) => !m.read && isFromContact(m))
     .map((m) => m.id);
 }
 

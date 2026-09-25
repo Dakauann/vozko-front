@@ -11,7 +11,23 @@ export type ScheduledMessageFailureReason =
     | "window_closed"
     | "entry_unavailable"
     | "provider_error"
-    | "dispatch_interrupted";
+    | "dispatch_interrupted"
+    | "permission_revoked"
+    | "template_unavailable"
+    | "contact_ineligible"
+    | "insufficient_balance"
+    | "billing_unavailable"
+    | "outcome_unknown";
+
+export type ScheduledMessageKind = "text" | "template";
+
+export interface ScheduledTemplate {
+    id: string;
+    name: string;
+    preview?: string;
+    bodyParams?: string[];
+    headerParams?: string[];
+}
 
 export interface ScheduledMessage {
     id: string;
@@ -19,6 +35,9 @@ export interface ScheduledMessage {
     entryId: string;
     entryType: EntryType;
     createdByUserId: string;
+
+    kind: ScheduledMessageKind;
+    template?: ScheduledTemplate;
 
     text?: string;
     mediaId?: string;
@@ -43,6 +62,7 @@ export interface SchedulingWindow {
     open: boolean;
     expiresAt?: string | null;
     latestAllowedAt?: string | null;
+    templateLatestAllowedAt?: string | null;
 }
 
 export interface ScheduleMessagePayload {
@@ -54,6 +74,15 @@ export interface ScheduleMessagePayload {
     signed?: boolean;
 }
 
+export interface ScheduleTemplatePayload {
+    scheduled_at: string;
+    template: {
+        template_id: string;
+        body_params?: string[];
+        header_params?: string[];
+    };
+}
+
 export type SchedulingErrorCode =
     | "window_closed"
     | "past_window"
@@ -61,7 +90,14 @@ export type SchedulingErrorCode =
     | "too_far"
     | "not_found"
     | "not_pending"
-    | "invalid_request";
+    | "invalid_request"
+    | "template_forbidden"
+    | "templates_unsupported"
+    | "template_params"
+    | "template_unavailable"
+    | "contact_blocked"
+    | "spam_window"
+    | "number_unavailable";
 
 export interface SchedulingError {
     message: string;

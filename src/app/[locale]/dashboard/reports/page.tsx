@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
+import { formatBytes } from "@/lib/format/bytes";
+
 import {
   ArrowClockwise,
   CheckCircle,
@@ -54,18 +56,6 @@ const STATUS_STYLE: Record<ReportStatus, { className: string; icon: Icon }> = {
   failed: { className: "bg-destructive text-destructive-foreground", icon: XCircle },
   expired: { className: "bg-muted text-muted-foreground", icon: Warning },
 };
-
-function formatBytes(bytes: number | undefined, locale: string): string {
-  if (!bytes || bytes <= 0) return "";
-  const units = ["B", "KB", "MB", "GB"];
-  let value = bytes;
-  let unit = 0;
-  while (value >= 1024 && unit < units.length - 1) {
-    value /= 1024;
-    unit += 1;
-  }
-  return `${new Intl.NumberFormat(locale, { maximumFractionDigits: unit === 0 ? 0 : 1 }).format(value)} ${units[unit]}`;
-}
 
 export default function ReportsPage() {
   const t = useTranslations("reports");

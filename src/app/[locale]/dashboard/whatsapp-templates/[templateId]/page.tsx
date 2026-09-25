@@ -47,7 +47,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
-import type { DraggableComponent } from "@/components/whatsapp/DragDropBuilder";
+import { toPreviewComponents } from "@/lib/whatsapp-templates/preview";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -119,44 +119,6 @@ function usabilityTone(status: string): string {
   if (status === "missing_header_media")
     return "bg-muted text-warning-ink border-border dark:text-warning-ink";
   return "bg-muted text-destructive-ink border-border dark:text-destructive-ink";
-}
-
-function convertToDraggableComponents(
-  components: WhatsAppTemplate["components"],
-  headerMediaUrl?: string | null,
-): DraggableComponent[] {
-  return components.map((component, index) => {
-    const draggable: DraggableComponent = {
-      id: `${component.type}-${index}`,
-      type: component.type,
-      data: {
-        format: component.format,
-        text: component.text,
-        variableExamples: component.parameters,
-        add_security_recommendation: component.add_security_recommendation,
-        code_expiration_minutes: component.code_expiration_minutes,
-      },
-    };
-
-    if (component.type === "HEADER" && component.format !== "TEXT") {
-      draggable.data.example =
-        headerMediaUrl ?? component.example?.header_handle?.[0];
-    }
-
-    if (component.buttons && component.buttons.length > 0) {
-      draggable.data.buttons = component.buttons.map((btn, btnIndex) => ({
-        id: `btn-${btnIndex}`,
-        type: btn.type,
-        text: btn.text,
-        url: btn.url,
-        phone_number: btn.phone_number,
-        example: Array.isArray(btn.example) ? btn.example[0] : btn.example,
-        otp_type: btn.otp_type,
-      }));
-    }
-
-    return draggable;
-  });
 }
 
 export default function WhatsAppTemplateDetailPage() {
@@ -718,7 +680,7 @@ export default function WhatsAppTemplateDetailPage() {
             </h2>
             <div className="mx-auto max-w-sm overflow-hidden rounded-[--radius] border border-border shadow-md">
               <WhatsAppPreview
-                components={convertToDraggableComponents(
+                components={toPreviewComponents(
                   template.components,
                   template.headerMediaUrl,
                 )}

@@ -8,7 +8,9 @@ import { useTranslations } from "next-intl";
 import { ArrowSquareOut, ArrowsInSimple, ArrowsOutSimple, Minus, Plus } from "@/components/icons";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { Link, usePathname } from "@/i18n/routing";
+import { activeThreadKey } from "@/lib/aichat/active-thread";
 import type { AssistantContext } from "@/lib/aichat/assistant-context";
+import type { ChatAttachment } from "@/lib/aichat/types";
 import { cn } from "@/lib/utils";
 
 import { useAssistantContext } from "./assistant-context";
@@ -49,13 +51,17 @@ function Dock() {
   const tc = useTranslations("aiChatPage");
   const context = useAssistantContext();
   const copy = useCopy(context);
-  const { can } = useWorkspace();
+  const { can, currentWorkspace } = useWorkspace();
   const pathname = usePathname();
   const starters = starterGroupsFor(can, pathname);
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const { model, models, pricing, changeModel } = useChatModel();
-  const chat = useChatConversation({ view: context?.view, createError: tc("createError") });
+  const chat = useChatConversation({
+    view: context?.view,
+    rememberKey: currentWorkspace ? activeThreadKey(currentWorkspace.id) : undefined,
+    createError: tc("createError"),
+  });
   const labels = useBubbleLabels();
   const { scrollRef, onScroll, showScrollDown, scrollToBottom } = useStickToBottom(chat.messages);
   const reduceMotion = useReducedMotion();
@@ -65,10 +71,11 @@ function Dock() {
   const { expanded, setExpanded } = card;
 
   const ask = useCallback(
-    (content: string) => {
-      if (!content.trim() || chat.streaming || !model) return;
+    (content: string, attachments: ChatAttachment[] = []) => {
+      if (!content.trim() || chat.streaming || !model) return false;
       setInput("");
-      void chat.ask(content, model);
+      void chat.ask(content, model, attachments);
+      return true;
     },
     [chat, model],
   );
@@ -150,7 +157,7 @@ function Dock() {
               }}
             >
               <div className="flex items-center gap-2.5">
-                <span aria-hidden className={cn("h-2 w-2 flex-shrink-0 rounded-full bg-primary", chat.streaming && "animate-dot-pulse")} />
+                <span aria-hidden className={cn("h-2 w-2 flex-shrink-0 rotate-45 rounded-[1px] bg-primary", chat.streaming && "animate-dot-pulse")} />
                 <h2 id="assistant-dock-title" className="min-w-0 flex-1 truncate font-display text-sm font-semibold text-foreground">
                   {copy.title}
                 </h2>
@@ -225,7 +232,7 @@ function Dock() {
               docked
               input={input}
               setInput={setInput}
-              onSend={() => ask(input)}
+              onSend={(attachments) => ask(input, attachments)}
               onStop={chat.stop}
               streaming={chat.streaming}
               model={model}
@@ -235,13 +242,6 @@ function Dock() {
               error={chat.error}
               showScrollDown={showScrollDown}
               onScrollDown={scrollToBottom}
-              labels={{
-                placeholder: tc("inputPlaceholder"),
-                send: tc("send"),
-                stop: tc("stop"),
-                modelLabel: tc("modelLabel"),
-                scrollToBottom: tc("scrollToBottom"),
-              }}
             />
             <p className="px-4 pb-2.5 text-center text-2xs text-muted-foreground">{td("footnote")}</p>
           </motion.section>
