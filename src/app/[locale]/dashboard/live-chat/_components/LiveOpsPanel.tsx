@@ -70,7 +70,7 @@ import type {
 import type { CampaignType } from "@/lib/conversations/types";
 import type { Department } from "@/lib/department/types";
 import type { WorkspaceMember } from "@/lib/workspace/types";
-import { getAttendanceOverviewAction } from "@/app/actions/attendance";
+import { useAttendanceSection } from "@/hooks/use-attendance-section";
 import { listMembersAction } from "@/app/actions/workspace";
 import { fetchDepartments } from "@/lib/department/client";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -942,11 +942,6 @@ export default function LiveOpsPanel({
   const [callType, setCallType] = useState("all");
   const [departments, setDepartments] = useState<Department[]>([]);
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
-  const [overview, setOverview] = useState<AttendanceOverview | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [heightPct, setHeightPct] = useState(DEFAULT_HEIGHT_PCT);
   const [fullscreen, setFullscreen] = useState(false);
   const dragRef = useRef<{ startY: number; startPct: number } | null>(null);
@@ -1048,59 +1043,34 @@ export default function LiveOpsPanel({
     };
   }, [open, currentWorkspace?.id]);
 
-  const load = useCallback(
-    async (opts?: { silent?: boolean }) => {
-      if (!opts?.silent) setLoading(true);
-      else setRefreshing(true);
-      setError(null);
-
-            const r = await getAttendanceOverviewAction({
-        dateFrom: range.dateFrom,
-        dateTo: range.dateTo,
-        departmentId: departmentId === "all" ? undefined : departmentId,
-        memberId: memberId === "all" ? undefined : memberId,
-        channel: channel === "all" ? undefined : channel,
-        campaignType,
-        includeAi: true,
-      });
-      if (r.error) {
-        setError(r.error);
-        if (!opts?.silent) setOverview(null);
-      } else {
-        setOverview(r.overview);
-        setLastUpdated(new Date());
-      }
-
-      setLoading(false);
-      setRefreshing(false);
-    },
-    [
-      range.dateFrom,
-      range.dateTo,
-      departmentId,
-      memberId,
-      channel,
-      direction,
-      callType,
+  const liveParams = useMemo(
+    () => ({
+      dateFrom: range.dateFrom,
+      dateTo: range.dateTo,
+      departmentId: departmentId === "all" ? undefined : departmentId,
+      memberId: memberId === "all" ? undefined : memberId,
+      channel: channel === "all" ? undefined : channel,
       campaignType,
-    ],
+      includeAi: true,
+    }),
+    [range.dateFrom, range.dateTo, departmentId, memberId, channel, campaignType],
   );
+  const pollOptions = { enabled: open, refetchInterval: open ? POLL_MS : undefined };
+  const summaryQuery = useAttendanceSection("summary", liveParams, pollOptions);
+  const teamQuery = useAttendanceSection("team", liveParams, pollOptions);
+  const liveQuery = useAttendanceSection("live", liveParams, pollOptions);
+
+  const summary = summaryQuery.data;
+  const team = teamQuery.data;
+  const loading = open && summaryQuery.isPending;
+  const refreshing = summaryQuery.isFetching || teamQuery.isFetching || liveQuery.isFetching;
+  const failed = [summaryQuery, teamQuery, liveQuery].find((query) => query.isError);
+  const error = failed?.error instanceof Error ? failed.error.message : null;
+  const lastUpdated = summary?.generated_at ? new Date(summary.generated_at) : null;
 
   useEffect(() => {
-    if (!open) {
-      setFullscreen(false);
-      return;
-    }
-    void load();
-  }, [open, load]);
-
-  useEffect(() => {
-    if (!open) return;
-    const id = window.setInterval(() => {
-      void load({ silent: true });
-    }, POLL_MS);
-    return () => window.clearInterval(id);
-  }, [open, load]);
+    if (!open) setFullscreen(false);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -1160,13 +1130,13 @@ export default function LiveOpsPanel({
     });
   };
 
-  const kpis = overview?.kpis;
+  const kpis = summary?.kpis;
   const engaged =
     (kpis?.engaged ??
         (kpis?.finished ?? 0) + (kpis?.ongoing ?? 0) + (kpis?.pending ?? 0));
 
   const empty =
-    loading && !overview;
+    loading;
 
   const attendanceKpiCards = [
     {
@@ -1229,12 +1199,12 @@ export default function LiveOpsPanel({
 
   const kpiCards = attendanceKpiCards;
 
-  const channelMix = overview?.channel_mix ?? [];
-  const frt = overview?.frt;
-  const msg = overview?.messaging;
-  const reopen = overview?.reopen;
-  const ai = overview?.ai;
-  const live = overview?.live;
+  const channelMix = summary?.channel_mix ?? [];
+  const frt = summary?.frt;
+  const msg = summary?.messaging;
+  const reopen = summary?.reopen;
+  const ai = summary?.ai;
+  const live = liveQuery.data?.live;
 
   if (!open) return null;
 
@@ -1484,7 +1454,7 @@ export default function LiveOpsPanel({
               />
               <HourlyChart
                 hourly={
-                  overview?.hourly
+                  summary?.hourly
                 }
                 loading={empty}
                 height={heights.hourly}
@@ -1507,7 +1477,7 @@ export default function LiveOpsPanel({
               />
               {(
                 <StatusChart
-                  dist={overview?.status_distribution}
+                  dist={summary?.status_distribution}
                   loading={empty}
                   height={heights.status}
                 />
@@ -1720,7 +1690,7 @@ export default function LiveOpsPanel({
                     title={ts("deptChart")}
                   />
                   <DeptChart
-                    rows={overview?.by_department}
+                    rows={team?.by_department}
                     loading={empty}
                     height={heights.dept}
                   />
@@ -1734,7 +1704,7 @@ export default function LiveOpsPanel({
                     title={ts("deptTable")}
                   />
                   <DeptTable
-                    rows={overview?.by_department}
+                    rows={team?.by_department}
                     loading={empty}
                   />
                 </Card>
@@ -1757,7 +1727,7 @@ export default function LiveOpsPanel({
                     subtitle={dense ? undefined : ts("teamRankSub")}
                   />
                   <TeamRank
-                    rows={overview?.by_member}
+                    rows={team?.by_member}
                     loading={empty}
                     maxRows={teamRows}
                   />
@@ -1771,7 +1741,7 @@ export default function LiveOpsPanel({
                     title={ts("teamDetail")}
                     subtitle={dense ? undefined : ts("teamDetailSub")}
                   />
-                  <TeamTable rows={overview?.by_member} loading={empty} />
+                  <TeamTable rows={team?.by_member} loading={empty} />
                 </Card>
               </div>
             </>
