@@ -18,7 +18,7 @@ const SECTION_GC_MS = 5 * 60_000;
 export function useAttendanceSection<S extends AttendanceSection>(
   section: S,
   params: AttendanceOverviewParams,
-  options: { enabled: boolean },
+  options: { enabled: boolean; refetchInterval?: number },
 ) {
   const { currentWorkspace } = useWorkspace();
   const workspaceId = currentWorkspace?.id ?? "";
@@ -30,6 +30,7 @@ export function useAttendanceSection<S extends AttendanceSection>(
     staleTime: SECTION_STALE_MS,
     gcTime: SECTION_GC_MS,
     refetchOnWindowFocus: false,
+    refetchInterval: options.refetchInterval,
     retry: shouldRetrySection,
     retryDelay: sectionRetryDelay,
   });

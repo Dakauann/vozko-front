@@ -1,6 +1,6 @@
 import type { AttendanceOverview, AttendanceOverviewParams } from "./types";
 
-export const ATTENDANCE_SECTIONS = ["summary", "trend", "stages", "backlog", "team", "rework"] as const;
+export const ATTENDANCE_SECTIONS = ["summary", "trend", "stages", "backlog", "team", "rework", "live"] as const;
 
 export type AttendanceSection = (typeof ATTENDANCE_SECTIONS)[number];
 
@@ -30,6 +30,7 @@ export type StagesSection = Pick<AttendanceOverview, "stages">;
 export type BacklogSection = Pick<AttendanceOverview, "backlog_xray">;
 export type TeamSection = Pick<AttendanceOverview, "by_department" | "by_member" | "team_ranking">;
 export type ReworkSection = Pick<AttendanceOverview, "rework">;
+export type LiveSection = Pick<AttendanceOverview, "queue" | "occupancy" | "live">;
 
 export interface AttendanceSectionPayloads {
   summary: SummarySection;
@@ -38,6 +39,7 @@ export interface AttendanceSectionPayloads {
   backlog: BacklogSection;
   team: TeamSection;
   rework: ReworkSection;
+  live: LiveSection;
 }
 
 export type SectionQueryParams = Record<string, string>;

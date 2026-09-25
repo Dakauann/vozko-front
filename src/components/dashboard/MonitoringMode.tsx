@@ -1,7 +1,6 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import type { AttendanceOverview } from "@/lib/attendance/types";
 import {
   Cell,
   Pie,
@@ -33,7 +32,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { getAttendanceOverviewAction } from "@/app/actions/attendance";
+import { useAttendanceSection } from "@/hooks/use-attendance-section";
 import { useEffect, useMemo, useState } from "react";
 import { format, subDays } from "date-fns";
 
@@ -43,6 +42,8 @@ import { cn } from "@/lib/utils";
 import { useCrm } from "@/contexts/crm-context";
 import { useTranslations } from "next-intl";
 
+
+const MONITOR_POLL_MS = 45_000;
 
 const STAGE_COLORS = {
   pending: "hsl(var(--plate-neutral))",
@@ -1134,42 +1135,31 @@ function AttendanceInsightsPanel({
 }) {
   const t = useTranslations("monitoring");
   const tk = useTranslations("metricsOps.attendance.kpi");
-  const [overview, setOverview] = useState<AttendanceOverview | null>(null);
-  const [loading, setLoading] = useState(true);
+  const today = format(new Date(), "yyyy-MM-dd");
+  const params = useMemo(
+    () => ({
+      dateFrom: format(subDays(new Date(), 6), "yyyy-MM-dd"),
+      dateTo: today,
+      campaignId,
+      campaignType,
+      channel: campaignType === "whatsapp" ? "whatsapp" : undefined,
+      includeAi: true,
+    }),
+    [today, campaignId, campaignType],
+  );
+  const summaryQuery = useAttendanceSection("summary", params, {
+    enabled: true,
+    refetchInterval: MONITOR_POLL_MS,
+  });
+  const teamQuery = useAttendanceSection("team", params, {
+    enabled: true,
+    refetchInterval: MONITOR_POLL_MS,
+  });
+  const loading = summaryQuery.isPending;
 
-  useEffect(() => {
-    let cancelled = false;
-    const dateFrom = format(subDays(new Date(), 6), "yyyy-MM-dd");
-    const dateTo = format(new Date(), "yyyy-MM-dd");
-
-    async function fetchAll() {
-      setLoading(true);
-      const attP = getAttendanceOverviewAction({
-        dateFrom,
-        dateTo,
-        campaignId,
-        campaignType,
-        channel: campaignType === "whatsapp" ? "whatsapp" : undefined,
-        includeAi: true,
-      });
-
-      const att = await attP;
-      if (cancelled) return;
-      setOverview(att.overview);
-      setLoading(false);
-    }
-
-    void fetchAll();
-    const interval = window.setInterval(() => void fetchAll(), 45_000);
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
-  }, [campaignId, campaignType]);
-
-  const kpis = overview?.kpis;
-  const ai = overview?.ai;
-  const status = overview?.status_distribution;
+  const kpis = summaryQuery.data?.kpis;
+  const ai = summaryQuery.data?.ai;
+  const status = summaryQuery.data?.status_distribution;
 
   const statusPie = useMemo(() => {
     if (!status) return [];
@@ -1180,8 +1170,8 @@ function AttendanceInsightsPanel({
     ].filter((r) => r.value > 0);
   }, [status]);
 
-  const teamTop = (overview?.by_member ?? []).slice(0, 6);
-  const hasData = !!overview?.kpis;
+  const teamTop = (teamQuery.data?.by_member ?? []).slice(0, 6);
+  const hasData = !!kpis;
 
   return (
     <div className="flex flex-col h-full bg-card overflow-hidden">

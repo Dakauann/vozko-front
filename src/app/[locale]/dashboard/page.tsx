@@ -14,15 +14,15 @@ import {
   WhatsappLogo,
 } from "@/components/icons";
 import type {
-  AttendanceOverview,
   AttendantStats,
   WindowStats,
 } from "@/lib/attendance/types";
 import {
-  getAttendanceOverviewAction,
   getAttendanceStatsAction,
   getWindowStatsAction,
 } from "@/app/actions/attendance";
+import { useAttendanceSection } from "@/hooks/use-attendance-section";
+import type { SummarySection } from "@/lib/attendance/sections";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 import { vozRing } from "@/components/charts/vozko";
@@ -147,7 +147,7 @@ function AttendanceGlance({
   overview,
   loading,
 }: {
-  overview: AttendanceOverview;
+  overview: SummarySection;
   loading: boolean;
 }) {
   const t = useTranslations("dashboard");
@@ -357,7 +357,6 @@ function UserDashboard() {
   const [waCampaigns, setWaCampaigns] = useState<WhatsAppCampaign[]>([]);
   const [attendants, setAttendants] = useState<AttendantStats[]>([]);
   const [windowStats, setWindowStats] = useState<WindowStats | null>(null);
-  const [overview, setOverview] = useState<AttendanceOverview | null>(null);
   const [loading, setLoading] = useState(true);
 
   const canReadWaCampaigns =
@@ -366,6 +365,14 @@ function UserDashboard() {
   const canReadConversations = !permissionsLoading && canAny("conversations");
   const canReadPlans = !permissionsLoading && canAny("balance");
   const canReadAttendance = !permissionsLoading && can("attendance", "read");
+  const lastWeek = useMemo(
+    () => ({
+      dateFrom: format(subDays(new Date(), 6), "yyyy-MM-dd"),
+      dateTo: format(new Date(), "yyyy-MM-dd"),
+    }),
+    [],
+  );
+  const overview = useAttendanceSection("summary", lastWeek, { enabled: canReadAttendance }).data;
 
   useEffect(() => {
     if (permissionsLoading) return;
@@ -394,17 +401,6 @@ function UserDashboard() {
           }),
         );
       }
-      if (canReadAttendance) {
-        promises.push(
-          getAttendanceOverviewAction({
-            dateFrom: format(subDays(new Date(), 6), "yyyy-MM-dd"),
-            dateTo: format(new Date(), "yyyy-MM-dd"),
-          }).then((r) => {
-            if (!cancelled && !r.error) setOverview(r.overview);
-          }),
-        );
-      }
-
       await Promise.allSettled(promises);
       if (!cancelled) setLoading(false);
     }
@@ -416,7 +412,6 @@ function UserDashboard() {
     permissionsLoading,
     canReadWaCampaigns,
     canReadMembers,
-    canReadAttendance,
   ]);
 
   const runningWa = useMemo(
