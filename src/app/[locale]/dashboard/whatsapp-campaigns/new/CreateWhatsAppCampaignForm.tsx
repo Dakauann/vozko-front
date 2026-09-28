@@ -1,7 +1,8 @@
 "use client";
 
 import type { AgentListItem, ModelPricingInfo } from "@/lib/agents/types";
-import { DealAutomationSetting } from "@/components/channels/deal-automation-setting";
+import { DealAutomationDraft, DealAutomationSetting } from "@/components/channels/deal-automation-setting";
+import { applyDealAutomation } from "@/lib/deal-automation/client";
 import { useAgentRequiredVariables } from "@/lib/agents/use-agent-required-variables";
 import {
   CalendarCheck,
@@ -355,6 +356,7 @@ export default function CreateWhatsAppCampaignForm({
   const [templateInfoConfirmed, setTemplateInfoConfirmed] = useState(
     mode === "edit",
   );
+  const [dealPipelineId, setDealPipelineId] = useState("");
   const templateConfirmRef = useRef<HTMLDivElement>(null);
   const [highlightTemplateConfirm, setHighlightTemplateConfirm] =
     useState(false);
@@ -389,6 +391,7 @@ export default function CreateWhatsAppCampaignForm({
     Record<string, Workflow>
   >({});
   const t = useTranslations("whatsappCampaignsPage.form");
+  const tDeals = useTranslations("dealAutomation");
 
   useEffect(() => {
     if (!isSubmitting && pendingRedirectRef.current) {
@@ -1665,6 +1668,20 @@ export default function CreateWhatsAppCampaignForm({
           });
 
           const campaignId = result.campaign?.id;
+          if (
+            mode === "create" &&
+            campaignId &&
+            !(await applyDealAutomation(
+              { entryType: "whatsapp", kind: "campaign", containerId: campaignId },
+              dealPipelineId,
+            ))
+          ) {
+            toast({
+              title: tDeals("notAppliedTitle"),
+              description: tDeals("notApplied"),
+              variant: "destructive",
+            });
+          }
           pendingRedirectRef.current = campaignId
             ? `/dashboard/whatsapp-campaigns/${campaignId}`
             : "/dashboard/whatsapp-campaigns";
@@ -2092,11 +2109,14 @@ export default function CreateWhatsAppCampaignForm({
                   </div>
                 )}
 
-                {campaignToolsAvailable && initialCampaign?.id && (
-                  <DealAutomationSetting
-                    channel={{ entryType: "whatsapp", kind: "campaign", containerId: initialCampaign.id }}
-                  />
-                )}
+                {campaignToolsAvailable &&
+                  (mode === "edit" && initialCampaign?.id ? (
+                    <DealAutomationSetting
+                      channel={{ entryType: "whatsapp", kind: "campaign", containerId: initialCampaign.id }}
+                    />
+                  ) : (
+                    <DealAutomationDraft value={dealPipelineId} onChange={setDealPipelineId} />
+                  ))}
 
                 {!organic && (
                   <div data-tour="wc-show-template-in-crm">

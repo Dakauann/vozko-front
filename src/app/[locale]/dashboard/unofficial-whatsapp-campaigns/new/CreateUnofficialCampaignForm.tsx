@@ -1,7 +1,8 @@
 "use client";
 
 import { Controller, useForm } from "react-hook-form";
-import { DealAutomationSetting } from "@/components/channels/deal-automation-setting";
+import { DealAutomationDraft, DealAutomationSetting } from "@/components/channels/deal-automation-setting";
+import { applyDealAutomation } from "@/lib/deal-automation/client";
 import { DownloadSimple, UploadSimple, Warning } from "@/components/icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -97,6 +98,7 @@ export default function CreateUnofficialCampaignForm({
   modelPricing?: ModelPricingInfo[];
 }) {
   const t = useTranslations("unofficialWhatsappCampaigns");
+  const tDeals = useTranslations("dealAutomation");
   const router = useRouter();
   const { toast } = useToast();
 
@@ -141,6 +143,7 @@ export default function CreateUnofficialCampaignForm({
   const [dailyCap, setDailyCap] = useState(initialCampaign?.dailyCap ?? 0);
 
   const [seedOutcome, setSeedOutcome] = useState(false);
+  const [dealPipelineId, setDealPipelineId] = useState("");
   const [sentPercent, setSentPercent] = useState(40);
   const [failedPercent, setFailedPercent] = useState(10);
 
@@ -293,7 +296,18 @@ export default function CreateUnofficialCampaignForm({
       toast({ title: t("form.saveFailed"), description: result.error, variant: "destructive" });
       return;
     }
-    router.push(`/dashboard/unofficial-whatsapp-campaigns/${result.campaign?.id ?? ""}`);
+    const campaignId = result.campaign?.id;
+    if (
+      mode === "create" &&
+      campaignId &&
+      !(await applyDealAutomation(
+        { entryType: "unofficial_whatsapp", kind: "campaign", containerId: campaignId },
+        dealPipelineId,
+      ))
+    ) {
+      toast({ title: tDeals("notAppliedTitle"), description: tDeals("notApplied"), variant: "destructive" });
+    }
+    router.push(`/dashboard/unofficial-whatsapp-campaigns/${campaignId ?? ""}`);
   });
 
   const previewBody = message.bodies[0] ?? "";
@@ -545,11 +559,13 @@ export default function CreateUnofficialCampaignForm({
                   />
                 )}
               />
-              {initialCampaign?.id ? (
+              {mode === "edit" && initialCampaign?.id ? (
                 <DealAutomationSetting
                   channel={{ entryType: "unofficial_whatsapp", kind: "campaign", containerId: initialCampaign.id }}
                 />
-              ) : null}
+              ) : (
+                <DealAutomationDraft value={dealPipelineId} onChange={setDealPipelineId} />
+              )}
             </div>
 
             {enableAnalysis || enableAutoStaging || enableAutoMemory ? (

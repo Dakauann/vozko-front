@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { listPipelinesAction } from "@/app/actions/crm-board";
@@ -12,75 +12,60 @@ import { type DealAutomationChannel, getDealAutomation, saveDealAutomation } fro
 type Layout = "stacked" | "row";
 type Problem = "loadError" | "saveError" | "noPermission";
 
-export function DealAutomationSetting({
-  channel,
-  disabled = false,
-  layout = "stacked",
-}: {
-  channel: DealAutomationChannel;
-  disabled?: boolean;
-  layout?: Layout;
-}) {
-  const t = useTranslations("dealAutomation");
-  const [funnels, setFunnels] = useState<Pipeline[]>([]);
-  const [savedId, setSavedId] = useState<string | null>(null);
-  const [choosing, setChoosing] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [problem, setProblem] = useState<Problem | null>(null);
-  const { entryType, kind, containerId } = channel;
-
+function useDealFunnels(): Pipeline[] | null {
+  const [funnels, setFunnels] = useState<Pipeline[] | null>(null);
   useEffect(() => {
     let active = true;
-    void Promise.all([getDealAutomation({ entryType, kind, containerId }), listPipelinesAction("opportunity")]).then(
-      ([setting, list]) => {
-        if (!active) return;
-        setFunnels(list.pipelines);
-        if (setting.error) {
-          setProblem("loadError");
-          return;
-        }
-        setSavedId(setting.data?.pipelineId ?? "");
-      },
-    );
+    void listPipelinesAction("opportunity").then((list) => {
+      if (active) setFunnels(list.pipelines);
+    });
     return () => {
       active = false;
     };
-  }, [entryType, kind, containerId]);
+  }, []);
+  return funnels;
+}
 
-  const save = async (next: string) => {
-    const previous = savedId;
-    setSavedId(next);
-    setSaving(true);
-    setProblem(null);
-    const result = await saveDealAutomation({ entryType, kind, containerId }, next);
-    setSaving(false);
-    if (result.error) {
-      setSavedId(previous);
-      setProblem(result.error.status === 403 ? "noPermission" : "saveError");
-      return;
-    }
-    setChoosing(false);
-  };
+function DealAutomationControl({
+  funnels,
+  pipelineId,
+  onChoose,
+  busy,
+  disabled,
+  layout,
+  problem,
+}: {
+  funnels: Pipeline[] | null;
+  pipelineId: string | null;
+  onChoose: (pipelineId: string) => void;
+  busy: boolean;
+  disabled: boolean;
+  layout: Layout;
+  problem: Problem | null;
+}) {
+  const t = useTranslations("dealAutomation");
+  const controlId = useId();
+  const [choosing, setChoosing] = useState(false);
 
-  const handleToggle = (on: boolean) => {
-    if (!on) {
+  const loaded = funnels !== null && pipelineId !== null;
+  const available = funnels ?? [];
+  const hasFunnels = available.length > 0;
+  const on = Boolean(pipelineId) || choosing;
+  const locked = disabled || busy || !loaded || !hasFunnels;
+  const hint = loaded && !hasFunnels ? t("noFunnels") : t("hint");
+
+  const handleToggle = (next: boolean) => {
+    if (!next) {
       setChoosing(false);
-      if (savedId) void save("");
+      if (pipelineId) onChoose("");
       return;
     }
-    if (funnels.length === 1) {
-      void save(funnels[0].id);
+    if (available.length === 1) {
+      onChoose(available[0].id);
       return;
     }
     setChoosing(true);
   };
-
-  const loaded = savedId !== null;
-  const hasFunnels = funnels.length > 0;
-  const on = Boolean(savedId) || choosing;
-  const locked = disabled || saving || !loaded || !hasFunnels;
-  const hint = loaded && !hasFunnels ? t("noFunnels") : t("hint");
-  const controlId = `deal-automation-${containerId}`;
 
   const toggle =
     layout === "row" ? (
@@ -112,20 +97,101 @@ export function DealAutomationSetting({
         <div className="space-y-1.5">
           <ElevatedSelect
             placeholder={t("choose")}
-            value={savedId || undefined}
-            onValueChange={(next: string) => void save(next)}
-            disabled={disabled || saving}
+            value={pipelineId || undefined}
+            onValueChange={onChoose}
+            disabled={disabled || busy}
           >
-            {funnels.map((funnel) => (
+            {available.map((funnel) => (
               <ElevatedSelectItem key={funnel.id} value={funnel.id}>
                 {funnel.name}
               </ElevatedSelectItem>
             ))}
           </ElevatedSelect>
-          {choosing && !savedId ? <p className="text-xs text-muted-foreground">{t("pickToFinish")}</p> : null}
+          {!pipelineId ? <p className="text-xs text-muted-foreground">{t("pickToFinish")}</p> : null}
         </div>
       ) : null}
       {problem ? <p className="text-xs text-destructive-ink">{t(problem)}</p> : null}
     </div>
+  );
+}
+
+export function DealAutomationSetting({
+  channel,
+  disabled = false,
+  layout = "stacked",
+}: {
+  channel: DealAutomationChannel;
+  disabled?: boolean;
+  layout?: Layout;
+}) {
+  const funnels = useDealFunnels();
+  const [savedId, setSavedId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [problem, setProblem] = useState<Problem | null>(null);
+  const { entryType, kind, containerId } = channel;
+
+  useEffect(() => {
+    let active = true;
+    void getDealAutomation({ entryType, kind, containerId }).then((setting) => {
+      if (!active) return;
+      if (setting.error) {
+        setProblem("loadError");
+        return;
+      }
+      setSavedId(setting.data?.pipelineId ?? "");
+    });
+    return () => {
+      active = false;
+    };
+  }, [entryType, kind, containerId]);
+
+  const save = async (next: string) => {
+    const previous = savedId;
+    setSavedId(next);
+    setSaving(true);
+    setProblem(null);
+    const result = await saveDealAutomation({ entryType, kind, containerId }, next);
+    setSaving(false);
+    if (result.error) {
+      setSavedId(previous);
+      setProblem(result.error.status === 403 ? "noPermission" : "saveError");
+    }
+  };
+
+  return (
+    <DealAutomationControl
+      funnels={funnels}
+      pipelineId={savedId}
+      onChoose={(next) => void save(next)}
+      busy={saving}
+      disabled={disabled}
+      layout={layout}
+      problem={problem}
+    />
+  );
+}
+
+export function DealAutomationDraft({
+  value,
+  onChange,
+  disabled = false,
+  layout = "stacked",
+}: {
+  value: string;
+  onChange: (pipelineId: string) => void;
+  disabled?: boolean;
+  layout?: Layout;
+}) {
+  const funnels = useDealFunnels();
+  return (
+    <DealAutomationControl
+      funnels={funnels}
+      pipelineId={value}
+      onChoose={onChange}
+      busy={false}
+      disabled={disabled}
+      layout={layout}
+      problem={null}
+    />
   );
 }

@@ -13700,6 +13700,8 @@
     "saveError": "Speichern fehlgeschlagen. Versuchen Sie es erneut.",
     "noPermission": "Sie haben keine Berechtigung, diesen Kanal zu ändern.",
     "choose": "Deal-Trichter auswählen",
-    "pickToFinish": "Wähle einen Trichter, um automatische Deals zu aktivieren."
+    "pickToFinish": "Wähle einen Trichter, um automatische Deals zu aktivieren.",
+    "notAppliedTitle": "Automatische Deals sind aus",
+    "notApplied": "Die Kampagne wurde erstellt, aber automatische Deals wurden nicht aktiviert. Aktiviere sie beim Bearbeiten der Kampagne erneut."
   }
 }

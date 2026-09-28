@@ -30,3 +30,9 @@ export function saveDealAutomation(channel: DealAutomationChannel, pipelineId: s
     body: JSON.stringify({ pipelineId }),
   });
 }
+
+export async function applyDealAutomation(channel: DealAutomationChannel, pipelineId: string): Promise<boolean> {
+  if (!pipelineId) return true;
+  const result = await saveDealAutomation(channel, pipelineId);
+  return !result.error;
+}

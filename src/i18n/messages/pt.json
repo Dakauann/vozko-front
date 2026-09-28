@@ -14748,6 +14748,8 @@
     "saveError": "Não foi possível salvar. Tente de novo.",
     "noPermission": "Você não tem permissão para alterar este canal.",
     "choose": "Escolha o funil de oportunidades",
-    "pickToFinish": "Escolha um funil para ligar as oportunidades automáticas."
+    "pickToFinish": "Escolha um funil para ligar as oportunidades automáticas.",
+    "notAppliedTitle": "Oportunidades automáticas desligadas",
+    "notApplied": "A campanha foi criada, mas as oportunidades automáticas não foram ligadas. Ligue de novo na edição da campanha."
   }
 }

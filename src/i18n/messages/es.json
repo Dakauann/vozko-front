@@ -13203,6 +13203,8 @@
     "saveError": "No se pudo guardar. Inténtalo de nuevo.",
     "noPermission": "No tienes permiso para cambiar este canal.",
     "choose": "Elige el embudo de negocios",
-    "pickToFinish": "Elige un embudo para activar los negocios automáticos."
+    "pickToFinish": "Elige un embudo para activar los negocios automáticos.",
+    "notAppliedTitle": "Negocios automáticos desactivados",
+    "notApplied": "La campaña se creó, pero los negocios automáticos no se activaron. Actívalos de nuevo al editar la campaña."
   }
 }

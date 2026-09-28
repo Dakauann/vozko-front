@@ -14697,6 +14697,8 @@
     "saveError": "Could not save. Try again.",
     "noPermission": "You do not have permission to change this channel.",
     "choose": "Choose the deals funnel",
-    "pickToFinish": "Choose a funnel to turn automatic deals on."
+    "pickToFinish": "Choose a funnel to turn automatic deals on.",
+    "notAppliedTitle": "Automatic deals are off",
+    "notApplied": "The campaign was created, but automatic deals were not turned on. Turn them on again when editing the campaign."
   }
 }

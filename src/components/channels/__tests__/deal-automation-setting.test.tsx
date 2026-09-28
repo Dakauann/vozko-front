@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { DealAutomationSetting } from "@/components/channels/deal-automation-setting";
+import { DealAutomationDraft, DealAutomationSetting } from "@/components/channels/deal-automation-setting";
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 
@@ -132,6 +132,41 @@ describe("DealAutomationSetting", () => {
     render(<DealAutomationSetting channel={channel} disabled />);
     expect(toggle().hasAttribute("disabled")).toBe(true);
     await waitFor(() => expect(isOn()).toBe(true));
+    expect(toggle().hasAttribute("disabled")).toBe(true);
+  });
+});
+
+describe("DealAutomationDraft", () => {
+  it("holds the choice for a channel that does not exist yet, without saving", async () => {
+    const onChange = vi.fn();
+    render(<DealAutomationDraft value="" onChange={onChange} />);
+    await waitFor(() => expect(toggle().hasAttribute("disabled")).toBe(false));
+    expect(isOn()).toBe(false);
+    fireEvent.click(toggle());
+    expect(await screen.findByTestId("select")).toBeTruthy();
+    choose?.("renewals");
+    expect(onChange).toHaveBeenCalledWith("renewals");
+    expect(api.saved).toEqual([]);
+  });
+
+  it("picks the only funnel straight away and clears it when turned off", async () => {
+    funnels.list = [{ id: "deals", name: "Vendas" }];
+    const onChange = vi.fn();
+    const { rerender } = render(<DealAutomationDraft value="" onChange={onChange} />);
+    await waitFor(() => expect(toggle().hasAttribute("disabled")).toBe(false));
+    fireEvent.click(toggle());
+    expect(onChange).toHaveBeenLastCalledWith("deals");
+    rerender(<DealAutomationDraft value="deals" onChange={onChange} />);
+    expect(isOn()).toBe(true);
+    fireEvent.click(toggle());
+    expect(onChange).toHaveBeenLastCalledWith("");
+    expect(api.saved).toEqual([]);
+  });
+
+  it("stays off when no deal funnel exists", async () => {
+    funnels.list = [];
+    render(<DealAutomationDraft value="" onChange={vi.fn()} />);
+    await waitFor(() => expect(screen.getByText("noFunnels")).toBeTruthy());
     expect(toggle().hasAttribute("disabled")).toBe(true);
   });
 });
