@@ -282,7 +282,11 @@
       "start_campaign": "Iniciar campaña",
       "create_knowledge_base": "Crear base de conocimiento",
       "add_knowledge_document": "Agregar archivo a la base",
-      "offer_action": "Siguiente paso"
+      "offer_action": "Siguiente paso",
+      "list_unofficial_numbers": "Números por código QR",
+      "preview_unofficial_campaign_import": "Revisando la hoja de cálculo",
+      "create_unofficial_campaign": "Crear campaña por código QR",
+      "start_unofficial_campaign": "Iniciar campaña por código QR"
     },
     "threadsLegend": "Conversaciones",
     "greeting": "Hola, soy Elo. ¿En qué trabajamos?",
@@ -467,7 +471,9 @@
       "balance": "Saldo",
       "campaign": "Campaña",
       "knowledgeBase": "Base de conocimiento",
-      "file": "Archivo"
+      "file": "Archivo",
+      "pace": "Ritmo",
+      "dailyCap": "Límite diario"
     },
     "attachments": {
       "legend": "Archivos adjuntos",
@@ -1431,6 +1437,7 @@
       "users": "Gestión de Usuarios",
       "adminOverview": "Ingresos",
       "adminMetaCosts": "Costo Meta",
+      "adminSendCaps": "Límites de envío",
       "platformUsers": "Cuentas",
       "usersList": "Lista de Usuarios",
       "registerUser": "Registrar Usuario",
@@ -10367,6 +10374,80 @@
     "waitingSlot": "Esperando línea",
     "endCall": "Colgar"
   },
+  "adminSendCaps": {
+    "stats": {
+      "capped": "Con límite"
+    },
+    "header": {
+      "badge": "Límites mensuales de envío",
+      "description": "Plantillas oficiales cobradas por Meta, por workspace y por mes.",
+      "descriptionWithMonth": "Plantillas oficiales cobradas por Meta, por workspace. Uso contado desde el inicio de {month}."
+    },
+    "actions": {
+      "refresh": "Actualizar",
+      "create": "Nuevo límite",
+      "adjust": "Ajustar",
+      "unlock": "Desbloquear",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando..."
+    },
+    "levels": {
+      "all": "Todos",
+      "ok": "Dentro",
+      "near": "Cerca del límite",
+      "reached": "En el límite"
+    },
+    "empty": {
+      "title": "Ningún workspace tiene límite mensual",
+      "filteredTitle": "Ningún workspace en este estado",
+      "description": "Los workspaces sin límite envían sin restricción. Crea un límite para bloquear los envíos del mes."
+    },
+    "table": {
+      "workspace": "Workspace",
+      "usage": "Uso del mes",
+      "usageValue": "{used} de {limit}",
+      "remaining": "Restante",
+      "status": "Estado",
+      "updated": "Último cambio",
+      "unlockedMark": "(desbloqueo)",
+      "actions": "Acciones"
+    },
+    "limitDialog": {
+      "createTitle": "Nuevo límite mensual",
+      "editTitle": "Ajustar el límite de {workspace}",
+      "workspace": "Workspace",
+      "changeWorkspace": "Cambiar",
+      "searchPlaceholder": "Buscar workspace por nombre",
+      "limit": "Envíos por mes",
+      "createHint": "Al alcanzar el límite, los envíos fallan y se indica al usuario que hable con la administración.",
+      "editHint": "Límite actual: {current}. Aquí solo se puede mantener o reducir.",
+      "raiseNeedsUnlock": "Aumentar el límite requiere desbloqueo con código.",
+      "raiseForbidden": "Aumentar el límite requiere un desbloqueo que solo la administración autorizada puede hacer."
+    },
+    "unlockDialog": {
+      "title": "Desbloquear {workspace}",
+      "current": "Usados {used} de {limit} este mes.",
+      "removeCap": "Quitar el límite",
+      "removeCapHint": "El workspace vuelve a enviar sin restricción mensual.",
+      "newLimit": "Nuevo límite mensual",
+      "code": "Código de desbloqueo",
+      "codeHint": "Código de 4 dígitos de la administración.",
+      "confirmRaise": "Desbloquear",
+      "confirmRemove": "Quitar límite"
+    },
+    "errors": {
+      "default": "No se pudo completar la operación.",
+      "forbidden": "No tienes permiso para este cambio.",
+      "unlock_required": "Aumentar o quitar el límite requiere desbloqueo con código.",
+      "invalid_unlock_code": "Código de desbloqueo inválido.",
+      "invalid_limit": "El límite debe ser un número entero positivo.",
+      "send_cap_not_found": "Este workspace no tiene límite mensual.",
+      "workspace_not_found": "Workspace no encontrado.",
+      "invalid_body": "Datos inválidos. Revisa los campos.",
+      "internal_error": "Error interno al procesar el límite. Inténtalo de nuevo."
+    }
+  },
   "adminAffiliates": {
     "header": {
       "badge": "Afiliados",
@@ -10779,6 +10860,7 @@
       "template_unavailable": "La plantilla ya no estaba disponible al momento del envío. No se cobró nada.",
       "contact_ineligible": "El contacto estaba bloqueado o dentro de la protección contra spam. No se cobró nada.",
       "insufficient_balance": "No había saldo al momento del envío. No se cobró nada.",
+      "monthly_send_cap_reached": "Se alcanzó el límite mensual de envíos del workspace. Habla con la administración. No se cobró nada.",
       "billing_unavailable": "El cobro no estaba disponible (suscripción o precio). No se cobró nada.",
       "outcome_unknown": "WhatsApp no confirmó el envío. Puede haberse entregado y se cobró. Revisa la conversación antes de enviar de nuevo."
     },
@@ -10790,8 +10872,6 @@
       "templateEmpty": "No se encontraron plantillas",
       "noTemplates": "No hay plantillas aprobadas para este número.",
       "noNumber": "No se pudo identificar el número de esta conversación.",
-      "charge": "Se cobrará {price} en el envío.",
-      "chargeUnknown": "Se cobrará en el envío, al precio de la categoría de la plantilla.",
       "insufficientNow": "El saldo de hoy no cubre este envío. Recarga antes de la hora programada o el envío fallará.",
       "previewLabel": "Vista previa",
       "previewEmpty": "Elige una plantilla para ver la vista previa.",
@@ -10853,6 +10933,7 @@
       "within_spam_window": "Este contacto recibió un mensaje de este número hace poco. Espera el intervalo definido por tu espacio de trabajo.",
       "rate_limited": "Demasiadas conversaciones iniciadas en poco tiempo. Inténtalo de nuevo en unos instantes.",
       "insufficient_balance": "Saldo insuficiente para enviar esta plantilla.",
+      "monthly_send_cap_reached": "Este workspace alcanzó su límite mensual de envíos. Habla con la administración.",
       "pricing_unavailable": "No hay precio configurado para esta categoría de plantilla. Habla con quien administra el espacio de trabajo.",
       "template_not_sendable": "Esta plantilla no está lista para enviarse.",
       "template_phone_mismatch": "Esta plantilla no pertenece a la cuenta del número seleccionado.",

@@ -282,7 +282,11 @@
       "start_campaign": "Start campaign",
       "create_knowledge_base": "Create knowledge base",
       "add_knowledge_document": "Add file to knowledge base",
-      "offer_action": "Next step"
+      "offer_action": "Next step",
+      "list_unofficial_numbers": "QR code numbers",
+      "preview_unofficial_campaign_import": "Checking the spreadsheet",
+      "create_unofficial_campaign": "Create QR code campaign",
+      "start_unofficial_campaign": "Start QR code campaign"
     },
     "threadsLegend": "Conversations",
     "greeting": "Hi, I’m Elo. What are we working on?",
@@ -467,7 +471,9 @@
       "balance": "Balance",
       "campaign": "Campaign",
       "knowledgeBase": "Knowledge base",
-      "file": "File"
+      "file": "File",
+      "pace": "Pace",
+      "dailyCap": "Daily limit"
     },
     "attachments": {
       "legend": "Attached files",
@@ -1740,6 +1746,7 @@
       "users": "User Management",
       "adminOverview": "Revenue",
       "adminMetaCosts": "Meta costs",
+      "adminSendCaps": "Send limits",
       "platformUsers": "Accounts",
       "usersList": "Users List",
       "registerUser": "Register User",
@@ -5447,7 +5454,8 @@
         "135000": "Generic user error",
         "900002": "No business phone is configured for this campaign",
         "900003": "Could not resolve this campaign's WhatsApp client",
-        "900006": "Could not locate the entry used to fill the template variables"
+        "900006": "Could not locate the entry used to fill the template variables",
+        "900009": "Monthly send limit reached. Contact the administration to release new sends"
       },
       "years": "years",
       "export": {
@@ -7724,6 +7732,80 @@
       "capacityDescription": "What the monthly fee includes, and what it costs."
     },
     "register": "Catalogue"
+  },
+  "adminSendCaps": {
+    "stats": {
+      "capped": "Capped"
+    },
+    "header": {
+      "badge": "Monthly send limits",
+      "description": "Official templates billed by Meta, per workspace and per month.",
+      "descriptionWithMonth": "Official templates billed by Meta, per workspace. Usage counted since the start of {month}."
+    },
+    "actions": {
+      "refresh": "Refresh",
+      "create": "New limit",
+      "adjust": "Adjust",
+      "unlock": "Unlock",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "levels": {
+      "all": "All",
+      "ok": "Within",
+      "near": "Near the limit",
+      "reached": "At the limit"
+    },
+    "empty": {
+      "title": "No workspace has a monthly limit",
+      "filteredTitle": "No workspace in this state",
+      "description": "Workspaces without a limit send freely. Create a limit to lock the month's sends."
+    },
+    "table": {
+      "workspace": "Workspace",
+      "usage": "Usage this month",
+      "usageValue": "{used} of {limit}",
+      "remaining": "Remaining",
+      "status": "Status",
+      "updated": "Last change",
+      "unlockedMark": "(unlock)",
+      "actions": "Actions"
+    },
+    "limitDialog": {
+      "createTitle": "New monthly limit",
+      "editTitle": "Adjust {workspace} limit",
+      "workspace": "Workspace",
+      "changeWorkspace": "Change",
+      "searchPlaceholder": "Search workspace by name",
+      "limit": "Sends per month",
+      "createHint": "Once the limit is reached, sends fail and the user is told to contact the administration.",
+      "editHint": "Current limit: {current}. Here you can only keep or lower it.",
+      "raiseNeedsUnlock": "Raising the limit requires an unlock with the code.",
+      "raiseForbidden": "Raising the limit requires an unlock, which only authorized administration can do."
+    },
+    "unlockDialog": {
+      "title": "Unlock {workspace}",
+      "current": "Used {used} of {limit} this month.",
+      "removeCap": "Remove the limit",
+      "removeCapHint": "The workspace sends again with no monthly restriction.",
+      "newLimit": "New monthly limit",
+      "code": "Unlock code",
+      "codeHint": "The administration's 4 digit code.",
+      "confirmRaise": "Unlock",
+      "confirmRemove": "Remove limit"
+    },
+    "errors": {
+      "default": "Could not complete the operation.",
+      "forbidden": "You are not allowed to make this change.",
+      "unlock_required": "Raising or removing the limit requires an unlock with the code.",
+      "invalid_unlock_code": "Invalid unlock code.",
+      "invalid_limit": "The limit must be a positive whole number.",
+      "send_cap_not_found": "This workspace has no monthly limit.",
+      "workspace_not_found": "Workspace not found.",
+      "invalid_body": "Invalid data. Check the fields.",
+      "internal_error": "Internal error while processing the limit. Try again."
+    }
   },
   "adminAffiliates": {
     "header": {
@@ -12271,6 +12353,7 @@
       "template_unavailable": "The template was no longer available at send time. Nothing was charged.",
       "contact_ineligible": "The contact was blocked or inside the spam protection period. Nothing was charged.",
       "insufficient_balance": "There was no balance at send time. Nothing was charged.",
+      "monthly_send_cap_reached": "The workspace monthly send limit was reached. Contact the administration. Nothing was charged.",
       "billing_unavailable": "Billing was unavailable (subscription or price). Nothing was charged.",
       "outcome_unknown": "WhatsApp did not confirm the send. It may have been delivered and was charged. Check the conversation before sending again."
     },
@@ -12282,8 +12365,6 @@
       "templateEmpty": "No templates found",
       "noTemplates": "No approved templates for this number.",
       "noNumber": "Could not identify this conversation's number.",
-      "charge": "{price} will be charged when it is sent.",
-      "chargeUnknown": "It will be charged when it is sent, at the template category's price.",
       "insufficientNow": "Today's balance does not cover this send. Top up before the scheduled time or the send will fail.",
       "previewLabel": "Preview",
       "previewEmpty": "Pick a template to see the preview.",
@@ -12345,6 +12426,7 @@
       "within_spam_window": "This contact was messaged from this number recently. Wait for the interval your workspace set.",
       "rate_limited": "Too many conversations started in a short time. Try again shortly.",
       "insufficient_balance": "Not enough balance to send this template.",
+      "monthly_send_cap_reached": "This workspace reached its monthly send limit. Contact the administration.",
       "pricing_unavailable": "No price is configured for this template category. Contact your workspace administrator.",
       "template_not_sendable": "This template is not ready to send.",
       "template_phone_mismatch": "This template does not belong to the selected number's account.",

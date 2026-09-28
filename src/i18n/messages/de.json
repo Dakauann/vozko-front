@@ -282,7 +282,11 @@
       "start_campaign": "Kampagne starten",
       "create_knowledge_base": "Wissensdatenbank erstellen",
       "add_knowledge_document": "Datei zur Wissensdatenbank hinzufügen",
-      "offer_action": "Nächster Schritt"
+      "offer_action": "Nächster Schritt",
+      "list_unofficial_numbers": "QR-Code-Nummern",
+      "preview_unofficial_campaign_import": "Tabelle wird geprüft",
+      "create_unofficial_campaign": "QR-Code-Kampagne erstellen",
+      "start_unofficial_campaign": "QR-Code-Kampagne starten"
     },
     "threadsLegend": "Unterhaltungen",
     "greeting": "Hallo, ich bin Elo. Woran arbeiten wir?",
@@ -467,7 +471,9 @@
       "balance": "Guthaben",
       "campaign": "Kampagne",
       "knowledgeBase": "Wissensdatenbank",
-      "file": "Datei"
+      "file": "Datei",
+      "pace": "Tempo",
+      "dailyCap": "Tageslimit"
     },
     "attachments": {
       "legend": "Angehängte Dateien",
@@ -1524,6 +1530,7 @@
       "sales": "Vertrieb",
       "adminOverview": "Umsatz",
       "adminMetaCosts": "Meta-Kosten",
+      "adminSendCaps": "Versandlimits",
       "whatsapp": "WhatsApp",
       "instagramChannel": "Instagram",
       "campaigns": "Kampagnen",
@@ -10846,6 +10853,80 @@
     "waitingSlot": "Warten auf Leitung",
     "endCall": "Auflegen"
   },
+  "adminSendCaps": {
+    "stats": {
+      "capped": "Mit Limit"
+    },
+    "header": {
+      "badge": "Monatliche Versandlimits",
+      "description": "Offizielle, von Meta abgerechnete Vorlagen, pro Workspace und Monat.",
+      "descriptionWithMonth": "Offizielle, von Meta abgerechnete Vorlagen, pro Workspace. Nutzung gezählt seit Beginn von {month}."
+    },
+    "actions": {
+      "refresh": "Aktualisieren",
+      "create": "Neues Limit",
+      "adjust": "Anpassen",
+      "unlock": "Entsperren",
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "saving": "Speichern..."
+    },
+    "levels": {
+      "all": "Alle",
+      "ok": "Im Rahmen",
+      "near": "Nahe am Limit",
+      "reached": "Am Limit"
+    },
+    "empty": {
+      "title": "Kein Workspace hat ein Monatslimit",
+      "filteredTitle": "Kein Workspace in diesem Zustand",
+      "description": "Workspaces ohne Limit senden ohne Einschränkung. Lege ein Limit an, um die Sendungen des Monats zu sperren."
+    },
+    "table": {
+      "workspace": "Workspace",
+      "usage": "Nutzung im Monat",
+      "usageValue": "{used} von {limit}",
+      "remaining": "Verbleibend",
+      "status": "Status",
+      "updated": "Letzte Änderung",
+      "unlockedMark": "(Entsperrung)",
+      "actions": "Aktionen"
+    },
+    "limitDialog": {
+      "createTitle": "Neues Monatslimit",
+      "editTitle": "Limit von {workspace} anpassen",
+      "workspace": "Workspace",
+      "changeWorkspace": "Wechseln",
+      "searchPlaceholder": "Workspace nach Namen suchen",
+      "limit": "Sendungen pro Monat",
+      "createHint": "Ist das Limit erreicht, schlagen Sendungen fehl und der Nutzer wird an die Administration verwiesen.",
+      "editHint": "Aktuelles Limit: {current}. Hier kann es nur beibehalten oder gesenkt werden.",
+      "raiseNeedsUnlock": "Das Erhöhen des Limits erfordert eine Entsperrung mit Code.",
+      "raiseForbidden": "Das Erhöhen des Limits erfordert eine Entsperrung, die nur die berechtigte Administration vornehmen kann."
+    },
+    "unlockDialog": {
+      "title": "{workspace} entsperren",
+      "current": "{used} von {limit} in diesem Monat genutzt.",
+      "removeCap": "Limit entfernen",
+      "removeCapHint": "Der Workspace sendet wieder ohne monatliche Einschränkung.",
+      "newLimit": "Neues Monatslimit",
+      "code": "Entsperrcode",
+      "codeHint": "Vierstelliger Code der Administration.",
+      "confirmRaise": "Entsperren",
+      "confirmRemove": "Limit entfernen"
+    },
+    "errors": {
+      "default": "Der Vorgang konnte nicht abgeschlossen werden.",
+      "forbidden": "Du darfst diese Änderung nicht vornehmen.",
+      "unlock_required": "Das Erhöhen oder Entfernen des Limits erfordert eine Entsperrung mit Code.",
+      "invalid_unlock_code": "Ungültiger Entsperrcode.",
+      "invalid_limit": "Das Limit muss eine positive ganze Zahl sein.",
+      "send_cap_not_found": "Dieser Workspace hat kein Monatslimit.",
+      "workspace_not_found": "Workspace nicht gefunden.",
+      "invalid_body": "Ungültige Daten. Prüfe die Felder.",
+      "internal_error": "Interner Fehler beim Verarbeiten des Limits. Versuche es erneut."
+    }
+  },
   "adminAffiliates": {
     "header": {
       "badge": "Affiliates",
@@ -11258,6 +11339,7 @@
       "template_unavailable": "Die Vorlage war beim Senden nicht mehr verfügbar. Es wurde nichts berechnet.",
       "contact_ineligible": "Der Kontakt war blockiert oder im Spamschutz. Es wurde nichts berechnet.",
       "insufficient_balance": "Beim Senden war kein Guthaben vorhanden. Es wurde nichts berechnet.",
+      "monthly_send_cap_reached": "Das monatliche Versandlimit des Workspace wurde erreicht. Wende dich an die Administration. Es wurde nichts berechnet.",
       "billing_unavailable": "Die Abrechnung war nicht verfügbar (Abo oder Preis). Es wurde nichts berechnet.",
       "outcome_unknown": "WhatsApp hat den Versand nicht bestätigt. Er wurde möglicherweise zugestellt und berechnet. Prüfe die Unterhaltung, bevor du erneut sendest."
     },
@@ -11269,8 +11351,6 @@
       "templateEmpty": "Keine Vorlagen gefunden",
       "noTemplates": "Keine freigegebenen Vorlagen für diese Nummer.",
       "noNumber": "Die Nummer dieser Unterhaltung konnte nicht ermittelt werden.",
-      "charge": "Beim Senden werden {price} berechnet.",
-      "chargeUnknown": "Beim Senden wird der Preis der Vorlagenkategorie berechnet.",
       "insufficientNow": "Das heutige Guthaben deckt diesen Versand nicht. Lade vor dem geplanten Zeitpunkt auf, sonst schlägt der Versand fehl.",
       "previewLabel": "Vorschau",
       "previewEmpty": "Wähle eine Vorlage für die Vorschau.",
@@ -11332,6 +11412,7 @@
       "within_spam_window": "Dieser Kontakt wurde von dieser Nummer erst kürzlich angeschrieben. Warten Sie das im Workspace festgelegte Intervall ab.",
       "rate_limited": "Zu viele Unterhaltungen in kurzer Zeit begonnen. Versuchen Sie es gleich erneut.",
       "insufficient_balance": "Zu wenig Guthaben, um diese Vorlage zu senden.",
+      "monthly_send_cap_reached": "Dieser Workspace hat sein monatliches Versandlimit erreicht. Wende dich an die Administration.",
       "pricing_unavailable": "Für diese Vorlagenkategorie ist kein Preis hinterlegt. Wenden Sie sich an die Workspace-Verwaltung.",
       "template_not_sendable": "Diese Vorlage ist nicht versandbereit.",
       "template_phone_mismatch": "Diese Vorlage gehört nicht zum Konto der gewählten Nummer.",

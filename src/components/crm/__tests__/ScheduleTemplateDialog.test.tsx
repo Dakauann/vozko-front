@@ -122,11 +122,10 @@ describe("ScheduleTemplateDialog", () => {
         expect(confirmButton()).toBeDisabled();
     });
 
-    it("tells the operator the send is charged when it goes out", async () => {
+    it("does not show the send price", async () => {
         renderDialog();
-        await waitFor(() =>
-            expect(screen.getByText(/será cobrado/i)).toBeInTheDocument(),
-        );
+        await waitFor(() => expect(quoteAction).toHaveBeenCalled());
+        expect(screen.queryByText(/R\$/)).not.toBeInTheDocument();
     });
 
     it("warns when today's balance would not cover the send", async () => {

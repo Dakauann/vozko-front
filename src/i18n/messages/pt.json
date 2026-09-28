@@ -282,7 +282,11 @@
       "start_campaign": "Iniciar campanha",
       "create_knowledge_base": "Criar base de conhecimento",
       "add_knowledge_document": "Adicionar arquivo à base",
-      "offer_action": "Próximo passo"
+      "offer_action": "Próximo passo",
+      "list_unofficial_numbers": "Números por QR code",
+      "preview_unofficial_campaign_import": "Conferindo a planilha",
+      "create_unofficial_campaign": "Criar campanha por QR code",
+      "start_unofficial_campaign": "Iniciar campanha por QR code"
     },
     "threadsLegend": "Conversas",
     "greeting": "Olá, sou a Elo. Vamos trabalhar em quê?",
@@ -467,7 +471,9 @@
       "balance": "Saldo",
       "campaign": "Campanha",
       "knowledgeBase": "Base de conhecimento",
-      "file": "Arquivo"
+      "file": "Arquivo",
+      "pace": "Ritmo",
+      "dailyCap": "Limite diário"
     },
     "attachments": {
       "legend": "Arquivos anexados",
@@ -2141,6 +2147,7 @@
       "users": "Gestão de Usuários",
       "adminOverview": "Receita",
       "adminMetaCosts": "Custo Meta",
+      "adminSendCaps": "Limites de envio",
       "platformUsers": "Contas",
       "usersList": "Lista de Usuários",
       "registerUser": "Registrar Usuário",
@@ -5399,7 +5406,8 @@
         "135000": "Erro genérico do usuário",
         "900002": "Nenhum telefone comercial configurado para esta campanha",
         "900003": "Não foi possível resolver o cliente do WhatsApp desta campanha",
-        "900006": "Não foi possível localizar a entrada usada para preencher as variáveis do template"
+        "900006": "Não foi possível localizar a entrada usada para preencher as variáveis do template",
+        "900009": "Limite mensal de envios atingido. Fale com a administração para liberar novos envios"
       },
       "years": "anos",
       "export": {
@@ -7763,6 +7771,80 @@
       "capacityDescription": "O que está incluso na mensalidade e quanto ela custa."
     },
     "register": "Catálogo"
+  },
+  "adminSendCaps": {
+    "stats": {
+      "capped": "Com limite"
+    },
+    "header": {
+      "badge": "Limites mensais de envio",
+      "description": "Templates oficiais cobrados pela Meta, por workspace e por mês.",
+      "descriptionWithMonth": "Templates oficiais cobrados pela Meta, por workspace. Uso contado desde o início de {month}."
+    },
+    "actions": {
+      "refresh": "Atualizar",
+      "create": "Novo limite",
+      "adjust": "Ajustar",
+      "unlock": "Desbloquear",
+      "cancel": "Cancelar",
+      "save": "Salvar",
+      "saving": "Salvando..."
+    },
+    "levels": {
+      "all": "Todos",
+      "ok": "Dentro",
+      "near": "Perto do limite",
+      "reached": "No limite"
+    },
+    "empty": {
+      "title": "Nenhum workspace com limite mensal",
+      "filteredTitle": "Nenhum workspace neste estado",
+      "description": "Workspaces sem limite enviam sem restrição. Crie um limite para travar os envios do mês."
+    },
+    "table": {
+      "workspace": "Workspace",
+      "usage": "Uso no mês",
+      "usageValue": "{used} de {limit}",
+      "remaining": "Restante",
+      "status": "Situação",
+      "updated": "Última alteração",
+      "unlockedMark": "(desbloqueio)",
+      "actions": "Ações"
+    },
+    "limitDialog": {
+      "createTitle": "Novo limite mensal",
+      "editTitle": "Ajustar limite de {workspace}",
+      "workspace": "Workspace",
+      "changeWorkspace": "Trocar",
+      "searchPlaceholder": "Buscar workspace pelo nome",
+      "limit": "Envios por mês",
+      "createHint": "Ao atingir o limite, os envios falham e o usuário é orientado a falar com a administração.",
+      "editHint": "Limite atual: {current}. Aqui só é possível manter ou baixar.",
+      "raiseNeedsUnlock": "Aumentar o limite exige desbloqueio com código.",
+      "raiseForbidden": "Aumentar o limite exige desbloqueio, que só a administração autorizada pode fazer."
+    },
+    "unlockDialog": {
+      "title": "Desbloquear {workspace}",
+      "current": "Usados {used} de {limit} neste mês.",
+      "removeCap": "Remover o limite",
+      "removeCapHint": "O workspace volta a enviar sem restrição mensal.",
+      "newLimit": "Novo limite mensal",
+      "code": "Código de desbloqueio",
+      "codeHint": "Código de 4 dígitos da administração.",
+      "confirmRaise": "Desbloquear",
+      "confirmRemove": "Remover limite"
+    },
+    "errors": {
+      "default": "Não foi possível concluir a operação.",
+      "forbidden": "Você não tem permissão para esta alteração.",
+      "unlock_required": "Aumentar ou remover o limite exige desbloqueio com código.",
+      "invalid_unlock_code": "Código de desbloqueio inválido.",
+      "invalid_limit": "O limite precisa ser um número inteiro positivo.",
+      "send_cap_not_found": "Este workspace não tem limite mensal.",
+      "workspace_not_found": "Workspace não encontrado.",
+      "invalid_body": "Dados inválidos. Revise os campos.",
+      "internal_error": "Erro interno ao processar o limite. Tente novamente."
+    }
   },
   "adminAffiliates": {
     "header": {
@@ -12322,6 +12404,7 @@
       "template_unavailable": "O template não estava mais disponível no horário do envio. Nada foi cobrado.",
       "contact_ineligible": "O contato estava bloqueado ou dentro da proteção contra spam. Nada foi cobrado.",
       "insufficient_balance": "Não havia saldo no horário do envio. Nada foi cobrado.",
+      "monthly_send_cap_reached": "O limite mensal de envios do workspace foi atingido. Fale com a administração. Nada foi cobrado.",
       "billing_unavailable": "A cobrança não estava disponível (assinatura ou preço). Nada foi cobrado.",
       "outcome_unknown": "O WhatsApp não confirmou o envio. Ele pode ter sido entregue e foi cobrado. Verifique a conversa antes de enviar de novo."
     },
@@ -12333,8 +12416,6 @@
       "templateEmpty": "Nenhum template encontrado",
       "noTemplates": "Nenhum template aprovado para este número.",
       "noNumber": "Não foi possível identificar o número desta conversa.",
-      "charge": "Será cobrado {price} no envio.",
-      "chargeUnknown": "Será cobrado no envio, pelo preço da categoria do template.",
       "insufficientNow": "O saldo de hoje não cobre este envio. Recarregue antes do horário agendado ou o envio vai falhar.",
       "previewLabel": "Prévia",
       "previewEmpty": "Escolha um template para ver a prévia.",
@@ -12396,6 +12477,7 @@
       "within_spam_window": "Este contato já recebeu uma mensagem deste número há pouco tempo. Aguarde o intervalo definido pelo workspace.",
       "rate_limited": "Muitas conversas iniciadas em pouco tempo. Tente novamente em instantes.",
       "insufficient_balance": "Saldo insuficiente para enviar este modelo.",
+      "monthly_send_cap_reached": "O limite mensal de envios deste workspace foi atingido. Fale com a administração.",
       "pricing_unavailable": "Não há preço configurado para esta categoria de modelo. Fale com o administrador do workspace.",
       "template_not_sendable": "Este modelo não está pronto para envio.",
       "template_phone_mismatch": "Este modelo não pertence à conta do número selecionado.",

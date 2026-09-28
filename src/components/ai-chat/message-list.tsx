@@ -143,6 +143,10 @@ const TOOL_ICON: Record<string, Icon> = {
   create_knowledge_base: Files,
   add_knowledge_document: UploadSimple,
   offer_action: ArrowRight,
+  list_unofficial_numbers: DeviceMobile,
+  preview_unofficial_campaign_import: FileCsv,
+  create_unofficial_campaign: Megaphone,
+  start_unofficial_campaign: PlayCircle,
 };
 
 const KNOWN_TOOLS = new Set(Object.keys(TOOL_ICON));
