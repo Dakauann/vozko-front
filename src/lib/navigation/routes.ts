@@ -146,7 +146,7 @@ export function ruleForPath(pathname: string): RouteRule | null {
   return best?.rule ?? null;
 }
 
-const upcomingScreens: ReadonlySet<ScreenKey> = new Set<ScreenKey>(["facebook_pages", "facebook_connect"]);
+const upcomingScreens: ReadonlySet<ScreenKey> = new Set<ScreenKey>();
 
 export function isUpcomingScreen(screen: ScreenKey): boolean {
   return upcomingScreens.has(screen);

@@ -130,7 +130,7 @@ describe("screenCapability", () => {
   });
 });
 
-describe("upcoming screens", () => {
+describe("released channels", () => {
   const facebook: Feature = {
     key: "facebook",
     name: "Facebook",
@@ -140,14 +140,10 @@ describe("upcoming screens", () => {
     capabilities: [{ key: "facebook.view", description: "", requires: [], managersOnly: false, screens: ["facebook_pages", "facebook_connect"] }],
   };
 
-  it("stay closed as coming soon for everyone, owners and platform admins included", () => {
+  it("open Facebook through its capability, like every other channel", () => {
     const catalog = { status: "ready" as const, features: [...features, facebook] };
-    expect(decideScreen("facebook_pages", member([], { catalog })).status).toBe("upcoming");
-    expect(decideScreen("facebook_connect", member([], { catalog, privileged: true, systemAdmin: true })).status).toBe("upcoming");
-    expect(decidePath("/dashboard/facebook-pages/123", member([], { catalog, privileged: true })).status).toBe("upcoming");
-  });
-
-  it("do not wait for permissions to say so", () => {
-    expect(decideScreen("facebook_pages", member([], { permissionsLoading: true })).status).toBe("upcoming");
+    expect(decideScreen("facebook_pages", member([], { catalog })).status).toBe("allowed");
+    expect(decidePath("/dashboard/facebook-pages/123", member([], { catalog, privileged: true })).status).toBe("allowed");
+    expect(decideScreen("facebook_pages", member([], { permissionsLoading: true })).status).toBe("loading");
   });
 });

@@ -77,15 +77,10 @@ describe("pathForScreen", () => {
 });
 
 describe("upcoming screens", () => {
-  it("marks every Facebook page, detail pages included, as coming soon", () => {
-    expect(isUpcomingScreen("facebook_pages")).toBe(true);
-    expect(isUpcomingScreen("facebook_connect")).toBe(true);
-    expect(isUpcomingPath("/dashboard/facebook-pages")).toBe(true);
-    expect(isUpcomingPath("/dashboard/facebook-pages/connect")).toBe(true);
-    expect(isUpcomingPath("/dashboard/facebook-pages/123456")).toBe(true);
-  });
-
   it("leaves released channels alone", () => {
+    expect(isUpcomingScreen("facebook_pages")).toBe(false);
+    expect(isUpcomingScreen("facebook_connect")).toBe(false);
+    expect(isUpcomingPath("/dashboard/facebook-pages/123456")).toBe(false);
     expect(isUpcomingScreen("instagram_accounts")).toBe(false);
     expect(isUpcomingPath("/dashboard/instagram-accounts")).toBe(false);
     expect(isUpcomingPath("/dashboard/not-registered")).toBe(false);

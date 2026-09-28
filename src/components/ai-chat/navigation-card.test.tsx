@@ -89,13 +89,11 @@ describe("navigation card", () => {
     expect(screen.getByText(navigation.noAccess)).toBeTruthy();
   });
 
-  it("says an unreleased screen is coming soon and never opens it", () => {
+  it("links to the Facebook pages like any released screen", () => {
     workspace.featureCatalog = { status: "ready", features: [agents, facebook] } as unknown as FeatureCatalog;
-    localStorage.setItem("ai-chat:auto-open-screens", "on");
-    renderCard("facebook_pages", undefined, true);
-    expect(screen.queryByRole("link")).toBeNull();
-    expect(screen.getByText(navigation.upcoming)).toBeTruthy();
-    expect(router.push).not.toHaveBeenCalled();
+    renderCard("facebook_pages");
+    expect(screen.getByRole("link", { name: navigation.open }).getAttribute("href")).toBe("/dashboard/facebook-pages");
+    expect(screen.queryByText(navigation.upcoming)).toBeNull();
   });
 
   it("waits for permissions before linking", () => {

@@ -40,9 +40,9 @@ describe("sidebar access", () => {
     expect(navItemVisible(metrics, (href) => href === "/dashboard/metrics-home")).toBe(false);
   });
 
-  it("keeps unreleased channels on show, even for people who could not open them", () => {
+  it("shows Facebook exactly when its pages would open, like every released channel", () => {
     const facebook = find(campanhasNavItems, "nav.facebook");
-    expect(navItemVisible(facebook, () => false)).toBe(true);
-    expect(navItemVisible(find(campanhasNavItems, "nav.connectFacebook"), () => false)).toBe(true);
+    expect(navItemVisible(facebook, () => false)).toBe(false);
+    expect(navItemVisible(facebook, (href) => href === "/dashboard/facebook-pages")).toBe(true);
   });
 });

@@ -89,13 +89,12 @@ describe("RouteGate", () => {
     expect(screen.queryByText("page content")).toBeNull();
   });
 
-  it("shows coming soon instead of an unreleased page, to everyone", () => {
+  it("opens the Facebook pages for people allowed in", () => {
     pathname = "/dashboard/facebook-pages/connect";
     workspace.privileged = true;
     workspace.systemAdmin = true;
     render(<RouteGate>{page}</RouteGate>);
-    expect(screen.queryByText("page content")).toBeNull();
-    expect(screen.getByText("upcoming.title")).toBeTruthy();
-    expect(screen.getByText("upcoming.description")).toBeTruthy();
+    expect(screen.getByText("page content")).toBeTruthy();
+    expect(screen.queryByText("upcoming.title")).toBeNull();
   });
 });

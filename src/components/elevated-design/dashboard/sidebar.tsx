@@ -1153,7 +1153,6 @@ function NavItemComponent({
 const familyBadgeKey: Record<string, string> = {
   whatsapp: "families.badges.official",
   "unofficial-whatsapp": "families.badges.unofficial",
-  facebook: "families.badges.soon",
 };
 
 const familyBrandIcon: Record<string, NavIcon> = {
