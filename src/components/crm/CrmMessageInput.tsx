@@ -21,12 +21,16 @@ import {
   mediaTypeForFile,
   normalizeUploadFile,
 } from "@/lib/conversations/media";
-import type {
-  ConversationMessage,
-  EntryType,
-  MediaType,
-  WindowClosedReason,
+import {
+  channelCapabilities,
+  type ConversationMessage,
+  type EntryType,
+  type MediaType,
+  type WindowClosedReason,
+  type WindowTier,
 } from "@/lib/conversations/types";
+import { textLimitState } from "@/lib/conversations/text-limit";
+import { FacebookThreadBanner } from "./FacebookThreadBanner";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import Badge from "../elevated-design/badge";
@@ -78,6 +82,7 @@ interface CrmMessageInputProps {
   windowOpen: boolean;
   windowExpiresAt: string | null;
   windowClosedReason?: WindowClosedReason | null;
+  windowTier?: WindowTier | null;
   onSchedule?: (draft: ComposerDraft) => void;
   onScheduleTemplate?: () => void;
   disabled?: boolean;
@@ -150,6 +155,7 @@ export default function CrmMessageInput({
   windowOpen,
   windowExpiresAt,
   windowClosedReason,
+  windowTier,
   onSchedule,
   onScheduleTemplate,
   disabled = false,
@@ -162,6 +168,7 @@ export default function CrmMessageInput({
   const crmT = useTranslations("crm");
   const scheduleT = useTranslations("scheduledMessages");
   const windowT = useTranslations("conversationWindow.closed");
+  const conversationWindowT = useTranslations("conversationWindow");
   const shortcutPageT = useTranslations("messageShortcutsPage");
   const [text, setText] = useState("");
   const [pendingMedia, setPendingMedia] = useState<PendingMedia | null>(null);
@@ -270,6 +277,9 @@ export default function CrmMessageInput({
     onClearReply?.();
   }, [clearDraft, onClearReply, onSchedule, pendingMedia, replyToMessage, sendSigned, text]);
 
+  const limitState = textLimitState(text, channelCapabilities.textLimit(entryType));
+  const overLimit = limitState?.over ?? false;
+
   const handleSend = useCallback(() => {
     const trimmed = text.trim();
     if (!trimmed && !pendingMedia) return;
@@ -292,6 +302,7 @@ export default function CrmMessageInput({
     }
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
+      if (overLimit) return;
       handleSend();
     }
   };
@@ -573,9 +584,13 @@ export default function CrmMessageInput({
     return windowExpiresAt ? t.windowClosedDescription : t.windowClosedNoClock;
   })();
 
+  const humanOnly = windowOpen && windowTier === "human_agent";
+  const humanOnlyUntil = windowExpiresAt ? new Date(windowExpiresAt).toLocaleString() : null;
+
   const canSend =
     !disabled &&
     windowOpen &&
+    !overLimit &&
     (text.trim().length > 0 ||
       (pendingMedia?.mediaId && !pendingMedia.uploading));
 
@@ -615,7 +630,24 @@ export default function CrmMessageInput({
         </div>
       )}
 
-      {windowOpen && windowRemaining && (
+      {entryType === "facebook" && (
+        <FacebookThreadBanner entryId={entryId} canSend={!disabled} />
+      )}
+
+      {humanOnly && (
+        <div className="flex justify-center px-4 pt-2">
+          <div className="flex max-w-[92%] items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-2 shadow-md">
+            <Clock weight="fill" className="h-4 w-4 flex-shrink-0 text-warning-ink" />
+            <p className="text-2xs font-medium text-foreground">
+              {humanOnlyUntil
+                ? conversationWindowT("tier.humanAgent", { date: humanOnlyUntil })
+                : conversationWindowT("tier.humanAgentNoDate")}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {windowOpen && !humanOnly && windowRemaining && (
         <div className="flex justify-center px-4 pt-2">
           <div className="flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1 shadow-sm">
             <span className="h-1.5 w-1.5 rounded-full bg-healthy animate-pulse" />
@@ -886,6 +918,22 @@ export default function CrmMessageInput({
                   autoComplete="on"
                   className="block max-h-[120px] w-full resize-none border-0 bg-transparent px-2 py-2 text-sm font-medium leading-snug text-foreground outline-none placeholder:text-muted-foreground focus:ring-0 disabled:cursor-not-allowed disabled:opacity-60"
                 />
+                {limitState && limitState.count > 0 && (
+                  <p
+                    aria-live="polite"
+                    className={`px-2 pb-1 text-right text-2xs tabular-nums ${
+                      limitState.over
+                        ? "font-semibold text-destructive-ink"
+                        : limitState.near
+                          ? "text-warning-ink"
+                          : "text-muted-foreground"
+                    }`}
+                  >
+                    {limitState.over
+                      ? conversationWindowT("textLimit", { count: limitState.count, limit: limitState.limit })
+                      : `${limitState.count}/${limitState.limit}`}
+                  </p>
+                )}
               </div>
 
               <div className="flex flex-shrink-0 items-center gap-1 self-center pl-1 pr-0.5">

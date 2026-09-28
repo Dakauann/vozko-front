@@ -1,3 +1,5 @@
+import type { CommentRuleMatch } from '@/lib/social/comment-rules';
+
 
 export type InstagramAccountStatus =
     | 'PENDING'
@@ -111,9 +113,7 @@ export interface CreateInstagramMediaPayload {
     mediaType?: string;
 }
 
-export type CommentRuleMatch = 'any' | 'contains' | 'exact';
-
-export type CommentRuleAction = 'public_reply' | 'private_reply' | 'hide';
+export type InstagramCommentRuleAction = 'public_reply' | 'private_reply' | 'hide';
 
 export interface InstagramCommentRule {
     id: string;
@@ -124,7 +124,7 @@ export interface InstagramCommentRule {
     igMediaId?: string;
     match: CommentRuleMatch;
     keywords: string[];
-    actions: CommentRuleAction[];
+    actions: InstagramCommentRuleAction[];
     publicReplyText?: string;
     privateReplyText?: string;
     priority: number;
@@ -138,7 +138,7 @@ export interface CommentRulePayload {
     igMediaId?: string;
     match: CommentRuleMatch;
     keywords: string[];
-    actions: CommentRuleAction[];
+    actions: InstagramCommentRuleAction[];
     publicReplyText?: string;
     privateReplyText?: string;
     priority?: number;

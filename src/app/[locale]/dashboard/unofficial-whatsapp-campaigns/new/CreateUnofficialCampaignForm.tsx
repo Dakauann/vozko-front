@@ -1,6 +1,7 @@
 "use client";
 
 import { Controller, useForm } from "react-hook-form";
+import { DealAutomationSetting } from "@/components/channels/deal-automation-setting";
 import { DownloadSimple, UploadSimple, Warning } from "@/components/icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -544,6 +545,11 @@ export default function CreateUnofficialCampaignForm({
                   />
                 )}
               />
+              {initialCampaign?.id ? (
+                <DealAutomationSetting
+                  channel={{ entryType: "unofficial_whatsapp", kind: "campaign", containerId: initialCampaign.id }}
+                />
+              ) : null}
             </div>
 
             {enableAnalysis || enableAutoStaging || enableAutoMemory ? (

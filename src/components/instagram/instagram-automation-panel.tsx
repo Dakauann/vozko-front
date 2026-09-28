@@ -25,6 +25,7 @@ export function InstagramAutomationPanel({
       translationNamespace="instagram.automation"
       controlId="ig-automation-enabled"
       showHandling
+      dealEntryType="instagram"
     />
   );
 }

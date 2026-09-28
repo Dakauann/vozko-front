@@ -1,10 +1,17 @@
 
-export type CommentSource = 'instagram';
+export type CommentSource = 'instagram' | 'facebook';
+
+export const COMMENT_SOURCES: CommentSource[] = ['instagram', 'facebook'];
+
+export function isCommentSource(source: string): source is CommentSource {
+    return (COMMENT_SOURCES as string[]).includes(source);
+}
 
 export type SubjectKind = "comment" | "conversation";
 
 export type AudienceSource =
     | "instagram"
+    | "facebook"
     | "whatsapp"
     | "telegram"
     | "unofficial_whatsapp";
@@ -375,6 +382,7 @@ export interface CommentBackfill {
 
 export const AUDIENCE_SOURCES: AudienceSource[] = [
     "instagram",
+    "facebook",
     "whatsapp",
     "telegram",
     "unofficial_whatsapp",

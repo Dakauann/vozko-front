@@ -5,6 +5,7 @@ export type ChannelFilter =
     | "all"
     | "whatsapp"
     | "instagram"
+    | "facebook"
     | "telegram"
     | "unofficial_whatsapp";
 
@@ -36,6 +37,12 @@ export const CHANNEL_FILTERS: readonly ChannelFilterSpec[] = [
         kind: "entry",
         labelKey: "filterInstagram",
         permission: { resource: "instagram_accounts", action: "read" },
+    },
+    {
+        value: "facebook",
+        kind: "entry",
+        labelKey: "filterFacebook",
+        permission: { resource: "facebook_pages", action: "read" },
     },
     {
         value: "telegram",

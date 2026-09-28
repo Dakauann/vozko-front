@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowSquareOut, CaretLeft, CaretRight, Heart, ImageBroken, X } from "@/components/icons";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 
 import {
@@ -12,7 +12,9 @@ import {
 import type { InstagramAccount, InstagramComment, InstagramMedia } from "@/lib/instagram/types";
 
 import { InstagramAvatar } from "@/components/instagram/instagram-avatar";
-import { InstagramCommentThread } from "@/components/instagram/instagram-comment-thread";
+import { CommentThread } from "@/components/social/comment-thread";
+import { fromInstagramComment } from "@/lib/social/comments";
+import { instagramCommentActions } from "@/lib/social/comment-sources";
 import { InstagramCommentRulesPanel } from "@/components/instagram/instagram-comment-rules-panel";
 import { CommentPostAnalysisPanel } from "@/components/audience/post";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -66,6 +68,7 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [togglingComments, setTogglingComments] = useState(false);
+  const commentActions = useMemo(() => instagramCommentActions(accountId), [accountId]);
 
   const applyFirstPage = useCallback(
     (result: Awaited<ReturnType<typeof listInstagramCommentsAction>>) => {
@@ -284,13 +287,14 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
               </TabsList>
 
               <TabsContent value="comments" className="mt-3 -mx-4">
-                <InstagramCommentThread
-                  accountId={accountId}
-                  comments={comments}
+                <CommentThread
+                  comments={comments.map((comment) => fromInstagramComment(comment, account.canManageComments))}
+                  actions={commentActions}
+                  translationNamespace="instagram.comments"
+                  authorPrefix="@"
                   loading={loading}
                   hasNext={hasNext}
                   loadingMore={loadingMore}
-                  canModerate={account.canManageComments}
                   totalCount={media.commentsCount}
                   onLoadMore={() => void loadMore()}
                   onChanged={() => void reload()}
@@ -307,7 +311,7 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
 
               {canSeeAnalysis ? (
                 <TabsContent value="analysis" className="mt-3">
-                  <CommentPostAnalysisPanel accountId={accountId} containerId={media.id} />
+                  <CommentPostAnalysisPanel source="instagram" accountId={accountId} containerId={media.id} />
                 </TabsContent>
               ) : null}
             </Tabs>

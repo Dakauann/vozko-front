@@ -81,7 +81,7 @@ export function useChatConversation({ view, rememberKey, createError, onThreadCr
       onTool: (name: string, summary: string, ok: boolean) =>
         patchSegments((segs) => finishTool(segs, name, summary, ok)),
       onChart: (chart: ChatChart) => patchSegments((segs) => [...segs, { kind: "chart", chart }]),
-      onCard: (card: ActionCard) => patchSegments((segs) => [...segs, { kind: "card", card }]),
+      onCard: (card: ActionCard) => patchSegments((segs) => [...segs, { kind: "card", card, live: true }]),
       onDelta: (text: string) =>
         patchSegments((segs) => {
           const last = segs[segs.length - 1];

@@ -20,6 +20,17 @@ describe("channel filter table", () => {
         });
     });
 
+    it("offers Messenger behind the Facebook Pages read permission", () => {
+        const spec = channelFilterSpec("facebook");
+        expect(spec).toEqual({
+            value: "facebook",
+            kind: "entry",
+            labelKey: "filterFacebook",
+            permission: { resource: "facebook_pages", action: "read" },
+        });
+        expect(entryTypeFor("facebook")).toBe("facebook");
+    });
+
     it("keeps the two WhatsApp transports as distinct filters", () => {
         const values = CHANNEL_FILTERS.map((spec) => spec.value);
         expect(values).toContain("whatsapp");
@@ -75,6 +86,7 @@ describe("narrowing", () => {
             "all",
             "whatsapp",
             "instagram",
+            "facebook",
             "telegram",
             "unofficial_whatsapp",
         ];

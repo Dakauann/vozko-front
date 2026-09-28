@@ -77,24 +77,24 @@ export async function createOpportunityAction(
 export async function updateOpportunityAction(
     id: string,
     input: UpdateOpportunityInput,
-): Promise<{ opportunity: Opportunity | null; error?: string }> {
+): Promise<{ opportunity: Opportunity | null; error?: string; conflict?: boolean }> {
     const response = await apiClient<Opportunity>(`/opportunities/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(input),
     });
-    if (response.error) return { opportunity: null, error: response.error.message };
+    if (response.error) return { opportunity: null, error: response.error.message, conflict: response.error.status === 409 };
     return { opportunity: response.data ?? null };
 }
 
 export async function moveOpportunityAction(
     id: string,
     input: MoveOpportunityInput,
-): Promise<{ opportunity: Opportunity | null; error?: string }> {
+): Promise<{ opportunity: Opportunity | null; error?: string; conflict?: boolean }> {
     const response = await apiClient<Opportunity>(`/opportunities/${id}/move`, {
         method: 'POST',
         body: JSON.stringify(input),
     });
-    if (response.error) return { opportunity: null, error: response.error.message };
+    if (response.error) return { opportunity: null, error: response.error.message, conflict: response.error.status === 409 };
     return { opportunity: response.data ?? null };
 }
 

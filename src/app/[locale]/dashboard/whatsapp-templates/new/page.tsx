@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/use-toast";
@@ -35,9 +35,7 @@ import {
 import { createWhatsAppTemplateAction } from "@/app/actions/whatsapp-templates";
 import { templateErrorMessage } from "@/lib/whatsapp-templates/errors";
 import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones";
-import { useAuth } from "@/contexts/auth-context";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
-import { useWorkspace } from "@/contexts/workspace-context";
 import DragDropBuilder, {
   type DraggableComponent,
   getDefaultData as getDefaultComponentData,
@@ -92,16 +90,6 @@ export default function NewWhatsAppTemplatePage() {
   const router = useRouter();
   const t = useTranslations("whatsappTemplates");
   const tRoot = useTranslations();
-  const { user } = useAuth();
-  const { can } = useWorkspace();
-  const canCreate = can("whatsapp_templates", "create");
-
-  useEffect(() => {
-    if (user && !canCreate) {
-      router.replace("/dashboard/whatsapp-templates");
-    }
-  }, [user, canCreate, router]);
-
   const [name, setName] = useState("");
   const [language, setLanguage] = useState("pt_BR");
   const [category, setCategory] = useState<TemplateCategory>("MARKETING");
@@ -738,10 +726,6 @@ export default function NewWhatsAppTemplatePage() {
     setComponents(newComponents);
     setSelectedComponent(newComponent);
   };
-
-  if (!canCreate) {
-    return null;
-  }
 
   const detectedFormat = computeParameterFormat(components);
   const hasCallComponent = components.some(

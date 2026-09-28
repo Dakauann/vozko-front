@@ -230,7 +230,7 @@ export default function OpportunityBoard({
         return next;
       });
 
-      const { error: err } = await moveOpportunityAction(deal.id, { stageId: toColumnId });
+      const { error: err } = await moveOpportunityAction(deal.id, { stageId: toColumnId, version: deal.version });
 
       setMovingIds((prev) => {
         const next = new Set(prev);

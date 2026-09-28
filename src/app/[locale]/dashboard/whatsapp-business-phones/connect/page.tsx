@@ -20,11 +20,9 @@ import WhatsAppCapacityCard from "@/components/dashboard/addons/WhatsAppCapacity
 import { useWhatsAppCapacity } from "@/hooks/use-whatsapp-capacity";
 import { useWhatsAppEmbeddedSignup } from "@/hooks/use-whatsapp-embedded-signup";
 import Image from "next/image";
-import { useAuth } from "@/contexts/auth-context";
 import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
-import { useWorkspace } from "@/contexts/workspace-context";
 
 export default function ConnectWhatsAppPage() {
   const t = useTranslations("whatsappBusinessPhones");
@@ -33,8 +31,6 @@ export default function ConnectWhatsAppPage() {
   const searchParams = useSearchParams();
   const { resolvedTheme } = useTheme();
   const { toast } = useToast();
-  const { user } = useAuth();
-  const { can } = useWorkspace();
   const capacity = useWhatsAppCapacity();
   const capacityBlocked = capacity.ready && !capacity.canAdd;
   const [popupConnected, setPopupConnected] = useState(false);
@@ -42,12 +38,6 @@ export default function ConnectWhatsAppPage() {
     resolvedTheme === "dark"
       ? "/images/partners/meta-business-partner-two-line-dark.svg"
       : "/images/partners/meta-business-partner-two-line-light.svg";
-
-  useEffect(() => {
-    if (user && !can("business_phones", "create")) {
-      router.replace("/dashboard/whatsapp-business-phones");
-    }
-  }, [user, can, router]);
 
   const status = searchParams.get("status");
   const phoneId = searchParams.get("phone_id");
@@ -92,10 +82,6 @@ export default function ConnectWhatsAppPage() {
     if (capacityBlocked) return;
     signup.start();
   };
-
-  if (user && !can("business_phones", "create")) {
-    return null;
-  }
 
   const facts = [
     {

@@ -14,6 +14,7 @@ import { DashboardNavbar } from "@/components/elevated-design/dashboard/dashboar
 import { DepartmentProvider } from "@/contexts/department-context";
 import WhatsAppCallHost from "@/components/dashboard/WhatsAppCallHost";
 import { AssistantDock } from "@/components/ai-chat/assistant-dock";
+import { RouteGate } from "@/components/access/route-gate";
 import type { ReactNode } from "react";
 import { Suspense } from "react";
 import { WorkspaceProvider } from "@/contexts/workspace-context";
@@ -63,7 +64,9 @@ export default function DashboardLayout({
                 <DashboardCrmWrapper>
                   {
 }
-                  <div className="p-3 sm:p-6">{children}</div>
+                  <div className="p-3 sm:p-6">
+                    <RouteGate>{children}</RouteGate>
+                  </div>
                   <WhatsAppCallHost />
                   <AssistantDock />
                 </DashboardCrmWrapper>

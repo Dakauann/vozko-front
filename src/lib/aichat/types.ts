@@ -87,10 +87,11 @@ export interface ChatView {
   includeAi?: boolean;
 }
 
-export type ActionKind =
+export type OfferKind =
   | "connect_whatsapp_business"
   | "connect_unofficial_whatsapp"
   | "connect_instagram"
+  | "connect_facebook"
   | "connect_telegram"
   | "top_up_balance"
   | "manage_subscription";
@@ -105,12 +106,21 @@ export interface CapabilityStatus {
   blocker?: CapabilityBlocker;
 }
 
-export interface ActionCard {
-  kind: ActionKind;
+export interface OfferCard {
+  kind: OfferKind;
   status?: CapabilityStatus;
   balanceMicros: number;
   subscriptionActive: boolean;
 }
+
+export interface NavigationCard {
+  kind: "open_screen";
+  destination: { screen: string; params?: Record<string, string> };
+}
+
+export type ActionCard = OfferCard | NavigationCard;
+
+export type ActionKind = ActionCard["kind"];
 
 export interface ToolActivity {
   name: string;

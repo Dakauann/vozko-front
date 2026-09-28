@@ -63,6 +63,7 @@ export interface InboxEntryLabel {
 export type EntryType =
     | 'whatsapp'
     | 'instagram'
+    | 'facebook'
     | 'telegram'
     | 'unofficial_whatsapp';
 
@@ -70,16 +71,21 @@ export type CampaignType = 'whatsapp' | 'unofficial_whatsapp';
 
 export type ContainerKind = 'campaign' | undefined;
 
-export type MessageChannel = 'whatsapp' | 'instagram' | 'telegram' | 'unofficial_whatsapp';
+export type MessageChannel = 'whatsapp' | 'instagram' | 'facebook' | 'telegram' | 'unofficial_whatsapp';
 
 export const FILTERABLE_MESSAGE_CHANNELS: readonly MessageChannel[] = [
     'whatsapp',
     'unofficial_whatsapp',
     'instagram',
+    'facebook',
     'telegram',
 ] as const;
 
 export type WhatsAppCampaignTypeFilter = 'standard' | 'organic';
+
+const TEXT_LIMITS: Partial<Record<EntryType, number>> = {
+    facebook: 2000,
+};
 
 export function normalizeEntryType(entryType: EntryType): EntryType {
     return entryType;
@@ -98,15 +104,19 @@ export const channelCapabilities = {
 
     hasTimedOutboundWindow(entryType: EntryType): boolean {
         const t = normalizeEntryType(entryType);
-        return t === 'whatsapp' || t === 'instagram';
+        return t === 'whatsapp' || t === 'instagram' || t === 'facebook';
     },
 
     supportsAiHandling(entryType: EntryType): boolean {
         const t = normalizeEntryType(entryType);
         return (
             t === 'whatsapp' ||
-            t === 'instagram' || t === 'telegram' || t === 'unofficial_whatsapp'
+            t === 'instagram' || t === 'facebook' || t === 'telegram' || t === 'unofficial_whatsapp'
         );
+    },
+
+    textLimit(entryType: EntryType): number | null {
+        return TEXT_LIMITS[normalizeEntryType(entryType)] ?? null;
     },
 } as const;
 
@@ -128,6 +138,8 @@ export type MessageType =
     | 'reaction'
     | 'unsupported'
     | 'post_share'
+    | 'sticker'
+    | 'link_share'
     | 'call_received'
     | 'call_answered'
     | 'call_missed'
@@ -419,6 +431,7 @@ export interface WsSubscribedPayload {
     window_open?: boolean;
     window_expires_at?: string | null;
     window_closed_reason?: WindowClosedReason | null;
+    window_tier?: WindowTier;
     automation_enabled?: boolean | null;
 }
 
@@ -676,6 +689,8 @@ export type ConnectedUser = {
     connected_at: string
 };
 
+export type WindowTier = '' | 'standard' | 'human_agent';
+
 export type WindowClosedReason =
     | "expired"
     | "no_inbound"
@@ -701,6 +716,7 @@ export interface ActiveConversation {
     window_open: boolean;
     window_expires_at: string | null;
     window_closed_reason?: WindowClosedReason | null;
+    window_tier?: WindowTier | null;
     automation_enabled?: boolean | null;
     conversation_status?: string;
     close_source?: string;

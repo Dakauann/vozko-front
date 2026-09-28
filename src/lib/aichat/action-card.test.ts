@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import { cardState } from "./action-card";
-import type { ActionCard } from "./types";
+import type { OfferCard } from "./types";
 
-function card(partial: Partial<ActionCard>): ActionCard {
+function card(partial: Partial<OfferCard>): OfferCard {
   return { kind: "connect_whatsapp_business", balanceMicros: 0, subscriptionActive: true, ...partial };
 }
 

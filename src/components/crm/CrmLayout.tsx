@@ -35,6 +35,7 @@ import {
   PhoneCall,
   Robot,
   InstagramLogo,
+  MessengerLogo,
   TelegramLogo,
   WhatsappLogo,
 } from "@/components/icons";
@@ -235,6 +236,7 @@ const CHANNEL_BADGES: Record<
     className: "bg-muted",
     Icon: InstagramLogo,
   },
+  facebook: { className: "bg-[#0099FF]", Icon: MessengerLogo },
   telegram: { className: "bg-[#229ED9]", Icon: TelegramLogo },
   unofficial_whatsapp: { className: "bg-muted-foreground", Icon: WhatsappLogo },
 };
@@ -644,7 +646,7 @@ export default function CrmLayout({
       setSelectedPipeline({
         id: p,
         objectType: pt,
-        name: pt === "opportunity" ? "Vendas" : "Atendimento",
+        name: pt === "opportunity" ? "Oportunidades" : "Atendimento",
       });
       if (pt === "conversation") setActivePipelineId(p);
     }
@@ -2368,6 +2370,7 @@ export default function CrmLayout({
                     windowOpen={activeConversation.window_open}
                     windowExpiresAt={activeConversation.window_expires_at}
                     windowClosedReason={activeConversation.window_closed_reason}
+                    windowTier={activeConversation.window_tier}
                     translations={t.input}
                     replyToMessage={replyToMessage}
                     onClearReply={() => setReplyToMessage(null)}
@@ -2543,6 +2546,7 @@ export default function CrmLayout({
                     windowOpen={activeConversation.window_open}
                     windowExpiresAt={activeConversation.window_expires_at}
                     windowClosedReason={activeConversation.window_closed_reason}
+                    windowTier={activeConversation.window_tier}
                     translations={t.input}
                     replyToMessage={replyToMessage}
                     onClearReply={() => setReplyToMessage(null)}

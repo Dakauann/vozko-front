@@ -14,9 +14,16 @@ import {
   type AudienceWorkspaceSettings,
 } from "@/app/actions/audience";
 import { listInstagramAccountsAction, listInstagramMediaAction } from "@/app/actions/instagram";
-import type { AudienceSource, CommentAnalysisSettings, CommentAnalysisStats, SubjectKind, TrendPoint } from "@/lib/audience/types";
-import { AUDIENCE_SOURCES } from "@/lib/audience/types";
-import type { InstagramAccount, InstagramMedia } from "@/lib/instagram/types";
+import { listFacebookPagesAction, listFacebookPostsAction } from "@/app/actions/facebook";
+import type {
+  AudienceSource,
+  CommentAnalysisSettings,
+  CommentAnalysisStats,
+  CommentSource,
+  SubjectKind,
+  TrendPoint,
+} from "@/lib/audience/types";
+import { AUDIENCE_SOURCES, isCommentSource } from "@/lib/audience/types";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { Link } from "@/i18n/routing";
 import Button from "@/components/elevated-design/button";
@@ -44,10 +51,36 @@ const ALL_ACCOUNTS = "__accounts";
 const ALL_KINDS = "__kinds";
 const LOCALE_TAG: Record<string, string> = { pt: "pt-BR", en: "en-US", es: "es-ES", de: "de-DE" };
 
-function postLabel(m: InstagramMedia, df: Intl.DateTimeFormat, untitled: string): string {
-  const caption = m.caption?.replace(/\s+/g, " ").trim() ?? "";
+interface ScopeAccount {
+  id: string;
+  source: CommentSource;
+  label: string;
+}
+
+interface ScopePost {
+  id: string;
+  text?: string;
+  timestamp?: string;
+}
+
+const ACCOUNT_PAGES: Record<CommentSource, string> = {
+  instagram: "/dashboard/instagram-accounts",
+  facebook: "/dashboard/facebook-pages",
+};
+
+function postLabel(m: ScopePost, df: Intl.DateTimeFormat, untitled: string): string {
+  const caption = m.text?.replace(/\s+/g, " ").trim() ?? "";
   const head = caption ? (caption.length > 60 ? `${caption.slice(0, 60)}...` : caption) : untitled;
   return m.timestamp ? `${df.format(new Date(m.timestamp))} · ${head}` : head;
+}
+
+async function loadScopePosts(source: CommentSource, accountId: string): Promise<ScopePost[]> {
+  if (source === "facebook") {
+    const result = await listFacebookPostsAction(accountId, "published", undefined, 50);
+    return result.list.items.map((p) => ({ id: p.id, text: p.message || p.story, timestamp: p.createdTime }));
+  }
+  const result = await listInstagramMediaAction(accountId, undefined, 50);
+  return result.page.items.map((m) => ({ id: m.id, text: m.caption, timestamp: m.timestamp }));
 }
 
 export function CommentAnalysisAudience({
@@ -66,18 +99,21 @@ export function CommentAnalysisAudience({
   const df = useMemo(() => new Intl.DateTimeFormat(LOCALE_TAG[locale] ?? "pt-BR", { dateStyle: "short" }), [locale]);
   const { can } = useWorkspace();
   const canConfigure = can("audience", "update");
+  const canReadPages = can("facebook_pages", "read");
 
-  const [accounts, setAccounts] = useState<InstagramAccount[] | null>(null);
+  const [accounts, setAccounts] = useState<ScopeAccount[] | null>(null);
   const [configured, setConfigured] = useState<Record<string, CommentAnalysisSettings>>({});
   const [accountId, setAccountId] = useState(initialAccountId ?? "");
   const [containerId, setContainerId] = useState(initialContainerId ?? "");
-  const [posts, setPosts] = useState<InstagramMedia[]>([]);
+  const [posts, setPosts] = useState<ScopePost[]>([]);
   const [period, setPeriod] = useState<Period>(DEFAULT_PERIOD);
   const [section, setSection] = useState<Section>("overview");
   const [source, setSource] = useState<AudienceSource | "">("");
   const [kind, setKind] = useState<SubjectKind | typeof ALL_KINDS>(ALL_KINDS);
 
-  const showsInstagramScope = (source === "" || source === "instagram") && accounts !== null && accounts.length > 0;
+  const accountSource = accounts?.find((a) => a.id === accountId)?.source;
+  const scopeAccounts = (accounts ?? []).filter((a) => source === "" || a.source === source);
+  const showsAccountScope = (source === "" || isCommentSource(source)) && scopeAccounts.length > 0;
 
   const [settings, setSettings] = useState<CommentAnalysisSettings | null>(null);
   const [commentStats, setCommentStats] = useState<CommentAnalysisStats | null>(null);
@@ -92,38 +128,47 @@ export function CommentAnalysisAudience({
 
   useEffect(() => {
     let cancelled = false;
-    void Promise.all([listInstagramAccountsAction(1, 50), listCommentAnalysisAccountsAction()]).then(([ig, ca]) => {
+    void Promise.all([
+      listInstagramAccountsAction(1, 50),
+      canReadPages ? listFacebookPagesAction(1, 50) : Promise.resolve(null),
+      listCommentAnalysisAccountsAction(),
+    ]).then(([ig, fb, ca]) => {
       if (cancelled) return;
       const map: Record<string, CommentAnalysisSettings> = {};
       for (const s of ca.accounts) map[s.accountId] = s;
       setConfigured(map);
-      setAccounts(ig.accounts);
-      if (ig.error) setError(ig.error);
-      setAccountId((current) => (current && ig.accounts.some((a) => a.id === current) ? current : ""));
+      const next: ScopeAccount[] = [
+        ...ig.accounts.map((a) => ({ id: a.id, source: "instagram" as const, label: `@${a.username}` })),
+        ...(fb?.pages ?? []).map((p) => ({ id: p.id, source: "facebook" as const, label: p.name })),
+      ];
+      setAccounts(next);
+      const failure = ig.error ?? (fb && "error" in fb ? fb.error : undefined);
+      if (failure) setError(failure);
+      setAccountId((current) => (current && next.some((a) => a.id === current) ? current : ""));
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [canReadPages]);
 
   useEffect(() => {
-    if (!accountId) return;
+    if (!accountId || !accountSource) return;
     let cancelled = false;
-    void Promise.all([getCommentAnalysisSettingsAction("instagram", accountId), listInstagramMediaAction(accountId, undefined, 50)]).then(
-      ([s, media]) => {
+    void Promise.all([getCommentAnalysisSettingsAction(accountSource, accountId), loadScopePosts(accountSource, accountId)]).then(
+      ([s, scopePosts]) => {
         if (cancelled) return;
         if (s.error) setError(s.error);
         else {
           setError(null);
           setSettings(s.settings ?? null);
         }
-        setPosts(media.page.items);
+        setPosts(scopePosts);
       },
     );
     return () => {
       cancelled = true;
     };
-  }, [accountId]);
+  }, [accountId, accountSource]);
 
   useEffect(() => {
     const tick = () => {
@@ -208,7 +253,7 @@ export function CommentAnalysisAudience({
   const changeSource = (next: string) => {
     const value = next === ALL_CHANNELS ? "" : (next as AudienceSource);
     setSource(value);
-    if (value !== "" && value !== "instagram") {
+    if (value !== "" && (!isCommentSource(value) || value !== accountSource)) {
       setAccountId("");
       setContainerId("");
       onScopeChange?.("", undefined);
@@ -293,14 +338,15 @@ export function CommentAnalysisAudience({
         </div>
 
         {}
-        {showsInstagramScope ? (
+        {showsAccountScope ? (
           <>
             <div className="w-full sm:w-56">
               <ElevatedSelect label={ta("account")} value={accountId || ALL_ACCOUNTS} onValueChange={changeAccount}>
                 <ElevatedSelectItem value={ALL_ACCOUNTS}>{ta("allAccounts")}</ElevatedSelectItem>
-                {accounts.map((a) => (
+                {scopeAccounts.map((a) => (
                   <ElevatedSelectItem key={a.id} value={a.id}>
-                    @{a.username}
+                    {source === "" ? `${tChannel(a.source)} · ` : ""}
+                    {a.label}
                     {configured[a.id]?.enabled ? ` · ${ta("enabledMark")}` : ""}
                   </ElevatedSelectItem>
                 ))}
@@ -344,7 +390,7 @@ export function CommentAnalysisAudience({
             description={t("disabled.description")}
             action={
               canConfigure ? (
-                <Link href={`/dashboard/instagram-accounts/${accountId}`} className="mt-2">
+                <Link href={`${ACCOUNT_PAGES[accountSource ?? "instagram"]}/${accountId}`} className="mt-2">
                   <Button variant="primary" title={ta("configureCta")} icon={<Gear className="h-4 w-4" weight="fill" />} />
                 </Link>
               ) : (

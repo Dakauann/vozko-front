@@ -15,6 +15,10 @@ describe("readConversationDeepLink", () => {
     expect(readConversationDeepLink(`?entry=${id}&type=whatsapp`)).toEqual({ entryId: id, entryType: "whatsapp" });
   });
 
+  it("reads a Messenger conversation", () => {
+    expect(readConversationDeepLink(`?entry=${id}&type=facebook`)).toEqual({ entryId: id, entryType: "facebook" });
+  });
+
   it("defaults to whatsapp when the type is missing, as older links carry only the entry", () => {
     expect(readConversationDeepLink(`?entry=${id}`)).toEqual({ entryId: id, entryType: "whatsapp" });
   });

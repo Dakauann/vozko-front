@@ -13,30 +13,35 @@ import {
 } from "@/components/elevated-design/elevated-dialog";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
-import type {
-  CommentRuleAction,
-  CommentRuleMatch,
-  InstagramCommentRule,
-} from "@/lib/instagram/types";
-import { createCommentRuleAction, updateCommentRuleAction } from "@/app/actions/instagram";
+import {
+  commentRuleFieldsErrors,
+  type CommentRule,
+  type CommentRuleAction,
+  type CommentRuleApi,
+  type CommentRuleMatch,
+} from "@/lib/social/comment-rules";
 
-import { CommentRuleFields, commentRuleFieldsErrors } from "./comment-rule-fields";
+import { CommentRuleFields } from "./comment-rule-fields";
 import { useTranslations } from "next-intl";
 
-export function InstagramCommentRuleDialog({
-  accountId,
-  mediaId,
+export function CommentRuleDialog({
+  api,
+  allowedActions,
+  translationNamespace,
+  containerId,
   rule,
   onClose,
   onSaved,
 }: {
-  accountId: string;
-  mediaId?: string;
-  rule: InstagramCommentRule | null;
+  api: CommentRuleApi;
+  allowedActions: readonly CommentRuleAction[];
+  translationNamespace: string;
+  containerId?: string;
+  rule: CommentRule | null;
   onClose: () => void;
-  onSaved: (rule: InstagramCommentRule) => void;
+  onSaved: (rule: CommentRule) => void;
 }) {
-  const t = useTranslations("instagram.commentRules");
+  const t = useTranslations(translationNamespace);
 
   const [name, setName] = useState(rule?.name ?? "");
   const [match, setMatch] = useState<CommentRuleMatch>(rule?.match ?? "contains");
@@ -45,20 +50,12 @@ export function InstagramCommentRuleDialog({
   const [publicText, setPublicText] = useState(rule?.publicReplyText ?? "");
   const [privateText, setPrivateText] = useState(rule?.privateReplyText ?? "");
   const [enabled, setEnabled] = useState(rule?.enabled ?? true);
-  const [scopeToPost, setScopeToPost] = useState(
-    rule ? !!rule.igMediaId : !!mediaId,
-  );
+  const [scopeToPost, setScopeToPost] = useState(rule ? !!rule.containerId : !!containerId);
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fieldErrors = commentRuleFieldsErrors({
-    match,
-    keywords,
-    actions,
-    publicText,
-    privateText,
-  });
+  const fieldErrors = commentRuleFieldsErrors({ match, keywords, actions, publicText, privateText });
   const invalid = !name.trim() || !fieldErrors.valid;
 
   const handleSave = async () => {
@@ -66,10 +63,10 @@ export function InstagramCommentRuleDialog({
     setSaving(true);
     setError(null);
 
-    const payload = {
+    const draft = {
       name: name.trim(),
       enabled,
-      igMediaId: scopeToPost ? (rule?.igMediaId ?? mediaId ?? "") : "",
+      containerId: scopeToPost ? (rule?.containerId ?? containerId ?? "") : "",
       match,
       keywords: fieldErrors.keywordList,
       actions,
@@ -78,9 +75,7 @@ export function InstagramCommentRuleDialog({
       priority: rule?.priority ?? 0,
     };
 
-    const result = rule
-      ? await updateCommentRuleAction(accountId, rule.id, payload)
-      : await createCommentRuleAction(accountId, payload);
+    const result = rule ? await api.update(rule.id, draft) : await api.create(draft);
 
     setSaving(false);
     if (result.error || !result.rule) {
@@ -98,14 +93,15 @@ export function InstagramCommentRuleDialog({
         </ElevatedDialogHeader>
 
         <div className="flex-1 space-y-5 overflow-y-auto p-5 scrollbar-sleek">
-          <Field label={t("fieldName")}>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-foreground">{t("fieldName")}</label>
             <ElevatedInput
               autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t("fieldNamePlaceholder")}
             />
-          </Field>
+          </div>
 
           <CommentRuleFields
             value={{ match, keywords, actions, publicText, privateText }}
@@ -116,10 +112,12 @@ export function InstagramCommentRuleDialog({
               setPublicText(next.publicText);
               setPrivateText(next.privateText);
             }}
+            allowedActions={allowedActions}
+            translationNamespace={translationNamespace}
             disabled={saving}
           />
 
-          {(mediaId || rule?.igMediaId) && (
+          {(containerId || rule?.containerId) && (
             <div className="flex items-start justify-between gap-4 border-t border-border pt-4">
               <div className="min-w-0 space-y-0.5">
                 <span className="text-sm font-medium text-foreground">{t("fieldScope")}</span>
@@ -127,11 +125,7 @@ export function InstagramCommentRuleDialog({
                   {scopeToPost ? t("fieldScopePost") : t("fieldScopeAccount")}
                 </p>
               </div>
-              <ElevatedSwitch
-                checked={scopeToPost}
-                onCheckedChange={setScopeToPost}
-                aria-label={t("fieldScope")}
-              />
+              <ElevatedSwitch checked={scopeToPost} onCheckedChange={setScopeToPost} aria-label={t("fieldScope")} />
             </div>
           )}
 
@@ -162,14 +156,5 @@ export function InstagramCommentRuleDialog({
         </ElevatedDialogFooter>
       </ElevatedDialogContent>
     </ElevatedDialog>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-sm font-medium text-foreground">{label}</label>
-      {children}
-    </div>
   );
 }

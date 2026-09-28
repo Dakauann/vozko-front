@@ -1,6 +1,6 @@
 "use client";
 
-import { InstagramLogo, Phone, TelegramLogo, WhatsappLogo } from "@/components/icons";
+import { InstagramLogo, MessengerLogo, Phone, TelegramLogo, WhatsappLogo } from "@/components/icons";
 
 import type { Icon } from "@/components/icons";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,10 @@ const CHANNEL_TILES: Record<string, ChannelTileSpec> = {
   instagram: {
     plate: "bg-[linear-gradient(45deg,#FEDA75,#FA7E1E_25%,#D62976_50%,#962FBF_75%,#4F5BD5)]",
     Glyph: InstagramLogo,
+  },
+  facebook: {
+    plate: "bg-[linear-gradient(45deg,#0099FF,#A033FF_60%,#FF5280_90%,#FF7061)]",
+    Glyph: MessengerLogo,
   },
   telegram: { plate: "bg-[#229ED9]", Glyph: TelegramLogo },
   voice: { plate: "bg-[#8B5CF6]", Glyph: Phone },

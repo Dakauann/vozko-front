@@ -1104,6 +1104,7 @@ export function useConversationWs({
             window_open,
             window_expires_at,
             window_closed_reason,
+            window_tier,
             automation_enabled,
           } = event.payload;
 
@@ -1145,6 +1146,7 @@ export function useConversationWs({
                   prev.window_expires_at,
                 window_closed_reason:
                   window_closed_reason ?? prev.window_closed_reason ?? null,
+                window_tier: window_tier ?? null,
                 automation_enabled: resolveAutomationEnabled(
                   automation_enabled,
                   inboxEntry?.automation_enabled,
@@ -1170,6 +1172,7 @@ export function useConversationWs({
               window_expires_at:
                 window_expires_at ?? inboxEntry?.window_expires_at ?? null,
               window_closed_reason: window_closed_reason ?? null,
+              window_tier: window_tier ?? null,
               automation_enabled: resolveAutomationEnabled(
                 automation_enabled,
                 inboxEntry?.automation_enabled,

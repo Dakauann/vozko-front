@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { CommentAnalysisAudience } from "@/components/audience/audience";
-import { EmptyState, Skeleton } from "@/components/audience/shared";
+import { Skeleton } from "@/components/audience/shared";
 import { UsersThree } from "@/components/icons";
 import { useWorkspace } from "@/contexts/workspace-context";
 
@@ -21,12 +21,10 @@ export default function AudiencePage() {
 function AudiencePageBody() {
   const t = useTranslations("audience.page");
   const tc = useTranslations("metricsOps.common");
-  const { currentWorkspace, can, permissionsLoading } = useWorkspace();
+  const { currentWorkspace } = useWorkspace();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
-  const canRead = !permissionsLoading && can("audience", "read");
 
   const onScopeChange = useCallback(
     (accountId: string, containerId: string | undefined) => {
@@ -49,19 +47,11 @@ function AudiencePageBody() {
         icon={<UsersThree className="h-6 w-6" weight="fill" />}
       />
 
-      {permissionsLoading ? (
-        <Skeleton className="h-64" />
-      ) : !canRead ? (
-        <div className="rounded-[--radius] border border-border bg-card">
-          <EmptyState icon={<UsersThree weight="duotone" />} title={tc("noPermission")} description={t("noPermissionDesc")} />
-        </div>
-      ) : (
-        <CommentAnalysisAudience
-          initialAccountId={searchParams.get("accountId") ?? undefined}
-          initialContainerId={searchParams.get("containerId") ?? undefined}
-          onScopeChange={onScopeChange}
-        />
-      )}
+      <CommentAnalysisAudience
+        initialAccountId={searchParams.get("accountId") ?? undefined}
+        initialContainerId={searchParams.get("containerId") ?? undefined}
+        onScopeChange={onScopeChange}
+      />
     </div>
   );
 }

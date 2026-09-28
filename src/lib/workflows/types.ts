@@ -201,6 +201,11 @@ export interface ConfigFieldOption {
   label: string;
 }
 
+export interface FieldRule {
+  field: string;
+  values: string[];
+}
+
 export interface ConfigField {
   key: string;
   label: string;
@@ -213,6 +218,8 @@ export interface ConfigField {
   min?: number;
   max?: number;
   step?: number;
+  visibleWhen?: FieldRule;
+  requiredWhen?: FieldRule;
 }
 
 export interface HandleDefinition {

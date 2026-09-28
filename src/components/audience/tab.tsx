@@ -8,7 +8,7 @@ import {
   getCommentAnalysisStatsAction,
   getCommentAnalysisTrendsAction,
 } from "@/app/actions/audience";
-import type { CommentAnalysisSettings, CommentAnalysisStats, TrendPoint } from "@/lib/audience/types";
+import type { CommentAnalysisSettings, CommentAnalysisStats, CommentSource, TrendPoint } from "@/lib/audience/types";
 import { useWorkspace } from "@/contexts/workspace-context";
 import Button from "@/components/elevated-design/button";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
@@ -27,7 +27,7 @@ import { Bell, ChartLineUp, ChatCircle, Gear, Hash, ShieldWarning, Sparkle, Warn
 
 type Section = "overview" | "topics" | "authors" | "feed" | "alerts" | "settings";
 
-export function CommentAnalysisTab({ accountId }: { accountId: string }) {
+export function CommentAnalysisTab({ source, accountId }: { source: CommentSource; accountId: string }) {
   const t = useTranslations("audience");
   const { can } = useWorkspace();
   const canConfigure = can("audience", "update");
@@ -44,7 +44,7 @@ export function CommentAnalysisTab({ accountId }: { accountId: string }) {
 
   useEffect(() => {
     let cancelled = false;
-    void getCommentAnalysisSettingsAction("instagram", accountId).then((result) => {
+    void getCommentAnalysisSettingsAction(source, accountId).then((result) => {
       if (cancelled) return;
       if (result.error) setError(result.error);
       else setSettings(result.settings ?? null);
@@ -53,7 +53,7 @@ export function CommentAnalysisTab({ accountId }: { accountId: string }) {
     return () => {
       cancelled = true;
     };
-  }, [accountId]);
+  }, [source, accountId]);
 
   const [refreshKey, setRefreshKey] = useState(0);
   const enabled = settings?.enabled ?? false;

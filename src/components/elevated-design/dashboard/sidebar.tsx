@@ -57,6 +57,7 @@ import type { Icon, IconProps } from "@/components/icons";
 import type { ComponentType } from "react";
 
 import {
+  FacebookLogoColor,
   InstagramLogoColor,
   TelegramLogoColor,
   WhatsAppLogoColor,
@@ -77,8 +78,8 @@ import {
 import { useTranslations } from "next-intl";
 import { WorkspaceSwitcher } from "@/components/elevated-design/dashboard/workspace-switcher";
 import { DepartmentSwitcher } from "@/components/elevated-design/dashboard/department-switcher";
-import { useWorkspace } from "@/contexts/workspace-context";
-import type { ResourceAction, ResourceType } from "@/lib/workspace/types";
+import { useAccess } from "@/hooks/use-access";
+import { isUpcomingPath } from "@/lib/navigation/routes";
 import { getBrand } from "@/config/brand";
 
 const OPEN_ITEMS_KEY = "dashboard-open-families";
@@ -138,42 +139,21 @@ function usePersistentOpenSet(storageKey: string) {
   return [open, toggle, setMany] as const;
 }
 
-export type NavPermission = {
-  resource: string;
-  action?: string;
-};
-
 export interface NavItem {
   icon: NavIcon;
   labelKey: string;
   href: string;
-  admin?: boolean;
   hideForAdmin?: boolean;
   children?: NavItem[];
   family?: string;
-  requiredPermission?: NavPermission;
-  requiredAnyOf?: NavPermission[];
 }
 
-function navPermissionAllowed(
-  item: Pick<NavItem, "requiredPermission" | "requiredAnyOf">,
-  can: (resource: ResourceType, action: ResourceAction) => boolean,
-  canAny: (resource: ResourceType) => boolean,
-): boolean {
-  if (item.requiredAnyOf && item.requiredAnyOf.length > 0) {
-    return item.requiredAnyOf.some((p) =>
-      p.action
-        ? can(p.resource as ResourceType, p.action as ResourceAction)
-        : canAny(p.resource as ResourceType),
-    );
+export function navItemVisible(item: NavItem, canOpen: (href: string) => boolean): boolean {
+  if (isUpcomingPath(item.href)) return true;
+  if (item.children && item.children.length > 0) {
+    return item.children.some((child) => navItemVisible(child, canOpen));
   }
-  if (item.requiredPermission) {
-    const { resource, action } = item.requiredPermission;
-    return action
-      ? can(resource as ResourceType, action as ResourceAction)
-      : canAny(resource as ResourceType);
-  }
-  return true;
+  return canOpen(item.href);
 }
 
 export interface Product {
@@ -182,10 +162,6 @@ export interface Product {
   icon: NavIcon;
   descriptionKey: string;
   navItems: NavItem[];
-  requiredPermission?: {
-    resource: string;
-    action?: string;
-  };
 }
 
 export interface DashboardSidebarProps {
@@ -201,50 +177,38 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.liveChat",
     href: "/dashboard/live-chat",
     family: "crm",
-    requiredPermission: { resource: "conversations", action: "read" },
   },
   {
     icon: Kanban,
     labelKey: "nav.funnels",
     href: "/dashboard/funnels",
     family: "crm",
-    requiredPermission: { resource: "stages", action: "read" },
   },
   {
     icon: ChartBar,
     labelKey: "nav.metrics",
     href: "/dashboard/attendance",
     family: "crm",
-    requiredAnyOf: [
-      { resource: "attendance", action: "read" },
-      { resource: "audience", action: "read" },
-      { resource: "audience", action: "send" },
-      { resource: "reports", action: "read" },
-    ],
     children: [
       {
         icon: ChartBar,
         labelKey: "nav.attendanceOps",
         href: "/dashboard/attendance",
-        requiredPermission: { resource: "attendance", action: "read" },
       },
       {
         icon: UsersThree,
         labelKey: "nav.audience",
         href: "/dashboard/audience",
-        requiredPermission: { resource: "audience", action: "read" },
       },
       {
         icon: Bell,
         labelKey: "nav.analysisAlerts",
         href: "/dashboard/analysis-alerts",
-        requiredPermission: { resource: "audience", action: "send" },
       },
       {
         icon: FileText,
         labelKey: "nav.reports",
         href: "/dashboard/reports",
-        requiredPermission: { resource: "reports", action: "read" },
       },
     ],
   },
@@ -253,45 +217,38 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.sales",
     href: "/dashboard/sales",
     family: "crm",
-    requiredPermission: { resource: "conversations", action: "read" },
   },
   {
     icon: EloMark,
     labelKey: "nav.aiChat",
     href: "/dashboard/ai-chat",
     family: "ai",
-    requiredPermission: { resource: "ai_chat", action: "read" },
   },
   {
     icon: Robot,
     labelKey: "nav.agents",
     href: "/dashboard/agents",
     family: "ai",
-    requiredPermission: { resource: "agents" },
     children: [
       {
         icon: ClipboardText,
         labelKey: "nav.agentsList",
         href: "/dashboard/agents",
-        requiredPermission: { resource: "agents", action: "read" },
       },
       {
         icon: PlusCircle,
         labelKey: "nav.createAgent",
         href: "/dashboard/agents/new",
-        requiredPermission: { resource: "agents", action: "create" },
       },
       {
         icon: Archive,
         labelKey: "nav.archivedAgents",
         href: "/dashboard/agents/archived",
-        requiredPermission: { resource: "agents", action: "read" },
       },
       {
         icon: PuzzlePiece,
         labelKey: "nav.mcpServers",
         href: "/dashboard/agents/mcp",
-        requiredPermission: { resource: "mcp", action: "read" },
       },
     ],
   },
@@ -300,19 +257,16 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.knowledgeBases",
     href: "/dashboard/knowledge-bases",
     family: "ai",
-    requiredPermission: { resource: "agents", action: "read" },
     children: [
       {
         icon: ClipboardText,
         labelKey: "nav.knowledgeBasesList",
         href: "/dashboard/knowledge-bases",
-        requiredPermission: { resource: "agents", action: "read" },
       },
       {
         icon: PlusCircle,
         labelKey: "nav.createKnowledgeBase",
         href: "/dashboard/knowledge-bases/new",
-        requiredPermission: { resource: "agents", action: "create" },
       },
     ],
   },
@@ -321,19 +275,16 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.workflows",
     href: "/dashboard/workflows",
     family: "ai",
-    requiredPermission: { resource: "workflows" },
     children: [
       {
         icon: ClipboardText,
         labelKey: "nav.workflowsList",
         href: "/dashboard/workflows",
-        requiredPermission: { resource: "workflows", action: "read" },
       },
       {
         icon: PlusCircle,
         labelKey: "nav.createWorkflow",
         href: "/dashboard/workflows/new",
-        requiredPermission: { resource: "workflows", action: "create" },
       },
     ],
   },
@@ -342,28 +293,21 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.whatsappCampaigns",
     href: "/dashboard/whatsapp-campaigns",
     family: "whatsapp",
-    requiredPermission: { resource: "whatsapp_campaigns" },
     children: [
       {
         icon: ClipboardText,
         labelKey: "nav.whatsappCampaignsList",
         href: "/dashboard/whatsapp-campaigns",
-        requiredPermission: { resource: "whatsapp_campaigns", action: "read" },
       },
       {
         icon: PlusCircle,
         labelKey: "nav.createWhatsappCampaign",
         href: "/dashboard/whatsapp-campaigns/new",
-        requiredPermission: {
-          resource: "whatsapp_campaigns",
-          action: "create",
-        },
       },
       {
         icon: Archive,
         labelKey: "nav.archivedWhatsappCampaigns",
         href: "/dashboard/whatsapp-campaigns/archived",
-        requiredPermission: { resource: "whatsapp_campaigns", action: "read" },
       },
     ],
   },
@@ -372,22 +316,16 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.organicCampaigns",
     href: "/dashboard/whatsapp-campaigns/organic",
     family: "whatsapp",
-    requiredPermission: { resource: "whatsapp_campaigns" },
     children: [
       {
         icon: ClipboardText,
         labelKey: "nav.organicCampaignsList",
         href: "/dashboard/whatsapp-campaigns/organic",
-        requiredPermission: { resource: "whatsapp_campaigns", action: "read" },
       },
       {
         icon: PlusCircle,
         labelKey: "nav.createOrganicCampaign",
         href: "/dashboard/whatsapp-campaigns/new-organic",
-        requiredPermission: {
-          resource: "whatsapp_campaigns",
-          action: "create",
-        },
       },
     ],
   },
@@ -396,28 +334,21 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.whatsappTemplates",
     href: "/dashboard/whatsapp-templates",
     family: "whatsapp",
-    requiredPermission: { resource: "whatsapp_templates" },
     children: [
       {
         icon: ClipboardText,
         labelKey: "nav.whatsappTemplatesList",
         href: "/dashboard/whatsapp-templates",
-        requiredPermission: { resource: "whatsapp_templates", action: "read" },
       },
       {
         icon: PlusCircle,
         labelKey: "nav.createWhatsappTemplate",
         href: "/dashboard/whatsapp-templates/new",
-        requiredPermission: {
-          resource: "whatsapp_templates",
-          action: "create",
-        },
       },
       {
         icon: GearSix,
         labelKey: "nav.manageAllTemplates",
         href: "/dashboard/whatsapp-templates/manage",
-        admin: true,
       },
     ],
   },
@@ -426,29 +357,40 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.messageShortcuts",
     href: "/dashboard/message-shortcuts",
     family: "whatsapp",
-    requiredPermission: { resource: "message_shortcuts", action: "read" },
   },
   {
     icon: UserCircle,
     labelKey: "nav.instagram",
     href: "/dashboard/instagram-accounts",
     family: "instagram",
-    requiredPermission: { resource: "instagram_accounts" },
     children: [
       {
         icon: ClipboardText,
         labelKey: "nav.instagramAccounts",
         href: "/dashboard/instagram-accounts",
-        requiredPermission: { resource: "instagram_accounts", action: "read" },
       },
       {
         icon: LinkSimple,
         labelKey: "nav.connectInstagram",
         href: "/dashboard/instagram-accounts/connect",
-        requiredPermission: {
-          resource: "instagram_accounts",
-          action: "create",
-        },
+      },
+    ],
+  },
+  {
+    icon: UserCircle,
+    labelKey: "nav.facebook",
+    href: "/dashboard/facebook-pages",
+    family: "facebook",
+    children: [
+      {
+        icon: ClipboardText,
+        labelKey: "nav.facebookPages",
+        href: "/dashboard/facebook-pages",
+      },
+      {
+        icon: LinkSimple,
+        labelKey: "nav.connectFacebook",
+        href: "/dashboard/facebook-pages/connect",
       },
     ],
   },
@@ -457,19 +399,16 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.telegram",
     href: "/dashboard/telegram-accounts",
     family: "telegram",
-    requiredPermission: { resource: "telegram_accounts" },
     children: [
       {
         icon: ClipboardText,
         labelKey: "nav.telegramAccounts",
         href: "/dashboard/telegram-accounts",
-        requiredPermission: { resource: "telegram_accounts", action: "read" },
       },
       {
         icon: LinkSimple,
         labelKey: "nav.connectTelegram",
         href: "/dashboard/telegram-accounts/connect",
-        requiredPermission: { resource: "telegram_accounts", action: "create" },
       },
     ],
   },
@@ -478,25 +417,16 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.unofficialWhatsapp",
     href: "/dashboard/unofficial-whatsapp",
     family: "unofficial-whatsapp",
-    requiredPermission: { resource: "unofficial_whatsapp_instances" },
     children: [
       {
         icon: ClipboardText,
         labelKey: "nav.unofficialWhatsappNumbers",
         href: "/dashboard/unofficial-whatsapp",
-        requiredPermission: {
-          resource: "unofficial_whatsapp_instances",
-          action: "read",
-        },
       },
       {
         icon: LinkSimple,
         labelKey: "nav.connectUnofficialWhatsapp",
         href: "/dashboard/unofficial-whatsapp/connect",
-        requiredPermission: {
-          resource: "unofficial_whatsapp_instances",
-          action: "create",
-        },
       },
     ],
   },
@@ -505,34 +435,21 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.unofficialWhatsappCampaigns",
     href: "/dashboard/unofficial-whatsapp-campaigns",
     family: "unofficial-whatsapp",
-    requiredPermission: { resource: "unofficial_whatsapp_campaigns" },
     children: [
       {
         icon: ClipboardText,
         labelKey: "nav.unofficialWhatsappCampaignsList",
         href: "/dashboard/unofficial-whatsapp-campaigns",
-        requiredPermission: {
-          resource: "unofficial_whatsapp_campaigns",
-          action: "read",
-        },
       },
       {
         icon: PlusCircle,
         labelKey: "nav.createUnofficialWhatsappCampaign",
         href: "/dashboard/unofficial-whatsapp-campaigns/new",
-        requiredPermission: {
-          resource: "unofficial_whatsapp_campaigns",
-          action: "create",
-        },
       },
       {
         icon: Archive,
         labelKey: "nav.archivedUnofficialWhatsappCampaigns",
         href: "/dashboard/unofficial-whatsapp-campaigns/archived",
-        requiredPermission: {
-          resource: "unofficial_whatsapp_campaigns",
-          action: "read",
-        },
       },
     ],
   },
@@ -541,25 +458,21 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.whatsappBusinessPhones",
     href: "/dashboard/whatsapp-business-phones",
     family: "whatsapp",
-    requiredPermission: { resource: "business_phones" },
     children: [
       {
         icon: ClipboardText,
         labelKey: "nav.whatsappBusinessPhonesList",
         href: "/dashboard/whatsapp-business-phones",
-        requiredPermission: { resource: "business_phones", action: "read" },
       },
       {
         icon: LinkSimple,
         labelKey: "nav.connectWhatsappPhone",
         href: "/dashboard/whatsapp-business-phones/connect",
-        requiredPermission: { resource: "business_phones", action: "create" },
       },
       {
         icon: GearSix,
         labelKey: "nav.manageAllPhones",
         href: "/dashboard/whatsapp-business-phones/manage",
-        admin: true,
       },
     ],
   },
@@ -568,25 +481,21 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.support",
     href: "/dashboard/issues",
     family: "management",
-    requiredPermission: { resource: "issues" },
     children: [
       {
         icon: ClipboardText,
         labelKey: "nav.supportList",
         href: "/dashboard/issues",
-        requiredPermission: { resource: "issues", action: "read" },
       },
       {
         icon: PlusCircle,
         labelKey: "nav.createSupport",
         href: "/dashboard/issues/new",
-        requiredPermission: { resource: "issues", action: "create" },
       },
       {
         icon: Wrench,
         labelKey: "nav.manageSupport",
         href: "/dashboard/issues/manage",
-        admin: true,
       },
     ],
   },
@@ -595,56 +504,48 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.leads",
     href: "/dashboard/leads",
     family: "management",
-    requiredPermission: { resource: "leads", action: "read" },
   },
   {
     icon: Package,
     labelKey: "nav.plans",
     href: "/dashboard/plans",
     family: "management",
-    requiredPermission: { resource: "plans", action: "read" },
   },
   {
     icon: PuzzlePiece,
     labelKey: "nav.addons",
     href: "/dashboard/addons",
     family: "management",
-    requiredPermission: { resource: "plans", action: "read" },
   },
   {
     icon: Wallet,
     labelKey: "nav.balance",
     href: "/dashboard/balance",
     family: "management",
-    requiredPermission: { resource: "balance", action: "read" },
   },
   {
     icon: Receipt,
     labelKey: "nav.invoices",
     href: "/dashboard/invoices",
     family: "management",
-    requiredPermission: { resource: "balance", action: "read" },
   },
   {
     icon: CalendarBlank,
     labelKey: "nav.calendar",
     href: "/dashboard/calendar",
     family: "management",
-    requiredPermission: { resource: "calendar", action: "read" },
   },
   {
     icon: Plugs,
     labelKey: "nav.integrations",
     href: "/dashboard/integrations",
     family: "management",
-    requiredPermission: { resource: "calendar", action: "read" },
   },
   {
     icon: LinkSimple,
     labelKey: "nav.links",
     href: "/dashboard/links",
     family: "management",
-    requiredPermission: { resource: "short_links", action: "read" },
   },
 
   {
@@ -672,28 +573,24 @@ export const adminNavItems: NavItem[] = [
     icon: ChartBar,
     labelKey: "nav.adminOverview",
     href: "/dashboard/admin",
-    admin: true,
     family: "platform",
   },
   {
     icon: Scales,
     labelKey: "nav.adminMetaCosts",
     href: "/dashboard/admin/meta-costs",
-    admin: true,
     family: "platform",
   },
   {
     icon: LockKey,
     labelKey: "nav.adminSendCaps",
     href: "/dashboard/admin/send-caps",
-    admin: true,
     family: "platform",
   },
   {
     icon: UsersFour,
     labelKey: "nav.platformUsers",
     href: "/dashboard/users",
-    admin: true,
     family: "platform",
     children: [
       {
@@ -712,7 +609,6 @@ export const adminNavItems: NavItem[] = [
     icon: Buildings,
     labelKey: "nav.platformWorkspaces",
     href: "/dashboard/workspaces",
-    admin: true,
     family: "platform",
     children: [
       {
@@ -726,35 +622,30 @@ export const adminNavItems: NavItem[] = [
     icon: Package,
     labelKey: "nav.managePlans",
     href: "/dashboard/plans/manage",
-    admin: true,
     family: "platform",
   },
   {
     icon: PuzzlePiece,
     labelKey: "nav.manageAddons",
     href: "/dashboard/addons/manage",
-    admin: true,
     family: "platform",
   },
   {
     icon: Handshake,
     labelKey: "nav.adminAffiliates",
     href: "/dashboard/admin/affiliates",
-    admin: true,
     family: "platform",
   },
   {
     icon: CurrencyDollar,
     labelKey: "nav.platformPricing",
     href: "/dashboard/pricing",
-    admin: true,
     family: "platform",
   },
   {
     icon: Gear,
     labelKey: "nav.systemConfig",
     href: "/dashboard/admin/system-config",
-    admin: true,
     family: "platform",
   },
 ];
@@ -765,31 +656,26 @@ export const affiliateNavItems: NavItem[] = [
     labelKey: "nav.affiliate",
     href: "/dashboard/affiliate",
     family: "management",
-    requiredPermission: { resource: "affiliate", action: "use" },
     children: [
       {
         icon: SquaresFour,
         labelKey: "nav.affiliateDashboard",
         href: "/dashboard/affiliate",
-        requiredPermission: { resource: "affiliate", action: "use" },
       },
       {
         icon: UsersFour,
         labelKey: "nav.affiliateReferrals",
         href: "/dashboard/affiliate/referrals",
-        requiredPermission: { resource: "affiliate", action: "use" },
       },
       {
         icon: CurrencyDollar,
         labelKey: "nav.affiliateEarnings",
         href: "/dashboard/affiliate/earnings",
-        requiredPermission: { resource: "affiliate", action: "use" },
       },
       {
         icon: Package,
         labelKey: "nav.affiliatePlans",
         href: "/dashboard/affiliate/plans",
-        requiredPermission: { resource: "affiliate", action: "use" },
       },
     ],
   },
@@ -809,7 +695,6 @@ export const defaultProducts: Product[] = [
     icon: Handshake,
     descriptionKey: "products.affiliate.description",
     navItems: affiliateNavItems,
-    requiredPermission: { resource: "affiliate", action: "use" },
   },
 ];
 
@@ -1063,8 +948,7 @@ function NavItemComponent({
   motionEnabled,
   t,
   isAdmin = false,
-  can,
-  canAny,
+  canOpen,
   parentFamily,
 }: {
   item: NavItem;
@@ -1075,8 +959,7 @@ function NavItemComponent({
   motionEnabled: boolean;
   t: ReturnType<typeof useTranslations>;
   isAdmin?: boolean;
-  can: (resource: ResourceType, action: ResourceAction) => boolean;
-  canAny: (resource: ResourceType) => boolean;
+  canOpen: (href: string) => boolean;
   parentFamily?: string;
 }) {
   const pathname = usePathname();
@@ -1099,102 +982,134 @@ function NavItemComponent({
     }
   };
   const effectiveFamily = item.family ?? parentFamily;
-  const isLit = Boolean(isActive || hasActiveChild);
+  const upcoming = isUpcomingPath(item.href);
+  const isLit = !upcoming && Boolean(isActive || hasActiveChild);
   const isAssistant = item.href === "/dashboard/ai-chat";
+  const rowClassName = cn(
+    "sidebar-item group relative flex items-center rounded-[--radius] text-sm transition-colors",
+    isExpanded ? "h-8 w-full pr-2" : "h-8 w-full justify-center",
+    isAssistant && "vz-ai-launcher",
+    isAssistant && isLit && "[--elo-accent:currentColor]",
+    upcoming
+      ? "cursor-not-allowed text-muted-foreground opacity-60"
+      : isLit
+        ? "bg-primary text-primary-foreground shadow-button-primary hover:bg-[hsl(var(--primary-hover))]"
+        : isAssistant
+          ? "text-foreground"
+          : "text-muted-foreground hover:bg-muted hover:text-foreground",
+  );
+  const children = upcoming ? undefined : item.children;
+
+  const rowContent = (
+    <>
+      {isAssistant ? (
+        <>
+          <span
+            aria-hidden
+            className="vz-ai-ring"
+            style={{
+              inset: 0,
+              background: isLit
+                ? "conic-gradient(from var(--vz-ai-angle), transparent 150deg, hsl(var(--primary-foreground) / 0.65) 320deg, transparent 360deg)"
+                : undefined,
+            }}
+          />
+          <span
+            aria-hidden
+            className={cn(
+              "pointer-events-none absolute inset-[2px] -z-[1] rounded-[calc(var(--radius)-2px)] transition-colors",
+              isLit
+                ? "bg-primary group-hover:bg-primary-hover"
+                : "bg-card group-hover:bg-muted",
+            )}
+          />
+        </>
+      ) : null}
+      {isExpanded ? (
+        <>
+          <span
+            className={cn(
+              "lamp ml-1 mr-1.5",
+              isLit ? "lamp-on-fill" : "opacity-0",
+            )}
+            aria-hidden="true"
+          />
+          <span
+            className="flex min-w-0 flex-1 items-center gap-2"
+            style={{
+              paddingLeft: depth > 0 ? `${depth * 0.625}rem` : undefined,
+            }}
+          >
+            {React.createElement(item.icon, {
+              className: cn("size-4 shrink-0"),
+              weight: "regular",
+            })}
+
+            <span
+              className={cn(
+                "min-w-0 flex-1 truncate leading-tight",
+                depth > 0 && "text-xs",
+                isLit && "font-semibold",
+              )}
+            >
+              {t(item.labelKey)}
+            </span>
+
+            {children && (
+              <CaretDown
+                className={cn(
+                  "h-3 w-3 shrink-0 opacity-60 transition-transform",
+                  isOpen && "rotate-180",
+                )}
+                weight="bold"
+              />
+            )}
+          </span>
+        </>
+      ) : (
+        <span className="relative flex h-8 w-full items-center justify-center">
+          <span
+            className={cn(
+              "absolute left-0 top-1/2 -translate-y-1/2",
+              "lamp",
+              isLit ? "lamp-on-fill" : "opacity-0",
+            )}
+            aria-hidden="true"
+          />
+          {React.createElement(item.icon, {
+            className: "size-4 shrink-0",
+            weight: "regular",
+          })}
+        </span>
+      )}
+    </>
+  );
 
   return (
     <div className="w-full">
-      <Link
-        href={item.href}
-        prefetch={false}
-        aria-current={isActive ? "page" : undefined}
-        className={cn(
-          "sidebar-item group relative flex items-center rounded-[--radius] text-sm transition-colors",
-          isExpanded ? "h-8 w-full pr-2" : "h-8 w-full justify-center",
-          isAssistant && "vz-ai-launcher",
-          isAssistant && isLit && "[--elo-accent:currentColor]",
-          isLit
-            ? "bg-primary text-primary-foreground shadow-button-primary hover:bg-[hsl(var(--primary-hover))]"
-            : isAssistant ? "text-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground",
-        )}
-        onClick={handleClick}
-      >
-        {isAssistant ? (
-          <>
-            <span
-              aria-hidden
-              className="vz-ai-ring"
-              style={{
-                inset: 0,
-                background: isLit
-                  ? "conic-gradient(from var(--vz-ai-angle), transparent 150deg, hsl(var(--primary-foreground) / 0.65) 320deg, transparent 360deg)"
-                  : undefined,
-              }}
-            />
-            <span aria-hidden className={cn("pointer-events-none absolute inset-[2px] -z-[1] rounded-[calc(var(--radius)-2px)] transition-colors", isLit ? "bg-primary group-hover:bg-primary-hover" : "bg-card group-hover:bg-muted")} />
-          </>
-        ) : null}
-        {isExpanded ? (
-          <>
-            <span
-              className={cn(
-                "lamp ml-1 mr-1.5",
-                isLit ? "lamp-on-fill" : "opacity-0",
-              )}
-              aria-hidden="true"
-            />
-            <span
-              className="flex min-w-0 flex-1 items-center gap-2"
-              style={{
-                paddingLeft: depth > 0 ? `${depth * 0.625}rem` : undefined,
-              }}
-            >
-              {React.createElement(item.icon, {
-                className: cn("size-4 shrink-0"),
-                weight: "regular",
-              })}
-
-              <span
-                className={cn(
-                  "min-w-0 flex-1 truncate leading-tight",
-                  depth > 0 && "text-xs",
-                  isLit && "font-semibold",
-                )}
-              >
-                {t(item.labelKey)}
-              </span>
-
-              {item.children && (
-                <CaretDown
-                  className={cn(
-                    "h-3 w-3 shrink-0 opacity-60 transition-transform",
-                    isOpen && "rotate-180",
-                  )}
-                  weight="bold"
-                />
-              )}
-            </span>
-          </>
-        ) : (
-          <span className="relative flex h-8 w-full items-center justify-center">
-            <span
-              className={cn(
-                "absolute left-0 top-1/2 -translate-y-1/2",
-                "lamp",
-                isLit ? "lamp-on-fill" : "opacity-0",
-              )}
-              aria-hidden="true"
-            />
-            {React.createElement(item.icon, {
-              className: "size-4 shrink-0",
-              weight: "regular",
-            })}
-          </span>
-        )}
-      </Link>
+      {upcoming ? (
+        <div
+          role="link"
+          aria-disabled="true"
+          title={t("families.badges.soonHint")}
+          className={rowClassName}
+        >
+          {rowContent}
+        </div>
+      ) : (
+        <Link
+          href={item.href}
+          prefetch={false}
+          aria-current={isActive ? "page" : undefined}
+          className={rowClassName}
+          onClick={handleClick}
+        >
+          {rowContent}
+        </Link>
+      )}
 
       <AnimatePresence initial={false}>
-        {item.children && isOpen && isExpanded && (
+        {children && isOpen && isExpanded && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
@@ -1206,11 +1121,10 @@ function NavItemComponent({
             className="overflow-hidden"
           >
             <div className="my-0.5 ml-[18px] space-y-px border-l border-border pl-1.5">
-              {item.children
+              {children
                 .filter((child) => {
-                  if (child.admin && !isAdmin) return false;
                   if (child.hideForAdmin && isAdmin) return false;
-                  return navPermissionAllowed(child, can, canAny);
+                  return navItemVisible(child, canOpen);
                 })
                 .map((child, index) => (
                   <NavItemComponent
@@ -1223,8 +1137,7 @@ function NavItemComponent({
                     motionEnabled={motionEnabled}
                     t={t}
                     isAdmin={isAdmin}
-                    can={can}
-                    canAny={canAny}
+                    canOpen={canOpen}
                     parentFamily={effectiveFamily}
                   />
                 ))}
@@ -1240,12 +1153,14 @@ function NavItemComponent({
 const familyBadgeKey: Record<string, string> = {
   whatsapp: "families.badges.official",
   "unofficial-whatsapp": "families.badges.unofficial",
+  facebook: "families.badges.soon",
 };
 
 const familyBrandIcon: Record<string, NavIcon> = {
   whatsapp: WhatsAppLogoColor,
   "unofficial-whatsapp": WhatsAppLogoColor,
   instagram: InstagramLogoColor,
+  facebook: FacebookLogoColor,
   telegram: TelegramLogoColor,
 };
 
@@ -1271,17 +1186,15 @@ function groupByFamily(
 function collapsibleKeys(
   items: NavItem[],
   isAdmin: boolean,
-  can: (resource: ResourceType, action: ResourceAction) => boolean,
-  canAny: (resource: ResourceType) => boolean,
+  canOpen: (href: string) => boolean,
 ): { families: string[]; rows: string[] } {
   const families = new Set<string>();
   const rows: string[] = [];
 
   const walkChildren = (children: NavItem[]) => {
     for (const child of children) {
-      if (child.admin && !isAdmin) continue;
       if (child.hideForAdmin && isAdmin) continue;
-      if (!navPermissionAllowed(child, can, canAny)) continue;
+      if (!navItemVisible(child, canOpen)) continue;
       if (child.children?.length) {
         rows.push(child.href);
         walkChildren(child.children);
@@ -1291,7 +1204,7 @@ function collapsibleKeys(
 
   for (const item of items) {
     if (item.hideForAdmin && isAdmin) continue;
-    if (!navPermissionAllowed(item, can, canAny)) continue;
+    if (!navItemVisible(item, canOpen)) continue;
     if (item.family) families.add(item.family);
     if (item.children?.length) {
       rows.push(item.href);
@@ -1339,8 +1252,7 @@ function GroupedNavItems({
   motionEnabled,
   t,
   isAdmin,
-  can,
-  canAny,
+  canOpen,
 }: {
   items: NavItem[];
   isExpanded: boolean;
@@ -1351,14 +1263,13 @@ function GroupedNavItems({
   motionEnabled: boolean;
   t: ReturnType<typeof useTranslations>;
   isAdmin: boolean;
-  can: (resource: ResourceType, action: ResourceAction) => boolean;
-  canAny: (resource: ResourceType) => boolean;
+  canOpen: (href: string) => boolean;
 }) {
   const filtered = items.filter((item) => {
     if (item.hideForAdmin && isAdmin) {
       return false;
     }
-    return navPermissionAllowed(item, can, canAny);
+    return navItemVisible(item, canOpen);
   });
 
   const groups = groupByFamily(filtered);
@@ -1438,8 +1349,7 @@ function GroupedNavItems({
                         motionEnabled={motionEnabled}
                         t={t}
                         isAdmin={isAdmin}
-                        can={can}
-                        canAny={canAny}
+                        canOpen={canOpen}
                       />
                     ))}
                   </div>
@@ -1462,7 +1372,7 @@ export function DashboardSidebar({
   const t = useTranslations(translationsNamespace);
   const pathname = usePathname();
   const { user } = useAuth();
-  const { can, canAny } = useWorkspace();
+  const { canOpenPath: canOpen } = useAccess();
   const isAdmin = user?.role === "admin";
 
   const { isCollapsed, isMobileOpen, setMobileOpen } = useSidebar();
@@ -1474,14 +1384,8 @@ export function DashboardSidebar({
   }, [pathname, setMobileOpen]);
 
   const visibleProducts = React.useMemo(() => {
-    return products.filter((p) => {
-      if (!p.requiredPermission) return true;
-      const { resource, action } = p.requiredPermission;
-      return action
-        ? can(resource as ResourceType, action as ResourceAction)
-        : canAny(resource as ResourceType);
-    });
-  }, [products, can, canAny]);
+    return products.filter((p) => p.navItems.some((item) => navItemVisible(item, canOpen)));
+  }, [products, canOpen]);
 
   const pendingRestoreId = React.useRef<string | null>(
     typeof window !== "undefined"
@@ -1526,10 +1430,9 @@ export function DashboardSidebar({
       collapsibleKeys(
         [...currentProduct.navItems, ...(isAdmin ? adminItems : [])],
         isAdmin,
-        can,
-        canAny,
+        canOpen,
       ),
-    [currentProduct, adminItems, isAdmin, can, canAny],
+    [currentProduct, adminItems, isAdmin, canOpen],
   );
 
   const anyOpen =
@@ -1596,8 +1499,7 @@ export function DashboardSidebar({
           motionEnabled={motionEnabled}
           t={t}
           isAdmin={isAdmin}
-          can={can}
-          canAny={canAny}
+          canOpen={canOpen}
         />
 
         {isAdmin && adminItems.length > 0 && (
@@ -1617,8 +1519,7 @@ export function DashboardSidebar({
               motionEnabled={motionEnabled}
               t={t}
               isAdmin={isAdmin}
-              can={can}
-              canAny={canAny}
+              canOpen={canOpen}
             />
           </>
         )}

@@ -4,11 +4,14 @@ import { apiClient } from "@/lib/api/browser-client";
 import type {
     AvailablePermission,
     CustomRole,
+    Feature,
     MemberPermission,
     PermissionEntry,
+    PermissionRisk,
     ResourceAction,
     ResourceAssignment,
     ResourceType,
+    ScopeRule,
     Workspace,
     WorkspaceInvite,
     WorkspaceMember,
@@ -339,6 +342,7 @@ export async function setMemberPermissions(
 
 export async function fetchAvailablePermissions(): Promise<{
     permissions: AvailablePermission[];
+    features: Feature[];
     error?: string;
 }> {
     const { data, error } = await apiClient<{
@@ -347,11 +351,26 @@ export async function fetchAvailablePermissions(): Promise<{
             actions?: string[];
             actionDescriptions?: Record<string, string>;
             dependencies?: Record<string, Array<{ resource: string; action: string }>>;
+            risks?: Record<string, PermissionRisk[]>;
+        }>;
+        features?: Array<{
+            key: string;
+            name: string;
+            location: string;
+            description: string;
+            scopes?: ScopeRule[];
+            capabilities?: Array<{
+                key: string;
+                description: string;
+                requires?: PermissionEntry[];
+                managersOnly?: boolean;
+                screens?: string[];
+            }>;
         }>;
     }>("/workspaces/permissions", { method: "GET" });
 
     if (error) {
-        return { permissions: [], error: error.message || "Failed to fetch permissions" };
+        return { permissions: [], features: [], error: error.message || "Failed to fetch permissions" };
     }
 
     const items = data?.permissions ?? [];
@@ -364,9 +383,25 @@ export async function fetchAvailablePermissions(): Promise<{
         ...(item.dependencies && Object.keys(item.dependencies).length > 0 && {
             dependencies: item.dependencies as AvailablePermission["dependencies"],
         }),
+        ...(item.risks && Object.keys(item.risks).length > 0 && { risks: item.risks }),
     }));
 
-    return { permissions };
+    const features: Feature[] = (data?.features ?? []).map((feature) => ({
+        key: feature.key,
+        name: feature.name,
+        location: feature.location,
+        description: feature.description,
+        scopes: feature.scopes ?? [],
+        capabilities: (feature.capabilities ?? []).map((capability) => ({
+            key: capability.key,
+            description: capability.description,
+            requires: capability.requires ?? [],
+            managersOnly: capability.managersOnly ?? false,
+            screens: capability.screens ?? [],
+        })),
+    }));
+
+    return { permissions, features };
 }
 
 

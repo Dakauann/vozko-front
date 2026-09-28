@@ -16,6 +16,7 @@ const CHANNEL_NAMES: Record<string, string> = {
   whatsapp: "WhatsApp",
   unofficial_whatsapp: "WhatsApp (não oficial)",
   instagram: "Instagram",
+  facebook: "Messenger",
   telegram: "Telegram",
 };
 

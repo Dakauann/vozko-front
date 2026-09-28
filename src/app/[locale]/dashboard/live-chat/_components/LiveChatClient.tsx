@@ -62,6 +62,7 @@ interface LiveChatTranslations extends CrmTranslations {
   badge: string;
   filterAll: string;
   filterInstagram: string;
+  filterFacebook: string;
   filterTelegram: string;
   filterUnofficialWhatsapp: string;
   filterWhatsapp: string;

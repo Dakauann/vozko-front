@@ -48,6 +48,20 @@ describe("ActionCardView", () => {
     );
   });
 
+  it("deep-links the Facebook card to the Page connect flow", () => {
+    permissions.allowed = true;
+    renderCard({
+      kind: "connect_facebook",
+      balanceMicros: 0,
+      subscriptionActive: true,
+      status: { capability: "facebook", count: 0, canAdd: true },
+    });
+    expect(screen.getByText(actions.kinds.connect_facebook.title)).toBeTruthy();
+    expect(screen.getByRole("link", { name: actions.kinds.connect_facebook.cta }).getAttribute("href")).toBe(
+      "/dashboard/facebook-pages/connect",
+    );
+  });
+
   it("never offers the action without permission", () => {
     permissions.allowed = false;
     renderCard({

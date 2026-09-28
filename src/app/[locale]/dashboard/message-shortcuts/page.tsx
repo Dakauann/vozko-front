@@ -7,7 +7,6 @@ import {
   Lightning,
   PencilSimple,
   Trash,
-  Warning,
 } from "@/components/icons";
 import {
   ElevatedDialog,
@@ -80,7 +79,7 @@ function getShortcutTypeLabel(
 export default function MessageShortcutsPage() {
   const { toast } = useToast();
   const t = useTranslations("messageShortcutsPage");
-  const { can, currentWorkspace, permissionsLoading } = useWorkspace();
+  const { can, currentWorkspace } = useWorkspace();
   const [shortcuts, setShortcuts] = useState<MessageShortcut[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -94,7 +93,6 @@ export default function MessageShortcutsPage() {
     useState<MessageShortcut | null>(null);
   const [isDeleting, startDeleting] = useTransition();
 
-  const canRead = can("message_shortcuts", "read");
   const canCreate = can("message_shortcuts", "create");
   const canUpdate = can("message_shortcuts", "update");
   const canDelete = can("message_shortcuts", "delete");
@@ -240,25 +238,6 @@ export default function MessageShortcutsPage() {
       );
     });
   };
-
-  if (!permissionsLoading && !canRead) {
-    return (
-      <div
-        className="mx-auto mt-8 max-w-2xl rounded-[--radius] border border-border bg-card p-12 text-center"
-        style={{ boxShadow: softSurfaceShadow }}
-      >
-        <IconBox color="amber" size="lg" className="mx-auto" animated={false}>
-          <Warning weight="fill" />
-        </IconBox>
-        <p className="mt-4 font-semibold text-foreground">
-          {t("noAccess.title")}
-        </p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("noAccess.description")}
-        </p>
-      </div>
-    );
-  }
 
   return (
     <>

@@ -1100,6 +1100,22 @@ export const Instagram: Icon = /*#__PURE__*/ glyph(
   </>,
 );
 
+export const Facebook: Icon = /*#__PURE__*/ glyph(
+  "Facebook",
+  <>
+    <rect x="3.25" y="3.25" width="17.5" height="17.5" rx="5" />
+    <path stroke={ACCENT} d="M15.5 8h-1.5a2 2 0 0 0-2 2v10.75M9.5 13.25h5.5" />
+  </>,
+);
+
+export const Messenger: Icon = /*#__PURE__*/ glyph(
+  "Messenger",
+  <>
+    <path d="M12 3.25c-4.9 0-8.75 3.6-8.75 8.15 0 2.4 1.05 4.5 2.75 5.95v3.4l3.15-1.75c.9.25 1.85.4 2.85.4 4.9 0 8.75-3.6 8.75-8.15S16.9 3.25 12 3.25Z" />
+    <path stroke={ACCENT} d="m7.75 13.75 3-3.25 2.25 2 3.25-3.25-3 3.25-2.25-2-3.25 3.25Z" />
+  </>,
+);
+
 export const Google: Icon = /*#__PURE__*/ glyph(
   "Google",
   <>

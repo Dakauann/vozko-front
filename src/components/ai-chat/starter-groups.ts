@@ -4,17 +4,27 @@ type Can = (resource: ResourceType, action: ResourceAction) => boolean;
 
 interface StarterDefinition {
   key: string;
+  resource: ResourceType;
   action?: ResourceAction;
 }
 
 interface GroupDefinition {
   key: StarterGroupKey;
-  resource: ResourceType;
   paths: string[];
   starters: StarterDefinition[];
 }
 
-export type StarterGroupKey = "attendance" | "campaigns" | "customers" | "agents";
+export type StarterGroupKey =
+  | "start"
+  | "attendance"
+  | "conversations"
+  | "funnels"
+  | "campaigns"
+  | "customers"
+  | "knowledge"
+  | "schedule"
+  | "team"
+  | "agents";
 
 export interface StarterGroup {
   key: StarterGroupKey;
@@ -23,28 +33,108 @@ export interface StarterGroup {
 
 const GROUPS: GroupDefinition[] = [
   {
+    key: "start",
+    paths: [],
+    starters: [
+      { key: "capabilities", resource: "ai_chat" },
+      { key: "setup", resource: "ai_chat" },
+      { key: "connect", resource: "business_phones", action: "create" },
+      { key: "balance", resource: "balance" },
+    ],
+  },
+  {
     key: "attendance",
-    resource: "attendance",
     paths: ["/dashboard/attendance"],
-    starters: [{ key: "summary" }, { key: "team" }, { key: "trend" }, { key: "backlog" }, { key: "why" }],
+    starters: [
+      { key: "summary", resource: "attendance" },
+      { key: "team", resource: "attendance" },
+      { key: "trend", resource: "attendance" },
+      { key: "backlog", resource: "attendance" },
+      { key: "why", resource: "attendance" },
+    ],
+  },
+  {
+    key: "conversations",
+    paths: ["/dashboard/live-chat", "/dashboard/leads"],
+    starters: [
+      { key: "find", resource: "conversations" },
+      { key: "contact", resource: "leads" },
+      { key: "followup", resource: "conversations", action: "send" },
+      { key: "label", resource: "labels", action: "assign" },
+    ],
+  },
+  {
+    key: "funnels",
+    paths: ["/dashboard/funnels", "/dashboard/sales", "/dashboard/stage-groups"],
+    starters: [
+      { key: "overview", resource: "stages" },
+      { key: "deals", resource: "conversations" },
+      { key: "createDeal", resource: "conversations", action: "create" },
+      { key: "createStage", resource: "stages", action: "create" },
+    ],
   },
   {
     key: "campaigns",
-    resource: "whatsapp_campaigns",
-    paths: ["/dashboard/whatsapp-campaigns", "/dashboard/unofficial-whatsapp-campaigns"],
-    starters: [{ key: "results" }, { key: "failures" }, { key: "best" }],
+    paths: ["/dashboard/whatsapp-campaigns", "/dashboard/unofficial-whatsapp-campaigns", "/dashboard/whatsapp-templates"],
+    starters: [
+      { key: "results", resource: "whatsapp_campaigns" },
+      { key: "failures", resource: "whatsapp_campaigns" },
+      { key: "best", resource: "whatsapp_campaigns" },
+      { key: "templates", resource: "whatsapp_templates" },
+      { key: "createTemplate", resource: "whatsapp_templates", action: "create" },
+      { key: "createCampaign", resource: "whatsapp_campaigns", action: "create" },
+      { key: "createQrCampaign", resource: "unofficial_whatsapp_campaigns", action: "create" },
+    ],
   },
   {
     key: "customers",
-    resource: "audience",
     paths: ["/dashboard/audience"],
-    starters: [{ key: "asked" }, { key: "objections" }, { key: "hot" }],
+    starters: [
+      { key: "asked", resource: "audience" },
+      { key: "objections", resource: "audience" },
+      { key: "hot", resource: "audience" },
+    ],
+  },
+  {
+    key: "knowledge",
+    paths: ["/dashboard/knowledge-bases"],
+    starters: [
+      { key: "ask", resource: "knowledge_bases" },
+      { key: "add", resource: "knowledge_bases", action: "create" },
+    ],
+  },
+  {
+    key: "schedule",
+    paths: ["/dashboard/calendar", "/dashboard/workflows"],
+    starters: [
+      { key: "week", resource: "calendar" },
+      { key: "meeting", resource: "calendar", action: "create" },
+      { key: "workflows", resource: "workflows" },
+    ],
+  },
+  {
+    key: "team",
+    paths: ["/dashboard/workspace", "/dashboard/users"],
+    starters: [
+      { key: "access", resource: "ai_chat" },
+      { key: "explain", resource: "ai_chat" },
+      { key: "members", resource: "members" },
+      { key: "invite", resource: "members", action: "create" },
+      { key: "permissions", resource: "members" },
+      { key: "grant", resource: "members", action: "update" },
+      { key: "department", resource: "departments", action: "update" },
+      { key: "roles", resource: "roles" },
+    ],
   },
   {
     key: "agents",
-    resource: "agents",
     paths: ["/dashboard/agents"],
-    starters: [{ key: "list" }, { key: "create", action: "create" }, { key: "tools" }, { key: "models" }],
+    starters: [
+      { key: "list", resource: "agents" },
+      { key: "create", resource: "agents", action: "create" },
+      { key: "tools", resource: "agents" },
+      { key: "models", resource: "agents" },
+    ],
   },
 ];
 
@@ -56,8 +146,7 @@ export function starterGroupsFor(can: Can, pathname: string): { groups: StarterG
   const groups: StarterGroup[] = [];
   let open: StarterGroupKey | null = null;
   for (const group of GROUPS) {
-    if (!can(group.resource, "read")) continue;
-    const items = group.starters.filter((s) => !s.action || can(group.resource, s.action)).map((s) => s.key);
+    const items = group.starters.filter((s) => can(s.resource, s.action ?? "read")).map((s) => s.key);
     if (items.length === 0) continue;
     groups.push({ key: group.key, items });
     if (!open && onPage(pathname, group.paths)) open = group.key;

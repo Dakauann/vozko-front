@@ -3,7 +3,8 @@
 import { ArrowClockwise, CheckCircle, Warning } from "@/components/icons";
 
 import type { InstagramAccount } from "@/lib/instagram/types";
-import { StatusBadge, accentColorMap } from "@/components/elevated-design/listing-card";
+import { StatusBadge } from "@/components/elevated-design/listing-card";
+import { CapabilityChip, ProfileNotice, ProfileStat } from "@/components/channels/channel-profile-parts";
 
 import { InstagramAvatar } from "@/components/instagram/instagram-avatar";
 
@@ -62,9 +63,9 @@ export function InstagramProfileHeader({ account }: { account: InstagramAccount 
 
           {}
           <dl className="flex flex-wrap items-baseline gap-x-8 gap-y-2">
-            <Stat value={account.mediaCount} label={t("card.posts")} />
-            <Stat value={account.followersCount} label={t("card.followers")} />
-            <Stat value={account.followsCount} label={t("card.following")} />
+            <ProfileStat value={account.mediaCount} label={t("card.posts")} />
+            <ProfileStat value={account.followersCount} label={t("card.followers")} />
+            <ProfileStat value={account.followsCount} label={t("card.following")} />
           </dl>
 
           {
@@ -78,14 +79,14 @@ export function InstagramProfileHeader({ account }: { account: InstagramAccount 
       </div>
 
       {messagingBroken && (
-        <Notice color="amber" icon={<Warning className="h-4 w-4" />}>
+        <ProfileNotice color="amber" icon={<Warning className="h-4 w-4" />}>
           <p className="font-medium">{t("profile.messagingDisabledTitle")}</p>
           <p className="mt-1 opacity-80">{t("profile.messagingDisabledHelp")}</p>
-        </Notice>
+        </ProfileNotice>
       )}
 
       {account.needsReconnect && (
-        <Notice color="rose" icon={<Warning className="h-4 w-4" />}>
+        <ProfileNotice color="rose" icon={<Warning className="h-4 w-4" />}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span>{t("profile.reconnectRequired")}</span>
             <button
@@ -98,66 +99,8 @@ export function InstagramProfileHeader({ account }: { account: InstagramAccount 
               {t("card.reconnect")}
             </button>
           </div>
-        </Notice>
+        </ProfileNotice>
       )}
     </ElevatedContainer>
-  );
-}
-
-function Stat({ value, label }: { value: number; label: string }) {
-  return (
-    <div className="flex items-baseline gap-1.5">
-      <dd className="font-display text-base font-semibold tabular-nums text-foreground">
-        {value.toLocaleString()}
-      </dd>
-      <dt className="text-sm text-muted-foreground">{label}</dt>
-    </div>
-  );
-}
-
-function CapabilityChip({ enabled, label }: { enabled: boolean; label: string }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-[--radius] border px-2 py-0.5 text-2xs",
-        enabled
-          ? "border-border bg-muted text-muted-foreground"
-          : "border-dashed border-border bg-transparent text-muted-foreground",
-      )}
-    >
-      <span
-        aria-hidden
-        className={cn(
-          "size-1.5 rounded-full",
-          enabled ? "bg-healthy" : "bg-muted-foreground/40",
-        )}
-      />
-      {label}
-    </span>
-  );
-}
-
-function Notice({
-  color,
-  icon,
-  children,
-}: {
-  color: "amber" | "rose";
-  icon: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  const accent = accentColorMap[color];
-  return (
-    <div
-      className={cn(
-        "flex gap-2 rounded-lg border p-3 text-xs leading-relaxed",
-        accent.light,
-        accent.border,
-        accent.text,
-      )}
-    >
-      <span className="mt-0.5 shrink-0">{icon}</span>
-      <div className="min-w-0 flex-1">{children}</div>
-    </div>
   );
 }

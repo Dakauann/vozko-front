@@ -26,12 +26,14 @@ import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
 import Textarea from "@/components/elevated-design/elevated-textarea";
 import { uploadMediaAction } from "@/app/actions/medias";
 
+import { CommentRuleFields } from "@/components/social/comment-rule-fields";
 import {
-  CommentRuleFields,
+  INSTAGRAM_RULE_ACTIONS,
   commentRuleFieldsErrors,
+  toInstagramRulePayload,
   type CommentRuleFieldsValue,
-} from "./comment-rule-fields";
-import type { CommentRulePayload, InstagramMedia } from "@/lib/instagram/types";
+} from "@/lib/social/comment-rules";
+import type { InstagramMedia } from "@/lib/instagram/types";
 import { createCommentRuleAction, createInstagramMediaAction } from "@/app/actions/instagram";
 import {
   getCommentAnalysisSettingsAction,
@@ -151,16 +153,17 @@ export function InstagramPostComposer({
     }
 
     if (withRule) {
-      const rule: CommentRulePayload = {
+      const rule = toInstagramRulePayload({
         name: t("ruleName"),
         enabled: true,
-        igMediaId: result.media.id,
+        containerId: result.media.id,
         match: ruleFields.match,
         keywords: ruleErrors.keywordList,
         actions: ruleFields.actions,
         publicReplyText: ruleFields.publicText.trim(),
         privateReplyText: ruleFields.privateText.trim(),
-      };
+        priority: 0,
+      });
       const ruleResult = await createCommentRuleAction(accountId, rule);
       if (ruleResult.error) {
         setPublishing(false);
@@ -295,6 +298,8 @@ export function InstagramPostComposer({
                     <CommentRuleFields
                       value={ruleFields}
                       onChange={setRuleFields}
+                      allowedActions={INSTAGRAM_RULE_ACTIONS}
+                      translationNamespace="instagram.commentRules"
                       disabled={publishing}
                     />
                   </div>

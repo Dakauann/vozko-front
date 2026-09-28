@@ -1,6 +1,7 @@
 "use client";
 
 import type { AgentListItem, ModelPricingInfo } from "@/lib/agents/types";
+import { DealAutomationSetting } from "@/components/channels/deal-automation-setting";
 import { useAgentRequiredVariables } from "@/lib/agents/use-agent-required-variables";
 import {
   CalendarCheck,
@@ -2089,6 +2090,12 @@ export default function CreateWhatsAppCampaignForm({
                       )}
                     />
                   </div>
+                )}
+
+                {campaignToolsAvailable && initialCampaign?.id && (
+                  <DealAutomationSetting
+                    channel={{ entryType: "whatsapp", kind: "campaign", containerId: initialCampaign.id }}
+                  />
                 )}
 
                 {!organic && (

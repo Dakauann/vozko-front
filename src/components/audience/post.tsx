@@ -25,7 +25,6 @@ import { Chip, EmptyState, Panel, Skeleton } from "@/components/audience/shared"
 import { ArrowSquareOut, ChartLineUp, ChatCircle, Gear, Sparkle, Warning } from "@/components/icons";
 
 
-const SOURCE: CommentSource = "instagram";
 const TREND_DAYS = 30;
 
 type Section = "overview" | "feed" | "settings";
@@ -36,7 +35,15 @@ function isoDaysAgo(days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-export function CommentPostAnalysisPanel({ accountId, containerId }: { accountId: string; containerId: string }) {
+export function CommentPostAnalysisPanel({
+  source,
+  accountId,
+  containerId,
+}: {
+  source: CommentSource;
+  accountId: string;
+  containerId: string;
+}) {
   const t = useTranslations("audience.post");
   const tc = useTranslations("audience");
   const { can } = useWorkspace();
@@ -51,7 +58,7 @@ export function CommentPostAnalysisPanel({ accountId, containerId }: { accountId
 
   useEffect(() => {
     let cancelled = false;
-    void getCommentContainerSettingsAction(SOURCE, accountId, containerId).then((s) => {
+    void getCommentContainerSettingsAction(source, accountId, containerId).then((s) => {
       if (cancelled) return;
       if (s.error) setError(s.error);
       else setSettings(s.settings ?? null);
@@ -60,7 +67,7 @@ export function CommentPostAnalysisPanel({ accountId, containerId }: { accountId
     return () => {
       cancelled = true;
     };
-  }, [accountId, containerId]);
+  }, [source, accountId, containerId]);
 
   const enabled = settings?.effective.enabled ?? false;
   useEffect(() => {
@@ -134,18 +141,20 @@ export function CommentPostAnalysisPanel({ accountId, containerId }: { accountId
       {
 }
       {canConfigure && (!effective.enabled || section === "settings") ? (
-        <OverrideEditor accountId={accountId} containerId={containerId} settings={settings} onSaved={setSettings} />
+        <OverrideEditor source={source} accountId={accountId} containerId={containerId} settings={settings} onSaved={setSettings} />
       ) : null}
     </div>
   );
 }
 
 function OverrideEditor({
+  source,
   accountId,
   containerId,
   settings,
   onSaved,
 }: {
+  source: CommentSource;
   accountId: string;
   containerId: string;
   settings: CommentContainerSettings;
@@ -166,7 +175,7 @@ function OverrideEditor({
 
   const save = async () => {
     setSaving(true);
-    const result = await putCommentContainerSettingsAction(SOURCE, accountId, containerId, overrideDraftToPut(draft));
+    const result = await putCommentContainerSettingsAction(source, accountId, containerId, overrideDraftToPut(draft));
     setSaving(false);
     if (result.error || !result.settings) {
       setError(result.error ?? t("saveFailed"));
@@ -183,7 +192,7 @@ function OverrideEditor({
       return;
     }
     setSaving(true);
-    const result = await deleteCommentContainerSettingsAction(SOURCE, accountId, containerId);
+    const result = await deleteCommentContainerSettingsAction(source, accountId, containerId);
     setSaving(false);
     if (result.error || !result.settings) {
       setError(result.error ?? t("saveFailed"));

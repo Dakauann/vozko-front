@@ -202,6 +202,7 @@ export function applyWindowEvent(
           window_open: p.window_open ?? c.window_open,
           window_expires_at: p.window_expires_at ?? c.window_expires_at,
           window_closed_reason: p.window_closed_reason ?? c.window_closed_reason ?? null,
+          window_tier: p.window_tier ?? null,
           automation_enabled: resolveAutomationEnabled(
             p.automation_enabled,
             c.automation_enabled,

@@ -16,7 +16,6 @@ import {
   Package,
   PixLogo,
   Receipt,
-  ShieldCheck,
   SpeakerHigh,
   WhatsappLogo,
 } from "@/components/icons";
@@ -182,7 +181,7 @@ export default function UserPlansCatalog() {
   const pricingT = useTranslations("pricing");
   const locale = useLocale();
   const { toast } = useToast();
-  const { currentWorkspace, can, permissionsLoading } = useWorkspace();
+  const { currentWorkspace, can } = useWorkspace();
 
   const [plans, setPlans] = React.useState<PublicPlanDetails[]>([]);
   const [search, setSearch] = React.useState("");
@@ -213,7 +212,6 @@ export default function UserPlansCatalog() {
   const [cancellingSubscription, setCancellingSubscription] =
     React.useState(false);
 
-  const canReadPlans = can("plans", "read");
   const canCreateBilling = can("plans", "create");
 
   const loadData = React.useCallback(async () => {
@@ -617,24 +615,6 @@ export default function UserPlansCatalog() {
         </p>
         <p className="mt-1 text-sm text-muted-foreground">
           {t("emptyWorkspace.description")}
-        </p>
-      </div>
-    );
-  }
-
-  if (!permissionsLoading && !canReadPlans) {
-    return (
-      <div
-        className="mx-auto mt-8 max-w-2xl rounded-[--radius] border border-border bg-card p-12 text-center"
-        style={{ boxShadow: softSurfaceShadow }}
-      >
-        <ShieldCheck
-          className="mx-auto mb-4 h-12 w-12 text-warning-ink"
-          weight="fill"
-        />
-        <p className="font-semibold text-foreground">{t("noAccess.title")}</p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("noAccess.description")}
         </p>
       </div>
     );

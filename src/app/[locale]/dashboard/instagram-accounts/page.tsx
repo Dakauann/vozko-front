@@ -2,8 +2,6 @@
 
 import {
   ArrowClockwise,
-  CaretLeft,
-  CaretRight,
   Eye,
   InstagramLogo,
   MagnifyingGlass,
@@ -31,6 +29,7 @@ import {
 import Button from "@/components/elevated-design/button";
 import { InstagramAvatar } from "@/components/instagram/instagram-avatar";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
+import { ChannelListPagination, ChannelListStat } from "@/components/channels/channel-list-parts";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import Link from "next/link";
@@ -339,9 +338,9 @@ export default function InstagramAccountsPage() {
         </div>
 
         <div className="flex flex-1 flex-wrap items-center gap-4">
-          <Stat label={t("stats.total")} value={loading ? "…" : totalItems} />
-          <Stat label={t("stats.connected")} value={loading ? "…" : connectedCount} />
-          <Stat label={t("stats.attention")} value={loading ? "…" : attentionCount} />
+          <ChannelListStat label={t("stats.total")} value={loading ? "…" : totalItems} />
+          <ChannelListStat label={t("stats.connected")} value={loading ? "…" : connectedCount} />
+          <ChannelListStat label={t("stats.attention")} value={loading ? "…" : attentionCount} />
         </div>
 
         <Button
@@ -412,44 +411,19 @@ export default function InstagramAccountsPage() {
             />
           </ElevatedContainer>
 
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between gap-4 px-1">
-              <span className="text-xs text-muted-foreground">
-                {t("pagination.pageOf", { page, totalPages })}
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  disabled={page <= 1 || loading}
-                  onClick={() => void fetchAccounts(page - 1, search)}
-                  className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <CaretLeft className="h-3.5 w-3.5" weight="bold" />
-                  {t("pagination.previous")}
-                </button>
-                <button
-                  type="button"
-                  disabled={page >= totalPages || loading}
-                  onClick={() => void fetchAccounts(page + 1, search)}
-                  className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  {t("pagination.next")}
-                  <CaretRight className="h-3.5 w-3.5" weight="bold" />
-                </button>
-              </div>
-            </div>
-          )}
+          <ChannelListPagination
+            page={page}
+            totalPages={totalPages}
+            loading={loading}
+            labels={{
+              pageOf: t("pagination.pageOf", { page, totalPages }),
+              previous: t("pagination.previous"),
+              next: t("pagination.next"),
+            }}
+            onPage={(next) => void fetchAccounts(next, search)}
+          />
         </div>
       )}
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="flex items-center gap-2">
-      <span className="whitespace-nowrap text-xs text-muted-foreground">{label}</span>
-      <span className="text-sm font-semibold tabular-nums text-foreground">{value}</span>
     </div>
   );
 }

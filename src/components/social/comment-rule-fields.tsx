@@ -1,91 +1,48 @@
 "use client";
 
-import { ChatCircleDots, EyeSlash, PaperPlaneTilt } from "@/components/icons";
+import { ChatCircleDots, EyeSlash, Heart, PaperPlaneTilt, Trash } from "@/components/icons";
+import type { Icon } from "@/components/icons";
 
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSegmentedControl } from "@/components/elevated-design/elevated-segmented-control";
 import Textarea from "@/components/elevated-design/elevated-textarea";
-import type { CommentRuleAction, CommentRuleMatch } from "@/lib/instagram/types";
+import type { CommentRuleAction, CommentRuleFieldsValue, CommentRuleMatch } from "@/lib/social/comment-rules";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
-
-export interface CommentRuleFieldsValue {
-  match: CommentRuleMatch;
-  keywords: string;
-  actions: CommentRuleAction[];
-  publicText: string;
-  privateText: string;
-}
-
-export function commentRuleFieldsErrors(value: CommentRuleFieldsValue) {
-  const keywordList = value.keywords
-    .split(",")
-    .map((k) => k.trim())
-    .filter(Boolean);
-
-  return {
-    keywordList,
-    needsKeywords: value.match !== "any" && keywordList.length === 0,
-    needsPublicText: value.actions.includes("public_reply") && !value.publicText.trim(),
-    needsPrivateText: value.actions.includes("private_reply") && !value.privateText.trim(),
-    get valid() {
-      return (
-        value.actions.length > 0 &&
-        !this.needsKeywords &&
-        !this.needsPublicText &&
-        !this.needsPrivateText
-      );
-    },
-  };
-}
+export const RULE_ACTION_ICONS: Record<CommentRuleAction, Icon> = {
+  public_reply: ChatCircleDots,
+  private_reply: PaperPlaneTilt,
+  hide: EyeSlash,
+  delete: Trash,
+  like: Heart,
+};
 
 export function CommentRuleFields({
   value,
   onChange,
+  allowedActions,
+  translationNamespace,
   disabled,
   className,
 }: {
   value: CommentRuleFieldsValue;
   onChange: (next: CommentRuleFieldsValue) => void;
+  allowedActions: readonly CommentRuleAction[];
+  translationNamespace: string;
   disabled?: boolean;
   className?: string;
 }) {
-  const t = useTranslations("instagram.commentRules");
+  const t = useTranslations(translationNamespace);
 
-  const set = <K extends keyof CommentRuleFieldsValue>(
-    key: K,
-    next: CommentRuleFieldsValue[K],
-  ) => onChange({ ...value, [key]: next });
+  const set = <K extends keyof CommentRuleFieldsValue>(key: K, next: CommentRuleFieldsValue[K]) =>
+    onChange({ ...value, [key]: next });
 
   const toggleAction = (action: CommentRuleAction) =>
     set(
       "actions",
-      value.actions.includes(action)
-        ? value.actions.filter((a) => a !== action)
-        : [...value.actions, action],
+      value.actions.includes(action) ? value.actions.filter((a) => a !== action) : [...value.actions, action],
     );
-
-  const actionOptions: {
-    id: CommentRuleAction;
-    label: string;
-    hint: string;
-    icon: typeof ChatCircleDots;
-  }[] = [
-    {
-      id: "public_reply",
-      label: t("action.public_reply"),
-      hint: t("hint.public_reply"),
-      icon: ChatCircleDots,
-    },
-    {
-      id: "private_reply",
-      label: t("action.private_reply"),
-      hint: t("hint.private_reply"),
-      icon: PaperPlaneTilt,
-    },
-    { id: "hide", label: t("action.hide"), hint: t("hint.hide"), icon: EyeSlash },
-  ];
 
   return (
     <div className={cn("space-y-5", className)}>
@@ -117,8 +74,9 @@ export function CommentRuleFields({
       <div className="space-y-1.5">
         <label className="text-sm font-medium text-foreground">{t("fieldActions")}</label>
         <div className="space-y-2">
-          {actionOptions.map(({ id, label, hint, icon: Icon }) => {
+          {allowedActions.map((id) => {
             const selected = value.actions.includes(id);
+            const Icon = RULE_ACTION_ICONS[id];
             return (
               <div key={id}>
                 <button
@@ -134,15 +92,12 @@ export function CommentRuleFields({
                   )}
                 >
                   <Icon
-                    className={cn(
-                      "mt-0.5 h-4 w-4 shrink-0",
-                      selected ? "text-primary-ink" : "text-muted-foreground",
-                    )}
+                    className={cn("mt-0.5 h-4 w-4 shrink-0", selected ? "text-primary-ink" : "text-muted-foreground")}
                     weight={selected ? "fill" : "regular"}
                   />
                   <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-medium text-foreground">{label}</span>
-                    <span className="block text-xs text-muted-foreground">{hint}</span>
+                    <span className="block text-sm font-medium text-foreground">{t(`action.${id}`)}</span>
+                    <span className="block text-xs text-muted-foreground">{t(`hint.${id}`)}</span>
                   </span>
                 </button>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import type {
+  AvailablePermission,
   MemberPermission,
   ResourceAction,
   ResourceType,
@@ -16,10 +17,12 @@ import {
   useState,
 } from "react";
 import {
+  fetchAvailablePermissions,
   fetchMemberPermissions,
   fetchWorkspace,
   fetchWorkspaces,
 } from "@/lib/workspace/client";
+import type { FeatureCatalog } from "@/lib/access/decide";
 
 import { useAuth } from "@/contexts/auth-context";
 
@@ -37,6 +40,10 @@ interface WorkspaceContextType {
   can: (resource: ResourceType, action: ResourceAction) => boolean;
   canAny: (resource: ResourceType) => boolean;
   refreshPermissions: () => Promise<void>;
+  privileged: boolean;
+  systemAdmin: boolean;
+  featureCatalog: FeatureCatalog;
+  permissionCatalog: AvailablePermission[];
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
@@ -119,6 +126,29 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
   const [permissions, setPermissions] = useState<MemberPermission[]>([]);
   const [permissionsLoading, setPermissionsLoading] = useState(true);
+  const [featureCatalog, setFeatureCatalog] = useState<FeatureCatalog>({ status: "loading" });
+  const [permissionCatalog, setPermissionCatalog] = useState<AvailablePermission[]>([]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    let active = true;
+    void fetchAvailablePermissions()
+      .then((result) => {
+        if (!active) return;
+        if (result.error) {
+          setFeatureCatalog({ status: "failed" });
+          return;
+        }
+        setPermissionCatalog(result.permissions);
+        setFeatureCatalog({ status: "ready", features: result.features });
+      })
+      .catch(() => {
+        if (active) setFeatureCatalog({ status: "failed" });
+      });
+    return () => {
+      active = false;
+    };
+  }, [user?.id]);
 
   useEffect(() => {
     const previousUserId = previousUserIdRef.current;
@@ -140,8 +170,9 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user?.id]);
 
+  const systemAdmin = user?.role === "admin";
   const isPrivileged =
-    user?.role === "admin" ||
+    systemAdmin ||
     (!!user?.id &&
       !!currentWorkspace?.ownerId &&
       user.id === currentWorkspace.ownerId) ||
@@ -160,7 +191,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const can = useCallback(
     (resource: ResourceType, action: ResourceAction): boolean => {
       if (isPrivileged) return true;
-      if (permissionsLoading) return true;
+      if (permissionsLoading) return false;
       return permissionsMap[resource]?.has(action) ?? false;
     },
     [isPrivileged, permissionsLoading, permissionsMap],
@@ -169,7 +200,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const canAny = useCallback(
     (resource: ResourceType): boolean => {
       if (isPrivileged) return true;
-      if (permissionsLoading) return true;
+      if (permissionsLoading) return false;
       const actions = permissionsMap[resource];
       return !!actions && actions.size > 0;
     },
@@ -412,6 +443,10 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       can,
       canAny,
       refreshPermissions,
+      privileged: isPrivileged,
+      systemAdmin,
+      featureCatalog,
+      permissionCatalog,
     }),
     [
       workspaces,
@@ -425,6 +460,10 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       can,
       canAny,
       refreshPermissions,
+      isPrivileged,
+      systemAdmin,
+      featureCatalog,
+      permissionCatalog,
     ],
   );
 
@@ -447,9 +486,13 @@ export function useWorkspace() {
       permissions: [],
       permissionsMap: {} as PermissionsMap,
       permissionsLoading: false,
-      can: () => true,
-      canAny: () => true,
+      can: () => false,
+      canAny: () => false,
       refreshPermissions: async () => {},
+      privileged: false,
+      systemAdmin: false,
+      featureCatalog: { status: "failed" },
+      permissionCatalog: [],
     } as WorkspaceContextType;
   }
   return context;

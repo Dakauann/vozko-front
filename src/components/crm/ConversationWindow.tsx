@@ -494,6 +494,7 @@ export default function ConversationWindow({
             windowOpen={conversation.window_open}
             windowExpiresAt={conversation.window_expires_at}
             windowClosedReason={conversation.window_closed_reason}
+            windowTier={conversation.window_tier}
             translations={t.input}
             replyToMessage={replyTo}
             onClearReply={() => setReplyTo(null)}

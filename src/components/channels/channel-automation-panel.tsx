@@ -22,6 +22,7 @@ import type { Pipeline } from "@/lib/crm/pipelines";
 import { getWorkflowAction, listWorkflowsAction } from "@/app/actions/workflows";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import { useTranslations } from "next-intl";
+import { DealAutomationSetting } from "@/components/channels/deal-automation-setting";
 
 
 type Mode = "agent" | "workflow";
@@ -60,6 +61,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
   translationNamespace,
   controlId = "channel-automation-enabled",
   showHandling = false,
+  dealEntryType,
 }: {
   account: T;
   onUpdated: (account: T) => void;
@@ -70,6 +72,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
   translationNamespace: string;
   controlId?: string;
   showHandling?: boolean;
+  dealEntryType?: string;
 }) {
   const t = useTranslations(translationNamespace);
 
@@ -432,6 +435,13 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
                 />
               </div>
             ))}
+            {dealEntryType ? (
+              <DealAutomationSetting
+                layout="row"
+                channel={{ entryType: dealEntryType, kind: "account", containerId: account.id }}
+                disabled={saving}
+              />
+            ) : null}
           </div>
         ) : null}
 

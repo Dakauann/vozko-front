@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowClockwise, Key, Plugs, Power } from "@/components/icons";
+import { DealAutomationSetting } from "@/components/channels/deal-automation-setting";
 import {
   RestrictionNotice,
   SessionState,
@@ -395,6 +396,11 @@ function ConversationHandlingPanel({
           </label>
         ))}
       </div>
+      <DealAutomationSetting
+        layout="row"
+        channel={{ entryType: "unofficial_whatsapp", kind: "account", containerId: instance.id }}
+        disabled={!canUpdate}
+      />
     </ElevatedContainer>
   );
 }

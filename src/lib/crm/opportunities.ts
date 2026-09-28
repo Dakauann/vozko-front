@@ -22,6 +22,7 @@ export interface Opportunity {
     createdBy?: string;
     closedBy?: string;
     customFields?: Record<string, unknown> | null;
+    version: number;
     createdAt: string;
     updatedAt: string;
 }
@@ -106,11 +107,13 @@ export interface UpdateOpportunityInput {
     customFields?: Record<string, unknown>;
     stageId?: string;
     lostReasonId?: string;
+    version?: number;
 }
 
 export interface MoveOpportunityInput {
     stageId: string;
     lostReasonId?: string;
+    version?: number;
 }
 
 export type OpportunityEventType =
@@ -177,15 +180,15 @@ export function dealEventText(
     const value = formatValueCents(event.valueCents, event.currency);
     switch (event.type) {
         case 'created':
-            return `${actorName} criou o negócio`;
+            return `${actorName} criou a oportunidade`;
         case 'stage_moved':
             return `${actorName} moveu de ${stage(event.fromStageId)} para ${stage(event.toStageId)}`;
         case 'won':
-            return `${actorName} marcou como ganho (${value})`;
+            return `${actorName} marcou como ganha (${value})`;
         case 'lost':
-            return `${actorName} marcou como perdido`;
+            return `${actorName} marcou como perdida`;
         case 'reopened':
-            return `${actorName} reabriu o negócio`;
+            return `${actorName} reabriu a oportunidade`;
         case 'value_changed':
             return `${actorName} alterou o valor para ${value}`;
         case 'owner_changed':

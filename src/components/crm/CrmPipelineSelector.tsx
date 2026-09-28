@@ -128,7 +128,7 @@ export default function CrmPipelineSelector({
       },
       {
         key: "opportunity" as PipelineObjectType,
-        label: "Vendas",
+        label: "Oportunidades",
         icon: <TrendUp weight="bold" className="h-3.5 w-3.5 text-primary-foreground" />,
         tile: "tile-brand",
         pipelines: opportunity,

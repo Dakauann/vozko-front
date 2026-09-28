@@ -4,7 +4,7 @@ export type Segment =
   | { kind: "thinking"; text: string; streaming?: boolean }
   | { kind: "tool"; name: string; summary: string; ok: boolean; running?: boolean }
   | { kind: "chart"; chart: ChatChart }
-  | { kind: "card"; card: ActionCard }
+  | { kind: "card"; card: ActionCard; live?: boolean }
   | { kind: "text"; text: string; streaming?: boolean };
 
 export function startTool(segs: Segment[], name: string): Segment[] {

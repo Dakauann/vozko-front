@@ -19,9 +19,9 @@ export function ConditionPickPreview({
 }
 
 const DEAL_STATUS_LABELS: Record<string, string> = {
-  open: "Negócio aberto",
-  won: "Negócio ganho",
-  lost: "Negócio perdido",
+  open: "Oportunidade aberta",
+  won: "Oportunidade ganha",
+  lost: "Oportunidade perdida",
 };
 
 export function ConditionCheckOpportunityPreview({
@@ -37,9 +37,9 @@ export function ConditionCheckOpportunityPreview({
         <EmptyPreview label="Sem situação" />
       );
     case "stage":
-      return <ConditionPickPreview config={config} field="stage_id" emptyLabel="Sem etapa do negócio" />;
+      return <ConditionPickPreview config={config} field="stage_id" emptyLabel="Sem etapa da oportunidade" />;
     default:
-      return <DecisionBlock>Tem negócio</DecisionBlock>;
+      return <DecisionBlock>Tem oportunidade</DecisionBlock>;
   }
 }
 

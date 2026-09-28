@@ -189,6 +189,7 @@ const CHANNEL_FILTER_LABELS: Record<MessageChannel, string> = {
   whatsapp: "WhatsApp",
   unofficial_whatsapp: "WhatsApp (não oficial)",
   instagram: "Instagram",
+  facebook: "Messenger",
   telegram: "Telegram",
 };
 

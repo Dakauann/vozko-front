@@ -335,6 +335,7 @@ const CHANNEL_BAR: Record<string, string> = {
   whatsapp: "#25d366",
   unofficial_whatsapp: "hsl(var(--chart-1))",
   instagram: "#e1306c",
+  facebook: "#0866ff",
   telegram: "#229ed9",
   voice: "#8b5cf6",
 };
@@ -347,6 +348,8 @@ function channelLabel(channel: string, tc: (key: string) => string): string {
       return tc("unofficialWhatsapp");
     case "instagram":
       return tc("instagram");
+    case "facebook":
+      return tc("facebook");
     case "telegram":
       return tc("telegram");
     default:
@@ -2021,7 +2024,6 @@ export default function AttendanceOpsPage() {
   const actorKindLabel = useActorKindLabel();
   const presenceLabel = usePresenceLabel();
   const fmt = useMetricsFmt();
-  const canRead = !permissionsLoading && can("attendance", "read");
   const canWriteTargets =
     !permissionsLoading && can("attendance_targets", "update");
   const locale = useLocale();
@@ -2090,12 +2092,12 @@ export default function AttendanceOpsPage() {
   const [rankingRef, rankingInView] = useInView<HTMLElement>();
   const [membersRef, membersInView] = useInView<HTMLElement>();
 
-  const summaryQuery = useAttendanceSection("summary", sectionParams, { enabled: canRead });
-  const trendQuery = useAttendanceSection("trend", sectionParams, { enabled: canRead && trendInView });
-  const backlogQuery = useAttendanceSection("backlog", sectionParams, { enabled: canRead && backlogInView });
-  const stagesQuery = useAttendanceSection("stages", sectionParams, { enabled: canRead && stagesInView });
+  const summaryQuery = useAttendanceSection("summary", sectionParams, { enabled: true });
+  const trendQuery = useAttendanceSection("trend", sectionParams, { enabled: trendInView });
+  const backlogQuery = useAttendanceSection("backlog", sectionParams, { enabled: backlogInView });
+  const stagesQuery = useAttendanceSection("stages", sectionParams, { enabled: stagesInView });
   const teamQuery = useAttendanceSection("team", sectionParams, {
-    enabled: canRead && (departmentsInView || rankingInView || membersInView),
+    enabled: departmentsInView || rankingInView || membersInView,
   });
 
   const summary = summaryQuery.data;
@@ -2281,7 +2283,7 @@ export default function AttendanceOpsPage() {
     channel: channel === "all" ? ta("allChannels") : tc(channel),
     campaign: campaignId ? (campaigns.find((c) => c.id === campaignId)?.name ?? campaignId) : undefined,
   };
-  usePublishAssistantContext(canRead ? { kind: "attendance", view: assistantView, scope: assistantScope } : null);
+  usePublishAssistantContext({ kind: "attendance", view: assistantView, scope: assistantScope });
 
   return (
     <div className="space-y-6">
@@ -2381,6 +2383,12 @@ export default function AttendanceOpsPage() {
                         <span className="inline-flex items-center gap-1.5">
                           <ChannelTile channel="instagram" size="sm" className="h-5 w-5" />
                           {tc("instagram")}
+                        </span>
+                      </ElevatedSelectItem>
+                      <ElevatedSelectItem value="facebook">
+                        <span className="inline-flex items-center gap-1.5">
+                          <ChannelTile channel="facebook" size="sm" className="h-5 w-5" />
+                          {tc("facebook")}
                         </span>
                       </ElevatedSelectItem>
                       <ElevatedSelectItem value="telegram">
@@ -2507,22 +2515,6 @@ export default function AttendanceOpsPage() {
           </div>
       </div>
 
-      {!canRead && !permissionsLoading ? (
-        <div>
-          <Surface className="py-12 text-center">
-            <Users
-              className="mx-auto mb-3 h-10 w-10 text-muted-foreground"
-              weight="duotone"
-            />
-            <h2 className="font-display text-base font-semibold tracking-[0.01em] text-foreground">
-              {tc("noPermission")}
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {tc("noPermissionDesc")}
-            </p>
-          </Surface>
-        </div>
-      ) : (
         <>
           {canReadCampaigns && (channel === "all" || channel === "whatsapp") ? (
             <DispatchReportChapter
@@ -2868,7 +2860,6 @@ export default function AttendanceOpsPage() {
             </Surface>
           </div>
         </>
-      )}
 
       {canWriteTargets ? (
         <TargetsDialog

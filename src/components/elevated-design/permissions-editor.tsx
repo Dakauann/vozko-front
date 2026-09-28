@@ -10,6 +10,8 @@ import type {
 
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
+import { Warning } from "@/components/icons";
+import { riskBadges } from "@/lib/workspace/permission-risk";
 import { cn } from "@/lib/utils";
 
 interface PermissionsEditorProps {
@@ -83,19 +85,44 @@ export default function PermissionsEditor({
               {t(`resourceDescriptions.${perm.resource}`)}
             </p>
             <div className="space-y-1">
-              {actions.map((action: ResourceAction) => (
-                <ElevatedSwitch
-                  key={action}
-                  checked={resourcePerms.has(action)}
-                  onCheckedChange={() =>
-                    !disabled && onToggle(perm.resource, action)
-                  }
-                  disabled={disabled}
-                  label={
-                    perm.actionDescriptions?.[action] || t(`actions.${action}`)
-                  }
-                />
-              ))}
+              {actions.map((action: ResourceAction) => {
+                const risks = riskBadges(perm, action);
+                return (
+                  <div key={action}>
+                    <ElevatedSwitch
+                      checked={resourcePerms.has(action)}
+                      onCheckedChange={() =>
+                        !disabled && onToggle(perm.resource, action)
+                      }
+                      disabled={disabled}
+                      label={
+                        perm.actionDescriptions?.[action] || t(`actions.${action}`)
+                      }
+                    />
+                    {risks.length > 0 ? (
+                      <ul className="flex flex-wrap gap-x-3 gap-y-0.5 pl-14" aria-label={t("risks.legend")}>
+                        {risks.map((risk) => (
+                          <li
+                            key={risk.kind}
+                            title={t(`risks.details.${risk.kind}`)}
+                            className="inline-flex cursor-help items-center gap-1 text-2xs text-muted-foreground"
+                          >
+                            <Warning
+                              weight="fill"
+                              className={cn(
+                                "h-3 w-3 flex-shrink-0",
+                                risk.level === "high" ? "text-destructive-ink" : "text-warning-ink",
+                              )}
+                              aria-hidden
+                            />
+                            {t(`risks.kinds.${risk.kind}`)}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                );
+              })}
             </div>
           </ElevatedContainer>
         );

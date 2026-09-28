@@ -177,7 +177,7 @@ export default function KnowledgeBasesPage() {
         badge={t("header.badge")}
         description={t("header.description")}
         actions={
-          can("agents", "create") ? (
+          can("knowledge_bases", "create") ? (
             <Button
               variant="primary"
               title={t("button")}
@@ -258,7 +258,7 @@ export default function KnowledgeBasesPage() {
                   />
                 ),
                 title: t("empty.title"),
-                action: can("agents", "create") ? (
+                action: can("knowledge_bases", "create") ? (
                   <Button
                     variant="primary"
                     title={t("button")}

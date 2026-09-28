@@ -206,7 +206,7 @@ export default function InstagramAccountProfilePage({
                 {
 }
                 <TabsContent value="audience" className="mt-4">
-                  <CommentAnalysisTab accountId={accountId} />
+                  <CommentAnalysisTab source="instagram" accountId={accountId} />
                 </TabsContent>
               </Tabs>
 

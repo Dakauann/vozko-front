@@ -38,6 +38,11 @@ import {
   Database,
   Hourglass,
   DeviceMobile,
+  UserMinus,
+  ShieldCheck,
+  Key,
+  IdentificationBadge,
+  UserGear,
   FileCsv,
   Megaphone,
   PlayCircle,
@@ -147,6 +152,25 @@ const TOOL_ICON: Record<string, Icon> = {
   preview_unofficial_campaign_import: FileCsv,
   create_unofficial_campaign: Megaphone,
   start_unofficial_campaign: PlayCircle,
+  list_workspace_members: Users,
+  list_workspace_invites: EnvelopeSimple,
+  get_member_permissions: ShieldCheck,
+  list_permission_catalog: ShieldCheck,
+  invite_member: UserPlus,
+  cancel_invite: XCircle,
+  remove_member: UserMinus,
+  change_member_role: UserGear,
+  update_member_permissions: Key,
+  list_roles: IdentificationBadge,
+  create_role: IdentificationBadge,
+  update_role: IdentificationBadge,
+  delete_role: IdentificationBadge,
+  list_department_members: Buildings,
+  create_department: Buildings,
+  update_department: Buildings,
+  delete_department: Buildings,
+  add_department_member: UserPlus,
+  remove_department_member: UserMinus,
 };
 
 const KNOWN_TOOLS = new Set(Object.keys(TOOL_ICON));
@@ -301,7 +325,7 @@ function SegmentView({ seg, labels }: { seg: Block; labels: BubbleLabels }) {
     case "charts":
       return <ChartGrid charts={seg.charts} />;
     case "card":
-      return <ActionCardView card={seg.card} />;
+      return <ActionCardView card={seg.card} live={seg.live} />;
     default:
       return (
         <div className="text-sm">
@@ -407,8 +431,8 @@ function ApprovalCard({
             <dl className="mt-2 grid gap-x-3 gap-y-1.5 text-xs leading-relaxed [grid-template-columns:minmax(0,auto)_minmax(0,1fr)]">
               {rows.map((row) => (
                 <div key={row.key} className="contents">
-                  <dt className="text-muted-foreground">{row.label}</dt>
-                  <dd className="whitespace-pre-wrap break-words text-foreground">{row.value}</dd>
+                  <dt className={cn("text-muted-foreground", row.key === "risks" && "font-semibold text-warning-ink")}>{row.label}</dt>
+                  <dd className={cn("whitespace-pre-wrap break-words text-foreground", row.key === "risks" && "text-warning-ink")}>{row.value}</dd>
                 </div>
               ))}
             </dl>

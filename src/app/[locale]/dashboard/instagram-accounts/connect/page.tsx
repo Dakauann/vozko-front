@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowLeft, ArrowSquareOut, Lock } from "@/components/icons";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import Button from "@/components/elevated-design/button";
 import {
@@ -21,14 +21,12 @@ import { useInstagramConnect } from "@/hooks/use-instagram-connect";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
-import { useWorkspace } from "@/contexts/workspace-context";
 
 export default function ConnectInstagramPage() {
   const t = useTranslations("instagram");
   const tc = useTranslations("channels.connect");
   const router = useRouter();
   const { toast } = useToast();
-  const { can } = useWorkspace();
 
   const [result, setResult] = useState<{
     status: string;
@@ -63,16 +61,6 @@ export default function ConnectInstagramPage() {
         : t("notice.connectedGeneric"),
     });
   });
-
-  useEffect(() => {
-    if (!can("instagram_accounts", "create")) {
-      router.replace("/dashboard/instagram-accounts");
-    }
-  }, [can, router]);
-
-  if (!can("instagram_accounts", "create")) {
-    return null;
-  }
 
   const isSuccess =
     result?.status === "connected" || result?.status === "reconnected";

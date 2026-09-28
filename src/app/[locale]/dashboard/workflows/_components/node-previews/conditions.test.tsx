@@ -10,12 +10,12 @@ function renderDealCheck(config: Record<string, unknown>) {
 describe("condition_check_opportunity preview", () => {
   it("shows the existence check by default", () => {
     renderDealCheck({ pipeline_id: "pl-1" });
-    expect(screen.getByText("Tem negócio")).toBeInTheDocument();
+    expect(screen.getByText("Tem oportunidade")).toBeInTheDocument();
   });
 
   it("names the status it compares", () => {
     renderDealCheck({ check: "status", status: "won" });
-    expect(screen.getByText("Negócio ganho")).toBeInTheDocument();
+    expect(screen.getByText("Oportunidade ganha")).toBeInTheDocument();
   });
 
   it("names the picked stage", () => {

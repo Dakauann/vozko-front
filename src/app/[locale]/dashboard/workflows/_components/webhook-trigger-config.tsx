@@ -634,7 +634,7 @@ function WebhookReference({
             </FieldRow>
             <FieldRow name="entry_type" type="string">
               Um de <Mono>whatsapp</Mono>, <Mono>unofficial_whatsapp</Mono>,{" "}
-              <Mono>instagram</Mono>, <Mono>telegram</Mono> ou{" "}
+              <Mono>instagram</Mono>, <Mono>facebook</Mono>, <Mono>telegram</Mono> ou{" "}
               <Mono>support</Mono>.
             </FieldRow>
             <FieldRow name="phone" type="string">

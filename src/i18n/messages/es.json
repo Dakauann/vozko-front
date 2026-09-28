@@ -286,7 +286,26 @@
       "list_unofficial_numbers": "Números por código QR",
       "preview_unofficial_campaign_import": "Revisando la hoja de cálculo",
       "create_unofficial_campaign": "Crear campaña por código QR",
-      "start_unofficial_campaign": "Iniciar campaña por código QR"
+      "start_unofficial_campaign": "Iniciar campaña por código QR",
+      "list_workspace_members": "Equipo del espacio de trabajo",
+      "list_workspace_invites": "Invitaciones",
+      "get_member_permissions": "Permisos del miembro",
+      "list_permission_catalog": "Permisos disponibles",
+      "invite_member": "Invitar al espacio de trabajo",
+      "cancel_invite": "Cancelar invitación",
+      "remove_member": "Quitar del espacio de trabajo",
+      "change_member_role": "Cambiar el rol",
+      "update_member_permissions": "Cambiar permisos",
+      "list_roles": "Roles",
+      "create_role": "Crear rol",
+      "update_role": "Modificar rol",
+      "delete_role": "Eliminar rol",
+      "list_department_members": "Miembros del departamento",
+      "create_department": "Crear departamento",
+      "update_department": "Modificar departamento",
+      "delete_department": "Eliminar departamento",
+      "add_department_member": "Agregar al departamento",
+      "remove_department_member": "Quitar del departamento"
     },
     "threadsLegend": "Conversaciones",
     "greeting": "Hola, soy Elo. ¿En qué trabajamos?",
@@ -367,7 +386,8 @@
         "system": "Sistema",
         "online": "En línea",
         "offline": "Desconectado",
-        "away": "Ausente"
+        "away": "Ausente",
+        "facebook": "Messenger"
       }
     },
     "toolDenied": "sin permiso",
@@ -385,6 +405,15 @@
       "newChat": "Nuevo análisis",
       "openFull": "Abrir en el chat",
       "groups": {
+        "start": {
+          "title": "Por dónde empezar",
+          "items": {
+            "capabilities": "¿Qué puedes hacer por mí?",
+            "setup": "¿Qué falta configurar en mi espacio de trabajo?",
+            "connect": "Quiero conectar un número de WhatsApp",
+            "balance": "¿Cuál es mi saldo ahora?"
+          }
+        },
         "attendance": {
           "title": "Atención",
           "items": {
@@ -395,12 +424,34 @@
             "why": "¿Por qué los clientes no están cerrando negocios?"
           }
         },
+        "conversations": {
+          "title": "Conversaciones y contactos",
+          "items": {
+            "find": "Encuentra las conversaciones en las que el cliente pidió un presupuesto esta semana",
+            "contact": "¿Qué sabemos ya sobre un cliente concreto?",
+            "followup": "Programa un mensaje de seguimiento para mañana a las 9",
+            "label": "Etiqueta las conversaciones de los clientes más importantes"
+          }
+        },
+        "funnels": {
+          "title": "Embudos y negocios",
+          "items": {
+            "overview": "¿Cómo están mis embudos y sus etapas?",
+            "deals": "¿Qué negocios están abiertos ahora?",
+            "createDeal": "Crear un negocio para un cliente",
+            "createStage": "Crear una nueva etapa en el embudo de ventas"
+          }
+        },
         "campaigns": {
-          "title": "Campañas",
+          "title": "Plantillas y campañas",
           "items": {
             "results": "¿Cómo les fue a mis campañas de envío este mes?",
             "failures": "¿Por qué fallan mensajes de mis campañas?",
-            "best": "¿Qué campaña tuvo más respuestas en el período?"
+            "best": "¿Qué campaña tuvo más respuestas en el período?",
+            "templates": "¿Qué plantillas de WhatsApp están aprobadas?",
+            "createTemplate": "Crear una plantilla para recuperar clientes",
+            "createCampaign": "Crear una campaña oficial a partir de una hoja de cálculo",
+            "createQrCampaign": "Crear una campaña por código QR a partir de una hoja de cálculo"
           }
         },
         "customers": {
@@ -409,6 +460,34 @@
             "asked": "¿Qué pidieron más los clientes este mes?",
             "objections": "¿Qué objeciones aparecen más en las conversaciones?",
             "hot": "¿Cuántos clientes están listos para comprar esta semana?"
+          }
+        },
+        "knowledge": {
+          "title": "Base de conocimiento",
+          "items": {
+            "ask": "¿Qué dice la base de conocimiento sobre cambios y devoluciones?",
+            "add": "Agregar un archivo a la base de conocimiento"
+          }
+        },
+        "schedule": {
+          "title": "Agenda y automatizaciones",
+          "items": {
+            "week": "¿Qué tengo en la agenda esta semana?",
+            "meeting": "Agendar una reunión el viernes a las 10",
+            "workflows": "¿Qué automatizaciones están activas ahora?"
+          }
+        },
+        "team": {
+          "title": "Equipo y accesos",
+          "items": {
+            "access": "¿Por qué no puedo ver o hacer algo?",
+            "explain": "¿Qué habilita un permiso?",
+            "members": "¿Quién forma parte del espacio de trabajo y con qué rol?",
+            "invite": "Invitar a una persona al espacio de trabajo",
+            "permissions": "¿Qué puede hacer hoy un miembro del equipo?",
+            "grant": "Permitir que un miembro cree campañas",
+            "department": "Quitar a una persona de un departamento",
+            "roles": "Revisar los permisos de un rol"
           }
         },
         "agents": {
@@ -473,7 +552,19 @@
       "knowledgeBase": "Base de conocimiento",
       "file": "Archivo",
       "pace": "Ritmo",
-      "dailyCap": "Límite diario"
+      "dailyCap": "Límite diario",
+      "email": "Correo",
+      "role": "Rol",
+      "currentRole": "Rol actual",
+      "newRole": "Nuevo rol",
+      "departments": "Departamentos",
+      "grant": "Podrá",
+      "revoke": "Ya no podrá",
+      "permissions": "Permisos",
+      "newName": "Nuevo nombre",
+      "language": "Idioma",
+      "risks": "Riesgos",
+      "teamMember": "Miembro"
     },
     "attachments": {
       "legend": "Archivos adjuntos",
@@ -545,11 +636,26 @@
           "title": "Regularizar la suscripción",
           "description": "Los números, plantillas y campañas vuelven a funcionar con la suscripción activa.",
           "cta": "Ver planes"
+        },
+        "connect_facebook": {
+          "title": "Conectar una Página de Facebook",
+          "description": "Responde el Messenger y los comentarios de la Página aquí.",
+          "cta": "Conectar Página"
         }
       }
     },
     "previews": {
       "scheduledFor": "Programado para {when}"
+    },
+    "navigation": {
+      "open": "Abrir",
+      "checking": "Verificando acceso",
+      "noAccess": "No tienes acceso a esta pantalla",
+      "askAutoOpen": "¿Abrir las pantallas automáticamente cuando Elo indique una?",
+      "autoOpenYes": "Sí, siempre",
+      "autoOpenNo": "Solo mostrar el botón",
+      "autoOpen": "Abrir pantallas automáticamente",
+      "upcoming": "Próximamente"
     }
   },
   "leadMemories": {
@@ -1485,7 +1591,7 @@
       "affiliateReferrals": "Referidos",
       "affiliateEarnings": "Comisiones",
       "affiliatePlans": "Planes Exclusivos",
-      "sales": "Ventas",
+      "sales": "Negocios",
       "metrics": "Métricas",
       "attendanceOps": "Atención",
       "manager": "Gestión",
@@ -1511,9 +1617,12 @@
       "createUnofficialWhatsappCampaign": "Nuevo envío",
       "archivedUnofficialWhatsappCampaigns": "Archivados",
       "audience": "Audiencia",
-      "funnels": "Embudos",
+      "funnels": "Embudos y etapas",
       "analysisAlerts": "Alertas",
-      "reports": "Informes"
+      "reports": "Informes",
+      "facebook": "Páginas",
+      "facebookPages": "Páginas",
+      "connectFacebook": "Conectar Página"
     },
     "badges": {
       "new": "Nuevo",
@@ -1535,9 +1644,12 @@
         "official": "Oficial",
         "officialHint": "Integración oficial de Meta (WhatsApp Cloud API). Estable, admite plantillas y sin riesgo de bloqueo.",
         "unofficial": "No oficial",
-        "unofficialHint": "Sesión vinculada por lectura de código, fuera de la API oficial de Meta. Envía sin plantillas, con riesgo de bloqueo del número."
+        "unofficialHint": "Sesión vinculada por lectura de código, fuera de la API oficial de Meta. Envía sin plantillas, con riesgo de bloqueo del número.",
+        "soon": "Próximamente",
+        "soonHint": "El canal de Facebook llega pronto."
       },
-      "unofficial-whatsapp": "WhatsApp"
+      "unofficial-whatsapp": "WhatsApp",
+      "facebook": "Facebook"
     },
     "pin": {
       "pin": "Fijar",
@@ -2172,7 +2284,14 @@
       "title": "Acceso restringido",
       "description": "No tienes los permisos necesarios para ver esta página. Contacta al administrador de tu workspace para solicitar acceso.",
       "goBack": "Volver",
-      "hint": "Si crees que esto es un error, comunícate con el administrador de tu equipo."
+      "hint": "Si crees que esto es un error, comunícate con el administrador de tu equipo.",
+      "requires": "Para abrir {feature}, necesitas:",
+      "managersOnly": "{feature} está disponible solo para el propietario y los administradores del workspace."
+    },
+    "upcoming": {
+      "title": "Próximamente",
+      "description": "Esta área aún se está preparando y se habilitará pronto.",
+      "goBack": "Volver"
     }
   },
   "validation": {
@@ -2208,9 +2327,7 @@
     "loading": "Cargando agentes...",
     "error": {
       "title": "Error al cargar",
-      "default": "Error al cargar agentes",
-      "noPermissionTitle": "Sin permiso",
-      "noUpdatePermission": "No tienes permiso para editar este agente."
+      "default": "Error al cargar agentes"
     },
     "card": {
       "simulate": "Simular",
@@ -5593,7 +5710,8 @@
       "audience": "Análisis de la audiencia",
       "telegram_accounts": "Cuentas de Telegram",
       "unofficial_whatsapp_instances": "Números de WhatsApp (no oficial)",
-      "short_links": "Enlaces cortos"
+      "short_links": "Enlaces cortos",
+      "facebook_pages": "Páginas de Facebook"
     },
     "actions": {
       "create": "Crear",
@@ -5645,7 +5763,8 @@
       "audience": "Ver el análisis de comentarios y conversaciones de los canales conectados, moderar autores y configurar el análisis (que genera cobro).",
       "telegram_accounts": "Conectar y gestionar los bots y cuentas de Telegram del workspace.",
       "unofficial_whatsapp_instances": "Conectar y gestionar números de WhatsApp mediante dispositivo vinculado.",
-      "short_links": "Crear y seguir enlaces cortos y sus estadísticas de clics."
+      "short_links": "Crear y seguir enlaces cortos y sus estadísticas de clics.",
+      "facebook_pages": "Conectar Páginas de Facebook, publicar, moderar comentarios y configurar Messenger."
     },
     "customRoles": {
       "title": "Roles Personalizados",
@@ -5721,6 +5840,29 @@
       "labelColumn": "Nombre",
       "codeColumn": "Código",
       "isDurableHint": "Marque cuando este desenlace cierra la demanda de verdad."
+    },
+    "risks": {
+      "legend": "Riesgos asociados a este permiso",
+      "kinds": {
+        "spends_balance": "Consumo de saldo",
+        "contacts_customers": "Contacto con clientes",
+        "manages_access": "Gestión de accesos",
+        "changes_billing": "Cambios de facturación",
+        "deletes_data": "Eliminación de datos",
+        "sensitive_data": "Datos sensibles",
+        "changes_automation": "Comportamiento de la IA",
+        "connects_accounts": "Canales e integraciones"
+      },
+      "details": {
+        "spends_balance": "Genera consumo del saldo del espacio de trabajo.",
+        "contacts_customers": "Permite enviar mensajes a clientes en nombre de la empresa, incluidos envíos masivos y contactos nuevos.",
+        "manages_access": "Permite conceder, modificar y revocar el acceso de miembros al espacio de trabajo.",
+        "changes_billing": "Permite modificar el plan y las condiciones de facturación del espacio de trabajo.",
+        "deletes_data": "Permite eliminar datos de forma permanente, sin posibilidad de recuperación.",
+        "sensitive_data": "Concede acceso a datos sensibles, como conversaciones de otros miembros, grabaciones, información financiera e informes.",
+        "changes_automation": "Permite modificar el comportamiento de los agentes de IA y las automatizaciones en la atención a clientes.",
+        "connects_accounts": "Permite conectar y desconectar canales e integraciones de la empresa."
+      }
     }
   },
   "workspaceInvites": {
@@ -5872,7 +6014,8 @@
       "markFinished": "Marcar como finalizada",
       "automationOn": "La IA responde",
       "automationOff": "IA en pausa"
-    }
+    },
+    "filterFacebook": "Messenger"
   },
   "adminWorkspaces": {
     "search": {
@@ -6005,10 +6148,6 @@
     "newButton": "Nuevo Atajo",
     "inlineCreateButton": "Crear atajo aquí",
     "loading": "Cargando atajos...",
-    "noAccess": {
-      "title": "Sin acceso a los atajos",
-      "description": "Necesita permisos de atajos para ver o gestionar atajos de mensaje en este workspace."
-    },
     "stats": {
       "total": "Total de atajos",
       "totalHelper": "Comandos reutilizables disponibles en el CRM",
@@ -6416,10 +6555,6 @@
       "title": "Selecciona un espacio de trabajo",
       "description": "Elige un espacio de trabajo para gestionar sus addons."
     },
-    "noAccess": {
-      "title": "Sin permiso",
-      "description": "No tienes acceso a planes y addons en este espacio de trabajo."
-    },
     "catalog": {
       "title": "Addons disponibles",
       "subtitle": "Elige el ciclo y actívalo al instante.",
@@ -6489,10 +6624,6 @@
     "emptyWorkspace": {
       "title": "Ningún workspace seleccionado",
       "description": "Selecciona un workspace para revisar el catálogo de planes y su suscripción actual."
-    },
-    "noAccess": {
-      "title": "Se requiere acceso a facturación",
-      "description": "Necesitas el permiso 'plans:read' para ver planes y facturas de este workspace."
     },
     "list": {
       "noDescription": "Sin descripción.",
@@ -7499,7 +7630,8 @@
           "whatsapp": "WhatsApp",
           "unofficial_whatsapp": "WhatsApp (dispositivo)",
           "telegram": "Telegram",
-          "instagram": "Instagram"
+          "instagram": "Instagram",
+          "facebook": "Messenger"
         },
         "campaignStatus": {
           "PENDING": "Pendiente",
@@ -8154,7 +8286,7 @@
       "startOfficialHint": "Enviar una plantilla a un número nuevo por WhatsApp oficial (consume saldo)"
     },
     "deals": {
-      "title": "Embudo de Ventas",
+      "title": "Embudo de negocios",
       "count": "{count, plural, =1 {# oportunidad} other {# oportunidades}}",
       "newDeal": "Nueva oportunidad",
       "fields": "Campos",
@@ -8201,8 +8333,6 @@
       "channel": "Canal",
       "department": "Departamento",
       "includeAi": "Incluir IA",
-      "noPermission": "Sin permiso",
-      "noPermissionDesc": "Necesitas el permiso Métricas de atención y telefonía (attendance:read) para ver este panel.",
       "selectWorkspace": "Selecciona un espacio de trabajo.",
       "campaignFiltered": "campaña filtrada",
       "noDepartment": "Sin departamento",
@@ -8234,7 +8364,8 @@
       "retry": "Intentar de nuevo",
       "filters": "Filtros",
       "clearFilters": "Limpiar filtros",
-      "moreActions": "Más acciones"
+      "moreActions": "Más acciones",
+      "facebook": "Messenger"
     },
     "export": {
       "executive": {
@@ -9320,7 +9451,8 @@
       "likes": "{count} likes",
       "unknownUser": "unknown",
       "countMismatch": "Instagram contabiliza {count} en esta publicación, pero ninguno de los comentarios puede mostrarse aquí. El recuento incluye respuestas y comentarios de cuentas privadas o restringidas, que Instagram no proporciona.",
-      "allLoaded": "{count} cargados"
+      "allLoaded": "{count} cargados",
+      "privateReplyDeadlineUnknown": "No se pudo confirmar la fecha del comentario, así que la respuesta privada no se envió."
     },
     "notice": {
       "connected": "@{username} connected.",
@@ -9535,7 +9667,8 @@
       "instagram": "Instagram",
       "whatsapp": "WhatsApp",
       "telegram": "Telegram",
-      "unofficial_whatsapp": "WhatsApp (no oficial)"
+      "unofficial_whatsapp": "WhatsApp (no oficial)",
+      "facebook": "Facebook"
     },
     "conversations": {
       "title": "Conversaciones",
@@ -9981,7 +10114,6 @@
       "kindConversation": "Solo conversaciones",
       "badge": "Audiencia",
       "description": "Comentarios y conversaciones analizados por la IA: interés, desenlace, asuntos recurrentes y calidad de atención.",
-      "noPermissionDesc": "Se necesita el permiso Análisis de la audiencia (audience:read) para ver este panel.",
       "account": "Cuenta",
       "post": "Publicación",
       "allPosts": "Todas las publicaciones",
@@ -10018,17 +10150,19 @@
       "openAuthor": "Ver autor",
       "hide": "Ocultar",
       "hidden": "Oculto",
-      "privateReply": "Responder por privado",
+      "privateReply": "{channel, select, facebook {Responder por Messenger} other {Responder por privado}}",
       "retry": "Reanalizar",
       "retrying": "Reanalizando...",
       "privateReplyDialog": {
-        "title": "Responder por privado",
+        "title": "{channel, select, facebook {Responder por Messenger} other {Responder por privado}}",
         "placeholder": "Escribe el mensaje privado",
-        "hint": "Instagram permite una única respuesta privada por comentario, en un plazo de 7 días.",
+        "hint": "{channel, select, facebook {Facebook permite una única respuesta privada por comentario, en un plazo de 7 días.} other {Instagram permite una única respuesta privada por comentario, en un plazo de 7 días.}}",
         "alreadyUsed": "Este comentario ya recibió una respuesta privada.",
         "cancel": "Cancelar",
         "sending": "Enviando...",
-        "send": "Enviar"
+        "send": "Enviar",
+        "expired": "Terminó el plazo de 7 días para responder por privado.",
+        "deadlineUnknown": "No se pudo confirmar la fecha del comentario, así que no se envió nada."
       }
     },
     "escalate": {
@@ -10187,8 +10321,7 @@
     },
     "alertsPage": {
       "badge": "Alertas de análisis",
-      "description": "Entérate cuando la IA llegue a una conclusión que exige acción, en cualquier canal.",
-      "noPermissionDesc": "Se requiere el permiso de reenvío de Audiencia (audience:send) para crear alertas."
+      "description": "Entérate cuando la IA llegue a una conclusión que exige acción, en cualquier canal."
     }
   },
   "telegram": {
@@ -10887,7 +11020,12 @@
       "account_restricted": "WhatsApp restringió temporalmente este número.",
       "reply_revoked": "El propietario de la cuenta revocó el permiso de respuesta de este canal.",
       "channel_unavailable": "El número de esta conversación fue eliminado o ya no está disponible."
-    }
+    },
+    "tier": {
+      "humanAgent": "Solo es posible una respuesta humana hasta {date}; la automatización está en pausa.",
+      "humanAgentNoDate": "Solo es posible una respuesta humana en esta conversación; la automatización está en pausa."
+    },
+    "textLimit": "Texto demasiado largo: {count} de {limit} caracteres permitidos en este canal."
   },
   "whatsappOutreach": {
     "title": "Nueva conversación en WhatsApp oficial",
@@ -11013,6 +11151,28 @@
       "templateProblem": "La plantilla fue rechazada al enviar: puede estar pausada, rechazada o con variables que no coinciden.",
       "experimentHoldout": "Meta retuvo este mensaje por un experimento de entrega.",
       "mediaRejected": "Meta rechazó el archivo multimedia. Revisa el formato (el audio debe ser OGG/Opus, MP3, AAC o AMR) y si la verificación del negocio de este número está completa."
+    },
+    "meta": {
+      "storyReply": "Respuesta a story",
+      "storyMention": "Mención en story",
+      "unsupported": "Mensaje no compatible",
+      "sticker": "Sticker",
+      "likeSticker": "Me gusta",
+      "sharedLink": "Enlace compartido",
+      "sharedPost": "Publicación compartida",
+      "reaction": "Reacción {emoji}",
+      "referralAd": "Llegó por el anuncio: {title}",
+      "referralSource": "Llegó por {source}",
+      "referralGeneric": "Llegó por un enlace de referencia",
+      "postback": "Tocó un botón",
+      "postbackTitled": "Tocó el botón {title}",
+      "sentVia": {
+        "vozko": "Enviado desde Vozko",
+        "meta_business_suite": "Enviado desde Meta Business Suite",
+        "external_app": "Enviado por otra app",
+        "unknown": "Origen no identificado"
+      },
+      "storyUnavailable": "Historia no disponible: caducó o fue eliminada."
     }
   },
   "unofficialWhatsappCampaigns": {
@@ -11285,7 +11445,7 @@
   },
   "funnels": {
     "page": {
-      "badge": "Embudos",
+      "badge": "Embudos y etapas",
       "description": "Diseñe los tableros de atención: las etapas, el orden en que aparecen y dónde entra cada conversación."
     },
     "list": {
@@ -11293,9 +11453,9 @@
       "new": "Nuevo embudo",
       "manage": "Gestionar embudos",
       "conversation": "Atención",
-      "opportunity": "Ventas",
+      "opportunity": "Negocios",
       "emptyConversation": "Todavía no hay embudos de atención.",
-      "emptyOpportunity": "Todavía no hay embudos de ventas."
+      "emptyOpportunity": "Todavía no hay embudos de negocios."
     },
     "create": {
       "title": "Nuevo embudo",
@@ -12491,5 +12651,558 @@
     "queue": "Sin nadie disponible, la conversación va a la cola del equipo y queda con quien la abra primero.",
     "paused": "La automatización se pausa en esta conversación después de la transferencia.",
     "settingsLink": "Cambiar en la configuración del workspace"
+  },
+  "facebook": {
+    "page": {
+      "title": "Facebook",
+      "description": "Conecta Páginas de Facebook para responder Messenger en el CRM, publicar y moderar comentarios.",
+      "searchPlaceholder": "Buscar Página",
+      "connect": "Conectar Página",
+      "emptyTitle": "Ninguna Página de Facebook conectada",
+      "emptyDescription": "Conecta una Página para recibir sus conversaciones de Messenger en el CRM.",
+      "back": "Volver a Páginas",
+      "retry": "Intentar de nuevo",
+      "loadFailed": "No se pudo cargar la Página.",
+      "openOnFacebook": "Abrir en Facebook",
+      "linkedInstagram": "Instagram vinculado a esta Página",
+      "checkHealth": "Verificar ahora",
+      "checking": "Verificando...",
+      "checkedAt": "Verificada el {date}"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "connected": "Conectada",
+      "token_revoked": "Reconexión necesaria",
+      "needs_role": "Sin acceso a la Página",
+      "restricted": "Restringida por Facebook",
+      "disconnected": "Desconectada",
+      "routing_off": "Vozko no es la app predeterminada"
+    },
+    "card": {
+      "followers": "Seguidores",
+      "view": "Ver Página",
+      "reconnect": "Reconectar",
+      "disconnect": "Desconectar",
+      "disconnectTitle": "Desconectar Página",
+      "disconnectBody": "La Página \"{name}\" dejará de enviar mensajes y comentarios a Vozko. Las conversaciones ya recibidas siguen en el CRM."
+    },
+    "capability": {
+      "messaging": "Messenger",
+      "readPosts": "Leer publicaciones",
+      "publish": "Publicar",
+      "moderate": "Moderar",
+      "comment": "Comentar",
+      "subscribe": "Webhooks",
+      "humanAgent": "Agente humano (7 días)",
+      "missingHint": "La Página no concedió el permiso o la tarea necesaria. Reconecta manteniendo todos los permisos.",
+      "humanAgentHint": "Responder entre 24 horas y 7 días depende de que Meta apruebe la función Human Agent."
+    },
+    "notice": {
+      "connectedCount": "{connected, plural, =0 {Ninguna Página conectada} one {# Página conectada} other {# Páginas conectadas}}{skipped, plural, =0 {.} one {; # no se pudo conectar.} other {; # no se pudieron conectar.}}",
+      "disconnected": "{name} desconectada.",
+      "disconnectedWithWarning": "{name} desconectada, pero Facebook no confirmó que dejó de enviar eventos. Quita Vozko en la configuración de la Página si siguen llegando.",
+      "reconnect": "El acceso a esta Página ya no es válido. Reconecta para volver a recibir mensajes.",
+      "needsRole": "Quien conectó la Página perdió su rol en ella. Reconecta con una cuenta que administre la Página.",
+      "noConnectPermission": "No tienes permiso para conectar Páginas.",
+      "restrictedTitle": "Facebook restringió esta Página",
+      "restrictedBody": "Mientras dure la restricción, los mensajes y publicaciones pueden ser rechazados.",
+      "restrictedReason": "Motivo indicado por Facebook: {reason}",
+      "webhookTitle": "La Página no está enviando eventos",
+      "webhookBody": "Los mensajes y comentarios nuevos no llegarán hasta renovar la suscripción de webhooks. Haz clic en Verificar ahora o reconecta la Página.",
+      "messagingOffTitle": "Messenger no está disponible en esta Página",
+      "messagingOffBody": "No se concedió el permiso o la tarea de mensajes. Reconecta manteniendo todos los permisos."
+    },
+    "routing": {
+      "offTitle": "Vozko no es la app predeterminada de esta Página",
+      "unknownTitle": "Aún no sabemos si Vozko es la app predeterminada",
+      "offBody": "Las conversaciones llegan primero a Meta Business Suite. La automatización queda en silencio y las respuestas desde el CRM tienen que tomar la conversación.",
+      "unknownBody": "Revisa la configuración para que las conversaciones lleguen directo a Vozko.",
+      "howTo": "En Facebook, abre Configuración de la Página > Mensajería avanzada > Enrutamiento de conversaciones y elige Vozko como app predeterminada.",
+      "heuristic": "Esta verificación es una estimación basada en la conversación más reciente.",
+      "checkedAt": "Última verificación: {date}."
+    },
+    "gate": {
+      "noPermission": "No tienes permiso para cambiar Páginas de Facebook.",
+      "reconnect": "Reconecta la Página para usar esto.",
+      "notConnected": "La Página no está conectada en este momento.",
+      "missing": "La Página no concedió el permiso necesario. Reconecta manteniendo todos los permisos."
+    },
+    "tabs": {
+      "posts": "Publicaciones",
+      "scheduled": "Programadas",
+      "reels": "Reels y stories",
+      "messenger": "Messenger",
+      "automation": "Automatización",
+      "audience": "Audiencia"
+    },
+    "posts": {
+      "gridLabel": "Publicaciones",
+      "loadMore": "Cargar más",
+      "loading": "Cargando...",
+      "allLoaded": "{count, plural, one {# publicación cargada} other {# publicaciones cargadas}}",
+      "openPost": "Abrir publicación",
+      "noText": "Publicación sin texto",
+      "noAsset": "Facebook no devolvió el contenido multimedia de esta publicación.",
+      "detailTitle": "Detalles de la publicación",
+      "openOnFacebook": "Abrir en Facebook",
+      "openBusinessSuite": "Abrir en Meta Business Suite",
+      "close": "Cerrar",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "edit": "Editar texto",
+      "hide": "Ocultar",
+      "unhide": "Mostrar",
+      "hidden": "Oculta",
+      "publishNow": "Publicar ahora",
+      "delete": "Eliminar",
+      "deleteTitle": "Eliminar publicación",
+      "deleteBody": "La publicación se eliminará de Facebook. Esta acción no se puede deshacer.",
+      "deleteConfirm": "Eliminar",
+      "shareCount": "{count, plural, one {# vez compartida} other {# veces compartida}}",
+      "scheduledFor": "programada para {date}",
+      "notEditableHint": "Solo se puede editar el texto de publicaciones hechas con Vozko.",
+      "commentAsPage": "Comentar como la Página...",
+      "send": "Enviar",
+      "tabComments": "Comentarios",
+      "tabAutomation": "Automatización",
+      "tabAnalysis": "Análisis",
+      "kind": {
+        "status": "Texto",
+        "link": "Enlace",
+        "photo": "Foto",
+        "album": "Álbum",
+        "video": "Video",
+        "reel": "Reel",
+        "story": "Story",
+        "shared": "Compartido",
+        "visitor": "Publicación de visitante"
+      },
+      "section": {
+        "posts": "Publicaciones",
+        "scheduled": "Publicaciones programadas",
+        "reels": "Reels"
+      },
+      "empty": {
+        "posts": "Esta Página aún no tiene publicaciones.",
+        "scheduled": "No hay publicaciones programadas.",
+        "reels": "Esta Página aún no tiene reels."
+      }
+    },
+    "stories": {
+      "title": "Stories",
+      "empty": "No hay stories en las últimas 24 horas.",
+      "photo": "Story de foto",
+      "video": "Story de video",
+      "live": "Activa",
+      "archived": "Archivada",
+      "open": "Abrir story"
+    },
+    "composer": {
+      "newPost": "Nueva publicación",
+      "title": "Publicar en Facebook",
+      "kind": "Tipo de publicación",
+      "kinds": {
+        "text": "Texto",
+        "link": "Enlace",
+        "photo": "Foto",
+        "album": "Álbum",
+        "video": "Video",
+        "reel": "Reel",
+        "story": "Story"
+      },
+      "kindHint": {
+        "text": "Una publicación solo con texto.",
+        "link": "Facebook muestra la vista previa del enlace junto al texto.",
+        "photo": "Una imagen JPEG, PNG, GIF, BMP o TIFF de hasta 10 MB.",
+        "album": "De 2 a {max} imágenes, en el orden de la lista.",
+        "video": "Un video MP4. Facebook lo procesa después de subirlo.",
+        "reel": "Un video MP4 vertical. Facebook acepta hasta {reels} reels por Página cada 24 horas.",
+        "story": "Una imagen o un video MP4, sin texto. Las stories no se pueden programar."
+      },
+      "message": "Texto",
+      "messagePlaceholder": "Escribe el texto de la publicación...",
+      "link": "Enlace",
+      "videoTitle": "Título del video",
+      "media": "Archivos",
+      "upload": "Subir archivo",
+      "uploading": "Subiendo...",
+      "mediaEmpty": "Aún no se subió ningún archivo.",
+      "moveUp": "Subir",
+      "moveDown": "Bajar",
+      "removeMedia": "Quitar archivo",
+      "fileTooLarge": "{name} supera el límite de {limit} MB.",
+      "uploadFailed": "Error al subir. Inténtalo de nuevo.",
+      "schedule": "Programar",
+      "scheduleHint": "De 10 minutos a 75 días de antelación (videos hasta 180 días).",
+      "scheduleAt": "Fecha y hora de publicación",
+      "ruleTitle": "Automatización de comentarios",
+      "ruleHint": "Responde a quien comente y escríbele por Messenger automáticamente.",
+      "ruleName": "Automatización de la publicación",
+      "analysisTitle": "Análisis de comentarios de esta publicación",
+      "analysisHint": "Déjalo listo antes del primer comentario: dile a la IA de qué trata, elige temas propios o activa y desactiva el análisis solo para ella. Lo que quede en blanco hereda de la Página.",
+      "analysisPageOff": "El análisis está desactivado en la Página. Elige \"Activado\" abajo para analizar solo esta publicación.",
+      "analysisLoading": "Cargando la configuración de la Página...",
+      "analysisLoadFailed": "No se pudo cargar la configuración de análisis de la Página.",
+      "publish": "Publicar",
+      "scheduleSubmit": "Programar",
+      "publishing": "Enviando...",
+      "publishFailed": "No se pudo enviar la publicación. Inténtalo de nuevo.",
+      "publishedButRuleFailed": "La publicación se creó, pero la automatización no se pudo guardar: {error}. Crea la regla en la pestaña Automatización.",
+      "publishedButAnalysisFailed": "La publicación se creó, pero la configuración de análisis no se pudo guardar: {error}. Ajústala en la pestaña Análisis de la publicación.",
+      "done": "Listo",
+      "cancel": "Cancelar",
+      "problem": {
+        "messageRequired": "Escribe el texto de la publicación.",
+        "linkInvalid": "Escribe un enlace completo que empiece con https://.",
+        "photoCount": "Sube exactamente una imagen.",
+        "albumCount": "Un álbum necesita de 2 a 10 imágenes.",
+        "photoType": "Facebook acepta imágenes JPEG, PNG, GIF, BMP o TIFF.",
+        "photoTooLarge": "Cada imagen puede tener hasta 10 MB.",
+        "videoCount": "Sube exactamente un video.",
+        "videoType": "El video debe ser MP4.",
+        "videoTooLarge": "El video supera el límite de Facebook.",
+        "storyCount": "Una story lleva exactamente una imagen o un video.",
+        "storyNoText": "Las stories no llevan texto.",
+        "titleOnlyVideo": "Solo los videos llevan título.",
+        "scheduleInvalid": "Elige una fecha válida.",
+        "scheduleTooSoon": "Programa con al menos 10 minutos de antelación.",
+        "scheduleTooFar": "Esa fecha supera el límite de programación de Facebook.",
+        "scheduleNotSchedulable": "Las stories no se pueden programar."
+      }
+    },
+    "publishJob": {
+      "status": {
+        "queued": "En cola",
+        "uploading": "Enviando a Facebook",
+        "processing": "Procesando"
+      },
+      "pendingHint": "Puedes seguirlo aquí. Videos y reels pueden tardar unos minutos.",
+      "published": "Publicado en Facebook.",
+      "scheduled": "Programado para {date}.",
+      "failed": "Facebook rechazó la publicación: {error}",
+      "noReason": "sin motivo indicado",
+      "ambiguous": "Facebook no confirmó la publicación. Revisa la Página antes de intentarlo de nuevo, para no publicar dos veces.",
+      "openPage": "Abrir la Página en Facebook",
+      "pollFailed": "No se pudo leer el progreso de la publicación.",
+      "pollError": "No se pudo seguir el progreso: {error}",
+      "checkAgain": "Verificar de nuevo"
+    },
+    "comments": {
+      "empty": "No hay comentarios en esta publicación.",
+      "loadMore": "Cargar más comentarios",
+      "loading": "Cargando...",
+      "reply": "Responder",
+      "privateReply": "Responder por Messenger",
+      "replyPlaceholder": "Escribe una respuesta pública...",
+      "privateReplyPlaceholder": "Escribe el mensaje que irá por Messenger...",
+      "privateReplyHint": "Facebook permite una única respuesta privada por comentario, en un plazo de 7 días.",
+      "privateReplyUsed": "Este comentario ya recibió una respuesta privada. Facebook permite solo una.",
+      "privateReplyExpired": "Este comentario tiene más de 7 días, ya no es posible responder por privado.",
+      "privateReplyDeadlineUnknown": "No se pudo confirmar la fecha del comentario, así que la respuesta privada no se envió.",
+      "edit": "Editar",
+      "editPlaceholder": "Edita el comentario de la Página...",
+      "like": "Me gusta como la Página",
+      "unlike": "Quitar me gusta",
+      "hide": "Ocultar comentario",
+      "unhide": "Mostrar comentario",
+      "delete": "Eliminar comentario",
+      "send": "Enviar",
+      "you": "Página",
+      "hidden": "Oculto",
+      "likes": "{count, plural, one {# me gusta} other {# me gusta}}",
+      "unknownUser": "Persona no identificada",
+      "countMismatch": "Facebook contabiliza {count} en esta publicación, pero ninguno de los comentarios puede mostrarse aquí. El recuento puede incluir comentarios ocultos por Facebook o de perfiles que no comparten sus datos.",
+      "allLoaded": "{count, plural, one {# cargado} other {# cargados}}"
+    },
+    "connectError": {
+      "invalid_state": "El enlace de conexión no era válido o ya se usó. Inténtalo de nuevo.",
+      "expired_state": "El enlace de conexión expiró. Inténtalo de nuevo.",
+      "declined": "La conexión se canceló en Facebook.",
+      "no_pages_granted": "No se seleccionó ninguna Página. Conecta de nuevo y marca las Páginas a las que Vozko debe acceder.",
+      "grant_unverifiable": "Facebook no confirmó el acceso concedido. Inténtalo de nuevo en unos minutos.",
+      "connect_failed": "No se pudo conectar con Facebook. Inténtalo de nuevo."
+    },
+    "connect": {
+      "title": "Conectar Páginas de Facebook",
+      "description": "Inicia sesión con Facebook para recibir Messenger en el CRM y gestionar publicaciones y comentarios de tus Páginas.",
+      "errorTitle": "No se pudo conectar",
+      "successTitle": "Páginas conectadas",
+      "partialTitle": "Algunas Páginas no se conectaron",
+      "resultBody": "Mira abajo el resultado de cada Página. Las conectadas ya envían mensajes al inbox.",
+      "viewPages": "Ver Páginas",
+      "actionTitle": "Conecta las Páginas",
+      "cta": {
+        "button": "Conectar con Facebook",
+        "redirecting": "Abriendo Facebook..."
+      },
+      "portfolio": {
+        "title": "Usa la cuenta correcta",
+        "description": "Inicia sesión con la cuenta de Facebook que gestiona el portfolio empresarial donde está la Página. Sin acceso al portfolio, la Página no aparece."
+      },
+      "pagesOnly": {
+        "title": "Solo Páginas, no perfiles",
+        "description": "El Messenger de perfiles personales no se puede conectar. Selecciona las Páginas y mantén todos los permisos marcados: sin alguno de ellos, hay funciones que no estarán disponibles."
+      },
+      "steps": {
+        "step1": "Haz clic en conectar. Se abre una ventana segura de Facebook.",
+        "step2": "Elige el portfolio y marca las Páginas a las que Vozko debe acceder.",
+        "step3": "Vuelves aquí y ves el resultado de cada Página."
+      },
+      "defaultApp": {
+        "title": "Define Vozko como app predeterminada",
+        "description": "Después de conectar, abre en Facebook Configuración de la Página > Mensajería avanzada > Enrutamiento de conversaciones y elige Vozko como app predeterminada. Sin eso, las conversaciones llegan primero a Meta Business Suite y la automatización queda en silencio."
+      },
+      "profileTip": "Opcional: configura el saludo y las preguntas frecuentes en la pestaña Messenger de la Página.",
+      "features": {
+        "title": "Lo que obtienes",
+        "messages": {
+          "title": "Messenger en el CRM",
+          "description": "Los mensajes de la Página llegan al mismo inbox del CRM, listos para responder."
+        },
+        "posts": {
+          "title": "Publicaciones y comentarios",
+          "description": "Publica, programa, modera comentarios y responde por privado sin salir de Vozko."
+        },
+        "secure": {
+          "title": "Acceso de la empresa",
+          "description": "El acceso pertenece al portfolio empresarial, no a una persona, y se puede revocar en cualquier momento en la configuración del negocio."
+        }
+      },
+      "outcome": {
+        "connected": "Conectada",
+        "reconnected": "Reconectada",
+        "already_linked_elsewhere": "Ya conectada a otro espacio de trabajo",
+        "missing_task": "Falta una tarea en la Página",
+        "missing_permission": "Falta un permiso",
+        "missing": "Falta: {items}",
+        "warning": "Conectada con una advertencia: revisa la Página en la lista"
+      }
+    },
+    "table": {
+      "page": "Página",
+      "status": "Estado",
+      "capabilities": "Funciones"
+    },
+    "pagination": {
+      "total": "{total, plural, one {# Página} other {# Páginas}}",
+      "pageOf": "Página {page} de {totalPages}",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    },
+    "stats": {
+      "total": "Total",
+      "connected": "Conectadas",
+      "attention": "Requiere atención"
+    },
+    "messenger": {
+      "humanAgentTitle": "Respuestas después de 24 horas",
+      "humanAgentOn": "Los operadores pueden responder hasta 7 días después del último mensaje del cliente. Las automatizaciones siguen limitadas a 24 horas.",
+      "humanAgentOff": "Por ahora solo se puede responder hasta 24 horas después del último mensaje del cliente. El plazo de 7 días depende de que Meta apruebe la función Human Agent."
+    },
+    "profile": {
+      "title": "Perfil de Messenger",
+      "subtitle": "Lo que las personas ven antes de escribir a la Página.",
+      "loadFailed": "No se pudo cargar el perfil de Messenger: {error}",
+      "retry": "Intentar de nuevo",
+      "locale": "Idioma",
+      "localeDefault": "Predeterminado",
+      "addLocale": "Nuevo idioma",
+      "greeting": "Saludo",
+      "greetingPlaceholder": "¡Hola! ¿Cómo podemos ayudarte?",
+      "greetingHint": "Se muestra a quien abre la conversación por primera vez.",
+      "getStarted": "Botón Empezar",
+      "getStartedHint": "Muestra el botón Empezar en conversaciones nuevas. El menú fijo lo necesita.",
+      "iceBreakers": "Preguntas frecuentes",
+      "iceBreakersHint": "Hasta {max} preguntas que las personas pueden tocar para iniciar la conversación.",
+      "add": "Agregar",
+      "question": "Pregunta",
+      "payload": "Código",
+      "remove": "Quitar",
+      "menu": "Menú fijo",
+      "menuHint": "Hasta {max} elementos, con títulos de hasta {title} caracteres.",
+      "composerDisabled": "Ocultar el campo de texto (solo queda el menú)",
+      "itemType": "Tipo",
+      "typePostback": "Respuesta",
+      "typeLink": "Enlace",
+      "itemTitle": "Título",
+      "itemUrl": "Enlace",
+      "save": "Guardar perfil",
+      "saving": "Guardando...",
+      "saved": "Perfil guardado",
+      "problem": {
+        "menuNeedsGetStarted": "El menú fijo solo funciona con el botón Empezar activado.",
+        "greetingTooLong": "El saludo puede tener hasta {greeting} caracteres.",
+        "tooManyIceBreakers": "Usa hasta {max} preguntas frecuentes por idioma.",
+        "iceBreakerIncomplete": "Cada pregunta frecuente necesita texto y código.",
+        "tooManyMenuItems": "El menú fijo acepta hasta {items} elementos.",
+        "menuTitleLength": "Cada elemento del menú necesita un título de hasta {title} caracteres.",
+        "menuPayloadMissing": "Cada elemento de respuesta necesita un código.",
+        "menuLinkInvalid": "Los enlaces del menú deben empezar con https://."
+      }
+    },
+    "thread": {
+      "heldByBusinessSuite": "Esta conversación se está atendiendo en Meta Business Suite",
+      "heldByOtherApp": "Otra app controla esta conversación",
+      "takeOverHint": "Toma la conversación para responder desde aquí. La automatización sigue en pausa mientras otra app tenga el control.",
+      "noPermission": "No tienes permiso para tomar conversaciones.",
+      "takeOver": "Tomar conversación",
+      "takingOver": "Tomando...",
+      "loadFailed": "No se pudo verificar quién atiende esta conversación: {error}",
+      "unknown": "respuesta vacía del servidor",
+      "retry": "Intentar de nuevo"
+    },
+    "errors": {
+      "reconnect_required": "La Página necesita reconectarse.",
+      "facebook_busy": "Facebook está limitando las solicitudes. Inténtalo de nuevo en breve.",
+      "app_not_approved": "Meta todavía no aprobó esta función para Vozko.",
+      "page_restricted": "Facebook restringió esta Página.",
+      "facebook_rejected": "Facebook rechazó la solicitud.",
+      "capability_denied": "La Página no concedió el permiso o la tarea necesaria.",
+      "thread_owned_elsewhere": "Otra app controla esta conversación. Tómala para responder.",
+      "text_too_long": "Messenger acepta como máximo 2000 caracteres por mensaje.",
+      "comment_not_ours": "Solo se pueden editar comentarios hechos por la Página.",
+      "post_not_editable": "Solo se pueden editar publicaciones hechas con Vozko.",
+      "kind_unavailable": "Este tipo de publicación aún no está disponible.",
+      "delete_not_permitted": "Facebook solo permite eliminar esta publicación en Meta Business Suite.",
+      "invalid_post": "Facebook no acepta la publicación así. Revisa el contenido e inténtalo de nuevo.",
+      "reel_limit": "La Página alcanzó el límite de 30 reels en 24 horas. Inténtalo más tarde.",
+      "profile_rate_limited": "El perfil de Messenger cambió demasiadas veces. Espera unos minutos y guarda de nuevo.",
+      "private_reply_used": "Este comentario ya recibió una respuesta privada.",
+      "private_reply_expired": "Terminó el plazo de 7 días para responder por privado.",
+      "private_reply_deadline_unknown": "No se pudo confirmar la fecha del comentario, así que no se envió nada.",
+      "invalid_rule": "La regla está incompleta. Revisa los campos e inténtalo de nuevo.",
+      "already_linked": "Esta Página ya está conectada a otro espacio de trabajo.",
+      "forbidden": "No tienes acceso a esta conversación."
+    },
+    "dataDeletion": {
+      "title": "Eliminación de datos",
+      "description": "Sigue la solicitud para eliminar los datos que Vozko recibió de Meta sobre ti.",
+      "code": "Código de confirmación",
+      "requestedAt": "Solicitado",
+      "completedAt": "Completado",
+      "notFoundTitle": "Solicitud no encontrada",
+      "notFoundBody": "Revisa que el enlace esté completo. El código de confirmación viene en la dirección que Meta te envió.",
+      "errorTitle": "No se pudo consultar la solicitud",
+      "errorBody": "Inténtalo de nuevo en unos minutos. Detalle: {error}",
+      "status": {
+        "RECEIVED": "Solicitud recibida",
+        "COMPLETED": "Datos eliminados",
+        "FAILED": "La eliminación no se completó"
+      },
+      "statusBody": {
+        "RECEIVED": "Recibimos la solicitud y la eliminación está en curso.",
+        "COMPLETED": "Se eliminaron los datos recibidos de Meta sobre ti.",
+        "FAILED": "Algo impidió la eliminación. Nuestro equipo fue avisado y lo intentará de nuevo."
+      }
+    },
+    "automation": {
+      "handlingTitle": "Después de la conversación",
+      "enableAnalysisLabel": "Analizar conversaciones con IA",
+      "enableAnalysisHint": "Clasifica cada conversación cuando se detiene, y aparece en Métricas > Audiencia. Se cobra por análisis.",
+      "enableAutoStagingLabel": "Mover la etapa automáticamente",
+      "enableAutoStagingHint": "La IA elige la etapa del embudo que corresponde al estado actual de la conversación.",
+      "enableAutoMemoryLabel": "Recordar datos del lead",
+      "enableAutoMemoryHint": "Registra en la memoria del lead los datos duraderos que aparezcan en la conversación.",
+      "title": "Atención con IA",
+      "agentLabel": "Agente responsable",
+      "agentHint": "Este agente responde los mensajes directos de esta cuenta.",
+      "enableLabel": "Responder automáticamente",
+      "enableHint": "Cuando está activo, el agente responde los mensajes nuevos. Puedes pausar la automatización en una conversación concreta sin cambiar esta configuración.",
+      "enableRequiresAgent": "Selecciona un agente para activar las respuestas automáticas.",
+      "statusActive": "Activo",
+      "statusInactive": "Inactivo",
+      "saving": "Guardando...",
+      "saved": "Guardado",
+      "saveFailed": "No se pudo guardar. Inténtalo de nuevo.",
+      "activeNote": "Los nuevos mensajes directos serán respondidos por este agente, dentro de la ventana de 24 horas de Messenger.",
+      "agentSearch": "Buscar agentes...",
+      "agentEmpty": "No se encontraron agentes.",
+      "agentInactive": "Inactivo",
+      "modeLabel": "Atendido por",
+      "modeAgent": "Agente",
+      "modeWorkflow": "Automatización",
+      "workflowLabel": "Automatización responsable",
+      "workflowHint": "El automatización se dispara con cada mensaje nuevo a esta cuenta.",
+      "workflowSearch": "Buscar automatizaciones...",
+      "workflowEmpty": "No se encontraron automatizaciones.",
+      "enableRequiresWorkflow": "Selecciona un automatización para activar la automatización.",
+      "activeNoteWorkflow": "Los mensajes directos nuevos dispararán este automatización, dentro de la ventana de 24 horas de Messenger. Los nodos de plantilla y botones de WhatsApp se omiten en este canal.",
+      "pipelineLabel": "Embudo de este canal",
+      "pipelineHint": "Las conversaciones de este canal entran en este embudo, en su etapa inicial.",
+      "pipelineDefault": "Embudo predeterminado del espacio",
+      "disclosureTitle": "Aviso de atención automática",
+      "disclosureHint": "Se envía antes de la primera respuesta del agente en cada conversación, como pide la política de Messenger.",
+      "disclosurePlaceholder": "Estás conversando con un asistente automático.",
+      "disclosureSave": "Guardar aviso"
+    },
+    "commentRules": {
+      "title": "Automatización de comentarios",
+      "subtitleAccount": "Reglas aplicadas a los comentarios de esta Página.",
+      "subtitlePost": "Reglas que aplican a esta publicación.",
+      "new": "Nueva regla",
+      "emptyTitle": "Aún no hay reglas",
+      "emptyBody": "Responde comentarios automáticamente y escribe a la persona por Messenger: la conversación se abre en el inbox y tu agente continúa desde ahí.",
+      "emptyCta": "Crear la primera regla",
+      "scopePost": "Esta publicación",
+      "scopeAccount": "Todas las publicaciones",
+      "matchAnySummary": "Aplica a cualquier comentario",
+      "matchSummary": "Cuando {match}: {keywords}",
+      "toggle": "Activar o desactivar {name}",
+      "edit": "Editar {name}",
+      "delete": "Eliminar {name}",
+      "deleteTitle": "Eliminar regla",
+      "deleteBody": "La regla \"{name}\" se eliminará y dejará de responder comentarios.",
+      "deleteConfirm": "Eliminar",
+      "createTitle": "Nueva regla de comentario",
+      "editTitle": "Editar regla",
+      "close": "Cerrar",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "saveFailed": "No se pudo guardar. Inténtalo de nuevo.",
+      "fieldName": "Nombre de la regla",
+      "fieldNamePlaceholder": "Ej.: Promo de enero",
+      "fieldWhen": "Cuando el comentario",
+      "fieldKeywordsPlaceholder": "quiero, promo, precio",
+      "fieldKeywordsHint": "Separa con comas. Mayúsculas y acentos se ignoran.",
+      "fieldActions": "Haz esto",
+      "fieldPublicTextPlaceholder": "¡Hola '{{username}}'! Te escribí por Messenger 💙",
+      "fieldPrivateTextPlaceholder": "¡Hola '{{username}}'! Aquí está todo sobre la promo...",
+      "variablesHint": "Usa '{{username}}' y '{{comment}}' en tus mensajes.",
+      "fieldScope": "Solo en esta publicación",
+      "fieldScopePost": "La regla aplica solo a esta publicación.",
+      "fieldScopeAccount": "La regla aplica a todas las publicaciones de la Página.",
+      "fieldEnabled": "Regla activa",
+      "fieldEnabledHint": "Desactiva para pausar sin eliminar.",
+      "match": {
+        "any": "Cualquiera",
+        "contains": "Contiene",
+        "exact": "Es exactamente"
+      },
+      "action": {
+        "public_reply": "Responder públicamente",
+        "private_reply": "Escribir por Messenger",
+        "hide": "Ocultar comentario",
+        "delete": "Eliminar comentario",
+        "like": "Me gusta como la Página"
+      },
+      "hint": {
+        "public_reply": "Publica una respuesta debajo del comentario.",
+        "private_reply": "Envía un mensaje por Messenger y abre la conversación en el inbox. Facebook permite solo uno por comentario.",
+        "hide": "Oculta el comentario para otros seguidores.",
+        "delete": "Quita el comentario de la publicación. No se puede deshacer.",
+        "like": "Deja un me gusta de la Página en el comentario."
+      }
+    }
+  },
+  "dealAutomation": {
+    "label": "Negocios automáticos",
+    "hint": "El análisis automático crea, actualiza y cierra los negocios de la conversación en este embudo, incluso como ganados o perdidos. El responsable de la conversación queda como dueño del negocio.",
+    "noFunnels": "Crea un embudo de negocios en Embudos para usar los negocios automáticos.",
+    "loadError": "No se pudieron cargar los negocios automáticos.",
+    "saveError": "No se pudo guardar. Inténtalo de nuevo.",
+    "noPermission": "No tienes permiso para cambiar este canal.",
+    "choose": "Elige el embudo de negocios",
+    "pickToFinish": "Elige un embudo para activar los negocios automáticos."
   }
 }

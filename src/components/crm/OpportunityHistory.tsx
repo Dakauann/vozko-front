@@ -56,7 +56,7 @@ export default function OpportunityHistory({
         <p className="text-xs text-muted-foreground">Carregando...</p>
       ) : events.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border py-4 text-center text-xs text-muted-foreground">
-          Sem registros para este negócio.
+          Sem registros para esta oportunidade.
         </p>
       ) : (
         <ol className="space-y-1.5">

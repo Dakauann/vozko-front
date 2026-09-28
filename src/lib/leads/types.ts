@@ -5,6 +5,7 @@ export type LeadEntryType = 'voice' | 'whatsapp';
 export type ConversationEntryType =
     | LeadEntryType
     | 'instagram'
+    | 'facebook'
     | 'telegram'
     | 'unofficial_whatsapp';
 

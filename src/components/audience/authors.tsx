@@ -27,7 +27,8 @@ import { DEFAULT_AUTHORS_PERIOD, isPeriodReady, periodRange } from "@/lib/audien
 import Button from "@/components/elevated-design/button";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
-import { InstagramAvatar } from "@/components/instagram/instagram-avatar";
+import { ChannelAvatarImage } from "@/components/channels/channel-avatar-image";
+import { commentAccountAvatar } from "@/lib/social/comment-sources";
 import { CommentAnalysisAuthorView } from "@/components/audience/author-view";
 import { SortableColumnHead } from "@/components/elevated-design/table/sortable-column-head";
 import {
@@ -286,7 +287,7 @@ function AuthorRow({
       <td className="py-2.5 pr-3">
         <button type="button" onClick={onOpen} title={t("openAuthor")} className="group/open flex min-w-0 items-center gap-2 text-left">
           <CaretRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform group-hover/open:translate-x-0.5" />
-          <InstagramAvatar accountId={accountId} username={author.authorHandle ?? author.authorExternalId} className="size-7" textClassName="text-xs" />
+          <ChannelAvatarImage {...commentAccountAvatar(author.source, accountId)} name={author.authorHandle ?? author.authorExternalId} seed={accountId} className="size-7" textClassName="text-xs" />
           <span className="min-w-0">
             <span className="block truncate font-medium text-foreground">{handle}</span>
             <span className="flex flex-wrap gap-1">

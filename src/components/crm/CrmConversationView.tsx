@@ -33,7 +33,6 @@ import {
   MagnifyingGlass,
   Pause,
   Phone,
-  InstagramLogo,
   PhoneCall,
   Play,
   SpeakerHigh,
@@ -61,6 +60,29 @@ import {
 } from "@/lib/conversations/direction";
 
 import { ChannelAvatar } from "@/components/channels/channel-avatar";
+import {
+  isLikeSticker,
+  metaPrefix,
+  readLinkShare,
+  readPostShare,
+  readPostback,
+  readReaction,
+  readReferral,
+  readSentVia,
+  readStickerId,
+  readStory,
+} from "@/lib/conversations/meta-metadata";
+import {
+  LikeSticker,
+  PostbackChip,
+  ReactionChip,
+  ReferralChip,
+  SentViaBadge,
+  SharedLinkCard,
+  StickerPlaceholder,
+  StoryCard,
+  UnsupportedNotice,
+} from "@/components/crm/MetaMessageParts";
 import ConversationAnalysisPanel from "@/components/crm/ConversationAnalysisPanel";
 import MoveToFunnelDialog from "@/components/crm/MoveToFunnelDialog";
 import type { FunnelStages } from "@/app/actions/stages";
@@ -2198,48 +2220,30 @@ export default function CrmConversationView({
                           );
                         }
 
+                        const metaData = (msg.metadata ?? null) as Record<
+                          string,
+                          unknown
+                        > | null;
+                        const metaChannel = metaPrefix(
+                          msg.channel ?? msg.entry_type,
+                        );
+
                         if (
                           messageType === "story_reply" ||
                           messageType === "story_mention"
                         ) {
-                          const meta = (msg.metadata ?? {}) as Record<
-                            string,
-                            unknown
-                          >;
-                          const storyUrl =
-                            (meta.instagram_story_url as string | undefined) ??
-                            (meta.instagram_story_mention_url as
-                              | string
-                              | undefined);
-                          const isMention = messageType === "story_mention";
+                          const storyPrefix = metaChannel ?? "instagram";
                           return (
                             <div
                               key={msg.id ?? `${runIdx}-${msgIdx}`}
                               className="flex justify-start my-1"
                             >
-                              <div className="max-w-[75%] rounded-lg border border-border bg-muted p-2">
-                                <div className="mb-1 flex items-center gap-1.5 text-2xs font-semibold  text-chart-4">
-                                  <InstagramLogo className="h-3 w-3" />
-                                  <span>
-                                    {isMention
-                                      ? "Menção em story"
-                                      : "Resposta a story"}
-                                  </span>
-                                </div>
-                                {storyUrl && (
-                                  // eslint-disable-next-line @next/next/no-img-element
-                                  <img
-                                    src={storyUrl}
-                                    alt=""
-                                    className="mb-1.5 max-h-40 rounded object-cover"
-                                  />
-                                )}
-                                {msg.text && (
-                                  <p className="whitespace-pre-wrap break-words text-sm text-foreground">
-                                    {msg.text}
-                                  </p>
-                                )}
-                              </div>
+                              <StoryCard
+                                prefix={storyPrefix}
+                                mention={messageType === "story_mention"}
+                                mediaUrl={readStory(metaData, storyPrefix)}
+                                text={msg.text}
+                              />
                             </div>
                           );
                         }
@@ -2250,9 +2254,23 @@ export default function CrmConversationView({
                               key={msg.id ?? `${runIdx}-${msgIdx}`}
                               className="flex justify-center my-2"
                             >
-                              <div className="rounded-[--radius] bg-muted px-3 py-1.5 text-2xs text-muted-foreground">
-                                {msg.text || "Mensagem não suportada"}
-                              </div>
+                              <UnsupportedNotice text={msg.text} />
+                            </div>
+                          );
+                        }
+
+                        if (
+                          messageType === "sticker" &&
+                          metaChannel &&
+                          isLikeSticker(readStickerId(metaData, metaChannel))
+                        ) {
+                          return (
+                            <div
+                              key={msg.id ?? `${runIdx}-${msgIdx}`}
+                              data-msg-id={msg.id}
+                              className="flex justify-start my-1 px-1"
+                            >
+                              <LikeSticker />
                             </div>
                           );
                         }
@@ -2298,6 +2316,28 @@ export default function CrmConversationView({
                         const badge = senderBadge(msg, conversation.lead_number);
                         const isToolEventMessage = isToolMessage(msg);
                         const isTemplateMessage = messageType === "template";
+                        const referral = metaChannel
+                          ? readReferral(metaData, metaChannel)
+                          : null;
+                        const reaction = metaChannel
+                          ? readReaction(metaData, metaChannel)
+                          : null;
+                        const sharedLink =
+                          metaChannel && messageType === "link_share"
+                            ? readLinkShare(metaData, metaChannel)
+                            : null;
+                        const sharedPost =
+                          metaChannel && messageType === "post_share"
+                            ? readPostShare(metaData, metaChannel)
+                            : null;
+                        const postback =
+                          metaChannel === "facebook"
+                            ? readPostback(metaData)
+                            : null;
+                        const sentVia =
+                          metaChannel === "facebook" && isOutgoing
+                            ? readSentVia(metaData)
+                            : null;
 
                         const prevMsg =
                           msgIdx > 0 ? run.messages[msgIdx - 1] : null;
@@ -2527,6 +2567,32 @@ export default function CrmConversationView({
                                   );
                                 })()}
 
+                              {referral && <ReferralChip referral={referral} />}
+
+                              {postback && (
+                                <PostbackChip title={postback.title} />
+                              )}
+
+                              {sharedLink && (
+                                <SharedLinkCard
+                                  kind="link"
+                                  url={sharedLink.url}
+                                  title={sharedLink.title}
+                                />
+                              )}
+
+                              {sharedPost && (
+                                <SharedLinkCard
+                                  kind="post"
+                                  url={sharedPost.url}
+                                  title={sharedPost.title}
+                                />
+                              )}
+
+                              {messageType === "sticker" &&
+                                !msg.media_url &&
+                                !msg.media_id && <StickerPlaceholder />}
+
                               {(msg.media_url || msg.media_id) &&
                                 msg.media_type && (
                                   <MediaBubble
@@ -2553,6 +2619,17 @@ export default function CrmConversationView({
                                   <CollapsibleMessageText text={msg.text} />
                                 )}
 
+                              {reaction && (
+                                <div
+                                  className={cn(
+                                    "-mb-1 mt-1 flex",
+                                    isOutgoing ? "justify-start" : "justify-end",
+                                  )}
+                                >
+                                  <ReactionChip emoji={reaction} />
+                                </div>
+                              )}
+
                               <div
                                 className={cn(
                                   "flex items-center gap-1 mt-0.5",
@@ -2571,6 +2648,7 @@ export default function CrmConversationView({
                                     {tCrm(`messageSender.${badge}`)}
                                   </span>
                                 )}
+                                {sentVia && <SentViaBadge via={sentVia} />}
                                 {isTemplateMessage && (
                                   <span className="rounded-md bg-healthy px-1.5 py-0.5 text-2xs font-semibold  text-healthy-foreground">
                                     {tCrm("messageSender.template")}

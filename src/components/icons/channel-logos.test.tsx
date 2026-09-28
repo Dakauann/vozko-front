@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { ChannelLogo, hasChannelMark } from "./channel-logos";
+import { ChannelLogo, channelLabel, hasChannelMark } from "./channel-logos";
 import { FILTERABLE_MESSAGE_CHANNELS } from "@/lib/conversations/types";
 
 describe("channel marks", () => {
   it("renders a mark for exactly the channels it claims to", () => {
-    for (const channel of ["whatsapp", "unofficial_whatsapp", "instagram", "telegram"]) {
+    for (const channel of ["whatsapp", "unofficial_whatsapp", "instagram", "facebook", "telegram"]) {
       expect(hasChannelMark(channel), `${channel} should claim a mark`).toBe(true);
       expect(ChannelLogo({ channel }), `${channel} should render one`).not.toBeNull();
     }
@@ -22,6 +22,10 @@ describe("channel marks", () => {
     for (const channel of FILTERABLE_MESSAGE_CHANNELS) {
       expect(hasChannelMark(channel), `${channel} is filterable but has no mark`).toBe(true);
     }
+  });
+
+  it("labels the Facebook channel as Messenger", () => {
+    expect(channelLabel("facebook")).toBe("Messenger");
   });
 
   it("distinguishes the two WhatsApp transports", () => {

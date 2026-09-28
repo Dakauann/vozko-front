@@ -202,13 +202,13 @@ export default function OpportunityDrawer({
     }
     const valueCents = parseBRLToCents(valueInput);
     if (needsValue && valueCents <= 0) {
-      toast.error("Informe o valor do negócio para marcá-lo como ganho.");
+      toast.error("Informe o valor da oportunidade para marcá-la como ganha.");
       return;
     }
     setSaving(true);
 
     if (isEdit && opportunity) {
-      const { opportunity: updated, error } = await updateOpportunityAction(opportunity.id, {
+      const { opportunity: updated, error, conflict } = await updateOpportunityAction(opportunity.id, {
         title: title.trim(),
         valueCents,
         ownerId,
@@ -216,8 +216,15 @@ export default function OpportunityDrawer({
         customFields: custom,
         stageId,
         lostReasonId: needsLostReason ? lostReason.trim() : "",
+        version: opportunity.version,
       });
       setSaving(false);
+      if (conflict) {
+        toast.error(error ?? "Esta oportunidade foi alterada agora. Recarregue para ver a versão atual.");
+        onOpenChange(false);
+        onSaved();
+        return;
+      }
       if (error || !updated) {
         toast.error(error ?? "Não foi possível salvar a oportunidade.");
         return;
@@ -280,7 +287,7 @@ export default function OpportunityDrawer({
               <ElevatedSheetDescription className="text-xs">
                 {isEdit
                   ? "Atualize os dados, mova de etapa ou registre ganho/perda."
-                  : "Registre um novo negócio no funil de vendas."}
+                  : "Registre uma nova oportunidade no funil."}
               </ElevatedSheetDescription>
             </div>
           </div>
@@ -506,7 +513,7 @@ function LinkedConversations({
       </p>
       {links.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border py-4 text-center text-xs text-muted-foreground">
-          Nenhuma conversa vinculada a este negócio.
+          Nenhuma conversa vinculada a esta oportunidade.
         </p>
       ) : (
         links.map((l) => {

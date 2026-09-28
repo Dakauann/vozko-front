@@ -109,6 +109,32 @@ describe("reachFor", () => {
   });
 });
 
+describe("Messenger reach", () => {
+  const MESSENGER: ChannelInteractiveLimits = {
+    maxOptionsButtons: 3,
+    maxOptionsList: 13,
+    maxLabelRunes: 20,
+    maxPayloadBytes: 1000,
+    supportsDescriptions: false,
+  };
+  const limits = { facebook: MESSENGER };
+
+  it("keeps three buttons and drops the fourth", () => {
+    expect(statusOn(reachFor({ id: "b3", title: "Três" }, 2, "buttons", limits), "facebook")).toBe("ok");
+    expect(statusOn(reachFor({ id: "b4", title: "Quatro" }, 3, "buttons", limits), "facebook")).toBe("dropped");
+  });
+
+  it("keeps thirteen list options and drops the fourteenth", () => {
+    expect(statusOn(reachFor({ id: "l13", title: "Treze" }, 12, "list", limits), "facebook")).toBe("ok");
+    expect(statusOn(reachFor({ id: "l14", title: "Catorze" }, 13, "list", limits), "facebook")).toBe("dropped");
+  });
+
+  it("cuts titles at 20 characters", () => {
+    expect(statusOn(reachFor({ id: "t", title: "x".repeat(21) }, 0, "list", limits), "facebook")).toBe("truncated");
+    expect(statusOn(reachFor({ id: "t", title: "x".repeat(20) }, 0, "list", limits), "facebook")).toBe("ok");
+  });
+});
+
 describe("problemsFor", () => {
   it("says nothing about an option every channel renders", () => {
     expect(problemsFor({ id: "sim", title: "Sim" }, 0, "buttons", ALL)).toEqual(

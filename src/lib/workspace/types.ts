@@ -33,11 +33,14 @@ export type ResourceType =
     | "plans"
     | "short_links"
     | "instagram_accounts"
+    | "facebook_pages"
     | "audience"
     | "telegram_accounts"
     | "unofficial_whatsapp_instances"
     | "unofficial_whatsapp_campaigns"
     | "mcp"
+    | "knowledge_bases"
+    | "calendar"
     | "ai_chat";
 
 export type ResourceAction =
@@ -114,11 +117,28 @@ export interface MemberPermission {
     createdAt: string;
 }
 
+export type PermissionRiskKind =
+    | "spends_balance"
+    | "contacts_customers"
+    | "manages_access"
+    | "changes_billing"
+    | "deletes_data"
+    | "sensitive_data"
+    | "changes_automation"
+    | "connects_accounts";
+
+export interface PermissionRisk {
+    kind: PermissionRiskKind;
+    level: "high" | "medium";
+    description: string;
+}
+
 export interface AvailablePermission {
     resource: ResourceType;
     actions: ResourceAction[];
     actionDescriptions?: Record<string, string>;
     dependencies?: Record<string, PermissionEntry[]>;
+    risks?: Record<string, PermissionRisk[]>;
 }
 
 export interface ResourceAssignment {
@@ -135,6 +155,25 @@ export interface ResourceAssignment {
 export interface PermissionEntry {
     resource: ResourceType;
     action: ResourceAction;
+}
+
+export type ScopeRule = "departments" | "assigned_conversations";
+
+export interface FeatureCapability {
+    key: string;
+    description: string;
+    requires: PermissionEntry[];
+    managersOnly: boolean;
+    screens: string[];
+}
+
+export interface Feature {
+    key: string;
+    name: string;
+    location: string;
+    description: string;
+    scopes: ScopeRule[];
+    capabilities: FeatureCapability[];
 }
 
 export interface CustomRole {

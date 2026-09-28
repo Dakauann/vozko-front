@@ -19,7 +19,7 @@ const stages = new Map([["st-new", "Novo"], ["st-won", "Ganho"]]);
 
 describe("dealEventText", () => {
   it("says who created the deal", () => {
-    expect(dealEventText(event({ type: "created" }), "Agente de IA", stages)).toBe("Agente de IA criou o negócio");
+    expect(dealEventText(event({ type: "created" }), "Agente de IA", stages)).toBe("Agente de IA criou a oportunidade");
   });
 
   it("names both stages of a move", () => {
@@ -30,7 +30,7 @@ describe("dealEventText", () => {
 
   it("carries the value of a win", () => {
     expect(dealEventText(event({ type: "won", valueCents: 150050 }), "Fluxo", stages)).toMatch(
-      /^Fluxo marcou como ganho \(R\$\s1\.500,50\)$/,
+      /^Fluxo marcou como ganha \(R\$\s1\.500,50\)$/,
     );
   });
 
@@ -47,8 +47,8 @@ describe("dealEventText", () => {
   });
 
   it("describes the remaining events", () => {
-    expect(dealEventText(event({ type: "lost" }), "Ana", stages)).toBe("Ana marcou como perdido");
-    expect(dealEventText(event({ type: "reopened" }), "Ana", stages)).toBe("Ana reabriu o negócio");
+    expect(dealEventText(event({ type: "lost" }), "Ana", stages)).toBe("Ana marcou como perdida");
+    expect(dealEventText(event({ type: "reopened" }), "Ana", stages)).toBe("Ana reabriu a oportunidade");
     expect(dealEventText(event({ type: "owner_changed" }), "Ana", stages)).toBe("Ana trocou o responsável");
     expect(dealEventText(event({ type: "linked" }), "Ana", stages)).toBe("Ana vinculou uma conversa");
   });

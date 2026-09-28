@@ -145,4 +145,20 @@ describe("apiClient", () => {
     expect(refreshCalls).toBe(0);
     expect(result.error?.status).toBe(403);
   });
+
+  it("keeps the error code and the expected details the server sends", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse(409, {
+        error: true,
+        code: "delete_not_permitted",
+        message: "Only in Business Suite",
+        expected: { manageUrl: "https://business.facebook.com/latest/posts" },
+      }),
+    );
+
+    const result = await apiClient("/thing");
+
+    expect(result.error?.code).toBe("delete_not_permitted");
+    expect(result.error?.expected).toEqual({ manageUrl: "https://business.facebook.com/latest/posts" });
+  });
 });

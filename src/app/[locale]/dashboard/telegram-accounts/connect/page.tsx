@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowLeft, Check, Copy, Warning } from "@/components/icons";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { connectTelegramAccountAction } from "@/app/actions/telegram";
 import { looksLikeBotToken } from "@/lib/telegram/types";
@@ -23,25 +23,17 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
-import { useWorkspace } from "@/contexts/workspace-context";
 
 export default function ConnectTelegramPage() {
   const t = useTranslations("telegram");
   const tc = useTranslations("channels.connect");
   const router = useRouter();
   const { toast } = useToast();
-  const { can } = useWorkspace();
 
   const [token, setToken] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [connected, setConnected] = useState<{ name: string } | null>(null);
-
-  useEffect(() => {
-    if (!can("telegram_accounts", "create")) {
-      router.replace("/dashboard/telegram-accounts");
-    }
-  }, [can, router]);
 
   const trimmed = token.trim();
   const tokenLooksValid = useMemo(() => looksLikeBotToken(trimmed), [trimmed]);

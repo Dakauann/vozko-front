@@ -1,4 +1,4 @@
-import type { ActionCard, CapabilityBlocker } from "./types";
+import type { CapabilityBlocker, OfferCard } from "./types";
 
 export type CardState = "ready" | CapabilityBlocker;
 
@@ -18,7 +18,7 @@ export interface CardView {
   usage?: { used: number; total: number };
 }
 
-export function cardState(card: ActionCard, context: CardContext): CardView {
+export function cardState(card: OfferCard, context: CardContext): CardView {
   if (!context.permitted) return { state: "no_permission", usage: card.status?.usage };
   if (context.live) {
     const usage = { used: context.live.used, total: context.live.total };

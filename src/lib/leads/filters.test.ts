@@ -6,6 +6,7 @@ import {
     isEmptyCrmFilter,
 } from "@/lib/crm/board";
 import {
+    LEAD_CHANNELS,
     LEAD_FILTER_FIELD,
     LEAD_FILTER_FIELDS,
     LEAD_FILTER_GROUP_ORDER,
@@ -44,6 +45,12 @@ describe("text predicates", () => {
         }
         expect(countLeadFilters(filter)).toBe(1);
         expect(readText(filter, LEAD_FILTER_FIELD.name)).toBe("ana");
+    });
+});
+
+describe("lead channels", () => {
+    it("offers Messenger conversations as a channel", () => {
+        expect(LEAD_CHANNELS).toContain("facebook");
     });
 });
 

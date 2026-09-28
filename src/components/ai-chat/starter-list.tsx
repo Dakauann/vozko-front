@@ -3,15 +3,34 @@
 import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { CaretDown, ChartBar, ChatsCircle, type Icon, PaperPlaneTilt, Robot } from "@/components/icons";
+import {
+  CalendarBlank,
+  CaretDown,
+  ChartBar,
+  ChatsCircle,
+  ChatText,
+  FileText,
+  type Icon,
+  Kanban,
+  PaperPlaneTilt,
+  Robot,
+  Sparkle,
+  UsersThree,
+} from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 import type { StarterGroup, StarterGroupKey } from "./starter-groups";
 
 const GROUP_ICON: Record<StarterGroupKey, Icon> = {
+  start: Sparkle,
   attendance: ChartBar,
+  conversations: ChatText,
+  funnels: Kanban,
   campaigns: PaperPlaneTilt,
   customers: ChatsCircle,
+  knowledge: FileText,
+  schedule: CalendarBlank,
+  team: UsersThree,
   agents: Robot,
 };
 

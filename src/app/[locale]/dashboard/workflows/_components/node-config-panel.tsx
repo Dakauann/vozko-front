@@ -110,6 +110,7 @@ import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types
 import type { WhatsAppTemplate } from "@/lib/whatsapp-templates/types";
 import type { Media } from "@/lib/medias/types";
 import type { WorkspaceMember } from "@/lib/workspace/types";
+import { fieldRequired, fieldVisible } from "@/lib/workflows/field-rules";
 
 const PAGINATED_OPTION_SOURCES = new Set([
   "agents",
@@ -206,9 +207,9 @@ function getSourceEmptyMessage(source?: string) {
     case "stages":
       return "Nenhuma etapa nos funis do workspace";
     case "opportunity_pipelines":
-      return "Nenhum funil de negócios no workspace";
+      return "Nenhum funil de oportunidades no workspace";
     case "opportunity_stages":
-      return "Nenhuma etapa nos funis de negócios do workspace";
+      return "Nenhuma etapa nos funis de oportunidades do workspace";
     default:
       return "Nenhuma opção encontrada";
   }
@@ -251,6 +252,7 @@ export function NodeConfigPanel({
   const IconComp = ICON_MAP[iconName];
   const schema = def?.configSchema ?? [];
   const config = data.config ?? {};
+  const ruleConfig = { ...def?.defaultConfig, ...config };
   const displayName = (config.display_name as string) || "";
   const label = displayName || (def?.label ?? data.label ?? nodeType);
   const isScheduleMeetingNode = nodeType === "action_schedule_meeting";
@@ -618,6 +620,9 @@ export function NodeConfigPanel({
             ) : (
               schema
                 .filter((f) => {
+                  if (!fieldVisible(f, ruleConfig)) {
+                    return false;
+                  }
                   if (nodeType === "action_ai_agent") {
                     const hidden = [
                       "source",
@@ -695,7 +700,7 @@ export function NodeConfigPanel({
                     value={interactiveReach}
                   >
                     <SchemaField
-                      field={field}
+                      field={{ ...field, required: fieldRequired(field, ruleConfig) }}
                       value={
                         config[field.key] ?? def?.defaultConfig?.[field.key]
                       }
@@ -4177,12 +4182,12 @@ function buildAvailableVariables(
       {
         template: "{{contact_number}}",
         description:
-          "Telefone do contato (WhatsApp) ou ID do chat (Telegram/Instagram)",
+          "Telefone do contato (WhatsApp) ou ID do chat (Telegram/Instagram/Messenger)",
       },
       {
         template: "{{channel}}",
         description:
-          "Canal da execução: whatsapp, unofficial_whatsapp, instagram, telegram, support, voice",
+          "Canal da execução: whatsapp, unofficial_whatsapp, instagram, facebook, telegram, support, voice",
       },
       { template: "{{sys.date}}", description: "Data atual (YYYY-MM-DD)" },
       { template: "{{sys.time}}", description: "Hora atual (HH:MM:SS)" },

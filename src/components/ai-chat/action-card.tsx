@@ -1,22 +1,27 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
-import { CheckCircle, CircleNotch, Crown, Wallet } from "@/components/icons";
+import { ArrowSquareOut, CheckCircle, CircleNotch, Crown, Wallet } from "@/components/icons";
 import {
+  FacebookLogoColor,
   InstagramLogoColor,
   TelegramLogoColor,
   WhatsAppLogoColor,
   WhatsAppUnofficialLogo,
 } from "@/components/icons/channel-logos";
 import { useWorkspace } from "@/contexts/workspace-context";
+import { useAccess } from "@/hooks/use-access";
 import { useInstagramConnect } from "@/hooks/use-instagram-connect";
 import { useWhatsAppCapacity } from "@/hooks/use-whatsapp-capacity";
 import { useWhatsAppEmbeddedSignup } from "@/hooks/use-whatsapp-embedded-signup";
-import { Link } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
+import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
+import { useAutoOpenScreens } from "@/components/ai-chat/use-auto-open-screens";
 import { cardState, type CardView } from "@/lib/aichat/action-card";
-import type { ActionCard, ActionKind } from "@/lib/aichat/types";
+import type { ActionCard, NavigationCard, OfferCard, OfferKind } from "@/lib/aichat/types";
+import { isScreenKey, pathForScreen } from "@/lib/navigation/routes";
 import { cn } from "@/lib/utils";
 import type { ResourceType } from "@/lib/workspace/types";
 
@@ -27,7 +32,7 @@ interface KindConfig {
   moreHref?: string;
 }
 
-const KINDS: Record<ActionKind, KindConfig> = {
+const KINDS: Record<OfferKind, KindConfig> = {
   connect_whatsapp_business: {
     logo: <WhatsAppLogoColor className="h-6 w-6" />,
     resource: "business_phones",
@@ -45,6 +50,11 @@ const KINDS: Record<ActionKind, KindConfig> = {
     resource: "instagram_accounts",
     href: "/dashboard/instagram-accounts/connect",
   },
+  connect_facebook: {
+    logo: <FacebookLogoColor className="h-6 w-6" />,
+    resource: "facebook_pages",
+    href: "/dashboard/facebook-pages/connect",
+  },
   connect_telegram: {
     logo: <TelegramLogoColor className="h-6 w-6" />,
     resource: "telegram_accounts",
@@ -60,12 +70,15 @@ const KINDS: Record<ActionKind, KindConfig> = {
   },
 };
 
+const navigationNotice = { loading: "checking", upcoming: "upcoming", denied: "noAccess" } as const;
+
 const PRIMARY =
   "inline-flex items-center gap-1.5 rounded-[--radius] bg-primary px-3.5 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-DEFAULT hover:bg-primary-hover active:bg-primary-active disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 const SECONDARY =
   "inline-flex items-center gap-1.5 rounded-[--radius] border border-control-edge bg-card px-3.5 py-2 text-sm font-medium text-foreground transition-colors duration-DEFAULT hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
-export function ActionCardView({ card }: { card: ActionCard }) {
+export function ActionCardView({ card, live = false }: { card: ActionCard; live?: boolean }) {
+  if (card.kind === "open_screen") return <NavigationCardView card={card} live={live} />;
   switch (card.kind) {
     case "connect_whatsapp_business":
       return <OfficialWhatsAppCard card={card} />;
@@ -76,13 +89,13 @@ export function ActionCardView({ card }: { card: ActionCard }) {
   }
 }
 
-function usePermitted(card: ActionCard): boolean {
+function usePermitted(card: OfferCard): boolean {
   const { can } = useWorkspace();
   const resource = KINDS[card.kind].resource;
   return resource ? can(resource, "create") : true;
 }
 
-function OfficialWhatsAppCard({ card }: { card: ActionCard }) {
+function OfficialWhatsAppCard({ card }: { card: OfferCard }) {
   const permitted = usePermitted(card);
   const capacity = useWhatsAppCapacity();
   const [connected, setConnected] = useState(false);
@@ -101,7 +114,7 @@ function OfficialWhatsAppCard({ card }: { card: ActionCard }) {
   );
 }
 
-function InstagramCard({ card }: { card: ActionCard }) {
+function InstagramCard({ card }: { card: OfferCard }) {
   const permitted = usePermitted(card);
   const [connected, setConnected] = useState(false);
   const instagram = useInstagramConnect((result) =>
@@ -117,7 +130,7 @@ function InstagramCard({ card }: { card: ActionCard }) {
   );
 }
 
-function LinkCard({ card }: { card: ActionCard }) {
+function LinkCard({ card }: { card: OfferCard }) {
   const permitted = usePermitted(card);
   const href = KINDS[card.kind].href ?? "/dashboard";
   return (
@@ -129,7 +142,77 @@ function LinkCard({ card }: { card: ActionCard }) {
   );
 }
 
-function CardCta({ kind }: { kind: ActionKind }) {
+function NavigationCardView({ card, live }: { card: NavigationCard; live: boolean }) {
+  const t = useTranslations("aiChatPage.navigation");
+  const router = useRouter();
+  const { decideScreen, screenFeature } = useAccess();
+  const { preference, choose } = useAutoOpenScreens();
+  const opened = useRef(false);
+  const { screen, params } = card.destination;
+  const key = isScreenKey(screen) ? screen : null;
+  const href = key ? pathForScreen(key, params) : null;
+  const found = key ? screenFeature(key) : null;
+  const decision = key ? decideScreen(key) : null;
+  const allowed = decision?.status === "allowed" && !!href && !!found;
+
+  useEffect(() => {
+    if (!live || !allowed || preference !== "on" || opened.current || !href) return;
+    opened.current = true;
+    router.push(href);
+  }, [live, allowed, preference, href, router]);
+
+  if (!href || !found || !decision) return null;
+  return (
+    <section className="rounded-lg border border-border bg-card p-3.5 shadow-sm" aria-label={found.feature.name}>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
+          <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[--radius] border border-border bg-muted">
+            <ArrowSquareOut weight="duotone" className="h-5 w-5 text-primary-ink" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold leading-snug text-foreground">{found.feature.name}</p>
+            <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{found.feature.location}</p>
+          </div>
+        </div>
+        {decision.status === "allowed" ? (
+          <Link href={href} className={cn(PRIMARY, "self-start sm:self-auto")}>
+            {t("open")}
+          </Link>
+        ) : (
+          <span className="text-xs font-medium text-muted-foreground">
+            {t(navigationNotice[decision.status])}
+          </span>
+        )}
+      </div>
+      {allowed ? (
+        live && preference === "ask" ? (
+          <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-foreground">{t("askAutoOpen")}</p>
+            <div className="flex gap-2">
+              <button type="button" onClick={() => choose("off")} className={SECONDARY}>
+                {t("autoOpenNo")}
+              </button>
+              <button type="button" onClick={() => choose("on")} className={PRIMARY}>
+                {t("autoOpenYes")}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3">
+            <span className="text-xs text-muted-foreground">{t("autoOpen")}</span>
+            <ElevatedSwitch
+              checked={preference !== "off"}
+              onCheckedChange={(next: boolean) => choose(next ? "on" : "off")}
+              aria-label={t("autoOpen")}
+            />
+          </div>
+        )
+      ) : null}
+    </section>
+  );
+}
+
+function CardCta({ kind }: { kind: OfferKind }) {
   const t = useTranslations("aiChatPage.actions");
   return <>{t(`kinds.${kind}.cta`)}</>;
 }
@@ -140,7 +223,7 @@ function CardShell({
   connected,
   children,
 }: {
-  card: ActionCard;
+  card: OfferCard;
   view: CardView;
   connected: boolean;
   children: ReactNode;

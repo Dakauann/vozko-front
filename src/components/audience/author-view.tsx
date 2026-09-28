@@ -27,7 +27,8 @@ import {
   ElevatedDialogHeader,
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
-import { InstagramAvatar } from "@/components/instagram/instagram-avatar";
+import { ChannelAvatarImage } from "@/components/channels/channel-avatar-image";
+import { commentAccountAvatar } from "@/lib/social/comment-sources";
 import { CommentQuickActions } from "@/components/audience/quick-actions";
 import {
   AuthorRoleChip,
@@ -113,9 +114,10 @@ export function CommentAnalysisAuthorView({
       <ElevatedDialogContent className="flex max-h-[85vh] w-full max-w-2xl flex-col gap-0 overflow-hidden !p-0">
         <ElevatedDialogHeader className="shrink-0 border-b border-border px-5 py-4">
           <ElevatedDialogTitle className="flex min-w-0 items-center gap-3">
-            <InstagramAvatar
-              accountId={accountId}
-              username={author?.authorHandle ?? author?.authorExternalId ?? ""}
+            <ChannelAvatarImage
+              {...(author ? commentAccountAvatar(author.source, accountId) : {})}
+              name={author?.authorHandle ?? author?.authorExternalId ?? ""}
+              seed={accountId}
               className="size-9"
               textClassName="text-sm"
             />
@@ -367,7 +369,6 @@ function AuthorComments({
             {}
             <CommentQuickActions
               className="mt-2"
-              accountId={accountId}
               comment={c}
               hidden={hidden.has(c.id)}
               onHidden={(x) => setHidden((prev) => new Set(prev).add(x.id))}

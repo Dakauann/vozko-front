@@ -357,7 +357,6 @@ export function CommentAnalysisFeed({
               {c.subjectKind !== "conversation" ? (
                 <CommentQuickActions
                   className="mt-2"
-                  accountId={accountId}
                   comment={c}
                   hidden={hidden.has(c.id)}
                   onHidden={(x) => setHidden((prev) => new Set(prev).add(x.id))}
