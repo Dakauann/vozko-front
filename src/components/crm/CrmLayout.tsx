@@ -1230,10 +1230,6 @@ export default function CrmLayout({
     [inbox],
   );
 
-  // Switching automation moves ownership on the server: pausing releases what
-  // the agent or workflow held, resuming hands the conversation back to it.
-  // Whoever hands it back without seeing others' conversations loses the row;
-  // the server tells them too, dropping it here just spares the round trip.
   const switchAutomation = useCallback(
     async (entryId: string, entryType: EntryType, enabled: boolean) => {
       const result = await setConversationAutomationAction(entryType, entryId, enabled);
@@ -1591,7 +1587,6 @@ export default function CrmLayout({
 
   const conversationHeader = activeConversation ? (
     <div className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1.5 border-b border-border bg-card px-3 py-2.5 sm:px-4">
-      {}
       <button
         type="button"
         onClick={handleBack}
@@ -1601,8 +1596,6 @@ export default function CrmLayout({
         <CaretLeft weight="bold" className="h-4 w-4 text-muted-foreground" />
       </button>
 
-      {
-}
       <ChannelAvatar
         name={activeConversation.lead_name || activeConversation.lead_number}
         pictureUrl={currentInboxEntry?.lead_picture}
@@ -1611,7 +1604,6 @@ export default function CrmLayout({
         size="md"
       />
 
-      {}
       <div className="min-w-0 flex-1 basis-[10rem]">
         <div className="flex min-w-0 items-center gap-1.5">
           <p className="truncate text-sm font-semibold text-foreground">
@@ -1628,8 +1620,6 @@ export default function CrmLayout({
           ) : (
             <AttendanceOwnerBadge kind="unassigned" className="shrink-0" />
           )}
-          {
-}
           {channelCapabilities.supportsAiHandling(
             activeConversation.entry_type as EntryType,
           ) && (
@@ -1649,9 +1639,7 @@ export default function CrmLayout({
         </p>
       </div>
 
-      {}
       <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2">
-        {}
         {can("conversations", "update") && (
           <CreateOpportunityButton
             entryId={activeConversation.entry_id}
@@ -1663,8 +1651,6 @@ export default function CrmLayout({
           />
         )}
 
-        {
-}
         <TooltipWrapper content={tWindow("openInWindow")}>
           <button
             type="button"
@@ -1676,7 +1662,6 @@ export default function CrmLayout({
           </button>
         </TooltipWrapper>
 
-        {}
         {viewMode !== "funnel" && (
           <TooltipWrapper content={tContactPanel("toggleTooltip")}>
             <button
@@ -1698,7 +1683,6 @@ export default function CrmLayout({
           </TooltipWrapper>
         )}
 
-        {}
         <TooltipWrapper
           content={t.conversation.aiToggleTooltip ?? "Toggle AI responses"}
         >
@@ -1825,7 +1809,6 @@ export default function CrmLayout({
           </div>
         )}
 
-        {}
         {can("conversations", "assign") && currentWorkspace?.id && (
           <AssignMemberPicker
             workspaceId={currentWorkspace.id}
@@ -1842,10 +1825,7 @@ export default function CrmLayout({
           />
         )}
 
-        {}
         <div className="relative" ref={callDropdownRef}>
-          {
-}
           {can("call_session", "use") &&
             channelCapabilities.supportsCalling(
               activeConversation.entry_type as EntryType,
@@ -1871,8 +1851,6 @@ export default function CrmLayout({
 
           {callDropdownOpen && can("call_session", "use") && (
             <div className="absolute right-0 top-full mt-1 z-50 w-56 rounded-[--radius] border border-border bg-card shadow-lg py-1 animate-in fade-in slide-in-from-top-1 duration-150">
-              {
-}
               {(() => {
                 if (loadingCallPhones) {
                   return <div role="status" className="px-3 py-2 text-xs text-muted-foreground">{tCommon("loading")}</div>;
@@ -2002,8 +1980,6 @@ export default function CrmLayout({
                 );
               })()}
 
-              {
-}
               {can("conversations", "call") && (
                 <>
                   <div className="my-1 border-t border-border" />
@@ -2068,14 +2044,8 @@ export default function CrmLayout({
               "h-[calc(100vh-188px)] min-h-[500px] rounded-[--radius] border border-border bg-card",
         )}
       >
-        {
-}
         <div className="flex shrink-0 flex-col border-b border-border bg-card sm:flex-row sm:items-stretch">
-          {
-}
           <div className="flex min-w-0 items-stretch overflow-x-auto sm:flex-1">
-            {
-}
             {!hasCampaign &&
               (viewMode === "funnel" || showOpportunityBoard) && (
                 <ConsoleBank legend={tBoard("bank.funnel")}>
@@ -2134,8 +2104,6 @@ export default function CrmLayout({
               <ConsoleBank legend={tBoard("bank.outbound")}>
                 {canStartOfficial && (
                   <TooltipWrapper content={tBoard("toolbar.startOfficialHint")}>
-                    {
-}
                     <ElevatedButton
                       variant="outline-subtle"
                       size="sm"
@@ -2152,8 +2120,6 @@ export default function CrmLayout({
                 <TooltipWrapper
                   content={tBoard("toolbar.startConversationHint")}
                 >
-                  {
-}
                   <ElevatedButton
                     variant="outline-subtle"
                     size="sm"
@@ -2225,8 +2191,6 @@ export default function CrmLayout({
           </div>
         </div>
 
-        {
-}
         {(isGlobalBoard || isGlobalTable) && !showOpportunityBoard && (
           <>
             <CrmSavedViews
@@ -2267,8 +2231,6 @@ export default function CrmLayout({
           </>
         )}
 
-        {
-}
         <div
           className="relative flex flex-1 min-h-0 overflow-hidden transition-[padding] duration-150"
           style={dockHeightPx > 0 ? { paddingBottom: dockHeightPx } : undefined}
@@ -2334,7 +2296,6 @@ export default function CrmLayout({
                 />
               </div>
 
-              {}
               {activeConversation && (
                 <div className="relative isolate w-[420px] flex-shrink-0 border-l border-border flex flex-col">
                   <CrmWallpaper />
@@ -2437,8 +2398,6 @@ export default function CrmLayout({
             </div>
           ) : (
             <>
-              {
-}
               <div
                 data-tour="live-chat-inbox"
                 className={cn(
@@ -2496,7 +2455,6 @@ export default function CrmLayout({
                 />
               </div>
 
-              {}
               <div
                 data-tour="live-chat-conversation"
                 className={cn(
@@ -2511,8 +2469,6 @@ export default function CrmLayout({
                       : "hidden lg:flex",
                 )}
               >
-                {
-}
                 <CrmWallpaper />
                 {conversationHeader}
 
@@ -2626,8 +2582,6 @@ export default function CrmLayout({
         </div>
       </div>
 
-      {
-}
       {canStartConversation && (
         <StartConversationDialog
           open={startConversationOpen}
@@ -2644,8 +2598,6 @@ export default function CrmLayout({
         />
       )}
 
-      {
-}
       {scheduleDraft && scheduleEntryType && scheduleEntryId && (
         <ScheduleMessageDialog
           open
@@ -2683,8 +2635,6 @@ export default function CrmLayout({
         />
       )}
 
-      {
-}
       <ConversationWindowDeck
         conversations={windowConversations}
         focusRequest={windowFocusRequest}

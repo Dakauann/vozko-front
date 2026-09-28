@@ -582,8 +582,6 @@ export default function CrmMessageInput({
   return (
     <div className="relative flex-shrink-0">
       <div className="relative">
-      {
-}
       {disabled && disabledReason && (
         <div className="flex justify-center px-4 pt-2">
           <div className="flex max-w-[92%] items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-1.5 shadow-md">
@@ -610,10 +608,6 @@ export default function CrmMessageInput({
                 {t.windowClosed}
               </p>
               <p className="truncate text-2xs text-muted-foreground">
-                {
-}
-                {
-}
                 {closedCopy}
               </p>
             </div>
@@ -632,7 +626,6 @@ export default function CrmMessageInput({
         </div>
       )}
 
-      {}
       <AnimatePresence>
         {pendingMedia && (
           <motion.div
@@ -642,7 +635,6 @@ export default function CrmMessageInput({
             className="border-b border-border"
           >
             <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3">
-              {}
               <div className="relative flex-shrink-0">
                 {pendingMedia.type === "image" ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -667,7 +659,6 @@ export default function CrmMessageInput({
                   </div>
                 )}
 
-                {}
                 {pendingMedia.uploading && (
                   <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/40">
                     <CircleNotch
@@ -706,7 +697,6 @@ export default function CrmMessageInput({
         )}
       </AnimatePresence>
 
-      {}
       <AnimatePresence>
         {isRecording && (
           <motion.div
@@ -716,7 +706,6 @@ export default function CrmMessageInput({
             transition={{ duration: 0.2 }}
             className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3"
           >
-            {}
             <button
               type="button"
               onClick={cancelRecording}
@@ -726,15 +715,12 @@ export default function CrmMessageInput({
               <Trash weight="bold" className="h-4 w-4" />
             </button>
 
-            {}
             <div className="flex flex-1 min-w-0 items-center gap-2 sm:gap-3 rounded-full bg-muted px-3 sm:px-4 py-2">
-              {}
               <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5 flex-shrink-0">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-muted opacity-75" />
                 <span className="relative inline-flex h-full w-full rounded-full bg-destructive" />
               </span>
 
-              {}
               <div className="flex flex-1 min-w-0 items-center justify-center gap-[2px] h-6 sm:h-7 overflow-hidden">
                 {Array.from({ length: 30 }).map((_, i) => {
                   const level = audioLevels[i] ?? 0;
@@ -751,13 +737,11 @@ export default function CrmMessageInput({
                 })}
               </div>
 
-              {}
               <span className="flex-shrink-0 font-mono text-2xs sm:text-xs font-semibold text-primary-ink tabular-nums">
                 {formatDuration(recordingDuration)}
               </span>
             </div>
 
-            {}
             <button
               type="button"
               onClick={stopRecording}
@@ -770,10 +754,8 @@ export default function CrmMessageInput({
         )}
       </AnimatePresence>
 
-      {}
       {!isRecording && (
         <>
-          {}
           <AnimatePresence>
             {replyToMessage && (
               <motion.div
@@ -821,11 +803,8 @@ export default function CrmMessageInput({
             className="hidden"
           />
 
-          {
-}
           <div className="flex items-end gap-2 px-2 py-2 sm:px-3">
             <div className="relative flex min-w-0 flex-1 items-end gap-0.5 rounded-[--radius] border border-border bg-card px-1.5 py-1 shadow-sm">
-              {}
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
@@ -836,8 +815,6 @@ export default function CrmMessageInput({
                 <Paperclip weight="bold" className="h-5 w-5" />
               </button>
 
-              {
-}
               {onSchedule && windowOpen ? (
                 <button
                   type="button"
@@ -862,7 +839,6 @@ export default function CrmMessageInput({
                 </button>
               ) : null}
 
-              {}
               {canCreateShortcut ? (
                 <button
                   type="button"
@@ -874,7 +850,6 @@ export default function CrmMessageInput({
                 </button>
               ) : null}
 
-              {}
               <div className="relative min-w-0 flex-1 self-center">
                 <ShortcutPicker
                   query={shortcutQuery}
@@ -913,7 +888,6 @@ export default function CrmMessageInput({
                 />
               </div>
 
-              {}
               <div className="flex flex-shrink-0 items-center gap-1 self-center pl-1 pr-0.5">
                 <span className="hidden text-2xs font-medium text-muted-foreground sm:inline">
                   Assinar
@@ -925,7 +899,6 @@ export default function CrmMessageInput({
               </div>
             </div>
 
-            {}
             {text.trim().length > 0 || pendingMedia ? (
               <button
                 type="button"

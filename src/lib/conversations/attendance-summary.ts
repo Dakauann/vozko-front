@@ -17,9 +17,6 @@ export function isAiAutoReplyEnabled(
   return automationEnabled !== false;
 }
 
-// ownerLineNamesTheAutomation: the conversation's owner is the agent or
-// workflow and it is running, so naming the owner already says who attends.
-// A paused automation keeps its chip, the only place that shows the pause.
 export function ownerLineNamesTheAutomation(
   assignedUserId?: string | null,
   automationEnabled?: boolean | null,

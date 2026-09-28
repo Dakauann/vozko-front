@@ -7,10 +7,6 @@ import { Info } from "@/components/icons";
 import { useWorkspaceConfig } from "@/hooks/use-workspace-config";
 import { handOffRules } from "@/lib/workspace/workspace-config/roulette";
 
-// HandOffRulesSummary tells whoever configures a hand-off (the workflow node,
-// the agent's transfer tool) who will receive the conversation: it follows the
-// workspace's roulette, the same one the first customer message goes through.
-// It shows nothing until the settings are read, rather than guess them.
 export function HandOffRulesSummary({ workspaceId }: { workspaceId?: string | null }) {
   const t = useTranslations("handOffRules");
   const locale = useLocale();

@@ -271,13 +271,11 @@ function GroundGlow({ isDark }: { isDark: boolean }) {
 function Lighting({ isDark }: { isDark: boolean }) {
   return (
     <>
-      {}
       <ambientLight
         intensity={isDark ? 0.12 : 0.3}
         color={isDark ? "#1e3a8a" : "#ffffff"}
       />
 
-      {}
       <spotLight
         position={[0, -5, 2]}
         angle={0.6}
@@ -289,7 +287,6 @@ function Lighting({ isDark }: { isDark: boolean }) {
         shadow-mapSize-height={1024}
       />
 
-      {}
       <pointLight
         position={[-3, 1, 3]}
         intensity={isDark ? 1.5 : 3}
@@ -298,14 +295,12 @@ function Lighting({ isDark }: { isDark: boolean }) {
         decay={2}
       />
 
-      {}
       <directionalLight
         position={[3, 4, -1]}
         intensity={isDark ? 0.8 : 1.5}
         color={isDark ? "#bfdbfe" : "#e0e7ff"}
       />
 
-      {}
       <pointLight
         position={[0, 0, -5]}
         intensity={isDark ? 0.8 : 1.2}
@@ -314,7 +309,6 @@ function Lighting({ isDark }: { isDark: boolean }) {
         decay={2}
       />
 
-      {}
       <pointLight
         position={[2, -3, 1]}
         intensity={isDark ? 0.6 : 1}

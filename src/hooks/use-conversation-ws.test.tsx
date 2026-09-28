@@ -239,9 +239,6 @@ describe("useConversationWs entry defaults", () => {
     expect(entry?.ai_handler).toEqual(sparseEntry.ai_handler);
   });
 
-  // Losing a conversation (reassigned to someone else, handed back to an agent)
-  // takes it off every list and closes it: the server stops sending its
-  // messages and would refuse a reply.
   it("drops a conversation the user just lost everywhere, including the open pane", async () => {
     const { hook, socket } = await openSocket();
     await act(async () => {

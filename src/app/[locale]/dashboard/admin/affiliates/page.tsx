@@ -231,8 +231,6 @@ function AdminAffiliatesTable() {
         icon={<UserCircle className="h-6 w-6" weight="fill" />}
       />
 
-      {
-}
       <StatusRail
         activeKey={statusFilter}
         allLabel={t("stats.total")}

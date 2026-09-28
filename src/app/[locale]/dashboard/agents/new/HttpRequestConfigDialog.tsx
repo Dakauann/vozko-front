@@ -418,7 +418,6 @@ function NestedSchemaParameterRow({
         depthColors[depth % depthColors.length],
       )}
     >
-      {}
       <div className="flex items-start gap-2">
         {hasNested && (
           <button
@@ -470,7 +469,6 @@ function NestedSchemaParameterRow({
         </div>
       </div>
 
-      {}
       <ElevatedInput
         value={param.description}
         onChange={(e) => onChange({ ...param, description: e.target.value })}
@@ -478,7 +476,6 @@ function NestedSchemaParameterRow({
         placeholder={t("httpConfig.paramDescriptionPlaceholder")}
       />
 
-      {}
       <div className="flex items-center justify-between">
         {showRequired && (
           <label className="flex items-center gap-2 cursor-pointer">
@@ -505,7 +502,6 @@ function NestedSchemaParameterRow({
         </button>
       </div>
 
-      {}
       {expanded && param.type === "object" && depth < maxDepth && (
         <div className="mt-4 space-y-3 border-l-2 border-dashed border-border pl-4">
           <div className="flex items-center justify-between">
@@ -547,7 +543,6 @@ function NestedSchemaParameterRow({
         </div>
       )}
 
-      {}
       {expanded &&
         param.type === "array" &&
         param.items &&
@@ -559,7 +554,6 @@ function NestedSchemaParameterRow({
               </span>
             </div>
 
-            {}
             <div className="flex items-center gap-3">
               <span className="text-sm text-muted-foreground">
                 {t("httpConfig.itemType")}:
@@ -587,7 +581,6 @@ function NestedSchemaParameterRow({
               </ElevatedSelect>
             </div>
 
-            {}
             <ElevatedInput
               value={param.items.description}
               onChange={(e) =>
@@ -600,7 +593,6 @@ function NestedSchemaParameterRow({
               placeholder={t("httpConfig.itemDescriptionPlaceholder")}
             />
 
-            {}
             {param.items.type === "object" && (
               <div className="mt-3 space-y-3">
                 <div className="flex items-center justify-between">
@@ -884,7 +876,6 @@ export default function HttpRequestConfigDialog({
         </DialogHeader>
 
         <div className="flex-1 space-y-5 overflow-y-auto bg-muted px-6 py-5">
-          {}
           <div className="flex items-center justify-end">
             <button
               type="button"
@@ -913,7 +904,6 @@ export default function HttpRequestConfigDialog({
             </div>
           ) : (
             <>
-              {}
               <div className="flex items-start gap-3 rounded-[--radius] border border-border bg-card p-4 shadow-sm">
                 <DialogIcon>
                   <Info weight="fill" />
@@ -928,7 +918,6 @@ export default function HttpRequestConfigDialog({
                 </div>
               </div>
 
-              {}
               <ConfigSection title={t("httpConfig.basicConfig")}>
                 <div className="grid gap-4 lg:grid-cols-4">
                   <div className="lg:col-span-2">
@@ -982,7 +971,6 @@ export default function HttpRequestConfigDialog({
                 </div>
               </ConfigSection>
 
-              {}
               <ConfigSection
                 action={
                   <AddConfigButton
@@ -1023,7 +1011,6 @@ export default function HttpRequestConfigDialog({
                 ) : null}
               </ConfigSection>
 
-              {}
               <ConfigSection
                 action={
                   <AddConfigButton
@@ -1066,7 +1053,6 @@ export default function HttpRequestConfigDialog({
                 ) : null}
               </ConfigSection>
 
-              {}
               <ConfigSection
                 action={
                   <AddConfigButton
@@ -1109,7 +1095,6 @@ export default function HttpRequestConfigDialog({
                 ) : null}
               </ConfigSection>
 
-              {}
               {supportsBody ? (
                 <ConfigSection
                   action={

@@ -78,7 +78,6 @@ interface AssignMemberPickerProps {
   assignedUserId?: string | null;
   onlineUserIds?: Set<string>;
   onAssign: (userId: string) => void;
-  /** The agent or workflow a person's conversation can go back to, if any. */
   handBack?: HandBackTarget | null;
   onHandBack?: () => void;
 }

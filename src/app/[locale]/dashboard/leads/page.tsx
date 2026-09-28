@@ -355,8 +355,6 @@ function LeadsPageContent() {
           actions={
             canImportLeads ? (
               <div className="flex flex-wrap items-center gap-2">
-                {
-}
                 <Button
                   variant="ghost"
                   size="sm"

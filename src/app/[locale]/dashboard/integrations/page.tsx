@@ -98,7 +98,6 @@ export default function IntegrationsPage() {
         description={t("description")}
       />
 
-      {}
       <ElevatedContainer>
         <div className="p-6">
           <div className="flex items-center gap-4">

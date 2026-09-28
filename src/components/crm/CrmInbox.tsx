@@ -632,8 +632,6 @@ export default function CrmInbox({
 
   return (
     <div className="flex h-full flex-col bg-card">
-      {
-}
       <div className="flex-shrink-0 border-b border-border">
         <div className="flex h-7 items-center gap-2 bg-muted px-3">
           <ChatCircleDots
@@ -663,7 +661,6 @@ export default function CrmInbox({
 
         <div className="px-3 py-2">
 
-        {}
         <div className="flex items-center gap-1.5">
           <div className="relative flex-1">
             <MagnifyingGlass
@@ -700,7 +697,6 @@ export default function CrmInbox({
             )}
           </div>
 
-          {}
           <button
             onClick={() => setFiltersOpen((v) => !v)}
             className={cn(
@@ -723,7 +719,6 @@ export default function CrmInbox({
           </button>
         </div>
 
-        {}
         <div className="flex items-center gap-1.5 mt-2.5 overflow-x-auto pb-0.5 -mb-0.5">
           {[
             {
@@ -772,7 +767,6 @@ export default function CrmInbox({
           ))}
         </div>
 
-        {}
         {(isServerSearchActive || searching) && (
           <div className="mt-2 flex items-center gap-2">
             {searching && (
@@ -800,7 +794,6 @@ export default function CrmInbox({
         </div>
       </div>
 
-      {}
       <AnimatePresence>
         {filtersOpen && (
           <motion.div
@@ -811,10 +804,7 @@ export default function CrmInbox({
             className="overflow-hidden border-b border-border bg-muted flex-shrink-0"
           >
             <div className="px-4 py-3 space-y-2.5">
-              {}
               <div className="flex gap-2">
-                {
-}
                 <div className="flex-1 min-w-0">
                   <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
                     Etapa
@@ -849,7 +839,6 @@ export default function CrmInbox({
                   </select>
                 </div>
 
-                {}
                 <div className="flex-1 min-w-0">
                   <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
                     Canal
@@ -874,7 +863,6 @@ export default function CrmInbox({
                 </div>
               </div>
 
-              {}
               <div className="flex gap-2">
                 <div className="flex-1 min-w-0">
                   <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
@@ -905,7 +893,6 @@ export default function CrmInbox({
                 </div>
               </div>
 
-              {}
               <div className="flex gap-2">
                 <div className="flex-1 min-w-0">
                   <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
@@ -947,7 +934,6 @@ export default function CrmInbox({
                 </div>
               </div>
 
-              {}
               <div className="flex gap-2">
                 <div className="flex-1 min-w-0">
                   <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
@@ -989,7 +975,6 @@ export default function CrmInbox({
                 </div>
               </div>
 
-              {}
               <div className="flex gap-2">
                 <div className="flex-1 min-w-0">
                   <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
@@ -1029,7 +1014,6 @@ export default function CrmInbox({
                 </div>
               </div>
 
-              {}
               <div>
                 <label className="text-2xs font-semibold text-muted-foreground mb-1 block">
                   Busca no conteúdo das mensagens
@@ -1045,7 +1029,6 @@ export default function CrmInbox({
                 />
               </div>
 
-              {}
               <div className="flex items-center gap-2 pt-1">
                 <button
                   onClick={handleApplyFilters}
@@ -1067,13 +1050,11 @@ export default function CrmInbox({
         )}
       </AnimatePresence>
 
-      {}
       <div
         ref={inboxListRef}
         onScroll={handleInboxScroll}
         className="flex-1 overflow-y-auto"
       >
-        {}
         {isServerSearchActive && allMatchedMessages.length > 0 && (
           <div className="border-b border-border bg-muted">
             <div className="px-4 py-2 flex items-center justify-between">
@@ -1135,7 +1116,6 @@ export default function CrmInbox({
           </div>
         )}
 
-        {}
         <AnimatePresence initial={false}>
           {displayEntries.length === 0 ? (
             <motion.div
@@ -1156,8 +1136,6 @@ export default function CrmInbox({
                   />
                 )}
               </div>
-              {
-}
               {!isServerSearchActive && blockedByDepartment ? (
                 <NoDepartmentNotice compact />
               ) : (
@@ -1241,8 +1219,6 @@ export default function CrmInbox({
                     }}
                     className="group flex w-full items-start gap-3 px-4 py-3 text-left relative cursor-pointer"
                   >
-                    {
-}
                     <div className="relative flex-shrink-0">
                       <ChannelAvatar
                         name={entry.lead_name || entry.lead_number}
@@ -1258,7 +1234,6 @@ export default function CrmInbox({
                       )}
                     </div>
 
-                    {}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-baseline gap-2">
                         <span
@@ -1277,8 +1252,6 @@ export default function CrmInbox({
                         >
                           {relativeTime(entry.last_message_at)}
                         </span>
-                        {
-}
                         {onOpenInWindow && (
                           <button
                             type="button"
@@ -1294,7 +1267,6 @@ export default function CrmInbox({
                           </button>
                         )}
                       </div>
-                      {}
                       <div className="mt-0.5 flex items-center gap-2">
                         <p
                           className={cn(
@@ -1315,11 +1287,8 @@ export default function CrmInbox({
                         )}
                       </div>
 
-                      {
-}
                       <div className="mt-1.5 flex items-center gap-1.5">
                         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
-                          {}
                           <span
                             className={cn(
                               "inline-flex max-w-full items-center gap-1 text-2xs font-medium",
@@ -1338,8 +1307,6 @@ export default function CrmInbox({
                               {conversationStatusMeta.label}
                             </span>
                           </span>
-                          {
-}
                           {!ownerLineNamesTheAutomation(entry.assigned_user_id, entry.automation_enabled) && (
                             <AiHandlerChip
                               handler={entry.ai_handler}
@@ -1349,15 +1316,11 @@ export default function CrmInbox({
                               size="sm"
                             />
                           )}
-                          {
-}
                           {canReadAnalysis && entry.analysis_phase && (
                             <span
                               title={tAnalysis(`${entry.analysis_phase}Hint`)}
                               className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-2xs font-medium text-muted-foreground shadow-sm"
                             >
-                              {
-}
                               {entry.analysis_phase === "queued" ? (
                                 <CircleNotch className="h-3 w-3 animate-spin" weight="bold" />
                               ) : (
@@ -1368,7 +1331,6 @@ export default function CrmInbox({
                               </span>
                             </span>
                           )}
-                          {}
                           {entry.stage && (
                             <span className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-2xs font-medium text-foreground shadow-sm">
                               <span
@@ -1439,7 +1401,6 @@ export default function CrmInbox({
                           )}
                         </div>
 
-                        {}
                         {availableTags.length > 0 && (
                           <div className="relative flex-shrink-0">
                             {onEntryStageChange ? (
@@ -1457,7 +1418,6 @@ export default function CrmInbox({
                                 >
                                   <TagIcon weight="bold" className="h-3 w-3" />
                                 </button>
-                                {}
                                 {tagMenuEntryId ===
                                   `${entry.entry_type}-${entry.entry_id}` && (
                                   <>
@@ -1542,7 +1502,6 @@ export default function CrmInbox({
                         )}
                       </div>
 
-                      {}
                       {(entry.assigned_username || entry.campaign_name) && (
                         <div className="mt-1 flex items-center gap-1.5 text-2xs text-muted-foreground">
                           {entry.assigned_username ? (
@@ -1565,7 +1524,6 @@ export default function CrmInbox({
                         </div>
                       )}
 
-                      {}
                       {labelMenuEntryId ===
                         `${entry.entry_type}-${entry.entry_id}` && (
                         <>
@@ -1630,14 +1588,12 @@ export default function CrmInbox({
                     </div>
                   </div>
 
-                  {}
                 </motion.div>
               );
             })
           )}
         </AnimatePresence>
 
-        {}
         {loadingSearchMore && isServerSearchActive && (
           <div className="flex items-center justify-center py-3">
             <framerMotion.div
@@ -1651,7 +1607,6 @@ export default function CrmInbox({
           </div>
         )}
 
-        {}
         {loadingMore && !isServerSearchActive && (
           <div className="flex items-center justify-center py-3">
             <framerMotion.div
@@ -1666,7 +1621,6 @@ export default function CrmInbox({
         )}
       </div>
 
-      {}
       {canReadAnalysis && hoveredRect && hoveredAnalysisRef.current && (
         <AnalysisHoverCard
           analysis={hoveredAnalysisRef.current}

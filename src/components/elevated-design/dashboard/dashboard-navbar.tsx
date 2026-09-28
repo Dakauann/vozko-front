@@ -77,8 +77,6 @@ export function DashboardNavbar({
         className,
       )}
     >
-      {
-}
       <button
         type="button"
         onClick={toggleCollapsed}
@@ -104,7 +102,6 @@ export function DashboardNavbar({
         <BrandLogo size="sm" />
       </Link>
 
-      {}
       <div
         aria-hidden="true"
         className="hidden h-5 w-px shrink-0 bg-border-strong md:block"

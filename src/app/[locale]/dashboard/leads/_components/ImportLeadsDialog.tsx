@@ -204,7 +204,6 @@ export function ImportLeadsDialog({
             <ImportSummary result={result} />
           ) : (
             <div className="space-y-4">
-              {}
               <div className="flex flex-wrap items-center gap-2">
                 <Button
                   variant="secondary"
@@ -235,15 +234,12 @@ export function ImportLeadsDialog({
                 />
               </div>
 
-              {
-}
               <p className="text-xs text-muted-foreground">
                 {t("recognisedColumns")}
               </p>
 
               {file ? (
                 <>
-                  {}
                   <div className="space-y-2">
                     <p className="text-sm font-medium text-foreground">
                       {t("mapping.title")}
@@ -299,12 +295,9 @@ export function ImportLeadsDialog({
                       </ElevatedSelect>
                     </div>
 
-                    {
-}
                     <p className="text-xs text-muted-foreground">{t("mapping.onlyThese")}</p>
                   </div>
 
-                  {}
                   <div className="rounded-[--radius] border border-border bg-card px-3 py-2">
                     <p className="text-sm text-foreground">
                       {t("summary.counts", {
@@ -350,7 +343,6 @@ export function ImportLeadsDialog({
                     ) : null}
                   </div>
 
-                  {}
                   <ElevatedSelect
                     label={t("existing.label")}
                     value={onExisting}
@@ -365,8 +357,6 @@ export function ImportLeadsDialog({
                   </ElevatedSelect>
                   <p className="text-xs text-muted-foreground">{t("existing.neverOverwrites")}</p>
 
-                  {
-}
                   {canSeedInbox ? (
                     <div className="space-y-3">
                       <label className="flex cursor-pointer items-start gap-2.5 text-sm text-foreground">
@@ -387,8 +377,6 @@ export function ImportLeadsDialog({
                         </span>
                       </label>
 
-                      {
-}
                       {canScript ? (
                         <div className="space-y-3 rounded-[--radius] border border-border bg-card/40 p-3">
                           <label className="flex cursor-pointer items-start gap-2.5 text-sm text-foreground">
@@ -450,8 +438,6 @@ export function ImportLeadsDialog({
                                 )}
                               />
 
-                              {
-}
                               <div className="space-y-2 border-t border-border pt-3">
                                 <p className="text-sm font-medium text-foreground">
                                   {t("seedConversations.mediaTitle")}
@@ -507,8 +493,6 @@ export function ImportLeadsDialog({
                                 ))}
                               </ElevatedSelect>
 
-                              {
-}
                               {unnamedRows > 0 ? (
                                 <p className="text-xs text-warning-ink">
                                   {t("seedConversations.unnamedRows", {
@@ -517,8 +501,6 @@ export function ImportLeadsDialog({
                                 </p>
                               ) : null}
 
-                              {
-}
                               <p className="text-2xs text-muted-foreground">
                                 {t("seedConversations.costNotice", {
                                   max: MAX_SEEDED_CONVERSATIONS,
@@ -621,16 +603,12 @@ function ImportSummary({ result }: { result: LeadImportResult }) {
         </p>
       ) : null}
 
-      {
-}
       {result.blocked > 0 ? (
         <p className="text-xs text-warning-ink">
           {t("result.blocked", { count: result.blocked })}
         </p>
       ) : null}
 
-      {
-}
       {result.inboxSeedError ? (
         <p className="text-xs text-warning-ink">{t("result.inboxSeedFailed")}</p>
       ) : result.inboxSeedQueued ? (
@@ -639,8 +617,6 @@ function ImportSummary({ result }: { result: LeadImportResult }) {
         </p>
       ) : null}
 
-      {
-}
       {result.scriptedSeedError ? (
         <p className="text-xs text-warning-ink">
           {t("result.scriptedSeedFailed")}

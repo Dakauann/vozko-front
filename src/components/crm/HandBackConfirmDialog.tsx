@@ -6,11 +6,6 @@ import { FlowArrow, Robot } from "@/components/icons";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { HandBackTarget } from "@/lib/conversations/hand-back";
 
-/**
- * Confirms handing a person's conversation back to the agent or workflow the
- * channel runs. It says up front whether the conversation will leave the
- * caller's list, since operators only see what is theirs or the team's.
- */
 export function HandBackConfirmDialog({
   open,
   onOpenChange,

@@ -1082,8 +1082,6 @@ export function useConversationWs({
                 )
               : prev,
           );
-          // The conversation is no longer this user's: the server stopped its
-          // messages and would refuse a reply, so the open pane closes.
           if (
             activeSubscriptionRef.current?.entry_id === entry_id &&
             activeSubscriptionRef.current?.entry_type === entry_type
@@ -2380,9 +2378,6 @@ export function useConversationWs({
     [send],
   );
 
-  // Drops a conversation this client just gave away (e.g. handed back to the
-  // AI). The server cannot push entry_removed to someone who lost access, so
-  // it is fed through the same path a pushed removal takes.
   const forgetEntry = useCallback(
     (entryId: string, entryType: EntryType) => {
       handleServerEvent({

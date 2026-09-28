@@ -467,7 +467,6 @@ export default function ProfilePage() {
 
   return (
     <main className="w-full space-y-6">
-      {}
       <div>
         <DashboardPageHeader
           icon={<UserCircle className="h-5 w-5" weight="fill" />}
@@ -476,14 +475,12 @@ export default function ProfilePage() {
         />
       </div>
 
-      {}
       <div>
         <PanelSection
           title={t("avatar.title")}
           description={t("avatar.subtitle")}
         >
           <div className="flex items-center gap-6">
-            {}
             <div className="relative shrink-0">
               <div className="h-20 w-20 overflow-hidden rounded-[--radius] border border-border bg-muted">
                 {picture ? (
@@ -513,7 +510,6 @@ export default function ProfilePage() {
               )}
             </div>
 
-            {}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <input
@@ -552,7 +548,6 @@ export default function ProfilePage() {
         </PanelSection>
       </div>
 
-      {}
       <div>
         <PanelSection
           title={t("info.title")}
@@ -719,7 +714,6 @@ export default function ProfilePage() {
         </PanelSection>
       </div>
 
-      {}
       <div>
         <PanelSection
           title={t("document.title")}
@@ -773,14 +767,12 @@ export default function ProfilePage() {
         </PanelSection>
       </div>
 
-      {}
       <div>
         <PanelSection
           title={t("security.title")}
           description={t("security.subtitle")}
         >
           <div className="space-y-4">
-            {}
             <div className="rounded-[--radius] border border-border bg-muted p-4">
               <AnimatePresence mode="wait">
                 {passwordResetStep === "idle" && (
@@ -1037,7 +1029,6 @@ export default function ProfilePage() {
               </AnimatePresence>
             </div>
 
-            {}
             <div className="rounded-[--radius] border border-border bg-muted p-4">
               <div className="flex items-start gap-3">
                 <Lock
@@ -1061,7 +1052,6 @@ export default function ProfilePage() {
         </PanelSection>
       </div>
 
-      {}
       <div>
         <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
           <div className="flex items-center justify-between mb-6">

@@ -8,8 +8,6 @@ describe("hasToolSettings", () => {
   });
 
   it("is true for optional settings too, so an admin can reach them", () => {
-    // transfer_to_human's department is optional; without this it could
-    // never be set from the agent form.
     expect(
       hasToolSettings({
         requiresConfig: false,

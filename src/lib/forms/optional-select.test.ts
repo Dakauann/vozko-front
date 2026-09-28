@@ -4,7 +4,6 @@ import { EMPTY_CHOICE, emptyChoiceLabel, fromSelectValue } from "./optional-sele
 
 describe("optional selects", () => {
   it("offer their placeholder as a choice that clears the value", () => {
-    // "Departamento da conversa" must stay reachable after picking Vendas.
     expect(emptyChoiceLabel({ required: false, placeholder: "Departamento da conversa" })).toBe(
       "Departamento da conversa",
     );

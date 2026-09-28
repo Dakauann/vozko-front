@@ -39,7 +39,6 @@ describe("ChatChartView", () => {
     fireEvent.click(screen.getByRole("button", { name: chartLabels.showTable }));
     const table = screen.getByRole("table");
     expect(table).toHaveTextContent("12,5 min");
-    // A missing value is shown as missing, never as zero.
     expect(table).toHaveTextContent(ptMessages.metricsOps.common.na);
     fireEvent.click(screen.getByRole("button", { name: chartLabels.showChart }));
     expect(screen.queryByRole("table")).not.toBeInTheDocument();

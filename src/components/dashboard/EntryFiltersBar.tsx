@@ -182,7 +182,6 @@ export default function EntryFiltersBar({
       </div>
 
       <div className="flex flex-wrap items-end gap-3">
-        {}
         <div className="flex-1 min-w-[200px]">
           <ElevatedInput
             placeholder={t.searchPlaceholder}
@@ -194,7 +193,6 @@ export default function EntryFiltersBar({
           />
         </div>
 
-        {}
         <div className="min-w-[160px]">
           <ElevatedSelect
             value={values.status || "__all__"}
@@ -212,7 +210,6 @@ export default function EntryFiltersBar({
           </ElevatedSelect>
         </div>
 
-        {}
         {canFilterByStage && (
           <div className="min-w-[160px]">
             <ElevatedSelect
@@ -239,10 +236,8 @@ export default function EntryFiltersBar({
           </div>
         )}
 
-        {}
         {renderActions}
 
-        {}
         {hasErrorCodes(campaignType) && (
           <div className="min-w-[130px]">
             <ElevatedInput

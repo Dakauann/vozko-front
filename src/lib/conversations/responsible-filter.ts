@@ -9,10 +9,6 @@ type ResponsiblePayload = Pick<
   "responsible_user_id" | "responsible_unassigned" | "responsible_kind"
 >;
 
-/**
- * Turns the inbox "Responsável" select into search fields: the team queue,
- * what an AI agent or a workflow holds, or one member's conversations.
- */
 export function responsibleFilterPayload(value: string): ResponsiblePayload {
   switch (value) {
     case "":

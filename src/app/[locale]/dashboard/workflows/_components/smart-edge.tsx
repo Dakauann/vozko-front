@@ -372,8 +372,6 @@ export function SmartBezierEdge({
     <>
       <g style={appearStyle}>
         <BaseEdge id={id} path={path} markerEnd={markerEnd} style={edgeStyle} />
-        {
-}
         <path
           d={path}
           fill="none"

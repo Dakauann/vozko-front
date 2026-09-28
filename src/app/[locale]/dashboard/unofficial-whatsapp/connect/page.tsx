@@ -173,14 +173,10 @@ function ConnectFlow() {
       />
 
       <div className="mx-auto w-full max-w-3xl space-y-6">
-        {
-}
         {step === "disclosure" && !reconnectId && (
           <UnofficialWhatsAppCapacityCard allowance={allowance} />
         )}
 
-        {
-}
         {step === "disclosure" && !block && (
           <DisclosureStep
             mode={mode}

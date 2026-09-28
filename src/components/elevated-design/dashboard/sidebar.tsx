@@ -1121,7 +1121,6 @@ function NavItemComponent({
       >
         {isAssistant ? (
           <>
-            {/* Keep the sweep inside the row so the scrolling sidebar cannot clip it. */}
             <span
               aria-hidden
               className="vz-ai-ring"
@@ -1178,8 +1177,6 @@ function NavItemComponent({
           </>
         ) : (
           <span className="relative flex h-8 w-full items-center justify-center">
-            {
-}
             <span
               className={cn(
                 "absolute left-0 top-1/2 -translate-y-1/2",
@@ -1208,8 +1205,6 @@ function NavItemComponent({
             }}
             className="overflow-hidden"
           >
-            {
-}
             <div className="my-0.5 ml-[18px] space-y-px border-l border-border pl-1.5">
               {item.children
                 .filter((child) => {
@@ -1378,12 +1373,8 @@ function GroupedNavItems({
 
         return (
           <div key={group.family ?? `ungrouped-${gi}`}>
-            {
-}
             {group.family && isExpanded && (
               <div className={cn("px-1 pb-1 pt-3", gi > 0 && "mt-1")}>
-                {
-}
                 <button
                   type="button"
                   onClick={() => toggleFamily(group.family as string)}
@@ -1394,8 +1385,6 @@ function GroupedNavItems({
                     React.createElement(familyBrandIcon[group.family], {
                       className: "h-3 w-3 flex-shrink-0",
                     })}
-                  {
-}
                   <span className="min-w-0 truncate">
                     {t(`families.${group.family}`)}
                   </span>
@@ -1584,8 +1573,6 @@ export function DashboardSidebar({
               products={visibleProducts}
             />
           </div>
-          {
-}
           {(isExpanded || mobile) &&
             foldable.families.length + foldable.rows.length > 0 && (
               <FoldAllButton
@@ -1598,7 +1585,6 @@ export function DashboardSidebar({
         </div>
       </div>
 
-      {}
       <div className="scrollbar-sleek min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
         <GroupedNavItems
           items={currentProduct.navItems}
@@ -1642,8 +1628,6 @@ export function DashboardSidebar({
 
   const MobileSidebar = (
     <div className="md:hidden">
-      {
-}
       <AnimatePresence>
         {isMobileOpen && (
           <>
@@ -1697,8 +1681,6 @@ export function DashboardSidebar({
     <>
       {MobileSidebar}
 
-      {
-}
       <motion.aside
         initial={false}
         animate={{ width: isExpanded ? SPINE_WIDTH_OPEN : SPINE_WIDTH_RAIL }}

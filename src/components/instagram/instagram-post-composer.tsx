@@ -249,8 +249,6 @@ export function InstagramPostComposer({
                   accept={isVideo ? "video/mp4,video/quicktime" : "image/jpeg"}
                   onChange={(e) => void handleFile(e.target.files?.[0])}
                 />
-                {
-}
                 <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
                   <Info className="mt-0.5 h-3 w-3 shrink-0" />
                   {isVideo ? t("videoHint") : t("imageHint")}
@@ -268,8 +266,6 @@ export function InstagramPostComposer({
                     placeholder={t("captionPlaceholder")}
                     className="resize-y"
                   />
-                  {
-}
                   <p className="flex items-start gap-1.5 text-xs text-warning-ink">
                     <Warning className="mt-0.5 h-3 w-3 shrink-0" />
                     {t("captionImmutable")}

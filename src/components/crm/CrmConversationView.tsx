@@ -590,12 +590,10 @@ function AudioPlayer({ url }: { url: string }) {
 
   return (
     <div className="flex items-center gap-2.5 rounded-[--radius] bg-muted px-3 py-2 mb-1 min-w-[220px] max-w-[300px]">
-      {}
       <audio ref={audioRef} src={url} preload="metadata">
         <track kind="captions" />
       </audio>
 
-      {}
       <button
         type="button"
         onClick={togglePlay}
@@ -608,7 +606,6 @@ function AudioPlayer({ url }: { url: string }) {
         )}
       </button>
 
-      {}
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div
           ref={progressBarRef}
@@ -641,7 +638,6 @@ function AudioPlayer({ url }: { url: string }) {
         </div>
       </div>
 
-      {}
       <a
         href={url}
         target="_blank"
@@ -682,7 +678,6 @@ function ImageLightbox({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
       onClick={onClose}
     >
-      {}
       <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
         <a
           href={src}
@@ -783,7 +778,6 @@ function MediaBubble({
       return (
         <>
           <div className="group relative mb-1 w-fit cursor-pointer overflow-hidden rounded-[--radius]">
-            {}
             <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
               <DownloadButton url={resolvedUrl} />
             </div>
@@ -797,7 +791,6 @@ function MediaBubble({
             />
           </div>
 
-          {}
           <AnimatePresence>
             {lightboxOpen && (
               <ImageLightbox
@@ -813,7 +806,6 @@ function MediaBubble({
     case "video":
       return (
         <div className="group relative mb-1 w-fit overflow-hidden rounded-[--radius]">
-          {}
           <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
             <DownloadButton url={resolvedUrl} />
           </div>
@@ -990,7 +982,6 @@ function ConversationThreadSkeleton() {
       className="space-y-2 pt-3"
       aria-hidden="true"
     >
-      {}
       <div className="flex justify-center py-3">
         <div className="h-5 w-24 rounded-lg bg-black/[0.06] dark:bg-white/[0.07] animate-pulse motion-reduce:animate-none" />
       </div>
@@ -1205,7 +1196,6 @@ function EntryMetadataPanel({
               className="overflow-hidden"
             >
               <div className="mt-1 rounded-[--radius] bg-card px-4 py-3 shadow-sm space-y-2.5">
-                {}
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted">
                     <User
@@ -1240,7 +1230,6 @@ function EntryMetadataPanel({
                   </div>
                 </div>
 
-                {}
                 {hasVariables && (
                   <>
                     <div className="border-t border-border pt-2">
@@ -1265,7 +1254,6 @@ function EntryMetadataPanel({
                   </>
                 )}
 
-                {}
                 {templateInfo && (
                   <div className="border-t border-border pt-2">
                     <button
@@ -1311,7 +1299,6 @@ function EntryMetadataPanel({
                   </div>
                 )}
 
-                {}
                 <div className="border-t border-border pt-2">
                   <p className="text-2xs text-muted-foreground font-mono truncate">
                     ID: {conversation.entry_id}
@@ -1689,8 +1676,6 @@ export default function CrmConversationView({
     return (
       <div className="relative flex h-full flex-col items-center justify-center gap-4 overflow-hidden bg-background px-8 text-center">
         <LightPool />
-        {
-}
         <CircuitBoard tone="quiet" className="pointer-events-none absolute bottom-6 right-4 h-64 w-64 xl:h-80 xl:w-80" />
         <div className="relative flex h-20 w-20 items-center justify-center rounded-[--radius] bg-muted">
           <ImageIcon
@@ -1748,13 +1733,11 @@ export default function CrmConversationView({
   return (
     <div className="relative flex h-full flex-col">
 
-      {}
       <ConversationAnalysisPanel
         entryId={conversation.entry_id}
         entryType={conversation.entry_type as "whatsapp"}
       />
 
-      {}
       {stageChoices.length > 0 && (
         <div className="absolute left-3 top-3 z-30">
           <div className="relative">
@@ -1797,12 +1780,10 @@ export default function CrmConversationView({
             <AnimatePresence>
               {stageSelectorOpen && (
                 <>
-                  {}
                   <div
                     className="fixed inset-0 z-30"
                     onClick={() => setTagSelectorOpen(false)}
                   />
-                  {}
                   <motion.div
                     initial={{ opacity: 0, y: -8, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -1850,8 +1831,6 @@ export default function CrmConversationView({
                       })}
                     </div>
 
-                    {
-}
                     {canMoveAcrossFunnels ? (
                       <>
                         <div className="my-1 border-t border-border" />
@@ -1880,8 +1859,6 @@ export default function CrmConversationView({
         </div>
       )}
 
-      {
-}
       {canMoveAcrossFunnels && onMoveToFunnel ? (
         <MoveToFunnelDialog
           open={moveToFunnelOpen}
@@ -1900,7 +1877,6 @@ export default function CrmConversationView({
         />
       ) : null}
 
-      {}
       {availableLabels.length > 0 && (
         <div className="absolute left-16 top-3 z-30">
           <div className="relative">
@@ -2005,7 +1981,6 @@ export default function CrmConversationView({
         </div>
       )}
 
-      {}
       <AnimatePresence>
         {searchOpen && (
           <motion.div
@@ -2039,7 +2014,6 @@ export default function CrmConversationView({
                 className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
               />
 
-              {}
               {searchingMessages && (
                 <motion.div
                   className="h-4 w-4 rounded-full border border-healthy border-t-transparent flex-shrink-0"
@@ -2052,7 +2026,6 @@ export default function CrmConversationView({
                 />
               )}
 
-              {}
               {searchInput.trim().length >= 2 && !searchingMessages && (
                 <div className="flex items-center gap-1 flex-shrink-0">
                   <span className="text-2xs font-medium text-muted-foreground tabular-nums">
@@ -2083,7 +2056,6 @@ export default function CrmConversationView({
                 </div>
               )}
 
-              {}
               <button
                 onClick={handleCloseSearch}
                 className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-muted transition-colors flex-shrink-0"
@@ -2113,25 +2085,20 @@ export default function CrmConversationView({
         </motion.button>
       )}
 
-      {}
       <div
         ref={containerRef}
         onScroll={handleScroll}
         className="relative flex-1 overflow-y-auto px-4 py-4 scroll-smooth"
       >
         <div className="mx-auto max-w-3xl space-y-1">
-          {}
           <EntryMetadataPanel conversation={conversation} />
 
-          {
-}
           <AnimatePresence>
             {loadingConversation && conversation.messages.length === 0 && (
               <ConversationThreadSkeleton />
             )}
           </AnimatePresence>
 
-          {}
           {loadingHistory && (
             <div className="flex items-center justify-center py-3">
               <div className="flex items-center gap-2 rounded-lg bg-card px-4 py-2 shadow-sm">
@@ -2152,14 +2119,12 @@ export default function CrmConversationView({
           )}
           {dateGroups.map((group, groupIndex) => (
             <div key={`${group.date}-${groupIndex}`}>
-              {}
               <div className="flex items-center justify-center py-3">
                 <span className="rounded-lg bg-card px-3 py-1 text-2xs font-medium text-muted-foreground shadow-sm">
                   {formatDateGroup(group.date)}
                 </span>
               </div>
 
-              {}
               {(() => {
                 const channelRuns = groupMessagesByChannel(group.messages);
 
@@ -2434,7 +2399,6 @@ export default function CrmConversationView({
                               sameSidePrev ? "pt-[1px]" : "pt-1",
                             )}
                           >
-                            {}
                             {isOutgoing && onReply && (
                               <button
                                 type="button"
@@ -2479,7 +2443,6 @@ export default function CrmConversationView({
                                 !isOutgoing && sameSideNext && "rounded-bl-sm",
                               )}
                             >
-                              {}
                               {showChannelLabel && (
                                 <div
                                   className={cn(
@@ -2503,7 +2466,6 @@ export default function CrmConversationView({
                                 </div>
                               )}
 
-                              {}
                               {showSenderName && (
                                 <p
                                   className="text-2xs font-semibold mb-0.5 text-healthy-ink"
@@ -2512,7 +2474,6 @@ export default function CrmConversationView({
                                 </p>
                               )}
 
-                              {}
                               {msg.reply_to_message_id &&
                                 (() => {
                                   const repliedMsg = conversation.messages.find(
@@ -2566,7 +2527,6 @@ export default function CrmConversationView({
                                   );
                                 })()}
 
-                              {}
                               {(msg.media_url || msg.media_id) &&
                                 msg.media_type && (
                                   <MediaBubble
@@ -2579,7 +2539,6 @@ export default function CrmConversationView({
                                   />
                                 )}
 
-                              {}
                               {isTemplateMessage && msg.metadata && (
                                 <TemplateBubble
                                   metadata={
@@ -2588,14 +2547,12 @@ export default function CrmConversationView({
                                 />
                               )}
 
-                              {}
                               {msg.text &&
                                 !isToolEventMessage &&
                                 !isTemplateMessage && (
                                   <CollapsibleMessageText text={msg.text} />
                                 )}
 
-                              {}
                               <div
                                 className={cn(
                                   "flex items-center gap-1 mt-0.5",
@@ -2631,7 +2588,6 @@ export default function CrmConversationView({
                                 )}
                               </div>
                             </div>
-                            {}
                             {!isOutgoing && onReply && (
                               <button
                                 type="button"
@@ -2655,7 +2611,6 @@ export default function CrmConversationView({
             </div>
           ))}
 
-          {}
           <AnimatePresence>
             {isTyping && (
               <motion.div
@@ -2675,7 +2630,6 @@ export default function CrmConversationView({
         </div>
       </div>
 
-      {}
       <AnimatePresence>
         {showScrollDown && (
           <motion.button

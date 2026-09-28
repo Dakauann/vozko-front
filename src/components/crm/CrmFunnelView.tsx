@@ -301,8 +301,6 @@ function FunnelCard({
     >
       <FunnelCardBody entry={entry} />
 
-      {
-}
       {hasCardMenu ? (
         <button
           type="button"
@@ -326,23 +324,17 @@ function FunnelCard({
         </button>
       ) : null}
 
-      {
-}
       <AnchoredMenu
         open={Boolean(labelMenuOpen && hasCardMenu)}
         anchorRef={menuAnchorRef}
         onClose={() => onLabelMenuToggle?.()}
         label="Ações da conversa"
       >
-        {
-}
         {hasLabelActions && availableLabels ? (
           <>
             <div className="px-3 py-1.5 text-2xs font-semibold text-muted-foreground">
               Etiquetas
             </div>
-            {
-}
             <div className="max-h-44 overflow-y-auto">
               {availableLabels.map((label) => {
                 const isAssigned = entry.labels?.some(
@@ -391,8 +383,6 @@ function FunnelCard({
           </>
         ) : null}
 
-        {
-}
         {onRequestMoveToFunnel ? (
           <>
             {hasLabelActions ? (
@@ -417,7 +407,6 @@ function FunnelCard({
         ) : null}
       </AnchoredMenu>
 
-      {}
       {canReadAnalysis && entry.latest_analysis && (
         <AnalysisHoverCard
           analysis={entry.latest_analysis}
@@ -571,13 +560,11 @@ function FunnelColumn({
         )}
       </AnimatePresence>
 
-      {}
       {isLoading && (
         <div className="flex items-center justify-center py-2">
           <div className="h-4 w-4 animate-spin rounded-full border border-foreground/20 border-t-primary" />
         </div>
       )}
-      {}
       {hasMore && !isLoading && (
         <div ref={sentinelRef} className="h-8 flex items-center justify-center">
           <span className="text-2xs text-muted-foreground">
@@ -1108,7 +1095,6 @@ export default function CrmFunnelView({
 
   return (
     <div className="flex h-full flex-col">
-      {}
       <AnimatePresence>
         {isReordering && (
           <motion.div
@@ -1124,7 +1110,6 @@ export default function CrmFunnelView({
         )}
       </AnimatePresence>
 
-      {}
       <div
         ref={scrollContainerRef}
         className="flex-1 overflow-x-auto overflow-y-hidden"
@@ -1188,7 +1173,6 @@ export default function CrmFunnelView({
               );
             })}
 
-            {}
             <AnimatePresence>
               {(unstagedEntries.length > 0 ||
                 (funnelSummary?.get("__unstaged__") ?? 0) > 0) && (
@@ -1251,14 +1235,12 @@ export default function CrmFunnelView({
                         })}
                       </AnimatePresence>
 
-                      {}
                       {loadingFunnelColumn === "__unstaged__" && (
                         <div className="flex items-center justify-center py-2">
                           <div className="h-4 w-4 animate-spin rounded-full border border-foreground/20 border-t-primary" />
                         </div>
                       )}
 
-                      {}
                       {(() => {
                         const unstagedTotal =
                           funnelColumns?.get("__unstaged__")?.totalItems ??
@@ -1294,7 +1276,6 @@ export default function CrmFunnelView({
         </LayoutGroup>
       </div>
 
-      {}
       {isDraggingCard && dragOverlayData && (
         <div
           ref={dragOverlayRef}
@@ -1315,8 +1296,6 @@ export default function CrmFunnelView({
         </div>
       )}
 
-      {
-}
       {canMoveAcrossFunnels && onMoveToFunnel && movingEntry ? (
         <MoveToFunnelDialog
           open

@@ -191,7 +191,5 @@ export async function setConversationAutomationAction(
     if (response.error) {
         return { error: response.error.message, assignedUserId: null };
     }
-    // Switching automation moves ownership: pausing releases what the agent
-    // or workflow held, resuming hands the conversation back to it.
     return { error: null, assignedUserId: response.data?.assigned_user_id ?? "" };
 }

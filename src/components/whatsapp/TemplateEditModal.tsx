@@ -160,7 +160,6 @@ export default function TemplateEditModal({
           onClick={(e) => e.stopPropagation()}
         >
           <ElevatedContainer className="bg-card rounded-[--radius] shadow-2xl overflow-hidden">
-            {}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border">
               <div className="flex items-center gap-3">
                 <IconBox color="green" size="sm">
@@ -183,9 +182,7 @@ export default function TemplateEditModal({
               </button>
             </div>
 
-            {}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 max-h-[calc(90vh-180px)] overflow-y-auto">
-              {}
               <div className="space-y-4">
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-muted text-muted-foreground shadow-lg">
@@ -204,7 +201,6 @@ export default function TemplateEditModal({
                 </div>
               </div>
 
-              {}
               <div className="space-y-4">
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-primary-foreground">
@@ -249,7 +245,6 @@ export default function TemplateEditModal({
                       </p>
                     </div>
 
-                    {}
                     <div className="flex items-center gap-3">
                       <div className="h-px flex-1 bg-border" />
                       <span className="text-xs font-medium text-muted-foreground">
@@ -258,7 +253,6 @@ export default function TemplateEditModal({
                       <div className="h-px flex-1 bg-border" />
                     </div>
 
-                    {}
                     <div
                       onClick={() =>
                         !isUploading && fileInputRef.current?.click()
@@ -375,7 +369,6 @@ export default function TemplateEditModal({
                   </div>
                 )}
 
-                {}
                 <div className="p-4 rounded-[--radius] bg-muted border border-border">
                   <h4 className="text-sm font-semibold text-foreground mb-3">
                     {t("templateInfo")}
@@ -431,7 +424,6 @@ export default function TemplateEditModal({
               </div>
             </div>
 
-            {}
             <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-muted">
               <Button
                 variant="secondary"
@@ -479,7 +471,6 @@ function TemplatePreview({ template, headerMediaUrl }: TemplatePreviewProps) {
 
   return (
     <div className="flex flex-col h-full">
-      {}
       <div className="flex-shrink-0 bg-muted px-4 py-3">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card">
@@ -494,7 +485,6 @@ function TemplatePreview({ template, headerMediaUrl }: TemplatePreviewProps) {
         </div>
       </div>
 
-      {}
       <div
         className="flex-1 bg-[#efeae2] p-4 min-h-[350px]"
         style={{
@@ -717,7 +707,6 @@ function ButtonsPreview({ component }: { component: TemplateComponent }) {
               {button.type === "URL" && (button.text || "Visit Website")}
               {button.type === "PHONE_NUMBER" && (button.text || "Call Us")}
               {button.type === "COPY_CODE" && "Copy Offer Code"}
-              {}
               {button.type === "OTP" && (button.text || "Copy code")}
             </span>
           </div>

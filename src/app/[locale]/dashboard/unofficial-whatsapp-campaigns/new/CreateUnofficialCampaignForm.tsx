@@ -343,8 +343,6 @@ export default function CreateUnofficialCampaignForm({
               <p className="mt-1 text-xs text-muted-foreground">
                 {t("form.numberDescription")}
               </p>
-              {
-}
               {issue ? (
                 <p
                   className={cn(
@@ -383,8 +381,6 @@ export default function CreateUnofficialCampaignForm({
               </div>
             ) : null}
 
-            {
-}
             <div className="border-t border-border pt-4">
               <p className="mb-3 text-sm font-medium text-foreground">
                 {t("form.messageTitle")}
@@ -624,8 +620,6 @@ export default function CreateUnofficialCampaignForm({
           </div>
         </ElevatedContainer>
 
-        {
-}
         <ElevatedContainer className="rounded-lg border border-border bg-card p-5 lg:sticky lg:top-16">
           <h2 className="mb-3 font-display text-lg font-semibold tracking-[0.01em] text-foreground">
             {t("form.previewTitle")}
@@ -732,8 +726,6 @@ export default function CreateUnofficialCampaignForm({
             }}
           />
 
-          {
-}
           {canSeedOutcome ? (
             <div className="mt-4 space-y-3 rounded-[--radius] border border-border bg-card/40 p-3">
               <div className="flex items-start justify-between gap-2">
@@ -773,8 +765,6 @@ export default function CreateUnofficialCampaignForm({
                       disabled={isSubmitting}
                     />
                   </div>
-                  {
-}
                   <p className="text-xs text-muted-foreground">
                     {t("form.seedOutcomeSummary", seedCounts)}
                   </p>

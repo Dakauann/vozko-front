@@ -133,7 +133,6 @@ function PostTile({
         </div>
       ) : null}
 
-      {}
       <div className="absolute right-2 top-2 flex gap-1">
         {media.isReel ? (
           <TileBadge>
@@ -151,8 +150,6 @@ function PostTile({
         )}
       </div>
 
-      {
-}
       <div
         className={cn(
           "pointer-events-none absolute inset-0 flex items-end justify-center gap-5 pb-3",

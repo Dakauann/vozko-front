@@ -1,7 +1,5 @@
 import type { RouletteMode, WorkspaceConfig } from "./types";
 
-// The roulette settings as the server applies them (workspace_config.go):
-// the defaults an unset field takes and the range a value is clamped to.
 export const ROULETTE_DEFAULTS = {
   mode: "online" as RouletteMode,
   windowHours: 48,
@@ -23,13 +21,9 @@ export type HandOffRules = {
   mode: RouletteMode;
   windowHours: number;
   skipAdmins: boolean;
-  // Rescue passes an unanswered conversation to the next person; it runs only
-  // with the last-seen roulette, and only in working hours when they are set.
   rescue: { afterMinutes: number; workingHoursOnly: boolean } | null;
 };
 
-// handOffRules is how a hand-off to a person is dealt in this workspace: the
-// same roulette the first customer message goes through.
 export function handOffRules(config: WorkspaceConfig | null): HandOffRules {
   const mode: RouletteMode = config?.rouletteMode === "last_seen" ? "last_seen" : "online";
   const rescueOn = mode === "last_seen" && (config?.rouletteRescueEnabled ?? ROULETTE_DEFAULTS.rescueEnabled);

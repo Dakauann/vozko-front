@@ -18,8 +18,6 @@ describe("responsibleFilterPayload", () => {
   });
 
   it("asks by kind for what an agent or a workflow holds", () => {
-    // Never as a user id: the backend column is a uuid and an ai:/workflow:
-    // string there is a query error, so these travel as responsible_kind.
     expect(responsibleFilterPayload(RESPONSIBLE_AI)).toEqual({ responsible_kind: "ai" });
     expect(responsibleFilterPayload(RESPONSIBLE_WORKFLOW)).toEqual({ responsible_kind: "workflow" });
   });

@@ -295,8 +295,6 @@ function ButtonsPreview({ component }: { component: DraggableComponent }) {
               {button.type === "URL" && (button.text || "Visit Website")}
               {button.type === "PHONE_NUMBER" && (button.text || "Call Us")}
               {button.type === "COPY_CODE" && "Copy Offer Code"}
-              {
-}
               {button.type === "OTP" && (button.text || "Copy code")}
             </span>
           </div>

@@ -463,16 +463,12 @@ export function NodeConfigPanel({
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center">
-      {}
       <div
         className="absolute inset-0 bg-black/50"
         onClick={onClose}
         aria-hidden="true"
       />
-      {
-}
       <div className="relative flex items-center justify-center">
-        {}
         <aside className="hidden lg:flex w-[280px] h-[min(78vh,800px)] flex-col overflow-hidden rounded-l-2xl border border-r-0 border-border bg-card shadow-lg">
           <div className="shrink-0 border-b border-border px-3 py-2.5 pr-6">
             <p className="text-xs font-semibold text-muted-foreground">
@@ -501,7 +497,6 @@ export function NodeConfigPanel({
           </div>
         </aside>
 
-        {}
       <div
         ref={cardRef}
         role="dialog"
@@ -529,7 +524,6 @@ export function NodeConfigPanel({
       </div>
 
       <div className="p-3 space-y-4 overflow-y-auto flex-1">
-        {}
         <ElevatedInput
           label="Nome do nó"
           value={displayName}
@@ -540,7 +534,6 @@ export function NodeConfigPanel({
           controlSize="sm"
         />
 
-        {}
         {nodeType === "group" ? (
           <GroupConfigSection
             config={config}
@@ -549,7 +542,6 @@ export function NodeConfigPanel({
           />
         ) : (
           <>
-            {}
             {nodeType === "action_ai_agent" && (
               <AIAgentSection config={config} updateField={updateField} nc={nc} />
             )}
@@ -724,7 +716,6 @@ export function NodeConfigPanel({
               <HandOffRulesSummary workspaceId={workspaceId} />
             )}
 
-            {}
             {templateParams.length > 0 && (
               <TemplateParamsSection
                 params={templateParams}
@@ -740,7 +731,6 @@ export function NodeConfigPanel({
               </p>
             )}
 
-            {}
             {currentMediaId && selectedMedia && (
               <MediaPreviewSection media={selectedMedia} />
             )}
@@ -774,8 +764,6 @@ export function NodeConfigPanel({
           </>
         )}
 
-        {
-}
         {onRenameNode && (
           <NodeIdField
             key={node.id}
@@ -786,7 +774,6 @@ export function NodeConfigPanel({
       </div>
       </div>
 
-        {}
         <aside className="hidden lg:flex w-[280px] h-[min(78vh,800px)] flex-col overflow-hidden rounded-r-2xl border border-l-0 border-border bg-card shadow-lg">
           <div className="shrink-0 border-b border-border px-3 py-2.5 pl-6">
             <p className="text-xs font-semibold text-muted-foreground">
@@ -2883,7 +2870,6 @@ function MediaSelectField({
       </ElevatedSelect>
       {error && <p className="text-2xs text-destructive-ink">{error}</p>}
 
-      {}
       <input
         ref={fileRef}
         type="file"
@@ -3100,7 +3086,6 @@ function ToolsField({
 
   return (
     <div className="space-y-3">
-      {}
       <div className="flex items-center justify-between">
         <div>
           <span className="text-xs font-medium text-foreground block">
@@ -3150,7 +3135,6 @@ function ToolsField({
                 : "border-border bg-card",
             )}
           >
-            {}
             <div
               className="flex items-center gap-2 px-3 py-2.5 cursor-pointer hover:bg-muted transition-colors"
               onClick={() => setExpandedIndex(isExpanded ? null : ti)}
@@ -3212,10 +3196,8 @@ function ToolsField({
               )}
             </div>
 
-            {}
             {isExpanded && (
               <div className="border-t border-border bg-mist px-3 py-3 space-y-4">
-                {}
                 <div className="space-y-3">
                   <ElevatedInput
                     label="Nome da função *"
@@ -3241,7 +3223,6 @@ function ToolsField({
                   />
                 </div>
 
-                {}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between border-t border-border pt-3">
                     <span className="text-xs font-medium text-foreground">
@@ -3533,7 +3514,6 @@ function ButtonsField({
         <ChannelReachLegend style={style} channelLimits={channelLimits} />
       </div>
 
-      {}
       {(canAddReply || canAddCopyCode) && (
         <div className="flex gap-1.5">
           {canAddReply && (
@@ -3559,7 +3539,6 @@ function ButtonsField({
         </div>
       )}
 
-      {}
       {buttons.length === 0 && (
         <p className="text-2xs text-muted-foreground leading-relaxed">
           Adicione até{" "}
@@ -3571,7 +3550,6 @@ function ButtonsField({
         </p>
       )}
 
-      {}
       {buttons.map((btn, i) => (
         <div
           key={i}
@@ -3649,7 +3627,6 @@ function ButtonsField({
         </div>
       ))}
 
-      {}
       {isFull && (
         <p className="text-2xs text-muted-foreground italic">
           Limite de {maxOptions} opções atingido

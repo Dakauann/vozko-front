@@ -141,8 +141,6 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        {
-}
         <div
           className={cn(
             "relative flex w-full shrink-0 items-center justify-center overflow-hidden bg-black transition-[width] duration-200 md:h-full",
@@ -206,8 +204,6 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
           )}
         </div>
 
-        {
-}
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <header className="flex shrink-0 items-start gap-3 border-b border-border p-4">
             <InstagramAvatar
@@ -280,8 +276,6 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
               </p>
             )}
 
-            {
-}
             <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="px-4 pb-4">
               <TabsList>
                 <TabsTrigger value="comments">{t("posts.tabComments")}</TabsTrigger>
@@ -304,8 +298,6 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
               </TabsContent>
 
               <TabsContent value="automation" className="mt-3">
-                {
-}
                 <InstagramCommentRulesPanel
                   accountId={accountId}
                   mediaId={media.id}
@@ -315,8 +307,6 @@ export function InstagramPostDetail({ accountId, account, media, onClose, onUpda
 
               {canSeeAnalysis ? (
                 <TabsContent value="analysis" className="mt-3">
-                  {
-}
                   <CommentPostAnalysisPanel accountId={accountId} containerId={media.id} />
                 </TabsContent>
               ) : null}

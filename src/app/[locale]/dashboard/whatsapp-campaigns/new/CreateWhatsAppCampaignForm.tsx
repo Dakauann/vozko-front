@@ -1822,8 +1822,6 @@ export default function CreateWhatsAppCampaignForm({
               </p>
             </div>
 
-            {
-}
             <div>
               <ElevatedCommandSelect
                 label="Funil de atendimento"
@@ -1874,7 +1872,6 @@ export default function CreateWhatsAppCampaignForm({
                 />
                 <FieldError message={errors.templateId?.message} />
 
-                {}
                 {selectedTemplateMissingMedia &&
                   isAdmin &&
                   selectedTemplate && (
@@ -1908,7 +1905,6 @@ export default function CreateWhatsAppCampaignForm({
                     </div>
                   )}
 
-                {}
                 {selectedTemplate && templateVariables.length > 0 && (
                   <div className="mt-3 rounded-lg border border-border bg-muted p-4"data-tour="wc-template-variables">
                     <h4 className="text-sm font-semibold text-healthy-ink mb-2">
@@ -2332,8 +2328,6 @@ export default function CreateWhatsAppCampaignForm({
                       }}
                       label={t("validation.confirmTemplateLabel")}
                     />
-                    {
-}
                     {mode === "create" && !templateInfoConfirmed ? (
                       <p className="mt-2 text-xs text-destructive-ink">
                         {t("validation.confirmTemplateRequired")}
@@ -2409,7 +2403,6 @@ export default function CreateWhatsAppCampaignForm({
             </div>
           )}
 
-          {}
           {skippedLines.length > 0 && (
             <div className="mb-4 rounded-[--radius] border border-border bg-muted px-4 py-3">
               <button
@@ -2498,7 +2491,6 @@ export default function CreateWhatsAppCampaignForm({
             </div>
           )}
 
-          {}
           {(templateVariables.length > 0 || requiredCampaignVars.length > 0) &&
             missingVariablesCount > 0 && (
               <div className="mb-4 rounded-lg border border-border bg-muted p-4"data-tour="wc-missing-vars">
@@ -2531,7 +2523,6 @@ export default function CreateWhatsAppCampaignForm({
               </div>
             )}
 
-          {}
           <div className="mb-4 flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <MagnifyingGlass
@@ -2716,8 +2707,6 @@ export default function CreateWhatsAppCampaignForm({
                       controlSize="sm"
                       placeholder={t("contacts.namePlaceholder")}
                     />
-                    {
-}
                     <FieldError
                       message={
                         errors.phoneNumbers?.[originalIndex]?.name?.message
@@ -2826,7 +2815,6 @@ export default function CreateWhatsAppCampaignForm({
         />
       </div>
 
-      {}
       {selectedTemplate && isAdmin && (
         <TemplateEditModal
           isOpen={mediaModalOpen}

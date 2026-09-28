@@ -414,7 +414,6 @@ export default function BalancePage() {
 
   return (
     <main className="w-full space-y-4">
-      {}
       <div>
         <DashboardPageHeader
           icon={<Wallet className="h-6 w-6" weight="fill" />}
@@ -423,7 +422,6 @@ export default function BalancePage() {
         />
       </div>
 
-      {}
       <div>
         <DashboardTable<NormalizedTransaction>
           stats={[
@@ -479,7 +477,6 @@ export default function BalancePage() {
           loading={loadingTx}
           toolbar={
             <div className="flex flex-col gap-3 w-full">
-              {}
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-2">
                   <FunnelSimple
@@ -587,7 +584,6 @@ export default function BalancePage() {
                 </div>
               </div>
 
-              {}
               {datePreset === "custom" && (
                 <div className="flex flex-wrap items-center gap-3">
                   <Clock

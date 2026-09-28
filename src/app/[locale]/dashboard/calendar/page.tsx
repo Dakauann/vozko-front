@@ -331,7 +331,6 @@ export default function CalendarPage() {
         }
       />
 
-      {}
       {connected === false && (
         <ElevatedContainer className="border-border bg-muted dark:bg-muted">
           <div className="flex items-start gap-3 p-4">
@@ -359,11 +358,8 @@ export default function CalendarPage() {
         </ElevatedContainer>
       )}
 
-      {}
       <div className="flex gap-4">
-        {}
         <ElevatedContainer className="p-0 overflow-hidden flex-1 min-w-0">
-          {}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
             <div className="flex items-center gap-1">
               <button
@@ -390,7 +386,6 @@ export default function CalendarPage() {
             </button>
           </div>
 
-          {}
           <div className="grid grid-cols-7">
             {dayNames.map((day) => (
               <div
@@ -402,7 +397,6 @@ export default function CalendarPage() {
             ))}
           </div>
 
-          {}
           {loading && connected !== false ? (
             <div className="flex items-center justify-center h-80 text-sm text-muted-foreground">
               {t("loading")}
@@ -505,10 +499,8 @@ export default function CalendarPage() {
           )}
         </ElevatedContainer>
 
-        {}
         <div className="w-[320px] shrink-0 hidden lg:block">
           <ElevatedContainer className="p-0 overflow-hidden sticky top-4">
-            {}
             <div className="px-4 py-3 border-b border-border">
               <div className="flex items-center justify-between">
                 <div>
@@ -533,7 +525,6 @@ export default function CalendarPage() {
               </div>
             </div>
 
-            {}
             <div
               ref={agendaRef}
               className="max-h-[calc(100vh-320px)] overflow-y-auto"
@@ -569,13 +560,10 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      {}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-lg p-0 gap-0 overflow-hidden">
-          {}
           <div className="h-2 w-full" style={{ backgroundColor: formColor }} />
 
-          {}
           <div className="px-6 pt-4 pb-2">
             <input
               value={formTitle}
@@ -587,7 +575,6 @@ export default function CalendarPage() {
           </div>
 
           <div className="px-6 py-3 space-y-0.5 max-h-[60vh] overflow-y-auto">
-            {}
             <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
               <Clock
                 size={18}
@@ -632,7 +619,6 @@ export default function CalendarPage() {
               </div>
             </div>
 
-            {}
             <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
               <VideoCamera
                 size={18}
@@ -668,7 +654,6 @@ export default function CalendarPage() {
               </div>
             </div>
 
-            {}
             <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
               <MapPin
                 size={18}
@@ -683,7 +668,6 @@ export default function CalendarPage() {
               />
             </div>
 
-            {}
             <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
               <Users
                 size={18}
@@ -698,7 +682,6 @@ export default function CalendarPage() {
               />
             </div>
 
-            {}
             {formAttendees.trim() && (
               <div className="ml-[30px] space-y-1.5 py-2 pl-1">
                 <p className="text-2xs font-semibold text-muted-foreground">
@@ -737,7 +720,6 @@ export default function CalendarPage() {
               </div>
             )}
 
-            {}
             <div className="flex items-start gap-3 py-2 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
               <TextAlignLeft
                 size={18}
@@ -753,7 +735,6 @@ export default function CalendarPage() {
               />
             </div>
 
-            {}
             <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-muted px-2 -mx-2 transition-colors">
               <Palette
                 size={18}
@@ -778,7 +759,6 @@ export default function CalendarPage() {
             </div>
           </div>
 
-          {}
           <div className="flex items-center justify-between px-6 py-3 border-t border-border bg-muted">
             <div>
               {editingEvent && (
@@ -810,7 +790,6 @@ export default function CalendarPage() {
         </DialogContent>
       </Dialog>
 
-      {}
       <Dialog
         open={!!reschedulingEvent}
         onOpenChange={(open) => {
@@ -891,13 +870,11 @@ function AgendaEventCard({
       className="group flex gap-3 px-4 py-3 hover:bg-muted transition-colors cursor-pointer"
       onClick={onEdit}
     >
-      {}
       <div
         className="w-1 rounded-full shrink-0 self-stretch"
         style={{ backgroundColor: color }}
       />
 
-      {}
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-foreground truncate">
           {event.title}
@@ -951,7 +928,6 @@ function AgendaEventCard({
         )}
       </div>
 
-      {}
       <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
         <button
           onClick={(e) => {

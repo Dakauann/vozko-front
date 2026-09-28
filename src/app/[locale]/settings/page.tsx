@@ -855,7 +855,6 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {}
           <div>
             <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
               <div className="flex items-center justify-between mb-6">

@@ -1572,7 +1572,6 @@ export function WorkflowEditor({
 
   return (
     <div className="flex flex-col h-[calc(100vh-3rem)] overflow-hidden">
-      {}
       <div className="flex items-center gap-3 px-4 py-2.5 border-b border-border bg-card flex-shrink-0">
         <ElevatedButton
           variant="ghost"
@@ -1681,8 +1680,6 @@ export function WorkflowEditor({
           disabled={saving}
         />
 
-        {
-}
         {workflowState && (
           <>
             <DropdownMenu>
@@ -1732,12 +1729,9 @@ export function WorkflowEditor({
         )}
       </div>
 
-      {}
       <div className="flex flex-1 overflow-hidden">
         <NodePalette definitions={availableDefinitions} />
 
-        {
-}
         <div
           ref={reactFlowWrapper}
           className="relative flex-1 bg-background"
@@ -1786,8 +1780,6 @@ export function WorkflowEditor({
               size={1}
               color="hsl(var(--border-strong))"
             />
-            {
-}
             <ViewportPortal>
               <div
                 style={{
@@ -1811,14 +1803,12 @@ export function WorkflowEditor({
                 <MagnifyingGlass />
               </ControlButton>
             </Controls>
-            {}
             <MiniMap
               className="!bg-background !border-border border rounded !mb-20"
               nodeColor="hsl(var(--primary))"
               maskColor="hsl(var(--muted) / 0.7)"
             />
 
-            {}
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-[5] opacity-35 pointer-events-none select-none">
               <BrandLogo
                 useWhite={resolvedTheme === "dark"}
@@ -1841,7 +1831,6 @@ export function WorkflowEditor({
               </Panel>
             )}
 
-            {}
             {searchOpen && (
               <Panel position="top-center">
                 <WorkflowSearch
@@ -1860,7 +1849,6 @@ export function WorkflowEditor({
               </Panel>
             )}
 
-            {}
             <Panel position="top-left">
               <div className="flex items-center gap-1 bg-background border border-border rounded-lg p-0.5 shadow-sm">
                 <button
@@ -1881,7 +1869,6 @@ export function WorkflowEditor({
             </Panel>
           </ReactFlow>
 
-          {}
           {ctxMenu && (
             <CanvasContextMenu
               x={ctxMenu.x}
@@ -1893,10 +1880,6 @@ export function WorkflowEditor({
           )}
         </div>
 
-        {
-}
-        {
-}
         {!copilotMounted && (
           <WorkflowCopilotFab
             onClick={() => {
@@ -1918,8 +1901,6 @@ export function WorkflowEditor({
           />
         )}
 
-        {
-}
         {selectedNode && (
           <NodeConfigPanel
             node={selectedNode}

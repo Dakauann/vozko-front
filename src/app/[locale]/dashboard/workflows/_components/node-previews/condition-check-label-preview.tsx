@@ -3,8 +3,6 @@
 import { EmptyPreview } from "../message-node-primitives";
 import { DecisionBlock } from "./decision-block";
 
-// ConditionPickPreview shows the item a compare node checks against, by the
-// name picked in the editor (stored as _display_<field>).
 export function ConditionPickPreview({
   config,
   field,

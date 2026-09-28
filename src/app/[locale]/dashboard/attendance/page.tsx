@@ -450,8 +450,6 @@ function FrtPanel({
   );
 }
 
-// A headline readout shared by the single-number panels: label left, figure
-// right on one baseline, so every panel in a chapter reads the same way.
 function PanelReadout({
   label,
   value,
@@ -2820,21 +2818,6 @@ export default function AttendanceOpsPage() {
           </Chapter>
 
 
-          {/*
-          <div>
-            <SectionLabel
-              icon={<ClockCounterClockwise className="h-4 w-4" weight="fill" />}
-              iconBg={GLYPH_PLATE.ClockCounterClockwise}
-              title={ts("rework")}
-              subtitle={ts("reworkSub")}
-            />
-            <ReworkSection
-              rework={overview?.rework}
-              loading={loading}
-              fmt={fmt}
-            />
-          </div>
-          */}
           <div>
             <Surface className="!py-3">
               <p className="mb-2 text-2xs font-semibold text-muted-foreground">

@@ -155,7 +155,6 @@ export default function ReportPrintPage() {
         try {
           await document.fonts?.ready;
         } catch {
-          // a browser without the font API still prints; it just may swap a face
         }
         if (!cancelled) window.__REPORT_READY__ = true;
         return;
@@ -319,17 +318,6 @@ export default function ReportPrintPage() {
         />
       </section>
 
-      {/*
-      <section className="space-y-3 break-inside-avoid">
-        <SectionLabel
-          icon={<ClockCounterClockwise className="h-4 w-4" weight="fill" />}
-          iconBg={GLYPH_PLATE.ClockCounterClockwise}
-          title={ts("rework")}
-          subtitle={ts("reworkSub")}
-        />
-        <ReworkSection fmt={fmt} rework={overview.rework} loading={false} />
-      </section>
-      */}
     </main>
   );
 }

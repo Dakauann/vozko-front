@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 
-/** Angular E with Vozko's clipped edges, teal circuit and diamond. */
 export function EloMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 36 36" fill="none" aria-hidden="true" focusable="false" className={cn("h-8 w-8 shrink-0", className)}>

@@ -368,8 +368,6 @@ const SelectedToolItem = ({
             </button>
           </div>
 
-          {
-}
           {toolDefaultVisibility.includes("messaging") && (
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="text-2xs font-medium text-muted-foreground">
@@ -392,7 +390,6 @@ const SelectedToolItem = ({
             </div>
           )}
 
-          {}
           {hasSettings && (
             <div
               className={cn(
@@ -426,7 +423,6 @@ const SelectedToolItem = ({
             </div>
           )}
 
-          {}
           {parameterEntries.length > 0 && (
             <div>
               <button
@@ -1873,7 +1869,6 @@ onStep={(_index, step) => {
           )}
         </div>
 
-        {}
         {selectedTemplateMissingMedia &&
           isAdmin &&
           selectedWhatsAppTemplate && (
@@ -1947,7 +1942,6 @@ onStep={(_index, step) => {
 
             return (
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                {}
                 <div className="order-2 flex flex-col overflow-hidden rounded-[--radius] border border-border bg-card lg:order-1">
                   <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
                     <h3 className="text-sm font-semibold text-foreground">
@@ -2014,7 +2008,6 @@ onStep={(_index, step) => {
                   </div>
                 </div>
 
-                {}
                 <div className="order-1 flex flex-col overflow-hidden rounded-[--radius] border border-border bg-card lg:order-2">
                   <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
                     <h3 className="text-sm font-semibold text-foreground">
@@ -2410,7 +2403,6 @@ onStep={(_index, step) => {
         </DialogContent>
       </Dialog>
 
-      {}
       {configuringTool?.name === "http_request" ? (
         <HttpRequestConfigDialog
           open={toolConfigDialogOpen}

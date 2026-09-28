@@ -3,10 +3,6 @@
 import { FlowArrow, Robot, User } from "@/components/icons";
 import { assigneeKind } from "@/lib/conversations/assignee";
 
-/**
- * The icon beside an owner's name: a person, an AI agent or a workflow. The
- * name alone ("Sofia") cannot tell an operator that nobody human has it yet.
- */
 export function AssigneeGlyph({
   assignedUserId,
   className,

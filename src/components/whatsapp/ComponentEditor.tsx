@@ -699,8 +699,6 @@ function ButtonsEditor({
                 />
               )}
 
-              {
-}
               {button.type === "OTP" && (
                 <div className="space-y-2">
                   <p className="text-xs text-muted-foreground">

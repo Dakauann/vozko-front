@@ -454,8 +454,6 @@ export function InteractiveNodeShell({
           />
         )}
 
-        {
-}
         <div className="flex items-center gap-1.5 border-b border-border bg-card px-2 py-1.5">
           <div
             className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[--radius] shadow-sm"

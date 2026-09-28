@@ -588,8 +588,6 @@ export default function RegisterClient() {
                 />
               </div>
 
-              {
-}
               {(showPasswordRules || password.length > 0) && (
                 <ul
                   aria-label={tRoot("auth.password.requirementsLabel")}

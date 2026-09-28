@@ -36,8 +36,6 @@ describe("isAiCurrentlyAttending", () => {
   });
 });
 
-// The inbox card names the owner on its last line; when that owner is the
-// running agent or workflow, the IA/Fluxo chip would say the same thing twice.
 describe("ownerLineNamesTheAutomation", () => {
   it("is true when a running agent or workflow owns the conversation", () => {
     expect(ownerLineNamesTheAutomation("ai:agent-1", true)).toBe(true);

@@ -313,8 +313,6 @@ export default function SendWhatsAppTemplatePage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <ElevatedContainer className="rounded-lg flex flex-col items-center gap-4 p-8 border border-border bg-card">
-          {
-}
           <div className="flex h-14 w-14 items-center justify-center rounded-[--radius] tile-fault">
             <WarningCircle className="h-7 w-7" weight="fill" />
           </div>
@@ -387,7 +385,6 @@ export default function SendWhatsAppTemplatePage() {
       <form onSubmit={handleSubmit}>
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="space-y-6">
-            {}
             <div>
               <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
                 <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground mb-4">
@@ -440,7 +437,6 @@ export default function SendWhatsAppTemplatePage() {
               </ElevatedContainer>
             </div>
 
-            {}
             {(hasMediaHeader || headerParamNames.length > 0) && (
               <div>
                 <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
@@ -531,7 +527,6 @@ export default function SendWhatsAppTemplatePage() {
               </div>
             )}
 
-            {/* Body Parameters Section */}
             {bodyParamNames.length > 0 && (
               <div>
                 <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
@@ -578,7 +573,6 @@ export default function SendWhatsAppTemplatePage() {
               </div>
             )}
 
-            {/* Submit Buttons */}
             <div>
               <div className="flex gap-3">
                 <Button
@@ -607,7 +601,6 @@ export default function SendWhatsAppTemplatePage() {
               </div>
             </div>
 
-            {/* Debug Payload Section (admin only) */}
             {(debugInfo || sendError || sendSuccess) && (
               <div>
                 <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
@@ -616,7 +609,6 @@ export default function SendWhatsAppTemplatePage() {
                     {t("send.debug.title")}
                   </h2>
 
-                  {/* Status Badge */}
                   <div className="mb-4">
                     {sendSuccess ? (
                       <div className="flex items-center gap-2 rounded-lg border border-border bg-muted p-3">
@@ -677,14 +669,12 @@ export default function SendWhatsAppTemplatePage() {
             )}
           </div>
 
-          {/* Preview Panel */}
           <div>
             <ElevatedContainer className="rounded-lg border border-border bg-card p-6 sticky top-6">
               <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground mb-4">
                 {t("send.preview.title")}
               </h2>
 
-              {/* Template Info */}
               <div className="mb-4 space-y-1">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <span className="font-medium">
@@ -720,7 +710,6 @@ export default function SendWhatsAppTemplatePage() {
 
               <div className="bg-[#e5ddd5] dark:bg-[#0b141a] rounded-[--radius] p-4 min-h-[300px]">
                 <div className="max-w-[280px] bg-card rounded-lg shadow-sm overflow-hidden">
-                  {/* Header - Media */}
                   {hasMediaHeader && (
                     <div className="border-b border-border p-3 flex items-center justify-center min-h-[80px]">
                       {headerComponent?.format === "VIDEO" ? (
@@ -742,7 +731,6 @@ export default function SendWhatsAppTemplatePage() {
                     </div>
                   )}
 
-                  {/* Header - Text */}
                   {headerComponent?.format === "TEXT" &&
                     headerComponent?.text && (
                       <div className="px-3 py-2 border-b border-border">
@@ -752,14 +740,12 @@ export default function SendWhatsAppTemplatePage() {
                       </div>
                     )}
 
-                  {/* Body */}
                   <div className="px-3 py-2">
                     <p className="text-sm text-foreground whitespace-pre-wrap">
                       {getPreviewText()}
                     </p>
                   </div>
 
-                  {/* Footer */}
                   {template.components.find((c) => c.type === "FOOTER")
                     ?.text && (
                     <div className="px-3 py-1">
@@ -772,7 +758,6 @@ export default function SendWhatsAppTemplatePage() {
                     </div>
                   )}
 
-                  {/* Timestamp */}
                   <div className="px-3 py-1 text-right">
                     <span className="text-2xs text-muted-foreground">
                       {new Date().toLocaleTimeString([], {
@@ -782,7 +767,6 @@ export default function SendWhatsAppTemplatePage() {
                     </span>
                   </div>
 
-                  {/* Buttons */}
                   {template.components.find((c) => c.type === "BUTTONS")
                     ?.buttons?.length ? (
                     <div className="border-t border-border">

@@ -11,9 +11,6 @@ export interface WorkspaceConfigState {
   loaded: boolean;
 }
 
-// useWorkspaceConfig reads the workspace's settings once per workspace. A
-// failed read leaves config null with loaded true, so callers can tell "not
-// yet" from "unavailable".
 export function useWorkspaceConfig(workspaceId: string | undefined | null): WorkspaceConfigState {
   const [config, setConfig] = useState<WorkspaceConfig | null>(null);
   const [loadedWorkspace, setLoadedWorkspace] = useState<string | null>(null);

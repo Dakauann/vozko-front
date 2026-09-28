@@ -120,7 +120,6 @@ export async function fetchReportFileAction(
             const body = (await response.json()) as { message?: string };
             if (body?.message) message = body.message;
         } catch {
-            // the body is not JSON; the status line is all we have
         }
         return { data: null, error: message };
     }
