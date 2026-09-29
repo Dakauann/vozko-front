@@ -118,7 +118,12 @@ export interface NavigationCard {
   destination: { screen: string; params?: Record<string, string> };
 }
 
-export type ActionCard = OfferCard | NavigationCard;
+export interface CallCard {
+  kind: "place_call";
+  call: { phoneNumber: string; trunkId?: string; trunkName?: string };
+}
+
+export type ActionCard = OfferCard | NavigationCard | CallCard;
 
 export type ActionKind = ActionCard["kind"];
 

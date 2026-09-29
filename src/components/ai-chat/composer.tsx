@@ -1,19 +1,54 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
-import { CaretDown, CircleNotch, FileText, PaperPlaneTilt, Paperclip, Stop, X } from "@/components/icons";
+import {
+  CaretDown,
+  CircleNotch,
+  FileText,
+  Microphone,
+  MicrophoneSlash,
+  PaperPlaneTilt,
+  Paperclip,
+  Stop,
+  Waveform,
+  X,
+} from "@/components/icons";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { PANEL_EASE } from "@/components/docks/dock-chrome";
 import { AIModelSelector } from "@/components/elevated-design/ai-model-selector";
+import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import type { ModelPricingInfo } from "@/lib/agents/types";
 import type { ChatAttachment } from "@/lib/aichat/types";
+import { useCallActive } from "@/lib/call-session/call-session-control";
+import type { ListenFailure } from "@/lib/voice/browser-speech";
+import { appendDictation, speechLang } from "@/lib/voice/speech-text";
 import { cn } from "@/lib/utils";
 
 import { useChatAttachments } from "./use-chat-attachments";
+import type { VoiceMode } from "./voice/use-voice-mode";
+import { VoiceStrip } from "./voice/voice-strip";
 
-export const PANEL_EASE = [0.2, 0, 0, 1] as const;
+const TOOL_BUTTON =
+  "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[--radius] text-muted-foreground transition-colors duration-DEFAULT hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring aria-pressed:bg-muted aria-pressed:text-foreground";
+
+function useDictation(input: string, setInput: (v: string) => void, onFailure: (failure: ListenFailure) => void) {
+  const locale = useLocale();
+  const draft = useRef(input);
+  useEffect(() => {
+    draft.current = input;
+  }, [input]);
+  const onFinal = useCallback(
+    (text: string) => {
+      draft.current = appendDictation(draft.current, text);
+      setInput(draft.current);
+    },
+    [setInput],
+  );
+  return useSpeechRecognition({ lang: speechLang(locale), continuous: true, onFinal, onFailure });
+}
 
 export function Composer({
   docked,
@@ -32,6 +67,7 @@ export function Composer({
   error,
   showScrollDown,
   onScrollDown,
+  voice,
 }: {
   docked: boolean;
   spacious?: boolean;
@@ -49,10 +85,41 @@ export function Composer({
   error: string | null;
   showScrollDown: boolean;
   onScrollDown: () => void;
+  voice?: VoiceMode;
 }) {
   const reduceMotion = useReducedMotion();
   const t = useTranslations("aiChatPage");
   const files = useChatAttachments();
+  const callActive = useCallActive();
+  const [dictationFailure, setDictationFailure] = useState<ListenFailure | null>(null);
+  const dictation = useDictation(input, setInput, setDictationFailure);
+  const voiceOn = voice !== undefined && voice.phase !== "off";
+  const voiceFailure = voice?.failure ?? dictationFailure;
+
+  const toggleDictation = () => {
+    if (dictation.listening) {
+      dictation.stop();
+      return;
+    }
+    setDictationFailure(null);
+    dictation.start();
+  };
+
+  const toggleVoice = () => {
+    if (!voice) return;
+    if (voiceOn) {
+      voice.disable();
+      return;
+    }
+    dictation.abort();
+    voice.enable();
+  };
+
+  const { listening: dictating, abort: abortDictation } = dictation;
+  useEffect(() => {
+    if (callActive && dictating) abortDictation();
+  }, [callActive, dictating, abortDictation]);
+
   const picker = useRef<HTMLInputElement>(null);
   const textarea = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
@@ -89,11 +156,15 @@ export function Composer({
       ) : null}
 
       <div className="mx-auto max-w-3xl">
-        {error || files.error ? (
+        {error || files.error || voiceFailure ? (
           <Alert variant="destructive" role="alert" className="mb-2">
-            <AlertDescription>{error ?? t(`attachments.errors.${files.error}`)}</AlertDescription>
+            <AlertDescription>
+              {error ?? (files.error ? t(`attachments.errors.${files.error}`) : t(`voice.errors.${voiceFailure}`))}
+            </AlertDescription>
           </Alert>
         ) : null}
+
+        {voice ? <VoiceStrip voice={voice} /> : null}
 
         <div className="rounded-lg border border-control-edge bg-card dark:bg-muted focus-within:ring-2 focus-within:ring-ring">
           <textarea
@@ -108,10 +179,15 @@ export function Composer({
               }
             }}
             rows={spacious ? 2 : docked ? 1 : 2}
-            placeholder={placeholder ?? t("inputPlaceholder")}
+            placeholder={dictating ? t("voice.dictating") : (placeholder ?? t("inputPlaceholder"))}
             aria-label={placeholder ?? t("inputPlaceholder")}
             className={cn("block max-h-40 w-full resize-none bg-transparent px-3 text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground", spacious ? "py-3" : "pt-2.5")}
           />
+          {dictating && dictation.interim ? (
+            <p aria-live="polite" className="truncate px-3 pb-2 text-xs italic text-muted-foreground">
+              {dictation.interim}
+            </p>
+          ) : null}
           {files.items.length > 0 ? (
             <ul className="flex flex-wrap gap-1.5 px-3 pb-2" aria-label={t("attachments.legend")}>
               {files.items.map((item) => (
@@ -148,16 +224,44 @@ export function Composer({
                 e.target.value = "";
               }}
             />
-            <button
-              type="button"
-              onClick={() => picker.current?.click()}
-              disabled={streaming || disabled}
-              className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[--radius] text-muted-foreground transition-colors duration-DEFAULT hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              aria-label={t("attachments.add")}
-              title={t("attachments.add")}
-            >
-              <Paperclip className="h-4 w-4" />
-            </button>
+            <div className="flex flex-shrink-0 items-center gap-0.5">
+              <button
+                type="button"
+                onClick={() => picker.current?.click()}
+                disabled={streaming || disabled}
+                className={TOOL_BUTTON}
+                aria-label={t("attachments.add")}
+                title={t("attachments.add")}
+              >
+                <Paperclip className="h-4 w-4" />
+              </button>
+              {dictation.supported && !voiceOn ? (
+                <button
+                  type="button"
+                  onClick={toggleDictation}
+                  disabled={disabled || callActive}
+                  aria-pressed={dictating}
+                  className={cn(TOOL_BUTTON, dictating && "text-healthy-ink")}
+                  aria-label={t(dictating ? "voice.stopDictation" : "voice.dictate")}
+                  title={t(dictating ? "voice.stopDictation" : "voice.dictate")}
+                >
+                  {dictating ? <MicrophoneSlash className="h-4 w-4" /> : <Microphone className="h-4 w-4" />}
+                </button>
+              ) : null}
+              {voice?.supported ? (
+                <button
+                  type="button"
+                  onClick={toggleVoice}
+                  disabled={!voiceOn && (disabled || callActive || !model)}
+                  aria-pressed={voiceOn}
+                  className={TOOL_BUTTON}
+                  aria-label={t(voiceOn ? "voice.exit" : "voice.mode")}
+                  title={t(voiceOn ? "voice.exit" : "voice.mode")}
+                >
+                  <Waveform className="h-4 w-4" />
+                </button>
+              ) : null}
+            </div>
             <div className="min-w-0 max-w-[15rem] flex-1">
               <AIModelSelector
                 label={t("modelLabel")}

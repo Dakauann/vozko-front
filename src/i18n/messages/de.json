@@ -305,7 +305,8 @@
       "update_department": "Abteilung ändern",
       "delete_department": "Abteilung löschen",
       "add_department_member": "Zur Abteilung hinzufügen",
-      "remove_department_member": "Aus der Abteilung entfernen"
+      "remove_department_member": "Aus der Abteilung entfernen",
+      "place_call": "Anruf vorbereiten"
     },
     "threadsLegend": "Unterhaltungen",
     "greeting": "Hallo, ich bin Elo. Woran arbeiten wir?",
@@ -656,6 +657,27 @@
       "autoOpenNo": "Nur die Schaltfläche zeigen",
       "autoOpen": "Seiten automatisch öffnen",
       "upcoming": "Demnächst"
+    },
+    "voice": {
+      "dictate": "Nachricht diktieren",
+      "stopDictation": "Diktieren beenden",
+      "dictating": "Ich höre zu… sprich deine Nachricht",
+      "mode": "Sprachmodus: mit Elo sprechen",
+      "exit": "Sprachmodus verlassen",
+      "skip": "Überspringen",
+      "privacy": "Deine Stimme wird vom Sprachdienst des Browsers transkribiert.",
+      "phases": {
+        "listening": "Hört zu",
+        "thinking": "Denkt nach",
+        "speaking": "Spricht",
+        "paused": "Während des Anrufs pausiert"
+      },
+      "errors": {
+        "blocked": "Erlaube den Mikrofonzugriff im Browser, um mit Elo zu sprechen.",
+        "no_microphone": "Kein Mikrofon gefunden.",
+        "network": "Der Sprachdienst des Browsers hat nicht geantwortet. Versuche es erneut.",
+        "unavailable": "Dieser Browser bietet keine Spracherkennung."
+      }
     }
   },
   "leadMemories": {
@@ -1163,7 +1185,8 @@
       "eleven_multilingual_v2": "TTS (Mehrsprachig)",
       "eleven_turbo_flash": "TTS (Schnell)",
       "eleven_v3": "TTS (v3)",
-      "default_markup": "KI-Modelle"
+      "default_markup": "KI-Modelle",
+      "sip_calls": "Anrufe (SIP-Trunk)"
     },
     "footer": "Preise in BRL. Werte können je nach Wechselkurs variieren. Pläne können jederzeit geändert werden."
   },
@@ -1659,7 +1682,8 @@
       "facebook": "Seiten",
       "facebookPages": "Seiten",
       "connectFacebook": "Seite verbinden",
-      "adminLiveDecisions": "Live-Entscheidungen"
+      "adminLiveDecisions": "Live-Entscheidungen",
+      "sipTrunks": "SIP-Trunks"
     },
     "badges": {
       "new": "Neu",
@@ -1686,7 +1710,8 @@
         "soonHint": "Der Facebook-Kanal kommt bald."
       },
       "unofficial-whatsapp": "WhatsApp",
-      "facebook": "Facebook"
+      "facebook": "Facebook",
+      "telephony": "Telefonie"
     },
     "pin": {
       "pin": "Anheften",
@@ -6231,6 +6256,7 @@
       "instagram_accounts": "Instagram-Konten",
       "audience": "Audience-Analyse",
       "telegram_accounts": "Telegram-Konten",
+      "sip_trunks": "SIP-Trunks",
       "unofficial_whatsapp_instances": "WhatsApp-Nummern (inoffiziell)",
       "short_links": "Kurzlinks",
       "facebook_pages": "Facebook-Seiten"
@@ -6284,6 +6310,7 @@
       "instagram_accounts": "Instagram-Konten des Workspace verbinden und verwalten.",
       "audience": "Die Analyse von Kommentaren und Gesprächen der verbundenen Kanäle sehen, Autoren moderieren und die Analyse konfigurieren (kostenpflichtig).",
       "telegram_accounts": "Telegram-Bots und -Konten des Workspace verbinden und verwalten.",
+      "sip_trunks": "SIP-Trunks des Telefonieanbieters hinterlegen und darüber Sprachanrufe führen.",
       "unofficial_whatsapp_instances": "WhatsApp-Nummern über ein verknüpftes Gerät verbinden und verwalten.",
       "short_links": "Kurzlinks erstellen und ihre Klickstatistiken verfolgen.",
       "facebook_pages": "Facebook-Seiten verbinden, veröffentlichen, Kommentare moderieren und den Messenger einrichten."
@@ -6799,7 +6826,8 @@
         "service": "Servicenachrichten"
       },
       "telephony": {
-        "whatsapp_calls": "WhatsApp-Anrufe"
+        "whatsapp_calls": "WhatsApp-Anrufe",
+        "sip_calls": "Anrufe (SIP-Trunk)"
       },
       "sms": {
         "standard": "SMS"
@@ -6965,7 +6993,8 @@
         "service": "WhatsApp, Servicenachrichten",
         "whatsapp_calls": "WhatsApp-Anrufe",
         "standard": "SMS-Nachrichten",
-        "default_markup": "KI-Modelle (LLM)"
+        "default_markup": "KI-Modelle (LLM)",
+        "sip_calls": "Anrufe (SIP-Trunk)"
       }
     },
     "archive": {
@@ -7223,7 +7252,8 @@
         "eleven_v3": "Text-zu-Sprache (v3)",
         "whatsapp_calls": "WhatsApp-Anrufe",
         "standard": "SMS-Nachrichten",
-        "default_markup": "KI-Modelle (LLM)"
+        "default_markup": "KI-Modelle (LLM)",
+        "sip_calls": "Anrufe (SIP-Trunk)"
       },
       "metrics": {
         "per_million_chars": "pro 1M Zeichen",
@@ -10982,12 +11012,6 @@
       "beforeYouStart": "Bevor Sie starten"
     }
   },
-  "whatsappCall": {
-    "ringing": "Ruft an…",
-    "inCall": "Im Gespräch",
-    "waitingSlot": "Warten auf Leitung",
-    "endCall": "Auflegen"
-  },
   "adminSendCaps": {
     "stats": {
       "capped": "Mit Limit"
@@ -13745,6 +13769,182 @@
       "stage_uncertain": "Phase unklar",
       "memory_review_skipped": "Erinnerung unverändert",
       "deal_review_skipped": "Verkaufschance unverändert"
+    }
+  },
+  "calling": {
+    "widget": {
+      "ringing": "Klingelt…",
+      "inCall": "Im Gespräch",
+      "waitingSlot": "Warte auf eine Leitung",
+      "endCall": "Auflegen",
+      "mute": "Mikrofon stummschalten",
+      "unmute": "Mikrofon einschalten"
+    },
+    "incoming": {
+      "title": "Eingehender Anruf · {channel}",
+      "channel": {
+        "sip": "SIP-Trunk",
+        "whatsapp": "WhatsApp"
+      },
+      "unknownNumber": "Unterdrückte Nummer",
+      "expiresIn": "Klingelt noch {seconds} s",
+      "busy": "Beende das aktuelle Gespräch, um anzunehmen",
+      "accept": "Annehmen",
+      "decline": "Ablehnen"
+    },
+    "dialer": {
+      "open": "Wählfeld öffnen",
+      "tabLabel": "Wählfeld",
+      "title": "Wählfeld",
+      "online": "Verbunden",
+      "offline": "Verbinde",
+      "minimize": "Minimieren",
+      "trunk": "Trunk",
+      "number": "Nummer",
+      "numberPlaceholder": "Nummer eingeben",
+      "keypad": "Tastenfeld",
+      "erase": "Löschen",
+      "call": "Anrufen",
+      "hangUp": "Auflegen",
+      "mute": "Stumm",
+      "unmute": "Ton an",
+      "inCall": "Im Gespräch",
+      "ringing": "Klingelt…",
+      "waitingSlot": "Warte auf eine Leitung",
+      "loadingTrunks": "Trunks werden geladen…",
+      "noTrunks": "Kein registrierter Trunk zum Anrufen verfügbar.",
+      "manageTrunks": "Trunks verwalten",
+      "outcome": {
+        "ended": "Anruf beendet",
+        "cancelled": "Anruf abgebrochen",
+        "busy": "Besetzt",
+        "no_answer": "Keine Antwort",
+        "declined": "Anruf abgelehnt",
+        "failed": "Der Anruf kam nicht zustande",
+        "insufficient_balance": "Guthaben reicht nicht zum Weitertelefonieren",
+        "balance_check_error": "Guthaben konnte nicht geprüft werden",
+        "connection_lost": "Verbindung verloren, der Anruf ist abgebrochen"
+      },
+      "errors": {
+        "trunk_unavailable": "Über diesen Trunk sind keine Anrufe möglich.",
+        "trunk_not_registered": "Der Trunk ist beim Anbieter nicht registriert.",
+        "invalid_number": "Nur Ziffern, *, # und ein führendes + verwenden.",
+        "unauthorized": "Du darfst über diesen Trunk nicht anrufen.",
+        "no_call_slots": "Alle Leitungen sind belegt. Versuche es gleich noch einmal.",
+        "insufficient_balance": "Guthaben reicht nicht zum Anrufen.",
+        "already_in_call": "Du bist bereits in einem Gespräch.",
+        "dial_failed": "Der Anruf konnte nicht gestartet werden."
+      }
+    },
+    "dragHint": "Zum Verschieben ziehen, Doppelklick setzt zurück",
+    "assistantCard": {
+      "title": "Anruf",
+      "via": "Über Trunk {trunk}",
+      "chooseTrunk": "Du wählst den Trunk im Wählfeld",
+      "call": "Anrufen",
+      "openDialer": "Im Wählfeld öffnen",
+      "started": "Anruf gestartet. Verfolge ihn in der Anrufkarte.",
+      "handedOver": "Nummer an das Wählfeld übergeben. Wähle einen Trunk und rufe an.",
+      "noPermission": "Du darfst nicht über Trunks anrufen.",
+      "connecting": "Verbindung zum Anrufdienst wird hergestellt…",
+      "busy": "Du bist bereits in einem Anruf."
+    }
+  },
+  "sipTrunks": {
+    "page": {
+      "title": "SIP-Trunks",
+      "description": "Verbinde die Trunks deines Telefonieanbieters, um über das Wählfeld anzurufen und Anrufe anzunehmen.",
+      "create": "Neuer Trunk",
+      "refresh": "Aktualisieren",
+      "emptyTitle": "Noch keine Trunks",
+      "emptyDescription": "Hinterlege den SIP-Trunk deines Anbieters, um das Wählfeld zu nutzen.",
+      "errorTitle": "Trunks konnten nicht geladen werden",
+      "retry": "Erneut versuchen"
+    },
+    "table": {
+      "trunk": "Trunk",
+      "type": "Typ",
+      "status": "Registrierung"
+    },
+    "status": {
+      "REGISTERED": "Registriert",
+      "REGISTERING": "Registriert gerade",
+      "FAILED": "Fehlgeschlagen",
+      "UNREGISTERED": "Nicht registriert",
+      "DISABLED": "Deaktiviert"
+    },
+    "stats": {
+      "total": "Trunks",
+      "registered": "Registriert",
+      "attention": "Fehlerhaft"
+    },
+    "actions": {
+      "edit": "Trunk bearbeiten",
+      "delete": "Trunk entfernen"
+    },
+    "delete": {
+      "title": "Trunk entfernen?",
+      "body": "Der Trunk {name} wird entfernt und laufende Anrufe darüber werden beendet.",
+      "confirm": "Entfernen",
+      "cancel": "Abbrechen",
+      "done": "Trunk entfernt",
+      "failed": "Trunk konnte nicht entfernt werden"
+    },
+    "form": {
+      "createTitle": "Neuer SIP-Trunk",
+      "editTitle": "SIP-Trunk bearbeiten",
+      "subtitle": "Die Zugangsdaten bekommst du von deinem Telefonieanbieter.",
+      "name": "Name",
+      "host": "Server (Host)",
+      "port": "Port",
+      "transport": "Transport",
+      "trunkType": "Verwendung",
+      "types": {
+        "BIDIRECTIONAL": "Anrufen und annehmen",
+        "OUTBOUND": "Nur anrufen",
+        "INBOUND": "Nur annehmen"
+      },
+      "username": "Benutzername",
+      "password": "Passwort",
+      "passwordKeep": "Passwort (leer lassen zum Beibehalten)",
+      "domain": "Domain",
+      "domainPlaceholder": "Optional, wenn sie vom Server abweicht",
+      "enabled": "Aktiv",
+      "enabledHint": "Aktive Trunks bleiben registriert und erscheinen im Wählfeld.",
+      "advanced": "Erweiterte Einstellungen",
+      "skipRegistration": "Nicht registrieren (IP-Authentifizierung)",
+      "skipRegistrationHint": "Für Anbieter, die deine IP statt Benutzername und Passwort freigeben.",
+      "authUsername": "Benutzername für die Authentifizierung",
+      "outboundProxy": "Ausgehender Proxy",
+      "stripPrefix": "Präfix entfernen",
+      "addPrefix": "Präfix hinzufügen",
+      "codecs": "Codecs",
+      "codecsHint": "Ohne Auswahl gelten PCMU und PCMA. Das Wählfeld braucht PCMU oder PCMA.",
+      "srtp": "Medienverschlüsselung (SRTP)",
+      "srtpModes": {
+        "off": "Aus",
+        "optional": "Anbieten",
+        "required": "Pflicht"
+      },
+      "stun": "Öffentliche Adresse per STUN ermitteln",
+      "stunHint": "Für Server hinter NAT ohne feste öffentliche Adresse.",
+      "publicAddress": "Öffentliche Adresse",
+      "inboundSources": "Erlaubte Quellen für eingehende Anrufe",
+      "inboundSourcesHint": "Eine IP oder ein Bereich (CIDR) pro Zeile, zusätzlich zum Server des Anbieters.",
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "saving": "Wird gespeichert…",
+      "created": "Trunk angelegt",
+      "updated": "Trunk aktualisiert",
+      "saveFailed": "Trunk konnte nicht gespeichert werden",
+      "invalid": {
+        "name": "Gib einen Namen ein.",
+        "host": "Gib den Server ein.",
+        "port": "Verwende einen Port zwischen 1 und 65535.",
+        "username": "Gib den Benutzernamen ein.",
+        "password": "Gib das Passwort ein.",
+        "codecs": "Wähle PCMU oder PCMA, damit das Wählfeld funktioniert."
+      }
     }
   }
 }

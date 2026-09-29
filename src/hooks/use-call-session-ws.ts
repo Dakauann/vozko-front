@@ -3,11 +3,14 @@
 import type {
     IncomingCallOffer,
     IncomingCallPayload,
+    IncomingCallWithdrawnPayload,
 } from "@/lib/call-session/inbound-call-types";
 import {
     WS_EVENT_INCOMING_CALL,
     WS_EVENT_INCOMING_CALL_ACCEPT,
     WS_EVENT_INCOMING_CALL_DECLINE,
+    WS_EVENT_INCOMING_CALL_WITHDRAWN,
+    offerExpiresInMs,
 } from "@/lib/call-session/inbound-call-types";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -31,7 +34,11 @@ export type CallSessionStatus = "ringing" | "answered" | "waiting_slot" | "ended
 
 export interface StartCallOptions {
     whatsAppPhoneId?: string;
+    trunkId?: string;
 }
+
+export const CONNECTION_LOST_REASON = "connection_lost";
+const NO_ACTIVE_CALL_CODE = "no_active_call";
 
 export interface CallSessionState {
     callId?: string;
@@ -64,10 +71,13 @@ interface UseCallSessionWsOptions {
     enabled?: boolean;
 }
 
-interface UseCallSessionWsReturn {
+export interface CallSessionApi {
     status: ConnectionStatus;
     callState: CallSessionState | null;
     lastError: string | null;
+    lastErrorCode: string | null;
+    muted: boolean;
+    setMuted: (muted: boolean) => void;
     startCall: (phoneNumber: string, options?: StartCallOptions) => void;
     endCall: () => void;
     clearError: () => void;
@@ -121,6 +131,7 @@ type CallSessionServerEvent =
         };
     }
     | { type: typeof WS_EVENT_INCOMING_CALL; payload: IncomingCallPayload }
+    | { type: typeof WS_EVENT_INCOMING_CALL_WITHDRAWN; payload: IncomingCallWithdrawnPayload }
     | { type: typeof WS_EVENT_CALL_SESSION_PRESENCE; payload: CallSessionPresencePayload };
 
 const CALL_SAMPLE_RATE = 8000;
@@ -128,7 +139,7 @@ const CALL_SAMPLE_RATE = 8000;
 export function useCallSessionWs({
     token,
     enabled = true,
-}: UseCallSessionWsOptions): UseCallSessionWsReturn {
+}: UseCallSessionWsOptions): CallSessionApi {
     const { currentWorkspace } = useWorkspace();
     const { currentDepartment } = useDepartment();
 
@@ -139,12 +150,41 @@ export function useCallSessionWs({
     const [status, setStatus] = useState<ConnectionStatus>("disconnected");
     const [callState, setCallState] = useState<CallSessionState | null>(null);
     const [lastError, setLastError] = useState<string | null>(null);
+    const [lastErrorCode, setLastErrorCode] = useState<string | null>(null);
+    const [muted, setMutedState] = useState(false);
+    const mutedRef = useRef(false);
 
     const [incomingCall, setIncomingCall] = useState<IncomingCallOffer | null>(null);
     const [presence, setPresence] = useState<CallSessionPresenceEntry[]>([]);
     const [selfUserId, setSelfUserId] = useState<string>("");
 
     const selfUserIdRef = useRef<string>("");
+    const callStateRef = useRef<CallSessionState | null>(null);
+
+    useEffect(() => {
+        callStateRef.current = callState;
+    }, [callState]);
+
+    useEffect(() => {
+        if (!incomingCall) return;
+        const remaining = offerExpiresInMs(incomingCall, Date.now());
+        if (remaining === null) return;
+        const offerId = incomingCall.offerId;
+        const timer = setTimeout(() => {
+            setIncomingCall((prev) => (prev?.offerId === offerId ? null : prev));
+        }, remaining);
+        return () => clearTimeout(timer);
+    }, [incomingCall]);
+
+    const inCall = callState !== null && callState.status !== "ended";
+    useEffect(() => {
+        if (!inCall) return;
+        const warnBeforeLeaving = (event: BeforeUnloadEvent) => {
+            event.preventDefault();
+        };
+        window.addEventListener("beforeunload", warnBeforeLeaving);
+        return () => window.removeEventListener("beforeunload", warnBeforeLeaving);
+    }, [inCall]);
 
     const wsRef = useRef<WebSocket | null>(null);
     const connectRef = useRef<(() => void) | null>(null);
@@ -200,6 +240,12 @@ export function useCallSessionWs({
 
     const clearError = useCallback(() => {
         setLastError(null);
+        setLastErrorCode(null);
+    }, []);
+
+    const setMuted = useCallback((next: boolean) => {
+        mutedRef.current = next;
+        setMutedState(next);
     }, []);
 
     const send = useCallback((type: string, payload: Record<string, unknown>) => {
@@ -211,6 +257,8 @@ export function useCallSessionWs({
 
     const stopAudioPipeline = useCallback(() => {
         micStartedRef.current = false;
+        mutedRef.current = false;
+        setMutedState(false);
         if (scriptProcessorRef.current) {
             try {
                 scriptProcessorRef.current.disconnect();
@@ -271,7 +319,7 @@ export function useCallSessionWs({
             scriptProcessorRef.current = processor;
 
             processor.onaudioprocess = (e) => {
-                if (wsRef.current?.readyState !== WebSocket.OPEN) return;
+                if (wsRef.current?.readyState !== WebSocket.OPEN || mutedRef.current) return;
                 const input = e.inputBuffer.getChannelData(0);
                 const pcm16 = new Int16Array(input.length);
                 for (let i = 0; i < input.length; i++) {
@@ -315,6 +363,17 @@ export function useCallSessionWs({
             clearCallStateTimerRef.current = null;
         }, 3000);
     }, []);
+
+    const endCallOnConnectionLoss = useCallback(() => {
+        setIncomingCall(null);
+        const current = callStateRef.current;
+        if (!current || current.status === "ended") return;
+        stopAudioPipeline();
+        setCallState((prev) =>
+            prev && prev.status !== "ended" ? { ...prev, status: "ended", reason: CONNECTION_LOST_REASON } : prev,
+        );
+        clearEndedCallAfterDelay();
+    }, [clearEndedCallAfterDelay, stopAudioPipeline]);
 
     const handleServerEvent = useCallback(
         (event: CallSessionServerEvent) => {
@@ -442,10 +501,22 @@ export function useCallSessionWs({
             if (event.type === "conversation:error") {
                 const message = event.payload.message || "Call connection error.";
                 setLastError(message);
+                setLastErrorCode(event.payload.code ?? null);
+                if (event.payload.code === NO_ACTIVE_CALL_CODE) {
+                    endCallOnConnectionLoss();
+                    return;
+                }
                 toast.error(message);
-                stopAudioPipeline();
-                setCallState(null);
+                if (!callStateRef.current?.callId) {
+                    stopAudioPipeline();
+                    setCallState(null);
+                }
                 setIncomingCall(null);
+                return;
+            }
+
+            if (event.type === WS_EVENT_INCOMING_CALL_WITHDRAWN) {
+                setIncomingCall((prev) => (prev?.offerId === event.payload.offer_id ? null : prev));
                 return;
             }
 
@@ -463,7 +534,7 @@ export function useCallSessionWs({
                 return;
             }
         },
-        [clearEndedCallAfterDelay, stopAudioPipeline],
+        [clearEndedCallAfterDelay, endCallOnConnectionLoss, stopAudioPipeline],
     );
 
     const connect = useCallback(async () => {
@@ -496,6 +567,7 @@ export function useCallSessionWs({
             } catch {
             }
             wsRef.current = null;
+            endCallOnConnectionLoss();
         }
 
         if (!current.token) {
@@ -554,10 +626,11 @@ export function useCallSessionWs({
 
             setStatus("disconnected");
             wsRef.current = null;
+            endCallOnConnectionLoss();
 
             controllerRef.current?.scheduleReconnect();
         };
-    }, [handleServerEvent]);
+    }, [handleServerEvent, endCallOnConnectionLoss]);
 
     useEffect(() => {
         connectRef.current = connect;
@@ -586,8 +659,8 @@ export function useCallSessionWs({
         }
 
         setStatus("disconnected");
-        setIncomingCall(null);
-    }, [stopAudioPipeline]);
+        endCallOnConnectionLoss();
+    }, [stopAudioPipeline, endCallOnConnectionLoss]);
 
     const hasToken = !!token;
     useEffect(() => {
@@ -620,7 +693,7 @@ export function useCallSessionWs({
 
     const startCall = useCallback(
         (phoneNumber: string, options?: StartCallOptions) => {
-            const { whatsAppPhoneId } = options ?? {};
+            const { whatsAppPhoneId, trunkId } = options ?? {};
             const target = phoneNumber.trim();
             if (!target) {
                 const message = "Phone number is required.";
@@ -646,6 +719,7 @@ export function useCallSessionWs({
             const requestId = crypto.randomUUID();
 
             setLastError(null);
+            setLastErrorCode(null);
             setCallState({
                 phoneNumber: target,
                 status: "ringing",
@@ -656,6 +730,7 @@ export function useCallSessionWs({
                 phone_number: target,
                 request_id: requestId,
                 ...(whatsAppPhoneId ? { whatsapp_phone_id: whatsAppPhoneId } : {}),
+                ...(trunkId ? { trunk_id: trunkId } : {}),
             });
 
             void startMicCapture().then((ok) => {
@@ -723,6 +798,9 @@ export function useCallSessionWs({
             status,
             callState,
             lastError,
+            lastErrorCode,
+            muted,
+            setMuted,
             startCall,
             endCall,
             clearError,
@@ -736,6 +814,9 @@ export function useCallSessionWs({
             status,
             callState,
             lastError,
+            lastErrorCode,
+            muted,
+            setMuted,
             startCall,
             endCall,
             clearError,

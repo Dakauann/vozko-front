@@ -18,6 +18,7 @@ import { useWhatsAppCapacity } from "@/hooks/use-whatsapp-capacity";
 import { useWhatsAppEmbeddedSignup } from "@/hooks/use-whatsapp-embedded-signup";
 import { Link, useRouter } from "@/i18n/routing";
 import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
+import { CallCardView } from "@/components/ai-chat/call-card";
 import { useAutoOpenScreens } from "@/components/ai-chat/use-auto-open-screens";
 import { cardState, type CardView } from "@/lib/aichat/action-card";
 import type { ActionCard, NavigationCard, OfferCard, OfferKind } from "@/lib/aichat/types";
@@ -79,6 +80,7 @@ const SECONDARY =
 
 export function ActionCardView({ card, live = false }: { card: ActionCard; live?: boolean }) {
   if (card.kind === "open_screen") return <NavigationCardView card={card} live={live} />;
+  if (card.kind === "place_call") return <CallCardView card={card} />;
   switch (card.kind) {
     case "connect_whatsapp_business":
       return <OfficialWhatsAppCard card={card} />;

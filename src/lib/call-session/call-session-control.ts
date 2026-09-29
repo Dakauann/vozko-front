@@ -6,7 +6,8 @@ import { useSyncExternalStore } from "react";
 export interface CallRequest {
     phoneNumber: string;
     whatsAppPhoneId?: string;
-    whatsAppPhoneLabel?: string;
+    trunkId?: string;
+    label?: string;
 }
 
 type RequestListener = (request: CallRequest) => void;
@@ -64,4 +65,50 @@ function getServerSnapshot(): boolean {
 
 export function useCallActive(): boolean {
     return useSyncExternalStore(subscribeActive, getActiveSnapshot, getServerSnapshot);
+}
+
+const dialerListeners = new Set<() => void>();
+let dialerOpen = false;
+
+export function setDialerOpen(next: boolean): void {
+    if (dialerOpen === next) return;
+    dialerOpen = next;
+    dialerListeners.forEach((listener) => listener());
+}
+
+function subscribeDialerOpen(listener: () => void): () => void {
+    dialerListeners.add(listener);
+    return () => {
+        dialerListeners.delete(listener);
+    };
+}
+
+export function useDialerOpen(): boolean {
+    return useSyncExternalStore(subscribeDialerOpen, () => dialerOpen, () => false);
+}
+
+export interface DialPreset {
+    phoneNumber: string;
+    trunkId?: string;
+}
+
+type PresetListener = (preset: DialPreset) => void;
+
+const presetListeners = new Set<PresetListener>();
+
+export function presetDial(preset: DialPreset): void {
+    presetListeners.forEach((listener) => {
+        try {
+            listener(preset);
+        } catch (err) {
+            console.error("[call-session-control] preset listener failed:", err);
+        }
+    });
+}
+
+export function subscribeDialPreset(listener: PresetListener): () => void {
+    presetListeners.add(listener);
+    return () => {
+        presetListeners.delete(listener);
+    };
 }

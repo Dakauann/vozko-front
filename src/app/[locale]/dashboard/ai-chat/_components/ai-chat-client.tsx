@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus, TrashSimple, MagnifyingGlass, ChatsCircle, List } from "@/components/icons";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { ChatAttachment, ChatThread } from "@/lib/aichat/types";
 import { deleteChatThreadAction, listChatThreadsAction } from "@/app/actions/aichat";
 import { useCallback, useEffect, useState } from "react";
@@ -15,6 +15,8 @@ import { cn } from "@/lib/utils";
 import { Composer } from "@/components/ai-chat/composer";
 import { MessageBubble, useBubbleLabels } from "@/components/ai-chat/message-list";
 import { useChatConversation } from "@/components/ai-chat/use-chat-conversation";
+import { useVoiceMode } from "@/components/ai-chat/voice/use-voice-mode";
+import { speechLang } from "@/lib/voice/speech-text";
 import { useChatModel } from "@/components/ai-chat/use-chat-model";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { activeThreadKey } from "@/lib/aichat/active-thread";
@@ -22,6 +24,7 @@ import { useStickToBottom } from "@/components/ai-chat/use-stick-to-bottom";
 
 export function AIChatClient() {
   const t = useTranslations("aiChatPage");
+  const locale = useLocale();
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -71,16 +74,31 @@ export function AIChatClient() {
     [activeId, newChat, t],
   );
 
-  const handleSend = useCallback(
-    (attachments: ChatAttachment[]) => {
-      const content = input;
+  const submit = useCallback(
+    (content: string, attachments: ChatAttachment[] = []) => {
       if (!content.trim() || chat.streaming || chat.loadingThread || !model) return false;
-      setInput("");
       void chat.ask(content, model, attachments);
       return true;
     },
-    [input, chat, model],
+    [chat, model],
   );
+
+  const handleSend = useCallback(
+    (attachments: ChatAttachment[]) => {
+      if (!submit(input, attachments)) return false;
+      setInput("");
+      return true;
+    },
+    [input, submit],
+  );
+
+  const voice = useVoiceMode({
+    messages: chat.messages,
+    streaming: chat.streaming,
+    error: chat.error,
+    lang: speechLang(locale),
+    send: submit,
+  });
 
   const isEmpty = chat.messages.length === 0;
   const busy = chat.streaming || chat.loadingThread;
@@ -161,7 +179,7 @@ export function AIChatClient() {
           )}
         </div>
         <div id="elo-page-composer" className="shrink-0 bg-card pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          <Composer docked spacious placeholder={t("eloPlaceholder")} input={input} setInput={setInput} onSend={handleSend} onStop={chat.stop} streaming={chat.streaming} disabled={chat.loadingThread} model={model} models={models} pricing={pricing} onModelChange={changeModel} error={chat.error} showScrollDown={showScrollDown} onScrollDown={scrollToBottom} />
+          <Composer docked spacious placeholder={t("eloPlaceholder")} input={input} setInput={setInput} onSend={handleSend} onStop={chat.stop} streaming={chat.streaming} disabled={chat.loadingThread} model={model} models={models} pricing={pricing} onModelChange={changeModel} error={chat.error} showScrollDown={showScrollDown} onScrollDown={scrollToBottom} voice={voice} />
           <p className="mx-auto max-w-3xl px-4 text-center text-2xs leading-relaxed text-muted-foreground">{t("disclaimer")}</p>
         </div>
       </section>

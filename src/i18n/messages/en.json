@@ -305,7 +305,8 @@
       "update_department": "Update department",
       "delete_department": "Delete department",
       "add_department_member": "Add to department",
-      "remove_department_member": "Remove from department"
+      "remove_department_member": "Remove from department",
+      "place_call": "Prepare call"
     },
     "threadsLegend": "Conversations",
     "greeting": "Hi, I’m Elo. What are we working on?",
@@ -656,6 +657,27 @@
       "autoOpenNo": "Just show the button",
       "autoOpen": "Open screens automatically",
       "upcoming": "Coming soon"
+    },
+    "voice": {
+      "dictate": "Dictate message",
+      "stopDictation": "Stop dictating",
+      "dictating": "Listening… say your message",
+      "mode": "Voice mode: talk to Elo",
+      "exit": "Leave voice mode",
+      "skip": "Skip",
+      "privacy": "Your voice is transcribed by the browser speech service.",
+      "phases": {
+        "listening": "Listening",
+        "thinking": "Thinking",
+        "speaking": "Speaking",
+        "paused": "Paused during the call"
+      },
+      "errors": {
+        "blocked": "Allow microphone access in the browser to talk to Elo.",
+        "no_microphone": "No microphone found.",
+        "network": "The browser speech service did not respond. Try again.",
+        "unavailable": "This browser does not offer speech recognition."
+      }
     }
   },
   "leadMemories": {
@@ -1162,7 +1184,8 @@
       "eleven_multilingual_v2": "TTS (Multilingual)",
       "eleven_turbo_flash": "TTS (Fast)",
       "eleven_v3": "TTS (v3)",
-      "default_markup": "AI Models"
+      "default_markup": "AI Models",
+      "sip_calls": "Calls (SIP trunk)"
     },
     "footer": "Prices in BRL. Values may vary based on exchange rates. Plans can be changed at any time."
   },
@@ -1934,7 +1957,8 @@
       "facebook": "Pages",
       "facebookPages": "Pages",
       "connectFacebook": "Connect Page",
-      "adminLiveDecisions": "Live decisions"
+      "adminLiveDecisions": "Live decisions",
+      "sipTrunks": "SIP trunks"
     },
     "badges": {
       "new": "New",
@@ -1961,7 +1985,8 @@
         "soonHint": "The Facebook channel is coming soon."
       },
       "unofficial-whatsapp": "WhatsApp",
-      "facebook": "Facebook"
+      "facebook": "Facebook",
+      "telephony": "Telephony"
     },
     "pin": {
       "pin": "Pin",
@@ -7082,6 +7107,7 @@
       "instagram_accounts": "Instagram accounts",
       "audience": "Audience analysis",
       "telegram_accounts": "Telegram accounts",
+      "sip_trunks": "SIP trunks",
       "unofficial_whatsapp_instances": "WhatsApp numbers (unofficial)",
       "short_links": "Short links",
       "facebook_pages": "Facebook Pages"
@@ -7135,6 +7161,7 @@
       "instagram_accounts": "Connect and manage the workspace's Instagram accounts.",
       "audience": "See the analysis of comments and conversations across connected channels, moderate authors and configure the analysis (which is billed).",
       "telegram_accounts": "Connect and manage the workspace's Telegram bots and accounts.",
+      "sip_trunks": "Register the telephony provider's SIP trunks and place voice calls through them.",
       "unofficial_whatsapp_instances": "Connect and manage WhatsApp numbers over a linked device.",
       "short_links": "Create and track short links and their click statistics.",
       "facebook_pages": "Connect Facebook Pages, publish, moderate comments and set up Messenger."
@@ -7615,7 +7642,8 @@
         "service": "Service Messages"
       },
       "telephony": {
-        "whatsapp_calls": "WhatsApp Calls"
+        "whatsapp_calls": "WhatsApp Calls",
+        "sip_calls": "Calls (SIP trunk)"
       },
       "sms": {
         "standard": "SMS"
@@ -7781,7 +7809,8 @@
         "service": "WhatsApp, Service messages",
         "whatsapp_calls": "WhatsApp calls",
         "standard": "SMS messages",
-        "default_markup": "AI models (LLM)"
+        "default_markup": "AI models (LLM)",
+        "sip_calls": "Calls (SIP trunk)"
       }
     },
     "archive": {
@@ -8177,7 +8206,8 @@
         "eleven_v3": "Text-to-Speech (v3)",
         "whatsapp_calls": "WhatsApp calls",
         "standard": "SMS messages",
-        "default_markup": "AI models (LLM)"
+        "default_markup": "AI models (LLM)",
+        "sip_calls": "Calls (SIP trunk)"
       },
       "metrics": {
         "per_million_chars": "per 1M characters",
@@ -12144,12 +12174,6 @@
       "beforeYouStart": "Before you start"
     }
   },
-  "whatsappCall": {
-    "ringing": "Ringing…",
-    "inCall": "In call",
-    "waitingSlot": "Waiting for a line",
-    "endCall": "Hang up"
-  },
   "unofficialWhatsapp": {
     "page": {
       "badge": "Unofficial WhatsApp",
@@ -14742,6 +14766,182 @@
       "stage_uncertain": "Stage unclear",
       "memory_review_skipped": "Memory unchanged",
       "deal_review_skipped": "Opportunity unchanged"
+    }
+  },
+  "calling": {
+    "widget": {
+      "ringing": "Ringing…",
+      "inCall": "In call",
+      "waitingSlot": "Waiting for a line",
+      "endCall": "Hang up",
+      "mute": "Mute microphone",
+      "unmute": "Unmute microphone"
+    },
+    "incoming": {
+      "title": "Incoming call · {channel}",
+      "channel": {
+        "sip": "SIP trunk",
+        "whatsapp": "WhatsApp"
+      },
+      "unknownNumber": "Hidden number",
+      "expiresIn": "Ringing for {seconds}s more",
+      "busy": "End your current call to answer",
+      "accept": "Answer",
+      "decline": "Decline"
+    },
+    "dialer": {
+      "open": "Open dialer",
+      "tabLabel": "Dialer",
+      "title": "Dialer",
+      "online": "Connected",
+      "offline": "Connecting",
+      "minimize": "Minimize",
+      "trunk": "Trunk",
+      "number": "Number",
+      "numberPlaceholder": "Type the number",
+      "keypad": "Keypad",
+      "erase": "Erase",
+      "call": "Call",
+      "hangUp": "Hang up",
+      "mute": "Mute",
+      "unmute": "Unmute",
+      "inCall": "In call",
+      "ringing": "Ringing…",
+      "waitingSlot": "Waiting for a line",
+      "loadingTrunks": "Loading trunks…",
+      "noTrunks": "No registered trunk is available to call.",
+      "manageTrunks": "Manage trunks",
+      "outcome": {
+        "ended": "Call ended",
+        "cancelled": "Call cancelled",
+        "busy": "Line busy",
+        "no_answer": "No answer",
+        "declined": "Call declined",
+        "failed": "The call did not go through",
+        "insufficient_balance": "Not enough balance to continue",
+        "balance_check_error": "Could not check the balance",
+        "connection_lost": "Connection lost, the call dropped"
+      },
+      "errors": {
+        "trunk_unavailable": "This trunk cannot place calls.",
+        "trunk_not_registered": "The trunk is not registered with the provider.",
+        "invalid_number": "Use only digits, *, # and a leading +.",
+        "unauthorized": "You are not allowed to call through this trunk.",
+        "no_call_slots": "All lines are busy. Try again shortly.",
+        "insufficient_balance": "Not enough balance to call.",
+        "already_in_call": "You are already on a call.",
+        "dial_failed": "The call could not be started."
+      }
+    },
+    "dragHint": "Drag to move, double-click to put it back",
+    "assistantCard": {
+      "title": "Call",
+      "via": "Through trunk {trunk}",
+      "chooseTrunk": "You pick the trunk in the dialer",
+      "call": "Call",
+      "openDialer": "Open in dialer",
+      "started": "Call started. Follow it in the call card.",
+      "handedOver": "Number sent to the dialer. Pick a trunk and call.",
+      "noPermission": "You are not allowed to call through trunks.",
+      "connecting": "Connecting to the calling service…",
+      "busy": "You are already on a call."
+    }
+  },
+  "sipTrunks": {
+    "page": {
+      "title": "SIP trunks",
+      "description": "Connect your telephony provider's trunks to place and receive calls from the dialer.",
+      "create": "New trunk",
+      "refresh": "Refresh",
+      "emptyTitle": "No trunks yet",
+      "emptyDescription": "Add your provider's SIP trunk to use the dialer.",
+      "errorTitle": "Could not load the trunks",
+      "retry": "Try again"
+    },
+    "table": {
+      "trunk": "Trunk",
+      "type": "Type",
+      "status": "Registration"
+    },
+    "status": {
+      "REGISTERED": "Registered",
+      "REGISTERING": "Registering",
+      "FAILED": "Failed",
+      "UNREGISTERED": "Not registered",
+      "DISABLED": "Disabled"
+    },
+    "stats": {
+      "total": "Trunks",
+      "registered": "Registered",
+      "attention": "Failing"
+    },
+    "actions": {
+      "edit": "Edit trunk",
+      "delete": "Remove trunk"
+    },
+    "delete": {
+      "title": "Remove trunk?",
+      "body": "The trunk {name} will be removed and calls running through it will end.",
+      "confirm": "Remove",
+      "cancel": "Cancel",
+      "done": "Trunk removed",
+      "failed": "Could not remove the trunk"
+    },
+    "form": {
+      "createTitle": "New SIP trunk",
+      "editTitle": "Edit SIP trunk",
+      "subtitle": "The access details come from your telephony provider.",
+      "name": "Name",
+      "host": "Server (host)",
+      "port": "Port",
+      "transport": "Transport",
+      "trunkType": "Use",
+      "types": {
+        "BIDIRECTIONAL": "Calls and receives",
+        "OUTBOUND": "Calls only",
+        "INBOUND": "Receives only"
+      },
+      "username": "Username",
+      "password": "Password",
+      "passwordKeep": "Password (leave blank to keep)",
+      "domain": "Domain",
+      "domainPlaceholder": "Optional, when different from the server",
+      "enabled": "Active",
+      "enabledHint": "Active trunks stay registered and show up in the dialer.",
+      "advanced": "Advanced settings",
+      "skipRegistration": "Do not register (IP authentication)",
+      "skipRegistrationHint": "Use when the provider allows your IP instead of a username and password.",
+      "authUsername": "Authentication username",
+      "outboundProxy": "Outbound proxy",
+      "stripPrefix": "Remove prefix",
+      "addPrefix": "Add prefix",
+      "codecs": "Codecs",
+      "codecsHint": "Without a selection the default is PCMU and PCMA. The dialer needs PCMU or PCMA.",
+      "srtp": "Media encryption (SRTP)",
+      "srtpModes": {
+        "off": "Off",
+        "optional": "Offer",
+        "required": "Required"
+      },
+      "stun": "Discover the public address with STUN",
+      "stunHint": "For servers behind NAT without a fixed public address.",
+      "publicAddress": "Public address",
+      "inboundSources": "Allowed sources for incoming calls",
+      "inboundSourcesHint": "One IP or range (CIDR) per line, in addition to the provider's own server.",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving…",
+      "created": "Trunk created",
+      "updated": "Trunk updated",
+      "saveFailed": "Could not save the trunk",
+      "invalid": {
+        "name": "Enter a name.",
+        "host": "Enter the server.",
+        "port": "Use a port between 1 and 65535.",
+        "username": "Enter the username.",
+        "password": "Enter the password.",
+        "codecs": "Include PCMU or PCMA so the dialer works."
+      }
     }
   }
 }

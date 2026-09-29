@@ -12,7 +12,10 @@ import DashboardCrmWrapper from "@/components/dashboard/DashboardCrmWrapper";
 import DashboardGate from "@/components/dashboard/DashboardGate";
 import { DashboardNavbar } from "@/components/elevated-design/dashboard/dashboard-navbar";
 import { DepartmentProvider } from "@/contexts/department-context";
-import WhatsAppCallHost from "@/components/dashboard/WhatsAppCallHost";
+import { ActiveCallHost } from "@/components/calls/active-call-host";
+import { IncomingCallHost } from "@/components/calls/incoming-call-host";
+import { CallSessionProvider } from "@/contexts/call-session-context";
+import { DialerDock } from "@/components/dialer/dialer-dock";
 import { AssistantDock } from "@/components/ai-chat/assistant-dock";
 import { RouteGate } from "@/components/access/route-gate";
 import type { ReactNode } from "react";
@@ -64,11 +67,15 @@ export default function DashboardLayout({
                 <DashboardCrmWrapper>
                   {
 }
-                  <div className="p-3 sm:p-6">
-                    <RouteGate>{children}</RouteGate>
-                  </div>
-                  <WhatsAppCallHost />
-                  <AssistantDock />
+                  <CallSessionProvider>
+                    <div className="p-3 sm:p-6">
+                      <RouteGate>{children}</RouteGate>
+                    </div>
+                    <ActiveCallHost />
+                    <IncomingCallHost />
+                    <AssistantDock />
+                    <DialerDock />
+                  </CallSessionProvider>
                 </DashboardCrmWrapper>
               </DashboardMainContent>
             </div>

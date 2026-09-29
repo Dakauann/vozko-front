@@ -19,46 +19,8 @@ vi.mock("@/lib/auth/client-cookies", () => ({ hasUserDataCookie }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn(), info: vi.fn(), warning: vi.fn() } }));
 
 import { useCallSessionWs } from "@/hooks/use-call-session-ws";
+import { FakeWebSocket } from "@/test/fake-websocket";
 
-class FakeWebSocket {
-  static CONNECTING = 0;
-  static OPEN = 1;
-  static CLOSING = 2;
-  static CLOSED = 3;
-  static instances: FakeWebSocket[] = [];
-
-  url: string;
-  readyState = FakeWebSocket.CONNECTING;
-  onopen: ((e?: unknown) => void) | null = null;
-  onclose: ((e?: unknown) => void) | null = null;
-  onerror: ((e?: unknown) => void) | null = null;
-  onmessage: ((e?: unknown) => void) | null = null;
-  sent: string[] = [];
-  closed = false;
-  private listeners: Record<string, Array<(e?: unknown) => void>> = {};
-
-  constructor(url: string) {
-    this.url = url;
-    FakeWebSocket.instances.push(this);
-  }
-  addEventListener(type: string, cb: (e?: unknown) => void) {
-    (this.listeners[type] ??= []).push(cb);
-  }
-  removeEventListener() {}
-  send(data: string) {
-    this.sent.push(data);
-  }
-  close() {
-    this.closed = true;
-    this.readyState = FakeWebSocket.CLOSED;
-    this.onclose?.({});
-    for (const cb of this.listeners["close"] ?? []) cb({});
-  }
-  simulateOpen() {
-    this.readyState = FakeWebSocket.OPEN;
-    this.onopen?.({});
-  }
-}
 
 async function flushConnect() {
   await act(async () => {

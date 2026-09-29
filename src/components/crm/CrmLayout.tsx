@@ -1332,7 +1332,7 @@ export default function CrmLayout({
         toast.error("Número comercial do WhatsApp indisponível.");
         return;
       }
-      requestCall({ phoneNumber, whatsAppPhoneId, whatsAppPhoneLabel });
+      requestCall({ phoneNumber, whatsAppPhoneId, label: whatsAppPhoneLabel });
     },
     [activeConversation?.lead_number, t.conversation.callFailed],
   );

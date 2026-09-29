@@ -60,6 +60,7 @@ import {
   FacebookLogoColor,
   InstagramLogoColor,
   TelegramLogoColor,
+  VoiceLogoColor,
   WhatsAppLogoColor,
 } from "@/components/icons/channel-logos";
 
@@ -411,6 +412,12 @@ export const campanhasNavItems: NavItem[] = [
         href: "/dashboard/telegram-accounts/connect",
       },
     ],
+  },
+  {
+    icon: Phone,
+    labelKey: "nav.sipTrunks",
+    href: "/dashboard/sip-trunks",
+    family: "telephony",
   },
   {
     icon: DeviceMobile,
@@ -1167,6 +1174,7 @@ const familyBrandIcon: Record<string, NavIcon> = {
   instagram: InstagramLogoColor,
   facebook: FacebookLogoColor,
   telegram: TelegramLogoColor,
+  telephony: VoiceLogoColor,
 };
 
 function groupByFamily(

@@ -1023,6 +1023,23 @@ export const Microphone: Icon = /*#__PURE__*/ glyph(
   </>,
 );
 
+export const MicrophoneSlash: Icon = /*#__PURE__*/ glyph(
+  "MicrophoneSlash",
+  <>
+    <path d="M15 9.4V5.75a3 3 0 0 0-5.85-.95M9 9v2.25a3 3 0 0 0 4.55 2.57" />
+    <path d="M5.5 11.25a6.5 6.5 0 0 0 10.4 5.2M18.35 13.2a6.5 6.5 0 0 0 .15-1.95M12 17.75v3.5M8.75 21.25h6.5" />
+    <path stroke={ACCENT} d="m3.75 3.75 16.5 16.5" />
+  </>,
+);
+
+export const Backspace: Icon = /*#__PURE__*/ glyph(
+  "Backspace",
+  <>
+    <path d="M8.1 5.25h11.15a2 2 0 0 1 2 2v9.5a2 2 0 0 1-2 2H8.1a2 2 0 0 1-1.5-.68L2.75 12l3.85-6.07a2 2 0 0 1 1.5-.68Z" />
+    <path stroke={ACCENT} d="m11.25 9.25 5.5 5.5M16.75 9.25l-5.5 5.5" />
+  </>,
+);
+
 export const DeviceMobile: Icon = /*#__PURE__*/ glyph(
   "DeviceMobile",
   <>

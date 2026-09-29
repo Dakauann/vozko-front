@@ -55,6 +55,7 @@ import {
   PaperPlaneTilt,
   Microphone,
   PencilSimple,
+  Phone,
   Plus,
   Sparkle,
   TrashSimple,
@@ -171,6 +172,7 @@ const TOOL_ICON: Record<string, Icon> = {
   delete_department: Buildings,
   add_department_member: UserPlus,
   remove_department_member: UserMinus,
+  place_call: Phone,
 };
 
 const KNOWN_TOOLS = new Set(Object.keys(TOOL_ICON));

@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
+import { DOCK_HEADER_ICON_BUTTON as HEADER_ICON_BUTTON, PANEL_EASE } from "@/components/docks/dock-chrome";
 import { ArrowSquareOut, ArrowsInSimple, ArrowsOutSimple, Minus, Plus } from "@/components/icons";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { Link, usePathname } from "@/i18n/routing";
@@ -12,10 +13,11 @@ import { activeThreadKey } from "@/lib/aichat/active-thread";
 import type { AssistantContext } from "@/lib/aichat/assistant-context";
 import type { ChatAttachment } from "@/lib/aichat/types";
 import { cn } from "@/lib/utils";
+import { speechLang } from "@/lib/voice/speech-text";
 
 import { useAssistantContext } from "./assistant-context";
 import { AssistantLauncher } from "./assistant-launcher";
-import { Composer, PANEL_EASE } from "./composer";
+import { Composer } from "./composer";
 import { MessageBubble, useBubbleLabels } from "./message-list";
 import { useChatConversation } from "./use-chat-conversation";
 import { useChatModel } from "./use-chat-model";
@@ -23,11 +25,10 @@ import { useResizableCard } from "./use-resizable-card";
 import { useStickToBottom } from "./use-stick-to-bottom";
 import { starterGroupsFor } from "./starter-groups";
 import { StarterList } from "./starter-list";
+import { useVoiceMode } from "./voice/use-voice-mode";
 
 const CARD_SIZE_KEY = "assistant-dock:size";
 const FULL_CHAT_PATH = "/dashboard/ai-chat";
-const HEADER_ICON_BUTTON =
-  "inline-flex h-7 items-center gap-1 rounded-[--radius] px-2 text-2xs font-semibold text-muted-foreground transition-colors duration-DEFAULT hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 export function AssistantDock() {
   const { can, permissionsLoading } = useWorkspace();
@@ -53,6 +54,7 @@ function Dock() {
   const copy = useCopy(context);
   const { can, currentWorkspace } = useWorkspace();
   const pathname = usePathname();
+  const locale = useLocale();
   const starters = starterGroupsFor(can, pathname);
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -70,20 +72,38 @@ function Dock() {
   const card = useResizableCard(CARD_SIZE_KEY);
   const { expanded, setExpanded } = card;
 
-  const ask = useCallback(
+  const submit = useCallback(
     (content: string, attachments: ChatAttachment[] = []) => {
       if (!content.trim() || chat.streaming || !model) return false;
-      setInput("");
       void chat.ask(content, model, attachments);
       return true;
     },
     [chat, model],
   );
 
+  const ask = useCallback(
+    (content: string, attachments: ChatAttachment[] = []) => {
+      if (!submit(content, attachments)) return false;
+      setInput("");
+      return true;
+    },
+    [submit],
+  );
+
+  const voice = useVoiceMode({
+    messages: chat.messages,
+    streaming: chat.streaming,
+    error: chat.error,
+    lang: speechLang(locale),
+    send: submit,
+  });
+  const { disable: stopVoice } = voice;
+
   const minimize = useCallback(() => {
+    stopVoice();
     setOpen(false);
     requestAnimationFrame(() => launcherRef.current?.focus());
-  }, []);
+  }, [stopVoice]);
 
   useEffect(() => {
     if (!open) return;
@@ -242,6 +262,7 @@ function Dock() {
               error={chat.error}
               showScrollDown={showScrollDown}
               onScrollDown={scrollToBottom}
+              voice={voice}
             />
             <p className="px-4 pb-2.5 text-center text-2xs text-muted-foreground">{td("footnote")}</p>
           </motion.section>

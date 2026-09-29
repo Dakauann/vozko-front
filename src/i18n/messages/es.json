@@ -305,7 +305,8 @@
       "update_department": "Modificar departamento",
       "delete_department": "Eliminar departamento",
       "add_department_member": "Agregar al departamento",
-      "remove_department_member": "Quitar del departamento"
+      "remove_department_member": "Quitar del departamento",
+      "place_call": "Preparar llamada"
     },
     "threadsLegend": "Conversaciones",
     "greeting": "Hola, soy Elo. ¿En qué trabajamos?",
@@ -656,6 +657,27 @@
       "autoOpenNo": "Solo mostrar el botón",
       "autoOpen": "Abrir pantallas automáticamente",
       "upcoming": "Próximamente"
+    },
+    "voice": {
+      "dictate": "Dictar mensaje",
+      "stopDictation": "Dejar de dictar",
+      "dictating": "Escuchando… di tu mensaje",
+      "mode": "Modo voz: habla con Elo",
+      "exit": "Salir del modo voz",
+      "skip": "Saltar",
+      "privacy": "Tu voz la transcribe el servicio de voz del navegador.",
+      "phases": {
+        "listening": "Escuchando",
+        "thinking": "Pensando",
+        "speaking": "Hablando",
+        "paused": "En pausa durante la llamada"
+      },
+      "errors": {
+        "blocked": "Permite el micrófono en el navegador para hablar con Elo.",
+        "no_microphone": "No se encontró ningún micrófono.",
+        "network": "El servicio de voz del navegador no respondió. Inténtalo de nuevo.",
+        "unavailable": "Este navegador no ofrece reconocimiento de voz."
+      }
     }
   },
   "leadMemories": {
@@ -1142,7 +1164,8 @@
       "eleven_multilingual_v2": "TTS (Multilingüe)",
       "eleven_turbo_flash": "TTS (Rápido)",
       "eleven_v3": "TTS (v3)",
-      "default_markup": "Modelos de IA"
+      "default_markup": "Modelos de IA",
+      "sip_calls": "Llamadas (troncal SIP)"
     },
     "footer": "Precios en BRL. Los valores pueden variar según el tipo de cambio. Los planes se pueden cambiar en cualquier momento."
   },
@@ -1624,7 +1647,8 @@
       "facebook": "Páginas",
       "facebookPages": "Páginas",
       "connectFacebook": "Conectar Página",
-      "adminLiveDecisions": "Decisiones en vivo"
+      "adminLiveDecisions": "Decisiones en vivo",
+      "sipTrunks": "Troncales SIP"
     },
     "badges": {
       "new": "Nuevo",
@@ -1651,7 +1675,8 @@
         "soonHint": "El canal de Facebook llega pronto."
       },
       "unofficial-whatsapp": "WhatsApp",
-      "facebook": "Facebook"
+      "facebook": "Facebook",
+      "telephony": "Telefonía"
     },
     "pin": {
       "pin": "Fijar",
@@ -5711,6 +5736,7 @@
       "instagram_accounts": "Cuentas de Instagram",
       "audience": "Análisis de la audiencia",
       "telegram_accounts": "Cuentas de Telegram",
+      "sip_trunks": "Troncales SIP",
       "unofficial_whatsapp_instances": "Números de WhatsApp (no oficial)",
       "short_links": "Enlaces cortos",
       "facebook_pages": "Páginas de Facebook"
@@ -5764,6 +5790,7 @@
       "instagram_accounts": "Conectar y gestionar las cuentas de Instagram del workspace.",
       "audience": "Ver el análisis de comentarios y conversaciones de los canales conectados, moderar autores y configurar el análisis (que genera cobro).",
       "telegram_accounts": "Conectar y gestionar los bots y cuentas de Telegram del workspace.",
+      "sip_trunks": "Registrar las troncales SIP del proveedor de telefonía y hacer llamadas de voz a través de ellas.",
       "unofficial_whatsapp_instances": "Conectar y gestionar números de WhatsApp mediante dispositivo vinculado.",
       "short_links": "Crear y seguir enlaces cortos y sus estadísticas de clics.",
       "facebook_pages": "Conectar Páginas de Facebook, publicar, moderar comentarios y configurar Messenger."
@@ -6279,7 +6306,8 @@
         "service": "Mensajes de Servicio"
       },
       "telephony": {
-        "whatsapp_calls": "Llamadas WhatsApp"
+        "whatsapp_calls": "Llamadas WhatsApp",
+        "sip_calls": "Llamadas (troncal SIP)"
       },
       "sms": {
         "standard": "SMS"
@@ -6445,7 +6473,8 @@
         "service": "WhatsApp, Mensajes de servicio",
         "whatsapp_calls": "Llamadas de WhatsApp",
         "standard": "Mensajes SMS",
-        "default_markup": "Modelos de IA (LLM)"
+        "default_markup": "Modelos de IA (LLM)",
+        "sip_calls": "Llamadas (troncal SIP)"
       }
     },
     "archive": {
@@ -6703,7 +6732,8 @@
         "eleven_v3": "Texto a Voz (v3)",
         "whatsapp_calls": "Llamadas de WhatsApp",
         "standard": "Mensajes SMS",
-        "default_markup": "Modelos de IA (LLM)"
+        "default_markup": "Modelos de IA (LLM)",
+        "sip_calls": "Llamadas (troncal SIP)"
       },
       "metrics": {
         "per_million_chars": "por 1M caracteres",
@@ -10503,12 +10533,6 @@
       "beforeYouStart": "Antes de empezar"
     }
   },
-  "whatsappCall": {
-    "ringing": "Llamando…",
-    "inCall": "En llamada",
-    "waitingSlot": "Esperando línea",
-    "endCall": "Colgar"
-  },
   "adminSendCaps": {
     "stats": {
       "capped": "Con límite"
@@ -13248,6 +13272,182 @@
       "stage_uncertain": "Etapa incierta",
       "memory_review_skipped": "Memoria sin cambios",
       "deal_review_skipped": "Oportunidad sin cambios"
+    }
+  },
+  "calling": {
+    "widget": {
+      "ringing": "Llamando…",
+      "inCall": "En llamada",
+      "waitingSlot": "Esperando una línea",
+      "endCall": "Colgar",
+      "mute": "Silenciar micrófono",
+      "unmute": "Activar micrófono"
+    },
+    "incoming": {
+      "title": "Llamada entrante · {channel}",
+      "channel": {
+        "sip": "Troncal SIP",
+        "whatsapp": "WhatsApp"
+      },
+      "unknownNumber": "Número oculto",
+      "expiresIn": "Sonando {seconds}s más",
+      "busy": "Termina la llamada actual para contestar",
+      "accept": "Contestar",
+      "decline": "Rechazar"
+    },
+    "dialer": {
+      "open": "Abrir marcador",
+      "tabLabel": "Marcador",
+      "title": "Marcador",
+      "online": "Conectado",
+      "offline": "Conectando",
+      "minimize": "Minimizar",
+      "trunk": "Troncal",
+      "number": "Número",
+      "numberPlaceholder": "Escribe el número",
+      "keypad": "Teclado",
+      "erase": "Borrar",
+      "call": "Llamar",
+      "hangUp": "Colgar",
+      "mute": "Silenciar",
+      "unmute": "Activar sonido",
+      "inCall": "En llamada",
+      "ringing": "Llamando…",
+      "waitingSlot": "Esperando una línea",
+      "loadingTrunks": "Cargando troncales…",
+      "noTrunks": "No hay una troncal registrada disponible para llamar.",
+      "manageTrunks": "Gestionar troncales",
+      "outcome": {
+        "ended": "Llamada finalizada",
+        "cancelled": "Llamada cancelada",
+        "busy": "Línea ocupada",
+        "no_answer": "No contestó",
+        "declined": "Llamada rechazada",
+        "failed": "La llamada no se completó",
+        "insufficient_balance": "Saldo insuficiente para continuar",
+        "balance_check_error": "No se pudo verificar el saldo",
+        "connection_lost": "Conexión perdida, la llamada se cortó"
+      },
+      "errors": {
+        "trunk_unavailable": "Esta troncal no puede hacer llamadas.",
+        "trunk_not_registered": "La troncal no está registrada en el proveedor.",
+        "invalid_number": "Usa solo dígitos, *, # y un + al inicio.",
+        "unauthorized": "No tienes permiso para llamar por esta troncal.",
+        "no_call_slots": "Todas las líneas están ocupadas. Inténtalo en unos instantes.",
+        "insufficient_balance": "Saldo insuficiente para llamar.",
+        "already_in_call": "Ya estás en una llamada.",
+        "dial_failed": "No se pudo iniciar la llamada."
+      }
+    },
+    "dragHint": "Arrastra para mover, doble clic para volver a su lugar",
+    "assistantCard": {
+      "title": "Llamada",
+      "via": "Por la troncal {trunk}",
+      "chooseTrunk": "Eliges la troncal en el marcador",
+      "call": "Llamar",
+      "openDialer": "Abrir en el marcador",
+      "started": "Llamada iniciada. Síguela en la tarjeta de llamada.",
+      "handedOver": "Número enviado al marcador. Elige la troncal y llama.",
+      "noPermission": "No tienes permiso para llamar por las troncales.",
+      "connecting": "Conectando al servicio de llamadas…",
+      "busy": "Ya estás en una llamada."
+    }
+  },
+  "sipTrunks": {
+    "page": {
+      "title": "Troncales SIP",
+      "description": "Conecta las troncales de tu proveedor de telefonía para llamar y recibir llamadas desde el marcador.",
+      "create": "Nueva troncal",
+      "refresh": "Actualizar",
+      "emptyTitle": "Aún no hay troncales",
+      "emptyDescription": "Registra la troncal SIP de tu proveedor para usar el marcador.",
+      "errorTitle": "No se pudieron cargar las troncales",
+      "retry": "Intentar de nuevo"
+    },
+    "table": {
+      "trunk": "Troncal",
+      "type": "Tipo",
+      "status": "Registro"
+    },
+    "status": {
+      "REGISTERED": "Registrada",
+      "REGISTERING": "Registrando",
+      "FAILED": "Falló",
+      "UNREGISTERED": "No registrada",
+      "DISABLED": "Desactivada"
+    },
+    "stats": {
+      "total": "Troncales",
+      "registered": "Registradas",
+      "attention": "Con falla"
+    },
+    "actions": {
+      "edit": "Editar troncal",
+      "delete": "Eliminar troncal"
+    },
+    "delete": {
+      "title": "¿Eliminar troncal?",
+      "body": "La troncal {name} se eliminará y las llamadas en curso por ella terminarán.",
+      "confirm": "Eliminar",
+      "cancel": "Cancelar",
+      "done": "Troncal eliminada",
+      "failed": "No se pudo eliminar la troncal"
+    },
+    "form": {
+      "createTitle": "Nueva troncal SIP",
+      "editTitle": "Editar troncal SIP",
+      "subtitle": "Los datos de acceso los entrega tu proveedor de telefonía.",
+      "name": "Nombre",
+      "host": "Servidor (host)",
+      "port": "Puerto",
+      "transport": "Transporte",
+      "trunkType": "Uso",
+      "types": {
+        "BIDIRECTIONAL": "Llama y recibe",
+        "OUTBOUND": "Solo llama",
+        "INBOUND": "Solo recibe"
+      },
+      "username": "Usuario",
+      "password": "Contraseña",
+      "passwordKeep": "Contraseña (déjala en blanco para mantenerla)",
+      "domain": "Dominio",
+      "domainPlaceholder": "Opcional, cuando es distinto del servidor",
+      "enabled": "Activa",
+      "enabledHint": "Las troncales activas se mantienen registradas y aparecen en el marcador.",
+      "advanced": "Configuración avanzada",
+      "skipRegistration": "No registrar (autenticación por IP)",
+      "skipRegistrationHint": "Úsalo cuando el proveedor habilita tu IP en lugar de usuario y contraseña.",
+      "authUsername": "Usuario de autenticación",
+      "outboundProxy": "Proxy de salida",
+      "stripPrefix": "Quitar prefijo",
+      "addPrefix": "Agregar prefijo",
+      "codecs": "Códecs",
+      "codecsHint": "Sin selección se usan PCMU y PCMA. El marcador necesita PCMU o PCMA.",
+      "srtp": "Cifrado de medios (SRTP)",
+      "srtpModes": {
+        "off": "Desactivado",
+        "optional": "Ofrecer",
+        "required": "Obligatorio"
+      },
+      "stun": "Descubrir la dirección pública con STUN",
+      "stunHint": "Para servidores detrás de NAT sin dirección pública fija.",
+      "publicAddress": "Dirección pública",
+      "inboundSources": "Orígenes permitidos para llamadas entrantes",
+      "inboundSourcesHint": "Una IP o rango (CIDR) por línea, además del propio servidor del proveedor.",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "created": "Troncal creada",
+      "updated": "Troncal actualizada",
+      "saveFailed": "No se pudo guardar la troncal",
+      "invalid": {
+        "name": "Ingresa un nombre.",
+        "host": "Ingresa el servidor.",
+        "port": "Usa un puerto entre 1 y 65535.",
+        "username": "Ingresa el usuario.",
+        "password": "Ingresa la contraseña.",
+        "codecs": "Incluye PCMU o PCMA para que el marcador funcione."
+      }
     }
   }
 }

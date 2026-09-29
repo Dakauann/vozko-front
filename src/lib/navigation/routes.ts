@@ -53,6 +53,7 @@ export const screenPaths = {
   facebook_connect: "/dashboard/facebook-pages/connect",
   telegram_accounts: "/dashboard/telegram-accounts",
   telegram_connect: "/dashboard/telegram-accounts/connect",
+  sip_trunks: "/dashboard/sip-trunks",
   telegram_account: "/dashboard/telegram-accounts/[accountId]",
   message_shortcuts: "/dashboard/message-shortcuts",
   leads: "/dashboard/leads",
