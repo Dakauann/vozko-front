@@ -249,3 +249,39 @@ export function resolveEventParticipants(
 
   return { actor, from, to };
 }
+
+export function stageMoveLine(
+  details: Record<string, string>,
+  certainty: (percent: string) => string,
+): string | null {
+  const from = details.from_stage_name?.trim();
+  const to = (details.stage_name ?? details.to_stage_name)?.trim();
+  if (!from || !to || from === to) return null;
+  const percent = details.confidence?.trim();
+  const move = `${from} → ${to}`;
+  return percent && /^\d{1,3}$/.test(percent) ? `${move} · ${certainty(percent)}` : move;
+}
+
+const STAGE_TWIN_WINDOW_MS = 5_000;
+
+function stageOf(event: ConversationEvent): string {
+  const details = parseEventDetails(event.details);
+  return (details.stage_name ?? details.to_stage_name ?? "").trim();
+}
+
+function isTwinOf(tag: ConversationEvent, move: ConversationEvent): boolean {
+  return (
+    move.event_type === "stage_changed" &&
+    move.entry_id === tag.entry_id &&
+    move.entry_type === tag.entry_type &&
+    stageOf(move) === stageOf(tag) &&
+    Math.abs(new Date(move.created_at).getTime() - new Date(tag.created_at).getTime()) <= STAGE_TWIN_WINDOW_MS
+  );
+}
+
+export function withoutStageTwins(events: ConversationEvent[]): ConversationEvent[] {
+  const moves = events.filter((event) => event.event_type === "stage_changed");
+  return events.filter(
+    (event) => event.event_type !== "tag_added" || !stageOf(event) || !moves.some((move) => isTwinOf(event, move)),
+  );
+}

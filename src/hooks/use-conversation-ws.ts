@@ -36,6 +36,7 @@ import {
   type WindowConversations,
 } from "@/lib/conversations/windowed-conversations";
 import { MAX_OPEN_WINDOWS, windowKey } from "@/lib/conversations/window-deck";
+import { patchColumns, patchEntries } from "@/lib/conversations/entry-patch";
 import {
   createReconnectController,
   type ReconnectController,
@@ -687,6 +688,7 @@ export function useConversationWs({
           (raw.analysis_phase as InboxEntry["analysis_phase"]) ??
           (raw.analysisPhase as InboxEntry["analysis_phase"]) ??
           undefined,
+        live_read: (raw.live_read as InboxEntry["live_read"]) ?? undefined,
         conversation_status:
           (raw.conversation_status as string) ??
           (raw.conversationStatus as string) ??
@@ -809,7 +811,7 @@ export function useConversationWs({
         }
 
         case "conversation:entry_update": {
-          playNotification();
+          if (!event.payload.silent) playNotification();
           const updated = normalizeEntry(
             event.payload.entry as unknown as Record<string, unknown>,
           );
@@ -1634,32 +1636,11 @@ export function useConversationWs({
             latest_analysis: analysis ?? e.latest_analysis,
             analysis_phase: pending ? "queued" : undefined,
           });
-          setInbox((prev) =>
-            prev.map((e) =>
-              e.entry_id === entry_id && e.entry_type === entry_type
-                ? applyAnalysis(e)
-                : e,
-            ),
-          );
-          setFunnelColumns((prev) => {
-            let changed = false;
-            const newMap = new Map(prev);
-            for (const [stageId, col] of newMap) {
-              if (!col?.entries) continue;
-              const idx = col.entries.findIndex(
-                (e) => e.entry_id === entry_id && e.entry_type === entry_type,
-              );
-              if (idx !== -1) {
-                changed = true;
-                const updatedEntries = [...col.entries];
-                updatedEntries[idx] = applyAnalysis(updatedEntries[idx]);
-                newMap.set(stageId, { ...col, entries: updatedEntries });
-              }
-            }
-            return changed ? newMap : prev;
-          });
+          setInbox((prev) => patchEntries(prev, entry_id, entry_type, applyAnalysis));
+          setFunnelColumns((prev) => patchColumns(prev, entry_id, entry_type, applyAnalysis));
           break;
         }
+
 
         case "conversation:error": {
           console.error("[ConversationWS] Server error:", event.payload);

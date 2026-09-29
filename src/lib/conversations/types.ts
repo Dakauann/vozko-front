@@ -1,4 +1,5 @@
 import type { Analysis } from '@/lib/analysis/types';
+import type { LiveRead } from '@/lib/live-decisions/types';
 
 
 export interface Stage {
@@ -206,6 +207,7 @@ export interface InboxEntry {
     assigned_username?: string;
     latest_analysis?: Analysis | null;
     analysis_phase?: AnalysisPhase;
+    live_read?: LiveRead | null;
     conversation_status?: string;
     close_source?: string;
     close_reason?: string;
@@ -418,6 +420,7 @@ export interface WsInboxPayload {
 
 export interface WsEntryUpdatePayload {
     entry: InboxEntry;
+    silent?: boolean;
 }
 
 export interface WsSubscribedPayload {

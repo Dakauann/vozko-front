@@ -262,4 +262,19 @@ describe("useConversationWs entry defaults", () => {
     expect(hook.result.current.searchResults).toHaveLength(0);
     expect(hook.result.current.activeConversation).toBeNull();
   });
+
+  it("keeps the live read a silent entry update carries, without the sound", async () => {
+    const { hook, socket } = await openSocket();
+    await act(async () => {
+      socket.simulateMessage({ type: "conversation:inbox", payload: { entries: [sparseEntry], page: 1, total_pages: 1, total_items: 1 } });
+    });
+    const read = { qualification: "cold_lead", attendanceQuality: 36, decidedAt: "2026-09-28T12:00:00Z" };
+
+    await act(async () => {
+      socket.simulateMessage({ type: "conversation:entry_update", payload: { entry: { ...sparseEntry, live_read: read }, silent: true } });
+    });
+
+    expect(hook.result.current.inbox[0].live_read).toEqual(read);
+    expect(playFn).not.toHaveBeenCalled();
+  });
 });

@@ -65,7 +65,7 @@ export default function OpportunityHistory({
               <span className="text-foreground">
                 {dealEventText(
                   event,
-                  dealActorName(event.actorId, members, actorLabels) ?? actorLabels.system,
+                  dealActorName(event.actorId, members, actorLabels, event.actorName) ?? actorLabels.system,
                   stageNames,
                 )}
               </span>

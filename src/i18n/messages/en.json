@@ -974,6 +974,7 @@
       },
       "details": {
         "assignedTo": "To {name}",
+        "certainty": "{value}% sure",
         "trigger": {
           "open": "On open",
           "manual": "Manual",
@@ -1932,7 +1933,8 @@
       "reports": "Reports",
       "facebook": "Pages",
       "facebookPages": "Pages",
-      "connectFacebook": "Connect Page"
+      "connectFacebook": "Connect Page",
+      "adminLiveDecisions": "Live decisions"
     },
     "badges": {
       "new": "New",
@@ -14700,5 +14702,46 @@
     "pickToFinish": "Choose a funnel to turn automatic deals on.",
     "notAppliedTitle": "Automatic deals are off",
     "notApplied": "The campaign was created, but automatic deals were not turned on. Turn them on again when editing the campaign."
+  },
+  "adminLiveDecisions": {
+    "header": {
+      "badge": "Live decisions",
+      "description": "How many real-time decisions each workspace made, how many failed, the cost and what was done."
+    },
+    "table": {
+      "workspace": "Workspace",
+      "decisions": "Decisions",
+      "failures": "Failures",
+      "latency": "Average time",
+      "latencyValue": "{ms} ms",
+      "cost": "Cost",
+      "effects": "What was done",
+      "noEffects": "Nothing"
+    },
+    "stats": {
+      "decisions": "Decisions",
+      "failures": "Failures",
+      "cost": "Cost"
+    },
+    "period": {
+      "label": "Period",
+      "days": "{days, plural, one {# day} other {# days}}"
+    },
+    "actions": {
+      "refresh": "Refresh"
+    },
+    "errors": {
+      "load": "Could not load the summary"
+    },
+    "empty": {
+      "title": "No decisions in this period",
+      "description": "Workspaces with real-time decisions turned on show up here."
+    },
+    "effects": {
+      "stage_moved": "Stage moved",
+      "stage_uncertain": "Stage unclear",
+      "memory_review_skipped": "Memory unchanged",
+      "deal_review_skipped": "Opportunity unchanged"
+    }
   }
 }

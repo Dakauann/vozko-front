@@ -34,6 +34,7 @@ import ConversationAttendanceSection from "@/components/crm/ConversationAttendan
 import ConversationGroupSection from "@/components/crm/ConversationGroupSection";
 import LeadMemoriesSection from "@/components/crm/LeadMemoriesSection";
 import ConversationPathChart from "@/components/crm/ConversationPathChart";
+import { effectiveAnalysis } from "@/lib/analysis/live";
 import CrmSegmentedToggle from "@/components/crm/CrmSegmentedToggle";
 import { type Opportunity, dealActorName, formatValueCents } from "@/lib/crm/opportunities";
 import { cn } from "@/lib/utils";
@@ -585,7 +586,7 @@ export default function CrmConversationInfosPanel({
                     "new"
                   }
                   messages={conversation.messages}
-                  analysis={inboxEntry?.latest_analysis ?? null}
+                  analysis={inboxEntry ? effectiveAnalysis(inboxEntry) : null}
                 />
 
                 <div>
@@ -632,7 +633,7 @@ export default function CrmConversationInfosPanel({
                           {o.ownerId ? (
                             <p className="mt-0.5 pl-4 text-2xs text-muted-foreground">
                               {t("dealOwner", {
-                                name: dealActorName(o.ownerId, NO_MEMBERS, dealOwnerLabels) ?? "",
+                                name: dealActorName(o.ownerId, NO_MEMBERS, dealOwnerLabels, o.ownerName) ?? "",
                               })}
                             </p>
                           ) : null}

@@ -39,6 +39,7 @@ interface CrmStageManagerProps {
   campaignId?: string;
   campaignType?: string;
   pipelineId?: string;
+  pipelineName?: string;
 }
 
 
@@ -49,6 +50,7 @@ export default function CrmStageManager({
   campaignId,
   campaignType,
   pipelineId,
+  pipelineName,
 }: CrmStageManagerProps) {
   const tCrm = useTranslations("crm");
 
@@ -115,7 +117,7 @@ export default function CrmStageManager({
           />
         )
       }
-      title="Gerenciar Etapas"
+      title={pipelineName ? `Etapas do funil ${pipelineName}` : "Gerenciar Etapas"}
       createPlaceholder="Nome da etapa..."
       createDescriptionPlaceholder="Descrição da etapa (quando mover lead para esta etapa)..."
       createLabel={tCrm("createNewStage")}

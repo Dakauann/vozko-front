@@ -2,15 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import {
-  ArrowSquareOut,
-  ChatCircleDots,
-  CurrencyDollar,
-  LinkSimpleBreak,
-  Trash,
-  TrendUp,
-  WhatsappLogo,
-} from "@/components/icons";
+import { CurrencyDollar, Trash, TrendUp } from "@/components/icons";
+import OpportunityLinkedConversations from "@/components/crm/OpportunityLinkedConversations";
 
 import {
   ElevatedSheet,
@@ -36,7 +29,6 @@ import {
   unlinkOpportunityConversationAction,
 } from "@/app/actions/opportunities";
 import type { OpportunityConversationLink } from "@/lib/crm/opportunities";
-import { conversationHref, isEntryType } from "@/lib/conversations/deep-link";
 import { listAssignableMembersAction, type AssignableMember } from "@/app/actions/workspace";
 import {
   dealActorName,
@@ -177,10 +169,11 @@ export default function OpportunityDrawer({
   const memberOptions = useMemo(() => {
     const options = members.map((m) => ({ value: m.userId, label: memberNames.get(m.userId) ?? m.userId }));
     if (ownerId && !memberNames.has(ownerId)) {
-      options.unshift({ value: ownerId, label: dealActorName(ownerId, memberNames, ACTOR_LABELS) ?? ownerId });
+      const resolved = ownerId === opportunity?.ownerId ? opportunity?.ownerName : undefined;
+      options.unshift({ value: ownerId, label: dealActorName(ownerId, memberNames, ACTOR_LABELS, resolved) ?? ownerId });
     }
     return options;
-  }, [members, memberNames, ownerId]);
+  }, [members, memberNames, ownerId, opportunity?.ownerId, opportunity?.ownerName]);
 
   const setCustomValue = useCallback((key: string, value: unknown) => {
     setCustom((prev) => {
@@ -409,7 +402,7 @@ export default function OpportunityDrawer({
 
           {opportunity ? <DealAuthorship opportunity={opportunity} members={memberNames} /> : null}
 
-          {isEdit ? <LinkedConversations links={links} onUnlink={handleUnlink} /> : null}
+          {isEdit ? <OpportunityLinkedConversations links={links} onUnlink={handleUnlink} /> : null}
 
           {opportunity ? (
             <OpportunityHistory
@@ -464,8 +457,8 @@ function DealAuthorship({
   opportunity: Opportunity;
   members: ReadonlyMap<string, string>;
 }) {
-  const createdBy = dealActorName(opportunity.createdBy, members, ACTOR_LABELS);
-  const closedBy = dealActorName(opportunity.closedBy, members, ACTOR_LABELS);
+  const createdBy = dealActorName(opportunity.createdBy, members, ACTOR_LABELS, opportunity.createdByName);
+  const closedBy = dealActorName(opportunity.closedBy, members, ACTOR_LABELS, opportunity.closedByName);
   const closedAt = opportunity.status !== "open" && opportunity.closeDate ? closedAtFormat.format(new Date(opportunity.closeDate)) : null;
   if (!createdBy && !closedAt) return null;
 
@@ -487,69 +480,6 @@ function DealAuthorship({
         </>
       ) : null}
     </dl>
-  );
-}
-
-function LinkedConversations({
-  links,
-  onUnlink,
-}: {
-  links: OpportunityConversationLink[];
-  onUnlink: (entryId: string, entryType: string) => void;
-}) {
-  function meta(entryType: string) {
-    switch (entryType) {
-      case "whatsapp":
-        return { label: "WhatsApp", icon: <WhatsappLogo weight="fill" className="h-3.5 w-3.5 text-white" />, tile: "bg-[#25d366] text-white" };
-      default:
-        return { label: entryType, icon: <ChatCircleDots weight="fill" className="h-3.5 w-3.5 text-background" />, tile: "bg-foreground/80 text-background" };
-    }
-  }
-
-  return (
-    <div className="space-y-2 border-t border-border pt-4">
-      <p className="text-2xs font-semibold text-muted-foreground">
-        Conversas vinculadas
-      </p>
-      {links.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border py-4 text-center text-xs text-muted-foreground">
-          Nenhuma conversa vinculada a esta oportunidade.
-        </p>
-      ) : (
-        links.map((l) => {
-          const m = meta(l.entryType);
-          return (
-            <div
-              key={`${l.entryType}:${l.entryId}`}
-              className="group flex items-center gap-2.5 rounded-lg border border-border bg-card px-3 py-2"
-            >
-              <span className={cn("flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md", m.tile)}>
-                {m.icon}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium text-foreground">{m.label}</p>
-                <p className="truncate font-mono text-2xs text-muted-foreground">{l.entryId}</p>
-              </div>
-              <a
-                href={conversationHref(l.entryId, isEntryType(l.entryType) ? l.entryType : "whatsapp")}
-                title="Abrir conversa"
-                className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                <ArrowSquareOut weight="bold" className="h-3.5 w-3.5" />
-              </a>
-              <button
-                type="button"
-                onClick={() => onUnlink(l.entryId, l.entryType)}
-                title="Desvincular"
-                className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive hover:text-destructive-foreground"
-              >
-                <LinkSimpleBreak weight="bold" className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          );
-        })
-      )}
-    </div>
   );
 }
 

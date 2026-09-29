@@ -33,6 +33,7 @@ import CrmMessageInput from "./CrmMessageInput";
 import CrmWallpaper from "./CrmWallpaper";
 import type { SendButtonWsInput } from "@/hooks/use-conversation-ws";
 import { cn } from "@/lib/utils";
+import type { LiveRead } from "@/lib/live-decisions/types";
 
 
 export interface ConversationWindowTranslations {
@@ -52,6 +53,7 @@ export interface ConversationWindowEntryContext {
   availableStages?: { stage_id: string; name: string; color: string }[];
   currentLabels?: InboxEntryLabel[];
   handBack?: HandBackTarget | null;
+  liveRead?: LiveRead | null;
 }
 
 export interface ConversationWindowActionsBundle {
@@ -462,6 +464,7 @@ export default function ConversationWindow({
                 tags={actions.stages}
                 currentEntryTags={entryContext.currentStages}
                 entryAvailableTags={entryContext.availableStages}
+                liveRead={entryContext.liveRead}
                 funnelStages={actions.funnelStages}
                 onMoveToFunnel={
                   actions.canAssignStage ? actions.onMoveToFunnel : undefined

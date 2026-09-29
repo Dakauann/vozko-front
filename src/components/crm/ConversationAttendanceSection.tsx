@@ -36,6 +36,8 @@ import {
   normalizeActorKind,
   parseEventDetails,
   resolveEventParticipants,
+  stageMoveLine,
+  withoutStageTwins,
   PARTICIPANT_DETAIL_KEYS,
   type ActivityFilter,
   type ConversationEvent,
@@ -160,6 +162,7 @@ function dayKey(iso: string, localeTag: string): string {
 }
 
 const DETAIL_SKIP_KEYS = new Set([
+  "confidence",
   "message_id",
   "messageId",
   "from_user_id",
@@ -217,11 +220,8 @@ function detailLine(
 
   const parts: string[] = [];
 
-  const fromStage = details.from_stage_name?.trim();
-  const toStage = (details.stage_name ?? details.to_stage_name)?.trim();
-  if (fromStage && toStage && fromStage !== toStage) {
-    return `${fromStage} → ${toStage}`;
-  }
+  const move = stageMoveLine(details, (value) => tDetails?.("certainty", { value }) ?? `${value}%`);
+  if (move) return move;
 
   for (const key of preferred) {
     const raw = details[key]?.trim();
@@ -430,7 +430,7 @@ export default function ConversationAttendanceSection({
   );
 
   const filtered = useMemo(
-    () => events.filter((e) => eventMatchesFilter(e, filter)),
+    () => withoutStageTwins(events).filter((e) => eventMatchesFilter(e, filter)),
     [events, filter],
   );
 

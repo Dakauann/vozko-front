@@ -43,6 +43,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import AnalysisHoverCard from "@/components/crm/AnalysisHoverCard";
+import { effectiveAnalysis } from "@/lib/analysis/live";
 import TooltipWrapper from "@/components/ui/tooltip-wrapper";
 import { cn, readableInkFor } from "@/lib/utils";
 import { motion as framerMotion } from "framer-motion";
@@ -502,7 +503,7 @@ export default function CrmInbox({
     const entry = displayEntries.find(
       (e) => `${e.entry_type}-${e.entry_id}` === hoveredEntryId,
     );
-    return entry?.latest_analysis ?? null;
+    return entry ? effectiveAnalysis(entry) : null;
   }, [hoveredEntryId, displayEntries]);
 
   if (currentHoveredAnalysis) {
@@ -1173,7 +1174,7 @@ export default function CrmInbox({
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
                   onMouseEnter={(e) => {
-                    if (canReadAnalysis && entry.latest_analysis) {
+                    if (canReadAnalysis && effectiveAnalysis(entry)) {
                       setHoveredEntryId(
                         `${entry.entry_type}-${entry.entry_id}`,
                       );

@@ -346,7 +346,7 @@ export default function OpportunityBoard({
             renderCard={(deal) => (
               <DealCard
                 deal={deal}
-                ownerName={dealActorName(deal.ownerId, membersById, ownerLabels)}
+                ownerName={dealActorName(deal.ownerId, membersById, ownerLabels, deal.ownerName)}
                 customFields={customFields}
                 isMoving={movingIds.has(deal.id)}
                 onClick={() => openEdit(deal)}

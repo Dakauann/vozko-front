@@ -974,6 +974,7 @@
       },
       "details": {
         "assignedTo": "An {name}",
+        "certainty": "{value}% sicher",
         "trigger": {
           "open": "Beim Öffnen",
           "manual": "Manuell",
@@ -1657,7 +1658,8 @@
       "reports": "Berichte",
       "facebook": "Seiten",
       "facebookPages": "Seiten",
-      "connectFacebook": "Seite verbinden"
+      "connectFacebook": "Seite verbinden",
+      "adminLiveDecisions": "Live-Entscheidungen"
     },
     "badges": {
       "new": "Neu",
@@ -13703,5 +13705,46 @@
     "pickToFinish": "Wähle einen Trichter, um automatische Deals zu aktivieren.",
     "notAppliedTitle": "Automatische Deals sind aus",
     "notApplied": "Die Kampagne wurde erstellt, aber automatische Deals wurden nicht aktiviert. Aktiviere sie beim Bearbeiten der Kampagne erneut."
+  },
+  "adminLiveDecisions": {
+    "header": {
+      "badge": "Live-Entscheidungen",
+      "description": "Wie viele Echtzeit-Entscheidungen jeder Workspace getroffen hat, wie viele fehlschlugen, die Kosten und was getan wurde."
+    },
+    "table": {
+      "workspace": "Workspace",
+      "decisions": "Entscheidungen",
+      "failures": "Fehler",
+      "latency": "Mittlere Dauer",
+      "latencyValue": "{ms} ms",
+      "cost": "Kosten",
+      "effects": "Was getan wurde",
+      "noEffects": "Nichts"
+    },
+    "stats": {
+      "decisions": "Entscheidungen",
+      "failures": "Fehler",
+      "cost": "Kosten"
+    },
+    "period": {
+      "label": "Zeitraum",
+      "days": "{days, plural, one {# Tag} other {# Tage}}"
+    },
+    "actions": {
+      "refresh": "Aktualisieren"
+    },
+    "errors": {
+      "load": "Die Übersicht konnte nicht geladen werden"
+    },
+    "empty": {
+      "title": "Keine Entscheidungen im Zeitraum",
+      "description": "Workspaces mit eingeschalteten Echtzeit-Entscheidungen erscheinen hier."
+    },
+    "effects": {
+      "stage_moved": "Phase verschoben",
+      "stage_uncertain": "Phase unklar",
+      "memory_review_skipped": "Erinnerung unverändert",
+      "deal_review_skipped": "Verkaufschance unverändert"
+    }
   }
 }

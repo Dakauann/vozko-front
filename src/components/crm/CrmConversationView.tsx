@@ -98,6 +98,7 @@ import { cn } from "@/lib/utils";
 import { getAgentToolsAction } from "@/app/actions/agents";
 import { getConversationMediaAction } from "@/app/actions/conversations";
 import { useTranslations } from "next-intl";
+import type { LiveRead } from "@/lib/live-decisions/types";
 
 
 function formatMessageTime(isoDate: string): string {
@@ -1363,6 +1364,7 @@ interface CrmConversationViewProps {
   tags?: Stage[];
   currentEntryTags?: { stage_id: string; name: string; color: string }[];
   entryAvailableTags?: { stage_id: string; name: string; color: string }[];
+  liveRead?: LiveRead | null;
   funnelStages?: FunnelStages[];
   onMoveToFunnel?: (
     entryId: string,
@@ -1413,6 +1415,7 @@ export default function CrmConversationView({
   tags = [],
   currentEntryTags = [],
   entryAvailableTags = [],
+  liveRead = null,
   funnelStages = [],
   onMoveToFunnel,
   onEntryStageChange,
@@ -1758,6 +1761,7 @@ export default function CrmConversationView({
       <ConversationAnalysisPanel
         entryId={conversation.entry_id}
         entryType={conversation.entry_type as "whatsapp"}
+        liveRead={liveRead}
       />
 
       {stageChoices.length > 0 && (

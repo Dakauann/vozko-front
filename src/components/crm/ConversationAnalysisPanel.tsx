@@ -16,6 +16,8 @@ import {
 import { useEffect, useRef, useState } from "react";
 
 import type { Analysis } from "@/lib/analysis/types";
+import type { LiveRead } from "@/lib/live-decisions/types";
+import { withLiveRead } from "@/lib/analysis/live";
 import { cn } from "@/lib/utils";
 import { getEntryAnalysisAction } from "@/app/actions/analysis";
 import { useCrm } from "@/contexts/crm-context";
@@ -23,6 +25,7 @@ import { useCrm } from "@/contexts/crm-context";
 interface ConversationAnalysisPanelProps {
   entryId: string;
   entryType: "whatsapp";
+  liveRead?: LiveRead | null;
 }
 
 const SENTIMENT_CONFIG = {
@@ -102,8 +105,9 @@ const NEXT_ACTION_LABELS: Record<string, string> = {
 export default function ConversationAnalysisPanel({
   entryId,
   entryType,
+  liveRead = null,
 }: ConversationAnalysisPanelProps) {
-  const [analysis, setAnalysis] = useState<Analysis | null>(null);
+  const [savedAnalysis, setAnalysis] = useState<Analysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const lastFetchedRef = useRef<string | null>(null);
@@ -143,6 +147,7 @@ export default function ConversationAnalysisPanel({
     }
   }, [latestAnalysisUpdate, entryId, entryType]);
 
+  const analysis = withLiveRead(savedAnalysis, liveRead, { entryId, entryType });
   if (loading || !analysis) return null;
 
   const sentiment = SENTIMENT_CONFIG[analysis.sentiment] ?? UNKNOWN_SENTIMENT;

@@ -974,6 +974,7 @@
       },
       "details": {
         "assignedTo": "Para {name}",
+        "certainty": "{value}% de certeza",
         "trigger": {
           "open": "Ao abrir",
           "manual": "Manual",
@@ -2333,7 +2334,8 @@
       "reports": "Relatórios",
       "facebook": "Páginas",
       "facebookPages": "Páginas",
-      "connectFacebook": "Conectar Página"
+      "connectFacebook": "Conectar Página",
+      "adminLiveDecisions": "Decisões ao vivo"
     },
     "badges": {
       "new": "Novo",
@@ -14751,5 +14753,46 @@
     "pickToFinish": "Escolha um funil para ligar as oportunidades automáticas.",
     "notAppliedTitle": "Oportunidades automáticas desligadas",
     "notApplied": "A campanha foi criada, mas as oportunidades automáticas não foram ligadas. Ligue de novo na edição da campanha."
+  },
+  "adminLiveDecisions": {
+    "header": {
+      "badge": "Decisões ao vivo",
+      "description": "Quantas decisões em tempo real cada workspace fez, quantas falharam, o custo e o que foi feito."
+    },
+    "table": {
+      "workspace": "Workspace",
+      "decisions": "Decisões",
+      "failures": "Falhas",
+      "latency": "Tempo médio",
+      "latencyValue": "{ms} ms",
+      "cost": "Custo",
+      "effects": "O que foi feito",
+      "noEffects": "Nada"
+    },
+    "stats": {
+      "decisions": "Decisões",
+      "failures": "Falhas",
+      "cost": "Custo"
+    },
+    "period": {
+      "label": "Período",
+      "days": "{days, plural, one {# dia} other {# dias}}"
+    },
+    "actions": {
+      "refresh": "Atualizar"
+    },
+    "errors": {
+      "load": "Não foi possível carregar o resumo"
+    },
+    "empty": {
+      "title": "Nenhuma decisão no período",
+      "description": "Os workspaces com decisões em tempo real ligadas aparecem aqui."
+    },
+    "effects": {
+      "stage_moved": "Etapa movida",
+      "stage_uncertain": "Etapa incerta",
+      "memory_review_skipped": "Memória sem mudança",
+      "deal_review_skipped": "Oportunidade sem mudança"
+    }
   }
 }

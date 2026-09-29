@@ -11,6 +11,7 @@ export interface Opportunity {
     pipelineId: string;
     stageId: string;
     ownerId?: string;
+    ownerName?: string;
     carteiraId?: string;
     title: string;
     valueCents: number;
@@ -20,7 +21,9 @@ export interface Opportunity {
     source?: string;
     closeDate?: string | null;
     createdBy?: string;
+    createdByName?: string;
     closedBy?: string;
+    closedByName?: string;
     customFields?: Record<string, unknown> | null;
     version: number;
     createdAt: string;
@@ -131,6 +134,7 @@ export interface OpportunityEvent {
     opportunityId: string;
     type: OpportunityEventType;
     actorId: string;
+    actorName?: string;
     fromStageId?: string;
     toStageId?: string;
     valueCents: number;
@@ -143,6 +147,8 @@ export interface OpportunityConversationLink {
     opportunityId: string;
     entryId: string;
     entryType: string;
+    leadName?: string;
+    leadNumber?: string;
 }
 
 
@@ -157,18 +163,20 @@ export function dealActorName(
     actorId: string | undefined,
     members: ReadonlyMap<string, string>,
     labels: DealActorLabels,
+    resolvedName?: string,
 ): string | null {
     const id = (actorId ?? '').trim();
     if (!id) return null;
+    const name = resolvedName?.trim();
     switch (normalizeActorKind(undefined, id)) {
         case 'ai':
-            return labels.ai;
+            return name ? `${name} · ${labels.ai}` : labels.ai;
         case 'workflow':
-            return labels.workflow;
+            return name ? `${name} · ${labels.workflow}` : labels.workflow;
         case 'system':
             return labels.system;
     }
-    return members.get(id) ?? labels.unknownMember;
+    return members.get(id) ?? (name || labels.unknownMember);
 }
 
 export function dealEventText(

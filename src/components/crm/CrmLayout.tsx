@@ -67,6 +67,7 @@ import CrmPipelineSelector, {
   type SelectedPipeline,
 } from "./CrmPipelineSelector";
 import CreateOpportunityButton from "./CreateOpportunityButton";
+import { conversationFunnel } from "@/lib/crm/conversation-funnel";
 import CrmViewSwitcher, { type CrmViewMode } from "./CrmViewSwitcher";
 import ConsoleBank from "./ConsoleBank";
 import CrmSegmentedToggle from "./CrmSegmentedToggle";
@@ -372,6 +373,7 @@ export default function CrmLayout({
     requestFunnelSummary,
     tags,
     funnelStages,
+    reloadFunnelStages,
     labels,
     reloadStages,
     reloadLabels,
@@ -403,10 +405,19 @@ export default function CrmLayout({
     !hasCampaign && selectedPipeline?.objectType === "opportunity";
 
 
+  const openConversationFunnel = useMemo(() => {
+    if (viewMode !== "classic" || !activeConversation) return null;
+    const entry = inbox.find((e) => e.entry_id === activeConversation.entry_id);
+    return conversationFunnel(funnelStages, entry?.stage?.stage_id);
+  }, [viewMode, activeConversation, inbox, funnelStages]);
+
   const stagePipelineId =
-    activePipelineId && activePipelineId !== ALL_FUNNELS_ID
+    openConversationFunnel?.pipelineId ??
+    (activePipelineId && activePipelineId !== ALL_FUNNELS_ID
       ? activePipelineId
-      : undefined;
+      : undefined);
+  const stagePipelineName =
+    openConversationFunnel?.pipelineName ?? (stagePipelineId ? selectedPipeline?.name : undefined);
 
   useEffect(() => {
     if (!enabled) return;
@@ -1069,6 +1080,12 @@ export default function CrmLayout({
     return entry?.available_stages ?? [];
   }, [activeConversation, inbox]);
 
+  const activeLiveRead = useMemo(() => {
+    if (!activeConversation) return null;
+    const entry = inbox.find((e) => e.entry_id === activeConversation.entry_id);
+    return entry?.live_read ?? null;
+  }, [activeConversation, inbox]);
+
   const handleLoadMoreInbox = useCallback(() => {
     if (inboxHasMore && !loadingInbox) {
       requestInboxPage(Math.ceil(inbox.length / 20) + 1);
@@ -1133,13 +1150,10 @@ export default function CrmLayout({
     [],
   );
 
-  const handleStagesReorder = useCallback(() => {
-    reloadStages(campaignId || undefined, campaignType, stagePipelineId);
-  }, [reloadStages, campaignId, campaignType, stagePipelineId]);
-
   const handleStagesChange = useCallback(() => {
     reloadStages(campaignId || undefined, campaignType, stagePipelineId);
-  }, [reloadStages, campaignId, campaignType, stagePipelineId]);
+    void reloadFunnelStages();
+  }, [reloadStages, reloadFunnelStages, campaignId, campaignType, stagePipelineId]);
 
   const handleAssignLabel = useCallback(
     async (labelId: string, entryId: string, entryType: EntryType) => {
@@ -1552,6 +1566,7 @@ export default function CrmLayout({
           assignedUserId: entry?.assigned_user_id ?? null,
           currentStages: entry?.stage ? [entry.stage] : [],
           availableStages: entry?.available_stages ?? [],
+          liveRead: entry?.live_read ?? null,
           currentLabels: entry?.labels ?? [],
           handBack: entry ? handBackTarget(entry) : null,
         };
@@ -2146,6 +2161,7 @@ export default function CrmLayout({
                     campaignId={campaignId}
                     campaignType={campaignType}
                     pipelineId={stagePipelineId}
+                    pipelineName={stagePipelineName}
                   />
                 </TooltipWrapper>
                 {can("labels", "read") && (
@@ -2255,7 +2271,7 @@ export default function CrmLayout({
                   onStagesReorder={
                     isGlobalBoard
                       ? handleGlobalBoardReorder
-                      : handleStagesReorder
+                      : handleStagesChange
                   }
                   onEntryStageChange={
                     isGlobalBoard
@@ -2325,6 +2341,7 @@ export default function CrmLayout({
                       tags={tags}
                       currentEntryTags={currentEntryStages}
                       entryAvailableTags={entryAvailableStages}
+                      liveRead={activeLiveRead}
                       funnelStages={funnelStages}
                       onMoveToFunnel={
                         can("stages", "transfer") ? handleMoveToFunnel : undefined
@@ -2498,6 +2515,7 @@ export default function CrmLayout({
                     tags={tags}
                     currentEntryTags={currentEntryStages}
                     entryAvailableTags={entryAvailableStages}
+                    liveRead={activeLiveRead}
                     funnelStages={funnelStages}
                     onMoveToFunnel={
                       can("stages", "transfer") ? handleMoveToFunnel : undefined

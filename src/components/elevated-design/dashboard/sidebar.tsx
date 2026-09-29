@@ -588,6 +588,12 @@ export const adminNavItems: NavItem[] = [
     family: "platform",
   },
   {
+    icon: Lightning,
+    labelKey: "nav.adminLiveDecisions",
+    href: "/dashboard/admin/live-decisions",
+    family: "platform",
+  },
+  {
     icon: UsersFour,
     labelKey: "nav.platformUsers",
     href: "/dashboard/users",

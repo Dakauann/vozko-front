@@ -24,6 +24,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -114,6 +115,7 @@ interface CrmContextValue {
     pipelineId?: string,
   ) => Promise<void>;
   funnelStages: FunnelStages[];
+  reloadFunnelStages: () => Promise<void>;
   labels: Label[];
   reloadLabels: () => Promise<void>;
   campaignId: string;
@@ -225,20 +227,21 @@ export function CrmProvider({
     [workspaceId],
   );
 
-  useEffect(() => {
+  const funnelRequest = useRef(0);
+  const reloadFunnelStages = useCallback(async () => {
+    const request = ++funnelRequest.current;
     if (!workspaceId) {
       setFunnelStages([]);
       return;
     }
-    let live = true;
-    listFunnelStagesAction(workspaceId).then((result) => {
-      if (!live || result.error) return;
-      setFunnelStages(result.funnels);
-    });
-    return () => {
-      live = false;
-    };
+    const result = await listFunnelStagesAction(workspaceId);
+    if (request !== funnelRequest.current || result.error) return;
+    setFunnelStages(result.funnels);
   }, [workspaceId]);
+
+  useEffect(() => {
+    void reloadFunnelStages();
+  }, [reloadFunnelStages]);
 
   const reloadLabels = useCallback(async () => {
     const result = await listLabelsAction(workspaceId || undefined);
@@ -253,6 +256,7 @@ export function CrmProvider({
       tags,
       reloadStages,
       funnelStages,
+      reloadFunnelStages,
       labels,
       reloadLabels,
       campaignId,
@@ -266,6 +270,7 @@ export function CrmProvider({
       tags,
       reloadStages,
       funnelStages,
+      reloadFunnelStages,
       labels,
       reloadLabels,
       campaignId,

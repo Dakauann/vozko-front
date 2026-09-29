@@ -24,6 +24,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { reorderStagesAction } from "@/app/actions/stages";
 import AnalysisHoverCard from "@/components/crm/AnalysisHoverCard";
+import { effectiveAnalysis } from "@/lib/analysis/live";
 import { AssigneeGlyph } from "@/components/crm/AssigneeGlyph";
 import KanbanColumnShell from "@/components/crm/KanbanColumnShell";
 import { ChannelAvatar } from "@/components/channels/channel-avatar";
@@ -244,6 +245,7 @@ function FunnelCard({
   const menuAnchorRef = useRef<HTMLButtonElement | null>(null);
   const { can } = useWorkspace();
   const canReadAnalysis = can("audience", "read");
+  const analysis = effectiveAnalysis(entry);
 
   const hasLabelActions = Boolean(
     availableLabels && availableLabels.length > 0 && onLabelMenuToggle,
@@ -266,7 +268,7 @@ function FunnelCard({
       layout="position"
       layoutId={`kanban-card-${columnId}-${entry.entry_type}-${entry.entry_id}`}
       onMouseEnter={() => {
-        if (canReadAnalysis && entry.latest_analysis) setIsHovered(true);
+        if (canReadAnalysis && analysis) setIsHovered(true);
       }}
       onMouseLeave={() => setIsHovered(false)}
       variants={kanbanCardVariants}
@@ -407,9 +409,9 @@ function FunnelCard({
         ) : null}
       </AnchoredMenu>
 
-      {canReadAnalysis && entry.latest_analysis && (
+      {canReadAnalysis && analysis && (
         <AnalysisHoverCard
-          analysis={entry.latest_analysis}
+          analysis={analysis}
           visible={isHovered}
         />
       )}

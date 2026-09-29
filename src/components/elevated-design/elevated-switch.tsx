@@ -2,7 +2,7 @@
 
 import * as SwitchPrimitive from "@radix-ui/react-switch";
 
-import { ReactNode, forwardRef } from "react";
+import { ReactNode, forwardRef, useId } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -18,7 +18,9 @@ type ElevatedSwitchProps = React.ComponentPropsWithoutRef<
 const ElevatedSwitch = forwardRef<
   React.ElementRef<typeof SwitchPrimitive.Root>,
   ElevatedSwitchProps
->(({ label, description, icon, className, ...props }, ref) => {
+>(({ label, description, icon, className, id, ...props }, ref) => {
+  const generatedId = useId();
+  const switchId = id ?? generatedId;
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-3">
@@ -32,6 +34,7 @@ const ElevatedSwitch = forwardRef<
 
         <SwitchPrimitive.Root
           ref={ref}
+          id={switchId}
           className={cn(
             "peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border border-transparent transition-colors",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
@@ -58,6 +61,7 @@ const ElevatedSwitch = forwardRef<
 
         {label && (
           <label
+            htmlFor={switchId}
             className={`text-sm font-medium cursor-pointer ${
               props.disabled ? "text-muted-foreground" : "text-foreground"
             }`}

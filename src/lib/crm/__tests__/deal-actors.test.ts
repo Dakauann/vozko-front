@@ -20,6 +20,16 @@ describe("dealActorName", () => {
     expect(dealActorName("system", members, labels)).toBe("Sistema");
   });
 
+  it("names an agent or a flow by its own name when the server resolved it", () => {
+    expect(dealActorName("ai:agent-1", members, labels, "Sofia")).toBe("Sofia · Agente de IA");
+    expect(dealActorName("workflow:wf-1", members, labels, "Boas-vindas")).toBe("Boas-vindas · Fluxo");
+  });
+
+  it("names a person who left the member list by the resolved name", () => {
+    expect(dealActorName("u-9", members, labels, "Bruno")).toBe("Bruno");
+    expect(dealActorName("u-1", members, labels, "Nome antigo")).toBe("Ana");
+  });
+
   it("has no name for nobody", () => {
     expect(dealActorName(undefined, members, labels)).toBeNull();
     expect(dealActorName("  ", members, labels)).toBeNull();
