@@ -90,6 +90,7 @@ import {
 import { listWorkflowsAction } from "@/app/actions/workflows";
 import { listKnowledgeBasesAction } from "@/app/actions/knowledge-bases";
 import { listLabelsAction } from "@/app/actions/labels";
+import { listCallQueuesAction } from "@/app/actions/call-routing";
 import { listSipTrunksAction } from "@/app/actions/sip-trunks";
 import { receivesCalls } from "@/lib/sip-trunks/types";
 import { listMembersAction } from "@/app/actions/workspace";
@@ -2395,6 +2396,16 @@ function useDynamicOptions(
               fetched = res.options.messaging.map((m) => ({
                 value: m,
                 label: m.includes("/") ? m.split("/").slice(1).join("/") : m,
+              }));
+            }
+            break;
+          }
+          case "call_queues": {
+            const res = await listCallQueuesAction();
+            if (!cancelled) {
+              fetched = res.queues.map((queue) => ({
+                value: queue.id,
+                label: queue.name,
               }));
             }
             break;

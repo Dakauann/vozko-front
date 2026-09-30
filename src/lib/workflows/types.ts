@@ -6,6 +6,7 @@ export type WorkflowNodeType =
   | "trigger_call_received"
   | "action_play_audio"
   | "wait_dtmf"
+  | "action_transfer_to_queue"
   | "action_send_text"
   | "action_send_template"
   | "action_send_email"

@@ -123,4 +123,72 @@ describe("useCallSessionWs call state", () => {
     act(() => hook.result.current.setMuted(true));
     expect(hook.result.current.muted).toBe(true);
   });
+
+  describe("transfers", () => {
+    async function inCall() {
+      const opened = await openSocket();
+      act(() => opened.socket.receive("call:status", { status: "answered", call_id: "call-1", phone_number: "100" }));
+      return opened;
+    }
+
+    it("asks the server to transfer to a colleague and to cancel by call id", async () => {
+      const { hook, socket } = await inCall();
+      act(() => hook.result.current.transferCall({ kind: "member", userId: "u2" }, " quer cancelar "));
+      expect(socket.sentOfType("call:transfer")).toEqual([{ target_kind: "member", user_id: "u2", notes: "quer cancelar" }]);
+
+      act(() => socket.receive("call:transfer_status", { transfer_id: "t1", call_id: "sip-in-1", status: "ringing", target_name: "Bia" }));
+      expect(hook.result.current.transfer).toMatchObject({ status: "ringing", targetName: "Bia" });
+      act(() => hook.result.current.cancelTransfer());
+      expect(socket.sentOfType("call:transfer_cancel")).toEqual([{ call_id: "sip-in-1" }]);
+    });
+
+    it("ends the operator's call once the colleague takes it", async () => {
+      const { hook, socket } = await inCall();
+      act(() => socket.receive("call:transfer_status", { transfer_id: "t1", call_id: "sip-in-1", status: "connected" }));
+      expect(hook.result.current.callState).toMatchObject({ status: "ended", reason: "transferred" });
+    });
+
+    it("keeps the call timer running when the call comes back", async () => {
+      const { hook, socket } = await inCall();
+      const startedAt = hook.result.current.callState?.answeredAt;
+      await act(async () => {
+        await new Promise((r) => setTimeout(r, 5));
+      });
+      act(() => socket.receive("call:status", { status: "answered", call_id: "call-1", phone_number: "100" }));
+      act(() => socket.receive("call:transfer_status", { transfer_id: "t1", call_id: "sip-in-1", status: "returned", reason: "no_answer" }));
+      expect(hook.result.current.callState).toMatchObject({ status: "answered", answeredAt: startedAt });
+      expect(hook.result.current.transfer).toMatchObject({ status: "returned", reason: "no_answer" });
+    });
+
+    it("keeps the call when a transfer is refused", async () => {
+      const { hook, socket } = await inCall();
+      act(() => socket.receive("conversation:error", { code: "target_unavailable", message: "busy" }));
+      expect(hook.result.current.callState).toMatchObject({ status: "answered" });
+      expect(hook.result.current.lastErrorCode).toBe("target_unavailable");
+    });
+
+    it("marks the offer that gives a held call back after a reload", async () => {
+      const { hook, socket } = await openSocket();
+      act(() => socket.receive("call:incoming", { ...offer("offer-1", 15_000), resume: true }));
+      expect(hook.result.current.incomingCall?.resume).toBe(true);
+    });
+
+    it("reads who transferred an incoming call and keeps it on the accepted call", async () => {
+      const { hook, socket } = await openSocket();
+      act(() =>
+        socket.receive("call:incoming", {
+          ...offer("offer-1", 15_000),
+          transfer: { from_user_id: "u1", from_name: "Ana", queue_name: "Suporte", notes: "segunda via" },
+        }),
+      );
+      expect(hook.result.current.incomingCall?.transfer).toEqual({
+        fromUserId: "u1",
+        fromName: "Ana",
+        queueId: undefined,
+        queueName: "Suporte",
+        notes: "segunda via",
+      });
+    });
+  });
 });
+

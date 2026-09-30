@@ -12,6 +12,20 @@ import {
     WS_EVENT_INCOMING_CALL_WITHDRAWN,
     offerExpiresInMs,
 } from "@/lib/call-session/inbound-call-types";
+import {
+    WS_EVENT_CALL_TRANSFER,
+    WS_EVENT_CALL_TRANSFER_CANCEL,
+    WS_EVENT_CALL_TRANSFER_STATUS,
+    callEndReasonFor,
+    transferContextFrom,
+    transferErrorCode,
+    transferMessage,
+    transferStateFrom,
+    type CallTransferState,
+    type TransferContext,
+    type TransferStatusPayload,
+    type TransferTarget,
+} from "@/lib/call-session/transfer";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { ConnectionStatus } from "@/lib/conversations/types";
@@ -48,6 +62,7 @@ export interface CallSessionState {
     durationSeconds?: number;
     requestId?: string;
     answeredAt?: number;
+    transferredBy?: TransferContext;
 }
 
 interface CallSessionPresenceUser {
@@ -86,6 +101,11 @@ export interface CallSessionApi {
     acceptIncomingCall: (offerId: string) => void;
     declineIncomingCall: (offerId: string, reason?: string) => void;
     selfUserId: string;
+    presence: CallSessionPresenceEntry[];
+
+    transfer: CallTransferState | null;
+    transferCall: (target: TransferTarget, notes: string) => void;
+    cancelTransfer: () => void;
 }
 
 type CallSessionServerEvent =
@@ -132,7 +152,8 @@ type CallSessionServerEvent =
     }
     | { type: typeof WS_EVENT_INCOMING_CALL; payload: IncomingCallPayload }
     | { type: typeof WS_EVENT_INCOMING_CALL_WITHDRAWN; payload: IncomingCallWithdrawnPayload }
-    | { type: typeof WS_EVENT_CALL_SESSION_PRESENCE; payload: CallSessionPresencePayload };
+    | { type: typeof WS_EVENT_CALL_SESSION_PRESENCE; payload: CallSessionPresencePayload }
+    | { type: typeof WS_EVENT_CALL_TRANSFER_STATUS; payload: TransferStatusPayload };
 
 const CALL_SAMPLE_RATE = 8000;
 
@@ -157,6 +178,7 @@ export function useCallSessionWs({
     const [incomingCall, setIncomingCall] = useState<IncomingCallOffer | null>(null);
     const [presence, setPresence] = useState<CallSessionPresenceEntry[]>([]);
     const [selfUserId, setSelfUserId] = useState<string>("");
+    const [transfer, setTransfer] = useState<CallTransferState | null>(null);
 
     const selfUserIdRef = useRef<string>("");
     const callStateRef = useRef<CallSessionState | null>(null);
@@ -431,6 +453,7 @@ export function useCallSessionWs({
                             requestId: event.payload.request_id,
                         } as CallSessionState);
 
+                    const resumed = wsStatus === "answered" && base.answeredAt !== undefined;
                     return {
                         ...base,
                         callId: event.payload.call_id ?? base.callId,
@@ -438,7 +461,7 @@ export function useCallSessionWs({
                         requestId: event.payload.request_id ?? base.requestId,
                         reason: event.payload.reason ?? base.reason,
                         status: wsStatus,
-                        ...(wsStatus === "answered" ? { answeredAt: Date.now() } : {}),
+                        ...(wsStatus === "answered" && !resumed ? { answeredAt: Date.now() } : {}),
                     };
                 });
                 return;
@@ -502,6 +525,7 @@ export function useCallSessionWs({
                 const message = event.payload.message || "Call connection error.";
                 setLastError(message);
                 setLastErrorCode(event.payload.code ?? null);
+                if (transferErrorCode(event.payload.code)) return;
                 if (event.payload.code === NO_ACTIVE_CALL_CODE) {
                     endCallOnConnectionLoss();
                     return;
@@ -512,6 +536,19 @@ export function useCallSessionWs({
                     setCallState(null);
                 }
                 setIncomingCall(null);
+                return;
+            }
+
+            if (event.type === WS_EVENT_CALL_TRANSFER_STATUS) {
+                const next = transferStateFrom(event.payload);
+                if (!next) return;
+                setTransfer(next);
+                const endReason = callEndReasonFor(next);
+                if (endReason) {
+                    stopAudioPipeline();
+                    setCallState((prev) => (prev ? { ...prev, status: "ended", reason: endReason } : prev));
+                    clearEndedCallAfterDelay();
+                }
                 return;
             }
 
@@ -530,6 +567,8 @@ export function useCallSessionWs({
                     channel: event.payload.channel,
                     expiresAt: event.payload.expires_at,
                     receivedAt: Date.now(),
+                    transfer: transferContextFrom(event.payload.transfer),
+                    resume: event.payload.resume === true,
                 });
                 return;
             }
@@ -720,6 +759,7 @@ export function useCallSessionWs({
 
             setLastError(null);
             setLastErrorCode(null);
+            setTransfer(null);
             setCallState({
                 phoneNumber: target,
                 status: "ringing",
@@ -769,17 +809,32 @@ export function useCallSessionWs({
                 }
                 send(WS_EVENT_INCOMING_CALL_ACCEPT, { offer_id: offerId });
                 setIncomingCall((prev) => (prev?.offerId === offerId ? null : prev));
+                setTransfer(null);
                 setCallState({
                     callId: offer?.callId,
                     phoneNumber: offer?.fromNumber ?? "",
                     status: "answered",
                     answeredAt: Date.now(),
                     requestId: offerId,
+                    transferredBy: offer?.transfer,
                 });
             });
         },
         [callState, incomingCall, send, startMicCapture],
     );
+
+    const transferCall = useCallback(
+        (target: TransferTarget, notes: string) => {
+            setTransfer(null);
+            send(WS_EVENT_CALL_TRANSFER, transferMessage(target, notes));
+        },
+        [send],
+    );
+
+    const cancelTransfer = useCallback(() => {
+        if (!transfer) return;
+        send(WS_EVENT_CALL_TRANSFER_CANCEL, { call_id: transfer.callId });
+    }, [send, transfer]);
 
     const declineIncomingCall = useCallback(
         (offerId: string, reason?: string) => {
@@ -809,6 +864,9 @@ export function useCallSessionWs({
             incomingCall,
             acceptIncomingCall,
             declineIncomingCall,
+            transfer: callState ? transfer : null,
+            transferCall,
+            cancelTransfer,
         }),
         [
             status,
@@ -825,6 +883,9 @@ export function useCallSessionWs({
             incomingCall,
             acceptIncomingCall,
             declineIncomingCall,
+            transfer,
+            transferCall,
+            cancelTransfer,
         ],
     );
 }

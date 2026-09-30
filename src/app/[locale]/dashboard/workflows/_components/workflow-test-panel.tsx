@@ -338,6 +338,16 @@ function EventItem({ event }: { event: SimEvent }) {
           Aguardando uma tecla... ({event.timeoutSeconds}s)
         </div>
       );
+    case "call_transferred":
+      return (
+        <div className="py-1 text-xs text-healthy-ink">
+          <p className="flex items-center gap-1.5 font-semibold">
+            <CheckCircle size={12} weight="fill" />
+            Transferida para a fila {event.queueName}. Um atendente livre atende e o fluxo termina.
+          </p>
+          {event.notes ? <p className="mt-0.5 pl-[18px] text-muted-foreground">Nota: {event.notes}</p> : null}
+        </div>
+      );
     case "state":
       return null;
     case "error":

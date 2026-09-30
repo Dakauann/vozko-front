@@ -37,6 +37,13 @@ export interface SimWaitingKey {
     timeoutSeconds: number;
 }
 
+export interface SimCallTransferred {
+    type: "call_transferred";
+    queueId: string;
+    queueName: string;
+    notes?: string;
+}
+
 export interface SimWaitingReply {
     type: "waiting_reply";
     nodeId: string;
@@ -53,7 +60,7 @@ export interface SimError {
     message: string;
 }
 
-export type SimEvent = SimNodeEvent | SimMessage | SimWaitingReply | SimWaitingKey | SimStateUpdate | SimError;
+export type SimEvent = SimNodeEvent | SimMessage | SimWaitingReply | SimWaitingKey | SimCallTransferred | SimStateUpdate | SimError;
 
 
 interface UseWorkflowSimulationOptions {
@@ -148,6 +155,11 @@ export function useWorkflowSimulation({
                         const p = msg.payload as { timeoutSeconds: number };
                         setStatus("waiting_key");
                         setEvents((prev) => [...prev, { type: "waiting_key", timeoutSeconds: p.timeoutSeconds }]);
+                        break;
+                    }
+                    case "call_transferred": {
+                        const p = msg.payload as { queueId: string; queueName: string; notes?: string };
+                        setEvents((prev) => [...prev, { type: "call_transferred", ...p }]);
                         break;
                     }
                     case "state_update": {

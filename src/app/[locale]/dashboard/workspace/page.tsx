@@ -1518,6 +1518,7 @@ function PermissionsTab({
     "leads",
     "analysis",
     "sip_trunks",
+    "call_queues",
     "call_recordings",
     "whatsapp_flows",
   ];

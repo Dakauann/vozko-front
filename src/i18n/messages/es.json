@@ -1654,7 +1654,8 @@
       "facebookPages": "Páginas",
       "connectFacebook": "Conectar Página",
       "adminLiveDecisions": "Decisiones en vivo",
-      "sipTrunks": "Troncales SIP"
+      "sipTrunks": "Troncales SIP",
+      "callQueues": "Colas"
     },
     "badges": {
       "new": "Nuevo",
@@ -5745,7 +5746,8 @@
       "sip_trunks": "Troncales SIP",
       "unofficial_whatsapp_instances": "Números de WhatsApp (no oficial)",
       "short_links": "Enlaces cortos",
-      "facebook_pages": "Páginas de Facebook"
+      "facebook_pages": "Páginas de Facebook",
+      "call_queues": "Colas de atención"
     },
     "actions": {
       "create": "Crear",
@@ -5799,7 +5801,8 @@
       "sip_trunks": "Registrar las troncales SIP del proveedor de telefonía y hacer llamadas de voz a través de ellas.",
       "unofficial_whatsapp_instances": "Conectar y gestionar números de WhatsApp mediante dispositivo vinculado.",
       "short_links": "Crear y seguir enlaces cortos y sus estadísticas de clics.",
-      "facebook_pages": "Conectar Páginas de Facebook, publicar, moderar comentarios y configurar Messenger."
+      "facebook_pages": "Conectar Páginas de Facebook, publicar, moderar comentarios y configurar Messenger.",
+      "call_queues": "Crear colas telefónicas, elegir quién atiende cada una y la música de espera."
     },
     "customRoles": {
       "title": "Roles Personalizados",
@@ -13301,7 +13304,11 @@
       "expiresIn": "Sonando {seconds}s más",
       "busy": "Termina la llamada actual para contestar",
       "accept": "Contestar",
-      "decline": "Rechazar"
+      "decline": "Rechazar",
+      "resumeTitle": "Tu llamada está en espera",
+      "resumeHint": "Quien llamó escuchó música mientras te reconectabas. Retómala para seguir la conversación.",
+      "resume": "Retomar",
+      "endHeldCall": "Terminar"
     },
     "dialer": {
       "open": "Abrir marcador",
@@ -13334,7 +13341,9 @@
         "failed": "La llamada no se completó",
         "insufficient_balance": "Saldo insuficiente para continuar",
         "balance_check_error": "No se pudo verificar el saldo",
-        "connection_lost": "Conexión perdida, la llamada se cortó"
+        "connection_lost": "Conexión perdida, la llamada se cortó",
+        "transferred": "Llamada transferida",
+        "caller_hung_up": "Quien llamó colgó durante la transferencia"
       },
       "errors": {
         "trunk_unavailable": "Esta troncal no puede hacer llamadas.",
@@ -13359,6 +13368,52 @@
       "noPermission": "No tienes permiso para llamar por las troncales.",
       "connecting": "Conectando al servicio de llamadas…",
       "busy": "Ya estás en una llamada."
+    },
+    "transfer": {
+      "open": "Transferir",
+      "title": "Transferir llamada",
+      "back": "Volver a la llamada",
+      "kinds": {
+        "member": "Colega",
+        "queue": "Cola"
+      },
+      "noColleagues": "Ningún colega libre ahora.",
+      "loadingQueues": "Cargando colas…",
+      "noQueues": "No hay colas en este workspace.",
+      "queueLoad": "{waiting, plural, =0 {Nadie esperando} one {# esperando} other {# esperando}} · {ready, plural, =0 {ninguno libre} one {# libre} other {# libres}}",
+      "notes": "Nota para quien atienda",
+      "notesPlaceholder": "Ej: el cliente quiere cancelar el plan",
+      "transferToColleague": "Transferir al colega",
+      "transferToQueue": "Transferir a la cola",
+      "memberHint": "Quien llamó escucha la música de espera. Si tu colega no atiende, la llamada vuelve a ti.",
+      "queueHint": "La llamada sale de tu marcador ahora. Si nadie de la cola atiende a tiempo, vuelve a sonar para ti.",
+      "ringing": "Llamando a {name}…",
+      "callerHolds": "Quien llamó está escuchando la música de espera.",
+      "cancel": "Cancelar transferencia",
+      "colleague": "un colega",
+      "holding": "Transfiriendo",
+      "fromQueue": "De la cola {queue}",
+      "fromColleague": "Transferida por {name}",
+      "sentBy": "Enviada por {name}",
+      "returned": {
+        "no_answer": "Tu colega no atendió. La llamada volvió a ti.",
+        "declined": "Tu colega rechazó. La llamada volvió a ti.",
+        "cancelled": "Transferencia cancelada. La llamada volvió a ti."
+      },
+      "errors": {
+        "target_unavailable": "Ese colega no está libre para atender ahora.",
+        "transfer_to_self": "No puedes transferirte una llamada a ti mismo.",
+        "transfer_in_progress": "Esta llamada ya se está transfiriendo.",
+        "queue_not_found": "La cola ya no existe.",
+        "notes_too_long": "La nota puede tener hasta 500 caracteres.",
+        "invalid_target": "Elige un colega o una cola.",
+        "not_call_owner": "Solo quien está en la llamada puede transferirla.",
+        "call_not_found": "La llamada ya terminó.",
+        "no_transfer": "No hay transferencia para cancelar.",
+        "no_call_to_transfer": "No hay llamada en curso para transferir.",
+        "transfer_unavailable": "Las transferencias no están disponibles ahora.",
+        "transfer_failed": "No se pudo iniciar la transferencia."
+      }
     }
   },
   "sipTrunks": {
@@ -13455,6 +13510,180 @@
         "username": "Ingresa el usuario.",
         "password": "Ingresa la contraseña.",
         "codecs": "Incluye PCMU o PCMA para que el marcador funcione."
+      }
+    }
+  },
+  "callQueues": {
+    "page": {
+      "title": "Colas de atención",
+      "description": "Las colas reparten las llamadas entre quienes están libres, con música de espera, y reciben transferencias y llamadas de los flujos de voz.",
+      "create": "Nueva cola",
+      "refresh": "Actualizar",
+      "errorTitle": "No se pudieron cargar las colas",
+      "retry": "Intentar de nuevo",
+      "emptyTitle": "Aún no hay colas",
+      "emptyDescription": "Crea una cola para recibir transferencias del marcador y llamadas de los flujos de voz."
+    },
+    "stats": {
+      "total": "Colas",
+      "byDepartment": "Por departamento"
+    },
+    "table": {
+      "queue": "Cola",
+      "members": "Quién atiende",
+      "department": "Departamento {name}",
+      "people": "{count, plural, one {# persona} other {# personas}}",
+      "timing": "Timbre · espera · pausa",
+      "timingValue": "{ring}s · {wait} min · {wrapUp}s",
+      "music": "Música de espera"
+    },
+    "actions": {
+      "edit": "Editar cola",
+      "delete": "Eliminar cola"
+    },
+    "delete": {
+      "title": "¿Eliminar cola?",
+      "body": "La cola {name} deja de recibir llamadas. Los flujos de voz que le envían llamadas pasan a seguir la salida de tiempo agotado.",
+      "confirm": "Eliminar",
+      "cancel": "Cancelar",
+      "failed": "No se pudo eliminar la cola",
+      "done": "Cola eliminada"
+    },
+    "form": {
+      "createTitle": "Nueva cola",
+      "editTitle": "Editar cola",
+      "subtitle": "Quién atiende, cómo se reparten las llamadas y qué escucha quien llama mientras espera.",
+      "name": "Nombre",
+      "strategy": "Distribución",
+      "strategies": {
+        "longest_idle": {
+          "label": "Libre hace más tiempo",
+          "hint": "Entrega la llamada a quien lleva más tiempo sin atender. Es el estándar de los centros de contacto y reparte el trabajo de forma justa."
+        },
+        "round_robin": {
+          "label": "Rotación",
+          "hint": "Alterna entre los agentes a partir del último que recibió una llamada."
+        },
+        "fewest_calls": {
+          "label": "Menos llamadas",
+          "hint": "Prioriza a quien atendió menos llamadas."
+        },
+        "random": {
+          "label": "Aleatoria",
+          "hint": "Sortea entre los agentes libres."
+        }
+      },
+      "membersFrom": "Quién atiende",
+      "membersFromOptions": {
+        "people": "Personas",
+        "department": "Departamento"
+      },
+      "department": "Departamento",
+      "searchMembers": "Buscar personas",
+      "members": "Personas de la cola",
+      "membersHint": "{count, plural, =0 {Nadie elegido} one {# persona elegida} other {# personas elegidas}}",
+      "permissionHint": "Solo suena para quien puede atender llamadas por los troncales y tiene el marcador abierto.",
+      "ringSeconds": "Timbre (s)",
+      "maxWaitSeconds": "Espera máxima (s)",
+      "wrapUpSeconds": "Pausa tras llamada (s)",
+      "timingHint": "Timbre: cuánto tiempo suena para cada agente (5 a 60 s). Espera máxima: después, la llamada sigue la salida de tiempo agotado (10 a 3600 s). Pausa: descanso de cada agente entre llamadas (0 a 300 s).",
+      "invalid": {
+        "name": "Ponle un nombre de hasta 80 caracteres.",
+        "department": "Elige el departamento.",
+        "members": "Elige al menos una persona.",
+        "ringSeconds": "Usa de 5 a 60 segundos.",
+        "maxWaitSeconds": "Usa de 10 a 3600 segundos.",
+        "wrapUpSeconds": "Usa de 0 a 300 segundos."
+      },
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "saveFailed": "No se pudo guardar la cola",
+      "created": "Cola creada",
+      "updated": "Cola actualizada"
+    },
+    "holdMusic": {
+      "label": "Música de espera",
+      "sources": {
+        "preset": "Listas",
+        "upload": "Subidas"
+      },
+      "loading": "Cargando música…",
+      "noUploads": "Aún no se subió ningún audio.",
+      "untitled": "Audio sin nombre",
+      "preview": "Escuchar",
+      "upload": "Subir audio",
+      "uploading": "Subiendo…",
+      "uploadHint": "MP3, WAV u OGG. El audio va a la biblioteca de medios y suena en bucle.",
+      "uploadFailed": "No se pudo subir el audio.",
+      "uploaded": "Audio subido",
+      "presets": {
+        "piano_calmo": "Piano tranquilo",
+        "violao_acustico": "Guitarra acústica",
+        "ambiente_relaxante": "Ambiente relajante",
+        "spa_natureza": "Spa y naturaleza",
+        "cordas_classicas": "Cuerdas clásicas",
+        "jazz_lounge": "Jazz lounge",
+        "corporativo_sereno": "Corporativo sereno",
+        "corporativo_animado": "Corporativo animado",
+        "cinematico_inspirador": "Cinematográfico inspirador",
+        "bossa_nova": "Bossa nova",
+        "mpb_suave": "MPB suave",
+        "samba_leve": "Samba ligera",
+        "forro_instrumental": "Forró instrumental",
+        "lofi": "Lo-fi",
+        "eletronico_chill": "Electrónica chill",
+        "synthwave": "Synthwave",
+        "pop_acustico": "Pop acústico",
+        "soul_funk_leve": "Soul y funk ligero",
+        "reggae_suave": "Reggae suave",
+        "natal": "Navidad"
+      },
+      "moods": {
+        "calm": "Tranquila",
+        "elegant": "Elegante",
+        "professional": "Profesional",
+        "brazilian": "Brasileña",
+        "modern": "Moderna",
+        "upbeat": "Animada",
+        "seasonal": "De temporada"
+      }
+    },
+    "workspaceMusic": {
+      "title": "Música de las transferencias directas",
+      "description": "Suena para quien está en la línea mientras transfieres a un colega. Cada cola usa su propia música.",
+      "save": "Guardar música",
+      "saving": "Guardando…",
+      "saved": "Música de espera guardada",
+      "saveFailed": "No se pudo guardar la música"
+    },
+    "monitor": {
+      "title": "Ahora en las colas",
+      "live": "En vivo, se actualiza cada 3 segundos",
+      "stale": "Sin conexión, mostrando los últimos números",
+      "waitingNow": "Esperando ahora",
+      "answeredToday": "Atendidas hoy",
+      "abandonedToday": "Desistieron hoy",
+      "serviceLevelToday": "Nivel de servicio hoy",
+      "serviceLevelHint": "Llamadas atendidas con hasta 20 segundos de espera, entre todas las que entraron en las colas hoy.",
+      "attention": {
+        "calm": "Nadie esperando",
+        "busy": "{count, plural, one {# esperando} other {# esperando}}",
+        "critical": "{count, plural, one {# esperando} other {# esperando}} · atención"
+      },
+      "longestWait": "Mayor espera {wait}",
+      "nobodyWaiting": "Nadie esperando.",
+      "today": "Hoy: {answered} atendidas · {abandoned} desistieron · espera media {wait} · nivel {level}",
+      "waitingList": "En la cola",
+      "hiddenNumber": "Número oculto",
+      "agents": "Agentes",
+      "unnamed": "Sin nombre",
+      "states": {
+        "free": "Libre",
+        "ringing": "Sonando",
+        "on_call": "En llamada",
+        "wrap_up": "En pausa",
+        "offline": "Fuera"
       }
     }
   }

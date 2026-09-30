@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
+import { CallTransferPanel } from "@/components/calls/call-transfer-panel";
 import { DockBounds } from "@/components/docks/dock-bounds";
 import { useDraggableDock } from "@/components/docks/use-draggable-dock";
 import {
+  ArrowsLeftRight,
   Microphone,
   MicrophoneSlash,
   PhoneDisconnect,
@@ -14,10 +16,13 @@ import {
 } from "@/components/icons";
 
 import {
+  requestTransferPanel,
   setCallActive,
   subscribeCallRequest,
   useDialerOpen,
 } from "@/lib/call-session/call-session-control";
+import { useSettledPermission } from "@/hooks/use-settled-permission";
+import { transferErrorCode } from "@/lib/call-session/transfer";
 import { cn } from "@/lib/utils";
 import { useCallSession } from "@/contexts/call-session-context";
 import {
@@ -31,7 +36,10 @@ export function ActiveCallHost() {
   const tc = useTranslations("calling");
   const { x, y, boundsRef, startDrag, reset, dragProps } =
     useDraggableDock("active-call");
-  const { callState, startCall, endCall, muted, setMuted } = useCallSession();
+  const tt = useTranslations("calling.transfer");
+  const { callState, startCall, endCall, muted, setMuted, transfer, lastErrorCode, clearError } = useCallSession();
+  const hasDialer = useSettledPermission("sip_trunks", "call");
+  const [transferOpen, setTransferOpen] = useState(false);
   const dialerOpen = useDialerOpen();
   const [activeLabel, setActiveLabel] = useState<string | null>(null);
   const elapsed = useCallElapsedSeconds(callState);
@@ -64,6 +72,24 @@ export function ActiveCallHost() {
 
   const connecting =
     callState.status === "ringing" || callState.status === "waiting_slot";
+  const answered = callState.status === "answered";
+  const showTransfer = answered && !hasDialer && (transferOpen || transfer?.status === "ringing");
+  const transferError = answered ? transferErrorCode(lastErrorCode) : null;
+  const notice =
+    transferError
+      ? tt(`errors.${transferError}`)
+      : answered && transfer?.status === "returned"
+        ? tt(`returned.${transfer.reason === "declined" || transfer.reason === "cancelled" ? transfer.reason : "no_answer"}`)
+        : null;
+
+  const openTransfer = () => {
+    clearError();
+    if (hasDialer) {
+      requestTransferPanel();
+      return;
+    }
+    setTransferOpen((open) => !open);
+  };
 
   return (
     <>
@@ -90,13 +116,15 @@ export function ActiveCallHost() {
         />
         <span className="flex min-w-0 flex-col leading-none">
           <span className="legend leading-none">
-            {t(
-              callState.status === "waiting_slot"
-                ? "waitingSlot"
-                : connecting
-                  ? "ringing"
-                  : "inCall",
-            )}
+            {transfer?.status === "ringing"
+              ? tt("holding")
+              : t(
+                  callState.status === "waiting_slot"
+                    ? "waitingSlot"
+                    : connecting
+                      ? "ringing"
+                      : "inCall",
+                )}
             {activeLabel ? ` · ${activeLabel}` : ""}
           </span>
           <span className="readout mt-1 truncate text-sm font-semibold leading-none text-foreground">
@@ -130,6 +158,18 @@ export function ActiveCallHost() {
             )}
           </button>
         ) : null}
+        {answered ? (
+          <button
+            type="button"
+            onClick={openTransfer}
+            aria-expanded={hasDialer ? undefined : showTransfer}
+            aria-label={tt("open")}
+            title={tt("open")}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[--radius] border border-control-edge text-foreground transition-colors hover:bg-muted"
+          >
+            <ArrowsLeftRight className="h-4 w-4" />
+          </button>
+        ) : null}
         <button
           type="button"
           onClick={() => {
@@ -142,6 +182,20 @@ export function ActiveCallHost() {
         >
           <PhoneDisconnect className="h-4 w-4" aria-hidden="true" />
         </button>
+        {showTransfer ? (
+          <div
+            className="absolute bottom-full right-0 mb-2 w-[min(300px,calc(100vw-2rem))] cursor-default overflow-hidden rounded-2xl border border-border-strong bg-card shadow-lg"
+            onPointerDown={(event) => event.stopPropagation()}
+            onDoubleClick={(event) => event.stopPropagation()}
+          >
+            <CallTransferPanel onClose={() => setTransferOpen(false)} />
+          </div>
+        ) : null}
+        {notice && !showTransfer ? (
+          <p role="alert" className="absolute bottom-full right-0 mb-2 w-[min(300px,calc(100vw-2rem))] rounded-[--radius] border border-border bg-card px-3 py-2 text-xs text-foreground shadow-lg">
+            {notice}
+          </p>
+        ) : null}
       </motion.div>
     </>
   );

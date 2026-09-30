@@ -1689,7 +1689,8 @@
       "facebookPages": "Seiten",
       "connectFacebook": "Seite verbinden",
       "adminLiveDecisions": "Live-Entscheidungen",
-      "sipTrunks": "SIP-Trunks"
+      "sipTrunks": "SIP-Trunks",
+      "callQueues": "Warteschlangen"
     },
     "badges": {
       "new": "Neu",
@@ -6265,7 +6266,8 @@
       "sip_trunks": "SIP-Trunks",
       "unofficial_whatsapp_instances": "WhatsApp-Nummern (inoffiziell)",
       "short_links": "Kurzlinks",
-      "facebook_pages": "Facebook-Seiten"
+      "facebook_pages": "Facebook-Seiten",
+      "call_queues": "Anruf-Warteschlangen"
     },
     "actions": {
       "create": "Erstellen",
@@ -6319,7 +6321,8 @@
       "sip_trunks": "SIP-Trunks des Telefonieanbieters hinterlegen und darüber Sprachanrufe führen.",
       "unofficial_whatsapp_instances": "WhatsApp-Nummern über ein verknüpftes Gerät verbinden und verwalten.",
       "short_links": "Kurzlinks erstellen und ihre Klickstatistiken verfolgen.",
-      "facebook_pages": "Facebook-Seiten verbinden, veröffentlichen, Kommentare moderieren und den Messenger einrichten."
+      "facebook_pages": "Facebook-Seiten verbinden, veröffentlichen, Kommentare moderieren und den Messenger einrichten.",
+      "call_queues": "Telefon-Warteschlangen anlegen, festlegen, wer sie annimmt, und die Wartemusik wählen."
     },
     "customRoles": {
       "title": "Benutzerdefinierte Rollen",
@@ -13798,7 +13801,11 @@
       "expiresIn": "Klingelt noch {seconds} s",
       "busy": "Beende das aktuelle Gespräch, um anzunehmen",
       "accept": "Annehmen",
-      "decline": "Ablehnen"
+      "decline": "Ablehnen",
+      "resumeTitle": "Dein Anruf wird gehalten",
+      "resumeHint": "Der Anrufer hat Wartemusik gehört, während du dich neu verbunden hast. Nimm den Anruf wieder auf, um weiterzusprechen.",
+      "resume": "Fortsetzen",
+      "endHeldCall": "Beenden"
     },
     "dialer": {
       "open": "Wählfeld öffnen",
@@ -13831,7 +13838,9 @@
         "failed": "Der Anruf kam nicht zustande",
         "insufficient_balance": "Guthaben reicht nicht zum Weitertelefonieren",
         "balance_check_error": "Guthaben konnte nicht geprüft werden",
-        "connection_lost": "Verbindung verloren, der Anruf ist abgebrochen"
+        "connection_lost": "Verbindung verloren, der Anruf ist abgebrochen",
+        "transferred": "Anruf weitergeleitet",
+        "caller_hung_up": "Der Anrufer hat während der Weiterleitung aufgelegt"
       },
       "errors": {
         "trunk_unavailable": "Über diesen Trunk sind keine Anrufe möglich.",
@@ -13856,6 +13865,52 @@
       "noPermission": "Du darfst nicht über Trunks anrufen.",
       "connecting": "Verbindung zum Anrufdienst wird hergestellt…",
       "busy": "Du bist bereits in einem Anruf."
+    },
+    "transfer": {
+      "open": "Weiterleiten",
+      "title": "Anruf weiterleiten",
+      "back": "Zurück zum Anruf",
+      "kinds": {
+        "member": "Kollege",
+        "queue": "Warteschlange"
+      },
+      "noColleagues": "Gerade ist kein Kollege frei.",
+      "loadingQueues": "Warteschlangen werden geladen…",
+      "noQueues": "In diesem Workspace gibt es noch keine Warteschlangen.",
+      "queueLoad": "{waiting, plural, =0 {Niemand wartet} one {# wartet} other {# warten}} · {ready, plural, =0 {keiner frei} one {# frei} other {# frei}}",
+      "notes": "Notiz für die annehmende Person",
+      "notesPlaceholder": "Z. B. Kunde möchte den Vertrag kündigen",
+      "transferToColleague": "An Kollegen weiterleiten",
+      "transferToQueue": "In die Warteschlange",
+      "memberHint": "Der Anrufer hört Wartemusik. Nimmt dein Kollege nicht an, kommt der Anruf zu dir zurück.",
+      "queueHint": "Der Anruf verlässt jetzt deinen Dialer. Nimmt niemand in der Warteschlange rechtzeitig an, klingelt er wieder bei dir.",
+      "ringing": "{name} wird angerufen…",
+      "callerHolds": "Der Anrufer hört die Wartemusik.",
+      "cancel": "Weiterleitung abbrechen",
+      "colleague": "einen Kollegen",
+      "holding": "Wird weitergeleitet",
+      "fromQueue": "Aus der Warteschlange {queue}",
+      "fromColleague": "Weitergeleitet von {name}",
+      "sentBy": "Gesendet von {name}",
+      "returned": {
+        "no_answer": "Dein Kollege hat nicht angenommen. Der Anruf ist wieder bei dir.",
+        "declined": "Dein Kollege hat abgelehnt. Der Anruf ist wieder bei dir.",
+        "cancelled": "Weiterleitung abgebrochen. Der Anruf ist wieder bei dir."
+      },
+      "errors": {
+        "target_unavailable": "Dieser Kollege kann gerade keinen Anruf annehmen.",
+        "transfer_to_self": "Du kannst einen Anruf nicht an dich selbst weiterleiten.",
+        "transfer_in_progress": "Dieser Anruf wird bereits weitergeleitet.",
+        "queue_not_found": "Die Warteschlange existiert nicht mehr.",
+        "notes_too_long": "Die Notiz darf höchstens 500 Zeichen lang sein.",
+        "invalid_target": "Wähle einen Kollegen oder eine Warteschlange.",
+        "not_call_owner": "Nur wer im Gespräch ist, kann den Anruf weiterleiten.",
+        "call_not_found": "Der Anruf ist bereits beendet.",
+        "no_transfer": "Es gibt keine Weiterleitung zum Abbrechen.",
+        "no_call_to_transfer": "Es läuft kein Anruf, der weitergeleitet werden könnte.",
+        "transfer_unavailable": "Weiterleitungen sind gerade nicht verfügbar.",
+        "transfer_failed": "Die Weiterleitung konnte nicht gestartet werden."
+      }
     }
   },
   "sipTrunks": {
@@ -13952,6 +14007,180 @@
         "username": "Gib den Benutzernamen ein.",
         "password": "Gib das Passwort ein.",
         "codecs": "Wähle PCMU oder PCMA, damit das Wählfeld funktioniert."
+      }
+    }
+  },
+  "callQueues": {
+    "page": {
+      "title": "Anruf-Warteschlangen",
+      "description": "Warteschlangen verteilen Anrufe mit Wartemusik an freie Mitarbeitende und nehmen Weiterleitungen und Anrufe aus Sprach-Workflows an.",
+      "create": "Neue Warteschlange",
+      "refresh": "Aktualisieren",
+      "errorTitle": "Die Warteschlangen konnten nicht geladen werden",
+      "retry": "Erneut versuchen",
+      "emptyTitle": "Noch keine Warteschlangen",
+      "emptyDescription": "Lege eine Warteschlange an, um Weiterleitungen aus dem Dialer und Anrufe aus Sprach-Workflows anzunehmen."
+    },
+    "stats": {
+      "total": "Warteschlangen",
+      "byDepartment": "Nach Abteilung"
+    },
+    "table": {
+      "queue": "Warteschlange",
+      "members": "Wer annimmt",
+      "department": "Abteilung {name}",
+      "people": "{count, plural, one {# Person} other {# Personen}}",
+      "timing": "Klingeln · Warten · Pause",
+      "timingValue": "{ring}s · {wait} Min. · {wrapUp}s",
+      "music": "Wartemusik"
+    },
+    "actions": {
+      "edit": "Warteschlange bearbeiten",
+      "delete": "Warteschlange entfernen"
+    },
+    "delete": {
+      "title": "Warteschlange entfernen?",
+      "body": "Die Warteschlange {name} nimmt keine Anrufe mehr an. Sprach-Workflows, die Anrufe dorthin senden, folgen stattdessen ihrem Timeout-Ausgang.",
+      "confirm": "Entfernen",
+      "cancel": "Abbrechen",
+      "failed": "Die Warteschlange konnte nicht entfernt werden",
+      "done": "Warteschlange entfernt"
+    },
+    "form": {
+      "createTitle": "Neue Warteschlange",
+      "editTitle": "Warteschlange bearbeiten",
+      "subtitle": "Wer annimmt, wie Anrufe verteilt werden und was Anrufer beim Warten hören.",
+      "name": "Name",
+      "strategy": "Verteilung",
+      "strategies": {
+        "longest_idle": {
+          "label": "Am längsten frei",
+          "hint": "Gibt den Anruf an die Person, die am längsten keinen Anruf hatte. Das ist der Standard in Contact Centern und verteilt die Arbeit fair."
+        },
+        "round_robin": {
+          "label": "Reihum",
+          "hint": "Wechselt zwischen den Mitarbeitenden ab, beginnend nach dem zuletzt angerufenen."
+        },
+        "fewest_calls": {
+          "label": "Wenigste Anrufe",
+          "hint": "Bevorzugt, wer die wenigsten Anrufe angenommen hat."
+        },
+        "random": {
+          "label": "Zufällig",
+          "hint": "Wählt zufällig eine freie Person aus."
+        }
+      },
+      "membersFrom": "Wer annimmt",
+      "membersFromOptions": {
+        "people": "Personen",
+        "department": "Abteilung"
+      },
+      "department": "Abteilung",
+      "searchMembers": "Personen suchen",
+      "members": "Mitglieder der Warteschlange",
+      "membersHint": "{count, plural, =0 {Niemand ausgewählt} one {# Person ausgewählt} other {# Personen ausgewählt}}",
+      "permissionHint": "Klingelt nur bei Personen, die Trunk-Anrufe annehmen dürfen und den Dialer geöffnet haben.",
+      "ringSeconds": "Klingeln (s)",
+      "maxWaitSeconds": "Max. Wartezeit (s)",
+      "wrapUpSeconds": "Pause nach Anruf (s)",
+      "timingHint": "Klingeln: wie lange es bei jeder Person klingelt (5 bis 60 s). Max. Wartezeit: danach folgt der Anruf dem Timeout-Ausgang (10 bis 3600 s). Pause: Erholung jeder Person zwischen Anrufen (0 bis 300 s).",
+      "invalid": {
+        "name": "Gib einen Namen mit bis zu 80 Zeichen ein.",
+        "department": "Wähle die Abteilung.",
+        "members": "Wähle mindestens eine Person.",
+        "ringSeconds": "Verwende 5 bis 60 Sekunden.",
+        "maxWaitSeconds": "Verwende 10 bis 3600 Sekunden.",
+        "wrapUpSeconds": "Verwende 0 bis 300 Sekunden."
+      },
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "saving": "Wird gespeichert…",
+      "saveFailed": "Die Warteschlange konnte nicht gespeichert werden",
+      "created": "Warteschlange angelegt",
+      "updated": "Warteschlange aktualisiert"
+    },
+    "holdMusic": {
+      "label": "Wartemusik",
+      "sources": {
+        "preset": "Fertig",
+        "upload": "Hochgeladen"
+      },
+      "loading": "Musik wird geladen…",
+      "noUploads": "Noch kein Audio hochgeladen.",
+      "untitled": "Audio ohne Namen",
+      "preview": "Anhören",
+      "upload": "Audio hochladen",
+      "uploading": "Wird hochgeladen…",
+      "uploadHint": "MP3, WAV oder OGG. Das Audio landet in der Medienbibliothek und läuft in Schleife.",
+      "uploadFailed": "Das Audio konnte nicht hochgeladen werden.",
+      "uploaded": "Hochgeladenes Audio",
+      "presets": {
+        "piano_calmo": "Ruhiges Klavier",
+        "violao_acustico": "Akustikgitarre",
+        "ambiente_relaxante": "Entspannte Klangfläche",
+        "spa_natureza": "Spa und Natur",
+        "cordas_classicas": "Klassische Streicher",
+        "jazz_lounge": "Jazz-Lounge",
+        "corporativo_sereno": "Ruhig und professionell",
+        "corporativo_animado": "Beschwingt und professionell",
+        "cinematico_inspirador": "Inspirierend und filmisch",
+        "bossa_nova": "Bossa Nova",
+        "mpb_suave": "Sanfter MPB",
+        "samba_leve": "Leichter Samba",
+        "forro_instrumental": "Instrumentaler Forró",
+        "lofi": "Lo-Fi",
+        "eletronico_chill": "Chillige Elektronik",
+        "synthwave": "Synthwave",
+        "pop_acustico": "Akustik-Pop",
+        "soul_funk_leve": "Leichter Soul und Funk",
+        "reggae_suave": "Sanfter Reggae",
+        "natal": "Weihnachten"
+      },
+      "moods": {
+        "calm": "Ruhig",
+        "elegant": "Elegant",
+        "professional": "Professionell",
+        "brazilian": "Brasilianisch",
+        "modern": "Modern",
+        "upbeat": "Beschwingt",
+        "seasonal": "Saisonal"
+      }
+    },
+    "workspaceMusic": {
+      "title": "Musik für direkte Weiterleitungen",
+      "description": "Läuft für den Anrufer, während du an einen Kollegen weiterleitest. Jede Warteschlange hat ihre eigene Musik.",
+      "save": "Musik speichern",
+      "saving": "Wird gespeichert…",
+      "saved": "Wartemusik gespeichert",
+      "saveFailed": "Die Musik konnte nicht gespeichert werden"
+    },
+    "monitor": {
+      "title": "Warteschlangen jetzt",
+      "live": "Live, aktualisiert alle 3 Sekunden",
+      "stale": "Keine Verbindung, letzte Zahlen werden angezeigt",
+      "waitingNow": "Wartet jetzt",
+      "answeredToday": "Heute angenommen",
+      "abandonedToday": "Heute aufgelegt",
+      "serviceLevelToday": "Servicelevel heute",
+      "serviceLevelHint": "Anrufe, die nach höchstens 20 Sekunden Wartezeit angenommen wurden, von allen Anrufen, die heute in eine Warteschlange kamen.",
+      "attention": {
+        "calm": "Niemand wartet",
+        "busy": "{count, plural, one {# wartet} other {# warten}}",
+        "critical": "{count, plural, one {# wartet} other {# warten}} · Achtung"
+      },
+      "longestWait": "Längste Wartezeit {wait}",
+      "nobodyWaiting": "Niemand wartet.",
+      "today": "Heute: {answered} angenommen · {abandoned} aufgelegt · Ø Wartezeit {wait} · Level {level}",
+      "waitingList": "In der Schlange",
+      "hiddenNumber": "Unterdrückte Nummer",
+      "agents": "Mitarbeitende",
+      "unnamed": "Ohne Namen",
+      "states": {
+        "free": "Frei",
+        "ringing": "Klingelt",
+        "on_call": "Im Gespräch",
+        "wrap_up": "In Pause",
+        "offline": "Abwesend"
       }
     }
   }

@@ -420,6 +420,12 @@ export const campanhasNavItems: NavItem[] = [
     family: "telephony",
   },
   {
+    icon: Headset,
+    labelKey: "nav.callQueues",
+    href: "/dashboard/call-queues",
+    family: "telephony",
+  },
+  {
     icon: DeviceMobile,
     labelKey: "nav.unofficialWhatsapp",
     href: "/dashboard/unofficial-whatsapp",

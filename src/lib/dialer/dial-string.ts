@@ -27,6 +27,8 @@ export const CALL_OUTCOMES = [
   "insufficient_balance",
   "balance_check_error",
   "connection_lost",
+  "transferred",
+  "caller_hung_up",
 ] as const;
 
 export type CallOutcome = (typeof CALL_OUTCOMES)[number];

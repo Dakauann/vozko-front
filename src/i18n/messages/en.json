@@ -1964,7 +1964,8 @@
       "facebookPages": "Pages",
       "connectFacebook": "Connect Page",
       "adminLiveDecisions": "Live decisions",
-      "sipTrunks": "SIP trunks"
+      "sipTrunks": "SIP trunks",
+      "callQueues": "Queues"
     },
     "badges": {
       "new": "New",
@@ -7116,7 +7117,8 @@
       "sip_trunks": "SIP trunks",
       "unofficial_whatsapp_instances": "WhatsApp numbers (unofficial)",
       "short_links": "Short links",
-      "facebook_pages": "Facebook Pages"
+      "facebook_pages": "Facebook Pages",
+      "call_queues": "Call queues"
     },
     "actions": {
       "create": "Create",
@@ -7170,7 +7172,8 @@
       "sip_trunks": "Register the telephony provider's SIP trunks and place voice calls through them.",
       "unofficial_whatsapp_instances": "Connect and manage WhatsApp numbers over a linked device.",
       "short_links": "Create and track short links and their click statistics.",
-      "facebook_pages": "Connect Facebook Pages, publish, moderate comments and set up Messenger."
+      "facebook_pages": "Connect Facebook Pages, publish, moderate comments and set up Messenger.",
+      "call_queues": "Create phone queues, choose who answers each one and the hold music."
     },
     "customRoles": {
       "title": "Custom Roles",
@@ -14795,7 +14798,11 @@
       "expiresIn": "Ringing for {seconds}s more",
       "busy": "End your current call to answer",
       "accept": "Answer",
-      "decline": "Decline"
+      "decline": "Decline",
+      "resumeTitle": "Your call is on hold",
+      "resumeHint": "The caller heard hold music while you reconnected. Resume to carry on the conversation.",
+      "resume": "Resume",
+      "endHeldCall": "End call"
     },
     "dialer": {
       "open": "Open dialer",
@@ -14828,7 +14835,9 @@
         "failed": "The call did not go through",
         "insufficient_balance": "Not enough balance to continue",
         "balance_check_error": "Could not check the balance",
-        "connection_lost": "Connection lost, the call dropped"
+        "connection_lost": "Connection lost, the call dropped",
+        "transferred": "Call transferred",
+        "caller_hung_up": "The caller hung up during the transfer"
       },
       "errors": {
         "trunk_unavailable": "This trunk cannot place calls.",
@@ -14853,6 +14862,52 @@
       "noPermission": "You are not allowed to call through trunks.",
       "connecting": "Connecting to the calling service…",
       "busy": "You are already on a call."
+    },
+    "transfer": {
+      "open": "Transfer",
+      "title": "Transfer call",
+      "back": "Back to the call",
+      "kinds": {
+        "member": "Colleague",
+        "queue": "Queue"
+      },
+      "noColleagues": "No colleague is free right now.",
+      "loadingQueues": "Loading queues…",
+      "noQueues": "No queues in this workspace yet.",
+      "queueLoad": "{waiting, plural, =0 {Nobody waiting} one {# waiting} other {# waiting}} · {ready, plural, =0 {none free} one {# free} other {# free}}",
+      "notes": "Note for whoever answers",
+      "notesPlaceholder": "E.g. customer wants to cancel the plan",
+      "transferToColleague": "Transfer to colleague",
+      "transferToQueue": "Transfer to queue",
+      "memberHint": "The caller hears hold music. If your colleague doesn't answer, the call comes back to you.",
+      "queueHint": "The call leaves your dialer now. If nobody in the queue answers in time, it rings back to you.",
+      "ringing": "Calling {name}…",
+      "callerHolds": "The caller is listening to hold music.",
+      "cancel": "Cancel transfer",
+      "colleague": "a colleague",
+      "holding": "Transferring",
+      "fromQueue": "From queue {queue}",
+      "fromColleague": "Transferred by {name}",
+      "sentBy": "Sent by {name}",
+      "returned": {
+        "no_answer": "Your colleague didn't answer. The call is back with you.",
+        "declined": "Your colleague declined. The call is back with you.",
+        "cancelled": "Transfer cancelled. The call is back with you."
+      },
+      "errors": {
+        "target_unavailable": "That colleague isn't free to answer right now.",
+        "transfer_to_self": "You can't transfer a call to yourself.",
+        "transfer_in_progress": "This call is already being transferred.",
+        "queue_not_found": "That queue no longer exists.",
+        "notes_too_long": "Notes can be up to 500 characters.",
+        "invalid_target": "Choose a colleague or a queue.",
+        "not_call_owner": "Only the person on the call can transfer it.",
+        "call_not_found": "The call has already ended.",
+        "no_transfer": "There's no transfer to cancel.",
+        "no_call_to_transfer": "There's no call in progress to transfer.",
+        "transfer_unavailable": "Transfers aren't available right now.",
+        "transfer_failed": "The transfer couldn't be started."
+      }
     }
   },
   "sipTrunks": {
@@ -14949,6 +15004,180 @@
         "username": "Enter the username.",
         "password": "Enter the password.",
         "codecs": "Include PCMU or PCMA so the dialer works."
+      }
+    }
+  },
+  "callQueues": {
+    "page": {
+      "title": "Call queues",
+      "description": "Queues share calls among whoever is free, with hold music, and receive transfers and calls from voice workflows.",
+      "create": "New queue",
+      "refresh": "Refresh",
+      "errorTitle": "Couldn't load the queues",
+      "retry": "Try again",
+      "emptyTitle": "No queues yet",
+      "emptyDescription": "Create a queue to receive transfers from the dialer and calls from voice workflows."
+    },
+    "stats": {
+      "total": "Queues",
+      "byDepartment": "By department"
+    },
+    "table": {
+      "queue": "Queue",
+      "members": "Who answers",
+      "department": "Department {name}",
+      "people": "{count, plural, one {# person} other {# people}}",
+      "timing": "Ring · wait · pause",
+      "timingValue": "{ring}s · {wait} min · {wrapUp}s",
+      "music": "Hold music"
+    },
+    "actions": {
+      "edit": "Edit queue",
+      "delete": "Remove queue"
+    },
+    "delete": {
+      "title": "Remove queue?",
+      "body": "The {name} queue stops receiving calls. Voice workflows that send calls to it will follow their timeout exit instead.",
+      "confirm": "Remove",
+      "cancel": "Cancel",
+      "failed": "Couldn't remove the queue",
+      "done": "Queue removed"
+    },
+    "form": {
+      "createTitle": "New queue",
+      "editTitle": "Edit queue",
+      "subtitle": "Who answers, how calls are shared and what callers hear while they wait.",
+      "name": "Name",
+      "strategy": "Distribution",
+      "strategies": {
+        "longest_idle": {
+          "label": "Longest idle",
+          "hint": "Gives the call to whoever has gone longest without one. It's the contact center standard and spreads work fairly."
+        },
+        "round_robin": {
+          "label": "Round robin",
+          "hint": "Takes turns among agents, starting after the last one who got a call."
+        },
+        "fewest_calls": {
+          "label": "Fewest calls",
+          "hint": "Favours whoever has answered the fewest calls."
+        },
+        "random": {
+          "label": "Random",
+          "hint": "Picks a free agent at random."
+        }
+      },
+      "membersFrom": "Who answers",
+      "membersFromOptions": {
+        "people": "People",
+        "department": "Department"
+      },
+      "department": "Department",
+      "searchMembers": "Search people",
+      "members": "Queue members",
+      "membersHint": "{count, plural, =0 {Nobody chosen} one {# person chosen} other {# people chosen}}",
+      "permissionHint": "Only rings people who may answer trunk calls and have the dialer open.",
+      "ringSeconds": "Ring (s)",
+      "maxWaitSeconds": "Max wait (s)",
+      "wrapUpSeconds": "Pause after call (s)",
+      "timingHint": "Ring: how long each agent is rung (5 to 60 s). Max wait: after this the call follows the timeout exit (10 to 3600 s). Pause: each agent's break between calls (0 to 300 s).",
+      "invalid": {
+        "name": "Give it a name of up to 80 characters.",
+        "department": "Choose the department.",
+        "members": "Choose at least one person.",
+        "ringSeconds": "Use 5 to 60 seconds.",
+        "maxWaitSeconds": "Use 10 to 3600 seconds.",
+        "wrapUpSeconds": "Use 0 to 300 seconds."
+      },
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving…",
+      "saveFailed": "Couldn't save the queue",
+      "created": "Queue created",
+      "updated": "Queue updated"
+    },
+    "holdMusic": {
+      "label": "Hold music",
+      "sources": {
+        "preset": "Ready-made",
+        "upload": "Uploaded"
+      },
+      "loading": "Loading music…",
+      "noUploads": "No audio uploaded yet.",
+      "untitled": "Untitled audio",
+      "preview": "Listen",
+      "upload": "Upload audio",
+      "uploading": "Uploading…",
+      "uploadHint": "MP3, WAV or OGG. The audio goes to the media library and plays on a loop.",
+      "uploadFailed": "Couldn't upload the audio.",
+      "uploaded": "Uploaded audio",
+      "presets": {
+        "piano_calmo": "Calm piano",
+        "violao_acustico": "Acoustic guitar",
+        "ambiente_relaxante": "Relaxing ambient",
+        "spa_natureza": "Spa and nature",
+        "cordas_classicas": "Classical strings",
+        "jazz_lounge": "Jazz lounge",
+        "corporativo_sereno": "Calm corporate",
+        "corporativo_animado": "Upbeat corporate",
+        "cinematico_inspirador": "Inspiring cinematic",
+        "bossa_nova": "Bossa nova",
+        "mpb_suave": "Soft MPB",
+        "samba_leve": "Light samba",
+        "forro_instrumental": "Instrumental forró",
+        "lofi": "Lo-fi",
+        "eletronico_chill": "Chill electronic",
+        "synthwave": "Synthwave",
+        "pop_acustico": "Acoustic pop",
+        "soul_funk_leve": "Light soul and funk",
+        "reggae_suave": "Mellow reggae",
+        "natal": "Christmas"
+      },
+      "moods": {
+        "calm": "Calm",
+        "elegant": "Elegant",
+        "professional": "Professional",
+        "brazilian": "Brazilian",
+        "modern": "Modern",
+        "upbeat": "Upbeat",
+        "seasonal": "Seasonal"
+      }
+    },
+    "workspaceMusic": {
+      "title": "Music for direct transfers",
+      "description": "Plays for the caller while you transfer to a colleague. Each queue uses its own music.",
+      "save": "Save music",
+      "saving": "Saving…",
+      "saved": "Hold music saved",
+      "saveFailed": "Couldn't save the music"
+    },
+    "monitor": {
+      "title": "Queues right now",
+      "live": "Live, refreshes every 3 seconds",
+      "stale": "Offline, showing the last numbers",
+      "waitingNow": "Waiting now",
+      "answeredToday": "Answered today",
+      "abandonedToday": "Gave up today",
+      "serviceLevelToday": "Service level today",
+      "serviceLevelHint": "Calls answered within 20 seconds of waiting, out of every call that entered a queue today.",
+      "attention": {
+        "calm": "Nobody waiting",
+        "busy": "{count, plural, one {# waiting} other {# waiting}}",
+        "critical": "{count, plural, one {# waiting} other {# waiting}} · needs attention"
+      },
+      "longestWait": "Longest wait {wait}",
+      "nobodyWaiting": "Nobody waiting.",
+      "today": "Today: {answered} answered · {abandoned} gave up · average wait {wait} · level {level}",
+      "waitingList": "In line",
+      "hiddenNumber": "Hidden number",
+      "agents": "Agents",
+      "unnamed": "No name",
+      "states": {
+        "free": "Free",
+        "ringing": "Ringing",
+        "on_call": "On a call",
+        "wrap_up": "On a break",
+        "offline": "Away"
       }
     }
   }

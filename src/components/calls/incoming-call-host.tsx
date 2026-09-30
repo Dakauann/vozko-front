@@ -9,6 +9,7 @@ import { formatPhoneForDisplay } from "@/lib/phone/display";
 
 export function IncomingCallHost() {
   const t = useTranslations("calling.incoming");
+  const tt = useTranslations("calling.transfer");
   const { incomingCall, acceptIncomingCall, declineIncomingCall, callState } = useCallSession();
   const secondsLeft = useOfferSecondsLeft(incomingCall);
 
@@ -16,6 +17,7 @@ export function IncomingCallHost() {
 
   const busy = callState !== null && callState.status !== "ended";
   const channel = incomingCall.channel === "sip" ? "sip" : "whatsapp";
+  const transfer = incomingCall.transfer;
 
   return (
     <div
@@ -30,11 +32,25 @@ export function IncomingCallHost() {
         </span>
         <div className="min-w-0 flex-1">
           <p id="incoming-call-title" className="legend leading-none">
-            {t("title", { channel: t(`channel.${channel}`) })}
+            {incomingCall.resume ? t("resumeTitle") : t("title", { channel: t(`channel.${channel}`) })}
           </p>
           <p id="incoming-call-number" className="readout mt-1.5 truncate text-base font-semibold text-foreground">
             {incomingCall.fromNumber ? formatPhoneForDisplay(incomingCall.fromNumber) : t("unknownNumber")}
           </p>
+          {incomingCall.resume ? <p className="mt-1 text-xs text-muted-foreground">{t("resumeHint")}</p> : null}
+          {transfer ? (
+            <div className="mt-2 rounded-[--radius] border border-border bg-muted px-2.5 py-1.5">
+              <p className="text-xs font-semibold text-foreground">
+                {transfer.queueName
+                  ? tt("fromQueue", { queue: transfer.queueName })
+                  : tt("fromColleague", { name: transfer.fromName ?? tt("colleague") })}
+              </p>
+              {transfer.queueName && transfer.fromName ? (
+                <p className="text-2xs text-muted-foreground">{tt("sentBy", { name: transfer.fromName })}</p>
+              ) : null}
+              {transfer.notes ? <p className="mt-1 line-clamp-4 whitespace-pre-wrap text-xs text-foreground">{transfer.notes}</p> : null}
+            </div>
+          ) : null}
           {secondsLeft !== null ? (
             <p className="mt-1 text-xs tabular-nums text-muted-foreground">{t("expiresIn", { seconds: secondsLeft })}</p>
           ) : null}
@@ -48,7 +64,7 @@ export function IncomingCallHost() {
           className="inline-flex h-8 items-center justify-center gap-1.5 rounded-[--radius] border border-control-edge text-sm font-semibold text-foreground transition-colors hover:bg-muted"
         >
           <PhoneDisconnect className="h-4 w-4" aria-hidden="true" />
-          {t("decline")}
+          {t(incomingCall.resume ? "endHeldCall" : "decline")}
         </button>
         <button
           type="button"
@@ -57,7 +73,7 @@ export function IncomingCallHost() {
           className="inline-flex h-8 items-center justify-center gap-1.5 rounded-[--radius] bg-primary text-sm font-semibold text-primary-foreground shadow-button transition-colors hover:bg-primary-hover disabled:pointer-events-none disabled:opacity-50"
         >
           <PhoneIncoming className="h-4 w-4" aria-hidden="true" />
-          {t("accept")}
+          {t(incomingCall.resume ? "resume" : "accept")}
         </button>
       </div>
     </div>

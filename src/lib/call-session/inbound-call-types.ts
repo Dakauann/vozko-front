@@ -1,3 +1,4 @@
+import type { TransferContext, TransferContextPayload } from "@/lib/call-session/transfer";
 
 export const WS_EVENT_INCOMING_CALL = "call:incoming" as const;
 export const WS_EVENT_INCOMING_CALL_ACCEPT = "call:incoming_accept" as const;
@@ -12,6 +13,8 @@ export interface IncomingCallPayload {
     to_number?: string;
     channel?: string;
     expires_at: string;
+    transfer?: TransferContextPayload;
+    resume?: boolean;
 }
 
 export interface IncomingCallOffer {
@@ -23,6 +26,8 @@ export interface IncomingCallOffer {
     channel?: string;
     expiresAt?: string;
     receivedAt: number;
+    transfer?: TransferContext;
+    resume?: boolean;
 }
 
 export interface IncomingCallWithdrawnPayload {

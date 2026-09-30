@@ -5,10 +5,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import pt from "@/i18n/messages/pt.json";
 import type { CallSessionApi } from "@/hooks/use-call-session-ws";
 import type { SipTrunk } from "@/lib/sip-trunks/types";
+import type { QueueTarget } from "@/lib/call-routing/types";
 
 const grants = vi.hoisted(() => ({ value: new Set<string>() }));
 const session = vi.hoisted(() => ({ value: null as unknown as CallSessionApi }));
 const trunkList = vi.hoisted(() => ({ value: [] as SipTrunk[] }));
+const queueList = vi.hoisted(() => ({ value: [] as QueueTarget[] }));
 
 vi.mock("@/contexts/workspace-context", () => ({
   useWorkspace: () => ({
@@ -19,10 +21,11 @@ vi.mock("@/contexts/workspace-context", () => ({
 }));
 vi.mock("@/contexts/call-session-context", () => ({ useCallSession: () => session.value }));
 vi.mock("@/app/actions/sip-trunks", () => ({ listSipTrunksAction: () => Promise.resolve({ trunks: trunkList.value }) }));
+vi.mock("@/app/actions/call-routing", () => ({ listTransferQueuesAction: () => Promise.resolve({ queues: queueList.value }) }));
 vi.mock("@/i18n/routing", () => ({ Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a> }));
 
 import { DialerDock } from "@/components/dialer/dialer-dock";
-import { presetDial, subscribeCallRequest, type CallRequest } from "@/lib/call-session/call-session-control";
+import { presetDial, requestTransferPanel, subscribeCallRequest, type CallRequest } from "@/lib/call-session/call-session-control";
 
 function trunk(overrides: Partial<SipTrunk>): SipTrunk {
   return {
@@ -59,6 +62,9 @@ function callSession(overrides: Partial<CallSessionApi> = {}): CallSessionApi {
     incomingCall: null,
     acceptIncomingCall: vi.fn(),
     declineIncomingCall: vi.fn(),
+    transfer: null,
+    transferCall: vi.fn(),
+    cancelTransfer: vi.fn(),
     ...overrides,
   } as CallSessionApi;
 }
@@ -86,6 +92,7 @@ describe("DialerDock", () => {
     grants.value = new Set(["sip_trunks:call", "sip_trunks:read", "call_session:use"]);
     session.value = callSession();
     trunkList.value = [trunk({})];
+    queueList.value = [];
     requests = [];
     unsubscribe = subscribeCallRequest((request) => requests.push(request));
   });
@@ -175,5 +182,100 @@ describe("DialerDock", () => {
     renderDialer();
     await openDialer();
     expect(await screen.findByText("O tronco não está registrado no provedor.")).toBeTruthy();
+  });
+
+  describe("transferring a live call", () => {
+    const answered = { callId: "c1", phoneNumber: "5584994409684", status: "answered" as const, answeredAt: Date.now() };
+
+    it("hands the call to a free colleague with a note", async () => {
+      const transferCall = vi.fn();
+      session.value = callSession({
+        callState: answered,
+        transferCall,
+        presence: [
+          { userId: "u1", username: "Eu", busy: false },
+          { userId: "u2", username: "Bia", busy: false },
+          { userId: "u3", username: "Caio", busy: true },
+        ],
+      });
+      renderDialer();
+      await openDialer();
+      fireEvent.click(screen.getByRole("button", { name: /Transferir/ }));
+
+      expect(screen.queryByRole("radio", { name: /Eu/ })).toBeNull();
+      expect(screen.queryByRole("radio", { name: /Caio/ })).toBeNull();
+      const send = screen.getByRole("button", { name: "Transferir para o colega" });
+      expect(send).toHaveProperty("disabled", true);
+
+      fireEvent.click(screen.getByRole("radio", { name: /Bia/ }));
+      fireEvent.change(screen.getByLabelText("Nota para quem vai atender"), { target: { value: "quer cancelar" } });
+      fireEvent.click(send);
+      expect(transferCall).toHaveBeenCalledWith({ kind: "member", userId: "u2" }, "quer cancelar");
+    });
+
+    it("shows how busy each queue is and sends the call to one", async () => {
+      const transferCall = vi.fn();
+      queueList.value = [{ id: "q1", name: "Suporte", waiting: 2, ready: 1 }];
+      session.value = callSession({ callState: answered, transferCall });
+      renderDialer();
+      await act(async () => {
+        requestTransferPanel();
+        await Promise.resolve();
+      });
+      fireEvent.click(screen.getByRole("tab", { name: "Fila" }));
+      const queue = await screen.findByRole("radio", { name: /Suporte/ });
+      expect(queue.textContent).toContain("2 esperando · 1 livre");
+      fireEvent.click(queue);
+      fireEvent.click(screen.getByRole("button", { name: "Transferir para a fila" }));
+      expect(transferCall).toHaveBeenCalledWith({ kind: "queue", queueId: "q1" }, "");
+    });
+
+    it("lets the operator cancel while the colleague is being rung", async () => {
+      const cancelTransfer = vi.fn();
+      session.value = callSession({
+        callState: answered,
+        cancelTransfer,
+        transfer: { transferId: "t1", callId: "c1", status: "ringing", targetName: "Bia" },
+      });
+      renderDialer();
+      await openDialer();
+      expect(screen.getByText("Chamando Bia…")).toBeTruthy();
+      fireEvent.click(screen.getByRole("button", { name: "Cancelar transferência" }));
+      expect(cancelTransfer).toHaveBeenCalled();
+    });
+
+    it("tells the operator the call came back and why", async () => {
+      session.value = callSession({
+        callState: answered,
+        transfer: { transferId: "t1", callId: "c1", status: "returned", reason: "declined" },
+      });
+      renderDialer();
+      await openDialer();
+      expect(screen.getByText("O colega recusou. A ligação voltou para você.")).toBeTruthy();
+    });
+
+    it("explains a refused transfer in the member's language", async () => {
+      session.value = callSession({ callState: answered, lastErrorCode: "target_unavailable", lastError: "busy" });
+      renderDialer();
+      await openDialer();
+      expect(screen.getByText("Esse colega não está livre para atender agora.")).toBeTruthy();
+    });
+
+    it("shows who sent a transferred call and their note", async () => {
+      session.value = callSession({
+        callState: { ...answered, transferredBy: { fromName: "Ana", notes: "segunda via do boleto" } },
+      });
+      renderDialer();
+      await openDialer();
+      expect(screen.getByText("Transferida por Ana")).toBeTruthy();
+      expect(screen.getByText("segunda via do boleto")).toBeTruthy();
+    });
+
+    it("reports a handed-over call as transferred", async () => {
+      session.value = callSession({ callState: { ...answered, status: "ended", reason: "transferred" } });
+      renderDialer();
+      await openDialer();
+      expect(screen.getByText("Chamada transferida")).toBeTruthy();
+    });
   });
 });

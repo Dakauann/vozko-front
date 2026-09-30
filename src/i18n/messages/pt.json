@@ -2365,7 +2365,8 @@
       "facebookPages": "Páginas",
       "connectFacebook": "Conectar Página",
       "adminLiveDecisions": "Decisões ao vivo",
-      "sipTrunks": "Troncos SIP"
+      "sipTrunks": "Troncos SIP",
+      "callQueues": "Filas"
     },
     "badges": {
       "new": "Novo",
@@ -7155,7 +7156,8 @@
       "sip_trunks": "Troncos SIP",
       "unofficial_whatsapp_instances": "Números WhatsApp (não oficial)",
       "short_links": "Links curtos",
-      "facebook_pages": "Páginas do Facebook"
+      "facebook_pages": "Páginas do Facebook",
+      "call_queues": "Filas de atendimento"
     },
     "actions": {
       "create": "Criar",
@@ -7209,7 +7211,8 @@
       "sip_trunks": "Cadastrar os troncos SIP do provedor de telefonia e fazer ligações de voz por eles.",
       "unofficial_whatsapp_instances": "Conectar e gerenciar números de WhatsApp por dispositivo vinculado.",
       "short_links": "Criar e acompanhar links curtos e suas estatísticas de clique.",
-      "facebook_pages": "Conectar Páginas do Facebook, publicar, moderar comentários e configurar o Messenger."
+      "facebook_pages": "Conectar Páginas do Facebook, publicar, moderar comentários e configurar o Messenger.",
+      "call_queues": "Criar filas telefônicas, escolher quem atende cada uma e a música de espera."
     },
     "customRoles": {
       "title": "Cargos Personalizados",
@@ -14846,7 +14849,11 @@
       "expiresIn": "Tocando por mais {seconds}s",
       "busy": "Encerre a chamada atual para atender",
       "accept": "Atender",
-      "decline": "Recusar"
+      "decline": "Recusar",
+      "resumeTitle": "Sua ligação está em espera",
+      "resumeHint": "Quem ligou ouviu música enquanto você reconectava. Retome para continuar a conversa.",
+      "resume": "Retomar",
+      "endHeldCall": "Encerrar"
     },
     "dialer": {
       "open": "Abrir discador",
@@ -14879,7 +14886,9 @@
         "failed": "A ligação não completou",
         "insufficient_balance": "Saldo insuficiente para continuar",
         "balance_check_error": "Não foi possível conferir o saldo",
-        "connection_lost": "Conexão perdida, a chamada caiu"
+        "connection_lost": "Conexão perdida, a chamada caiu",
+        "transferred": "Chamada transferida",
+        "caller_hung_up": "Quem ligou desligou durante a transferência"
       },
       "errors": {
         "trunk_unavailable": "Este tronco não pode fazer ligações.",
@@ -14904,6 +14913,52 @@
       "noPermission": "Você não tem permissão para ligar pelos troncos.",
       "connecting": "Conectando ao serviço de chamadas…",
       "busy": "Você já está em uma chamada."
+    },
+    "transfer": {
+      "open": "Transferir",
+      "title": "Transferir ligação",
+      "back": "Voltar para a chamada",
+      "kinds": {
+        "member": "Colega",
+        "queue": "Fila"
+      },
+      "noColleagues": "Nenhum colega livre agora.",
+      "loadingQueues": "Carregando filas…",
+      "noQueues": "Nenhuma fila criada neste workspace.",
+      "queueLoad": "{waiting, plural, =0 {Ninguém esperando} one {# esperando} other {# esperando}} · {ready, plural, =0 {nenhum livre} one {# livre} other {# livres}}",
+      "notes": "Nota para quem vai atender",
+      "notesPlaceholder": "Ex: cliente quer cancelar o plano",
+      "transferToColleague": "Transferir para o colega",
+      "transferToQueue": "Transferir para a fila",
+      "memberHint": "Quem ligou ouve a música de espera. Se o colega não atender, a ligação volta para você.",
+      "queueHint": "A ligação sai do seu discador agora. Se ninguém da fila atender a tempo, ela toca de volta para você.",
+      "ringing": "Chamando {name}…",
+      "callerHolds": "Quem ligou está ouvindo a música de espera.",
+      "cancel": "Cancelar transferência",
+      "colleague": "um colega",
+      "holding": "Transferindo",
+      "fromQueue": "Da fila {queue}",
+      "fromColleague": "Transferida por {name}",
+      "sentBy": "Enviada por {name}",
+      "returned": {
+        "no_answer": "O colega não atendeu. A ligação voltou para você.",
+        "declined": "O colega recusou. A ligação voltou para você.",
+        "cancelled": "Transferência cancelada. A ligação voltou para você."
+      },
+      "errors": {
+        "target_unavailable": "Esse colega não está livre para atender agora.",
+        "transfer_to_self": "Você não pode transferir para você mesmo.",
+        "transfer_in_progress": "Esta ligação já está sendo transferida.",
+        "queue_not_found": "A fila não existe mais.",
+        "notes_too_long": "A nota pode ter até 500 caracteres.",
+        "invalid_target": "Escolha um colega ou uma fila.",
+        "not_call_owner": "Só quem está na ligação pode transferi-la.",
+        "call_not_found": "A ligação já terminou.",
+        "no_transfer": "Não há transferência para cancelar.",
+        "no_call_to_transfer": "Não há ligação em andamento para transferir.",
+        "transfer_unavailable": "Transferências não estão disponíveis agora.",
+        "transfer_failed": "Não foi possível iniciar a transferência."
+      }
     }
   },
   "sipTrunks": {
@@ -15000,6 +15055,180 @@
         "username": "Informe o usuário.",
         "password": "Informe a senha.",
         "codecs": "Inclua PCMU ou PCMA para o discador funcionar."
+      }
+    }
+  },
+  "callQueues": {
+    "page": {
+      "title": "Filas de atendimento",
+      "description": "Filas distribuem as ligações entre quem está livre, com música de espera, e recebem transferências e ligações dos fluxos de voz.",
+      "create": "Nova fila",
+      "refresh": "Atualizar",
+      "errorTitle": "Não foi possível carregar as filas",
+      "retry": "Tentar de novo",
+      "emptyTitle": "Nenhuma fila ainda",
+      "emptyDescription": "Crie uma fila para receber transferências do discador e ligações dos fluxos de voz."
+    },
+    "stats": {
+      "total": "Filas",
+      "byDepartment": "Por departamento"
+    },
+    "table": {
+      "queue": "Fila",
+      "members": "Quem atende",
+      "department": "Departamento {name}",
+      "people": "{count, plural, one {# pessoa} other {# pessoas}}",
+      "timing": "Toque · espera · pausa",
+      "timingValue": "{ring}s · {wait} min · {wrapUp}s",
+      "music": "Música de espera"
+    },
+    "actions": {
+      "edit": "Editar fila",
+      "delete": "Remover fila"
+    },
+    "delete": {
+      "title": "Remover fila?",
+      "body": "A fila {name} deixa de receber ligações. Fluxos de voz que enviam ligações a ela passam a seguir a saída de tempo esgotado.",
+      "confirm": "Remover",
+      "cancel": "Cancelar",
+      "failed": "Não foi possível remover a fila",
+      "done": "Fila removida"
+    },
+    "form": {
+      "createTitle": "Nova fila",
+      "editTitle": "Editar fila",
+      "subtitle": "Quem atende, como a ligação é distribuída e o que quem liga ouve enquanto espera.",
+      "name": "Nome",
+      "strategy": "Distribuição",
+      "strategies": {
+        "longest_idle": {
+          "label": "Livre há mais tempo",
+          "hint": "Entrega a ligação a quem está sem atender há mais tempo. É o padrão das centrais de atendimento e divide o trabalho de forma justa."
+        },
+        "round_robin": {
+          "label": "Rodízio",
+          "hint": "Reveza entre os atendentes a partir do último que recebeu uma ligação."
+        },
+        "fewest_calls": {
+          "label": "Menos atendimentos",
+          "hint": "Prioriza quem atendeu menos ligações."
+        },
+        "random": {
+          "label": "Aleatória",
+          "hint": "Sorteia entre os atendentes livres."
+        }
+      },
+      "membersFrom": "Quem atende",
+      "membersFromOptions": {
+        "people": "Pessoas",
+        "department": "Departamento"
+      },
+      "department": "Departamento",
+      "searchMembers": "Buscar pessoas",
+      "members": "Pessoas da fila",
+      "membersHint": "{count, plural, =0 {Ninguém escolhido} one {# pessoa escolhida} other {# pessoas escolhidas}}",
+      "permissionHint": "Só toca para quem pode atender ligações pelos troncos e está com o discador aberto.",
+      "ringSeconds": "Toque (s)",
+      "maxWaitSeconds": "Espera máxima (s)",
+      "wrapUpSeconds": "Pausa após ligação (s)",
+      "timingHint": "Toque: quanto tempo cada atendente é chamado (5 a 60 s). Espera máxima: depois disso, a ligação segue a saída de tempo esgotado (10 a 3600 s). Pausa: descanso de cada atendente entre ligações (0 a 300 s).",
+      "invalid": {
+        "name": "Dê um nome de até 80 caracteres.",
+        "department": "Escolha o departamento.",
+        "members": "Escolha ao menos uma pessoa.",
+        "ringSeconds": "Use de 5 a 60 segundos.",
+        "maxWaitSeconds": "Use de 10 a 3600 segundos.",
+        "wrapUpSeconds": "Use de 0 a 300 segundos."
+      },
+      "cancel": "Cancelar",
+      "save": "Salvar",
+      "saving": "Salvando…",
+      "saveFailed": "Não foi possível salvar a fila",
+      "created": "Fila criada",
+      "updated": "Fila atualizada"
+    },
+    "holdMusic": {
+      "label": "Música de espera",
+      "sources": {
+        "preset": "Prontas",
+        "upload": "Enviadas"
+      },
+      "loading": "Carregando músicas…",
+      "noUploads": "Nenhum áudio enviado ainda.",
+      "untitled": "Áudio sem nome",
+      "preview": "Ouvir",
+      "upload": "Enviar áudio",
+      "uploading": "Enviando…",
+      "uploadHint": "MP3, WAV ou OGG. O áudio vai para a biblioteca de mídias e toca em repetição.",
+      "uploadFailed": "Não foi possível enviar o áudio.",
+      "uploaded": "Áudio enviado",
+      "presets": {
+        "piano_calmo": "Piano calmo",
+        "violao_acustico": "Violão acústico",
+        "ambiente_relaxante": "Ambiente relaxante",
+        "spa_natureza": "Spa e natureza",
+        "cordas_classicas": "Cordas clássicas",
+        "jazz_lounge": "Jazz lounge",
+        "corporativo_sereno": "Corporativo sereno",
+        "corporativo_animado": "Corporativo animado",
+        "cinematico_inspirador": "Cinemático inspirador",
+        "bossa_nova": "Bossa nova",
+        "mpb_suave": "MPB suave",
+        "samba_leve": "Samba leve",
+        "forro_instrumental": "Forró instrumental",
+        "lofi": "Lo-fi",
+        "eletronico_chill": "Eletrônico chill",
+        "synthwave": "Synthwave",
+        "pop_acustico": "Pop acústico",
+        "soul_funk_leve": "Soul e funk leve",
+        "reggae_suave": "Reggae suave",
+        "natal": "Natal"
+      },
+      "moods": {
+        "calm": "Tranquila",
+        "elegant": "Elegante",
+        "professional": "Profissional",
+        "brazilian": "Brasileira",
+        "modern": "Moderna",
+        "upbeat": "Animada",
+        "seasonal": "Sazonal"
+      }
+    },
+    "workspaceMusic": {
+      "title": "Música das transferências diretas",
+      "description": "Toca para quem está na linha enquanto você transfere para um colega. Cada fila usa a própria música.",
+      "save": "Salvar música",
+      "saving": "Salvando…",
+      "saved": "Música de espera salva",
+      "saveFailed": "Não foi possível salvar a música"
+    },
+    "monitor": {
+      "title": "Agora nas filas",
+      "live": "Ao vivo, atualiza a cada 3 segundos",
+      "stale": "Sem conexão, mostrando os últimos números",
+      "waitingNow": "Esperando agora",
+      "answeredToday": "Atendidas hoje",
+      "abandonedToday": "Desistiram hoje",
+      "serviceLevelToday": "Nível de serviço hoje",
+      "serviceLevelHint": "Ligações atendidas em até 20 segundos de espera, entre todas as que entraram nas filas hoje.",
+      "attention": {
+        "calm": "Ninguém esperando",
+        "busy": "{count, plural, one {# esperando} other {# esperando}}",
+        "critical": "{count, plural, one {# esperando} other {# esperando}} · atenção"
+      },
+      "longestWait": "Maior espera {wait}",
+      "nobodyWaiting": "Ninguém esperando.",
+      "today": "Hoje: {answered} atendidas · {abandoned} desistiram · espera média {wait} · nível {level}",
+      "waitingList": "Na fila",
+      "hiddenNumber": "Número oculto",
+      "agents": "Atendentes",
+      "unnamed": "Sem nome",
+      "states": {
+        "free": "Livre",
+        "ringing": "Tocando",
+        "on_call": "Em ligação",
+        "wrap_up": "Em pausa",
+        "offline": "Fora"
       }
     }
   }

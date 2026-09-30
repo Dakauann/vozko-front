@@ -20,7 +20,9 @@ import { useDraggableDock } from "@/components/docks/use-draggable-dock";
 import ElevatedSelect, {
   ElevatedSelectItem,
 } from "@/components/elevated-design/elevated-select";
+import { CallTransferPanel } from "@/components/calls/call-transfer-panel";
 import {
+  ArrowsLeftRight,
   Backspace,
   Microphone,
   MicrophoneSlash,
@@ -42,7 +44,9 @@ import {
   requestCall,
   setDialerOpen,
   subscribeDialPreset,
+  subscribeTransferPanel,
 } from "@/lib/call-session/call-session-control";
+import { transferErrorCode } from "@/lib/call-session/transfer";
 import {
   DIAL_KEYS,
   appendDialKey,
@@ -98,6 +102,7 @@ function rememberTrunk(workspaceId: string, trunkId: string) {
 function Dialer() {
   const t = useTranslations("calling.dialer");
   const tc = useTranslations("calling");
+  const tt = useTranslations("calling.transfer");
   const { can, currentWorkspace } = useWorkspace();
   const {
     callState,
@@ -108,6 +113,7 @@ function Dialer() {
     lastErrorCode,
     lastError,
     clearError,
+    transfer,
   } = useCallSession();
   const workspaceId = currentWorkspace?.id ?? "";
   const reduceMotion = useReducedMotion();
@@ -116,6 +122,7 @@ function Dialer() {
   const [loadingTrunks, setLoadingTrunks] = useState(false);
   const [chosenTrunkId, setChosenTrunkId] = useState<string | null>(null);
   const [number, setNumber] = useState("");
+  const [transferOpen, setTransferOpen] = useState(false);
   const tabRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const elapsed = useCallElapsedSeconds(callState);
@@ -163,6 +170,16 @@ function Dialer() {
     [openPanel, clearError],
   );
 
+  useEffect(
+    () =>
+      subscribeTransferPanel(() => {
+        clearError();
+        setTransferOpen(true);
+        openPanel();
+      }),
+    [openPanel, clearError],
+  );
+
   useEffect(() => {
     if (!open) return;
     inputRef.current?.focus();
@@ -183,6 +200,10 @@ function Dialer() {
   const canPlace =
     online && !inCall && selectedTrunk !== null && isDialable(number);
   const errorCode = dialerErrorCode(lastErrorCode);
+  const transferError = transferErrorCode(lastErrorCode);
+  const answered = live && callState.status === "answered";
+  const showTransfer = answered && (transferOpen || transfer?.status === "ringing");
+  const transferredBy = callState?.transferredBy;
 
   const placeCall = () => {
     if (!canPlace || !selectedTrunk) return;
@@ -286,7 +307,9 @@ function Dialer() {
                 </div>
               </header>
 
-              {inCall ? (
+              {showTransfer ? (
+                <CallTransferPanel onClose={() => setTransferOpen(false)} />
+              ) : inCall ? (
                 <div
                   className="flex flex-col items-center px-4 pb-5 pt-7 text-center"
                   role="status"
@@ -319,8 +342,30 @@ function Dialer() {
                       />
                     ) : null}
                   </span>
+                  {live && transferredBy ? (
+                    <div className="mt-4 w-full rounded-[--radius] border border-border bg-muted px-3 py-2 text-left">
+                      <p className="legend leading-none">
+                        {transferredBy.queueName
+                          ? tt("fromQueue", { queue: transferredBy.queueName })
+                          : tt("fromColleague", { name: transferredBy.fromName ?? tt("colleague") })}
+                      </p>
+                      {transferredBy.notes ? (
+                        <p className="mt-1.5 whitespace-pre-wrap text-xs text-foreground">{transferredBy.notes}</p>
+                      ) : null}
+                    </div>
+                  ) : null}
+                  {answered && transfer?.status === "returned" ? (
+                    <p role="status" className="mt-3 text-xs text-warning-ink">
+                      {tt(`returned.${transfer.reason === "declined" || transfer.reason === "cancelled" ? transfer.reason : "no_answer"}`)}
+                    </p>
+                  ) : null}
+                  {answered && transferError ? (
+                    <p role="alert" className="mt-3 text-xs text-destructive-ink">
+                      {tt(`errors.${transferError}`)}
+                    </p>
+                  ) : null}
                   {live ? (
-                    <div className="mt-6 grid w-full grid-cols-2 gap-2">
+                    <div className="mt-6 grid w-full grid-cols-3 gap-2">
                       <button
                         type="button"
                         onClick={() => setMuted(!muted)}
@@ -339,6 +384,18 @@ function Dialer() {
                           <Microphone className="h-4 w-4" />
                         )}
                         {t(muted ? "unmute" : "mute")}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          clearError();
+                          setTransferOpen(true);
+                        }}
+                        disabled={!answered}
+                        className="inline-flex h-11 items-center justify-center gap-2 rounded-[--radius] border border-control-edge text-sm font-semibold text-foreground transition-colors duration-DEFAULT hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-40"
+                      >
+                        <ArrowsLeftRight className="h-4 w-4" aria-hidden />
+                        {tt("open")}
                       </button>
                       <button
                         type="button"
