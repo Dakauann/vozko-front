@@ -14,7 +14,7 @@ vi.mock("@/contexts/department-context", () => ({
   useDepartment: () => ({ currentDepartment: null }),
 }));
 vi.mock("@/lib/auth/client-cookies", () => ({ hasUserDataCookie }));
-vi.mock("use-sound", () => ({ default: () => [playFn] }));
+vi.mock("@/lib/sounds/sound-player", () => ({ soundPlayer: { play: playFn } }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 
 import { useConversationWs } from "@/hooks/use-conversation-ws";
@@ -940,4 +940,5 @@ describe("conversations open in windows", () => {
         .loadingConversation,
     ).toBe(false);
   });
+
 });

@@ -14,6 +14,7 @@ import { DashboardNavbar } from "@/components/elevated-design/dashboard/dashboar
 import { DepartmentProvider } from "@/contexts/department-context";
 import { ActiveCallHost } from "@/components/calls/active-call-host";
 import { IncomingCallHost } from "@/components/calls/incoming-call-host";
+import { CallSoundsHost } from "@/components/calls/call-sounds-host";
 import { CallSessionProvider } from "@/contexts/call-session-context";
 import { DialerDock } from "@/components/dialer/dialer-dock";
 import { AssistantDock } from "@/components/ai-chat/assistant-dock";
@@ -73,6 +74,7 @@ export default function DashboardLayout({
                     </div>
                     <ActiveCallHost />
                     <IncomingCallHost />
+                    <CallSoundsHost />
                     <AssistantDock />
                     <DialerDock />
                   </CallSessionProvider>

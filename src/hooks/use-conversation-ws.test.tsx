@@ -17,7 +17,7 @@ vi.mock("@/contexts/department-context", () => ({
   useDepartment: () => ({ currentDepartment: mockDepartment }),
 }));
 vi.mock("@/lib/auth/client-cookies", () => ({ hasUserDataCookie }));
-vi.mock("use-sound", () => ({ default: () => [playFn] }));
+vi.mock("@/lib/sounds/sound-player", () => ({ soundPlayer: { play: playFn } }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 
 import { useConversationWs } from "@/hooks/use-conversation-ws";
@@ -275,6 +275,28 @@ describe("useConversationWs entry defaults", () => {
     });
 
     expect(hook.result.current.inbox[0].live_read).toEqual(read);
+    expect(playFn).not.toHaveBeenCalled();
+  });
+
+  it("chimes once for a new message and stays quiet while muted", async () => {
+    const { socket } = await openSocket();
+    await act(async () => {
+      socket.simulateMessage({ type: "conversation:inbox", payload: { entries: [sparseEntry], page: 1, total_pages: 1, total_items: 1 } });
+    });
+    playFn.mockClear();
+
+    await act(async () => {
+      socket.simulateMessage({ type: "conversation:entry_update", payload: { entry: { ...sparseEntry } } });
+    });
+    expect(playFn).toHaveBeenCalledWith("message");
+
+    playFn.mockClear();
+    window.localStorage.setItem("crm_sound_muted", "true");
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1_100));
+      socket.simulateMessage({ type: "conversation:entry_update", payload: { entry: { ...sparseEntry } } });
+    });
+    window.localStorage.removeItem("crm_sound_muted");
     expect(playFn).not.toHaveBeenCalled();
   });
 });

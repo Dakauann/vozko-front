@@ -322,7 +322,6 @@ export default function CrmLayout({
   const {
     isMuted,
     toggleMute: toggleNotificationMute,
-    playNotificationSound,
     showNotification,
     requestNotificationPermission,
     notificationPermission,
@@ -839,7 +838,6 @@ export default function CrmLayout({
           continue;
         }
 
-        playNotificationSound();
         lastNotificationTimeRef.current = now;
 
         showNotification({
@@ -862,7 +860,6 @@ export default function CrmLayout({
     inbox,
     enabled,
     activeConversation?.entry_id,
-    playNotificationSound,
     showNotification,
     subscribe,
   ]);

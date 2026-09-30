@@ -48,6 +48,7 @@ import {
   isDialable,
 } from "@/lib/dialer/dial-string";
 import { dialerTabState } from "@/lib/dialer/tab-state";
+import { soundPlayer } from "@/lib/sounds/sound-player";
 import { canDialThrough, type SipTrunk } from "@/lib/sip-trunks/types";
 import { cn } from "@/lib/utils";
 
@@ -204,6 +205,7 @@ function Dialer() {
   };
 
   const press = (key: (typeof DIAL_KEYS)[number]) => {
+    soundPlayer.keyTone(key);
     setNumber((current) => appendDialKey(current, key));
     inputRef.current?.focus();
   };
@@ -340,6 +342,7 @@ function Dialer() {
                       onChange={(event) => setNumber(event.target.value)}
                       onKeyDown={(event) => {
                         if (event.key === "Enter") placeCall();
+                        if (!event.repeat) soundPlayer.keyTone(event.key);
                       }}
                       inputMode="tel"
                       autoComplete="off"

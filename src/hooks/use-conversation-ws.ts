@@ -43,7 +43,9 @@ import {
 } from "@/lib/ws/reconnect";
 import { toast } from "sonner";
 import { useDepartment } from "@/contexts/department-context";
-import useSound from "use-sound";
+import { messageSoundsMuted } from "@/lib/sounds/message-sound-preference";
+import { shouldChimeForMessage } from "@/lib/sounds/rules";
+import { soundPlayer } from "@/lib/sounds/sound-player";
 import { useWorkspace } from "@/contexts/workspace-context";
 
 export interface FunnelColumnState {
@@ -257,7 +259,7 @@ export function useConversationWs({
   const [viewMode, setViewMode] = useState<ViewMode>(
     campaignId ? "campaign" : "global",
   );
-  const [playNotification] = useSound("/audio/NOTIFICATION.mp3");
+  const lastChimeAtRef = useRef(0);
 
   const [status, setStatus] = useState<ConnectionStatus>("disconnected");
   const [inbox, setInbox] = useState<InboxEntry[]>([]);
@@ -811,10 +813,24 @@ export function useConversationWs({
         }
 
         case "conversation:entry_update": {
-          if (!event.payload.silent) playNotification();
           const updated = normalizeEntry(
             event.payload.entry as unknown as Record<string, unknown>,
           );
+          const now = Date.now();
+          if (
+            shouldChimeForMessage({
+              silent: Boolean(event.payload.silent),
+              muted: messageSoundsMuted(),
+              entryId: updated.entry_id,
+              openEntryId: activeConversationRef.current?.entry_id ?? null,
+              focused: document.hasFocus(),
+              lastChimeAt: lastChimeAtRef.current,
+              now,
+            })
+          ) {
+            lastChimeAtRef.current = now;
+            soundPlayer.play("message");
+          }
           const withLead = (old?: InboxEntry): InboxEntry =>
             updated.lead_id || !old?.lead_id
               ? updated
