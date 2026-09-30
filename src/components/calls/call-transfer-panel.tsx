@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { ArrowLeft, Headset, SpinnerGap, UserCircle } from "@/components/icons";
+import { CALL_ACTION } from "@/components/calls/call-card";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { listTransferQueuesAction } from "@/app/actions/call-routing";
 import { useCallSession } from "@/contexts/call-session-context";
@@ -48,7 +49,7 @@ export function CallTransferPanel({ onClose }: CallTransferPanelProps) {
         <button
           type="button"
           onClick={cancelTransfer}
-          className="mt-5 inline-flex h-10 w-full items-center justify-center rounded-[--radius] border border-control-edge text-sm font-semibold text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className={cn(CALL_ACTION, "mt-5 border border-control-edge text-foreground hover:bg-muted")}
         >
           {t("cancel")}
         </button>
@@ -153,7 +154,7 @@ export function CallTransferPanel({ onClose }: CallTransferPanelProps) {
           type="button"
           onClick={submit}
           disabled={!chosen}
-          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-[--radius] bg-primary text-sm font-semibold text-primary-foreground shadow-button transition-colors hover:bg-primary-hover disabled:pointer-events-none disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className={cn(CALL_ACTION, "bg-primary text-primary-foreground shadow-button hover:bg-primary-hover disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100 disabled:shadow-none")}
         >
           {t(kind === "member" ? "transferToColleague" : "transferToQueue")}
         </button>
@@ -183,11 +184,18 @@ function TargetRow({
       aria-checked={selected}
       onClick={onSelect}
       className={cn(
-        "flex w-full items-center gap-2.5 rounded-[--radius] border px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "flex w-full items-center gap-3 rounded-[--radius] border px-2.5 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         selected ? "border-primary bg-muted" : "border-transparent hover:bg-muted",
       )}
     >
-      <span className={cn("shrink-0", selected ? "text-primary-ink" : "text-muted-foreground")}>{icon}</span>
+      <span
+        className={cn(
+          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
+          selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
+        )}
+      >
+        {icon}
+      </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-medium text-foreground">{title}</span>
         {detail ? <span className="block text-2xs text-muted-foreground">{detail}</span> : null}

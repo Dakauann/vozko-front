@@ -50,4 +50,20 @@ describe("IncomingCallHost", () => {
     expect(screen.getByRole("button", { name: /Retomar/ })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Encerrar/ })).toBeTruthy();
   });
+
+  it("names the line a call arrives on", () => {
+    ring({ channel: "sip" });
+    expect(screen.getByText("Chamada recebida · Linha telefônica")).toBeTruthy();
+    expect(screen.getAllByText("Linha telefônica").length).toBeGreaterThan(0);
+  });
+
+  it("does not invent a line it was not told about", () => {
+    ring({ channel: undefined });
+    expect(screen.getByText("Chamada recebida")).toBeTruthy();
+  });
+
+  it("counts down the ring with an accessible label", () => {
+    ring({ receivedAt: Date.now(), expiresAt: new Date(Date.now() + 20_000).toISOString() });
+    expect(screen.getByLabelText(/Tocando por mais (19|20)s/)).toBeTruthy();
+  });
 });

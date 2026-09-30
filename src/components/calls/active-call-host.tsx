@@ -13,7 +13,6 @@ import {
   subscribeCallRequest,
   useDialerOpen,
 } from "@/lib/call-session/call-session-control";
-import { cn } from "@/lib/utils";
 
 export function ActiveCallHost() {
   const t = useTranslations("calling.widget");
@@ -47,8 +46,6 @@ export function ActiveCallHost() {
 
   if (!callState || dialerOpen) return null;
 
-  const answered = callState.status === "answered";
-
   return (
     <>
       <DockBounds ref={boundsRef} />
@@ -57,7 +54,7 @@ export function ActiveCallHost() {
         {...dragProps}
         dragConstraints={boundsRef}
         style={{ x: x, y: y }}
-        className="fixed bottom-4 right-4 z-[65] flex w-[min(300px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-border-strong bg-card shadow-lg"
+        className="fixed bottom-4 right-4 z-[65] flex w-[min(340px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-border-strong bg-card shadow-lg"
       >
         <header
           onPointerDown={startDrag}
@@ -65,13 +62,9 @@ export function ActiveCallHost() {
             if (!(event.target as HTMLElement).closest("button")) reset();
           }}
           title={tc("dragHint")}
-          className="flex cursor-grab touch-none select-none items-center gap-2.5 border-b border-border px-4 pb-2.5 pt-3 active:cursor-grabbing"
+          className="flex cursor-grab touch-none select-none items-center border-b border-border px-4 py-2.5 active:cursor-grabbing"
         >
-          <span
-            aria-hidden
-            className={cn("h-2 w-2 flex-shrink-0 rotate-45 rounded-[1px]", answered ? "animate-dot-pulse bg-healthy" : "bg-primary")}
-          />
-          <h2 id="active-call-title" className="min-w-0 flex-1 truncate font-display text-sm font-semibold text-foreground">
+          <h2 id="active-call-title" className="legend min-w-0 flex-1 truncate leading-none">
             {t("title")}
           </h2>
         </header>

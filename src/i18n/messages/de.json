@@ -13798,8 +13798,9 @@
     },
     "incoming": {
       "title": "Eingehender Anruf · {channel}",
+      "titlePlain": "Eingehender Anruf",
       "channel": {
-        "sip": "SIP-Trunk",
+        "sip": "Telefonleitung",
         "whatsapp": "WhatsApp"
       },
       "unknownNumber": "Unterdrückte Nummer",

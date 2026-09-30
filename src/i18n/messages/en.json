@@ -14795,8 +14795,9 @@
     },
     "incoming": {
       "title": "Incoming call · {channel}",
+      "titlePlain": "Incoming call",
       "channel": {
-        "sip": "SIP trunk",
+        "sip": "Phone line",
         "whatsapp": "WhatsApp"
       },
       "unknownNumber": "Hidden number",

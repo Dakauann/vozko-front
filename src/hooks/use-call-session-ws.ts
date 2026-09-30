@@ -26,6 +26,7 @@ import {
     type TransferStatusPayload,
     type TransferTarget,
 } from "@/lib/call-session/transfer";
+import { callChannelOf, type CallChannel } from "@/lib/call-session/channel";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { ConnectionStatus } from "@/lib/conversations/types";
@@ -57,6 +58,7 @@ const NO_ACTIVE_CALL_CODE = "no_active_call";
 export interface CallSessionState {
     callId?: string;
     phoneNumber: string;
+    channel?: CallChannel | null;
     status: CallSessionStatus;
     reason?: string;
     durationSeconds?: number;
@@ -762,6 +764,7 @@ export function useCallSessionWs({
             setTransfer(null);
             setCallState({
                 phoneNumber: target,
+                channel: trunkId ? "sip" : "whatsapp",
                 status: "ringing",
                 requestId,
             });
@@ -813,6 +816,7 @@ export function useCallSessionWs({
                 setCallState({
                     callId: offer?.callId,
                     phoneNumber: offer?.fromNumber ?? "",
+                    channel: callChannelOf(offer?.channel),
                     status: "answered",
                     answeredAt: Date.now(),
                     requestId: offerId,

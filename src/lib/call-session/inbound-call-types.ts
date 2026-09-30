@@ -41,3 +41,10 @@ export function offerExpiresInMs(offer: IncomingCallOffer, now: number): number 
     if (Number.isNaN(expiresAt)) return null;
     return Math.max(0, expiresAt - now);
 }
+
+export function offerRingShare(offer: IncomingCallOffer, now: number): number | null {
+    const remaining = offerExpiresInMs(offer, now);
+    const lifetime = remaining === null ? 0 : Date.parse(offer.expiresAt ?? "") - offer.receivedAt;
+    if (remaining === null || lifetime <= 0) return null;
+    return Math.min(1, remaining / lifetime);
+}

@@ -13301,8 +13301,9 @@
     },
     "incoming": {
       "title": "Llamada entrante · {channel}",
+      "titlePlain": "Llamada entrante",
       "channel": {
-        "sip": "Troncal SIP",
+        "sip": "Línea telefónica",
         "whatsapp": "WhatsApp"
       },
       "unknownNumber": "Número oculto",

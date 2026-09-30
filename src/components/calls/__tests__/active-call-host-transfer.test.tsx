@@ -104,4 +104,20 @@ describe("ActiveCallHost transfers", () => {
     await renderWidget();
     expect(screen.getByText("O colega não atendeu. A ligação voltou para você.")).toBeTruthy();
   });
+
+  it("shows which line the call is on and how long it has run", async () => {
+    whatsAppCall({
+      callState: { callId: "wa-in-1", phoneNumber: "5584994409684", channel: "whatsapp", status: "answered", answeredAt: Date.now() - 65_000 },
+    });
+    await renderWidget();
+    expect(screen.getByText("WhatsApp")).toBeTruthy();
+    expect(screen.getByText("Em chamada")).toBeTruthy();
+    expect(screen.getByText("01:05")).toBeTruthy();
+  });
+
+  it("marks the microphone as muted", async () => {
+    whatsAppCall({ muted: true });
+    await renderWidget();
+    expect(screen.getByRole("button", { name: "Ativar som" }).getAttribute("aria-pressed")).toBe("true");
+  });
 });

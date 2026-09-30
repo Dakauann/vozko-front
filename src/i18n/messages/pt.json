@@ -14846,8 +14846,9 @@
     },
     "incoming": {
       "title": "Chamada recebida · {channel}",
+      "titlePlain": "Chamada recebida",
       "channel": {
-        "sip": "Tronco SIP",
+        "sip": "Linha telefônica",
         "whatsapp": "WhatsApp"
       },
       "unknownNumber": "Número oculto",
