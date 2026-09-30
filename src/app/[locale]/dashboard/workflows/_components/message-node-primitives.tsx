@@ -461,13 +461,13 @@ export function InteractiveNodeShell({
           >
             <IconComp size={11} weight="fill" style={{ color: iconInk }} />
           </div>
-          <span className="min-w-0 flex-1 truncate text-2xs font-semibold text-foreground">
+          <span className="min-w-0 flex-auto truncate text-2xs font-semibold text-foreground">
             {label}
           </span>
           {Boolean(hasMissingRequired) && (
             <Warning size={12} weight="fill" className="shrink-0 text-warning-ink" />
           )}
-          <span className="pointer-events-none font-mono text-2xs font-medium text-muted-foreground">
+          <span className="pointer-events-none min-w-0 max-w-[4.5rem] shrink-[4] truncate font-mono text-2xs font-medium text-muted-foreground">
             {id}
           </span>
         </div>

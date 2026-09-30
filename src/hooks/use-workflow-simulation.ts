@@ -8,7 +8,9 @@ const WS_BASE_URL =
     process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:4000";
 
 
-export type SimStatus = "idle" | "connecting" | "waiting_trigger" | "running" | "waiting_reply" | "completed" | "error" | "cancelled";
+export type SimStatus = "idle" | "connecting" | "waiting_trigger" | "running" | "waiting_reply" | "waiting_key" | "completed" | "error" | "cancelled";
+
+const LIVE_STATUSES: SimStatus[] = ["running", "waiting_reply", "waiting_trigger", "waiting_key"];
 
 export interface SimNodeEvent {
     type: "node_event";
@@ -27,6 +29,12 @@ export interface SimMessage {
     messageId: string;
     audioBase64?: string;
     audioMime?: string;
+    audioUrl?: string;
+}
+
+export interface SimWaitingKey {
+    type: "waiting_key";
+    timeoutSeconds: number;
 }
 
 export interface SimWaitingReply {
@@ -45,7 +53,7 @@ export interface SimError {
     message: string;
 }
 
-export type SimEvent = SimNodeEvent | SimMessage | SimWaitingReply | SimStateUpdate | SimError;
+export type SimEvent = SimNodeEvent | SimMessage | SimWaitingReply | SimWaitingKey | SimStateUpdate | SimError;
 
 
 interface UseWorkflowSimulationOptions {
@@ -59,6 +67,7 @@ export interface UseWorkflowSimulationReturn {
     stateVars: Record<string, unknown>;
     start: () => void;
     sendReply: (text: string) => void;
+    sendKey: (key: string) => void;
     cancel: () => void;
 }
 
@@ -124,7 +133,7 @@ export function useWorkflowSimulation({
                         break;
                     }
                     case "message_sent": {
-                        const p = msg.payload as { direction: "outbound" | "inbound"; text: string; msgType: string; nodeId?: string; messageId: string; audioBase64?: string; audioMime?: string };
+                        const p = msg.payload as { direction: "outbound" | "inbound"; text: string; msgType: string; nodeId?: string; messageId: string; audioBase64?: string; audioMime?: string; audioUrl?: string };
                         setEvents((prev) => [...prev, { type: "message", ...p }]);
                         break;
                     }
@@ -133,6 +142,12 @@ export function useWorkflowSimulation({
                         setStatus("waiting_reply");
                         setCurrentNodeId(p.nodeId);
                         setEvents((prev) => [...prev, { type: "waiting_reply", ...p }]);
+                        break;
+                    }
+                    case "waiting_key": {
+                        const p = msg.payload as { timeoutSeconds: number };
+                        setStatus("waiting_key");
+                        setEvents((prev) => [...prev, { type: "waiting_key", timeoutSeconds: p.timeoutSeconds }]);
                         break;
                     }
                     case "state_update": {
@@ -168,7 +183,7 @@ export function useWorkflowSimulation({
         };
 
         ws.onclose = () => {
-            setStatus((prev) => (prev === "running" || prev === "waiting_reply" || prev === "waiting_trigger" ? "error" : prev));
+            setStatus((prev) => (LIVE_STATUSES.includes(prev) ? "error" : prev));
         };
 
         ws.onerror = () => {
@@ -193,6 +208,16 @@ export function useWorkflowSimulation({
         }
     }, []);
 
+    const sendKey = useCallback((key: string) => {
+        if (wsRef.current?.readyState !== WebSocket.OPEN) return;
+        wsRef.current.send(JSON.stringify({ type: "key", data: { key } }));
+        setStatus((prev) => (prev === "waiting_key" ? "running" : prev));
+        setEvents((prev) => [
+            ...prev,
+            { type: "message", direction: "inbound" as const, text: key, msgType: "key", messageId: `key-${Date.now()}` },
+        ]);
+    }, []);
+
     const cancel = useCallback(() => {
         if (wsRef.current?.readyState === WebSocket.OPEN) {
             wsRef.current.send(JSON.stringify({ type: "cancel" }));
@@ -201,5 +226,5 @@ export function useWorkflowSimulation({
         setStatus("cancelled");
     }, [cleanup]);
 
-    return { status, events, currentNodeId, stateVars, start, sendReply, cancel };
+    return { status, events, currentNodeId, stateVars, start, sendReply, sendKey, cancel };
 }

@@ -10,6 +10,8 @@ import type { VoiceMode, VoicePhase } from "./use-voice-mode";
 type ActivePhase = Exclude<VoicePhase, "off">;
 
 const PHASES: Record<ActivePhase, { glyph: Icon; tone: string; spin?: boolean }> = {
+  downloading: { glyph: CircleNotch, tone: "text-primary-ink", spin: true },
+  starting: { glyph: Microphone, tone: "text-muted-foreground" },
   listening: { glyph: Microphone, tone: "text-healthy-ink" },
   thinking: { glyph: CircleNotch, tone: "text-muted-foreground", spin: true },
   speaking: { glyph: SpeakerHigh, tone: "text-primary-ink" },
@@ -24,7 +26,14 @@ export function VoiceStrip({ voice }: { voice: VoiceMode }) {
   if (voice.phase === "off") return null;
   const phase = PHASES[voice.phase];
   const Glyph = phase.glyph;
-  const detail = voice.phase === "listening" && voice.interim ? voice.interim : t("privacy");
+  const detail =
+    voice.phase === "listening" && voice.interim
+      ? voice.interim
+      : voice.phase === "downloading"
+        ? t("downloadingHint")
+        : voice.phase === "speaking" || voice.phase === "thinking"
+          ? t("interruptHint")
+          : t("privacy");
 
   return (
     <div

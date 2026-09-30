@@ -79,7 +79,6 @@ import type {
   UpdateWorkflowPayload,
   NodeDefinition,
   HandleDefinition,
-  WorkflowNodeScope,
 } from "@/lib/workflows/types";
 import {
   createWorkflowAction,
@@ -110,6 +109,13 @@ import { useWorkflowLint } from "./use-workflow-lint";
 import { WorkflowSearch } from "./workflow-search";
 import { matchNodeIds } from "./workflow-node-search";
 import { useWorkflowSimulation } from "@/hooks/use-workflow-simulation";
+import {
+  WORKFLOW_TYPES,
+  definitionAllowedForType,
+  workflowTypeOfTrigger,
+  workflowTypeOfTriggerDefinition,
+} from "@/lib/workflows/workflow-types";
+import { nextShortNodeId } from "@/lib/workflows/node-ids";
 
 interface WorkflowEditorProps {
   workflow?: Workflow | null;
@@ -117,49 +123,6 @@ interface WorkflowEditorProps {
   mode: "create" | "edit";
   initialHandles?: Record<string, HandleDefinition[]>;
   onWorkflowUpdate?: (workflow: Workflow) => void;
-}
-
-function workflowTypeFromTrigger(_triggerType: WorkflowTriggerType): WorkflowType {
-  return "messages";
-}
-
-function triggerWorkflowTypeFromDef(
-  def?: Pick<NodeDefinition, "category" | "scopes">,
-): WorkflowType | null {
-  if (!def || def.category !== "trigger") {
-    return null;
-  }
-  const scopes = getDefinitionScopes(def);
-  if (scopes.includes("whatsapp") || scopes.includes("shared")) {
-    return "messages";
-  }
-  return null;
-}
-
-function getDefinitionScopes(
-  def?: Pick<NodeDefinition, "scopes">,
-): WorkflowNodeScope[] {
-  return def?.scopes ?? [];
-}
-
-function isDefinitionAllowedForType(
-  wfType: WorkflowType,
-  def?: Pick<NodeDefinition, "type" | "category" | "scopes">,
-) {
-  if (!def) {
-    return false;
-  }
-
-  if (def.type === "group" || def.type === "decoration_background") {
-    return true;
-  }
-
-  const scopes = getDefinitionScopes(def);
-  if (scopes.includes("shared")) {
-    return true;
-  }
-
-  return scopes.includes("whatsapp");
 }
 
 function isNodeTypeAllowedForType(
@@ -171,7 +134,7 @@ function isNodeTypeAllowedForType(
     return true;
   }
 
-  return isDefinitionAllowedForType(wfType, defMap.get(nodeType));
+  return definitionAllowedForType(wfType, defMap.get(nodeType));
 }
 
 interface OutputLabels {
@@ -412,11 +375,6 @@ function createWorkflowSnapshot(input: {
   });
 }
 
-let nodeIdCounter = 0;
-function nextNodeId() {
-  nodeIdCounter++;
-  return `node_${Date.now()}_${nodeIdCounter}`;
-}
 
 function copilotNodeSig(data: unknown): string {
   const d = (data ?? {}) as { config?: unknown; label?: unknown };
@@ -438,7 +396,7 @@ export function WorkflowEditor({
   const [workflowType, setWorkflowType] = useState<WorkflowType>(() => {
     if (workflow?.type) return workflow.type;
     if (workflow?.triggerType)
-      return workflowTypeFromTrigger(workflow.triggerType);
+      return workflowTypeOfTrigger(workflow.triggerType);
     return "messages";
   });
   const [workflowState, setWorkflowState] = useState<Workflow | null>(
@@ -459,6 +417,10 @@ export function WorkflowEditor({
     workflowId: workflowState?.id ?? "",
   });
   const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
+  const freshNodeId = useCallback(
+    () => nextShortNodeId((reactFlowInstance.current?.getNodes() ?? []).map((node) => node.id)),
+    [],
+  );
 
   const { resolvedTheme } = useTheme();
   const activeSimulation = simulation;
@@ -494,7 +456,7 @@ export function WorkflowEditor({
   const availableDefinitions = useMemo(
     () =>
       definitions.filter((def) =>
-        isDefinitionAllowedForType(workflowType, def),
+        definitionAllowedForType(workflowType, def),
       ),
     [definitions, workflowType],
   );
@@ -506,12 +468,11 @@ export function WorkflowEditor({
   );
 
   const workflowTypeOptions = useMemo(
-    () => [
-      {
-        value: "messages" as WorkflowType,
-        label: t("workflowTypeOption.messages"),
-      },
-    ],
+    () =>
+      WORKFLOW_TYPES.map((value) => ({
+        value,
+        label: t(`workflowTypeOption.${value}`),
+      })),
     [t],
   );
 
@@ -1051,7 +1012,7 @@ export function WorkflowEditor({
     const savedWorkflowType: WorkflowType =
       workflowState.type ??
       (workflowState.triggerType
-        ? workflowTypeFromTrigger(workflowState.triggerType)
+        ? workflowTypeOfTrigger(workflowState.triggerType)
         : "messages");
 
     const savedSnapshot = createWorkflowSnapshot({
@@ -1124,7 +1085,7 @@ export function WorkflowEditor({
 
       if (nodeType === "group") {
         const newNode: Node = {
-          id: nextNodeId(),
+          id: freshNodeId(),
           type: "groupNode",
           position,
           width: 400,
@@ -1142,7 +1103,7 @@ export function WorkflowEditor({
       }
 
       const newNode: Node = {
-        id: nextNodeId(),
+        id: freshNodeId(),
         type: "workflowNode",
         position,
         targetPosition: Position.Left,
@@ -1167,7 +1128,7 @@ export function WorkflowEditor({
 
       setNodes((nds) => [...nds, newNode]);
     },
-    [setNodes, defMap, takeSnapshot, canAddNodeType, outputLabels],
+    [setNodes, defMap, takeSnapshot, canAddNodeType, outputLabels, freshNodeId],
   );
 
   const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
@@ -1202,7 +1163,7 @@ export function WorkflowEditor({
       }
       takeSnapshot();
       const newNode: Node = {
-        id: nextNodeId(),
+        id: freshNodeId(),
         type: def.type === "group" ? "groupNode" : "workflowNode",
         position: ctxMenu.flowPos,
         targetPosition: Position.Left,
@@ -1235,7 +1196,7 @@ export function WorkflowEditor({
       setNodes((nds) => [...nds, newNode]);
       setCtxMenu(null);
     },
-    [ctxMenu, takeSnapshot, setNodes, canAddNodeType, outputLabels],
+    [ctxMenu, takeSnapshot, setNodes, canAddNodeType, outputLabels, freshNodeId],
   );
 
   const wrappedOnNodesChange = useCallback(
@@ -1368,7 +1329,7 @@ export function WorkflowEditor({
           : mousePosRef.current;
 
         const newNode: Node = {
-          id: nextNodeId(),
+          id: freshNodeId(),
           type: "workflowNode",
           position,
           targetPosition: Position.Left,
@@ -1408,15 +1369,16 @@ export function WorkflowEditor({
     searchOpen,
     openSearch,
     closeSearch,
+    freshNodeId,
   ]);
 
   const validateGraphForType = (graph: WorkflowGraph): string | null => {
     const triggerNodes = graph.nodes.filter(
-      (n) => triggerWorkflowTypeFromDef(defMap.get(n.type)) !== null,
+      (n) => workflowTypeOfTriggerDefinition(defMap.get(n.type)) !== null,
     );
     const seen = new Set<string>();
     for (const node of triggerNodes) {
-      const nodeWfType = triggerWorkflowTypeFromDef(defMap.get(node.type));
+      const nodeWfType = workflowTypeOfTriggerDefinition(defMap.get(node.type));
       if (nodeWfType !== workflowType) {
         const triggerLabel = triggerLabelByType.get(node.type) ?? node.type;
         const typeLabel = t(`workflowTypeOption.${workflowType}`);
@@ -1919,6 +1881,7 @@ export function WorkflowEditor({
         {showTestPanel && workflowState && (
           <WorkflowTestPanel
             simulation={simulation}
+            voice={workflowType === "voice"}
             onClose={() => {
               simulation.cancel();
               setShowTestPanel(false);

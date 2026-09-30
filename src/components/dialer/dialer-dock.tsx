@@ -52,6 +52,7 @@ import {
 } from "@/lib/dialer/dial-string";
 import { canDialThrough, type SipTrunk } from "@/lib/sip-trunks/types";
 import { cn } from "@/lib/utils";
+import { formatPhoneForDisplay } from "@/lib/phone/display";
 
 const TRUNK_REFRESH_MS = 10_000;
 const REMEMBERED_TRUNK_KEY = "dialer:trunk";
@@ -303,7 +304,7 @@ function Dialer() {
                         )}
                   </span>
                   <span className="readout mt-2 max-w-full truncate text-2xl font-semibold tracking-wide text-foreground">
-                    {callState.phoneNumber}
+                    {formatPhoneForDisplay(callState.phoneNumber)}
                   </span>
                   <span className="mt-1.5 flex h-5 items-center">
                     {callState.status === "answered" ? (

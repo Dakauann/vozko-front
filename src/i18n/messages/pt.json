@@ -670,14 +670,20 @@
         "listening": "Ouvindo",
         "thinking": "Pensando",
         "speaking": "Falando",
-        "paused": "Pausado durante a chamada"
+        "paused": "Pausado durante a chamada",
+        "starting": "Ligando o microfone…",
+        "downloading": "Esperando o pacote de voz do navegador"
       },
       "errors": {
         "blocked": "Permita o uso do microfone no navegador para falar com o Elo.",
         "no_microphone": "Nenhum microfone encontrado.",
-        "network": "O serviço de fala do navegador não respondeu. Tente de novo.",
-        "unavailable": "Este navegador não oferece reconhecimento de voz."
-      }
+        "network": "O navegador não alcançou o serviço de voz dele. Isso acontece no Brave, no Opera, sem internet ou em redes que bloqueiam o serviço; no Chrome ou no Edge atualizados a voz pode rodar no próprio computador.",
+        "unavailable": "Este navegador não oferece reconhecimento de voz.",
+        "installing": "O navegador ainda está baixando o pacote de voz. Ative o modo voz para o Elo esperar e começar sozinho.",
+        "pack_stalled": "O navegador não terminou de preparar o pacote de voz em 2 minutos e o serviço de voz online dele não respondeu. Tente mais tarde ou use outro navegador."
+      },
+      "downloadingHint": "O navegador não informa o progresso. Esperamos até 2 minutos e começamos a ouvir assim que ficar pronto.",
+      "interruptHint": "Fale a qualquer momento para interromper."
     }
   },
   "leadMemories": {
@@ -8565,7 +8571,8 @@
     "trigger": {
       "trigger_first_message": "Primeira Mensagem",
       "trigger_message_received": "Mensagem Recebida",
-      "trigger_webhook": "Webhook"
+      "trigger_webhook": "Webhook",
+      "trigger_call_received": "Ligação Recebida"
     },
     "empty": {
       "title": "Nenhum automação encontrado",
@@ -8592,7 +8599,8 @@
     "triggerType": "Tipo de gatilho",
     "workflowType": "Tipo de automação",
     "workflowTypeOption": {
-      "messages": "Mensagens"
+      "messages": "Mensagens",
+      "voice": "Voz (ligações)"
     },
     "export": "Exportar",
     "activate": "Ativar",

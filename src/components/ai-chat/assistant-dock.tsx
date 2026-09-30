@@ -96,6 +96,7 @@ function Dock() {
     error: chat.error,
     lang: speechLang(locale),
     send: submit,
+    stop: chat.stop,
   });
   const { disable: stopVoice } = voice;
 

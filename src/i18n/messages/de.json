@@ -670,14 +670,20 @@
         "listening": "Hört zu",
         "thinking": "Denkt nach",
         "speaking": "Spricht",
-        "paused": "Während des Anrufs pausiert"
+        "paused": "Während des Anrufs pausiert",
+        "starting": "Mikrofon wird eingeschaltet…",
+        "downloading": "Warte auf das Sprachpaket des Browsers"
       },
       "errors": {
         "blocked": "Erlaube den Mikrofonzugriff im Browser, um mit Elo zu sprechen.",
         "no_microphone": "Kein Mikrofon gefunden.",
-        "network": "Der Sprachdienst des Browsers hat nicht geantwortet. Versuche es erneut.",
-        "unavailable": "Dieser Browser bietet keine Spracherkennung."
-      }
+        "network": "Der Browser hat seinen Sprachdienst nicht erreicht. Das passiert in Brave, in Opera, offline oder in Netzen, die ihn blockieren; ein aktuelles Chrome oder Edge kann die Sprache auf diesem Computer verarbeiten.",
+        "unavailable": "Dieser Browser bietet keine Spracherkennung.",
+        "installing": "Der Browser lädt sein Sprachpaket noch. Schalte den Sprachmodus ein, dann wartet Elo und startet von selbst.",
+        "pack_stalled": "Der Browser hat sein Sprachpaket nicht innerhalb von 2 Minuten vorbereitet und sein Online-Sprachdienst hat nicht geantwortet. Versuche es später oder nutze einen anderen Browser."
+      },
+      "downloadingHint": "Der Browser meldet keinen Fortschritt. Wir warten bis zu 2 Minuten und hören zu, sobald es bereit ist.",
+      "interruptHint": "Sprich jederzeit, um zu unterbrechen."
     }
   },
   "leadMemories": {
@@ -7637,7 +7643,8 @@
     "trigger": {
       "trigger_first_message": "Erste Nachricht",
       "trigger_message_received": "Nachricht empfangen",
-      "trigger_webhook": "Webhook"
+      "trigger_webhook": "Webhook",
+      "trigger_call_received": "Eingehender Anruf"
     },
     "empty": {
       "title": "Keine Automatisierungen gefunden",
@@ -7664,7 +7671,8 @@
     "triggerType": "Auslösertyp",
     "workflowType": "Automatisierung-Typ",
     "workflowTypeOption": {
-      "messages": "Nachrichten"
+      "messages": "Nachrichten",
+      "voice": "Sprache (Anrufe)"
     },
     "export": "Exportieren",
     "activate": "Aktivieren",

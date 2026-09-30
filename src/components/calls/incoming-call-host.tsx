@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 
 import { useCallSession } from "@/contexts/call-session-context";
 import { useOfferSecondsLeft } from "@/hooks/use-call-clock";
+import { formatPhoneForDisplay } from "@/lib/phone/display";
 
 export function IncomingCallHost() {
   const t = useTranslations("calling.incoming");
@@ -32,7 +33,7 @@ export function IncomingCallHost() {
             {t("title", { channel: t(`channel.${channel}`) })}
           </p>
           <p id="incoming-call-number" className="readout mt-1.5 truncate text-base font-semibold text-foreground">
-            {incomingCall.fromNumber || t("unknownNumber")}
+            {incomingCall.fromNumber ? formatPhoneForDisplay(incomingCall.fromNumber) : t("unknownNumber")}
           </p>
           {secondsLeft !== null ? (
             <p className="mt-1 text-xs tabular-nums text-muted-foreground">{t("expiresIn", { seconds: secondsLeft })}</p>

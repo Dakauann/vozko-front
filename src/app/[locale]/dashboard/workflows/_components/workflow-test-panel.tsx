@@ -15,6 +15,7 @@ import {
   ArrowsClockwise,
   CaretDown,
 } from "@/components/icons";
+import { DIAL_KEYS } from "@/lib/dialer/dial-string";
 import { cn } from "@/lib/utils";
 import ElevatedButton from "@/components/elevated-design/button";
 import {
@@ -25,14 +26,16 @@ import {
 
 interface WorkflowTestPanelProps {
   simulation: UseWorkflowSimulationReturn;
+  voice?: boolean;
   onClose: () => void;
 }
 
 export function WorkflowTestPanel({
   simulation,
+  voice = false,
   onClose,
 }: WorkflowTestPanelProps) {
-  const { status, events, currentNodeId, start, sendReply, cancel } =
+  const { status, events, currentNodeId, start, sendReply, sendKey, cancel } =
     simulation;
 
   const [replyText, setReplyText] = useState("");
@@ -69,6 +72,7 @@ export function WorkflowTestPanel({
   const isActive =
     status === "running" ||
     status === "waiting_reply" ||
+    status === "waiting_key" ||
     status === "connecting" ||
     status === "waiting_trigger";
 
@@ -194,7 +198,11 @@ export function WorkflowTestPanel({
       )}
 
       {}
-      {(status === "waiting_reply" || status === "waiting_trigger") && (
+      {voice && isActive && status !== "connecting" && (
+        <Keypad waiting={status === "waiting_key"} onKey={sendKey} />
+      )}
+
+      {!voice && (status === "waiting_reply" || status === "waiting_trigger") && (
         <div className="border-t border-border px-3 py-2 flex-shrink-0">
           <div className="flex items-center gap-2">
             <input
@@ -276,6 +284,10 @@ function StatusBadge({ status }: { status: SimStatus }) {
       label: "Aguardando",
       className: "bg-warning text-warning-foreground",
     },
+    waiting_key: {
+      label: "Aguardando tecla",
+      className: "bg-warning text-warning-foreground",
+    },
     completed: {
       label: "Concluído",
       className: "bg-healthy text-healthy-foreground",
@@ -319,6 +331,13 @@ function EventItem({ event }: { event: SimEvent }) {
           Aguardando resposta... ({event.timeoutSeconds}s)
         </div>
       );
+    case "waiting_key":
+      return (
+        <div className="flex items-center gap-1.5 text-xs text-warning-ink py-1">
+          <Warning size={12} weight="fill" />
+          Aguardando uma tecla... ({event.timeoutSeconds}s)
+        </div>
+      );
     case "state":
       return null;
     case "error":
@@ -355,17 +374,24 @@ function MessageBubble({
             : "bg-primary text-primary-foreground rounded-tr-sm",
         )}
       >
-        {event.audioBase64 ? (
+        {event.audioUrl ? (
+          <>
+            <audio controls autoPlay preload="auto" src={event.audioUrl} className="max-w-full h-8" />
+            <span className="mt-1 block text-2xs opacity-70">{event.text}</span>
+          </>
+        ) : event.audioBase64 ? (
           <audio
             controls
             preload="metadata"
             src={`data:${event.audioMime || "audio/ogg"};base64,${event.audioBase64}`}
             className="max-w-full h-8"
           />
+        ) : event.msgType === "key" ? (
+          <span className="readout text-sm font-semibold">{event.text}</span>
         ) : (
           event.text
         )}
-        {event.msgType !== "text" && !event.audioBase64 && (
+        {event.msgType !== "text" && event.msgType !== "key" && !event.audioBase64 && !event.audioUrl && (
           <span className="block text-2xs opacity-60 mt-0.5">
             [{event.msgType}]
           </span>
@@ -401,6 +427,29 @@ function NodeEventItem({
       {hasError && (
         <span className="text-destructive-ink truncate">, {event.error}</span>
       )}
+    </div>
+  );
+}
+
+function Keypad({ waiting, onKey }: { waiting: boolean; onKey: (key: string) => void }) {
+  return (
+    <div className="border-t border-border px-3 py-2 flex-shrink-0">
+      <p className={cn("mb-1.5 text-2xs", waiting ? "text-warning-ink" : "text-muted-foreground")}>
+        {waiting ? "Aperte uma tecla, como quem ligou" : "Teclas cortam o áudio, como numa ligação"}
+      </p>
+      <div className="grid grid-cols-6 gap-1" role="group" aria-label="Teclado do telefone">
+        {DIAL_KEYS.map((key) => (
+          <button
+            key={key}
+            type="button"
+            aria-label={key}
+            onClick={() => onKey(key)}
+            className="readout h-8 rounded-[--radius] border border-control-edge bg-card text-sm font-semibold text-foreground transition-colors duration-DEFAULT hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {key}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

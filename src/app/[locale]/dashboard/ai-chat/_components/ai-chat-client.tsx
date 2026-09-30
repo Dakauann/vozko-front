@@ -98,6 +98,7 @@ export function AIChatClient() {
     error: chat.error,
     lang: speechLang(locale),
     send: submit,
+    stop: chat.stop,
   });
 
   const isEmpty = chat.messages.length === 0;

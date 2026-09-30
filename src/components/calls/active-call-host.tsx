@@ -24,6 +24,7 @@ import {
   formatCallDuration,
   useCallElapsedSeconds,
 } from "@/hooks/use-call-clock";
+import { formatPhoneForDisplay } from "@/lib/phone/display";
 
 export function ActiveCallHost() {
   const t = useTranslations("calling.widget");
@@ -99,7 +100,7 @@ export function ActiveCallHost() {
             {activeLabel ? ` · ${activeLabel}` : ""}
           </span>
           <span className="readout mt-1 truncate text-sm font-semibold leading-none text-foreground">
-            {callState.phoneNumber}
+            {formatPhoneForDisplay(callState.phoneNumber)}
           </span>
         </span>
         {callState.status === "answered" ? (

@@ -9,6 +9,7 @@ import { useSettledPermission } from "@/hooks/use-settled-permission";
 import { presetDial, requestCall } from "@/lib/call-session/call-session-control";
 import type { CallCard } from "@/lib/aichat/types";
 import { cn } from "@/lib/utils";
+import { formatPhoneForDisplay } from "@/lib/phone/display";
 
 const BUTTON =
   "inline-flex items-center gap-1.5 self-start rounded-[--radius] bg-primary px-3.5 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-DEFAULT hover:bg-primary-hover active:bg-primary-active disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:self-auto";
@@ -51,7 +52,7 @@ export function CallCardView({ card }: { card: CallCard }) {
           </span>
           <div className="min-w-0">
             <p className="legend">{t("title")}</p>
-            <p className="readout mt-1 truncate text-base font-semibold leading-none text-foreground">{phoneNumber}</p>
+            <p className="readout mt-1 truncate text-base font-semibold leading-none text-foreground">{formatPhoneForDisplay(phoneNumber)}</p>
             <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
               {trunkName ? t("via", { trunk: trunkName }) : t("chooseTrunk")}
             </p>

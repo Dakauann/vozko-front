@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { appendDictation, nextSentences, pickVoice, speakableText, speechLang } from "@/lib/voice/speech-text";
+import {
+  appendDictation,
+  nextSentences,
+  pickVoice,
+  soundsLikeInterruption,
+  speakableText,
+  speechLang,
+} from "@/lib/voice/speech-text";
 
 function voice(name: string, lang: string, localService = true): SpeechSynthesisVoice {
   return { name, lang, localService, default: false, voiceURI: name } as SpeechSynthesisVoice;
@@ -36,7 +43,22 @@ describe("nextSentences", () => {
     expect(last.sentences).toEqual(["E mais nada"]);
   });
 
+  it("starts speaking at the first natural pause instead of waiting for the whole first sentence", () => {
+    const streamed = "Olhando os números de hoje com calma, você tem doze conversas abertas e";
+    expect(nextSentences(streamed, 0, false, true).sentences).toEqual(["Olhando os números de hoje com calma,"]);
+    expect(nextSentences(streamed, 0, false, false).sentences).toEqual([]);
+  });
+
+  it("breaks a very long sentence at a comma so speech keeps flowing", () => {
+    const long =
+      "A equipe respondeu quarenta clientes pela manhã e mais trinta à tarde sem nenhuma pendência aberta, enquanto o";
+    expect(nextSentences(long, 0, false).sentences).toEqual([
+      "A equipe respondeu quarenta clientes pela manhã e mais trinta à tarde sem nenhuma pendência aberta,",
+    ]);
+  });
+
   it("does not split numbers or money", () => {
+    expect(nextSentences("Seu saldo atual é de R$ 1.234,56 e", 0, false, true).sentences).toEqual([]);
     expect(nextSentences("Saldo de R$ 1.234,56 hoje. ", 0, false).sentences).toEqual(["Saldo de R$ 1.234,56 hoje."]);
   });
 
@@ -83,5 +105,26 @@ describe("appendDictation", () => {
     expect(appendDictation("", " quantas conversas ")).toBe("quantas conversas");
     expect(appendDictation("Resuma o dia  ", "e mande no chat")).toBe("Resuma o dia e mande no chat");
     expect(appendDictation("Resuma", "   ")).toBe("Resuma");
+  });
+});
+
+describe("soundsLikeInterruption", () => {
+  const spoken = "Hoje você tem doze conversas abertas. Duas aguardam resposta há mais de uma hora.";
+
+  it("ignores Elo's own voice coming back through the speakers", () => {
+    expect(soundsLikeInterruption("você tem doze conversas abertas", spoken)).toBe(false);
+    expect(soundsLikeInterruption("duas aguardam resposta", spoken)).toBe(false);
+  });
+
+  it("hears the member talking over Elo", () => {
+    expect(soundsLikeInterruption("espera, quero ver só as de hoje", spoken)).toBe(true);
+    expect(soundsLikeInterruption("Pare", spoken)).toBe(true);
+    expect(soundsLikeInterruption("é", spoken)).toBe(false);
+    expect(soundsLikeInterruption("doze", spoken)).toBe(false);
+  });
+
+  it("takes any words as an interruption before Elo has said anything", () => {
+    expect(soundsLikeInterruption("cancela", "")).toBe(true);
+    expect(soundsLikeInterruption("  ", "")).toBe(false);
   });
 });

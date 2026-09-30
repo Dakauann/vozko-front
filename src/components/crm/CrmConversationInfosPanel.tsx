@@ -38,6 +38,7 @@ import { effectiveAnalysis } from "@/lib/analysis/live";
 import CrmSegmentedToggle from "@/components/crm/CrmSegmentedToggle";
 import { type Opportunity, dealActorName, formatValueCents } from "@/lib/crm/opportunities";
 import { cn } from "@/lib/utils";
+import { formatPhoneForDisplay } from "@/lib/phone/display";
 
 const NO_MEMBERS: ReadonlyMap<string, string> = new Map();
 
@@ -59,18 +60,6 @@ interface CrmConversationInfosPanelProps {
   canManageMemories: boolean;
   canRenameLead: boolean;
   onLeadRenamed?: (leadId: string, name: string) => void;
-}
-
-function formatPhone(raw: string): string {
-  const digits = raw.replace(/\D/g, "");
-  const br = digits.startsWith("55") ? digits.slice(2) : digits;
-  if (br.length === 11) {
-    return `+55 (${br.slice(0, 2)}) ${br.slice(2, 7)}-${br.slice(7)}`;
-  }
-  if (br.length === 10) {
-    return `+55 (${br.slice(0, 2)}) ${br.slice(2, 6)}-${br.slice(6)}`;
-  }
-  return raw.startsWith("+") ? raw : `+${digits}`;
 }
 
 function initialsOf(name: string | null | undefined, fallback: string): string {
@@ -165,7 +154,7 @@ export default function CrmConversationInfosPanel({
   const handleCopy = useCallback(async () => {
     if (!leadNumber) return;
     try {
-      await navigator.clipboard.writeText(formatPhone(leadNumber));
+      await navigator.clipboard.writeText(formatPhoneForDisplay(leadNumber));
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
@@ -342,7 +331,7 @@ export default function CrmConversationInfosPanel({
                   <EditableLeadName
                     leadId={leadId}
                     name={leadName}
-                    fallback={formatPhone(leadNumber)}
+                    fallback={formatPhoneForDisplay(leadNumber)}
                     canEdit={canRenameLead}
                     onRenamed={(next) => {
                       setLeadNameOverride(next);
@@ -353,7 +342,7 @@ export default function CrmConversationInfosPanel({
                   />
                 ) : (
                   <p className="truncate text-sm font-semibold tracking-tight text-foreground">
-                    {leadName || (isGroup ? t("unnamedGroup") : formatPhone(leadNumber))}
+                    {leadName || (isGroup ? t("unnamedGroup") : formatPhoneForDisplay(leadNumber))}
                   </p>
                 )}
                 {
@@ -368,7 +357,7 @@ export default function CrmConversationInfosPanel({
                     onClick={handleCopy}
                     className="group mt-0.5 inline-flex max-w-full items-center gap-1.5 truncate text-xs text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    <span className="truncate">{formatPhone(leadNumber)}</span>
+                    <span className="truncate">{formatPhoneForDisplay(leadNumber)}</span>
                     {copied ? (
                       <Check
                         weight="bold"

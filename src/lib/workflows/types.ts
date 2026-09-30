@@ -3,6 +3,9 @@ export type WorkflowNodeType =
   | "trigger_first_message"
   | "trigger_message_received"
   | "trigger_webhook"
+  | "trigger_call_received"
+  | "action_play_audio"
+  | "wait_dtmf"
   | "action_send_text"
   | "action_send_template"
   | "action_send_email"
@@ -47,9 +50,10 @@ export type WorkflowNodeType =
 export type WorkflowTriggerType =
   | "trigger_first_message"
   | "trigger_message_received"
-  | "trigger_webhook";
+  | "trigger_webhook"
+  | "trigger_call_received";
 
-export type WorkflowType = "messages";
+export type WorkflowType = "messages" | "voice";
 
 export type WorkflowStatus = "draft" | "active" | "paused" | "archived";
 
@@ -194,7 +198,7 @@ export type NodeCategory =
   | "end"
   | "visual";
 
-export type WorkflowNodeScope = "shared" | "whatsapp";
+export type WorkflowNodeScope = "shared" | "whatsapp" | "voice";
 
 export interface ConfigFieldOption {
   value: string;
@@ -276,7 +280,9 @@ export type DependencySource =
   | "trigger"
   | "ai"
   | "system"
-  | "custom";
+  | "custom"
+  | "agent_variable"
+  | "caller";
 
 export interface MockFieldSpec {
   key: string;
@@ -284,6 +290,7 @@ export interface MockFieldSpec {
   source: DependencySource;
   source_node?: string;
   hint?: string;
+  optional?: boolean;
 }
 
 export interface NodeAnalysis {

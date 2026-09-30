@@ -670,14 +670,20 @@
         "listening": "Listening",
         "thinking": "Thinking",
         "speaking": "Speaking",
-        "paused": "Paused during the call"
+        "paused": "Paused during the call",
+        "starting": "Turning on the microphone…",
+        "downloading": "Waiting for the browser speech pack"
       },
       "errors": {
         "blocked": "Allow microphone access in the browser to talk to Elo.",
         "no_microphone": "No microphone found.",
-        "network": "The browser speech service did not respond. Try again.",
-        "unavailable": "This browser does not offer speech recognition."
-      }
+        "network": "The browser could not reach its speech service. This happens in Brave, in Opera, offline or on networks that block it; up-to-date Chrome or Edge can run speech on this computer.",
+        "unavailable": "This browser does not offer speech recognition.",
+        "installing": "The browser is still downloading its speech pack. Turn on voice mode and Elo will wait and start on its own.",
+        "pack_stalled": "The browser did not finish preparing its speech pack within 2 minutes and its online speech service did not answer. Try later or use another browser."
+      },
+      "downloadingHint": "The browser does not report progress. We wait up to 2 minutes and start listening as soon as it is ready.",
+      "interruptHint": "Speak at any time to interrupt."
     }
   },
   "leadMemories": {
@@ -8526,7 +8532,8 @@
     "trigger": {
       "trigger_first_message": "First Message",
       "trigger_message_received": "Message Received",
-      "trigger_webhook": "Webhook"
+      "trigger_webhook": "Webhook",
+      "trigger_call_received": "Incoming Call"
     },
     "empty": {
       "title": "No automations found",
@@ -8553,7 +8560,8 @@
     "triggerType": "Trigger type",
     "workflowType": "Automation type",
     "workflowTypeOption": {
-      "messages": "Messages"
+      "messages": "Messages",
+      "voice": "Voice (calls)"
     },
     "export": "Export",
     "activate": "Activate",

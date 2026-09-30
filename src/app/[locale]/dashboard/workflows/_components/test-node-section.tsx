@@ -70,6 +70,8 @@ function getSourceLabel(source: string): string {
       return "Resposta IA";
     case "custom":
       return "Captura customizada";
+    case "caller":
+      return "Quem ligou";
     default:
       return source;
   }
@@ -386,8 +388,8 @@ export function TestNodeSection({
   } = useTestNode();
 
   const missingMockFields =
-    analysis?.mock_fields.filter((field) =>
-      isMissingMockValue(mockedState[field.key]),
+    analysis?.mock_fields.filter(
+      (field) => !field.optional && isMissingMockValue(mockedState[field.key]),
     ) ?? [];
   const hasMissingRequiredMocks = missingMockFields.length > 0;
   const missingMocksMessage = hasMissingRequiredMocks

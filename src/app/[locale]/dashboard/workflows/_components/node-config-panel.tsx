@@ -90,6 +90,8 @@ import {
 import { listWorkflowsAction } from "@/app/actions/workflows";
 import { listKnowledgeBasesAction } from "@/app/actions/knowledge-bases";
 import { listLabelsAction } from "@/app/actions/labels";
+import { listSipTrunksAction } from "@/app/actions/sip-trunks";
+import { receivesCalls } from "@/lib/sip-trunks/types";
 import { listMembersAction } from "@/app/actions/workspace";
 import { getWorkspaceConfigAction } from "@/app/actions/workspace-config";
 import { HandOffRulesSummary } from "@/components/dashboard/workspace/HandOffRulesSummary";
@@ -1868,7 +1870,17 @@ function SchemaField({
         />
       );
     case "multi-select":
-      return null;
+      if (!field.options?.length) return null;
+      return (
+        <ToggleChipsField
+          label={reqLabel}
+          description={field.description}
+          error={reqError}
+          options={field.options}
+          value={Array.isArray(value) ? value.map(String) : []}
+          onChange={onChange}
+        />
+      );
     case "boolean":
       return (
         <div className="space-y-1">
@@ -2383,6 +2395,16 @@ function useDynamicOptions(
               fetched = res.options.messaging.map((m) => ({
                 value: m,
                 label: m.includes("/") ? m.split("/").slice(1).join("/") : m,
+              }));
+            }
+            break;
+          }
+          case "sip_trunks": {
+            const res = await listSipTrunksAction();
+            if (!cancelled) {
+              fetched = res.trunks.filter(receivesCalls).map((trunk) => ({
+                value: trunk.id,
+                label: trunk.name,
               }));
             }
             break;
@@ -4385,5 +4407,53 @@ function VariableRow({
         {description}
       </span>
     </div>
+  );
+}
+
+function ToggleChipsField({
+  label,
+  description,
+  error,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  description?: string;
+  error?: string | null;
+  options: ConfigFieldOption[];
+  value: string[];
+  onChange: (next: string[]) => void;
+}) {
+  const selected = new Set(value);
+  const toggle = (option: string) =>
+    onChange(options.map((o) => o.value).filter((v) => (v === option ? !selected.has(v) : selected.has(v))));
+  return (
+    <fieldset className="space-y-1.5">
+      <legend className="text-xs font-medium text-foreground">{label}</legend>
+      <div className="flex flex-wrap gap-1.5">
+        {options.map((option) => {
+          const on = selected.has(option.value);
+          return (
+            <button
+              key={option.value}
+              type="button"
+              aria-pressed={on}
+              onClick={() => toggle(option.value)}
+              className={cn(
+                "readout h-8 min-w-8 rounded-[--radius] border px-2 text-sm font-semibold transition-colors duration-DEFAULT focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                on
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-control-edge bg-card text-foreground hover:bg-muted",
+              )}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
+      {description ? <p className="text-2xs text-muted-foreground">{description}</p> : null}
+      {error ? <p className="text-2xs text-destructive-ink">{error}</p> : null}
+    </fieldset>
   );
 }
