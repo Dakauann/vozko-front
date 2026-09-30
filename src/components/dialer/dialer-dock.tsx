@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  forwardRef,
   useCallback,
   useEffect,
   useMemo,
@@ -12,6 +11,8 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
 import { DockBounds } from "@/components/docks/dock-bounds";
+import { EdgeTab } from "@/components/docks/edge-tab";
+import { DialerMark } from "@/components/dialer/dialer-mark";
 import {
   DOCK_HEADER_ICON_BUTTON,
   PANEL_EASE,
@@ -20,16 +21,11 @@ import { useDraggableDock } from "@/components/docks/use-draggable-dock";
 import ElevatedSelect, {
   ElevatedSelectItem,
 } from "@/components/elevated-design/elevated-select";
-import { CallTransferPanel } from "@/components/calls/call-transfer-panel";
+import { InCallPanel } from "@/components/calls/in-call-panel";
 import {
-  ArrowsLeftRight,
   Backspace,
-  Microphone,
-  MicrophoneSlash,
   Minus,
   Phone,
-  PhoneDisconnect,
-  SpinnerGap,
 } from "@/components/icons";
 import { listSipTrunksAction } from "@/app/actions/sip-trunks";
 import { useCallSession } from "@/contexts/call-session-context";
@@ -44,19 +40,16 @@ import {
   requestCall,
   setDialerOpen,
   subscribeDialPreset,
-  subscribeTransferPanel,
 } from "@/lib/call-session/call-session-control";
-import { transferErrorCode } from "@/lib/call-session/transfer";
 import {
   DIAL_KEYS,
   appendDialKey,
-  callOutcome,
   dialerErrorCode,
   isDialable,
 } from "@/lib/dialer/dial-string";
+import { dialerTabState } from "@/lib/dialer/tab-state";
 import { canDialThrough, type SipTrunk } from "@/lib/sip-trunks/types";
 import { cn } from "@/lib/utils";
-import { formatPhoneForDisplay } from "@/lib/phone/display";
 
 const TRUNK_REFRESH_MS = 10_000;
 const REMEMBERED_TRUNK_KEY = "dialer:trunk";
@@ -107,13 +100,11 @@ function Dialer() {
   const {
     callState,
     status,
-    endCall,
-    muted,
-    setMuted,
     lastErrorCode,
     lastError,
     clearError,
     transfer,
+    incomingCall,
   } = useCallSession();
   const workspaceId = currentWorkspace?.id ?? "";
   const reduceMotion = useReducedMotion();
@@ -122,7 +113,6 @@ function Dialer() {
   const [loadingTrunks, setLoadingTrunks] = useState(false);
   const [chosenTrunkId, setChosenTrunkId] = useState<string | null>(null);
   const [number, setNumber] = useState("");
-  const [transferOpen, setTransferOpen] = useState(false);
   const tabRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const elapsed = useCallElapsedSeconds(callState);
@@ -170,16 +160,6 @@ function Dialer() {
     [openPanel, clearError],
   );
 
-  useEffect(
-    () =>
-      subscribeTransferPanel(() => {
-        clearError();
-        setTransferOpen(true);
-        openPanel();
-      }),
-    [openPanel, clearError],
-  );
-
   useEffect(() => {
     if (!open) return;
     inputRef.current?.focus();
@@ -199,11 +179,19 @@ function Dialer() {
   const online = status === "connected";
   const canPlace =
     online && !inCall && selectedTrunk !== null && isDialable(number);
+  const tabState = dialerTabState({
+    callStatus: callState?.status ?? null,
+    hasIncomingCall: incomingCall !== null,
+    transferRinging: transfer?.status === "ringing",
+  });
+  const tabText = {
+    idle: t("tabLabel"),
+    incoming: t("tabIncoming"),
+    holding: tt("holding"),
+    ringing: t("tabRinging"),
+    timer: formatCallDuration(elapsed),
+  }[tabState.label];
   const errorCode = dialerErrorCode(lastErrorCode);
-  const transferError = transferErrorCode(lastErrorCode);
-  const answered = live && callState.status === "answered";
-  const showTransfer = answered && (transferOpen || transfer?.status === "ringing");
-  const transferredBy = callState?.transferredBy;
 
   const placeCall = () => {
     if (!canPlace || !selectedTrunk) return;
@@ -223,11 +211,13 @@ function Dialer() {
   return (
     <>
       {!open ? (
-        <DialerTab
+        <EdgeTab
           ref={tabRef}
-          label={t("open")}
-          tabLabel={t("tabLabel")}
-          live={live}
+          slot="lower"
+          label={tabState.status === "idle" ? t("open") : `${t("open")} · ${tabText}`}
+          tabLabel={tabText}
+          status={tabState.status}
+          icon={<DialerMark className="h-5 w-5 text-foreground" />}
           onClick={openPanel}
         />
       ) : null}
@@ -307,107 +297,8 @@ function Dialer() {
                 </div>
               </header>
 
-              {showTransfer ? (
-                <CallTransferPanel onClose={() => setTransferOpen(false)} />
-              ) : inCall ? (
-                <div
-                  className="flex flex-col items-center px-4 pb-5 pt-7 text-center"
-                  role="status"
-                  aria-live="polite"
-                >
-                  <span className="legend">
-                    {callState.status === "ended"
-                      ? t(`outcome.${callOutcome(callState.reason)}`)
-                      : t(
-                          callState.status === "answered"
-                            ? "inCall"
-                            : callState.status === "waiting_slot"
-                              ? "waitingSlot"
-                              : "ringing",
-                        )}
-                  </span>
-                  <span className="readout mt-2 max-w-full truncate text-2xl font-semibold tracking-wide text-foreground">
-                    {formatPhoneForDisplay(callState.phoneNumber)}
-                  </span>
-                  <span className="mt-1.5 flex h-5 items-center">
-                    {callState.status === "answered" ? (
-                      <span className="readout text-sm tabular-nums text-muted-foreground">
-                        {formatCallDuration(elapsed)}
-                      </span>
-                    ) : callState.status === "ringing" ||
-                      callState.status === "waiting_slot" ? (
-                      <SpinnerGap
-                        className="h-4 w-4 animate-spin text-muted-foreground"
-                        aria-hidden
-                      />
-                    ) : null}
-                  </span>
-                  {live && transferredBy ? (
-                    <div className="mt-4 w-full rounded-[--radius] border border-border bg-muted px-3 py-2 text-left">
-                      <p className="legend leading-none">
-                        {transferredBy.queueName
-                          ? tt("fromQueue", { queue: transferredBy.queueName })
-                          : tt("fromColleague", { name: transferredBy.fromName ?? tt("colleague") })}
-                      </p>
-                      {transferredBy.notes ? (
-                        <p className="mt-1.5 whitespace-pre-wrap text-xs text-foreground">{transferredBy.notes}</p>
-                      ) : null}
-                    </div>
-                  ) : null}
-                  {answered && transfer?.status === "returned" ? (
-                    <p role="status" className="mt-3 text-xs text-warning-ink">
-                      {tt(`returned.${transfer.reason === "declined" || transfer.reason === "cancelled" ? transfer.reason : "no_answer"}`)}
-                    </p>
-                  ) : null}
-                  {answered && transferError ? (
-                    <p role="alert" className="mt-3 text-xs text-destructive-ink">
-                      {tt(`errors.${transferError}`)}
-                    </p>
-                  ) : null}
-                  {live ? (
-                    <div className="mt-6 grid w-full grid-cols-3 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setMuted(!muted)}
-                        aria-pressed={muted}
-                        disabled={callState.status !== "answered"}
-                        className={cn(
-                          "inline-flex h-11 items-center justify-center gap-2 rounded-[--radius] border text-sm font-semibold transition-colors duration-DEFAULT focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-40",
-                          muted
-                            ? "border-foreground bg-foreground text-background"
-                            : "border-control-edge text-foreground hover:bg-muted",
-                        )}
-                      >
-                        {muted ? (
-                          <MicrophoneSlash className="h-4 w-4" />
-                        ) : (
-                          <Microphone className="h-4 w-4" />
-                        )}
-                        {t(muted ? "unmute" : "mute")}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          clearError();
-                          setTransferOpen(true);
-                        }}
-                        disabled={!answered}
-                        className="inline-flex h-11 items-center justify-center gap-2 rounded-[--radius] border border-control-edge text-sm font-semibold text-foreground transition-colors duration-DEFAULT hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-40"
-                      >
-                        <ArrowsLeftRight className="h-4 w-4" aria-hidden />
-                        {tt("open")}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={endCall}
-                        className="inline-flex h-11 items-center justify-center gap-2 rounded-[--radius] bg-destructive text-sm font-semibold text-destructive-foreground transition-opacity duration-DEFAULT hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      >
-                        <PhoneDisconnect className="h-4 w-4" aria-hidden />
-                        {t("hangUp")}
-                      </button>
-                    </div>
-                  ) : null}
-                </div>
+              {inCall ? (
+                <InCallPanel />
               ) : (
                 <div className="flex min-h-0 flex-col overflow-y-auto">
                   <div className="px-4 pt-3">
@@ -522,40 +413,3 @@ function Dialer() {
     </>
   );
 }
-
-const DialerTab = forwardRef<
-  HTMLButtonElement,
-  { label: string; tabLabel: string; live: boolean; onClick: () => void }
->(function DialerTab({ label, tabLabel, live, onClick }, ref) {
-  return (
-    <button
-      ref={ref}
-      type="button"
-      onClick={onClick}
-      aria-label={label}
-      className="group fixed right-0 top-[calc(50%+4rem)] z-[60] flex h-24 w-9 flex-col items-center justify-center gap-2 rounded-l-xl border border-r-0 border-border-strong bg-card text-foreground shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-    >
-      <span className="relative">
-        <Phone className="h-5 w-5" aria-hidden />
-        {live ? (
-          <span
-            aria-hidden
-            className="absolute -right-1 -top-1 h-2 w-2 rotate-45 rounded-[1px] bg-healthy animate-dot-pulse"
-          />
-        ) : null}
-      </span>
-      <span
-        aria-hidden
-        className="whitespace-nowrap text-2xs font-semibold [writing-mode:vertical-rl]"
-      >
-        {tabLabel}
-      </span>
-      <span
-        aria-hidden
-        className="pointer-events-none absolute right-full top-1/2 mr-3 hidden -translate-y-1/2 whitespace-nowrap rounded-md border border-border bg-popover px-2.5 py-1.5 text-xs font-semibold text-foreground opacity-0 shadow-md transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100 sm:block"
-      >
-        {label}
-      </span>
-    </button>
-  );
-});

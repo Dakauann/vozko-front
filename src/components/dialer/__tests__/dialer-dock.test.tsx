@@ -25,7 +25,7 @@ vi.mock("@/app/actions/call-routing", () => ({ listTransferQueuesAction: () => P
 vi.mock("@/i18n/routing", () => ({ Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a> }));
 
 import { DialerDock } from "@/components/dialer/dialer-dock";
-import { presetDial, requestTransferPanel, subscribeCallRequest, type CallRequest } from "@/lib/call-session/call-session-control";
+import { presetDial, subscribeCallRequest, type CallRequest } from "@/lib/call-session/call-session-control";
 
 function trunk(overrides: Partial<SipTrunk>): SipTrunk {
   return {
@@ -78,7 +78,7 @@ function renderDialer() {
 }
 
 async function openDialer() {
-  fireEvent.click(screen.getByRole("button", { name: "Abrir discador" }));
+  fireEvent.click(screen.getByRole("button", { name: /^Abrir discador/ }));
   await act(async () => {
     await Promise.resolve();
   });
@@ -89,7 +89,7 @@ describe("DialerDock", () => {
   let unsubscribe: () => void;
 
   beforeEach(() => {
-    grants.value = new Set(["sip_trunks:call", "sip_trunks:read", "call_session:use"]);
+    grants.value = new Set(["sip_trunks:call", "sip_trunks:read", "call_session:use", "call_session:transfer"]);
     session.value = callSession();
     trunkList.value = [trunk({})];
     queueList.value = [];
@@ -218,10 +218,8 @@ describe("DialerDock", () => {
       queueList.value = [{ id: "q1", name: "Suporte", waiting: 2, ready: 1 }];
       session.value = callSession({ callState: answered, transferCall });
       renderDialer();
-      await act(async () => {
-        requestTransferPanel();
-        await Promise.resolve();
-      });
+      await openDialer();
+      fireEvent.click(screen.getByRole("button", { name: /Transferir/ }));
       fireEvent.click(screen.getByRole("tab", { name: "Fila" }));
       const queue = await screen.findByRole("radio", { name: /Suporte/ });
       expect(queue.textContent).toContain("2 esperando · 1 livre");
@@ -271,11 +269,41 @@ describe("DialerDock", () => {
       expect(screen.getByText("segunda via do boleto")).toBeTruthy();
     });
 
+    it("offers no transfer to someone not allowed to transfer calls", async () => {
+      grants.value = new Set(["sip_trunks:call", "sip_trunks:read", "call_session:use"]);
+      session.value = callSession({ callState: answered });
+      renderDialer();
+      await openDialer();
+      expect(screen.queryByRole("button", { name: /Transferir/ })).toBeNull();
+    });
+
     it("reports a handed-over call as transferred", async () => {
       session.value = callSession({ callState: { ...answered, status: "ended", reason: "transferred" } });
       renderDialer();
       await openDialer();
       expect(screen.getByText("Chamada transferida")).toBeTruthy();
+    });
+  });
+
+  describe("side tab", () => {
+    it("rests as the dialer when nothing is happening", () => {
+      renderDialer();
+      expect(screen.getByRole("button", { name: "Abrir discador" }).getAttribute("data-status")).toBe("idle");
+    });
+
+    it("shows the call clock while talking", () => {
+      session.value = callSession({ callState: { phoneNumber: "100", status: "answered", answeredAt: Date.now() - 65_000 } });
+      renderDialer();
+      const tab = screen.getByRole("button", { name: /^Abrir discador · 01:0\d$/ });
+      expect(tab.getAttribute("data-status")).toBe("live");
+    });
+
+    it("calls attention to a call ringing in", () => {
+      session.value = callSession({
+        incomingCall: { offerId: "o1", callId: "c1", workspaceId: "ws-1", fromNumber: "100", receivedAt: Date.now() },
+      });
+      renderDialer();
+      expect(screen.getByRole("button", { name: "Abrir discador · Chamada" }).getAttribute("data-status")).toBe("alert");
     });
   });
 });

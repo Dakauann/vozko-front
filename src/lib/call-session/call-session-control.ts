@@ -112,22 +112,3 @@ export function subscribeDialPreset(listener: PresetListener): () => void {
         presetListeners.delete(listener);
     };
 }
-
-const transferPanelListeners = new Set<() => void>();
-
-export function requestTransferPanel(): void {
-    transferPanelListeners.forEach((listener) => {
-        try {
-            listener();
-        } catch (err) {
-            console.error("[call-session-control] transfer panel listener failed:", err);
-        }
-    });
-}
-
-export function subscribeTransferPanel(listener: () => void): () => void {
-    transferPanelListeners.add(listener);
-    return () => {
-        transferPanelListeners.delete(listener);
-    };
-}

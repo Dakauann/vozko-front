@@ -22,6 +22,7 @@ import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
+import { ElevatedSwitch as Switch } from "@/components/elevated-design/elevated-switch";
 import UnofficialWhatsAppCapacityCard from "@/components/dashboard/addons/UnofficialWhatsAppCapacityCard";
 import { UnofficialNotice } from "@/components/unofficial-whatsapp/session-state";
 import { WhatsAppLogoColor } from "@/components/icons/channel-logos";
@@ -49,6 +50,7 @@ function ConnectFlow() {
   const [mode, setMode] = useState<ConnectMode>("qr");
   const [phone, setPhone] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [importHistory, setImportHistory] = useState(true);
   const [challenge, setChallenge] = useState<LinkChallenge | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -102,6 +104,7 @@ function ConnectFlow() {
     if (!instanceId) {
       const provisioned = await provisionInstanceAction({
         displayName: displayName.trim() || undefined,
+        importHistory,
       });
       if (provisioned.error || !provisioned.instance) {
         setError(provisioned.error ?? t("connect.provisionFailed"));
@@ -124,7 +127,7 @@ function ConnectFlow() {
     }
     setChallenge(result.challenge);
     setStep("linking");
-  }, [mode, phone, displayName, t]);
+  }, [mode, phone, displayName, importHistory, t]);
 
   useEffect(() => {
     if (step !== "linking") return;
@@ -182,6 +185,7 @@ function ConnectFlow() {
             mode={mode}
             phone={phone}
             displayName={displayName}
+            importHistory={importHistory}
             reconnectName={
               reconnectTarget
                 ? reconnectTarget.phoneNumber
@@ -196,6 +200,7 @@ function ConnectFlow() {
             onModeChange={setMode}
             onPhoneChange={setPhone}
             onDisplayNameChange={setDisplayName}
+            onImportHistoryChange={setImportHistory}
             onContinue={() => void beginLinking()}
           />
         )}
@@ -233,23 +238,27 @@ function DisclosureStep({
   mode,
   phone,
   displayName,
+  importHistory,
   reconnectName,
   busy,
   error,
   onModeChange,
   onPhoneChange,
   onDisplayNameChange,
+  onImportHistoryChange,
   onContinue,
 }: {
   mode: ConnectMode;
   phone: string;
   displayName: string;
+  importHistory: boolean;
   reconnectName: string | null;
   busy: boolean;
   error: string | null;
   onModeChange: (mode: ConnectMode) => void;
   onPhoneChange: (phone: string) => void;
   onDisplayNameChange: (name: string) => void;
+  onImportHistoryChange: (enabled: boolean) => void;
   onContinue: () => void;
 }) {
   const t = useTranslations("unofficialWhatsapp");
@@ -279,6 +288,18 @@ function DisclosureStep({
             />
             <p className="text-xs text-muted-foreground">{t("connect.displayNameHint")}</p>
           </div>
+        )}
+
+        {!isReconnect && (
+          <label className="flex items-start justify-between gap-4">
+            <span className="min-w-0">
+              <span className="block text-sm text-foreground">{t("connect.importHistoryLabel")}</span>
+              <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
+                {t("connect.importHistoryHint")}
+              </span>
+            </span>
+            <Switch checked={importHistory} onCheckedChange={onImportHistoryChange} />
+          </label>
         )}
 
         <div className="space-y-1">

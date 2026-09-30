@@ -11252,6 +11252,8 @@
       "displayNameLabel": "Anzeigename (optional)",
       "displayNamePlaceholder": "Vertrieb SP, Inkasso...",
       "displayNameHint": "Wie diese Nummer im CRM erscheint. Nur bei uns: Das WhatsApp-Profil bleibt unverändert. Kann später gesetzt werden.",
+      "importHistoryLabel": "Frühere Unterhaltungen importieren",
+      "importHistoryHint": "Holt die letzten Unterhaltungen dieser Nummer ins Postfach, bereits gelesen und ohne Automationen auszulösen. Kann später in den Einstellungen der Nummer geändert werden.",
       "reconnectTitle": "Nummer neu verbinden",
       "reconnecting": "Verbinde {name} neu. Die Konversationen und der Verlauf dieser Nummer bleiben nach dem erneuten Scannen erhalten."
     },
@@ -11283,6 +11285,8 @@
       "enableAutoMemory": "Lead-Fakten merken",
       "handleGroups": "Attend groups",
       "groupsHint": "When off, groups stay visible in the inbox but get no automatic reply.",
+      "importHistory": "Verlauf beim Verbinden importieren",
+      "importHistoryHint": "Holt beim Verbinden die letzten WhatsApp-Unterhaltungen ins Postfach, bereits gelesen und ohne Automationen auszulösen. Aus: Es kommen nur neue Nachrichten an.",
       "modeLabel": "Wer antwortet",
       "modeAgent": "Agent",
       "modeWorkflow": "Workflow",
@@ -13789,7 +13793,8 @@
       "waitingSlot": "Warte auf eine Leitung",
       "endCall": "Auflegen",
       "mute": "Mikrofon stummschalten",
-      "unmute": "Mikrofon einschalten"
+      "unmute": "Mikrofon einschalten",
+      "title": "Anruf"
     },
     "incoming": {
       "title": "Eingehender Anruf · {channel}",
@@ -13851,7 +13856,9 @@
         "insufficient_balance": "Guthaben reicht nicht zum Anrufen.",
         "already_in_call": "Du bist bereits in einem Gespräch.",
         "dial_failed": "Der Anruf konnte nicht gestartet werden."
-      }
+      },
+      "tabIncoming": "Anruf",
+      "tabRinging": "Wählt"
     },
     "dragHint": "Zum Verschieben ziehen, Doppelklick setzt zurück",
     "assistantCard": {
@@ -13899,6 +13906,7 @@
       },
       "errors": {
         "target_unavailable": "Dieser Kollege kann gerade keinen Anruf annehmen.",
+        "conversation_out_of_reach": "Dieses Gespräch kann nicht an diesen Kollegen übergeben werden.",
         "transfer_to_self": "Du kannst einen Anruf nicht an dich selbst weiterleiten.",
         "transfer_in_progress": "Dieser Anruf wird bereits weitergeleitet.",
         "queue_not_found": "Die Warteschlange existiert nicht mehr.",
@@ -13993,7 +14001,7 @@
       "stunHint": "Für Server hinter NAT ohne feste öffentliche Adresse.",
       "publicAddress": "Öffentliche Adresse",
       "inboundSources": "Erlaubte Quellen für eingehende Anrufe",
-      "inboundSourcesHint": "Eine IP oder ein Bereich (CIDR) pro Zeile, zusätzlich zum Server des Anbieters.",
+      "inboundSourcesHint": "Eine IP oder ein Bereich (CIDR, höchstens /16 bei IPv4 und /32 bei IPv6) pro Zeile, zusätzlich zum Server des Anbieters.",
       "cancel": "Abbrechen",
       "save": "Speichern",
       "saving": "Wird gespeichert…",

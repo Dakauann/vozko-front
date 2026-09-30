@@ -60,6 +60,7 @@ export interface UnofficialWhatsAppInstance {
     enableAutoStaging: boolean;
     enableAutoMemory: boolean;
     handleGroups: boolean;
+    importHistory: boolean;
 
     createdAt: string;
     updatedAt: string;
@@ -91,6 +92,7 @@ export interface UpdateInstancePayload {
     enableAutoStaging?: boolean;
     enableAutoMemory?: boolean;
     handleGroups?: boolean;
+    importHistory?: boolean;
     dailySendCap?: number;
     sendDelayMinMs?: number;
     sendDelayMaxMs?: number;

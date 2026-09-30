@@ -73,6 +73,7 @@ describe("colleagues to transfer to", () => {
 describe("transfer errors", () => {
     it("recognises the server's transfer refusals and nothing else", () => {
         expect(transferErrorCode("target_unavailable")).toBe("target_unavailable");
+        expect(transferErrorCode("conversation_out_of_reach")).toBe("conversation_out_of_reach");
         expect(transferErrorCode("no_active_call")).toBeNull();
         expect(transferErrorCode(null)).toBeNull();
     });

@@ -2,6 +2,8 @@
 
 import { forwardRef } from "react";
 
+import { EdgeTab } from "@/components/docks/edge-tab";
+
 import { EloMark } from "./elo-mark";
 
 import { cn } from "@/lib/utils";
@@ -12,12 +14,17 @@ const BARS = [
   { x: 13.5, height: 15, delay: "0s" },
 ] as const;
 
-const PLACEMENT = {
-  corner:
-    "bottom-4 right-4 h-14 w-14 rounded-full hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:bottom-6 sm:right-6",
-  edge:
-    "right-0 top-1/2 h-28 w-9 -translate-y-1/2 flex-col gap-2 rounded-l-xl",
-} as const;
+const CORNER =
+  "bottom-4 right-4 h-14 w-14 rounded-full hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:bottom-6 sm:right-6";
+
+function Glow() {
+  return (
+    <>
+      <span aria-hidden className="vz-ai-halo" />
+      <span aria-hidden className="vz-ai-ring" />
+    </>
+  );
+}
 
 function ChartGlyph() {
   return (
@@ -46,12 +53,26 @@ export const AssistantLauncher = forwardRef<
     label: string;
     busy?: boolean;
     onClick: () => void;
-    placement?: keyof typeof PLACEMENT;
+    placement?: "corner" | "edge";
     tabLabel?: string;
     className?: string;
   }
 >(function AssistantLauncher({ label, busy = false, onClick, placement = "corner", tabLabel, className }, ref) {
-  const edge = placement === "edge";
+  if (placement === "edge") {
+    return (
+      <EdgeTab
+        ref={ref}
+        slot="upper"
+        label={label}
+        tabLabel={tabLabel ?? ""}
+        icon={<EloMark className="h-5 w-5 text-foreground" />}
+        onClick={onClick}
+        decoration={<Glow />}
+        dataBusy={busy}
+        className={cn("vz-ai-launcher", className)}
+      />
+    );
+  }
   return (
     <button
       ref={ref}
@@ -61,25 +82,16 @@ export const AssistantLauncher = forwardRef<
       data-busy={busy}
       className={cn(
         "vz-ai-launcher group fixed z-[60] flex items-center justify-center bg-card text-primary shadow-lg transition-transform duration-200 ease-[cubic-bezier(0.2,0,0,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        PLACEMENT[placement],
+        CORNER,
         className,
       )}
     >
-      <span aria-hidden className="vz-ai-halo" />
-      <span aria-hidden className="vz-ai-ring" />
+      <Glow />
       <span aria-hidden className="absolute inset-0 rounded-[inherit] border border-border-strong bg-card" />
-      {edge ? <EloMark className="relative h-5 w-5 text-foreground" /> : <ChartGlyph />}
-      {edge && tabLabel ? (
-        <span aria-hidden className="relative whitespace-nowrap text-2xs font-semibold text-foreground [writing-mode:vertical-rl]">
-          {tabLabel}
-        </span>
-      ) : null}
+      <ChartGlyph />
       <span
         aria-hidden
-        className={cn(
-          "pointer-events-none absolute right-full mr-3 hidden whitespace-nowrap rounded-md border border-border bg-popover px-2.5 py-1.5 text-xs font-semibold text-foreground opacity-0 shadow-md transition-[opacity,transform] duration-200 ease-[cubic-bezier(0.2,0,0,1)] group-hover:opacity-100 group-focus-visible:opacity-100 sm:block",
-          edge ? "top-1/2 -translate-y-1/2" : "translate-x-1 group-hover:translate-x-0 group-focus-visible:translate-x-0",
-        )}
+        className="pointer-events-none absolute right-full mr-3 hidden translate-x-1 whitespace-nowrap rounded-md border border-border bg-popover px-2.5 py-1.5 text-xs font-semibold text-foreground opacity-0 shadow-md transition-[opacity,transform] duration-200 ease-[cubic-bezier(0.2,0,0,1)] group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100 sm:block"
       >
         {label}
       </span>

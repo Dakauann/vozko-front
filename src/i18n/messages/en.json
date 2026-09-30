@@ -12278,6 +12278,8 @@
       "displayNameLabel": "Display name (optional)",
       "displayNamePlaceholder": "Sales SP, Collections...",
       "displayNameHint": "How this number appears in the CRM. Ours only: it does not change the WhatsApp profile. Can be set later.",
+      "importHistoryLabel": "Import earlier conversations",
+      "importHistoryHint": "Brings this number's recent conversations into the inbox, already read and without triggering automations. You can change this later in the number's settings.",
       "reconnectTitle": "Reconnect number",
       "reconnecting": "Reconnecting {name}. This number’s conversations and history stay where they are after re-scanning the code."
     },
@@ -12309,6 +12311,8 @@
       "enableAutoMemory": "Memorize lead facts",
       "handleGroups": "Attend groups",
       "groupsHint": "When off, groups stay visible in the inbox but get no automatic reply.",
+      "importHistory": "Import history on connect",
+      "importHistoryHint": "When connecting, brings recent WhatsApp conversations into the inbox, already read and without triggering automations. When off, only new messages arrive.",
       "modeLabel": "Who attends",
       "modeAgent": "Agent",
       "modeWorkflow": "Workflow",
@@ -14786,7 +14790,8 @@
       "waitingSlot": "Waiting for a line",
       "endCall": "Hang up",
       "mute": "Mute microphone",
-      "unmute": "Unmute microphone"
+      "unmute": "Unmute microphone",
+      "title": "Call"
     },
     "incoming": {
       "title": "Incoming call · {channel}",
@@ -14848,7 +14853,9 @@
         "insufficient_balance": "Not enough balance to call.",
         "already_in_call": "You are already on a call.",
         "dial_failed": "The call could not be started."
-      }
+      },
+      "tabIncoming": "Incoming",
+      "tabRinging": "Calling"
     },
     "dragHint": "Drag to move, double-click to put it back",
     "assistantCard": {
@@ -14896,6 +14903,7 @@
       },
       "errors": {
         "target_unavailable": "That colleague isn't free to answer right now.",
+        "conversation_out_of_reach": "This conversation can't be passed to that colleague.",
         "transfer_to_self": "You can't transfer a call to yourself.",
         "transfer_in_progress": "This call is already being transferred.",
         "queue_not_found": "That queue no longer exists.",
@@ -14990,7 +14998,7 @@
       "stunHint": "For servers behind NAT without a fixed public address.",
       "publicAddress": "Public address",
       "inboundSources": "Allowed sources for incoming calls",
-      "inboundSourcesHint": "One IP or range (CIDR) per line, in addition to the provider's own server.",
+      "inboundSourcesHint": "One IP or range (CIDR, at most /16 for IPv4 and /32 for IPv6) per line, in addition to the provider's own server.",
       "cancel": "Cancel",
       "save": "Save",
       "saving": "Saving…",

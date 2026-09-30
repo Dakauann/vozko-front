@@ -10773,6 +10773,8 @@
       "displayNameLabel": "Nombre para mostrar (opcional)",
       "displayNamePlaceholder": "Comercial SP, Cobranzas...",
       "displayNameHint": "Cómo aparece este número en el CRM. Solo nuestro: no cambia el perfil de WhatsApp. Se puede definir después.",
+      "importHistoryLabel": "Importar conversaciones anteriores",
+      "importHistoryHint": "Trae las conversaciones recientes de este número al inbox, ya leídas y sin activar automatizaciones. Puedes cambiarlo después en la configuración del número.",
       "reconnectTitle": "Reconectar número",
       "reconnecting": "Reconectando {name}. Las conversaciones y el historial de este número permanecen donde estaban tras volver a escanear el código."
     },
@@ -10804,6 +10806,8 @@
       "enableAutoMemory": "Memorizar hechos del lead",
       "handleGroups": "Attend groups",
       "groupsHint": "When off, groups stay visible in the inbox but get no automatic reply.",
+      "importHistory": "Importar historial al conectar",
+      "importHistoryHint": "Al conectar, trae las conversaciones recientes de WhatsApp al inbox, ya leídas y sin activar automatizaciones. Desactivado, solo llegan los mensajes nuevos.",
       "modeLabel": "Quién atiende",
       "modeAgent": "Agente",
       "modeWorkflow": "Automatización",
@@ -13292,7 +13296,8 @@
       "waitingSlot": "Esperando una línea",
       "endCall": "Colgar",
       "mute": "Silenciar micrófono",
-      "unmute": "Activar micrófono"
+      "unmute": "Activar micrófono",
+      "title": "Llamada"
     },
     "incoming": {
       "title": "Llamada entrante · {channel}",
@@ -13354,7 +13359,9 @@
         "insufficient_balance": "Saldo insuficiente para llamar.",
         "already_in_call": "Ya estás en una llamada.",
         "dial_failed": "No se pudo iniciar la llamada."
-      }
+      },
+      "tabIncoming": "Llamada",
+      "tabRinging": "Llamando"
     },
     "dragHint": "Arrastra para mover, doble clic para volver a su lugar",
     "assistantCard": {
@@ -13402,6 +13409,7 @@
       },
       "errors": {
         "target_unavailable": "Ese colega no está libre para atender ahora.",
+        "conversation_out_of_reach": "Esta conversación no se puede pasar a ese colega.",
         "transfer_to_self": "No puedes transferirte una llamada a ti mismo.",
         "transfer_in_progress": "Esta llamada ya se está transfiriendo.",
         "queue_not_found": "La cola ya no existe.",
@@ -13496,7 +13504,7 @@
       "stunHint": "Para servidores detrás de NAT sin dirección pública fija.",
       "publicAddress": "Dirección pública",
       "inboundSources": "Orígenes permitidos para llamadas entrantes",
-      "inboundSourcesHint": "Una IP o rango (CIDR) por línea, además del propio servidor del proveedor.",
+      "inboundSourcesHint": "Una IP o rango (CIDR, como máximo /16 en IPv4 y /32 en IPv6) por línea, además del propio servidor del proveedor.",
       "cancel": "Cancelar",
       "save": "Guardar",
       "saving": "Guardando…",

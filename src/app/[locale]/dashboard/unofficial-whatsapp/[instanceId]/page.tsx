@@ -367,6 +367,11 @@ function ConversationHandlingPanel({
       hint: t("handling.autoMemoryHint"),
     },
     { key: "handleGroups", on: instance.handleGroups, hint: t("automation.groupsHint") },
+    {
+      key: "importHistory",
+      on: instance.importHistory,
+      hint: t("automation.importHistoryHint"),
+    },
   ];
 
   return (

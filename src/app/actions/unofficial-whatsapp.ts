@@ -60,6 +60,7 @@ export async function getInstanceAction(instanceId: string) {
 export async function provisionInstanceAction(payload: {
     displayName?: string;
     departmentId?: string | null;
+    importHistory?: boolean;
 }) {
     const response = await apiClient<UnofficialWhatsAppInstance>(`${BASE}/instances`, {
         method: 'POST',

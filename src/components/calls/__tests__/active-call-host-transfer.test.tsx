@@ -21,7 +21,7 @@ vi.mock("@/app/actions/call-routing", () => ({
 }));
 
 import { ActiveCallHost } from "@/components/calls/active-call-host";
-import { subscribeTransferPanel } from "@/lib/call-session/call-session-control";
+import { setDialerOpen } from "@/lib/call-session/call-session-control";
 
 function whatsAppCall(overrides: Partial<CallSessionApi> = {}) {
   session.value = {
@@ -54,7 +54,7 @@ async function renderWidget() {
 
 describe("ActiveCallHost transfers", () => {
   beforeEach(() => {
-    grants.value = new Set(["call_session:use"]);
+    grants.value = new Set(["call_session:use", "call_session:transfer"]);
     whatsAppCall();
   });
 
@@ -66,15 +66,37 @@ describe("ActiveCallHost transfers", () => {
     expect(session.value.transferCall).toHaveBeenCalledWith({ kind: "member", userId: "u2" }, "");
   });
 
-  it("hands the transfer to the dialer when the operator has one", async () => {
-    grants.value = new Set(["call_session:use", "sip_trunks:call"]);
-    const opened = vi.fn();
-    const unsubscribe = subscribeTransferPanel(opened);
+  it("shows the same call view as the dialer, whatever the operator's permissions", async () => {
+    grants.value = new Set(["call_session:use", "call_session:transfer", "sip_trunks:call"]);
+    whatsAppCall({
+      callState: {
+        callId: "wa-in-1",
+        phoneNumber: "5584994409684",
+        status: "answered",
+        answeredAt: Date.now(),
+        transferredBy: { fromName: "Ana", notes: "quer cancelar" },
+      },
+    });
     await renderWidget();
-    fireEvent.click(screen.getByRole("button", { name: "Transferir" }));
-    expect(opened).toHaveBeenCalled();
-    expect(screen.queryByRole("button", { name: "Transferir para o colega" })).toBeNull();
-    unsubscribe();
+    expect(screen.getByRole("heading", { name: "Ligação" })).toBeTruthy();
+    expect(screen.getByText("Transferida por Ana")).toBeTruthy();
+    expect(screen.getByText("quer cancelar")).toBeTruthy();
+    for (const name of [/Silenciar/, /^Transferir$/, /Desligar/]) {
+      expect(screen.getByRole("button", { name })).toBeTruthy();
+    }
+  });
+
+  it("stays out of the way while the dialer is open", async () => {
+    setDialerOpen(true);
+    await renderWidget();
+    expect(screen.queryByRole("heading", { name: "Ligação" })).toBeNull();
+    setDialerOpen(false);
+  });
+
+  it("offers no transfer to someone not allowed to transfer calls", async () => {
+    grants.value = new Set(["call_session:use"]);
+    await renderWidget();
+    expect(screen.queryByRole("button", { name: "Transferir" })).toBeNull();
   });
 
   it("tells the operator a transfer came back or was refused", async () => {

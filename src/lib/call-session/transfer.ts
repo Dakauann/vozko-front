@@ -105,6 +105,7 @@ export function availableColleagues(presence: PresenceEntry[], selfUserId: strin
 
 export const TRANSFER_ERROR_CODES = [
     "target_unavailable",
+    "conversation_out_of_reach",
     "transfer_to_self",
     "transfer_in_progress",
     "queue_not_found",

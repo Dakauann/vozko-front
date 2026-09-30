@@ -12329,6 +12329,8 @@
       "displayNameLabel": "Nome de exibição (opcional)",
       "displayNamePlaceholder": "Comercial SP, Cobrança...",
       "displayNameHint": "Como este número aparece no CRM. Só nosso: não altera o perfil do WhatsApp. Pode ser definido depois.",
+      "importHistoryLabel": "Importar conversas anteriores",
+      "importHistoryHint": "Traz as conversas recentes deste número para o inbox, já lidas e sem acionar automações. Pode ser alterado depois nas configurações do número.",
       "reconnectTitle": "Reconectar número",
       "reconnecting": "Reconectando {name}. As conversas e o histórico deste número continuam onde estavam após a releitura do código."
     },
@@ -12360,6 +12362,8 @@
       "enableAutoMemory": "Memorizar fatos do lead",
       "handleGroups": "Atender grupos",
       "groupsHint": "Desativado, grupos ficam visíveis no inbox mas sem resposta automática.",
+      "importHistory": "Importar histórico ao conectar",
+      "importHistoryHint": "Ao conectar, traz as conversas recentes do WhatsApp para o inbox, já lidas e sem acionar automações. Desativado, só chegam as mensagens novas.",
       "modeLabel": "Quem atende",
       "modeAgent": "Agente",
       "modeWorkflow": "Automação",
@@ -14837,7 +14841,8 @@
       "waitingSlot": "Aguardando uma linha",
       "endCall": "Desligar",
       "mute": "Silenciar microfone",
-      "unmute": "Ativar microfone"
+      "unmute": "Ativar microfone",
+      "title": "Ligação"
     },
     "incoming": {
       "title": "Chamada recebida · {channel}",
@@ -14899,7 +14904,9 @@
         "insufficient_balance": "Saldo insuficiente para ligar.",
         "already_in_call": "Você já está em uma chamada.",
         "dial_failed": "Não foi possível iniciar a chamada."
-      }
+      },
+      "tabIncoming": "Chamada",
+      "tabRinging": "Chamando"
     },
     "dragHint": "Arraste para mover, clique duas vezes para voltar ao lugar",
     "assistantCard": {
@@ -14947,6 +14954,7 @@
       },
       "errors": {
         "target_unavailable": "Esse colega não está livre para atender agora.",
+        "conversation_out_of_reach": "Essa conversa não pode ser passada para esse colega.",
         "transfer_to_self": "Você não pode transferir para você mesmo.",
         "transfer_in_progress": "Esta ligação já está sendo transferida.",
         "queue_not_found": "A fila não existe mais.",
@@ -15041,7 +15049,7 @@
       "stunHint": "Para servidores atrás de NAT sem endereço público fixo.",
       "publicAddress": "Endereço público",
       "inboundSources": "Origens permitidas para chamadas recebidas",
-      "inboundSourcesHint": "Um IP ou faixa (CIDR) por linha, além do próprio servidor do provedor.",
+      "inboundSourcesHint": "Um IP ou faixa (CIDR, no máximo /16 no IPv4 e /32 no IPv6) por linha, além do próprio servidor do provedor.",
       "cancel": "Cancelar",
       "save": "Salvar",
       "saving": "Salvando…",
